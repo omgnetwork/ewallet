@@ -58,6 +58,9 @@ defmodule AdminAPI.V1.ProviderAuth.TokenControllerTest do
       assert Enum.at(tokens, 1)["symbol"] == "XYZ2"
       assert Enum.at(tokens, 2)["symbol"] == "XYZ1"
     end
+
+    test_supports_match_any("/token.all", :provider_auth, :token, :name)
+    test_supports_match_all("/token.all", :provider_auth, :token, :name)
   end
 
   describe "/token.get" do

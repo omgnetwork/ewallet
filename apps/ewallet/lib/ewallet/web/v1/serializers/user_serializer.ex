@@ -11,6 +11,13 @@ defmodule EWallet.Web.V1.UserSerializer do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
 
+  def serialize(users) when is_list(users) do
+    %{
+      object: "list",
+      data: Enum.map(users, &serialize/1)
+    }
+  end
+
   def serialize(%User{} = user) do
     %{
       object: "user",
@@ -32,4 +39,12 @@ defmodule EWallet.Web.V1.UserSerializer do
 
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
+
+  def serialize(%NotLoaded{}, _), do: nil
+
+  def serialize(users, :id) when is_list(users) do
+    Enum.map(users, fn user -> user.id end)
+  end
+
+  def serialize(nil, _), do: nil
 end
