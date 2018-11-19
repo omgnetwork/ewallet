@@ -16,6 +16,11 @@ export function createSearchInviteQuery (value = '') {
         field: 'user.email',
         comparator: 'contains',
         value: matchValue
+      },
+      {
+        field: 'role.name',
+        comparator: 'contains',
+        value: matchValue
       }
     ]
   }
