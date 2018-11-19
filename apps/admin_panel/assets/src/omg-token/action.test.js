@@ -65,14 +65,15 @@ describe('token actions', () => {
       }
     ]
     return store
-      .dispatch(getMintedTokenHistory({ page: 1, perPage: 10, cacheKey: 'key', search: 'search' }))
+      .dispatch(getMintedTokenHistory({ page: 1, perPage: 10, cacheKey: 'key', matchAll: [], matchAny: [] }))
       .then(() => {
         expect(tokenService.getMintedTokenHistory).toBeCalledWith(
           expect.objectContaining({
             page: 1,
             perPage: 10,
             sort: { by: 'created_at', dir: 'desc' },
-            search: 'search'
+            matchAll: [],
+            matchAny: []
           })
         )
         expect(store.getActions()).toEqual(expectedActions)
@@ -98,14 +99,15 @@ describe('token actions', () => {
       }
     ]
     return store
-      .dispatch(getTokens({ page: 1, perPage: 10, cacheKey: 'key', search: 'search' }))
+      .dispatch(getTokens({ page: 1, perPage: 10, cacheKey: 'key', matchAll: [], matchAny: [] }))
       .then(() => {
         expect(tokenService.getAllTokens).toBeCalledWith(
           expect.objectContaining({
             page: 1,
             perPage: 10,
             sort: { by: 'created_at', dir: 'desc' },
-            search: 'search'
+            matchAll: [],
+            matchAny: []
           })
         )
         expect(store.getActions()).toEqual(expectedActions)
