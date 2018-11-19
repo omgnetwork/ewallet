@@ -35,6 +35,63 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
              }
     end
 
+    test "serializes a list of accounts into a list object" do
+      account1 = :account |> insert() |> Repo.preload([:parent, :categories])
+      account2 = :account |> insert() |> Repo.preload([:parent, :categories])
+
+      accounts = [account1, account2]
+
+      expected = %{
+        object: "list",
+        data: [
+          %{
+            object: "account",
+            id: account1.id,
+            socket_topic: "account:#{account1.id}",
+            parent_id: nil,
+            name: account1.name,
+            description: account1.description,
+            master: Account.master?(account1),
+            category_ids: CategorySerializer.serialize(account1.categories, :id),
+            categories: CategorySerializer.serialize(account1.categories),
+            metadata: %{},
+            encrypted_metadata: %{},
+            avatar: %{
+              original: nil,
+              large: nil,
+              small: nil,
+              thumb: nil
+            },
+            created_at: Date.to_iso8601(account1.inserted_at),
+            updated_at: Date.to_iso8601(account1.updated_at)
+          },
+          %{
+            object: "account",
+            id: account2.id,
+            socket_topic: "account:#{account2.id}",
+            parent_id: account2.parent.id,
+            name: account2.name,
+            description: account2.description,
+            master: Account.master?(account2),
+            category_ids: CategorySerializer.serialize(account2.categories, :id),
+            categories: CategorySerializer.serialize(account2.categories),
+            metadata: %{},
+            encrypted_metadata: %{},
+            avatar: %{
+              original: nil,
+              large: nil,
+              small: nil,
+              thumb: nil
+            },
+            created_at: Date.to_iso8601(account2.inserted_at),
+            updated_at: Date.to_iso8601(account2.updated_at)
+          }
+        ]
+      }
+
+      assert AccountSerializer.serialize(accounts) == expected
+    end
+
     test "serializes an account paginator into a list object" do
       account1 = :account |> insert() |> Repo.preload([:parent, :categories])
       account2 = :account |> insert() |> Repo.preload([:parent, :categories])

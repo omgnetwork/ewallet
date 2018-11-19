@@ -42,6 +42,9 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert Enum.at(categories, 1)["name"] == "Matched 2"
       assert Enum.at(categories, 2)["name"] == "Matched 1"
     end
+
+    test_supports_match_any("/category.all", :admin_auth, :category, :name)
+    test_supports_match_all("/category.all", :admin_auth, :category, :name)
   end
 
   describe "/category.get" do
@@ -205,6 +208,27 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
                  "data" => %{
                    "code" => "category:id_not_found",
                    "description" => "There is no category corresponding to the provided id.",
+                   "messages" => nil,
+                   "object" => "error"
+                 }
+               }
+    end
+
+    test "responds with an error if the user is not authorized to delete the category" do
+      category = insert(:category)
+      auth_token = insert(:auth_token, owner_app: "admin_api")
+
+      attrs = %{id: category.id}
+      opts = [user_id: auth_token.user.id, auth_token: auth_token.token]
+      response = admin_user_request("/category.delete", attrs, opts)
+
+      assert response ==
+               %{
+                 "version" => "1",
+                 "success" => false,
+                 "data" => %{
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation.",
                    "messages" => nil,
                    "object" => "error"
                  }
