@@ -11,6 +11,11 @@ export function createSearchAddressQuery (value = '') {
         field: 'account.name',
         comparator: 'contains',
         value: matchValue
+      },
+      {
+        field: 'name',
+        comparator: 'contains',
+        value: matchValue
       }
     ]
   }

@@ -8,6 +8,11 @@ export function createSearchTokenQuery (value = '') {
         value: matchValue
       },
       {
+        field: 'name',
+        comparator: 'contains',
+        value: matchValue
+      },
+      {
         field: 'symbol',
         comparator: 'contains',
         value: matchValue
