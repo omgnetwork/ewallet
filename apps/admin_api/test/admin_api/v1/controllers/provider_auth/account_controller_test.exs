@@ -41,6 +41,9 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
       assert Enum.at(accounts, 1)["name"] == "Matched 2"
       assert Enum.at(accounts, 2)["name"] == "Matched 1"
     end
+
+    test_supports_match_any("/account.all", :provider_auth, :account, :name)
+    test_supports_match_all("/account.all", :provider_auth, :account, :name)
   end
 
   describe "/account.get" do

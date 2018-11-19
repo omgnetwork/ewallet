@@ -261,6 +261,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_7.id end)
       assert Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_8.id end)
     end
+
+    test_supports_match_any("/transaction.all", :provider_auth, :transaction, :idempotency_token)
+    test_supports_match_all("/transaction.all", :provider_auth, :transaction, :idempotency_token)
   end
 
   describe "/account.get_transactions" do
