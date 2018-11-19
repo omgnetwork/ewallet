@@ -1,4 +1,4 @@
-defmodule AdminAPI.UpdateEmailEmail do
+defmodule AdminAPI.UpdateEmailAddressEmail do
   @moduledoc """
   The module that generates the email template for updating the email.
   """

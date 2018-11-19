@@ -1,6 +1,6 @@
-defmodule AdminAPI.UpdateEmailEmailTest do
+defmodule AdminAPI.UpdateEmailAddressEmailTest do
   use AdminAPI.ConnCase
-  alias AdminAPI.UpdateEmailEmail
+  alias AdminAPI.UpdateEmailAddressEmail
   alias EWalletDB.UpdateEmailRequest
 
   defp create_email(email_address, token) do
@@ -10,7 +10,7 @@ defmodule AdminAPI.UpdateEmailEmailTest do
       insert(:update_email_request, email: email_address, token: token, user_uuid: user.uuid)
 
     request = UpdateEmailRequest.get(email_address, token)
-    email = UpdateEmailEmail.create(request, "https://reset_url/?email={email}&token={token}")
+    email = UpdateEmailAddressEmail.create(request, "https://reset_url/?email={email}&token={token}")
 
     email
   end

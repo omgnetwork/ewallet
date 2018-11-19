@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
   use AdminAPI.ConnCase, async: true
   use Bamboo.Test
-  alias AdminAPI.UpdateEmailEmail
+  alias AdminAPI.UpdateEmailAddressEmail
   alias EWalletDB.{UpdateEmailRequest, Repo, User}
 
   @redirect_url "http://localhost:4000/update_email?email={email}&token={token}"
@@ -36,7 +36,7 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
         |> Repo.preload(:user)
 
       assert response["success"]
-      assert_delivered_email(UpdateEmailEmail.create(request, @redirect_url))
+      assert_delivered_email(UpdateEmailAddressEmail.create(request, @redirect_url))
     end
 
     test "returns client:invalid_parameter error if the redirect_url is not allowed" do
