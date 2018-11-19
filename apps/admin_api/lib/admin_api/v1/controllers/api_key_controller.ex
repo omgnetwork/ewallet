@@ -72,7 +72,7 @@ defmodule AdminAPI.V1.APIKeyController do
   Update an API key.
   """
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def enable_or_disable(conn, %{"id" => id} = attrs) do
+  def enable_or_disable(conn, %{"id" => id, "enabled" => _} = attrs) do
     with :ok <- permit(:enable_or_disable, conn.assigns, id),
          %APIKey{} = api_key <- APIKey.get(id) || {:error, :api_key_not_found},
          {:ok, api_key} <- APIKey.enable_or_disable(api_key, attrs),
@@ -88,7 +88,7 @@ defmodule AdminAPI.V1.APIKeyController do
   end
 
   def enable_or_disable(conn, _attrs) do
-    handle_error(conn, :invalid_parameter, "`id` is required")
+    handle_error(conn, :invalid_parameter, "`id` and `enabled` are required")
   end
 
   @doc """

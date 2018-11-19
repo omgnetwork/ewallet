@@ -77,7 +77,7 @@ defmodule AdminAPI.V1.KeyController do
   Enable or disable a key.
   """
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def enable_or_disable(conn, %{"id" => id} = attrs) do
+  def enable_or_disable(conn, %{"id" => id, "enabled" => _} = attrs) do
     with :ok <- permit(:enable_or_disable, conn.assigns, id),
          %Key{} = key <- Key.get(id) || {:error, :key_not_found},
          {:ok, key} <- Key.enable_or_disable(key, attrs),
@@ -93,7 +93,7 @@ defmodule AdminAPI.V1.KeyController do
   end
 
   def enable_or_disable(conn, _attrs) do
-    handle_error(conn, :invalid_parameter, "`id` is required")
+    handle_error(conn, :invalid_parameter, "`id` and `enabled` are required")
   end
 
   @doc """
