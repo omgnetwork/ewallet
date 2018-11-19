@@ -44,7 +44,7 @@ defmodule EWallet.Web.V1.InviteOverlay do
       verified_at: nil,
       inserted_at: nil,
       updated_at: nil,
-      user: UserOverlay.self_filter_fields()
+      user: UserOverlay.default_preload_assocs()
     ]
 
 end
