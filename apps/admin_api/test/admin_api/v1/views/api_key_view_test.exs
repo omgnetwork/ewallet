@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.APIKeyViewTest do
           account_id: api_key.account.id,
           owner_app: api_key.owner_app,
           expired: false,
+          enabled: true,
           created_at: Date.to_iso8601(api_key.inserted_at),
           updated_at: Date.to_iso8601(api_key.updated_at),
           deleted_at: Date.to_iso8601(api_key.deleted_at)
@@ -53,6 +54,7 @@ defmodule AdminAPI.V1.APIKeyViewTest do
               account_id: api_key1.account.id,
               owner_app: api_key1.owner_app,
               expired: false,
+              enabled: true,
               created_at: Date.to_iso8601(api_key1.inserted_at),
               updated_at: Date.to_iso8601(api_key1.updated_at),
               deleted_at: Date.to_iso8601(api_key1.deleted_at)
@@ -64,6 +66,7 @@ defmodule AdminAPI.V1.APIKeyViewTest do
               account_id: api_key2.account.id,
               owner_app: api_key2.owner_app,
               expired: false,
+              enabled: true,
               created_at: Date.to_iso8601(api_key2.inserted_at),
               updated_at: Date.to_iso8601(api_key2.updated_at),
               deleted_at: Date.to_iso8601(api_key2.deleted_at)

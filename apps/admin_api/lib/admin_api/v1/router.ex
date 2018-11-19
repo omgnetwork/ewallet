@@ -122,11 +122,14 @@ defmodule AdminAPI.V1.Router do
     # API Access endpoints
     post("/access_key.all", KeyController, :all)
     post("/access_key.create", KeyController, :create)
+    post("/access_key.enable_or_disable", KeyController, :enable_or_disable)
+    # Deprecated
     post("/access_key.update", KeyController, :update)
     post("/access_key.delete", KeyController, :delete)
 
     post("/api_key.all", APIKeyController, :all)
     post("/api_key.create", APIKeyController, :create)
+    post("/api_key.enable_or_disable", APIKeyController, :enable_or_disable)
     post("/api_key.update", APIKeyController, :update)
     post("/api_key.delete", APIKeyController, :delete)
 

@@ -18,7 +18,9 @@ defmodule EWallet.Web.V1.KeySerializer do
       access_key: key.access_key,
       secret_key: key.secret_key,
       account_id: key.account.id,
-      expired: key.expired,
+      # To remove when deprecated
+      expired: !key.enabled,
+      enabled: key.enabled,
       created_at: Date.to_iso8601(key.inserted_at),
       updated_at: Date.to_iso8601(key.updated_at),
       deleted_at: Date.to_iso8601(key.deleted_at)
