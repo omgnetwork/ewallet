@@ -7,8 +7,7 @@ defmodule EWallet.UpdateEmailGateTest do
     test "returns {:ok, request} with the user's email unchanged" do
       admin = insert(:admin, email: "test.update.email.gate@example.com")
 
-      {res, request} =
-        UpdateEmailGate.update(admin, "test.update.email.gate2@example.com")
+      {res, request} = UpdateEmailGate.update(admin, "test.update.email.gate2@example.com")
 
       assert res == :ok
       assert %UpdateEmailRequest{} = request
@@ -26,8 +25,7 @@ defmodule EWallet.UpdateEmailGateTest do
       assert UpdateEmailRequest.get(request_2.email, request_2.token).enabled
       assert UpdateEmailRequest.get(request_3.email, request_3.token).enabled
 
-      {:ok, _request} =
-        UpdateEmailGate.update(admin, "test.update.email.gate2@example.com")
+      {:ok, _request} = UpdateEmailGate.update(admin, "test.update.email.gate2@example.com")
 
       assert UpdateEmailRequest.get(request_1.email, request_1.token) == nil
       assert UpdateEmailRequest.get(request_2.email, request_2.token) != nil
@@ -38,8 +36,7 @@ defmodule EWallet.UpdateEmailGateTest do
       admin = insert(:admin)
       another_admin = insert(:admin)
 
-      {res, code} =
-        UpdateEmailGate.update(admin, another_admin.email)
+      {res, code} = UpdateEmailGate.update(admin, another_admin.email)
 
       assert res == :error
       assert code == :email_already_exists

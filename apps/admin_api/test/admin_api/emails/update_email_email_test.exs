@@ -10,7 +10,9 @@ defmodule AdminAPI.UpdateEmailAddressEmailTest do
       insert(:update_email_request, email: email_address, token: token, user_uuid: user.uuid)
 
     request = UpdateEmailRequest.get(email_address, token)
-    email = UpdateEmailAddressEmail.create(request, "https://reset_url/?email={email}&token={token}")
+
+    email =
+      UpdateEmailAddressEmail.create(request, "https://reset_url/?email={email}&token={token}")
 
     email
   end
