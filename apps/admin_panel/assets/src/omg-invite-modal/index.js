@@ -99,7 +99,7 @@ class InviteModal extends Component {
           accountId,
           redirectUrl: window.location.href.replace(this.props.location.pathname, '/invite/')
         })
-        if (result.data.success) {
+        if (result.data) {
           this.props.getListMembers(accountId)
           this.setState({ submitStatus: 'SUCCESS' })
           this.props.history.push(`/${this.props.match.params.accountId}/setting/members`)

@@ -33,6 +33,7 @@ const AccountSettingContainer = styled.div`
     padding-bottom: 5px;
     display: block;
   }
+  padding-bottom: 50px;
 `
 const ProfileSection = styled.div`
   padding-top: 40px;
@@ -61,6 +62,7 @@ const TableSection = styled.div`
   flex: 1 1 auto;
   text-align: right;
   margin-top: -26px;
+  
   table {
     padding-top: 0;
     text-align: left;
@@ -249,7 +251,6 @@ class AccountSettingPage extends Component {
                 loadingStatus={loadingStatus}
                 loadingRowNumber={7}
                 rowRenderer={this.rowRenderer}
-                navigation={false}
               />
             )
           }}

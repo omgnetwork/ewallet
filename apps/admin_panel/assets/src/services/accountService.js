@@ -82,15 +82,17 @@ export function unassignMember ({ userId, accountId }) {
   })
 }
 
-export function listMembers ({ accountId, matchAll, matchAny, page, perPage }) {
+export function listMembers ({ accountId, matchAll, matchAny, page, perPage, sort }) {
   return authenticatedRequest({
     path: '/account.get_members',
     data: {
       id: accountId,
-      page,
+      page: Number(page) || 1,
       per_page: perPage,
       match_all: matchAll,
-      match_any: matchAny
+      match_any: matchAny,
+      sort_by: sort.by,
+      sort_dir: sort.dir
     }
   })
 }

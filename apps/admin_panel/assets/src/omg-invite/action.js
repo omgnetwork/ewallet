@@ -25,7 +25,8 @@ export const getListMembers = ({ accountId, page, perPage, matchAll, matchAny, c
         page,
         perPage,
         matchAll,
-        matchAny
+        matchAny,
+        sort: { by: 'created_at', dir: 'desc' }
       }),
     cacheKey
   })
