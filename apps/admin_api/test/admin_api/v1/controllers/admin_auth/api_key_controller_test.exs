@@ -202,6 +202,29 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
       assert response["data"]["enabled"] == false
     end
 
+    test "disabling an API key twice doesn't re-enable it" do
+      api_key = :api_key |> insert() |> Repo.preload(:account)
+      assert api_key.enabled == true
+
+      response =
+        admin_user_request("/api_key.enable_or_disable", %{
+          id: api_key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["enabled"] == false
+
+      response =
+        admin_user_request("/api_key.enable_or_disable", %{
+          id: api_key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["enabled"] == false
+    end
+
     test "enables the API key" do
       api_key = :api_key |> insert(enabled: false) |> Repo.preload(:account)
       assert api_key.enabled == false

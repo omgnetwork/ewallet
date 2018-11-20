@@ -139,6 +139,29 @@ defmodule AdminAPI.V1.AdminAuth.KeyControllerTest do
       assert response["data"]["enabled"] == false
     end
 
+    test "disabling a key twice doesn't re-enable it" do
+      key = insert(:key)
+      assert key.enabled == true
+
+      response =
+        admin_user_request("/access_key.enable_or_disable", %{
+          id: key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["enabled"] == false
+
+      response =
+        admin_user_request("/access_key.enable_or_disable", %{
+          id: key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["enabled"] == false
+    end
+
     test "enables the key" do
       key = insert(:key, enabled: false)
       assert key.enabled == false

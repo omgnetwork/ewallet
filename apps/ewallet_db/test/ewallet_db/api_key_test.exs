@@ -80,6 +80,17 @@ defmodule EWalletDB.APIKeyTest do
       assert updated.enabled == false
     end
 
+    test "disabling an api key twice doesn't re-enable it" do
+      {:ok, key} = APIKey.insert(params_for(:api_key))
+      assert key.enabled == true
+
+      {:ok, updated1} = APIKey.enable_or_disable(key, %{enabled: false})
+      assert updated1.enabled == false
+
+      {:ok, updated2} = APIKey.enable_or_disable(key, %{enabled: false})
+      assert updated2.enabled == false
+    end
+
     test "enable an api key successfuly" do
       {:ok, key} = APIKey.insert(params_for(:api_key, %{enabled: false}))
       assert key.enabled == false
