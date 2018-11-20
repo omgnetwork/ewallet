@@ -65,6 +65,8 @@ tags:
     description: Resources related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
   - name: TransactionConsumption
     description: Resources related to consumption of transaction requests.
+  - name: Configuration
+    description: Resources related to the configuration of the eWallet.
   - name: API Access
     description: Resources related to API access.
 servers:
@@ -151,7 +153,6 @@ paths:
           $ref: "#/components/responses/EmptyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
   ######################################
   #            ROLE ENDPOINTS          #
   ######################################
@@ -844,6 +845,22 @@ paths:
           $ref: "#/components/responses/AdminResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /admin.enable_or_disable:
+    post:
+      tags:
+        - Admin
+      summary: Enable or disable an existing admin.
+      operationId: admin_user_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AdminToggleStatusBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   /invite.accept:
     post:
       tags:
@@ -857,7 +874,6 @@ paths:
           $ref: "#/components/responses/UserResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
   #####################################
   #    CURRENT ADMIN USER ENDPOINTS   #
   #####################################
@@ -1045,8 +1061,22 @@ paths:
           $ref: "#/components/responses/TransactionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
-
+  /user.enable_or_disable:
+    post:
+      tags:
+        - User
+      summary: Enable or disable an existing user.
+      operationId: user_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserToggleStatusBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   #####################################
   #        WALLET ENDPOINTS          #
   #####################################
@@ -1418,11 +1448,28 @@ paths:
         - API Access
       summary: Update a pair of access and secret keys by its id
       operationId: access_key_update
+      deprecated: true
       security:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccessKeyUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AccessKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /access_key.enable_or_disable:
+    post:
+      tags:
+        - API Access
+      summary: Enable or disable an existing access key
+      operationId: access_key_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AccessKeyToggleStatusBody'
       responses:
         '200':
           $ref: "#/components/responses/AccessKeyResponse"
@@ -1480,11 +1527,28 @@ paths:
         - API Access
       summary: Update an API key
       operationId: api_key_update
+      deprecated: true
       security:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/APIKeyUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/APIKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /api_key.enable_or_disable:
+    post:
+      tags:
+        - API Access
+      summary: Enable or disable an existing api key
+      operationId: api_key_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/APIKeyToggleStatusBody'
       responses:
         '200':
           $ref: "#/components/responses/APIKeyResponse"
@@ -1508,20 +1572,38 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
   ######################################
-  #          SETTINGS ENDPOINTS        #
+  #      CONFIGURATION ENDPOINTS       #
   ######################################
-  /settings.all:
+  /configuration.get:
     post:
       tags:
-        - Setting
-      summary: Get the global settings.
-      operationId: settings_all
+        - Configuration
+      summary: Get the application configuration.
+      operationId: configuration_get
       security:
         - ProviderAuth: []
         - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConfigurationGetBody'
       responses:
         '200':
-          $ref: "#/components/responses/SettingResponse"
+          $ref: "#/components/responses/ConfigurationGetResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /configuration.update:
+    post:
+      tags:
+        - Configuration
+      summary: Update the configuration settings
+      operationId: configuration_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConfigurationUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/ConfigurationUpdateResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -1851,7 +1933,7 @@ components:
               is_last_page: true
 
     ######################################
-    #         TOKEN SCHEMAS       #
+    #            TOKEN SCHEMAS           #
     ######################################
     TokenSchema:
       description: "The object schema for a token"
@@ -2468,6 +2550,8 @@ components:
         email:
           type: string
           format: email
+        enabled:
+          type: boolean
         metadata:
           type: object
         encrypted_metadata:
@@ -2498,6 +2582,7 @@ components:
         full_name: "John Doe"
         calling_name: "John"
         email: "johndoe@omise.co"
+        enabled: true
         metadata: {"first_name": "John", "last_name": "Doe"}
         encrypted_metadata: {"something": "secret"}
         avatar: {"original": "file_url"}
@@ -2524,6 +2609,8 @@ components:
         email:
           type: string
           format: email
+        enabled:
+          type: boolean
         metadata:
           type: object
         encrypted_metadata:
@@ -2549,6 +2636,7 @@ components:
         full_name: "John Doe"
         calling_name: "John"
         email: "johndoe@omise.co"
+        enabled: true
         metadata: {"first_name": "John", "last_name": "Doe"}
         encrypted_metadata: {"something": "secret"}
         avatar: {"original": "file_url"}
@@ -2574,6 +2662,7 @@ components:
             full_name: "John Doe"
             calling_name: "John"
             email: "johndoe@omise.co"
+            enabled: true
             metadata: {"first_name": "John", "last_name": "Doe"}
             encrypted_metadata: {"something": "secret"}
             created_at: "2018-01-01T00:00:00Z"
@@ -2610,6 +2699,7 @@ components:
                 calling_name: "John"
                 email: "johndoe@omise.co"
                 metadata: {"first_name": "John", "last_name": "Doe"}
+                enabled: true
                 encrypted_metadata: {"something": "secret"}
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -2651,6 +2741,7 @@ components:
                 full_name: "John Doe"
                 calling_name: "John"
                 email: "johndoe@omise.co"
+                enabled: true
                 metadata: {"first_name": "John", "last_name": "Doe"}
                 encrypted_metadata: {"something": "secret"}
                 created_at: "2018-01-01T00:00:00Z"
@@ -2865,6 +2956,7 @@ components:
             full_name: "John Doe"
             calling_name: "John"
             email: "johndoe@omise.co"
+            enabled: true
             metadata: {"first_name": "John", "last_name": "Doe"}
             encrypted_metadata: {"something": "secret"}
             avatar: {"original": "file_url"}
@@ -3534,40 +3626,144 @@ components:
             expired_at: null
 
     ######################################
-    #           SETTING SCHEMAS          #
+    #       CONFIGURATION SCHEMAS        #
     ######################################
-    SettingResponse:
-      description: "The response schema for settings"
+    SettingSchema:
+      description: "The object schema for a configuration setting"
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        key:
+          type: string
+        value:
+          type: object
+        type:
+          type: string
+        description:
+          type: string
+        options:
+          type: array
+          items:
+            type: object
+        parent:
+          type: string
+        parent_value:
+          type: object
+        secret:
+          type: boolean
+        position:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - object
+        - id
+        - key
+        - value
+        - type
+        - description
+        - options
+        - parent
+        - parent_value
+        - secret
+        - position
+        - created_at
+        - updated_at
+        - deleted_at
+
+    ConfigurationResponseSchema:
+      description: "The response schema for a list of configuration settings"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
         properties:
           data:
             type: object
-            properties:
-              object:
-                type: string
-              tokens:
-                type: array
-                items:
-                 $ref: '#/components/schemas/TokenSchema'
-            required:
-              - object
-              - tokens
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SettingSchema'
+        required:
+          - data
         example:
+          version: "1"
+          success: true
           data:
-            object: "setting"
-            tokens:
-              - object: "token"
-                id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
-                symbol: "BTC"
-                name: "Bitcoin"
-                subunit_to_unit: 100000000000000000
-              - object: "token"
-                id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
-                symbol: "OMG"
-                name: "OmiseGO"
-                subunit_to_unit: 100000000000000000
+            object: "list"
+            data:
+              - object: "configuration_setting"
+                id: "stg_01cbfg9qtdken61agxhx6wvj9h"
+                key: base_url
+                value:  https://example.com
+                type: string
+                description: The base URL for the eWallet.
+                options: nil
+                parent: nil
+                parent_value: nil
+                secret: false
+                position: 0
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T00:00:00Z"
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
+
+    ConfigurationUpdateResponseSchema:
+      description: "The response schema for a list of updated settings"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            additionalProperties: true
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "map"
+            data:
+              base_url:
+                object: "configuration_setting"
+                id: "stg_01ce843mvg5fa1zpk5myy69h4q"
+                key: "base_url"
+                value: "https://example.com"
+                type: "string"
+                description: "description"
+                options: nil
+                parent: nil
+                parent_value: nil
+                secret: false
+                position: 0
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T00:00:00Z"
+              fake_setting:
+                object: "error"
+                code: "setting:not_found"
+                description: "The setting could not be inserted."
+                messages: nil
+              invalid_setting:
+                object: "error"
+                code: "client:invalid_parameter"
+                description: "Invalid parameter provided. `value` must be of type 'integer'."
+                messages:
+                  value:
+                    - "invalid_type_for_value"
 
     ######################################
     #         ACCESS KEY SCHEMAS         #
@@ -3587,6 +3783,8 @@ components:
           nullable: true
         account_id:
           type: string
+        enabled:
+          type: boolean
         created_at:
           type: string
           format: date-time
@@ -3602,6 +3800,7 @@ components:
         - id
         - access_key
         - account_id
+        - enabled
         - created_at
         - updated_at
         - deleted_at
@@ -3624,6 +3823,7 @@ components:
             access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             secret_key: "the_secret_key_or_null"
             account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+            enabled: true
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
             deleted_at: null
@@ -3656,6 +3856,7 @@ components:
                 access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 secret_key: "the_secret_key_or_null"
                 account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+                enabled: true
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
                 deleted_at: null
@@ -3680,7 +3881,7 @@ components:
           type: string
         owner_app:
           type: string
-        expired:
+        enabled:
           type: boolean
         account_id:
           type: string
@@ -3699,7 +3900,7 @@ components:
         - id
         - key
         - owner_app
-        - expired
+        - enabled
         - account_id
         - created_at
         - updated_at
@@ -3722,7 +3923,7 @@ components:
             id: "api_01ce844d5w9e81snekr5kprvem"
             key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             owner_app: "admin_api"
-            expired: false
+            enabled: true
             account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
@@ -3755,7 +3956,7 @@ components:
                 id: "api_01ce844d5w9e81snekr5kprvem"
                 key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 owner_app: "admin_api"
-                expired: false
+                enabled: true
                 account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -4030,8 +4231,10 @@ components:
                 type: integer
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - name
               - symbol
@@ -4068,8 +4271,10 @@ components:
                 type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - id
             example:
@@ -4405,8 +4610,10 @@ components:
                   type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - name
             example:
@@ -4435,8 +4642,10 @@ components:
                   type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - id
             example:
@@ -4673,12 +4882,32 @@ components:
                 type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             example:
               email: "example@omise.co"
               metadata: {}
               encrypted_metadata: {}
+    # Request body for enabling/disabling an admin
+    AdminToggleStatusBody:
+      description: The parameters to enable/disable an admin. Send enabled=true to enable, enabled=false to disable.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - id
+              - enabled
+            example:
+              id: "usr_01ct2zjh20fj210bzz078948f6"
+              enabled: false
     AdminUpdatePasswordBody:
       description: The parameters to use for updating a user's password
       required: true
@@ -4777,8 +5006,10 @@ components:
                 type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - provider_user_id
               - username
@@ -4866,7 +5097,33 @@ components:
               - auth_token
             example:
               auth_token: "atk_01ce83q2zw7zk1dqr79t22zr1v"
-
+    # Request body for enabling/disabling a user
+    UserToggleStatusBody:
+      description: The parameters to enable/disable a user. Send enabled=true to enable, enabled=false to disable.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            oneOf:
+              - properties:
+                  id:
+                    type: string
+                  enabled:
+                    type: boolean
+                required:
+                  - id
+                  - enabled
+              - properties:
+                  provider_user_id:
+                    type: string
+                  enabled:
+                    type: boolean
+                required:
+                  - provider_user_id
+                  - enabled
+            example:
+              id: "usr_01ct2zjh20fj210bzz078948f6"
+              enabled: false
     ######################################
     #             WALLET BODIES          #
     ######################################
@@ -5120,8 +5377,10 @@ components:
                 type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - idempotency_token
               - from_address
@@ -5185,12 +5444,15 @@ components:
                 description: "Optional unique identifier to tie a request with your system."
               account_id:
                 type: string
-                default: The owner of the given address.
+                default: null
+                description: "The id of the account to use for the request"
               provider_user_id:
                 type: string
-                default: The owner of the given address.
+                default: null
+                description: "The provider user id to use as a requestor"
               address:
                 type: string
+                default: null
                 description:
                   "If not specified, the current user's primary wallet will be used.
                    If specified, it needs to be one of the account's or user's addresses."
@@ -5233,10 +5495,10 @@ components:
                    creation"
               metadata:
                 type: object
-                default: {}
+                additionalProperties: true
               encrypted_metadata:
                 type: object
-                default: {}
+                additionalProperties: true
             required:
               - type
               - token_id
@@ -5316,8 +5578,10 @@ components:
                    If specified, it needs to be one of the account's or user's addresses."
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - idempotency_token
               - formatted_transaction_request_id
@@ -5521,9 +5785,27 @@ components:
                 type: boolean
             required:
               - id
+              - expired
             example:
               id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
               expired: true
+    AccessKeyToggleStatusBody:
+      description: The parameters to enable/disable an access key. Send enabled=true to enable, enabled=false to disable.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - id
+              - enabled
+            example:
+              id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+              enabled: false
     AccessKeyDeleteBody:
       description: The parameters to use for deleting an access key
       required: true
@@ -5594,6 +5876,23 @@ components:
             example:
               id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
               expired: true
+    APIKeyToggleStatusBody:
+      description: The parameters to enable/disable an api key. Send enabled=true to enable, enabled=false to disable.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - id
+              - enabled
+            example:
+              id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
+              enabled: false
     APIKeyDeleteBody:
       description: The parameters to use for deleting an API key
       required: true
@@ -5607,6 +5906,46 @@ components:
               - id
             example:
               id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
+
+    ######################################
+    #       CONFIGURATION BODIES         #
+    ######################################
+    ConfigurationGetBody:
+      description: The parameters to use for listing the configuration settings
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: ""
+              sort_by: "field_name"
+              sort_dir: "asc"
+    ConfigurationUpdateBody:
+      description: The parameters to update the configuration settings
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            type: object
+            additionalProperties: true
+            example:
+              base_url: "https://example.com"
+              email_adapter: "local"
+
 
   ######################################
   #           REQUEST HEADERS          #
@@ -5844,7 +6183,7 @@ components:
       content:
         application/vnd.omisego.v1+json:
           schema:
-            $ref: '#/components/schemas/SettingResponse'
+            $ref: '#/components/schemas/SettingSchema'
 
     ######################################
     #         ADMIN USER RESPONSES       #
@@ -5893,6 +6232,23 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/APIKeysResponseSchema'
+
+    ######################################
+    #      CONFIGURATIN RESPONSES        #
+    ######################################
+    ConfigurationGetResponse:
+      description: "Returns a list of settings"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/ConfigurationResponseSchema'
+
+    ConfigurationUpdateResponse:
+      description: "Returns a list of updated settings"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/ConfigurationUpdateResponseSchema'
 
     ######################################
     #       MISCELLANEOUS RESPONSES      #

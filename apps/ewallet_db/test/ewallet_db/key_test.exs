@@ -90,22 +90,48 @@ defmodule EWalletDB.KeyTest do
     end
   end
 
-  describe "update/2" do
-    test_update_field_ok(Key, :expired, insert(:admin), false, true)
-    test_update_ignores_changing(Key, :access_key)
+  describe "enable_or_disable/2" do
+    test "disable a key successfuly when given 'expired' attribute" do
+      {:ok, key} = Key.insert(params_for(:key))
+      assert key.enabled == true
 
-    test "does not update secret_key_hash when given a new secret_key" do
-      original = insert(:key, %{secret_key: "original_secret_key"})
-      {:ok, updated} = Key.update(original, %{secret_key: "new_secret_key"})
-
-      assert updated.secret_key_hash == original.secret_key_hash
+      {:ok, updated} = Key.enable_or_disable(key, %{"expired" => true})
+      assert updated.enabled == false
     end
 
-    test "does not update secret_key_hash when given a new secret_key_hash" do
-      original = insert(:key, %{secret_key_hash: "original_secret_key"})
-      {:ok, updated} = Key.update(original, %{secret_key_hash: "changed"})
+    test "disable a key successfuly when given 'enabled' attribute" do
+      {:ok, key} = Key.insert(params_for(:key))
+      assert key.enabled == true
 
-      assert updated.secret_key_hash == original.secret_key_hash
+      {:ok, updated} = Key.enable_or_disable(key, %{enabled: false})
+      assert updated.enabled == false
+    end
+
+    test "disabling a key twice doesn't re-enable it" do
+      {:ok, key} = Key.insert(params_for(:key))
+      assert key.enabled == true
+
+      {:ok, updated1} = Key.enable_or_disable(key, %{enabled: false})
+      assert updated1.enabled == false
+
+      {:ok, updated2} = Key.enable_or_disable(key, %{enabled: false})
+      assert updated2.enabled == false
+    end
+
+    test "enable a key successfuly when given 'expired' attribute" do
+      {:ok, key} = Key.insert(params_for(:key, %{enabled: false}))
+      assert key.enabled == false
+
+      {:ok, updated} = Key.enable_or_disable(key, %{"expired" => false})
+      assert updated.enabled == true
+    end
+
+    test "enable a key successfuly when given 'enabled' attribute" do
+      {:ok, key} = Key.insert(params_for(:key, %{enabled: false}))
+      assert key.enabled == false
+
+      {:ok, updated} = Key.enable_or_disable(key, %{enabled: true})
+      assert updated.enabled == true
     end
   end
 
@@ -140,8 +166,8 @@ defmodule EWalletDB.KeyTest do
         |> Key.insert()
 
       {:ok, _key} =
-        Key.update(key, %{
-          expired: true
+        Key.enable_or_disable(key, %{
+          enabled: false
         })
 
       res = Key.authenticate("access123", Base.url_encode64("secret321"))

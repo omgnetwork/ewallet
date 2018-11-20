@@ -62,6 +62,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:already_active",
       description: "The user already exists and active."
     },
+    user_disabled: %{
+      code: "user:disabled",
+      description: "This user is disabled."
+    },
     invalid_login_credentials: %{
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials."

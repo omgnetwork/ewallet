@@ -45,6 +45,7 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
                  "access_key" => _,
                  "secret_key" => _,
                  "account_id" => _,
+                 "enabled" => _,
                  "expired" => _,
                  "created_at" => _,
                  "updated_at" => _,
@@ -55,7 +56,8 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       assert response["data"]["id"] == key.id
       assert response["data"]["access_key"] == key.access_key
       assert response["data"]["account_id"] == Account.get_master_account().id
-      assert response["data"]["expired"] == key.expired
+      assert response["data"]["expired"] == !key.enabled
+      assert response["data"]["enabled"] == key.enabled
       assert response["data"]["created_at"] == Date.to_iso8601(key.inserted_at)
       assert response["data"]["updated_at"] == Date.to_iso8601(key.updated_at)
       assert response["data"]["deleted_at"] == Date.to_iso8601(key.deleted_at)
@@ -69,7 +71,7 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
   describe "/access_key.update" do
     test "disables the key" do
       key = insert(:key)
-      assert key.expired == false
+      assert key.enabled == true
 
       response =
         provider_request("/access_key.update", %{
@@ -79,11 +81,12 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
 
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == true
+      assert response["data"]["enabled"] == false
     end
 
     test "enables the key" do
-      key = insert(:key, expired: true)
-      assert key.expired == true
+      key = insert(:key, enabled: false)
+      assert key.enabled == false
 
       response =
         provider_request("/access_key.update", %{
@@ -93,11 +96,12 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
 
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == false
+      assert response["data"]["enabled"] == true
     end
 
     test "does not update any other fields" do
       key = insert(:key, access_key: "key", secret_key: "secret", secret_key_hash: "hash")
-      assert key.expired == false
+      assert key.enabled == true
 
       response =
         provider_request("/access_key.update", %{
@@ -110,12 +114,66 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
 
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == true
+      assert response["data"]["enabled"] == false
       assert response["data"]["access_key"] == "key"
       assert response["data"]["secret_key"] == nil
 
       # Because secret_key_hash is not returned, fetch to confirm it was not changed
       updated = Key.get(key.id)
       assert updated.secret_key_hash == key.secret_key_hash
+    end
+  end
+
+  describe "/access_key.enable_or_disable" do
+    test "disables the key" do
+      key = insert(:key)
+      assert key.enabled == true
+
+      response =
+        provider_request("/access_key.enable_or_disable", %{
+          id: key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["enabled"] == false
+    end
+
+    test "disabling a key twice doesn't re-enable it" do
+      key = insert(:key)
+      assert key.enabled == true
+
+      response =
+        provider_request("/access_key.enable_or_disable", %{
+          id: key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["enabled"] == false
+
+      response =
+        provider_request("/access_key.enable_or_disable", %{
+          id: key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["enabled"] == false
+    end
+
+    test "enables the key" do
+      key = insert(:key, enabled: false)
+      assert key.enabled == false
+
+      response =
+        provider_request("/access_key.enable_or_disable", %{
+          id: key.id,
+          enabled: true
+        })
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["enabled"] == true
     end
   end
 

@@ -180,4 +180,44 @@ defmodule EWalletDB.AuthTokenTest do
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
     end
   end
+
+  describe "AuthToken.expire_for_user/1" do
+    test "do nothing when the given user is enabled" do
+      user = insert(:user, %{enabled: true})
+      account = insert(:account)
+      role = insert(:role, name: "admin")
+      {:ok, _} = Membership.assign(user, account, role)
+
+      {:ok, token1} = AuthToken.generate(user, @owner_app)
+      token1_string = token1.token
+      {:ok, token2} = AuthToken.generate(user, @owner_app)
+      token2_string = token2.token
+
+      # Ensure tokens are usable.
+      assert AuthToken.authenticate(token1_string, @owner_app)
+      assert AuthToken.authenticate(token2_string, @owner_app)
+      AuthToken.expire_for_user(user)
+      assert AuthToken.authenticate(token1_string, @owner_app)
+      assert AuthToken.authenticate(token2_string, @owner_app)
+    end
+
+    test "expires all AuthToken sucessfully for the given disabled user" do
+      user = insert(:user, %{enabled: false})
+      account = insert(:account)
+      role = insert(:role, name: "admin")
+      {:ok, _} = Membership.assign(user, account, role)
+
+      {:ok, token1} = AuthToken.generate(user, @owner_app)
+      token1_string = token1.token
+      {:ok, token2} = AuthToken.generate(user, @owner_app)
+      token2_string = token2.token
+
+      # Ensure tokens are usable.
+      assert AuthToken.authenticate(token1_string, @owner_app)
+      assert AuthToken.authenticate(token2_string, @owner_app)
+      AuthToken.expire_for_user(user)
+      assert AuthToken.authenticate(token1_string, @owner_app) == :token_expired
+      assert AuthToken.authenticate(token2_string, @owner_app) == :token_expired
+    end
+  end
 end

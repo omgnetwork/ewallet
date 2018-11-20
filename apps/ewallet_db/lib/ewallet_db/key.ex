@@ -30,14 +30,14 @@ defmodule EWalletDB.Key do
       type: UUID
     )
 
-    field(:expired, :boolean, default: false)
+    field(:enabled, :boolean, default: true)
     timestamps()
     soft_delete()
   end
 
   defp insert_changeset(%Key{} = key, attrs) do
     key
-    |> cast(attrs, [:access_key, :secret_key, :account_uuid, :expired])
+    |> cast(attrs, [:access_key, :secret_key, :account_uuid, :enabled])
     |> validate_required([:access_key, :secret_key, :account_uuid])
     |> unique_constraint(:access_key, name: :key_access_key_index)
     |> put_change(:secret_key_hash, Crypto.hash_secret(attrs[:secret_key]))
@@ -45,10 +45,10 @@ defmodule EWalletDB.Key do
     |> assoc_constraint(:account)
   end
 
-  defp update_changeset(%Key{} = key, attrs) do
+  defp enable_changeset(%Key{} = key, attrs) do
     key
-    |> cast(attrs, [:expired])
-    |> validate_required([:expired])
+    |> cast(attrs, [:enabled])
+    |> validate_required([:enabled])
   end
 
   @doc """
@@ -116,12 +116,22 @@ defmodule EWalletDB.Key do
   end
 
   @doc """
-  Updates a key with the provided attributes.
+  Enable or disable a key with the provided attributes.
   """
-  @spec update(%Key{}, map()) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
-  def update(%Key{} = key, attrs) do
+  @spec enable_or_disable(%Key{}, map()) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
+  # This function supports the deprecated "expired" key
+  def enable_or_disable(%Key{} = key, %{"expired" => expired} = attrs) do
+    attrs = Map.put(attrs, "enabled", !expired)
+
     key
-    |> update_changeset(attrs)
+    |> enable_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @spec enable_or_disable(%Key{}, map()) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
+  def enable_or_disable(%Key{} = key, attrs) do
+    key
+    |> enable_changeset(attrs)
     |> Repo.update()
   end
 
@@ -138,7 +148,7 @@ defmodule EWalletDB.Key do
     query =
       from(
         k in Key,
-        where: k.access_key == ^access and k.expired == false,
+        where: k.access_key == ^access and k.enabled == true,
         join: a in assoc(k, :account),
         preload: [account: a]
       )

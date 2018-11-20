@@ -105,6 +105,7 @@ defmodule EWalletDB.Factory do
       calling_name: sequence("John"),
       provider_user_id: sequence("provider_id"),
       originator: insert(:admin),
+      enabled: true,
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
@@ -235,7 +236,7 @@ defmodule EWalletDB.Factory do
       secret_key: Base.url_encode64(secret_key, padding: false),
       secret_key_hash: Crypto.hash_secret(secret_key),
       account: insert(:account),
-      expired: false,
+      enabled: true,
       deleted_at: nil
     }
   end
@@ -245,7 +246,7 @@ defmodule EWalletDB.Factory do
       key: sequence("api_key"),
       owner_app: "some_app_name",
       account: insert(:account),
-      expired: false
+      enabled: true
     }
   end
 

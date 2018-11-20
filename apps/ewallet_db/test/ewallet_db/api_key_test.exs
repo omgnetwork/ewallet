@@ -52,7 +52,7 @@ defmodule EWalletDB.APIKeyTest do
     test_update_ignores_changing(APIKey, :key)
     test_update_ignores_changing(APIKey, :owner_app)
 
-    test_update_field_ok(APIKey, :expired, insert(:admin), false, true)
+    test_update_field_ok(APIKey, :enabled, insert(:admin), true, false)
 
     test_update_field_ok(
       APIKey,
@@ -61,6 +61,43 @@ defmodule EWalletDB.APIKeyTest do
       insert(:wallet).address,
       insert(:wallet).address
     )
+
+    test "update enable state with `expired`" do
+      {:ok, api_key} = APIKey.insert(params_for(:api_key))
+      assert api_key.enabled == true
+
+      {:ok, api_key} = APIKey.update(api_key, %{"expired" => true})
+      assert api_key.enabled == false
+    end
+  end
+
+  describe "enable_or_disable/2" do
+    test "disable an api key successfuly" do
+      {:ok, key} = APIKey.insert(params_for(:api_key))
+      assert key.enabled == true
+
+      {:ok, updated} = APIKey.enable_or_disable(key, %{enabled: false})
+      assert updated.enabled == false
+    end
+
+    test "disabling an api key twice doesn't re-enable it" do
+      {:ok, key} = APIKey.insert(params_for(:api_key))
+      assert key.enabled == true
+
+      {:ok, updated1} = APIKey.enable_or_disable(key, %{enabled: false})
+      assert updated1.enabled == false
+
+      {:ok, updated2} = APIKey.enable_or_disable(key, %{enabled: false})
+      assert updated2.enabled == false
+    end
+
+    test "enable an api key successfuly" do
+      {:ok, key} = APIKey.insert(params_for(:api_key, %{enabled: false}))
+      assert key.enabled == false
+
+      {:ok, updated} = APIKey.enable_or_disable(key, %{enabled: true})
+      assert updated.enabled == true
+    end
   end
 
   describe "APIKey.authenticate/2" do

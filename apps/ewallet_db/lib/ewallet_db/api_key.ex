@@ -36,24 +36,30 @@ defmodule EWalletDB.APIKey do
       type: :string
     )
 
-    field(:expired, :boolean, default: false)
+    field(:enabled, :boolean, default: true)
     timestamps()
     soft_delete()
   end
 
   defp changeset(%APIKey{} = key, attrs) do
     key
-    |> cast(attrs, [:key, :owner_app, :account_uuid, :expired, :exchange_address])
+    |> cast(attrs, [:key, :owner_app, :account_uuid, :enabled, :exchange_address])
     |> validate_required([:key, :owner_app, :account_uuid])
     |> unique_constraint(:key)
     |> assoc_constraint(:account)
     |> assoc_constraint(:exchange_wallet)
   end
 
+  defp enable_changeset(%APIKey{} = key, attrs) do
+    key
+    |> cast(attrs, [:enabled])
+    |> validate_required([:enabled])
+  end
+
   defp update_changeset(%APIKey{} = key, attrs) do
     key
-    |> cast(attrs, [:expired, :exchange_address])
-    |> validate_required([:expired])
+    |> cast(attrs, [:enabled, :exchange_address])
+    |> validate_required([:enabled])
   end
 
   @doc """
@@ -86,9 +92,26 @@ defmodule EWalletDB.APIKey do
   @doc """
   Updates an API key with the provided attributes.
   """
+  def update(%APIKey{} = api_key, %{"expired" => expired} = attrs) do
+    attrs = Map.put(attrs, "enabled", !expired)
+
+    api_key
+    |> update_changeset(attrs)
+    |> Repo.update()
+  end
+
   def update(%APIKey{} = api_key, attrs) do
     api_key
     |> update_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Enable or disable an API key with the provided attributes.
+  """
+  def enable_or_disable(%APIKey{} = api_key, attrs) do
+    api_key
+    |> enable_changeset(attrs)
     |> Repo.update()
   end
 
@@ -143,7 +166,7 @@ defmodule EWalletDB.APIKey do
     |> Repo.get_by(%{
       id: id,
       owner_app: Atom.to_string(owner_app),
-      expired: false
+      enabled: true
     })
     |> Repo.preload(:account)
   end
@@ -156,7 +179,7 @@ defmodule EWalletDB.APIKey do
     |> Repo.get_by(%{
       key: key,
       owner_app: Atom.to_string(owner_app),
-      expired: false
+      enabled: true
     })
     |> Repo.preload(:account)
   end

@@ -102,8 +102,34 @@ defmodule EWalletConfig.Config do
 
   @spec update(Map.t(), Atom.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()}]
   def update(attrs, pid \\ __MODULE__) do
-    GenServer.call(pid, {:update_and_reload, attrs})
+    {config_pid, attrs} = get_config_pid(attrs)
+
+    case Mix.env() == :test do
+      true ->
+        GenServer.call(config_pid || pid, {:update_and_reload, attrs})
+
+      false ->
+        GenServer.call(__MODULE__, {:update_and_reload, attrs})
+    end
   end
+
+  defp get_config_pid(%{config_pid: config_pid} = attrs),
+    do: {config_pid, Map.delete(attrs, :config_pid)}
+
+  defp get_config_pid(%{"config_pid" => config_pid} = attrs),
+    do: {config_pid, Map.delete(attrs, "config_pid")}
+
+  defp get_config_pid(attrs) when is_list(attrs) do
+    case Keyword.fetch(attrs, :config_pid) do
+      :error ->
+        {nil, attrs}
+
+      {:ok, config_pid} ->
+        {config_pid, Keyword.delete(attrs, :config_pid)}
+    end
+  end
+
+  defp get_config_pid(attrs), do: {nil, attrs}
 
   @spec insert_all_defaults(Map.t(), Atom.t()) :: :ok
   def insert_all_defaults(opts \\ %{}, pid \\ __MODULE__) do
@@ -114,6 +140,10 @@ defmodule EWalletConfig.Config do
   @spec settings() :: [%Setting{}]
   def settings do
     Setting.all()
+  end
+
+  def query_settings do
+    Setting.query()
   end
 
   @spec get_setting(String.t()) :: %Setting{}

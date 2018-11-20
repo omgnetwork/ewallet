@@ -51,15 +51,12 @@ defmodule AdminAPI.V1.APIKeyController do
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
-         %APIKey{} = api_key <- APIKey.get(id) || :api_key_not_found,
+         %APIKey{} = api_key <- APIKey.get(id) || {:error, :api_key_not_found},
          {:ok, api_key} <- APIKey.update(api_key, attrs),
          {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
       render(conn, :api_key, %{api_key: api_key})
     else
-      error when is_atom(error) ->
-        handle_error(conn, error)
-
-      {:error, code} ->
+      {:error, code} when is_atom(code) ->
         handle_error(conn, code)
 
       {:error, %Changeset{} = changeset} ->
@@ -68,7 +65,30 @@ defmodule AdminAPI.V1.APIKeyController do
   end
 
   def update(conn, _attrs) do
-    handle_error(conn, :invalid_parameter)
+    handle_error(conn, :invalid_parameter, "`id` is required")
+  end
+
+  @doc """
+  Update an API key.
+  """
+  @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def enable_or_disable(conn, %{"id" => id, "enabled" => _} = attrs) do
+    with :ok <- permit(:enable_or_disable, conn.assigns, id),
+         %APIKey{} = api_key <- APIKey.get(id) || {:error, :api_key_not_found},
+         {:ok, api_key} <- APIKey.enable_or_disable(api_key, attrs),
+         {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
+      render(conn, :api_key, %{api_key: api_key})
+    else
+      {:error, code} when is_atom(code) ->
+        handle_error(conn, code)
+
+      {:error, %Changeset{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+    end
+  end
+
+  def enable_or_disable(conn, _attrs) do
+    handle_error(conn, :invalid_parameter, "`id` and `enabled` are required")
   end
 
   @doc """
@@ -100,8 +120,11 @@ defmodule AdminAPI.V1.APIKeyController do
     end
   end
 
-  @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
-          :ok | {:error, any()} | no_return()
+  @spec permit(
+          :all | :create | :get | :update | :enable_or_disable | :delete,
+          map(),
+          String.t() | nil
+        ) :: :ok | {:error, any()} | no_return()
   defp permit(action, params, api_key_id) do
     Bodyguard.permit(APIKeyPolicy, action, params, api_key_id)
   end
