@@ -22,6 +22,7 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                        "account_id" => api_key1.account.id,
                        "owner_app" => api_key1.owner_app,
                        "expired" => false,
+                       "enabled" => true,
                        "created_at" => Date.to_iso8601(api_key1.inserted_at),
                        "updated_at" => Date.to_iso8601(api_key1.updated_at),
                        "deleted_at" => Date.to_iso8601(api_key1.deleted_at)
@@ -33,6 +34,7 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                        "account_id" => api_key2.account.id,
                        "owner_app" => api_key2.owner_app,
                        "expired" => false,
+                       "enabled" => true,
                        "created_at" => Date.to_iso8601(api_key2.inserted_at),
                        "updated_at" => Date.to_iso8601(api_key2.updated_at),
                        "deleted_at" => Date.to_iso8601(api_key2.deleted_at)
@@ -75,6 +77,7 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                        "account_id" => api_key.account.id,
                        "owner_app" => api_key.owner_app,
                        "expired" => false,
+                       "enabled" => true,
                        "created_at" => Date.to_iso8601(api_key.inserted_at),
                        "updated_at" => Date.to_iso8601(api_key.updated_at),
                        "deleted_at" => Date.to_iso8601(api_key.deleted_at)
@@ -110,6 +113,7 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                  "account_id" => Account.get_master_account().id,
                  "owner_app" => "ewallet_api",
                  "expired" => false,
+                 "enabled" => true,
                  "created_at" => Date.to_iso8601(api_key.inserted_at),
                  "updated_at" => Date.to_iso8601(api_key.updated_at),
                  "deleted_at" => Date.to_iso8601(api_key.deleted_at)
@@ -121,7 +125,7 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
   describe "/api_key.update" do
     test "disables the API key" do
       api_key = :api_key |> insert() |> Repo.preload(:account)
-      assert api_key.expired == false
+      assert api_key.enabled == true
 
       response =
         admin_user_request("/api_key.update", %{
@@ -131,11 +135,12 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
 
       assert response["data"]["id"] == api_key.id
       assert response["data"]["expired"] == true
+      assert response["data"]["enabled"] == false
     end
 
     test "enables the API key" do
-      api_key = :api_key |> insert(expired: true) |> Repo.preload(:account)
-      assert api_key.expired == true
+      api_key = :api_key |> insert(enabled: false) |> Repo.preload(:account)
+      assert api_key.enabled == false
 
       response =
         admin_user_request("/api_key.update", %{
@@ -145,11 +150,12 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
 
       assert response["data"]["id"] == api_key.id
       assert response["data"]["expired"] == false
+      assert response["data"]["enabled"] == true
     end
 
     test "does not update any other fields" do
       api_key = :api_key |> insert() |> Repo.preload(:account)
-      assert api_key.expired == false
+      assert api_key.enabled == true
 
       response =
         admin_user_request("/api_key.update", %{
@@ -170,6 +176,7 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                  "id" => updated.id,
                  "key" => api_key.key,
                  "expired" => true,
+                 "enabled" => false,
                  "account_id" => api_key.account.id,
                  "owner_app" => api_key.owner_app,
                  "created_at" => Date.to_iso8601(api_key.inserted_at),
@@ -177,6 +184,59 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                  "deleted_at" => Date.to_iso8601(api_key.deleted_at)
                }
              }
+    end
+  end
+
+  describe "/api_key.enable_or_disable" do
+    test "disables the API key" do
+      api_key = :api_key |> insert() |> Repo.preload(:account)
+      assert api_key.enabled == true
+
+      response =
+        admin_user_request("/api_key.enable_or_disable", %{
+          id: api_key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["enabled"] == false
+    end
+
+    test "disabling an API key twice doesn't re-enable it" do
+      api_key = :api_key |> insert() |> Repo.preload(:account)
+      assert api_key.enabled == true
+
+      response =
+        admin_user_request("/api_key.enable_or_disable", %{
+          id: api_key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["enabled"] == false
+
+      response =
+        admin_user_request("/api_key.enable_or_disable", %{
+          id: api_key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["enabled"] == false
+    end
+
+    test "enables the API key" do
+      api_key = :api_key |> insert(enabled: false) |> Repo.preload(:account)
+      assert api_key.enabled == false
+
+      response =
+        admin_user_request("/api_key.enable_or_disable", %{
+          id: api_key.id,
+          enabled: true
+        })
+
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["enabled"] == true
     end
   end
 

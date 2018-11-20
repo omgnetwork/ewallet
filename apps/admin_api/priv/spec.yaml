@@ -1448,11 +1448,28 @@ paths:
         - API Access
       summary: Update a pair of access and secret keys by its id
       operationId: access_key_update
+      deprecated: true
       security:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccessKeyUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AccessKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /access_key.enable_or_disable:
+    post:
+      tags:
+        - API Access
+      summary: Enable or disable an existing access key
+      operationId: access_key_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AccessKeyToggleStatusBody'
       responses:
         '200':
           $ref: "#/components/responses/AccessKeyResponse"
@@ -1510,11 +1527,28 @@ paths:
         - API Access
       summary: Update an API key
       operationId: api_key_update
+      deprecated: true
       security:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/APIKeyUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/APIKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /api_key.enable_or_disable:
+    post:
+      tags:
+        - API Access
+      summary: Enable or disable an existing api key
+      operationId: api_key_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/APIKeyToggleStatusBody'
       responses:
         '200':
           $ref: "#/components/responses/APIKeyResponse"
@@ -3749,6 +3783,8 @@ components:
           nullable: true
         account_id:
           type: string
+        enabled:
+          type: boolean
         created_at:
           type: string
           format: date-time
@@ -3764,6 +3800,7 @@ components:
         - id
         - access_key
         - account_id
+        - enabled
         - created_at
         - updated_at
         - deleted_at
@@ -3786,6 +3823,7 @@ components:
             access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             secret_key: "the_secret_key_or_null"
             account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+            enabled: true
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
             deleted_at: null
@@ -3818,6 +3856,7 @@ components:
                 access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 secret_key: "the_secret_key_or_null"
                 account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+                enabled: true
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
                 deleted_at: null
@@ -3842,7 +3881,7 @@ components:
           type: string
         owner_app:
           type: string
-        expired:
+        enabled:
           type: boolean
         account_id:
           type: string
@@ -3861,7 +3900,7 @@ components:
         - id
         - key
         - owner_app
-        - expired
+        - enabled
         - account_id
         - created_at
         - updated_at
@@ -3884,7 +3923,7 @@ components:
             id: "api_01ce844d5w9e81snekr5kprvem"
             key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             owner_app: "admin_api"
-            expired: false
+            enabled: true
             account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
@@ -3917,7 +3956,7 @@ components:
                 id: "api_01ce844d5w9e81snekr5kprvem"
                 key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 owner_app: "admin_api"
-                expired: false
+                enabled: true
                 account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -5746,9 +5785,27 @@ components:
                 type: boolean
             required:
               - id
+              - expired
             example:
               id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
               expired: true
+    AccessKeyToggleStatusBody:
+      description: The parameters to enable/disable an access key. Send enabled=true to enable, enabled=false to disable.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - id
+              - enabled
+            example:
+              id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+              enabled: false
     AccessKeyDeleteBody:
       description: The parameters to use for deleting an access key
       required: true
@@ -5819,6 +5876,23 @@ components:
             example:
               id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
               expired: true
+    APIKeyToggleStatusBody:
+      description: The parameters to enable/disable an api key. Send enabled=true to enable, enabled=false to disable.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - id
+              - enabled
+            example:
+              id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
+              enabled: false
     APIKeyDeleteBody:
       description: The parameters to use for deleting an API key
       required: true
