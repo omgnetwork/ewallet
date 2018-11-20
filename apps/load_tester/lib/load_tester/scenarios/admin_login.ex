@@ -13,7 +13,7 @@ defmodule LoadTester.Scenarios.AdminLogin do
       },
       json: %{
         "email" => Application.get_env(:load_tester, :email),
-        "password" => Application.get_env(:load_tester, :password),
+        "password" => Application.get_env(:load_tester, :password)
       },
       decode: :json,
       with_result: &store_auth_token(&1, &2)
