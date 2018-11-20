@@ -15,6 +15,7 @@ import moment from 'moment'
 import DateTime from 'react-datetime'
 import WalletSelect from '../omg-wallet-select'
 import TokenSelect from '../omg-token-select'
+import { createSearchTokenQuery } from '../omg-token/searchField'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;

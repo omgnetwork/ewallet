@@ -1,28 +1,29 @@
 import { authenticatedRequest } from './apiService'
 
-export function getWallets ({ perPage, sort, search, searchTerms }) {
+export function getWallets ({ perPage, sort, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/wallet.all',
     data: {
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: search,
-      search_terms: searchTerms
+      match_all: matchAll,
+      match_any: matchAny
     }
   })
 }
 
-export function getWalletsByAccountId ({ accountId, perPage, sort, search, owned }) {
+export function getWalletsByAccountId ({ accountId, perPage, sort, owned, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/account.get_wallets',
     data: {
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: search,
       id: accountId,
-      owned
+      owned,
+      match_all: matchAll,
+      match_any: matchAny
     }
   })
 }

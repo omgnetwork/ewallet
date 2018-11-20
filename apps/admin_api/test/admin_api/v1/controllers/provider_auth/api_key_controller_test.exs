@@ -44,7 +44,8 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                      "current_page" => 1,
                      "per_page" => 10,
                      "is_first_page" => true,
-                     "is_last_page" => true
+                     "is_last_page" => true,
+                     "count" => 2
                    }
                  }
                }
@@ -86,7 +87,8 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                      "current_page" => 1,
                      "per_page" => 1,
                      "is_first_page" => true,
-                     "is_last_page" => false
+                     "is_last_page" => false,
+                     "count" => 1
                    }
                  }
                }
