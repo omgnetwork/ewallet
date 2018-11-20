@@ -1414,6 +1414,23 @@ paths:
           $ref: "#/components/responses/AccessKeyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /access_key.update:
+    post:
+      tags:
+        - API Access
+      summary: Update a pair of access and secret keys by its id
+      operationId: access_key_update
+      deprecated: true
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AccessKeyUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AccessKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   /access_key.enable_or_disable:
     post:
       tags:
@@ -1471,6 +1488,23 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/APIKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /api_key.update:
+    post:
+      tags:
+        - API Access
+      summary: Update an api key
+      operationId: api_key_enable_or_disable
+      deprecated: true
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/APIKeyUpdateBody'
       responses:
         '200':
           $ref: "#/components/responses/APIKeyResponse"
@@ -5656,6 +5690,23 @@ components:
               search_term: ""
               sort_by: "created_at"
               sort_dir: "desc"
+    AccessKeyUpdateBody:
+      description: The parameters to use for updating an access key.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              expired:
+                type: boolean
+            required:
+              - id
+              - expired
+            example:
+              id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+              expired: true
     AccessKeyToggleStatusBody:
       description: The parameters to enable/disable an access key. Send enabled=true to enable, enabled=false to disable.
       required: true
@@ -5726,6 +5777,23 @@ components:
               search_term: ""
               sort_by: "created_at"
               sort_dir: "asc"
+    APIKeyUpdateBody:
+      description: The parameters to use for updating an API key.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              expired:
+                type: boolean
+            required:
+              - id
+              - expired
+            example:
+              id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
+              expired: true
     APIKeyToggleStatusBody:
       description: The parameters to enable/disable an api key. Send enabled=true to enable, enabled=false to disable.
       required: true
