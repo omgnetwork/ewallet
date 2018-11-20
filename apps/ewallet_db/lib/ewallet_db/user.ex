@@ -129,7 +129,6 @@ defmodule EWalletDB.User do
       :full_name,
       :calling_name,
       :provider_user_id,
-      :email,
       :metadata,
       :encrypted_metadata,
       :invite_uuid,
@@ -139,7 +138,6 @@ defmodule EWalletDB.User do
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
-    |> unique_constraint(:email)
     |> assoc_constraint(:invite)
     |> validate_by_roles(attrs)
   end
@@ -147,7 +145,6 @@ defmodule EWalletDB.User do
   defp update_admin_changeset(user, attrs) do
     user
     |> cast(attrs, [
-      :email,
       :full_name,
       :calling_name,
       :metadata,
@@ -156,7 +153,6 @@ defmodule EWalletDB.User do
       :originator
     ])
     |> validate_required([:metadata, :encrypted_metadata, :originator])
-    |> unique_constraint(:email)
     |> assoc_constraint(:invite)
     |> validate_by_roles(attrs)
   end
@@ -191,6 +187,17 @@ defmodule EWalletDB.User do
 
   defp get_attr(attrs, atom_field) do
     attrs[atom_field] || attrs[Atom.to_string(atom_field)]
+  end
+
+  defp email_changeset(user, attrs) do
+    user
+    |> cast(attrs, [
+      :email,
+      :originator
+    ])
+    |> validate_required([:email, :originator])
+    |> validate_email(:email)
+    |> unique_constraint(:email)
   end
 
   # Two cases to validate for loginable:
@@ -395,6 +402,16 @@ defmodule EWalletDB.User do
   defp do_update_password(user, attrs) do
     user
     |> password_changeset(attrs)
+    |> update_with_audit()
+  end
+
+  @doc """
+  Updates a user's email with the provided attributes.
+  """
+  @spec update_email(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
+  def update_email(%User{} = user, attrs) do
+    user
+    |> email_changeset(attrs)
     |> update_with_audit()
   end
 

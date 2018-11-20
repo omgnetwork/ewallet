@@ -1,9 +1,12 @@
 defmodule AdminAPI.V1.SelfController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias AdminAPI.UpdateEmailAddressEmail
   alias AdminAPI.V1.{AccountHelper, AccountView, UserView}
+  alias Bamboo.Email
   alias Ecto.Changeset
-  alias EWallet.Web.{Orchestrator, Originator}
+  alias EWallet.{Mailer, UpdateEmailGate}
+  alias EWallet.Web.{Orchestrator, Originator, UrlValidator}
   alias EWallet.Web.V1.AccountOverlay
   alias EWalletDB.{Account, User}
 
@@ -48,6 +51,62 @@ defmodule AdminAPI.V1.SelfController do
         respond_single(error, conn)
     end
   end
+
+  @doc """
+  Initiates the user's email update flow.
+  """
+  @spec update_email(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def update_email(conn, %{"email" => email, "redirect_url" => redirect_url})
+      when not is_nil(email) and not is_nil(redirect_url) do
+    with {:ok, user} <- permit(:update_email, conn.assigns),
+         {:ok, redirect_url} <- validate_redirect_url(redirect_url),
+         {:ok, request} <- UpdateEmailGate.update(user, email),
+         %Email{} = email <- UpdateEmailAddressEmail.create(request, redirect_url),
+         %Email{} <- Mailer.deliver_now(email) do
+      respond_single(user, conn)
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+
+      {:error, code, meta} ->
+        handle_error(conn, code, meta)
+    end
+  end
+
+  def update_email(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  defp validate_redirect_url(url) do
+    if UrlValidator.allowed_redirect_url?(url) do
+      {:ok, url}
+    else
+      {:error, :prohibited_url, param_name: "redirect_url", url: url}
+    end
+  end
+
+  @doc """
+  Verifies the user's new email.
+  """
+  @spec verify_email(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def verify_email(
+        conn,
+        %{
+          "email" => email,
+          "token" => token
+        }
+      ) do
+    with :ok <- permit(:verify_email, conn.assigns),
+         {:ok, user} <- UpdateEmailGate.verify(email, token) do
+      respond_single(user, conn)
+    else
+      {:error, %Changeset{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+
+      {:error, code} ->
+        handle_error(conn, code)
+    end
+  end
+
+  def verify_email(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Uploads an image as avatar for the current user.
@@ -126,13 +185,18 @@ defmodule AdminAPI.V1.SelfController do
     handle_error(conn, :user_id_not_found)
   end
 
-  @spec permit(:get | :update | :update_password, map()) ::
-          {:ok, %User{}} | :access_key_unauthorized
+  @spec permit(:get | :update | :update_password | :update_email | :verify_email, map()) ::
+          {:ok, %User{}} | {:error, :access_key_unauthorized}
+  defp permit(:verify_email, _) do
+    # verify_email action can be done unauthenticated
+    :ok
+  end
+
   defp permit(_action, %{admin_user: admin_user}) do
     {:ok, admin_user}
   end
 
   defp permit(_action, %{key: _key}) do
-    :access_key_unauthorized
+    {:error, :access_key_unauthorized}
   end
 end

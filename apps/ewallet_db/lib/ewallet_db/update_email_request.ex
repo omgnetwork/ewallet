@@ -1,17 +1,19 @@
-defmodule EWalletDB.ForgetPasswordRequest do
+defmodule EWalletDB.UpdateEmailRequest do
   @moduledoc """
-  Ecto Schema representing a password reset request.
+  Ecto Schema representing a change email request.
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
+  import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletConfig.Helpers.Crypto
-  alias EWalletDB.{ForgetPasswordRequest, Repo, User}
+  alias EWalletDB.{UpdateEmailRequest, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @token_length 32
 
-  schema "forget_password_request" do
+  schema "update_email_request" do
+    field(:email, :string)
     field(:token, :string)
     field(:enabled, :boolean)
 
@@ -28,17 +30,18 @@ defmodule EWalletDB.ForgetPasswordRequest do
 
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:token, :user_uuid])
-    |> validate_required([:token, :user_uuid])
+    |> cast(attrs, [:email, :token, :user_uuid])
+    |> validate_required([:email, :token, :user_uuid])
+    |> validate_email(:email)
+    |> unique_constraint(:token)
     |> assoc_constraint(:user)
   end
 
   @doc """
   Retrieves all active requests.
   """
-  @spec all_active() :: [%ForgetPasswordRequest{}]
   def all_active do
-    ForgetPasswordRequest
+    UpdateEmailRequest
     |> where([c], c.enabled == true)
     |> order_by([c], desc: c.inserted_at)
     |> Repo.all()
@@ -47,14 +50,14 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @doc """
   Retrieves a specific invite by its token.
   """
-  @spec get(%User{} | nil, String.t() | nil) :: %ForgetPasswordRequest{} | nil
+  @spec get(String.t() | nil, String.t() | nil) :: %__MODULE__{} | nil
   def get(nil, _), do: nil
   def get(_, nil), do: nil
 
-  def get(user, token) do
+  def get(email, token) do
     request =
-      ForgetPasswordRequest
-      |> where([c], c.user_uuid == ^user.uuid)
+      UpdateEmailRequest
+      |> where([c], c.email == ^email)
       |> where([c], c.enabled == true)
       |> order_by([c], desc: c.inserted_at)
       |> limit(1)
@@ -73,25 +76,24 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @doc """
   Deletes all the current requests for a user.
   """
-  @spec disable_all_for(%User{}) :: {integer(), nil}
   def disable_all_for(user) do
-    ForgetPasswordRequest
+    UpdateEmailRequest
     |> where([f], f.user_uuid == ^user.uuid)
     |> Repo.update_all(set: [enabled: false])
   end
 
   @doc """
-  Generates a forget password request for the given user.
+  Generates a change email request for the given user.
   """
-  @spec generate(%User{}) :: %ForgetPasswordRequest{} | {:error, Ecto.Changeset.t()}
-  def generate(user) do
+  @spec generate(%User{}, String.t()) :: %UpdateEmailRequest{} | {:error, Changeset.t()}
+  def generate(user, email) do
     token = Crypto.generate_base64_key(@token_length)
-    {:ok, _} = insert(%{token: token, user_uuid: user.uuid})
-    ForgetPasswordRequest.get(user, token)
+    {:ok, _} = insert(%{token: token, email: email, user_uuid: user.uuid})
+    UpdateEmailRequest.get(email, token)
   end
 
   defp insert(attrs) do
-    %ForgetPasswordRequest{}
+    %UpdateEmailRequest{}
     |> changeset(attrs)
     |> Repo.insert()
   end

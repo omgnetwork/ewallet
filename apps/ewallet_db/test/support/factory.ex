@@ -25,6 +25,7 @@ defmodule EWalletDB.Factory do
     Transaction,
     TransactionConsumption,
     TransactionRequest,
+    UpdateEmailRequest,
     User,
     Wallet
   }
@@ -285,7 +286,16 @@ defmodule EWalletDB.Factory do
 
   def forget_password_request_factory do
     %ForgetPasswordRequest{
-      token: sequence("123")
+      token: sequence("123"),
+      enabled: true
+    }
+  end
+
+  def update_email_request_factory do
+    %UpdateEmailRequest{
+      email: sequence("johndoe") <> "@example.com",
+      token: sequence("123"),
+      enabled: true
     }
   end
 

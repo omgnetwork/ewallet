@@ -3,6 +3,8 @@ defmodule AdminAPI.V1.ProviderAuth.SelfControllerTest do
   import Ecto.Query
   alias EWalletDB.{Membership, Repo}
 
+  @update_email_url "http://localhost:4000/update_email?email={email}&token={token}"
+
   describe "/me.get" do
     test "gets access_key:unauthorized back" do
       response = provider_request("/me.get")
@@ -33,6 +35,19 @@ defmodule AdminAPI.V1.ProviderAuth.SelfControllerTest do
           old_password: @password,
           password: "password",
           password_confirmation: "password"
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "access_key:unauthorized"
+    end
+  end
+
+  describe "/me.update_email" do
+    test "gets access_key:unauthorized back" do
+      response =
+        provider_request("/me.update_email", %{
+          "email" => "test.email.update.provider.unauthorized@example.com",
+          "redirect_url" => @update_email_url
         })
 
       refute response["success"]
