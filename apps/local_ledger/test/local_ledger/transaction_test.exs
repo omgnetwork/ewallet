@@ -484,34 +484,5 @@ defmodule LocalLedger.TransactionTest do
       assert get_current_balance("o") == -1_000_000_000_000_000_000_000_000_000_000
       assert get_current_balance("thibault") == 1_000_000_000_000_000_000_000_000_000_000
     end
-
-    test "fails for integers above 1 trillion * 1e81" do
-      assert_raise Postgrex.Error, fn ->
-        {:ok, _} =
-          Transaction.insert(
-            %{
-              "metadata" => %{},
-              "entries" => [
-                %{
-                  "type" => Entry.debit_type(),
-                  "address" => "o",
-                  "metadata" => %{},
-                  "amount" => round(1_000_000_000_000.0e82),
-                  "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-                },
-                %{
-                  "type" => Entry.credit_type(),
-                  "address" => "thibault",
-                  "metadata" => %{},
-                  "amount" => round(1_000_000_000_000.0e82),
-                  "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-                }
-              ],
-              "idempotency_token" => UUID.generate()
-            },
-            %{genesis: true}
-          )
-      end
-    end
   end
 end
