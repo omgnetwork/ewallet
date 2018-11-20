@@ -360,7 +360,8 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
                      "current_page" => 1,
                      "per_page" => 10,
                      "is_first_page" => true,
-                     "is_last_page" => true
+                     "is_last_page" => true,
+                     "count" => 1
                    }
                  }
                }

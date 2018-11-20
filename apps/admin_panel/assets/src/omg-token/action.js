@@ -24,7 +24,7 @@ export const mintToken = ({ id, amount }) =>
       })
   })
 
-export const getTokens = ({ search, page, perPage, cacheKey, searchTerms }) =>
+export const getTokens = ({ page, perPage, cacheKey, matchAll, matchAny }) =>
   createPaginationActionCreator({
     actionName: 'TOKENS',
     action: 'REQUEST',
@@ -32,14 +32,14 @@ export const getTokens = ({ search, page, perPage, cacheKey, searchTerms }) =>
       tokenService.getAllTokens({
         perPage,
         page,
-        searchTerms,
         sort: { by: 'created_at', dir: 'desc' },
-        search
+        matchAll,
+        matchAny
       }),
     cacheKey
   })
 
-export const getMintedTokenHistory = ({ tokenId, search, page, perPage, searchTerms, cacheKey }) =>
+export const getMintedTokenHistory = ({ tokenId, search, page, perPage, cacheKey, matchAll, matchAny }) =>
   createPaginationActionCreator({
     actionName: 'TOKEN_HISTORY',
     action: 'REQUEST',
@@ -48,9 +48,9 @@ export const getMintedTokenHistory = ({ tokenId, search, page, perPage, searchTe
         perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
-        search,
-        searchTerms,
-        tokenId
+        tokenId,
+        matchAll,
+        matchAny
       }),
     cacheKey
   })
