@@ -153,6 +153,23 @@ paths:
           $ref: "#/components/responses/EmptyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+
+  /admin.verify_email_update:
+    post:
+      tags:
+        - Admin
+      summary: Verifies the email to be updated to the admin user
+      operationId: admin_verify_email_update
+      security:
+        - ClientAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AdminVerifyEmailUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
   ######################################
   #            ROLE ENDPOINTS          #
   ######################################
@@ -900,6 +917,21 @@ paths:
         - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AdminUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /me.update_email:
+    post:
+      tags:
+        - Admin
+      summary: Update the user's email with the provided parameters
+      operationId: me_update_email
+      security:
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AdminUpdateEmailBody'
       responses:
         '200':
           $ref: "#/components/responses/UserResponse"
@@ -4878,8 +4910,6 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              email:
-                type: string
               metadata:
                 type: object
                 additionalProperties: true
@@ -4887,7 +4917,6 @@ components:
                 type: object
                 additionalProperties: true
             example:
-              email: "example@omise.co"
               metadata: {}
               encrypted_metadata: {}
     # Request body for enabling/disabling an admin
@@ -4928,6 +4957,31 @@ components:
               old_password: "old_password"
               password: "new_password"
               password_confirmation: "new_password"
+    AdminUpdateEmailBody:
+      description: The parameters to use for updating a user's email
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+            example:
+              email: "new.email@example.com"
+    AdminVerifyEmailUpdateBody:
+      description: The parameters to use for verifying an email update
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+              token:
+                type: string
+            example:
+              email: "new.email@example.com"
+              token: "verification_token"
     AdminUploadBody:
       description: The parameters to use for uploading an admin's avatar. Only supports .jpg, .jpeg, .gif and .png.
       required: true

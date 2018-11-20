@@ -66,6 +66,44 @@ defmodule EWalletDB.ValidatorTest do
     end
   end
 
+  describe "validate_email/2" do
+    test "returns a valid changeset if the attribute meets the requirements" do
+      changeset =
+        %SampleStruct{}
+        |> cast(%{attr1: "valid.email@example.com"}, [:attr1])
+        |> validate_email(:attr1)
+
+      assert changeset.valid?
+    end
+
+    test "returns an invalid changeset if the attribute does not have '@' sign" do
+      changeset =
+        %SampleStruct{}
+        |> cast(%{attr1: "not.an.email"}, [:attr1])
+        |> validate_email(:attr1)
+
+      refute changeset.valid?
+    end
+
+    test "returns an invalid changeset if the attribute is an empty string" do
+      changeset =
+        %SampleStruct{}
+        |> cast(%{attr1: ""}, [:attr1])
+        |> validate_email(:attr1)
+
+      refute changeset.valid?
+    end
+
+    test "returns an invalid changeset if the attribute is nil" do
+      changeset =
+        %SampleStruct{}
+        |> cast(%{attr1: nil}, [:attr1])
+        |> validate_email(:attr1)
+
+      refute changeset.valid?
+    end
+  end
+
   describe "validate_different_values/3" do
     test "valid if values are different" do
       attrs = %{

@@ -6,6 +6,27 @@ defmodule EWalletDB.Validator do
   alias EWalletDB.Wallet
 
   @doc """
+  Validates email requirements.
+  """
+  def validate_email(changeset, key) do
+    email = Changeset.get_field(changeset, key) || ""
+    email_regex = ~r/^[^\@]+\@[^\@]+$/
+
+    case Regex.match?(email_regex, email) do
+      true ->
+        changeset
+
+      false ->
+        Changeset.add_error(
+          changeset,
+          key,
+          "must be a valid email address format",
+          validation: :valid_email_address_format
+        )
+    end
+  end
+
+  @doc """
   Gets the minimum password length from settings.
   """
   def min_password_length do

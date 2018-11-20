@@ -235,6 +235,41 @@
         } ]
       }
     },
+    "/admin.verify_email_update" : {
+      "post" : {
+        "tags" : [ "Admin" ],
+        "summary" : "Verifies the email to be updated to the admin user",
+        "operationId" : "admin_verify_email_update",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AdminVerifyEmailUpdateBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single user",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ClientAuth" : [ ]
+        } ]
+      }
+    },
     "/role.all" : {
       "post" : {
         "tags" : [ "Role" ],
@@ -1888,6 +1923,41 @@
         } ]
       }
     },
+    "/me.update_email" : {
+      "post" : {
+        "tags" : [ "Admin" ],
+        "summary" : "Update the user's email with the provided parameters",
+        "operationId" : "me_update_email",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AdminUpdateEmailBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single user",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
     "/me.update_password" : {
       "post" : {
         "tags" : [ "Admin" ],
@@ -3085,6 +3155,44 @@
             }
           }
         },
+        "deprecated" : true,
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/access_key.enable_or_disable" : {
+      "post" : {
+        "tags" : [ "API Access" ],
+        "summary" : "Enable or disable an existing access key",
+        "operationId" : "access_key_enable_or_disable",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AccessKeyToggleStatusBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single access key",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessKeyResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
         "security" : [ {
           "ProviderAuth" : [ ]
         }, {
@@ -3207,6 +3315,44 @@
         "operationId" : "api_key_update",
         "requestBody" : {
           "$ref" : "#/components/requestBodies/APIKeyUpdateBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single API key",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIKeyResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "deprecated" : true,
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/api_key.enable_or_disable" : {
+      "post" : {
+        "tags" : [ "API Access" ],
+        "summary" : "Enable or disable an existing api key",
+        "operationId" : "api_key_enable_or_disable",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/APIKeyToggleStatusBody"
         },
         "responses" : {
           "200" : {
@@ -5847,7 +5993,7 @@
         } ]
       },
       "AccessKeySchema" : {
-        "required" : [ "access_key", "account_id", "created_at", "deleted_at", "id", "object", "updated_at" ],
+        "required" : [ "access_key", "account_id", "created_at", "deleted_at", "enabled", "id", "object", "updated_at" ],
         "type" : "object",
         "properties" : {
           "object" : {
@@ -5865,6 +6011,9 @@
           },
           "account_id" : {
             "type" : "string"
+          },
+          "enabled" : {
+            "type" : "boolean"
           },
           "created_at" : {
             "type" : "string",
@@ -5903,6 +6052,7 @@
               "access_key" : "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
               "secret_key" : "the_secret_key_or_null",
               "account_id" : "acc_01ca2p8jqans5aty5gj5etmjcf",
+              "enabled" : true,
               "created_at" : "2018-01-01T00:00:00Z",
               "updated_at" : "2018-01-01T10:00:00Z",
               "deleted_at" : null
@@ -5946,6 +6096,7 @@
                 "access_key" : "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
                 "secret_key" : "the_secret_key_or_null",
                 "account_id" : "acc_01ca2p8jqans5aty5gj5etmjcf",
+                "enabled" : true,
                 "created_at" : "2018-01-01T00:00:00Z",
                 "updated_at" : "2018-01-01T10:00:00Z",
                 "deleted_at" : null
@@ -5961,7 +6112,7 @@
         } ]
       },
       "APIKeySchema" : {
-        "required" : [ "account_id", "created_at", "deleted_at", "expired", "id", "key", "object", "owner_app", "updated_at" ],
+        "required" : [ "account_id", "created_at", "deleted_at", "enabled", "id", "key", "object", "owner_app", "updated_at" ],
         "type" : "object",
         "properties" : {
           "object" : {
@@ -5976,7 +6127,7 @@
           "owner_app" : {
             "type" : "string"
           },
-          "expired" : {
+          "enabled" : {
             "type" : "boolean"
           },
           "account_id" : {
@@ -6018,7 +6169,7 @@
               "id" : "api_01ce844d5w9e81snekr5kprvem",
               "key" : "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
               "owner_app" : "admin_api",
-              "expired" : false,
+              "enabled" : true,
               "account_id" : "acc_01ca2p8jqans5aty5gj5etmjcf",
               "created_at" : "2018-01-01T00:00:00Z",
               "updated_at" : "2018-01-01T10:00:00Z",
@@ -6062,7 +6213,7 @@
                 "id" : "api_01ce844d5w9e81snekr5kprvem",
                 "key" : "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
                 "owner_app" : "admin_api",
-                "expired" : false,
+                "enabled" : true,
                 "account_id" : "acc_01ca2p8jqans5aty5gj5etmjcf",
                 "created_at" : "2018-01-01T00:00:00Z",
                 "updated_at" : "2018-01-01T10:00:00Z",
@@ -7703,9 +7854,6 @@
           "application/vnd.omisego.v1+json" : {
             "schema" : {
               "properties" : {
-                "email" : {
-                  "type" : "string"
-                },
                 "metadata" : {
                   "type" : "object",
                   "additionalProperties" : true
@@ -7716,7 +7864,6 @@
                 }
               },
               "example" : {
-                "email" : "example@omise.co",
                 "metadata" : { },
                 "encrypted_metadata" : { }
               }
@@ -7771,6 +7918,46 @@
                 "old_password" : "old_password",
                 "password" : "new_password",
                 "password_confirmation" : "new_password"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "AdminUpdateEmailBody" : {
+        "description" : "The parameters to use for updating a user's email",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "properties" : {
+                "email" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "email" : "new.email@example.com"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "AdminVerifyEmailUpdateBody" : {
+        "description" : "The parameters to use for verifying an email update",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "properties" : {
+                "email" : {
+                  "type" : "string"
+                },
+                "token" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "email" : "new.email@example.com",
+                "token" : "verification_token"
               }
             }
           }
@@ -8917,7 +9104,7 @@
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {
-              "required" : [ "id" ],
+              "required" : [ "expired", "id" ],
               "properties" : {
                 "id" : {
                   "type" : "string"
@@ -8929,6 +9116,29 @@
               "example" : {
                 "id" : "key_01ce83yphmq6vt4qnmn3ykwcw6",
                 "expired" : true
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "AccessKeyToggleStatusBody" : {
+        "description" : "The parameters to enable/disable an access key. Send enabled=true to enable, enabled=false to disable.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "enabled", "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "enabled" : {
+                  "type" : "boolean"
+                }
+              },
+              "example" : {
+                "id" : "key_01ce83yphmq6vt4qnmn3ykwcw6",
+                "enabled" : false
               }
             }
           }
@@ -9025,6 +9235,29 @@
               "example" : {
                 "id" : "api_01ce83yphmq6vt4qnmn3ykwcw6",
                 "expired" : true
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "APIKeyToggleStatusBody" : {
+        "description" : "The parameters to enable/disable an api key. Send enabled=true to enable, enabled=false to disable.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "enabled", "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "enabled" : {
+                  "type" : "boolean"
+                }
+              },
+              "example" : {
+                "id" : "api_01ce83yphmq6vt4qnmn3ykwcw6",
+                "enabled" : false
               }
             }
           }
