@@ -14,7 +14,8 @@ defmodule EWallet.Web.Paginator do
               per_page: nil,
               current_page: nil,
               is_first_page: nil,
-              is_last_page: nil
+              is_last_page: nil,
+              count: nil
             }
 
   @doc """
@@ -26,38 +27,41 @@ defmodule EWallet.Web.Paginator do
   (so long as the attribute keys don't conflict). Therefore this function
   expects attribute keys to be strings, not atoms.
   """
-  @spec paginate_attrs(Ecto.Query.t() | Ecto.Queryable.t(), map()) ::
+  @spec paginate_attrs(Ecto.Query.t() | Ecto.Queryable.t(), map(), Ecto.Repo.t()) ::
           %__MODULE__{} | {:error, :invalid_parameter, String.t()}
-  def paginate_attrs(queryable, %{"page" => page} = attrs) when not is_integer(page) do
-    parse_string_param(queryable, attrs, "page", page)
+  def paginate_attrs(queryable, attrs, repo \\ Repo)
+
+  def paginate_attrs(queryable, %{"page" => page} = attrs, repo) when not is_integer(page) do
+    parse_string_param(queryable, attrs, "page", page, repo)
   end
 
-  def paginate_attrs(_, %{"page" => page}) when is_integer(page) and page < 0 do
+  def paginate_attrs(_, %{"page" => page}, _repo) when is_integer(page) and page < 0 do
     {:error, :invalid_parameter, "`page` must be non-negative integer"}
   end
 
-  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs)
+  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, repo)
       when not is_integer(per_page) do
-    parse_string_param(queryable, attrs, "per_page", per_page)
+    parse_string_param(queryable, attrs, "per_page", per_page, repo)
   end
 
-  def paginate_attrs(_, %{"per_page" => per_page}) when is_integer(per_page) and per_page < 1 do
+  def paginate_attrs(_, %{"per_page" => per_page}, _repo)
+      when is_integer(per_page) and per_page < 1 do
     {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
 
-  def paginate_attrs(queryable, attrs) do
+  def paginate_attrs(queryable, attrs, repo) do
     page = Map.get(attrs, "page", 1)
     per_page = get_per_page(attrs)
 
-    paginate(queryable, page, per_page)
+    paginate(queryable, page, per_page, repo)
   end
 
   # Try to parse the given string pagination parameter.
-  defp parse_string_param(queryable, attrs, name, value) do
+  defp parse_string_param(queryable, attrs, name, value, repo) do
     case Integer.parse(value, 10) do
       {page, ""} ->
         attrs = Map.put(attrs, name, page)
-        paginate_attrs(queryable, attrs)
+        paginate_attrs(queryable, attrs, repo)
 
       :error ->
         {:error, :invalid_parameter, "`#{name}` must be non-negative integer"}
@@ -85,15 +89,16 @@ defmodule EWallet.Web.Paginator do
   @doc """
   Paginate a query using the given `page` and `per_page` and returns a paginator.
   """
-  def paginate(queryable, page, per_page) do
-    {records, more_page} = fetch(queryable, page, per_page)
+  def paginate(queryable, page, per_page, repo \\ Repo) do
+    {records, more_page} = fetch(queryable, page, per_page, repo)
 
     pagination = %{
       per_page: per_page,
       current_page: page,
       is_first_page: page <= 1,
       # It's the last page if there are no more records
-      is_last_page: !more_page
+      is_last_page: !more_page,
+      count: length(records)
     }
 
     %__MODULE__{data: records, pagination: pagination}
@@ -103,7 +108,7 @@ defmodule EWallet.Web.Paginator do
   Paginate a query by explicitly specifying `page` and `per_page`
   and returns a tuple of records and a flag whether there are more pages.
   """
-  def fetch(queryable, page, per_page) do
+  def fetch(queryable, page, per_page, repo \\ Repo) do
     offset =
       case page do
         n when n > 0 -> (page - 1) * per_page
@@ -117,7 +122,7 @@ defmodule EWallet.Web.Paginator do
       queryable
       |> offset(^offset)
       |> limit(^limit)
-      |> Repo.all()
+      |> repo.all()
 
     # If an extra record is found, remove last one and inform there is more.
     case Enum.count(records) do
