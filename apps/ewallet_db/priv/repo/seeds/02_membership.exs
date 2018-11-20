@@ -14,7 +14,7 @@ defmodule EWalletDB.Repo.Seeds.MembershipSeed do
 
     user = User.get_by_email(admin_email)
     account = Account.get_master_account()
-    role = Role.get_by_name("admin")
+    role = Role.get_by(name: "admin")
 
     case Membership.get_by_user_and_account(user, account) do
       nil ->

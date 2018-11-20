@@ -1,6 +1,6 @@
 import { authenticatedRequest } from './apiService'
 
-export function getUsers ({ accountId, perPage, sort, page, search, searchTerms }) {
+export function getUsers ({ accountId, perPage, sort, page, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/account.get_users',
     data: {
@@ -8,9 +8,9 @@ export function getUsers ({ accountId, perPage, sort, page, search, searchTerms 
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: search,
-      search_terms: searchTerms,
-      page
+      page,
+      match_all: matchAll,
+      match_any: matchAny
     }
   })
 }

@@ -5,13 +5,14 @@ import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
 import CreateTokenModal from '../omg-create-token-modal'
 import ExportModal from '../omg-export-modal'
-import TokenFetcher from '../omg-token/tokensFetcher'
+import TokensFetcher from '../omg-token/tokensFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { NameColumn } from '../omg-page-account'
 import moment from 'moment'
 import queryString from 'query-string'
 import ExchangePairModal from '../omg-exchange-rate-modal'
+import { createSearchTokenQuery } from '../omg-token/searchField'
 const TokenDetailPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -92,7 +93,12 @@ class TokenDetailPage extends Component {
   }
   renderCreateExchangePairButton = () => {
     return (
-      <Button size='small' styleType='secondary' onClick={this.onClickCreateExchangePair} key={'create pair'}>
+      <Button
+        size='small'
+        styleType='secondary'
+        onClick={this.onClickCreateExchangePair}
+        key={'create pair'}
+      >
         <span>Create Exchange Pair</span>
       </Button>
     )
@@ -127,7 +133,10 @@ class TokenDetailPage extends Component {
 
     return (
       <TokenDetailPageContainer>
-        <TopNavigation title={'Token'} buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]} />
+        <TopNavigation
+          title={'Token'}
+          buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]}
+        />
         <SortableTable
           rows={data}
           columns={columns}
@@ -157,14 +166,14 @@ class TokenDetailPage extends Component {
 
   render () {
     return (
-      <TokenFetcher
+      <TokensFetcher
         render={this.renderTokenDetailPage}
         {...this.state}
         {...this.props}
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 10,
-          search: queryString.parse(this.props.location.search).search
+          ...createSearchTokenQuery(queryString.parse(this.props.location.search).search)
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
