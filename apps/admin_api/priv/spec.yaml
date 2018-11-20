@@ -4154,8 +4154,10 @@ components:
                 type: integer
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - name
               - symbol
@@ -4192,8 +4194,10 @@ components:
                 type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - id
             example:
@@ -4529,8 +4533,10 @@ components:
                   type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - name
             example:
@@ -4559,8 +4565,10 @@ components:
                   type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - id
             example:
@@ -4797,8 +4805,10 @@ components:
                 type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             example:
               email: "example@omise.co"
               metadata: {}
@@ -4901,8 +4911,10 @@ components:
                 type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - provider_user_id
               - username
@@ -5244,8 +5256,10 @@ components:
                 type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - idempotency_token
               - from_address
@@ -5309,12 +5323,15 @@ components:
                 description: "Optional unique identifier to tie a request with your system."
               account_id:
                 type: string
-                default: The owner of the given address.
+                default: null
+                description: "The id of the account to use for the request"
               provider_user_id:
                 type: string
-                default: The owner of the given address.
+                default: null
+                description: "The provider user id to use as a requestor"
               address:
                 type: string
+                default: null
                 description:
                   "If not specified, the current user's primary wallet will be used.
                    If specified, it needs to be one of the account's or user's addresses."
@@ -5357,10 +5374,10 @@ components:
                    creation"
               metadata:
                 type: object
-                default: {}
+                additionalProperties: true
               encrypted_metadata:
                 type: object
-                default: {}
+                additionalProperties: true
             required:
               - type
               - token_id
@@ -5440,8 +5457,10 @@ components:
                    If specified, it needs to be one of the account's or user's addresses."
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - idempotency_token
               - formatted_transaction_request_id
