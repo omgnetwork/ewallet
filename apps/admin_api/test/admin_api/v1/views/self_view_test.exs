@@ -23,6 +23,7 @@ defmodule AdminAPI.V1.SelfViewTest do
           calling_name: user.calling_name,
           provider_user_id: user.provider_user_id,
           email: user.email,
+          enabled: user.enabled,
           avatar: %{
             original: nil,
             large: nil,

@@ -434,6 +434,7 @@ components:
               full_name: "John Doe"
               calling_name: "John"
               email: "johndoe@omise.co"
+              enabled: true
               metadata: {"first_name": "John", "last_name": "Doe"}
               encrypted_metadata: {"something": "secret"}
               created_at: "2018-01-01T00:00:00Z"
@@ -461,6 +462,8 @@ components:
         email:
           type: string
           format: email
+        enabled:
+          type: boolean
         metadata:
           type: object
         encrypted_metadata:
@@ -486,6 +489,7 @@ components:
         full_name: "John Doe"
         calling_name: "John"
         email: "johndoe@omise.co"
+        enabled: true
         metadata: {"first_name": "John", "last_name": "Doe"}
         encrypted_metadata: {}
         avatar: {"original": "file_url"}
@@ -511,6 +515,7 @@ components:
             full_name: "John Doe"
             calling_name: "John"
             email: "johndoe@omise.co"
+            enabled: true
             metadata: {"first_name": "John", "last_name": "Doe"}
             encrypted_metadata: {}
             avatar: {"original": "file_url"}

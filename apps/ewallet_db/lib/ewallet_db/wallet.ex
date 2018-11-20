@@ -230,15 +230,13 @@ defmodule EWalletDB.Wallet do
   @doc """
   Enables or disables a wallet.
   """
-  def enable_or_disable(wallet, attrs) do
-    case wallet do
-      %{identifier: "primary"} ->
-        {:error, :primary_wallet_cannot_be_disabled}
+  def enable_or_disable(%{identifier: "primary"}, _attrs) do
+    {:error, :primary_wallet_cannot_be_disabled}
+  end
 
-      wallet ->
-        wallet
-        |> enable_changeset(attrs)
-        |> Repo.update()
-    end
+  def enable_or_disable(wallet, attrs) do
+    wallet
+    |> enable_changeset(attrs)
+    |> Repo.update()
   end
 end

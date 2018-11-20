@@ -30,6 +30,7 @@ defmodule EWalletAPI.V1.UserViewTest do
           full_name: user.full_name,
           calling_name: user.calling_name,
           email: user.email,
+          enabled: user.enabled,
           avatar: %{
             original: nil,
             large: nil,

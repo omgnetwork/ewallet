@@ -153,7 +153,6 @@ paths:
           $ref: "#/components/responses/EmptyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
   ######################################
   #            ROLE ENDPOINTS          #
   ######################################
@@ -846,6 +845,22 @@ paths:
           $ref: "#/components/responses/AdminResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /admin.enable_or_disable:
+    post:
+      tags:
+        - Admin
+      summary: Enable or disable an existing admin.
+      operationId: admin_user_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AdminToggleStatusBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   /invite.accept:
     post:
       tags:
@@ -859,7 +874,6 @@ paths:
           $ref: "#/components/responses/UserResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
   #####################################
   #    CURRENT ADMIN USER ENDPOINTS   #
   #####################################
@@ -1047,8 +1061,22 @@ paths:
           $ref: "#/components/responses/TransactionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
-
+  /user.enable_or_disable:
+    post:
+      tags:
+        - User
+      summary: Enable or disable an existing user.
+      operationId: user_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserToggleStatusBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   #####################################
   #        WALLET ENDPOINTS          #
   #####################################
@@ -2488,6 +2516,8 @@ components:
         email:
           type: string
           format: email
+        enabled:
+          type: boolean
         metadata:
           type: object
         encrypted_metadata:
@@ -2518,6 +2548,7 @@ components:
         full_name: "John Doe"
         calling_name: "John"
         email: "johndoe@omise.co"
+        enabled: true
         metadata: {"first_name": "John", "last_name": "Doe"}
         encrypted_metadata: {"something": "secret"}
         avatar: {"original": "file_url"}
@@ -2544,6 +2575,8 @@ components:
         email:
           type: string
           format: email
+        enabled:
+          type: boolean
         metadata:
           type: object
         encrypted_metadata:
@@ -2569,6 +2602,7 @@ components:
         full_name: "John Doe"
         calling_name: "John"
         email: "johndoe@omise.co"
+        enabled: true
         metadata: {"first_name": "John", "last_name": "Doe"}
         encrypted_metadata: {"something": "secret"}
         avatar: {"original": "file_url"}
@@ -2594,6 +2628,7 @@ components:
             full_name: "John Doe"
             calling_name: "John"
             email: "johndoe@omise.co"
+            enabled: true
             metadata: {"first_name": "John", "last_name": "Doe"}
             encrypted_metadata: {"something": "secret"}
             created_at: "2018-01-01T00:00:00Z"
@@ -2630,6 +2665,7 @@ components:
                 calling_name: "John"
                 email: "johndoe@omise.co"
                 metadata: {"first_name": "John", "last_name": "Doe"}
+                enabled: true
                 encrypted_metadata: {"something": "secret"}
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -2671,6 +2707,7 @@ components:
                 full_name: "John Doe"
                 calling_name: "John"
                 email: "johndoe@omise.co"
+                enabled: true
                 metadata: {"first_name": "John", "last_name": "Doe"}
                 encrypted_metadata: {"something": "secret"}
                 created_at: "2018-01-01T00:00:00Z"
@@ -2885,6 +2922,7 @@ components:
             full_name: "John Doe"
             calling_name: "John"
             email: "johndoe@omise.co"
+            enabled: true
             metadata: {"first_name": "John", "last_name": "Doe"}
             encrypted_metadata: {"something": "secret"}
             avatar: {"original": "file_url"}
@@ -4813,6 +4851,24 @@ components:
               email: "example@omise.co"
               metadata: {}
               encrypted_metadata: {}
+    # Request body for enabling/disabling an admin
+    AdminToggleStatusBody:
+      description: The parameters to enable/disable an admin. Send enabled=true to enable, enabled=false to disable.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - id
+              - enabled
+            example:
+              id: "usr_01ct2zjh20fj210bzz078948f6"
+              enabled: false
     AdminUpdatePasswordBody:
       description: The parameters to use for updating a user's password
       required: true
@@ -5002,7 +5058,33 @@ components:
               - auth_token
             example:
               auth_token: "atk_01ce83q2zw7zk1dqr79t22zr1v"
-
+    # Request body for enabling/disabling a user
+    UserToggleStatusBody:
+      description: The parameters to enable/disable a user. Send enabled=true to enable, enabled=false to disable.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            oneOf:
+              - properties:
+                  id:
+                    type: string
+                  enabled:
+                    type: boolean
+                required:
+                  - id
+                  - enabled
+              - properties:
+                  provider_user_id:
+                    type: string
+                  enabled:
+                    type: boolean
+                required:
+                  - provider_user_id
+                  - enabled
+            example:
+              id: "usr_01ct2zjh20fj210bzz078948f6"
+              enabled: false
     ######################################
     #             WALLET BODIES          #
     ######################################

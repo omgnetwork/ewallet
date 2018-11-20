@@ -23,6 +23,7 @@ defmodule AdminAPI.V1.UserViewTest do
           calling_name: user.calling_name,
           provider_user_id: user.provider_user_id,
           email: user.email,
+          enabled: user.enabled,
           avatar: %{
             original: nil,
             large: nil,
@@ -71,6 +72,7 @@ defmodule AdminAPI.V1.UserViewTest do
               calling_name: user1.calling_name,
               provider_user_id: user1.provider_user_id,
               email: user1.email,
+              enabled: user1.enabled,
               avatar: %{
                 original: nil,
                 large: nil,
@@ -94,6 +96,7 @@ defmodule AdminAPI.V1.UserViewTest do
               calling_name: user2.calling_name,
               provider_user_id: user2.provider_user_id,
               email: user2.email,
+              enabled: user2.enabled,
               avatar: %{
                 original: nil,
                 large: nil,
