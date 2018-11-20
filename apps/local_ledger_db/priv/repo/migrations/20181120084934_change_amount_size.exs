@@ -3,7 +3,7 @@ defmodule LocalLedgerDB.Repo.Migrations.ChangeAmountSize do
 
   def up do
     alter table(:entry) do
-      modify :amount, :decimal, precision: nil, scale: 0, null: false
+      modify :amount, :decimal, precision: 36, scale: 0, null: false
     end
   end
 
