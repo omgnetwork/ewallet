@@ -1497,8 +1497,8 @@ paths:
     post:
       tags:
         - API Access
-      summary: Update an api key
-      operationId: api_key_enable_or_disable
+      summary: Update an API key
+      operationId: api_key_update
       deprecated: true
       security:
         - ProviderAuth: []
@@ -5691,7 +5691,7 @@ components:
               sort_by: "created_at"
               sort_dir: "desc"
     AccessKeyUpdateBody:
-      description: The parameters to use for updating an access key.
+      description: The parameters to use for updating an access key
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -5778,7 +5778,7 @@ components:
               sort_by: "created_at"
               sort_dir: "asc"
     APIKeyUpdateBody:
-      description: The parameters to use for updating an API key.
+      description: The parameters to use for updating an API key
       required: true
       content:
         application/vnd.omisego.v1+json:
