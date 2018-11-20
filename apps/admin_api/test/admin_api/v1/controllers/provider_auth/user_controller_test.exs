@@ -338,7 +338,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       assert response["data"]["encrypted_metadata"] == %{}
     end
 
-    test "returns an 'invalid parameter' error when sending nil for metadata/encrypted_metadata" do
+    test "returns empty metadata when sending nil for metadata/encrypted_metadata" do
       user =
         insert(:user, %{
           metadata: %{first_name: "updated_first_name"},
@@ -356,13 +356,9 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
           encrypted_metadata: nil
         })
 
-      assert response["success"] == false
-      assert response["data"]["code"] == "client:invalid_parameter"
-
-      assert response["data"]["messages"] == %{
-               "metadata" => ["required"],
-               "encrypted_metadata" => ["required"]
-             }
+      assert response["success"] == true
+      assert response["data"]["metadata"] == %{}
+      assert response["data"]["encrypted_metadata"] == %{}
     end
 
     test "returns an error if provider_user_id is not provided" do

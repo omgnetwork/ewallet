@@ -110,7 +110,7 @@ defmodule EWalletDB.User do
       :invite_uuid,
       :originator
     ])
-    |> validate_required([:metadata, :encrypted_metadata, :originator])
+    |> validate_required([:originator])
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
@@ -134,7 +134,7 @@ defmodule EWalletDB.User do
       :invite_uuid,
       :originator
     ])
-    |> validate_required([:metadata, :encrypted_metadata, :originator])
+    |> validate_required([:originator])
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
@@ -154,7 +154,7 @@ defmodule EWalletDB.User do
       :invite_uuid,
       :originator
     ])
-    |> validate_required([:metadata, :encrypted_metadata, :originator])
+    |> validate_required([:originator])
     |> unique_constraint(:email)
     |> assoc_constraint(:invite)
     |> validate_by_roles(attrs)
