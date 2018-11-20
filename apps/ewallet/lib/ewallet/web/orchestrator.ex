@@ -17,9 +17,11 @@ defmodule EWallet.Web.Orchestrator do
     SortParser
   }
 
-  def query(query, overlay, attrs \\ %{}) do
-    with %Query{} = query <- build_query(query, overlay, attrs),
-         paginated <- Paginator.paginate_attrs(query, attrs) do
+  alias EWalletDB.Repo
+
+  def query(query, overlay, attrs \\ %{}, repo \\ Repo) do
+    with %Ecto.Query{} = query <- build_query(query, overlay, attrs),
+         paginated <- Paginator.paginate_attrs(query, attrs, repo) do
       paginated
     else
       {:error, :not_allowed, field} ->
