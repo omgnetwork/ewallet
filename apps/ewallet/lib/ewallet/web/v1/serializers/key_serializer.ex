@@ -18,12 +18,13 @@ defmodule EWallet.Web.V1.KeySerializer do
       access_key: key.access_key,
       secret_key: key.secret_key,
       account_id: key.account.id,
-      # To remove when deprecated
-      expired: !key.enabled,
       enabled: key.enabled,
       created_at: Date.to_iso8601(key.inserted_at),
       updated_at: Date.to_iso8601(key.updated_at),
-      deleted_at: Date.to_iso8601(key.deleted_at)
+      deleted_at: Date.to_iso8601(key.deleted_at),
+      # Attributes below are DEPRECATED and will be removed in the future:
+      # "expired" has been replaced by "enabled" in PR #535
+      expired: !key.enabled
     }
   end
 
