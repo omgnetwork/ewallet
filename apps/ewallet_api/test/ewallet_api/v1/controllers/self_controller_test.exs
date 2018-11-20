@@ -76,7 +76,8 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                        "updated_at" => Date.to_iso8601(user.updated_at),
                        "username" => user.username,
                        "full_name" => user.full_name,
-                       "calling_name" => user.calling_name
+                       "calling_name" => user.calling_name,
+                       "enabled" => user.enabled
                      },
                      "user_id" => user.id,
                      "balances" => [

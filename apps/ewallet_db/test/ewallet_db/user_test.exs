@@ -413,6 +413,18 @@ defmodule EWalletDB.UserTest do
     end
   end
 
+  describe "enabled?/1" do
+    test "returns true if the user's `enabled` is true" do
+      user = insert(:user, enabled: true)
+      assert User.enabled?(user)
+    end
+
+    test "returns false if the user's `enabled` is false" do
+      user = insert(:user, enabled: false)
+      refute User.enabled?(user)
+    end
+  end
+
   describe "master_admin?/1" do
     test "returns true if the user has a membership on the top-level account" do
       user = insert(:user)
@@ -465,6 +477,24 @@ defmodule EWalletDB.UserTest do
       accounts = user |> User.get_accounts() |> Enum.map(fn account -> account.uuid end)
       assert Enum.member?(accounts, mid_account.uuid)
       assert Enum.member?(accounts, sub_account.uuid)
+    end
+  end
+
+  describe "enable_or_disable/2" do
+    test "enable the user when given true" do
+      user = insert(:user, %{enabled: false})
+      refute User.enabled?(user)
+
+      {:ok, user} = User.enable_or_disable(user, %{enabled: true})
+      assert User.enabled?(user)
+    end
+
+    test "disable the user when given false" do
+      user = insert(:user, %{enabled: true})
+      assert User.enabled?(user)
+
+      {:ok, user} = User.enable_or_disable(user, %{enabled: false})
+      refute User.enabled?(user)
     end
   end
 end

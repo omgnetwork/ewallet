@@ -4,7 +4,7 @@ defmodule EWallet.AdminUserPolicy do
   """
   @behaviour Bodyguard.Policy
   alias EWallet.PolicyHelper
-  alias EWalletDB.{Account, Membership}
+  alias EWalletDB.{Account, Membership, User}
 
   # Allowed for any role, filtering is
   # handled at the controller level to only return
@@ -24,6 +24,10 @@ defmodule EWallet.AdminUserPolicy do
   def authorize(:get, %{admin_user: admin_user}, user) do
     account_uuids = membership_account_uuids(user)
     PolicyHelper.viewer_authorize(admin_user, account_uuids)
+  end
+
+  def authorize(:enable_or_disable, %{admin_user: %{uuid: uuid}}, %User{uuid: uuid}) do
+    false
   end
 
   # create/update/delete, or anything else.

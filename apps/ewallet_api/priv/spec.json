@@ -659,6 +659,7 @@
                 "full_name" : "John Doe",
                 "calling_name" : "John",
                 "email" : "johndoe@omise.co",
+                "enabled" : true,
                 "metadata" : {
                   "first_name" : "John",
                   "last_name" : "Doe"
@@ -699,6 +700,9 @@
             "type" : "string",
             "format" : "email"
           },
+          "enabled" : {
+            "type" : "boolean"
+          },
           "metadata" : {
             "type" : "object"
           },
@@ -726,6 +730,7 @@
           "full_name" : "John Doe",
           "calling_name" : "John",
           "email" : "johndoe@omise.co",
+          "enabled" : true,
           "metadata" : {
             "first_name" : "John",
             "last_name" : "Doe"
@@ -759,6 +764,7 @@
               "full_name" : "John Doe",
               "calling_name" : "John",
               "email" : "johndoe@omise.co",
+              "enabled" : true,
               "metadata" : {
                 "first_name" : "John",
                 "last_name" : "Doe"
