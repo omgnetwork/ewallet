@@ -1,6 +1,8 @@
 defmodule EWalletDB.Repo.Reporters.SeedsSampleReporter do
+  alias EWalletConfig.Config
+
   def run(writer, args) do
-    base_url = Application.get_env(:ewallet_db, :base_url, "https://example.com")
+    base_url = Config.get(:base_url)
     admin_api_swagger_ui_url = base_url <> "/api/admin/docs"
     ewallet_api_swagger_ui_url = base_url <> "/api/client/docs"
 
