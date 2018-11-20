@@ -32,6 +32,10 @@ defmodule EWallet.UserPolicy do
     Account.descendant?(key.account, account_uuids)
   end
 
+  def authorize(:enable_or_disable, %{admin_user: %{uuid: uuid}}, %User{uuid: uuid}) do
+    false
+  end
+
   def authorize(_, %{admin_user: admin_user}, user) do
     account_uuids = get_linked_account_uuids(user)
     PolicyHelper.admin_authorize(admin_user, account_uuids)

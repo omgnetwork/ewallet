@@ -1,7 +1,9 @@
 defmodule AdminAPI.V1.ProviderAuth.AdminControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
-  alias EWalletDB.{Account, User}
+  alias EWalletDB.{User, Account, AuthToken}
+
+  @owner_app :some_app
 
   describe "/admin.all" do
     test "returns a list of admins and pagination data" do
@@ -163,6 +165,78 @@ defmodule AdminAPI.V1.ProviderAuth.AdminControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "unauthorized"
+    end
+  end
+
+  describe "/user.enable_or_disable" do
+    test "disable an admin succeed and disable his tokens" do
+      account = Account.get_master_account()
+      role = insert(:role, %{name: "some_role"})
+      admin = insert(:admin, %{email: "admin@omise.co"})
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      {:ok, token} = AuthToken.generate(admin, @owner_app)
+      token_string = token.token
+      # Ensure tokens is usable.
+      assert AuthToken.authenticate(token_string, @owner_app)
+
+      response =
+        provider_request("/admin.enable_or_disable", %{
+          id: admin.id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+      assert response["data"]["enabled"] == false
+      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+    end
+
+    test "can't disable an admin in an account above the current one" do
+      master = Account.get_master_account()
+
+      admin = get_test_admin()
+
+      sub_acc = insert(:account, parent: master, name: "Account 1")
+      key = insert(:key, %{account: sub_acc})
+
+      response =
+        provider_request(
+          "/user.enable_or_disable",
+          %{
+            id: admin.id,
+            enabled: false
+          },
+          access_key: key.access_key,
+          secret_key: key.secret_key
+        )
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test "disable an admin that doesn't exist raises an error" do
+      response =
+        provider_request("/admin.enable_or_disable", %{
+          id: "invalid_id",
+          enabled: false
+        })
+
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:id_not_found"
+
+      assert response["data"]["description"] ==
+               "There is no user corresponding to the provided id."
+    end
+
+    test "disable an admin with missing params raises an error" do
+      response =
+        provider_request("/admin.enable_or_disable", %{
+          enabled: false
+        })
+
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
     end
   end
 end

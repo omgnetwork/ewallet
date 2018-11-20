@@ -103,7 +103,8 @@ defmodule EWallet.Web.PaginatorTest do
                # 2nd page is not the first page
                is_first_page: false,
                # 2nd page is not the last page
-               is_last_page: false
+               is_last_page: false,
+               count: 3
              }
     end
   end

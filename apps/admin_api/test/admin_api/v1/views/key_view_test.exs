@@ -17,7 +17,8 @@ defmodule AdminAPI.V1.KeyViewTest do
           access_key: key.access_key,
           secret_key: key.secret_key,
           account_id: key.account.id,
-          expired: key.expired,
+          expired: !key.enabled,
+          enabled: key.enabled,
           created_at: Date.to_iso8601(key.inserted_at),
           updated_at: Date.to_iso8601(key.updated_at),
           deleted_at: Date.to_iso8601(key.deleted_at)
@@ -53,7 +54,8 @@ defmodule AdminAPI.V1.KeyViewTest do
               access_key: key1.access_key,
               secret_key: key1.secret_key,
               account_id: key1.account.id,
-              expired: key1.expired,
+              expired: !key1.enabled,
+              enabled: key1.enabled,
               created_at: Date.to_iso8601(key1.inserted_at),
               updated_at: Date.to_iso8601(key1.updated_at),
               deleted_at: Date.to_iso8601(key1.deleted_at)
@@ -64,7 +66,8 @@ defmodule AdminAPI.V1.KeyViewTest do
               access_key: key2.access_key,
               secret_key: key2.secret_key,
               account_id: key2.account.id,
-              expired: key2.expired,
+              expired: !key2.enabled,
+              enabled: key2.enabled,
               created_at: Date.to_iso8601(key2.inserted_at),
               updated_at: Date.to_iso8601(key2.updated_at),
               deleted_at: Date.to_iso8601(key2.deleted_at)
