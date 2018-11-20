@@ -71,7 +71,7 @@ defmodule EWallet.Web.MatchParser do
           atom()
           | {atom(), atom()}
           | {:error, :not_supported, String.t()}
-          | {:error, :no_allowed, String.t()}
+          | {:error, :not_allowed, String.t()}
   defp parse_fieldset(field, mappings) do
     splitted = String.split(field, ".")
 
