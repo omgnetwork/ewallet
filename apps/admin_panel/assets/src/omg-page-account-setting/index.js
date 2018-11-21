@@ -27,7 +27,6 @@ const columns = [
   { key: 'updated_at', title: 'LAST UPDATED' },
   { key: 'status', title: 'STATUS' }
 ]
-
 const AccountSettingContainer = styled.div`
   a {
     color: inherit;

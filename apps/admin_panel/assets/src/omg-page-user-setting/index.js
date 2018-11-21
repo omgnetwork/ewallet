@@ -143,7 +143,7 @@ class UserSettingPage extends Component {
   onClickChangePassword = e => {
     this.setState({ changingPassword: true })
   }
-  render() {
+  render () {
     return (
       <UserSettingContainer>
         <h2>User Setting</h2>
@@ -152,7 +152,7 @@ class UserSettingPage extends Component {
             <AvatarContainer>
               <Avatar
                 onChangeImage={this.onChangeImage}
-                size="180px"
+                size='180px'
                 placeholder={this.state.avatarPlaceholder}
               />
             </AvatarContainer>
@@ -171,19 +171,19 @@ class UserSettingPage extends Component {
                       normalPlaceholder={'Old Password'}
                       value={this.state.oldPassword}
                       onChange={this.onChangeOldPassword}
-                      type="password"
+                      type='password'
                     />
                     <StyledInput
                       normalPlaceholder={'New Password'}
                       value={this.state.newPassword}
                       onChange={this.onChangeNewPassword}
-                      type="password"
+                      type='password'
                     />
                     <StyledInput
                       normalPlaceholder={'New Password Confirmation'}
                       value={this.state.newPasswordConfirmation}
                       onChange={this.onChangeNewPasswordConfirmation}
-                      type="password"
+                      type='password'
                     />
                   </ChangePasswordFormCointainer>
                 ) : (
@@ -191,8 +191,8 @@ class UserSettingPage extends Component {
                 )}
               </ChangePasswordContainer>
               <Button
-                size="small"
-                type="submit"
+                size='small'
+                type='submit'
                 key={'save'}
                 disabled={
                   !this.state.image &&
