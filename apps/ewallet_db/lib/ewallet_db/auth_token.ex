@@ -4,6 +4,7 @@ defmodule EWalletDB.AuthToken do
   """
   use Ecto.Schema
   use EWalletConfig.Types.ExternalID
+  use EWalletDB.Auditable
   import Ecto.Changeset
   import Ecto.Query, only: [from: 2]
   alias Ecto.UUID
@@ -37,6 +38,7 @@ defmodule EWalletDB.AuthToken do
 
     field(:expired, :boolean)
     timestamps()
+    auditable()
   end
 
   defp changeset(%AuthToken{} = token, attrs) do

@@ -50,7 +50,8 @@ defmodule EWalletDB.Factory do
   def category_factory do
     %Category{
       name: sequence("Category name"),
-      description: sequence("description")
+      description: sequence("description"),
+      originator: %System{}
     }
   end
 
@@ -58,7 +59,8 @@ defmodule EWalletDB.Factory do
     %ExchangePair{
       from_token: insert(:token),
       to_token: insert(:token),
-      rate: 1.0
+      rate: 1.0,
+      originator: %System{}
     }
   end
 
@@ -71,7 +73,8 @@ defmodule EWalletDB.Factory do
       identifier: Wallet.primary(),
       user: insert(:user),
       enabled: true,
-      metadata: %{}
+      metadata: %{},
+      originator: %System{}
     }
   end
 
@@ -93,7 +96,8 @@ defmodule EWalletDB.Factory do
       smallest_denomination: 1,
       locked: false,
       account: insert(:account),
-      enabled: true
+      enabled: true,
+      originator: %System{}
     }
   end
 
@@ -105,13 +109,13 @@ defmodule EWalletDB.Factory do
       full_name: sequence("John Doe"),
       calling_name: sequence("John"),
       provider_user_id: sequence("provider_id"),
-      originator: insert(:admin),
       enabled: true,
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
       },
-      encrypted_metadata: %{}
+      encrypted_metadata: %{},
+      originator: %System{}
     }
   end
 
@@ -123,12 +127,12 @@ defmodule EWalletDB.Factory do
       email: sequence("johndoe") <> "@example.com",
       password: password,
       password_hash: Crypto.hash_password(password),
-      originator: :self,
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
       },
-      encrypted_metadata: %{}
+      encrypted_metadata: %{},
+      originator: %System{}
     }
   end
 
@@ -141,11 +145,11 @@ defmodule EWalletDB.Factory do
       password: password,
       password_hash: Crypto.hash_password(password),
       invite: nil,
-      originator: %System{},
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
-      }
+      },
+      originator: %System{}
     }
   end
 
@@ -185,7 +189,7 @@ defmodule EWalletDB.Factory do
       token: Crypto.generate_base64_key(32),
       success_url: nil,
       verified_at: nil,
-      originator: insert(:admin)
+      originator: %System{}
     }
   end
 
@@ -193,7 +197,8 @@ defmodule EWalletDB.Factory do
     %Role{
       name: sequence("role"),
       display_name: "Role display name",
-      priority: sequence("")
+      priority: sequence(""),
+      originator: %System{}
     }
   end
 
@@ -201,7 +206,8 @@ defmodule EWalletDB.Factory do
     %Membership{
       user: insert(:user),
       role: insert(:role),
-      account: insert(:account)
+      account: insert(:account),
+      originator: %System{}
     }
   end
 
@@ -209,7 +215,8 @@ defmodule EWalletDB.Factory do
     %Mint{
       amount: 100_000,
       token_uuid: insert(:token).uuid,
-      transaction_uuid: insert(:transaction).uuid
+      transaction_uuid: insert(:transaction).uuid,
+      originator: %System{}
     }
   end
 
@@ -217,7 +224,8 @@ defmodule EWalletDB.Factory do
     %Account{
       name: sequence("account"),
       description: sequence("description for account"),
-      parent: Account.get_master_account()
+      parent: Account.get_master_account(),
+      originator: %System{}
     }
   end
 
@@ -225,7 +233,7 @@ defmodule EWalletDB.Factory do
     %AccountUser{
       account_uuid: Account.get_master_account().uuid,
       user_uuid: insert(:user).uuid,
-      originator: insert(:admin)
+      originator: %System{}
     }
   end
 
@@ -239,7 +247,8 @@ defmodule EWalletDB.Factory do
       secret_key_hash: Crypto.hash_secret(secret_key),
       account: insert(:account),
       enabled: true,
-      deleted_at: nil
+      deleted_at: nil,
+      originator: %System{}
     }
   end
 
@@ -248,7 +257,8 @@ defmodule EWalletDB.Factory do
       key: sequence("api_key"),
       owner_app: "some_app_name",
       account: insert(:account),
-      enabled: true
+      enabled: true,
+      originator: %System{}
     }
   end
 
@@ -258,7 +268,8 @@ defmodule EWalletDB.Factory do
       owner_app: "some_app_name",
       user: insert(:user),
       account: insert(:account),
-      expired: false
+      expired: false,
+      originator: %System{}
     }
   end
 
@@ -281,14 +292,16 @@ defmodule EWalletDB.Factory do
       to_wallet: to_wallet,
       to_user_uuid: to_wallet.user_uuid,
       to_account_uuid: to_wallet.account_uuid,
-      exchange_account: nil
+      exchange_account: nil,
+      originator: %System{}
     }
   end
 
   def forget_password_request_factory do
     %ForgetPasswordRequest{
       token: sequence("123"),
-      enabled: true
+      enabled: true,
+      originator: %System{}
     }
   end
 
@@ -296,7 +309,8 @@ defmodule EWalletDB.Factory do
     %UpdateEmailRequest{
       email: sequence("johndoe") <> "@example.com",
       token: sequence("123"),
-      enabled: true
+      enabled: true,
+      originator: %System{}
     }
   end
 
@@ -308,7 +322,8 @@ defmodule EWalletDB.Factory do
       token_uuid: insert(:token).uuid,
       user_uuid: insert(:user).uuid,
       wallet: insert(:wallet),
-      consumptions_count: 0
+      consumptions_count: 0,
+      originator: %System{}
     }
   end
 
@@ -319,7 +334,8 @@ defmodule EWalletDB.Factory do
       user_uuid: insert(:user).uuid,
       wallet_address: insert(:wallet).address,
       amount: 100,
-      transaction_request_uuid: insert(:transaction_request).uuid
+      transaction_request_uuid: insert(:transaction_request).uuid,
+      originator: %System{}
     }
   end
 end

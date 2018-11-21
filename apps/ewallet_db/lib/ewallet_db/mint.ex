@@ -7,7 +7,8 @@ defmodule EWalletDB.Mint do
   import Ecto.{Query, Changeset}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
-  alias EWalletDB.{Account, Mint, Repo, Token, Transaction}
+  alias EWalletDB.{Account, Audit, Mint, Repo, Token, Transaction}
+  alias EWalletConfig.Types.VirtualStruct
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
@@ -17,6 +18,7 @@ defmodule EWalletDB.Mint do
     field(:description, :string)
     field(:amount, EWalletConfig.Types.Integer)
     field(:confirmed, :boolean, default: false)
+    field(:originator, VirtualStruct, virtual: true)
 
     belongs_to(
       :token,
@@ -47,8 +49,16 @@ defmodule EWalletDB.Mint do
 
   defp changeset(%Mint{} = mint, attrs) do
     mint
-    |> cast(attrs, [:description, :amount, :account_uuid, :token_uuid, :confirmed])
-    |> validate_required([:amount, :token_uuid])
+    |> Map.delete(:originator)
+    |> cast(attrs, [
+      :description,
+      :amount,
+      :account_uuid,
+      :token_uuid,
+      :confirmed,
+      :originator
+    ])
+    |> validate_required([:amount, :token_uuid, :originator])
     |> validate_number(
       :amount,
       greater_than: 0,
@@ -64,8 +74,9 @@ defmodule EWalletDB.Mint do
 
   defp update_changeset(%Mint{} = mint, attrs) do
     mint
-    |> cast(attrs, [:transaction_uuid])
-    |> validate_required([:transaction_uuid])
+    |> Map.delete(:originator)
+    |> cast(attrs, [:transaction_uuid, :originator])
+    |> validate_required([:transaction_uuid, :originator])
     |> assoc_constraint(:transaction)
   end
 
@@ -108,7 +119,7 @@ defmodule EWalletDB.Mint do
   def insert(attrs) do
     %Mint{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Audit.insert_record_with_audit()
   end
 
   @doc """
@@ -116,15 +127,9 @@ defmodule EWalletDB.Mint do
   """
   @spec update(mint :: %Mint{}, attrs :: map()) :: {:ok, %Mint{}} | {:error, Ecto.Changeset.t()}
   def update(%Mint{} = mint, attrs) do
-    changeset = update_changeset(mint, attrs)
-
-    case Repo.update(changeset) do
-      {:ok, mint} ->
-        {:ok, mint}
-
-      result ->
-        result
-    end
+    mint
+    |> update_changeset(attrs)
+    |> Audit.update_record_with_audit()
   end
 
   @doc """
@@ -132,11 +137,14 @@ defmodule EWalletDB.Mint do
   """
   def confirm(%Mint{confirmed: true} = mint), do: mint
 
-  def confirm(%Mint{confirmed: false} = mint) do
+  def confirm(%Mint{confirmed: false} = mint, originator) do
     {:ok, mint} =
       mint
-      |> changeset(%{confirmed: true})
-      |> Repo.update()
+      |> changeset(%{
+        confirmed: true,
+        originator: originator
+      })
+      |> Audit.update_record_with_audit()
 
     mint
   end

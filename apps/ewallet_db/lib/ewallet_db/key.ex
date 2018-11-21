@@ -5,6 +5,7 @@ defmodule EWalletDB.Key do
   use Ecto.Schema
   use EWalletDB.SoftDelete
   use EWalletConfig.Types.ExternalID
+  use EWalletDB.Auditable
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
   alias EWalletConfig.Helpers.Crypto
@@ -33,6 +34,7 @@ defmodule EWalletDB.Key do
     field(:enabled, :boolean, default: true)
     timestamps()
     soft_delete()
+    auditable()
   end
 
   defp insert_changeset(%Key{} = key, attrs) do

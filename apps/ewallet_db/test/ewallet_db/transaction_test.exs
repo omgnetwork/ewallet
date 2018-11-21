@@ -2,6 +2,7 @@ defmodule EWalletDB.TransactionTest do
   use EWalletDB.SchemaCase
   alias Ecto.UUID
   alias EWalletDB.Transaction
+  alias EWalletConfig.System
 
   describe "Transaction factory" do
     test_has_valid_factory(Transaction)
@@ -74,7 +75,10 @@ defmodule EWalletDB.TransactionTest do
 
     test "returns an error when passing invalid arguments" do
       assert Repo.all(Transaction) == []
-      {res, changeset} = %{idempotency_token: nil, payload: %{}} |> Transaction.insert()
+
+      {res, changeset} =
+        %{idempotency_token: nil, payload: %{}, originator: %System{}} |> Transaction.insert()
+
       assert res == :error
 
       assert changeset.errors == [
@@ -118,7 +122,7 @@ defmodule EWalletDB.TransactionTest do
       {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
       assert inserted_transaction.status == Transaction.pending()
       local_ledger_uuid = UUID.generate()
-      transaction = Transaction.confirm(inserted_transaction, local_ledger_uuid)
+      transaction = Transaction.confirm(inserted_transaction, local_ledger_uuid, %System{})
       assert transaction.id == inserted_transaction.id
       assert transaction.status == Transaction.confirmed()
       assert transaction.local_ledger_uuid == local_ledger_uuid
@@ -129,7 +133,7 @@ defmodule EWalletDB.TransactionTest do
     test "sets a transaction as failed" do
       {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
       assert inserted_transaction.status == Transaction.pending()
-      transaction = Transaction.fail(inserted_transaction, "error", "desc")
+      transaction = Transaction.fail(inserted_transaction, "error", "desc", %System{})
       assert transaction.id == inserted_transaction.id
       assert transaction.status == Transaction.failed()
       assert transaction.error_code == "error"
@@ -140,7 +144,7 @@ defmodule EWalletDB.TransactionTest do
     test "sets a transaction as failed with atom error" do
       {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
       assert inserted_transaction.status == Transaction.pending()
-      transaction = Transaction.fail(inserted_transaction, :error, "desc")
+      transaction = Transaction.fail(inserted_transaction, :error, "desc", %System{})
       assert transaction.id == inserted_transaction.id
       assert transaction.status == Transaction.failed()
       assert transaction.error_code == "error"
@@ -151,7 +155,7 @@ defmodule EWalletDB.TransactionTest do
     test "sets a transaction as failed with error_data" do
       {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
       assert inserted_transaction.status == Transaction.pending()
-      transaction = Transaction.fail(inserted_transaction, "error", %{})
+      transaction = Transaction.fail(inserted_transaction, "error", %{}, %System{})
       assert transaction.id == inserted_transaction.id
       assert transaction.status == Transaction.failed()
       assert transaction.error_code == "error"

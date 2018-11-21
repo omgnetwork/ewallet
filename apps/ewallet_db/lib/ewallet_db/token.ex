@@ -4,6 +4,7 @@ defmodule EWalletDB.Token do
   """
   use Ecto.Schema
   use EWalletConfig.Types.ExternalID
+  use EWalletDB.Auditable
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
@@ -55,6 +56,7 @@ defmodule EWalletDB.Token do
     )
 
     timestamps()
+    auditable()
   end
 
   defp changeset(%Token{} = token, attrs) do

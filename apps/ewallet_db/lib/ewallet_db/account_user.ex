@@ -51,13 +51,6 @@ defmodule EWalletDB.AccountUser do
     %AccountUser{}
     |> changeset(attrs)
     |> Audit.insert_record_with_audit(opts)
-    |> case do
-      {:ok, result} ->
-        {:ok, result.record}
-
-      error ->
-        error
-    end
   end
 
   def link(account_uuid, user_uuid, originator) do

@@ -85,8 +85,8 @@ defmodule EWalletDB.AccountTest do
   end
 
   describe "update/2" do
-    test_update_field_ok(Account, :name, insert(:admin))
-    test_update_field_ok(Account, :description, insert(:admin))
+    test_update_field_ok(Account, :name)
+    test_update_field_ok(Account, :description)
   end
 
   describe "update/2 with category_ids" do

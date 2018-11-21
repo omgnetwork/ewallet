@@ -5,6 +5,7 @@ defmodule EWalletDB.Role do
   use Ecto.Schema
   use EWalletConfig.Types.ExternalID
   use EWalletDB.SoftDelete
+  use EWalletDB.Auditable
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
@@ -28,6 +29,7 @@ defmodule EWalletDB.Role do
 
     timestamps()
     soft_delete()
+    auditable()
   end
 
   defp changeset(%Role{} = key, attrs) do

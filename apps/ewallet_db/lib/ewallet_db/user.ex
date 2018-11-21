@@ -5,14 +5,12 @@ defmodule EWalletDB.User do
   use Arc.Ecto.Schema
   use Ecto.Schema
   use EWalletConfig.Types.ExternalID
+  use EWalletDB.Auditable
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
-  import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
   alias EWalletConfig.Helpers.Crypto
-
-  alias EWalletConfig.Types.VirtualStruct
 
   alias EWalletDB.{
     Account,
@@ -41,11 +39,11 @@ defmodule EWalletDB.User do
     field(:password_confirmation, :string, virtual: true)
     field(:password_hash, :string)
     field(:provider_user_id, :string)
-    field(:originator, VirtualStruct, virtual: true)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
     field(:enabled, :boolean, default: true)
+    auditable()
 
     belongs_to(
       :invite,
@@ -97,6 +95,7 @@ defmodule EWalletDB.User do
     password_hash = attrs |> get_attr(:password) |> Crypto.hash_password()
 
     changeset
+    |> Map.delete(:originator)
     |> cast(attrs, [
       :is_admin,
       :username,
@@ -124,6 +123,7 @@ defmodule EWalletDB.User do
 
   defp update_user_changeset(user, attrs) do
     user
+    |> Map.delete(:originator)
     |> cast(attrs, [
       :username,
       :full_name,
@@ -144,6 +144,7 @@ defmodule EWalletDB.User do
 
   defp update_admin_changeset(user, attrs) do
     user
+    |> Map.delete(:originator)
     |> cast(attrs, [
       :full_name,
       :calling_name,
@@ -159,6 +160,7 @@ defmodule EWalletDB.User do
 
   defp avatar_changeset(user, attrs) do
     user
+    |> Map.delete(:originator)
     |> cast(attrs, [:originator])
     |> cast_attachments(attrs, [:avatar])
     |> validate_required([:originator])
@@ -168,6 +170,7 @@ defmodule EWalletDB.User do
     password_hash = attrs |> get_attr(:password) |> Crypto.hash_password()
 
     user
+    |> Map.delete(:originator)
     |> cast(attrs, [
       :password,
       :password_confirmation,
@@ -181,8 +184,9 @@ defmodule EWalletDB.User do
 
   defp enable_changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:enabled])
-    |> validate_required([:enabled])
+    |> Map.delete(:originator)
+    |> cast(attrs, [:enabled, :originator])
+    |> validate_required([:enabled, :originator])
   end
 
   defp get_attr(attrs, atom_field) do
@@ -191,6 +195,7 @@ defmodule EWalletDB.User do
 
   defp email_changeset(user, attrs) do
     user
+    |> Map.delete(:originator)
     |> cast(attrs, [
       :email,
       :originator
@@ -330,7 +335,7 @@ defmodule EWalletDB.User do
       end)
     )
     |> case do
-      {:ok, %{record: user}} ->
+      {:ok, user} ->
         {:ok, Repo.preload(user, [:wallets])}
 
       error ->
@@ -363,7 +368,7 @@ defmodule EWalletDB.User do
         update_user_changeset(user, attrs)
       end
 
-    update_with_audit(changeset)
+    Audit.update_record_with_audit(changeset)
   end
 
   @doc """
@@ -400,7 +405,7 @@ defmodule EWalletDB.User do
   defp do_update_password(user, attrs) do
     user
     |> password_changeset(attrs)
-    |> update_with_audit()
+    |> Audit.update_record_with_audit()
   end
 
   @doc """
@@ -410,7 +415,7 @@ defmodule EWalletDB.User do
   def update_email(%User{} = user, attrs) do
     user
     |> email_changeset(attrs)
-    |> update_with_audit()
+    |> Audit.update_record_with_audit()
   end
 
   @doc """
@@ -429,19 +434,7 @@ defmodule EWalletDB.User do
 
     user
     |> avatar_changeset(updated_attrs)
-    |> update_with_audit()
-  end
-
-  defp update_with_audit(changeset) do
-    changeset
     |> Audit.update_record_with_audit()
-    |> case do
-      {:ok, result} ->
-        {:ok, get(result.record.id)}
-
-      error ->
-        error
-    end
   end
 
   @doc """
@@ -689,6 +682,6 @@ defmodule EWalletDB.User do
   def enable_or_disable(user, attrs) do
     user
     |> enable_changeset(attrs)
-    |> Repo.update()
+    |> Audit.update_record_with_audit()
   end
 end

@@ -4,6 +4,7 @@ defmodule EWalletDB.Wallet do
   """
   use Ecto.Schema
   use EWalletConfig.Types.WalletAddress
+  use EWalletDB.Auditable
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
@@ -45,6 +46,7 @@ defmodule EWalletDB.Wallet do
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
     field(:enabled, :boolean)
+    auditable()
 
     belongs_to(
       :user,
@@ -67,8 +69,11 @@ defmodule EWalletDB.Wallet do
 
   defp changeset(%Wallet{} = wallet, attrs) do
     wallet
-    |> cast(attrs, @cast_attrs)
-    |> validate_required([:name, :identifier])
+    |> cast_and_validate_required_for_audit(
+      attrs,
+      @cast_attrs,
+      [:name, :identifier]
+    )
     |> validate_format(
       :identifier,
       ~r/#{@genesis}|#{@burn}|#{@burn}_.|#{@primary}|#{@secondary}_.*/

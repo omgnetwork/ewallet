@@ -6,6 +6,7 @@ defmodule EWalletDB.TransactionConsumption do
   use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
+  alias EWalletConfig.Types.VirtualStruct
 
   alias EWalletDB.{
     Account,
@@ -56,6 +57,8 @@ defmodule EWalletDB.TransactionConsumption do
     field(:expiration_date, :naive_datetime)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
+
+    field(:originator, VirtualStruct, virtual: true)
 
     belongs_to(
       :transaction,

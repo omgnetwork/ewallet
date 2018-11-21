@@ -131,7 +131,8 @@ defmodule EWalletDB.AuditTest do
         })
 
       changeset = Changeset.change(%User{}, params)
-      {res, %{audit: audit, record: record}} = Audit.insert_record_with_audit(changeset)
+      {res, record} = Audit.insert_record_with_audit(changeset)
+      audit = record |> Audit.all_for_target() |> Enum.at(0)
 
       assert res == :ok
 
@@ -141,17 +142,58 @@ defmodule EWalletDB.AuditTest do
       assert audit.target_type == "user"
       assert audit.target_uuid == record.uuid
 
-      changes =
-        changeset.changes
-        |> Map.delete(:originator)
-        |> Map.delete(:encrypted_metadata)
+      assert audit.target_changes == %{
+               "calling_name" => record.calling_name,
+               "full_name" => record.full_name,
+               "metadata" => record.metadata,
+               "provider_user_id" => record.provider_user_id,
+               "username" => record.username
+             }
 
-      assert audit.target_changes == changes
-      assert audit.target_encrypted_metadata == %{something: "cool"}
+      assert audit.target_encrypted_metadata == %{"something" => "cool"}
 
       assert record |> Audit.all_for_target() |> length() == 1
     end
+  end
 
+  describe "Audit.update_record_with_audit/2" do
+    test "inserts an audit when updating a user" do
+      admin = insert(:admin)
+      {:ok, user} = :user |> params_for() |> User.insert()
+
+      params =
+        params_for(:user, %{
+          username: "test_username",
+          originator: admin
+        })
+
+      changeset = Changeset.change(user, params)
+      {res, record} = Audit.update_record_with_audit(changeset)
+      audit = record |> Audit.all_for_target() |> Enum.at(0)
+
+      assert res == :ok
+
+      assert audit.action == "update"
+      assert audit.originator_type == "user"
+      assert audit.originator_uuid == admin.uuid
+      assert audit.target_type == "user"
+      assert audit.target_uuid == record.uuid
+
+      assert audit.target_changes == %{
+               "calling_name" => record.calling_name,
+               "full_name" => record.full_name,
+               "metadata" => record.metadata,
+               "provider_user_id" => record.provider_user_id,
+               "username" => record.username
+             }
+
+      assert audit.target_encrypted_metadata == %{}
+
+      assert user |> Audit.all_for_target() |> length() == 2
+    end
+  end
+
+  describe "perform/4" do
     test "inserts an audit and a user as well as a wallet" do
       admin = insert(:admin)
 
@@ -170,7 +212,7 @@ defmodule EWalletDB.AuditTest do
         end)
 
       {res, %{audit: audit, record: record, wow_user: wow_user}} =
-        Audit.insert_record_with_audit(changeset, [], multi)
+        Audit.perform(:insert, changeset, [], multi)
 
       assert res == :ok
 
@@ -184,34 +226,6 @@ defmodule EWalletDB.AuditTest do
       assert wow_user.username == "test_username"
 
       assert record |> Audit.all_for_target() |> length() == 1
-    end
-  end
-
-  describe "Audit.update_record_with_audit/2" do
-    test "inserts an audit when updating a user" do
-      admin = insert(:admin)
-      {:ok, user} = :user |> params_for() |> User.insert()
-
-      params =
-        params_for(:user, %{
-          username: "test_username",
-          originator: admin
-        })
-
-      changeset = Changeset.change(user, params)
-      {res, %{audit: audit, record: record}} = Audit.update_record_with_audit(changeset)
-
-      assert res == :ok
-
-      assert audit.action == "update"
-      assert audit.originator_type == "user"
-      assert audit.originator_uuid == admin.uuid
-      assert audit.target_type == "user"
-      assert audit.target_uuid == record.uuid
-      changes = Map.delete(changeset.changes, :originator)
-      assert audit.target_changes == changes
-
-      assert user |> Audit.all_for_target() |> length() == 2
     end
 
     test "inserts an audit and updates a user as well as saving a wallet" do
@@ -233,7 +247,7 @@ defmodule EWalletDB.AuditTest do
         end)
 
       {res, %{audit: audit, record: record, wow_user: _}} =
-        Audit.update_record_with_audit(changeset, [], multi)
+        Audit.perform(:update, changeset, [], multi)
 
       assert res == :ok
 

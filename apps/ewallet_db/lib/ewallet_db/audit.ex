@@ -111,25 +111,34 @@ defmodule EWalletDB.Audit do
     end
   end
 
-  @spec insert_record_with_audit(%Changeset{}, Multi.t()) ::
+  @spec insert_record_with_audit(%Changeset{}, Keyword.t(), Multi.t()) ::
           {:ok, any()}
           | {:error, any()}
           | {:error, :no_originator_given}
           | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
   def insert_record_with_audit(changeset, opts \\ [], multi \\ Multi.new()) do
-    perform(:insert, changeset, multi, opts)
+    :insert
+    |> perform(changeset, opts, multi)
+    |> handle_perform_result()
   end
 
-  @spec update_record_with_audit(%Changeset{}, Multi.t()) ::
+  @spec update_record_with_audit(%Changeset{}, Keyword.t(), Multi.t()) ::
           {:ok, any()}
           | {:error, any()}
           | {:error, :no_originator_given}
           | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
   def update_record_with_audit(changeset, opts \\ [], multi \\ Multi.new()) do
-    perform(:update, changeset, multi, opts)
+    :update
+    |> perform(changeset, opts, multi)
+    |> handle_perform_result()
   end
 
-  defp perform(action, changeset, multi, opts) do
+  @spec perform(Atom.t(), %Changeset{}, Keyword.t(), Multi.t()) ::
+          {:ok, any()}
+          | {:error, any()}
+          | {:error, :no_originator_given}
+          | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
+  def perform(action, changeset, opts \\ [], multi \\ Multi.new()) do
     Multi
     |> apply(action, [Multi.new(), :record, changeset, opts])
     |> Multi.run(:audit, fn %{record: record} ->
@@ -139,15 +148,16 @@ defmodule EWalletDB.Audit do
     end)
     |> Multi.append(multi)
     |> Repo.transaction()
-    |> case do
-      {:ok, result} ->
-        {:ok, result}
+  end
 
-      # Only the account insertion should fail. If the wallet insert fails, there is
-      # something wrong with our code.
-      {:error, _failed_operation, changeset, _changes_so_far} ->
-        {:error, changeset}
-    end
+  defp handle_perform_result({:ok, %{record: record}}) do
+    {:ok, record}
+  end
+
+  # Only the account insertion should fail. If the wallet insert fails, there is
+  # something wrong with our code.
+  defp handle_perform_result({:error, _failed_operation, changeset, _changes_so_far}) do
+    {:error, changeset}
   end
 
   defp insert_audit(attrs) do

@@ -52,12 +52,11 @@ defmodule EWalletDB.APIKeyTest do
     test_update_ignores_changing(APIKey, :key)
     test_update_ignores_changing(APIKey, :owner_app)
 
-    test_update_field_ok(APIKey, :enabled, insert(:admin), true, false)
+    test_update_field_ok(APIKey, :enabled, true, false)
 
     test_update_field_ok(
       APIKey,
       :exchange_address,
-      insert(:admin),
       insert(:wallet).address,
       insert(:wallet).address
     )

@@ -5,6 +5,7 @@ defmodule EWalletDB.Account do
   use Ecto.Schema
   use Arc.Ecto.Schema
   use EWalletConfig.Types.ExternalID
+  use EWalletDB.Auditable
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   import EWalletDB.AccountValidator
@@ -97,6 +98,7 @@ defmodule EWalletDB.Account do
     )
 
     timestamps()
+    auditable()
   end
 
   @spec changeset(%Account{}, map()) :: Ecto.Changeset.t()

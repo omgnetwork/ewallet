@@ -8,7 +8,8 @@ defmodule EWalletDB.Transaction do
   import EWalletDB.Validator
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Account, ExchangePair, Repo, Token, Transaction, User, Wallet}
+  alias EWalletDB.{Account, Audit, ExchangePair, Repo, Token, Transaction, User, Wallet}
+  alias EWalletConfig.Types.VirtualStruct
 
   @pending "pending"
   @confirmed "confirmed"
@@ -49,6 +50,8 @@ defmodule EWalletDB.Transaction do
 
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
+
+    field(:originator, VirtualStruct, virtual: true)
 
     belongs_to(
       :from_token,
@@ -143,6 +146,7 @@ defmodule EWalletDB.Transaction do
 
   defp changeset(%Transaction{} = transaction, attrs) do
     transaction
+    |> Map.delete(:originator)
     |> cast(attrs, [
       :idempotency_token,
       :status,
@@ -167,7 +171,8 @@ defmodule EWalletDB.Transaction do
       :error_code,
       :error_description,
       :exchange_pair_uuid,
-      :calculated_at
+      :calculated_at,
+      :originator
     ])
     |> validate_required([
       :idempotency_token,
@@ -181,7 +186,8 @@ defmodule EWalletDB.Transaction do
       :to,
       :from,
       :metadata,
-      :encrypted_metadata
+      :encrypted_metadata,
+      :originator
     ])
     |> validate_number(:from_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_number(:to_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
@@ -209,22 +215,26 @@ defmodule EWalletDB.Transaction do
 
   defp confirm_changeset(%Transaction{} = transaction, attrs) do
     transaction
-    |> cast(attrs, [:status, :local_ledger_uuid])
-    |> validate_required([:status, :local_ledger_uuid])
+    |> Map.delete(:originator)
+    |> cast(attrs, [:status, :local_ledger_uuid, :originator])
+    |> validate_required([:status, :local_ledger_uuid, :originator])
     |> validate_inclusion(:status, @statuses)
   end
 
   defp fail_changeset(%Transaction{} = transaction, attrs) do
     transaction
+    |> Map.delete(:originator)
     |> cast(attrs, [
       :status,
       :error_code,
       :error_description,
-      :error_data
+      :error_data,
+      :originator
     ])
     |> validate_required([
       :status,
-      :error_code
+      :error_code,
+      :originator
     ])
     |> validate_inclusion(:status, @statuses)
   end
@@ -317,62 +327,74 @@ defmodule EWalletDB.Transaction do
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
     changeset = changeset(%Transaction{}, attrs)
 
-    Multi.new()
-    |> Multi.insert(:transaction, changeset, opts)
-    |> Multi.run(:transaction_1, fn %{transaction: transaction} ->
-      case get(transaction.id, preload: [:from_wallet, :to_wallet, :from_token, :to_token]) do
-        nil ->
-          {:ok, get_by_idempotency_token(transaction.idempotency_token)}
+    Audit.perform(
+      :insert,
+      changeset,
+      opts,
+      Multi.run(Multi.new(), :transaction_1, fn %{record: transaction} ->
+        case get(transaction.id, preload: [:from_wallet, :to_wallet, :from_token, :to_token]) do
+          nil ->
+            {:ok, get_by_idempotency_token(transaction.idempotency_token)}
 
-        transaction ->
-          {:ok, transaction}
-      end
-    end)
-    |> Repo.transaction()
-    |> case do
-      {:ok, %{transaction: _transaction, transaction_1: nil}} ->
-        {:error, :inserted_transaction_could_not_be_loaded}
+          transaction ->
+            {:ok, transaction}
+        end
+      end)
+    )
+    |> handle_insert_result()
+  end
 
-      {:ok, %{transaction: _transaction, transaction_1: transaction_1}} ->
-        {:ok, transaction_1}
+  defp handle_insert_result({:ok, %{record: _transaction, transaction_1: nil}}) do
+    {:error, :inserted_transaction_could_not_be_loaded}
+  end
 
-      {:error, _failed_operation, failed_value, _changes_so_far} ->
-        {:error, failed_value}
-    end
+  defp handle_insert_result({:ok, %{record: _transaction, transaction_1: transaction_1}}) do
+    {:ok, transaction_1}
+  end
+
+  defp handle_insert_result({:error, _failed_operation, changeset, _changes_so_far}) do
+    {:error, changeset}
   end
 
   @doc """
   Confirms a transaction and saves the ledger's response.
   """
-  def confirm(transaction, local_ledger_uuid) do
+  def confirm(transaction, local_ledger_uuid, originator) do
     transaction
-    |> confirm_changeset(%{status: @confirmed, local_ledger_uuid: local_ledger_uuid})
-    |> Repo.update()
+    |> confirm_changeset(%{
+      status: @confirmed,
+      local_ledger_uuid: local_ledger_uuid,
+      originator: originator
+    })
+    |> Audit.update_record_with_audit()
     |> handle_update_result()
   end
 
   @doc """
   Sets a transaction as failed and saves the ledger's response.
   """
-  def fail(transaction, error_code, error_description) when is_map(error_description) do
+  def fail(transaction, error_code, error_description, originator)
+      when is_map(error_description) do
     do_fail(
       %{
         status: @failed,
         error_code: error_code,
         error_description: nil,
-        error_data: error_description
+        error_data: error_description,
+        originator: originator
       },
       transaction
     )
   end
 
-  def fail(transaction, error_code, error_description) do
+  def fail(transaction, error_code, error_description, originator) do
     do_fail(
       %{
         status: @failed,
         error_code: error_code,
         error_description: error_description,
-        error_data: nil
+        error_data: nil,
+        originator: originator
       },
       transaction
     )
@@ -387,7 +409,7 @@ defmodule EWalletDB.Transaction do
   defp do_fail(data, transaction) do
     transaction
     |> fail_changeset(data)
-    |> Repo.update()
+    |> Audit.update_record_with_audit()
     |> handle_update_result()
   end
 

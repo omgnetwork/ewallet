@@ -9,7 +9,8 @@ defmodule EWalletDB.Category do
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
   alias EWalletConfig.Helpers.InputAttribute
-  alias EWalletDB.{Account, Repo}
+  alias EWalletDB.{Audit, Account, Repo}
+  alias EWalletConfig.Types.VirtualStruct
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -18,6 +19,7 @@ defmodule EWalletDB.Category do
 
     field(:name, :string)
     field(:description, :string)
+    field(:originator, VirtualStruct, virtual: true)
     timestamps()
     soft_delete()
 
@@ -32,8 +34,8 @@ defmodule EWalletDB.Category do
 
   defp changeset(category, attrs) do
     category
-    |> cast(attrs, [:name, :description])
-    |> validate_required(:name)
+    |> cast(attrs, [:name, :description, :originator])
+    |> validate_required([:name, :originator])
     |> unique_constraint(:name)
     |> put_accounts(attrs, :account_ids)
   end
@@ -95,7 +97,7 @@ defmodule EWalletDB.Category do
   def insert(attrs) do
     %__MODULE__{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Audit.insert_record_with_audit()
   end
 
   @doc """
@@ -105,7 +107,7 @@ defmodule EWalletDB.Category do
   def update(category, attrs) do
     category
     |> changeset(attrs)
-    |> Repo.update()
+    |> Audit.update_record_with_audit()
   end
 
   @doc """

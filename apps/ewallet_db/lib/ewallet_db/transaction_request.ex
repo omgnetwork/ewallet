@@ -7,9 +7,11 @@ defmodule EWalletDB.TransactionRequest do
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   alias Ecto.{Changeset, Query, UUID}
+  alias EWalletConfig.Types.VirtualStruct
 
   alias EWalletDB.{
     Account,
+    Audit,
     Repo,
     Token,
     TransactionConsumption,
@@ -50,6 +52,8 @@ defmodule EWalletDB.TransactionRequest do
     field(:allow_amount_override, :boolean, default: true)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
+
+    field(:originator, VirtualStruct, virtual: true)
 
     has_many(
       :consumptions,
@@ -111,6 +115,7 @@ defmodule EWalletDB.TransactionRequest do
 
   defp changeset(%TransactionRequest{} = transaction_request, attrs) do
     transaction_request
+    |> Map.delete(:originator)
     |> cast(attrs, [
       :type,
       :amount,
@@ -128,13 +133,15 @@ defmodule EWalletDB.TransactionRequest do
       :encrypted_metadata,
       :allow_amount_override,
       :exchange_account_uuid,
-      :exchange_wallet_address
+      :exchange_wallet_address,
+      :originator
     ])
     |> validate_required([
       :type,
       :status,
       :token_uuid,
-      :wallet_address
+      :wallet_address,
+      :originator
     ])
     |> validate_amount_if_disallow_override()
     |> validate_number(:amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
@@ -150,21 +157,24 @@ defmodule EWalletDB.TransactionRequest do
 
   defp consumptions_count_changeset(%TransactionRequest{} = transaction_request, attrs) do
     transaction_request
-    |> cast(attrs, [:consumptions_count])
-    |> validate_required([:consumptions_count])
+    |> Map.delete(:originator)
+    |> cast(attrs, [:consumptions_count, :originator])
+    |> validate_required([:consumptions_count, :originator])
   end
 
   defp expire_changeset(%TransactionRequest{} = transaction_request, attrs) do
     transaction_request
-    |> cast(attrs, [:status, :expired_at, :expiration_reason])
-    |> validate_required([:status, :expired_at, :expiration_reason])
+    |> Map.delete(:originator)
+    |> cast(attrs, [:status, :expired_at, :expiration_reason, :originator])
+    |> validate_required([:status, :expired_at, :expiration_reason, :originator])
     |> validate_inclusion(:status, @statuses)
   end
 
   defp touch_changeset(%TransactionRequest{} = transaction_request, attrs) do
     transaction_request
-    |> cast(attrs, [:updated_at])
-    |> validate_required([:updated_at])
+    |> Map.delete(:originator)
+    |> cast(attrs, [:updated_at, :originator])
+    |> validate_required([:updated_at, :originator])
   end
 
   defp validate_amount_if_disallow_override(changeset) do
@@ -252,11 +262,14 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Touches a request by updating the `updated_at` field.
   """
-  @spec touch(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} | {:error, map()}
-  def touch(request) do
+  @spec touch(%TransactionRequest{}, Map.t()) :: {:ok, %TransactionRequest{}} | {:error, map()}
+  def touch(request, originator) do
     request
-    |> touch_changeset(%{updated_at: NaiveDateTime.utc_now()})
-    |> Repo.update()
+    |> touch_changeset(%{
+      updated_at: NaiveDateTime.utc_now(),
+      originator: originator
+    })
+    |> Audit.update_record_with_audit()
   end
 
   @doc """
@@ -266,7 +279,7 @@ defmodule EWalletDB.TransactionRequest do
   def insert(attrs) do
     %TransactionRequest{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Audit.insert_record_with_audit()
   end
 
   @doc """
@@ -275,7 +288,7 @@ defmodule EWalletDB.TransactionRequest do
   def update(%TransactionRequest{} = request, attrs) do
     request
     |> changeset(attrs)
-    |> Repo.update()
+    |> Audit.update_record_with_audit()
   end
 
   @spec valid?(%TransactionRequest{}) :: true | false
@@ -307,29 +320,31 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Expires the given request with the specified reason.
   """
-  @spec expire(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} | {:error, map()}
-  def expire(request, reason \\ "expired_transaction_request") do
+  @spec expire(%TransactionRequest{}, Map.t(), String.t()) ::
+          {:ok, %TransactionRequest{}} | {:error, map()}
+  def expire(request, originator, reason \\ "expired_transaction_request") do
     request
     |> expire_changeset(%{
       status: @expired,
       expired_at: NaiveDateTime.utc_now(),
-      expiration_reason: reason
+      expiration_reason: reason,
+      originator: originator
     })
-    |> Repo.update()
+    |> Audit.update_record_with_audit()
   end
 
   @doc """
   Expires the given request if the expiration date is past.
   """
-  @spec expire_if_past_expiration_date(%TransactionRequest{}) ::
+  @spec expire_if_past_expiration_date(%TransactionRequest{}, Map.t()) ::
           {:ok, %TransactionRequest{}} | {:error, map()}
-  def expire_if_past_expiration_date(request) do
+  def expire_if_past_expiration_date(request, originator) do
     expired? =
       request.expiration_date &&
         NaiveDateTime.compare(request.expiration_date, NaiveDateTime.utc_now()) == :lt
 
     case expired? do
-      true -> expire(request)
+      true -> expire(request, originator)
       _ -> {:ok, request}
     end
   end
@@ -337,37 +352,41 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Expires the given request if the maximum number of consumptions has been reached.
   """
-  @spec expire_if_max_consumption(%TransactionRequest{}) ::
+  @spec expire_if_max_consumption(%TransactionRequest{}, Map.t()) ::
           {:ok, %TransactionRequest{}}
           | {:error, map()}
-  def expire_if_max_consumption(request) do
+  def expire_if_max_consumption(request, originator) do
     consumptions = TransactionConsumption.all_active_for_request(request.uuid)
-    request = update_consumptions_count(request, consumptions)
+    request = update_consumptions_count(request, consumptions, originator)
+    request = %{request | originator: nil}
 
     case max_consumptions_reached?(request, consumptions) do
-      true -> expire(request, "max_consumptions_reached")
-      false -> touch(request)
+      true -> expire(request, originator, "max_consumptions_reached")
+      false -> touch(request, originator)
     end
   end
 
-  @spec load_consumptions_count(%TransactionRequest{}) :: Integer.t()
-  def load_consumptions_count(request) do
+  @spec load_consumptions_count(%TransactionRequest{}, Map.t()) :: Integer.t()
+  def load_consumptions_count(request, originator) do
     case request.consumptions_count do
       nil ->
         consumptions = TransactionConsumption.all_active_for_request(request.uuid)
-        update_consumptions_count(request, consumptions)
+        update_consumptions_count(request, consumptions, originator)
 
       _count ->
         request
     end
   end
 
-  @spec update_consumptions_count(%TransactionRequest{}, list(%TransactionConsumption{})) ::
+  @spec update_consumptions_count(%TransactionRequest{}, list(%TransactionConsumption{}), Map.t()) ::
           %TransactionRequest{}
-  defp update_consumptions_count(request, consumptions) do
+  defp update_consumptions_count(request, consumptions, originator) do
     {:ok, request} =
       request
-      |> consumptions_count_changeset(%{consumptions_count: length(consumptions)})
+      |> consumptions_count_changeset(%{
+        consumptions_count: length(consumptions),
+        originator: originator
+      })
       |> Repo.update()
 
     request

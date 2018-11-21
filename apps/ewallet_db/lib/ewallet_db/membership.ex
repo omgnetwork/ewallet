@@ -3,6 +3,7 @@ defmodule EWalletDB.Membership do
   Ecto Schema representing user memberships.
   """
   use Ecto.Schema
+  use EWalletDB.Auditable
   import Ecto.Changeset
   import Ecto.Query, except: [update: 2]
   alias Ecto.UUID
@@ -36,6 +37,7 @@ defmodule EWalletDB.Membership do
     )
 
     timestamps()
+    auditable()
   end
 
   def changeset(%Membership{} = membership, attrs) do

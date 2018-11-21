@@ -1,6 +1,7 @@
 defmodule EWalletDB.ExchangePairTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.ExchangePair
+  alias EWalletConfig.System
 
   describe "ExchangePair factory" do
     test_has_valid_factory(ExchangePair)
@@ -20,7 +21,8 @@ defmodule EWalletDB.ExchangePairTest do
       attrs = %{
         from_token_uuid: pair.from_token_uuid,
         to_token_uuid: pair.to_token_uuid,
-        rate: 999
+        rate: 999,
+        originator: %System{}
       }
 
       {res, inserted} = ExchangePair.insert(attrs)
@@ -37,7 +39,8 @@ defmodule EWalletDB.ExchangePairTest do
       attrs = %{
         from_token_uuid: omg.uuid,
         to_token_uuid: omg.uuid,
-        rate: 1.00
+        rate: 1.00,
+        originator: %System{}
       }
 
       {res, changeset} = ExchangePair.insert(attrs)
@@ -57,7 +60,8 @@ defmodule EWalletDB.ExchangePairTest do
       attrs = %{
         from_token_uuid: pair.from_token_uuid,
         to_token_uuid: pair.to_token_uuid,
-        rate: 999
+        rate: 999,
+        originator: %System{}
       }
 
       {res, changeset} = ExchangePair.insert(attrs)
@@ -88,7 +92,7 @@ defmodule EWalletDB.ExchangePairTest do
   end
 
   describe "update/2" do
-    test_update_field_ok(ExchangePair, :rate, insert(:admin), 2.00, 9.99)
+    test_update_field_ok(ExchangePair, :rate, 2.00, 9.99)
 
     test_update_prevents_changing(
       ExchangePair,

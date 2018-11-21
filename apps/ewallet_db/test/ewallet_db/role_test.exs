@@ -33,8 +33,8 @@ defmodule EWalletDB.RoleTest do
   end
 
   describe "update/1" do
-    test_update_field_ok(Role, :name, insert(:admin))
-    test_update_field_ok(Role, :display_name, insert(:admin))
+    test_update_field_ok(Role, :name)
+    test_update_field_ok(Role, :display_name)
   end
 
   describe "deleted?/1" do

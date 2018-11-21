@@ -32,12 +32,14 @@ defmodule EWalletDB.Invite do
 
   defp changeset_insert(changeset, attrs) do
     changeset
+    |> Map.delete(:originator)
     |> cast(attrs, [:user_uuid, :token, :success_url, :originator])
     |> validate_required([:user_uuid, :token, :originator])
   end
 
   defp changeset_accept(changeset, attrs) do
     changeset
+    |> Map.delete(:originator)
     |> cast(attrs, [:verified_at, :originator])
     |> validate_required([:verified_at, :originator])
   end
@@ -125,8 +127,8 @@ defmodule EWalletDB.Invite do
       end)
     )
     |> case do
-      {:ok, result} ->
-        {:ok, Repo.preload(result.record, opts[:preload] || [])}
+      {:ok, invite} ->
+        {:ok, Repo.preload(invite, opts[:preload] || [])}
 
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
@@ -143,8 +145,8 @@ defmodule EWalletDB.Invite do
          {:ok, _user} <- User.update(invite.user, attrs),
          invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
          changeset <- changeset_accept(invite, invite_attrs),
-         {:ok, result} <- Audit.update_record_with_audit(changeset) do
-      {:ok, result.record}
+         {:ok, invite} <- Audit.update_record_with_audit(changeset) do
+      {:ok, invite}
     else
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
@@ -170,8 +172,8 @@ defmodule EWalletDB.Invite do
          {:ok, _user} <- User.update(user, user_attrs),
          invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
          changeset <- changeset_accept(invite, invite_attrs),
-         {:ok, result} <- Audit.update_record_with_audit(changeset) do
-      {:ok, result.record}
+         {:ok, invite} <- Audit.update_record_with_audit(changeset) do
+      {:ok, invite}
     else
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}

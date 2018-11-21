@@ -21,6 +21,7 @@ defmodule EWalletDB.ExchangePair do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
+  use EWalletDB.Auditable
   use EWalletConfig.Types.ExternalID
   import Ecto.Changeset
   import EWalletDB.Helpers.Preloader
@@ -53,12 +54,16 @@ defmodule EWalletDB.ExchangePair do
     field(:rate, :float)
     timestamps()
     soft_delete()
+    auditable()
   end
 
   defp changeset(exchange_pair, attrs) do
     exchange_pair
-    |> cast(attrs, [:from_token_uuid, :to_token_uuid, :rate, :deleted_at])
-    |> validate_required([:from_token_uuid, :to_token_uuid, :rate])
+    |> cast_and_validate_required_for_audit(
+      attrs,
+      [:from_token_uuid, :to_token_uuid, :rate, :deleted_at],
+      [:from_token_uuid, :to_token_uuid, :rate]
+    )
     |> validate_different_values(:from_token_uuid, :to_token_uuid)
     |> validate_immutable(:from_token_uuid)
     |> validate_immutable(:to_token_uuid)
@@ -73,7 +78,7 @@ defmodule EWalletDB.ExchangePair do
 
   defp restore_changeset(exchange_pair, attrs) do
     exchange_pair
-    |> cast(attrs, [:deleted_at])
+    |> cast_and_validate_required_for_audit(attrs, [:deleted_at])
     |> unique_constraint(
       :deleted_at,
       name: "exchange_pair_from_token_uuid_to_token_uuid_index"
@@ -121,7 +126,7 @@ defmodule EWalletDB.ExchangePair do
   def insert(attrs) do
     %__MODULE__{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> insert_with_audit()
   end
 
   @doc """
@@ -131,7 +136,7 @@ defmodule EWalletDB.ExchangePair do
   def update(exchange_pair, attrs) do
     exchange_pair
     |> changeset(attrs)
-    |> Repo.update()
+    |> update_with_audit()
   end
 
   @doc """
@@ -169,7 +174,7 @@ defmodule EWalletDB.ExchangePair do
   def touch(exchange_pair) do
     exchange_pair
     |> change(updated_at: NaiveDateTime.utc_now())
-    |> Repo.update()
+    |> update_with_audit()
   end
 
   @doc """
