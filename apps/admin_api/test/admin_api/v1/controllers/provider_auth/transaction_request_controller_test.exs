@@ -2,12 +2,13 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer}
   alias EWalletDB.{Account, AccountUser, Repo, TransactionRequest, User}
+  alias EWalletConfig.System
 
   describe "/transaction_request.all" do
     setup do
       user = get_test_user()
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       tr_1 = insert(:transaction_request, user_uuid: user.uuid, status: "valid")
       tr_2 = insert(:transaction_request, account_uuid: account.uuid, status: "valid")
@@ -131,7 +132,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/transaction_request.create", %{
@@ -189,7 +190,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/transaction_request.create", %{
@@ -247,7 +248,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/transaction_request.create", %{
@@ -317,7 +318,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
       account = Account.get_master_account()
       user = get_test_user()
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/transaction_request.create", %{

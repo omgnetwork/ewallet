@@ -116,8 +116,8 @@ defmodule EWalletDB.Audit do
           | {:error, any()}
           | {:error, :no_originator_given}
           | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
-  def insert_record_with_audit(changeset, multi \\ Multi.new()) do
-    perform(:insert, changeset, multi)
+  def insert_record_with_audit(changeset, opts \\ [], multi \\ Multi.new()) do
+    perform(:insert, changeset, multi, opts)
   end
 
   @spec update_record_with_audit(%Changeset{}, Multi.t()) ::
@@ -125,13 +125,13 @@ defmodule EWalletDB.Audit do
           | {:error, any()}
           | {:error, :no_originator_given}
           | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
-  def update_record_with_audit(changeset, multi \\ Multi.new()) do
-    perform(:update, changeset, multi)
+  def update_record_with_audit(changeset, opts \\ [], multi \\ Multi.new()) do
+    perform(:update, changeset, multi, opts)
   end
 
-  defp perform(action, changeset, multi) do
+  defp perform(action, changeset, multi, opts) do
     Multi
-    |> apply(action, [Multi.new(), :record, changeset])
+    |> apply(action, [Multi.new(), :record, changeset, opts])
     |> Multi.run(:audit, fn %{record: record} ->
       action
       |> build_attrs(changeset, record)
@@ -139,6 +139,15 @@ defmodule EWalletDB.Audit do
     end)
     |> Multi.append(multi)
     |> Repo.transaction()
+    |> case do
+      {:ok, result} ->
+        {:ok, result}
+
+      # Only the account insertion should fail. If the wallet insert fails, there is
+      # something wrong with our code.
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
+    end
   end
 
   defp insert_audit(attrs) do

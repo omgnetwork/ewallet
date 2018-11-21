@@ -7,7 +7,7 @@ defmodule AdminAPI.V1.TransactionController do
   alias Ecto.Changeset
   alias EWallet.TransactionGate
   alias EWallet.TransactionPolicy
-  alias EWallet.Web.{Orchestrator, Paginator, V1.TransactionOverlay}
+  alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.TransactionOverlay}
   alias EWalletDB.{Account, Repo, Transaction, User}
 
   @doc """
@@ -115,6 +115,8 @@ defmodule AdminAPI.V1.TransactionController do
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, attrs),
+         originator <- Originator.extract(conn.assigns),
+         attrs <- Map.put(attrs, "originator", originator),
          {:ok, transaction} <- TransactionGate.create(attrs) do
       transaction
       |> Orchestrator.one(TransactionOverlay, attrs)

@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{Account, AccountUser, User, AuthToken, Role, Membership}
+  alias EWalletConfig.System
 
   @owner_app :some_app
 
@@ -29,10 +30,10 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       user_4 = insert(:user, %{username: "missed_user1"})
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user_1.uuid)
-      {:ok, _} = AccountUser.link(account.uuid, user_2.uuid)
-      {:ok, _} = AccountUser.link(account.uuid, user_3.uuid)
-      {:ok, _} = AccountUser.link(account.uuid, user_4.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user_1.uuid, %System{})
+      {:ok, _} = AccountUser.link(account.uuid, user_2.uuid, %System{})
+      {:ok, _} = AccountUser.link(account.uuid, user_3.uuid, %System{})
+      {:ok, _} = AccountUser.link(account.uuid, user_4.uuid, %System{})
 
       attrs = %{
         # Search is case-insensitive
@@ -83,12 +84,12 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       account_2 = insert(:account)
       account_3 = insert(:account, parent: account_2)
 
-      {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid)
+      {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid, %System{})
 
-      {:ok, _} = AccountUser.link(account_2.uuid, user_2.uuid)
-      {:ok, _} = AccountUser.link(account_2.uuid, user_3.uuid)
-      {:ok, _} = AccountUser.link(account_3.uuid, user_3.uuid)
-      {:ok, _} = AccountUser.link(account_3.uuid, user_4.uuid)
+      {:ok, _} = AccountUser.link(account_2.uuid, user_2.uuid, %System{})
+      {:ok, _} = AccountUser.link(account_2.uuid, user_3.uuid, %System{})
+      {:ok, _} = AccountUser.link(account_3.uuid, user_3.uuid, %System{})
+      {:ok, _} = AccountUser.link(account_3.uuid, user_4.uuid, %System{})
 
       attrs = %{
         # Search is case-insensitive
@@ -115,12 +116,12 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       account_2 = insert(:account)
       account_3 = insert(:account, parent: account_2)
 
-      {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid)
+      {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid, %System{})
 
-      {:ok, _} = AccountUser.link(account_2.uuid, user_2.uuid)
-      {:ok, _} = AccountUser.link(account_2.uuid, user_3.uuid)
-      {:ok, _} = AccountUser.link(account_3.uuid, user_3.uuid)
-      {:ok, _} = AccountUser.link(account_3.uuid, user_4.uuid)
+      {:ok, _} = AccountUser.link(account_2.uuid, user_2.uuid, %System{})
+      {:ok, _} = AccountUser.link(account_2.uuid, user_3.uuid, %System{})
+      {:ok, _} = AccountUser.link(account_3.uuid, user_3.uuid, %System{})
+      {:ok, _} = AccountUser.link(account_3.uuid, user_4.uuid, %System{})
 
       attrs = %{
         # Search is case-insensitive
@@ -147,12 +148,12 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       account_2 = insert(:account)
       account_3 = insert(:account, parent: account_2)
 
-      {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid)
+      {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid, %System{})
 
-      {:ok, _} = AccountUser.link(account_2.uuid, user_2.uuid)
-      {:ok, _} = AccountUser.link(account_2.uuid, user_3.uuid)
-      {:ok, _} = AccountUser.link(account_3.uuid, user_3.uuid)
-      {:ok, _} = AccountUser.link(account_3.uuid, user_4.uuid)
+      {:ok, _} = AccountUser.link(account_2.uuid, user_2.uuid, %System{})
+      {:ok, _} = AccountUser.link(account_2.uuid, user_3.uuid, %System{})
+      {:ok, _} = AccountUser.link(account_3.uuid, user_3.uuid, %System{})
+      {:ok, _} = AccountUser.link(account_3.uuid, user_4.uuid, %System{})
 
       attrs = %{
         # Search is case-insensitive
@@ -179,7 +180,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       target = Enum.at(users, 1)
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, target.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, target.uuid, %System{})
 
       response = admin_user_request("/user.get", %{"id" => target.id})
 
@@ -211,7 +212,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
         |> insert()
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, inserted_user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, inserted_user.uuid, %System{})
 
       request_data = %{provider_user_id: inserted_user.provider_user_id}
       response = admin_user_request("/user.get", request_data)
@@ -376,7 +377,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
         })
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response = admin_user_request("/user.update", request_data)
 
@@ -397,7 +398,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       {:ok, user} = :user |> params_for() |> User.insert()
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       request_data =
         params_for(:user, %{
@@ -421,7 +422,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
         })
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         admin_user_request("/user.update", %{
@@ -443,7 +444,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
         })
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         admin_user_request("/user.update", %{
@@ -468,7 +469,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
         |> User.insert()
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         admin_user_request("/user.update", %{
@@ -532,7 +533,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
     test "disable a user succeed and disable his tokens given his id" do
       user = insert(:user, %{enabled: true})
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       {:ok, token} = AuthToken.generate(user, @owner_app)
       token_string = token.token
@@ -553,7 +554,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
     test "disable a user succeed and disable his tokens given his provider user id" do
       user = insert(:user, %{enabled: true})
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       {:ok, token} = AuthToken.generate(user, @owner_app)
       token_string = token.token
@@ -579,7 +580,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       {:ok, _m} = Membership.unassign(admin, master)
 
       user = insert(:user, %{enabled: true})
-      {:ok, _} = AccountUser.link(master.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(master.uuid, user.uuid, %System{})
 
       sub_acc = insert(:account, parent: master, name: "Account 1")
       {:ok, _m} = Membership.assign(admin, sub_acc, role)

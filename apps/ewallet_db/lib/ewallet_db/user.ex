@@ -321,6 +321,7 @@ defmodule EWalletDB.User do
     %User{}
     |> changeset(attrs)
     |> Audit.insert_record_with_audit(
+      [],
       Multi.run(Multi.new(), :wallet, fn %{record: record} ->
         case User.admin?(record) do
           true -> {:ok, nil}
@@ -329,14 +330,11 @@ defmodule EWalletDB.User do
       end)
     )
     |> case do
-      {:ok, result} ->
-        user = Repo.preload(result.record, [:wallets])
-        {:ok, user}
+      {:ok, %{record: user}} ->
+        {:ok, Repo.preload(user, [:wallets])}
 
-      # Only the account insertion should fail. If the wallet insert fails, there is
-      # something wrong with our code.
-      {:error, _failed_operation, changeset, _changes_so_far} ->
-        {:error, changeset}
+      error ->
+        error
     end
   end
 
@@ -441,8 +439,8 @@ defmodule EWalletDB.User do
       {:ok, result} ->
         {:ok, get(result.record.id)}
 
-      {:error, _failed_operation, changeset, _changes_so_far} ->
-        {:error, changeset}
+      error ->
+        error
     end
   end
 

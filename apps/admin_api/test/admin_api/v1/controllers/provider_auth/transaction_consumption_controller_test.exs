@@ -25,13 +25,15 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
   alias AdminAPI.V1.Endpoint
   alias EWallet.TransactionConsumptionScheduler
 
+  alias EWalletConfig.System
+
   setup do
     {:ok, _} = TestEndpoint.start_link()
 
     account = Account.get_master_account()
     {:ok, alice} = :user |> params_for() |> User.insert()
     bob = get_test_user()
-    {:ok, _} = AccountUser.link(account.uuid, bob.uuid)
+    {:ok, _} = AccountUser.link(account.uuid, bob.uuid, %System{})
 
     %{
       account: account,
@@ -586,7 +588,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
     setup do
       account = insert(:account)
       wallet = insert(:wallet)
-      {:ok, _} = AccountUser.link(account.uuid, wallet.user_uuid)
+      {:ok, _} = AccountUser.link(account.uuid, wallet.user_uuid, %System{})
 
       tc_1 = insert(:transaction_consumption, account_uuid: account.uuid, status: "pending")
 
@@ -1791,7 +1793,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
     end
 
     test "sends an error when approved without enough funds", meta do
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.bob.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.bob.uuid, %System{})
 
       # Create a require_confirmation transaction request that will be consumed soon
       transaction_request =

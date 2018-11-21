@@ -95,7 +95,7 @@ defmodule AdminAPI.V1.UserController do
          attrs <- Map.put(attrs, "originator", originator),
          {:ok, user} <- User.insert(attrs),
          %Account{} = account <- AccountHelper.get_current_account(conn),
-         {:ok, _account_user} <- AccountUser.link(account.uuid, user.uuid) do
+         {:ok, _account_user} <- AccountUser.link(account.uuid, user.uuid, originator) do
       respond_single(user, conn)
     else
       error -> respond_single(error, conn)

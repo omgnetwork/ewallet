@@ -15,7 +15,7 @@ defmodule EWallet.Web.Inviter do
     with {:ok, user} <- get_or_insert_user(email, password, :self),
          {:ok, invite} <- Invite.generate(user, preload: :user, success_url: success_url),
          {:ok, account} <- Account.fetch_master_account(),
-         {:ok, _account_user} <- AccountUser.link(account.uuid, user.uuid) do
+         {:ok, _account_user} <- AccountUser.link(account.uuid, user.uuid, user) do
       send_email(invite, verification_url, create_email_func)
     else
       {:error, error} ->

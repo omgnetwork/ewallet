@@ -49,7 +49,7 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
         case User.insert(data) do
           {:ok, user} ->
             account = Account.get_by(name: data.account_name)
-            {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+            {:ok, _} = AccountUser.link(account.uuid, user.uuid, %OriginatorSystem{})
 
             writer.success("""
               ID       : #{user.id}

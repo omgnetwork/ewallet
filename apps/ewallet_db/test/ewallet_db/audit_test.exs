@@ -170,7 +170,7 @@ defmodule EWalletDB.AuditTest do
         end)
 
       {res, %{audit: audit, record: record, wow_user: wow_user}} =
-        Audit.insert_record_with_audit(changeset, multi)
+        Audit.insert_record_with_audit(changeset, [], multi)
 
       assert res == :ok
 
@@ -233,7 +233,7 @@ defmodule EWalletDB.AuditTest do
         end)
 
       {res, %{audit: audit, record: record, wow_user: _}} =
-        Audit.update_record_with_audit(changeset, multi)
+        Audit.update_record_with_audit(changeset, [], multi)
 
       assert res == :ok
 

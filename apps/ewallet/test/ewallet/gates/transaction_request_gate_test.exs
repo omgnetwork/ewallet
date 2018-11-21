@@ -2,6 +2,7 @@ defmodule EWallet.TransactionRequestGateTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.TransactionRequestGate
   alias EWalletDB.{AccountUser, Token, TransactionRequest, User, Wallet}
+  alias EWalletConfig.System
 
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()
@@ -107,7 +108,7 @@ defmodule EWallet.TransactionRequestGateTest do
     end
 
     test "with valid account_id, valid user and a valid address", meta do
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid, %System{})
 
       {res, request} =
         TransactionRequestGate.create(%{
@@ -187,7 +188,7 @@ defmodule EWallet.TransactionRequestGateTest do
     end
 
     test "with valid provider_user_id and no address", meta do
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid, %System{})
 
       {res, request} =
         TransactionRequestGate.create(%{
@@ -308,7 +309,7 @@ defmodule EWallet.TransactionRequestGateTest do
 
   describe "create/2 with %User{}" do
     test "creates a transaction request with all the params", meta do
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid, %System{})
 
       {:ok, request} =
         TransactionRequestGate.create(meta.user, %{

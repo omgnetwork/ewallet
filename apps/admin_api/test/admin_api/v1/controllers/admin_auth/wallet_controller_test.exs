@@ -3,6 +3,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
   alias EWallet.Web.Date
   alias EWallet.Web.V1.UserSerializer
   alias EWalletDB.{Account, AccountUser, Repo, Token, User, Wallet}
+  alias EWalletConfig.System
 
   describe "/wallet.all" do
     test "returns a list of wallets and pagination data" do
@@ -370,7 +371,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
       # Pick the 2nd inserted wallet
       target = Enum.at(wallets, 1)
-      {:ok, _} = AccountUser.link(account.uuid, target.user_uuid)
+      {:ok, _} = AccountUser.link(account.uuid, target.user_uuid, %System{})
 
       response = admin_user_request("/wallet.get", %{"address" => target.address})
 

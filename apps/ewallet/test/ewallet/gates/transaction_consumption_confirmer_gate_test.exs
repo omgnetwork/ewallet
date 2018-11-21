@@ -11,6 +11,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
   }
 
   alias EWalletDB.{AccountUser, TransactionConsumption, TransactionRequest, User}
+  alias EWalletConfig.System
 
   setup do
     {:ok, pid} = TestEndpoint.start_link()
@@ -55,7 +56,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
   describe "confirm/3 with Account" do
     test "confirms the consumption if approved as account", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
       transaction_request =
         insert(
@@ -170,7 +171,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
     test "confirms a user's consumption if created and approved as account", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
       {res, request} =
         TransactionRequestGate.create(%{
@@ -248,7 +249,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
     test "fails to confirm the consumption if expired", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
       transaction_request =
         insert(
@@ -289,7 +290,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
     test "rejects the consumption if not confirmed as account", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
       transaction_request =
         insert(
@@ -330,7 +331,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
     test "allows only one confirmation with two confirms at the same time", meta do
       initialize_wallet(meta.sender_wallet, 1_000_000, meta.token)
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
       request =
         insert(

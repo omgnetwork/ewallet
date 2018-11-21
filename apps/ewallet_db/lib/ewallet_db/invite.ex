@@ -115,6 +115,7 @@ defmodule EWalletDB.Invite do
       originator: originator
     })
     |> Audit.insert_record_with_audit(
+      [],
       # Assign the invite to the user
       Multi.run(Multi.new(), :user, fn %{record: record} ->
         {:ok, _user} =

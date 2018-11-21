@@ -3,12 +3,13 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
   alias EWallet.Web.Date
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, UserSerializer, WalletSerializer}
   alias EWalletDB.{Account, AccountUser, Repo, TransactionRequest, User, Wallet}
+  alias EWalletConfig.System
 
   describe "/transaction_request.all" do
     setup do
       user = get_test_user()
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       tr_1 = insert(:transaction_request, user_uuid: user.uuid, status: "valid")
       tr_2 = insert(:transaction_request, account_uuid: account.uuid, status: "valid")
@@ -139,7 +140,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
       token = insert(:token)
       account_wallet = Account.get_primary_wallet(account)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         admin_user_request("/transaction_request.create", %{
@@ -203,7 +204,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
       token = insert(:token)
       account_wallet = Account.get_primary_wallet(account)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         admin_user_request("/transaction_request.create", %{
@@ -266,7 +267,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         admin_user_request("/transaction_request.create", %{
@@ -324,7 +325,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         admin_user_request("/transaction_request.create", %{
@@ -382,7 +383,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         admin_user_request("/transaction_request.create", %{
@@ -469,7 +470,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
       user = get_test_user()
       token = insert(:token, enabled: false)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         admin_user_request("/transaction_request.create", %{
@@ -488,7 +489,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
       account = Account.get_master_account()
       user = get_test_user()
       token = insert(:token, enabled: false)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       {:ok, wallet} =
         Wallet.insert_secondary_or_burn(%{

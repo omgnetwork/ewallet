@@ -224,7 +224,8 @@ defmodule EWalletDB.Factory do
   def account_user_factory do
     %AccountUser{
       account_uuid: Account.get_master_account().uuid,
-      user_uuid: insert(:user).uuid
+      user_uuid: insert(:user).uuid,
+      originator: insert(:admin)
     }
   end
 

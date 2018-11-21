@@ -6,11 +6,15 @@ defmodule EWalletDB.AccountUser do
   use Arc.Ecto.Schema
   import Ecto.Changeset
   alias Ecto.UUID
-  alias EWalletDB.{Account, AccountUser, Repo, User}
+  alias EWalletDB.{Audit, Account, AccountUser, User}
+
+  alias EWalletConfig.Types.VirtualStruct
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "account_user" do
+    field(:originator, VirtualStruct, virtual: true)
+
     belongs_to(
       :account,
       Account,
@@ -33,8 +37,8 @@ defmodule EWalletDB.AccountUser do
   @spec changeset(account :: %AccountUser{}, attrs :: map()) :: Ecto.Changeset.t()
   defp changeset(%AccountUser{} = account, attrs) do
     account
-    |> cast(attrs, [:account_uuid, :user_uuid])
-    |> validate_required([:account_uuid, :user_uuid])
+    |> cast(attrs, [:account_uuid, :user_uuid, :originator])
+    |> validate_required([:account_uuid, :user_uuid, :originator])
     |> unique_constraint(:account_uuid, name: :account_user_account_uuid_user_uuid_index)
     |> assoc_constraint(:account)
     |> assoc_constraint(:user)
@@ -46,13 +50,21 @@ defmodule EWalletDB.AccountUser do
 
     %AccountUser{}
     |> changeset(attrs)
-    |> Repo.insert(opts)
+    |> Audit.insert_record_with_audit(opts)
+    |> case do
+      {:ok, result} ->
+        {:ok, result.record}
+
+      error ->
+        error
+    end
   end
 
-  def link(account_uuid, user_uuid) do
+  def link(account_uuid, user_uuid, originator) do
     insert(%{
       account_uuid: account_uuid,
-      user_uuid: user_uuid
+      user_uuid: user_uuid,
+      originator: originator
     })
   end
 end

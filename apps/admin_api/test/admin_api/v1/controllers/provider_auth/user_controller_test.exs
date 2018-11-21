@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{Account, AccountUser, User, AuthToken}
+  alias EWalletConfig.System
 
   @owner_app :some_app
 
@@ -29,10 +30,10 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       user_4 = insert(:user, %{username: "missed_user1"})
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user_1.uuid)
-      {:ok, _} = AccountUser.link(account.uuid, user_2.uuid)
-      {:ok, _} = AccountUser.link(account.uuid, user_3.uuid)
-      {:ok, _} = AccountUser.link(account.uuid, user_4.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user_1.uuid, %System{})
+      {:ok, _} = AccountUser.link(account.uuid, user_2.uuid, %System{})
+      {:ok, _} = AccountUser.link(account.uuid, user_3.uuid, %System{})
+      {:ok, _} = AccountUser.link(account.uuid, user_4.uuid, %System{})
 
       attrs = %{
         # Search is case-insensitive
@@ -62,7 +63,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       target = Enum.at(users, 1)
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, target.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, target.uuid, %System{})
 
       response = provider_request("/user.get", %{"id" => target.id})
 
@@ -94,7 +95,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
         |> insert()
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, inserted_user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, inserted_user.uuid, %System{})
 
       request_data = %{provider_user_id: inserted_user.provider_user_id}
       response = provider_request("/user.get", request_data)
@@ -259,7 +260,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
         })
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response = provider_request("/user.update", request_data)
 
@@ -280,7 +281,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       {:ok, user} = :user |> params_for() |> User.insert()
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       request_data =
         params_for(:user, %{
@@ -304,7 +305,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
         })
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/user.update", %{
@@ -326,7 +327,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
         })
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/user.update", %{
@@ -349,7 +350,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
         })
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/user.update", %{
@@ -413,7 +414,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
     test "disable a user succeed and disable his tokens given his id" do
       user = insert(:user, %{enabled: true})
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       {:ok, token} = AuthToken.generate(user, @owner_app)
       token_string = token.token
@@ -434,7 +435,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
     test "disable a user succeed and disable his tokens given his provider user id" do
       user = insert(:user, %{enabled: true})
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       {:ok, token} = AuthToken.generate(user, @owner_app)
       token_string = token.token
@@ -456,7 +457,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       master = Account.get_master_account()
 
       user = insert(:user, %{enabled: true})
-      {:ok, _} = AccountUser.link(master.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(master.uuid, user.uuid, %System{})
 
       sub_acc = insert(:account, parent: master, name: "Account 1")
       key = insert(:key, %{account: sub_acc})

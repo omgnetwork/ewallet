@@ -38,7 +38,7 @@ defmodule EWalletDB.Repo.Seeds.UserSampleSeed do
         case User.insert(data) do
           {:ok, user} ->
             :ok = give_token(user, Token.all(), @minimum_token_amount)
-            {:ok, _} = AccountUser.link(data.account_uuid, user.uuid)
+            {:ok, _} = AccountUser.link(data.account_uuid, user.uuid, %System{})
 
             writer.success("""
               User ID          : #{user.id}

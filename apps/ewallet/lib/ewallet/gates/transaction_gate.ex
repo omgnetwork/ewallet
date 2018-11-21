@@ -21,7 +21,7 @@ defmodule EWallet.TransactionGate do
          {:ok, from, to, exchange} <- AmountFetcher.fetch(attrs, from, to),
          {:ok, exchange} <- AccountFetcher.fetch_exchange_account(attrs, exchange),
          {:ok, transaction} <- get_or_insert(from, to, exchange, attrs),
-         _ <- link(transaction) do
+         _ <- link(transaction, attrs["originator"]) do
       process_with_transaction(transaction)
     else
       error when is_atom(error) -> {:error, error}
@@ -73,7 +73,7 @@ defmodule EWallet.TransactionGate do
       exchange_wallet_address: exchange[:exchange_wallet_address],
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
-      payload: attrs,
+      payload: Map.delete(attrs, "originator"),
       type: Transaction.internal()
     })
   end
@@ -99,15 +99,15 @@ defmodule EWallet.TransactionGate do
     Transaction.fail(transaction, code, description)
   end
 
-  defp link(%Transaction{from_account_uuid: account_uuid, to_user_uuid: user_uuid})
+  defp link(%Transaction{from_account_uuid: account_uuid, to_user_uuid: user_uuid}, originator)
        when not is_nil(account_uuid) and not is_nil(user_uuid) do
-    AccountUser.link(account_uuid, user_uuid)
+    AccountUser.link(account_uuid, user_uuid, originator)
   end
 
-  defp link(%Transaction{from_user_uuid: user_uuid, to_account_uuid: account_uuid})
+  defp link(%Transaction{from_user_uuid: user_uuid, to_account_uuid: account_uuid}, originator)
        when not is_nil(account_uuid) and not is_nil(user_uuid) do
-    AccountUser.link(account_uuid, user_uuid)
+    AccountUser.link(account_uuid, user_uuid, originator)
   end
 
-  defp link(_), do: nil
+  defp link(_, _), do: nil
 end
