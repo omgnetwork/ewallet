@@ -78,7 +78,6 @@ export const createFetcher = (entity, reducer, selectors) => {
         this.props
           .dispatcher({ ...this.props, ...this.getQuery() })
           .then(result => {
-            console.log(result)
             this.fetched[this.props.cacheKey] = true
             if (result.data) {
               this.setState({

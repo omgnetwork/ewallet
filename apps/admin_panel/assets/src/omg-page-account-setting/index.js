@@ -20,13 +20,14 @@ import { createSearchInviteQuery } from '../omg-invite/searchField'
 import TabsManager from '../omg-tabs'
 
 const columns = [
-  { key: 'account_role', title: 'ROLE', sort: true },
-  { key: 'username', title: 'MEMBER NAME', sort: true },
-  { key: 'email', title: 'EMAIL', sort: true },
-  { key: 'id', title: 'ID', sort: true },
-  { key: 'updated_at', title: 'LAST UPDATED', sort: true },
-  { key: 'status', title: 'STATUS', sort: true }
+  { key: 'account_role', title: 'ROLE' },
+  { key: 'username', title: 'MEMBER NAME' },
+  { key: 'email', title: 'EMAIL' },
+  { key: 'id', title: 'ID' },
+  { key: 'updated_at', title: 'LAST UPDATED' },
+  { key: 'status', title: 'STATUS' }
 ]
+
 const AccountSettingContainer = styled.div`
   a {
     color: inherit;
