@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias Ecto.Query
   alias EWallet.InviteEmail
   alias EWallet.{AccountMembershipPolicy, EmailValidator}
   alias EWallet.Web.{Inviter, Orchestrator, Originator, UrlValidator, V1.MembershipOverlay}
@@ -16,12 +17,16 @@ defmodule AdminAPI.V1.AccountMembershipController do
          :ok <- permit(:get, conn.assigns, account.id),
          ancestor_uuids <- Account.get_all_ancestors_uuids(account),
          query <- Membership.all_by_account_uuids(ancestor_uuids),
-         query <- Orchestrator.build_query(query, MembershipOverlay, attrs),
+         %Query{} = query <- Orchestrator.build_query(query, MembershipOverlay, attrs),
          memberships <- Repo.all(query),
          memberships <- Membership.distinct_by_role(memberships) do
       render(conn, :memberships, %{memberships: memberships})
     else
-      {:error, error} -> handle_error(conn, error)
+      {:error, :not_allowed, field} ->
+        handle_error(conn, :query_field_not_allowed, field_name: field)
+
+      {:error, error} ->
+        handle_error(conn, error)
     end
   end
 
