@@ -1,7 +1,9 @@
 defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, AccountUser, User}
+  alias EWalletDB.{Account, AccountUser, User, AuthToken, Role, Membership}
+
+  @owner_app :some_app
 
   describe "/user.all" do
     test "returns a list of users and pagination data" do
@@ -233,6 +235,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
           "created_at" => Date.to_iso8601(inserted_user.inserted_at),
           "updated_at" => Date.to_iso8601(inserted_user.updated_at),
           "email" => nil,
+          "enabled" => inserted_user.enabled,
           "avatar" => %{
             "large" => nil,
             "original" => nil,
@@ -455,7 +458,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert response["data"]["encrypted_metadata"] == %{}
     end
 
-    test "returns an 'invalid parameter' error when sending nil for metadata/encrypted_metadata" do
+    test "returns empty metadata when sending nil for metadata/encrypted_metadata" do
       {:ok, user} =
         :user
         |> params_for(%{
@@ -475,13 +478,9 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
           encrypted_metadata: nil
         })
 
-      assert response["success"] == false
-      assert response["data"]["code"] == "client:invalid_parameter"
-
-      assert response["data"]["messages"] == %{
-               "metadata" => ["required"],
-               "encrypted_metadata" => ["required"]
-             }
+      assert response["success"] == true
+      assert response["data"]["metadata"] == %{}
+      assert response["data"]["encrypted_metadata"] == %{}
     end
 
     test "returns an error if provider_user_id is not provided" do
@@ -522,6 +521,100 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided."
+    end
+  end
+
+  describe "/user.enable_or_disable" do
+    test "disable a user succeed and disable his tokens given his id" do
+      user = insert(:user, %{enabled: true})
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+
+      {:ok, token} = AuthToken.generate(user, @owner_app)
+      token_string = token.token
+      # Ensure tokens is usable.
+      assert AuthToken.authenticate(token_string, @owner_app)
+
+      response =
+        admin_user_request("/user.enable_or_disable", %{
+          id: user.id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+      assert response["data"]["enabled"] == false
+      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+    end
+
+    test "disable a user succeed and disable his tokens given his provider user id" do
+      user = insert(:user, %{enabled: true})
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+
+      {:ok, token} = AuthToken.generate(user, @owner_app)
+      token_string = token.token
+      # Ensure tokens is usable.
+      assert AuthToken.authenticate(token_string, @owner_app)
+
+      response =
+        admin_user_request("/user.enable_or_disable", %{
+          provider_user_id: user.provider_user_id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+      assert response["data"]["enabled"] == false
+      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+    end
+
+    test "can't disable a user in an account above the current one" do
+      master = Account.get_master_account()
+      role = Role.get_by(name: "admin")
+
+      admin = get_test_admin()
+      {:ok, _m} = Membership.unassign(admin, master)
+
+      user = insert(:user, %{enabled: true})
+      {:ok, _} = AccountUser.link(master.uuid, user.uuid)
+
+      sub_acc = insert(:account, parent: master, name: "Account 1")
+      {:ok, _m} = Membership.assign(admin, sub_acc, role)
+
+      response =
+        admin_user_request("/user.enable_or_disable", %{
+          id: user.id,
+          enabled: false
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test "disable a user that doesn't exist raises an error" do
+      response =
+        admin_user_request("/user.enable_or_disable", %{
+          id: "invalid_id",
+          enabled: false
+        })
+
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:id_not_found"
+
+      assert response["data"]["description"] ==
+               "There is no user corresponding to the provided id."
+    end
+
+    test "disable a user with missing params raises an error" do
+      response =
+        admin_user_request("/user.enable_or_disable", %{
+          enabled: false
+        })
+
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `id` or `provider_user_id` is required."
     end
   end
 end

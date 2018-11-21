@@ -58,9 +58,17 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:email_not_verified",
       description: "Your user account has not been confirmed yet. Please check your emails."
     },
+    email_already_exists: %{
+      code: "user:email_already_exists",
+      description: "The provided email address already exists."
+    },
     user_already_active: %{
       code: "user:already_active",
       description: "The user already exists and active."
+    },
+    user_disabled: %{
+      code: "user:disabled",
+      description: "This user is disabled."
     },
     invalid_login_credentials: %{
       code: "user:invalid_login_credentials",

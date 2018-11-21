@@ -36,6 +36,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @doc """
   Retrieves all active requests.
   """
+  @spec all_active() :: [%ForgetPasswordRequest{}]
   def all_active do
     ForgetPasswordRequest
     |> where([c], c.enabled == true)
@@ -46,6 +47,10 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @doc """
   Retrieves a specific invite by its token.
   """
+  @spec get(%User{} | nil, String.t() | nil) :: %ForgetPasswordRequest{} | nil
+  def get(nil, _), do: nil
+  def get(_, nil), do: nil
+
   def get(user, token) do
     request =
       ForgetPasswordRequest
@@ -68,6 +73,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @doc """
   Deletes all the current requests for a user.
   """
+  @spec disable_all_for(%User{}) :: {integer(), nil}
   def disable_all_for(user) do
     ForgetPasswordRequest
     |> where([f], f.user_uuid == ^user.uuid)
@@ -77,6 +83,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @doc """
   Generates a forget password request for the given user.
   """
+  @spec generate(%User{}) :: %ForgetPasswordRequest{} | {:error, Ecto.Changeset.t()}
   def generate(user) do
     token = Crypto.generate_base64_key(@token_length)
     {:ok, _} = insert(%{token: token, user_uuid: user.uuid})

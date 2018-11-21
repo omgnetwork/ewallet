@@ -38,8 +38,6 @@ tags:
     description: Resources related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
   - name: TransactionConsumption
     description: Resources related to consumption of transaction requests.
-  - name: Setting
-    description: Resources related to global settings of the wallet.
 
 servers:
   - url: /api/client
@@ -266,23 +264,6 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
 
-  ######################################
-  #          SETTINGS ENDPOINTS        #
-  ######################################
-  /me.get_settings:
-    post:
-      tags:
-        - Setting
-      summary: Get the global settings.
-      operationId: me_get_settings
-      security:
-        - ClientAuth: []
-      responses:
-        '200':
-          $ref: "#/components/responses/SettingResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-
 # Components are objects that are reusable within this API spec.
 # They do not have any effect on the API unless they are
 # referenced from properties outside the component.
@@ -453,6 +434,7 @@ components:
               full_name: "John Doe"
               calling_name: "John"
               email: "johndoe@omise.co"
+              enabled: true
               metadata: {"first_name": "John", "last_name": "Doe"}
               encrypted_metadata: {"something": "secret"}
               created_at: "2018-01-01T00:00:00Z"
@@ -480,6 +462,8 @@ components:
         email:
           type: string
           format: email
+        enabled:
+          type: boolean
         metadata:
           type: object
         encrypted_metadata:
@@ -505,6 +489,7 @@ components:
         full_name: "John Doe"
         calling_name: "John"
         email: "johndoe@omise.co"
+        enabled: true
         metadata: {"first_name": "John", "last_name": "Doe"}
         encrypted_metadata: {}
         avatar: {"original": "file_url"}
@@ -530,6 +515,7 @@ components:
             full_name: "John Doe"
             calling_name: "John"
             email: "johndoe@omise.co"
+            enabled: true
             metadata: {"first_name": "John", "last_name": "Doe"}
             encrypted_metadata: {}
             avatar: {"original": "file_url"}
@@ -539,34 +525,6 @@ components:
     ######################################
     #             WALLET SCHEMAS         #
     ######################################
-    WalletSchema:
-      description: "The object schema for a wallet"
-      type: object
-      properties:
-        object:
-          type: string
-        address:
-          type: string
-        balances:
-          type: array
-          items:
-            $ref: '#/components/schemas/BalanceSchema'
-      required:
-        - object
-        - address
-        - balances
-      example:
-        object: "wallet"
-        address: "123"
-        balances:
-          - object: "wallet"
-            token:
-              object: 'token'
-              id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
-              symbol: "BTC"
-              name: "Bitcoin"
-              subunit_to_unit: 100000000000000000
-            amount: 100
     BalanceSchema:
       description: "The object schema for a balance"
       type: object
@@ -971,42 +929,6 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
-
-    ######################################
-    #           SETTING SCHEMAS          #
-    ######################################
-    SettingResponse:
-      description: "The response schema for settings"
-      allOf:
-      - $ref: '#/components/schemas/BaseResponseSchema'
-      - type: object
-        properties:
-          data:
-            type: object
-            properties:
-              object:
-                type: string
-              tokens:
-                type: array
-                items:
-                 $ref: '#/components/schemas/TokenSchema'
-            required:
-              - object
-              - tokens
-        example:
-          data:
-            object: "setting"
-            tokens:
-              - object: "token"
-                id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
-                symbol: "BTC"
-                name: "Bitcoin"
-                subunit_to_unit: 100000000000000000
-              - object: "token"
-                id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
-                symbol: "OMG"
-                name: "OmiseGO"
-                subunit_to_unit: 100000000000000000
 
     ######################################
     #        TRANSACTION SCHEMAS         #
@@ -1470,8 +1392,10 @@ components:
                 type: integer
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - from_address
               - to_address
@@ -1512,8 +1436,10 @@ components:
                 type: integer
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - idempotency_token
               - to_address
@@ -1527,94 +1453,6 @@ components:
               amount: 100
               metadata: {}
               encrypted_metadata: {}
-    ServerCreateTransactionRequestBody:
-      description: Create a transaction request using the specified values. That request can then be consumed using a different endpoint to create a transaction from that request.
-      required: true
-      content:
-        application/vnd.omisego.v1+json:
-          schema:
-            properties:
-              type:
-                type: string
-                enum:
-                  - send
-                  - receive
-              token_id:
-                type: string
-                description: "The token ID to use for the transaction."
-              amount:
-                type: integer
-                default: null
-                description:
-                  "The amount to transfer. If not specified, the consumption will need to set
-                   the amount."
-              correlation_id:
-                type: string
-                default: null
-                description: "Optional unique identifier to tie a request with your system."
-              account_id:
-                type: string
-                default: The owner of the given address.
-              provider_user_id:
-                type: string
-                default: The owner of the given address.
-              address:
-                type: string
-                description:
-                  "If not specified, the current user's primary wallet will be used.
-                   If specified, it needs to be one of the account's or user's addresses."
-              require_confirmation:
-                type: boolean
-                default: false
-                description:
-                  "Indicates if a consumption of the created request needs to be approved before
-                  being processed."
-              max_consumptions:
-                type: integer
-                default: null
-                description:
-                  "The number of times this created request can be consumed."
-              max_consumptions_per_user:
-                type: integer
-                default: null
-                description:
-                  "The maximum number of times a user can consume the request."
-              consumption_lifetime:
-                type: integer
-                default: null
-                description:
-                  "The lifetime in milliseconds of how long a consumption can stay
-                   'pending' before being expired. If a consumption is not approved before its
-                   expiration date, it will become invalid and be cancelled. This property
-                   can be used to avoid stale consumptions blocking the 'max_consumptions' count."
-              expiration_date:
-                type: string
-                default: null
-                description:
-                  "The datetime at which the created request should expire (no one will be
-                   able to consume it anymore). The format is yyyy-MM-dd'T'HH:mm:ssZZZZZ."
-              allow_amount_override:
-                type: boolean
-                default: true
-                description:
-                  "Defines if the amount set in the created request can be overriden in a
-                   consumption. Cannot be set to true if the amount property is not set at
-                   creation"
-              metadata:
-                type: object
-                default: {}
-              encrypted_metadata:
-                type: object
-                default: {}
-            required:
-              - type
-              - token_id
-            example:
-              type: "send"
-              token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
-              amount: 100
-              correlation_id: "123"
-              address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
     ClientCreateTransactionRequestBody:
       description: Create a transaction request using the specified values. That request can then be consumed using a different endpoint by a different client to create a transaction from that request.
       required: true
@@ -1642,6 +1480,7 @@ components:
                 description: "Optional unique identifier to tie a request with your system."
               address:
                 type: string
+                default: null
                 description:
                   "If not specified, the current user's primary wallet will be used.
                    If specified, it needs to be one of the current user's addresses."
@@ -1684,10 +1523,10 @@ components:
                    creation"
               metadata:
                 type: object
-                default: {}
+                additionalProperties: true
               encrypted_metadata:
                 type: object
-                default: {}
+                additionalProperties: true
             required:
               - type
               - token_id
@@ -1708,47 +1547,6 @@ components:
                 type: string
             example:
               formatted_id: "data|txr_01cbfgc8cmmyzy1cfzpqwme3ey"
-    ServerConsumeTransactionRequestBody:
-      description: Consume a transaction request using the specified values.
-      required: true
-      content:
-        application/vnd.omisego.v1+json:
-          schema:
-            properties:
-              formatted_transaction_request_id:
-                type: string
-              correlation_id:
-                type: string
-              amount:
-                type: integer
-              token_id:
-                type: string
-              account_id:
-                type: string
-                default: The owner of the given address.
-              provider_user_id:
-                type: string
-                default: The owner of the given address.
-              address:
-                type: string
-                description:
-                  "If not specified, the current user's primary wallet will be used.
-                   If specified, it needs to be one of the account's or user's addresses."
-              metadata:
-                type: object
-              encrypted_metadata:
-                type: object
-            required:
-              - formatted_transaction_request_id
-            example:
-              formatted_transaction_request_id: "txr_01cbfgcts5kqfgpqxcxn71rnbs"
-              correlation_id: "123"
-              token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
-              amount: 100
-              provider_user_id: "provider_user_id01"
-              address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
-              metadata: {}
-              encrypted_metadata: {}
     ClientConsumeTransactionRequestBody:
       description: Consume a transaction request using the specified values.
       required: true
@@ -1770,8 +1568,10 @@ components:
                 type: string
               metadata:
                 type: object
+                additionalProperties: true
               encrypted_metadata:
                 type: object
+                additionalProperties: true
             required:
               - idempotency_token
               - formatted_transaction_request_id
@@ -1878,16 +1678,6 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/TransactionConsumptionResponse'
-
-    ######################################
-    #          SETTING RESPONSES         #
-    ######################################
-    SettingResponse:
-      description: "Returns a list of settings"
-      content:
-        application/vnd.omisego.v1+json:
-          schema:
-            $ref: '#/components/schemas/SettingResponse'
 
     ######################################
     #       MISCELLANEOUS RESPONSES      #

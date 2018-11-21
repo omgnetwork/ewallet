@@ -45,6 +45,7 @@ defmodule EWalletDB.User do
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
+    field(:enabled, :boolean, default: true)
 
     belongs_to(
       :invite,
@@ -110,7 +111,7 @@ defmodule EWalletDB.User do
       :invite_uuid,
       :originator
     ])
-    |> validate_required([:metadata, :encrypted_metadata, :originator])
+    |> validate_required([:originator])
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
@@ -128,17 +129,15 @@ defmodule EWalletDB.User do
       :full_name,
       :calling_name,
       :provider_user_id,
-      :email,
       :metadata,
       :encrypted_metadata,
       :invite_uuid,
       :originator
     ])
-    |> validate_required([:metadata, :encrypted_metadata, :originator])
+    |> validate_required([:originator])
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
-    |> unique_constraint(:email)
     |> assoc_constraint(:invite)
     |> validate_by_roles(attrs)
   end
@@ -146,7 +145,6 @@ defmodule EWalletDB.User do
   defp update_admin_changeset(user, attrs) do
     user
     |> cast(attrs, [
-      :email,
       :full_name,
       :calling_name,
       :metadata,
@@ -154,8 +152,7 @@ defmodule EWalletDB.User do
       :invite_uuid,
       :originator
     ])
-    |> validate_required([:metadata, :encrypted_metadata, :originator])
-    |> unique_constraint(:email)
+    |> validate_required([:originator])
     |> assoc_constraint(:invite)
     |> validate_by_roles(attrs)
   end
@@ -182,8 +179,25 @@ defmodule EWalletDB.User do
     |> put_change(:password_hash, password_hash)
   end
 
+  defp enable_changeset(%User{} = user, attrs) do
+    user
+    |> cast(attrs, [:enabled])
+    |> validate_required([:enabled])
+  end
+
   defp get_attr(attrs, atom_field) do
     attrs[atom_field] || attrs[Atom.to_string(atom_field)]
+  end
+
+  defp email_changeset(user, attrs) do
+    user
+    |> cast(attrs, [
+      :email,
+      :originator
+    ])
+    |> validate_required([:email, :originator])
+    |> validate_email(:email)
+    |> unique_constraint(:email)
   end
 
   # Two cases to validate for loginable:
@@ -392,6 +406,16 @@ defmodule EWalletDB.User do
   end
 
   @doc """
+  Updates a user's email with the provided attributes.
+  """
+  @spec update_email(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
+  def update_email(%User{} = user, attrs) do
+    user
+    |> email_changeset(attrs)
+    |> update_with_audit()
+  end
+
+  @doc """
   Stores an avatar for the given user.
   """
   @spec store_avatar(%User{}, map()) :: %User{} | Ecto.Changeset.t()
@@ -575,6 +599,12 @@ defmodule EWalletDB.User do
   def admin?(user), do: user.is_admin == true
 
   @doc """
+  Checks if the user is enabled.
+  """
+  @spec enabled?(String.t() | %User{}) :: boolean()
+  def enabled?(user), do: user.enabled == true
+
+  @doc """
   Checks if the user is an admin on the top-level account.
   """
   @spec master_admin?(%User{} | String.t()) :: boolean()
@@ -653,5 +683,14 @@ defmodule EWalletDB.User do
       on: a.uuid == child.uuid,
       select: %{a | relative_depth: child.depth}
     )
+  end
+
+  @doc """
+  Enables or disables a user.
+  """
+  def enable_or_disable(user, attrs) do
+    user
+    |> enable_changeset(attrs)
+    |> Repo.update()
   end
 end
