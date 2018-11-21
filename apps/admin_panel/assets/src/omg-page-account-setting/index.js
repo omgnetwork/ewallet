@@ -254,7 +254,7 @@ class AccountSettingPage extends Component {
                 rowRenderer={this.rowRenderer}
                 navigation
                 isFirstPage={page === 0}
-                isLastPage={paginatedData.length <= pageLimit}
+                isLastPage={paginatedData.length < pageLimit}
               />
             )
           }}
