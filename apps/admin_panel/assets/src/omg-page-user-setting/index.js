@@ -68,10 +68,11 @@ class UserSettingPage extends Component {
     submitStatus: 'DEFAULT',
     changingPassword: false
   }
-  componentWillReceiveProps = props => {
+
+  componentDidMount = () => {
     this.setInitialCurrentUserState()
   }
-  componentDidMount = () => {
+  componentWillReceiveProps = props => {
     this.setInitialCurrentUserState()
   }
   setInitialCurrentUserState = () => {
@@ -87,7 +88,7 @@ class UserSettingPage extends Component {
     this.setState({ image: file })
   }
   onChangeEmail = e => {
-    this.setState({ email: e.target.value })
+    this.setState({ email: e.target.value.trim() })
   }
   onChangeOldPassword = e => {
     this.setState({ oldPassword: e.target.value })
@@ -101,12 +102,15 @@ class UserSettingPage extends Component {
   onClickUpdateAccount = async e => {
     e.preventDefault()
     try {
-      if (this.state.email !== this.props.currentUser.email) {
+      if (this.state.email !== this.props.currentUser.email || this.state.image) {
         this.setState({ submitStatus: 'SUBMITTING' })
-        this.props.updateCurrentUser({
+        const result = await this.props.updateCurrentUser({
           email: this.state.email,
           avatar: this.state.image
         })
+        if (result.data) {
+          this.setState({ image: null, submitStatus: 'SUBMITTED' })
+        }
       }
       if (
         this.state.changingPassword &&
@@ -121,12 +125,10 @@ class UserSettingPage extends Component {
           passwordConfirmation: this.state.newPasswordConfirmation
         })
         if (updatePassworldResult.data) {
-          this.setState({ submitStatus: 'SUBMITTED' })
+          this.setState({ submitStatus: 'SUBMITTED', image: null })
         } else {
           this.setState({ submitStatus: 'FAILED' })
         }
-      } else {
-        this.setState({ submitStatus: 'FAILED' })
       }
     } catch (error) {
       this.setState({ submitStatus: 'FAILED' })
@@ -187,6 +189,7 @@ class UserSettingPage extends Component {
                 type='submit'
                 key={'save'}
                 disabled={
+                  !this.state.image &&
                   this.state.email === this.props.currentUser.email &&
                   (this.state.newPassword !== this.state.newPasswordConfirmation ||
                     !this.state.newPassword ||

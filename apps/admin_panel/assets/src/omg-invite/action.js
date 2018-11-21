@@ -15,18 +15,15 @@ export const inviteMember = ({ email, redirectUrl, accountId, role }) =>
       })
   })
 
-export const getListMembers = ({ accountId, page, perPage, matchAll, matchAny, cacheKey }) => {
+export const getListMembers = ({ accountId, matchAll, matchAny, cacheKey }) => {
   return createPaginationActionCreator({
     actionName: 'INVITE_LIST',
     action: 'REQUEST',
     service: () =>
       accountService.listMembers({
         accountId,
-        page,
-        perPage,
         matchAll,
-        matchAny,
-        sort: { by: 'created_at', dir: 'desc' }
+        matchAny
       }),
     cacheKey
   })
