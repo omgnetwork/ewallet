@@ -79,12 +79,12 @@ class ProfileAvatarDropdown extends Component {
   }
   onClickLogout = async e => {
     await this.props.logout()
-    this.props.history.push(`/login`)
+    this.props.history.push('/login')
   }
 
   renderAvatar = currentUser => {
     return (
-      <StyledAvatar onClick={this.props.onClickButton} image={_.get(currentUser, 'avatar.small')} />
+      <StyledAvatar onClick={this.props.onClickButton} image={_.get(currentUser, 'avatar.small')} name={currentUser.name || currentUser.email} />
     )
   }
   renderCurrentUserAvatar = ({ currentUser, loadingStatus }) => {
