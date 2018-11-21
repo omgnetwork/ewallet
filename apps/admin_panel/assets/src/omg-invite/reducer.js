@@ -1,9 +1,13 @@
 import createReducer from '../reducer/createReducer'
-export const inviteListReducer = createReducer({}, {
-  'INVITE_LIST/REQUEST/SUCCESS': (state, { data }) => {
-    return data.length > 0 ? _.keyBy(data, 'id') : {}
+import _ from 'lodash'
+export const inviteListReducer = createReducer(
+  {},
+  {
+    'INVITE_LIST/REQUEST/SUCCESS': (state, { data }) => {
+      return { ...state, ..._.keyBy(data, 'id') }
+    }
   }
-})
+)
 
 export const inviteListLoadingStatusReducer = createReducer('DEFAULT', {
   'INVITE_LIST/REQUEST/SUCCESS': (state, { data }) => {

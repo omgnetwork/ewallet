@@ -239,18 +239,22 @@ class AccountSettingPage extends Component {
           query={{
             page: queryString.parse(this.props.location.search).page,
             accountId: this.props.match.params.accountId,
-            perPage: 10,
             ...createSearchInviteQuery(queryString.parse(this.props.location.search).search)
           }}
-          render={({ data, loadingStatus }) => {
+          render={({ data, individualLoadingStatus }) => {
+            const page = Number(queryString.parse(this.props.location.search).page || 1) - 1
+            const pageLimit = 10
+            const paginatedData = data.slice(pageLimit * page, pageLimit + pageLimit * page)
             return (
               <SortableTable
-                rows={data}
+                rows={paginatedData}
                 columns={columns}
-                perPage={10}
-                loadingStatus={loadingStatus}
-                loadingRowNumber={7}
+                loadingStatus={individualLoadingStatus}
+                loadingRowNumber={10}
                 rowRenderer={this.rowRenderer}
+                navigation
+                isFirstPage={page === 0}
+                isLastPage={paginatedData.length <= pageLimit}
               />
             )
           }}

@@ -77,8 +77,6 @@ describe('invite actions', () => {
     return store
       .dispatch(
         getListMembers({
-          page: 1,
-          perPage: 10,
           cacheKey: 'key',
           accountId: 'a',
           matchAll: [],
@@ -88,8 +86,6 @@ describe('invite actions', () => {
       .then(() => {
         expect(accountService.listMembers).toBeCalledWith(
           expect.objectContaining({
-            page: 1,
-            perPage: 10,
             accountId: 'a',
             matchAll: [],
             matchAny: []
@@ -108,12 +104,10 @@ describe('invite actions', () => {
       { type: 'INVITE_LIST/REQUEST/FAILED', error: 'eth1000usd' }
     ]
     return store
-      .dispatch(getListMembers({ page: 1, perPage: 10, cacheKey: 'key', accountId: 'a' }))
+      .dispatch(getListMembers({ cacheKey: 'key', accountId: 'a' }))
       .then(() => {
         expect(accountService.listMembers).toBeCalledWith(
           expect.objectContaining({
-            page: 1,
-            perPage: 10,
             accountId: 'a'
           })
         )
