@@ -103,8 +103,9 @@ defmodule EWalletDB.ForgetPasswordRequestTest do
   describe "generate/2" do
     test "returns an ForgetPasswordRequest" do
       user = insert(:admin)
-      request = ForgetPasswordRequest.generate(user)
+      {res, request} = ForgetPasswordRequest.generate(user)
 
+      assert res == :ok
       assert %ForgetPasswordRequest{} = request
       assert request.user_uuid == user.uuid
       assert String.length(request.token) == 43

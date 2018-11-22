@@ -85,9 +85,13 @@ defmodule EWalletDB.ForgetPasswordRequest do
   """
   @spec generate(%User{}) :: %ForgetPasswordRequest{} | {:error, Ecto.Changeset.t()}
   def generate(user) do
-    token = Crypto.generate_base64_key(@token_length)
-    {:ok, _} = insert(%{token: token, user_uuid: user.uuid})
-    ForgetPasswordRequest.get(user, token)
+    with token <- Crypto.generate_base64_key(@token_length),
+         {:ok, _} <- insert(%{token: token, user_uuid: user.uuid}),
+         %ForgetPasswordRequest{} = request <- ForgetPasswordRequest.get(user, token) do
+      {:ok, request}
+    else
+      error -> error
+    end
   end
 
   defp insert(attrs) do
