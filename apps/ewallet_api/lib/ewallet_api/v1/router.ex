@@ -50,6 +50,9 @@ defmodule EWalletAPI.V1.Router do
     post("/user.signup", SignupController, :signup)
     post("/user.verify_email", SignupController, :verify_email)
     post("/user.login", AuthController, :login)
+
+    post("/user.reset_password", ResetPasswordController, :reset)
+    post("/user.update_password", ResetPasswordController, :update)
   end
 
   # Public endpoints
