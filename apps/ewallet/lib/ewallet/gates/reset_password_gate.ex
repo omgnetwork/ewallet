@@ -36,6 +36,7 @@ defmodule EWallet.ResetPasswordGate do
   # Private functions
 
   defp get_user_by_email(nil), do: {:error, :user_email_not_found}
+
   defp get_user_by_email(email) do
     case User.get_by_email(email) do
       nil -> {:error, :user_email_not_found}
@@ -46,6 +47,7 @@ defmodule EWallet.ResetPasswordGate do
   defp get_request(user, token) when is_nil(user) when is_nil(token) do
     {:error, :invalid_reset_token}
   end
+
   defp get_request(user, token) do
     case ForgetPasswordRequest.get(user, token) do
       nil -> {:error, :invalid_reset_token}

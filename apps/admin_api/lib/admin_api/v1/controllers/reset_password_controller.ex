@@ -47,11 +47,11 @@ defmodule AdminAPI.V1.ResetPasswordController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{
-    "email" => email,
-    "token" => token,
-    "password" => password,
-    "password_confirmation" => password_confirmation
-  }) do
+        "email" => email,
+        "token" => token,
+        "password" => password,
+        "password_confirmation" => password_confirmation
+      }) do
     case ResetPasswordGate.update(email, token, password, password_confirmation) do
       {:ok, _user} ->
         render(conn, :empty, %{success: true})
@@ -65,6 +65,10 @@ defmodule AdminAPI.V1.ResetPasswordController do
   end
 
   def update(conn, _) do
-    handle_error(conn, :invalid_parameter, "`email`, `token`, `password` and `password_confirmation` are required")
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "`email`, `token`, `password` and `password_confirmation` are required"
+    )
   end
 end
