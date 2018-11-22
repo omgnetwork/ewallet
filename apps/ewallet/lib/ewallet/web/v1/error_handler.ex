@@ -46,6 +46,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:email_token_not_found",
       description: "There is no pending email verification for the provided email and token."
     },
+    user_email_not_found: %{
+      code: "user:email_not_found",
+      description: "There is no user corresponding to the provided email."
+    },
+    invalid_reset_token: %{
+      code: "forget_password:token_not_found",
+      description: "There are no password reset requests corresponding to the provided token."
+    },
     invite_not_found: %{
       code: "user:invite_not_found",
       description: "There is no invite corresponding to the provided email and token."
