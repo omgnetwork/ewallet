@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
          :ok <- permit(:get, conn.assigns, account.id),
          ancestor_uuids <- Account.get_all_ancestors_uuids(account),
          query <- Membership.all_by_account_uuids(ancestor_uuids),
+         attrs <- transform_user_filter_attrs(attrs),
          %Query{} = query <- Orchestrator.build_query(query, MembershipOverlay, attrs),
          memberships <- Repo.all(query),
          memberships <- Membership.distinct_by_role(memberships) do
@@ -31,6 +32,39 @@ defmodule AdminAPI.V1.AccountMembershipController do
   end
 
   def all_for_account(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  # Transform the filter attributes to the ones expected by
+  # the Orchestrator + MembershipOverlay.
+  defp transform_user_filter_attrs(attrs) do
+    user_filterables =
+      MembershipOverlay.filter_fields()
+      |> Keyword.get(:user)
+      |> Enum.map(fn field -> Atom.to_string(field) end)
+
+    attrs
+    |> transform_user_filter_attrs("match_any", user_filterables)
+    |> transform_user_filter_attrs("match_all", user_filterables)
+  end
+
+  defp transform_user_filter_attrs(attrs, match_type, filterables) do
+    case attrs[match_type] do
+      nil ->
+        attrs
+
+      _ ->
+        match_attrs = transform_user_filter_attrs(attrs[match_type], filterables)
+        Map.put(attrs, match_type, match_attrs)
+    end
+  end
+
+  defp transform_user_filter_attrs(filters, filterables) do
+    Enum.map(filters, fn filter ->
+      case Enum.member?(filterables, filter["field"]) do
+        true -> Map.put(filter, "field", "user." <> filter["field"])
+        false -> filter
+      end
+    end)
+  end
 
   @doc """
   Assigns the user to the given account and role.
