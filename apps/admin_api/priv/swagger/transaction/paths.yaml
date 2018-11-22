@@ -1,0 +1,64 @@
+transaction.all:
+  post:
+    tags:
+      - Transaction
+    summary: Get the list of transactions
+    operationId: transaction_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TransactionAllBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TransactionsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+transaction.get:
+  post:
+    tags:
+      - Transaction
+    summary: Get the a specific transaction by its id
+    operationId: transaction_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TransactionGetBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TransactionResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+transaction.create:
+  post:
+    tags:
+      - Transaction
+    summary: Create a new transaction
+    operationId: transaction_create
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TransactionCreateBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TransactionResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+transaction.calculate:
+  post:
+    tags:
+      - Transaction
+    summary: Calculates transaction amounts
+    operationId: transaction_calculate
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TransactionCalculateBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TransactionCalculationResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'

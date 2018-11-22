@@ -1,0 +1,136 @@
+TokenResponseSchema:
+  description: "The response schema for a token"
+  allOf:
+    - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+    - type: object
+      properties:
+        data:
+          type: object
+          $ref: 'schemas.yaml#/TokenSchema'
+      required:
+        - data
+      example:
+        version: "1"
+        success: true
+        data:
+          object: "token"
+          id: "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3"
+          symbol: "ABC"
+          name: "ABC Point"
+          subunit_to_unit: 100
+          created_at: "2018-01-01T00:00:00Z"
+          updated_at: "2018-01-01T10:00:00Z"
+          enabled: true
+TokensResponseSchema:
+  description: "The response schema for a list of tokens"
+  allOf:
+    - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+    - type: object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: '../shared/schemas.yaml#/PaginatedListSchema'
+            - type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: 'schemas.yaml#/TokenSchema'
+      required:
+        - data
+      example:
+        version: "1"
+        success: true
+        data:
+          object: "list"
+          data:
+            - object: "token"
+              id: "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3"
+              symbol: "ABC"
+              name: "ABC Point"
+              subunit_to_unit: 100
+              created_at: "2018-01-01T00:00:00Z"
+              updated_at: "2018-01-01T10:00:00Z"
+              enabled: true
+          pagination:
+            per_page: 10
+            current_page: 1
+            is_first_page: true
+            is_last_page: true
+TokenStatsResponseSchema:
+  description: "The object schema for token stats"
+  type: object
+  properties:
+    object:
+      type: string
+    token_id:
+      type: string
+    token:
+      type: object
+      $ref: 'schemas.yaml#/TokenSchema'
+    total_supply:
+      type: integer
+  required:
+    - object
+    - token_id
+    - token
+    - total_supply
+  example:
+    version: "1"
+    success: true
+    data:
+      object: "token_stats"
+      total_supply: 100000
+      token_id: "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3"
+      token:
+        object: "token"
+        id: "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3"
+        symbol: "ABC"
+        name: "ABC Point"
+        subunit_to_unit: 100
+        created_at: "2018-01-01T00:00:00Z"
+        updated_at: "2018-01-01T10:00:00Z"
+
+MintsResponseSchema:
+  description: "The response schema for a list of mints"
+  allOf:
+    - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+    - type: object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: '../shared/schemas.yaml#/PaginatedListSchema'
+            - type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: 'schemas.yaml#/MintSchema'
+      required:
+        - data
+      example:
+        version: "1"
+        success: true
+        data:
+          object: "list"
+          data:
+            - object: "mint"
+              id: "mnt_01xbfge9qhmsdbjyb7a8e8pxt3"
+              description: "Some description"
+              amount: 10000
+              confirmed: true
+              token_id: "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3"
+              token: {}
+              account_id: "acc_01rebfge9qhmsdbjyb7a8e8pxt"
+              account: {}
+              transaction_id: "tfr_01trbfge9qhmsdbjyb7a8e8pxt"
+              transaction: {}
+              created_at: "2018-01-01T00:00:00Z"
+              updated_at: "2018-01-01T00:00:00Z"
+          pagination:
+            per_page: 10
+            current_page: 1
+            is_first_page: true
+            is_last_page: true

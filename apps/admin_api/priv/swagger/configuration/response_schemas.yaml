@@ -1,0 +1,86 @@
+ConfigurationResponseSchema:
+  description: "The response schema for a list of configuration settings"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - $ref: '../shared/schemas.yaml#/PaginatedListSchema'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: 'schemas.yaml#/SettingSchema'
+    required:
+      - data
+    example:
+      version: "1"
+      success: true
+      data:
+        object: "list"
+        data:
+          - object: "configuration_setting"
+            id: "stg_01cbfg9qtdken61agxhx6wvj9h"
+            key: base_url
+            value:  https://example.com
+            type: string
+            description: The base URL for the eWallet.
+            options: nil
+            parent: nil
+            parent_value: nil
+            secret: false
+            position: 0
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T00:00:00Z"
+        pagination:
+          per_page: 10
+          current_page: 1
+          is_first_page: true
+          is_last_page: true
+
+ConfigurationUpdateResponseSchema:
+  description: "The response schema for a list of updated settings"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        additionalProperties: true
+    required:
+      - data
+    example:
+      version: "1"
+      success: true
+      data:
+        object: "map"
+        data:
+          base_url:
+            object: "configuration_setting"
+            id: "stg_01ce843mvg5fa1zpk5myy69h4q"
+            key: "base_url"
+            value: "https://example.com"
+            type: "string"
+            description: "description"
+            options: nil
+            parent: nil
+            parent_value: nil
+            secret: false
+            position: 0
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T00:00:00Z"
+          fake_setting:
+            object: "error"
+            code: "setting:not_found"
+            description: "The setting could not be inserted."
+            messages: nil
+          invalid_setting:
+            object: "error"
+            code: "client:invalid_parameter"
+            description: "Invalid parameter provided. `value` must be of type 'integer'."
+            messages:
+              value:
+                - "invalid_type_for_value"

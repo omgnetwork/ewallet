@@ -1,0 +1,41 @@
+ExchangePairSchema:
+  description: "The object schema for an exchange pair"
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    name:
+      type: string
+    from_token_id:
+      type: string
+    from_token:
+      $ref: '../token/schemas.yaml#/TokenSchema'
+    to_token_id:
+      type: string
+    to_token:
+      $ref: '../token/schemas.yaml#/TokenSchema'
+    rate:
+      type: number
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+    deleted_at:
+      type: string
+      format: date-time
+      nullable: true
+  required:
+    - object
+    - id
+    - name
+    - from_token_id
+    - from_token
+    - to_token_id
+    - to_token
+    - rate
+    - created_at
+    - updated_at

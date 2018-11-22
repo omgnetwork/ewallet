@@ -1,0 +1,56 @@
+RoleResponseSchema:
+  description: "The response schema for a role"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: 'schemas.yaml#/RoleSchema'
+    required:
+      - data
+    example:
+      version: "1"
+      success: true
+      data:
+        object: "role"
+        id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
+        name: "role_name"
+        display_name: "The role's display name"
+        created_at: "2018-01-01T00:00:00Z"
+        updated_at: "2018-01-01T10:00:00Z"
+RolesResponseSchema:
+  description: "The response schema for a list of roles"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - $ref: '../shared/schemas.yaml#/PaginatedListSchema'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: 'schemas.yaml#/RoleSchema'
+    required:
+      - data
+    example:
+      version: "1"
+      success: true
+      data:
+        object: "list"
+        data:
+          - object: "role"
+            id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
+            name: "Role Name"
+            display_name: "The role's display name"
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+        pagination:
+          per_page: 10
+          current_page: 1
+          is_first_page: true
+          is_last_page: true

@@ -1,0 +1,128 @@
+token.all:
+  post:
+    tags:
+      - Token
+    summary: Get the list of tokens
+    operationId: token_all
+    security:
+      - AdminAuth: []
+      - ProviderAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenAllBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TokensResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+token.get:
+  post:
+    tags:
+      - Token
+    summary: Get a specific token
+    operationId: token_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenGetBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TokenResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+token.create:
+  post:
+    tags:
+      - Token
+    summary: Create a new token
+    operationId: token_create
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenCreateBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TokenResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+token.update:
+  post:
+    tags:
+      - Token
+    summary: Update an existing token
+    operationId: token_update
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenUpdateBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TokenResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+token.enable_or_disable:
+  post:
+    tags:
+      - Token
+    summary: Enable or disable an existing token
+    operationId: token_enable_or_disable
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenToggleStatusBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TokenResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+token.stats:
+  post:
+    tags:
+      - Token
+    summary: Get the statistics for a token
+    operationId: token_stats
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenStatsBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TokenStatsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+token.get_mints:
+  post:
+    tags:
+      - Token
+    summary: Get the list of mints for a token
+    operationId: token_get_mints
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenGetMintsBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/MintsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+token.mint:
+  post:
+    tags:
+      - Token
+    summary: Mint an existing token
+    operationId: token_mint
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenMintBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TokenResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'

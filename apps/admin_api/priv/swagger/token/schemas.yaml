@@ -1,0 +1,85 @@
+TokenSchema:
+  description: "The object schema for a token"
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    symbol:
+      type: string
+    name:
+      type: string
+    subunit_to_unit:
+      type: integer
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+    metadata:
+      type: object
+    encrypted_metadata:
+      type: object
+    enabled:
+      type: boolean
+  required:
+    - object
+    - id
+    - symbol
+    - name
+    - subunit_to_unit
+    - created_at
+    - updated_at
+    - enabled
+
+MintSchema:
+  description: "The object schema for a mint"
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    description:
+      type: string
+    amount:
+      type: integer
+    confirmed:
+      type: boolean
+    token_id:
+      type: string
+    token:
+      type: object
+      $ref: '#/TokenSchema'
+    account_id:
+      type: string
+    account:
+      type: object
+      $ref: '../account/schemas.yaml#/AccountSchema'
+    transaction_id:
+      type: string
+    transaction:
+      type: object
+      $ref: '../transaction/schemas.yaml#/TransactionSchema'
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+  required:
+    - object
+    - id
+    - description
+    - amount
+    - confirmed
+    - token_id
+    - token
+    - account_id
+    - account
+    - transaction_id
+    - transaction
+    - created_at
+    - updated_at

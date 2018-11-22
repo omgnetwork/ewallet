@@ -1,0 +1,81 @@
+wallet.all:
+  post:
+    tags:
+      - Wallet
+    summary: Get the list of wallets
+    operationId: wallet_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/WalletAllBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#WalletsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+wallet.create:
+  post:
+    tags:
+      - Wallet
+    summary: Create a wallet
+    operationId: wallet_create
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/WalletCreateBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#WalletResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+wallet.get:
+  post:
+    tags:
+      - Wallet
+    summary: Get a specific wallet
+    operationId: wallet_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/WalletGetBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#WalletResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+
+wallet.get_transaction_consumptions:
+  post:
+    tags:
+      - Wallet
+    summary: Get the list of transaction consumptions for a wallet
+    operationId: wallet_get_consumptions
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TransactionConsumptionAllForWalletBody'
+    responses:
+      '200':
+        $ref: "../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+wallet.enable_or_disable:
+  post:
+    tags:
+      - Wallet
+    summary: Enable or disable a specific wallet
+    operationId: wallet_enable_or_disable
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/WalletEnableOrDisableBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#WalletResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'

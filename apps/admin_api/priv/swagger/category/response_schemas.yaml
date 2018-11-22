@@ -1,0 +1,60 @@
+CategoryResponseSchema:
+  description: "The response schema for an category"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: 'schemas.yaml#/CategorySchema'
+    required:
+      - data
+    example:
+      version: "1"
+      success: true
+      data:
+        object: "category"
+        id: "cat_01ce31n493dqbtj3fe8hadwndx"
+        name: "Category Name"
+        description: "The category description"
+        account_ids: []
+        accounts: []
+        created_at: "2018-01-01T00:00:00Z"
+        updated_at: "2018-01-01T10:00:00Z"
+CategoriesResponseSchema:
+  description: "The response schema for a list of roles"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - $ref: '../shared/schemas.yaml#/PaginatedListSchema'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: 'schemas.yaml#/CategorySchema'
+    required:
+      - data
+    example:
+      version: "1"
+      success: true
+      data:
+        object: "list"
+        data:
+          - object: "category"
+            id: "cat_01ce31n493dqbtj3fe8hadwndx"
+            name: "Category Name"
+            description: "The category description"
+            account_ids: []
+            accounts: []
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+        pagination:
+          per_page: 10
+          current_page: 1
+          is_first_page: true
+          is_last_page: true

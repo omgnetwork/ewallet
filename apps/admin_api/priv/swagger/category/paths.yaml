@@ -1,0 +1,80 @@
+category.all:
+  post:
+    tags:
+      - Category
+    summary: Get the list of categories
+    operationId: category_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/CategoryAllBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/CategoriesResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+category.get:
+  post:
+    tags:
+      - Category
+    summary: Get a specific category
+    operationId: category_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/CategoryGetBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/CategoryResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+category.create:
+  post:
+    tags:
+      - Category
+    summary: Create a new category
+    operationId: category_create
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/CategoryCreateBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/CategoryResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+category.update:
+  post:
+    tags:
+      - Category
+    summary: Update a category
+    operationId: category_update
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/CategoryUpdateBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/CategoryResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+category.delete:
+  post:
+    tags:
+      - Category
+    summary: Delete a category
+    operationId: category_delete
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/CategoryDeleteBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/CategoryResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'

@@ -1,0 +1,92 @@
+ExchangePairAllBody:
+  description: The parameters to use for listing the exchange pairs
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          page:
+            type: integer
+            minimum: 1
+          per_page:
+            type: integer
+            minimum: 1
+          search_term:
+            type: string
+          sort_by:
+            type: string
+          sort_dir:
+            type: string
+            enum: ["asc", "desc"]
+        example:
+          page: 1
+          per_page: 10
+          search_term: ""
+          sort_by: "field_name"
+          sort_dir: "asc"
+ExchangePairGetBody:
+  description: The parameters to use for retrieving a specific exchange pair by its id
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
+ExchangePairCreateBody:
+    description: The parameters to create an exchange pair.
+    required: true
+    content:
+      application/vnd.omisego.v1+json:
+        schema:
+          properties:
+            from_token_id:
+              type: string
+            to_token_id:
+              type: string
+            rate:
+              type: number
+            sync_opposite:
+              type: boolean
+          required:
+            - from_token_id
+            - to_token_id
+            - rate
+          example:
+            from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
+            to_token_id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
+            rate: 0.017
+            sync_opposite: false
+ExchangePairUpdateBody:
+    description: The parameters to update an exchange pair.
+    required: true
+    content:
+      application/vnd.omisego.v1+json:
+        schema:
+          properties:
+            id:
+              type: string
+            rate:
+              type: number
+          required:
+            - id
+          example:
+            id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
+            rate: 0.099
+ExchangePairDeleteBody:
+    description: The parameters to delete an exchange pair.
+    required: true
+    content:
+      application/vnd.omisego.v1+json:
+        schema:
+          properties:
+            id:
+              type: string
+          required:
+            - id
+          example:
+            id: "exg_01cgvppyrz2pprj6s0zmc26p2p"

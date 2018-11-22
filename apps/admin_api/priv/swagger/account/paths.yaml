@@ -1,0 +1,224 @@
+account.all:
+  post:
+    tags:
+      - Account
+    summary: Get the list of accounts
+    operationId: account_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountAllBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/AccountsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.get:
+  post:
+    tags:
+      - Account
+    summary: Get a specific account
+    operationId: account_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountGetBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/AccountResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.create:
+  post:
+    tags:
+      - Account
+    summary: Create a new account
+    operationId: account_create
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountCreateBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/AccountResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.update:
+  post:
+    tags:
+      - Account
+    summary: Update an account
+    operationId: account_update
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountUpdateBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/AccountResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.upload_avatar:
+  post:
+    tags:
+      - Account
+    summary: Uploads avatar for an account
+    operationId: account_upload_avatar
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountUploadBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/AccountResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.assign_user:
+  post:
+    tags:
+      - Account
+    summary: Assigns a user to an account with a role
+    operationId: account_assign_user
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountAssignUserBody'
+    responses:
+      '200':
+        $ref: "../shared/responses.yaml#/EmptyResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.unassign_user:
+  post:
+    tags:
+      - Account
+    summary: Unassigns a user from an account
+    operationId: account_unassign_user
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountUnassignUserBody'
+    responses:
+      '200':
+        $ref: "../shared/responses.yaml#/EmptyResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.get_members:
+  post:
+    tags:
+      - Account
+    summary: List the admins that are currently assigned to the given acount
+    operationId: account_get_members
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBody'
+    responses:
+      '200':
+        $ref: "../user/responses.yaml#/MembersResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.get_users:
+  post:
+    tags:
+      - Account
+    summary: List the users that are linked with the given account
+    operationId: account_get_users
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBodyWithOwned'
+    responses:
+      '200':
+        $ref: "../user/responses.yaml#/UsersResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.get_descendants:
+  post:
+    tags:
+      - Account
+    summary: Get the list of descendants for the given account
+    operationId: account_get_descantants
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountAllBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/AccountsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.get_wallets:
+  post:
+    tags:
+      - Account
+    summary: Get the list of wallets for the given account
+    operationId: account_get_wallets
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBodyWithOwned'
+    responses:
+      '200':
+        $ref: "../wallet/responses.yaml#/WalletsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.get_transactions:
+  post:
+    tags:
+      - Account
+    summary: List the transactions for the current account
+    operationId: account_get_transactions
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBodyWithOwned'
+    responses:
+      '200':
+        $ref: "../transaction/responses.yaml#/TransactionsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.get_transaction_requests:
+  post:
+    tags:
+      - Account
+    summary: List the transaction requests for the current account
+    operationId: account_get_transaction_requests
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBodyWithOwned'
+    responses:
+      '200':
+        $ref: "../transaction_request/responses.yaml#/TransactionRequestsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+account.get_transaction_consumptions:
+  post:
+    tags:
+      - Account
+    summary: List the transaction consumptions for the current account
+    operationId: account_get_transaction_consumptions
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBodyWithOwned'
+    responses:
+      '200':
+        $ref: "../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'

@@ -1,0 +1,31 @@
+AuthenticationTokenSchema:
+  description: "The object schema for an authentication token"
+  type: object
+  properties:
+    object:
+      type: string
+    authentication_token:
+      type: string
+    user_id:
+      type: string
+    user:
+      type: object
+      $ref: '../user/schemas.yaml#/UserSchema'
+    account_id:
+      type: string
+    master_admin:
+      type: boolean
+    account:
+      type: object
+      $ref: '../account/schemas.yaml#/AccountSchema'
+    role:
+      type: string
+  required:
+    - object
+    - authentication_token
+    - user_id
+    - user
+    - account_id
+    - account
+    - master_admin
+    - role

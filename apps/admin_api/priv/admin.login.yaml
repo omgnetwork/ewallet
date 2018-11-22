@@ -1,0 +1,14 @@
+post:
+  tags:
+    - AdminSession
+  summary: Login an existing admin user using email and password.
+  operationId: login
+  security:
+    - ClientAuth: []
+  requestBody:
+    $ref: './spec.yaml#/components/requestBodies/LoginBody'
+  responses:
+    '200':
+      $ref: "./spec.yaml#/components/responses/AuthenticationTokenResponse"
+    '500':
+      $ref: "./spec.yaml#/components/responses/InternalServerError"

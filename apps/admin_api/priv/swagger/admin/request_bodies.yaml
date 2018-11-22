@@ -1,0 +1,211 @@
+ResetPasswordBody:
+  description: The parameters to use for requesting a reset password
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          email:
+            type: string
+            format: email
+          redirect_url:
+            type: string
+        required:
+          - email
+          - redirect_url
+        example:
+          email: "test@example.com"
+          redirect_url: "https://example.com/admin/update_password?email={email}&token={token}"
+
+UpdatePasswordBody:
+  description: The parameters to use for reseting a password
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          email:
+            type: string
+            format: email
+          token:
+            type: string
+          password:
+            type: string
+            format: password
+          password_confirmation:
+            type: string
+            format: password
+        required:
+          - email
+          - redirect_url
+          - password
+          - password_confirmation
+        example:
+          email: "test@example.com"
+          token: "26736ca1-43a0-442b-803e-76220cd3cb1d"
+          password: "nZi9Enc5$l#"
+          password_confirmation: "nZi9Enc5$l#"
+
+AdminVerifyEmailUpdateBody:
+  description: The parameters to use for verifying an email update
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          email:
+            type: string
+          token:
+            type: string
+        example:
+          email: "new.email@example.com"
+          token: "verification_token"
+          
+AdminAllBody:
+  description: The parameters to use for listing the users
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          page:
+            type: integer
+            minimum: 1
+          per_page:
+            type: integer
+            minimum: 1
+          search_term:
+            type: string
+          sort_by:
+            type: string
+          sort_dir:
+            type: string
+            enum: ["asc", "desc"]
+        example:
+          page: 1
+          per_page: 10
+          search_term: ""
+          sort_by: "field_name"
+          sort_dir: "asc"
+AdminGetBody:
+  description: The parameters to use for retrieving a specific user by its id
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
+InviteAcceptBody:
+  description: The parameters to use for accepting an invite
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          email:
+            type: string
+          token:
+            type: string
+          password:
+            type: string
+          password_confirmation:
+            type: string
+        required:
+          - email
+          - token
+          - password
+          - password_confirmation
+        example:
+          email: "example@omise.co"
+          token: "dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg"
+          password: "user_provided_password"
+          password_confirmation: "user_provided_password"
+AdminUpdateBody:
+  description: The parameters to use for updating a user
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          metadata:
+            type: object
+            additionalProperties: true
+          encrypted_metadata:
+            type: object
+            additionalProperties: true
+        example:
+          metadata: {}
+          encrypted_metadata: {}
+# Request body for enabling/disabling an admin
+AdminToggleStatusBody:
+  description: The parameters to enable/disable an admin. Send enabled=true to enable, enabled=false to disable.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          enabled:
+            type: boolean
+        required:
+          - id
+          - enabled
+        example:
+          id: "usr_01ct2zjh20fj210bzz078948f6"
+          enabled: false
+AdminUpdatePasswordBody:
+  description: The parameters to use for updating a user's password
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          old_password:
+            type: string
+            format: password
+          password:
+            type: string
+            format: password
+          password_confirmation:
+            type: string
+            format: password
+        example:
+          old_password: "old_password"
+          password: "new_password"
+          password_confirmation: "new_password"
+AdminUpdateEmailBody:
+  description: The parameters to use for updating a user's email
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          email:
+            type: string
+        example:
+          email: "new.email@example.com"
+
+AdminUploadBody:
+  description: The parameters to use for uploading an admin's avatar. Only supports .jpg, .jpeg, .gif and .png.
+  required: true
+  content:
+    application/x-www-form-urlencoded:
+      schema:
+        properties:
+          id:
+            type: string
+          avatar:
+            type: string
+            format: binary
+        required:
+          - id
+          - avatar
+        example:
+          id: "usr_01ce83xvrsh8bzpctq3wqbprf8"
+          avatar: "/path/to/file"

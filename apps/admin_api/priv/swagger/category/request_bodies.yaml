@@ -1,0 +1,99 @@
+CategoryAllBody:
+  description: The parameters to use for listing the categories
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          page:
+            type: integer
+            minimum: 1
+          per_page:
+            type: integer
+            minimum: 1
+          search_term:
+            type: string
+          sort_by:
+            type: string
+          sort_dir:
+            type: string
+            enum: ["asc", "desc"]
+        example:
+          page: 1
+          per_page: 10
+          search_term: ""
+          sort_by: "field_name"
+          sort_dir: "asc"
+CategoryGetBody:
+  description: The parameters to use for retrieving a specific category
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: "cat_01ce30qdajwb7gdecq0ebn3twq"
+CategoryCreateBody:
+  description: The parameters to use for creating a new category.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          name:
+            type: string
+          description:
+            type: string
+          account_ids:
+            type: array
+            items:
+              type: string
+        required:
+          - name
+          - description
+          - account_ids
+        example:
+          name: "Name of category"
+          description: "The category description"
+          account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
+CategoryUpdateBody:
+  description: The parameters to use for updating an account. Only the provided fields are updated.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+          description:
+            type: string
+          account_ids:
+            type: array
+            items:
+              type: string
+        required:
+          - id
+        example:
+          id: "cat_01ce30qdajwb7gdecq0ebn3twq"
+          name: "Name to Update"
+          description: "New category description"
+          account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
+CategoryDeleteBody:
+  description: The parameters to use for deleting an category.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: "cat_01ce30qdajwb7gdecq0ebn3twq"

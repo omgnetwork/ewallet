@@ -1,0 +1,130 @@
+TransactionAllBody:
+  description: The parameters to use for listing the transactions
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          page:
+            type: integer
+            minimum: 1
+          per_page:
+            type: integer
+            minimum: 1
+          search_term:
+            type: string
+          match_all:
+            $ref: '../shared/schemas.yaml#/AdvancedFilteringSchema'
+          match_any:
+            $ref: '../shared/schemas.yaml#/AdvancedFilteringSchema'
+          sort_by:
+            type: string
+          sort_dir:
+            type: string
+            enum: ["asc", "desc"]
+        example:
+          page: 1
+          per_page: 10
+          search_term: ""
+          match_all: []
+          match_any: []
+          sort_by: "created_at"
+          sort_dir: "desc"
+
+TransactionGetBody:
+  description: The parameters to use for retrieving a specific transaction by its id
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: "txn_01ce83x8w4db56f3fcjy4n4qpc"
+
+TransactionCreateBody:
+  description: The parameters for making a transaction from an address to another.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          idempotency_token:
+            type: string
+          from_address:
+            type: string
+          to_address:
+            type: string
+          from_account_id:
+            type: string
+          to_account_id:
+            type: string
+          from_user_id:
+            type: string
+          to_user_id:
+            type: string
+          from_provider_user_id:
+            type: string
+          to_provider_user_id:
+            type: string
+          from_token_id:
+            type: string
+          to_token_id:
+            type: string
+          token_id:
+            type: string
+          from_amount:
+            type: integer
+          to_amount:
+            type: integer
+          amount:
+            type: integer
+          exchange_account_id:
+            type: string
+          exchange_wallet_address:
+            type: string
+          metadata:
+            type: object
+            additionalProperties: true
+          encrypted_metadata:
+            type: object
+            additionalProperties: true
+        required:
+          - idempotency_token
+          - from_address
+          - to_address
+          - token_id
+          - amount
+        example:
+          idempotency_token: "2345"
+          from_address: "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c"
+          to_address: "4aa07691-2f99-4cb1-b36c-50763e2d2ba8"
+          token_id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+          amount: 100
+          metadata: {}
+          encrypted_metadata: {}
+TransactionCalculateBody:
+  description: The parameters for calculating transaction amounts.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          from_amount:
+            type: integer
+          from_token_id:
+            type: string
+          to_amount:
+            type: integer
+          to_token_id:
+            type: string
+        required:
+          - from_token_id
+          - to_token_id
+        example:
+          from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
+          to_token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+          from_amount: 100

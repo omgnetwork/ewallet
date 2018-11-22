@@ -1,0 +1,127 @@
+AccessKeyResponseSchema:
+  description: "The response schema for an access key"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        $ref: 'schemas.yaml#/AccessKeySchema'
+    required:
+      - data
+    example:
+      version: "1"
+      success: true
+      data:
+        object: "key"
+        id: "key_01ce843mvg5fa1zpk5myy69h4q"
+        access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+        secret_key: "the_secret_key_or_null"
+        account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+        enabled: true
+        created_at: "2018-01-01T00:00:00Z"
+        updated_at: "2018-01-01T10:00:00Z"
+        deleted_at: null
+AccessKeysResponseSchema:
+  description: "The response schema for a list of access keys"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - $ref: '../shared/schemas.yaml#/PaginatedListSchema'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: 'schemas.yaml#/AccessKeySchema'
+    required:
+      - data
+    example:
+      version: "1"
+      success: true
+      data:
+        object: "list"
+        data:
+          - object: "key"
+            id: "key_01ce843mvg5fa1zpk5myy69h4q"
+            access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+            secret_key: "the_secret_key_or_null"
+            account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+            enabled: true
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+            deleted_at: null
+        pagination:
+          per_page: 10
+          current_page: 1
+          is_first_page: true
+          is_last_page: true
+
+######################################
+#               API KEY              #
+######################################
+
+APIKeyResponseSchema:
+  description: "The response schema for an API key"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        $ref: 'schemas.yaml#/APIKeySchema'
+    required:
+      - data
+    example:
+      version: "1"
+      success: true
+      data:
+        object: "api_key"
+        id: "api_01ce844d5w9e81snekr5kprvem"
+        key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+        owner_app: "admin_api"
+        enabled: true
+        account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+        created_at: "2018-01-01T00:00:00Z"
+        updated_at: "2018-01-01T10:00:00Z"
+        deleted_at: null
+APIKeysResponseSchema:
+  description: "The response schema for a list of API keys"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - $ref: '../shared/schemas.yaml#/PaginatedListSchema'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: 'schemas.yaml#/APIKeySchema'
+    required:
+      - data
+    example:
+      version: "1"
+      success: true
+      data:
+        object: "list"
+        data:
+          - object: "api_key"
+            id: "api_01ce844d5w9e81snekr5kprvem"
+            key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+            owner_app: "admin_api"
+            enabled: true
+            account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+            deleted_at: null
+        pagination:
+          per_page: 10
+          current_page: 1
+          is_first_page: true
+          is_last_page: true
