@@ -7,7 +7,7 @@ import { currentAccountProviderHoc } from '../omg-account-current/currentAccount
 import SortableTable from '../omg-table'
 import { withRouter } from 'react-router-dom'
 import InviteModal from '../omg-invite-modal'
-import InviteFetcher from '../omg-invite/inviteFetcher'
+import MembersFetcher from '../omg-member/MembersFetcher'
 import { updateCurrentAccount } from '../omg-account-current/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
@@ -16,7 +16,7 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 import Link from '../omg-links'
 import SearchInput from '../omg-page-layout/SearchGroup'
-import { createSearchInviteQuery } from '../omg-invite/searchField'
+import { createSearchInviteQuery } from '../omg-member/searchField'
 import TabsManager from '../omg-tabs'
 
 const columns = [
@@ -235,7 +235,7 @@ class AccountSettingPage extends Component {
     return (
       <TableSection>
         <SearchInput />
-        <InviteFetcher
+        <MembersFetcher
           query={{
             page: queryString.parse(this.props.location.search).page,
             accountId: this.props.match.params.accountId,

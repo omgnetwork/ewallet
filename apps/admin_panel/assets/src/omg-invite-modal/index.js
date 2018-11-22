@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { RadioButton, Input, Button, Icon } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { connect } from 'react-redux'
-import { inviteMember, getListMembers } from '../omg-invite/action'
+import { inviteMember, getListMembers } from '../omg-member/action'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 
