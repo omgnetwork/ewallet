@@ -273,7 +273,7 @@
     "/role.all" : {
       "post" : {
         "tags" : [ "Role" ],
-        "summary" : "Get the list of tokens",
+        "summary" : "Get the list of roles",
         "operationId" : "role_all",
         "requestBody" : {
           "$ref" : "#/components/requestBodies/RoleAllBody"
