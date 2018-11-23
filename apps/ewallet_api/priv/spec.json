@@ -177,6 +177,76 @@
         } ]
       }
     },
+    "/user.reset_password" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "Sends an email containing a link to reset the password.",
+        "operationId" : "user_reset_password",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/ResetPasswordBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns an empty response",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ClientAuth" : [ ]
+        } ]
+      }
+    },
+    "/user.update_password" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "Reset the password for a specific token with the provided new password.",
+        "operationId" : "user_update_password",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/UpdatePasswordBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns an empty response",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ClientAuth" : [ ]
+        } ]
+      }
+    },
     "/me.get" : {
       "post" : {
         "tags" : [ "User" ],
@@ -1711,6 +1781,64 @@
               },
               "example" : {
                 "provider_user_id" : "wijf-fbancomw-dqwjudb"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "ResetPasswordBody" : {
+        "description" : "The parameters to use for requesting a reset password",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "email", "redirect_url" ],
+              "properties" : {
+                "email" : {
+                  "type" : "string",
+                  "format" : "email"
+                },
+                "redirect_url" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "email" : "test@example.com",
+                "redirect_url" : "https://example.com/update_password?email={email}&token={token}"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "UpdatePasswordBody" : {
+        "description" : "The parameters to use for reseting a password",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "email", "password", "password_confirmation", "token" ],
+              "properties" : {
+                "email" : {
+                  "type" : "string",
+                  "format" : "email"
+                },
+                "token" : {
+                  "type" : "string"
+                },
+                "password" : {
+                  "type" : "string",
+                  "format" : "password"
+                },
+                "password_confirmation" : {
+                  "type" : "string",
+                  "format" : "password"
+                }
+              },
+              "example" : {
+                "email" : "test@example.com",
+                "token" : "Qn153G20eWdUnJtSqsb4BjxnbOaCDQpHfN3qwJ7c24o",
+                "password" : "nZi9Enc5$l#",
+                "password_confirmation" : "nZi9Enc5$l#"
               }
             }
           }

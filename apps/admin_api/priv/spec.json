@@ -6705,7 +6705,7 @@
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {
-              "required" : [ "email", "password", "password_confirmation", "redirect_url" ],
+              "required" : [ "email", "password", "password_confirmation", "token" ],
               "properties" : {
                 "email" : {
                   "type" : "string",
@@ -6725,7 +6725,7 @@
               },
               "example" : {
                 "email" : "test@example.com",
-                "token" : "26736ca1-43a0-442b-803e-76220cd3cb1d",
+                "token" : "Qn153G20eWdUnJtSqsb4BjxnbOaCDQpHfN3qwJ7c24o",
                 "password" : "nZi9Enc5$l#",
                 "password_confirmation" : "nZi9Enc5$l#"
               }

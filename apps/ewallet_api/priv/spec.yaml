@@ -110,6 +110,36 @@ paths:
           $ref: "#/components/responses/UserResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /user.reset_password:
+    post:
+      tags:
+        - User
+      summary: Sends an email containing a link to reset the password.
+      operationId: user_reset_password
+      security:
+        - ClientAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ResetPasswordBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.update_password:
+    post:
+      tags:
+        - User
+      summary: Reset the password for a specific token with the provided new password.
+      operationId: user_update_password
+      security:
+        - ClientAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UpdatePasswordBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   /me.get:
     post:
       tags:
@@ -1268,6 +1298,52 @@ components:
               - provider_user_id
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
+    ResetPasswordBody:
+      description: The parameters to use for requesting a reset password
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+                format: email
+              redirect_url:
+                type: string
+            required:
+              - email
+              - redirect_url
+            example:
+              email: "test@example.com"
+              redirect_url: "https://example.com/update_password?email={email}&token={token}"
+    UpdatePasswordBody:
+      description: The parameters to use for reseting a password
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+                format: email
+              token:
+                type: string
+              password:
+                type: string
+                format: password
+              password_confirmation:
+                type: string
+                format: password
+            required:
+              - email
+              - token
+              - password
+              - password_confirmation
+            example:
+              email: "test@example.com"
+              token: "Qn153G20eWdUnJtSqsb4BjxnbOaCDQpHfN3qwJ7c24o"
+              password: "nZi9Enc5$l#"
+              password_confirmation: "nZi9Enc5$l#"
 
     ######################################
     #            TRANSACTIONS            #
