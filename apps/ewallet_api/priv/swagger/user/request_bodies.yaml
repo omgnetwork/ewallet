@@ -1,0 +1,49 @@
+UserSignupBody:
+  description: The parameters to use for signing up a user
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          email:
+            type: string
+            format: email
+          password:
+            type: string
+            format: password
+          password_confirmation:
+            type: string
+            format: password
+          verification_url:
+            type: string
+          success_url:
+            type: string
+        required:
+          - email
+          - password
+          - password_confirmation
+        example:
+          email: "johndoe@example.com"
+          password: "password"
+          password_confirmation: "password"
+          verification_url: "https://example.com/verify_email?email={email}&token={token}"
+          success_url: "https://example.com/verify_email/success"
+
+UserVerifyEmailBody:
+  description: The parameters to use for verifying a user's email
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          email:
+            type: string
+            format: email
+          token:
+            type: string
+        required:
+          - email
+          - token
+        example:
+          email: "johndoe@example.com"
+          token: "some_token_string"

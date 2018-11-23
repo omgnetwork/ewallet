@@ -1,0 +1,6 @@
+UserResponse:
+  description: "Returns a single user"
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/UserResponseSchema'

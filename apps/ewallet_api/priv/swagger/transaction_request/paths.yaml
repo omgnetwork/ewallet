@@ -1,0 +1,47 @@
+me.create_transaction_request:
+  post:
+    tags:
+      - TransactionRequest
+    summary: Create a new transaction request.
+    operationId: create_transaction_request
+    security:
+      - ClientAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/CreateTransactionRequestBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TransactionRequestResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+
+me.get_transaction_request:
+  post:
+    tags:
+      - TransactionRequest
+    summary: Get a transaction request.
+    operationId: get_transaction_request
+    security:
+      - ClientAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/GetTransactionRequestBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TransactionRequestResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+
+me.consume_transaction_request:
+  post:
+    tags:
+      - TransactionRequest
+    summary: Consume a transaction request.
+    operationId: consume_transaction_request
+    security:
+      - ClientAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ConsumeTransactionRequestBody'
+    responses:
+      '200':
+        $ref: "../transaction_consumption/responses.yaml#/TransactionConsumptionResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'

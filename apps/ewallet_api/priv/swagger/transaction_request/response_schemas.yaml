@@ -1,0 +1,36 @@
+TransactionRequestResponseSchema:
+  description: "The response schema for a transaction request"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: 'schemas.yaml#/TransactionRequestSchema'
+    example:
+      data:
+        object: "transaction_request"
+        id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
+        formatted_id: "data|txr_01cbfg8mafdnbthgb9e68nd9y9"
+        socket_topic: "transaction_request:txr_01cbfg8mafdnbthgb9e68nd9y9"
+        type: "send"
+        amount: 100
+        status: "valid"
+        correlation_id: "123"
+        token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+        token: null
+        address: "3a560be5-15d1-4463-9ec2-02bc8ded7120"
+        user_id: "usr_01cbfg922kzmhvw04xvqn17qbd"
+        account_id: "acc_01cbfg9b5hn05rszm3na8jac7f"
+        require_confirmation: true
+        max_consumptions: 3
+        max_consumptions_per_user: null
+        consumption_lifetime: 1000
+        expiration_reason: null
+        allow_amount_override: false
+        metadata: {}
+        encrypted_metadata: {}
+        expiration_date: "2018-01-01T00:00:00Z"
+        expired_at: "2018-01-01T00:00:00Z"
+        created_at: "2018-01-01T00:00:00Z"
+        updated_at: "2018-01-01T00:00:00Z"

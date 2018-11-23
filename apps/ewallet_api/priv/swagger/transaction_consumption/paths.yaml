@@ -1,0 +1,31 @@
+me.approve_transaction_consumption:
+  post:
+    tags:
+      - TransactionConsumption
+    summary: Approve a consumption.
+    operationId: approve_transaction_consumption
+    security:
+      - ClientAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ConsumptionConfirmationRequestBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TransactionConsumptionResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+
+me.reject_transaction_consumption:
+  post:
+    tags:
+      - TransactionConsumption
+    summary: Reject a consumption.
+    operationId: reject_transaction_consumption
+    security:
+      - ClientAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ConsumptionConfirmationRequestBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TransactionConsumptionResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'

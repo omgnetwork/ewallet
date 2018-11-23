@@ -1,0 +1,26 @@
+user.login:
+  post:
+    tags:
+      - Session
+    summary: Login to retrieve a user's authentication_token.
+    operationId: user_login
+    requestBody:
+      $ref: 'request_bodies.yaml#/LoginBody'
+    responses:
+      '200':
+        $ref: "../authentication_token/responses.yaml#/AuthenticationTokenResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+me.logout:
+  post:
+    tags:
+      - Session
+    summary: Expires a user's authentication_token.
+    operationId: me_logout
+    security:
+      - ClientAuth: []
+    responses:
+      '200':
+        $ref: "../shared/responses.yaml#/EmptyResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'

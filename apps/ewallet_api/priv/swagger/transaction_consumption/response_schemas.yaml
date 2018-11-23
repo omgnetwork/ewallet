@@ -1,0 +1,128 @@
+TransactionConsumptionResponseSchema:
+  description: "The response schema for a transaction consumption"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      object:
+        type: string
+      id:
+        type: string
+      socket_topic:
+        type: string
+      status:
+        type: string
+        enum:
+          - pending
+          - approved
+          - rejected
+          - confirmed
+          - failed
+          - expired
+      amount:
+        type: string
+      token_id:
+        type: string
+      token:
+        type: object
+      correlation_id:
+        type: string
+      idempotency_token:
+        type: string
+      transaction_id:
+        type: string
+      transaction:
+        type: object
+      user_id:
+        type: string
+      user:
+        type: object
+      account_id:
+        type: string
+      account:
+        type: object
+      transaction_request_id:
+        type: string
+      transaction_request:
+        type: object
+      address:
+        type: string
+      metadata:
+        type: object
+      encrypted_metadata:
+        type: object
+      expiration_date:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+      approved_at:
+        type: string
+      rejected_at:
+        type: string
+      confirmed_at:
+        type: string
+      failed_at:
+        type: string
+      expired_at:
+        type: string
+    required:
+      - object
+      - id
+      - socket_topic
+      - status
+      - amount
+      - token_id
+      - token
+      - correlation_id
+      - idempotency_token
+      - transaction_id
+      - transaction
+      - user_id
+      - user
+      - account_id
+      - account
+      - transaction_request_id
+      - transaction_request
+      - address
+      - metadata
+      - encrypted_metadata
+      - expiration_date
+      - created_at
+      - updated_at
+      - approved_at
+      - rejected_at
+      - confirmed_at
+      - failed_at
+      - expired_at
+    example:
+      data:
+        object: "transaction_consumption"
+        id: "txc_01cbfg9qtdken61agxhx6wvj9h"
+        socket_topic: "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h"
+        status: "confirmed"
+        amount: 100
+        token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+        token: {}
+        correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+        idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120"
+        transaction_id: "txn_01cbfga8g0dgwcfc7xh6ks1njt"
+        transaction: {}
+        user_id: "usr_01cbfgak47ng6x72vbwjca6j4v"
+        user: {}
+        account_id: "acc_01cbfgatsanznvzffqsekta5f0"
+        account: {}
+        transaction_request_id: "txr_01cbfgb66cby8wp5wpq6n4pm0h"
+        transaction_request: {}
+        address: "5555cer3-15d1-4463-9ec2-02bc8ded7120"
+        metadata: {}
+        encrypted_metadata: {}
+        expiration_date: null
+        created_at: "2018-01-01T00:00:00Z"
+        updated_at: "2018-01-01T00:00:00Z"
+        approved_at: "2018-01-01T00:00:00Z"
+        rejected_at: null
+        confirmed_at: "2018-01-01T00:00:00Z"
+        failed_at: null
+        expired_at: null

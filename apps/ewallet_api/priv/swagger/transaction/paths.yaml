@@ -1,0 +1,31 @@
+me.get_transactions:
+  post:
+    tags:
+      - Transaction
+    summary: Get the list of transactions for the current user.
+    operationId: me_get_transactions
+    requestBody:
+      $ref: 'request_bodies.yaml#/TransactionsGetBody'
+    security:
+      - ClientAuth: []
+    responses:
+      '200':
+        $ref: "responses.yaml#/TransactionsResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+
+me.create_transaction:
+  post:
+    tags:
+      - Transaction
+    summary: Transfer the specified amount to a wallet.
+    operationId: me_create_transaction
+    security:
+      - ClientAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TransactionCreateBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/TransactionResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'

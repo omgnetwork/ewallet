@@ -1,0 +1,26 @@
+AuthenticationTokenResponseSchema:
+  description: "The response schema for an authentication token"
+  allOf:
+  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: 'schemas.yaml#/AuthenticationTokenSchema'
+    example:
+      data:
+        object: "authentication_token"
+        authentication_token: "azJRj09l7jvR8KhTqUs3"
+        user_id: "usr_01cc02x0v98qcctvycfx4vsk8x"
+        user:
+          object: "user"
+          id: "usr_01cc02x0v98qcctvycfx4vsk8x"
+          provider_user_id: "wijf-fbancomw-dqwjudb"
+          username: "johndoe"
+          full_name: "John Doe"
+          calling_name: "John"
+          email: "johndoe@omise.co"
+          metadata: {"first_name": "John", "last_name": "Doe"}
+          encrypted_metadata: {"something": "secret"}
+          created_at: "2018-01-01T00:00:00Z"
+          updated_at: "2018-01-01T10:00:00Z"

@@ -1,0 +1,65 @@
+TransactionSchema:
+  description: "The object schema for a transaction"
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    from:
+      type: object
+      properties:
+        object:
+          type: string
+        address:
+          type: string
+        amount:
+          type: number
+        token:
+          type: object
+          $ref: '../token/schemas.yaml#/TokenSchema'
+    to:
+      type: object
+      properties:
+        object:
+          type: string
+        address:
+          type: string
+        amount:
+          type: number
+        token:
+          type: object
+          $ref: '../token/schemas.yaml#/TokenSchema'
+    exchange:
+      type: object
+      properties:
+        object:
+          type: string
+        rate:
+          type: number
+    metadata:
+      type: object
+    encrypted_metadata:
+      type: object
+    status:
+      type: string
+      enum:
+        - comfirmed
+        - pending
+        - failed
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+  required:
+    - object
+    - id
+    - idempotency_token
+    - from
+    - to
+    - exchange
+    - status
+    - created_at
+    - updated_at

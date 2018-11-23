@@ -1,0 +1,6 @@
+TransactionConsumptionResponse:
+  description: "Transaction request consumption response"
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/TransactionConsumptionResponseSchema'

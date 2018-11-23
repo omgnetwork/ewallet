@@ -1,0 +1,41 @@
+user.signup:
+  post:
+    tags:
+      - User
+    summary: Sign up a new user
+    operationId: user_signup
+    requestBody:
+      $ref: 'request_bodies.yaml#/UserSignupBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/UserResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+        
+user.verify_email:
+  post:
+    tags:
+      - User
+    summary: Verify the email for a user
+    operationId: user_verify_email
+    requestBody:
+      $ref: 'request_bodies.yaml#/UserVerifyEmailBody'
+    responses:
+      '200':
+        $ref: "responses.yaml#/UserResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'
+
+me.get:
+  post:
+    tags:
+      - User
+    summary: Get the user corresponding to the provided authentication token.
+    operationId: me_get
+    security:
+      - ClientAuth: []
+    responses:
+      '200':
+        $ref: "responses.yaml#/UserResponse"
+      '500':
+        $ref: '../shared/responses.yaml#/InternalServerError'

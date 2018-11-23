@@ -1,0 +1,12 @@
+EmptyResponse:
+  description: "Returns an empty response"
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'schemas.yaml#/BaseResponseSchema'
+InternalServerError:
+  description: "Returns an internal server error"
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/ErrorResponseSchema'
