@@ -1,12 +1,12 @@
 openapi: 3.0.0
 info:
-  version: "1.0.0"
+  version: 1.0.0
   title: eWallet API
   description: >
     This is the documentation for the eWallet client API.
 
-    Client calls are authorized using the 'Authorization'
-    HTTP header with the following format:
+    Client calls are authorized using the 'Authorization' HTTP header with the
+    following format:
 
 
     - Client: `Authorization=OMGClient Base64(api_key:authentication_token)`
@@ -16,75 +16,1445 @@ info:
     will be returned.
 
 
-    Error codes are available in [html](./errors), [json](./errors.json)
-    and [yaml](./errors.yaml) formats.
+    Error codes are available in [html](./errors), [json](./errors.json) and
+    [yaml](./errors.yaml) formats.
   contact:
     name: OmiseGO
     email: thibault@omisego.co
   license:
     name: 'Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0'
     url: 'https://omisego.network/'
-
 tags:
   - name: Session
     description: Resources related to session tokens.
   - name: User
-    description: Resources related to users. A user is an entity uniquely identified by its provider_user_id which is the user id in the provider database.
+    description: >-
+      Resources related to users. A user is an entity uniquely identified by its
+      provider_user_id which is the user id in the provider database.
   - name: Wallet
-    description: Resources related to wallets of a specific user. Wallets contains the balances of tokens that users and accounts own.
+    description: >-
+      Resources related to wallets of a specific user. Wallets contains the
+      balances of tokens that users and accounts own.
   - name: Transaction
     description: Resources related to transactions.
   - name: TransactionRequest
-    description: Resources related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
+    description: >-
+      Resources related to the creation of transaction requests (either
+      receiving or sending) that needs to be consumed by another user.
   - name: TransactionConsumption
     description: Resources related to consumption of transaction requests.
-
 servers:
   - url: /api/client
-  
 components:
   securitySchemes:
     ClientAuth:
       type: apiKey
       in: header
       name: Authorization
-      description: OMGClient Base64(api_key:authentication_token)
-
+      description: 'OMGClient Base64(api_key:authentication_token)'
 paths:
-  # SESSION
   /user.login:
-    $ref: 'swagger/user_session/paths.yaml#/user.login'
+    post:
+      tags:
+        - Session
+      summary: Login to retrieve a user's authentication_token.
+      operationId: user_login
+      requestBody:
+        description: The parameters to use for logging in a user
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+              required:
+                - email
+                - password
+              example:
+                email: test@example.com
+                password: the_password
+      responses:
+        '200':
+          description: Authentication token response
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an authentication token
+                allOf:
+                  - &ref_0
+                    description: The response schema for a successful operation
+                    type: object
+                    properties:
+                      version:
+                        type: string
+                      success:
+                        type: boolean
+                      data:
+                        type: object
+                    required:
+                      - version
+                      - success
+                      - data
+                    example:
+                      version: '1'
+                      success: true
+                      data: {}
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for an authentication token
+                        properties:
+                          object:
+                            type: string
+                          authentication_token:
+                            type: string
+                          user_id:
+                            type: string
+                          user:
+                            type: object
+                            description: The object schema for a user
+                            properties: &ref_2
+                              object:
+                                type: string
+                              id:
+                                type: string
+                              username:
+                                type: string
+                              full_name:
+                                type: string
+                              calling_name:
+                                type: string
+                              provider_user_id:
+                                type: string
+                              email:
+                                type: string
+                                format: email
+                              enabled:
+                                type: boolean
+                              metadata:
+                                type: object
+                              encrypted_metadata:
+                                type: object
+                              avatar:
+                                type: object
+                              created_at:
+                                type: string
+                                format: date-time
+                              updated_at:
+                                type: string
+                                format: date-time
+                            required: &ref_3
+                              - object
+                              - id
+                              - created_at
+                              - updated_at
+                            example: &ref_4
+                              object: user
+                              id: usr_01ce83zf80j542z4q4zqd8qvfx
+                              provider_user_id: wijf-fbancomw-dqwjudb
+                              username: johndoe
+                              full_name: John Doe
+                              calling_name: John
+                              email: johndoe@omise.co
+                              enabled: true
+                              metadata:
+                                first_name: John
+                                last_name: Doe
+                              encrypted_metadata:
+                                something: secret
+                              avatar:
+                                original: file_url
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                        required:
+                          - object
+                          - authentication_token
+                          - user_id
+                          - user
+                    example:
+                      data:
+                        object: authentication_token
+                        authentication_token: azJRj09l7jvR8KhTqUs3
+                        user_id: usr_01cc02x0v98qcctvycfx4vsk8x
+                        user:
+                          object: user
+                          id: usr_01cc02x0v98qcctvycfx4vsk8x
+                          provider_user_id: wijf-fbancomw-dqwjudb
+                          username: johndoe
+                          full_name: John Doe
+                          calling_name: John
+                          email: johndoe@omise.co
+                          metadata:
+                            first_name: John
+                            last_name: Doe
+                          encrypted_metadata:
+                            something: secret
+                          created_at: '2018-01-01T00:00:00Z'
+                          updated_at: '2018-01-01T10:00:00Z'
+        '500': &ref_1
+          description: Returns an internal server error
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an error
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        description: The object schema for an error
+                        type: object
+                        properties:
+                          object:
+                            type: string
+                          code:
+                            type: string
+                          description:
+                            type: string
+                          messages:
+                            type: object
+                        required:
+                          - object
+                          - code
+                          - description
+                          - messages
+                        example:
+                          object: error
+                          code: 'server:internal_server_error'
+                          description: Something went wrong on the server
+                          messages:
+                            error_key: error_reason
+                    required:
+                      - data
+                    example:
+                      success: false
+                      data:
+                        object: error
+                        code: 'server:internal_server_error'
+                        description: Something went wrong on the server
+                        messages:
+                          error_key: error_reason
   /me.logout:
-    $ref: 'swagger/user_session/paths.yaml#/me.logout'
-
-  # USER
+    post:
+      tags:
+        - Session
+      summary: Expires a user's authentication_token.
+      operationId: me_logout
+      security:
+        - ClientAuth: []
+      responses:
+        '200':
+          description: Returns an empty response
+          content:
+            application/vnd.omisego.v1+json:
+              schema: *ref_0
+        '500': *ref_1
   /user.signup:
-    $ref: 'swagger/user/paths.yaml#/user.signup'
+    post:
+      tags:
+        - User
+      summary: Sign up a new user
+      operationId: user_signup
+      requestBody:
+        description: The parameters to use for signing up a user
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                password_confirmation:
+                  type: string
+                  format: password
+                verification_url:
+                  type: string
+                success_url:
+                  type: string
+              required:
+                - email
+                - password
+                - password_confirmation
+              example:
+                email: johndoe@example.com
+                password: password
+                password_confirmation: password
+                verification_url: 'https://example.com/verify_email?email={email}&token={token}'
+                success_url: 'https://example.com/verify_email/success'
+      responses:
+        '200': &ref_5
+          description: Returns a single user
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a user
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a user
+                        properties: *ref_2
+                        required: *ref_3
+                        example: *ref_4
+                    example:
+                      data:
+                        object: user
+                        id: usr_01ce83zf80j542z4q4zqd8qvfx
+                        provider_user_id: wijf-fbancomw-dqwjudb
+                        username: johndoe
+                        full_name: John Doe
+                        calling_name: John
+                        email: johndoe@omise.co
+                        enabled: true
+                        metadata:
+                          first_name: John
+                          last_name: Doe
+                        encrypted_metadata:
+                          something: secret
+                        avatar:
+                          original: file_url
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /user.verify_email:
-    $ref: 'swagger/user/paths.yaml#/user.verify_email'
+    post:
+      tags:
+        - User
+      summary: Verify the email for a user
+      operationId: user_verify_email
+      requestBody:
+        description: The parameters to use for verifying a user's email
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                token:
+                  type: string
+              required:
+                - email
+                - token
+              example:
+                email: johndoe@example.com
+                token: some_token_string
+      responses:
+        '200': *ref_5
+        '500': *ref_1
   /me.get:
-    $ref: 'swagger/user/paths.yaml#/me.get'
-
-  # WALLET
+    post:
+      tags:
+        - User
+      summary: Get the user corresponding to the provided authentication token.
+      operationId: me_get
+      security:
+        - ClientAuth: []
+      responses:
+        '200': *ref_5
+        '500': *ref_1
   /me.get_wallets:
-    $ref: 'swagger/wallet/paths.yaml#/me.get_wallets'
-
-  # TRANSACTIONS
+    post:
+      tags:
+        - Wallet
+      summary: >-
+        Get the wallets of a specific user. The client can call this to get the
+        wallets of the user corresponding to the authentication_token provided.
+      operationId: me_get_wallets
+      requestBody:
+        description: The default parameters to use when querying a paginated resource
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - &ref_7
+                  properties:
+                    page:
+                      type: integer
+                      minimum: 1
+                    per_page:
+                      type: integer
+                      minimum: 1
+                    search_term:
+                      type: string
+                    match_all: &ref_6
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          field:
+                            type: string
+                          comparator:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                          - field
+                          - comparator
+                          - value
+                    match_any: *ref_6
+                    sort_by:
+                      type: string
+                    sort_dir:
+                      type: string
+                      enum:
+                        - asc
+                        - desc
+                  example:
+                    page: 1
+                    per_page: 10
+                    match_all: []
+                    match_any: []
+                    sort_by: created_at
+                    sort_dir: desc
+      security:
+        - ClientAuth: []
+      responses:
+        '200':
+          description: Returns a list of wallets
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of wallets
+                allOf:
+                  - &ref_8
+                    description: The response schema for a successful operation
+                    allOf:
+                      - *ref_0
+                      - type: object
+                        properties:
+                          data:
+                            type: object
+                            allOf:
+                              - description: The object schema for a paginated list
+                                type: object
+                                properties:
+                                  object:
+                                    type: string
+                                  data:
+                                    type: array
+                                    items:
+                                      type: object
+                                  pagination:
+                                    type: object
+                                    items:
+                                      type: object
+                                    properties:
+                                      per_page:
+                                        type: integer
+                                      current_page:
+                                        type: integer
+                                      count:
+                                        type: integer
+                                      is_first_page:
+                                        type: boolean
+                                      is_last_page:
+                                        type: boolean
+                                    required:
+                                      - per_page
+                                      - current_page
+                                      - count
+                                      - is_first_page
+                                      - is_last_page
+                                required:
+                                  - object
+                                  - data
+                                  - pagination
+                        required:
+                          - data
+                        example:
+                          data:
+                            object: list
+                            data: null
+                            pagination:
+                              per_page: 10
+                              current_page: 1
+                              count: 5
+                              is_first_page: true
+                              is_last_page: true
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: The object schema for a wallet
+                                  type: object
+                                  properties:
+                                    object:
+                                      type: string
+                                    socket_topic:
+                                      type: string
+                                    address:
+                                      type: string
+                                    name:
+                                      type: string
+                                    identifier:
+                                      type: string
+                                    metadata:
+                                      type: object
+                                    encrypted_metadata:
+                                      type: object
+                                    enabled:
+                                      type: boolean
+                                    user_id:
+                                      type: string
+                                    user:
+                                      description: The object schema for a user
+                                      type: object
+                                      properties: *ref_2
+                                      required: *ref_3
+                                      example: *ref_4
+                                    account_id:
+                                      type: string
+                                    account:
+                                      description: The object schema for an account
+                                      type: object
+                                      properties:
+                                        object:
+                                          type: string
+                                        id:
+                                          type: string
+                                        parent_id:
+                                          type: string
+                                        name:
+                                          type: string
+                                        description:
+                                          type: string
+                                        master:
+                                          type: boolean
+                                        avatar:
+                                          type: object
+                                        category_ids:
+                                          type: array
+                                          items:
+                                            type: string
+                                        categories:
+                                          type: object
+                                          allOf:
+                                            - description: >-
+                                                The object schema for an unpaginated
+                                                list
+                                              type: object
+                                              properties:
+                                                object:
+                                                  type: string
+                                                data:
+                                                  type: array
+                                                  items:
+                                                    type: object
+                                              required:
+                                                - object
+                                                - data
+                                              example:
+                                                object: list
+                                                data: []
+                                            - type: object
+                                              properties:
+                                                data:
+                                                  type: array
+                                                  items:
+                                                    description: The object schema for a category
+                                                    type: object
+                                                    properties:
+                                                      object:
+                                                        type: string
+                                                      id:
+                                                        type: string
+                                                      name:
+                                                        type: string
+                                                      description:
+                                                        type: string
+                                                      account_ids:
+                                                        type: array
+                                                        items:
+                                                          type: string
+                                                      created_at:
+                                                        type: string
+                                                        format: date-time
+                                                      updated_at:
+                                                        type: string
+                                                        format: date-time
+                                                    required:
+                                                      - object
+                                                      - id
+                                                      - name
+                                                      - description
+                                                      - account_ids
+                                                      - created_at
+                                                      - updated_at
+                                        metadata:
+                                          type: object
+                                        encrypted_metadata:
+                                          type: object
+                                        created_at:
+                                          type: string
+                                          format: date-time
+                                        updated_at:
+                                          type: string
+                                          format: date-time
+                                      required:
+                                        - object
+                                        - id
+                                        - parent_id
+                                        - name
+                                        - master
+                                        - avatar
+                                        - category_ids
+                                        - created_at
+                                        - updated_at
+                                    balances:
+                                      type: array
+                                      items:
+                                        description: The object schema for a balance
+                                        type: object
+                                        properties:
+                                          object:
+                                            type: string
+                                          token:
+                                            type: object
+                                            description: The object schema for a token
+                                            properties: &ref_9
+                                              object:
+                                                type: string
+                                              id:
+                                                type: string
+                                              symbol:
+                                                type: string
+                                              name:
+                                                type: string
+                                              subunit_to_unit:
+                                                type: integer
+                                              created_at:
+                                                type: string
+                                                format: date-time
+                                              updated_at:
+                                                type: string
+                                                format: date-time
+                                              metadata:
+                                                type: object
+                                              encrypted_metadata:
+                                                type: object
+                                              enabled:
+                                                type: boolean
+                                            required: &ref_10
+                                              - object
+                                              - id
+                                              - symbol
+                                              - name
+                                              - subunit_to_unit
+                                              - created_at
+                                              - updated_at
+                                              - enabled
+                                          amount:
+                                            type: number
+                                        required:
+                                          - object
+                                          - token
+                                          - amount
+                                        example:
+                                          object: balance
+                                          token:
+                                            object: token
+                                            id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                                            symbol: BTC
+                                            name: Bitcoin
+                                            subunit_to_unit: 100000000000000000
+                                          amount: 100
+                                  required:
+                                    - object
+                                    - socket_topic
+                                    - address
+                                    - name
+                                    - identifier
+                                    - metadata
+                                    - encrypted_metadata
+                                    - user_id
+                                    - user
+                                    - account_id
+                                    - account
+                                    - balances
+                                    - enabled
+                                  example:
+                                    data:
+                                      object: wallet
+                                      socket_topic: 'wallet:XXX123'
+                                      address: XXX123
+                                      name: primary
+                                      identifier: primary
+                                      metadata: {}
+                                      encrypted_metadata: {}
+                                      enabled: true
+                                      user_id: usr_01cbfg6v9thrc3sd9m1v4gazjv
+                                      user: {}
+                                      account_id: null
+                                      account: null
+                                      balances:
+                                        - amount: 0
+                                          token:
+                                            object: token
+                                            id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                                            symbol: BTC
+                                            name: Bitcoin
+                                            subunit_to_unit: 100000000000000000
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: wallet
+                            socket_topic: 'wallet:XXX123'
+                            address: XXX123
+                            name: primary
+                            identifier: primary
+                            metadata: {}
+                            encrypted_metadata: {}
+                            enabled: true
+                            user_id: usr_01cbfg6v9thrc3sd9m1v4gazjv
+                            user: {}
+                            account_id: null
+                            account: null
+                            balances:
+                              - amount: 0
+                                token:
+                                  object: token
+                                  id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                                  symbol: BTC
+                                  name: Bitcoin
+                                  subunit_to_unit: 100000000000000000
+        '500': *ref_1
   /me.get_transactions:
-    $ref: 'swagger/transaction/paths.yaml#/me.get_transactions'
+    post:
+      tags:
+        - Transaction
+      summary: Get the list of transactions for the current user.
+      operationId: me_get_transactions
+      requestBody:
+        description: The parameters to use for retrieving a specific transaction by its id
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_7
+              properties:
+                address:
+                  type: string
+              example:
+                address: address_owned_by_current_user (optional)
+      security:
+        - ClientAuth: []
+      responses:
+        '200':
+          description: Returns a list of transactions
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of transactions
+                allOf:
+                  - *ref_8
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: The object schema for a transaction
+                                  type: object
+                                  properties: &ref_11
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    from:
+                                      type: object
+                                      properties:
+                                        object:
+                                          type: string
+                                        address:
+                                          type: string
+                                        amount:
+                                          type: number
+                                        token:
+                                          type: object
+                                          description: The object schema for a token
+                                          properties: *ref_9
+                                          required: *ref_10
+                                    to:
+                                      type: object
+                                      properties:
+                                        object:
+                                          type: string
+                                        address:
+                                          type: string
+                                        amount:
+                                          type: number
+                                        token:
+                                          type: object
+                                          description: The object schema for a token
+                                          properties: *ref_9
+                                          required: *ref_10
+                                    exchange:
+                                      type: object
+                                      properties:
+                                        object:
+                                          type: string
+                                        rate:
+                                          type: number
+                                    metadata:
+                                      type: object
+                                    encrypted_metadata:
+                                      type: object
+                                    status:
+                                      type: string
+                                      enum:
+                                        - comfirmed
+                                        - pending
+                                        - failed
+                                    created_at:
+                                      type: string
+                                      format: date-time
+                                    updated_at:
+                                      type: string
+                                      format: date-time
+                                  required: &ref_12
+                                    - object
+                                    - id
+                                    - idempotency_token
+                                    - from
+                                    - to
+                                    - exchange
+                                    - status
+                                    - created_at
+                                    - updated_at
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: transaction
+                            id: txn_01ce842dxrrprkak0rzq716ax1
+                            from:
+                              object: transaction_source
+                              address: bec66785-f0d8-416c-a650-2859aa680166
+                              amount: 1000
+                              token:
+                                object: token
+                                id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+                                symbol: ABC
+                                name: ABC Point
+                                subunit_to_unit: 100
+                                created_at: '2018-01-01T00:00:00Z'
+                                updated_at: '2018-01-01T10:00:00Z'
+                            to:
+                              object: transaction_source
+                              address: 47218ab4-d94f-44e9-b7f2-36061f76ce58
+                              amount: 1000
+                              token:
+                                object: token
+                                id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+                                symbol: ABC
+                                name: ABC Point
+                                subunit_to_unit: 100
+                                created_at: '2018-01-01T00:00:00Z'
+                                updated_at: '2018-01-01T10:00:00Z'
+                            exchange:
+                              object: exchange
+                              rate: 1
+                            metadata: {}
+                            encrypted_metadata: {}
+                            status: confirmed
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /me.create_transaction:
-    $ref: 'swagger/transaction/paths.yaml#/me.create_transaction'
+    post:
+      tags:
+        - Transaction
+      summary: Transfer the specified amount to a wallet.
+      operationId: me_create_transaction
+      security:
+        - ClientAuth: []
+      requestBody:
+        description: >
+          The parameters for making a transfer.
 
-  # TRANSACTION REQUESTS
+          The from_address is optional, if specified it must belong to the
+          current user.
+
+          If not specified, the user's primary wallet will be used.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                idempotency_token:
+                  type: string
+                from_address:
+                  type: string
+                to_address:
+                  type: string
+                to_account_id:
+                  type: string
+                to_user_id:
+                  type: string
+                to_provider_user_id:
+                  type: string
+                token_id:
+                  type: string
+                amount:
+                  type: integer
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - idempotency_token
+                - to_address
+                - token_id
+                - amount
+              example:
+                idempotency_token: dfdgr
+                from_address: 81e75f46-ee14-4e4c-a1e5-cddcb26dce9c
+                to_address: 4aa07691-2f99-4cb1-b36c-50763e2d2ba8
+                token_id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                amount: 100
+                metadata: {}
+                encrypted_metadata: {}
+      responses:
+        '200':
+          description: Returns a single transaction
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a transaction
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a transaction
+                        properties: *ref_11
+                        required: *ref_12
+                    example:
+                      data:
+                        object: transaction
+                        id: txn_01ce840q5svw6058r8yk6jzf65
+                        idempotency_token: 123982f5-4a27-498d-a91b-7bb2e2a8d3d1
+                        from:
+                          object: transaction_source
+                          address: bec66785-f0d8-416c-a650-2859aa680166
+                          amount: 1000
+                          token:
+                            object: token
+                            id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+                            symbol: ABC
+                            name: ABC Point
+                            subunit_to_unit: 100
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                        to:
+                          object: transaction_source
+                          address: 47218ab4-d94f-44e9-b7f2-36061f76ce58
+                          amount: 1000
+                          token:
+                            object: token
+                            id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+                            symbol: ABC
+                            name: ABC Point
+                            subunit_to_unit: 100
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                        metadata: {}
+                        encrypted_metadata: {}
+                        exchange:
+                          object: exchange
+                          rate: 1
+                        status: confirmed
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /me.create_transaction_request:
-    $ref: 'swagger/transaction_request/paths.yaml#/me.create_transaction_request'
+    post:
+      tags:
+        - TransactionRequest
+      summary: Create a new transaction request.
+      operationId: create_transaction_request
+      security:
+        - ClientAuth: []
+      requestBody:
+        description: >-
+          Create a transaction request using the specified values. That request
+          can then be consumed using a different endpoint by a different client
+          to create a transaction from that request.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - send
+                    - receive
+                token_id:
+                  type: string
+                  description: The token ID to use for the transaction.
+                amount:
+                  type: integer
+                  default: null
+                  description: >-
+                    The amount to transfer. If not specified, the consumption
+                    will need to set the amount.
+                correlation_id:
+                  type: string
+                  default: null
+                  description: >-
+                    Optional unique identifier to tie a request with your
+                    system.
+                address:
+                  type: string
+                  default: null
+                  description: >-
+                    If not specified, the current user's primary wallet will be
+                    used. If specified, it needs to be one of the current user's
+                    addresses.
+                require_confirmation:
+                  type: boolean
+                  default: false
+                  description: >-
+                    Indicates if a consumption of the created request needs to
+                    be approved before being processed.
+                max_consumptions:
+                  type: integer
+                  default: null
+                  description: The number of times this created request can be consumed.
+                max_consumptions_per_user:
+                  type: integer
+                  default: null
+                  description: The maximum number of times a user can consume the request.
+                consumption_lifetime:
+                  type: integer
+                  default: null
+                  description: >-
+                    The lifetime in milliseconds of how long a consumption can
+                    stay 'pending' before being expired. If a consumption is not
+                    approved before its expiration date, it will become invalid
+                    and be cancelled. This property can be used to avoid stale
+                    consumptions blocking the 'max_consumptions' count.
+                expiration_date:
+                  type: string
+                  default: null
+                  description: >-
+                    The datetime at which the created request should expire (no
+                    one will be able to consume it anymore). The format is
+                    yyyy-MM-dd'T'HH:mm:ssZZZZZ.
+                allow_amount_override:
+                  type: boolean
+                  default: true
+                  description: >-
+                    Defines if the amount set in the created request can be
+                    overriden in a consumption. Cannot be set to true if the
+                    amount property is not set at creation
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - type
+                - token_id
+              example:
+                type: send
+                token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
+                amount: 100
+                correlation_id: '123'
+                address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
+      responses:
+        '200': &ref_13
+          description: Transaction request response
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a transaction request
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The response schema for a transaction request
+                        properties:
+                          object:
+                            type: string
+                          id:
+                            type: string
+                          socket_topic:
+                            type: string
+                          type:
+                            type: string
+                            enum:
+                              - send
+                              - receive
+                          amount:
+                            type: string
+                          status:
+                            type: string
+                            enum:
+                              - valid
+                              - expired
+                          correlation_id:
+                            type: string
+                          token_id:
+                            type: string
+                          token:
+                            type: object
+                          address:
+                            type: string
+                          user_id:
+                            type: string
+                          account_id:
+                            type: string
+                          require_confirmation:
+                            type: boolean
+                          max_consumptions:
+                            type: integer
+                          max_consumptions_per_user:
+                            type: integer
+                          consumption_lifetime:
+                            type: integer
+                          expiration_reason:
+                            type: string
+                            enum:
+                              - max_consumptions_reached
+                              - expired_transaction_request
+                              - null
+                          allow_amount_override:
+                            type: boolean
+                          metadata:
+                            type: object
+                          encrypted_metadata:
+                            type: object
+                          expiration_date:
+                            type: string
+                          expired_at:
+                            type: string
+                          created_at:
+                            type: string
+                          updated_at:
+                            type: string
+                        required:
+                          - object
+                          - id
+                          - formatted_id
+                          - socket_topic
+                          - type
+                          - amount
+                          - status
+                          - correlation_id
+                          - token_id
+                          - token
+                          - address
+                          - user_id
+                          - account_id
+                          - require_confirmation
+                          - max_consumptions
+                          - max_consumptions_per_user
+                          - consumption_lifetime
+                          - expiration_reason
+                          - allow_amount_override
+                          - metadata
+                          - encrypted_metadata
+                          - expiration_date
+                          - expired_at
+                          - created_at
+                          - updated_at
+                    example:
+                      data:
+                        object: transaction_request
+                        id: txr_01cbfg8mafdnbthgb9e68nd9y9
+                        formatted_id: data|txr_01cbfg8mafdnbthgb9e68nd9y9
+                        socket_topic: 'transaction_request:txr_01cbfg8mafdnbthgb9e68nd9y9'
+                        type: send
+                        amount: 100
+                        status: valid
+                        correlation_id: '123'
+                        token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
+                        token: null
+                        address: 3a560be5-15d1-4463-9ec2-02bc8ded7120
+                        user_id: usr_01cbfg922kzmhvw04xvqn17qbd
+                        account_id: acc_01cbfg9b5hn05rszm3na8jac7f
+                        require_confirmation: true
+                        max_consumptions: 3
+                        max_consumptions_per_user: null
+                        consumption_lifetime: 1000
+                        expiration_reason: null
+                        allow_amount_override: false
+                        metadata: {}
+                        encrypted_metadata: {}
+                        expiration_date: '2018-01-01T00:00:00Z'
+                        expired_at: '2018-01-01T00:00:00Z'
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T00:00:00Z'
+        '500': *ref_1
   /me.get_transaction_request:
-    $ref: 'swagger/transaction_request/paths.yaml#/me.get_transaction_request'
+    post:
+      tags:
+        - TransactionRequest
+      summary: Get a transaction request.
+      operationId: get_transaction_request
+      security:
+        - ClientAuth: []
+      requestBody:
+        description: Get a transaction request using the specified ID.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                formatted_id:
+                  type: string
+              example:
+                formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
+      responses:
+        '200': *ref_13
+        '500': *ref_1
   /me.consume_transaction_request:
-    $ref: 'swagger/transaction_request/paths.yaml#/me.consume_transaction_request'
-
-  # TRANSACTION CONSUMPTIONS
+    post:
+      tags:
+        - TransactionRequest
+      summary: Consume a transaction request.
+      operationId: consume_transaction_request
+      security:
+        - ClientAuth: []
+      requestBody:
+        description: Consume a transaction request using the specified values.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                idempotency_token:
+                  type: string
+                formatted_transaction_request_id:
+                  type: string
+                correlation_id:
+                  type: string
+                amount:
+                  type: integer
+                token_id:
+                  type: string
+                address:
+                  type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - idempotency_token
+                - formatted_transaction_request_id
+              example:
+                idempotency_token: 3unr3u3
+                formatted_transaction_request_id: txn_01cbfg5m2ee06kzm8tbysfmmw5
+                correlation_id: '123'
+                token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
+                amount: 100
+                address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
+                metadata: {}
+                encrypted_metadata: {}
+      responses:
+        '200': &ref_14
+          description: Transaction request consumption response
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a transaction consumption
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      object:
+                        type: string
+                      id:
+                        type: string
+                      socket_topic:
+                        type: string
+                      status:
+                        type: string
+                        enum:
+                          - pending
+                          - approved
+                          - rejected
+                          - confirmed
+                          - failed
+                          - expired
+                      amount:
+                        type: string
+                      token_id:
+                        type: string
+                      token:
+                        type: object
+                      correlation_id:
+                        type: string
+                      idempotency_token:
+                        type: string
+                      transaction_id:
+                        type: string
+                      transaction:
+                        type: object
+                      user_id:
+                        type: string
+                      user:
+                        type: object
+                      account_id:
+                        type: string
+                      account:
+                        type: object
+                      transaction_request_id:
+                        type: string
+                      transaction_request:
+                        type: object
+                      address:
+                        type: string
+                      metadata:
+                        type: object
+                      encrypted_metadata:
+                        type: object
+                      expiration_date:
+                        type: string
+                      created_at:
+                        type: string
+                      updated_at:
+                        type: string
+                      approved_at:
+                        type: string
+                      rejected_at:
+                        type: string
+                      confirmed_at:
+                        type: string
+                      failed_at:
+                        type: string
+                      expired_at:
+                        type: string
+                    required:
+                      - object
+                      - id
+                      - socket_topic
+                      - status
+                      - amount
+                      - token_id
+                      - token
+                      - correlation_id
+                      - idempotency_token
+                      - transaction_id
+                      - transaction
+                      - user_id
+                      - user
+                      - account_id
+                      - account
+                      - transaction_request_id
+                      - transaction_request
+                      - address
+                      - metadata
+                      - encrypted_metadata
+                      - expiration_date
+                      - created_at
+                      - updated_at
+                      - approved_at
+                      - rejected_at
+                      - confirmed_at
+                      - failed_at
+                      - expired_at
+                    example:
+                      data:
+                        object: transaction_consumption
+                        id: txc_01cbfg9qtdken61agxhx6wvj9h
+                        socket_topic: 'transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h'
+                        status: confirmed
+                        amount: 100
+                        token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
+                        token: {}
+                        correlation_id: 7e9c0be5-15d1-4463-9ec2-02bc8ded7120
+                        idempotency_token: 7831c0be5-15d1-4463-9ec2-02bc8ded7120
+                        transaction_id: txn_01cbfga8g0dgwcfc7xh6ks1njt
+                        transaction: {}
+                        user_id: usr_01cbfgak47ng6x72vbwjca6j4v
+                        user: {}
+                        account_id: acc_01cbfgatsanznvzffqsekta5f0
+                        account: {}
+                        transaction_request_id: txr_01cbfgb66cby8wp5wpq6n4pm0h
+                        transaction_request: {}
+                        address: 5555cer3-15d1-4463-9ec2-02bc8ded7120
+                        metadata: {}
+                        encrypted_metadata: {}
+                        expiration_date: null
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T00:00:00Z'
+                        approved_at: '2018-01-01T00:00:00Z'
+                        rejected_at: null
+                        confirmed_at: '2018-01-01T00:00:00Z'
+                        failed_at: null
+                        expired_at: null
+        '500': *ref_1
   /me.approve_transaction_consumption:
-    $ref: 'swagger/transaction_consumption/paths.yaml#/me.approve_transaction_consumption'
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Approve a consumption.
+      operationId: approve_transaction_consumption
+      security:
+        - ClientAuth: []
+      requestBody: &ref_15
+        description: Approve or reject a consumption using the specified ID.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: txn_01cbfg5m2ee06kzm8tbysfmmw5
+      responses:
+        '200': *ref_14
+        '500': *ref_1
   /me.reject_transaction_consumption:
-    $ref: 'swagger/transaction_consumption/paths.yaml#/me.reject_transaction_consumption'
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Reject a consumption.
+      operationId: reject_transaction_consumption
+      security:
+        - ClientAuth: []
+      requestBody: *ref_15
+      responses:
+        '200': *ref_14
+        '500': *ref_1
