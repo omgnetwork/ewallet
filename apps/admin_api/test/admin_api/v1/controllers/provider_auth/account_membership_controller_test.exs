@@ -192,6 +192,91 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                  }
                }
     end
+
+    # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
+    # an admin and a membership in order for the inserted admin to appear in the result.
+    test "supports match_any filtering" do
+      admin_1 = insert(:admin, username: "value_1")
+      admin_2 = insert(:admin, username: "value_2")
+      admin_3 = insert(:admin, username: "value_3")
+      admin_4 = insert(:admin, username: "value_4")
+      account = insert(:account)
+
+      _ = insert(:membership, %{user: admin_1, account: account})
+      _ = insert(:membership, %{user: admin_2, account: account})
+      _ = insert(:membership, %{user: admin_3, account: account})
+      _ = insert(:membership, %{user: admin_4, account: account})
+
+      attrs = %{
+        "id" => account.id,
+        "match_any" => [
+          %{
+            "field" => "username",
+            "comparator" => "eq",
+            "value" => "value_2"
+          },
+          %{
+            "field" => "username",
+            "comparator" => "eq",
+            "value" => "value_4"
+          }
+        ]
+      }
+
+      response = provider_request("/account.get_members", attrs)
+
+      assert response["success"]
+
+      records = response["data"]["data"]
+
+      refute Enum.any?(records, fn r -> r["id"] == admin_1.id end)
+      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
+      refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
+      assert Enum.any?(records, fn r -> r["id"] == admin_4.id end)
+      assert Enum.count(records) == 2
+    end
+
+    # This is a variation of `ConnCase.test_supports_match_all/5` that inserts
+    # an admin and a membership in order for the inserted admin to appear in the result.
+    test "supports match_all filtering" do
+      admin_1 = insert(:admin, %{username: "this_should_almost_match"})
+      admin_2 = insert(:admin, %{username: "this_should_match"})
+      admin_3 = insert(:admin, %{username: "should_not_match"})
+      admin_4 = insert(:admin, %{username: "also_should_not_match"})
+      account = insert(:account)
+
+      _ = insert(:membership, %{user: admin_1, account: account})
+      _ = insert(:membership, %{user: admin_2, account: account})
+      _ = insert(:membership, %{user: admin_3, account: account})
+      _ = insert(:membership, %{user: admin_4, account: account})
+
+      attrs = %{
+        "id" => account.id,
+        "match_all" => [
+          %{
+            "field" => "username",
+            "comparator" => "starts_with",
+            "value" => "this_should"
+          },
+          %{
+            "field" => "username",
+            "comparator" => "contains",
+            "value" => "should_match"
+          }
+        ]
+      }
+
+      response = provider_request("/admin.all", attrs)
+
+      assert response["success"]
+
+      records = response["data"]["data"]
+      refute Enum.any?(records, fn r -> r["id"] == admin_1.id end)
+      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
+      refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
+      refute Enum.any?(records, fn r -> r["id"] == admin_4.id end)
+      assert Enum.count(records) == 1
+    end
   end
 
   describe "/account.assign_user" do
