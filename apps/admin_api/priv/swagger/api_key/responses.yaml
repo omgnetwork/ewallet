@@ -11,9 +11,7 @@ AccessKeysResponse:
       schema:
         $ref: 'response_schemas.yaml#/AccessKeysResponseSchema'
 
-######################################
-#          API KEY RESPONSES         #
-######################################
+# API KEY RESPONSES
 APIKeyResponse:
   description: "Returns a single API key"
   content:

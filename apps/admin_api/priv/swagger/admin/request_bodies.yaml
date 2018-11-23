@@ -99,6 +99,7 @@ InviteAcceptBody:
           token: "dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg"
           password: "user_provided_password"
           password_confirmation: "user_provided_password"
+
 AdminUpdateBody:
   description: The parameters to use for updating a user
   required: true
@@ -115,7 +116,7 @@ AdminUpdateBody:
         example:
           metadata: {}
           encrypted_metadata: {}
-# Request body for enabling/disabling an admin
+
 AdminToggleStatusBody:
   description: The parameters to enable/disable an admin. Send enabled=true to enable, enabled=false to disable.
   required: true
@@ -133,6 +134,7 @@ AdminToggleStatusBody:
         example:
           id: "usr_01ct2zjh20fj210bzz078948f6"
           enabled: false
+
 AdminUpdatePasswordBody:
   description: The parameters to use for updating a user's password
   required: true
@@ -153,6 +155,7 @@ AdminUpdatePasswordBody:
           old_password: "old_password"
           password: "new_password"
           password_confirmation: "new_password"
+          
 AdminUpdateEmailBody:
   description: The parameters to use for updating a user's email
   required: true

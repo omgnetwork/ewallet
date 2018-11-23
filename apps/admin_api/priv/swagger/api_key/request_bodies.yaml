@@ -15,6 +15,7 @@ AccessKeyUpdateBody:
         example:
           id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
           expired: true
+
 AccessKeyToggleStatusBody:
   description: The parameters to enable/disable an access key. Send enabled=true to enable, enabled=false to disable.
   required: true
@@ -32,6 +33,7 @@ AccessKeyToggleStatusBody:
         example:
           id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
           enabled: false
+          
 AccessKeyDeleteBody:
   description: The parameters to use for deleting an access key
   required: true
@@ -74,6 +76,7 @@ APIKeyUpdateBody:
         example:
           id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
           expired: true
+
 APIKeyToggleStatusBody:
   description: The parameters to enable/disable an api key. Send enabled=true to enable, enabled=false to disable.
   required: true
@@ -91,6 +94,7 @@ APIKeyToggleStatusBody:
         example:
           id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
           enabled: false
+
 APIKeyDeleteBody:
   description: The parameters to use for deleting an API key
   required: true
