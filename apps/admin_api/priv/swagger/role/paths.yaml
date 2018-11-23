@@ -8,7 +8,7 @@ role.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/RoleAllBody'
+      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
         $ref: "responses.yaml#/RolesResponse"

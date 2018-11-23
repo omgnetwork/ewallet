@@ -5,7 +5,7 @@ CategoryResponse:
       schema:
         $ref: 'response_schemas.yaml#/CategoryResponseSchema'
 CategoriesResponse:
-  description: "Returns a list of roles"
+  description: "Returns a list of categories"
   content:
     application/vnd.omisego.v1+json:
       schema:

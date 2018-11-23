@@ -8,12 +8,13 @@ wallet.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/WalletAllBody'
+      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
         $ref: "responses.yaml#WalletsResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 wallet.create:
   post:
     tags:
@@ -30,6 +31,7 @@ wallet.create:
         $ref: "responses.yaml#WalletResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 wallet.get:
   post:
     tags:
@@ -63,6 +65,7 @@ wallet.get_transaction_consumptions:
         $ref: "../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+        
 wallet.enable_or_disable:
   post:
     tags:

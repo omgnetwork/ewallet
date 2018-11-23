@@ -8,12 +8,13 @@ transaction.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/TransactionAllBody'
+      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
         $ref: "responses.yaml#/TransactionsResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 transaction.get:
   post:
     tags:
@@ -30,6 +31,7 @@ transaction.get:
         $ref: "responses.yaml#/TransactionResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 transaction.create:
   post:
     tags:
@@ -46,6 +48,7 @@ transaction.create:
         $ref: "responses.yaml#/TransactionResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+        
 transaction.calculate:
   post:
     tags:

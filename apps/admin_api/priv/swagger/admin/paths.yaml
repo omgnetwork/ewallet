@@ -56,7 +56,7 @@ admin.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/AdminAllBody'
+      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
         $ref: "responses.yaml#/AdminsResponse"
@@ -112,8 +112,6 @@ invite.accept:
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
 
-
-
 me.get:
   post:
     tags:
@@ -127,6 +125,7 @@ me.get:
         $ref: "responses.yaml#/AdminResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 me.update:
   post:
     tags:
@@ -142,6 +141,7 @@ me.update:
         $ref: "responses.yaml#/AdminResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 me.update_email:
   post:
     tags:
@@ -157,6 +157,7 @@ me.update_email:
         $ref: "responses.yaml#/AdminResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 me.update_password:
   post:
     tags:
@@ -172,6 +173,7 @@ me.update_password:
         $ref: "responses.yaml#/AdminResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 me.upload_avatar:
   post:
     tags:
@@ -187,6 +189,7 @@ me.upload_avatar:
         $ref: "responses.yaml#/AdminResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 me.get_account:
   post:
     tags:
@@ -200,6 +203,7 @@ me.get_account:
         $ref: "../account/responses.yaml#/AccountResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 me.get_accounts:
   post:
     tags:
@@ -208,6 +212,8 @@ me.get_accounts:
     operationId: me_get_accounts
     security:
       - AdminAuth: []
+    requestBody:
+      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
         $ref: "../account/responses.yaml#/AccountsResponse"

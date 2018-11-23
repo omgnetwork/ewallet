@@ -130,24 +130,19 @@ TransactionConsumptionResponseSchema:
 TransactionConsumptionsResponseSchema:
   description: "The response schema for a list of transaction consumptions"
   allOf:
-  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - $ref: '../shared/schemas.yaml#/BasePaginatedResponseSchema'
   - type: object
     properties:
       data:
         type: object
         allOf:
-          - $ref: '../shared/schemas.yaml#/PaginatedListSchema'
           - type: object
             properties:
               data:
                 type: array
                 items:
                   $ref: 'schemas.yaml#/TransactionConsumptionSchema'
-    required:
-      - data
     example:
-      version: "1"
-      success: true
       data:
         object: "list"
         data:
@@ -179,8 +174,3 @@ TransactionConsumptionsResponseSchema:
             confirmed_at: "2018-01-01T00:00:00Z"
             failed_at: null
             expired_at: null
-        pagination:
-          per_page: 10
-          current_page: 1
-          is_first_page: true
-          is_last_page: true

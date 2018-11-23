@@ -89,35 +89,7 @@ CreateTransactionRequestBody:
           amount: 100
           correlation_id: "123"
           address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
-TransactionRequestAllBody:
-  description: The parameters to use for listing the transaction requests
-  required: true
-  content:
-    application/vnd.omisego.v1+json:
-      schema:
-        properties:
-          page:
-            type: integer
-            minimum: 1
-          per_page:
-            type: integer
-            minimum: 1
-          search_term:
-            type: string
-          search_terms:
-            type: object
-          sort_by:
-            type: string
-          sort_dir:
-            type: string
-            enum: ["asc", "desc"]
-        example:
-          page: 1
-          per_page: 10
-          search_term: ""
-          search_terms: {}
-          sort_by: "created_at"
-          sort_dir: "desc"
+
 GetTransactionRequestBody:
   description: Get a transaction request using the specified ID.
   required: true
@@ -129,6 +101,7 @@ GetTransactionRequestBody:
             type: string
         example:
           formatted_id: "data|txr_01cbfgc8cmmyzy1cfzpqwme3ey"
+
 ConsumeTransactionRequestBody:
   description: Consume a transaction request using the specified values.
   required: true
@@ -176,34 +149,20 @@ ConsumeTransactionRequestBody:
           address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
           metadata: {}
           encrypted_metadata: {}
+
 TransactionConsumptionAllForTransactionRequestBody:
   description: The parameters to use for listing the consumptions for a transaction request
   required: true
-  content:
-    application/vnd.omisego.v1+json:
-      schema:
-        properties:
-          formatted_transaction_request_id:
-            type: string
-          page:
-            type: integer
-            minimum: 1
-          per_page:
-            type: integer
-            minimum: 1
-          search_terms:
-            type: object
-          sort_by:
-            type: string
-          sort_dir:
-            type: string
-            enum: ["asc", "desc"]
-        required:
-          - formatted_transaction_request_id
-        example:
-          formatted_transaction_request_id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
-          page: 1
-          per_page: 10
-          search_terms: {}
-          sort_by: "created_at"
-          sort_dir: "desc"
+  allOf:
+  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+  - type: object
+    content:
+      application/vnd.omisego.v1+json:
+        schema:
+          properties:
+            formatted_transaction_request_id:
+              type: string
+          required:
+            - formatted_transaction_request_id
+          example:
+            formatted_transaction_request_id: "txr_01cbfg8mafdnbthgb9e68nd9y9"

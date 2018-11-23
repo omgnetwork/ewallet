@@ -8,7 +8,7 @@ user.login:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/UserIdentifierBody'
+      $ref: '../user/request_bodies.yaml#/UserIdentifierBody'
     responses:
       '200':
         $ref: "../authentication_token/responses.yaml#/AuthenticationTokenResponse"

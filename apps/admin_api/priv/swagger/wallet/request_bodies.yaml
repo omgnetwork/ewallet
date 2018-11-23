@@ -1,80 +1,54 @@
-WalletAllBody:
-  description: The parameters to use for listing the wallets
-  required: true
-  content:
-    application/vnd.omisego.v1+json:
-      schema:
-        properties:
-          page:
-            type: integer
-            minimum: 1
-          per_page:
-            type: integer
-            minimum: 1
-          search_term:
-            type: string
-          sort_by:
-            type: string
-          sort_dir:
-            type: string
-            enum: ["asc", "desc"]
-        example:
-          page: 1
-          per_page: 10
-          search_term: ""
-          sort_by: "field_name"
-          sort_dir: "asc"
 WalletAccountBody:
   description: The parameters to use for listing the wallets for an account
   required: true
-  content:
-    application/vnd.omisego.v1+json:
-      schema:
-        properties:
-          id:
-            type: string
-          page:
-            type: integer
-            minimum: 1
-          per_page:
-            type: integer
-          sort_by:
-            type: string
-          sort_dir:
-            type: string
-            enum: ["asc", "desc"]
-        example:
-          id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-          page: 1
-          per_page: 10
-          sort_by: "field_name"
-          sort_dir: "asc"
+  allOf:
+  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+  - type: object
+    content:
+      application/vnd.omisego.v1+json:
+        schema:
+          properties:
+            id:
+              type: string
+          required:
+            - id
+          example:
+            id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+
 WalletUserBody:
   description: The parameters to use for listing the wallets for a user
   required: true
-  content:
-    application/vnd.omisego.v1+json:
-      schema:
-        properties:
-          id:
-            type: string
-          page:
-            type: integer
-            minimum: 1
-          per_page:
-            type: integer
-            minimum: 1
-          sort_by:
-            type: string
-          sort_dir:
-            type: string
-            enum: ["asc", "desc"]
-        example:
-          id: usr_01cc02x0v98qcctvycfx4vsk8x
-          page: 1
-          per_page: 10
-          sort_by: "field_name"
-          sort_dir: "asc"
+  allOf:
+  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+  - type: object
+    content:
+      application/vnd.omisego.v1+json:
+        schema:
+          properties:
+            id:
+              type: string
+          required:
+            - id
+          example:
+            id: "usr_01cc02x0v98qcctvycfx4vsk8x"
+
+TransactionConsumptionAllForWalletBody:
+  description: The parameters to use for listing the consumptions for a wallet
+  required: true
+  allOf:
+  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+  - type: object
+    content:
+      application/vnd.omisego.v1+json:
+        schema:
+          properties:
+            address:
+              type: string
+          required:
+            - address
+          example:
+            address: "kxhk519271652215"
+
 WalletGetBody:
   description: The parameters to use for retrieving a wallet by its address
   required: true
@@ -87,7 +61,8 @@ WalletGetBody:
         required:
           - address
         example:
-          address: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+          address: "kxhk519271652215"
+
 WalletEnableOrDisableBody:
   description: The parameters to use to enable or disable a wallet.
   required: true
@@ -103,8 +78,9 @@ WalletEnableOrDisableBody:
           - address
           - enabled
         example:
-          address: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+          address: "kxhk519271652215"
           enabled: false
+
 WalletCreateBody:
   description: The parameters to use for creating a wallet
   required: true
@@ -128,7 +104,6 @@ WalletCreateBody:
               - name
               - identifier
               - provider_user_id
-
           - properties:
               name:
                 type: string
@@ -141,7 +116,6 @@ WalletCreateBody:
               - name
               - identifier
               - user_id
-
           - properties:
               name:
                 type: string
@@ -154,34 +128,3 @@ WalletCreateBody:
               - name
               - identifier
               - account_id
-TransactionConsumptionAllForWalletBody:
-  description: The parameters to use for listing the consumptions for a wallet
-  required: true
-  content:
-    application/vnd.omisego.v1+json:
-      schema:
-        properties:
-          address:
-            type: string
-          page:
-            type: integer
-            minimum: 1
-          per_page:
-            type: integer
-            minimum: 1
-          search_terms:
-            type: object
-          sort_by:
-            type: string
-          sort_dir:
-            type: string
-            enum: ["asc", "desc"]
-        required:
-          - address
-        example:
-          address: "232454354"
-          page: 1
-          per_page: 10
-          search_terms: {}
-          sort_by: "created_at"
-          sort_dir: "desc"

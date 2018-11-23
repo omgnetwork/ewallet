@@ -60,33 +60,7 @@ AdminVerifyEmailUpdateBody:
         example:
           email: "new.email@example.com"
           token: "verification_token"
-          
-AdminAllBody:
-  description: The parameters to use for listing the users
-  required: true
-  content:
-    application/vnd.omisego.v1+json:
-      schema:
-        properties:
-          page:
-            type: integer
-            minimum: 1
-          per_page:
-            type: integer
-            minimum: 1
-          search_term:
-            type: string
-          sort_by:
-            type: string
-          sort_dir:
-            type: string
-            enum: ["asc", "desc"]
-        example:
-          page: 1
-          per_page: 10
-          search_term: ""
-          sort_by: "field_name"
-          sort_dir: "asc"
+
 AdminGetBody:
   description: The parameters to use for retrieving a specific user by its id
   required: true

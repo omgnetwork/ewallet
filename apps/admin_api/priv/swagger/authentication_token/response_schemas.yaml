@@ -7,8 +7,6 @@ AuthenticationTokenResponseSchema:
       data:
         type: object
         $ref: 'schemas.yaml#/AuthenticationTokenSchema'
-    required:
-      - data
     example:
       data:
         object: "authentication_token"

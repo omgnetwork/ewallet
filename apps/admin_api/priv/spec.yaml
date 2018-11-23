@@ -95,7 +95,7 @@ paths:
   /auth_token.switch_account:
     $ref: 'swagger/admin_session/paths.yaml#/auth_token.switch_account'
 
-   # ROLE
+  # ROLE
   /role.all:
     $ref: 'swagger/role/paths.yaml#/role.all'
   /role.get:
@@ -107,13 +107,13 @@ paths:
   /role.delete:
     $ref: 'swagger/role/paths.yaml#/role.delete'
 
-   # USER SESSION
+  # USER SESSION
   /user.login:
     $ref: 'swagger/user_session/paths.yaml#/user.login'
   /user.logout:
     $ref: 'swagger/user_session/paths.yaml#/user.logout'
 
-   # TOKEN
+  # TOKEN
   /token.all:
     $ref: 'swagger/token/paths.yaml#/token.all'
   /token.get:
@@ -131,7 +131,7 @@ paths:
   /token.mint:
     $ref: 'swagger/token/paths.yaml#/token.mint'
 
-   # EXCHANGE PAIR
+  # EXCHANGE PAIR
   /exchange_pair.all:
     $ref: 'swagger/exchange_pair/paths.yaml#/exchange_pair.all'
   /exchange_pair.get:
@@ -143,7 +143,7 @@ paths:
   /exchange_pair.delete:
     $ref: 'swagger/exchange_pair/paths.yaml#/exchange_pair.delete'
 
-   # CATEGORY
+  # CATEGORY
   /category.all:
     $ref: 'swagger/category/paths.yaml#/category.all'
   /category.get:
@@ -155,7 +155,7 @@ paths:
   /category.delete:
     $ref: 'swagger/category/paths.yaml#/category.delete'
 
-   # ACCOUNTS
+  # ACCOUNTS
   /account.all:
     $ref: 'swagger/account/paths.yaml#/account.all'
   /account.get:
@@ -185,7 +185,7 @@ paths:
   /account.get_transaction_consumptions:
     $ref: 'swagger/account/paths.yaml#/account.get_transaction_consumptions'
 
-   # ADMIN USER
+  # ADMIN USER
   /admin.reset_password:
     $ref: 'swagger/admin/paths.yaml#/admin.reset_password'
   /admin.update_password:
@@ -201,7 +201,7 @@ paths:
   /invite.accept:
     $ref: 'swagger/admin/paths.yaml#/invite.accept'
 
-   # CURRENT ADMIN USER
+  # CURRENT ADMIN USER
   /me.get:
     $ref: 'swagger/admin/paths.yaml#/me.get'
   /me.update:
@@ -217,7 +217,7 @@ paths:
   /me.get_accounts:
     $ref: 'swagger/admin/paths.yaml#/me.get_accounts'
 
-   # USER
+  # USER
   /user.all:
     $ref: 'swagger/user/paths.yaml#/user.all'
   /user.create:
@@ -235,7 +235,7 @@ paths:
   /user.enable_or_disable:
     $ref: 'swagger/user/paths.yaml#/user.enable_or_disable'
 
-   # WALLET
+  # WALLET
   /wallet.all:
     $ref: 'swagger/wallet/paths.yaml#/wallet.all'
   /wallet.create:
@@ -247,7 +247,7 @@ paths:
   /wallet.enable_or_disable:
     $ref: 'swagger/wallet/paths.yaml#/wallet.enable_or_disable'
 
-   # TRANSACTION
+  # TRANSACTION
   /transaction.all:
     $ref: 'swagger/transaction/paths.yaml#/transaction.all'
   /transaction.get:
@@ -257,7 +257,7 @@ paths:
   /transaction.calculate:
     $ref: 'swagger/transaction/paths.yaml#/transaction.calculate'
 
-   # TRANSACTION REQUESTS
+  # TRANSACTION REQUESTS
   /transaction_request.all:
     $ref: 'swagger/transaction_request/paths.yaml#/transaction_request.all'
   /transaction_request.create:

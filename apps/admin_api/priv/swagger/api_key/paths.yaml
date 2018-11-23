@@ -8,7 +8,7 @@ access_key.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/AccessKeyAllBody'
+      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
         $ref: "responses.yaml#/AccessKeysResponse"
@@ -32,7 +32,7 @@ access_key.update:
   post:
     tags:
       - API Access
-    summary: Update a pair of access and secret keys by its id
+    summary: Update a pair of access and secret keys by its id (deprecated)
     operationId: access_key_update
     deprecated: true
     security:
@@ -87,7 +87,7 @@ api_key.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/APIKeyAllBody'
+      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
         $ref: "responses.yaml#/APIKeysResponse"
@@ -111,7 +111,7 @@ api_key.update:
   post:
     tags:
       - API Access
-    summary: Update an API key
+    summary: Update an API key (deprecated)
     operationId: api_key_update
     deprecated: true
     security:

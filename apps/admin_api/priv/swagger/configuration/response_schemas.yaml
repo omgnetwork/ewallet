@@ -1,24 +1,19 @@
 ConfigurationResponseSchema:
   description: "The response schema for a list of configuration settings"
   allOf:
-  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - $ref: '../shared/schemas.yaml#/BasePaginatedResponseSchema'
   - type: object
     properties:
       data:
         type: object
         allOf:
-          - $ref: '../shared/schemas.yaml#/PaginatedListSchema'
           - type: object
             properties:
               data:
                 type: array
                 items:
                   $ref: 'schemas.yaml#/SettingSchema'
-    required:
-      - data
     example:
-      version: "1"
-      success: true
       data:
         object: "list"
         data:
@@ -35,11 +30,6 @@ ConfigurationResponseSchema:
             position: 0
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T00:00:00Z"
-        pagination:
-          per_page: 10
-          current_page: 1
-          is_first_page: true
-          is_last_page: true
 
 ConfigurationUpdateResponseSchema:
   description: "The response schema for a list of updated settings"
@@ -50,11 +40,7 @@ ConfigurationUpdateResponseSchema:
       data:
         type: object
         additionalProperties: true
-    required:
-      - data
     example:
-      version: "1"
-      success: true
       data:
         object: "map"
         data:

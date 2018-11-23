@@ -1,22 +1,3 @@
-UserIdentifierBody:
-  description: The parameters to use for retrieving a specific user by its id or provider_user_id
-  required: true
-  content:
-    application/vnd.omisego.v1+json:
-      schema:
-        oneOf:
-          - properties:
-              id:
-                type: string
-            required:
-              - id
-          - properties:
-              provider_user_id:
-                type: string
-            required:
-              - provider_user_id
-        example:
-          id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
 LogoutUserBody:
   description: The parameters to use to log out a user
   required: true

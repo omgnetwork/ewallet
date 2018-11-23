@@ -8,13 +8,13 @@ transaction_request.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/TransactionRequestAllBody'
+      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
         $ref: "responses.yaml#/TransactionRequestsResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
-# Endpoint to create a transaction request
+
 transaction_request.create:
   post:
     tags:
@@ -31,7 +31,7 @@ transaction_request.create:
         $ref: "responses.yaml#/TransactionRequestResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
-# Endpoint to get a transaction request
+
 transaction_request.get:
   post:
     tags:
@@ -48,6 +48,7 @@ transaction_request.get:
         $ref: "responses.yaml#/TransactionRequestResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 transaction_request.get_transaction_consumptions:
   post:
     tags:
@@ -64,7 +65,7 @@ transaction_request.get_transaction_consumptions:
         $ref: "../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
-# Endpoint to consume a transaction request
+
 transaction_request.consume:
   post:
     tags:

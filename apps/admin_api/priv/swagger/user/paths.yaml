@@ -8,12 +8,13 @@ user.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/UserAllBody'
+      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
         $ref: "responses.yaml#/UsersResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 user.create:
   post:
     tags:
@@ -30,6 +31,7 @@ user.create:
         $ref: "responses.yaml#/UserResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 user.update:
   post:
     tags:
@@ -46,6 +48,7 @@ user.update:
         $ref: "responses.yaml#/UserResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 user.get:
   post:
     tags:
@@ -62,6 +65,7 @@ user.get:
         $ref: "responses.yaml#/UserResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 user.get_wallets:
   post:
     tags:
@@ -78,6 +82,7 @@ user.get_wallets:
         $ref: "../wallet/responses.yaml#/WalletsResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+        
 user.get_transactions:
   post:
     tags:
@@ -94,6 +99,7 @@ user.get_transactions:
         $ref: "../transaction/responses.yaml#/TransactionsResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 user.get_transaction_consumptions:
   post:
     tags:
@@ -110,6 +116,7 @@ user.get_transaction_consumptions:
         $ref: "../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
+
 user.enable_or_disable:
   post:
     tags:

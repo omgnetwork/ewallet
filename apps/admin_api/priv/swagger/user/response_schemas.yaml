@@ -7,8 +7,6 @@ UserResponseSchema:
       data:
         type: object
         $ref: 'schemas.yaml#/UserSchema'
-    required:
-      - data
     example:
       data:
         object: "user"
@@ -27,24 +25,19 @@ UserResponseSchema:
 UsersResponseSchema:
   description: "The response schema for a list of users"
   allOf:
-  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - $ref: '../shared/schemas.yaml#/BasePaginatedResponseSchema'
   - type: object
     properties:
       data:
         type: object
         allOf:
-          - $ref: '../shared/schemas.yaml#/PaginatedListSchema'
           - type: object
             properties:
               data:
                 type: array
                 items:
                   $ref: 'schemas.yaml#/UserSchema'
-    required:
-      - data
     example:
-      version: "1"
-      success: true
       data:
         object: "list"
         data:
@@ -60,33 +53,23 @@ UsersResponseSchema:
             encrypted_metadata: {"something": "secret"}
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
-        pagination:
-          per_page: 10
-          current_page: 1
-          is_first_page: true
-          is_last_page: true
 
 MembersResponseSchema:
   description: "The response schema for a list of members"
   allOf:
-  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - $ref: '../shared/schemas.yaml#/BasePaginatedResponseSchema'
   - type: object
     properties:
       data:
         type: object
         allOf:
-          - $ref: '../shared/schemas.yaml#/PaginatedListSchema'
           - type: object
             properties:
               data:
                 type: array
                 items:
                   $ref: 'schemas.yaml#/MemberSchema'
-    required:
-      - data
     example:
-      version: "1"
-      success: true
       data:
         object: "list"
         data:
@@ -104,8 +87,3 @@ MembersResponseSchema:
             updated_at: "2018-01-01T10:00:00Z"
             role: "admin"
             account: {}
-        pagination:
-          per_page: 10
-          current_page: 1
-          is_first_page: true
-          is_last_page: true

@@ -8,7 +8,7 @@ token.all:
       - AdminAuth: []
       - ProviderAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/TokenAllBody'
+      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
         $ref: "responses.yaml#/TokensResponse"
