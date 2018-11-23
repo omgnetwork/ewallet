@@ -78,39 +78,37 @@ AccountUpdateBody:
 AccountListBodyWithOwned:
   description: The parameters to use for listing an account's owned data
   required: true
-  allOf:
-  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
-  - type: object
-    content:
-      application/vnd.omisego.v1+json:
-        schema:
-          properties:
-            id:
-              type: string
-            owned:
-              type: boolean
-          required:
-            - id
-            - owned
-          example:
-            id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-            owned: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          id:
+            type: string
+          owned:
+            type: boolean
+        required:
+          - id
+          - owned
+        example:
+          id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+          owned: true
 AccountListBody:
   description: The parameters to use for listing an account's data
   required: true
-  allOf:
-  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
-  - type: object
-    content:
-      application/vnd.omisego.v1+json:
-        schema:
-          properties:
-            id:
-              type: string
-          required:
-            - id
-          example:
-            id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: "acc_01ca2p8jqans5aty5gj5etmjcf"
 AccountAssignUserBody:
   description: The parameters to use for assigning a user to an account
   required: true

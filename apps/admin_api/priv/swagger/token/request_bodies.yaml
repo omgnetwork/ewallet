@@ -131,20 +131,19 @@ TokenToggleStatusBody:
 TokenGetMintsBody:
   description: The parameters to use for listing the mints for a token
   required: true
-  allOf:
-  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
-  - type: object
-    content:
-      application/vnd.omisego.v1+json:
-        schema:
-          properties:
-            id:
-              type: string
-          required:
-            - id
-            - owned
-          example:
-            id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          id:
+            type: string
+        required:
+          - id
+          - owned
+        example:
+          id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
 
 TokenMintBody:
   description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.

@@ -63,28 +63,27 @@ UserIdentifierBody:
               - provider_user_id
         example:
           id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
-          
+
 UserIdentifierWithFiltersBody:
   description: The parameters to use for retrieving a collection owned by user by its id or provider_user_id
-  allOf:
-  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
-  - type: object
-    content:
-      application/vnd.omisego.v1+json:
-        schema:
-          oneOf:
-            - properties:
-                id:
-                  type: string
-              required:
-                - id
-            - properties:
-                provider_user_id:
-                  type: string
-              required:
-                - provider_user_id
-          example:
-            id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        oneOf:
+          - properties:
+              id:
+                type: string
+            required:
+              - id
+          - properties:
+              provider_user_id:
+                type: string
+            required:
+              - provider_user_id
+        example:
+          id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
 
 UserToggleStatusBody:
   description: The parameters to enable/disable a user. Send enabled=true to enable, enabled=false to disable.

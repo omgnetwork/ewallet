@@ -153,16 +153,15 @@ ConsumeTransactionRequestBody:
 TransactionConsumptionAllForTransactionRequestBody:
   description: The parameters to use for listing the consumptions for a transaction request
   required: true
-  allOf:
-  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
-  - type: object
-    content:
-      application/vnd.omisego.v1+json:
-        schema:
-          properties:
-            formatted_transaction_request_id:
-              type: string
-          required:
-            - formatted_transaction_request_id
-          example:
-            formatted_transaction_request_id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          formatted_transaction_request_id:
+            type: string
+        required:
+          - formatted_transaction_request_id
+        example:
+          formatted_transaction_request_id: "txr_01cbfg8mafdnbthgb9e68nd9y9"

@@ -1,43 +1,38 @@
 openapi: 3.0.0
 info:
-  version: "1.0.0"
+  version: 1.0.0
   title: eWallet Admin API
   description: >
     This is the documentation for eWallet Admin API.
 
 
-    All calls must be user-authenticated or provider-authenticated. That is, the client must first
-    authenticate with the API using the user's email and password.
-    On successful authentication, the API returns an authentication token
-    (i.e. `authentication_token`).
+    All calls must be user-authenticated or provider-authenticated. That is, the
+    client must first authenticate with the API using the user's email and
+    password. On successful authentication, the API returns an authentication
+    token (i.e. `authentication_token`).
 
-    Once a valid `authentication_token` is received, use the given auth token
-    to make subsequent calls to the API via HTTP header:
+    Once a valid `authentication_token` is received, use the given auth token to
+    make subsequent calls to the API via HTTP header:
 
-    ```
-    Authorization=OMGAdmin Base64(user_id:authentication_token)
-    ```
+    ``` Authorization=OMGAdmin Base64(user_id:authentication_token) ```
 
     An access/secret keys combination can be used as well.
 
-    ```
-    Authorization=OMGProvider Base64(access_key:secret_key)
-    ```
+    ``` Authorization=OMGProvider Base64(access_key:secret_key) ```
 
     Due to HTTP-RPC nature, the API will always return a `200` HTTP status,
     including on errors. Only in case of an internal server error that `500`
     will be returned.
 
 
-    Error codes are available in [html](./errors), [json](./errors.json)
-    and [yaml](./errors.yaml) formats.
+    Error codes are available in [html](./errors), [json](./errors.json) and
+    [yaml](./errors.yaml) formats.
   contact:
     name: OmiseGO
     email: thibault@omisego.co
   license:
     name: 'Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0'
     url: 'https://omisego.network/'
-
 tags:
   - name: AdminSession
     description: Resources related to admin session tokens.
@@ -62,247 +57,4929 @@ tags:
   - name: Transaction
     description: Resources related to transactions.
   - name: TransactionRequest
-    description: Resources related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
+    description: >-
+      Resources related to the creation of transaction requests (either
+      receiving or sending) that needs to be consumed by another user.
   - name: TransactionConsumption
     description: Resources related to consumption of transaction requests.
   - name: Configuration
     description: Resources related to the configuration of the eWallet.
   - name: API Access
     description: Resources related to API access.
-
 servers:
   - url: /api/admin
-
 components:
   securitySchemes:
     AdminAuth:
       type: apiKey
       in: header
       name: Authorization
-      description: OMGAdmin Base64(user_id:authentication_token)
+      description: 'OMGAdmin Base64(user_id:authentication_token)'
     ProviderAuth:
       type: apiKey
       in: header
       name: Authorization
-      description: OMGProvider Base64(access_key:secret_key)
-
+      description: 'OMGProvider Base64(access_key:secret_key)'
 paths:
-  # ADMIN SESSION
   /admin.login:
-    $ref: 'swagger/admin_session/paths.yaml#/admin.login'
+    post:
+      tags:
+        - AdminSession
+      summary: Login an existing admin user using email and password.
+      operationId: login
+      security:
+        - ClientAuth: []
+      requestBody:
+        description: The parameters to use for logging in a user
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+              required:
+                - email
+                - password
+              example:
+                email: test@example.com
+                password: the_password
+      responses:
+        '200': &ref_2
+          description: Authentication token response
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an authentication token
+                allOf:
+                  - &ref_0
+                    description: The response schema for a successful operation
+                    type: object
+                    properties:
+                      version:
+                        type: string
+                      success:
+                        type: boolean
+                      data:
+                        type: object
+                    required:
+                      - version
+                      - success
+                      - data
+                    example:
+                      version: '1'
+                      success: true
+                      data: {}
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for an authentication token
+                        properties:
+                          object:
+                            type: string
+                          authentication_token:
+                            type: string
+                          user_id:
+                            type: string
+                          user:
+                            type: object
+                            description: The object schema for a user
+                            properties: &ref_5
+                              object:
+                                type: string
+                              id:
+                                type: string
+                              username:
+                                type: string
+                              full_name:
+                                type: string
+                              calling_name:
+                                type: string
+                              provider_user_id:
+                                type: string
+                              email:
+                                type: string
+                                format: email
+                              enabled:
+                                type: boolean
+                              metadata:
+                                type: object
+                              encrypted_metadata:
+                                type: object
+                              avatar:
+                                type: object
+                              created_at:
+                                type: string
+                                format: date-time
+                              updated_at:
+                                type: string
+                                format: date-time
+                            required: &ref_6
+                              - object
+                              - id
+                              - created_at
+                              - updated_at
+                            example: &ref_7
+                              object: user
+                              id: usr_01ce83zf80j542z4q4zqd8qvfx
+                              provider_user_id: wijf-fbancomw-dqwjudb
+                              username: johndoe
+                              full_name: John Doe
+                              calling_name: John
+                              email: johndoe@omise.co
+                              enabled: true
+                              metadata:
+                                first_name: John
+                                last_name: Doe
+                              encrypted_metadata:
+                                something: secret
+                              avatar:
+                                original: file_url
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                          account_id:
+                            type: string
+                          master_admin:
+                            type: boolean
+                          account:
+                            type: object
+                            description: The object schema for an account
+                            properties: &ref_18
+                              object:
+                                type: string
+                              id:
+                                type: string
+                              parent_id:
+                                type: string
+                              name:
+                                type: string
+                              description:
+                                type: string
+                              master:
+                                type: boolean
+                              avatar:
+                                type: object
+                              category_ids:
+                                type: array
+                                items:
+                                  type: string
+                              categories:
+                                type: object
+                                allOf:
+                                  - &ref_4
+                                    description: The object schema for an unpaginated list
+                                    type: object
+                                    properties:
+                                      object:
+                                        type: string
+                                      data:
+                                        type: array
+                                        items:
+                                          type: object
+                                    required:
+                                      - object
+                                      - data
+                                    example:
+                                      object: list
+                                      data: []
+                                  - type: object
+                                    properties:
+                                      data:
+                                        type: array
+                                        items: &ref_24
+                                          description: The object schema for a category
+                                          type: object
+                                          properties: &ref_25
+                                            object:
+                                              type: string
+                                            id:
+                                              type: string
+                                            name:
+                                              type: string
+                                            description:
+                                              type: string
+                                            account_ids:
+                                              type: array
+                                              items:
+                                                type: string
+                                            created_at:
+                                              type: string
+                                              format: date-time
+                                            updated_at:
+                                              type: string
+                                              format: date-time
+                                          required: &ref_26
+                                            - object
+                                            - id
+                                            - name
+                                            - description
+                                            - account_ids
+                                            - created_at
+                                            - updated_at
+                              metadata:
+                                type: object
+                              encrypted_metadata:
+                                type: object
+                              created_at:
+                                type: string
+                                format: date-time
+                              updated_at:
+                                type: string
+                                format: date-time
+                            required: &ref_19
+                              - object
+                              - id
+                              - parent_id
+                              - name
+                              - master
+                              - avatar
+                              - category_ids
+                              - created_at
+                              - updated_at
+                          role:
+                            type: string
+                        required:
+                          - object
+                          - authentication_token
+                          - user_id
+                          - user
+                          - account_id
+                          - account
+                          - master_admin
+                          - role
+                    example:
+                      data:
+                        object: authentication_token
+                        authentication_token: azJRj09l7jvR8KhTqUs3
+                        user_id: usr_01cc02x0v98qcctvycfx4vsk8x
+                        user:
+                          object: user
+                          id: usr_01cc02x0v98qcctvycfx4vsk8x
+                          provider_user_id: wijf-fbancomw-dqwjudb
+                          username: johndoe
+                          full_name: John Doe
+                          calling_name: John
+                          email: johndoe@omise.co
+                          metadata:
+                            first_name: John
+                            last_name: Doe
+                          encrypted_metadata:
+                            something: secret
+                          created_at: '2018-01-01T00:00:00Z'
+                          updated_at: '2018-01-01T10:00:00Z'
+                        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                        account:
+                          object: account
+                          id: acc_01ca2p8jqans5aty5gj5etmjcf
+                          parent_id: acc_01ca26pkge49aabzd6k6mshn0y
+                          name: Account Name
+                          description: The account description
+                          master: true
+                          metadata: {}
+                          encrypted_metadata: {}
+                          avatar:
+                            original: file_url
+                          created_at: '2018-01-01T00:00:00Z'
+                          updated_at: '2018-01-01T10:00:00Z'
+                        master_admin: true
+                        role: admin
+        '500': &ref_1
+          description: Returns an internal server error
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an error
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        description: The object schema for an error
+                        type: object
+                        properties:
+                          object:
+                            type: string
+                          code:
+                            type: string
+                          description:
+                            type: string
+                          messages:
+                            type: object
+                        required:
+                          - object
+                          - code
+                          - description
+                          - messages
+                        example:
+                          object: error
+                          code: 'server:internal_server_error'
+                          description: Something went wrong on the server
+                          messages:
+                            error_key: error_reason
+                    required:
+                      - data
+                    example:
+                      success: false
+                      data:
+                        object: error
+                        code: 'server:internal_server_error'
+                        description: Something went wrong on the server
+                        messages:
+                          error_key: error_reason
   /me.logout:
-    $ref: 'swagger/admin_session/paths.yaml#/me.logout'
+    post:
+      tags:
+        - AdminSession
+      summary: Expires a user's authentication_token.
+      operationId: logout
+      security:
+        - AdminAuth: []
+      responses:
+        '200': &ref_11
+          description: Returns an empty response
+          content:
+            application/vnd.omisego.v1+json:
+              schema: *ref_0
+        '500': *ref_1
   /auth_token.switch_account:
-    $ref: 'swagger/admin_session/paths.yaml#/auth_token.switch_account'
-
-  # ROLE
+    post:
+      tags:
+        - AdminSession
+      summary: Switch the current account associated with the auth token.
+      operationId: switch_account
+      security:
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for switching the current account
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                account_id:
+                  type: string
+              required:
+                - account_id
+              example:
+                accound_id: the_account_id
+      responses:
+        '200': *ref_2
+        '500': *ref_1
   /role.all:
-    $ref: 'swagger/role/paths.yaml#/role.all'
+    post:
+      tags:
+        - Role
+      summary: Get the list of roles
+      operationId: role_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: &ref_12
+        description: The default parameters to use when querying a paginated resource
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - &ref_17
+                  properties:
+                    page:
+                      type: integer
+                      minimum: 1
+                    per_page:
+                      type: integer
+                      minimum: 1
+                    search_term:
+                      type: string
+                    match_all: &ref_3
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          field:
+                            type: string
+                          comparator:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                          - field
+                          - comparator
+                          - value
+                    match_any: *ref_3
+                    sort_by:
+                      type: string
+                    sort_dir:
+                      type: string
+                      enum:
+                        - asc
+                        - desc
+                  example:
+                    page: 1
+                    per_page: 10
+                    match_all: []
+                    match_any: []
+                    sort_by: created_at
+                    sort_dir: desc
+      responses:
+        '200':
+          description: Returns a list of roles
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of roles
+                allOf:
+                  - &ref_13
+                    description: The response schema for a successful operation
+                    allOf:
+                      - *ref_0
+                      - type: object
+                        properties:
+                          data:
+                            type: object
+                            allOf:
+                              - description: The object schema for a paginated list
+                                type: object
+                                properties:
+                                  object:
+                                    type: string
+                                  data:
+                                    type: array
+                                    items:
+                                      type: object
+                                  pagination:
+                                    type: object
+                                    items:
+                                      type: object
+                                    properties:
+                                      per_page:
+                                        type: integer
+                                      current_page:
+                                        type: integer
+                                      count:
+                                        type: integer
+                                      is_first_page:
+                                        type: boolean
+                                      is_last_page:
+                                        type: boolean
+                                    required:
+                                      - per_page
+                                      - current_page
+                                      - count
+                                      - is_first_page
+                                      - is_last_page
+                                required:
+                                  - object
+                                  - data
+                                  - pagination
+                        required:
+                          - data
+                        example:
+                          data:
+                            object: list
+                            data: null
+                            pagination:
+                              per_page: 10
+                              current_page: 1
+                              count: 5
+                              is_first_page: true
+                              is_last_page: true
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: The object schema for a role
+                                  type: object
+                                  properties: &ref_8
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    name:
+                                      type: string
+                                    display_name:
+                                      type: string
+                                    user_ids:
+                                      type: array
+                                      items:
+                                        type: string
+                                    users:
+                                      type: object
+                                      allOf:
+                                        - *ref_4
+                                        - type: object
+                                          properties:
+                                            data:
+                                              type: array
+                                              items: &ref_29
+                                                description: The object schema for a user
+                                                type: object
+                                                properties: *ref_5
+                                                required: *ref_6
+                                                example: *ref_7
+                                    created_at:
+                                      type: string
+                                      format: date-time
+                                    updated_at:
+                                      type: string
+                                      format: date-time
+                                  required: &ref_9
+                                    - object
+                                    - id
+                                    - name
+                                    - display_name
+                                    - user_ids
+                                    - created_at
+                                    - updated_at
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: role
+                            id: rol_01cw625zm2xmny5ee3mwt9j8ky
+                            name: Role Name
+                            display_name: The role's display name
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /role.get:
-    $ref: 'swagger/role/paths.yaml#/role.get'
+    post:
+      tags:
+        - Role
+      summary: Get a specific role
+      operationId: role_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving a specific role
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: rol_01cw625zm2xmny5ee3mwt9j8ky
+      responses:
+        '200': &ref_10
+          description: Returns a single role
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a role
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a role
+                        properties: *ref_8
+                        required: *ref_9
+                    example:
+                      data:
+                        object: role
+                        id: rol_01cw625zm2xmny5ee3mwt9j8ky
+                        name: role_name
+                        display_name: The role's display name
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /role.create:
-    $ref: 'swagger/role/paths.yaml#/role.create'
+    post:
+      tags:
+        - Role
+      summary: Create a new role
+      operationId: role_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for creating a new role.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                name:
+                  type: string
+                display_name:
+                  type: string
+              required:
+                - name
+                - display_name
+              example:
+                name: role_name
+                display_name: The role's display name
+      responses:
+        '200': *ref_10
+        '500': *ref_1
   /role.update:
-    $ref: 'swagger/role/paths.yaml#/role.update'
+    post:
+      tags:
+        - Role
+      summary: Update an existing role
+      operationId: role_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for updating a role. Only the provided fields
+          are updated.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                display_name:
+                  type: string
+              required:
+                - id
+              example:
+                id: rol_01cw625zm2xmny5ee3mwt9j8ky
+                name: Name to Update
+                display_name: New role's display name
+      responses:
+        '200': *ref_10
+        '500': *ref_1
   /role.delete:
-    $ref: 'swagger/role/paths.yaml#/role.delete'
-
-  # USER SESSION
+    post:
+      tags:
+        - Role
+      summary: Delete a role by its id
+      operationId: role_delete
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for deleting an role.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: rol_01cw625zm2xmny5ee3mwt9j8ky
+      responses:
+        '200': *ref_10
+        '500': *ref_1
   /user.login:
-    $ref: 'swagger/user_session/paths.yaml#/user.login'
+    post:
+      tags:
+        - UserSession
+      summary: >-
+        Login an existing user. The provider can call this to get an
+        authentication token for a specific user.
+      operationId: user_login
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: &ref_39
+        description: >-
+          The parameters to use for retrieving a specific user by its id or
+          provider_user_id
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              oneOf:
+                - properties:
+                    id:
+                      type: string
+                  required:
+                    - id
+                - properties:
+                    provider_user_id:
+                      type: string
+                  required:
+                    - provider_user_id
+              example:
+                id: usr_01ce83q2zw7zk1dqr79t22zr1v
+      responses:
+        '200': *ref_2
+        '500': *ref_1
   /user.logout:
-    $ref: 'swagger/user_session/paths.yaml#/user.logout'
-
-  # TOKEN
+    post:
+      tags:
+        - UserSession
+      summary: Expires a user's authentication_token.
+      operationId: user_logout
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use to log out a user
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                auth_token:
+                  type: string
+              required:
+                - auth_token
+              example:
+                auth_token: atk_01ce83q2zw7zk1dqr79t22zr1v
+      responses:
+        '200': *ref_11
+        '500': *ref_1
   /token.all:
-    $ref: 'swagger/token/paths.yaml#/token.all'
+    post:
+      tags:
+        - Token
+      summary: Get the list of tokens
+      operationId: token_all
+      security:
+        - AdminAuth: []
+        - ProviderAuth: []
+      requestBody: *ref_12
+      responses:
+        '200':
+          description: Returns a list of tokens
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of tokens
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: &ref_20
+                                  description: The object schema for a token
+                                  type: object
+                                  properties: &ref_14
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    symbol:
+                                      type: string
+                                    name:
+                                      type: string
+                                    subunit_to_unit:
+                                      type: integer
+                                    created_at:
+                                      type: string
+                                      format: date-time
+                                    updated_at:
+                                      type: string
+                                      format: date-time
+                                    metadata:
+                                      type: object
+                                    encrypted_metadata:
+                                      type: object
+                                    enabled:
+                                      type: boolean
+                                  required: &ref_15
+                                    - object
+                                    - id
+                                    - symbol
+                                    - name
+                                    - subunit_to_unit
+                                    - created_at
+                                    - updated_at
+                                    - enabled
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: token
+                            id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+                            symbol: ABC
+                            name: ABC Point
+                            subunit_to_unit: 100
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                            enabled: true
+        '500': *ref_1
   /token.get:
-    $ref: 'swagger/token/paths.yaml#/token.get'
+    post:
+      tags:
+        - Token
+      summary: Get a specific token
+      operationId: token_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving a specific token by its id
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+      responses:
+        '200': &ref_16
+          description: Returns a single tokens
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a token
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a token
+                        properties: *ref_14
+                        required: *ref_15
+                    example:
+                      data:
+                        object: token
+                        id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+                        symbol: ABC
+                        name: ABC Point
+                        subunit_to_unit: 100
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+                        enabled: true
+        '500': *ref_1
   /token.create:
-    $ref: 'swagger/token/paths.yaml#/token.create'
+    post:
+      tags:
+        - Token
+      summary: Create a new token
+      operationId: token_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to create a token. Note that if amount is specified,
+          the token will be minted automatically.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                name:
+                  type: string
+                symbol:
+                  type: string
+                description:
+                  type: string
+                subunit_to_unit:
+                  type: integer
+                amount:
+                  type: integer
+                iso_code:
+                  type: string
+                short_symbol:
+                  type: string
+                subunit:
+                  type: string
+                symbol_first:
+                  type: boolean
+                html_entity:
+                  type: string
+                iso_numeric:
+                  type: string
+                smallest_denomination:
+                  type: integer
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - name
+                - symbol
+                - description
+                - subunit_to_unit
+              example:
+                symbol: BTC
+                name: Bitcoin
+                description: desc
+                subunit_to_unit: 100
+      responses:
+        '200': *ref_16
+        '500': *ref_1
   /token.update:
-    $ref: 'swagger/token/paths.yaml#/token.update'
+    post:
+      tags:
+        - Token
+      summary: Update an existing token
+      operationId: token_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to update a token.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                iso_code:
+                  type: string
+                short_symbol:
+                  type: string
+                symbol_first:
+                  type: boolean
+                html_entity:
+                  type: string
+                iso_numeric:
+                  type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - id
+              example:
+                id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+                name: Bitcoin v2
+                description: an awesome updated description
+      responses:
+        '200': *ref_16
+        '500': *ref_1
   /token.enable_or_disable:
-    $ref: 'swagger/token/paths.yaml#/token.enable_or_disable'
+    post:
+      tags:
+        - Token
+      summary: Enable or disable an existing token
+      operationId: token_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to enable/disable a token. Send enabled=true to enable,
+          enabled=false to disable.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                enabled:
+                  type: boolean
+              required:
+                - id
+                - enabled
+              example:
+                id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+                enabled: false
+      responses:
+        '200': *ref_16
+        '500': *ref_1
   /token.stats:
-    $ref: 'swagger/token/paths.yaml#/token.stats'
+    post:
+      tags:
+        - Token
+      summary: Get the statistics for a token
+      operationId: token_stats
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving the stats of a token
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+      responses:
+        '200':
+          description: Returns the stats for a single token
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The object schema for token stats
+                type: object
+                properties:
+                  object:
+                    type: string
+                  token_id:
+                    type: string
+                  token:
+                    type: object
+                    description: The object schema for a token
+                    properties: *ref_14
+                    required: *ref_15
+                  total_supply:
+                    type: integer
+                required:
+                  - object
+                  - token_id
+                  - token
+                  - total_supply
+                example:
+                  data:
+                    object: token_stats
+                    total_supply: 100000
+                    token_id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+                    token:
+                      object: token
+                      id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+                      symbol: ABC
+                      name: ABC Point
+                      subunit_to_unit: 100
+                      created_at: '2018-01-01T00:00:00Z'
+                      updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /token.get_mints:
-    $ref: 'swagger/token/paths.yaml#/token.get_mints'
+    post:
+      tags:
+        - Token
+      summary: Get the list of mints for a token
+      operationId: token_get_mints
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for listing the mints for a token
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_17
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+                - owned
+              example:
+                id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+      responses:
+        '200':
+          description: Returns a list of mints
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of mints
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: The object schema for a mint
+                                  type: object
+                                  properties:
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    description:
+                                      type: string
+                                    amount:
+                                      type: integer
+                                    confirmed:
+                                      type: boolean
+                                    token_id:
+                                      type: string
+                                    token:
+                                      type: object
+                                      description: The object schema for a token
+                                      properties: *ref_14
+                                      required: *ref_15
+                                    account_id:
+                                      type: string
+                                    account:
+                                      type: object
+                                      description: The object schema for an account
+                                      properties: *ref_18
+                                      required: *ref_19
+                                    transaction_id:
+                                      type: string
+                                    transaction:
+                                      type: object
+                                      description: The object schema for a transaction
+                                      properties: &ref_33
+                                        object:
+                                          type: string
+                                        id:
+                                          type: string
+                                        from:
+                                          type: object
+                                          properties:
+                                            object:
+                                              type: string
+                                            address:
+                                              type: string
+                                            amount:
+                                              type: number
+                                            token:
+                                              type: object
+                                              description: The object schema for a token
+                                              properties: *ref_14
+                                              required: *ref_15
+                                        to:
+                                          type: object
+                                          properties:
+                                            object:
+                                              type: string
+                                            address:
+                                              type: string
+                                            amount:
+                                              type: number
+                                            token:
+                                              type: object
+                                              description: The object schema for a token
+                                              properties: *ref_14
+                                              required: *ref_15
+                                        exchange:
+                                          type: object
+                                          properties:
+                                            object:
+                                              type: string
+                                            rate:
+                                              type: number
+                                        metadata:
+                                          type: object
+                                        encrypted_metadata:
+                                          type: object
+                                        status:
+                                          type: string
+                                          enum:
+                                            - comfirmed
+                                            - pending
+                                            - failed
+                                        created_at:
+                                          type: string
+                                          format: date-time
+                                        updated_at:
+                                          type: string
+                                          format: date-time
+                                      required: &ref_34
+                                        - object
+                                        - id
+                                        - idempotency_token
+                                        - from
+                                        - to
+                                        - exchange
+                                        - status
+                                        - created_at
+                                        - updated_at
+                                    created_at:
+                                      type: string
+                                      format: date-time
+                                    updated_at:
+                                      type: string
+                                      format: date-time
+                                  required:
+                                    - object
+                                    - id
+                                    - description
+                                    - amount
+                                    - confirmed
+                                    - token_id
+                                    - token
+                                    - account_id
+                                    - account
+                                    - transaction_id
+                                    - transaction
+                                    - created_at
+                                    - updated_at
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: mint
+                            id: mnt_01xbfge9qhmsdbjyb7a8e8pxt3
+                            description: Some description
+                            amount: 10000
+                            confirmed: true
+                            token_id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+                            token: {}
+                            account_id: acc_01rebfge9qhmsdbjyb7a8e8pxt
+                            account: {}
+                            transaction_id: tfr_01trbfge9qhmsdbjyb7a8e8pxt
+                            transaction: {}
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T00:00:00Z'
+        '500': *ref_1
   /token.mint:
-    $ref: 'swagger/token/paths.yaml#/token.mint'
-
-  # EXCHANGE PAIR
+    post:
+      tags:
+        - Token
+      summary: Mint an existing token
+      operationId: token_mint
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to create a token. Note that if amount is specified,
+          the token will be minted automatically.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                amount:
+                  type: integer
+              required:
+                - id
+                - amount
+              example:
+                id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+                amount: 1000
+      responses:
+        '200': *ref_16
+        '500': *ref_1
   /exchange_pair.all:
-    $ref: 'swagger/exchange_pair/paths.yaml#/exchange_pair.all'
+    post:
+      tags:
+        - ExchangePair
+      summary: Get the list of exchange pairs
+      operationId: exchange_pair_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200': &ref_23
+          description: Returns a list of exchange pairs
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of exchange pairs
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: &ref_49
+                                  description: The object schema for an exchange pair
+                                  type: object
+                                  properties: &ref_21
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    name:
+                                      type: string
+                                    from_token_id:
+                                      type: string
+                                    from_token: *ref_20
+                                    to_token_id:
+                                      type: string
+                                    to_token: *ref_20
+                                    rate:
+                                      type: number
+                                    created_at:
+                                      type: string
+                                      format: date-time
+                                    updated_at:
+                                      type: string
+                                      format: date-time
+                                    deleted_at:
+                                      type: string
+                                      format: date-time
+                                      nullable: true
+                                  required: &ref_22
+                                    - object
+                                    - id
+                                    - name
+                                    - from_token_id
+                                    - from_token
+                                    - to_token_id
+                                    - to_token
+                                    - rate
+                                    - created_at
+                                    - updated_at
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: exchange_pair
+                            id: exg_01cgvppyrz2pprj6s0zmc26p2p
+                            name: ETH/OMG
+                            from_token_id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+                            from_token:
+                              object: token
+                              id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+                              symbol: ABC
+                              name: Ethereum
+                              subunit_to_unit: 100
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                            to_token_id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+                            to_token:
+                              object: token
+                              id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+                              symbol: OMG
+                              name: OmiseGO
+                              subunit_to_unit: 100
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                            rate: 0.017
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                            deleted_at: null
+        '500': *ref_1
   /exchange_pair.get:
-    $ref: 'swagger/exchange_pair/paths.yaml#/exchange_pair.get'
+    post:
+      tags:
+        - ExchangePair
+      summary: Get the a specific exchange pair by its id
+      operationId: exchange_pair_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for retrieving a specific exchange pair by its
+          id
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: exg_01cgvppyrz2pprj6s0zmc26p2p
+      responses:
+        '200':
+          description: Returns a single exchange pair
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an exchange pair
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for an exchange pair
+                        properties: *ref_21
+                        required: *ref_22
+                    example:
+                      data:
+                        object: exchange_pair
+                        id: exg_01cgvppyrz2pprj6s0zmc26p2p
+                        name: ETH/OMG
+                        from_token_id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+                        from_token:
+                          object: token
+                          id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+                          symbol: ABC
+                          name: Ethereum
+                          subunit_to_unit: 100
+                          created_at: '2018-01-01T00:00:00Z'
+                          updated_at: '2018-01-01T10:00:00Z'
+                        to_token_id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+                        to_token:
+                          object: token
+                          id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+                          symbol: OMG
+                          name: OmiseGO
+                          subunit_to_unit: 100
+                          created_at: '2018-01-01T00:00:00Z'
+                          updated_at: '2018-01-01T10:00:00Z'
+                        rate: 0.017
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+                        deleted_at: null
+        '500': *ref_1
   /exchange_pair.create:
-    $ref: 'swagger/exchange_pair/paths.yaml#/exchange_pair.create'
+    post:
+      tags:
+        - ExchangePair
+      summary: Create a new exchange pair
+      operationId: exchange_pair_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to create an exchange pair.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                from_token_id:
+                  type: string
+                to_token_id:
+                  type: string
+                rate:
+                  type: number
+                sync_opposite:
+                  type: boolean
+              required:
+                - from_token_id
+                - to_token_id
+                - rate
+              example:
+                from_token_id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+                to_token_id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+                rate: 0.017
+                sync_opposite: false
+      responses:
+        '200': *ref_23
+        '500': *ref_1
   /exchange_pair.update:
-    $ref: 'swagger/exchange_pair/paths.yaml#/exchange_pair.update'
+    post:
+      tags:
+        - ExchangePair
+      summary: Update an existing exchange pair by its id
+      operationId: exchange_pair_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to update an exchange pair.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                rate:
+                  type: number
+              required:
+                - id
+              example:
+                id: exg_01cgvppyrz2pprj6s0zmc26p2p
+                rate: 0.099
+      responses:
+        '200': *ref_23
+        '500': *ref_1
   /exchange_pair.delete:
-    $ref: 'swagger/exchange_pair/paths.yaml#/exchange_pair.delete'
-
-  # CATEGORY
+    post:
+      tags:
+        - ExchangePair
+      summary: Delete an exchange pair by its id
+      operationId: exchange_pair_delete
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to delete an exchange pair.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: exg_01cgvppyrz2pprj6s0zmc26p2p
+      responses:
+        '200': *ref_23
+        '500': *ref_1
   /category.all:
-    $ref: 'swagger/category/paths.yaml#/category.all'
+    post:
+      tags:
+        - Category
+      summary: Get the list of categories
+      operationId: category_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200':
+          description: Returns a list of categories
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of roles
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: *ref_24
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: category
+                            id: cat_01ce31n493dqbtj3fe8hadwndx
+                            name: Category Name
+                            description: The category description
+                            account_ids: []
+                            accounts: []
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /category.get:
-    $ref: 'swagger/category/paths.yaml#/category.get'
+    post:
+      tags:
+        - Category
+      summary: Get a specific category
+      operationId: category_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving a specific category
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: cat_01ce30qdajwb7gdecq0ebn3twq
+      responses:
+        '200': &ref_27
+          description: Returns a single category
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an category
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a category
+                        properties: *ref_25
+                        required: *ref_26
+                    example:
+                      data:
+                        object: category
+                        id: cat_01ce31n493dqbtj3fe8hadwndx
+                        name: Category Name
+                        description: The category description
+                        account_ids: []
+                        accounts: []
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /category.create:
-    $ref: 'swagger/category/paths.yaml#/category.create'
+    post:
+      tags:
+        - Category
+      summary: Create a new category
+      operationId: category_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for creating a new category.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                account_ids:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - name
+                - description
+                - account_ids
+              example:
+                name: Name of category
+                description: The category description
+                account_ids:
+                  - acc_01ca26pkge49aabzd6k6mshn0y
+      responses:
+        '200': *ref_27
+        '500': *ref_1
   /category.update:
-    $ref: 'swagger/category/paths.yaml#/category.update'
+    post:
+      tags:
+        - Category
+      summary: Update a category
+      operationId: category_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for updating an account. Only the provided
+          fields are updated.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                account_ids:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - id
+              example:
+                id: cat_01ce30qdajwb7gdecq0ebn3twq
+                name: Name to Update
+                description: New category description
+                account_ids:
+                  - acc_01ca26pkge49aabzd6k6mshn0y
+      responses:
+        '200': *ref_27
+        '500': *ref_1
   /category.delete:
-    $ref: 'swagger/category/paths.yaml#/category.delete'
-
-  # ACCOUNTS
+    post:
+      tags:
+        - Category
+      summary: Delete a category
+      operationId: category_delete
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for deleting an category.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: cat_01ce30qdajwb7gdecq0ebn3twq
+      responses:
+        '200': *ref_27
+        '500': *ref_1
   /account.all:
-    $ref: 'swagger/account/paths.yaml#/account.all'
+    post:
+      tags:
+        - Account
+      summary: Get the list of accounts
+      operationId: account_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200': &ref_30
+          description: Returns a list of accounts
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of accounts
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: &ref_32
+                                  description: The object schema for an account
+                                  type: object
+                                  properties: *ref_18
+                                  required: *ref_19
+                    example:
+                      data:
+                        data:
+                          - object: account
+                            id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            parent_id: acc_01ca26pkge49aabzd6k6mshn0y
+                            name: Account name
+                            description: The account description
+                            master: true
+                            category_ids: []
+                            roles: []
+                            metadata: {}
+                            encrypted_metadata: {}
+                            avatar:
+                              original: file_url
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /account.get:
-    $ref: 'swagger/account/paths.yaml#/account.get'
+    post:
+      tags:
+        - Account
+      summary: Get a specific account
+      operationId: account_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving a specific account by its id
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: acc_01ca2p8jqans5aty5gj5etmjcf
+      responses:
+        '200': &ref_28
+          description: Returns a single account
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an account
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for an account
+                        properties: *ref_18
+                        required: *ref_19
+                    example:
+                      data:
+                        object: account
+                        id: acc_01ca2p8jqans5aty5gj5etmjcf
+                        parent_id: acc_01ca26pkge49aabzd6k6mshn0y
+                        name: Account Name
+                        description: The account description
+                        master: true
+                        category_ids: []
+                        roles: []
+                        metadata: {}
+                        encrypted_metadata: {}
+                        avatar:
+                          original: file_url
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /account.create:
-    $ref: 'swagger/account/paths.yaml#/account.create'
+    post:
+      tags:
+        - Account
+      summary: Create a new account
+      operationId: account_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for creating a new account.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                parent_id:
+                  type: string
+                category_ids:
+                  type: array
+                  items:
+                    type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - name
+              example:
+                name: Account Name
+                description: The account description
+                parent_id: acc_01ca26pkge49aabzd6k6mshn0y
+                category_ids: []
+                metadata: {}
+                encrypted_metadata: {}
+      responses:
+        '200': *ref_28
+        '500': *ref_1
   /account.update:
-    $ref: 'swagger/account/paths.yaml#/account.update'
+    post:
+      tags:
+        - Account
+      summary: Update an account
+      operationId: account_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for updating an account. Only the provided
+          fields are updated.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                category_ids:
+                  type: array
+                  items:
+                    type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - id
+              example:
+                id: acc_01ca2p8jqans5aty5gj5etmjcf
+                name: Account Name
+                description: The account description
+                category_ids: []
+                metadata: {}
+                encrypted_metadata: {}
+      responses:
+        '200': *ref_28
+        '500': *ref_1
   /account.upload_avatar:
-    $ref: 'swagger/account/paths.yaml#/account.upload_avatar'
+    post:
+      tags:
+        - Account
+      summary: Uploads avatar for an account
+      operationId: account_upload_avatar
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for uploading an account's avatar. Only supports
+          .jpg, .jpeg, .gif and .png.
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                id:
+                  type: string
+                avatar:
+                  type: string
+                  format: binary
+              required:
+                - id
+                - avatar
+              example:
+                id: acc_01ca2p8jqans5aty5gj5etmjcf
+                avatar: /path/to/file
+      responses:
+        '200': *ref_28
+        '500': *ref_1
   /account.assign_user:
-    $ref: 'swagger/account/paths.yaml#/account.assign_user'
+    post:
+      tags:
+        - Account
+      summary: Assigns a user to an account with a role
+      operationId: account_assign_user
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for assigning a user to an account
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              oneOf:
+                - properties:
+                    user_id:
+                      type: string
+                    account_id:
+                      type: string
+                    role_name:
+                      type: string
+                    redirect_url:
+                      type: string
+                  required:
+                    - user_id
+                    - account_id
+                    - role_name
+                    - redirect_url
+                  example:
+                    user_id: usr_01ce83q2zw7zk1dqr79t22zr1v
+                    account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                    role_name: admin
+                    redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
+                - properties:
+                    email:
+                      type: string
+                    account_id:
+                      type: string
+                    role_name:
+                      type: string
+                  required:
+                    - email
+                    - account_id
+                    - role_name
+                    - redirect_url
+                  example:
+                    email: user@example.com
+                    account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                    role_name: admin
+                    redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
+              example:
+                account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                user_id: usr_01ce83q2zw7zk1dqr79t22zr1v
+                role_name: admin
+                redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
+      responses:
+        '200': *ref_11
+        '500': *ref_1
   /account.unassign_user:
-    $ref: 'swagger/account/paths.yaml#/account.unassign_user'
+    post:
+      tags:
+        - Account
+      summary: Unassigns a user from an account
+      operationId: account_unassign_user
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for unassigning a user from an account
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                user_id:
+                  type: string
+                account_id:
+                  type: string
+              required:
+                - user_id
+                - account_id
+              example:
+                account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                user_id: usr_01ce83q2zw7zk1dqr79t22zr1v
+      responses:
+        '200': *ref_11
+        '500': *ref_1
   /account.get_members:
-    $ref: 'swagger/account/paths.yaml#/account.get_members'
+    post:
+      tags:
+        - Account
+      summary: List the admins that are currently assigned to the given acount
+      operationId: account_get_members
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for listing an account's data
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_17
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: acc_01ca2p8jqans5aty5gj5etmjcf
+      responses:
+        '200':
+          description: Returns a list of members
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of members
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: The object schema for an account member
+                                  type: object
+                                  properties:
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    username:
+                                      type: string
+                                    full_name:
+                                      type: string
+                                    calling_name:
+                                      type: string
+                                    provider_user_id:
+                                      type: string
+                                    email:
+                                      type: string
+                                      format: email
+                                    enabled:
+                                      type: boolean
+                                    metadata:
+                                      type: object
+                                    encrypted_metadata:
+                                      type: object
+                                    avatar:
+                                      type: object
+                                    created_at:
+                                      type: string
+                                      format: date-time
+                                    updated_at:
+                                      type: string
+                                      format: date-time
+                                    role:
+                                      type: string
+                                    account:
+                                      type: object
+                                      description: The object schema for an account
+                                      properties: *ref_18
+                                      required: *ref_19
+                                  required:
+                                    - object
+                                    - id
+                                    - created_at
+                                    - updated_at
+                                  example:
+                                    object: user
+                                    id: usr_01ce83zf80j542z4q4zqd8qvfx
+                                    provider_user_id: wijf-fbancomw-dqwjudb
+                                    username: johndoe
+                                    full_name: John Doe
+                                    calling_name: John
+                                    email: johndoe@omise.co
+                                    enabled: true
+                                    metadata:
+                                      first_name: John
+                                      last_name: Doe
+                                    encrypted_metadata:
+                                      something: secret
+                                    avatar:
+                                      original: file_url
+                                    created_at: '2018-01-01T00:00:00Z'
+                                    updated_at: '2018-01-01T10:00:00Z'
+                                    account: {}
+                                    role: admin
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: user
+                            id: usr_01ce83zf80j542z4q4zqd8qvfx
+                            provider_user_id: null
+                            username: johndoe
+                            full_name: John Doe
+                            calling_name: John
+                            email: johndoe@omise.co
+                            metadata:
+                              first_name: John
+                              last_name: Doe
+                            enabled: true
+                            encrypted_metadata:
+                              something: secret
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                            role: admin
+                            account: {}
+        '500': *ref_1
   /account.get_users:
-    $ref: 'swagger/account/paths.yaml#/account.get_users'
+    post:
+      tags:
+        - Account
+      summary: List the users that are linked with the given account
+      operationId: account_get_users
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: &ref_31
+        description: The parameters to use for listing an account's owned data
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_17
+              properties:
+                id:
+                  type: string
+                owned:
+                  type: boolean
+              required:
+                - id
+                - owned
+              example:
+                id: acc_01ca2p8jqans5aty5gj5etmjcf
+                owned: true
+      responses:
+        '200': &ref_36
+          description: Returns a list of users
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of users
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: *ref_29
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: user
+                            id: usr_01ce83zf80j542z4q4zqd8qvfx
+                            provider_user_id: wijf-fbancomw-dqwjudb
+                            username: johndoe
+                            full_name: John Doe
+                            calling_name: John
+                            email: johndoe@omise.co
+                            enabled: true
+                            metadata:
+                              first_name: John
+                              last_name: Doe
+                            encrypted_metadata:
+                              something: secret
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /account.get_descendants:
-    $ref: 'swagger/account/paths.yaml#/account.get_descendants'
+    post:
+      tags:
+        - Account
+      summary: Get the list of descendants for the given account
+      operationId: account_get_descantants
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200': *ref_30
+        '500': *ref_1
   /account.get_wallets:
-    $ref: 'swagger/account/paths.yaml#/account.get_wallets'
+    post:
+      tags:
+        - Account
+      summary: Get the list of wallets for the given account
+      operationId: account_get_wallets
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_31
+      responses:
+        '200': &ref_40
+          description: Returns a list of wallets
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of wallets
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: The object schema for a wallet
+                                  type: object
+                                  properties: &ref_44
+                                    object:
+                                      type: string
+                                    socket_topic:
+                                      type: string
+                                    address:
+                                      type: string
+                                    name:
+                                      type: string
+                                    identifier:
+                                      type: string
+                                    metadata:
+                                      type: object
+                                    encrypted_metadata:
+                                      type: object
+                                    enabled:
+                                      type: boolean
+                                    user_id:
+                                      type: string
+                                    user: *ref_29
+                                    account_id:
+                                      type: string
+                                    account: *ref_32
+                                    balances:
+                                      type: array
+                                      items:
+                                        description: The object schema for a balance
+                                        type: object
+                                        properties:
+                                          object:
+                                            type: string
+                                          token:
+                                            type: object
+                                            description: The object schema for a token
+                                            properties: *ref_14
+                                            required: *ref_15
+                                          amount:
+                                            type: number
+                                        required:
+                                          - object
+                                          - token
+                                          - amount
+                                        example:
+                                          object: balance
+                                          token:
+                                            object: token
+                                            id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                                            symbol: BTC
+                                            name: Bitcoin
+                                            subunit_to_unit: 100000000000000000
+                                          amount: 100
+                                  required: &ref_45
+                                    - object
+                                    - socket_topic
+                                    - address
+                                    - name
+                                    - identifier
+                                    - metadata
+                                    - encrypted_metadata
+                                    - user_id
+                                    - user
+                                    - account_id
+                                    - account
+                                    - balances
+                                    - enabled
+                                  example: &ref_46
+                                    data:
+                                      object: wallet
+                                      socket_topic: 'wallet:XXX123'
+                                      address: XXX123
+                                      name: primary
+                                      identifier: primary
+                                      metadata: {}
+                                      encrypted_metadata: {}
+                                      enabled: true
+                                      user_id: usr_01cbfg6v9thrc3sd9m1v4gazjv
+                                      user: {}
+                                      account_id: null
+                                      account: null
+                                      balances:
+                                        - amount: 0
+                                          token:
+                                            object: token
+                                            id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                                            symbol: BTC
+                                            name: Bitcoin
+                                            subunit_to_unit: 100000000000000000
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: wallet
+                            socket_topic: 'wallet:XXX123'
+                            address: XXX123
+                            name: primary
+                            identifier: primary
+                            metadata: {}
+                            encrypted_metadata: {}
+                            enabled: true
+                            user_id: usr_01cbfg6v9thrc3sd9m1v4gazjv
+                            user: {}
+                            account_id: null
+                            account: null
+                            balances:
+                              - amount: 0
+                                token:
+                                  object: token
+                                  id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                                  symbol: BTC
+                                  name: Bitcoin
+                                  subunit_to_unit: 100000000000000000
+        '500': *ref_1
   /account.get_transactions:
-    $ref: 'swagger/account/paths.yaml#/account.get_transactions'
+    post:
+      tags:
+        - Account
+      summary: List the transactions for the current account
+      operationId: account_get_transactions
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_31
+      responses:
+        '200': &ref_42
+          description: Returns a list of transactions
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of transactions
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: The object schema for a transaction
+                                  type: object
+                                  properties: *ref_33
+                                  required: *ref_34
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: transaction
+                            id: txn_01ce842dxrrprkak0rzq716ax1
+                            from:
+                              object: transaction_source
+                              address: bec66785-f0d8-416c-a650-2859aa680166
+                              amount: 1000
+                              token:
+                                object: token
+                                id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+                                symbol: ABC
+                                name: ABC Point
+                                subunit_to_unit: 100
+                                created_at: '2018-01-01T00:00:00Z'
+                                updated_at: '2018-01-01T10:00:00Z'
+                            to:
+                              object: transaction_source
+                              address: 47218ab4-d94f-44e9-b7f2-36061f76ce58
+                              amount: 1000
+                              token:
+                                object: token
+                                id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+                                symbol: ABC
+                                name: ABC Point
+                                subunit_to_unit: 100
+                                created_at: '2018-01-01T00:00:00Z'
+                                updated_at: '2018-01-01T10:00:00Z'
+                            exchange:
+                              object: exchange
+                              rate: 1
+                            metadata: {}
+                            encrypted_metadata: {}
+                            status: confirmed
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /account.get_transaction_requests:
-    $ref: 'swagger/account/paths.yaml#/account.get_transaction_requests'
+    post:
+      tags:
+        - Account
+      summary: List the transaction requests for the current account
+      operationId: account_get_transaction_requests
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_31
+      responses:
+        '200': &ref_50
+          description: Returns a list of transaction requests
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of transaction requests
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: >-
+                                    The response schema for a transaction
+                                    request
+                                  type: object
+                                  properties: &ref_51
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    socket_topic:
+                                      type: string
+                                    type:
+                                      type: string
+                                      enum:
+                                        - send
+                                        - receive
+                                    amount:
+                                      type: string
+                                    status:
+                                      type: string
+                                      enum:
+                                        - valid
+                                        - expired
+                                    correlation_id:
+                                      type: string
+                                    token_id:
+                                      type: string
+                                    token:
+                                      type: object
+                                    address:
+                                      type: string
+                                    user_id:
+                                      type: string
+                                    account_id:
+                                      type: string
+                                    require_confirmation:
+                                      type: boolean
+                                    max_consumptions:
+                                      type: integer
+                                    max_consumptions_per_user:
+                                      type: integer
+                                    consumption_lifetime:
+                                      type: integer
+                                    expiration_reason:
+                                      type: string
+                                      enum:
+                                        - max_consumptions_reached
+                                        - expired_transaction_request
+                                        - null
+                                    allow_amount_override:
+                                      type: boolean
+                                    metadata:
+                                      type: object
+                                    encrypted_metadata:
+                                      type: object
+                                    expiration_date:
+                                      type: string
+                                    expired_at:
+                                      type: string
+                                    created_at:
+                                      type: string
+                                    updated_at:
+                                      type: string
+                                  required: &ref_52
+                                    - object
+                                    - id
+                                    - formatted_id
+                                    - socket_topic
+                                    - type
+                                    - amount
+                                    - status
+                                    - correlation_id
+                                    - token_id
+                                    - token
+                                    - address
+                                    - user_id
+                                    - account_id
+                                    - require_confirmation
+                                    - max_consumptions
+                                    - max_consumptions_per_user
+                                    - consumption_lifetime
+                                    - expiration_reason
+                                    - allow_amount_override
+                                    - metadata
+                                    - encrypted_metadata
+                                    - expiration_date
+                                    - expired_at
+                                    - created_at
+                                    - updated_at
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: transaction_request
+                            id: txr_01cbfg8mafdnbthgb9e68nd9y9
+                            formatted_id: data|txr_01cbfg8mafdnbthgb9e68nd9y9
+                            socket_topic: 'transaction_request:txr_01cbfg8mafdnbthgb9e68nd9y9'
+                            type: send
+                            amount: 100
+                            status: valid
+                            correlation_id: '123'
+                            token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
+                            token: null
+                            address: 3a560be5-15d1-4463-9ec2-02bc8ded7120
+                            user_id: usr_01cbfg922kzmhvw04xvqn17qbd
+                            account_id: acc_01cbfg9b5hn05rszm3na8jac7f
+                            require_confirmation: true
+                            max_consumptions: 3
+                            max_consumptions_per_user: null
+                            consumption_lifetime: 1000
+                            expiration_reason: null
+                            allow_amount_override: false
+                            metadata: {}
+                            encrypted_metadata: {}
+                            expiration_date: '2018-01-01T00:00:00Z'
+                            expired_at: '2018-01-01T00:00:00Z'
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T00:00:00Z'
+        '500': *ref_1
   /account.get_transaction_consumptions:
-    $ref: 'swagger/account/paths.yaml#/account.get_transaction_consumptions'
-
-  # ADMIN USER
+    post:
+      tags:
+        - Account
+      summary: List the transaction consumptions for the current account
+      operationId: account_get_transaction_consumptions
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_31
+      responses:
+        '200': &ref_43
+          description: Returns a list of transaction consumptions
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of transaction consumptions
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: >-
+                                    The schema for a transaction request
+                                    consumption
+                                  type: object
+                                  properties:
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    socket_topic:
+                                      type: string
+                                    status:
+                                      type: string
+                                      enum:
+                                        - pending
+                                        - approved
+                                        - rejected
+                                        - confirmed
+                                        - failed
+                                        - expired
+                                    amount:
+                                      type: string
+                                    token_id:
+                                      type: string
+                                    token:
+                                      type: object
+                                    correlation_id:
+                                      type: string
+                                    idempotency_token:
+                                      type: string
+                                    transaction_id:
+                                      type: string
+                                    transaction:
+                                      type: object
+                                    user_id:
+                                      type: string
+                                    user:
+                                      type: object
+                                    account_id:
+                                      type: string
+                                    account:
+                                      type: object
+                                    transaction_request_id:
+                                      type: string
+                                    transaction_request:
+                                      type: object
+                                    address:
+                                      type: string
+                                    metadata:
+                                      type: object
+                                    encrypted_metadata:
+                                      type: object
+                                    expiration_date:
+                                      type: string
+                                    created_at:
+                                      type: string
+                                    updated_at:
+                                      type: string
+                                    approved_at:
+                                      type: string
+                                    rejected_at:
+                                      type: string
+                                    confirmed_at:
+                                      type: string
+                                    failed_at:
+                                      type: string
+                                    expired_at:
+                                      type: string
+                                  required:
+                                    - object
+                                    - id
+                                    - socket_topic
+                                    - status
+                                    - amount
+                                    - token_id
+                                    - token
+                                    - correlation_id
+                                    - idempotency_token
+                                    - transaction_id
+                                    - transaction
+                                    - user_id
+                                    - user
+                                    - account_id
+                                    - account
+                                    - transaction_request_id
+                                    - transaction_request
+                                    - address
+                                    - metadata
+                                    - encrypted_metadata
+                                    - expiration_date
+                                    - created_at
+                                    - updated_at
+                                    - approved_at
+                                    - rejected_at
+                                    - confirmed_at
+                                    - failed_at
+                                    - expired_at
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: transaction_consumption
+                            id: txc_01cbfg9qtdken61agxhx6wvj9h
+                            socket_topic: >-
+                              transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h
+                            status: confirmed
+                            amount: 100
+                            token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
+                            token: {}
+                            correlation_id: 7e9c0be5-15d1-4463-9ec2-02bc8ded7120
+                            idempotency_token: 7831c0be5-15d1-4463-9ec2-02bc8ded7120
+                            transaction_id: txn_01cbfga8g0dgwcfc7xh6ks1njt
+                            transaction: {}
+                            user_id: usr_01cbfgak47ng6x72vbwjca6j4v
+                            user: {}
+                            account_id: acc_01cbfgatsanznvzffqsekta5f0
+                            account: {}
+                            transaction_request_id: txr_01cbfgb66cby8wp5wpq6n4pm0h
+                            transaction_request: {}
+                            address: 5555cer3-15d1-4463-9ec2-02bc8ded7120
+                            metadata: {}
+                            encrypted_metadata: {}
+                            expiration_date: null
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T00:00:00Z'
+                            approved_at: '2018-01-01T00:00:00Z'
+                            rejected_at: null
+                            confirmed_at: '2018-01-01T00:00:00Z'
+                            failed_at: null
+                            expired_at: null
+        '500': *ref_1
   /admin.reset_password:
-    $ref: 'swagger/admin/paths.yaml#/admin.reset_password'
+    post:
+      tags:
+        - Admin
+      summary: Sends an email containing a link to reset the password.
+      operationId: password_reset
+      security:
+        - ClientAuth: []
+      requestBody:
+        description: The parameters to use for requesting a reset password
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                redirect_url:
+                  type: string
+              required:
+                - email
+                - redirect_url
+              example:
+                email: test@example.com
+                redirect_url: >-
+                  https://example.com/admin/update_password?email={email}&token={token}
+      responses:
+        '200': *ref_11
+        '500': *ref_1
   /admin.update_password:
-    $ref: 'swagger/admin/paths.yaml#/admin.update_password'
+    post:
+      tags:
+        - Admin
+      summary: Reset the password for a specific token with the provided new password.
+      operationId: password_update
+      security:
+        - ClientAuth: []
+      requestBody:
+        description: The parameters to use for reseting a password
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                token:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                password_confirmation:
+                  type: string
+                  format: password
+              required:
+                - email
+                - redirect_url
+                - password
+                - password_confirmation
+              example:
+                email: test@example.com
+                token: 26736ca1-43a0-442b-803e-76220cd3cb1d
+                password: 'nZi9Enc5$l#'
+                password_confirmation: 'nZi9Enc5$l#'
+      responses:
+        '200': *ref_11
+        '500': *ref_1
   /admin.verify_email_update:
-    $ref: 'swagger/admin/paths.yaml#/admin.verify_email_update'
+    post:
+      tags:
+        - Admin
+      summary: Verifies the email to be updated to the admin user
+      operationId: admin_verify_email_update
+      security:
+        - ClientAuth: []
+      requestBody:
+        description: The parameters to use for verifying an email update
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                email:
+                  type: string
+                token:
+                  type: string
+              example:
+                email: new.email@example.com
+                token: verification_token
+      responses:
+        '200': &ref_35
+          description: Returns a single admin panel user
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an admin user
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a user
+                        properties: *ref_5
+                        required: *ref_6
+                        example: *ref_7
+                    example:
+                      data:
+                        object: user
+                        id: usr_01ce83zf80j542z4q4zqd8qvfx
+                        provider_user_id: wijf-fbancomw-dqwjudb
+                        username: johndoe
+                        full_name: John Doe
+                        calling_name: John
+                        email: johndoe@omise.co
+                        enabled: true
+                        metadata:
+                          first_name: John
+                          last_name: Doe
+                        encrypted_metadata:
+                          something: secret
+                        avatar:
+                          original: file_url
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /admin.all:
-    $ref: 'swagger/admin/paths.yaml#/admin.all'
+    post:
+      tags:
+        - Admin
+      summary: Get the list of admins
+      operationId: admin_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200':
+          description: Returns a list of admin panel users
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of admin users
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: *ref_29
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: user
+                            id: usr_01ce83zf80j542z4q4zqd8qvfx
+                            provider_user_id: wijf-fbancomw-dqwjudb
+                            username: johndoe
+                            full_name: John Doe
+                            calling_name: John
+                            email: johndoe@omise.co
+                            metadata:
+                              first_name: John
+                              last_name: Doe
+                            encrypted_metadata:
+                              something: secret
+                            avatar:
+                              original: file_url
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /admin.get:
-    $ref: 'swagger/admin/paths.yaml#/admin.get'
+    post:
+      tags:
+        - Admin
+      summary: Get a specific admin
+      operationId: admin_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving a specific user by its id
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: usr_01ce83q2zw7zk1dqr79t22zr1v
+      responses:
+        '200': *ref_35
+        '500': *ref_1
   /admin.enable_or_disable:
-    $ref: 'swagger/admin/paths.yaml#/admin.enable_or_disable'
+    post:
+      tags:
+        - Admin
+      summary: Enable or disable an existing admin.
+      operationId: admin_user_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to enable/disable an admin. Send enabled=true to
+          enable, enabled=false to disable.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                enabled:
+                  type: boolean
+              required:
+                - id
+                - enabled
+              example:
+                id: usr_01ct2zjh20fj210bzz078948f6
+                enabled: false
+      responses:
+        '200': *ref_35
+        '500': *ref_1
   /invite.accept:
-    $ref: 'swagger/admin/paths.yaml#/invite.accept'
-
-  # CURRENT ADMIN USER
+    post:
+      tags:
+        - Admin
+      summary: Accepts an invite
+      operationId: invite_accept
+      requestBody:
+        description: The parameters to use for accepting an invite
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                email:
+                  type: string
+                token:
+                  type: string
+                password:
+                  type: string
+                password_confirmation:
+                  type: string
+              required:
+                - email
+                - token
+                - password
+                - password_confirmation
+              example:
+                email: example@omise.co
+                token: dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg
+                password: user_provided_password
+                password_confirmation: user_provided_password
+      security:
+        - ClientAuth: []
+      responses:
+        '200': *ref_35
+        '500': *ref_1
   /me.get:
-    $ref: 'swagger/admin/paths.yaml#/me.get'
+    post:
+      tags:
+        - Admin
+      summary: Get the user corresponding to the provided authentication header.
+      operationId: me_get
+      security:
+        - AdminAuth: []
+      responses:
+        '200': *ref_35
+        '500': *ref_1
   /me.update:
-    $ref: 'swagger/admin/paths.yaml#/me.update'
+    post:
+      tags:
+        - Admin
+      summary: Update the user with the provided parameters
+      operationId: me_update
+      security:
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for updating a user
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              example:
+                metadata: {}
+                encrypted_metadata: {}
+      responses:
+        '200': *ref_35
+        '500': *ref_1
   /me.update_email:
-    $ref: 'swagger/admin/paths.yaml#/me.update_email'
+    post:
+      tags:
+        - Admin
+      summary: Update the user's email with the provided parameters
+      operationId: me_update_email
+      security:
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for updating a user's email
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                email:
+                  type: string
+              example:
+                email: new.email@example.com
+      responses:
+        '200': *ref_35
+        '500': *ref_1
   /me.update_password:
-    $ref: 'swagger/admin/paths.yaml#/me.update_password'
+    post:
+      tags:
+        - Admin
+      summary: Update the user's password with the provided parameters
+      operationId: me_update_password
+      security:
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for updating a user's password
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                old_password:
+                  type: string
+                  format: password
+                password:
+                  type: string
+                  format: password
+                password_confirmation:
+                  type: string
+                  format: password
+              example:
+                old_password: old_password
+                password: new_password
+                password_confirmation: new_password
+      responses:
+        '200': *ref_35
+        '500': *ref_1
   /me.upload_avatar:
-    $ref: 'swagger/admin/paths.yaml#/me.upload_avatar'
+    post:
+      tags:
+        - Admin
+      summary: Uploads avatar for an admin
+      operationId: admin_upload_avatar
+      security:
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for uploading an admin's avatar. Only supports
+          .jpg, .jpeg, .gif and .png.
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                id:
+                  type: string
+                avatar:
+                  type: string
+                  format: binary
+              required:
+                - id
+                - avatar
+              example:
+                id: usr_01ce83xvrsh8bzpctq3wqbprf8
+                avatar: /path/to/file
+      responses:
+        '200': *ref_35
+        '500': *ref_1
   /me.get_account:
-    $ref: 'swagger/admin/paths.yaml#/me.get_account'
+    post:
+      tags:
+        - Admin
+      summary: Get the one upper-most account that the user has membership in.
+      operationId: me_get_account
+      security:
+        - AdminAuth: []
+      responses:
+        '200': *ref_28
+        '500': *ref_1
   /me.get_accounts:
-    $ref: 'swagger/admin/paths.yaml#/me.get_accounts'
-
-  # USER
+    post:
+      tags:
+        - Admin
+      summary: >-
+        Get the list of account and sub-accounts that the user has membership
+        in.
+      operationId: me_get_accounts
+      security:
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200': *ref_30
+        '500': *ref_1
   /user.all:
-    $ref: 'swagger/user/paths.yaml#/user.all'
+    post:
+      tags:
+        - User
+      summary: Get the list of users
+      operationId: user_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200': *ref_36
+        '500': *ref_1
   /user.create:
-    $ref: 'swagger/user/paths.yaml#/user.create'
+    post:
+      tags:
+        - User
+      summary: Create a new user
+      operationId: user_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: &ref_37
+        description: The parameters to use for creating or updating a user
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                provider_user_id:
+                  type: string
+                username:
+                  type: string
+                full_name:
+                  type: string
+                calling_name:
+                  type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - provider_user_id
+                - username
+              example:
+                provider_user_id: wijf-fbancomw-dqwjudb
+                username: thibault@omise.co
+                full_name: Thibault Denizet
+                calling_name: Thibault
+                metadata:
+                  first_name: Thibault
+                  last_name: Denizet
+                encrypted_metadata: {}
+      responses:
+        '200': &ref_38
+          description: Returns a single user
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a user
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a user
+                        properties: *ref_5
+                        required: *ref_6
+                        example: *ref_7
+                    example:
+                      data:
+                        object: user
+                        id: usr_01ce83zf80j542z4q4zqd8qvfx
+                        provider_user_id: wijf-fbancomw-dqwjudb
+                        username: johndoe
+                        full_name: John Doe
+                        calling_name: John
+                        email: johndoe@omise.co
+                        enabled: true
+                        metadata:
+                          first_name: John
+                          last_name: Doe
+                        encrypted_metadata:
+                          something: secret
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /user.update:
-    $ref: 'swagger/user/paths.yaml#/user.update'
+    post:
+      tags:
+        - User
+      summary: Update an existing user
+      operationId: user_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_37
+      responses:
+        '200': *ref_38
+        '500': *ref_1
   /user.get:
-    $ref: 'swagger/user/paths.yaml#/user.get'
+    post:
+      tags:
+        - User
+      summary: Get a specific user
+      operationId: user_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_39
+      responses:
+        '200': *ref_38
+        '500': *ref_1
   /user.get_wallets:
-    $ref: 'swagger/user/paths.yaml#/user.get_wallets'
+    post:
+      tags:
+        - User
+      summary: Get the list of wallets for the given user
+      operationId: user_wallet_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: &ref_41
+        description: >-
+          The parameters to use for retrieving a collection owned by user by its
+          id or provider_user_id
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_17
+              oneOf:
+                - properties:
+                    id:
+                      type: string
+                  required:
+                    - id
+                - properties:
+                    provider_user_id:
+                      type: string
+                  required:
+                    - provider_user_id
+              example:
+                id: usr_01ce83q2zw7zk1dqr79t22zr1v
+      responses:
+        '200': *ref_40
+        '500': *ref_1
   /user.get_transactions:
-    $ref: 'swagger/user/paths.yaml#/user.get_transactions'
+    post:
+      tags:
+        - User
+      summary: Get the list of transactions for the given user
+      operationId: get_all_transactions_for_user
+      requestBody: *ref_41
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      responses:
+        '200': *ref_42
+        '500': *ref_1
   /user.get_transaction_consumptions:
-    $ref: 'swagger/user/paths.yaml#/user.get_transaction_consumptions'
+    post:
+      tags:
+        - User
+      summary: Get the list of transaction consumptions for a user
+      operationId: user_get_consumptions
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_41
+      responses:
+        '200': *ref_43
+        '500': *ref_1
   /user.enable_or_disable:
-    $ref: 'swagger/user/paths.yaml#/user.enable_or_disable'
-
-  # WALLET
+    post:
+      tags:
+        - User
+      summary: Enable or disable an existing user.
+      operationId: user_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to enable/disable a user. Send enabled=true to enable,
+          enabled=false to disable.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              oneOf:
+                - properties:
+                    id:
+                      type: string
+                    enabled:
+                      type: boolean
+                  required:
+                    - id
+                    - enabled
+                - properties:
+                    provider_user_id:
+                      type: string
+                    enabled:
+                      type: boolean
+                  required:
+                    - provider_user_id
+                    - enabled
+              example:
+                id: usr_01ct2zjh20fj210bzz078948f6
+                enabled: false
+      responses:
+        '200': *ref_38
+        '500': *ref_1
   /wallet.all:
-    $ref: 'swagger/wallet/paths.yaml#/wallet.all'
+    post:
+      tags:
+        - Wallet
+      summary: Get the list of wallets
+      operationId: wallet_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200': *ref_40
+        '500': *ref_1
   /wallet.create:
-    $ref: 'swagger/wallet/paths.yaml#/wallet.create'
+    post:
+      tags:
+        - Wallet
+      summary: Create a wallet
+      operationId: wallet_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for creating a wallet
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              example:
+                name: My Wallet
+                identifier: secondary
+                user_id: usr_01cbfg6v9thrc3sd9m1v4gazjv
+              oneOf:
+                - properties:
+                    name:
+                      type: string
+                    identifier:
+                      type: string
+                      enum:
+                        - burn
+                        - secondary
+                    provider_user_id:
+                      type: string
+                  required:
+                    - name
+                    - identifier
+                    - provider_user_id
+                - properties:
+                    name:
+                      type: string
+                    identifier:
+                      type: string
+                      enum:
+                        - burn
+                        - secondary
+                    user_id:
+                      type: string
+                  required:
+                    - name
+                    - identifier
+                    - user_id
+                - properties:
+                    name:
+                      type: string
+                    identifier:
+                      type: string
+                      enum:
+                        - burn
+                        - secondary
+                    account_id:
+                      type: string
+                  required:
+                    - name
+                    - identifier
+                    - account_id
+      responses:
+        '200': &ref_47
+          description: Returns a single wallet
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a wallet
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a wallet
+                        properties: *ref_44
+                        required: *ref_45
+                        example: *ref_46
+                    example:
+                      data:
+                        object: wallet
+                        socket_topic: 'wallet:XXX123'
+                        address: XXX123
+                        name: primary
+                        identifier: primary
+                        metadata: {}
+                        encrypted_metadata: {}
+                        enabled: true
+                        user_id: usr_01cbfg6v9thrc3sd9m1v4gazjv
+                        user: {}
+                        account_id: null
+                        account: null
+                        balances:
+                          - amount: 0
+                            token:
+                              object: token
+                              id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                              symbol: BTC
+                              name: Bitcoin
+                              subunit_to_unit: 100000000000000000
+        '500': *ref_1
   /wallet.get:
-    $ref: 'swagger/wallet/paths.yaml#/wallet.get'
+    post:
+      tags:
+        - Wallet
+      summary: Get a specific wallet
+      operationId: wallet_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving a wallet by its address
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                address:
+                  type: string
+              required:
+                - address
+              example:
+                address: kxhk519271652215
+      responses:
+        '200': *ref_47
+        '500': *ref_1
   /wallet.get_transaction_consumptions:
-    $ref: 'swagger/wallet/paths.yaml#/wallet.get_transaction_consumptions'
+    post:
+      tags:
+        - Wallet
+      summary: Get the list of transaction consumptions for a wallet
+      operationId: wallet_get_consumptions
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for listing the consumptions for a wallet
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_17
+              properties:
+                address:
+                  type: string
+              required:
+                - address
+              example:
+                address: kxhk519271652215
+      responses:
+        '200': *ref_43
+        '500': *ref_1
   /wallet.enable_or_disable:
-    $ref: 'swagger/wallet/paths.yaml#/wallet.enable_or_disable'
-
-  # TRANSACTION
+    post:
+      tags:
+        - Wallet
+      summary: Enable or disable a specific wallet
+      operationId: wallet_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use to enable or disable a wallet.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                address:
+                  type: string
+                enabled:
+                  type: boolean
+              required:
+                - address
+                - enabled
+              example:
+                address: kxhk519271652215
+                enabled: false
+      responses:
+        '200': *ref_47
+        '500': *ref_1
   /transaction.all:
-    $ref: 'swagger/transaction/paths.yaml#/transaction.all'
+    post:
+      tags:
+        - Transaction
+      summary: Get the list of transactions
+      operationId: transaction_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200': *ref_42
+        '500': *ref_1
   /transaction.get:
-    $ref: 'swagger/transaction/paths.yaml#/transaction.get'
+    post:
+      tags:
+        - Transaction
+      summary: Get the a specific transaction by its id
+      operationId: transaction_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving a specific transaction by its id
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: txn_01ce83x8w4db56f3fcjy4n4qpc
+      responses:
+        '200': &ref_48
+          description: Returns a single transaction
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a transaction
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a transaction
+                        properties: *ref_33
+                        required: *ref_34
+                    example:
+                      data:
+                        object: transaction
+                        id: txn_01ce840q5svw6058r8yk6jzf65
+                        idempotency_token: 123982f5-4a27-498d-a91b-7bb2e2a8d3d1
+                        from:
+                          object: transaction_source
+                          address: bec66785-f0d8-416c-a650-2859aa680166
+                          amount: 1000
+                          token:
+                            object: token
+                            id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+                            symbol: ABC
+                            name: ABC Point
+                            subunit_to_unit: 100
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                        to:
+                          object: transaction_source
+                          address: 47218ab4-d94f-44e9-b7f2-36061f76ce58
+                          amount: 1000
+                          token:
+                            object: token
+                            id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+                            symbol: ABC
+                            name: ABC Point
+                            subunit_to_unit: 100
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                        metadata: {}
+                        encrypted_metadata: {}
+                        exchange:
+                          object: exchange
+                          rate: 1
+                        status: confirmed
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_1
   /transaction.create:
-    $ref: 'swagger/transaction/paths.yaml#/transaction.create'
+    post:
+      tags:
+        - Transaction
+      summary: Create a new transaction
+      operationId: transaction_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters for making a transaction from an address to another.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                idempotency_token:
+                  type: string
+                from_address:
+                  type: string
+                to_address:
+                  type: string
+                from_account_id:
+                  type: string
+                to_account_id:
+                  type: string
+                from_user_id:
+                  type: string
+                to_user_id:
+                  type: string
+                from_provider_user_id:
+                  type: string
+                to_provider_user_id:
+                  type: string
+                from_token_id:
+                  type: string
+                to_token_id:
+                  type: string
+                token_id:
+                  type: string
+                from_amount:
+                  type: integer
+                to_amount:
+                  type: integer
+                amount:
+                  type: integer
+                exchange_account_id:
+                  type: string
+                exchange_wallet_address:
+                  type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - idempotency_token
+                - from_address
+                - to_address
+                - token_id
+                - amount
+              example:
+                idempotency_token: '2345'
+                from_address: 81e75f46-ee14-4e4c-a1e5-cddcb26dce9c
+                to_address: 4aa07691-2f99-4cb1-b36c-50763e2d2ba8
+                token_id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                amount: 100
+                metadata: {}
+                encrypted_metadata: {}
+      responses:
+        '200': *ref_48
+        '500': *ref_1
   /transaction.calculate:
-    $ref: 'swagger/transaction/paths.yaml#/transaction.calculate'
-
-  # TRANSACTION REQUESTS
+    post:
+      tags:
+        - Transaction
+      summary: Calculates transaction amounts
+      operationId: transaction_calculate
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters for calculating transaction amounts.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                from_amount:
+                  type: integer
+                from_token_id:
+                  type: string
+                to_amount:
+                  type: integer
+                to_token_id:
+                  type: string
+              required:
+                - from_token_id
+                - to_token_id
+              example:
+                from_token_id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+                to_token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
+                from_amount: 100
+      responses:
+        '200':
+          description: Returns a transaction calculation
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a transaction calculation
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        description: The object schema for a transaction calculation
+                        type: object
+                        properties:
+                          object:
+                            type: string
+                          from_amount:
+                            type: integer
+                          from_token_id:
+                            type: string
+                          to_amount:
+                            type: integer
+                          to_token_id:
+                            type: string
+                          exchange_pair: *ref_49
+                          calculated_at:
+                            type: string
+                            format: date-time
+                        required:
+                          - object
+                          - from_amount
+                          - from_token_id
+                          - to_amount
+                          - to_token_id
+                          - exchange_pair
+                          - calculated_at
+                    example:
+                      data:
+                        object: transaction_calculation
+                        from_amount: 20
+                        from_token_id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+                        to_amount: 20000
+                        to_token_id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+                        exchange_pair:
+                          object: exchange_pair
+                          id: exg_01cgvppyrz2pprj6s0zmc26p2p
+                          name: ETH/OMG
+                          from_token_id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+                          from_token:
+                            object: token
+                            id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+                            symbol: ETH
+                            name: Ethereum
+                            subunit_to_unit: 100
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                          to_token_id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+                          to_token:
+                            object: token
+                            id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+                            symbol: OMG
+                            name: OmiseGO
+                            subunit_to_unit: 100
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                          rate: 1000
+                          created_at: '2018-01-10T00:00:00Z'
+                          updated_at: '2018-01-10T10:00:00Z'
+                        calculated_at: '2018-02-02T00:00:00Z'
+        '500': *ref_1
   /transaction_request.all:
-    $ref: 'swagger/transaction_request/paths.yaml#/transaction_request.all'
+    post:
+      tags:
+        - TransactionRequest
+      summary: Get the list of transaction requests
+      operationId: transaction_request_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200': *ref_50
+        '500': *ref_1
   /transaction_request.create:
-    $ref: 'swagger/transaction_request/paths.yaml#/transaction_request.create'
+    post:
+      tags:
+        - TransactionRequest
+      summary: Create a new transaction request.
+      description: This is a server call only.
+      operationId: transaction_request_create
+      security:
+        - ProviderAuth: []
+      requestBody:
+        description: >-
+          Create a transaction request using the specified values. That request
+          can then be consumed using a different endpoint to create a
+          transaction from that request.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - send
+                    - receive
+                token_id:
+                  type: string
+                  description: The token ID to use for the transaction.
+                amount:
+                  type: integer
+                  default: null
+                  description: >-
+                    The amount to transfer. If not specified, the consumption
+                    will need to set the amount.
+                correlation_id:
+                  type: string
+                  default: null
+                  description: >-
+                    Optional unique identifier to tie a request with your
+                    system.
+                account_id:
+                  type: string
+                  default: null
+                  description: The id of the account to use for the request
+                provider_user_id:
+                  type: string
+                  default: null
+                  description: The provider user id to use as a requestor
+                address:
+                  type: string
+                  default: null
+                  description: >-
+                    If not specified, the current user's primary wallet will be
+                    used. If specified, it needs to be one of the account's or
+                    user's addresses.
+                require_confirmation:
+                  type: boolean
+                  default: false
+                  description: >-
+                    Indicates if a consumption of the created request needs to
+                    be approved before being processed.
+                max_consumptions:
+                  type: integer
+                  default: null
+                  description: The number of times this created request can be consumed.
+                max_consumptions_per_user:
+                  type: integer
+                  default: null
+                  description: The maximum number of times a user can consume the request.
+                consumption_lifetime:
+                  type: integer
+                  default: null
+                  description: >-
+                    The lifetime in milliseconds of how long a consumption can
+                    stay 'pending' before being expired. If a consumption is not
+                    approved before its expiration date, it will become invalid
+                    and be cancelled. This property can be used to avoid stale
+                    consumptions blocking the 'max_consumptions' count.
+                expiration_date:
+                  type: string
+                  default: null
+                  description: >-
+                    The datetime at which the created request should expire (no
+                    one will be able to consume it anymore). The format is
+                    yyyy-MM-dd'T'HH:mm:ssZZZZZ.
+                allow_amount_override:
+                  type: boolean
+                  default: true
+                  description: >-
+                    Defines if the amount set in the created request can be
+                    overriden in a consumption. Cannot be set to true if the
+                    amount property is not set at creation
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - type
+                - token_id
+              example:
+                type: send
+                token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
+                amount: 100
+                correlation_id: '123'
+                address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
+      responses:
+        '200': &ref_53
+          description: Transaction request response
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a transaction request
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The response schema for a transaction request
+                        properties: *ref_51
+                        required: *ref_52
+                    example:
+                      data:
+                        object: transaction_request
+                        id: txr_01cbfg8mafdnbthgb9e68nd9y9
+                        formatted_id: data|txr_01cbfg8mafdnbthgb9e68nd9y9
+                        socket_topic: 'transaction_request:txr_01cbfg8mafdnbthgb9e68nd9y9'
+                        type: send
+                        amount: 100
+                        status: valid
+                        correlation_id: '123'
+                        token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
+                        token: null
+                        address: 3a560be5-15d1-4463-9ec2-02bc8ded7120
+                        user_id: usr_01cbfg922kzmhvw04xvqn17qbd
+                        account_id: acc_01cbfg9b5hn05rszm3na8jac7f
+                        require_confirmation: true
+                        max_consumptions: 3
+                        max_consumptions_per_user: null
+                        consumption_lifetime: 1000
+                        expiration_reason: null
+                        allow_amount_override: false
+                        metadata: {}
+                        encrypted_metadata: {}
+                        expiration_date: '2018-01-01T00:00:00Z'
+                        expired_at: '2018-01-01T00:00:00Z'
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T00:00:00Z'
+        '500': *ref_1
   /transaction_request.get:
-    $ref: 'swagger/transaction_request/paths.yaml#/transaction_request.get'
+    post:
+      tags:
+        - TransactionRequest
+      summary: Get a transaction request.
+      description: This is a server call only.
+      operationId: transaction_request_get
+      security:
+        - ProviderAuth: []
+      requestBody:
+        description: Get a transaction request using the specified ID.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                formatted_id:
+                  type: string
+              example:
+                formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
+      responses:
+        '200': *ref_53
+        '500': *ref_1
   /transaction_request.consume:
-    $ref: 'swagger/transaction_request/paths.yaml#/transaction_request.consume'
+    post:
+      tags:
+        - TransactionRequest
+      summary: Consume a transaction request.
+      description: This is a server call only.
+      operationId: transaction_request_consume
+      security:
+        - ProviderAuth: []
+      requestBody:
+        description: Consume a transaction request using the specified values.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                idempotency_token:
+                  type: string
+                formatted_transaction_request_id:
+                  type: string
+                correlation_id:
+                  type: string
+                amount:
+                  type: integer
+                token_id:
+                  type: string
+                account_id:
+                  type: string
+                  default: The owner of the given address.
+                provider_user_id:
+                  type: string
+                  default: The owner of the given address.
+                address:
+                  type: string
+                  description: >-
+                    If not specified, the current user's primary wallet will be
+                    used. If specified, it needs to be one of the account's or
+                    user's addresses.
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - idempotency_token
+                - formatted_transaction_request_id
+              example:
+                idempotency_token: '32435'
+                formatted_transaction_request_id: txr_01cbfgcts5kqfgpqxcxn71rnbs
+                correlation_id: '123'
+                token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
+                amount: 100
+                provider_user_id: provider_user_id01
+                address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
+                metadata: {}
+                encrypted_metadata: {}
+      responses:
+        '200': &ref_54
+          description: Transaction request consumption response
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a transaction consumption
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      object:
+                        type: string
+                      id:
+                        type: string
+                      socket_topic:
+                        type: string
+                      status:
+                        type: string
+                        enum:
+                          - pending
+                          - approved
+                          - rejected
+                          - confirmed
+                          - failed
+                          - expired
+                      amount:
+                        type: string
+                      token_id:
+                        type: string
+                      token:
+                        type: object
+                      correlation_id:
+                        type: string
+                      idempotency_token:
+                        type: string
+                      transaction_id:
+                        type: string
+                      transaction:
+                        type: object
+                      user_id:
+                        type: string
+                      user:
+                        type: object
+                      account_id:
+                        type: string
+                      account:
+                        type: object
+                      transaction_request_id:
+                        type: string
+                      transaction_request:
+                        type: object
+                      address:
+                        type: string
+                      metadata:
+                        type: object
+                      encrypted_metadata:
+                        type: object
+                      expiration_date:
+                        type: string
+                      created_at:
+                        type: string
+                      updated_at:
+                        type: string
+                      approved_at:
+                        type: string
+                      rejected_at:
+                        type: string
+                      confirmed_at:
+                        type: string
+                      failed_at:
+                        type: string
+                      expired_at:
+                        type: string
+                    required:
+                      - object
+                      - id
+                      - socket_topic
+                      - status
+                      - amount
+                      - token_id
+                      - token
+                      - correlation_id
+                      - idempotency_token
+                      - transaction_id
+                      - transaction
+                      - user_id
+                      - user
+                      - account_id
+                      - account
+                      - transaction_request_id
+                      - transaction_request
+                      - address
+                      - metadata
+                      - encrypted_metadata
+                      - expiration_date
+                      - created_at
+                      - updated_at
+                      - approved_at
+                      - rejected_at
+                      - confirmed_at
+                      - failed_at
+                      - expired_at
+                    example:
+                      data:
+                        object: transaction_consumption
+                        id: txc_01cbfg9qtdken61agxhx6wvj9h
+                        socket_topic: 'transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h'
+                        status: confirmed
+                        amount: 100
+                        token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
+                        token: {}
+                        correlation_id: 7e9c0be5-15d1-4463-9ec2-02bc8ded7120
+                        idempotency_token: 7831c0be5-15d1-4463-9ec2-02bc8ded7120
+                        transaction_id: txn_01cbfga8g0dgwcfc7xh6ks1njt
+                        transaction: {}
+                        user_id: usr_01cbfgak47ng6x72vbwjca6j4v
+                        user: {}
+                        account_id: acc_01cbfgatsanznvzffqsekta5f0
+                        account: {}
+                        transaction_request_id: txr_01cbfgb66cby8wp5wpq6n4pm0h
+                        transaction_request: {}
+                        address: 5555cer3-15d1-4463-9ec2-02bc8ded7120
+                        metadata: {}
+                        encrypted_metadata: {}
+                        expiration_date: null
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T00:00:00Z'
+                        approved_at: '2018-01-01T00:00:00Z'
+                        rejected_at: null
+                        confirmed_at: '2018-01-01T00:00:00Z'
+                        failed_at: null
+                        expired_at: null
+        '500': *ref_1
   /transaction_request.get_transaction_consumptions:
-    $ref: 'swagger/transaction_request/paths.yaml#/transaction_request.get_transaction_consumptions'
-
-  # TRANSACTION CONSUMPTIONS
+    post:
+      tags:
+        - TransactionRequest
+      summary: Get the list of transaction consumptions for a transaction request
+      operationId: transaction_request_get_consumptions
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for listing the consumptions for a transaction
+          request
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_17
+              properties:
+                formatted_transaction_request_id:
+                  type: string
+              required:
+                - formatted_transaction_request_id
+              example:
+                formatted_transaction_request_id: txr_01cbfg8mafdnbthgb9e68nd9y9
+      responses:
+        '200': *ref_43
+        '500': *ref_1
   /transaction_consumption.all:
-    $ref: 'swagger/transaction_consumption/paths.yaml#/transaction_consumption.all'
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Get the list of transaction consumptions
+      operationId: transaction_consumption_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200': *ref_43
+        '500': *ref_1
   /transaction_consumption.get:
-    $ref: 'swagger/transaction_consumption/paths.yaml#/transaction_consumption.get'
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Get a consumption.
+      description: This is a server call only.
+      operationId: transaction_consumption_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: Get a consumption using the specified ID.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: txc_01abfg5m2ee06kzm8tbysfmmw5
+      responses:
+        '200': *ref_54
+        '500': *ref_1
   /transaction_consumption.approve:
-    $ref: 'swagger/transaction_consumption/paths.yaml#/transaction_consumption.approve'
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Approve a consumption.
+      description: This is a server call only.
+      operationId: transaction_consumption_approve
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: &ref_55
+        description: Approve or reject a consumption using the specified ID.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: txn_01cbfg5m2ee06kzm8tbysfmmw5
+      responses:
+        '200': *ref_54
+        '500': *ref_1
   /transaction_consumption.reject:
-    $ref: 'swagger/transaction_consumption/paths.yaml#/transaction_consumption.reject'
-
-  # API AND SECRET KEYS
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Reject a consumption.
+      description: This is a server call only.
+      operationId: transaction_consumption_reject
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_55
+      responses:
+        '200': *ref_54
+        '500': *ref_1
   /access_key.all:
-    $ref: 'swagger/api_key/paths.yaml#/access_key.all'
+    post:
+      tags:
+        - API Access
+      summary: Get the list of access and secret keys
+      operationId: access_key_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200':
+          description: Returns a list of access keys
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of access keys
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: &ref_56
+                                  description: The object schema for an access key
+                                  type: object
+                                  properties:
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    access_key:
+                                      type: string
+                                    secret_key:
+                                      type: string
+                                      nullable: true
+                                    account_id:
+                                      type: string
+                                    enabled:
+                                      type: boolean
+                                    created_at:
+                                      type: string
+                                      format: date-time
+                                    updated_at:
+                                      type: string
+                                      format: date-time
+                                    deleted_at:
+                                      type: string
+                                      format: date-time
+                                      nullable: true
+                                  required:
+                                    - object
+                                    - id
+                                    - access_key
+                                    - account_id
+                                    - enabled
+                                    - created_at
+                                    - updated_at
+                                    - deleted_at
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: key
+                            id: key_01ce843mvg5fa1zpk5myy69h4q
+                            access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+                            secret_key: the_secret_key_or_null
+                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            enabled: true
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                            deleted_at: null
+        '500': *ref_1
   /access_key.create:
-    $ref: 'swagger/api_key/paths.yaml#/access_key.create'
+    post:
+      tags:
+        - API Access
+      summary: Create a pair of access and secret keys
+      operationId: access_key_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      responses:
+        '200': &ref_57
+          description: Returns a single access key
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an access key
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data: *ref_56
+                    example:
+                      data:
+                        object: key
+                        id: key_01ce843mvg5fa1zpk5myy69h4q
+                        access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+                        secret_key: the_secret_key_or_null
+                        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                        enabled: true
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+                        deleted_at: null
+        '500': *ref_1
   /access_key.update:
-    $ref: 'swagger/api_key/paths.yaml#/access_key.update'
+    post:
+      tags:
+        - API Access
+      summary: Update a pair of access and secret keys by its id (deprecated)
+      operationId: access_key_update
+      deprecated: true
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for updating an access key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                expired:
+                  type: boolean
+              required:
+                - id
+                - expired
+              example:
+                id: key_01ce83yphmq6vt4qnmn3ykwcw6
+                expired: true
+      responses:
+        '200': *ref_57
+        '500': *ref_1
   /access_key.enable_or_disable:
-    $ref: 'swagger/api_key/paths.yaml#/access_key.enable_or_disable'
+    post:
+      tags:
+        - API Access
+      summary: Enable or disable an existing access key
+      operationId: access_key_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to enable/disable an access key. Send enabled=true to
+          enable, enabled=false to disable.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                enabled:
+                  type: boolean
+              required:
+                - id
+                - enabled
+              example:
+                id: key_01ce83yphmq6vt4qnmn3ykwcw6
+                enabled: false
+      responses:
+        '200': *ref_57
+        '500': *ref_1
   /access_key.delete:
-    $ref: 'swagger/api_key/paths.yaml#/access_key.delete'
+    post:
+      tags:
+        - API Access
+      summary: Delete a pair of access and secret keys by its id or access key
+      operationId: access_key_delete
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for deleting an access key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              oneOf:
+                - properties:
+                    id:
+                      type: string
+                  required:
+                    - id
+                  example:
+                    id: key_01ce83yphmq6vt4qnmn3ykwcw6
+                - properties:
+                    access_key:
+                      type: string
+                  required:
+                    - access_key
+                  example:
+                    access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+              example:
+                id: key_01ce83yphmq6vt4qnmn3ykwcw6
+      responses:
+        '200': *ref_11
+        '500': *ref_1
   /api_key.all:
-    $ref: 'swagger/api_key/paths.yaml#/api_key.all'
+    post:
+      tags:
+        - API Access
+      summary: Get the list of API keys
+      operationId: api_key_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200':
+          description: Returns a list of API keys
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of API keys
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: &ref_58
+                                  description: The object schema for an API key
+                                  type: object
+                                  properties:
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    key:
+                                      type: string
+                                    owner_app:
+                                      type: string
+                                    enabled:
+                                      type: boolean
+                                    account_id:
+                                      type: string
+                                    created_at:
+                                      type: string
+                                      format: date-time
+                                    updated_at:
+                                      type: string
+                                      format: date-time
+                                    deleted_at:
+                                      type: string
+                                      format: date-time
+                                      nullable: true
+                                  required:
+                                    - object
+                                    - id
+                                    - key
+                                    - owner_app
+                                    - enabled
+                                    - account_id
+                                    - created_at
+                                    - updated_at
+                                    - deleted_at
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: api_key
+                            id: api_01ce844d5w9e81snekr5kprvem
+                            key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+                            owner_app: admin_api
+                            enabled: true
+                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                            deleted_at: null
+        '500': *ref_1
   /api_key.create:
-    $ref: 'swagger/api_key/paths.yaml#/api_key.create'
+    post:
+      tags:
+        - API Access
+      summary: Create an API key
+      operationId: api_key_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      responses:
+        '200': &ref_59
+          description: Returns a single API key
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an API key
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data: *ref_58
+                    example:
+                      data:
+                        object: api_key
+                        id: api_01ce844d5w9e81snekr5kprvem
+                        key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+                        owner_app: admin_api
+                        enabled: true
+                        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+                        deleted_at: null
+        '500': *ref_1
   /api_key.update:
-    $ref: 'swagger/api_key/paths.yaml#/api_key.update'
+    post:
+      tags:
+        - API Access
+      summary: Update an API key (deprecated)
+      operationId: api_key_update
+      deprecated: true
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for updating an API key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                expired:
+                  type: boolean
+              required:
+                - id
+                - expired
+              example:
+                id: api_01ce83yphmq6vt4qnmn3ykwcw6
+                expired: true
+      responses:
+        '200': *ref_59
+        '500': *ref_1
   /api_key.enable_or_disable:
-    $ref: 'swagger/api_key/paths.yaml#/api_key.enable_or_disable'
+    post:
+      tags:
+        - API Access
+      summary: Enable or disable an existing api key
+      operationId: api_key_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to enable/disable an api key. Send enabled=true to
+          enable, enabled=false to disable.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                enabled:
+                  type: boolean
+              required:
+                - id
+                - enabled
+              example:
+                id: api_01ce83yphmq6vt4qnmn3ykwcw6
+                enabled: false
+      responses:
+        '200': *ref_59
+        '500': *ref_1
   /api_key.delete:
-    $ref: 'swagger/api_key/paths.yaml#/api_key.delete'
-
-  # CONFIGURATION
+    post:
+      tags:
+        - API Access
+      summary: Delete an API key by its id
+      operationId: api_key_delete
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for deleting an API key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: api_01ce83yphmq6vt4qnmn3ykwcw6
+      responses:
+        '200': *ref_11
+        '500': *ref_1
   /configuration.get:
-    $ref: 'swagger/configuration/paths.yaml#/configuration.get'
+    post:
+      tags:
+        - Configuration
+      summary: Get the application configuration.
+      operationId: configuration_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_12
+      responses:
+        '200':
+          description: Returns a list of settings
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of configuration settings
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: >-
+                                    The object schema for a configuration
+                                    setting
+                                  type: object
+                                  properties:
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    key:
+                                      type: string
+                                    value:
+                                      type: object
+                                    type:
+                                      type: string
+                                    description:
+                                      type: string
+                                    options:
+                                      type: array
+                                      items:
+                                        type: object
+                                    parent:
+                                      type: string
+                                    parent_value:
+                                      type: object
+                                    secret:
+                                      type: boolean
+                                    position:
+                                      type: integer
+                                    created_at:
+                                      type: string
+                                      format: date-time
+                                    updated_at:
+                                      type: string
+                                      format: date-time
+                                  required:
+                                    - object
+                                    - id
+                                    - key
+                                    - value
+                                    - type
+                                    - description
+                                    - options
+                                    - parent
+                                    - parent_value
+                                    - secret
+                                    - position
+                                    - created_at
+                                    - updated_at
+                                    - deleted_at
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: configuration_setting
+                            id: stg_01cbfg9qtdken61agxhx6wvj9h
+                            key: base_url
+                            value: 'https://example.com'
+                            type: string
+                            description: The base URL for the eWallet.
+                            options: nil
+                            parent: nil
+                            parent_value: nil
+                            secret: false
+                            position: 0
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T00:00:00Z'
+        '500': *ref_1
   /configuration.update:
-    $ref: 'swagger/configuration/paths.yaml#/configuration.update'
+    post:
+      tags:
+        - Configuration
+      summary: Update the configuration settings
+      operationId: configuration_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to update the configuration settings
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              type: object
+              additionalProperties: true
+              example:
+                base_url: 'https://example.com'
+                email_adapter: local
+      responses:
+        '200':
+          description: Returns a list of updated settings
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of updated settings
+                allOf:
+                  - *ref_0
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        additionalProperties: true
+                    example:
+                      data:
+                        object: map
+                        data:
+                          base_url:
+                            object: configuration_setting
+                            id: stg_01ce843mvg5fa1zpk5myy69h4q
+                            key: base_url
+                            value: 'https://example.com'
+                            type: string
+                            description: description
+                            options: nil
+                            parent: nil
+                            parent_value: nil
+                            secret: false
+                            position: 0
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T00:00:00Z'
+                          fake_setting:
+                            object: error
+                            code: 'setting:not_found'
+                            description: The setting could not be inserted.
+                            messages: nil
+                          invalid_setting:
+                            object: error
+                            code: 'client:invalid_parameter'
+                            description: >-
+                              Invalid parameter provided. `value` must be of
+                              type 'integer'.
+                            messages:
+                              value:
+                                - invalid_type_for_value
+        '500': *ref_1

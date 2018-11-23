@@ -27,7 +27,7 @@ role.get:
       $ref: 'request_bodies.yaml#/RoleGetBody'
     responses:
       '200':
-        $ref: "#responses.yaml#/RoleResponse"
+        $ref: "responses.yaml#/RoleResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
 role.create:

@@ -1,53 +1,50 @@
 WalletAccountBody:
   description: The parameters to use for listing the wallets for an account
   required: true
-  allOf:
-  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
-  - type: object
-    content:
-      application/vnd.omisego.v1+json:
-        schema:
-          properties:
-            id:
-              type: string
-          required:
-            - id
-          example:
-            id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: "acc_01ca2p8jqans5aty5gj5etmjcf"
 
 WalletUserBody:
   description: The parameters to use for listing the wallets for a user
   required: true
-  allOf:
-  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
-  - type: object
-    content:
-      application/vnd.omisego.v1+json:
-        schema:
-          properties:
-            id:
-              type: string
-          required:
-            - id
-          example:
-            id: "usr_01cc02x0v98qcctvycfx4vsk8x"
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: "usr_01cc02x0v98qcctvycfx4vsk8x"
 
 TransactionConsumptionAllForWalletBody:
   description: The parameters to use for listing the consumptions for a wallet
   required: true
-  allOf:
-  - $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
-  - type: object
-    content:
-      application/vnd.omisego.v1+json:
-        schema:
-          properties:
-            address:
-              type: string
-          required:
-            - address
-          example:
-            address: "kxhk519271652215"
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          address:
+            type: string
+        required:
+          - address
+        example:
+          address: "kxhk519271652215"
 
 WalletGetBody:
   description: The parameters to use for retrieving a wallet by its address

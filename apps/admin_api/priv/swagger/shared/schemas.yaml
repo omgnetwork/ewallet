@@ -27,10 +27,6 @@ BasePaginatedResponseSchema:
         type: object
         allOf:
           - $ref: '#/PaginatedListSchema'
-          - type: object
-            properties:
-              data:
-                type: array
     required:
       - data
     example:
@@ -135,3 +131,30 @@ AdvancedFilteringSchema:
       - field
       - comparator
       - value
+
+PaginatedRequestBodySchema:
+  properties:
+    page:
+      type: integer
+      minimum: 1
+    per_page:
+      type: integer
+      minimum: 1
+    search_term:
+      type: string
+    match_all:
+      $ref: 'schemas.yaml#/AdvancedFilteringSchema'
+    match_any:
+      $ref: 'schemas.yaml#/AdvancedFilteringSchema'
+    sort_by:
+      type: string
+    sort_dir:
+      type: string
+      enum: ["asc", "desc"]
+  example:
+    page: 1
+    per_page: 10
+    match_all: []
+    match_any: []
+    sort_by: "created_at"
+    sort_dir: "desc"
