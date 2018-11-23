@@ -11,7 +11,7 @@ wallet.all:
       $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#WalletsResponse"
+        $ref: "responses.yaml#/WalletsResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
 
@@ -28,7 +28,7 @@ wallet.create:
       $ref: 'request_bodies.yaml#/WalletCreateBody'
     responses:
       '200':
-        $ref: "responses.yaml#WalletResponse"
+        $ref: "responses.yaml#/WalletResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
 
@@ -45,7 +45,7 @@ wallet.get:
       $ref: 'request_bodies.yaml#/WalletGetBody'
     responses:
       '200':
-        $ref: "responses.yaml#WalletResponse"
+        $ref: "responses.yaml#/WalletResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
 
@@ -65,7 +65,7 @@ wallet.get_transaction_consumptions:
         $ref: "../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
-        
+
 wallet.enable_or_disable:
   post:
     tags:
@@ -79,6 +79,6 @@ wallet.enable_or_disable:
       $ref: 'request_bodies.yaml#/WalletEnableOrDisableBody'
     responses:
       '200':
-        $ref: "responses.yaml#WalletResponse"
+        $ref: "responses.yaml#/WalletResponse"
       '500':
         $ref: '../shared/responses.yaml#/InternalServerError'
