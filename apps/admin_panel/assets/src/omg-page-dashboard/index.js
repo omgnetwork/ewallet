@@ -137,7 +137,7 @@ export default withRouter(
               </IntroContainer>
               <GetStartedContainer>
                 <GetStartedContent>
-                  <h4>Let's get started</h4>
+                  <h4>{'Let\'s get started'}</h4>
                   <NavigationItem>
                     <Link to={`/${accountId}/setting/?invite=true`}>
                       <Icon name='Arrow-Right' /> Invite team member
