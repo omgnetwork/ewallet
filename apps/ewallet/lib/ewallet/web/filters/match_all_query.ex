@@ -19,6 +19,17 @@ defmodule EWallet.Web.MatchAllQuery do
 
       "starts_with" ->
         dynamic([q], ilike(fragment("?::text", field(q, ^field)), ^"#{value}%") and ^dynamic)
+
+      _ ->
+        {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+    end
+  end
+
+  def do_filter(dynamic, field, nil, comparator, nil = value) do
+    case comparator do
+      "eq" -> dynamic([q], is_nil(field(q, ^field)) and ^dynamic)
+      "neq" -> dynamic([q], not is_nil(field(q, ^field)) and ^dynamic)
+      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
     end
   end
 
@@ -32,6 +43,15 @@ defmodule EWallet.Web.MatchAllQuery do
       "lte" -> dynamic([q], field(q, ^field) <= ^value and ^dynamic)
       "contains" -> dynamic([q], ilike(field(q, ^field), ^"%#{value}%") and ^dynamic)
       "starts_with" -> dynamic([q], ilike(field(q, ^field), ^"#{value}%") and ^dynamic)
+      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+    end
+  end
+
+  def do_filter_assoc(dynamic, 0, field, nil, comparator, nil = value) do
+    case comparator do
+      "eq" -> dynamic([q, a], is_nil(field(a, ^field)) and ^dynamic)
+      "neq" -> dynamic([q, a], not is_nil(field(a, ^field)) and ^dynamic)
+      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
     end
   end
 
@@ -45,6 +65,15 @@ defmodule EWallet.Web.MatchAllQuery do
       "lte" -> dynamic([q, a], field(a, ^field) <= ^value and ^dynamic)
       "contains" -> dynamic([q, a], ilike(field(a, ^field), ^"%#{value}%") and ^dynamic)
       "starts_with" -> dynamic([q, a], ilike(field(a, ^field), ^"#{value}%") and ^dynamic)
+      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+    end
+  end
+
+  def do_filter_assoc(dynamic, 1, field, nil, comparator, nil = value) do
+    case comparator do
+      "eq" -> dynamic([q, _, a], is_nil(field(a, ^field)) and ^dynamic)
+      "neq" -> dynamic([q, _, a], not is_nil(field(a, ^field)) and ^dynamic)
+      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
     end
   end
 
@@ -58,6 +87,15 @@ defmodule EWallet.Web.MatchAllQuery do
       "lte" -> dynamic([q, _, a], field(a, ^field) <= ^value and ^dynamic)
       "contains" -> dynamic([q, _, a], ilike(field(a, ^field), ^"%#{value}%") and ^dynamic)
       "starts_with" -> dynamic([q, _, a], ilike(field(a, ^field), ^"#{value}%") and ^dynamic)
+      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+    end
+  end
+
+  def do_filter_assoc(dynamic, 2, field, nil, comparator, nil = value) do
+    case comparator do
+      "eq" -> dynamic([q, _, _, a], is_nil(field(a, ^field)) and ^dynamic)
+      "neq" -> dynamic([q, _, _, a], not is_nil(field(a, ^field)) and ^dynamic)
+      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
     end
   end
 
@@ -71,6 +109,15 @@ defmodule EWallet.Web.MatchAllQuery do
       "lte" -> dynamic([q, _, _, a], field(a, ^field) <= ^value and ^dynamic)
       "contains" -> dynamic([q, _, _, a], ilike(field(a, ^field), ^"%#{value}%") and ^dynamic)
       "starts_with" -> dynamic([q, _, _, a], ilike(field(a, ^field), ^"#{value}%") and ^dynamic)
+      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+    end
+  end
+
+  def do_filter_assoc(dynamic, 3, field, nil, comparator, nil = value) do
+    case comparator do
+      "eq" -> dynamic([q, _, _, _, a], is_nil(field(a, ^field)) and ^dynamic)
+      "neq" -> dynamic([q, _, _, _, a], not is_nil(field(a, ^field)) and ^dynamic)
+      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
     end
   end
 
@@ -99,6 +146,17 @@ defmodule EWallet.Web.MatchAllQuery do
 
       "starts_with" ->
         dynamic([q, _, _, _, a], ilike(field(a, ^field), ^"#{value}%") and ^dynamic)
+
+      _ ->
+        {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+    end
+  end
+
+  def do_filter_assoc(dynamic, 4, field, nil, comparator, nil = value) do
+    case comparator do
+      "eq" -> dynamic([q, _, _, _, _, a], is_nil(field(a, ^field)) and ^dynamic)
+      "neq" -> dynamic([q, _, _, _, _, a], not is_nil(field(a, ^field)) and ^dynamic)
+      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
     end
   end
 
@@ -127,6 +185,9 @@ defmodule EWallet.Web.MatchAllQuery do
 
       "starts_with" ->
         dynamic([q, _, _, _, _, a], ilike(field(a, ^field), ^"#{value}%") and ^dynamic)
+
+      _ ->
+        {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
     end
   end
 end
