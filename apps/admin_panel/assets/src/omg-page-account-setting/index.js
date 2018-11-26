@@ -18,6 +18,7 @@ import Link from '../omg-links'
 import SearchInput from '../omg-page-layout/SearchGroup'
 import { createSearchInviteQuery } from '../omg-member/searchField'
 import TabsManager from '../omg-tabs'
+import Copy from '../omg-copy'
 
 const columns = [
   { key: 'account_role', title: 'ROLE' },
@@ -62,17 +63,23 @@ const TableSection = styled.div`
   flex: 1 1 auto;
   text-align: right;
   margin-top: -26px;
-  
+
   table {
     padding-top: 0;
     text-align: left;
     thead tr {
       border-top: none;
     }
+    tr:hover {
+      i {
+        visibility: visible;
+      }
+    }
   }
   i:hover {
     background-color: transparent;
   }
+  
 `
 const Avatar = styled(ImageUploaderAvatar)`
   margin: 0;
@@ -90,6 +97,19 @@ const enhance = compose(
     { updateCurrentAccount }
   )
 )
+
+export const NameColumn = styled.div`
+  i[name='Copy'] {
+    margin-left: 5px;
+    cursor: pointer;
+    visibility: hidden;
+    color: ${props => props.theme.colors.S500};
+    :hover {
+      color: ${props => props.theme.colors.B100};
+    }
+  }
+`
+
 class AccountSettingPage extends Component {
   static propTypes = {
     match: PropTypes.object,
@@ -185,6 +205,13 @@ class AccountSettingPage extends Component {
     }
     if (key === 'status') {
       return data === 'active' ? 'Active' : 'Pending'
+    }
+    if (key === 'id') {
+      return (
+        <NameColumn>
+          <span>{data}</span> <Copy data={data} />
+        </NameColumn>
+      )
     }
     return data
   }
