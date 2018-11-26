@@ -121,9 +121,15 @@ class TokenDetailPage extends Component {
     this.props.history.push(`/${params.accountId}/tokens/${data.id}`)
   }
   renderConfigurationPage = ({ data: configurations }) => {
-    console.log(configurations)
     return (
-      <TokenDetailPageContainer />
+      <TokenDetailPageContainer>
+        <h3>Configuration</h3>
+        {configurations.map(config => {
+          return (
+            <div>{JSON.stringify(config)}</div>
+          )
+        })}
+      </TokenDetailPageContainer>
     )
   }
 
