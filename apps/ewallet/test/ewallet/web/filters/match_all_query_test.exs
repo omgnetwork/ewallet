@@ -131,6 +131,19 @@ defmodule EWallet.Web.MatchAllQueryTest do
       refute contains?(result, token_1)
       assert contains?(result, token_2)
     end
+
+    test "matches a nil value" do
+      user_1 = insert(:user, username: "not_nil")
+      user_2 = insert(:user, username: nil)
+
+      result =
+        true
+        |> MatchAllQuery.do_filter(:username, nil, "eq", nil)
+        |> on_all(User)
+
+      refute contains?(result, user_1)
+      assert contains?(result, user_2)
+    end
   end
 
   describe "do_filter/5 with 'neq' comparator" do
@@ -185,6 +198,19 @@ defmodule EWallet.Web.MatchAllQueryTest do
       assert contains?(result, token_1)
       refute contains?(result, token_2)
     end
+
+    test "matches a not nil value" do
+      user_1 = insert(:user, username: "not_nil")
+      user_2 = insert(:user, username: nil)
+
+      result =
+        true
+        |> MatchAllQuery.do_filter(:username, nil, "neq", nil)
+        |> on_all(User)
+
+      assert contains?(result, user_1)
+      refute contains?(result, user_2)
+    end
   end
 
   describe "do_filter/5 with 'gt' comparator" do
@@ -225,6 +251,14 @@ defmodule EWallet.Web.MatchAllQueryTest do
 
       refute contains?(result, token_1)
       assert contains?(result, token_2)
+    end
+
+    test "returns :not_supported error when given a nil value" do
+      {res, code, meta} = MatchAllQuery.do_filter(true, :username, nil, "gt", nil)
+
+      assert res == :error
+      assert code == :comparator_not_supported
+      assert meta == [field: :username, comparator: "gt", value: nil]
     end
   end
 
@@ -267,6 +301,14 @@ defmodule EWallet.Web.MatchAllQueryTest do
       refute contains?(result, token_1)
       assert contains?(result, token_2)
     end
+
+    test "returns :not_supported error when given a nil value" do
+      {res, code, meta} = MatchAllQuery.do_filter(true, :username, nil, "gte", nil)
+
+      assert res == :error
+      assert code == :comparator_not_supported
+      assert meta == [field: :username, comparator: "gte", value: nil]
+    end
   end
 
   describe "do_filter/5 with 'lt' comparator" do
@@ -307,6 +349,14 @@ defmodule EWallet.Web.MatchAllQueryTest do
 
       assert contains?(result, token_1)
       refute contains?(result, token_2)
+    end
+
+    test "returns :not_supported error when given a nil value" do
+      {res, code, meta} = MatchAllQuery.do_filter(true, :username, nil, "lt", nil)
+
+      assert res == :error
+      assert code == :comparator_not_supported
+      assert meta == [field: :username, comparator: "lt", value: nil]
     end
   end
 
@@ -349,6 +399,14 @@ defmodule EWallet.Web.MatchAllQueryTest do
       assert contains?(result, token_1)
       refute contains?(result, token_2)
     end
+
+    test "returns :not_supported error with a nil value" do
+      {res, code, meta} = MatchAllQuery.do_filter(true, :username, nil, "lte", nil)
+
+      assert res == :error
+      assert code == :comparator_not_supported
+      assert meta == [field: :username, comparator: "lte", value: nil]
+    end
   end
 
   describe "do_filter/5 with 'contains' comparator" do
@@ -364,6 +422,14 @@ defmodule EWallet.Web.MatchAllQueryTest do
       refute contains?(result, user_1)
       assert contains?(result, user_2)
     end
+
+    test "returns :not_supported error when given a nil value" do
+      {res, code, meta} = MatchAllQuery.do_filter(true, :username, nil, "contains", nil)
+
+      assert res == :error
+      assert code == :comparator_not_supported
+      assert meta == [field: :username, comparator: "contains", value: nil]
+    end
   end
 
   describe "do_filter/5 with 'starts_with' comparator" do
@@ -378,6 +444,14 @@ defmodule EWallet.Web.MatchAllQueryTest do
 
       refute contains?(result, user_1)
       assert contains?(result, user_2)
+    end
+
+    test "returns :not_supported error when given a nil value" do
+      {res, code, meta} = MatchAllQuery.do_filter(true, :username, nil, "starts_with", nil)
+
+      assert res == :error
+      assert code == :comparator_not_supported
+      assert meta == [field: :username, comparator: "starts_with", value: nil]
     end
   end
 end
