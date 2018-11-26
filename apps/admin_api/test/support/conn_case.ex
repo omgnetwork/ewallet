@@ -364,6 +364,37 @@ defmodule AdminAPI.ConnCase do
         assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_4" end)
         assert Enum.count(records) == 2
       end
+
+      test "handles unsupported match_any comparator" do
+        endpoint = unquote(endpoint)
+        auth_type = unquote(auth_type)
+        field = unquote(field)
+        field_name = Atom.to_string(field)
+
+        attrs = %{
+          "match_any" => [
+            %{
+              "field" => field_name,
+              "comparator" => "starts_with",
+              "value" => nil
+            }
+          ]
+        }
+
+        response =
+          case auth_type do
+            :admin_auth -> admin_user_request(endpoint, attrs)
+            :provider_auth -> provider_request(endpoint, attrs)
+          end
+
+        refute response["success"]
+        assert response["data"]["object"] == "error"
+        assert response["data"]["code"] == "client:invalid_parameter"
+
+        assert response["data"]["description"] ==
+                 "Invalid parameter provided. " <>
+                   "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
+      end
     end
   end
 
@@ -413,6 +444,37 @@ defmodule AdminAPI.ConnCase do
         records = response["data"]["data"]
         assert Enum.any?(records, fn r -> Map.get(r, field_name) == "this_should_match" end)
         assert Enum.count(records) == 1
+      end
+
+      test "handles unsupported match_all comparator" do
+        endpoint = unquote(endpoint)
+        auth_type = unquote(auth_type)
+        field = unquote(field)
+        field_name = Atom.to_string(field)
+
+        attrs = %{
+          "match_all" => [
+            %{
+              "field" => field_name,
+              "comparator" => "starts_with",
+              "value" => nil
+            }
+          ]
+        }
+
+        response =
+          case auth_type do
+            :admin_auth -> admin_user_request(endpoint, attrs)
+            :provider_auth -> provider_request(endpoint, attrs)
+          end
+
+        refute response["success"]
+        assert response["data"]["object"] == "error"
+        assert response["data"]["code"] == "client:invalid_parameter"
+
+        assert response["data"]["description"] ==
+                 "Invalid parameter provided. " <>
+                   "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
       end
     end
   end
