@@ -5,7 +5,7 @@ import { Link, withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { createUser } from '../omg-invite/action'
+import { createUser } from '../omg-member/action'
 import { compose } from 'recompose'
 const Form = styled.form`
   text-align: left;

@@ -22,13 +22,17 @@ import WalletDetailPage from '../../omg-page-wallet-detail'
 import UserDetailPage from '../../omg-page-user-detail'
 import ReqestConsumptionPage from '../../omg-page-consumption'
 import TransactionRequestPage from '../../omg-page-transaction-request'
+import ConfigurationPage from '../../omg-page-configuration'
 import { getCurrentAccountFromLocalStorage } from '../../services/sessionService'
 const currentAccount = getCurrentAccountFromLocalStorage()
 const redirectUrl = currentAccount ? `${currentAccount.id}/dashboard` : '/login'
+// prettier-ignore
+
 export default () => (
   <Router basename='/admin/'>
     <Switch>
       <Redirect from='/' to={redirectUrl} exact />
+      <Redirect from='/:accountId/setting' to='/:accountId/setting/account' exact />
       <LoginRoute path='/login' exact component={LoginForm} />
       <LoginRoute path='/forget-password' exact component={ForgetPasswordForm} />
       <LoginRoute path='/create-new-password' exact component={CreateNewPasswordForm} />
@@ -41,7 +45,7 @@ export default () => (
       <AuthenticatedRoute path='/:accountId/wallets' exact component={WalletPage} />
       <AuthenticatedRoute path='/:accountId/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute path='/:accountId/api' exact component={ApiKeyPage} />
-      <AuthenticatedRoute path='/:accountId/setting' exact component={AccountSettingPage} />
+      <AuthenticatedRoute path='/:accountId/setting/:state' exact component={AccountSettingPage} />
       <AuthenticatedRoute path='/:accountId/user_setting' exact component={UserSettingPage} />
       <AuthenticatedRoute path='/:accountId/users' exact component={UserPage} />
       <AuthenticatedRoute path='/:accountId/accounts/:viewAccountId' exact component={AccountDetailPage} />
@@ -49,6 +53,7 @@ export default () => (
       <AuthenticatedRoute path='/:accountId/users/:userId' exact component={UserDetailPage} />
       <AuthenticatedRoute path='/:accountId/consumptions' exact component={ReqestConsumptionPage} />
       <AuthenticatedRoute path='/:accountId/requests' exact component={TransactionRequestPage} />
+      <AuthenticatedRoute path='/:accountId/configuration' exact component={ConfigurationPage} />
     </Switch>
   </Router>
 )
