@@ -9,8 +9,8 @@ export const updateConfiguration = config =>
   })
 
 export const getConfiguration = ({ page, perPage, matchAll, matcHAny }) =>
-  createActionCreator({
+  createPaginationActionCreator({
     actionName: 'CONFIGURATION',
     action: 'REQUEST',
-    service: () => configurationService.createPaginationActionCreator({ page, perPage, matchAll, matcHAny })
+    service: () => configurationService.getConfiguration({ page, perPage, matchAll, matcHAny })
   })
