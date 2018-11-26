@@ -2,7 +2,7 @@ import { authenticatedRequest } from './apiService'
 
 export function getConfiguration ({ perPage, sort, page, matchAll, matchAny }) {
   return authenticatedRequest({
-    path: '/category.all',
+    path: '/configuration.all',
     data: {
       per_page: perPage,
       sort_by: sort.by,
@@ -15,7 +15,7 @@ export function getConfiguration ({ perPage, sort, page, matchAll, matchAny }) {
 
 export function updateConfiguration (config) {
   return authenticatedRequest({
-    path: '/category.all',
+    path: '/configuration.update',
     data: config
   })
 }

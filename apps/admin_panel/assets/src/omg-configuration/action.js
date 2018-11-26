@@ -8,9 +8,22 @@ export const updateConfiguration = config =>
     service: () => configurationService.updateConfiguration(config)
   })
 
-export const getConfiguration = ({ page, perPage, matchAll, matcHAny }) =>
-  createPaginationActionCreator({
-    actionName: 'CONFIGURATION',
-    action: 'REQUEST',
-    service: () => configurationService.getConfiguration({ page, perPage, matchAll, matcHAny })
-  })
+export const getConfiguration = ({ page, perPage, matchAll, matcHAny, cacheKey }) =>
+  createPaginationActionCreator(
+    {
+      actionName: 'CONFIGURATIONS',
+      action: 'REQUEST',
+      service: () =>
+        configurationService.getConfiguration({
+          page,
+          perPage,
+          matchAll,
+          matcHAny,
+          sort: {
+            dir: 'desc',
+            by: 'position'
+          }
+        })
+    },
+    cacheKey
+  )
