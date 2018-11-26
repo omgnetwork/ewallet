@@ -130,8 +130,7 @@ export default withRouter(
             <SectionContainer>
               <IntroContainer>
                 <h5>
-                  This is where you will see all stats and trend of transaction within current
-                  account
+                You can see all the statistics related to transactions within the current account here
                 </h5>
                 <p>Analytics will come soon, stay tuned!</p>
               </IntroContainer>
