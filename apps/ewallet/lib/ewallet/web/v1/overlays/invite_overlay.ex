@@ -46,5 +46,4 @@ defmodule EWallet.Web.V1.InviteOverlay do
       updated_at: nil,
       user: UserOverlay.default_preload_assocs()
     ]
-
 end
