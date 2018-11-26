@@ -5,7 +5,7 @@ import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
 import CreateTokenModal from '../omg-create-token-modal'
 import ExportModal from '../omg-export-modal'
-import TokensFetcher from '../omg-page-configuration'
+import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { NameColumn } from '../omg-page-account'
@@ -120,62 +120,22 @@ class TokenDetailPage extends Component {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/tokens/${data.id}`)
   }
-  renderTokenDetailPage = ({ data: tokens, individualLoadingStatus, pagination, fetch }) => {
-    const data = tokens.map(token => {
-      return {
-        key: token.id,
-        token: token.name,
-        symbol: token.symbol,
-        created: token.created_at,
-        id: token.id
-      }
-    })
-
+  renderConfigurationPage = ({ data: configurations }) => {
+    console.log(configurations)
     return (
-      <TokenDetailPageContainer>
-        <TopNavigation
-          title={'Configuration'}
-          buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]}
-        />
-        <SortableTable
-          rows={data}
-          columns={columns}
-          loadingStatus={individualLoadingStatus}
-          perPage={20}
-          onClickRow={this.onClickRow}
-          rowRenderer={this.rowRenderer}
-          isFirstPage={pagination.is_first_page}
-          isLastPage={pagination.is_last_page}
-          navigation
-          onClickLoadMore={this.onClickLoadMore}
-        />
-
-        <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
-        <CreateTokenModal
-          open={this.state.createTokenModalOpen}
-          onRequestClose={this.onRequestCloseCreateToken}
-          onFetchSuccess={fetch}
-        />
-        <ExchangePairModal
-          open={this.state.createExchangePairModalOpen}
-          onRequestClose={this.onRequestCloseCreateExchangePair}
-        />
-      </TokenDetailPageContainer>
+      <TokenDetailPageContainer />
     )
   }
 
   render () {
     return (
-      <TokensFetcher
-        render={this.renderTokenDetailPage}
+      <ConfigurationsFetcher
+        render={this.renderConfigurationPage}
         {...this.state}
         {...this.props}
         query={{
-          page: queryString.parse(this.props.location.search).page,
-          perPage: 10,
-          ...createSearchTokenQuery(queryString.parse(this.props.location.search).search)
+          page: queryString.parse(this.props.location.search).page
         }}
-        onFetchComplete={this.props.scrollTopContentContainer}
       />
     )
   }

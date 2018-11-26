@@ -3420,7 +3420,7 @@
         } ]
       }
     },
-    "/configuration.get" : {
+    "/configuration.all" : {
       "post" : {
         "tags" : [ "Configuration" ],
         "summary" : "Get the application configuration.",
@@ -5915,7 +5915,7 @@
             "data" : {
               "object" : "list",
               "data" : [ {
-                "object" : "configuration_setting",
+                "object" : "configuration",
                 "id" : "stg_01cbfg9qtdken61agxhx6wvj9h",
                 "key" : "base_url",
                 "value" : "https://example.com",
@@ -5959,7 +5959,7 @@
               "object" : "map",
               "data" : {
                 "base_url" : {
-                  "object" : "configuration_setting",
+                  "object" : "configuration",
                   "id" : "stg_01ce843mvg5fa1zpk5myy69h4q",
                   "key" : "base_url",
                   "value" : "https://example.com",

@@ -1,9 +1,9 @@
 defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
 
-  describe "/configuration.get" do
+  describe "/configuration.all" do
     test "returns a list of settings and pagination data" do
-      response = admin_user_request("/configuration.get", %{})
+      response = admin_user_request("/configuration.all", %{})
 
       # Asserts return data
       assert response["success"]
@@ -20,7 +20,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
 
     test "returns a list of settings" do
       response =
-        admin_user_request("/configuration.get", %{
+        admin_user_request("/configuration.all", %{
           per_page: 100,
           sort_by: "position",
           sort_dir: "asc"

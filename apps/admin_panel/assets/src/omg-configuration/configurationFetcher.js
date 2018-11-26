@@ -4,7 +4,7 @@ import {
   selectConfigurationsCachedQuery,
   selectConfigurationsCachedQueryPagination
 } from './selector'
-export default createFetcher('wallets', getConfiguration, (state, props) => ({
+export default createFetcher('configurations', getConfiguration, (state, props) => ({
   data: selectConfigurationsCachedQuery(state)(props.cacheKey),
   pagination: selectConfigurationsCachedQueryPagination(state)(props.cacheKey)
 }))

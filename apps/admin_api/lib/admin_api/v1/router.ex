@@ -150,7 +150,7 @@ defmodule AdminAPI.V1.Router do
     post("/settings.all", SettingsController, :get_settings)
 
     # Configuration endpoint
-    post("/configuration.get", ConfigurationController, :get)
+    post("/configuration.all", ConfigurationController, :get)
     post("/configuration.update", ConfigurationController, :update)
 
     # Self endpoints (operations on the currently authenticated user)
