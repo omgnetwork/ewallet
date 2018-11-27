@@ -82,11 +82,13 @@ export function unassignMember ({ userId, accountId }) {
   })
 }
 
-export function listMembers ({ accountId }) {
+export function listMembers ({ accountId, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/account.get_members',
     data: {
-      id: accountId
+      id: accountId,
+      match_all: matchAll,
+      match_any: matchAny
     }
   })
 }

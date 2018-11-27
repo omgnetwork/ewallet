@@ -26,6 +26,9 @@ defmodule EWallet.Web.Orchestrator do
     else
       {:error, :not_allowed, field} ->
         {:error, :query_field_not_allowed, field_name: field}
+
+      {:error, _, _} = error ->
+        error
     end
   end
 

@@ -5,7 +5,7 @@ import { Link, withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { createUser } from '../omg-invite/action'
+import { createUser } from '../omg-member/action'
 import { compose } from 'recompose'
 const Form = styled.form`
   text-align: left;
@@ -135,7 +135,7 @@ class ForgetPasswordForm extends Component {
           </div>
         ) : (
           <UpdateSuccessfulContainer>
-            <h4>Create account successfully</h4>
+            <h4>Account created successfully</h4>
           </UpdateSuccessfulContainer>
         )}
 
