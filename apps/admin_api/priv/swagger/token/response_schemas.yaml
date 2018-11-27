@@ -17,6 +17,8 @@ TokenResponseSchema:
           created_at: '2018-01-01T00:00:00Z'
           updated_at: '2018-01-01T10:00:00Z'
           enabled: true
+          metadata: {}
+          encrypted_metadata: {}
 
 TokensResponseSchema:
   description: The response schema for a list of tokens
@@ -45,6 +47,8 @@ TokensResponseSchema:
             created_at: '2018-01-01T00:00:00Z'
             updated_at: '2018-01-01T10:00:00Z'
             enabled: true
+            metadata: {}
+            encrypted_metadata: {}
 
 TokenStatsResponseSchema:
   description: The object schema for token stats
@@ -77,6 +81,34 @@ TokenStatsResponseSchema:
         subunit_to_unit: 100
         created_at: '2018-01-01T00:00:00Z'
         updated_at: '2018-01-01T10:00:00Z'
+        enabled: true
+        metadata: {}
+        encrypted_metadata: {}
+
+MintResponseSchema:
+  description: The response schema for a mint
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: '../../../../ewallet/priv/swagger/token/schemas.yaml#/TokenSchema'
+    example:
+      data:
+        object: mint
+        id: mnt_01xbfge9qhmsdbjyb7a8e8pxt3
+        description: Some description
+        amount: 10000
+        confirmed: true
+        token_id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+        token: {}
+        account_id: acc_01rebfge9qhmsdbjyb7a8e8pxt
+        account: {}
+        transaction_id: tfr_01trbfge9qhmsdbjyb7a8e8pxt
+        transaction: {}
+        created_at: '2018-01-01T00:00:00Z'
+        updated_at: '2018-01-01T00:00:00Z'
 
 MintsResponseSchema:
   description: The response schema for a list of mints

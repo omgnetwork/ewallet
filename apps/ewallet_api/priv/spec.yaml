@@ -362,7 +362,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - &ref_6
+                - &ref_7
                   properties:
                     page:
                       type: integer
@@ -412,7 +412,7 @@ paths:
               schema:
                 description: The response schema for a list of wallets
                 allOf:
-                  - &ref_7
+                  - &ref_8
                     description: The response schema for a successful operation
                     allOf:
                       - *ref_0
@@ -530,7 +530,8 @@ paths:
                                         categories:
                                           type: object
                                           allOf:
-                                            - description: >-
+                                            - &ref_6
+                                              description: >-
                                                 The object schema for an unpaginated
                                                 list
                                               type: object
@@ -567,6 +568,51 @@ paths:
                                                         type: array
                                                         items:
                                                           type: string
+                                                      accounts:
+                                                        type: object
+                                                        allOf:
+                                                          - *ref_6
+                                                          - type: object
+                                                            properties:
+                                                              data:
+                                                                type: array
+                                                                items:
+                                                                  description: The object schema for an account
+                                                                  type: object
+                                                                  properties:
+                                                                    object:
+                                                                      type: string
+                                                                    id:
+                                                                      type: string
+                                                                    parent_id:
+                                                                      type: string
+                                                                    name:
+                                                                      type: string
+                                                                    description:
+                                                                      type: string
+                                                                    master:
+                                                                      type: boolean
+                                                                    avatar:
+                                                                      type: object
+                                                                    metadata:
+                                                                      type: object
+                                                                    encrypted_metadata:
+                                                                      type: object
+                                                                    created_at:
+                                                                      type: string
+                                                                      format: date-time
+                                                                    updated_at:
+                                                                      type: string
+                                                                      format: date-time
+                                                                  required:
+                                                                    - object
+                                                                    - id
+                                                                    - parent_id
+                                                                    - name
+                                                                    - master
+                                                                    - avatar
+                                                                    - created_at
+                                                                    - updated_at
                                                       created_at:
                                                         type: string
                                                         format: date-time
@@ -579,6 +625,7 @@ paths:
                                                       - name
                                                       - description
                                                       - account_ids
+                                                      - accounts
                                                       - created_at
                                                       - updated_at
                                         metadata:
@@ -599,6 +646,7 @@ paths:
                                         - master
                                         - avatar
                                         - category_ids
+                                        - categories
                                         - created_at
                                         - updated_at
                                     balances:
@@ -612,7 +660,7 @@ paths:
                                           token:
                                             type: object
                                             description: The object schema for a token
-                                            properties: &ref_8
+                                            properties: &ref_9
                                               object:
                                                 type: string
                                               id:
@@ -635,7 +683,7 @@ paths:
                                                 type: object
                                               enabled:
                                                 type: boolean
-                                            required: &ref_9
+                                            required: &ref_10
                                               - object
                                               - id
                                               - symbol
@@ -702,7 +750,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_6
+                - *ref_7
               properties:
                 address:
                   type: string
@@ -718,7 +766,7 @@ paths:
               schema:
                 description: The response schema for a list of transactions
                 allOf:
-                  - *ref_7
+                  - *ref_8
                   - type: object
                     properties:
                       data:
@@ -731,7 +779,7 @@ paths:
                                 items:
                                   description: The object schema for a transaction
                                   type: object
-                                  properties: &ref_10
+                                  properties: &ref_11
                                     object:
                                       type: string
                                     id:
@@ -748,8 +796,8 @@ paths:
                                         token:
                                           type: object
                                           description: The object schema for a token
-                                          properties: *ref_8
-                                          required: *ref_9
+                                          properties: *ref_9
+                                          required: *ref_10
                                     to:
                                       type: object
                                       properties:
@@ -762,8 +810,8 @@ paths:
                                         token:
                                           type: object
                                           description: The object schema for a token
-                                          properties: *ref_8
-                                          required: *ref_9
+                                          properties: *ref_9
+                                          required: *ref_10
                                     exchange:
                                       type: object
                                       properties:
@@ -787,7 +835,7 @@ paths:
                                     updated_at:
                                       type: string
                                       format: date-time
-                                  required: &ref_11
+                                  required: &ref_12
                                     - object
                                     - id
                                     - idempotency_token
@@ -906,8 +954,8 @@ paths:
                       data:
                         type: object
                         description: The object schema for a transaction
-                        properties: *ref_10
-                        required: *ref_11
+                        properties: *ref_11
+                        required: *ref_12
                     example:
                       data:
                         object: transaction
@@ -1044,7 +1092,7 @@ paths:
                 correlation_id: some correlation id
                 address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
       responses:
-        '200': &ref_12
+        '200': &ref_13
           description: Transaction request response
           content:
             application/vnd.omisego.v1+json:
@@ -1190,7 +1238,7 @@ paths:
               example:
                 formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
       responses:
-        '200': *ref_12
+        '200': *ref_13
         '500': *ref_1
   /me.consume_transaction_request:
     post:
@@ -1238,7 +1286,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': &ref_13
+        '200': &ref_14
           description: Transaction request consumption response
           content:
             application/vnd.omisego.v1+json:
@@ -1379,7 +1427,7 @@ paths:
       operationId: approve_transaction_consumption
       security:
         - ClientAuth: []
-      requestBody: &ref_14
+      requestBody: &ref_15
         description: Approve or reject a consumption using the specified ID.
         required: true
         content:
@@ -1393,7 +1441,7 @@ paths:
               example:
                 id: txn_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_13
+        '200': *ref_14
         '500': *ref_1
   /me.reject_transaction_consumption:
     post:
@@ -1403,7 +1451,7 @@ paths:
       operationId: reject_transaction_consumption
       security:
         - ClientAuth: []
-      requestBody: *ref_14
+      requestBody: *ref_15
       responses:
-        '200': *ref_13
+        '200': *ref_14
         '500': *ref_1

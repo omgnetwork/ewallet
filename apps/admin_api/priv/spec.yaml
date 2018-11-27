@@ -109,14 +109,14 @@ paths:
                 email: test@example.com
                 password: the_password
       responses:
-        '200': &ref_2
+        '200': &ref_3
           description: Authentication token response
           content:
             application/vnd.omisego.v1+json:
               schema:
                 description: The response schema for an authentication token
                 allOf:
-                  - &ref_0
+                  - &ref_1
                     description: The response schema for a successful operation
                     type: object
                     properties:
@@ -213,7 +213,7 @@ paths:
                               categories:
                                 type: object
                                 allOf:
-                                  - &ref_4
+                                  - &ref_0
                                     description: The object schema for an unpaginated list
                                     type: object
                                     properties:
@@ -249,6 +249,51 @@ paths:
                                               type: array
                                               items:
                                                 type: string
+                                            accounts:
+                                              type: object
+                                              allOf:
+                                                - *ref_0
+                                                - type: object
+                                                  properties:
+                                                    data:
+                                                      type: array
+                                                      items:
+                                                        description: The object schema for an account
+                                                        type: object
+                                                        properties:
+                                                          object:
+                                                            type: string
+                                                          id:
+                                                            type: string
+                                                          parent_id:
+                                                            type: string
+                                                          name:
+                                                            type: string
+                                                          description:
+                                                            type: string
+                                                          master:
+                                                            type: boolean
+                                                          avatar:
+                                                            type: object
+                                                          metadata:
+                                                            type: object
+                                                          encrypted_metadata:
+                                                            type: object
+                                                          created_at:
+                                                            type: string
+                                                            format: date-time
+                                                          updated_at:
+                                                            type: string
+                                                            format: date-time
+                                                        required:
+                                                          - object
+                                                          - id
+                                                          - parent_id
+                                                          - name
+                                                          - master
+                                                          - avatar
+                                                          - created_at
+                                                          - updated_at
                                             created_at:
                                               type: string
                                               format: date-time
@@ -261,6 +306,7 @@ paths:
                                             - name
                                             - description
                                             - account_ids
+                                            - accounts
                                             - created_at
                                             - updated_at
                               metadata:
@@ -281,6 +327,7 @@ paths:
                               - master
                               - avatar
                               - category_ids
+                              - categories
                               - created_at
                               - updated_at
                           role:
@@ -330,14 +377,14 @@ paths:
                           updated_at: '2018-01-01T10:00:00Z'
                         master_admin: true
                         role: admin
-        '500': &ref_1
+        '500': &ref_2
           description: Returns an internal server error
           content:
             application/vnd.omisego.v1+json:
               schema:
                 description: The response schema for an error
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -386,8 +433,8 @@ paths:
           description: Returns an empty response
           content:
             application/vnd.omisego.v1+json:
-              schema: *ref_0
-        '500': *ref_1
+              schema: *ref_1
+        '500': *ref_2
   /auth_token.switch_account:
     post:
       tags:
@@ -410,8 +457,8 @@ paths:
               example:
                 accound_id: the_account_id
       responses:
-        '200': *ref_2
-        '500': *ref_1
+        '200': *ref_3
+        '500': *ref_2
   /role.all:
     post:
       tags:
@@ -438,7 +485,7 @@ paths:
                       minimum: 1
                     search_term:
                       type: string
-                    match_all: &ref_3
+                    match_all: &ref_4
                       type: array
                       items:
                         type: object
@@ -453,7 +500,7 @@ paths:
                           - field
                           - comparator
                           - value
-                    match_any: *ref_3
+                    match_any: *ref_4
                     sort_by:
                       type: string
                     sort_dir:
@@ -479,7 +526,7 @@ paths:
                   - &ref_12
                     description: The response schema for a successful operation
                     allOf:
-                      - *ref_0
+                      - *ref_1
                       - type: object
                         properties:
                           data:
@@ -559,7 +606,7 @@ paths:
                                     users:
                                       type: object
                                       allOf:
-                                        - *ref_4
+                                        - *ref_0
                                         - type: object
                                           properties:
                                             data:
@@ -593,7 +640,7 @@ paths:
                             display_name: The role's display name
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /role.get:
     post:
       tags:
@@ -624,7 +671,7 @@ paths:
               schema:
                 description: The response schema for a role
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -640,7 +687,7 @@ paths:
                         display_name: The role's display name
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /role.create:
     post:
       tags:
@@ -669,7 +716,7 @@ paths:
                 display_name: The role's display name
       responses:
         '200': *ref_9
-        '500': *ref_1
+        '500': *ref_2
   /role.update:
     post:
       tags:
@@ -702,7 +749,7 @@ paths:
                 display_name: New role's display name
       responses:
         '200': *ref_9
-        '500': *ref_1
+        '500': *ref_2
   /role.delete:
     post:
       tags:
@@ -727,7 +774,7 @@ paths:
                 id: rol_01cw625zm2xmny5ee3mwt9j8ky
       responses:
         '200': *ref_9
-        '500': *ref_1
+        '500': *ref_2
   /user.login:
     post:
       tags:
@@ -761,8 +808,8 @@ paths:
               example:
                 id: usr_01ce83q2zw7zk1dqr79t22zr1v
       responses:
-        '200': *ref_2
-        '500': *ref_1
+        '200': *ref_3
+        '500': *ref_2
   /user.logout:
     post:
       tags:
@@ -787,7 +834,7 @@ paths:
                 auth_token: atk_01ce83q2zw7zk1dqr79t22zr1v
       responses:
         '200': *ref_10
-        '500': *ref_1
+        '500': *ref_2
   /token.all:
     post:
       tags:
@@ -863,7 +910,9 @@ paths:
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
                             enabled: true
-        '500': *ref_1
+                            metadata: {}
+                            encrypted_metadata: {}
+        '500': *ref_2
   /token.get:
     post:
       tags:
@@ -894,7 +943,7 @@ paths:
               schema:
                 description: The response schema for a token
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -912,7 +961,9 @@ paths:
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         enabled: true
-        '500': *ref_1
+                        metadata: {}
+                        encrypted_metadata: {}
+        '500': *ref_2
   /token.create:
     post:
       tags:
@@ -973,7 +1024,7 @@ paths:
                 subunit_to_unit: 100
       responses:
         '200': *ref_15
-        '500': *ref_1
+        '500': *ref_2
   /token.update:
     post:
       tags:
@@ -1020,7 +1071,7 @@ paths:
                 description: an awesome updated description
       responses:
         '200': *ref_15
-        '500': *ref_1
+        '500': *ref_2
   /token.enable_or_disable:
     post:
       tags:
@@ -1051,7 +1102,7 @@ paths:
                 enabled: false
       responses:
         '200': *ref_15
-        '500': *ref_1
+        '500': *ref_2
   /token.stats:
     post:
       tags:
@@ -1112,7 +1163,10 @@ paths:
                       subunit_to_unit: 100
                       created_at: '2018-01-01T00:00:00Z'
                       updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+                      enabled: true
+                      metadata: {}
+                      encrypted_metadata: {}
+        '500': *ref_2
   /token.get_mints:
     post:
       tags:
@@ -1292,7 +1346,7 @@ paths:
                             transaction: {}
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T00:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /token.mint:
     post:
       tags:
@@ -1322,8 +1376,37 @@ paths:
                 id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
                 amount: 1000
       responses:
-        '200': *ref_15
-        '500': *ref_1
+        '200':
+          description: Returns a single mint
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a mint
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a token
+                        properties: *ref_13
+                        required: *ref_14
+                    example:
+                      data:
+                        object: mint
+                        id: mnt_01xbfge9qhmsdbjyb7a8e8pxt3
+                        description: Some description
+                        amount: 10000
+                        confirmed: true
+                        token_id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+                        token: {}
+                        account_id: acc_01rebfge9qhmsdbjyb7a8e8pxt
+                        account: {}
+                        transaction_id: tfr_01trbfge9qhmsdbjyb7a8e8pxt
+                        transaction: {}
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T00:00:00Z'
+        '500': *ref_2
   /exchange_pair.all:
     post:
       tags:
@@ -1420,7 +1503,7 @@ paths:
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
                             deleted_at: null
-        '500': *ref_1
+        '500': *ref_2
   /exchange_pair.get:
     post:
       tags:
@@ -1453,7 +1536,7 @@ paths:
               schema:
                 description: The response schema for an exchange pair
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -1488,7 +1571,7 @@ paths:
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         deleted_at: null
-        '500': *ref_1
+        '500': *ref_2
   /exchange_pair.create:
     post:
       tags:
@@ -1524,7 +1607,7 @@ paths:
                 sync_opposite: false
       responses:
         '200': *ref_22
-        '500': *ref_1
+        '500': *ref_2
   /exchange_pair.update:
     post:
       tags:
@@ -1552,7 +1635,7 @@ paths:
                 rate: 0.099
       responses:
         '200': *ref_22
-        '500': *ref_1
+        '500': *ref_2
   /exchange_pair.delete:
     post:
       tags:
@@ -1577,7 +1660,7 @@ paths:
                 id: exg_01cgvppyrz2pprj6s0zmc26p2p
       responses:
         '200': *ref_22
-        '500': *ref_1
+        '500': *ref_2
   /category.all:
     post:
       tags:
@@ -1619,7 +1702,7 @@ paths:
                             accounts: []
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /category.get:
     post:
       tags:
@@ -1650,7 +1733,7 @@ paths:
               schema:
                 description: The response schema for an category
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -1668,7 +1751,7 @@ paths:
                         accounts: []
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /category.create:
     post:
       tags:
@@ -1704,7 +1787,7 @@ paths:
                   - acc_01ca26pkge49aabzd6k6mshn0y
       responses:
         '200': *ref_26
-        '500': *ref_1
+        '500': *ref_2
   /category.update:
     post:
       tags:
@@ -1743,7 +1826,7 @@ paths:
                   - acc_01ca26pkge49aabzd6k6mshn0y
       responses:
         '200': *ref_26
-        '500': *ref_1
+        '500': *ref_2
   /category.delete:
     post:
       tags:
@@ -1768,7 +1851,7 @@ paths:
                 id: cat_01ce30qdajwb7gdecq0ebn3twq
       responses:
         '200': *ref_26
-        '500': *ref_1
+        '500': *ref_2
   /account.all:
     post:
       tags:
@@ -1819,7 +1902,7 @@ paths:
                               original: file_url
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /account.get:
     post:
       tags:
@@ -1850,7 +1933,7 @@ paths:
               schema:
                 description: The response schema for an account
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -1874,7 +1957,7 @@ paths:
                           original: file_url
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /account.create:
     post:
       tags:
@@ -1918,7 +2001,7 @@ paths:
                 encrypted_metadata: {}
       responses:
         '200': *ref_27
-        '500': *ref_1
+        '500': *ref_2
   /account.update:
     post:
       tags:
@@ -1964,7 +2047,7 @@ paths:
                 encrypted_metadata: {}
       responses:
         '200': *ref_27
-        '500': *ref_1
+        '500': *ref_2
   /account.upload_avatar:
     post:
       tags:
@@ -1996,7 +2079,7 @@ paths:
                 avatar: /path/to/file
       responses:
         '200': *ref_27
-        '500': *ref_1
+        '500': *ref_2
   /account.assign_user:
     post:
       tags:
@@ -2056,7 +2139,7 @@ paths:
                 redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
       responses:
         '200': *ref_10
-        '500': *ref_1
+        '500': *ref_2
   /account.unassign_user:
     post:
       tags:
@@ -2085,7 +2168,7 @@ paths:
                 user_id: usr_01ce83q2zw7zk1dqr79t22zr1v
       responses:
         '200': *ref_10
-        '500': *ref_1
+        '500': *ref_2
   /account.get_members:
     post:
       tags:
@@ -2194,7 +2277,7 @@ paths:
                             updated_at: '2018-01-01T10:00:00Z'
                             role: admin
                             account: {}
-        '500': *ref_1
+        '500': *ref_2
   /account.get_users:
     post:
       tags:
@@ -2261,7 +2344,7 @@ paths:
                               something: secret
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /account.get_descendants:
     post:
       tags:
@@ -2274,7 +2357,7 @@ paths:
       requestBody: *ref_11
       responses:
         '200': *ref_29
-        '500': *ref_1
+        '500': *ref_2
   /account.get_wallets:
     post:
       tags:
@@ -2386,7 +2469,7 @@ paths:
                                   symbol: BTC
                                   name: Bitcoin
                                   subunit_to_unit: 100000000000000000
-        '500': *ref_1
+        '500': *ref_2
   /account.get_transactions:
     post:
       tags:
@@ -2438,6 +2521,9 @@ paths:
                                 subunit_to_unit: 100
                                 created_at: '2018-01-01T00:00:00Z'
                                 updated_at: '2018-01-01T10:00:00Z'
+                                enabled: true
+                                metadata: {}
+                                encrypted_metadata: {}
                             to:
                               object: transaction_source
                               address: 47218ab4-d94f-44e9-b7f2-36061f76ce58
@@ -2450,6 +2536,9 @@ paths:
                                 subunit_to_unit: 100
                                 created_at: '2018-01-01T00:00:00Z'
                                 updated_at: '2018-01-01T10:00:00Z'
+                                enabled: true
+                                metadata: {}
+                                encrypted_metadata: {}
                             exchange:
                               object: exchange
                               rate: 1
@@ -2458,7 +2547,7 @@ paths:
                             status: confirmed
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /account.get_transaction_requests:
     post:
       tags:
@@ -2606,7 +2695,7 @@ paths:
                             expired_at: '2018-01-01T00:00:00Z'
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T00:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /account.get_transaction_consumptions:
     post:
       tags:
@@ -2766,7 +2855,7 @@ paths:
                             confirmed_at: '2018-01-01T00:00:00Z'
                             failed_at: null
                             expired_at: null
-        '500': *ref_1
+        '500': *ref_2
   /admin.reset_password:
     post:
       tags:
@@ -2796,7 +2885,7 @@ paths:
                   https://example.com/admin/update_password?email={email}&token={token}
       responses:
         '200': *ref_10
-        '500': *ref_1
+        '500': *ref_2
   /admin.update_password:
     post:
       tags:
@@ -2835,7 +2924,7 @@ paths:
                 password_confirmation: 'nZi9Enc5$l#'
       responses:
         '200': *ref_10
-        '500': *ref_1
+        '500': *ref_2
   /admin.verify_email_update:
     post:
       tags:
@@ -2866,7 +2955,7 @@ paths:
               schema:
                 description: The response schema for an admin user
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -2893,7 +2982,7 @@ paths:
                           original: file_url
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /admin.all:
     post:
       tags:
@@ -2943,7 +3032,7 @@ paths:
                               original: file_url
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /admin.get:
     post:
       tags:
@@ -2968,7 +3057,7 @@ paths:
                 id: usr_01ce83q2zw7zk1dqr79t22zr1v
       responses:
         '200': *ref_34
-        '500': *ref_1
+        '500': *ref_2
   /admin.enable_or_disable:
     post:
       tags:
@@ -2999,7 +3088,7 @@ paths:
                 enabled: false
       responses:
         '200': *ref_34
-        '500': *ref_1
+        '500': *ref_2
   /invite.accept:
     post:
       tags:
@@ -3035,7 +3124,7 @@ paths:
         - ClientAuth: []
       responses:
         '200': *ref_34
-        '500': *ref_1
+        '500': *ref_2
   /me.get:
     post:
       tags:
@@ -3046,7 +3135,7 @@ paths:
         - AdminAuth: []
       responses:
         '200': *ref_34
-        '500': *ref_1
+        '500': *ref_2
   /me.update:
     post:
       tags:
@@ -3073,7 +3162,7 @@ paths:
                 encrypted_metadata: {}
       responses:
         '200': *ref_34
-        '500': *ref_1
+        '500': *ref_2
   /me.update_email:
     post:
       tags:
@@ -3095,7 +3184,7 @@ paths:
                 email: new.email@example.com
       responses:
         '200': *ref_34
-        '500': *ref_1
+        '500': *ref_2
   /me.update_password:
     post:
       tags:
@@ -3126,7 +3215,7 @@ paths:
                 password_confirmation: new_password
       responses:
         '200': *ref_34
-        '500': *ref_1
+        '500': *ref_2
   /me.upload_avatar:
     post:
       tags:
@@ -3157,7 +3246,7 @@ paths:
                 avatar: /path/to/file
       responses:
         '200': *ref_34
-        '500': *ref_1
+        '500': *ref_2
   /me.get_account:
     post:
       tags:
@@ -3168,7 +3257,7 @@ paths:
         - AdminAuth: []
       responses:
         '200': *ref_27
-        '500': *ref_1
+        '500': *ref_2
   /me.get_accounts:
     post:
       tags:
@@ -3182,7 +3271,7 @@ paths:
       requestBody: *ref_11
       responses:
         '200': *ref_29
-        '500': *ref_1
+        '500': *ref_2
   /user.all:
     post:
       tags:
@@ -3195,7 +3284,7 @@ paths:
       requestBody: *ref_11
       responses:
         '200': *ref_35
-        '500': *ref_1
+        '500': *ref_2
   /user.create:
     post:
       tags:
@@ -3246,7 +3335,7 @@ paths:
               schema:
                 description: The response schema for a user
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -3271,7 +3360,7 @@ paths:
                           something: secret
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /user.update:
     post:
       tags:
@@ -3284,7 +3373,7 @@ paths:
       requestBody: *ref_36
       responses:
         '200': *ref_37
-        '500': *ref_1
+        '500': *ref_2
   /user.get:
     post:
       tags:
@@ -3297,7 +3386,7 @@ paths:
       requestBody: *ref_38
       responses:
         '200': *ref_37
-        '500': *ref_1
+        '500': *ref_2
   /user.get_wallets:
     post:
       tags:
@@ -3331,7 +3420,7 @@ paths:
                 id: usr_01ce83q2zw7zk1dqr79t22zr1v
       responses:
         '200': *ref_39
-        '500': *ref_1
+        '500': *ref_2
   /user.get_transactions:
     post:
       tags:
@@ -3344,7 +3433,7 @@ paths:
         - AdminAuth: []
       responses:
         '200': *ref_41
-        '500': *ref_1
+        '500': *ref_2
   /user.get_transaction_consumptions:
     post:
       tags:
@@ -3357,7 +3446,7 @@ paths:
       requestBody: *ref_40
       responses:
         '200': *ref_42
-        '500': *ref_1
+        '500': *ref_2
   /user.enable_or_disable:
     post:
       tags:
@@ -3397,7 +3486,7 @@ paths:
                 enabled: false
       responses:
         '200': *ref_37
-        '500': *ref_1
+        '500': *ref_2
   /wallet.all:
     post:
       tags:
@@ -3410,7 +3499,7 @@ paths:
       requestBody: *ref_11
       responses:
         '200': *ref_39
-        '500': *ref_1
+        '500': *ref_2
   /wallet.create:
     post:
       tags:
@@ -3481,7 +3570,7 @@ paths:
               schema:
                 description: The response schema for a wallet
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -3511,7 +3600,7 @@ paths:
                               symbol: BTC
                               name: Bitcoin
                               subunit_to_unit: 100000000000000000
-        '500': *ref_1
+        '500': *ref_2
   /wallet.get:
     post:
       tags:
@@ -3536,7 +3625,7 @@ paths:
                 address: kxhk519271652215
       responses:
         '200': *ref_45
-        '500': *ref_1
+        '500': *ref_2
   /wallet.get_transaction_consumptions:
     post:
       tags:
@@ -3563,7 +3652,7 @@ paths:
                 address: kxhk519271652215
       responses:
         '200': *ref_42
-        '500': *ref_1
+        '500': *ref_2
   /wallet.enable_or_disable:
     post:
       tags:
@@ -3592,7 +3681,7 @@ paths:
                 enabled: false
       responses:
         '200': *ref_45
-        '500': *ref_1
+        '500': *ref_2
   /transaction.all:
     post:
       tags:
@@ -3605,7 +3694,7 @@ paths:
       requestBody: *ref_11
       responses:
         '200': *ref_41
-        '500': *ref_1
+        '500': *ref_2
   /transaction.get:
     post:
       tags:
@@ -3636,7 +3725,7 @@ paths:
               schema:
                 description: The response schema for a transaction
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -3661,6 +3750,9 @@ paths:
                             subunit_to_unit: 100
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
+                            enabled: true
+                            metadata: {}
+                            encrypted_metadata: {}
                         to:
                           object: transaction_source
                           address: 47218ab4-d94f-44e9-b7f2-36061f76ce58
@@ -3673,6 +3765,9 @@ paths:
                             subunit_to_unit: 100
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
+                            enabled: true
+                            metadata: {}
+                            encrypted_metadata: {}
                         metadata: {}
                         encrypted_metadata: {}
                         exchange:
@@ -3681,7 +3776,7 @@ paths:
                         status: confirmed
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /transaction.create:
     post:
       tags:
@@ -3754,7 +3849,7 @@ paths:
                 encrypted_metadata: {}
       responses:
         '200': *ref_46
-        '500': *ref_1
+        '500': *ref_2
   /transaction.calculate:
     post:
       tags:
@@ -3794,7 +3889,7 @@ paths:
               schema:
                 description: The response schema for a transaction calculation
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -3856,7 +3951,7 @@ paths:
                           created_at: '2018-01-10T00:00:00Z'
                           updated_at: '2018-01-10T10:00:00Z'
                         calculated_at: '2018-02-02T00:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /transaction_request.all:
     post:
       tags:
@@ -3869,7 +3964,7 @@ paths:
       requestBody: *ref_11
       responses:
         '200': *ref_48
-        '500': *ref_1
+        '500': *ref_2
   /transaction_request.create:
     post:
       tags:
@@ -3984,7 +4079,7 @@ paths:
               schema:
                 description: The response schema for a transaction request
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -4019,7 +4114,7 @@ paths:
                         expired_at: '2018-01-01T00:00:00Z'
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T00:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /transaction_request.get:
     post:
       tags:
@@ -4042,7 +4137,7 @@ paths:
                 formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
       responses:
         '200': *ref_51
-        '500': *ref_1
+        '500': *ref_2
   /transaction_request.consume:
     post:
       tags:
@@ -4108,7 +4203,7 @@ paths:
               schema:
                 description: The response schema for a transaction consumption
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       object:
@@ -4233,7 +4328,7 @@ paths:
                         confirmed_at: '2018-01-01T00:00:00Z'
                         failed_at: null
                         expired_at: null
-        '500': *ref_1
+        '500': *ref_2
   /transaction_request.get_transaction_consumptions:
     post:
       tags:
@@ -4262,7 +4357,7 @@ paths:
                 formatted_transaction_request_id: txr_01cbfg8mafdnbthgb9e68nd9y9
       responses:
         '200': *ref_42
-        '500': *ref_1
+        '500': *ref_2
   /transaction_consumption.all:
     post:
       tags:
@@ -4275,7 +4370,7 @@ paths:
       requestBody: *ref_11
       responses:
         '200': *ref_42
-        '500': *ref_1
+        '500': *ref_2
   /transaction_consumption.get:
     post:
       tags:
@@ -4301,7 +4396,7 @@ paths:
                 id: txc_01abfg5m2ee06kzm8tbysfmmw5
       responses:
         '200': *ref_52
-        '500': *ref_1
+        '500': *ref_2
   /transaction_consumption.approve:
     post:
       tags:
@@ -4327,7 +4422,7 @@ paths:
                 id: txn_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
         '200': *ref_52
-        '500': *ref_1
+        '500': *ref_2
   /transaction_consumption.reject:
     post:
       tags:
@@ -4341,7 +4436,7 @@ paths:
       requestBody: *ref_53
       responses:
         '200': *ref_52
-        '500': *ref_1
+        '500': *ref_2
   /access_key.all:
     post:
       tags:
@@ -4419,7 +4514,7 @@ paths:
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
                             deleted_at: null
-        '500': *ref_1
+        '500': *ref_2
   /access_key.create:
     post:
       tags:
@@ -4437,7 +4532,7 @@ paths:
               schema:
                 description: The response schema for an access key
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data: *ref_54
@@ -4452,7 +4547,7 @@ paths:
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         deleted_at: null
-        '500': *ref_1
+        '500': *ref_2
   /access_key.update:
     post:
       tags:
@@ -4482,7 +4577,7 @@ paths:
                 expired: true
       responses:
         '200': *ref_55
-        '500': *ref_1
+        '500': *ref_2
   /access_key.enable_or_disable:
     post:
       tags:
@@ -4513,7 +4608,7 @@ paths:
                 enabled: false
       responses:
         '200': *ref_55
-        '500': *ref_1
+        '500': *ref_2
   /access_key.delete:
     post:
       tags:
@@ -4548,7 +4643,7 @@ paths:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
       responses:
         '200': *ref_10
-        '500': *ref_1
+        '500': *ref_2
   /api_key.all:
     post:
       tags:
@@ -4626,7 +4721,7 @@ paths:
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
                             deleted_at: null
-        '500': *ref_1
+        '500': *ref_2
   /api_key.create:
     post:
       tags:
@@ -4644,7 +4739,7 @@ paths:
               schema:
                 description: The response schema for an API key
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data: *ref_56
@@ -4659,7 +4754,7 @@ paths:
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         deleted_at: null
-        '500': *ref_1
+        '500': *ref_2
   /api_key.update:
     post:
       tags:
@@ -4689,7 +4784,7 @@ paths:
                 expired: true
       responses:
         '200': *ref_57
-        '500': *ref_1
+        '500': *ref_2
   /api_key.enable_or_disable:
     post:
       tags:
@@ -4720,7 +4815,7 @@ paths:
                 enabled: false
       responses:
         '200': *ref_57
-        '500': *ref_1
+        '500': *ref_2
   /api_key.delete:
     post:
       tags:
@@ -4745,7 +4840,7 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
       responses:
         '200': *ref_10
-        '500': *ref_1
+        '500': *ref_2
   /configuration.get:
     post:
       tags:
@@ -4842,7 +4937,7 @@ paths:
                             position: 0
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T00:00:00Z'
-        '500': *ref_1
+        '500': *ref_2
   /configuration.update:
     post:
       tags:
@@ -4871,7 +4966,7 @@ paths:
               schema:
                 description: The response schema for a list of updated settings
                 allOf:
-                  - *ref_0
+                  - *ref_1
                   - type: object
                     properties:
                       data:
@@ -4909,4 +5004,4 @@ paths:
                             messages:
                               value:
                                 - invalid_type_for_value
-        '500': *ref_1
+        '500': *ref_2

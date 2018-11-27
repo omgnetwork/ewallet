@@ -14,6 +14,16 @@ CategorySchema:
       type: array
       items:
         type: string
+    accounts:
+      type: object
+      allOf:
+        - $ref: '../shared/schemas.yaml#/UnpaginatedListSchema'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '../account/schemas.yaml#/AccountWithoutCategoriesSchema'
     created_at:
       type: string
       format: date-time
@@ -26,5 +36,6 @@ CategorySchema:
     - name
     - description
     - account_ids
+    - accounts
     - created_at
     - updated_at

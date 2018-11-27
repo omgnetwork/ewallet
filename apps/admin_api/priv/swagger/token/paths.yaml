@@ -14,6 +14,7 @@ token.all:
         $ref: 'responses.yaml#/TokensResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 token.get:
   post:
     tags:
@@ -30,6 +31,7 @@ token.get:
         $ref: 'responses.yaml#/TokenResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 token.create:
   post:
     tags:
@@ -46,6 +48,7 @@ token.create:
         $ref: 'responses.yaml#/TokenResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 token.update:
   post:
     tags:
@@ -62,6 +65,7 @@ token.update:
         $ref: 'responses.yaml#/TokenResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 token.enable_or_disable:
   post:
     tags:
@@ -78,6 +82,7 @@ token.enable_or_disable:
         $ref: 'responses.yaml#/TokenResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 token.stats:
   post:
     tags:
@@ -94,6 +99,7 @@ token.stats:
         $ref: 'responses.yaml#/TokenStatsResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 token.get_mints:
   post:
     tags:
@@ -110,6 +116,7 @@ token.get_mints:
         $ref: 'responses.yaml#/MintsResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 token.mint:
   post:
     tags:
@@ -123,6 +130,6 @@ token.mint:
       $ref: 'request_bodies.yaml#/TokenMintBody'
     responses:
       '200':
-        $ref: 'responses.yaml#/TokenResponse'
+        $ref: 'responses.yaml#/MintResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

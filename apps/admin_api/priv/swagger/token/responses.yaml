@@ -4,18 +4,28 @@ TokenResponse:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/TokenResponseSchema'
+
 TokenStatsResponse:
   description: Returns the stats for a single token
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/TokenStatsResponseSchema'
+
 TokensResponse:
   description: Returns a list of tokens
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/TokensResponseSchema'
+
+MintResponse:
+  description: Returns a single mint
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/MintResponseSchema'
+
 MintsResponse:
   description: Returns a list of mints
   content:

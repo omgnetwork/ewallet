@@ -48,5 +48,44 @@ AccountSchema:
     - master
     - avatar
     - category_ids
+    - categories
+    - created_at
+    - updated_at
+
+AccountWithoutCategoriesSchema:
+  description: The object schema for an account
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    parent_id:
+      type: string
+    name:
+      type: string
+    description:
+      type: string
+    master:
+      type: boolean
+    avatar:
+      type: object
+    metadata:
+      type: object
+    encrypted_metadata:
+      type: object
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+  required:
+    - object
+    - id
+    - parent_id
+    - name
+    - master
+    - avatar
     - created_at
     - updated_at

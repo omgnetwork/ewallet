@@ -1589,6 +1589,93 @@
                                                             "type": "string"
                                                           }
                                                         },
+                                                        "accounts": {
+                                                          "type": "object",
+                                                          "allOf": [
+                                                            {
+                                                              "description": "The object schema for an unpaginated list",
+                                                              "type": "object",
+                                                              "properties": {
+                                                                "object": {
+                                                                  "type": "string"
+                                                                },
+                                                                "data": {
+                                                                  "type": "array",
+                                                                  "items": {
+                                                                    "type": "object"
+                                                                  }
+                                                                }
+                                                              },
+                                                              "required": [
+                                                                "object",
+                                                                "data"
+                                                              ],
+                                                              "example": {
+                                                                "object": "list",
+                                                                "data": []
+                                                              }
+                                                            },
+                                                            {
+                                                              "type": "object",
+                                                              "properties": {
+                                                                "data": {
+                                                                  "type": "array",
+                                                                  "items": {
+                                                                    "description": "The object schema for an account",
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                      "object": {
+                                                                        "type": "string"
+                                                                      },
+                                                                      "id": {
+                                                                        "type": "string"
+                                                                      },
+                                                                      "parent_id": {
+                                                                        "type": "string"
+                                                                      },
+                                                                      "name": {
+                                                                        "type": "string"
+                                                                      },
+                                                                      "description": {
+                                                                        "type": "string"
+                                                                      },
+                                                                      "master": {
+                                                                        "type": "boolean"
+                                                                      },
+                                                                      "avatar": {
+                                                                        "type": "object"
+                                                                      },
+                                                                      "metadata": {
+                                                                        "type": "object"
+                                                                      },
+                                                                      "encrypted_metadata": {
+                                                                        "type": "object"
+                                                                      },
+                                                                      "created_at": {
+                                                                        "type": "string",
+                                                                        "format": "date-time"
+                                                                      },
+                                                                      "updated_at": {
+                                                                        "type": "string",
+                                                                        "format": "date-time"
+                                                                      }
+                                                                    },
+                                                                    "required": [
+                                                                      "object",
+                                                                      "id",
+                                                                      "parent_id",
+                                                                      "name",
+                                                                      "master",
+                                                                      "avatar",
+                                                                      "created_at",
+                                                                      "updated_at"
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          ]
+                                                        },
                                                         "created_at": {
                                                           "type": "string",
                                                           "format": "date-time"
@@ -1604,6 +1691,7 @@
                                                         "name",
                                                         "description",
                                                         "account_ids",
+                                                        "accounts",
                                                         "created_at",
                                                         "updated_at"
                                                       ]
@@ -1636,6 +1724,7 @@
                                           "master",
                                           "avatar",
                                           "category_ids",
+                                          "categories",
                                           "created_at",
                                           "updated_at"
                                         ]
