@@ -44,20 +44,8 @@ defmodule EWallet.Web.APIDocs do
       scope api_scope do
         get("/docs", Controller, :forward, private: %{redirect_to: api_scope <> "/docs.ui"})
         get("/docs.ui", Controller, :ui)
-
-        get(
-          "/docs.*path",
-          Controller,
-          :swagger_subspec,
-          private: %{redirect_to: api_scope <> "/docs.ui"}
-        )
-
-        get(
-          "/swagger/*path",
-          Controller,
-          :swagger_subspec,
-          private: %{redirect_to: api_scope <> "/docs.ui"}
-        )
+        get("/docs.yaml", Controller, :yaml)
+        get("/docs.json", Controller, :json)
 
         get("/errors", Controller, :forward, private: %{redirect_to: api_scope <> "/errors.ui"})
         get("/errors.ui", Controller, :errors_ui)

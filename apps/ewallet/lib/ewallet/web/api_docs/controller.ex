@@ -22,21 +22,27 @@ defmodule EWallet.Web.APIDocs.Controller do
   end
 
   @doc false
-  @spec swagger_subspec(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def swagger_subspec(
-        %{request_path: path, private: %{redirect_to: destination}} = conn,
-        _attrs
-      ) do
-    case Regex.run(~r/(json|yaml)$/, path) do
-      nil -> redirect(conn, to: destination)
-      match -> format_and_send(conn, Enum.at(match, 0))
-    end
+  @spec yaml(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def yaml(conn, _attrs) do
+    spec_path =
+      conn
+      |> get_otp_app()
+      |> Application.app_dir()
+      |> Path.join("priv/spec.yaml")
+
+    send_file(conn, 200, spec_path)
   end
 
   @doc false
   @spec json(Plug.Conn.t(), map) :: Plug.Conn.t()
   def json(conn, _attrs) do
-    format_and_send(conn, "json")
+    spec_path =
+      conn
+      |> get_otp_app()
+      |> Application.app_dir()
+      |> Path.join("priv/spec.json")
+
+    send_file(conn, 200, spec_path)
   end
 
   @doc false
@@ -81,39 +87,5 @@ defmodule EWallet.Web.APIDocs.Controller do
       nil -> %{}
       error_handler -> error_handler.errors()
     end
-  end
-
-  @doc false
-  @spec format_and_send(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
-  defp format_and_send(%{private: %{redirect_to: destination}} = conn, extension)
-       when extension == "yaml" or extension == "json" do
-    spec_path =
-      conn
-      |> file_path(extension)
-      |> spec_path(conn)
-    try do
-      send_file(conn, 200, spec_path)
-    rescue
-      _ -> redirect(conn, to: destination)
-    end
-  end
-
-  @spec file_path(Plug.Conn.t(), String.t()) :: String.t()
-  defp file_path(conn, extension) when extension == "yaml" or extension == "json" do
-    file_path =
-      conn.path_info
-      |> Enum.drop(2)
-      |> Enum.join("/")
-      |> String.replace_leading("docs.#{extension}", "spec.#{extension}")
-
-    "priv/" <> file_path
-  end
-
-  @spec spec_path(String.t(), Plug.Conn.t()) :: String.t()
-  defp spec_path(file_path, conn) do
-    conn
-    |> get_otp_app()
-    |> Application.app_dir()
-    |> Path.join(file_path)
   end
 end

@@ -4,24 +4,24 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
 
   defmodule TestRouter do
     use Phoenix.Router
-    use EWallet.Web.APIDocs, scope: "/api/some_scope"
+    use EWallet.Web.APIDocs, scope: "/some_scope"
   end
 
   describe "/docs endpoints" do
     test "redirect to /docs.ui when calling /docs" do
-      conn = get("/api/some_scope/docs")
+      conn = get("/some_scope/docs")
 
       refute conn.halted
       assert conn.status == 302
-      assert conn.resp_body =~ ~s(/api/some_scope/docs.ui)
+      assert conn.resp_body =~ ~s(/some_scope/docs.ui)
 
       assert Enum.any?(conn.resp_headers, fn header ->
-               header == {"location", "/api/some_scope/docs.ui"}
+               header == {"location", "/some_scope/docs.ui"}
              end)
     end
 
     test "return the Swagger UI page when calling /docs.ui" do
-      conn = get("/api/some_scope/docs.ui")
+      conn = get("/some_scope/docs.ui")
 
       refute conn.halted
       assert conn.status == 200
@@ -29,7 +29,8 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
     end
 
     test "return the yaml spec when calling /docs.yaml" do
-      conn = get("/api/some_scope/docs.yaml")
+      conn = get("/some_scope/docs.yaml")
+
       refute conn.halted
       assert conn.status == 200
       # Expects the spec to begin with "openapi:"
@@ -37,54 +38,30 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
     end
 
     test "return the json spec when calling /docs.json" do
-      conn = get("/api/some_scope/docs.json")
+      conn = get("/some_scope/docs.json")
 
       refute conn.halted
       assert conn.status == 200
       # Expects the spec to begin with "openapi:"
       assert conn.resp_body =~ ~r/^{\n  \"openapi\"/
     end
-
-    test "redirect to docs.ui when calling an invalid swagger path" do
-      conn = get("/api/some_scope/swagger/some_invalid_path/file.yaml")
-
-      refute conn.halted
-      assert conn.status == 302
-      assert conn.resp_body =~ ~s(/api/some_scope/docs.ui)
-
-      assert Enum.any?(conn.resp_headers, fn header ->
-               header == {"location", "/api/some_scope/docs.ui"}
-             end)
-    end
-
-    test "redirect to docs.ui when calling a file with an invalid extension" do
-      conn = get("/api/some_scope/swagger/file.invalid")
-
-      refute conn.halted
-      assert conn.status == 302
-      assert conn.resp_body =~ ~s(/api/some_scope/docs.ui)
-
-      assert Enum.any?(conn.resp_headers, fn header ->
-               header == {"location", "/api/some_scope/docs.ui"}
-             end)
-    end
   end
 
   describe "/errors endpoints" do
     test "redirect to /errors.ui when calling /errors" do
-      conn = get("/api/some_scope/errors")
+      conn = get("/some_scope/errors")
 
       refute conn.halted
       assert conn.status == 302
-      assert conn.resp_body =~ ~s(/api/some_scope/errors.ui)
+      assert conn.resp_body =~ ~s(/some_scope/errors.ui)
 
       assert Enum.any?(conn.resp_headers, fn header ->
-               header == {"location", "/api/some_scope/errors.ui"}
+               header == {"location", "/some_scope/errors.ui"}
              end)
     end
 
     test "returns the HTML page when calling /errors.ui" do
-      conn = get("/api/some_scope/errors.ui")
+      conn = get("/some_scope/errors.ui")
 
       refute conn.halted
       assert conn.status == 200
@@ -92,7 +69,7 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
     end
 
     test "returns the yaml spec when calling /errors.yaml" do
-      conn = get("/api/some_scope/errors.yaml")
+      conn = get("/some_scope/errors.yaml")
 
       refute conn.halted
       assert conn.status == 200
@@ -103,7 +80,7 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
     end
 
     test "returns the json spec when calling /errors.json" do
-      conn = get("/api/some_scope/errors.json")
+      conn = get("/some_scope/errors.json")
 
       refute conn.halted
       assert conn.status == 200
