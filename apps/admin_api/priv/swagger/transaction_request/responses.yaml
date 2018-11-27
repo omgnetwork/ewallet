@@ -5,7 +5,7 @@ TransactionRequestResponse:
       schema:
         $ref: 'response_schemas.yaml#/TransactionRequestResponseSchema'
 TransactionRequestsResponse:
-  description: "Returns a list of transaction requests"
+  description: 'Returns a list of transaction requests'
   content:
     application/vnd.omisego.v1+json:
       schema:

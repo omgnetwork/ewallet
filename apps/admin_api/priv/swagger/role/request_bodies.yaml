@@ -10,7 +10,7 @@ RoleGetBody:
         required:
           - id
         example:
-          id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
+          id: rol_01cw625zm2xmny5ee3mwt9j8ky
 RoleCreateBody:
   description: The parameters to use for creating a new role.
   required: true
@@ -26,8 +26,8 @@ RoleCreateBody:
           - name
           - display_name
         example:
-          name: "role_name"
-          display_name: "The role's display name"
+          name: role_name
+          display_name: The role's display name
 RoleUpdateBody:
   description: The parameters to use for updating a role. Only the provided fields are updated.
   required: true
@@ -44,9 +44,9 @@ RoleUpdateBody:
         required:
           - id
         example:
-          id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
-          name: "Name to Update"
-          display_name: "New role's display name"
+          id: rol_01cw625zm2xmny5ee3mwt9j8ky
+          name: Name to Update
+          display_name: New role's display name
 RoleDeleteBody:
   description: The parameters to use for deleting an role.
   required: true
@@ -59,4 +59,4 @@ RoleDeleteBody:
         required:
           - id
         example:
-          id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
+          id: rol_01cw625zm2xmny5ee3mwt9j8ky

@@ -1,5 +1,5 @@
 AuthenticationTokenSchema:
-  description: "The object schema for an authentication token"
+  description: The object schema for an authentication token
   type: object
   properties:
     object:
@@ -10,14 +10,14 @@ AuthenticationTokenSchema:
       type: string
     user:
       type: object
-      $ref: '../user/schemas.yaml#/UserSchema'
+      $ref: '../../../../ewallet/priv/swagger/user/schemas.yaml#/UserSchema'
     account_id:
       type: string
     master_admin:
       type: boolean
     account:
       type: object
-      $ref: '../account/schemas.yaml#/AccountSchema'
+      $ref: '../../../../ewallet/priv/swagger/account/schemas.yaml#/AccountSchema'
     role:
       type: string
   required:

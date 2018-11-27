@@ -8,12 +8,12 @@ exchange_pair.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
         $ref: 'responses.yaml#/ExchangePairsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 exchange_pair.get:
   post:
     tags:
@@ -29,7 +29,7 @@ exchange_pair.get:
       '200':
         $ref: 'responses.yaml#/ExchangePairResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 exchange_pair.create:
   post:
     tags:
@@ -45,7 +45,7 @@ exchange_pair.create:
       '200':
         $ref: 'responses.yaml#/ExchangePairsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 exchange_pair.update:
   post:
     tags:
@@ -61,7 +61,7 @@ exchange_pair.update:
       '200':
         $ref: 'responses.yaml#/ExchangePairsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 exchange_pair.delete:
   post:
     tags:
@@ -77,4 +77,4 @@ exchange_pair.delete:
       '200':
         $ref: 'responses.yaml#/ExchangePairsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

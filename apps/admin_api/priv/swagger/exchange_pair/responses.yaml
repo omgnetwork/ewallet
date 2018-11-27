@@ -1,11 +1,11 @@
 ExchangePairResponse:
-  description: "Returns a single exchange pair"
+  description: Returns a single exchange pair
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/ExchangePairResponseSchema'
 ExchangePairsResponse:
-  description: "Returns a list of exchange pairs"
+  description: Returns a list of exchange pairs
   content:
     application/vnd.omisego.v1+json:
       schema:

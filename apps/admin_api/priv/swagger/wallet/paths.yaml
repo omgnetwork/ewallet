@@ -8,12 +8,12 @@ wallet.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/WalletsResponse"
+        $ref: 'responses.yaml#/WalletsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 wallet.create:
   post:
@@ -28,9 +28,9 @@ wallet.create:
       $ref: 'request_bodies.yaml#/WalletCreateBody'
     responses:
       '200':
-        $ref: "responses.yaml#/WalletResponse"
+        $ref: 'responses.yaml#/WalletResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 wallet.get:
   post:
@@ -45,9 +45,9 @@ wallet.get:
       $ref: 'request_bodies.yaml#/WalletGetBody'
     responses:
       '200':
-        $ref: "responses.yaml#/WalletResponse"
+        $ref: 'responses.yaml#/WalletResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 wallet.get_transaction_consumptions:
   post:
@@ -62,9 +62,9 @@ wallet.get_transaction_consumptions:
       $ref: 'request_bodies.yaml#/TransactionConsumptionAllForWalletBody'
     responses:
       '200':
-        $ref: "../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse"
+        $ref: '../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 wallet.enable_or_disable:
   post:
@@ -79,6 +79,6 @@ wallet.enable_or_disable:
       $ref: 'request_bodies.yaml#/WalletEnableOrDisableBody'
     responses:
       '200':
-        $ref: "responses.yaml#/WalletResponse"
+        $ref: 'responses.yaml#/WalletResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

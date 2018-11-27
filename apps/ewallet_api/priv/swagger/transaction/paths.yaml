@@ -10,9 +10,9 @@ me.get_transactions:
       - ClientAuth: []
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionsResponse"
+        $ref: 'responses.yaml#/TransactionsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 me.create_transaction:
   post:
@@ -26,6 +26,6 @@ me.create_transaction:
       $ref: 'request_bodies.yaml#/TransactionCreateBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionResponse"
+        $ref: 'responses.yaml#/TransactionResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

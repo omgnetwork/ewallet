@@ -8,12 +8,12 @@ transaction.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionsResponse"
+        $ref: 'responses.yaml#/TransactionsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 transaction.get:
   post:
@@ -28,9 +28,9 @@ transaction.get:
       $ref: 'request_bodies.yaml#/TransactionGetBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionResponse"
+        $ref: 'responses.yaml#/TransactionResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 transaction.create:
   post:
@@ -45,9 +45,9 @@ transaction.create:
       $ref: 'request_bodies.yaml#/TransactionCreateBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionResponse"
+        $ref: 'responses.yaml#/TransactionResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
         
 transaction.calculate:
   post:
@@ -62,6 +62,6 @@ transaction.calculate:
       $ref: 'request_bodies.yaml#/TransactionCalculateBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionCalculationResponse"
+        $ref: 'responses.yaml#/TransactionCalculationResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

@@ -1,5 +1,5 @@
 AccessKeySchema:
-  description: "The object schema for an access key"
+  description: The object schema for an access key
   type: object
   properties:
     object:
@@ -34,9 +34,9 @@ AccessKeySchema:
     - created_at
     - updated_at
     - deleted_at
-    
+
 APIKeySchema:
-  description: "The object schema for an API key"
+  description: 'The object schema for an API key'
   type: object
   properties:
     object:

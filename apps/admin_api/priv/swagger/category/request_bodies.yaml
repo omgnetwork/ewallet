@@ -10,7 +10,7 @@ CategoryGetBody:
         required:
           - id
         example:
-          id: "cat_01ce30qdajwb7gdecq0ebn3twq"
+          id: cat_01ce30qdajwb7gdecq0ebn3twq
 CategoryCreateBody:
   description: The parameters to use for creating a new category.
   required: true
@@ -31,9 +31,9 @@ CategoryCreateBody:
           - description
           - account_ids
         example:
-          name: "Name of category"
-          description: "The category description"
-          account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
+          name: Name of category
+          description: The category description
+          account_ids: [acc_01ca26pkge49aabzd6k6mshn0y]
 CategoryUpdateBody:
   description: The parameters to use for updating an account. Only the provided fields are updated.
   required: true
@@ -54,10 +54,10 @@ CategoryUpdateBody:
         required:
           - id
         example:
-          id: "cat_01ce30qdajwb7gdecq0ebn3twq"
-          name: "Name to Update"
-          description: "New category description"
-          account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
+          id: cat_01ce30qdajwb7gdecq0ebn3twq
+          name: Name to Update
+          description: New category description
+          account_ids: [acc_01ca26pkge49aabzd6k6mshn0y]
 CategoryDeleteBody:
   description: The parameters to use for deleting an category.
   required: true
@@ -70,4 +70,4 @@ CategoryDeleteBody:
         required:
           - id
         example:
-          id: "cat_01ce30qdajwb7gdecq0ebn3twq"
+          id: cat_01ce30qdajwb7gdecq0ebn3twq

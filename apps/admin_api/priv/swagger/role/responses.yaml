@@ -1,11 +1,11 @@
 RoleResponse:
-  description: "Returns a single role"
+  description: Returns a single role
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/RoleResponseSchema'
 RolesResponse:
-  description: "Returns a list of roles"
+  description: Returns a list of roles
   content:
     application/vnd.omisego.v1+json:
       schema:

@@ -1,5 +1,5 @@
 UserResponse:
-  description: "Returns a single user"
+  description: Returns a single user
   content:
     application/vnd.omisego.v1+json:
       schema:

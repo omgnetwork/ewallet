@@ -1,5 +1,5 @@
 BaseResponseSchema:
-  description: "The response schema for a successful operation"
+  description: The response schema for a successful operation
   type: object
   properties:
     version:
@@ -13,12 +13,12 @@ BaseResponseSchema:
     - success
     - data
   example:
-    version: "1"
+    version: '1'
     success: true
     data: {}
 
 BasePaginatedResponseSchema:
-  description: "The response schema for a successful operation"
+  description: The response schema for a successful operation
   allOf:
   - $ref: '#/BaseResponseSchema'
   - type: object
@@ -31,7 +31,7 @@ BasePaginatedResponseSchema:
       - data
     example:
       data:
-        object: "list"
+        object: list
         data:
         pagination:
           per_page: 10
@@ -41,7 +41,7 @@ BasePaginatedResponseSchema:
           is_last_page: true
 
 ErrorSchema:
-  description: "The object schema for an error"
+  description: The object schema for an error
   type: object
   properties:
     object:
@@ -58,13 +58,13 @@ ErrorSchema:
     - description
     - messages
   example:
-    object: "error"
-    code: "server:internal_server_error"
-    description: "Something went wrong on the server"
-    messages: {"error_key": "error_reason"}
+    object: error
+    code: server:internal_server_error
+    description: Something went wrong on the server
+    messages: {error_key: error_reason}
 
 UnpaginatedListSchema:
-  description: "The object schema for an unpaginated list"
+  description: The object schema for an unpaginated list
   type: object
   properties:
     object:
@@ -81,7 +81,7 @@ UnpaginatedListSchema:
     data: []
 
 PaginatedListSchema:
-  description: "The object schema for a paginated list"
+  description: The object schema for a paginated list
   type: object
   properties:
     object:
@@ -143,18 +143,18 @@ PaginatedRequestBodySchema:
     search_term:
       type: string
     match_all:
-      $ref: 'schemas.yaml#/AdvancedFilteringSchema'
+      $ref: '#/AdvancedFilteringSchema'
     match_any:
-      $ref: 'schemas.yaml#/AdvancedFilteringSchema'
+      $ref: '#/AdvancedFilteringSchema'
     sort_by:
       type: string
     sort_dir:
       type: string
-      enum: ["asc", "desc"]
+      enum: [asc, desc]
   example:
     page: 1
     per_page: 10
     match_all: []
     match_any: []
-    sort_by: "created_at"
-    sort_dir: "desc"
+    sort_by: created_at
+    sort_dir: desc

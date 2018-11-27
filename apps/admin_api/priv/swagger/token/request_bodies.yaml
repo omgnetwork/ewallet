@@ -10,7 +10,7 @@ TokenGetBody:
         required:
           - id
         example:
-          id: "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3"
+          id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
 
 TokenStatsBody:
   description: The parameters to use for retrieving the stats of a token
@@ -24,7 +24,7 @@ TokenStatsBody:
         required:
           - id
         example:
-          id: "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3"
+          id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
 
 TokenCreateBody:
   description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
@@ -69,9 +69,9 @@ TokenCreateBody:
           - description
           - subunit_to_unit
         example:
-          symbol: "BTC"
-          name: "Bitcoin"
-          description: "desc"
+          symbol: BTC
+          name: Bitcoin
+          description: desc
           subunit_to_unit: 100
 
 TokenUpdateBody:
@@ -106,9 +106,9 @@ TokenUpdateBody:
         required:
           - id
         example:
-          id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
-          name: "Bitcoin v2"
-          description: "an awesome updated description"
+          id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+          name: Bitcoin v2
+          description: an awesome updated description
 
 TokenToggleStatusBody:
   description: The parameters to enable/disable a token. Send enabled=true to enable, enabled=false to disable.
@@ -125,7 +125,7 @@ TokenToggleStatusBody:
           - id
           - enabled
         example:
-          id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
+          id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
           enabled: false
 
 TokenGetMintsBody:
@@ -135,7 +135,7 @@ TokenGetMintsBody:
     application/vnd.omisego.v1+json:
       schema:
         allOf:
-        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
         properties:
           id:
             type: string
@@ -143,7 +143,7 @@ TokenGetMintsBody:
           - id
           - owned
         example:
-          id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
+          id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
 
 TokenMintBody:
   description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
@@ -160,5 +160,5 @@ TokenMintBody:
           - id
           - amount
         example:
-          id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
+          id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
           amount: 1000

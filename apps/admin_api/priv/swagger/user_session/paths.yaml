@@ -11,9 +11,9 @@ user.login:
       $ref: '../user/request_bodies.yaml#/UserIdentifierBody'
     responses:
       '200':
-        $ref: "../authentication_token/responses.yaml#/AuthenticationTokenResponse"
+        $ref: '../authentication_token/responses.yaml#/AuthenticationTokenResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 user.logout:
   post:
     tags:
@@ -27,6 +27,6 @@ user.logout:
       $ref: 'request_bodies.yaml#/LogoutUserBody'
     responses:
       '200':
-        $ref: "../shared/responses.yaml#/EmptyResponse"
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

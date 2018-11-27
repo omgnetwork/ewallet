@@ -8,12 +8,12 @@ role.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/RolesResponse"
+        $ref: 'responses.yaml#/RolesResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 role.get:
   post:
     tags:
@@ -27,9 +27,9 @@ role.get:
       $ref: 'request_bodies.yaml#/RoleGetBody'
     responses:
       '200':
-        $ref: "responses.yaml#/RoleResponse"
+        $ref: 'responses.yaml#/RoleResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 role.create:
   post:
     tags:
@@ -43,9 +43,9 @@ role.create:
       $ref: 'request_bodies.yaml#/RoleCreateBody'
     responses:
       '200':
-        $ref: "responses.yaml#/RoleResponse"
+        $ref: 'responses.yaml#/RoleResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 role.update:
   post:
     tags:
@@ -59,9 +59,9 @@ role.update:
       $ref: 'request_bodies.yaml#/RoleUpdateBody'
     responses:
       '200':
-        $ref: "responses.yaml#/RoleResponse"
+        $ref: 'responses.yaml#/RoleResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 role.delete:
   post:
     tags:
@@ -75,6 +75,6 @@ role.delete:
       $ref: 'request_bodies.yaml#/RoleDeleteBody'
     responses:
       '200':
-        $ref: "responses.yaml#/RoleResponse"
+        $ref: 'responses.yaml#/RoleResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

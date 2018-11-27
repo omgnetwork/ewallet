@@ -1,11 +1,11 @@
 AccountResponse:
-  description: "Returns a single account"
+  description: Returns a single account
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/AccountResponseSchema'
 AccountsResponse:
-  description: "Returns a list of accounts"
+  description: Returns a list of accounts
   content:
     application/vnd.omisego.v1+json:
       schema:

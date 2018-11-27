@@ -8,12 +8,12 @@ transaction_request.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionRequestsResponse"
+        $ref: 'responses.yaml#/TransactionRequestsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 transaction_request.create:
   post:
@@ -28,9 +28,9 @@ transaction_request.create:
       $ref: 'request_bodies.yaml#/CreateTransactionRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionRequestResponse"
+        $ref: 'responses.yaml#/TransactionRequestResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 transaction_request.get:
   post:
@@ -45,9 +45,9 @@ transaction_request.get:
       $ref: 'request_bodies.yaml#/GetTransactionRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionRequestResponse"
+        $ref: 'responses.yaml#/TransactionRequestResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 transaction_request.get_transaction_consumptions:
   post:
@@ -62,9 +62,9 @@ transaction_request.get_transaction_consumptions:
       $ref: 'request_bodies.yaml#/TransactionConsumptionAllForTransactionRequestBody'
     responses:
       '200':
-        $ref: "../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse"
+        $ref: '../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 transaction_request.consume:
   post:
@@ -79,6 +79,6 @@ transaction_request.consume:
       $ref: 'request_bodies.yaml#/ConsumeTransactionRequestBody'
     responses:
       '200':
-        $ref: "../transaction_consumption/responses.yaml#/TransactionConsumptionResponse"
+        $ref: '../transaction_consumption/responses.yaml#/TransactionConsumptionResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

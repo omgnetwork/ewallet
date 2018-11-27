@@ -5,12 +5,12 @@ TransactionsGetBody:
     application/vnd.omisego.v1+json:
       schema:
         allOf:
-        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
         properties:
           address:
             type: string
         example:
-          address: "address_owned_by_current_user (optional)"
+          address: address_owned_by_current_user (optional)
 
 TransactionCreateBody:
   description: |
@@ -50,10 +50,10 @@ TransactionCreateBody:
           - token_id
           - amount
         example:
-          idempotency_token: "dfdgr"
-          from_address: "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c"
-          to_address: "4aa07691-2f99-4cb1-b36c-50763e2d2ba8"
-          token_id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+          idempotency_token: some idempotency token
+          from_address: 81e75f46-ee14-4e4c-a1e5-cddcb26dce9c
+          to_address: 4aa07691-2f99-4cb1-b36c-50763e2d2ba8
+          token_id: tok_BTC_01cbffybmtbbb449r05zgfct2h
           amount: 100
           metadata: {}
           encrypted_metadata: {}

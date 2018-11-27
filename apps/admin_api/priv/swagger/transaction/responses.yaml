@@ -1,17 +1,17 @@
 TransactionResponse:
-  description: "Returns a single transaction"
+  description: Returns a single transaction
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/TransactionResponseSchema'
 TransactionsResponse:
-  description: "Returns a list of transactions"
+  description: Returns a list of transactions
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/TransactionsResponseSchema'
 TransactionCalculationResponse:
-  description: "Returns a transaction calculation"
+  description: Returns a transaction calculation
   content:
     application/vnd.omisego.v1+json:
       schema:

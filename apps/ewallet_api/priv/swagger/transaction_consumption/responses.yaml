@@ -1,5 +1,5 @@
 TransactionConsumptionResponse:
-  description: "Transaction request consumption response"
+  description: Transaction request consumption response
   content:
     application/vnd.omisego.v1+json:
       schema:

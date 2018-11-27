@@ -1,5 +1,5 @@
 ErrorResponseSchema:
-  description: "The response schema for an error"
+  description: The response schema for an error
   allOf:
     - $ref: 'schemas.yaml#/BaseResponseSchema'
     - type: object
@@ -11,7 +11,7 @@ ErrorResponseSchema:
       example:
         success: false
         data:
-          object: "error"
-          code: "server:internal_server_error"
-          description: "Something went wrong on the server"
-          messages: {"error_key":"error_reason"}
+          object: error
+          code: server:internal_server_error
+          description: Something went wrong on the server
+          messages: {error_key: error_reason}

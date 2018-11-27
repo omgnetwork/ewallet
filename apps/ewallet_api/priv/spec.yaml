@@ -154,24 +154,6 @@ paths:
                               - id
                               - created_at
                               - updated_at
-                            example: &ref_4
-                              object: user
-                              id: usr_01ce83zf80j542z4q4zqd8qvfx
-                              provider_user_id: wijf-fbancomw-dqwjudb
-                              username: johndoe
-                              full_name: John Doe
-                              calling_name: John
-                              email: johndoe@omise.co
-                              enabled: true
-                              metadata:
-                                first_name: John
-                                last_name: Doe
-                              encrypted_metadata:
-                                something: secret
-                              avatar:
-                                original: file_url
-                              created_at: '2018-01-01T00:00:00Z'
-                              updated_at: '2018-01-01T10:00:00Z'
                         required:
                           - object
                           - authentication_token
@@ -292,7 +274,7 @@ paths:
                 verification_url: 'https://example.com/verify_email?email={email}&token={token}'
                 success_url: 'https://example.com/verify_email/success'
       responses:
-        '200': &ref_5
+        '200': &ref_4
           description: Returns a single user
           content:
             application/vnd.omisego.v1+json:
@@ -307,7 +289,6 @@ paths:
                         description: The object schema for a user
                         properties: *ref_2
                         required: *ref_3
-                        example: *ref_4
                     example:
                       data:
                         object: user
@@ -353,7 +334,7 @@ paths:
                 email: johndoe@example.com
                 token: some_token_string
       responses:
-        '200': *ref_5
+        '200': *ref_4
         '500': *ref_1
   /me.get:
     post:
@@ -364,7 +345,7 @@ paths:
       security:
         - ClientAuth: []
       responses:
-        '200': *ref_5
+        '200': *ref_4
         '500': *ref_1
   /me.get_wallets:
     post:
@@ -381,7 +362,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - &ref_7
+                - &ref_6
                   properties:
                     page:
                       type: integer
@@ -391,7 +372,7 @@ paths:
                       minimum: 1
                     search_term:
                       type: string
-                    match_all: &ref_6
+                    match_all: &ref_5
                       type: array
                       items:
                         type: object
@@ -406,7 +387,7 @@ paths:
                           - field
                           - comparator
                           - value
-                    match_any: *ref_6
+                    match_any: *ref_5
                     sort_by:
                       type: string
                     sort_dir:
@@ -431,7 +412,7 @@ paths:
               schema:
                 description: The response schema for a list of wallets
                 allOf:
-                  - &ref_8
+                  - &ref_7
                     description: The response schema for a successful operation
                     allOf:
                       - *ref_0
@@ -522,7 +503,6 @@ paths:
                                       type: object
                                       properties: *ref_2
                                       required: *ref_3
-                                      example: *ref_4
                                     account_id:
                                       type: string
                                     account:
@@ -632,7 +612,7 @@ paths:
                                           token:
                                             type: object
                                             description: The object schema for a token
-                                            properties: &ref_9
+                                            properties: &ref_8
                                               object:
                                                 type: string
                                               id:
@@ -655,7 +635,7 @@ paths:
                                                 type: object
                                               enabled:
                                                 type: boolean
-                                            required: &ref_10
+                                            required: &ref_9
                                               - object
                                               - id
                                               - symbol
@@ -670,15 +650,6 @@ paths:
                                           - object
                                           - token
                                           - amount
-                                        example:
-                                          object: balance
-                                          token:
-                                            object: token
-                                            id: tok_BTC_01cbffybmtbbb449r05zgfct2h
-                                            symbol: BTC
-                                            name: Bitcoin
-                                            subunit_to_unit: 100000000000000000
-                                          amount: 100
                                   required:
                                     - object
                                     - socket_topic
@@ -693,28 +664,6 @@ paths:
                                     - account
                                     - balances
                                     - enabled
-                                  example:
-                                    data:
-                                      object: wallet
-                                      socket_topic: 'wallet:XXX123'
-                                      address: XXX123
-                                      name: primary
-                                      identifier: primary
-                                      metadata: {}
-                                      encrypted_metadata: {}
-                                      enabled: true
-                                      user_id: usr_01cbfg6v9thrc3sd9m1v4gazjv
-                                      user: {}
-                                      account_id: null
-                                      account: null
-                                      balances:
-                                        - amount: 0
-                                          token:
-                                            object: token
-                                            id: tok_BTC_01cbffybmtbbb449r05zgfct2h
-                                            symbol: BTC
-                                            name: Bitcoin
-                                            subunit_to_unit: 100000000000000000
                     example:
                       data:
                         object: list
@@ -753,7 +702,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_7
+                - *ref_6
               properties:
                 address:
                   type: string
@@ -769,7 +718,7 @@ paths:
               schema:
                 description: The response schema for a list of transactions
                 allOf:
-                  - *ref_8
+                  - *ref_7
                   - type: object
                     properties:
                       data:
@@ -782,7 +731,7 @@ paths:
                                 items:
                                   description: The object schema for a transaction
                                   type: object
-                                  properties: &ref_11
+                                  properties: &ref_10
                                     object:
                                       type: string
                                     id:
@@ -799,8 +748,8 @@ paths:
                                         token:
                                           type: object
                                           description: The object schema for a token
-                                          properties: *ref_9
-                                          required: *ref_10
+                                          properties: *ref_8
+                                          required: *ref_9
                                     to:
                                       type: object
                                       properties:
@@ -813,8 +762,8 @@ paths:
                                         token:
                                           type: object
                                           description: The object schema for a token
-                                          properties: *ref_9
-                                          required: *ref_10
+                                          properties: *ref_8
+                                          required: *ref_9
                                     exchange:
                                       type: object
                                       properties:
@@ -838,7 +787,7 @@ paths:
                                     updated_at:
                                       type: string
                                       format: date-time
-                                  required: &ref_12
+                                  required: &ref_11
                                     - object
                                     - id
                                     - idempotency_token
@@ -936,7 +885,7 @@ paths:
                 - token_id
                 - amount
               example:
-                idempotency_token: dfdgr
+                idempotency_token: some idempotency token
                 from_address: 81e75f46-ee14-4e4c-a1e5-cddcb26dce9c
                 to_address: 4aa07691-2f99-4cb1-b36c-50763e2d2ba8
                 token_id: tok_BTC_01cbffybmtbbb449r05zgfct2h
@@ -957,8 +906,8 @@ paths:
                       data:
                         type: object
                         description: The object schema for a transaction
-                        properties: *ref_11
-                        required: *ref_12
+                        properties: *ref_10
+                        required: *ref_11
                     example:
                       data:
                         object: transaction
@@ -1092,10 +1041,10 @@ paths:
                 type: send
                 token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
                 amount: 100
-                correlation_id: '123'
+                correlation_id: some correlation id
                 address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
       responses:
-        '200': &ref_13
+        '200': &ref_12
           description: Transaction request response
           content:
             application/vnd.omisego.v1+json:
@@ -1202,7 +1151,7 @@ paths:
                         type: send
                         amount: 100
                         status: valid
-                        correlation_id: '123'
+                        correlation_id: some correlation id
                         token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
                         token: null
                         address: 3a560be5-15d1-4463-9ec2-02bc8ded7120
@@ -1241,7 +1190,7 @@ paths:
               example:
                 formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
       responses:
-        '200': *ref_13
+        '200': *ref_12
         '500': *ref_1
   /me.consume_transaction_request:
     post:
@@ -1280,16 +1229,16 @@ paths:
                 - idempotency_token
                 - formatted_transaction_request_id
               example:
-                idempotency_token: 3unr3u3
+                idempotency_token: some idempotency token
                 formatted_transaction_request_id: txn_01cbfg5m2ee06kzm8tbysfmmw5
-                correlation_id: '123'
+                correlation_id: some correlation id
                 token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
                 amount: 100
                 address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': &ref_14
+        '200': &ref_13
           description: Transaction request consumption response
           content:
             application/vnd.omisego.v1+json:
@@ -1430,7 +1379,7 @@ paths:
       operationId: approve_transaction_consumption
       security:
         - ClientAuth: []
-      requestBody: &ref_15
+      requestBody: &ref_14
         description: Approve or reject a consumption using the specified ID.
         required: true
         content:
@@ -1444,7 +1393,7 @@ paths:
               example:
                 id: txn_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_14
+        '200': *ref_13
         '500': *ref_1
   /me.reject_transaction_consumption:
     post:
@@ -1454,7 +1403,7 @@ paths:
       operationId: reject_transaction_consumption
       security:
         - ClientAuth: []
-      requestBody: *ref_15
+      requestBody: *ref_14
       responses:
-        '200': *ref_14
+        '200': *ref_13
         '500': *ref_1

@@ -1,5 +1,5 @@
 TokenSchema:
-  description: "The object schema for a token"
+  description: The object schema for a token
   type: object
   properties:
     object:
@@ -35,7 +35,7 @@ TokenSchema:
     - enabled
 
 MintSchema:
-  description: "The object schema for a mint"
+  description: The object schema for a mint
   type: object
   properties:
     object:

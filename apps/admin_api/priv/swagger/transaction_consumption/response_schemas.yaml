@@ -1,7 +1,7 @@
 TransactionConsumptionResponseSchema:
-  description: "The response schema for a transaction consumption"
+  description: The response schema for a transaction consumption
   allOf:
-  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
   - type: object
     properties:
       object:
@@ -98,39 +98,39 @@ TransactionConsumptionResponseSchema:
       - expired_at
     example:
       data:
-        object: "transaction_consumption"
-        id: "txc_01cbfg9qtdken61agxhx6wvj9h"
-        socket_topic: "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h"
-        status: "confirmed"
+        object: transaction_consumption
+        id: txc_01cbfg9qtdken61agxhx6wvj9h
+        socket_topic: transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h
+        status: confirmed
         amount: 100
-        token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+        token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
         token: {}
-        correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120"
-        idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120"
-        transaction_id: "txn_01cbfga8g0dgwcfc7xh6ks1njt"
+        correlation_id: 7e9c0be5-15d1-4463-9ec2-02bc8ded7120
+        idempotency_token: 7831c0be5-15d1-4463-9ec2-02bc8ded7120
+        transaction_id: txn_01cbfga8g0dgwcfc7xh6ks1njt
         transaction: {}
-        user_id: "usr_01cbfgak47ng6x72vbwjca6j4v"
+        user_id: usr_01cbfgak47ng6x72vbwjca6j4v
         user: {}
-        account_id: "acc_01cbfgatsanznvzffqsekta5f0"
+        account_id: acc_01cbfgatsanznvzffqsekta5f0
         account: {}
-        transaction_request_id: "txr_01cbfgb66cby8wp5wpq6n4pm0h"
+        transaction_request_id: txr_01cbfgb66cby8wp5wpq6n4pm0h
         transaction_request: {}
-        address: "5555cer3-15d1-4463-9ec2-02bc8ded7120"
+        address: 5555cer3-15d1-4463-9ec2-02bc8ded7120
         metadata: {}
         encrypted_metadata: {}
         expiration_date: null
-        created_at: "2018-01-01T00:00:00Z"
-        updated_at: "2018-01-01T00:00:00Z"
-        approved_at: "2018-01-01T00:00:00Z"
+        created_at: '2018-01-01T00:00:00Z'
+        updated_at: '2018-01-01T00:00:00Z'
+        approved_at: '2018-01-01T00:00:00Z'
         rejected_at: null
-        confirmed_at: "2018-01-01T00:00:00Z"
+        confirmed_at: '2018-01-01T00:00:00Z'
         failed_at: null
         expired_at: null
 
 TransactionConsumptionsResponseSchema:
-  description: "The response schema for a list of transaction consumptions"
+  description: The response schema for a list of transaction consumptions
   allOf:
-  - $ref: '../shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
   - type: object
     properties:
       data:
@@ -141,36 +141,36 @@ TransactionConsumptionsResponseSchema:
               data:
                 type: array
                 items:
-                  $ref: 'schemas.yaml#/TransactionConsumptionSchema'
+                  $ref: '../../../../ewallet/priv/swagger/transaction_consumption/schemas.yaml#/TransactionConsumptionSchema'
     example:
       data:
-        object: "list"
+        object: list
         data:
-          - object: "transaction_consumption"
-            id: "txc_01cbfg9qtdken61agxhx6wvj9h"
-            socket_topic: "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h"
-            status: "confirmed"
+          - object: transaction_consumption
+            id: txc_01cbfg9qtdken61agxhx6wvj9h
+            socket_topic: transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h
+            status: confirmed
             amount: 100
-            token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+            token_id: tok_OMG_01cbffwvj6ma9a9gg1tb24880q
             token: {}
-            correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120"
-            idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120"
-            transaction_id: "txn_01cbfga8g0dgwcfc7xh6ks1njt"
+            correlation_id: 7e9c0be5-15d1-4463-9ec2-02bc8ded7120
+            idempotency_token: 7831c0be5-15d1-4463-9ec2-02bc8ded7120
+            transaction_id: txn_01cbfga8g0dgwcfc7xh6ks1njt
             transaction: {}
-            user_id: "usr_01cbfgak47ng6x72vbwjca6j4v"
+            user_id: usr_01cbfgak47ng6x72vbwjca6j4v
             user: {}
-            account_id: "acc_01cbfgatsanznvzffqsekta5f0"
+            account_id: acc_01cbfgatsanznvzffqsekta5f0
             account: {}
-            transaction_request_id: "txr_01cbfgb66cby8wp5wpq6n4pm0h"
+            transaction_request_id: txr_01cbfgb66cby8wp5wpq6n4pm0h
             transaction_request: {}
-            address: "5555cer3-15d1-4463-9ec2-02bc8ded7120"
+            address: 5555cer3-15d1-4463-9ec2-02bc8ded7120
             metadata: {}
             encrypted_metadata: {}
             expiration_date: null
-            created_at: "2018-01-01T00:00:00Z"
-            updated_at: "2018-01-01T00:00:00Z"
-            approved_at: "2018-01-01T00:00:00Z"
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T00:00:00Z'
+            approved_at: '2018-01-01T00:00:00Z'
             rejected_at: null
-            confirmed_at: "2018-01-01T00:00:00Z"
+            confirmed_at: '2018-01-01T00:00:00Z'
             failed_at: null
             expired_at: null

@@ -1,35 +1,30 @@
-TokenSchema:
-  description: "The object schema for a token"
+CategorySchema:
+  description: The object schema for a category
   type: object
   properties:
     object:
       type: string
     id:
       type: string
-    symbol:
-      type: string
     name:
       type: string
-    subunit_to_unit:
-      type: integer
+    description:
+      type: string
+    account_ids:
+      type: array
+      items:
+        type: string
     created_at:
       type: string
       format: date-time
     updated_at:
       type: string
       format: date-time
-    metadata:
-      type: object
-    encrypted_metadata:
-      type: object
-    enabled:
-      type: boolean
   required:
     - object
     - id
-    - symbol
     - name
-    - subunit_to_unit
+    - description
+    - account_ids
     - created_at
     - updated_at
-    - enabled

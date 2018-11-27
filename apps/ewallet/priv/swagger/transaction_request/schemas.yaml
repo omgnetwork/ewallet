@@ -1,5 +1,5 @@
 TransactionRequestSchema:
-  description: "The response schema for a transaction request"
+  description: The response schema for a transaction request
   type: object
   properties:
     object:

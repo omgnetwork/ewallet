@@ -8,12 +8,12 @@ transaction_consumption.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionConsumptionsResponse"
+        $ref: 'responses.yaml#/TransactionConsumptionsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 transaction_consumption.get:
   post:
@@ -29,9 +29,9 @@ transaction_consumption.get:
       $ref: 'request_bodies.yaml#/GetConsumptionRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionConsumptionResponse"
+        $ref: 'responses.yaml#/TransactionConsumptionResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 transaction_consumption.approve:
   post:
@@ -47,9 +47,9 @@ transaction_consumption.approve:
       $ref: 'request_bodies.yaml#/ConsumptionConfirmationRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionConsumptionResponse"
+        $ref: 'responses.yaml#/TransactionConsumptionResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 transaction_consumption.reject:
   post:
@@ -65,6 +65,6 @@ transaction_consumption.reject:
       $ref: 'request_bodies.yaml#/ConsumptionConfirmationRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionConsumptionResponse"
+        $ref: 'responses.yaml#/TransactionConsumptionResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

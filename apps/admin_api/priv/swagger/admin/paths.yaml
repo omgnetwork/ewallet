@@ -10,9 +10,9 @@ admin.reset_password:
       $ref: 'request_bodies.yaml#/ResetPasswordBody'
     responses:
       '200':
-        $ref: '../shared/responses.yaml#/EmptyResponse'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 admin.update_password:
   post:
@@ -26,9 +26,9 @@ admin.update_password:
       $ref: 'request_bodies.yaml#/UpdatePasswordBody'
     responses:
       '200':
-        $ref: '../shared/responses.yaml#/EmptyResponse'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 admin.verify_email_update:
   post:
@@ -44,7 +44,7 @@ admin.verify_email_update:
       '200':
         $ref: 'responses.yaml#/AdminResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 admin.all:
   post:
@@ -56,12 +56,12 @@ admin.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/AdminsResponse"
+        $ref: 'responses.yaml#/AdminsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 admin.get:
   post:
@@ -76,9 +76,9 @@ admin.get:
       $ref: 'request_bodies.yaml#/AdminGetBody'
     responses:
       '200':
-        $ref: "responses.yaml#/AdminResponse"
+        $ref: 'responses.yaml#/AdminResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 admin.enable_or_disable:
   post:
     tags:
@@ -92,9 +92,9 @@ admin.enable_or_disable:
       $ref: 'request_bodies.yaml#/AdminToggleStatusBody'
     responses:
       '200':
-        $ref: "responses.yaml#/AdminResponse"
+        $ref: 'responses.yaml#/AdminResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 invite.accept:
   post:
@@ -108,9 +108,9 @@ invite.accept:
       - ClientAuth: []
     responses:
       '200':
-        $ref: "responses.yaml#/AdminResponse"
+        $ref: 'responses.yaml#/AdminResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 me.get:
   post:
@@ -122,9 +122,9 @@ me.get:
       - AdminAuth: []
     responses:
       '200':
-        $ref: "responses.yaml#/AdminResponse"
+        $ref: 'responses.yaml#/AdminResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 me.update:
   post:
@@ -138,9 +138,9 @@ me.update:
       $ref: 'request_bodies.yaml#/AdminUpdateBody'
     responses:
       '200':
-        $ref: "responses.yaml#/AdminResponse"
+        $ref: 'responses.yaml#/AdminResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 me.update_email:
   post:
@@ -154,9 +154,9 @@ me.update_email:
       $ref: 'request_bodies.yaml#/AdminUpdateEmailBody'
     responses:
       '200':
-        $ref: "responses.yaml#/AdminResponse"
+        $ref: 'responses.yaml#/AdminResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 me.update_password:
   post:
@@ -170,9 +170,9 @@ me.update_password:
       $ref: 'request_bodies.yaml#/AdminUpdatePasswordBody'
     responses:
       '200':
-        $ref: "responses.yaml#/AdminResponse"
+        $ref: 'responses.yaml#/AdminResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 me.upload_avatar:
   post:
@@ -186,9 +186,9 @@ me.upload_avatar:
       $ref: 'request_bodies.yaml#/AdminUploadBody'
     responses:
       '200':
-        $ref: "responses.yaml#/AdminResponse"
+        $ref: 'responses.yaml#/AdminResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 me.get_account:
   post:
@@ -200,9 +200,9 @@ me.get_account:
       - AdminAuth: []
     responses:
       '200':
-        $ref: "../account/responses.yaml#/AccountResponse"
+        $ref: '../account/responses.yaml#/AccountResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 me.get_accounts:
   post:
@@ -213,9 +213,9 @@ me.get_accounts:
     security:
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "../account/responses.yaml#/AccountsResponse"
+        $ref: '../account/responses.yaml#/AccountsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

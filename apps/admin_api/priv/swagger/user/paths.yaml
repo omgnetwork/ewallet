@@ -8,12 +8,12 @@ user.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/UsersResponse"
+        $ref: 'responses.yaml#/UsersResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 user.create:
   post:
@@ -28,9 +28,9 @@ user.create:
       $ref: 'request_bodies.yaml#/UserBody'
     responses:
       '200':
-        $ref: "responses.yaml#/UserResponse"
+        $ref: 'responses.yaml#/UserResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 user.update:
   post:
@@ -45,9 +45,9 @@ user.update:
       $ref: 'request_bodies.yaml#/UserBody'
     responses:
       '200':
-        $ref: "responses.yaml#/UserResponse"
+        $ref: 'responses.yaml#/UserResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 user.get:
   post:
@@ -62,9 +62,9 @@ user.get:
       $ref: 'request_bodies.yaml#/UserIdentifierBody'
     responses:
       '200':
-        $ref: "responses.yaml#/UserResponse"
+        $ref: 'responses.yaml#/UserResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 user.get_wallets:
   post:
@@ -79,9 +79,9 @@ user.get_wallets:
       $ref: 'request_bodies.yaml#/UserIdentifierWithFiltersBody'
     responses:
       '200':
-        $ref: "../wallet/responses.yaml#/WalletsResponse"
+        $ref: '../wallet/responses.yaml#/WalletsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
         
 user.get_transactions:
   post:
@@ -96,9 +96,9 @@ user.get_transactions:
       - AdminAuth: []
     responses:
       '200':
-        $ref: "../transaction/responses.yaml#/TransactionsResponse"
+        $ref: '../transaction/responses.yaml#/TransactionsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 user.get_transaction_consumptions:
   post:
@@ -113,9 +113,9 @@ user.get_transaction_consumptions:
       $ref: 'request_bodies.yaml#/UserIdentifierWithFiltersBody'
     responses:
       '200':
-        $ref: "../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse"
+        $ref: '../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 user.enable_or_disable:
   post:
@@ -130,6 +130,6 @@ user.enable_or_disable:
       $ref: 'request_bodies.yaml#/UserToggleStatusBody'
     responses:
       '200':
-        $ref: "responses.yaml#/UserResponse"
+        $ref: 'responses.yaml#/UserResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

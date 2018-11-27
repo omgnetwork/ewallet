@@ -1,5 +1,5 @@
 ExchangePairSchema:
-  description: "The object schema for an exchange pair"
+  description: The object schema for an exchange pair
   type: object
   properties:
     object:

@@ -1,5 +1,5 @@
 TransactionConsumptionSchema:
-  description: "The schema for a transaction request consumption"
+  description: The schema for a transaction request consumption
   type: object
   properties:
     object:

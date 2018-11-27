@@ -1,5 +1,5 @@
 TransactionSchema:
-  description: "The object schema for a transaction"
+  description: The object schema for a transaction
   type: object
   properties:
     object:
@@ -63,3 +63,31 @@ TransactionSchema:
     - status
     - created_at
     - updated_at
+
+TransactionCalculationSchema:
+  description: The object schema for a transaction calculation
+  type: object
+  properties:
+    object:
+      type: string
+    from_amount:
+      type: integer
+    from_token_id:
+      type: string
+    to_amount:
+      type: integer
+    to_token_id:
+      type: string
+    exchange_pair:
+      $ref: '../exchange_pair/schemas.yaml#/ExchangePairSchema'
+    calculated_at:
+      type: string
+      format: date-time
+  required:
+    - object
+    - from_amount
+    - from_token_id
+    - to_amount
+    - to_token_id
+    - exchange_pair
+    - calculated_at

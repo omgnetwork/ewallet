@@ -1,23 +1,23 @@
 TokenResponse:
-  description: "Returns a single tokens"
+  description: Returns a single tokens
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/TokenResponseSchema'
 TokenStatsResponse:
-  description: "Returns the stats for a single token"
+  description: Returns the stats for a single token
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/TokenStatsResponseSchema'
 TokensResponse:
-  description: "Returns a list of tokens"
+  description: Returns a list of tokens
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/TokensResponseSchema'
 MintsResponse:
-  description: "Returns a list of mints"
+  description: Returns a list of mints
   content:
     application/vnd.omisego.v1+json:
       schema:

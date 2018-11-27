@@ -12,7 +12,7 @@ admin.login:
       '200':
         $ref: '../authentication_token/responses.yaml#/AuthenticationTokenResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 me.logout:
   post:
@@ -24,9 +24,9 @@ me.logout:
       - AdminAuth: []
     responses:
       '200':
-        $ref: '../shared/responses.yaml#/EmptyResponse'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 auth_token.switch_account:
   post:
@@ -42,4 +42,4 @@ auth_token.switch_account:
       '200':
         $ref: '../authentication_token/responses.yaml#/AuthenticationTokenResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

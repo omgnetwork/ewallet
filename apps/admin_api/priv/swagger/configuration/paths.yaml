@@ -8,12 +8,12 @@ configuration.get:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/ConfigurationGetResponse"
+        $ref: 'responses.yaml#/ConfigurationGetResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 configuration.update:
   post:
     tags:
@@ -27,6 +27,6 @@ configuration.update:
       $ref: 'request_bodies.yaml#/ConfigurationUpdateBody'
     responses:
       '200':
-        $ref: "responses.yaml#/ConfigurationUpdateResponse"
+        $ref: 'responses.yaml#/ConfigurationUpdateResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

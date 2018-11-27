@@ -7,5 +7,5 @@ ConfigurationUpdateBody:
         type: object
         additionalProperties: true
         example:
-          base_url: "https://example.com"
-          email_adapter: "local"
+          base_url: https://example.com
+          email_adapter: local

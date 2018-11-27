@@ -10,9 +10,9 @@ me.approve_transaction_consumption:
       $ref: 'request_bodies.yaml#/ConsumptionConfirmationRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionConsumptionResponse"
+        $ref: 'responses.yaml#/TransactionConsumptionResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 me.reject_transaction_consumption:
   post:
@@ -26,6 +26,6 @@ me.reject_transaction_consumption:
       $ref: 'request_bodies.yaml#/ConsumptionConfirmationRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/TransactionConsumptionResponse"
+        $ref: 'responses.yaml#/TransactionConsumptionResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

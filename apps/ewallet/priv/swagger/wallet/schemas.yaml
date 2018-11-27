@@ -1,5 +1,5 @@
 WalletSchema:
-  description: "The object schema for a wallet"
+  description: The object schema for a wallet
   type: object
   properties:
     object:
@@ -44,31 +44,9 @@ WalletSchema:
     - account
     - balances
     - enabled
-  example:
-    data:
-      object: "wallet"
-      socket_topic: "wallet:XXX123"
-      address: "XXX123"
-      name: "primary"
-      identifier: "primary"
-      metadata: {}
-      encrypted_metadata: {}
-      enabled: true
-      user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
-      user: {}
-      account_id: null
-      account: null
-      balances:
-        - amount: 0
-          token:
-            object: "token"
-            id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
-            symbol: "BTC"
-            name: "Bitcoin"
-            subunit_to_unit: 100000000000000000
 
 BalanceSchema:
-  description: "The object schema for a balance"
+  description: The object schema for a balance
   type: object
   properties:
     object:
@@ -82,12 +60,3 @@ BalanceSchema:
     - object
     - token
     - amount
-  example:
-    object: "balance"
-    token:
-      object: "token"
-      id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
-      symbol: "BTC"
-      name: "Bitcoin"
-      subunit_to_unit: 100000000000000000
-    amount: 100

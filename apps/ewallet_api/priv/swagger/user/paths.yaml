@@ -8,9 +8,9 @@ user.signup:
       $ref: 'request_bodies.yaml#/UserSignupBody'
     responses:
       '200':
-        $ref: "responses.yaml#/UserResponse"
+        $ref: 'responses.yaml#/UserResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
         
 user.verify_email:
   post:
@@ -22,9 +22,9 @@ user.verify_email:
       $ref: 'request_bodies.yaml#/UserVerifyEmailBody'
     responses:
       '200':
-        $ref: "responses.yaml#/UserResponse"
+        $ref: 'responses.yaml#/UserResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
 me.get:
   post:
@@ -36,6 +36,6 @@ me.get:
       - ClientAuth: []
     responses:
       '200':
-        $ref: "responses.yaml#/UserResponse"
+        $ref: 'responses.yaml#/UserResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

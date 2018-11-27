@@ -13,7 +13,7 @@ AccessKeyUpdateBody:
           - id
           - expired
         example:
-          id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+          id: key_01ce83yphmq6vt4qnmn3ykwcw6
           expired: true
 
 AccessKeyToggleStatusBody:
@@ -31,9 +31,9 @@ AccessKeyToggleStatusBody:
           - id
           - enabled
         example:
-          id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+          id: key_01ce83yphmq6vt4qnmn3ykwcw6
           enabled: false
-          
+
 AccessKeyDeleteBody:
   description: The parameters to use for deleting an access key
   required: true
@@ -47,16 +47,16 @@ AccessKeyDeleteBody:
             required:
               - id
             example:
-              id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+              id: key_01ce83yphmq6vt4qnmn3ykwcw6
           - properties:
               access_key:
                 type: string
             required:
               - access_key
             example:
-              access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+              access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
         example:
-          id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+          id: key_01ce83yphmq6vt4qnmn3ykwcw6
 
 # API KEY REQUEST BODIES
 APIKeyUpdateBody:
@@ -74,7 +74,7 @@ APIKeyUpdateBody:
           - id
           - expired
         example:
-          id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
+          id: api_01ce83yphmq6vt4qnmn3ykwcw6
           expired: true
 
 APIKeyToggleStatusBody:
@@ -92,7 +92,7 @@ APIKeyToggleStatusBody:
           - id
           - enabled
         example:
-          id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
+          id: api_01ce83yphmq6vt4qnmn3ykwcw6
           enabled: false
 
 APIKeyDeleteBody:
@@ -107,4 +107,4 @@ APIKeyDeleteBody:
         required:
           - id
         example:
-          id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
+          id: api_01ce83yphmq6vt4qnmn3ykwcw6

@@ -1,7 +1,7 @@
 ConfigurationResponseSchema:
-  description: "The response schema for a list of configuration settings"
+  description: The response schema for a list of configuration settings
   allOf:
-  - $ref: '../shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
   - type: object
     properties:
       data:
@@ -12,13 +12,13 @@ ConfigurationResponseSchema:
               data:
                 type: array
                 items:
-                  $ref: 'schemas.yaml#/SettingSchema'
+                  $ref: '../../../../ewallet/priv/swagger/configuration/schemas.yaml#/SettingSchema'
     example:
       data:
-        object: "list"
+        object: list
         data:
-          - object: "configuration_setting"
-            id: "stg_01cbfg9qtdken61agxhx6wvj9h"
+          - object: configuration_setting
+            id: stg_01cbfg9qtdken61agxhx6wvj9h
             key: base_url
             value:  https://example.com
             type: string
@@ -28,13 +28,13 @@ ConfigurationResponseSchema:
             parent_value: nil
             secret: false
             position: 0
-            created_at: "2018-01-01T00:00:00Z"
-            updated_at: "2018-01-01T00:00:00Z"
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T00:00:00Z'
 
 ConfigurationUpdateResponseSchema:
-  description: "The response schema for a list of updated settings"
+  description: The response schema for a list of updated settings
   allOf:
-  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
   - type: object
     properties:
       data:
@@ -42,31 +42,31 @@ ConfigurationUpdateResponseSchema:
         additionalProperties: true
     example:
       data:
-        object: "map"
+        object: map
         data:
           base_url:
-            object: "configuration_setting"
-            id: "stg_01ce843mvg5fa1zpk5myy69h4q"
-            key: "base_url"
-            value: "https://example.com"
-            type: "string"
-            description: "description"
+            object: configuration_setting
+            id: stg_01ce843mvg5fa1zpk5myy69h4q
+            key: base_url
+            value: https://example.com
+            type: string
+            description: description
             options: nil
             parent: nil
             parent_value: nil
             secret: false
             position: 0
-            created_at: "2018-01-01T00:00:00Z"
-            updated_at: "2018-01-01T00:00:00Z"
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T00:00:00Z'
           fake_setting:
-            object: "error"
-            code: "setting:not_found"
-            description: "The setting could not be inserted."
+            object: error
+            code: setting:not_found
+            description: The setting could not be inserted.
             messages: nil
           invalid_setting:
-            object: "error"
-            code: "client:invalid_parameter"
+            object: error
+            code: client:invalid_parameter
             description: "Invalid parameter provided. `value` must be of type 'integer'."
             messages:
               value:
-                - "invalid_type_for_value"
+                - invalid_type_for_value

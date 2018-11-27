@@ -15,5 +15,5 @@ LoginBody:
           - email
           - password
         example:
-          email: "test@example.com"
-          password: "the_password"
+          email: test@example.com
+          password: the_password

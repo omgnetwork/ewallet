@@ -10,7 +10,7 @@ AccountGetBody:
         required:
           - id
         example:
-          id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+          id: acc_01ca2p8jqans5aty5gj5etmjcf
 AccountCreateBody:
   description: The parameters to use for creating a new account.
   required: true
@@ -37,9 +37,9 @@ AccountCreateBody:
         required:
           - name
         example:
-          name: "Account Name"
-          description: "The account description"
-          parent_id: "acc_01ca26pkge49aabzd6k6mshn0y"
+          name: Account Name
+          description: The account description
+          parent_id: acc_01ca26pkge49aabzd6k6mshn0y
           category_ids: []
           metadata: {}
           encrypted_metadata: {}
@@ -69,9 +69,9 @@ AccountUpdateBody:
         required:
           - id
         example:
-          id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-          name: "Account Name"
-          description: "The account description"
+          id: acc_01ca2p8jqans5aty5gj5etmjcf
+          name: Account Name
+          description: The account description
           category_ids: []
           metadata: {}
           encrypted_metadata: {}
@@ -82,7 +82,7 @@ AccountListBodyWithOwned:
     application/vnd.omisego.v1+json:
       schema:
         allOf:
-        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
         properties:
           id:
             type: string
@@ -92,7 +92,7 @@ AccountListBodyWithOwned:
           - id
           - owned
         example:
-          id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+          id: acc_01ca2p8jqans5aty5gj5etmjcf
           owned: true
 AccountListBody:
   description: The parameters to use for listing an account's data
@@ -101,14 +101,14 @@ AccountListBody:
     application/vnd.omisego.v1+json:
       schema:
         allOf:
-        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
         properties:
           id:
             type: string
         required:
           - id
         example:
-          id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+          id: acc_01ca2p8jqans5aty5gj5etmjcf
 AccountAssignUserBody:
   description: The parameters to use for assigning a user to an account
   required: true
@@ -131,10 +131,10 @@ AccountAssignUserBody:
               - role_name
               - redirect_url
             example:
-              user_id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
-              account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-              role_name: "admin"
-              redirect_url: "https://domain/redirect_path?email={email}&token={token}"
+              user_id: usr_01ce83q2zw7zk1dqr79t22zr1v
+              account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+              role_name: admin
+              redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
           - properties:
               email:
                 type: string
@@ -148,15 +148,15 @@ AccountAssignUserBody:
               - role_name
               - redirect_url
             example:
-              email: "user@example.com"
-              account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-              role_name: "admin"
-              redirect_url: "https://domain/redirect_path?email={email}&token={token}"
+              email: user@example.com
+              account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+              role_name: admin
+              redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
         example:
-          account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-          user_id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
-          role_name: "admin"
-          redirect_url: "https://domain/redirect_path?email={email}&token={token}"
+          account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+          user_id: usr_01ce83q2zw7zk1dqr79t22zr1v
+          role_name: admin
+          redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
 AccountUnassignUserBody:
   description: The parameters to use for unassigning a user from an account
   required: true
@@ -172,8 +172,8 @@ AccountUnassignUserBody:
           - user_id
           - account_id
         example:
-          account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-          user_id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
+          account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+          user_id: usr_01ce83q2zw7zk1dqr79t22zr1v
 AccountUploadBody:
   description: The parameters to use for uploading an account's avatar. Only supports .jpg, .jpeg, .gif and .png.
   required: true
@@ -190,5 +190,5 @@ AccountUploadBody:
           - id
           - avatar
         example:
-          id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-          avatar: "/path/to/file"
+          id: acc_01ca2p8jqans5aty5gj5etmjcf
+          avatar: /path/to/file

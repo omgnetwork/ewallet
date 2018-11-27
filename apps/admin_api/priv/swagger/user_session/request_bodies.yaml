@@ -10,4 +10,4 @@ LogoutUserBody:
         required:
           - auth_token
         example:
-          auth_token: "atk_01ce83q2zw7zk1dqr79t22zr1v"
+          auth_token: atk_01ce83q2zw7zk1dqr79t22zr1v

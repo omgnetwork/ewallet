@@ -1,5 +1,5 @@
 AuthenticationTokenResponse:
-  description: "Authentication token response"
+  description: Authentication token response
   content:
     application/vnd.omisego.v1+json:
       schema:

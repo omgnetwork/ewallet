@@ -14,8 +14,8 @@ ResetPasswordBody:
           - email
           - redirect_url
         example:
-          email: "test@example.com"
-          redirect_url: "https://example.com/admin/update_password?email={email}&token={token}"
+          email: test@example.com
+          redirect_url: 'https://example.com/admin/update_password?email={email}&token={token}'
 
 UpdatePasswordBody:
   description: The parameters to use for reseting a password
@@ -41,10 +41,10 @@ UpdatePasswordBody:
           - password
           - password_confirmation
         example:
-          email: "test@example.com"
-          token: "26736ca1-43a0-442b-803e-76220cd3cb1d"
-          password: "nZi9Enc5$l#"
-          password_confirmation: "nZi9Enc5$l#"
+          email: test@example.com
+          token: 26736ca1-43a0-442b-803e-76220cd3cb1d
+          password: nZi9Enc5$l#
+          password_confirmation: nZi9Enc5$l#
 
 AdminVerifyEmailUpdateBody:
   description: The parameters to use for verifying an email update
@@ -58,8 +58,8 @@ AdminVerifyEmailUpdateBody:
           token:
             type: string
         example:
-          email: "new.email@example.com"
-          token: "verification_token"
+          email: new.email@example.com
+          token: verification_token
 
 AdminGetBody:
   description: The parameters to use for retrieving a specific user by its id
@@ -73,7 +73,7 @@ AdminGetBody:
         required:
           - id
         example:
-          id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
+          id: usr_01ce83q2zw7zk1dqr79t22zr1v
 InviteAcceptBody:
   description: The parameters to use for accepting an invite
   required: true
@@ -95,10 +95,10 @@ InviteAcceptBody:
           - password
           - password_confirmation
         example:
-          email: "example@omise.co"
-          token: "dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg"
-          password: "user_provided_password"
-          password_confirmation: "user_provided_password"
+          email: example@omise.co
+          token: dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg
+          password: user_provided_password
+          password_confirmation: user_provided_password
 
 AdminUpdateBody:
   description: The parameters to use for updating a user
@@ -132,7 +132,7 @@ AdminToggleStatusBody:
           - id
           - enabled
         example:
-          id: "usr_01ct2zjh20fj210bzz078948f6"
+          id: usr_01ct2zjh20fj210bzz078948f6
           enabled: false
 
 AdminUpdatePasswordBody:
@@ -152,10 +152,10 @@ AdminUpdatePasswordBody:
             type: string
             format: password
         example:
-          old_password: "old_password"
-          password: "new_password"
-          password_confirmation: "new_password"
-          
+          old_password: old_password
+          password: new_password
+          password_confirmation: new_password
+
 AdminUpdateEmailBody:
   description: The parameters to use for updating a user's email
   required: true
@@ -166,7 +166,7 @@ AdminUpdateEmailBody:
           email:
             type: string
         example:
-          email: "new.email@example.com"
+          email: new.email@example.com
 
 AdminUploadBody:
   description: The parameters to use for uploading an admin's avatar. Only supports .jpg, .jpeg, .gif and .png.
@@ -184,5 +184,5 @@ AdminUploadBody:
           - id
           - avatar
         example:
-          id: "usr_01ce83xvrsh8bzpctq3wqbprf8"
-          avatar: "/path/to/file"
+          id: usr_01ce83xvrsh8bzpctq3wqbprf8
+          avatar: /path/to/file

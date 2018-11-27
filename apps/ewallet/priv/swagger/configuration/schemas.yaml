@@ -1,5 +1,5 @@
 SettingSchema:
-  description: "The object schema for a configuration setting"
+  description: The object schema for a configuration setting
   type: object
   properties:
     object:

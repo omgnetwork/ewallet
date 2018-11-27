@@ -8,12 +8,12 @@ access_key.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/AccessKeysResponse"
+        $ref: 'responses.yaml#/AccessKeysResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 access_key.create:
   post:
     tags:
@@ -25,9 +25,9 @@ access_key.create:
       - AdminAuth: []
     responses:
       '200':
-        $ref: "responses.yaml#/AccessKeyResponse"
+        $ref: 'responses.yaml#/AccessKeyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 access_key.update:
   post:
     tags:
@@ -42,9 +42,9 @@ access_key.update:
       $ref: 'request_bodies.yaml#/AccessKeyUpdateBody'
     responses:
       '200':
-        $ref: "responses.yaml#/AccessKeyResponse"
+        $ref: 'responses.yaml#/AccessKeyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 access_key.enable_or_disable:
   post:
     tags:
@@ -58,9 +58,9 @@ access_key.enable_or_disable:
       $ref: 'request_bodies.yaml#/AccessKeyToggleStatusBody'
     responses:
       '200':
-        $ref: "responses.yaml#/AccessKeyResponse"
+        $ref: 'responses.yaml#/AccessKeyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 access_key.delete:
   post:
     tags:
@@ -74,9 +74,9 @@ access_key.delete:
       $ref: 'request_bodies.yaml#/AccessKeyDeleteBody'
     responses:
       '200':
-        $ref: "../shared/responses.yaml#/EmptyResponse"
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 api_key.all:
   post:
     tags:
@@ -87,12 +87,12 @@ api_key.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: "responses.yaml#/APIKeysResponse"
+        $ref: 'responses.yaml#/APIKeysResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 api_key.create:
   post:
     tags:
@@ -104,9 +104,9 @@ api_key.create:
       - AdminAuth: []
     responses:
       '200':
-        $ref: "responses.yaml#/APIKeyResponse"
+        $ref: 'responses.yaml#/APIKeyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 api_key.update:
   post:
     tags:
@@ -121,9 +121,9 @@ api_key.update:
       $ref: 'request_bodies.yaml#/APIKeyUpdateBody'
     responses:
       '200':
-        $ref: "responses.yaml#/APIKeyResponse"
+        $ref: 'responses.yaml#/APIKeyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 api_key.enable_or_disable:
   post:
     tags:
@@ -137,9 +137,9 @@ api_key.enable_or_disable:
       $ref: 'request_bodies.yaml#/APIKeyToggleStatusBody'
     responses:
       '200':
-        $ref: "responses.yaml#/APIKeyResponse"
+        $ref: 'responses.yaml#/APIKeyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 api_key.delete:
   post:
     tags:
@@ -153,6 +153,6 @@ api_key.delete:
       $ref: 'request_bodies.yaml#/APIKeyDeleteBody'
     responses:
       '200':
-        $ref: "../shared/responses.yaml#/EmptyResponse"
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
       '500':
-        $ref: '../shared/responses.yaml#/InternalServerError'
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

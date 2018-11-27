@@ -10,7 +10,7 @@ ExchangePairGetBody:
         required:
           - id
         example:
-          id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
+          id: exg_01cgvppyrz2pprj6s0zmc26p2p
 ExchangePairCreateBody:
     description: The parameters to create an exchange pair.
     required: true
@@ -31,8 +31,8 @@ ExchangePairCreateBody:
             - to_token_id
             - rate
           example:
-            from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
-            to_token_id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
+            from_token_id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+            to_token_id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
             rate: 0.017
             sync_opposite: false
 ExchangePairUpdateBody:
@@ -49,7 +49,7 @@ ExchangePairUpdateBody:
           required:
             - id
           example:
-            id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
+            id: exg_01cgvppyrz2pprj6s0zmc26p2p
             rate: 0.099
 ExchangePairDeleteBody:
     description: The parameters to delete an exchange pair.
@@ -63,4 +63,4 @@ ExchangePairDeleteBody:
           required:
             - id
           example:
-            id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
+            id: exg_01cgvppyrz2pprj6s0zmc26p2p

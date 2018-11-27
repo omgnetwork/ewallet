@@ -1,5 +1,5 @@
 WalletsResponse:
-  description: "Returns a list of wallets"
+  description: Returns a list of wallets
   content:
     application/vnd.omisego.v1+json:
       schema:

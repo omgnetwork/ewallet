@@ -1,5 +1,5 @@
 AccountSchema:
-  description: "The object schema for an account"
+  description: The object schema for an account
   type: object
   properties:
     object:

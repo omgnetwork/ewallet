@@ -1,24 +1,24 @@
 UserResponseSchema:
-  description: "The response schema for a user"
+  description: The response schema for a user
   allOf:
-  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
   - type: object
     properties:
       data:
         type: object
-        $ref: 'schemas.yaml#/UserSchema'
+        $ref: '../../../../ewallet/priv/swagger/user/schemas.yaml#/UserSchema'
     example:
       data:
-        object: "user"
-        id: "usr_01ce83zf80j542z4q4zqd8qvfx"
-        provider_user_id: "wijf-fbancomw-dqwjudb"
-        username: "johndoe"
-        full_name: "John Doe"
-        calling_name: "John"
-        email: "johndoe@omise.co"
+        object: user
+        id: usr_01ce83zf80j542z4q4zqd8qvfx
+        provider_user_id: wijf-fbancomw-dqwjudb
+        username: johndoe
+        full_name: John Doe
+        calling_name: John
+        email: johndoe@omise.co
         enabled: true
-        metadata: {"first_name": "John", "last_name": "Doe"}
-        encrypted_metadata: {"something": "secret"}
-        avatar: {"original": "file_url"}
-        created_at: "2018-01-01T00:00:00Z"
-        updated_at: "2018-01-01T10:00:00Z"
+        metadata: {first_name: John, last_name: Doe}
+        encrypted_metadata: {something: secret}
+        avatar: {original: file_url}
+        created_at: '2018-01-01T00:00:00Z'
+        updated_at: '2018-01-01T10:00:00Z'

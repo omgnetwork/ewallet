@@ -1,11 +1,11 @@
 AccessKeyResponse:
-  description: "Returns a single access key"
+  description: Returns a single access key
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/AccessKeyResponseSchema'
 AccessKeysResponse:
-  description: "Returns a list of access keys"
+  description: Returns a list of access keys
   content:
     application/vnd.omisego.v1+json:
       schema:
@@ -13,13 +13,13 @@ AccessKeysResponse:
 
 # API KEY RESPONSES
 APIKeyResponse:
-  description: "Returns a single API key"
+  description: Returns a single API key
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/APIKeyResponseSchema'
 APIKeysResponse:
-  description: "Returns a list of API keys"
+  description: Returns a list of API keys
   content:
     application/vnd.omisego.v1+json:
       schema:

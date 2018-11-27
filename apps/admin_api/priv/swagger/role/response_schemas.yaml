@@ -1,24 +1,24 @@
 RoleResponseSchema:
-  description: "The response schema for a role"
+  description: The response schema for a role
   allOf:
-  - $ref: '../shared/schemas.yaml#/BaseResponseSchema'
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
   - type: object
     properties:
       data:
         type: object
-        $ref: 'schemas.yaml#/RoleSchema'
+        $ref: '../../../../ewallet/priv/swagger/role/schemas.yaml#/RoleSchema'
     example:
       data:
-        object: "role"
-        id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
-        name: "role_name"
-        display_name: "The role's display name"
-        created_at: "2018-01-01T00:00:00Z"
-        updated_at: "2018-01-01T10:00:00Z"
+        object: role
+        id: rol_01cw625zm2xmny5ee3mwt9j8ky
+        name: role_name
+        display_name: The role's display name
+        created_at: '2018-01-01T00:00:00Z'
+        updated_at: '2018-01-01T10:00:00Z'
 RolesResponseSchema:
-  description: "The response schema for a list of roles"
+  description: The response schema for a list of roles
   allOf:
-  - $ref: '../shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
   - type: object
     properties:
       data:
@@ -29,14 +29,14 @@ RolesResponseSchema:
               data:
                 type: array
                 items:
-                  $ref: 'schemas.yaml#/RoleSchema'
+                  $ref: '../../../../ewallet/priv/swagger/role/schemas.yaml#/RoleSchema'
     example:
       data:
-        object: "list"
+        object: list
         data:
-          - object: "role"
-            id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
-            name: "Role Name"
-            display_name: "The role's display name"
-            created_at: "2018-01-01T00:00:00Z"
-            updated_at: "2018-01-01T10:00:00Z"
+          - object: role
+            id: rol_01cw625zm2xmny5ee3mwt9j8ky
+            name: Role Name
+            display_name: The role's display name
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'

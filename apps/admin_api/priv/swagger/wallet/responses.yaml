@@ -1,11 +1,11 @@
 WalletResponse:
-  description: "Returns a single wallet"
+  description: Returns a single wallet
   content:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/WalletResponseSchema'
 WalletsResponse:
-  description: "Returns a list of wallets"
+  description: Returns a list of wallets
   content:
     application/vnd.omisego.v1+json:
       schema:

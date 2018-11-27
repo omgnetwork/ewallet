@@ -10,7 +10,7 @@ UserGetBody:
         required:
           - id
         example:
-          id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
+          id: usr_01ce83q2zw7zk1dqr79t22zr1v
 
 UserBody:
   description: The parameters to use for creating or updating a user
@@ -37,11 +37,11 @@ UserBody:
           - provider_user_id
           - username
         example:
-          provider_user_id: "wijf-fbancomw-dqwjudb"
-          username: "thibault@omise.co"
-          full_name: "Thibault Denizet"
-          calling_name: "Thibault"
-          metadata: {"first_name": "Thibault", "last_name": "Denizet"}
+          provider_user_id: wijf-fbancomw-dqwjudb
+          username: thibault@omise.co
+          full_name: Thibault Denizet
+          calling_name: Thibault
+          metadata: {first_name: Thibault, last_name: Denizet}
           encrypted_metadata: {}
 
 UserIdentifierBody:
@@ -62,7 +62,7 @@ UserIdentifierBody:
             required:
               - provider_user_id
         example:
-          id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
+          id: usr_01ce83q2zw7zk1dqr79t22zr1v
 
 UserIdentifierWithFiltersBody:
   description: The parameters to use for retrieving a collection owned by user by its id or provider_user_id
@@ -70,7 +70,7 @@ UserIdentifierWithFiltersBody:
     application/vnd.omisego.v1+json:
       schema:
         allOf:
-        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
         oneOf:
           - properties:
               id:
@@ -83,7 +83,7 @@ UserIdentifierWithFiltersBody:
             required:
               - provider_user_id
         example:
-          id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
+          id: usr_01ce83q2zw7zk1dqr79t22zr1v
 
 UserToggleStatusBody:
   description: The parameters to enable/disable a user. Send enabled=true to enable, enabled=false to disable.
@@ -109,5 +109,5 @@ UserToggleStatusBody:
               - provider_user_id
               - enabled
         example:
-          id: "usr_01ct2zjh20fj210bzz078948f6"
+          id: usr_01ct2zjh20fj210bzz078948f6
           enabled: false

@@ -10,7 +10,7 @@ GetConsumptionRequestBody:
         required:
           - id
         example:
-          id: "txc_01abfg5m2ee06kzm8tbysfmmw5"
+          id: txc_01abfg5m2ee06kzm8tbysfmmw5
 
 ConsumptionConfirmationRequestBody:
   description: Approve or reject a consumption using the specified ID.
@@ -24,4 +24,4 @@ ConsumptionConfirmationRequestBody:
         required:
           - id
         example:
-          id: "txn_01cbfg5m2ee06kzm8tbysfmmw5"
+          id: txn_01cbfg5m2ee06kzm8tbysfmmw5

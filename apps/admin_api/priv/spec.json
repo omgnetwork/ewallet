@@ -238,29 +238,7 @@
                                 "id",
                                 "created_at",
                                 "updated_at"
-                              ],
-                              "example": {
-                                "object": "user",
-                                "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                "username": "johndoe",
-                                "full_name": "John Doe",
-                                "calling_name": "John",
-                                "email": "johndoe@omise.co",
-                                "enabled": true,
-                                "metadata": {
-                                  "first_name": "John",
-                                  "last_name": "Doe"
-                                },
-                                "encrypted_metadata": {
-                                  "something": "secret"
-                                },
-                                "avatar": {
-                                  "original": "file_url"
-                                },
-                                "created_at": "2018-01-01T00:00:00Z",
-                                "updated_at": "2018-01-01T10:00:00Z"
-                              }
+                              ]
                             },
                             "account_id": {
                               "type": "string"
@@ -829,29 +807,7 @@
                                 "id",
                                 "created_at",
                                 "updated_at"
-                              ],
-                              "example": {
-                                "object": "user",
-                                "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                "username": "johndoe",
-                                "full_name": "John Doe",
-                                "calling_name": "John",
-                                "email": "johndoe@omise.co",
-                                "enabled": true,
-                                "metadata": {
-                                  "first_name": "John",
-                                  "last_name": "Doe"
-                                },
-                                "encrypted_metadata": {
-                                  "something": "secret"
-                                },
-                                "avatar": {
-                                  "original": "file_url"
-                                },
-                                "created_at": "2018-01-01T00:00:00Z",
-                                "updated_at": "2018-01-01T10:00:00Z"
-                              }
+                              ]
                             },
                             "account_id": {
                               "type": "string"
@@ -1484,29 +1440,7 @@
                                                     "id",
                                                     "created_at",
                                                     "updated_at"
-                                                  ],
-                                                  "example": {
-                                                    "object": "user",
-                                                    "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                                    "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                                    "username": "johndoe",
-                                                    "full_name": "John Doe",
-                                                    "calling_name": "John",
-                                                    "email": "johndoe@omise.co",
-                                                    "enabled": true,
-                                                    "metadata": {
-                                                      "first_name": "John",
-                                                      "last_name": "Doe"
-                                                    },
-                                                    "encrypted_metadata": {
-                                                      "something": "secret"
-                                                    },
-                                                    "avatar": {
-                                                      "original": "file_url"
-                                                    },
-                                                    "created_at": "2018-01-01T00:00:00Z",
-                                                    "updated_at": "2018-01-01T10:00:00Z"
-                                                  }
+                                                  ]
                                                 }
                                               }
                                             }
@@ -1827,29 +1761,7 @@
                                           "id",
                                           "created_at",
                                           "updated_at"
-                                        ],
-                                        "example": {
-                                          "object": "user",
-                                          "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                          "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                          "username": "johndoe",
-                                          "full_name": "John Doe",
-                                          "calling_name": "John",
-                                          "email": "johndoe@omise.co",
-                                          "enabled": true,
-                                          "metadata": {
-                                            "first_name": "John",
-                                            "last_name": "Doe"
-                                          },
-                                          "encrypted_metadata": {
-                                            "something": "secret"
-                                          },
-                                          "avatar": {
-                                            "original": "file_url"
-                                          },
-                                          "created_at": "2018-01-01T00:00:00Z",
-                                          "updated_at": "2018-01-01T10:00:00Z"
-                                        }
+                                        ]
                                       }
                                     }
                                   }
@@ -2165,29 +2077,7 @@
                                           "id",
                                           "created_at",
                                           "updated_at"
-                                        ],
-                                        "example": {
-                                          "object": "user",
-                                          "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                          "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                          "username": "johndoe",
-                                          "full_name": "John Doe",
-                                          "calling_name": "John",
-                                          "email": "johndoe@omise.co",
-                                          "enabled": true,
-                                          "metadata": {
-                                            "first_name": "John",
-                                            "last_name": "Doe"
-                                          },
-                                          "encrypted_metadata": {
-                                            "something": "secret"
-                                          },
-                                          "avatar": {
-                                            "original": "file_url"
-                                          },
-                                          "created_at": "2018-01-01T00:00:00Z",
-                                          "updated_at": "2018-01-01T10:00:00Z"
-                                        }
+                                        ]
                                       }
                                     }
                                   }
@@ -2506,29 +2396,7 @@
                                           "id",
                                           "created_at",
                                           "updated_at"
-                                        ],
-                                        "example": {
-                                          "object": "user",
-                                          "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                          "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                          "username": "johndoe",
-                                          "full_name": "John Doe",
-                                          "calling_name": "John",
-                                          "email": "johndoe@omise.co",
-                                          "enabled": true,
-                                          "metadata": {
-                                            "first_name": "John",
-                                            "last_name": "Doe"
-                                          },
-                                          "encrypted_metadata": {
-                                            "something": "secret"
-                                          },
-                                          "avatar": {
-                                            "original": "file_url"
-                                          },
-                                          "created_at": "2018-01-01T00:00:00Z",
-                                          "updated_at": "2018-01-01T10:00:00Z"
-                                        }
+                                        ]
                                       }
                                     }
                                   }
@@ -2839,29 +2707,7 @@
                                           "id",
                                           "created_at",
                                           "updated_at"
-                                        ],
-                                        "example": {
-                                          "object": "user",
-                                          "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                          "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                          "username": "johndoe",
-                                          "full_name": "John Doe",
-                                          "calling_name": "John",
-                                          "email": "johndoe@omise.co",
-                                          "enabled": true,
-                                          "metadata": {
-                                            "first_name": "John",
-                                            "last_name": "Doe"
-                                          },
-                                          "encrypted_metadata": {
-                                            "something": "secret"
-                                          },
-                                          "avatar": {
-                                            "original": "file_url"
-                                          },
-                                          "created_at": "2018-01-01T00:00:00Z",
-                                          "updated_at": "2018-01-01T10:00:00Z"
-                                        }
+                                        ]
                                       }
                                     }
                                   }
@@ -3146,29 +2992,7 @@
                                 "id",
                                 "created_at",
                                 "updated_at"
-                              ],
-                              "example": {
-                                "object": "user",
-                                "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                "username": "johndoe",
-                                "full_name": "John Doe",
-                                "calling_name": "John",
-                                "email": "johndoe@omise.co",
-                                "enabled": true,
-                                "metadata": {
-                                  "first_name": "John",
-                                  "last_name": "Doe"
-                                },
-                                "encrypted_metadata": {
-                                  "something": "secret"
-                                },
-                                "avatar": {
-                                  "original": "file_url"
-                                },
-                                "created_at": "2018-01-01T00:00:00Z",
-                                "updated_at": "2018-01-01T10:00:00Z"
-                              }
+                              ]
                             },
                             "account_id": {
                               "type": "string"
@@ -12437,31 +12261,7 @@
                                       "id",
                                       "created_at",
                                       "updated_at"
-                                    ],
-                                    "example": {
-                                      "object": "user",
-                                      "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                      "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                      "username": "johndoe",
-                                      "full_name": "John Doe",
-                                      "calling_name": "John",
-                                      "email": "johndoe@omise.co",
-                                      "enabled": true,
-                                      "metadata": {
-                                        "first_name": "John",
-                                        "last_name": "Doe"
-                                      },
-                                      "encrypted_metadata": {
-                                        "something": "secret"
-                                      },
-                                      "avatar": {
-                                        "original": "file_url"
-                                      },
-                                      "created_at": "2018-01-01T00:00:00Z",
-                                      "updated_at": "2018-01-01T10:00:00Z",
-                                      "account": {},
-                                      "role": "admin"
-                                    }
+                                    ]
                                   }
                                 }
                               }
@@ -12891,29 +12691,7 @@
                                       "id",
                                       "created_at",
                                       "updated_at"
-                                    ],
-                                    "example": {
-                                      "object": "user",
-                                      "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                      "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                      "username": "johndoe",
-                                      "full_name": "John Doe",
-                                      "calling_name": "John",
-                                      "email": "johndoe@omise.co",
-                                      "enabled": true,
-                                      "metadata": {
-                                        "first_name": "John",
-                                        "last_name": "Doe"
-                                      },
-                                      "encrypted_metadata": {
-                                        "something": "secret"
-                                      },
-                                      "avatar": {
-                                        "original": "file_url"
-                                      },
-                                      "created_at": "2018-01-01T00:00:00Z",
-                                      "updated_at": "2018-01-01T10:00:00Z"
-                                    }
+                                    ]
                                   }
                                 }
                               }
@@ -13862,29 +13640,7 @@
                                           "id",
                                           "created_at",
                                           "updated_at"
-                                        ],
-                                        "example": {
-                                          "object": "user",
-                                          "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                          "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                          "username": "johndoe",
-                                          "full_name": "John Doe",
-                                          "calling_name": "John",
-                                          "email": "johndoe@omise.co",
-                                          "enabled": true,
-                                          "metadata": {
-                                            "first_name": "John",
-                                            "last_name": "Doe"
-                                          },
-                                          "encrypted_metadata": {
-                                            "something": "secret"
-                                          },
-                                          "avatar": {
-                                            "original": "file_url"
-                                          },
-                                          "created_at": "2018-01-01T00:00:00Z",
-                                          "updated_at": "2018-01-01T10:00:00Z"
-                                        }
+                                        ]
                                       },
                                       "account_id": {
                                         "type": "string"
@@ -14089,18 +13845,7 @@
                                             "object",
                                             "token",
                                             "amount"
-                                          ],
-                                          "example": {
-                                            "object": "balance",
-                                            "token": {
-                                              "object": "token",
-                                              "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                              "symbol": "BTC",
-                                              "name": "Bitcoin",
-                                              "subunit_to_unit": 100000000000000000
-                                            },
-                                            "amount": 100
-                                          }
+                                          ]
                                         }
                                       }
                                     },
@@ -14118,35 +13863,7 @@
                                       "account",
                                       "balances",
                                       "enabled"
-                                    ],
-                                    "example": {
-                                      "data": {
-                                        "object": "wallet",
-                                        "socket_topic": "wallet:XXX123",
-                                        "address": "XXX123",
-                                        "name": "primary",
-                                        "identifier": "primary",
-                                        "metadata": {},
-                                        "encrypted_metadata": {},
-                                        "enabled": true,
-                                        "user_id": "usr_01cbfg6v9thrc3sd9m1v4gazjv",
-                                        "user": {},
-                                        "account_id": null,
-                                        "account": null,
-                                        "balances": [
-                                          {
-                                            "amount": 0,
-                                            "token": {
-                                              "object": "token",
-                                              "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                              "symbol": "BTC",
-                                              "name": "Bitcoin",
-                                              "subunit_to_unit": 100000000000000000
-                                            }
-                                          }
-                                        ]
-                                      }
-                                    }
+                                    ]
                                   }
                                 }
                               }
@@ -15241,7 +14958,7 @@
                               "type": "send",
                               "amount": 100,
                               "status": "valid",
-                              "correlation_id": "123",
+                              "correlation_id": "some correlation id",
                               "token_id": "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
                               "token": null,
                               "address": "3a560be5-15d1-4463-9ec2-02bc8ded7120",
@@ -16333,29 +16050,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -16760,29 +16455,7 @@
                                       "id",
                                       "created_at",
                                       "updated_at"
-                                    ],
-                                    "example": {
-                                      "object": "user",
-                                      "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                      "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                      "username": "johndoe",
-                                      "full_name": "John Doe",
-                                      "calling_name": "John",
-                                      "email": "johndoe@omise.co",
-                                      "enabled": true,
-                                      "metadata": {
-                                        "first_name": "John",
-                                        "last_name": "Doe"
-                                      },
-                                      "encrypted_metadata": {
-                                        "something": "secret"
-                                      },
-                                      "avatar": {
-                                        "original": "file_url"
-                                      },
-                                      "created_at": "2018-01-01T00:00:00Z",
-                                      "updated_at": "2018-01-01T10:00:00Z"
-                                    }
+                                    ]
                                   }
                                 }
                               }
@@ -17039,29 +16712,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -17314,29 +16965,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -17596,29 +17225,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -17842,29 +17449,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -18112,29 +17697,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -18376,29 +17939,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -18651,29 +18192,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -18924,29 +18443,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -20138,29 +19635,7 @@
                                       "id",
                                       "created_at",
                                       "updated_at"
-                                    ],
-                                    "example": {
-                                      "object": "user",
-                                      "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                      "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                      "username": "johndoe",
-                                      "full_name": "John Doe",
-                                      "calling_name": "John",
-                                      "email": "johndoe@omise.co",
-                                      "enabled": true,
-                                      "metadata": {
-                                        "first_name": "John",
-                                        "last_name": "Doe"
-                                      },
-                                      "encrypted_metadata": {
-                                        "something": "secret"
-                                      },
-                                      "avatar": {
-                                        "original": "file_url"
-                                      },
-                                      "created_at": "2018-01-01T00:00:00Z",
-                                      "updated_at": "2018-01-01T10:00:00Z"
-                                    }
+                                    ]
                                   }
                                 }
                               }
@@ -20441,29 +19916,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -20734,29 +20187,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -21015,29 +20446,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -21494,29 +20903,7 @@
                                           "id",
                                           "created_at",
                                           "updated_at"
-                                        ],
-                                        "example": {
-                                          "object": "user",
-                                          "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                          "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                          "username": "johndoe",
-                                          "full_name": "John Doe",
-                                          "calling_name": "John",
-                                          "email": "johndoe@omise.co",
-                                          "enabled": true,
-                                          "metadata": {
-                                            "first_name": "John",
-                                            "last_name": "Doe"
-                                          },
-                                          "encrypted_metadata": {
-                                            "something": "secret"
-                                          },
-                                          "avatar": {
-                                            "original": "file_url"
-                                          },
-                                          "created_at": "2018-01-01T00:00:00Z",
-                                          "updated_at": "2018-01-01T10:00:00Z"
-                                        }
+                                        ]
                                       },
                                       "account_id": {
                                         "type": "string"
@@ -21721,18 +21108,7 @@
                                             "object",
                                             "token",
                                             "amount"
-                                          ],
-                                          "example": {
-                                            "object": "balance",
-                                            "token": {
-                                              "object": "token",
-                                              "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                              "symbol": "BTC",
-                                              "name": "Bitcoin",
-                                              "subunit_to_unit": 100000000000000000
-                                            },
-                                            "amount": 100
-                                          }
+                                          ]
                                         }
                                       }
                                     },
@@ -21750,35 +21126,7 @@
                                       "account",
                                       "balances",
                                       "enabled"
-                                    ],
-                                    "example": {
-                                      "data": {
-                                        "object": "wallet",
-                                        "socket_topic": "wallet:XXX123",
-                                        "address": "XXX123",
-                                        "name": "primary",
-                                        "identifier": "primary",
-                                        "metadata": {},
-                                        "encrypted_metadata": {},
-                                        "enabled": true,
-                                        "user_id": "usr_01cbfg6v9thrc3sd9m1v4gazjv",
-                                        "user": {},
-                                        "account_id": null,
-                                        "account": null,
-                                        "balances": [
-                                          {
-                                            "amount": 0,
-                                            "token": {
-                                              "object": "token",
-                                              "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                              "symbol": "BTC",
-                                              "name": "Bitcoin",
-                                              "subunit_to_unit": 100000000000000000
-                                            }
-                                          }
-                                        ]
-                                      }
-                                    }
+                                    ]
                                   }
                                 }
                               }
@@ -23168,29 +22516,7 @@
                             "id",
                             "created_at",
                             "updated_at"
-                          ],
-                          "example": {
-                            "object": "user",
-                            "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "enabled": true,
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -23623,29 +22949,7 @@
                                           "id",
                                           "created_at",
                                           "updated_at"
-                                        ],
-                                        "example": {
-                                          "object": "user",
-                                          "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                          "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                          "username": "johndoe",
-                                          "full_name": "John Doe",
-                                          "calling_name": "John",
-                                          "email": "johndoe@omise.co",
-                                          "enabled": true,
-                                          "metadata": {
-                                            "first_name": "John",
-                                            "last_name": "Doe"
-                                          },
-                                          "encrypted_metadata": {
-                                            "something": "secret"
-                                          },
-                                          "avatar": {
-                                            "original": "file_url"
-                                          },
-                                          "created_at": "2018-01-01T00:00:00Z",
-                                          "updated_at": "2018-01-01T10:00:00Z"
-                                        }
+                                        ]
                                       },
                                       "account_id": {
                                         "type": "string"
@@ -23850,18 +23154,7 @@
                                             "object",
                                             "token",
                                             "amount"
-                                          ],
-                                          "example": {
-                                            "object": "balance",
-                                            "token": {
-                                              "object": "token",
-                                              "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                              "symbol": "BTC",
-                                              "name": "Bitcoin",
-                                              "subunit_to_unit": 100000000000000000
-                                            },
-                                            "amount": 100
-                                          }
+                                          ]
                                         }
                                       }
                                     },
@@ -23879,35 +23172,7 @@
                                       "account",
                                       "balances",
                                       "enabled"
-                                    ],
-                                    "example": {
-                                      "data": {
-                                        "object": "wallet",
-                                        "socket_topic": "wallet:XXX123",
-                                        "address": "XXX123",
-                                        "name": "primary",
-                                        "identifier": "primary",
-                                        "metadata": {},
-                                        "encrypted_metadata": {},
-                                        "enabled": true,
-                                        "user_id": "usr_01cbfg6v9thrc3sd9m1v4gazjv",
-                                        "user": {},
-                                        "account_id": null,
-                                        "account": null,
-                                        "balances": [
-                                          {
-                                            "amount": 0,
-                                            "token": {
-                                              "object": "token",
-                                              "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                              "symbol": "BTC",
-                                              "name": "Bitcoin",
-                                              "subunit_to_unit": 100000000000000000
-                                            }
-                                          }
-                                        ]
-                                      }
-                                    }
+                                    ]
                                   }
                                 }
                               }
@@ -24262,29 +23527,7 @@
                                 "id",
                                 "created_at",
                                 "updated_at"
-                              ],
-                              "example": {
-                                "object": "user",
-                                "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                "username": "johndoe",
-                                "full_name": "John Doe",
-                                "calling_name": "John",
-                                "email": "johndoe@omise.co",
-                                "enabled": true,
-                                "metadata": {
-                                  "first_name": "John",
-                                  "last_name": "Doe"
-                                },
-                                "encrypted_metadata": {
-                                  "something": "secret"
-                                },
-                                "avatar": {
-                                  "original": "file_url"
-                                },
-                                "created_at": "2018-01-01T00:00:00Z",
-                                "updated_at": "2018-01-01T10:00:00Z"
-                              }
+                              ]
                             },
                             "account_id": {
                               "type": "string"
@@ -24489,18 +23732,7 @@
                                   "object",
                                   "token",
                                   "amount"
-                                ],
-                                "example": {
-                                  "object": "balance",
-                                  "token": {
-                                    "object": "token",
-                                    "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                    "symbol": "BTC",
-                                    "name": "Bitcoin",
-                                    "subunit_to_unit": 100000000000000000
-                                  },
-                                  "amount": 100
-                                }
+                                ]
                               }
                             }
                           },
@@ -24518,35 +23750,7 @@
                             "account",
                             "balances",
                             "enabled"
-                          ],
-                          "example": {
-                            "data": {
-                              "object": "wallet",
-                              "socket_topic": "wallet:XXX123",
-                              "address": "XXX123",
-                              "name": "primary",
-                              "identifier": "primary",
-                              "metadata": {},
-                              "encrypted_metadata": {},
-                              "enabled": true,
-                              "user_id": "usr_01cbfg6v9thrc3sd9m1v4gazjv",
-                              "user": {},
-                              "account_id": null,
-                              "account": null,
-                              "balances": [
-                                {
-                                  "amount": 0,
-                                  "token": {
-                                    "object": "token",
-                                    "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                    "symbol": "BTC",
-                                    "name": "Bitcoin",
-                                    "subunit_to_unit": 100000000000000000
-                                  }
-                                }
-                              ]
-                            }
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -24829,29 +24033,7 @@
                                 "id",
                                 "created_at",
                                 "updated_at"
-                              ],
-                              "example": {
-                                "object": "user",
-                                "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                "username": "johndoe",
-                                "full_name": "John Doe",
-                                "calling_name": "John",
-                                "email": "johndoe@omise.co",
-                                "enabled": true,
-                                "metadata": {
-                                  "first_name": "John",
-                                  "last_name": "Doe"
-                                },
-                                "encrypted_metadata": {
-                                  "something": "secret"
-                                },
-                                "avatar": {
-                                  "original": "file_url"
-                                },
-                                "created_at": "2018-01-01T00:00:00Z",
-                                "updated_at": "2018-01-01T10:00:00Z"
-                              }
+                              ]
                             },
                             "account_id": {
                               "type": "string"
@@ -25056,18 +24238,7 @@
                                   "object",
                                   "token",
                                   "amount"
-                                ],
-                                "example": {
-                                  "object": "balance",
-                                  "token": {
-                                    "object": "token",
-                                    "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                    "symbol": "BTC",
-                                    "name": "Bitcoin",
-                                    "subunit_to_unit": 100000000000000000
-                                  },
-                                  "amount": 100
-                                }
+                                ]
                               }
                             }
                           },
@@ -25085,35 +24256,7 @@
                             "account",
                             "balances",
                             "enabled"
-                          ],
-                          "example": {
-                            "data": {
-                              "object": "wallet",
-                              "socket_topic": "wallet:XXX123",
-                              "address": "XXX123",
-                              "name": "primary",
-                              "identifier": "primary",
-                              "metadata": {},
-                              "encrypted_metadata": {},
-                              "enabled": true,
-                              "user_id": "usr_01cbfg6v9thrc3sd9m1v4gazjv",
-                              "user": {},
-                              "account_id": null,
-                              "account": null,
-                              "balances": [
-                                {
-                                  "amount": 0,
-                                  "token": {
-                                    "object": "token",
-                                    "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                    "symbol": "BTC",
-                                    "name": "Bitcoin",
-                                    "subunit_to_unit": 100000000000000000
-                                  }
-                                }
-                              ]
-                            }
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -25909,29 +25052,7 @@
                                 "id",
                                 "created_at",
                                 "updated_at"
-                              ],
-                              "example": {
-                                "object": "user",
-                                "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                                "provider_user_id": "wijf-fbancomw-dqwjudb",
-                                "username": "johndoe",
-                                "full_name": "John Doe",
-                                "calling_name": "John",
-                                "email": "johndoe@omise.co",
-                                "enabled": true,
-                                "metadata": {
-                                  "first_name": "John",
-                                  "last_name": "Doe"
-                                },
-                                "encrypted_metadata": {
-                                  "something": "secret"
-                                },
-                                "avatar": {
-                                  "original": "file_url"
-                                },
-                                "created_at": "2018-01-01T00:00:00Z",
-                                "updated_at": "2018-01-01T10:00:00Z"
-                              }
+                              ]
                             },
                             "account_id": {
                               "type": "string"
@@ -26136,18 +25257,7 @@
                                   "object",
                                   "token",
                                   "amount"
-                                ],
-                                "example": {
-                                  "object": "balance",
-                                  "token": {
-                                    "object": "token",
-                                    "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                    "symbol": "BTC",
-                                    "name": "Bitcoin",
-                                    "subunit_to_unit": 100000000000000000
-                                  },
-                                  "amount": 100
-                                }
+                                ]
                               }
                             }
                           },
@@ -26165,35 +25275,7 @@
                             "account",
                             "balances",
                             "enabled"
-                          ],
-                          "example": {
-                            "data": {
-                              "object": "wallet",
-                              "socket_topic": "wallet:XXX123",
-                              "address": "XXX123",
-                              "name": "primary",
-                              "identifier": "primary",
-                              "metadata": {},
-                              "encrypted_metadata": {},
-                              "enabled": true,
-                              "user_id": "usr_01cbfg6v9thrc3sd9m1v4gazjv",
-                              "user": {},
-                              "account_id": null,
-                              "account": null,
-                              "balances": [
-                                {
-                                  "amount": 0,
-                                  "token": {
-                                    "object": "token",
-                                    "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                    "symbol": "BTC",
-                                    "name": "Bitcoin",
-                                    "subunit_to_unit": 100000000000000000
-                                  }
-                                }
-                              ]
-                            }
-                          }
+                          ]
                         }
                       },
                       "example": {
@@ -27365,7 +26447,7 @@
                   "amount"
                 ],
                 "example": {
-                  "idempotency_token": "2345",
+                  "idempotency_token": "some idempotency token",
                   "from_address": "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c",
                   "to_address": "4aa07691-2f99-4cb1-b36c-50763e2d2ba8",
                   "token_id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
@@ -28499,7 +27581,7 @@
                               "type": "send",
                               "amount": 100,
                               "status": "valid",
-                              "correlation_id": "123",
+                              "correlation_id": "some correlation id",
                               "token_id": "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
                               "token": null,
                               "address": "3a560be5-15d1-4463-9ec2-02bc8ded7120",
@@ -28721,7 +27803,7 @@
                   "type": "send",
                   "token_id": "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
                   "amount": 100,
-                  "correlation_id": "123",
+                  "correlation_id": "some correlation id",
                   "address": "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
                 }
               }
@@ -28892,7 +27974,7 @@
                           "type": "send",
                           "amount": 100,
                           "status": "valid",
-                          "correlation_id": "123",
+                          "correlation_id": "some correlation id",
                           "token_id": "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
                           "token": null,
                           "address": "3a560be5-15d1-4463-9ec2-02bc8ded7120",
@@ -29204,7 +28286,7 @@
                           "type": "send",
                           "amount": 100,
                           "status": "valid",
-                          "correlation_id": "123",
+                          "correlation_id": "some correlation id",
                           "token_id": "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
                           "token": null,
                           "address": "3a560be5-15d1-4463-9ec2-02bc8ded7120",
@@ -29382,9 +28464,9 @@
                   "formatted_transaction_request_id"
                 ],
                 "example": {
-                  "idempotency_token": "32435",
+                  "idempotency_token": "some idempotency token",
                   "formatted_transaction_request_id": "txr_01cbfgcts5kqfgpqxcxn71rnbs",
-                  "correlation_id": "123",
+                  "correlation_id": "some correlation id",
                   "token_id": "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
                   "amount": 100,
                   "provider_user_id": "provider_user_id01",
