@@ -7,7 +7,7 @@ import {
   currentAccountLoadingStatusReducer
 } from '../omg-account-current/reducer'
 import { currentUserReducer, currentUserLoadingStatusReducer } from '../omg-user-current/reducer'
-import { inviteListReducer, inviteListLoadingStatusReducer } from '../omg-invite/reducer'
+import { inviteListReducer, inviteListLoadingStatusReducer } from '../omg-member/reducer'
 import { apiKeysReducer, apiKeysLoadingStatusReducer } from '../omg-api-keys/reducer'
 import { accessKeysReducer, accessKeyLoadingStatusReducer } from '../omg-access-key/reducer'
 import { alertsReducer } from '../omg-alert/reducer'
