@@ -19,6 +19,10 @@ defmodule EWalletAPI.V1.ResetPasswordController do
          {:ok, _email} <- send_request_email(request, redirect_url) do
       render(conn, :empty, %{success: true})
     else
+      # Prevents attackers from gaining knowledge about a user's email.
+      {:error, :user_email_not_found} ->
+        render(conn, :empty, %{success: true})
+
       {:error, code, meta} ->
         handle_error(conn, code, meta)
 
@@ -65,6 +69,10 @@ defmodule EWalletAPI.V1.ResetPasswordController do
     case ResetPasswordGate.update(email, token, password, password_confirmation) do
       {:ok, _user} ->
         render(conn, :empty, %{success: true})
+
+      # Prevents attackers from gaining knowledge about a user's email.
+      {:error, :user_email_not_found} ->
+        handle_error(conn, :invalid_reset_token)
 
       {:error, code} when is_atom(code) ->
         handle_error(conn, code)

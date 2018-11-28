@@ -52,7 +52,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     invalid_reset_token: %{
       code: "forget_password:token_not_found",
-      description: "There are no password reset requests corresponding to the provided token."
+      description:
+        "There are no password reset requests corresponding to the provided email and token."
     },
     invite_not_found: %{
       code: "user:invite_not_found",

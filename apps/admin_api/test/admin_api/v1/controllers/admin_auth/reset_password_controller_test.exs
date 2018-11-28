@@ -55,15 +55,17 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
     end
 
-    test "returns an error if no user is found with the associated email" do
+    test "returns a success without a new request, when the given email is not found" do
+      num_requests = Repo.aggregate(ForgetPasswordRequest, :count, :token)
+
       response =
         unauthenticated_request("/admin.reset_password", %{
           "email" => "example@mail.com",
           "redirect_url" => @redirect_url
         })
 
-      assert response["success"] == false
-      assert response["data"]["code"] == "user:email_not_found"
+      assert response["success"] == true
+      assert Repo.aggregate(ForgetPasswordRequest, :count, :token) == num_requests
     end
 
     test "returns an error if the email is not supplied" do
@@ -124,7 +126,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert ForgetPasswordRequest.all_active() |> length() == 0
     end
 
-    test "returns an email_not_found error when the user is not found" do
+    test "returns an token_not_found error when the user is not found" do
       {:ok, user} = :admin |> params_for() |> User.insert()
       {:ok, request} = ForgetPasswordRequest.generate(user)
 
@@ -137,7 +139,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
         })
 
       assert response["success"] == false
-      assert response["data"]["code"] == "user:email_not_found"
+      assert response["data"]["code"] == "forget_password:token_not_found"
       assert ForgetPasswordRequest |> Repo.all() |> length() == 1
     end
 

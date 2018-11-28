@@ -7,7 +7,7 @@ defmodule EWallet.ResetPasswordGate do
   @doc """
   Creates a reset password reset.
   """
-  @spec request(map()) :: %ForgetPasswordRequest{}
+  @spec request(map()) :: {:ok, %ForgetPasswordRequest{}} | {:error, :user_email_not_found}
   def request(email) do
     with {:ok, user} <- get_user_by_email(email),
          {_, _} <- ForgetPasswordRequest.disable_all_for(user),
@@ -21,7 +21,8 @@ defmodule EWallet.ResetPasswordGate do
   @doc """
   Verifies a reset password request and updates the password.
   """
-  @spec update(String.t(), String.t(), String.t(), String.t()) :: {:ok, %User{}}
+  @spec update(String.t(), String.t(), String.t(), String.t()) ::
+          {:ok, %User{}} | {:error, :user_email_not_found} | {:error, :invalid_reset_token}
   def update(email, token, password, password_confirmation) do
     with {:ok, user} <- get_user_by_email(email),
          {:ok, request} <- get_request(user, token),
