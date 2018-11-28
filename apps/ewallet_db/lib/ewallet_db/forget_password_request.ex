@@ -10,6 +10,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @token_length 32
+  @default_lifetime_minutes 10
 
   schema "forget_password_request" do
     field(:token, :string)
@@ -23,14 +24,29 @@ defmodule EWalletDB.ForgetPasswordRequest do
       type: UUID
     )
 
+    field(:used_at, :naive_datetime)
+    field(:expires_at, :naive_datetime)
+
     timestamps()
   end
 
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:token, :user_uuid])
-    |> validate_required([:token, :user_uuid])
+    |> cast(attrs, [:token, :user_uuid, :expires_at])
+    |> validate_required([:token, :user_uuid, :expires_at])
     |> assoc_constraint(:user)
+  end
+
+  defp expire_changeset(changeset, attrs) do
+    changeset
+    |> cast(attrs, [:enabled])
+    |> validate_required([:enabled])
+  end
+
+  defp expire_as_used_changeset(changeset, attrs) do
+    changeset
+    |> cast(attrs, [:enabled, :used_at])
+    |> validate_required([:enabled, :used_at])
   end
 
   @doc """
@@ -71,13 +87,23 @@ defmodule EWalletDB.ForgetPasswordRequest do
   end
 
   @doc """
-  Deletes all the current requests for a user.
+  Expires the given request.
   """
-  @spec disable_all_for(%User{}) :: {integer(), nil}
-  def disable_all_for(user) do
-    ForgetPasswordRequest
-    |> where([f], f.user_uuid == ^user.uuid)
-    |> Repo.update_all(set: [enabled: false])
+  @spec expire(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def expire(request) do
+    request
+    |> expire_changeset(%{enabled: false})
+    |> Repo.update()
+  end
+
+  @doc """
+  Expires the given request and set the `used_at` field.
+  """
+  @spec expire_as_used(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def expire_as_used(request) do
+    request
+    |> expire_as_used_changeset(%{enabled: false, used_at: NaiveDateTime.utc_now()})
+    |> Repo.update()
   end
 
   @doc """
@@ -86,7 +112,14 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @spec generate(%User{}) :: %ForgetPasswordRequest{} | {:error, Ecto.Changeset.t()}
   def generate(user) do
     with token <- Crypto.generate_base64_key(@token_length),
-         {:ok, _} <- insert(%{token: token, user_uuid: user.uuid}),
+         lifetime_minutes <-
+           Application.get_env(
+             :ewallet,
+             :forget_password_request_lifetime,
+             @default_lifetime_minutes
+           ),
+         expires_at <- NaiveDateTime.utc_now() |> NaiveDateTime.add(60 * lifetime_minutes),
+         {:ok, _} <- insert(%{token: token, user_uuid: user.uuid, expires_at: expires_at}),
          %ForgetPasswordRequest{} = request <- ForgetPasswordRequest.get(user, token) do
       {:ok, request}
     else

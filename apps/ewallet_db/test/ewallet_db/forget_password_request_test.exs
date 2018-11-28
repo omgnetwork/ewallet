@@ -1,13 +1,6 @@
 defmodule EWalletDB.ForgetPasswordRequestTest do
   use EWalletDB.SchemaCase
-  import Ecto.Query
-  alias EWalletDB.{Repo, ForgetPasswordRequest}
-
-  defp get_request_by_uuid(uuid) do
-    ForgetPasswordRequest
-    |> where([a], a.uuid == ^uuid)
-    |> Repo.one()
-  end
+  alias EWalletDB.{ForgetPasswordRequest}
 
   describe "all_active/0" do
     test "returns only enabled requests" do
@@ -78,25 +71,6 @@ defmodule EWalletDB.ForgetPasswordRequestTest do
       result = ForgetPasswordRequest.get(user, "invalid_token")
 
       assert result == nil
-    end
-  end
-
-  describe "disable_all_for/1" do
-    test "disables all requests for the given user" do
-      user_1 = insert(:admin)
-      user_2 = insert(:admin)
-
-      request_1 = insert(:forget_password_request, user: user_1, enabled: true)
-      request_2 = insert(:forget_password_request, user: user_1, enabled: false)
-      request_3 = insert(:forget_password_request, user: user_2, enabled: true)
-      request_4 = insert(:forget_password_request, user: user_2, enabled: false)
-
-      _ = ForgetPasswordRequest.disable_all_for(user_1)
-
-      assert get_request_by_uuid(request_1.uuid).enabled == false
-      assert get_request_by_uuid(request_2.uuid).enabled == false
-      assert get_request_by_uuid(request_3.uuid).enabled == true
-      assert get_request_by_uuid(request_4.uuid).enabled == false
     end
   end
 

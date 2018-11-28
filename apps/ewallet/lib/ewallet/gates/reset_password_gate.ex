@@ -7,10 +7,12 @@ defmodule EWallet.ResetPasswordGate do
   @doc """
   Creates a reset password reset.
   """
-  @spec request(map()) :: {:ok, %ForgetPasswordRequest{}} | {:error, :user_email_not_found}
+  @spec request(map()) ::
+          {:ok, %ForgetPasswordRequest{}}
+          | {:error, :user_email_not_found}
+          | {:error, Ecto.Changeset.t()}
   def request(email) do
     with {:ok, user} <- get_user_by_email(email),
-         {_, _} <- ForgetPasswordRequest.disable_all_for(user),
          {:ok, request} <- ForgetPasswordRequest.generate(user) do
       {:ok, request}
     else
@@ -22,12 +24,15 @@ defmodule EWallet.ResetPasswordGate do
   Verifies a reset password request and updates the password.
   """
   @spec update(String.t(), String.t(), String.t(), String.t()) ::
-          {:ok, %User{}} | {:error, :user_email_not_found} | {:error, :invalid_reset_token}
+          {:ok, %User{}}
+          | {:error, :user_email_not_found}
+          | {:error, :invalid_reset_token}
+          | {:error, Ecto.Changeset.t()}
   def update(email, token, password, password_confirmation) do
     with {:ok, user} <- get_user_by_email(email),
          {:ok, request} <- get_request(user, token),
          {:ok, user} <- update_password(request, password, password_confirmation),
-         {_, _} <- ForgetPasswordRequest.disable_all_for(user) do
+         {:ok, _} <- ForgetPasswordRequest.expire_as_used(request) do
       {:ok, user}
     else
       error -> error
@@ -51,8 +56,17 @@ defmodule EWallet.ResetPasswordGate do
 
   defp get_request(user, token) do
     case ForgetPasswordRequest.get(user, token) do
-      nil -> {:error, :invalid_reset_token}
-      request -> {:ok, request}
+      nil ->
+        {:error, :invalid_reset_token}
+
+      request ->
+        case NaiveDateTime.compare(NaiveDateTime.utc_now(), request.expires_at) do
+          :gt ->
+            {:error, :invalid_reset_token}
+
+          _ ->
+            {:ok, request}
+        end
     end
   end
 
