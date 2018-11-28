@@ -10,10 +10,9 @@ defmodule EWalletDB.Repo.Seeds.SettingsSeed do
   end
 
   def run(writer, _args) do
-    {:ok, [ok: %Setting{}]} = Config.update(%{
+    {:ok, [enable_standalone: {:ok, %Setting{}}]} = Config.update(%{
       enable_standalone: true
     })
-
     writer.warn("""
       Enable standalone : #{Config.get(:enable_standalone)}
     """)
