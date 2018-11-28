@@ -1,0 +1,98 @@
+AccessKeyResponseSchema:
+  description: The response schema for an access key
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        $ref: '../../../../ewallet/priv/swagger/api_key/schemas.yaml#/AccessKeySchema'
+    example:
+      data:
+        object: key
+        id: key_01ce843mvg5fa1zpk5myy69h4q
+        access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+        secret_key: the_secret_key_or_null
+        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+        enabled: true
+        created_at: '2018-01-01T00:00:00Z'
+        updated_at: '2018-01-01T10:00:00Z'
+        deleted_at: null
+
+AccessKeysResponseSchema:
+  description: The response schema for a list of access keys
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../../../../ewallet/priv/swagger/api_key/schemas.yaml#/AccessKeySchema'
+    example:
+      data:
+        object: list
+        data:
+          - object: key
+            id: key_01ce843mvg5fa1zpk5myy69h4q
+            access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+            secret_key: the_secret_key_or_null
+            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+            enabled: true
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'
+            deleted_at: null
+
+# API KEY
+APIKeyResponseSchema:
+  description: The response schema for an API key
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        $ref: '../../../../ewallet/priv/swagger/api_key/schemas.yaml#/APIKeySchema'
+    example:
+      data:
+        object: api_key
+        id: api_01ce844d5w9e81snekr5kprvem
+        key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+        owner_app: admin_api
+        enabled: true
+        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+        created_at: '2018-01-01T00:00:00Z'
+        updated_at: '2018-01-01T10:00:00Z'
+        deleted_at: null
+
+APIKeysResponseSchema:
+  description: The response schema for a list of API keys
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../../../../ewallet/priv/swagger/api_key/schemas.yaml#/APIKeySchema'
+    example:
+      data:
+        object: list
+        data:
+          - object: api_key
+            id: api_01ce844d5w9e81snekr5kprvem
+            key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+            owner_app: admin_api
+            enabled: true
+            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'
+            deleted_at: null

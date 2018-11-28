@@ -1,0 +1,11 @@
+ConfigurationUpdateBody:
+  description: The parameters to update the configuration settings
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        type: object
+        additionalProperties: true
+        example:
+          base_url: https://example.com
+          email_adapter: local

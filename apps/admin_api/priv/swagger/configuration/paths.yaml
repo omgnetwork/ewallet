@@ -1,0 +1,32 @@
+configuration.get:
+  post:
+    tags:
+      - Configuration
+    summary: Get the application configuration.
+    operationId: configuration_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/ConfigurationGetResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+configuration.update:
+  post:
+    tags:
+      - Configuration
+    summary: Update the configuration settings
+    operationId: configuration_update
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ConfigurationUpdateBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/ConfigurationUpdateResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

@@ -1,0 +1,82 @@
+UserSchema:
+  description: The object schema for a user
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    username:
+      type: string
+    full_name:
+      type: string
+    calling_name:
+      type: string
+    provider_user_id:
+      type: string
+    email:
+      type: string
+      format: email
+    enabled:
+      type: boolean
+    metadata:
+      type: object
+    encrypted_metadata:
+      type: object
+    avatar:
+      type: object
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+  required:
+    - object
+    - id
+    - created_at
+    - updated_at
+
+MemberSchema:
+  description: The object schema for an account member
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    username:
+      type: string
+    full_name:
+      type: string
+    calling_name:
+      type: string
+    provider_user_id:
+      type: string
+    email:
+      type: string
+      format: email
+    enabled:
+      type: boolean
+    metadata:
+      type: object
+    encrypted_metadata:
+      type: object
+    avatar:
+      type: object
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+    role:
+      type: string
+    account:
+      type: object
+      $ref: '../account/schemas.yaml#/AccountSchema'
+  required:
+    - object
+    - id
+    - created_at
+    - updated_at

@@ -1,0 +1,70 @@
+transaction_consumption.all:
+  post:
+    tags:
+      - TransactionConsumption
+    summary: Get the list of transaction consumptions
+    operationId: transaction_consumption_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/TransactionConsumptionsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+transaction_consumption.get:
+  post:
+    tags:
+      - TransactionConsumption
+    summary: Get a consumption.
+    description: This is a server call only.
+    operationId: transaction_consumption_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/GetConsumptionRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/TransactionConsumptionResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+transaction_consumption.approve:
+  post:
+    tags:
+      - TransactionConsumption
+    summary: Approve a consumption.
+    description: This is a server call only.
+    operationId: transaction_consumption_approve
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ConsumptionConfirmationRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/TransactionConsumptionResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+transaction_consumption.reject:
+  post:
+    tags:
+      - TransactionConsumption
+    summary: Reject a consumption.
+    description: This is a server call only.
+    operationId: transaction_consumption_reject
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ConsumptionConfirmationRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/TransactionConsumptionResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

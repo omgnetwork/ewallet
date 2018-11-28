@@ -1,0 +1,221 @@
+admin.reset_password:
+  post:
+    tags:
+      - Admin
+    summary: Sends an email containing a link to reset the password.
+    operationId: password_reset
+    security:
+      - ClientAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ResetPasswordBody'
+    responses:
+      '200':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+admin.update_password:
+  post:
+    tags:
+      - Admin
+    summary: Reset the password for a specific token with the provided new password.
+    operationId: password_update
+    security:
+      - ClientAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/UpdatePasswordBody'
+    responses:
+      '200':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+admin.verify_email_update:
+  post:
+    tags:
+      - Admin
+    summary: Verifies the email to be updated to the admin user
+    operationId: admin_verify_email_update
+    security:
+      - ClientAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AdminVerifyEmailUpdateBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AdminResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+admin.all:
+  post:
+    tags:
+      - Admin
+    summary: Get the list of admins
+    operationId: admin_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AdminsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+admin.get:
+  post:
+    tags:
+      - Admin
+    summary: Get a specific admin
+    operationId: admin_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AdminGetBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AdminResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+admin.enable_or_disable:
+  post:
+    tags:
+      - Admin
+    summary: Enable or disable an existing admin.
+    operationId: admin_user_enable_or_disable
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AdminToggleStatusBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AdminResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+invite.accept:
+  post:
+    tags:
+      - Admin
+    summary: Accepts an invite
+    operationId: invite_accept
+    requestBody:
+      $ref: 'request_bodies.yaml#/InviteAcceptBody'
+    security:
+      - ClientAuth: []
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AdminResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.get:
+  post:
+    tags:
+      - Admin
+    summary: Get the user corresponding to the provided authentication header.
+    operationId: me_get
+    security:
+      - AdminAuth: []
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AdminResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.update:
+  post:
+    tags:
+      - Admin
+    summary: Update the user with the provided parameters
+    operationId: me_update
+    security:
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AdminUpdateBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AdminResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.update_email:
+  post:
+    tags:
+      - Admin
+    summary: Update the user's email with the provided parameters
+    operationId: me_update_email
+    security:
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AdminUpdateEmailBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AdminResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.update_password:
+  post:
+    tags:
+      - Admin
+    summary: Update the user's password with the provided parameters
+    operationId: me_update_password
+    security:
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AdminUpdatePasswordBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AdminResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.upload_avatar:
+  post:
+    tags:
+      - Admin
+    summary: Uploads avatar for an admin
+    operationId: admin_upload_avatar
+    security:
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AdminUploadBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AdminResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.get_account:
+  post:
+    tags:
+      - Admin
+    summary: Get the one upper-most account that the user has membership in.
+    operationId: me_get_account
+    security:
+      - AdminAuth: []
+    responses:
+      '200':
+        $ref: '../account/responses.yaml#/AccountResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.get_accounts:
+  post:
+    tags:
+      - Admin
+    summary: Get the list of account and sub-accounts that the user has membership in.
+    operationId: me_get_accounts
+    security:
+      - AdminAuth: []
+    requestBody:
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+    responses:
+      '200':
+        $ref: '../account/responses.yaml#/AccountsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

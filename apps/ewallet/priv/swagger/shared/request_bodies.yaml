@@ -1,0 +1,8 @@
+PaginatedRequestBody:
+  description: The default parameters to use when querying a paginated resource
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'

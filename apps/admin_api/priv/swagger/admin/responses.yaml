@@ -1,0 +1,12 @@
+AdminResponse:
+  description: Returns a single admin panel user
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/AdminResponseSchema'
+AdminsResponse:
+  description: Returns a list of admin panel users
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/AdminsResponseSchema'
