@@ -1,0 +1,45 @@
+admin.login:
+  post:
+    tags:
+      - AdminSession
+    summary: Login an existing admin user using email and password.
+    operationId: login
+    security:
+      - ClientAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/LoginBody'
+    responses:
+      '200':
+        $ref: '../authentication_token/responses.yaml#/AuthenticationTokenResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.logout:
+  post:
+    tags:
+      - AdminSession
+    summary: Expires a user's authentication_token.
+    operationId: logout
+    security:
+      - AdminAuth: []
+    responses:
+      '200':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+auth_token.switch_account:
+  post:
+    tags:
+      - AdminSession
+    summary: Switch the current account associated with the auth token.
+    operationId: switch_account
+    security:
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/SwitchAccountBody'
+    responses:
+      '200':
+        $ref: '../authentication_token/responses.yaml#/AuthenticationTokenResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

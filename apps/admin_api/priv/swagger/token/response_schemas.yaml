@@ -1,0 +1,144 @@
+TokenResponseSchema:
+  description: The response schema for a token
+  allOf:
+    - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+    - type: object
+      properties:
+        data:
+          type: object
+          $ref: '../../../../ewallet/priv/swagger/token/schemas.yaml#/TokenSchema'
+      example:
+        data:
+          object: token
+          id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+          symbol: ABC
+          name: ABC Point
+          subunit_to_unit: 100
+          created_at: '2018-01-01T00:00:00Z'
+          updated_at: '2018-01-01T10:00:00Z'
+          enabled: true
+          metadata: {}
+          encrypted_metadata: {}
+
+TokensResponseSchema:
+  description: The response schema for a list of tokens
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../../../../ewallet/priv/swagger/token/schemas.yaml#/TokenSchema'
+    example:
+      data:
+        object: list
+        data:
+          - object: token
+            id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+            symbol: ABC
+            name: ABC Point
+            subunit_to_unit: 100
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'
+            enabled: true
+            metadata: {}
+            encrypted_metadata: {}
+
+TokenStatsResponseSchema:
+  description: The object schema for token stats
+  type: object
+  properties:
+    object:
+      type: string
+    token_id:
+      type: string
+    token:
+      type: object
+      $ref: '../../../../ewallet/priv/swagger/token/schemas.yaml#/TokenSchema'
+    total_supply:
+      type: integer
+  required:
+    - object
+    - token_id
+    - token
+    - total_supply
+  example:
+    data:
+      object: token_stats
+      total_supply: 100000
+      token_id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+      token:
+        object: token
+        id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+        symbol: ABC
+        name: ABC Point
+        subunit_to_unit: 100
+        created_at: '2018-01-01T00:00:00Z'
+        updated_at: '2018-01-01T10:00:00Z'
+        enabled: true
+        metadata: {}
+        encrypted_metadata: {}
+
+MintResponseSchema:
+  description: The response schema for a mint
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: '../../../../ewallet/priv/swagger/token/schemas.yaml#/TokenSchema'
+    example:
+      data:
+        object: mint
+        id: mnt_01xbfge9qhmsdbjyb7a8e8pxt3
+        description: Some description
+        amount: 10000
+        confirmed: true
+        token_id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+        token: {}
+        account_id: acc_01rebfge9qhmsdbjyb7a8e8pxt
+        account: {}
+        transaction_id: tfr_01trbfge9qhmsdbjyb7a8e8pxt
+        transaction: {}
+        created_at: '2018-01-01T00:00:00Z'
+        updated_at: '2018-01-01T00:00:00Z'
+
+MintsResponseSchema:
+  description: The response schema for a list of mints
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../../../../ewallet/priv/swagger/token/schemas.yaml#/MintSchema'
+    example:
+      data:
+        object: list
+        data:
+          - object: mint
+            id: mnt_01xbfge9qhmsdbjyb7a8e8pxt3
+            description: Some description
+            amount: 10000
+            confirmed: true
+            token_id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+            token: {}
+            account_id: acc_01rebfge9qhmsdbjyb7a8e8pxt
+            account: {}
+            transaction_id: tfr_01trbfge9qhmsdbjyb7a8e8pxt
+            transaction: {}
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T00:00:00Z'

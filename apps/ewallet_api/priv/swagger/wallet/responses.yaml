@@ -1,0 +1,6 @@
+WalletsResponse:
+  description: Returns a list of wallets
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/WalletsResponseSchema'

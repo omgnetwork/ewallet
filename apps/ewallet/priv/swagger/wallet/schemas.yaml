@@ -1,0 +1,62 @@
+WalletSchema:
+  description: The object schema for a wallet
+  type: object
+  properties:
+    object:
+      type: string
+    socket_topic:
+      type: string
+    address:
+      type: string
+    name:
+      type: string
+    identifier:
+      type: string
+    metadata:
+      type: object
+    encrypted_metadata:
+      type: object
+    enabled:
+      type: boolean
+    user_id:
+      type: string
+    user:
+      $ref: '../user/schemas.yaml#/UserSchema'
+    account_id:
+      type: string
+    account:
+      $ref: '../account/schemas.yaml#/AccountSchema'
+    balances:
+      type: array
+      items:
+        $ref: '#/BalanceSchema'
+  required:
+    - object
+    - socket_topic
+    - address
+    - name
+    - identifier
+    - metadata
+    - encrypted_metadata
+    - user_id
+    - user
+    - account_id
+    - account
+    - balances
+    - enabled
+
+BalanceSchema:
+  description: The object schema for a balance
+  type: object
+  properties:
+    object:
+      type: string
+    token:
+      type: object
+      $ref: '../token/schemas.yaml#/TokenSchema'
+    amount:
+      type: number
+  required:
+    - object
+    - token
+    - amount

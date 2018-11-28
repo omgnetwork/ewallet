@@ -1,0 +1,135 @@
+user.all:
+  post:
+    tags:
+      - User
+    summary: Get the list of users
+    operationId: user_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/UsersResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+user.create:
+  post:
+    tags:
+      - User
+    summary: Create a new user
+    operationId: user_create
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/UserBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/UserResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+user.update:
+  post:
+    tags:
+      - User
+    summary: Update an existing user
+    operationId: user_update
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/UserBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/UserResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+user.get:
+  post:
+    tags:
+      - User
+    summary: Get a specific user
+    operationId: user_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/UserIdentifierBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/UserResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+user.get_wallets:
+  post:
+    tags:
+      - User
+    summary: Get the list of wallets for the given user
+    operationId: user_wallet_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/UserIdentifierWithFiltersBody'
+    responses:
+      '200':
+        $ref: '../wallet/responses.yaml#/WalletsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+        
+user.get_transactions:
+  post:
+    tags:
+      - User
+    summary: Get the list of transactions for the given user
+    operationId: get_all_transactions_for_user
+    requestBody:
+      $ref: 'request_bodies.yaml#/UserIdentifierWithFiltersBody'
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    responses:
+      '200':
+        $ref: '../transaction/responses.yaml#/TransactionsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+user.get_transaction_consumptions:
+  post:
+    tags:
+      - User
+    summary: Get the list of transaction consumptions for a user
+    operationId: user_get_consumptions
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/UserIdentifierWithFiltersBody'
+    responses:
+      '200':
+        $ref: '../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+user.enable_or_disable:
+  post:
+    tags:
+      - User
+    summary: Enable or disable an existing user.
+    operationId: user_enable_or_disable
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/UserToggleStatusBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/UserResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
