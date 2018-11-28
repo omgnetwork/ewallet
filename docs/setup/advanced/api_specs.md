@@ -34,7 +34,7 @@ When you are done editing the different spec files, you need to generate the fin
 
 In order to do this you need to have the following installed and available:
   - [node.js](https://nodejs.org/en/download/package-manager/)
-  - [swagger-combine](https://www.npmjs.com/package/swagger-combine) node package.
+  - [swagger-combine](https://www.npmjs.com/package/swagger-combine). Install using: `npm install -g swagger-combine`.
 
 Then you need to run the following commands to generate the final spec.
 
