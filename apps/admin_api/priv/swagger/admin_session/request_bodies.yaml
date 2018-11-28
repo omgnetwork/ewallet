@@ -1,0 +1,33 @@
+LoginBody:
+  description: The parameters to use for logging in a user
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          email:
+            type: string
+            format: email
+          password:
+            type: string
+            format: password
+        required:
+          - email
+          - password
+        example:
+          email: test@example.com
+          password: the_password
+
+SwitchAccountBody:
+  description: The parameters to use for switching the current account
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          account_id:
+            type: string
+        required:
+          - account_id
+        example:
+          accound_id: the_account_id

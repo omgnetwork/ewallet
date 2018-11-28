@@ -1,0 +1,49 @@
+SettingSchema:
+  description: The object schema for a configuration setting
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    key:
+      type: string
+    value:
+      type: object
+    type:
+      type: string
+    description:
+      type: string
+    options:
+      type: array
+      items:
+        type: object
+    parent:
+      type: string
+    parent_value:
+      type: object
+    secret:
+      type: boolean
+    position:
+      type: integer
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+  required:
+    - object
+    - id
+    - key
+    - value
+    - type
+    - description
+    - options
+    - parent
+    - parent_value
+    - secret
+    - position
+    - created_at
+    - updated_at
+    - deleted_at

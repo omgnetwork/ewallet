@@ -1,0 +1,18 @@
+AuthenticationTokenSchema:
+  description: The object schema for an authentication token
+  type: object
+  properties:
+    object:
+      type: string
+    authentication_token:
+      type: string
+    user_id:
+      type: string
+    user:
+      type: object
+      $ref: '../../../../ewallet/priv/swagger/user/schemas.yaml#/UserSchema'
+  required:
+    - object
+    - authentication_token
+    - user_id
+    - user
