@@ -2,7 +2,11 @@ defmodule AdminAPI.StatusController do
   use AdminAPI, :controller
 
   def status(conn, _attrs) do
-    json(conn, %{success: true, api_versions: api_versions(), ewallet_version: "1.1.0"})
+    json(conn, %{
+      success: true,
+      api_versions: api_versions(),
+      ewallet_version: Application.get_env(:ewallet, :version)
+    })
   end
 
   defp api_versions do
