@@ -15,7 +15,7 @@ defmodule UrlDispatcher.PlugTest do
 
       refute conn.halted
       assert conn.status == 200
-      assert conn.resp_body == ~s({"status":true})
+      assert conn.resp_body == ~s({"status":true,"ewallet_version":"#{Application.get_env(:ewallet, :version)}"})
     end
 
     test "returns a 200 response when requesting /api" do
