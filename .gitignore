@@ -6,6 +6,9 @@
 /cover/
 /deps/
 
+# Docker
+docker-compose.override.yml
+
 # Erlang
 erl_crash.dump
 
