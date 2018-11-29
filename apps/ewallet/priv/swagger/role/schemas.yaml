@@ -1,0 +1,40 @@
+RoleSchema:
+  description: The object schema for a role
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    name:
+      type: string
+    display_name:
+      type: string
+    user_ids:
+      type: array
+      items:
+        type: string
+    users:
+      type: object
+      allOf:
+        - $ref: '../shared/schemas.yaml#/UnpaginatedListSchema'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '../../../../ewallet/priv/swagger/user/schemas.yaml#/UserSchema'
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+  required:
+    - object
+    - id
+    - name
+    - display_name
+    - user_ids
+    - created_at
+    - updated_at

@@ -130,17 +130,16 @@ export default withRouter(
             <SectionContainer>
               <IntroContainer>
                 <h5>
-                  This is where you will see all stats and trend of transaction within current
-                  account.
+                You can see all the statistics related to transactions within the current account here
                 </h5>
-                <p>Analytics will come soon, stay tuned !</p>
+                <p>Analytics will come soon, stay tuned!</p>
               </IntroContainer>
               <GetStartedContainer>
                 <GetStartedContent>
                   <h4>{'Let\'s get started'}</h4>
                   <NavigationItem>
                     <Link to={`/${accountId}/setting/?invite=true`}>
-                      <Icon name='Arrow-Right' /> Invite team member
+                      <Icon name='Arrow-Right' /> Invite Team Member
                   </Link>
                   </NavigationItem>
                   <NavigationItem>

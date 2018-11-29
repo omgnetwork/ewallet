@@ -1,0 +1,308 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: eWallet Admin API
+  description: >
+    This is the documentation for eWallet Admin API.
+
+
+    All calls must be user-authenticated or provider-authenticated. That is, the client must first
+    authenticate with the API using the user's email and password.
+    On successful authentication, the API returns an authentication token
+    (i.e. `authentication_token`).
+
+    Once a valid `authentication_token` is received, use the given auth token
+    to make subsequent calls to the API via HTTP header:
+
+    ```
+    Authorization=OMGAdmin Base64(user_id:authentication_token)
+    ```
+
+    An access/secret keys combination can be used as well.
+
+    ```
+    Authorization=OMGProvider Base64(access_key:secret_key)
+    ```
+
+    Due to HTTP-RPC nature, the API will always return a `200` HTTP status,
+    including on errors. Only in case of an internal server error that `500`
+    will be returned.
+
+
+    Error codes are available in [html](./errors), [json](./errors.json)
+    and [yaml](./errors.yaml) formats.
+  contact:
+    name: OmiseGO
+    email: thibault@omisego.co
+  license:
+    name: 'Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0'
+    url: 'https://omisego.network/'
+
+tags:
+  - name: AdminSession
+    description: Resources related to admin session tokens.
+  - name: Role
+    description: Resources related to roles.
+  - name: Admin
+    description: Resources related to admin users.
+  - name: UserSession
+    description: Resources related to user session tokens.
+  - name: User
+    description: Resources related to users.
+  - name: Token
+    description: Resources related to tokens.
+  - name: ExchangePair
+    description: Resources related to exchange pairs.
+  - name: Category
+    description: Resources related to roles.
+  - name: Account
+    description: Resources related to accounts.
+  - name: Wallet
+    description: Resources related to wallets.
+  - name: Transaction
+    description: Resources related to transactions.
+  - name: TransactionRequest
+    description: Resources related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
+  - name: TransactionConsumption
+    description: Resources related to consumption of transaction requests.
+  - name: Configuration
+    description: Resources related to the configuration of the eWallet.
+  - name: API Access
+    description: Resources related to API access.
+
+servers:
+  - url: /api/admin
+
+components:
+  securitySchemes:
+    AdminAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: OMGAdmin Base64(user_id:authentication_token)
+    ProviderAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: OMGProvider Base64(access_key:secret_key)
+
+paths:
+  # ADMIN SESSION
+  /admin.login:
+    $ref: 'admin_session/paths.yaml#/admin.login'
+  /me.logout:
+    $ref: 'admin_session/paths.yaml#/me.logout'
+  /auth_token.switch_account:
+    $ref: 'admin_session/paths.yaml#/auth_token.switch_account'
+
+  # ROLE
+  /role.all:
+    $ref: 'role/paths.yaml#/role.all'
+  /role.get:
+    $ref: 'role/paths.yaml#/role.get'
+  /role.create:
+    $ref: 'role/paths.yaml#/role.create'
+  /role.update:
+    $ref: 'role/paths.yaml#/role.update'
+  /role.delete:
+    $ref: 'role/paths.yaml#/role.delete'
+
+  # USER SESSION
+  /user.login:
+    $ref: 'user_session/paths.yaml#/user.login'
+  /user.logout:
+    $ref: 'user_session/paths.yaml#/user.logout'
+
+  # TOKEN
+  /token.all:
+    $ref: 'token/paths.yaml#/token.all'
+  /token.get:
+    $ref: 'token/paths.yaml#/token.get'
+  /token.create:
+    $ref: 'token/paths.yaml#/token.create'
+  /token.update:
+    $ref: 'token/paths.yaml#/token.update'
+  /token.enable_or_disable:
+    $ref: 'token/paths.yaml#/token.enable_or_disable'
+  /token.stats:
+    $ref: 'token/paths.yaml#/token.stats'
+  /token.get_mints:
+    $ref: 'token/paths.yaml#/token.get_mints'
+  /token.mint:
+    $ref: 'token/paths.yaml#/token.mint'
+
+  # EXCHANGE PAIR
+  /exchange_pair.all:
+    $ref: 'exchange_pair/paths.yaml#/exchange_pair.all'
+  /exchange_pair.get:
+    $ref: 'exchange_pair/paths.yaml#/exchange_pair.get'
+  /exchange_pair.create:
+    $ref: 'exchange_pair/paths.yaml#/exchange_pair.create'
+  /exchange_pair.update:
+    $ref: 'exchange_pair/paths.yaml#/exchange_pair.update'
+  /exchange_pair.delete:
+    $ref: 'exchange_pair/paths.yaml#/exchange_pair.delete'
+
+  # CATEGORY
+  /category.all:
+    $ref: 'category/paths.yaml#/category.all'
+  /category.get:
+    $ref: 'category/paths.yaml#/category.get'
+  /category.create:
+    $ref: 'category/paths.yaml#/category.create'
+  /category.update:
+    $ref: 'category/paths.yaml#/category.update'
+  /category.delete:
+    $ref: 'category/paths.yaml#/category.delete'
+
+  # ACCOUNTS
+  /account.all:
+    $ref: 'account/paths.yaml#/account.all'
+  /account.get:
+    $ref: 'account/paths.yaml#/account.get'
+  /account.create:
+    $ref: 'account/paths.yaml#/account.create'
+  /account.update:
+    $ref: 'account/paths.yaml#/account.update'
+  /account.upload_avatar:
+    $ref: 'account/paths.yaml#/account.upload_avatar'
+  /account.assign_user:
+    $ref: 'account/paths.yaml#/account.assign_user'
+  /account.unassign_user:
+    $ref: 'account/paths.yaml#/account.unassign_user'
+  /account.get_members:
+    $ref: 'account/paths.yaml#/account.get_members'
+  /account.get_users:
+    $ref: 'account/paths.yaml#/account.get_users'
+  /account.get_descendants:
+    $ref: 'account/paths.yaml#/account.get_descendants'
+  /account.get_wallets:
+    $ref: 'account/paths.yaml#/account.get_wallets'
+  /account.get_transactions:
+    $ref: 'account/paths.yaml#/account.get_transactions'
+  /account.get_transaction_requests:
+    $ref: 'account/paths.yaml#/account.get_transaction_requests'
+  /account.get_transaction_consumptions:
+    $ref: 'account/paths.yaml#/account.get_transaction_consumptions'
+
+  # ADMIN USER
+  /admin.reset_password:
+    $ref: 'admin/paths.yaml#/admin.reset_password'
+  /admin.update_password:
+    $ref: 'admin/paths.yaml#/admin.update_password'
+  /admin.verify_email_update:
+    $ref: 'admin/paths.yaml#/admin.verify_email_update'
+  /admin.all:
+    $ref: 'admin/paths.yaml#/admin.all'
+  /admin.get:
+    $ref: 'admin/paths.yaml#/admin.get'
+  /admin.enable_or_disable:
+    $ref: 'admin/paths.yaml#/admin.enable_or_disable'
+  /invite.accept:
+    $ref: 'admin/paths.yaml#/invite.accept'
+
+  # CURRENT ADMIN USER
+  /me.get:
+    $ref: 'admin/paths.yaml#/me.get'
+  /me.update:
+    $ref: 'admin/paths.yaml#/me.update'
+  /me.update_email:
+    $ref: 'admin/paths.yaml#/me.update_email'
+  /me.update_password:
+    $ref: 'admin/paths.yaml#/me.update_password'
+  /me.upload_avatar:
+    $ref: 'admin/paths.yaml#/me.upload_avatar'
+  /me.get_account:
+    $ref: 'admin/paths.yaml#/me.get_account'
+  /me.get_accounts:
+    $ref: 'admin/paths.yaml#/me.get_accounts'
+
+  # USER
+  /user.all:
+    $ref: 'user/paths.yaml#/user.all'
+  /user.create:
+    $ref: 'user/paths.yaml#/user.create'
+  /user.update:
+    $ref: 'user/paths.yaml#/user.update'
+  /user.get:
+    $ref: 'user/paths.yaml#/user.get'
+  /user.get_wallets:
+    $ref: 'user/paths.yaml#/user.get_wallets'
+  /user.get_transactions:
+    $ref: 'user/paths.yaml#/user.get_transactions'
+  /user.get_transaction_consumptions:
+    $ref: 'user/paths.yaml#/user.get_transaction_consumptions'
+  /user.enable_or_disable:
+    $ref: 'user/paths.yaml#/user.enable_or_disable'
+
+  # WALLET
+  /wallet.all:
+    $ref: 'wallet/paths.yaml#/wallet.all'
+  /wallet.create:
+    $ref: 'wallet/paths.yaml#/wallet.create'
+  /wallet.get:
+    $ref: 'wallet/paths.yaml#/wallet.get'
+  /wallet.get_transaction_consumptions:
+    $ref: 'wallet/paths.yaml#/wallet.get_transaction_consumptions'
+  /wallet.enable_or_disable:
+    $ref: 'wallet/paths.yaml#/wallet.enable_or_disable'
+
+  # TRANSACTION
+  /transaction.all:
+    $ref: 'transaction/paths.yaml#/transaction.all'
+  /transaction.get:
+    $ref: 'transaction/paths.yaml#/transaction.get'
+  /transaction.create:
+    $ref: 'transaction/paths.yaml#/transaction.create'
+  /transaction.calculate:
+    $ref: 'transaction/paths.yaml#/transaction.calculate'
+
+  # TRANSACTION REQUESTS
+  /transaction_request.all:
+    $ref: 'transaction_request/paths.yaml#/transaction_request.all'
+  /transaction_request.create:
+    $ref: 'transaction_request/paths.yaml#/transaction_request.create'
+  /transaction_request.get:
+    $ref: 'transaction_request/paths.yaml#/transaction_request.get'
+  /transaction_request.consume:
+    $ref: 'transaction_request/paths.yaml#/transaction_request.consume'
+  /transaction_request.get_transaction_consumptions:
+    $ref: 'transaction_request/paths.yaml#/transaction_request.get_transaction_consumptions'
+
+  # TRANSACTION CONSUMPTIONS
+  /transaction_consumption.all:
+    $ref: 'transaction_consumption/paths.yaml#/transaction_consumption.all'
+  /transaction_consumption.get:
+    $ref: 'transaction_consumption/paths.yaml#/transaction_consumption.get'
+  /transaction_consumption.approve:
+    $ref: 'transaction_consumption/paths.yaml#/transaction_consumption.approve'
+  /transaction_consumption.reject:
+    $ref: 'transaction_consumption/paths.yaml#/transaction_consumption.reject'
+
+  # API AND SECRET KEYS
+  /access_key.all:
+    $ref: 'api_key/paths.yaml#/access_key.all'
+  /access_key.create:
+    $ref: 'api_key/paths.yaml#/access_key.create'
+  /access_key.update:
+    $ref: 'api_key/paths.yaml#/access_key.update'
+  /access_key.enable_or_disable:
+    $ref: 'api_key/paths.yaml#/access_key.enable_or_disable'
+  /access_key.delete:
+    $ref: 'api_key/paths.yaml#/access_key.delete'
+  /api_key.all:
+    $ref: 'api_key/paths.yaml#/api_key.all'
+  /api_key.create:
+    $ref: 'api_key/paths.yaml#/api_key.create'
+  /api_key.update:
+    $ref: 'api_key/paths.yaml#/api_key.update'
+  /api_key.enable_or_disable:
+    $ref: 'api_key/paths.yaml#/api_key.enable_or_disable'
+  /api_key.delete:
+    $ref: 'api_key/paths.yaml#/api_key.delete'
+
+  # CONFIGURATION
+  /configuration.get:
+    $ref: 'configuration/paths.yaml#/configuration.get'
+  /configuration.update:
+    $ref: 'configuration/paths.yaml#/configuration.update'

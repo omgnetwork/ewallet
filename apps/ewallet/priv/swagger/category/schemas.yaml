@@ -1,0 +1,41 @@
+CategorySchema:
+  description: The object schema for a category
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    name:
+      type: string
+    description:
+      type: string
+    account_ids:
+      type: array
+      items:
+        type: string
+    accounts:
+      type: object
+      allOf:
+        - $ref: '../shared/schemas.yaml#/UnpaginatedListSchema'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '../account/schemas.yaml#/AccountWithoutCategoriesSchema'
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+  required:
+    - object
+    - id
+    - name
+    - description
+    - account_ids
+    - accounts
+    - created_at
+    - updated_at

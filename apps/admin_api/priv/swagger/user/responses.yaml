@@ -1,0 +1,18 @@
+UserResponse:
+  description: Returns a single user
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/UserResponseSchema'
+MembersResponse:
+  description: Returns a list of members
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/MembersResponseSchema'
+UsersResponse:
+  description: Returns a list of users
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/UsersResponseSchema'

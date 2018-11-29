@@ -135,7 +135,7 @@ class ForgetPasswordForm extends Component {
           </div>
         ) : (
           <UpdateSuccessfulContainer>
-            <h4>Create account successfully</h4>
+            <h4>Account created successfully</h4>
           </UpdateSuccessfulContainer>
         )}
 

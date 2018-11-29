@@ -1,0 +1,13 @@
+ConfigurationGetResponse:
+  description: Returns a list of settings
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/ConfigurationResponseSchema'
+
+ConfigurationUpdateResponse:
+  description: Returns a list of updated settings
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/ConfigurationUpdateResponseSchema'

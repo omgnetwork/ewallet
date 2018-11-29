@@ -1,0 +1,142 @@
+TransactionResponseSchema:
+  description: The response schema for a transaction
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: '../../../../ewallet/priv/swagger/transaction/schemas.yaml#/TransactionSchema'
+    example:
+      data:
+        object: transaction
+        id: txn_01ce840q5svw6058r8yk6jzf65
+        idempotency_token: 123982f5-4a27-498d-a91b-7bb2e2a8d3d1
+        from:
+          object: transaction_source
+          address: bec66785-f0d8-416c-a650-2859aa680166
+          amount: 1000
+          token:
+            object: token
+            id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+            symbol: ABC
+            name: ABC Point
+            subunit_to_unit: 100
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'
+        to:
+          object: transaction_source
+          address: 47218ab4-d94f-44e9-b7f2-36061f76ce58
+          amount: 1000
+          token:
+            object: token
+            id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+            symbol: ABC
+            name: ABC Point
+            subunit_to_unit: 100
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'
+        metadata: {}
+        encrypted_metadata: {}
+        exchange:
+          object: exchange
+          rate: 1
+        status: confirmed
+        created_at: '2018-01-01T00:00:00Z'
+        updated_at: '2018-01-01T10:00:00Z'
+
+TransactionsResponseSchema:
+  description: The response schema for a list of transactions
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../../../../ewallet/priv/swagger/transaction/schemas.yaml#/TransactionSchema'
+    example:
+      data:
+        object: list
+        data:
+          - object: transaction
+            id: txn_01ce842dxrrprkak0rzq716ax1
+            from:
+              object: transaction_source
+              address: bec66785-f0d8-416c-a650-2859aa680166
+              amount: 1000
+              token:
+                object: token
+                id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+                symbol: ABC
+                name: ABC Point
+                subunit_to_unit: 100
+                created_at: '2018-01-01T00:00:00Z'
+                updated_at: '2018-01-01T10:00:00Z'
+            to:
+              object: transaction_source
+              address: 47218ab4-d94f-44e9-b7f2-36061f76ce58
+              amount: 1000
+              token:
+                object: token
+                id: tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3
+                symbol: ABC
+                name: ABC Point
+                subunit_to_unit: 100
+                created_at: '2018-01-01T00:00:00Z'
+                updated_at: '2018-01-01T10:00:00Z'
+            exchange:
+              object: exchange
+              rate: 1
+            metadata: {}
+            encrypted_metadata: {}
+            status: confirmed
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'
+
+TransactionCalculationResponseSchema:
+  description: The response schema for a transaction calculation
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        $ref: '../../../../ewallet/priv/swagger/transaction/schemas.yaml#/TransactionCalculationSchema'
+    example:
+      data:
+        object: transaction_calculation
+        from_amount: 20
+        from_token_id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+        to_amount: 20000
+        to_token_id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+        exchange_pair:
+          object: exchange_pair
+          id: exg_01cgvppyrz2pprj6s0zmc26p2p
+          name: ETH/OMG
+          from_token_id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+          from_token:
+            object: token
+            id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+            symbol: ETH
+            name: Ethereum
+            subunit_to_unit: 100
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'
+          to_token_id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+          to_token:
+            object: token
+            id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+            symbol: OMG
+            name: OmiseGO
+            subunit_to_unit: 100
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'
+          rate: 1000
+          created_at: '2018-01-10T00:00:00Z'
+          updated_at: '2018-01-10T10:00:00Z'
+        calculated_at: '2018-02-02T00:00:00Z'

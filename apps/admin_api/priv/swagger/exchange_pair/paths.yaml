@@ -1,0 +1,80 @@
+exchange_pair.all:
+  post:
+    tags:
+      - ExchangePair
+    summary: Get the list of exchange pairs
+    operationId: exchange_pair_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/ExchangePairsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+exchange_pair.get:
+  post:
+    tags:
+      - ExchangePair
+    summary: Get the a specific exchange pair by its id
+    operationId: exchange_pair_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ExchangePairGetBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/ExchangePairResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+exchange_pair.create:
+  post:
+    tags:
+      - ExchangePair
+    summary: Create a new exchange pair
+    operationId: exchange_pair_create
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ExchangePairCreateBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/ExchangePairsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+exchange_pair.update:
+  post:
+    tags:
+      - ExchangePair
+    summary: Update an existing exchange pair by its id
+    operationId: exchange_pair_update
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ExchangePairUpdateBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/ExchangePairsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+exchange_pair.delete:
+  post:
+    tags:
+      - ExchangePair
+    summary: Delete an exchange pair by its id
+    operationId: exchange_pair_delete
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ExchangePairDeleteBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/ExchangePairsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

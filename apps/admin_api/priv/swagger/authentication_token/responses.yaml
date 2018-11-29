@@ -1,0 +1,6 @@
+AuthenticationTokenResponse:
+  description: Authentication token response
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/AuthenticationTokenResponseSchema'

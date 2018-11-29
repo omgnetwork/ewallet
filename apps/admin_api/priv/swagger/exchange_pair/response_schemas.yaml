@@ -1,0 +1,80 @@
+ExchangePairResponseSchema:
+  description: The response schema for an exchange pair
+  allOf:
+    - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+    - type: object
+      properties:
+        data:
+          type: object
+          $ref: '../../../../ewallet/priv/swagger/exchange_pair/schemas.yaml#/ExchangePairSchema'
+      example:
+        data:
+          object: exchange_pair
+          id: exg_01cgvppyrz2pprj6s0zmc26p2p
+          name: ETH/OMG
+          from_token_id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+          from_token:
+            object: token
+            id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+            symbol: ABC
+            name: Ethereum
+            subunit_to_unit: 100
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'
+          to_token_id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+          to_token:
+            object: token
+            id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+            symbol: OMG
+            name: OmiseGO
+            subunit_to_unit: 100
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'
+          rate: 0.017
+          created_at: '2018-01-01T00:00:00Z'
+          updated_at: '2018-01-01T10:00:00Z'
+          deleted_at: null
+ExchangePairsResponseSchema:
+  description: The response schema for a list of exchange pairs
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../../../../ewallet/priv/swagger/exchange_pair/schemas.yaml#/ExchangePairSchema'
+    example:
+      data:
+        object: list
+        data:
+          - object: exchange_pair
+            id: exg_01cgvppyrz2pprj6s0zmc26p2p
+            name: ETH/OMG
+            from_token_id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+            from_token:
+              object: token
+              id: tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3
+              symbol: ABC
+              name: Ethereum
+              subunit_to_unit: 100
+              created_at: '2018-01-01T00:00:00Z'
+              updated_at: '2018-01-01T10:00:00Z'
+            to_token_id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+            to_token:
+              object: token
+              id: tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp
+              symbol: OMG
+              name: OmiseGO
+              subunit_to_unit: 100
+              created_at: '2018-01-01T00:00:00Z'
+              updated_at: '2018-01-01T10:00:00Z'
+            rate: 0.017
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'
+            deleted_at: null

@@ -1,0 +1,164 @@
+TokenGetBody:
+  description: The parameters to use for retrieving a specific token by its id
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+
+TokenStatsBody:
+  description: The parameters to use for retrieving the stats of a token
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
+
+TokenCreateBody:
+  description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          name:
+            type: string
+          symbol:
+            type: string
+          description:
+            type: string
+          subunit_to_unit:
+            type: integer
+          amount:
+            type: integer
+          iso_code:
+            type: string
+          short_symbol:
+            type: string
+          subunit:
+            type: string
+          symbol_first:
+            type: boolean
+          html_entity:
+            type: string
+          iso_numeric:
+            type: string
+          smallest_denomination:
+            type: integer
+          metadata:
+            type: object
+            additionalProperties: true
+          encrypted_metadata:
+            type: object
+            additionalProperties: true
+        required:
+          - name
+          - symbol
+          - description
+          - subunit_to_unit
+        example:
+          symbol: BTC
+          name: Bitcoin
+          description: desc
+          subunit_to_unit: 100
+
+TokenUpdateBody:
+  description: The parameters to update a token.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+          description:
+            type: string
+          iso_code:
+            type: string
+          short_symbol:
+            type: string
+          symbol_first:
+            type: boolean
+          html_entity:
+            type: string
+          iso_numeric:
+            type: string
+          metadata:
+            type: object
+            additionalProperties: true
+          encrypted_metadata:
+            type: object
+            additionalProperties: true
+        required:
+          - id
+        example:
+          id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+          name: Bitcoin v2
+          description: an awesome updated description
+
+TokenToggleStatusBody:
+  description: The parameters to enable/disable a token. Send enabled=true to enable, enabled=false to disable.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          enabled:
+            type: boolean
+        required:
+          - id
+          - enabled
+        example:
+          id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+          enabled: false
+
+TokenGetMintsBody:
+  description: The parameters to use for listing the mints for a token
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          id:
+            type: string
+        required:
+          - id
+          - owned
+        example:
+          id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+
+TokenMintBody:
+  description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          amount:
+            type: integer
+        required:
+          - id
+          - amount
+        example:
+          id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+          amount: 1000

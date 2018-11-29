@@ -1,0 +1,13 @@
+LogoutUserBody:
+  description: The parameters to use to log out a user
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          auth_token:
+            type: string
+        required:
+          - auth_token
+        example:
+          auth_token: atk_01ce83q2zw7zk1dqr79t22zr1v
