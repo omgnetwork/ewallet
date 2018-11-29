@@ -10,6 +10,9 @@ import ConfigRow from './ConfigRow'
 const ConfigurationPageContainer = styled.div`
   position: relative;
   padding-bottom: 150px;
+  h4 {
+    margin-top: 50px;
+  }
 `
 
 const SubSettingContainer = styled.div`
@@ -26,8 +29,6 @@ const SubSettingContainer = styled.div`
 `
 class ConfigurationPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
-    history: PropTypes.object,
     location: PropTypes.object
   }
   state = {
@@ -51,7 +52,7 @@ class ConfigurationPage extends Component {
   renderFileStorageAdpter (configurations) {
     return (
       <Fragment>
-        <h4 style={{ marginTop: '40px' }}>File Storage Adapter</h4>
+        <h4>File Storage Adapter</h4>
         <ConfigRow
           name={configurations.file_storage_adapter.key}
           description={configurations.file_storage_adapter.description}
@@ -119,7 +120,7 @@ class ConfigurationPage extends Component {
   renderCacheSetting (configurations) {
     return (
       <Fragment>
-        <h4 style={{ marginTop: '40px' }}>Cache Setting</h4>
+        <h4>Cache Setting</h4>
         <ConfigRow
           name={configurations.balance_caching_strategy.key}
           description={configurations.balance_caching_strategy.description}
@@ -169,7 +170,7 @@ class ConfigurationPage extends Component {
   renderEmailSetting (configurations) {
     return (
       <Fragment>
-        <h4 style={{ marginTop: '40px' }}>Email Setting</h4>
+        <h4>Email Setting</h4>
         <ConfigRow
           name={configurations.sender_email.key}
           description={configurations.sender_email.description}
