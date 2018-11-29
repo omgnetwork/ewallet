@@ -1,16 +1,14 @@
 import React, { Component } from 'react'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
-import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
-import CreateTokenModal from '../omg-create-token-modal'
-import ExportModal from '../omg-export-modal'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { NameColumn } from '../omg-page-account'
 import moment from 'moment'
 import queryString from 'query-string'
+import ConfigRow from './ConfigRow'
 const TokenDetailPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -122,19 +120,30 @@ class TokenDetailPage extends Component {
   getConfiguration (configurations) {
     configurations.forEach(config => {
       if (config.parent) {
-
       }
     })
   }
   renderConfigurationPage = ({ data: configurations }) => {
-    console.log(configurations)
     return (
       <TokenDetailPageContainer>
-        <h3>Configuration</h3>
-        <div style={{ marginBottom: '30px' }}>
-          {/* <div>{config.key}</div>
-          <p>{config.description}</p> */}
-        </div>
+        <TopNavigation
+          title={'Configuration'}
+          buttons={null}
+          secondaryAction={false}
+          types={false}
+        />
+        {!_.isEmpty(configurations) && (
+          <div>
+            <h4>URl config</h4>
+            <div style={{ display: 'flex' }}>
+              <ConfigRow
+                name={configurations.enable_standalone.key}
+                description={configurations.enable_standalone.description}
+                value={configurations.enable_standalone.value}
+              />
+            </div>
+          </div>
+        )}
       </TokenDetailPageContainer>
     )
   }
