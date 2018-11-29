@@ -1,25 +1,25 @@
 # Build
+*.gz
+.env
+/.fetch
 /_build/
 /cover/
 /deps/
-/.fetch
-*.ez
 
 # Erlang
 erl_crash.dump
 
 # Public
-/public/uploads
 /apps/admin_api/public/uploads
-!/public/uploads/test.txt
-/public/docs
 /private
+/public/docs
+/public/uploads
+!/public/uploads/test.txt
 
 # Dev
-.env
 .DS_Store
-Thumbs.db
 .elixir_ls
+Thumbs.db
 
 # Load Tester results
 /results/

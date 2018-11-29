@@ -19,13 +19,16 @@ defmodule EWalletConfig.Vault do
 
   @impl Cloak.Vault
   def init(config) do
-    env = Mix.env()
+    env = Application.get_env(:ewallet, :env)
 
     config =
       Keyword.put(
         config,
         :ciphers,
-        default: {Cloak.Ciphers.AES.GCM, tag: "AES.GCM.V1", key: secret_key(env)}
+        default: {
+          Cloak.Ciphers.AES.GCM,
+          tag: "AES.GCM.V1", key: secret_key(env)
+        }
       )
 
     {:ok, config}

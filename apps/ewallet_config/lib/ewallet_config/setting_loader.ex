@@ -55,7 +55,7 @@ defmodule EWalletConfig.SettingLoader do
   defp fetch_value(app, key) do
     case Setting.get(key) do
       nil ->
-        if Mix.env() != :test, do: warn(app, key)
+        if Application.get_env(:ewallet, :env) != :test, do: warn(app, key)
         nil
 
       setting ->

@@ -4,7 +4,7 @@ defmodule ActivityLogger.MixProject do
   def project do
     [
       app: :activity_logger,
-      version: "1.1.0",
+      version: "1.1.0-pre.1",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",

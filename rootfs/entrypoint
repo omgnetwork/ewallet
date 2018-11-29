@@ -1,0 +1,74 @@
+#!/bin/execlineb -S0
+
+with-contenv
+cd /app
+s6-setuidgid ewallet
+
+## NODE_HOST
+##
+## Used in clustering; combine with NODE_NAME, this is used for identifying
+## and connecting each nodes. By default use the container hostname.
+##
+backtick -n default_host { s6-hostname }
+importas -iu default_host default_host
+importas -D $default_host NODE_HOST NODE_HOST
+s6-env NODE_HOST=$NODE_HOST
+
+## ERLANG_COOKIE
+##
+## Used in clustering; all nodes in the cluster is required to have the same
+## Erlang Cookie set. Randomly generated default cookie is only useful for
+## the single instance scenario.
+##
+backtick -n default_cookie {
+    pipeline {
+        s6-head -c 6 /dev/urandom
+    } foreground { base64 }
+}
+
+importas -iu default_cookie default_cookie
+importas -D $default_cookie ERLANG_COOKIE ERLANG_COOKIE
+s6-env ERLANG_COOKIE=$ERLANG_COOKIE
+
+## NODE_NAME
+##
+## Used in clustering; NODE_NAME along with NODE_HOST are used for identifying
+## and connecting each nodes. By default use "ewallet".
+##
+importas -D ewallet NODE_NAME NODE_NAME
+s6-env NODE_NAME=$NODE_NAME
+
+## NODE_DNS
+##
+## Used in clustering; by default eWallet is configure to discover nodes via
+## DNS. Registering nodes to the cluster is a responsibility of cluster tools
+## e.g. Kubernetes.
+##
+importas -D localhost NODE_DNS NODE_DNS
+s6-env NODE_DNS=$NODE_DNS
+
+## HOME
+##
+## Home is required to be set since some tools use it to create e.g. cache.
+## By default eWallet will run with a limited privileges so HOME need to be
+## somewhere writable.
+##
+s6-env HOME=/app
+
+## REPLACE_OS_VARS
+##
+## Used by Distillery to replace environment variables in settings to the
+## value of environment variable.
+##
+s6-env REPLACE_OS_VARS=yes
+
+## Known commands
+##
+ifelse { test $1 == "foreground" } { /app/bin/ewallet $@ }
+ifelse { test $1 == "initdb" } { /app/bin/ewallet $@ }
+ifelse { test $1 == "seed" } { /app/bin/ewallet $@ }
+
+## Fallback; if we're not running the known command, just run it as is.
+## This is to allow e.g. administrator attaching a shell into the container.
+##
+exec $@

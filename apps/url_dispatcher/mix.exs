@@ -4,7 +4,7 @@ defmodule UrlDispatcher.Mixfile do
   def project do
     [
       app: :url_dispatcher,
-      version: "1.1.0",
+      version: "1.1.0-pre.1",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -33,15 +33,16 @@ defmodule UrlDispatcher.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:quantum, "~> 2.2.6"},
-      {:timex, "~> 3.0"},
-      {:plug, "~> 1.2"},
+      {:admin_api, in_umbrella: true},
+      {:admin_panel, in_umbrella: true},
       {:cowboy, "~> 1.0"},
       {:deferred_config, "~> 0.1.0"},
       {:ewallet, in_umbrella: true},
-      {:admin_api, in_umbrella: true},
-      {:admin_panel, in_umbrella: true},
-      {:ewallet_api, in_umbrella: true}
+      {:ewallet_api, in_umbrella: true},
+      {:ewallet_config, in_umbrella: true},
+      {:plug, "~> 1.2"},
+      {:quantum, "~> 2.2.6"},
+      {:timex, "~> 3.0"},
     ]
   end
 end
