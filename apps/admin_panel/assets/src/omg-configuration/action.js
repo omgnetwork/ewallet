@@ -15,7 +15,7 @@ export const getConfiguration = ({ page, perPage, matchAll, matcHAny, cacheKey }
     service: () =>
       configurationService.getConfiguration({
         page,
-        perPage,
+        perPage: 100,
         matchAll,
         matcHAny,
         sort: {

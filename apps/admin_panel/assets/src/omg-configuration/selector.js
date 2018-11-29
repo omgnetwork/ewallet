@@ -3,9 +3,13 @@ export const selectConfigurationById = state => configurationId => {
 }
 
 export const selectConfigurationsCachedQuery = state => cacheKey => {
-  return _.get(state.cacheQueries[cacheKey], 'ids', []).map(configurationId => {
-    return selectConfigurationById(state)(configurationId)
-  })
+  return _.chain(state.cacheQueries[cacheKey])
+    .get('ids', [])
+    .map(configurationId => {
+      return selectConfigurationById(state)(configurationId)
+    })
+    .keyBy('key')
+    .value()
 }
 
 export const selectConfigurationsCachedQueryPagination = state => cacheKey => {

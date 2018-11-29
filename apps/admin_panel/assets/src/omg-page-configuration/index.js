@@ -11,8 +11,6 @@ import PropTypes from 'prop-types'
 import { NameColumn } from '../omg-page-account'
 import moment from 'moment'
 import queryString from 'query-string'
-import ExchangePairModal from '../omg-exchange-rate-modal'
-import { createSearchTokenQuery } from '../omg-token/searchField'
 const TokenDetailPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -120,15 +118,23 @@ class TokenDetailPage extends Component {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/tokens/${data.id}`)
   }
+
+  getConfiguration (configurations) {
+    configurations.forEach(config => {
+      if (config.parent) {
+
+      }
+    })
+  }
   renderConfigurationPage = ({ data: configurations }) => {
+    console.log(configurations)
     return (
       <TokenDetailPageContainer>
         <h3>Configuration</h3>
-        {configurations.map(config => {
-          return (
-            <div>{JSON.stringify(config)}</div>
-          )
-        })}
+        <div style={{ marginBottom: '30px' }}>
+          {/* <div>{config.key}</div>
+          <p>{config.description}</p> */}
+        </div>
       </TokenDetailPageContainer>
     )
   }
