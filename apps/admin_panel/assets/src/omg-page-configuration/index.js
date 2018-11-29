@@ -70,11 +70,13 @@ class ConfigurationPage extends Component {
                 name={configurations.gcs_bucket.key}
                 description={configurations.gcs_bucket.description}
                 value={configurations.gcs_bucket.value}
+                placeholder={'ie. google_cloud_1'}
               />
               <ConfigRow
                 name={configurations.gcs_credentials.key}
                 description={configurations.gcs_credentials.description}
                 value={configurations.gcs_credentials.value}
+                placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
                 border={this.state.emailAdapter !== 'gcs'}
               />
             </div>
@@ -87,22 +89,26 @@ class ConfigurationPage extends Component {
                 name={configurations.aws_bucket.key}
                 description={configurations.aws_bucket.description}
                 value={configurations.aws_bucket.value}
+                placeholder={'ie. aws_bucket_1'}
               />
               <ConfigRow
                 name={configurations.aws_region.key}
                 description={configurations.aws_region.description}
                 value={configurations.aws_region.value}
+                placeholder={'ie. us-east-1'}
               />
               <ConfigRow
                 name={configurations.aws_access_key_id.key}
                 description={configurations.aws_access_key_id.description}
                 value={configurations.aws_access_key_id.value}
+                placeholder={'ie. AKIAIOSFODNN7EXAMPLE'}
               />
               <ConfigRow
                 name={configurations.aws_secret_access_key.key}
                 description={configurations.aws_secret_access_key.description}
                 value={configurations.aws_secret_access_key.value}
                 border={this.state.emailAdapter !== 'aws'}
+                placeholder={'ie. wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'}
               />
             </div>
           </SubSettingContainer>
@@ -117,7 +123,13 @@ class ConfigurationPage extends Component {
         <ConfigRow
           name={configurations.balance_caching_strategy.key}
           description={configurations.balance_caching_strategy.description}
-          value={configurations.balance_caching_strategy.value}
+          value={this.state.balanceCache || configurations.balance_caching_strategy.value}
+          onSelectItem={this.onSelectFileStorageAdapter}
+          type='select'
+          options={configurations.balance_caching_strategy.options.map(option => ({
+            key: option,
+            value: option
+          }))}
         />
       </Fragment>
     )
@@ -181,22 +193,26 @@ class ConfigurationPage extends Component {
                 name={configurations.smtp_host.key}
                 description={configurations.smtp_host.description}
                 value={configurations.smtp_host.value}
+                placeholder={'ie. smtp.yourdomain.com'}
               />
               <ConfigRow
                 name={configurations.smtp_port.key}
                 description={configurations.smtp_port.description}
                 value={configurations.smtp_port.value}
+                placeholder={'ie. 8830'}
               />
               <ConfigRow
                 name={configurations.smtp_username.key}
                 description={configurations.smtp_username.description}
                 value={configurations.smtp_username.value}
+                placeholder={'ie. usertest01'}
               />
               <ConfigRow
                 name={configurations.smtp_password.key}
                 description={configurations.smtp_password.description}
                 value={configurations.smtp_password.value}
                 border={this.state.emailAdapter !== 'smtp'}
+                placeholder={'ie. password'}
               />
             </div>
           </SubSettingContainer>
@@ -217,8 +233,8 @@ class ConfigurationPage extends Component {
           <div>
             {this.renderGlobalSetting(configurations)}
             {this.renderEmailSetting(configurations)}
-            {this.renderCacheSetting(configurations)}
             {this.renderFileStorageAdpter(configurations)}
+            {this.renderCacheSetting(configurations)}
           </div>
         )}
       </ConfigurationPageContainer>

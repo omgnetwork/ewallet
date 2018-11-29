@@ -20,7 +20,7 @@ const ConfigCol = styled.div`
   }
   :last-child {
     padding-right: 0;
-    flex: 0 1 300px;
+    flex: 0 1 400px;
   }
 `
 
@@ -33,12 +33,14 @@ export default class ConfigRow extends Component {
     type: PropTypes.string,
     onChange: PropTypes.func,
     onSelectItem: PropTypes.func,
-    border: PropTypes.bool
+    border: PropTypes.bool,
+    placeholder: PropTypes.string
   }
 
   static defaultProps = {
     type: 'input',
-    options: []
+    options: [],
+    border: true
   }
 
   render () {
@@ -47,13 +49,16 @@ export default class ConfigRow extends Component {
         <ConfigCol>{this.props.name}</ConfigCol>
         <ConfigCol>{this.props.description}</ConfigCol>
         <ConfigCol>
-          {this.props.type === 'input' && <Input value={this.props.value} />}
+          {this.props.type === 'input' && (
+            <Input value={this.props.value} normalPlaceholder={this.props.placeholder} />
+          )}
           {this.props.type === 'select' && (
             <Select
               value={this.props.value}
               options={this.props.options}
               onChange={this.props.onChange}
               onSelectItem={this.props.onSelectItem}
+              normalPlaceholder={this.props.placeholder}
             />
           )}
         </ConfigCol>
