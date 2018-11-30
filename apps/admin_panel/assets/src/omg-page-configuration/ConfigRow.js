@@ -50,7 +50,7 @@ export default class ConfigRow extends Component {
         <ConfigCol>{this.props.description}</ConfigCol>
         <ConfigCol>
           {this.props.type === 'input' && (
-            <Input value={this.props.value} normalPlaceholder={this.props.placeholder} />
+            <Input value={this.props.value} normalPlaceholder={this.props.placeholder} onChange={this.props.onChange} />
           )}
           {this.props.type === 'select' && (
             <Select

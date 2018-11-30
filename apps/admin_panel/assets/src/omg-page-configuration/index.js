@@ -1,17 +1,25 @@
 import React, { Component, Fragment } from 'react'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
+import { Button } from '../omg-uikit'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import queryString from 'query-string'
 import ConfigRow from './ConfigRow'
+import { compose } from 'recompose'
+import { connect } from 'react-redux'
+import { selectConfigurationsByKey } from '../omg-configuration/selector'
+import { getConfiguration } from '../omg-configuration/action'
 
 const ConfigurationPageContainer = styled.div`
   position: relative;
   padding-bottom: 150px;
   h4 {
     margin-top: 50px;
+  }
+  button {
+    padding-left: 25px;
+    padding-right: 25px;
   }
 `
 
@@ -27,12 +35,48 @@ const SubSettingContainer = styled.div`
     }
   }
 `
+
+const enhance = compose(
+  withRouter,
+  connect(
+    state => {
+      return {
+        configurations: selectConfigurationsByKey(state)
+      }
+    },
+    { getConfiguration }
+  )
+)
+
 class ConfigurationPage extends Component {
   static propTypes = {
-    location: PropTypes.object
+    configurations: PropTypes.object
   }
-  state = {
-    emailAdapter: ''
+
+  static getDerivedStateFromProps (props, state) {
+    if (!_.isEmpty(props.configurations)) {
+      return {
+        baseUrl: props.configurations.base_url.value,
+        redirectUrlPrefixes: props.configurations.redirect_url_prefixes.value,
+        enableStandalone: props.configurations.enable_standalone.value,
+        maxPerPage: props.configurations.max_per_page.value,
+        minPasswordLength: props.configurations.min_password_length.value,
+        senderEmail: props.configurations.sender_email.value,
+        emailAdapter: props.configurations.email_adapter.value,
+        smtpHost: props.configurations.smtp_host.value,
+        smtpPort: props.configurations.smtp_port.value,
+        smtpUsername: props.configurations.smtp_username.value,
+        smtpPassword: props.configurations.smtp_password.value,
+        fileStorageAdapter: props.configurations.file_storage_adapter.value,
+        gcsBucket: props.configurations.gcs_bucket.value,
+        gcsCredentials: props.configurations.gcs_credentials.value,
+        awsBucket: props.configurations.aws_bucket.value,
+        awsRegion: props.configurations.aws_region.value,
+        awsAccessKeyId: props.configurations.aws_access_key_id.value,
+        awsSecretAccessKey: props.configurations.aws_secret_access_key.value,
+        balanceCachingStrategy: props.configurations.balance_caching_strategy.value
+      }
+    }
   }
 
   onSelectEmailAdapter = option => {
@@ -41,12 +85,16 @@ class ConfigurationPage extends Component {
   onSelectFileStorageAdapter = option => {
     this.setState({ fileStorageAdapter: option.value })
   }
+  onChangeInput = key => e => {
+    this.setState({ [key]: e.target.value })
+  }
 
-  getConfiguration (configurations) {
-    configurations.forEach(config => {
-      if (config.parent) {
-      }
-    })
+  renderSaveButton = () => {
+    return (
+      <Button size='small' onClick={this.onClickCreateAccount} key={'save'}>
+        <span>Save Configuration</span>
+      </Button>
+    )
   }
 
   renderFileStorageAdpter (configurations) {
@@ -56,7 +104,7 @@ class ConfigurationPage extends Component {
         <ConfigRow
           name={configurations.file_storage_adapter.key}
           description={configurations.file_storage_adapter.description}
-          value={this.state.fileStorageAdapter || configurations.file_storage_adapter.value}
+          value={this.state.fileStorageAdapter}
           onSelectItem={this.onSelectFileStorageAdapter}
           type='select'
           options={configurations.file_storage_adapter.options.map(option => ({
@@ -70,8 +118,9 @@ class ConfigurationPage extends Component {
               <ConfigRow
                 name={configurations.gcs_bucket.key}
                 description={configurations.gcs_bucket.description}
-                value={configurations.gcs_bucket.value}
+                value={this.state.gcsBucket}
                 placeholder={'ie. google_cloud_1'}
+                onChange={this.onChangeInput('gcsBucket')}
               />
               <ConfigRow
                 name={configurations.gcs_credentials.key}
@@ -124,7 +173,7 @@ class ConfigurationPage extends Component {
         <ConfigRow
           name={configurations.balance_caching_strategy.key}
           description={configurations.balance_caching_strategy.description}
-          value={this.state.balanceCache || configurations.balance_caching_strategy.value}
+          value={this.state.balanceCachingStrategy}
           onSelectItem={this.onSelectFileStorageAdapter}
           type='select'
           options={configurations.balance_caching_strategy.options.map(option => ({
@@ -142,7 +191,8 @@ class ConfigurationPage extends Component {
         <ConfigRow
           name={configurations.base_url.key}
           description={configurations.base_url.description}
-          value={configurations.base_url.value}
+          value={this.state.baseUrl}
+          onChange={this.onChangeInput('baseUrl')}
         />
         <ConfigRow
           name={configurations.redirect_url_prefixes.key}
@@ -179,7 +229,7 @@ class ConfigurationPage extends Component {
         <ConfigRow
           name={configurations.email_adapter.key}
           description={configurations.email_adapter.description}
-          value={this.state.emailAdapter || configurations.email_adapter.value}
+          value={this.state.emailAdapter}
           onSelectItem={this.onSelectEmailAdapter}
           type='select'
           options={configurations.email_adapter.options.map(option => ({
@@ -226,16 +276,16 @@ class ConfigurationPage extends Component {
       <ConfigurationPageContainer>
         <TopNavigation
           title={'Configuration'}
-          buttons={null}
+          buttons={[this.renderSaveButton()]}
           secondaryAction={false}
           types={false}
         />
-        {!_.isEmpty(configurations) && (
+        {!_.isEmpty(this.props.configurations) && (
           <div>
-            {this.renderGlobalSetting(configurations)}
-            {this.renderEmailSetting(configurations)}
-            {this.renderFileStorageAdpter(configurations)}
-            {this.renderCacheSetting(configurations)}
+            {this.renderGlobalSetting(this.props.configurations)}
+            {this.renderEmailSetting(this.props.configurations)}
+            {this.renderFileStorageAdpter(this.props.configurations)}
+            {this.renderCacheSetting(this.props.configurations)}
           </div>
         )}
       </ConfigurationPageContainer>
@@ -243,17 +293,8 @@ class ConfigurationPage extends Component {
   }
 
   render () {
-    return (
-      <ConfigurationsFetcher
-        render={this.renderConfigurationPage}
-        {...this.state}
-        {...this.props}
-        query={{
-          page: queryString.parse(this.props.location.search).page
-        }}
-      />
-    )
+    return <ConfigurationsFetcher render={this.renderConfigurationPage} {...this.state} />
   }
 }
 
-export default withRouter(ConfigurationPage)
+export default enhance(ConfigurationPage)
