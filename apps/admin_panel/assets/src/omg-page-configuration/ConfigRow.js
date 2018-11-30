@@ -27,7 +27,7 @@ const ConfigCol = styled.div`
 export default class ConfigRow extends Component {
   static propTypes = {
     description: PropTypes.string,
-    value: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     options: PropTypes.array,
     name: PropTypes.string,
     type: PropTypes.string,
@@ -50,7 +50,11 @@ export default class ConfigRow extends Component {
         <ConfigCol>{this.props.description}</ConfigCol>
         <ConfigCol>
           {this.props.type === 'input' && (
-            <Input value={this.props.value} normalPlaceholder={this.props.placeholder} onChange={this.props.onChange} />
+            <Input
+              value={this.props.value}
+              normalPlaceholder={this.props.placeholder}
+              onChange={this.props.onChange}
+            />
           )}
           {this.props.type === 'select' && (
             <Select

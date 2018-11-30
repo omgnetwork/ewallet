@@ -11,5 +11,5 @@ export const selectGetTransactionRequestById = state => id => {
   return state.transactionRequests[id] || {}
 }
 
-export const selectTransactionRequestsLoadingStatus = state => state.loadingStatus.TRANSACTION_REQUESTS
+export const selectTransactionRequestsLoadingStatus = state => state.loadingStatus.transactionRequests
 

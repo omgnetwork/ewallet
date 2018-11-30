@@ -1,3 +1,3 @@
 export const selectCurrentUser = state => state.currentUser
 
-export const selectCurrentUserLoadingStatus = state => state.loadingStatus.CURRENT_USER
+export const selectCurrentUserLoadingStatus = state => state.loadingStatus.currentUser

@@ -28,7 +28,7 @@ export const selectWalletsCachedQueryPagination = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'pagination', {})
 }
 
-export const selectWalletsLoadingStatus = state => state.loadingStatus.WALLETS
+export const selectWalletsLoadingStatus = state => state.loadingStatus.wallets
 
 export const selectWalletById = state => id => state.wallets[id]
 export const selectWalletByUserId = userId => state => {
