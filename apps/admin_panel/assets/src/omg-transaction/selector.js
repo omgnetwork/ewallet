@@ -20,7 +20,7 @@ export const selectTransactionsCachedQuery = state => cacheKey => {
 
 export const selectGetTransactionById = state => id => state.transactions[id] || {}
 
-export const selectTransactionsLoadingStatus = state => state.transactionsLoadingStatus
+export const selectTransactionsLoadingStatus = state => state.loadingStatus.TRANSACTIONS
 
 export const selectTransactionsAllPagesCachedQuery = createSelectAllPagesCachedQuery(
   selectGetTransactionById
