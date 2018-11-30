@@ -108,7 +108,7 @@ class InputComonent extends PureComponent {
     suffix: PropTypes.node,
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
-    value: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     type: PropTypes.string
   }
   static defaultProps = {

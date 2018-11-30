@@ -8,9 +8,12 @@ import PropTypes from 'prop-types'
 import ConfigRow from './ConfigRow'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
-import { selectConfigurationsByKey } from '../omg-configuration/selector'
+import {
+  selectConfigurationsByKey,
+  selectConfigurationLoadingStatus
+} from '../omg-configuration/selector'
 import { getConfiguration } from '../omg-configuration/action'
-
+import CONSTANT from '../constants'
 const ConfigurationPageContainer = styled.div`
   position: relative;
   padding-bottom: 150px;
@@ -41,7 +44,8 @@ const enhance = compose(
   connect(
     state => {
       return {
-        configurations: selectConfigurationsByKey(state)
+        configurations: selectConfigurationsByKey(state),
+        configurationLoadingStatus: selectConfigurationLoadingStatus(state)
       }
     },
     { getConfiguration }
@@ -50,11 +54,12 @@ const enhance = compose(
 
 class ConfigurationPage extends Component {
   static propTypes = {
-    configurations: PropTypes.object
+    configurations: PropTypes.object,
+    configurationLoadingStatus: PropTypes.string
   }
 
   static getDerivedStateFromProps (props, state) {
-    if (!_.isEmpty(props.configurations)) {
+    if (!state.fetched && props.configurationLoadingStatus === CONSTANT.LOADING_STATUS.SUCCESS) {
       return {
         baseUrl: props.configurations.base_url.value,
         redirectUrlPrefixes: props.configurations.redirect_url_prefixes.value,
@@ -74,11 +79,15 @@ class ConfigurationPage extends Component {
         awsRegion: props.configurations.aws_region.value,
         awsAccessKeyId: props.configurations.aws_access_key_id.value,
         awsSecretAccessKey: props.configurations.aws_secret_access_key.value,
-        balanceCachingStrategy: props.configurations.balance_caching_strategy.value
+        balanceCachingStrategy: props.configurations.balance_caching_strategy.value,
+        fetched: true
       }
+    } else {
+      return null
     }
   }
 
+  state = {}
   onSelectEmailAdapter = option => {
     this.setState({ emailAdapter: option.value })
   }
@@ -197,22 +206,26 @@ class ConfigurationPage extends Component {
         <ConfigRow
           name={configurations.redirect_url_prefixes.key}
           description={configurations.redirect_url_prefixes.description}
-          value={configurations.redirect_url_prefixes.value}
+          value={this.state.redirectUrlPrefixes}
+          onChange={this.onChangeInput('redirectUrlPrefixes')}
         />
         <ConfigRow
           name={configurations.enable_standalone.key}
           description={configurations.enable_standalone.description}
-          value={configurations.enable_standalone.value}
+          value={this.state.enableStandalone}
+          onChange={this.onChangeInput('enableStandalone')}
         />
         <ConfigRow
           name={configurations.max_per_page.key}
           description={configurations.max_per_page.description}
-          value={configurations.max_per_page.value}
+          value={this.state.maxPerPage}
+          onChange={this.onChangeInput('maxPerPage')}
         />
         <ConfigRow
           name={configurations.min_password_length.key}
           description={configurations.min_password_length.description}
-          value={configurations.min_password_length.value}
+          value={this.state.minPasswordLength}
+          onChange={this.onChangeInput('minPasswordLength')}
         />
       </Fragment>
     )

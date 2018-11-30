@@ -23,3 +23,5 @@ export const selectConfigurationsCachedQuery = state => cacheKey => {
 export const selectConfigurationsCachedQueryPagination = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'pagination', {})
 }
+
+export const selectConfigurationLoadingStatus = state => state.loadingStatus.configurations
