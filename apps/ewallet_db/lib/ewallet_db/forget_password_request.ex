@@ -68,16 +68,14 @@ defmodule EWalletDB.ForgetPasswordRequest do
   def get(_, nil), do: nil
 
   def get(user, token) do
-    request =
+    requests =
       ForgetPasswordRequest
       |> where([c], c.user_uuid == ^user.uuid)
       |> where([c], c.enabled == true)
-      |> order_by([c], desc: c.inserted_at)
-      |> limit(1)
-      |> Repo.one()
+      |> Repo.all()
       |> Repo.preload(:user)
 
-    check_token(request, token)
+    Enum.find(requests, fn r -> check_token(r, token) end)
   end
 
   defp check_token(nil, _token), do: nil

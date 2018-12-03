@@ -14,24 +14,20 @@ defmodule EWallet.ResetPasswordGateTest do
       assert User.get(admin.id).password_hash == admin.password_hash
     end
 
-    test "disables all pending requests" do
-      admin_1 = insert(:admin)
-      admin_2 = insert(:admin)
-      admin_3 = insert(:admin)
+    test "allows multiple active requests" do
+      admin = insert(:admin)
 
-      request_1 = insert(:forget_password_request, user_uuid: admin_1.uuid)
-      request_2 = insert(:forget_password_request, user_uuid: admin_2.uuid)
-      request_3 = insert(:forget_password_request, user_uuid: admin_3.uuid)
+      request_1 = insert(:forget_password_request, user_uuid: admin.uuid)
+      request_2 = insert(:forget_password_request, user_uuid: admin.uuid)
 
-      assert ForgetPasswordRequest.get(admin_1, request_1.token).enabled
-      assert ForgetPasswordRequest.get(admin_2, request_2.token).enabled
-      assert ForgetPasswordRequest.get(admin_3, request_3.token).enabled
+      assert ForgetPasswordRequest.get(admin, request_1.token).enabled
+      assert ForgetPasswordRequest.get(admin, request_2.token).enabled
 
-      {:ok, _request} = ResetPasswordGate.request(admin_2.email)
+      {:ok, request_3} = ResetPasswordGate.request(admin.email)
 
-      assert ForgetPasswordRequest.get(admin_1, request_1.token)
-      refute ForgetPasswordRequest.get(admin_2, request_2.token)
-      assert ForgetPasswordRequest.get(admin_3, request_3.token)
+      assert ForgetPasswordRequest.get(admin, request_1.token)
+      assert ForgetPasswordRequest.get(admin, request_2.token)
+      assert ForgetPasswordRequest.get(admin, request_3.token)
     end
 
     test "returns :user_email_not_found if the email could not be found" do
@@ -78,6 +74,30 @@ defmodule EWallet.ResetPasswordGateTest do
       {:ok, _} = ResetPasswordGate.update(admin.email, request.token, password, password)
 
       assert ForgetPasswordRequest.get(admin, request.token) == nil
+    end
+
+    test "allows remaining requests to be used" do
+      admin = insert(:admin)
+      request_1 = insert(:forget_password_request, user_uuid: admin.uuid)
+      request_2 = insert(:forget_password_request, user_uuid: admin.uuid)
+      request_3 = insert(:forget_password_request, user_uuid: admin.uuid)
+
+      {:ok, _} = ResetPasswordGate.update(admin.email, request_1.token, "newpass1", "newpass1")
+      {:ok, _} = ResetPasswordGate.update(admin.email, request_2.token, "newpass2", "newpass2")
+      {:ok, _} = ResetPasswordGate.update(admin.email, request_3.token, "newpass3", "newpass3")
+    end
+
+    test "returns :invalid_reset_token error if the request is already expired" do
+      admin_1 = insert(:admin)
+      admin_2 = insert(:admin)
+      expires_at = NaiveDateTime.utc_now() |> NaiveDateTime.add(-10)
+      request = insert(:forget_password_request, user_uuid: admin_1.uuid, expires_at: expires_at)
+      password = "new.password"
+
+      {res, code} = ResetPasswordGate.update(admin_2.email, request.token, password, password)
+
+      assert res == :error
+      assert code == :invalid_reset_token
     end
 
     test "returns :invalid_reset_token error if the email does not match the token" do
