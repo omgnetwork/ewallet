@@ -6,7 +6,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
   alias EWalletConfig.Helpers.Crypto
-  alias EWalletDB.{ForgetPasswordRequest, Repo, User}
+  alias EWalletDB.{Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @token_length 32
@@ -52,26 +52,26 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @doc """
   Retrieves all active requests.
   """
-  @spec all_active() :: [%ForgetPasswordRequest{}]
+  @spec all_active() :: [%__MODULE__{}]
   def all_active do
-    ForgetPasswordRequest
-    |> where([c], c.enabled == true)
-    |> order_by([c], desc: c.inserted_at)
+    __MODULE__
+    |> where([f], f.enabled == true)
+    |> order_by([f], desc: f.inserted_at)
     |> Repo.all()
   end
 
   @doc """
   Retrieves a specific invite by its token.
   """
-  @spec get(%User{} | nil, String.t() | nil) :: %ForgetPasswordRequest{} | nil
+  @spec get(%User{} | nil, String.t() | nil) :: %__MODULE__{} | nil
   def get(nil, _), do: nil
   def get(_, nil), do: nil
 
   def get(user, token) do
     requests =
-      ForgetPasswordRequest
-      |> where([c], c.user_uuid == ^user.uuid)
-      |> where([c], c.enabled == true)
+      __MODULE__
+      |> where([f], f.user_uuid == ^user.uuid)
+      |> where([f], f.enabled == true)
       |> Repo.all()
       |> Repo.preload(:user)
 
@@ -105,20 +105,35 @@ defmodule EWalletDB.ForgetPasswordRequest do
   end
 
   @doc """
+  Expires all requests that their expiry dates have passed.
+  """
+  @spec expire_all() :: {:ok, integer()}
+  def expire_all do
+    now = NaiveDateTime.utc_now()
+
+    # There's a DB index for [:enabled, :expires_at], so filtering for
+    # `:enabled` then `:expires_at` should be efficient.
+    {num_updated, _} =
+      __MODULE__
+      |> where([f], f.enabled == true)
+      |> where([f], not is_nil(f.expires_at))
+      |> where([f], f.expires_at <= ^now)
+      |> Repo.update_all([set: [enabled: false]], returning: true)
+
+    {:ok, num_updated}
+  end
+
+  @doc """
   Generates a forget password request for the given user.
   """
-  @spec generate(%User{}) :: %ForgetPasswordRequest{} | {:error, Ecto.Changeset.t()}
+  @spec generate(%User{}) :: %__MODULE__{} | {:error, Ecto.Changeset.t()}
   def generate(user) do
-    with token <- Crypto.generate_base64_key(@token_length),
-         lifetime_minutes <-
-           Application.get_env(
-             :ewallet,
-             :forget_password_request_lifetime,
-             @default_lifetime_minutes
-           ),
-         expires_at <- NaiveDateTime.utc_now() |> NaiveDateTime.add(60 * lifetime_minutes),
-         {:ok, _} <- insert(%{token: token, user_uuid: user.uuid, expires_at: expires_at}),
-         %ForgetPasswordRequest{} = request <- ForgetPasswordRequest.get(user, token) do
+    token = Crypto.generate_base64_key(@token_length)
+    lifetime_minutes = Application.get_env(:ewallet, :forget_password_request_lifetime, @default_lifetime_minutes)
+    expires_at = NaiveDateTime.utc_now() |> NaiveDateTime.add(60 * lifetime_minutes)
+
+    with {:ok, _} <- insert(%{token: token, user_uuid: user.uuid, expires_at: expires_at}),
+         %__MODULE__{} = request <- __MODULE__.get(user, token) do
       {:ok, request}
     else
       error -> error
@@ -126,7 +141,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
   end
 
   defp insert(attrs) do
-    %ForgetPasswordRequest{}
+    %__MODULE__{}
     |> changeset(attrs)
     |> Repo.insert()
   end
