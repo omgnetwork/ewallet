@@ -5,6 +5,7 @@ defmodule AdminAPI.V1.TransactionConsumptionChannel do
   """
   use Phoenix.Channel, async: false
   alias EWalletDB.TransactionConsumption
+  alias EWallet.TransactionConsumptionPolicy
 
   def join(
         "transaction_consumption:" <> consumption_id,
@@ -13,16 +14,14 @@ defmodule AdminAPI.V1.TransactionConsumptionChannel do
           assigns: %{auth: auth}
         } = socket
       ) do
-    consumption_id
-    |> TransactionConsumption.get()
-    |> join_as(auth, socket)
+    with %TransactionConsumption{} = consumption <-
+           TransactionConsumption.get(consumption_id, preload: :account),
+         :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :get, auth, consumption) do
+      {:ok, socket}
+    else
+      _ -> {:error, :forbidden_channel}
+    end
   end
 
   def join(_, _, _), do: {:error, :invalid_parameter}
-
-  defp join_as(nil, _auth, _socket), do: {:error, :channel_not_found}
-
-  defp join_as(_consumption, %{authenticated: true}, socket) do
-    {:ok, socket}
-  end
 end

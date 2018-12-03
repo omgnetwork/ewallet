@@ -14,6 +14,7 @@ defmodule AdminAPI.ChannelCase do
   """
 
   use ExUnit.CaseTemplate, async: false
+  use Phoenix.ChannelTest
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias EWalletConfig.{ConfigTestHelper, Helpers.Crypto, Types.ExternalID}
@@ -22,6 +23,8 @@ defmodule AdminAPI.ChannelCase do
   # Attributes for provider calls
   @access_key "test_access_key"
   @secret_key "test_secret_key"
+
+  @endpoint AdminAPI.V1.Endpoint
 
   # Attributes for user calls
   @admin_id ExternalID.generate("usr_")
@@ -94,7 +97,27 @@ defmodule AdminAPI.ChannelCase do
     %{config_pid: pid}
   end
 
-  def get_test_key, do: Key.get_by(%{access_key: @access_key}, preload: :account)
+  def admin_auth_socket(admin_id \\ @admin_id) do
+    socket("test", %{auth: %{authenticated: true, admin_user: User.get(admin_id)}})
+  end
 
-  def get_test_admin, do: User.get(@admin_id)
+  def key_auth_socket(access_key \\ @access_key) do
+    socket("test", %{
+      auth: %{authenticated: true, key: Key.get_by(%{access_key: access_key}, preload: :account)}
+    })
+  end
+
+  def test_with_auths(func, admin_id \\ @admin_id, access_key \\ @access_key) do
+    Enum.each([admin_auth_socket(admin_id), key_auth_socket(access_key)], func)
+  end
+
+  def assert_success({res, _, socket}, topic) do
+    assert res == :ok
+    assert socket.topic == topic
+  end
+
+  def assert_failure({res, code}, error) do
+    assert res == :error
+    assert code == error
+  end
 end
