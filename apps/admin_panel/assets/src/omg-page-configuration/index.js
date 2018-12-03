@@ -14,6 +14,7 @@ import {
 } from '../omg-configuration/selector'
 import { getConfiguration, updateConfiguration } from '../omg-configuration/action'
 import CONSTANT from '../constants'
+import {isEmail} from '../utils/validator'
 const ConfigurationPageContainer = styled.div`
   position: relative;
   padding-bottom: 150px;
@@ -254,12 +255,14 @@ class ConfigurationPage extends Component {
           value={this.state.maxPerPage}
           inputType='number'
           onChange={this.onChangeInput('maxPerPage')}
+          inputValidator={value => Number(value) < 0}
         />
         <ConfigRow
           name={configurations.min_password_length.key}
           description={configurations.min_password_length.description}
           value={this.state.minPasswordLength}
           onChange={this.onChangeInput('minPasswordLength')}
+          inputValidator={value => Number(value) < 1}
         />
       </Fragment>
     )

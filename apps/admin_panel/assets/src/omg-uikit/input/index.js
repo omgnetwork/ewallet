@@ -47,7 +47,7 @@ const Input = styled.input`
       ${props => (props.error ? props.theme.colors.R400 : props.theme.colors.BL400)};
   }
   :-webkit-autofill {
-    content: "AUTO_FILL_HACK";
+    content: 'AUTO_FILL_HACK';
     animation-name: onAutoFillStart;
     transition: background-color 50000s ease-in-out 0s;
   }
@@ -109,7 +109,8 @@ class InputComonent extends PureComponent {
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    type: PropTypes.string
+    type: PropTypes.string,
+    validator: PropTypes.func
   }
   static defaultProps = {
     onFocus: () => {},
@@ -118,6 +119,7 @@ class InputComonent extends PureComponent {
     registerRef: () => {},
     onPressEscape: () => {},
     onPressEnter: () => {},
+    validator: () => {},
     type: 'string'
   }
   state = {
@@ -164,6 +166,7 @@ class InputComonent extends PureComponent {
     }
   }
   render () {
+    console.log(this.props.validator(this.props.value))
     const { className, placeholder, ...rest } = this.props
     return (
       <Container className={className}>
@@ -177,12 +180,17 @@ class InputComonent extends PureComponent {
             onFocus={this.onFocus}
             onBlur={this.onBlur}
             onChange={this.onChange}
+            error={this.props.validator ? this.props.validator(this.props.value) : this.props.error}
             type={this.props.type === 'amount' ? 'string' : this.props.type}
           />
           <Placeholder inputActive={this.isInputActive()}>{placeholder}</Placeholder>
           <Suffix>{this.props.suffix}</Suffix>
         </InnerContainer>
-        <Error error={this.props.error}>{this.props.errorText}</Error>
+        <Error
+          error={this.props.validator ? this.props.validator(this.props.value) : this.props.error}
+        >
+          {this.props.errorText}
+        </Error>
         <Success success={this.props.success}>{this.props.successText}</Success>
       </Container>
     )
