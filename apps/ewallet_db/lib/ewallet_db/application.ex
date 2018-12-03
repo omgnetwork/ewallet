@@ -15,6 +15,7 @@ defmodule EWalletDB.Application do
     Config.register_and_load(:ewallet_db, settings)
 
     ActivityLogger.configure(%{
+      EWalletDB.Seeder => "seeder",
       EWalletDB.User => "user",
       EWalletDB.Invite => "invite",
       EWalletDB.Key => "key",

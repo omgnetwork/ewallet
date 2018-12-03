@@ -2,7 +2,7 @@ defmodule EWalletDB.Repo.Seeds.UserSampleSeed do
   alias Ecto.UUID
   alias EWallet.TransactionGate
   alias EWalletDB.{Account, AccountUser, Token, User}
-  alias ActivityLogger.System
+  alias EWalletDB.Seeder
 
   @users_count 5
   @username_prefix "user"
@@ -30,7 +30,7 @@ defmodule EWalletDB.Repo.Seeds.UserSampleSeed do
       username: @username_prefix <> running_string,
       metadata: %{},
       account_uuid: Account.get_master_account().uuid,
-      originator: %System{}
+      originator: %Seeder{}
     }
 
     case User.get_by_provider_user_id(data.provider_user_id) do
@@ -38,7 +38,7 @@ defmodule EWalletDB.Repo.Seeds.UserSampleSeed do
         case User.insert(data) do
           {:ok, user} ->
             :ok = give_token(user, Token.all(), @minimum_token_amount)
-            {:ok, _} = AccountUser.link(data.account_uuid, user.uuid, %System{})
+            {:ok, _} = AccountUser.link(data.account_uuid, user.uuid, %Seeder{})
 
             writer.success("""
               User ID          : #{user.id}
@@ -73,13 +73,14 @@ defmodule EWalletDB.Repo.Seeds.UserSampleSeed do
   defp give_token(user, token, minimum_amount) do
     master_account = Account.get_master_account()
 
-    TransactionGate.create(%{
+    {:ok, _} = TransactionGate.create(%{
       "from_address" => Account.get_primary_wallet(master_account).address,
       "to_address" => User.get_primary_wallet(user).address,
       "token_id" => token.id,
       "amount" => :rand.uniform(10) * minimum_amount * token.subunit_to_unit,
       "metadata" => %{},
-      "idempotency_token" => UUID.generate()
+      "idempotency_token" => UUID.generate(),
+      "originator" => %Seeder{}
     })
   end
 end
