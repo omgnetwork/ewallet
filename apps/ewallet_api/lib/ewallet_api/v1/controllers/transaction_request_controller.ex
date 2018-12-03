@@ -5,11 +5,14 @@ defmodule EWalletAPI.V1.TransactionRequestController do
   alias EWallet.{
     TransactionRequestFetcher,
     TransactionRequestGate,
-    TransactionRequestPolicy
+    TransactionRequestPolicy,
+    Web.Originator
   }
 
   @spec create_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create_for_user(conn, attrs) do
+    attrs = Map.put(attrs, "originator", Originator.extract(conn.assigns))
+
     conn.assigns.user
     |> TransactionRequestGate.create(attrs)
     |> respond(conn)

@@ -13,6 +13,7 @@ defmodule EWalletAPI.ConnCase do
   of the test unless the test case is marked as async.
   """
   use ExUnit.CaseTemplate
+  use Phoenix.ConnTest
   import EWalletDB.Factory
   import Ecto.Query
   alias Ecto.Adapters.SQL.Sandbox
@@ -20,7 +21,7 @@ defmodule EWalletAPI.ConnCase do
   alias EWallet.{MintGate, TransactionGate}
   alias EWalletDB.{Account, Repo, User}
   alias EWalletConfig.ConfigTestHelper
-  use Phoenix.ConnTest
+  alias ActivityLogger.System
 
   # Attributes required by Phoenix.ConnTest
   @endpoint EWalletAPI.Endpoint
@@ -63,11 +64,13 @@ defmodule EWalletAPI.ConnCase do
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
     :ok = Sandbox.checkout(EWalletConfig.Repo)
+    :ok = Sandbox.checkout(ActivityLogger.Repo)
 
     unless tags[:async] do
       Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
       Sandbox.mode(EWalletDB.Repo, {:shared, self()})
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+      Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
     pid =
@@ -158,7 +161,8 @@ defmodule EWalletAPI.ConnCase do
         "token_id" => token.id,
         "amount" => amount * token.subunit_to_unit,
         "description" => "Minting #{amount} #{token.symbol}",
-        "metadata" => %{}
+        "metadata" => %{},
+        "originator" => %System{}
       })
 
     assert mint.confirmed == true
@@ -173,7 +177,8 @@ defmodule EWalletAPI.ConnCase do
         "token_id" => token.id,
         "amount" => amount,
         "metadata" => %{},
-        "idempotency_token" => UUID.generate()
+        "idempotency_token" => UUID.generate(),
+        "originator" => %System{}
       })
 
     transaction

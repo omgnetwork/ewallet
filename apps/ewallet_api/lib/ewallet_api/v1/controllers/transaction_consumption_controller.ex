@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionConsumptionController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.Web.{Orchestrator, V1.TransactionConsumptionOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, V1.TransactionConsumptionOverlay}
 
   alias EWallet.{
     TransactionConsumptionConfirmerGate,
@@ -17,6 +17,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
       attrs
       |> Map.delete("exchange_account_id")
       |> Map.delete("exchange_wallet_address")
+      |> Map.put("originator", Originator.extract(conn.assigns))
 
     with {:ok, consumption} <-
            TransactionConsumptionConsumerGate.consume(conn.assigns.user, attrs) do
@@ -37,7 +38,13 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   def reject_for_user(conn, attrs), do: confirm(conn, conn.assigns.user, attrs, false)
 
   defp confirm(conn, user, %{"id" => id} = attrs, approved) do
-    case TransactionConsumptionConfirmerGate.confirm(id, approved, %{end_user: user}) do
+    id
+    |> TransactionConsumptionConfirmerGate.confirm(
+      approved,
+      %{end_user: user},
+      Originator.extract(conn.assigns)
+    )
+    |> case do
       {:ok, consumption} ->
         consumption
         |> Orchestrator.one(TransactionConsumptionOverlay, attrs)
