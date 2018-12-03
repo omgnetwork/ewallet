@@ -14,8 +14,15 @@ defmodule EWalletAPI.ChannelCase do
   """
 
   use ExUnit.CaseTemplate, async: false
+  use Phoenix.ChannelTest
   alias Ecto.Adapters.SQL.Sandbox
+  import EWalletDB.Factory
   alias EWalletConfig.ConfigTestHelper
+  alias EWalletDB.User
+
+  @endpoint EWalletAPI.V1.Endpoint
+
+  @provider_user_id "test_provider_user_id"
 
   using do
     quote do
@@ -23,9 +30,12 @@ defmodule EWalletAPI.ChannelCase do
       use Phoenix.ChannelTest
       alias Ecto.Adapters.SQL.Sandbox
       import EWalletDB.Factory
+      import EWalletAPI.ChannelCase
 
       # The default endpoint for testing
       @endpoint EWalletAPI.V1.Endpoint
+
+      @provider_user_id unquote(@provider_user_id)
     end
   end
 
@@ -51,6 +61,33 @@ defmodule EWalletAPI.ChannelCase do
       }
     )
 
+    {:ok, _user} =
+      :user
+      |> params_for(%{provider_user_id: @provider_user_id})
+      |> User.insert()
+
     :ok
+  end
+
+  def get_test_user, do: User.get_by_provider_user_id(@provider_user_id)
+
+  def test_socket(provider_user_id \\ @provider_user_id) do
+    socket("test", %{
+      auth: %{authenticated: true, user: User.get_by_provider_user_id(provider_user_id)}
+    })
+  end
+
+  def test_with_topic(topic, channel, provider_user_id \\ @provider_user_id) do
+    subscribe_and_join(test_socket(provider_user_id), channel, topic)
+  end
+
+  def assert_success({res, _, socket}, topic) do
+    assert res == :ok
+    assert socket.topic == topic
+  end
+
+  def assert_failure({res, code}, error) do
+    assert res == :error
+    assert code == error
   end
 end

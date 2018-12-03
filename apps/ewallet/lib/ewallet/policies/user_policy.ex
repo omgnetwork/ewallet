@@ -12,7 +12,13 @@ defmodule EWallet.UserPolicy do
 
   def authorize(:all, _params, nil), do: true
 
-  # Anyone can get any user
+  def authorize(:join, %{user: auth_user}, user) do
+    auth_user.uuid == user.uuid
+  end
+
+  def authorize(:join, params, user), do: authorize(:get, params, user)
+
+  # Anyone admin or key get any user
   def authorize(:get, _admin_user_or_key, _admin_user), do: true
 
   # Anyone can create a new user

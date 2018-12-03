@@ -4,7 +4,7 @@ defmodule EWallet.TransactionRequestPolicy do
   """
   @behaviour Bodyguard.Policy
   alias EWallet.{WalletPolicy, AccountPolicy}
-  alias EWalletDB.{Wallet, Account}
+  alias EWalletDB.{Wallet, Account, User}
 
   def authorize(:all, _admin_user_or_key, nil), do: true
 
@@ -15,6 +15,14 @@ defmodule EWallet.TransactionRequestPolicy do
   def authorize(:get, _params, _request) do
     true
   end
+
+  def authorize(:join, %{user: user}, request) do
+    user
+    |> User.addresses()
+    |> Enum.member?(request.wallet_address)
+  end
+
+  def authorize(:join, params, request), do: authorize(:get, params, request)
 
   # Check with the passed attributes if the current accessor can
   # create a request for the account

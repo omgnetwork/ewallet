@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.TransactionConsumptionChannel do
       ) do
     with %TransactionConsumption{} = consumption <-
            TransactionConsumption.get(consumption_id, preload: :account),
-         :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :get, auth, consumption) do
+         :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :join, auth, consumption) do
       {:ok, socket}
     else
       _ -> {:error, :forbidden_channel}
