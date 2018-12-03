@@ -3,7 +3,7 @@ defmodule EWallet.Web.Inviter do
   This module handles user invite and confirmation of their emails.
   """
   alias EWallet.Mailer
-  alias EWalletConfig.Helpers.Crypto
+  alias Utils.Helpers.Crypto
   alias EWalletDB.{Account, AccountUser, Invite, Membership, Role, User}
 
   @doc """
@@ -13,7 +13,7 @@ defmodule EWallet.Web.Inviter do
           {:ok, %Invite{}} | {:error, atom()} | {:error, atom(), String.t()}
   def invite_user(email, password, verification_url, success_url, create_email_func) do
     with {:ok, user} <- get_or_insert_user(email, password, :self),
-         {:ok, invite} <- Invite.generate(user, preload: :user, success_url: success_url),
+         {:ok, invite} <- Invite.generate(user, user, preload: :user, success_url: success_url),
          {:ok, account} <- Account.fetch_master_account(),
          {:ok, _account_user} <- AccountUser.link(account.uuid, user.uuid, user) do
       send_email(invite, verification_url, create_email_func)
@@ -34,8 +34,8 @@ defmodule EWallet.Web.Inviter do
           {:ok, %Invite{}} | {:error, atom()}
   def invite_admin(email, account, role, redirect_url, originator, create_email_func) do
     with {:ok, user} <- get_or_insert_user(email, nil, originator),
-         {:ok, invite} <- Invite.generate(user, preload: :user),
-         {:ok, _membership} <- Membership.assign(invite.user, account, role) do
+         {:ok, invite} <- Invite.generate(user, originator, preload: :user),
+         {:ok, _membership} <- Membership.assign(invite.user, account, role, originator) do
       send_email(invite, redirect_url, create_email_func)
     else
       {:error, error} ->
