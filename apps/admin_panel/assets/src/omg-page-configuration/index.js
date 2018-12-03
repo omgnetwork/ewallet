@@ -14,7 +14,7 @@ import {
 } from '../omg-configuration/selector'
 import { getConfiguration, updateConfiguration } from '../omg-configuration/action'
 import CONSTANT from '../constants'
-import {isEmail} from '../utils/validator'
+import { isEmail } from '../utils/validator'
 const ConfigurationPageContainer = styled.div`
   position: relative;
   padding-bottom: 150px;
@@ -164,7 +164,7 @@ class ConfigurationPage extends Component {
               <ConfigRow
                 name={configurations.gcs_credentials.key}
                 description={configurations.gcs_credentials.description}
-                value={configurations.gcs_credentials.value}
+                value={this.state.gcsCredentials}
                 placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
                 border={this.state.emailAdapter !== 'gcs'}
               />
@@ -276,6 +276,7 @@ class ConfigurationPage extends Component {
           description={configurations.sender_email.description}
           value={this.state.senderEmail}
           onChange={this.onChangeInput('senderEmail')}
+          validator={value => isEmail(value)}
         />
         <ConfigRow
           name={configurations.email_adapter.key}
