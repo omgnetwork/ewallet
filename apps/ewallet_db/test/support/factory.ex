@@ -4,14 +4,13 @@ defmodule EWalletDB.Factory do
   """
   use ExMachina.Ecto, repo: EWalletDB.Repo
   alias ExMachina.Strategy
-  alias EWalletConfig.{Types.WalletAddress, Helpers.Crypto}
-  alias EWalletConfig.System
+  alias Utils.{Types.WalletAddress, Helpers.Crypto}
+  alias ActivityLogger.System
 
   alias EWalletDB.{
     Account,
     AccountUser,
     APIKey,
-    Audit,
     AuthToken,
     Category,
     ExchangePair,
@@ -150,36 +149,6 @@ defmodule EWalletDB.Factory do
         "last_name" => sequence("Doe")
       },
       originator: %System{}
-    }
-  end
-
-  def audit_factory do
-    params = params_for(:user)
-    user = insert(:user, params)
-    originator = insert(:admin)
-
-    %Audit{
-      action: "insert",
-      target_type: Audit.get_type(User),
-      target_uuid: user.uuid,
-      target_changes: params,
-      originator_uuid: originator.uuid,
-      originator_type: Audit.get_type(Admin)
-    }
-  end
-
-  def sytem_audit_factory do
-    params = params_for(:admin)
-    admin = insert(params)
-    originator = %System{}
-
-    %Audit{
-      action: "insert",
-      target_type: Audit.get_type(admin.__struct__),
-      target_uuid: admin.uuid,
-      target_changes: params,
-      originator_uuid: originator.uuid,
-      originator_type: Audit.get_type(originator.__struct__)
     }
   end
 

@@ -1,7 +1,7 @@
 defmodule EWalletDB.ExchangePairTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.ExchangePair
-  alias EWalletConfig.System
+  alias ActivityLogger.System
 
   describe "ExchangePair factory" do
     test_has_valid_factory(ExchangePair)
@@ -16,7 +16,7 @@ defmodule EWalletDB.ExchangePairTest do
     test_insert_generate_timestamps(ExchangePair)
 
     test "allows inserting existing pairs if the existing pairs are soft-deleted" do
-      {:ok, pair} = :exchange_pair |> insert() |> ExchangePair.delete()
+      {:ok, pair} = :exchange_pair |> insert() |> ExchangePair.delete(%System{})
 
       attrs = %{
         from_token_uuid: pair.from_token_uuid,
@@ -134,7 +134,7 @@ defmodule EWalletDB.ExchangePairTest do
           deleted_at: NaiveDateTime.utc_now()
         )
 
-      {res, code} = ExchangePair.restore(deleted)
+      {res, code} = ExchangePair.restore(deleted, %System{})
 
       assert res == :error
       assert code == :exchange_pair_already_exists
@@ -144,7 +144,7 @@ defmodule EWalletDB.ExchangePairTest do
   describe "touch/1" do
     test "touches the exchange pair's updated_at" do
       inserted = insert(:exchange_pair)
-      {res, touched} = ExchangePair.touch(inserted)
+      {res, touched} = ExchangePair.touch(inserted, %System{})
 
       assert res == :ok
       assert NaiveDateTime.compare(touched.updated_at, inserted.updated_at) == :gt

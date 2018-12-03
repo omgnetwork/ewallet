@@ -3,11 +3,12 @@ defmodule EWalletDB.ForgetPasswordRequest do
   Ecto Schema representing a password reset request.
   """
   use Ecto.Schema
-  use EWalletDB.Auditable
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias EWalletConfig.Helpers.Crypto
   alias EWalletDB.{ForgetPasswordRequest, Repo, User}
+  alias Utils.Helpers.Crypto
+  alias ActivityLogger.System
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @token_length 32
@@ -25,13 +26,15 @@ defmodule EWalletDB.ForgetPasswordRequest do
     )
 
     timestamps()
-    auditable()
+    activity_logging()
   end
 
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:token, :user_uuid])
-    |> validate_required([:token, :user_uuid])
+    |> cast_and_validate_required_for_activity_log(attrs, [:token, :user_uuid], [
+      :token,
+      :user_uuid
+    ])
     |> assoc_constraint(:user)
   end
 
@@ -88,13 +91,20 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @spec generate(%User{}) :: %ForgetPasswordRequest{} | {:error, Ecto.Changeset.t()}
   def generate(user) do
     token = Crypto.generate_base64_key(@token_length)
-    {:ok, _} = insert(%{token: token, user_uuid: user.uuid})
+
+    {:ok, _} =
+      insert(%{
+        token: token,
+        user_uuid: user.uuid,
+        originator: %System{}
+      })
+
     ForgetPasswordRequest.get(user, token)
   end
 
   defp insert(attrs) do
     %ForgetPasswordRequest{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
   end
 end

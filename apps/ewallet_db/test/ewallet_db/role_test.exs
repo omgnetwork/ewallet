@@ -1,6 +1,7 @@
 defmodule EWalletDB.RoleTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.{Membership, Role}
+  alias ActivityLogger.System
 
   describe "Role factory" do
     test_has_valid_factory(Role)
@@ -48,12 +49,12 @@ defmodule EWalletDB.RoleTest do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "test_role_not_empty")
-      {:ok, _membership} = Membership.assign(user, account, role)
+      {:ok, _membership} = Membership.assign(user, account, role, %System{})
 
       users = role.id |> Role.get(preload: :users) |> Map.get(:users)
       assert Enum.count(users) > 0
 
-      {res, code} = Role.delete(role)
+      {res, code} = Role.delete(role, %System{})
 
       assert res == :error
       assert code == :role_not_empty

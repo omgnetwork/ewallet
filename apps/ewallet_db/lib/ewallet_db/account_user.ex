@@ -4,17 +4,15 @@ defmodule EWalletDB.AccountUser do
   """
   use Ecto.Schema
   use Arc.Ecto.Schema
+  use ActivityLogger.ActivityLogging
   import Ecto.Changeset
   alias Ecto.UUID
-  alias EWalletDB.{Audit, Account, AccountUser, User}
-
-  alias EWalletConfig.Types.VirtualStruct
+  alias EWalletDB.{Account, AccountUser, User}
+  alias EWalletDB.Repo
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "account_user" do
-    field(:originator, VirtualStruct, virtual: true)
-
     belongs_to(
       :account,
       Account,
@@ -32,13 +30,17 @@ defmodule EWalletDB.AccountUser do
     )
 
     timestamps()
+    activity_logging()
   end
 
   @spec changeset(account :: %AccountUser{}, attrs :: map()) :: Ecto.Changeset.t()
   defp changeset(%AccountUser{} = account, attrs) do
     account
-    |> cast(attrs, [:account_uuid, :user_uuid, :originator])
-    |> validate_required([:account_uuid, :user_uuid, :originator])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [:account_uuid, :user_uuid],
+      [:account_uuid, :user_uuid, :originator]
+    )
     |> unique_constraint(:account_uuid, name: :account_user_account_uuid_user_uuid_index)
     |> assoc_constraint(:account)
     |> assoc_constraint(:user)
@@ -50,7 +52,7 @@ defmodule EWalletDB.AccountUser do
 
     %AccountUser{}
     |> changeset(attrs)
-    |> Audit.insert_record_with_audit(opts)
+    |> Repo.insert_record_with_activity_log(opts)
   end
 
   def link(account_uuid, user_uuid, originator) do

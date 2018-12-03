@@ -1,7 +1,7 @@
 defmodule EWalletDB.Repo.Seeds.UserSeed do
   alias EWalletConfig.{System, Helpers.Crypto}
   alias EWalletDB.{Account, AccountUser, User}
-  alias EWalletConfig.System
+  alias ActivityLogger.System
 
   @argsline_desc """
   This email and password combination is required for logging into the admin panel.

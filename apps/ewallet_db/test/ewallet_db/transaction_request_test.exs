@@ -1,7 +1,7 @@
 defmodule EWalletDB.TransactionRequestTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.TransactionRequest
-  alias EWalletConfig.System
+  alias ActivityLogger.System
 
   describe "TransactionRequest factory" do
     test_has_valid_factory(TransactionRequest)

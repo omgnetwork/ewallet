@@ -3,11 +3,11 @@ defmodule EWalletDB.UpdateEmailRequest do
   Ecto Schema representing a change email request.
   """
   use Ecto.Schema
-  use EWalletDB.Auditable
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletConfig.Helpers.Crypto
+  alias Utils.Helpers.Crypto
   alias EWalletDB.{UpdateEmailRequest, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -27,13 +27,16 @@ defmodule EWalletDB.UpdateEmailRequest do
     )
 
     timestamps()
-    auditable()
+    activity_logging()
   end
 
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:email, :token, :user_uuid])
-    |> validate_required([:email, :token, :user_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [:email, :token, :user_uuid],
+      [:email, :token, :user_uuid]
+    )
     |> validate_email(:email)
     |> unique_constraint(:token)
     |> assoc_constraint(:user)
@@ -90,13 +93,21 @@ defmodule EWalletDB.UpdateEmailRequest do
   @spec generate(%User{}, String.t()) :: %UpdateEmailRequest{} | {:error, Changeset.t()}
   def generate(user, email) do
     token = Crypto.generate_base64_key(@token_length)
-    {:ok, _} = insert(%{token: token, email: email, user_uuid: user.uuid})
+
+    {:ok, _} =
+      insert(%{
+        token: token,
+        email: email,
+        user_uuid: user.uuid,
+        originator: user
+      })
+
     UpdateEmailRequest.get(email, token)
   end
 
   defp insert(attrs) do
     %UpdateEmailRequest{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
   end
 end

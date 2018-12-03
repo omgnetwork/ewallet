@@ -1,6 +1,7 @@
 defmodule EWalletDB.TokenTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.Token
+  alias ActivityLogger.System
 
   describe "Token factory" do
     test_has_valid_factory(Token)
@@ -91,7 +92,8 @@ defmodule EWalletDB.TokenTest do
           symbol_first: false,
           html_entity: "some updated html entity",
           iso_numeric: "100 updated",
-          encrypted_metadata: %{}
+          encrypted_metadata: %{},
+          originator: %System{}
         })
 
       assert updated_token.name == "OmiseGO updated"
@@ -144,7 +146,12 @@ defmodule EWalletDB.TokenTest do
       {:ok, token} = :token |> params_for() |> Token.insert()
       assert token.enabled == true
 
-      {:ok, token} = Token.enable_or_disable(token, %{enabled: false})
+      {:ok, token} =
+        Token.enable_or_disable(token, %{
+          enabled: false,
+          originator: %System{}
+        })
+
       assert token.enabled == false
     end
   end

@@ -4,11 +4,11 @@ defmodule EWalletDB.Key do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
-  use EWalletConfig.Types.ExternalID
-  use EWalletDB.Auditable
+  use Utils.Types.ExternalID
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias EWalletConfig.Helpers.Crypto
+  alias Utils.Helpers.Crypto
   alias EWalletDB.{Account, Key, Repo}
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -34,13 +34,16 @@ defmodule EWalletDB.Key do
     field(:enabled, :boolean, default: true)
     timestamps()
     soft_delete()
-    auditable()
+    activity_logging()
   end
 
   defp insert_changeset(%Key{} = key, attrs) do
     key
-    |> cast(attrs, [:access_key, :secret_key, :account_uuid, :enabled])
-    |> validate_required([:access_key, :secret_key, :account_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [:access_key, :secret_key, :account_uuid, :enabled],
+      [:access_key, :secret_key, :account_uuid]
+    )
     |> unique_constraint(:access_key, name: :key_access_key_index)
     |> put_change(:secret_key_hash, Crypto.hash_secret(attrs[:secret_key]))
     |> put_change(:secret_key, Base.url_encode64(attrs[:secret_key], padding: false))
@@ -48,9 +51,7 @@ defmodule EWalletDB.Key do
   end
 
   defp enable_changeset(%Key{} = key, attrs) do
-    key
-    |> cast(attrs, [:enabled])
-    |> validate_required([:enabled])
+    cast_and_validate_required_for_activity_log(key, attrs, [:enabled], [:enabled])
   end
 
   @doc """
@@ -107,7 +108,7 @@ defmodule EWalletDB.Key do
 
     %Key{}
     |> insert_changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
   end
 
   defp get_master_account_uuid do
@@ -127,14 +128,14 @@ defmodule EWalletDB.Key do
 
     key
     |> enable_changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 
   @spec enable_or_disable(%Key{}, map()) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
   def enable_or_disable(%Key{} = key, attrs) do
     key
     |> enable_changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
@@ -189,14 +190,14 @@ defmodule EWalletDB.Key do
   @doc """
   Soft-deletes the given key.
   """
-  @spec delete(%Key{}) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
-  def delete(key), do: SoftDelete.delete(key)
+  @spec delete(%Key{}, map()) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
+  def delete(key, originator), do: SoftDelete.delete(key, originator)
 
   @doc """
   Restores the given key from soft-delete.
   """
-  @spec restore(%Key{}) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
-  def restore(key), do: SoftDelete.restore(key)
+  @spec restore(%Key{}, map()) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
+  def restore(key, originator), do: SoftDelete.restore(key, originator)
 
   @doc """
   Retrieves all account uuids that are accessible by the given key.

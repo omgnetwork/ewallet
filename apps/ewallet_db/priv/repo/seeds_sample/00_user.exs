@@ -2,7 +2,7 @@ defmodule EWalletDB.Repo.Seeds.UserSampleSeed do
   alias Ecto.UUID
   alias EWallet.TransactionGate
   alias EWalletDB.{Account, AccountUser, Token, User}
-  alias EWalletConfig.System
+  alias ActivityLogger.System
 
   @users_count 5
   @username_prefix "user"

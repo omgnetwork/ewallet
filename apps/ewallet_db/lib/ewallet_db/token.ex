@@ -3,8 +3,8 @@ defmodule EWalletDB.Token do
   Ecto Schema representing tokens.
   """
   use Ecto.Schema
-  use EWalletConfig.Types.ExternalID
-  use EWalletDB.Auditable
+  use Utils.Types.ExternalID
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
@@ -31,7 +31,7 @@ defmodule EWalletDB.Token do
     # "Cent"
     field(:subunit, :string)
     # 100
-    field(:subunit_to_unit, EWalletConfig.Types.Integer)
+    field(:subunit_to_unit, Utils.Types.Integer)
     # true
     field(:symbol_first, :boolean)
     # "&#x20AC;"
@@ -56,34 +56,37 @@ defmodule EWalletDB.Token do
     )
 
     timestamps()
-    auditable()
+    activity_logging()
   end
 
   defp changeset(%Token{} = token, attrs) do
     token
-    |> cast(attrs, [
-      :symbol,
-      :iso_code,
-      :name,
-      :description,
-      :short_symbol,
-      :subunit,
-      :subunit_to_unit,
-      :symbol_first,
-      :html_entity,
-      :iso_numeric,
-      :smallest_denomination,
-      :locked,
-      :account_uuid,
-      :metadata,
-      :encrypted_metadata
-    ])
-    |> validate_required([
-      :symbol,
-      :name,
-      :subunit_to_unit,
-      :account_uuid
-    ])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [
+        :symbol,
+        :iso_code,
+        :name,
+        :description,
+        :short_symbol,
+        :subunit,
+        :subunit_to_unit,
+        :symbol_first,
+        :html_entity,
+        :iso_numeric,
+        :smallest_denomination,
+        :locked,
+        :account_uuid,
+        :metadata,
+        :encrypted_metadata
+      ],
+      [
+        :symbol,
+        :name,
+        :subunit_to_unit,
+        :account_uuid
+      ]
+    )
     |> validate_number(
       :subunit_to_unit,
       greater_than: 0,
@@ -102,20 +105,23 @@ defmodule EWalletDB.Token do
 
   defp update_changeset(%Token{} = token, attrs) do
     token
-    |> cast(attrs, [
-      :iso_code,
-      :name,
-      :description,
-      :short_symbol,
-      :symbol_first,
-      :html_entity,
-      :iso_numeric,
-      :metadata,
-      :encrypted_metadata
-    ])
-    |> validate_required([
-      :name
-    ])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [
+        :iso_code,
+        :name,
+        :description,
+        :short_symbol,
+        :symbol_first,
+        :html_entity,
+        :iso_numeric,
+        :metadata,
+        :encrypted_metadata
+      ],
+      [
+        :name
+      ]
+    )
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
@@ -124,8 +130,7 @@ defmodule EWalletDB.Token do
 
   defp enable_changeset(%Token{} = token, attrs) do
     token
-    |> cast(attrs, [:enabled])
-    |> validate_required([:enabled])
+    |> cast_and_validate_required_for_activity_log(attrs, [:enabled], [:enabled])
   end
 
   defp set_id(changeset, opts) do
@@ -163,7 +168,7 @@ defmodule EWalletDB.Token do
   def insert(attrs) do
     changeset = changeset(%Token{}, attrs)
 
-    case Repo.insert(changeset) do
+    case Repo.insert_record_with_activity_log(changeset) do
       {:ok, token} ->
         {:ok, get(token.id)}
 
@@ -178,7 +183,7 @@ defmodule EWalletDB.Token do
   def update(token, attrs) do
     token
     |> update_changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
@@ -215,6 +220,6 @@ defmodule EWalletDB.Token do
   def enable_or_disable(token, attrs) do
     token
     |> enable_changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 end

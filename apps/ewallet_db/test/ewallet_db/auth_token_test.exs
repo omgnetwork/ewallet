@@ -1,6 +1,7 @@
 defmodule EWalletDB.AuthTokenTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.{AuthToken, Membership}
+  alias ActivityLogger.System
 
   @owner_app :some_app
 
@@ -9,7 +10,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:user)
       account = insert(:account)
       role = insert(:role, name: "admin")
-      {:ok, _} = Membership.assign(user, account, role)
+      {:ok, _} = Membership.assign(user, account, role, %System{})
 
       {res, auth_token} = AuthToken.generate(user, @owner_app)
 
@@ -29,7 +30,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:user)
       account = insert(:account)
       role = insert(:role, name: "admin")
-      {:ok, _} = Membership.assign(user, account, role)
+      {:ok, _} = Membership.assign(user, account, role, %System{})
 
       {:ok, token1} = AuthToken.generate(user, @owner_app)
       {:ok, token2} = AuthToken.generate(user, @owner_app)
@@ -50,7 +51,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:user)
       account = insert(:account)
       role = insert(:role, name: "admin")
-      {:ok, _} = Membership.assign(user, account, role)
+      {:ok, _} = Membership.assign(user, account, role, %System{})
       {:ok, auth_token} = AuthToken.generate(user, @owner_app)
 
       auth_user = AuthToken.authenticate(auth_token.token, @owner_app)
@@ -61,7 +62,7 @@ defmodule EWalletDB.AuthTokenTest do
       {:ok, token} =
         :auth_token
         |> insert(%{owner_app: Atom.to_string(@owner_app)})
-        |> AuthToken.expire()
+        |> AuthToken.expire(%System{})
 
       assert AuthToken.authenticate(token.token, @owner_app) == :token_expired
     end
@@ -70,7 +71,7 @@ defmodule EWalletDB.AuthTokenTest do
       {:ok, token} =
         :auth_token
         |> insert(%{owner_app: "wrong_app"})
-        |> AuthToken.expire()
+        |> AuthToken.expire(%System{})
 
       assert AuthToken.authenticate(token.token, @owner_app) == false
     end
@@ -89,7 +90,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:user)
       account = insert(:account)
       role = insert(:role, name: "admin")
-      {:ok, _} = Membership.assign(user, account, role)
+      {:ok, _} = Membership.assign(user, account, role, %System{})
 
       {:ok, auth_token} = AuthToken.generate(user, @owner_app)
 
@@ -101,7 +102,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "admin")
-      {:ok, _} = Membership.assign(user, account, role)
+      {:ok, _} = Membership.assign(user, account, role, %System{})
       {:ok, token1} = AuthToken.generate(user, @owner_app)
       {:ok, token2} = AuthToken.generate(user, @owner_app)
 
@@ -111,7 +112,7 @@ defmodule EWalletDB.AuthTokenTest do
 
     test "returns :token_expired if token exists but expired" do
       token = insert(:auth_token, %{owner_app: Atom.to_string(@owner_app)})
-      AuthToken.expire(token)
+      AuthToken.expire(token, %System{})
 
       assert AuthToken.authenticate(token.user.id, token.token, @owner_app) == :token_expired
     end
@@ -120,7 +121,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "admin")
-      {:ok, _} = Membership.assign(user, account, role)
+      {:ok, _} = Membership.assign(user, account, role, %System{})
       {:ok, auth_token} = AuthToken.generate(user, @owner_app)
 
       another_user = insert(:admin)
@@ -131,7 +132,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "admin")
-      {:ok, _} = Membership.assign(user, account, role)
+      {:ok, _} = Membership.assign(user, account, role, %System{})
 
       {:ok, auth_token} = AuthToken.generate(user, :different_app)
 
@@ -142,7 +143,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "admin")
-      {:ok, _} = Membership.assign(user, account, role)
+      {:ok, _} = Membership.assign(user, account, role, %System{})
       {:ok, _} = AuthToken.generate(user, @owner_app)
 
       assert AuthToken.authenticate(user.id, "unmatched", @owner_app) == false
@@ -152,7 +153,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "admin")
-      {:ok, _} = Membership.assign(user, account, role)
+      {:ok, _} = Membership.assign(user, account, role, %System{})
       {:ok, _} = AuthToken.generate(user, @owner_app)
 
       assert AuthToken.authenticate(user.id, nil, @owner_app) == false
@@ -166,7 +167,7 @@ defmodule EWalletDB.AuthTokenTest do
 
       # Ensure token is usable.
       assert AuthToken.authenticate(token_string, @owner_app)
-      AuthToken.expire(token)
+      AuthToken.expire(token, %System{})
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
     end
 
@@ -176,7 +177,7 @@ defmodule EWalletDB.AuthTokenTest do
 
       # Ensure token is usable.
       assert AuthToken.authenticate(token_string, @owner_app)
-      AuthToken.expire(token_string, @owner_app)
+      AuthToken.expire(token_string, @owner_app, %System{})
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
     end
   end
@@ -186,7 +187,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:user, %{enabled: true})
       account = insert(:account)
       role = insert(:role, name: "admin")
-      {:ok, _} = Membership.assign(user, account, role)
+      {:ok, _} = Membership.assign(user, account, role, %System{})
 
       {:ok, token1} = AuthToken.generate(user, @owner_app)
       token1_string = token1.token
@@ -205,7 +206,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:user, %{enabled: false})
       account = insert(:account)
       role = insert(:role, name: "admin")
-      {:ok, _} = Membership.assign(user, account, role)
+      {:ok, _} = Membership.assign(user, account, role, %System{})
 
       {:ok, token1} = AuthToken.generate(user, @owner_app)
       token1_string = token1.token

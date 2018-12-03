@@ -3,10 +3,10 @@ defmodule EWalletDB.TransactionConsumption do
   Ecto Schema representing transaction request consumptions.
   """
   use Ecto.Schema
-  use EWalletConfig.Types.ExternalID
+  use Utils.Types.ExternalID
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias EWalletConfig.Types.VirtualStruct
 
   alias EWalletDB.{
     Account,
@@ -20,7 +20,7 @@ defmodule EWalletDB.TransactionConsumption do
     Wallet
   }
 
-  alias EWalletConfig.Helpers.Assoc
+  alias Utils.Helpers.Assoc
 
   @pending "pending"
   @confirmed "confirmed"
@@ -35,9 +35,9 @@ defmodule EWalletDB.TransactionConsumption do
   schema "transaction_consumption" do
     external_id(prefix: "txc_")
 
-    field(:amount, EWalletConfig.Types.Integer)
-    field(:estimated_consumption_amount, EWalletConfig.Types.Integer)
-    field(:estimated_request_amount, EWalletConfig.Types.Integer)
+    field(:amount, Utils.Types.Integer)
+    field(:estimated_consumption_amount, Utils.Types.Integer)
+    field(:estimated_request_amount, Utils.Types.Integer)
     field(:estimated_rate, :float)
     field(:correlation_id, :string)
     field(:idempotency_token, :string)
@@ -57,8 +57,6 @@ defmodule EWalletDB.TransactionConsumption do
     field(:expiration_date, :naive_datetime)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
-
-    field(:originator, VirtualStruct, virtual: true)
 
     belongs_to(
       :transaction,
@@ -133,37 +131,41 @@ defmodule EWalletDB.TransactionConsumption do
     )
 
     timestamps()
+    activity_logging()
   end
 
   defp changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [
-      :amount,
-      :estimated_request_amount,
-      :estimated_consumption_amount,
-      :idempotency_token,
-      :correlation_id,
-      :user_uuid,
-      :account_uuid,
-      :transaction_request_uuid,
-      :wallet_address,
-      :token_uuid,
-      :metadata,
-      :encrypted_metadata,
-      :expiration_date,
-      :exchange_account_uuid,
-      :exchange_wallet_address,
-      :exchange_pair_uuid,
-      :estimated_at,
-      :estimated_rate
-    ])
-    |> validate_required([
-      :status,
-      :idempotency_token,
-      :transaction_request_uuid,
-      :wallet_address,
-      :token_uuid
-    ])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [
+        :amount,
+        :estimated_request_amount,
+        :estimated_consumption_amount,
+        :idempotency_token,
+        :correlation_id,
+        :user_uuid,
+        :account_uuid,
+        :transaction_request_uuid,
+        :wallet_address,
+        :token_uuid,
+        :metadata,
+        :encrypted_metadata,
+        :expiration_date,
+        :exchange_account_uuid,
+        :exchange_wallet_address,
+        :exchange_pair_uuid,
+        :estimated_at,
+        :estimated_rate
+      ],
+      [
+        :status,
+        :idempotency_token,
+        :transaction_request_uuid,
+        :wallet_address,
+        :token_uuid
+      ]
+    )
     |> validate_number(
       :amount,
       greater_than: 0,
@@ -183,40 +185,58 @@ defmodule EWalletDB.TransactionConsumption do
 
   def approved_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :approved_at])
-    |> validate_required([:status, :approved_at])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [:status, :approved_at],
+      [:status, :approved_at]
+    )
   end
 
   def rejected_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :rejected_at])
-    |> validate_required([:status, :rejected_at])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [:status, :rejected_at],
+      [:status, :rejected_at]
+    )
   end
 
   def confirmed_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :confirmed_at, :transaction_uuid])
-    |> validate_required([:status, :confirmed_at, :transaction_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [:status, :confirmed_at, :transaction_uuid],
+      [:status, :confirmed_at, :transaction_uuid]
+    )
     |> assoc_constraint(:transaction)
   end
 
   def failed_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :failed_at, :transaction_uuid])
-    |> validate_required([:status, :failed_at, :transaction_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [:status, :failed_at, :transaction_uuid],
+      [:status, :failed_at, :transaction_uuid]
+    )
     |> assoc_constraint(:transaction)
   end
 
   def transaction_failure_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :failed_at, :error_code, :error_description])
-    |> validate_required([:status, :failed_at, :error_code])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [:status, :failed_at, :error_code, :error_description],
+      [:status, :failed_at, :error_code]
+    )
   end
 
   def expired_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :expired_at])
-    |> validate_required([:status, :expired_at])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [:status, :expired_at],
+      [:status, :expired_at]
+    )
   end
 
   @doc """
@@ -277,28 +297,30 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Expires the given consumption.
   """
-  @spec expire(%TransactionConsumption{}) :: {:ok, %TransactionConsumption{}} | {:error, map()}
-  def expire(consumption) do
+  @spec expire(%TransactionConsumption{}, map()) ::
+          {:ok, %TransactionConsumption{}} | {:error, map()}
+  def expire(consumption, originator) do
     consumption
     |> expired_changeset(%{
       status: @expired,
-      expired_at: NaiveDateTime.utc_now()
+      expired_at: NaiveDateTime.utc_now(),
+      originator: originator
     })
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
   Expires the given consumption if the expiration date is past.
   """
-  @spec expire_if_past_expiration_date(%TransactionConsumption{}) ::
+  @spec expire_if_past_expiration_date(%TransactionConsumption{}, map()) ::
           {:ok, %TransactionConsumption{}} | {:error, map()}
-  def expire_if_past_expiration_date(consumption) do
+  def expire_if_past_expiration_date(consumption, originator) do
     expired? =
       consumption.expiration_date &&
         NaiveDateTime.compare(consumption.expiration_date, NaiveDateTime.utc_now()) == :lt
 
     case expired? do
-      true -> expire(consumption)
+      true -> expire(consumption, originator)
       _ -> {:ok, consumption}
     end
   end
@@ -354,7 +376,7 @@ defmodule EWalletDB.TransactionConsumption do
     changeset = changeset(%TransactionConsumption{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
 
-    case Repo.insert(changeset, opts) do
+    case Repo.insert_record_with_activity_log(changeset, opts) do
       {:ok, consumption} ->
         {:ok, get_by(%{idempotency_token: consumption.idempotency_token})}
 
@@ -366,15 +388,15 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Approves a consumption.
   """
-  @spec approve(%TransactionConsumption{}) :: %TransactionConsumption{}
-  def approve(consumption), do: state_transition(consumption, @approved)
+  @spec approve(%TransactionConsumption{}, map()) :: %TransactionConsumption{}
+  def approve(consumption, originator), do: state_transition(consumption, @approved, originator)
 
   @doc """
   Rejects a consumption.
   """
-  @spec reject(%TransactionConsumption{}) :: %TransactionConsumption{}
-  def reject(consumption) do
-    state_transition(consumption, @rejected)
+  @spec reject(%TransactionConsumption{}, map()) :: %TransactionConsumption{}
+  def reject(consumption, originator) do
+    state_transition(consumption, @rejected, originator)
   end
 
   @doc """
@@ -382,7 +404,7 @@ defmodule EWalletDB.TransactionConsumption do
   """
   @spec confirm(%TransactionConsumption{}, %Transaction{}) :: %TransactionConsumption{}
   def confirm(consumption, transaction) do
-    state_transition(consumption, @confirmed, transaction.uuid)
+    state_transition(consumption, @confirmed, transaction, transaction.uuid)
   end
 
   @doc """
@@ -390,27 +412,28 @@ defmodule EWalletDB.TransactionConsumption do
   """
   @spec fail(%TransactionConsumption{}, %Transaction{}) :: %TransactionConsumption{}
   def fail(consumption, %Transaction{} = transaction) do
-    state_transition(consumption, @failed, transaction.uuid)
+    state_transition(consumption, @failed, transaction, transaction.uuid)
   end
 
-  def fail(consumption, error_code, error_description) when is_atom(error_code) do
+  def fail(consumption, error_code, error_description, originator) when is_atom(error_code) do
     error_code = Atom.to_string(error_code)
-    fail(consumption, error_code, error_description)
+    fail(consumption, error_code, error_description, originator)
   end
 
-  def fail(consumption, error_code, error_description) when is_binary(error_code) do
+  def fail(consumption, error_code, error_description, originator) when is_binary(error_code) do
     data =
       %{
         status: @failed,
         error_code: error_code,
-        error_description: error_description
+        error_description: error_description,
+        originator: originator
       }
       |> Map.put(:failed_at, NaiveDateTime.utc_now())
 
     {:ok, consumption} =
       consumption
       |> transaction_failure_changeset(data)
-      |> Repo.update()
+      |> Repo.update_record_with_activity_log()
 
     consumption
   end
@@ -429,21 +452,22 @@ defmodule EWalletDB.TransactionConsumption do
     Enum.member?([@rejected, @confirmed, @failed, @expired], consumption.status)
   end
 
-  defp state_transition(consumption, status, transaction_uuid \\ nil) do
+  defp state_transition(consumption, status, originator, transaction_uuid \\ nil) do
     fun = String.to_existing_atom("#{status}_changeset")
     timestamp_column = String.to_existing_atom("#{status}_at")
 
     data =
       %{
         status: status,
-        transaction_uuid: transaction_uuid
+        transaction_uuid: transaction_uuid,
+        originator: originator
       }
       |> Map.put(timestamp_column, NaiveDateTime.utc_now())
 
     {:ok, consumption} =
       __MODULE__
       |> apply(fun, [consumption, data])
-      |> Repo.update()
+      |> Repo.update_record_with_activity_log()
 
     consumption
   end

@@ -38,7 +38,7 @@ defmodule EWalletDB.SchemaCase do
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL
   alias EWalletDB.{Account, User}
-  alias EWalletConfig.System
+  alias ActivityLogger.System
 
   defmacro __using__(_opts) do
     quote do
@@ -51,6 +51,7 @@ defmodule EWalletDB.SchemaCase do
       setup do
         :ok = Sandbox.checkout(EWalletDB.Repo)
         :ok = Sandbox.checkout(EWalletConfig.Repo)
+        :ok = Sandbox.checkout(ActivityLogger.Repo)
         %{} = get_or_insert_master_account()
 
         :ok
@@ -504,7 +505,11 @@ defmodule EWalletDB.SchemaCase do
           |> params_for(%{field => old})
           |> schema.insert()
 
-        {res, updated} = schema.update(original, %{field => new})
+        {res, updated} =
+          schema.update(original, %{
+            field => new,
+            originator: %System{}
+          })
 
         assert res == :ok
         assert Map.fetch!(updated, field) == old
@@ -584,7 +589,7 @@ defmodule EWalletDB.SchemaCase do
           |> params_for(%{})
           |> schema.insert()
 
-        {:ok, record} = schema.delete(record)
+        {:ok, record} = schema.delete(record, %System{})
 
         assert record.deleted_at != nil
         assert schema.deleted?(record)
@@ -606,7 +611,7 @@ defmodule EWalletDB.SchemaCase do
         # Makes sure the record is not already deleted before testing
         refute schema.deleted?(record)
 
-        {res, record} = schema.delete(record)
+        {res, record} = schema.delete(record, %System{})
         assert res == :ok
         assert schema.deleted?(record)
       end
@@ -625,11 +630,11 @@ defmodule EWalletDB.SchemaCase do
           |> schema.insert()
 
         # Makes sure the record is already soft-deleted before testing
-        {:ok, record} = schema.delete(record)
+        {:ok, record} = schema.delete(record, %System{})
         assert schema.deleted?(record)
 
-        {res, record} = schema.restore(record)
-        IO.inspect(record)
+        {res, record} = schema.restore(record, %System{})
+
         assert res == :ok
         refute schema.deleted?(record)
       end

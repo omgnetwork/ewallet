@@ -2,7 +2,7 @@ defmodule EWalletDB.TransactionTest do
   use EWalletDB.SchemaCase
   alias Ecto.UUID
   alias EWalletDB.Transaction
-  alias EWalletConfig.System
+  alias ActivityLogger.System
 
   describe "Transaction factory" do
     test_has_valid_factory(Transaction)

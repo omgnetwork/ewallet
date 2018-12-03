@@ -3,14 +3,15 @@ defmodule EWalletDB.Wallet do
   Ecto Schema representing wallet.
   """
   use Ecto.Schema
-  use EWalletConfig.Types.WalletAddress
-  use EWalletDB.Auditable
+  use Utils.Types.WalletAddress
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletConfig.Types.WalletAddress
+  alias Utils.Types.WalletAddress
   alias EWalletDB.{Account, Repo, User, Wallet}
   alias ExULID.ULID
+  alias ActivityLogger.System
 
   @genesis "genesis"
   @burn "burn"
@@ -46,7 +47,7 @@ defmodule EWalletDB.Wallet do
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
     field(:enabled, :boolean)
-    auditable()
+    activity_logging()
 
     belongs_to(
       :user,
@@ -69,7 +70,7 @@ defmodule EWalletDB.Wallet do
 
   defp changeset(%Wallet{} = wallet, attrs) do
     wallet
-    |> cast_and_validate_required_for_audit(
+    |> cast_and_validate_required_for_activity_log(
       attrs,
       @cast_attrs,
       [:name, :identifier]
@@ -84,16 +85,22 @@ defmodule EWalletDB.Wallet do
 
   defp secondary_changeset(%Wallet{} = wallet, attrs) do
     wallet
-    |> cast(attrs, @cast_attrs)
-    |> validate_required([:name, :identifier, :account_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      @cast_attrs,
+      [:name, :identifier, :account_uuid]
+    )
     |> validate_format(:identifier, ~r/#{@secondary}_.*/)
     |> shared_changeset()
   end
 
   defp burn_changeset(%Wallet{} = wallet, attrs) do
     wallet
-    |> cast(attrs, @cast_attrs)
-    |> validate_required([:name, :identifier, :account_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      @cast_attrs,
+      [:name, :identifier, :account_uuid]
+    )
     |> validate_format(:identifier, ~r/#{@burn}|#{@burn}_.*/)
     |> shared_changeset()
   end
@@ -112,8 +119,7 @@ defmodule EWalletDB.Wallet do
 
   defp enable_changeset(%Wallet{} = wallet, attrs) do
     wallet
-    |> cast(attrs, [:enabled])
-    |> validate_required([:enabled])
+    |> cast_and_validate_required_for_activity_log(attrs, [:enabled], [:enabled])
   end
 
   @spec all_for(any()) :: Ecto.Query.t() | nil
@@ -162,7 +168,7 @@ defmodule EWalletDB.Wallet do
   def insert(attrs) do
     %Wallet{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
   end
 
   @spec insert_secondary_or_burn(map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
@@ -177,12 +183,12 @@ defmodule EWalletDB.Wallet do
   def insert_secondary_or_burn(attrs), do: insert_secondary_or_burn(attrs, nil)
 
   def insert_secondary_or_burn(attrs, "burn") do
-    %Wallet{} |> burn_changeset(attrs) |> Repo.insert()
+    %Wallet{} |> burn_changeset(attrs) |> Repo.insert_record_with_activity_log()
   end
 
   # "secondary" and anything else will go in there.
   def insert_secondary_or_burn(attrs, _) do
-    %Wallet{} |> secondary_changeset(attrs) |> Repo.insert()
+    %Wallet{} |> secondary_changeset(attrs) |> Repo.insert_record_with_activity_log()
   end
 
   defp build_identifier("genesis"), do: @genesis
@@ -211,12 +217,17 @@ defmodule EWalletDB.Wallet do
   """
   @spec insert_genesis :: {:ok, %__MODULE__{}} | {:ok, nil} | {:error, Ecto.Changeset.t()}
   def insert_genesis do
-    changeset =
-      changeset(%Wallet{}, %{address: @genesis_address, name: @genesis, identifier: @genesis})
-
     opts = [on_conflict: :nothing, conflict_target: :address]
 
-    case Repo.insert(changeset, opts) do
+    %Wallet{}
+    |> changeset(%{
+      address: @genesis_address,
+      name: @genesis,
+      identifier: @genesis,
+      originator: %System{}
+    })
+    |> Repo.insert_record_with_activity_log(opts)
+    |> case do
       {:ok, _wallet} ->
         {:ok, get(@genesis_address)}
 
@@ -242,6 +253,6 @@ defmodule EWalletDB.Wallet do
   def enable_or_disable(wallet, attrs) do
     wallet
     |> enable_changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 end

@@ -2,6 +2,7 @@ defmodule EWalletDB.APIKeyTest do
   use EWalletDB.SchemaCase
   alias Ecto.UUID
   alias EWalletDB.APIKey
+  alias ActivityLogger.System
 
   @owner_app :some_app
 
@@ -17,7 +18,7 @@ defmodule EWalletDB.APIKeyTest do
     end
 
     test "does not return a soft-deleted API key" do
-      {:ok, api_key} = :api_key |> insert() |> APIKey.delete()
+      {:ok, api_key} = :api_key |> insert() |> APIKey.delete(%System{})
       assert APIKey.get(api_key.id) == nil
     end
 
@@ -65,7 +66,12 @@ defmodule EWalletDB.APIKeyTest do
       {:ok, api_key} = APIKey.insert(params_for(:api_key))
       assert api_key.enabled == true
 
-      {:ok, api_key} = APIKey.update(api_key, %{"expired" => true})
+      {:ok, api_key} =
+        APIKey.update(api_key, %{
+          "expired" => true,
+          "originator" => %System{}
+        })
+
       assert api_key.enabled == false
     end
   end
@@ -75,7 +81,12 @@ defmodule EWalletDB.APIKeyTest do
       {:ok, key} = APIKey.insert(params_for(:api_key))
       assert key.enabled == true
 
-      {:ok, updated} = APIKey.enable_or_disable(key, %{enabled: false})
+      {:ok, updated} =
+        APIKey.enable_or_disable(key, %{
+          enabled: false,
+          originator: %System{}
+        })
+
       assert updated.enabled == false
     end
 
@@ -83,18 +94,40 @@ defmodule EWalletDB.APIKeyTest do
       {:ok, key} = APIKey.insert(params_for(:api_key))
       assert key.enabled == true
 
-      {:ok, updated1} = APIKey.enable_or_disable(key, %{enabled: false})
+      {:ok, updated1} =
+        APIKey.enable_or_disable(key, %{
+          enabled: false,
+          originator: %System{}
+        })
+
       assert updated1.enabled == false
 
-      {:ok, updated2} = APIKey.enable_or_disable(key, %{enabled: false})
+      {:ok, updated2} =
+        APIKey.enable_or_disable(key, %{
+          enabled: false,
+          originator: %System{}
+        })
+
       assert updated2.enabled == false
     end
 
     test "enable an api key successfuly" do
-      {:ok, key} = APIKey.insert(params_for(:api_key, %{enabled: false}))
+      {:ok, key} =
+        APIKey.insert(
+          params_for(:api_key, %{
+            enabled: false,
+            originator: %System{}
+          })
+        )
+
       assert key.enabled == false
 
-      {:ok, updated} = APIKey.enable_or_disable(key, %{enabled: true})
+      {:ok, updated} =
+        APIKey.enable_or_disable(key, %{
+          enabled: true,
+          originator: %System{}
+        })
+
       assert updated.enabled == true
     end
   end

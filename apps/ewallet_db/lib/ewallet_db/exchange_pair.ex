@@ -21,8 +21,8 @@ defmodule EWalletDB.ExchangePair do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
-  use EWalletDB.Auditable
-  use EWalletConfig.Types.ExternalID
+  use ActivityLogger.ActivityLogging
+  use Utils.Types.ExternalID
   import Ecto.Changeset
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
@@ -54,12 +54,12 @@ defmodule EWalletDB.ExchangePair do
     field(:rate, :float)
     timestamps()
     soft_delete()
-    auditable()
+    activity_logging()
   end
 
   defp changeset(exchange_pair, attrs) do
     exchange_pair
-    |> cast_and_validate_required_for_audit(
+    |> cast_and_validate_required_for_activity_log(
       attrs,
       [:from_token_uuid, :to_token_uuid, :rate, :deleted_at],
       [:from_token_uuid, :to_token_uuid, :rate]
@@ -78,11 +78,15 @@ defmodule EWalletDB.ExchangePair do
 
   defp restore_changeset(exchange_pair, attrs) do
     exchange_pair
-    |> cast_and_validate_required_for_audit(attrs, [:deleted_at])
+    |> cast_and_validate_required_for_activity_log(attrs, [:deleted_at])
     |> unique_constraint(
       :deleted_at,
       name: "exchange_pair_from_token_uuid_to_token_uuid_index"
     )
+  end
+
+  defp touch_changeset(exchange_pair, attrs) do
+    cast_and_validate_required_for_activity_log(exchange_pair, attrs, [:updated_at])
   end
 
   @doc """
@@ -126,7 +130,7 @@ defmodule EWalletDB.ExchangePair do
   def insert(attrs) do
     %__MODULE__{}
     |> changeset(attrs)
-    |> insert_with_audit()
+    |> Repo.insert_record_with_activity_log()
   end
 
   @doc """
@@ -136,7 +140,7 @@ defmodule EWalletDB.ExchangePair do
   def update(exchange_pair, attrs) do
     exchange_pair
     |> changeset(attrs)
-    |> update_with_audit()
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
@@ -148,17 +152,17 @@ defmodule EWalletDB.ExchangePair do
   @doc """
   Soft-deletes the given exchange pair.
   """
-  @spec delete(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
-  def delete(exchange_pair), do: SoftDelete.delete(exchange_pair)
+  @spec delete(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def delete(exchange_pair, originator), do: SoftDelete.delete(exchange_pair, originator)
 
   @doc """
   Restores the given exchange pair from soft-delete.
   """
-  @spec restore(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
-  def restore(exchange_pair) do
-    changeset = restore_changeset(exchange_pair, %{deleted_at: nil})
+  @spec restore(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def restore(exchange_pair, originator) do
+    changeset = restore_changeset(exchange_pair, %{deleted_at: nil, originator: originator})
 
-    case Repo.update(changeset) do
+    case Repo.update_record_with_activity_log(changeset) do
       {:error, %{errors: [deleted_at: {"has already been taken", []}]}} ->
         {:error, :exchange_pair_already_exists}
 
@@ -170,11 +174,11 @@ defmodule EWalletDB.ExchangePair do
   @doc """
   Touches the given exchange pair and updates `updated_at` to the current date & time.
   """
-  @spec touch(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
-  def touch(exchange_pair) do
+  @spec touch(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def touch(exchange_pair, originator) do
     exchange_pair
-    |> change(updated_at: NaiveDateTime.utc_now())
-    |> update_with_audit()
+    |> touch_changeset(%{updated_at: NaiveDateTime.utc_now(), originator: originator})
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """

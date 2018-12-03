@@ -3,12 +3,13 @@ defmodule EWalletDB.Mint do
   Ecto Schema representing mints.
   """
   use Ecto.Schema
-  use EWalletConfig.Types.ExternalID
+  use Utils.Types.ExternalID
+  use ActivityLogger.ActivityLogging
   import Ecto.{Query, Changeset}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
-  alias EWalletDB.{Account, Audit, Mint, Repo, Token, Transaction}
-  alias EWalletConfig.Types.VirtualStruct
+  alias EWalletDB.{Account, Mint, Repo, Token, Transaction}
+  alias Utils.Types.VirtualStruct
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
@@ -16,7 +17,7 @@ defmodule EWalletDB.Mint do
     external_id(prefix: "mnt_")
 
     field(:description, :string)
-    field(:amount, EWalletConfig.Types.Integer)
+    field(:amount, Utils.Types.Integer)
     field(:confirmed, :boolean, default: false)
     field(:originator, VirtualStruct, virtual: true)
 
@@ -49,16 +50,17 @@ defmodule EWalletDB.Mint do
 
   defp changeset(%Mint{} = mint, attrs) do
     mint
-    |> Map.delete(:originator)
-    |> cast(attrs, [
-      :description,
-      :amount,
-      :account_uuid,
-      :token_uuid,
-      :confirmed,
-      :originator
-    ])
-    |> validate_required([:amount, :token_uuid, :originator])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [
+        :description,
+        :amount,
+        :account_uuid,
+        :token_uuid,
+        :confirmed
+      ],
+      [:amount, :token_uuid, :originator]
+    )
     |> validate_number(
       :amount,
       greater_than: 0,
@@ -74,9 +76,11 @@ defmodule EWalletDB.Mint do
 
   defp update_changeset(%Mint{} = mint, attrs) do
     mint
-    |> Map.delete(:originator)
-    |> cast(attrs, [:transaction_uuid, :originator])
-    |> validate_required([:transaction_uuid, :originator])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [:transaction_uuid],
+      [:transaction_uuid]
+    )
     |> assoc_constraint(:transaction)
   end
 
@@ -89,7 +93,7 @@ defmodule EWalletDB.Mint do
     |> where([m], m.token_uuid == ^token.uuid)
     |> select([m], sum(m.amount))
     |> Repo.one()
-    |> EWalletConfig.Types.Integer.load!()
+    |> Utils.Types.Integer.load!()
   end
 
   @doc """
@@ -119,7 +123,7 @@ defmodule EWalletDB.Mint do
   def insert(attrs) do
     %Mint{}
     |> changeset(attrs)
-    |> Audit.insert_record_with_audit()
+    |> Repo.insert_record_with_activity_log()
   end
 
   @doc """
@@ -129,13 +133,13 @@ defmodule EWalletDB.Mint do
   def update(%Mint{} = mint, attrs) do
     mint
     |> update_changeset(attrs)
-    |> Audit.update_record_with_audit()
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
   Confirms a mint.
   """
-  def confirm(%Mint{confirmed: true} = mint), do: mint
+  def confirm(%Mint{confirmed: true} = mint, _), do: mint
 
   def confirm(%Mint{confirmed: false} = mint, originator) do
     {:ok, mint} =
@@ -144,7 +148,7 @@ defmodule EWalletDB.Mint do
         confirmed: true,
         originator: originator
       })
-      |> Audit.update_record_with_audit()
+      |> Repo.update_record_with_activity_log()
 
     mint
   end
