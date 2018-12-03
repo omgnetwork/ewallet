@@ -8,7 +8,6 @@ defmodule EWalletDB.TransactionRequest do
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   alias Ecto.{Changeset, Query, UUID}
-  alias Utils.Types.VirtualStruct
 
   alias EWalletDB.{
     Account,
@@ -52,8 +51,6 @@ defmodule EWalletDB.TransactionRequest do
     field(:allow_amount_override, :boolean, default: true)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
-
-    field(:originator, VirtualStruct, virtual: true)
 
     has_many(
       :consumptions,
@@ -111,6 +108,7 @@ defmodule EWalletDB.TransactionRequest do
     )
 
     timestamps()
+    activity_logging()
   end
 
   defp changeset(%TransactionRequest{} = transaction_request, attrs) do
@@ -134,15 +132,13 @@ defmodule EWalletDB.TransactionRequest do
         :encrypted_metadata,
         :allow_amount_override,
         :exchange_account_uuid,
-        :exchange_wallet_address,
-        :originator
+        :exchange_wallet_address
       ],
       [
         :type,
         :status,
         :token_uuid,
-        :wallet_address,
-        :originator
+        :wallet_address
       ]
     )
     |> validate_amount_if_disallow_override()
@@ -171,7 +167,7 @@ defmodule EWalletDB.TransactionRequest do
     |> cast_and_validate_required_for_activity_log(
       attrs,
       [:status, :expired_at, :expiration_reason],
-      [:status, :expired_at, :expiration_reason, :originator]
+      [:status, :expired_at, :expiration_reason]
     )
     |> validate_inclusion(:status, @statuses)
   end
@@ -180,8 +176,8 @@ defmodule EWalletDB.TransactionRequest do
     transaction_request
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:updated_at, :originator],
-      [:updated_at, :originator]
+      [:updated_at],
+      [:updated_at]
     )
   end
 

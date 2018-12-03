@@ -9,7 +9,6 @@ defmodule EWalletDB.Mint do
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
   alias EWalletDB.{Account, Mint, Repo, Token, Transaction}
-  alias Utils.Types.VirtualStruct
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
@@ -19,7 +18,6 @@ defmodule EWalletDB.Mint do
     field(:description, :string)
     field(:amount, Utils.Types.Integer)
     field(:confirmed, :boolean, default: false)
-    field(:originator, VirtualStruct, virtual: true)
 
     belongs_to(
       :token,
@@ -46,6 +44,7 @@ defmodule EWalletDB.Mint do
     )
 
     timestamps()
+    activity_logging()
   end
 
   defp changeset(%Mint{} = mint, attrs) do
@@ -59,7 +58,7 @@ defmodule EWalletDB.Mint do
         :token_uuid,
         :confirmed
       ],
-      [:amount, :token_uuid, :originator]
+      [:amount, :token_uuid]
     )
     |> validate_number(
       :amount,

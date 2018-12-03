@@ -107,8 +107,7 @@ defmodule EWalletDB.User do
         :password_confirmation,
         :metadata,
         :encrypted_metadata,
-        :invite_uuid,
-        :originator
+        :invite_uuid
       ]
     )
     |> validate_confirmation(:password, message: "does not match password")
@@ -132,8 +131,7 @@ defmodule EWalletDB.User do
         :provider_user_id,
         :metadata,
         :encrypted_metadata,
-        :invite_uuid,
-        :originator
+        :invite_uuid
       ]
     )
     |> validate_immutable(:provider_user_id)
@@ -152,8 +150,7 @@ defmodule EWalletDB.User do
         :calling_name,
         :metadata,
         :encrypted_metadata,
-        :invite_uuid,
-        :originator
+        :invite_uuid
       ]
     )
     |> assoc_constraint(:invite)
@@ -168,7 +165,6 @@ defmodule EWalletDB.User do
     user
     |> cast_and_validate_required_for_activity_log(attrs, [])
     |> cast_attachments(attrs, [:avatar])
-    |> validate_required([:originator])
   end
 
   defp password_changeset(user, attrs) do
@@ -179,8 +175,7 @@ defmodule EWalletDB.User do
       attrs,
       [
         :password,
-        :password_confirmation,
-        :originator
+        :password_confirmation
       ]
     )
     |> validate_confirmation(:password, message: "does not match password")
@@ -200,8 +195,8 @@ defmodule EWalletDB.User do
     user
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:email, :originator],
-      [:email, :originator]
+      [:email],
+      [:email]
     )
     |> validate_email(:email)
     |> unique_constraint(:email)

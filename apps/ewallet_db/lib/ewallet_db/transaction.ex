@@ -10,7 +10,6 @@ defmodule EWalletDB.Transaction do
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
   alias EWalletDB.{Account, ExchangePair, Repo, Token, Transaction, User, Wallet}
-  alias Utils.Types.VirtualStruct
 
   @pending "pending"
   @confirmed "confirmed"
@@ -51,8 +50,6 @@ defmodule EWalletDB.Transaction do
 
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
-
-    field(:originator, VirtualStruct, virtual: true)
 
     belongs_to(
       :from_token,
@@ -143,6 +140,7 @@ defmodule EWalletDB.Transaction do
     )
 
     timestamps()
+    activity_logging()
   end
 
   defp changeset(%Transaction{} = transaction, attrs) do
@@ -173,8 +171,7 @@ defmodule EWalletDB.Transaction do
         :error_code,
         :error_description,
         :exchange_pair_uuid,
-        :calculated_at,
-        :originator
+        :calculated_at
       ],
       [
         :idempotency_token,
@@ -186,8 +183,7 @@ defmodule EWalletDB.Transaction do
         :to_amount,
         :to_token_uuid,
         :to,
-        :from,
-        :originator
+        :from
       ]
     )
     |> validate_number(:from_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
@@ -218,8 +214,8 @@ defmodule EWalletDB.Transaction do
     transaction
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:status, :local_ledger_uuid, :originator],
-      [:status, :local_ledger_uuid, :originator]
+      [:status, :local_ledger_uuid],
+      [:status, :local_ledger_uuid]
     )
     |> validate_inclusion(:status, @statuses)
   end
@@ -232,13 +228,11 @@ defmodule EWalletDB.Transaction do
         :status,
         :error_code,
         :error_description,
-        :error_data,
-        :originator
+        :error_data
       ],
       [
         :status,
-        :error_code,
-        :originator
+        :error_code
       ]
     )
     |> validate_inclusion(:status, @statuses)
