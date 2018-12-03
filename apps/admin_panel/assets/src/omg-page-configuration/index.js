@@ -147,27 +147,31 @@ class ConfigurationPage extends Component {
               <ConfigRow
                 name={configurations.aws_bucket.key}
                 description={configurations.aws_bucket.description}
-                value={configurations.aws_bucket.value}
+                value={this.state.awsBucket}
                 placeholder={'ie. aws_bucket_1'}
+                onChange={this.onChangeInput('awsBucket')}
               />
               <ConfigRow
                 name={configurations.aws_region.key}
                 description={configurations.aws_region.description}
-                value={configurations.aws_region.value}
+                value={this.state.awsRegion}
                 placeholder={'ie. us-east-1'}
+                onChange={this.onChangeInput('awsRegion')}
               />
               <ConfigRow
                 name={configurations.aws_access_key_id.key}
                 description={configurations.aws_access_key_id.description}
-                value={configurations.aws_access_key_id.value}
+                value={this.state.awsAccessKeyId}
                 placeholder={'ie. AKIAIOSFODNN7EXAMPLE'}
+                onChange={this.onChangeInput('awsAccessKeyId')}
               />
               <ConfigRow
                 name={configurations.aws_secret_access_key.key}
                 description={configurations.aws_secret_access_key.description}
-                value={configurations.aws_secret_access_key.value}
+                value={this.state.awsSecretAccessKey}
                 border={this.state.emailAdapter !== 'aws'}
                 placeholder={'ie. wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'}
+                onChange={this.onChangeInput('awsSecretAccessKey')}
               />
             </div>
           </SubSettingContainer>
@@ -219,6 +223,7 @@ class ConfigurationPage extends Component {
           name={configurations.max_per_page.key}
           description={configurations.max_per_page.description}
           value={this.state.maxPerPage}
+          inputType='number'
           onChange={this.onChangeInput('maxPerPage')}
         />
         <ConfigRow
@@ -237,13 +242,15 @@ class ConfigurationPage extends Component {
         <ConfigRow
           name={configurations.sender_email.key}
           description={configurations.sender_email.description}
-          value={configurations.sender_email.value}
+          value={this.state.senderEmail}
+          onChange={this.onChangeInput('senderEmail')}
         />
         <ConfigRow
           name={configurations.email_adapter.key}
           description={configurations.email_adapter.description}
           value={this.state.emailAdapter}
           onSelectItem={this.onSelectEmailAdapter}
+          onChange={this.onChangeInput('emailAdapter')}
           type='select'
           options={configurations.email_adapter.options.map(option => ({
             key: option,
@@ -256,27 +263,31 @@ class ConfigurationPage extends Component {
               <ConfigRow
                 name={configurations.smtp_host.key}
                 description={configurations.smtp_host.description}
-                value={configurations.smtp_host.value}
+                value={this.state.smtpHost}
                 placeholder={'ie. smtp.yourdomain.com'}
+                onChange={this.onChangeInput('smtpHost')}
               />
               <ConfigRow
                 name={configurations.smtp_port.key}
                 description={configurations.smtp_port.description}
-                value={configurations.smtp_port.value}
+                value={this.state.smtpPort}
                 placeholder={'ie. 8830'}
+                onChange={this.onChangeInput('smtpPort')}
               />
               <ConfigRow
                 name={configurations.smtp_username.key}
                 description={configurations.smtp_username.description}
-                value={configurations.smtp_username.value}
+                value={this.state.smtpUsername}
                 placeholder={'ie. usertest01'}
+                onChange={this.onChangeInput('smtpUsername')}
               />
               <ConfigRow
                 name={configurations.smtp_password.key}
                 description={configurations.smtp_password.description}
-                value={configurations.smtp_password.value}
+                value={this.state.smtpPassword}
                 border={this.state.emailAdapter !== 'smtp'}
                 placeholder={'ie. password'}
+                onChange={this.onChangeInput('smtpPassword')}
               />
             </div>
           </SubSettingContainer>
