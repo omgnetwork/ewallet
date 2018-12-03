@@ -105,7 +105,7 @@ defmodule EWalletDB.Account do
   defp changeset(%Account{} = account, attrs) do
     account
     |> cast(attrs, [:name, :description, :parent_uuid, :metadata, :encrypted_metadata])
-    |> validate_required([:name, :metadata, :encrypted_metadata])
+    |> validate_required([:name])
     |> validate_parent_uuid()
     |> validate_account_level(@child_level_limit)
     |> unique_constraint(:name)

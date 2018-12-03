@@ -82,9 +82,7 @@ defmodule EWalletDB.Token do
       :symbol,
       :name,
       :subunit_to_unit,
-      :account_uuid,
-      :metadata,
-      :encrypted_metadata
+      :account_uuid
     ])
     |> validate_number(
       :subunit_to_unit,
@@ -116,9 +114,7 @@ defmodule EWalletDB.Token do
       :encrypted_metadata
     ])
     |> validate_required([
-      :name,
-      :metadata,
-      :encrypted_metadata
+      :name
     ])
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
