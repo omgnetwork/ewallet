@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Account, Membership, Repo, Role, User}
+  alias ActivityLogger.System
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -48,7 +49,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
     test "returns a list of accounts that the current user can access" do
       master = Account.get_master_account()
       user = get_test_admin()
-      {:ok, _m} = Membership.unassign(user, master)
+      {:ok, _m} = Membership.unassign(user, master, %System{})
 
       role = Role.get_by(name: "admin")
 
@@ -60,7 +61,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
 
       # We add user to acc_2, so he should have access to
       # acc_2 and its descendants: acc_3, acc_4, acc_5
-      {:ok, _m} = Membership.assign(user, acc_2, role)
+      {:ok, _m} = Membership.assign(user, acc_2, role, %System{})
 
       response = admin_user_request("/account.all", %{})
       accounts = response["data"]["data"]
@@ -76,7 +77,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
     test "returns only one account if the user is at the last level" do
       master = Account.get_master_account()
       user = get_test_admin()
-      {:ok, _m} = Membership.unassign(user, master)
+      {:ok, _m} = Membership.unassign(user, master, %System{})
 
       role = Role.get_by(name: "admin")
 
@@ -86,7 +87,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       _acc_4 = insert(:account, parent: acc_3, name: "Account 4")
       acc_5 = insert(:account, parent: acc_3, name: "Account 5")
 
-      {:ok, _m} = Membership.assign(user, acc_5, role)
+      {:ok, _m} = Membership.assign(user, acc_5, role, %System{})
 
       response = admin_user_request("/account.all", %{})
       accounts = response["data"]["data"]
@@ -180,12 +181,12 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       user = get_test_admin()
       role = Role.get_by(name: "admin")
 
-      {:ok, _m} = Membership.unassign(user, master)
+      {:ok, _m} = Membership.unassign(user, master, %System{})
       accounts = insert_list(3, :account)
 
       # Pick the 2nd inserted account
       target = Enum.at(accounts, 1)
-      Membership.assign(user, target, role)
+      Membership.assign(user, target, role, %System{})
       response = admin_user_request("/account.get", %{"id" => target.id})
 
       assert response["success"]
@@ -196,7 +197,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
     test "gets unauthorized if the user doesn't have access" do
       master = Account.get_master_account()
       user = get_test_admin()
-      {:ok, _m} = Membership.unassign(user, master)
+      {:ok, _m} = Membership.unassign(user, master, %System{})
       accounts = insert_list(3, :account)
       # Pick the 2nd inserted account
       target = Enum.at(accounts, 1)

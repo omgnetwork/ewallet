@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
   alias EWallet.Web.Date
   alias EWallet.Web.V1.UserSerializer
   alias EWalletDB.{Account, AccountUser, Repo, Token, User, Wallet}
-  alias EWalletConfig.System
+  alias ActivityLogger.System
 
   describe "/wallet.all" do
     test "returns a list of wallets and pagination data" do

@@ -109,7 +109,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
     end
   end
 
-  defp assign_or_invite(user, account, role, redirect_url, _originator) do
+  defp assign_or_invite(user, account, role, redirect_url, originator) do
     case User.get_status(user) do
       :pending_confirmation ->
         user
@@ -117,7 +117,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
         |> Inviter.send_email(redirect_url, &InviteEmail.create/2)
 
       :active ->
-        Membership.assign(user, account, role)
+        Membership.assign(user, account, role, originator)
     end
   end
 
@@ -131,7 +131,8 @@ defmodule AdminAPI.V1.AccountMembershipController do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:delete, conn.assigns, account.id),
          %User{} = user <- User.get(user_id) || {:error, :user_id_not_found},
-         {:ok, _} <- Membership.unassign(user, account) do
+         originator <- Originator.extract(conn.assigns),
+         {:ok, _} <- Membership.unassign(user, account, originator) do
       render(conn, :empty, %{success: true})
     else
       {:error, error} -> handle_error(conn, error)

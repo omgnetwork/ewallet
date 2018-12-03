@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.UserAuthController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.UserFetcher
-  alias EWallet.Web.{Orchestrator, V1.AuthTokenOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, V1.AuthTokenOverlay}
   alias EWalletDB.{AuthToken, User}
 
   @doc """
@@ -31,7 +31,8 @@ defmodule AdminAPI.V1.UserAuthController do
   Invalidates the authentication token used in this request.
   """
   def logout(conn, %{"auth_token" => auth_token}) do
-    auth_token |> AuthToken.expire(:ewallet_api)
+    originator = Originator.extract(conn.assigns)
+    AuthToken.expire(auth_token, :ewallet_api, originator)
 
     render(conn, :empty_response, %{})
   end

@@ -4,6 +4,7 @@ defmodule AdminAPI.V1.ProviderAuth.MintControllerTest do
   alias EWallet.Web.Date
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, TransactionSerializer}
   alias EWalletDB.{Mint, Repo}
+  alias ActivityLogger.System
 
   describe "/token.get_mints" do
     test "returns a list of mints and pagination data" do
@@ -14,7 +15,8 @@ defmodule AdminAPI.V1.ProviderAuth.MintControllerTest do
           "idempotency_token" => "123",
           "token_id" => token.id,
           "amount" => 100_000,
-          "description" => "desc."
+          "description" => "desc.",
+          "originator" => %System{}
         })
 
       inserted_mint = Repo.preload(inserted_mint, [:account, :token, :transaction])
@@ -24,7 +26,8 @@ defmodule AdminAPI.V1.ProviderAuth.MintControllerTest do
           "idempotency_token" => "123",
           "token_id" => token.id,
           "amount" => 100_000,
-          "description" => "desc."
+          "description" => "desc.",
+          "originator" => %System{}
         })
 
       response =

@@ -115,8 +115,7 @@ defmodule AdminAPI.V1.TransactionController do
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, attrs),
-         originator <- Originator.extract(conn.assigns),
-         attrs <- Map.put(attrs, "originator", originator),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, transaction} <- TransactionGate.create(attrs) do
       transaction
       |> Orchestrator.one(TransactionOverlay, attrs)

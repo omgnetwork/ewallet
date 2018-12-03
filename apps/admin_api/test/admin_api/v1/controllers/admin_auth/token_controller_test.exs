@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.TokenSerializer
   alias EWalletDB.{Mint, Repo, Token}
+  alias ActivityLogger.System
 
   describe "/token.all" do
     test "returns a list of tokens and pagination data" do
@@ -360,7 +361,8 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
     end
 
     test "Raises invalid_parameter error if id is missing" do
-      response = admin_user_request("/token.enable_or_disable", %{enabled: false})
+      response =
+        admin_user_request("/token.enable_or_disable", %{enabled: false, originator: %System{}})
 
       refute response["success"]
 

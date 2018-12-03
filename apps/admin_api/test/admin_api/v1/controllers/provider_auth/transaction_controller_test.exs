@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.TransactionGate
   alias EWalletDB.{Account, Repo, Transaction, User}
+  alias ActivityLogger.System
 
   # credo:disable-for-next-line
   setup do
@@ -23,7 +24,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
         "to_address" => wallet_2.address,
         "amount" => 1,
         "token_id" => token.id,
-        "idempotency_token" => "1231"
+        "idempotency_token" => "1231",
+        "originator" => %System{}
       })
 
     assert transaction_1.status == "confirmed"
@@ -37,7 +39,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
         "to_address" => wallet_1.address,
         "amount" => 1,
         "token_id" => token.id,
-        "idempotency_token" => "1232"
+        "idempotency_token" => "1232",
+        "originator" => %System{}
       })
 
     assert transaction_2.status == "confirmed"
@@ -48,7 +51,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
         "to_address" => wallet_3.address,
         "amount" => 1,
         "token_id" => token.id,
-        "idempotency_token" => "1233"
+        "idempotency_token" => "1233",
+        "originator" => %System{}
       })
 
     assert transaction_3.status == "confirmed"
@@ -74,7 +78,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
         "to_address" => wallet_2.address,
         "amount" => 1,
         "token_id" => token.id,
-        "idempotency_token" => "1237"
+        "idempotency_token" => "1237",
+        "originator" => %System{}
       })
 
     assert transaction_7.status == "confirmed"

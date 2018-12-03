@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
   alias EWallet.Web.Date
   alias EWallet.Web.V1.UserSerializer
   alias EWalletDB.{Account, AccountUser, Repo, Token, User, Wallet}
-  alias EWalletConfig.System
+  alias ActivityLogger.System
 
   describe "/wallet.all" do
     test "returns a list of wallets and pagination data" do
@@ -571,7 +571,8 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
         Wallet.insert_secondary_or_burn(%{
           "account_uuid" => account.uuid,
           "name" => "MyBurn",
-          "identifier" => "burn"
+          "identifier" => "burn",
+          "originator" => %System{}
         })
 
       response =
@@ -592,7 +593,8 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
         Wallet.insert_secondary_or_burn(%{
           "account_uuid" => account.uuid,
           "name" => "MySecondary",
-          "identifier" => "secondary"
+          "identifier" => "secondary",
+          "originator" => %System{}
         })
 
       response =

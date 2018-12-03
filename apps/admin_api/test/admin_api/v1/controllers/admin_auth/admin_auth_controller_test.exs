@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
-  alias EWalletConfig.System
+  alias ActivityLogger.System
   alias EWalletDB.{Account, AuthToken, Membership, Repo, Role, User}
 
   describe "/admin.login" do
@@ -31,7 +31,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
 
     test "responds with a new auth token if credentials are valid but user is not master_admin" do
       user = get_test_admin() |> Repo.preload([:accounts])
-      {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0))
+      {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0), %System{})
       account = insert(:account)
       role = Role.get_by(name: "admin")
       _membership = insert(:membership, %{user: user, role: role, account: account})
@@ -61,7 +61,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
 
     test "responds with a new auth token if credentials are valid and user is a viewer" do
       user = get_test_admin() |> Repo.preload([:accounts])
-      {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0))
+      {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0), %System{})
       account = insert(:account)
       role = insert(:role, %{name: "viewer"})
       _membership = insert(:membership, %{user: user, role: role, account: account})
@@ -198,7 +198,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
 
     test "returns a permission error when trying to switch to an invalid account" do
       user = get_test_admin() |> Repo.preload([:accounts])
-      {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0))
+      {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0), %System{})
       account = insert(:account)
 
       response =

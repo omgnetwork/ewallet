@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
   alias EWalletDB.{User, Account, AuthToken, Role, Membership}
+  alias ActivityLogger.System
 
   @owner_app :some_app
 
@@ -198,13 +199,13 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
       role = Role.get_by(name: "admin")
 
       admin = get_test_admin()
-      {:ok, _m} = Membership.unassign(admin, master)
+      {:ok, _m} = Membership.unassign(admin, master, %System{})
 
       master_admin = insert(:admin, %{email: "admin@omise.co"})
       _membership = insert(:membership, %{user: master_admin, account: master, role: role})
 
       sub_acc = insert(:account, parent: master, name: "Account 1")
-      {:ok, _m} = Membership.assign(admin, sub_acc, role)
+      {:ok, _m} = Membership.assign(admin, sub_acc, role, %System{})
 
       response =
         admin_user_request("/user.enable_or_disable", %{

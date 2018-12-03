@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.ProviderAuth.UserAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{AuthToken, User}
+  alias ActivityLogger.System
 
   describe "/user.login" do
     test "responds with a new auth token if id is valid" do
@@ -80,7 +81,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserAuthControllerTest do
     end
 
     test "returns user:disabled if the user is disabled" do
-      user = insert(:user, %{enabled: false})
+      user = insert(:user, %{enabled: false, originator: %System{}})
       response = provider_request("/user.login", %{id: user.id})
 
       expected = %{

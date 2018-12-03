@@ -118,8 +118,7 @@ defmodule AdminAPI.V1.UserController do
       when is_binary(id) and byte_size(id) > 0 do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, user),
-         originator <- Originator.extract(conn.assigns),
-         attrs <- Map.put(attrs, "originator", originator) do
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns) do
       user
       |> User.update(attrs)
       |> respond_single(conn)
@@ -138,8 +137,7 @@ defmodule AdminAPI.V1.UserController do
       when is_binary(id) and byte_size(id) > 0 do
     with %User{} = user <- User.get_by_provider_user_id(id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, user),
-         originator <- Originator.extract(conn.assigns),
-         attrs <- Map.put(attrs, "originator", originator) do
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns) do
       user
       |> User.update(attrs)
       |> respond_single(conn)
@@ -157,6 +155,7 @@ defmodule AdminAPI.V1.UserController do
   def enable_or_disable(conn, attrs) do
     with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
          :ok <- permit(:enable_or_disable, conn.assigns, user),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- User.enable_or_disable(user, attrs),
          :ok <- AuthToken.expire_for_user(updated) do
       respond_single(updated, conn)

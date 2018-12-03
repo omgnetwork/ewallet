@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{Account, AccountUser, User, AuthToken, Role, Membership}
-  alias EWalletConfig.System
+  alias ActivityLogger.System
 
   @owner_app :some_app
 
@@ -573,13 +573,13 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       role = Role.get_by(name: "admin")
 
       admin = get_test_admin()
-      {:ok, _m} = Membership.unassign(admin, master)
+      {:ok, _m} = Membership.unassign(admin, master, %System{})
 
       user = insert(:user, %{enabled: true})
       {:ok, _} = AccountUser.link(master.uuid, user.uuid, %System{})
 
       sub_acc = insert(:account, parent: master, name: "Account 1")
-      {:ok, _m} = Membership.assign(admin, sub_acc, role)
+      {:ok, _m} = Membership.assign(admin, sub_acc, role, %System{})
 
       response =
         admin_user_request("/user.enable_or_disable", %{

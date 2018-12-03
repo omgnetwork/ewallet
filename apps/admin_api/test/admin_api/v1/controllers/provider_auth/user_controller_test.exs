@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{Account, AccountUser, User, AuthToken}
-  alias EWalletConfig.System
+  alias ActivityLogger.System
 
   @owner_app :some_app
 

@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{ExchangePair, Repo}
+  alias ActivityLogger.System
 
   describe "/exchange_pair.all" do
     test "returns a list of exchange pairs and pagination data" do
@@ -89,7 +90,8 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
         from_token_id: insert(:token).id,
         to_token_id: insert(:token).id,
         rate: 2,
-        sync_opposite: false
+        sync_opposite: false,
+        originator: %System{}
       }
     end
 

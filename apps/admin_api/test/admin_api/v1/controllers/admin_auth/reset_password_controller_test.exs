@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
   use AdminAPI.ConnCase, async: true
   use Bamboo.Test
   alias EWallet.ForgetPasswordEmail
-  alias EWalletConfig.Helpers.Crypto
+  alias Utils.Helpers.Crypto
   alias EWalletDB.{ForgetPasswordRequest, Repo, User}
 
   @redirect_url "http://localhost:4000/reset_password?email={email}&token={token}"

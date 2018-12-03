@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{Invite, User}
+  alias ActivityLogger.System
 
   defp request(email, token, password, password_confirmation) do
     unauthenticated_request("/invite.accept", %{
@@ -15,7 +16,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
   describe "InviteController.accept/2" do
     test "returns success if invite is accepted successfully" do
       {:ok, user} = :admin |> params_for(is_admin: false) |> User.insert()
-      {:ok, invite} = Invite.generate(user, preload: :user)
+      {:ok, invite} = Invite.generate(user, %System{}, preload: :user)
 
       response = request(invite.user.email, invite.token, "some_password", "some_password")
 
@@ -48,7 +49,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
     test "returns :invite_not_found error if the email has not been invited" do
       {:ok, user} = :admin |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
+      {:ok, invite} = Invite.generate(user, %System{})
 
       response = request("unknown@example.com", invite.token, "some_password", "some_password")
 
@@ -62,7 +63,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
     test "returns :invite_not_found error if the token is incorrect" do
       {:ok, user} = :admin |> params_for() |> User.insert()
-      {:ok, _invite} = Invite.generate(user)
+      {:ok, _invite} = Invite.generate(user, %System{})
 
       response = request(user.email, "wrong_token", "some_password", "some_password")
 
@@ -76,7 +77,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
     test "returns client:invalid_parameter error if the password has less than 8 characters" do
       {:ok, user} = :admin |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
+      {:ok, invite} = Invite.generate(user, %System{})
 
       response = request(user.email, invite.token, "short", "short")
 
@@ -90,7 +91,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
     test "returns :invalid_parameter error if a required parameter is missing" do
       {:ok, user} = :admin |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
+      {:ok, invite} = Invite.generate(user, %System{})
 
       # Missing passwords
       response =

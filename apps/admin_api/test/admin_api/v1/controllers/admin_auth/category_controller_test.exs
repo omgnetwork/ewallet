@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.Category
   alias EWalletDB.Helpers.Preloader
+  alias ActivityLogger.System
 
   describe "/category.all" do
     test "returns a list of categories and pagination data" do
@@ -181,7 +182,10 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       {:ok, category} =
         :category
         |> insert()
-        |> Category.update(%{account_ids: [account.id]})
+        |> Category.update(%{
+          account_ids: [account.id],
+          originator: %System{}
+        })
 
       response = admin_user_request("/category.delete", %{id: category.id})
 

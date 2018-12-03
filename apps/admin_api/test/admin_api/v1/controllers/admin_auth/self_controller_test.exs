@@ -4,9 +4,10 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
   import Ecto.Query
   alias AdminAPI.UpdateEmailAddressEmail
   alias EWallet.Web.Date
-  alias EWalletConfig.Helpers.{Crypto, Assoc}
   alias EWalletDB.{Account, Membership, Repo, User}
   alias EWalletDB.{Account, Membership, Repo, UpdateEmailRequest, User}
+  alias Utils.Helpers.{Crypto, Assoc}
+  alias ActivityLogger.System
 
   @update_email_url "http://localhost:4000/update_email?email={email}&token={token}"
 
@@ -498,7 +499,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
 
       # Clear all memberships for this user then add just one for precision
       Repo.delete_all(from(m in Membership, where: m.user_uuid == ^user.uuid))
-      Membership.assign(user, account, "admin")
+      Membership.assign(user, account, "admin", %System{})
 
       assert admin_user_request("/me.get_accounts") ==
                %{

@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.AdminUserController do
   alias AdminAPI.V1.AccountHelper
   alias AdminAPI.V1.UserView
   alias EWallet.{AdminUserPolicy, UserFetcher}
-  alias EWallet.Web.{Orchestrator, Paginator, V1.UserOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.UserOverlay}
   alias EWalletDB.{User, UserQuery, AuthToken}
 
   @doc """
@@ -43,6 +43,7 @@ defmodule AdminAPI.V1.AdminUserController do
   def enable_or_disable(conn, attrs) do
     with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
          :ok <- permit(:enable_or_disable, conn.assigns, user),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- User.enable_or_disable(user, attrs),
          :ok <- AuthToken.expire_for_user(updated) do
       respond_single(updated, conn)
