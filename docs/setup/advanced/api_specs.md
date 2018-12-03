@@ -2,34 +2,52 @@
 
 OpenAPI definitions, allow devs to specify the operations and metadata of their APIs in machine-readable form. This enables them to automate various processes around the API lifecycle.
 
-OmiseGO provides two APIs (eWallet adn Admin) and two definition which you can use to generate your client libraries.
+OmiseGO provides two APIs (eWallet and Admin) and two definition which you can use to generate your client libraries.
 
-### Build JSON OpenAPI definition
+### Development specs
 
-To build from source, you need the following installed and available in your `$PATH:`
+In order to facilitate the development and maintenance of the API documentation, the open api spec is splat into multiple files.
 
-* [Java 8](http://java.oracle.com)
+These files are grouped under a resource and each resource has 5 spec files. The basic structure is as follow:
+```
+/swagger
+  /resource1 (user for example)
+    paths.yaml
+    request_bodies.yaml
+    response_schemas.yaml
+    responses.yaml
+    schemas.yaml
+  /resource2
+    paths.yaml
+    request_bodies.yaml
+    ...
+  ...
+```
 
-* [Apache maven 3.3.3 or greater](http://maven.apache.org/)
+Each of these file contain different part of the API definition.
 
-The repository already contains OpenAPI binary. To generate the json definition from yaml run the following commands for each API.
+When developing you should modify these files, under the `swagger` folder and NOT directly the `spec.yaml` or `spec.json` which are automatically generated.
+
+### Generating the final spec file
+
+When you are done editing the different spec files, you need to generate the final spec file which group all specifications together into one `"big"` file.
+
+In order to do this you need to have the following installed and available:
+  - [node.js](https://nodejs.org/en/download/package-manager/)
+  - [swagger-combine](https://www.npmjs.com/package/swagger-combine). Install using: `npm install -g swagger-combine`.
+
+Then you need to run the following commands to generate the final spec.
 
 **eWallet API:**
 
-```sh
-$ java -jar bin/openapi-generator-cli.jar generate -i apps/ewallet_api/priv/spec.yaml \
-       -g openapi \
-       -o apps/ewallet_api/priv/specification \
-  && mv apps/ewallet_api/priv/specification/openapi.json apps/ewallet_api/priv/spec.json \
-  && rm -rf apps/ewallet_api/priv/specification
+```
+swagger-combine apps/ewallet_api/priv/swagger/swagger.yaml -o apps/ewallet_api/priv/spec.yaml &&
+swagger-combine apps/ewallet_api/priv/swagger/swagger.yaml -o apps/ewallet_api/priv/spec.json
 ```
 
 **Admin API:**
 
-```sh
-$ java -jar bin/openapi-generator-cli.jar generate -i apps/admin_api/priv/spec.yaml \
-       -g openapi \
-       -o apps/admin_api/priv/specification \
-  && mv apps/admin_api/priv/specification/openapi.json apps/admin_api/priv/spec.json \
-  && rm -rf apps/admin_api/priv/specification
+```
+swagger-combine apps/admin_api/priv/swagger/swagger.yaml -o apps/admin_api/priv/spec.yaml &&
+swagger-combine apps/admin_api/priv/swagger/swagger.yaml -o apps/admin_api/priv/spec.json
 ```

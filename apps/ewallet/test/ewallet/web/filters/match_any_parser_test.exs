@@ -454,6 +454,14 @@ defmodule EWallet.Web.MatchAnyParserTest do
       refute Enum.any?(result, fn txn -> txn.id == txn_2.id end)
       assert Enum.any?(result, fn txn -> txn.id == txn_3.id end)
     end
+
+    test "returns the original query when given an empty list of conditions" do
+      attrs = %{
+        "match_any" => []
+      }
+
+      assert MatchAnyParser.to_query(Transaction, attrs, [:status, :type]) == Transaction
+    end
   end
 
   describe "to_query/3 with multiple conditions" do

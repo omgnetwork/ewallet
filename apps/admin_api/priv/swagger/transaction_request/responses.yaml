@@ -1,0 +1,12 @@
+TransactionRequestResponse:
+  description: Transaction request response
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/TransactionRequestResponseSchema'
+TransactionRequestsResponse:
+  description: 'Returns a list of transaction requests'
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/TransactionRequestsResponseSchema'

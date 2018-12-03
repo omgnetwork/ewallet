@@ -1,0 +1,127 @@
+WalletAccountBody:
+  description: The parameters to use for listing the wallets for an account
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: acc_01ca2p8jqans5aty5gj5etmjcf
+
+WalletUserBody:
+  description: The parameters to use for listing the wallets for a user
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: usr_01cc02x0v98qcctvycfx4vsk8x
+
+TransactionConsumptionAllForWalletBody:
+  description: The parameters to use for listing the consumptions for a wallet
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          address:
+            type: string
+        required:
+          - address
+        example:
+          address: kxhk519271652215
+
+WalletGetBody:
+  description: The parameters to use for retrieving a wallet by its address
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          address:
+            type: string
+        required:
+          - address
+        example:
+          address: kxhk519271652215
+
+WalletEnableOrDisableBody:
+  description: The parameters to use to enable or disable a wallet.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          address:
+            type: string
+          enabled:
+            type: boolean
+        required:
+          - address
+          - enabled
+        example:
+          address: kxhk519271652215
+          enabled: false
+
+WalletCreateBody:
+  description: The parameters to use for creating a wallet
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        example:
+          name: My Wallet
+          identifier: secondary
+          user_id: usr_01cbfg6v9thrc3sd9m1v4gazjv
+        oneOf:
+          - properties:
+              name:
+                type: string
+              identifier:
+                type: string
+                enum: [burn, secondary]
+              provider_user_id:
+                type: string
+            required:
+              - name
+              - identifier
+              - provider_user_id
+          - properties:
+              name:
+                type: string
+              identifier:
+                type: string
+                enum: [burn, secondary]
+              user_id:
+                type: string
+            required:
+              - name
+              - identifier
+              - user_id
+          - properties:
+              name:
+                type: string
+              identifier:
+                type: string
+                enum: [burn, secondary]
+              account_id:
+                type: string
+            required:
+              - name
+              - identifier
+              - account_id

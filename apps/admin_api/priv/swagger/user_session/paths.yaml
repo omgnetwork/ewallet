@@ -1,0 +1,32 @@
+user.login:
+  post:
+    tags:
+      - UserSession
+    summary: Login an existing user. The provider can call this to get an authentication token for a specific user.
+    operationId: user_login
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: '../user/request_bodies.yaml#/UserIdentifierBody'
+    responses:
+      '200':
+        $ref: '../authentication_token/responses.yaml#/AuthenticationTokenResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+user.logout:
+  post:
+    tags:
+      - UserSession
+    summary: Expires a user's authentication_token.
+    operationId: user_logout
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/LogoutUserBody'
+    responses:
+      '200':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

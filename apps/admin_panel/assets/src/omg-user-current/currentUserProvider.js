@@ -13,14 +13,11 @@ class UserProvider extends Component {
     currentUser: PropTypes.object,
     getCurrentUser: PropTypes.func,
     currentUserLoadingStatus: PropTypes.string,
-    history: PropTypes.object,
-    getWalletsByAccountId: PropTypes.func,
-    match: PropTypes.object
+    history: PropTypes.object
   }
   componentDidMount = async () => {
     if (this.props.currentUserLoadingStatus === 'DEFAULT') {
       const result = await this.props.getCurrentUser()
-      this.props.getWalletsByAccountId({ accountId: this.props.match.params.accountId })
       if (!result.data) {
         this.props.history.push('/login')
         removeAccessDataFromLocalStorage()

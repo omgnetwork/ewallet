@@ -1,0 +1,158 @@
+access_key.all:
+  post:
+    tags:
+      - API Access
+    summary: Get the list of access and secret keys
+    operationId: access_key_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AccessKeysResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+access_key.create:
+  post:
+    tags:
+      - API Access
+    summary: Create a pair of access and secret keys
+    operationId: access_key_create
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AccessKeyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+access_key.update:
+  post:
+    tags:
+      - API Access
+    summary: Update a pair of access and secret keys by its id (deprecated)
+    operationId: access_key_update
+    deprecated: true
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccessKeyUpdateBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AccessKeyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+access_key.enable_or_disable:
+  post:
+    tags:
+      - API Access
+    summary: Enable or disable an existing access key
+    operationId: access_key_enable_or_disable
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccessKeyToggleStatusBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AccessKeyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+access_key.delete:
+  post:
+    tags:
+      - API Access
+    summary: Delete a pair of access and secret keys by its id or access key
+    operationId: access_key_delete
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccessKeyDeleteBody'
+    responses:
+      '200':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+api_key.all:
+  post:
+    tags:
+      - API Access
+    summary: Get the list of API keys
+    operationId: api_key_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/APIKeysResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+api_key.create:
+  post:
+    tags:
+      - API Access
+    summary: Create an API key
+    operationId: api_key_create
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    responses:
+      '200':
+        $ref: 'responses.yaml#/APIKeyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+api_key.update:
+  post:
+    tags:
+      - API Access
+    summary: Update an API key (deprecated)
+    operationId: api_key_update
+    deprecated: true
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/APIKeyUpdateBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/APIKeyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+api_key.enable_or_disable:
+  post:
+    tags:
+      - API Access
+    summary: Enable or disable an existing api key
+    operationId: api_key_enable_or_disable
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/APIKeyToggleStatusBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/APIKeyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+api_key.delete:
+  post:
+    tags:
+      - API Access
+    summary: Delete an API key by its id
+    operationId: api_key_delete
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/APIKeyDeleteBody'
+    responses:
+      '200':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
