@@ -1,6 +1,6 @@
-defmodule EWalletConfig.Types.ExternalIDTest do
+defmodule Utils.Types.ExternalIDTest do
   use ExUnit.Case, async: true
-  alias EWalletConfig.Types.ExternalID
+  alias Utils.Types.ExternalID
 
   describe "cast/1" do
     test "casts input to lower case" do

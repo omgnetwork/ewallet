@@ -1,4 +1,4 @@
-defmodule EWalletConfig.Types.VirtualStruct do
+defmodule Utils.Types.VirtualStruct do
   @moduledoc """
   Useless type used for the virtual struct "originator".
   """

@@ -1,4 +1,4 @@
-defmodule EWalletConfig.Types.Integer do
+defmodule Utils.Types.Integer do
   @moduledoc """
   Custom Ecto type that converts DB's decimal value into integer.
 

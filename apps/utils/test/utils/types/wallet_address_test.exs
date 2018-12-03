@@ -1,7 +1,6 @@
-defmodule EWalletConfig.Types.WalletAddressTest do
+defmodule Utils.Types.WalletAddressTest do
   use ExUnit.Case, async: true
-  alias EWalletConfig.Types.WalletAddress
-  # alias EWalletDB.Wallet
+  alias Utils.Types.WalletAddress
 
   describe "cast/1" do
     test "casts input to lower case" do

@@ -1,4 +1,4 @@
-defmodule EWalletConfig.Helpers.UUID do
+defmodule Utils.Helpers.UUID do
   @moduledoc """
   Helper module to check that a string is a valid UUID.
   """

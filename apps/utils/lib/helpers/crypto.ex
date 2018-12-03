@@ -1,4 +1,4 @@
-defmodule EWalletConfig.Helpers.Crypto do
+defmodule Utils.Helpers.Crypto do
   @moduledoc """
   A helper to perform crytographic operations
   """

@@ -1,4 +1,4 @@
-defmodule EWalletConfig.Types.ExternalID do
+defmodule Utils.Types.ExternalID do
   @moduledoc """
   A custom Ecto type that handles the external ID. The external ID is a string
   that consists of a ULID prefixed with a 3-letter symbol representing the schema
@@ -65,7 +65,7 @@ defmodule EWalletConfig.Types.ExternalID do
 
   ## Example
   defmodule ExampleSchema do
-    use EWalletConfig.Types.ExternalID
+    use Utils.Types.ExternalID
 
     schema "examples" do
       external_id prefix: "exp_"
@@ -120,8 +120,8 @@ defmodule EWalletConfig.Types.ExternalID do
 
   defmacro __using__(_) do
     quote do
-      alias EWalletConfig.Types.ExternalID
-      import EWalletConfig.Types.ExternalID, only: [external_id: 1, is_external_id: 1]
+      alias Utils.Types.ExternalID
+      import Utils.Types.ExternalID, only: [external_id: 1, is_external_id: 1]
     end
   end
 end

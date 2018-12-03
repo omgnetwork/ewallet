@@ -1,4 +1,4 @@
-defmodule EWalletConfig.Helpers.InputAttribute do
+defmodule Utils.Helpers.InputAttribute do
   @moduledoc """
   Helper functions to deal with input attributes.
   """

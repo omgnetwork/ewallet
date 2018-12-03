@@ -1,4 +1,4 @@
-defmodule EWalletConfig.Helpers.Assoc do
+defmodule Utils.Helpers.Assoc do
   @moduledoc """
   The module that provides helpers for working with associations.
 

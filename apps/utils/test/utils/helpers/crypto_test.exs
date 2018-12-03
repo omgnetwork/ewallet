@@ -1,6 +1,6 @@
-defmodule EWalletConfig.Helpers.CryptoTest do
+defmodule Utils.Helpers.CryptoTest do
   use ExUnit.Case
-  alias EWalletConfig.Helpers.Crypto
+  alias Utils.Helpers.Crypto
 
   describe "generate_base64_key/1" do
     test "returns a key with the specified length" do

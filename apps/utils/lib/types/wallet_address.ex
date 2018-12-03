@@ -1,4 +1,4 @@
-defmodule EWalletConfig.Types.WalletAddress do
+defmodule Utils.Types.WalletAddress do
   @moduledoc """
   A custom Ecto type that handles wallet addresses. A wallet address is a string
   that consists of 4 case-insensitive letters followed by a 12-digit integer.
@@ -13,7 +13,7 @@ defmodule EWalletConfig.Types.WalletAddress do
   """
   @behaviour Ecto.Type
   alias Ecto.Schema
-  alias EWalletConfig.Helpers.UUID
+  alias Utils.Helpers.UUID
 
   # 4-char letters, 12-digit integers
   @type t :: <<_::16>>
@@ -80,7 +80,7 @@ defmodule EWalletConfig.Types.WalletAddress do
 
   ## Example
   defmodule WalletSchema do
-    use EWalletConfig.Types.WalletAddress
+    use Utils.Types.WalletAddress
 
     schema "wallet" do
       wallet_address(:address)
@@ -153,7 +153,7 @@ defmodule EWalletConfig.Types.WalletAddress do
 
   defmacro __using__(_) do
     quote do
-      import EWalletConfig.Types.WalletAddress, only: [wallet_address: 1, wallet_address: 2]
+      import Utils.Types.WalletAddress, only: [wallet_address: 1, wallet_address: 2]
     end
   end
 end

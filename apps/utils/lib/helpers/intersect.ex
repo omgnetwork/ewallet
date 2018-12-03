@@ -1,4 +1,4 @@
-defmodule EWalletConfig.Intersecter do
+defmodule Utils.Intersecter do
   @moduledoc """
   Module to intersect lists.
   """
