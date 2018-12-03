@@ -24,6 +24,7 @@ defmodule EWalletConfig.Setting do
     as a parent were parent_value=gcs.
   """
   require Ecto.Query
+  use ActivityLogger.ActivityLogging
   alias EWalletConfig.{Repo, StoredSetting, Setting}
   alias Ecto.{Changeset, Query}
 
@@ -43,10 +44,10 @@ defmodule EWalletConfig.Setting do
     :updated_at
   ]
 
-  @spec get_setting_mappings() :: [Map.t()]
+  @spec get_setting_mappings() :: [map()]
   def get_setting_mappings, do: Application.get_env(:ewallet_config, :settings_mappings)
 
-  @spec get_default_settings() :: [Map.t()]
+  @spec get_default_settings() :: [map()]
   def get_default_settings, do: Application.get_env(:ewallet_config, :default_settings)
 
   @spec types() :: [String.t()]
@@ -108,30 +109,34 @@ defmodule EWalletConfig.Setting do
   @doc """
   Creates a new setting with the passed attributes.
   """
-  @spec insert(Map.t()) :: {:ok, %Setting{}} | {:error, %Changeset{}}
+  @spec insert(map()) :: {:ok, %Setting{}} | {:error, %Changeset{}}
   def insert(attrs) do
     attrs = cast_attrs(attrs)
 
     %StoredSetting{}
     |> StoredSetting.changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
     |> return_from_change()
   end
 
   @doc """
   Inserts all the default settings.
   """
-  @spec insert_all_defaults(Map.t()) :: [{:ok, %Setting{}}] | [{:error, %Changeset{}}]
-  def insert_all_defaults(overrides \\ %{}) do
+  @spec insert_all_defaults(map(), map()) :: [{:ok, %Setting{}}] | [{:error, %Changeset{}}]
+  def insert_all_defaults(originator, overrides \\ %{}) do
     Repo.transaction(fn ->
       get_default_settings()
-      |> Enum.map(fn data -> insert_default(data, overrides) end)
+      |> Enum.map(fn data ->
+        insert_default(data, originator, overrides)
+      end)
       |> all_defaults_inserted?()
     end)
     |> return_tx_result()
   end
 
-  defp insert_default({key, data}, overrides) do
+  defp insert_default({key, data}, originator, overrides) do
+    data = Map.put(data, :originator, originator)
+
     case overrides[key] do
       nil ->
         insert(data)
@@ -156,7 +161,7 @@ defmodule EWalletConfig.Setting do
   defp return_tx_result({:ok, false}), do: :error
   defp return_tx_result({:error, _}), do: {:error, :setting_insert_failed}
 
-  @spec update(String.t(), Map.t()) ::
+  @spec update(String.t(), map()) ::
           {:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}
   def update(nil, _), do: {:error, :setting_not_found}
 
@@ -176,29 +181,31 @@ defmodule EWalletConfig.Setting do
 
         setting
         |> StoredSetting.update_changeset(attrs)
-        |> Repo.update()
+        |> Repo.update_record_with_activity_log()
         |> return_from_change()
     end
   end
 
   @spec update_all(List.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}]
   def update_all(attrs) when is_list(attrs) do
-    Enum.map(attrs, fn data ->
-      case data do
-        {key, value} ->
-          {key, update(key, %{value: value})}
-
-        data ->
-          key = data[:key] || data["key"]
-          {key, update(key, data)}
-      end
-    end)
+    case Keyword.keyword?(attrs) do
+      true -> update_all_with_keyword_list(attrs)
+      false -> update_all_with_map_list(attrs)
+    end
   end
 
-  @spec update_all(Map.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}]
+  @spec update_all(map()) :: [{:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}]
   def update_all(attrs) do
-    Enum.map(attrs, fn {key, value} ->
-      {key, update(key, %{value: value})}
+    originator = attrs[:originator]
+
+    attrs
+    |> Map.delete(:originator)
+    |> Enum.map(fn {key, value} ->
+      {key,
+       update(key, %{
+         value: value,
+         originator: originator
+       })}
     end)
   end
 
@@ -231,6 +238,23 @@ defmodule EWalletConfig.Setting do
       inserted_at: stored_setting.inserted_at,
       updated_at: stored_setting.updated_at
     }
+  end
+
+  defp update_all_with_keyword_list(attrs) do
+    originator = attrs[:originator]
+
+    attrs
+    |> Keyword.delete(:originator)
+    |> Enum.map(fn {key, value} ->
+      {key, update(key, %{value: value, originator: originator})}
+    end)
+  end
+
+  defp update_all_with_map_list(attrs) do
+    Enum.map(attrs, fn data ->
+      key = data[:key] || data["key"]
+      {key, update(key, data)}
+    end)
   end
 
   defp cast_attrs(attrs) do

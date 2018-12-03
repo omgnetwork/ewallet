@@ -1,5 +1,6 @@
 defmodule EWalletConfig.Repo do
   use Ecto.Repo, otp_app: :ewallet_config
+  use ActivityLogger.ActivityRepo, repo: EWalletConfig.Repo
 
   # Workaround an issue where ecto.migrate task won't start the app
   # thus DeferredConfig.populate is not getting called.

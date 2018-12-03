@@ -15,7 +15,7 @@ defmodule EWalletConfig.Config do
     SettingLoader
   }
 
-  @spec start_link(Map.t()) :: {:ok, pid()} | {:error, Atom.t()}
+  @spec start_link(map()) :: {:ok, pid()} | {:error, Atom.t()}
   def start_link(named: true) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
@@ -30,7 +30,7 @@ defmodule EWalletConfig.Config do
     GenServer.stop(pid)
   end
 
-  @spec start_link(Map.t()) :: {:ok, []}
+  @spec start_link(map()) :: {:ok, []}
   def init(_args) do
     {:ok, []}
   end
@@ -100,7 +100,7 @@ defmodule EWalletConfig.Config do
     end)
   end
 
-  @spec update(Map.t(), Atom.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()}]
+  @spec update(map(), Atom.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()}]
   def update(attrs, pid \\ __MODULE__) do
     {config_pid, attrs} = get_config_pid(attrs)
 
@@ -131,9 +131,9 @@ defmodule EWalletConfig.Config do
 
   defp get_config_pid(attrs), do: {nil, attrs}
 
-  @spec insert_all_defaults(Map.t(), Atom.t()) :: :ok
-  def insert_all_defaults(opts \\ %{}, pid \\ __MODULE__) do
-    :ok = Setting.insert_all_defaults(opts)
+  @spec insert_all_defaults(map(), map(), Atom.t()) :: :ok
+  def insert_all_defaults(originator, opts \\ %{}, pid \\ __MODULE__) do
+    :ok = Setting.insert_all_defaults(originator, opts)
     reload_config(pid)
   end
 

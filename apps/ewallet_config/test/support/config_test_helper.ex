@@ -4,12 +4,14 @@ defmodule EWalletConfig.ConfigTestHelper do
   """
   alias EWalletConfig.Config
   alias Ecto.Adapters.SQL.Sandbox
+  alias ActivityLogger.System
 
   def restart_config_genserver(parent, repo, apps, attrs) do
     {:ok, pid} = Config.start_link()
     Sandbox.allow(repo, parent, pid)
+    Sandbox.allow(ActivityLogger.Repo, parent, pid)
 
-    Config.insert_all_defaults(attrs, pid)
+    Config.insert_all_defaults(%System{}, attrs, pid)
 
     Enum.each(apps, fn app ->
       settings = Application.get_env(app, :settings)

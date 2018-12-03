@@ -2,11 +2,21 @@ defmodule EWalletConfig.ConfigTest do
   use EWalletConfig.SchemaCase, async: true
   alias EWalletConfig.{Config, Repo, Setting}
   alias Ecto.Adapters.SQL.Sandbox
+  alias ActivityLogger.System
 
   def default_loading do
     {:ok, pid} = Config.start_link()
     Sandbox.allow(Repo, self(), pid)
-    {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
+    Sandbox.allow(ActivityLogger.Repo, self(), pid)
+
+    {:ok, _} =
+      Config.insert(%{
+        key: "my_setting",
+        value: "some_value",
+        type: "string",
+        originator: %System{}
+      })
+
     assert Config.register_and_load(:my_app, [:my_setting], pid) == :ok
     assert Application.get_env(:my_app, :my_setting) == "some_value"
 
@@ -17,6 +27,8 @@ defmodule EWalletConfig.ConfigTest do
     {:ok, pid} =
       Task.start_link(fn ->
         Sandbox.allow(Repo, pid, self())
+        Sandbox.allow(ActivityLogger.Repo, self(), pid)
+
         assert_receive :select_for_update, 5000
         _res = callback.(value)
 
@@ -57,7 +69,7 @@ defmodule EWalletConfig.ConfigTest do
       assert Config.register_and_load(:my_app, [:my_setting], pid) == :ok
       assert Application.get_env(:my_app, :my_setting) == "some_value"
 
-      {:ok, _} = Setting.update("my_setting", %{value: "new_value"})
+      {:ok, _} = Setting.update("my_setting", %{value: "new_value", originator: %System{}})
       assert Application.get_env(:my_app, :my_setting) == "some_value"
 
       :ok = Config.reload_config(pid)
@@ -68,7 +80,7 @@ defmodule EWalletConfig.ConfigTest do
   describe "update/3" do
     test "updates all settings and reload" do
       pid = default_loading()
-      {:ok, settings} = Config.update([my_setting: "new_value"], pid)
+      {:ok, settings} = Config.update([my_setting: "new_value", originator: %System{}], pid)
 
       assert {_key, {:ok, _}} = Enum.at(settings, 0)
       assert Application.get_env(:my_app, :my_setting) == "new_value"
@@ -79,7 +91,15 @@ defmodule EWalletConfig.ConfigTest do
 
       {:ok, config_pid} = Config.start_link()
       Sandbox.allow(Repo, self(), config_pid)
-      {:ok, _} = Config.insert(%{key: "my_setting", value: "value_0", type: "string"})
+
+      {:ok, _} =
+        Config.insert(%{
+          key: "my_setting",
+          value: "value_0",
+          type: "string",
+          originator: %System{}
+        })
+
       assert Config.register_and_load(:my_app, [:my_setting], config_pid) == :ok
       assert Application.get_env(:my_app, :my_setting) == "value_0"
 
@@ -150,7 +170,7 @@ defmodule EWalletConfig.ConfigTest do
     test "insert all default settings" do
       {:ok, pid} = Config.start_link()
       Sandbox.allow(Repo, self(), pid)
-      :ok = Config.insert_all_defaults(%{}, pid)
+      :ok = Config.insert_all_defaults(%System{}, %{}, pid)
 
       assert length(Config.settings()) == 19
     end
@@ -160,7 +180,14 @@ defmodule EWalletConfig.ConfigTest do
     test "gets all the settings" do
       {:ok, pid} = Config.start_link()
       Sandbox.allow(Repo, self(), pid)
-      {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
+
+      {:ok, _} =
+        Config.insert(%{
+          key: "my_setting",
+          value: "some_value",
+          type: "string",
+          originator: %System{}
+        })
 
       assert length(Config.settings()) == 1
     end
@@ -170,7 +197,14 @@ defmodule EWalletConfig.ConfigTest do
     test "gets a setting by key" do
       {:ok, pid} = Config.start_link()
       Sandbox.allow(Repo, self(), pid)
-      {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
+
+      {:ok, _} =
+        Config.insert(%{
+          key: "my_setting",
+          value: "some_value",
+          type: "string",
+          originator: %System{}
+        })
 
       value = Config.get("my_setting")
       assert value == "some_value"
@@ -179,7 +213,9 @@ defmodule EWalletConfig.ConfigTest do
     test "returns the default value when setting value is nil" do
       {:ok, pid} = Config.start_link()
       Sandbox.allow(Repo, self(), pid)
-      {:ok, _} = Config.insert(%{key: "my_setting", value: nil, type: "string"})
+
+      {:ok, _} =
+        Config.insert(%{key: "my_setting", value: nil, type: "string", originator: %System{}})
 
       value = Config.get("my_setting", "default_value")
       assert value == "default_value"

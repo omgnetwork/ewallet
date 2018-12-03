@@ -3,7 +3,8 @@ defmodule EWalletConfig.StoredSetting do
   Ecto Schema representing stored settings.
   """
   use Ecto.Schema
-  use EWalletConfig.Types.ExternalID
+  use Utils.Types.ExternalID
+  use ActivityLogger.ActivityLogging
   import Ecto.Changeset
   import EWalletConfig.{Validator, SettingValidator}
   alias Ecto.UUID
@@ -34,23 +35,31 @@ defmodule EWalletConfig.StoredSetting do
     field(:position, :integer)
 
     timestamps()
+    activity_logging()
   end
 
   def changeset(%StoredSetting{} = setting, attrs) do
     setting
-    |> cast(attrs, [
-      :key,
-      :data,
-      :encrypted_data,
-      :type,
-      :description,
-      :parent,
-      :parent_value,
-      :options,
-      :secret,
-      :position
-    ])
-    |> validate_required([:key, :type, :position])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      [
+        :key,
+        :data,
+        :encrypted_data,
+        :type,
+        :description,
+        :parent,
+        :parent_value,
+        :options,
+        :secret,
+        :position
+      ],
+      [
+        :key,
+        :type,
+        :position
+      ]
+    )
     |> validate_immutable(:key)
     |> validate_inclusion(:type, @types)
     |> validate_required_exclusive([:data, :encrypted_data])
@@ -61,7 +70,7 @@ defmodule EWalletConfig.StoredSetting do
 
   def update_changeset(%StoredSetting{} = setting, attrs) do
     setting
-    |> cast(attrs, [
+    |> cast_and_validate_required_for_activity_log(attrs, [
       :data,
       :encrypted_data,
       :description

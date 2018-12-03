@@ -48,8 +48,9 @@ defmodule EWalletConfig.MixProject do
       {:arc, "~> 0.8.0"},
       {:arc_ecto, "~> 0.7.0"},
       {:bcrypt_elixir, "~> 1.0"},
-      {:ex_ulid, github: "omisego/ex_ulid"},
-      {:plug, "~> 1.0"}
+      {:plug, "~> 1.0"},
+      {:utils, in_umbrella: true},
+      {:activity_logger, in_umbrella: true}
     ]
   end
 

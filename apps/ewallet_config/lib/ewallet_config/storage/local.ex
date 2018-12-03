@@ -1,4 +1,4 @@
-defmodule Utils.Storage.Local do
+defmodule EWalletConfig.Storage.Local do
   @moduledoc """
   Modified copy of the Arc local storage, needed to add the base URL before
   the file paths.

@@ -11,6 +11,7 @@ defmodule EWalletConfig.SchemaCase do
 
       setup do
         Sandbox.checkout(Repo)
+        Sandbox.checkout(ActivityLogger.Repo)
       end
     end
   end
