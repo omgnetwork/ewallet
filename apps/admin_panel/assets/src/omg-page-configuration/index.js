@@ -61,7 +61,6 @@ class ConfigurationPage extends Component {
 
   static getDerivedStateFromProps (props, state) {
     if (!state.fetched && props.configurationLoadingStatus === CONSTANT.LOADING_STATUS.SUCCESS) {
-      console.log(props.configurations)
       return {
         baseUrl: props.configurations.base_url.value,
         redirectUrlPrefixes: props.configurations.redirect_url_prefixes.value,
@@ -90,10 +89,35 @@ class ConfigurationPage extends Component {
   }
 
   state = {}
+  resetGcsState () {
+    this.setState({
+      gcsBucket: this.props.configurations.gcs_bucket.value,
+      gcsCredentials: this.props.configurations.gcs_credentials.value
+    })
+  }
+  resetAwsState () {
+    this.setState({
+      awsBucket: this.props.configurations.aws_bucket.value,
+      awsRegion: this.props.configurations.aws_region.value,
+      awsAccessKeyId: this.props.configurations.aws_access_key_id.value,
+      awsSecretAccessKey: this.props.configurations.aws_secret_access_key.value
+    })
+  }
   onSelectEmailAdapter = option => {
     this.setState({ emailAdapter: option.value })
   }
   onSelectFileStorageAdapter = option => {
+    switch (option.value) {
+      case 'aws':
+        this.resetGcsState()
+        break
+      case 'gcs':
+        this.resetAwsState()
+        break
+      default:
+        this.resetAwsState()
+        this.resetGcsState()
+    }
     this.setState({ fileStorageAdapter: option.value })
   }
   onChangeInput = key => e => {
@@ -102,7 +126,6 @@ class ConfigurationPage extends Component {
 
   onClickSaveConfiguration = async e => {
     const result = await this.props.updateConfiguration(this.state)
-    console.log(result)
   }
   renderSaveButton = () => {
     return (

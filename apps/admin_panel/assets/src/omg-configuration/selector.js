@@ -16,7 +16,6 @@ export const selectConfigurationsCachedQuery = state => cacheKey => {
     .map(configurationId => {
       return selectConfigurationById(state)(configurationId)
     })
-    .keyBy('key')
     .value()
 }
 

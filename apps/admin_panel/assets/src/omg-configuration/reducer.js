@@ -5,10 +5,10 @@ export const configurationReducer = createReducer(
   {},
   {
     'CONFIGURATIONS/REQUEST/SUCCESS': (state, action) => {
-      return { ...state, ..._.keyBy(action.data, 'id') }
+      return { ...state, ..._.keyBy(action.data, 'key') }
     },
     'CONFIGURATIONS/UPDATE/SUCCESS': (state, action) => {
-      return { ...state, [action.data.id]: action.data }
+      return { ...state, ...action.data.data }
     }
   }
 )

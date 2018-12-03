@@ -3,7 +3,7 @@ import { createActionCreator, createPaginationActionCreator } from '../utils/cre
 
 export const updateConfiguration = config =>
   createActionCreator({
-    actionName: 'CONFIGURATION',
+    actionName: 'CONFIGURATIONS',
     action: 'UPDATE',
     service: () => configurationService.updateConfiguration(config)
   })
