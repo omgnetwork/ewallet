@@ -45,6 +45,7 @@ export default class ConfigRow extends Component {
   }
 
   render () {
+    console.log(this.props.value, this.props.name)
     return (
       <ConfigRowContainer border={this.props.border}>
         <ConfigCol>{this.props.name}</ConfigCol>

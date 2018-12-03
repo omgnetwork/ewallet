@@ -12,7 +12,7 @@ import {
   selectConfigurationsByKey,
   selectConfigurationLoadingStatus
 } from '../omg-configuration/selector'
-import { getConfiguration } from '../omg-configuration/action'
+import { getConfiguration, updateConfiguration } from '../omg-configuration/action'
 import CONSTANT from '../constants'
 const ConfigurationPageContainer = styled.div`
   position: relative;
@@ -48,18 +48,20 @@ const enhance = compose(
         configurationLoadingStatus: selectConfigurationLoadingStatus(state)
       }
     },
-    { getConfiguration }
+    { getConfiguration, updateConfiguration }
   )
 )
 
 class ConfigurationPage extends Component {
   static propTypes = {
     configurations: PropTypes.object,
-    configurationLoadingStatus: PropTypes.string
+    configurationLoadingStatus: PropTypes.string,
+    updateConfiguration: PropTypes.func
   }
 
   static getDerivedStateFromProps (props, state) {
     if (!state.fetched && props.configurationLoadingStatus === CONSTANT.LOADING_STATUS.SUCCESS) {
+      console.log(props.configurations)
       return {
         baseUrl: props.configurations.base_url.value,
         redirectUrlPrefixes: props.configurations.redirect_url_prefixes.value,
@@ -98,9 +100,13 @@ class ConfigurationPage extends Component {
     this.setState({ [key]: e.target.value })
   }
 
+  onClickSaveConfiguration = async e => {
+    const result = await this.props.updateConfiguration(this.state)
+    console.log(result)
+  }
   renderSaveButton = () => {
     return (
-      <Button size='small' onClick={this.onClickCreateAccount} key={'save'}>
+      <Button size='small' onClick={this.onClickSaveConfiguration} key={'save'}>
         <span>Save Configuration</span>
       </Button>
     )
@@ -305,12 +311,12 @@ class ConfigurationPage extends Component {
           types={false}
         />
         {!_.isEmpty(this.props.configurations) && (
-          <div>
+          <form>
             {this.renderGlobalSetting(this.props.configurations)}
             {this.renderEmailSetting(this.props.configurations)}
             {this.renderFileStorageAdpter(this.props.configurations)}
             {this.renderCacheSetting(this.props.configurations)}
-          </div>
+          </form>
         )}
       </ConfigurationPageContainer>
     )
