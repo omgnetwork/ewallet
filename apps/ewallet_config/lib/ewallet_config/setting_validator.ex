@@ -62,8 +62,7 @@ defmodule EWalletConfig.SettingValidator do
     |> do_validate_type(%{type: type}, changeset)
   end
 
-  @spec validate_type(Changeset.t(), Setting.t()) :: Changeset.t()
-  def validate_type(changeset, %{secret: false} = setting) do
+  def validate_type(changeset, setting) do
     changeset
     |> get_value(setting)
     |> do_validate_type(setting, changeset)
