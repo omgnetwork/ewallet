@@ -8,7 +8,7 @@ defmodule AdminAPI.V1.TransactionRequestChannel do
   alias EWallet.TransactionRequestPolicy
 
   def join("transaction_request:" <> request_id, _params, %{assigns: %{auth: auth}} = socket) do
-    with %TransactionRequest{} = request <- TransactionRequest.get(request_id),
+    with %TransactionRequest{} = request <- TransactionRequest.get(request_id, preload: :wallet),
          :ok <- Bodyguard.permit(TransactionRequestPolicy, :join, auth, request) do
       {:ok, socket}
     else

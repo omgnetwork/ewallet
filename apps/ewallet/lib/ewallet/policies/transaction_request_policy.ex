@@ -4,7 +4,7 @@ defmodule EWallet.TransactionRequestPolicy do
   """
   @behaviour Bodyguard.Policy
   alias EWallet.{WalletPolicy, AccountPolicy}
-  alias EWalletDB.{Wallet, Account, User}
+  alias EWalletDB.{Wallet, Account}
 
   def authorize(:all, _admin_user_or_key, nil), do: true
 
@@ -16,10 +16,8 @@ defmodule EWallet.TransactionRequestPolicy do
     true
   end
 
-  def authorize(:join, %{user: user}, request) do
-    user
-    |> User.addresses()
-    |> Enum.member?(request.wallet_address)
+  def authorize(:join, %{user: _} = params, request) do
+    WalletPolicy.authorize(:join, params, request.wallet)
   end
 
   def authorize(:join, params, request), do: authorize(:get, params, request)

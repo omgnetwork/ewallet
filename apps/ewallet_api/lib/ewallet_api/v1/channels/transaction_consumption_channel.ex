@@ -14,7 +14,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannel do
           assigns: %{auth: auth}
         } = socket
       ) do
-    with %TransactionConsumption{} = consumption <- TransactionConsumption.get(consumption_id),
+    with %TransactionConsumption{} = consumption <-
+           TransactionConsumption.get(consumption_id, preload: [:account, :wallet]),
          :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :join, auth, consumption) do
       {:ok, socket}
     else
