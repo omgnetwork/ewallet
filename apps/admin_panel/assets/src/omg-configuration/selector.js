@@ -24,3 +24,5 @@ export const selectConfigurationsCachedQueryPagination = state => cacheKey => {
 }
 
 export const selectConfigurationLoadingStatus = state => state.loadingStatus.configurations
+
+export const selectConfigurationUpdateLoadingStatus = state => state.loadingStatus.configurationsUpdate

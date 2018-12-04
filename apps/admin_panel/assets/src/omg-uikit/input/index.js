@@ -166,7 +166,6 @@ class InputComonent extends PureComponent {
     }
   }
   render () {
-    console.log(this.props.validator(this.props.value))
     const { className, placeholder, ...rest } = this.props
     return (
       <Container className={className}>

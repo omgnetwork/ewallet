@@ -153,5 +153,8 @@ export const alertsReducer = createReducer([], {
   },
   'CONFIGURATIONS/UPDATE/SUCCESS': (state, { user }) => {
     return [...state, createAlertState('Updated configurations successfully.', 'success')]
+  },
+  'CONFIGURATIONS/UPDATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
   }
 })

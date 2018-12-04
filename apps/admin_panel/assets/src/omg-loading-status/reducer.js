@@ -4,6 +4,6 @@ export const loadingStatusReducer = (state = {}, action) => {
   if (!matches) return state
   return {
     ...state,
-    [_.camelCase(matches[1])]: matches[3]
+    [_.camelCase(`${matches[1]}`)]: matches[3]
   }
 }

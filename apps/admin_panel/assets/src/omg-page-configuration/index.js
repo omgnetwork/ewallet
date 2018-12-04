@@ -15,6 +15,7 @@ import {
 import { getConfiguration, updateConfiguration } from '../omg-configuration/action'
 import CONSTANT from '../constants'
 import { isEmail } from '../utils/validator'
+
 const ConfigurationPageContainer = styled.div`
   position: relative;
   padding-bottom: 150px;
@@ -89,7 +90,9 @@ class ConfigurationPage extends Component {
     }
   }
 
-  state = {}
+  state = {
+    submitStatus: CONSTANT.LOADING_STATUS.DEFAULT
+  }
   resetGcsState () {
     this.setState({
       gcsBucket: this.props.configurations.gcs_bucket.value,
@@ -126,11 +129,26 @@ class ConfigurationPage extends Component {
   }
 
   onClickSaveConfiguration = async e => {
-    const result = await this.props.updateConfiguration(this.state)
+    try {
+      this.setState({ submitStatus: CONSTANT.LOADING_STATUS.PENDING })
+      const result = await this.props.updateConfiguration(this.state)
+      if (result.data) {
+        this.setState({ submitStatus: CONSTANT.LOADING_STATUS.SUCCESS })
+      } else {
+        this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
+      }
+    } catch (error) {
+      this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
+    }
   }
   renderSaveButton = () => {
     return (
-      <Button size='small' onClick={this.onClickSaveConfiguration} key={'save'}>
+      <Button
+        size='small'
+        onClick={this.onClickSaveConfiguration}
+        key={'save'}
+        loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}
+      >
         <span>Save Configuration</span>
       </Button>
     )
@@ -276,7 +294,7 @@ class ConfigurationPage extends Component {
           description={configurations.sender_email.description}
           value={this.state.senderEmail}
           onChange={this.onChangeInput('senderEmail')}
-          validator={value => isEmail(value)}
+          inputValidator={value => isEmail(value)}
         />
         <ConfigRow
           name={configurations.email_adapter.key}
