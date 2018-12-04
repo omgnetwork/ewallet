@@ -170,7 +170,7 @@ class ConfigurationPage extends Component {
       <Fragment>
         <h4>File Storage Adapter</h4>
         <ConfigRow
-          name={configurations.file_storage_adapter.key}
+          name={'File Storage Adapter'}
           description={configurations.file_storage_adapter.description}
           value={this.state.fileStorageAdapter}
           onSelectItem={this.onSelectFileStorageAdapter}
@@ -184,14 +184,14 @@ class ConfigurationPage extends Component {
           <SubSettingContainer>
             <div>
               <ConfigRow
-                name={configurations.gcs_bucket.key}
+                name={'GCS Bucket Key'}
                 description={configurations.gcs_bucket.description}
                 value={this.state.gcsBucket}
                 placeholder={'ie. google_cloud_1'}
                 onChange={this.onChangeInput('gcsBucket')}
               />
               <ConfigRow
-                name={configurations.gcs_credentials.key}
+                name={'GCS Credential JSON'}
                 description={configurations.gcs_credentials.description}
                 value={this.state.gcsCredentials}
                 placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
@@ -205,28 +205,28 @@ class ConfigurationPage extends Component {
           <SubSettingContainer>
             <div>
               <ConfigRow
-                name={configurations.aws_bucket.key}
+                name={'AWS Bucket name'}
                 description={configurations.aws_bucket.description}
                 value={this.state.awsBucket}
                 placeholder={'ie. aws_bucket_1'}
                 onChange={this.onChangeInput('awsBucket')}
               />
               <ConfigRow
-                name={configurations.aws_region.key}
+                name={'AWS Region'}
                 description={configurations.aws_region.description}
                 value={this.state.awsRegion}
                 placeholder={'ie. us-east-1'}
                 onChange={this.onChangeInput('awsRegion')}
               />
               <ConfigRow
-                name={configurations.aws_access_key_id.key}
+                name={'AWS Access Key ID'}
                 description={configurations.aws_access_key_id.description}
                 value={this.state.awsAccessKeyId}
                 placeholder={'ie. AKIAIOSFODNN7EXAMPLE'}
                 onChange={this.onChangeInput('awsAccessKeyId')}
               />
               <ConfigRow
-                name={configurations.aws_secret_access_key.key}
+                name={'AWS Secret Key'}
                 description={configurations.aws_secret_access_key.description}
                 value={this.state.awsSecretAccessKey}
                 border={this.state.emailAdapter !== 'aws'}
@@ -244,7 +244,7 @@ class ConfigurationPage extends Component {
       <Fragment>
         <h4>Cache Setting</h4>
         <ConfigRow
-          name={configurations.balance_caching_strategy.key}
+          name={'Balance Caching Strategy'}
           description={configurations.balance_caching_strategy.description}
           value={this.state.balanceCachingStrategy}
           onSelectItem={this.onSelectBalanceCache}
@@ -262,26 +262,26 @@ class ConfigurationPage extends Component {
       <Fragment>
         <h4>Global Setting</h4>
         <ConfigRow
-          name={configurations.base_url.key}
+          name={'Base Url'}
           description={configurations.base_url.description}
           value={this.state.baseUrl}
           onChange={this.onChangeInput('baseUrl')}
         />
         <ConfigRow
-          name={configurations.redirect_url_prefixes.key}
+          name={'Redirect Url Prefixes'}
           description={configurations.redirect_url_prefixes.description}
           value={this.state.redirectUrlPrefixes}
           onChange={this.onChangeInput('redirectUrlPrefixes')}
         />
         <ConfigRow
-          name={configurations.enable_standalone.key}
+          name={'Enable Standalone'}
           description={configurations.enable_standalone.description}
           value={this.state.enableStandalone}
           onChange={this.onChangeRadio}
           type='boolean'
         />
         <ConfigRow
-          name={configurations.max_per_page.key}
+          name={'Maximum Record Per Page'}
           description={configurations.max_per_page.description}
           value={this.state.maxPerPage}
           inputType='number'
@@ -290,7 +290,7 @@ class ConfigurationPage extends Component {
           inputErrorMessage='invalid number'
         />
         <ConfigRow
-          name={configurations.min_password_length.key}
+          name={'Minimum Password Length'}
           description={configurations.min_password_length.description}
           value={this.state.minPasswordLength}
           inputType='number'
@@ -306,14 +306,14 @@ class ConfigurationPage extends Component {
       <Fragment>
         <h4>Email Setting</h4>
         <ConfigRow
-          name={configurations.sender_email.key}
+          name={'Sender Email'}
           description={configurations.sender_email.description}
           value={this.state.senderEmail}
           onChange={this.onChangeInput('senderEmail')}
           inputValidator={value => isEmail(value)}
         />
         <ConfigRow
-          name={configurations.email_adapter.key}
+          name={'Email Adapter'}
           description={configurations.email_adapter.description}
           value={this.state.emailAdapter}
           onSelectItem={this.onSelectEmailAdapter}
@@ -328,28 +328,28 @@ class ConfigurationPage extends Component {
           <SubSettingContainer>
             <div>
               <ConfigRow
-                name={configurations.smtp_host.key}
+                name={'SMTP Host'}
                 description={configurations.smtp_host.description}
                 value={this.state.smtpHost}
                 placeholder={'ie. smtp.yourdomain.com'}
                 onChange={this.onChangeInput('smtpHost')}
               />
               <ConfigRow
-                name={configurations.smtp_port.key}
+                name={'SMTP Port'}
                 description={configurations.smtp_port.description}
                 value={this.state.smtpPort}
                 placeholder={'ie. 8830'}
                 onChange={this.onChangeInput('smtpPort')}
               />
               <ConfigRow
-                name={configurations.smtp_username.key}
+                name={'SMTP Username'}
                 description={configurations.smtp_username.description}
                 value={this.state.smtpUsername}
                 placeholder={'ie. usertest01'}
                 onChange={this.onChangeInput('smtpUsername')}
               />
               <ConfigRow
-                name={configurations.smtp_password.key}
+                name={'SMTP Password'}
                 description={configurations.smtp_password.description}
                 value={this.state.smtpPassword}
                 border={this.state.emailAdapter !== 'smtp'}
