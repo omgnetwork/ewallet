@@ -132,6 +132,9 @@ class ConfigurationPage extends Component {
   onChangeInput = key => e => {
     this.setState({ [key]: e.target.value })
   }
+  onChangeRadio = enable => e => {
+    this.setState({ enableStandalone: enable })
+  }
 
   onClickSaveConfiguration = async e => {
     try {
@@ -274,7 +277,8 @@ class ConfigurationPage extends Component {
           name={configurations.enable_standalone.key}
           description={configurations.enable_standalone.description}
           value={this.state.enableStandalone}
-          onChange={this.onChangeInput('enableStandalone')}
+          onChange={this.onChangeRadio}
+          type='boolean'
         />
         <ConfigRow
           name={configurations.max_per_page.key}
