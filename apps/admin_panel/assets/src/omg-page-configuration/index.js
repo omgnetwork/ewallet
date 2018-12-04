@@ -110,6 +110,11 @@ class ConfigurationPage extends Component {
   onSelectEmailAdapter = option => {
     this.setState({ emailAdapter: option.value })
   }
+
+  onSelectBalanceCache = option => {
+    this.setState({ balanceCachingStrategy: option.value })
+  }
+
   onSelectFileStorageAdapter = option => {
     switch (option.value) {
       case 'aws':
@@ -131,7 +136,10 @@ class ConfigurationPage extends Component {
   onClickSaveConfiguration = async e => {
     try {
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.PENDING })
-      const result = await this.props.updateConfiguration(this.state)
+      const result = await this.props.updateConfiguration({
+        ...this.state,
+        gcsCredentials: JSON.parse(this.state.gcsCredentials)
+      })
       if (result.data) {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.SUCCESS })
       } else {
@@ -185,6 +193,7 @@ class ConfigurationPage extends Component {
                 value={this.state.gcsCredentials}
                 placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
                 border={this.state.emailAdapter !== 'gcs'}
+                onChange={this.onChangeInput('gcsCredentials')}
               />
             </div>
           </SubSettingContainer>
@@ -235,7 +244,7 @@ class ConfigurationPage extends Component {
           name={configurations.balance_caching_strategy.key}
           description={configurations.balance_caching_strategy.description}
           value={this.state.balanceCachingStrategy}
-          onSelectItem={this.onSelectFileStorageAdapter}
+          onSelectItem={this.onSelectBalanceCache}
           type='select'
           options={configurations.balance_caching_strategy.options.map(option => ({
             key: option,
@@ -274,13 +283,16 @@ class ConfigurationPage extends Component {
           inputType='number'
           onChange={this.onChangeInput('maxPerPage')}
           inputValidator={value => Number(value) < 0}
+          inputErrorMessage='invalid number'
         />
         <ConfigRow
           name={configurations.min_password_length.key}
           description={configurations.min_password_length.description}
           value={this.state.minPasswordLength}
+          inputType='number'
           onChange={this.onChangeInput('minPasswordLength')}
           inputValidator={value => Number(value) < 1}
+          inputErrorMessage='invalid number'
         />
       </Fragment>
     )

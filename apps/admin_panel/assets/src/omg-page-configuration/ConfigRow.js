@@ -36,7 +36,8 @@ export default class ConfigRow extends Component {
     border: PropTypes.bool,
     placeholder: PropTypes.string,
     inputType: PropTypes.string,
-    inputValidator: PropTypes.func
+    inputValidator: PropTypes.func,
+    inputErrorMessage: PropTypes.string
   }
 
   static defaultProps = {
@@ -58,6 +59,7 @@ export default class ConfigRow extends Component {
               onChange={this.props.onChange}
               type={this.props.inputType}
               validator={this.props.inputValidator}
+              errorText={this.props.inputErrorMessage}
             />
           )}
           {this.props.type === 'select' && (
@@ -69,6 +71,7 @@ export default class ConfigRow extends Component {
               normalPlaceholder={this.props.placeholder}
               type={this.props.inputType}
               validator={this.props.inputValidator}
+              errorText={this.props.inputErrorMessage}
             />
           )}
         </ConfigCol>
