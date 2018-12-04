@@ -13,14 +13,12 @@ defmodule AdminAPI.V1.WalletChannelTest do
       {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
       wallet = insert(:wallet, %{user: user})
+      topic = topic(wallet.address)
 
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          WalletChannel,
-          topic(wallet.address)
-        )
-        |> assert_success(topic(wallet.address))
+        |> subscribe_and_join(WalletChannel, topic)
+        |> assert_success(topic)
       end)
     end
 
@@ -31,14 +29,12 @@ defmodule AdminAPI.V1.WalletChannelTest do
       {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
       wallet = insert(:wallet, %{user: user})
+      topic = topic(wallet.address)
 
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          WalletChannel,
-          topic(wallet.address)
-        )
-        |> assert_success(topic(wallet.address))
+        |> subscribe_and_join(WalletChannel, topic)
+        |> assert_success(topic)
       end)
     end
 
@@ -53,14 +49,12 @@ defmodule AdminAPI.V1.WalletChannelTest do
       admin = insert(:admin)
       insert(:membership, %{user: admin, account: account, role: role})
       insert(:key, %{account: account, access_key: "a_sub_key", secret_key: "123"})
+      topic = topic(wallet.address)
 
       test_with_auths(
         fn auth ->
           auth
-          |> subscribe_and_join(
-            WalletChannel,
-            topic(wallet.address)
-          )
+          |> subscribe_and_join(WalletChannel, topic)
           |> assert_failure(:forbidden_channel)
         end,
         admin.id,
@@ -70,28 +64,24 @@ defmodule AdminAPI.V1.WalletChannelTest do
 
     test "can join the channel of the current account's wallet" do
       wallet = Account.get_master_account() |> Account.get_primary_wallet()
+      topic = topic(wallet.address)
 
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          WalletChannel,
-          topic(wallet.address)
-        )
-        |> assert_success(topic(wallet.address))
+        |> subscribe_and_join(WalletChannel, topic)
+        |> assert_success(topic)
       end)
     end
 
     test "can join the channel of a child's account's wallet" do
       {:ok, account} = :account |> params_for() |> Account.insert()
       wallet = Account.get_primary_wallet(account)
+      topic = topic(wallet.address)
 
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          WalletChannel,
-          topic(wallet.address)
-        )
-        |> assert_success(topic(wallet.address))
+        |> subscribe_and_join(WalletChannel, topic)
+        |> assert_success(topic)
       end)
     end
 
@@ -104,14 +94,12 @@ defmodule AdminAPI.V1.WalletChannelTest do
       admin = insert(:admin)
       insert(:membership, %{user: admin, account: account, role: role})
       insert(:key, %{account: account, access_key: "a_sub_key", secret_key: "123"})
+      topic = topic(wallet.address)
 
       test_with_auths(
         fn auth ->
           auth
-          |> subscribe_and_join(
-            WalletChannel,
-            topic(wallet.address)
-          )
+          |> subscribe_and_join(WalletChannel, topic)
           |> assert_failure(:forbidden_channel)
         end,
         admin.id,
@@ -120,12 +108,11 @@ defmodule AdminAPI.V1.WalletChannelTest do
     end
 
     test "can't join the channel of an inexisting wallet" do
+      topic = topic("none000000000000")
+
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          WalletChannel,
-          topic("none000000000000")
-        )
+        |> subscribe_and_join(WalletChannel, topic)
         |> assert_failure(:forbidden_channel)
       end)
     end

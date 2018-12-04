@@ -10,22 +10,24 @@ defmodule AdminAPI.V1.AccountChannelTest do
   describe "join/3" do
     test "can join the channel of the current account" do
       master = Account.get_master_account()
+      topic = topic(master.id)
 
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(AccountChannel, topic(master.id))
-        |> assert_success(topic(master.id))
+        |> subscribe_and_join(AccountChannel, topic)
+        |> assert_success(topic)
       end)
     end
 
     test "can join the channel of an account that is a child of the current account" do
       master = Account.get_master_account()
       account = insert(:account, %{parent: master})
+      topic = topic(account.id)
 
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(AccountChannel, topic(account.id))
-        |> assert_success(topic(account.id))
+        |> subscribe_and_join(AccountChannel, topic)
+        |> assert_success(topic)
       end)
     end
 
@@ -37,10 +39,12 @@ defmodule AdminAPI.V1.AccountChannelTest do
       insert(:membership, %{user: admin, account: account, role: role})
       insert(:key, %{account: account, access_key: "a_sub_key", secret_key: "123"})
 
+      topic = topic(master_account.id)
+
       test_with_auths(
         fn auth ->
           auth
-          |> subscribe_and_join(AccountChannel, topic(master_account.id))
+          |> subscribe_and_join(AccountChannel, topic)
           |> assert_failure(:forbidden_channel)
         end,
         admin.id,

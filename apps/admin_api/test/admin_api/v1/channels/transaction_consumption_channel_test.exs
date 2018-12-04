@@ -10,28 +10,24 @@ defmodule AdminAPI.V1.TransactionConsumptionChannelTest do
   describe "join/3" do
     test "can join the channel of a valid user's consumption" do
       consumption = insert(:transaction_consumption, %{account: nil})
+      topic = topic(consumption.id)
 
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          TransactionConsumptionChannel,
-          topic(consumption.id)
-        )
-        |> assert_success(topic(consumption.id))
+        |> subscribe_and_join(TransactionConsumptionChannel, topic)
+        |> assert_success(topic)
       end)
     end
 
     test "can join the channel of a valid account's consumption" do
       master = Account.get_master_account()
       consumption = insert(:transaction_consumption, %{account: master})
+      topic = topic(consumption.id)
 
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          TransactionConsumptionChannel,
-          topic(consumption.id)
-        )
-        |> assert_success(topic(consumption.id))
+        |> subscribe_and_join(TransactionConsumptionChannel, topic)
+        |> assert_success(topic)
       end)
     end
 
@@ -39,14 +35,12 @@ defmodule AdminAPI.V1.TransactionConsumptionChannelTest do
       master = Account.get_master_account()
       account = insert(:account, %{parent: master})
       consumption = insert(:transaction_consumption, %{account: account})
+      topic = topic(consumption.id)
 
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          TransactionConsumptionChannel,
-          topic(consumption.id)
-        )
-        |> assert_success(topic(consumption.id))
+        |> subscribe_and_join(TransactionConsumptionChannel, topic)
+        |> assert_success(topic)
       end)
     end
 
@@ -58,14 +52,12 @@ defmodule AdminAPI.V1.TransactionConsumptionChannelTest do
       insert(:membership, %{user: admin, account: account, role: role})
       insert(:key, %{account: account, access_key: "a_sub_key", secret_key: "123"})
       consumption = insert(:transaction_consumption, %{account: master_account})
+      topic = topic(consumption.id)
 
       test_with_auths(
         fn auth ->
           auth
-          |> subscribe_and_join(
-            TransactionConsumptionChannel,
-            topic(consumption.id)
-          )
+          |> subscribe_and_join(TransactionConsumptionChannel, topic)
           |> assert_failure(:forbidden_channel)
         end,
         admin.id,
@@ -74,12 +66,11 @@ defmodule AdminAPI.V1.TransactionConsumptionChannelTest do
     end
 
     test "can't join the channel of an inexisting consumption" do
+      topic = topic(UUID.generate())
+
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          TransactionConsumptionChannel,
-          topic(UUID.generate())
-        )
+        |> subscribe_and_join(TransactionConsumptionChannel, topic)
         |> assert_failure(:forbidden_channel)
       end)
     end

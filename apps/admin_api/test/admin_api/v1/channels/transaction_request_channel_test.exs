@@ -10,14 +10,12 @@ defmodule AdminAPI.V1.TransactionRequestChannelTest do
   describe "join/3" do
     test "can join the channel of a valid request" do
       request = insert(:transaction_request)
+      topic = topic(request.id)
 
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          TransactionRequestChannel,
-          topic(request.id)
-        )
-        |> assert_success(topic(request.id))
+        |> subscribe_and_join(TransactionRequestChannel, topic)
+        |> assert_success(topic)
       end)
     end
 
@@ -25,14 +23,12 @@ defmodule AdminAPI.V1.TransactionRequestChannelTest do
       master = Account.get_master_account()
       account = insert(:account, %{parent: master})
       request = insert(:transaction_request, %{account: account})
+      topic = topic(request.id)
 
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          TransactionRequestChannel,
-          topic(request.id)
-        )
-        |> assert_success(topic(request.id))
+        |> subscribe_and_join(TransactionRequestChannel, topic)
+        |> assert_success(topic)
       end)
     end
 
@@ -44,15 +40,13 @@ defmodule AdminAPI.V1.TransactionRequestChannelTest do
       insert(:membership, %{user: admin, account: account, role: role})
       insert(:key, %{account: account, access_key: "a_sub_key", secret_key: "123"})
       request = insert(:transaction_request, %{account: master_account})
+      topic = topic(request.id)
 
       test_with_auths(
         fn auth ->
           auth
-          |> subscribe_and_join(
-            TransactionRequestChannel,
-            topic(request.id)
-          )
-          |> assert_success(topic(request.id))
+          |> subscribe_and_join(TransactionRequestChannel, topic)
+          |> assert_success(topic)
         end,
         admin.id,
         "a_sub_key"
@@ -60,12 +54,11 @@ defmodule AdminAPI.V1.TransactionRequestChannelTest do
     end
 
     test "can't join the channel of an inexisting request" do
+      topic = topic(UUID.generate())
+
       test_with_auths(fn auth ->
         auth
-        |> subscribe_and_join(
-          TransactionRequestChannel,
-          topic(UUID.generate())
-        )
+        |> subscribe_and_join(TransactionRequestChannel, topic)
         |> assert_failure(:forbidden_channel)
       end)
     end
