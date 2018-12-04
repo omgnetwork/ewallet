@@ -172,7 +172,7 @@ defmodule EWalletConfig.Setting do
         {:error, :setting_not_found}
 
       setting ->
-        attrs = cast_attrs(attrs)
+        attrs = cast_attrs(setting, attrs)
 
         setting
         |> StoredSetting.update_changeset(attrs)
@@ -240,6 +240,13 @@ defmodule EWalletConfig.Setting do
     |> add_position()
   end
 
+  defp cast_attrs(setting, attrs) do
+    attrs
+    |> cast_value(setting)
+    |> cast_options()
+    |> add_position()
+  end
+
   defp return_from_change({:ok, stored_setting}) do
     {:ok, build(stored_setting)}
   end
@@ -264,6 +271,18 @@ defmodule EWalletConfig.Setting do
 
   defp get_options(%{options: options}) do
     Map.get(options, :array) || Map.get(options, "array")
+  end
+
+  defp cast_value(%{value: value} = attrs, %{secret: true}) do
+    Map.put(attrs, :encrypted_data, %{value: value})
+  end
+
+  defp cast_value(%{value: value} = attrs, _) do
+    Map.put(attrs, :data, %{value: value})
+  end
+
+  defp cast_value(attrs, _) do
+    Map.put(attrs, :data, %{value: nil})
   end
 
   defp cast_value(%{secret: true, value: value} = attrs) do
