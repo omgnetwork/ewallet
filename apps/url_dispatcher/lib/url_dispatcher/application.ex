@@ -20,6 +20,8 @@ defmodule UrlDispatcher.Application do
         }
       ])
 
+    _ = warn_unused_envs()
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: UrlDispatcher.Supervisor]
@@ -62,5 +64,24 @@ defmodule UrlDispatcher.Application do
 
   defp server? do
     Application.get_env(:url_dispatcher, :serve_endpoints, false)
+  end
+
+  defp warn_unused_envs do
+    mapping = Application.get_env(:ewallet, :env_migration_mapping)
+
+    Enum.each(mapping, fn {env_name, setting_name} ->
+      case System.get_env(env_name) do
+        nil ->
+          :noop
+
+        _ ->
+          _ = Logger.warn("""
+            `#{env_name}` is no longer used but is still present as an environment variable. \
+            Please consider removing it and refer to `#{setting_name}` in the database's `setting` table instead. \
+            Alternatively, you may run `mix #{Mix.Task.task_name(Mix.Tasks.Omg.Migrate.Settings)}` \
+            from the command line to migrate all your environment variable settings to the database at once. \
+            """)
+      end
+    end)
   end
 end
