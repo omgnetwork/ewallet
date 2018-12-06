@@ -39,17 +39,17 @@ defmodule EWalletConfig.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:postgrex, ">= 0.0.0"},
-      {:ecto, "~> 2.1.6"},
-      {:poison, "~> 3.1"},
-      {:deferred_config, "~> 0.1.0"},
-      {:cloak, "~> 0.7.0-alpha"},
+      {:activity_logger, in_umbrella: true},
       {:arc, "~> 0.11.0"},
       {:arc_ecto, github: "omisego/arc_ecto"},
       {:bcrypt_elixir, "~> 1.0"},
+      {:cloak, "~> 0.9.1"},
+      {:deferred_config, "~> 0.1.0"},
+      {:ecto, "~> 2.1.6"},
       {:plug, "~> 1.0"},
+      {:poison, "~> 3.1"},
+      {:postgrex, ">= 0.0.0"},
       {:utils, in_umbrella: true},
-      {:activity_logger, in_umbrella: true}
     ]
   end
 

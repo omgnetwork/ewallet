@@ -34,7 +34,7 @@ defmodule LocalLedgerDB.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:cloak, "~> 0.7.0-alpha"},
+      {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
       {:ecto, "~> 2.1.6"},
       {:ewallet_config, in_umbrella: true},

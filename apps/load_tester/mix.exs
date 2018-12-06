@@ -27,7 +27,7 @@ defmodule LoadTester.MixProject do
   defp deps do
     [
       {:chaperon, "~> 0.2.3"},
-      {:deferred_config, "~> 0.1.0"}
+      {:deferred_config, "~> 0.1.0"},
     ]
   end
 end
