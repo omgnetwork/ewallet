@@ -151,8 +151,9 @@ export const alertsReducer = createReducer([], {
     }
     return state
   },
-  'CONFIGURATIONS/UPDATE/SUCCESS': (state, { user }) => {
-    return [...state, createAlertState('Updated configurations successfully.', 'success')]
+  'CONFIGURATIONS/UPDATE/SUCCESS': (state, { data }) => {
+    const updatedFileStorage = data.data.file_storage_adapter
+    return [...state, createAlertState('Updated configurations successfully, reloading application..', 'success')]
   },
   'CONFIGURATIONS/UPDATE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]

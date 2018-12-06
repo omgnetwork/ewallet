@@ -145,6 +145,9 @@ class ConfigurationPage extends Component {
       })
       if (result.data) {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.SUCCESS })
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
       } else {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
       }
@@ -175,10 +178,12 @@ class ConfigurationPage extends Component {
           value={this.state.fileStorageAdapter}
           onSelectItem={this.onSelectFileStorageAdapter}
           type='select'
-          options={configurations.file_storage_adapter.options.map(option => ({
-            key: option,
-            value: option
-          }))}
+          options={configurations.file_storage_adapter.options
+            .filter(option => option !== 'aws')
+            .map(option => ({
+              key: option,
+              value: option
+            }))}
         />
         {this.state.fileStorageAdapter === 'gcs' && (
           <SubSettingContainer>
@@ -197,41 +202,6 @@ class ConfigurationPage extends Component {
                 placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
                 border={this.state.emailAdapter !== 'gcs'}
                 onChange={this.onChangeInput('gcsCredentials')}
-              />
-            </div>
-          </SubSettingContainer>
-        )}
-        {this.state.fileStorageAdapter === 'aws' && (
-          <SubSettingContainer>
-            <div>
-              <ConfigRow
-                name={'AWS Bucket name'}
-                description={configurations.aws_bucket.description}
-                value={this.state.awsBucket}
-                placeholder={'ie. aws_bucket_1'}
-                onChange={this.onChangeInput('awsBucket')}
-              />
-              <ConfigRow
-                name={'AWS Region'}
-                description={configurations.aws_region.description}
-                value={this.state.awsRegion}
-                placeholder={'ie. us-east-1'}
-                onChange={this.onChangeInput('awsRegion')}
-              />
-              <ConfigRow
-                name={'AWS Access Key ID'}
-                description={configurations.aws_access_key_id.description}
-                value={this.state.awsAccessKeyId}
-                placeholder={'ie. AKIAIOSFODNN7EXAMPLE'}
-                onChange={this.onChangeInput('awsAccessKeyId')}
-              />
-              <ConfigRow
-                name={'AWS Secret Key'}
-                description={configurations.aws_secret_access_key.description}
-                value={this.state.awsSecretAccessKey}
-                border={this.state.emailAdapter !== 'aws'}
-                placeholder={'ie. wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'}
-                onChange={this.onChangeInput('awsSecretAccessKey')}
               />
             </div>
           </SubSettingContainer>
