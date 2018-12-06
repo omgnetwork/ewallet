@@ -136,7 +136,9 @@ defmodule ActivityLogger.ActivityLog do
          true <- action == :delete || changes != %{} || :no_changes,
          encrypted_changes <- changes[:encrypted_changes],
          changes <- Map.delete(changes, :encrypted_changes),
-         changes <- format_changes(changes) do
+         encrypted_fields <- changes[:encrypted_fields],
+         changes <- Map.delete(changes, :encrypted_fields),
+         changes <- format_changes(changes, encrypted_fields) do
       %{
         action: Atom.to_string(action),
         target_type: target_type,
@@ -152,11 +154,19 @@ defmodule ActivityLogger.ActivityLog do
     end
   end
 
-  defp format_changes(changes) do
+  defp format_changes(changes, nil) do
     changes
     |> Enum.into(%{}, fn {field, value} ->
       format_change(field, value)
     end)
+  end
+
+  defp format_changes(changes, encrypted_fields) do
+    changes
+    |> Enum.filter(fn {key, value} ->
+      !Enum.member?(encrypted_fields, key)
+    end)
+    |> format_changes(nil)
   end
 
   defp format_change(field, values) when is_list(values) do

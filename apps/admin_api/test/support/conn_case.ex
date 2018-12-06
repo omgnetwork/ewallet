@@ -22,7 +22,7 @@ defmodule AdminAPI.ConnCase do
   alias EWallet.Web.Date
   alias EWalletConfig.ConfigTestHelper
   alias EWalletDB.{Account, Key, Repo, User}
-  alias ActivityLogger.System
+  alias ActivityLogger.{ActivityLog, System}
   alias Utils.{Types.ExternalID, Helpers.Crypto}
 
   # Attributes required by Phoenix.ConnTest
@@ -179,6 +179,19 @@ defmodule AdminAPI.ConnCase do
     schema
     |> last(:inserted_at)
     |> Repo.one()
+  end
+
+  def get_last_activity_log(schema) do
+    type = ActivityLog.get_type(schema.__struct__)
+
+    ActivityLog
+    |> last(:inserted_at)
+    |> where(target_type: ^type, target_uuid: ^schema.uuid)
+    |> ActivityLogger.Repo.one()
+  end
+
+  def assert_last_activity_log(action, expected_originator, expected_target) do
+
   end
 
   def mint!(token, amount \\ 1_000_000, originator \\ %System{}) do

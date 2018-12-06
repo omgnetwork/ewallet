@@ -107,7 +107,8 @@ defmodule EWalletDB.Account do
     |> cast_and_validate_required_for_activity_log(
       attrs,
       [:name, :description, :parent_uuid, :metadata, :encrypted_metadata],
-      [:name]
+      [:name],
+      [:encrypted_metadata]
     )
     |> validate_parent_uuid()
     |> validate_account_level(@child_level_limit)

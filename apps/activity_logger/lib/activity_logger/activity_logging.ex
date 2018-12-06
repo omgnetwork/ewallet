@@ -50,12 +50,14 @@ defmodule ActivityLogger.ActivityLogging do
     {changeset, encrypted_changes} =
       Enum.reduce(encrypted_fields, {changeset, %{}}, fn encrypted_field, {changeset, map} ->
         {
-          delete_change(changeset, encrypted_field),
+          changeset,
           Map.put(map, encrypted_field, get_change(changeset, encrypted_field))
         }
       end)
 
-    put_change(changeset, :encrypted_changes, encrypted_changes)
+    changeset
+    |> put_change(:encrypted_fields, encrypted_fields)
+    |> put_change(:encrypted_changes, encrypted_changes)
   end
 
   defp put_encrypted_changes(changeset, _), do: changeset

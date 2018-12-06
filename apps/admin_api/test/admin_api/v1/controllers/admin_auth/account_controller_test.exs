@@ -253,6 +253,40 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
     end
 
+    test "generates an activity log" do
+      user = get_test_admin()
+      parent = User.get_account(user)
+
+      request_data = %{
+        parent_id: parent.id,
+        name: "A test account",
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
+      }
+
+      response = admin_user_request("/account.create", request_data)
+
+      assert response["success"] == true
+
+      account = Account.get(response["data"]["id"])
+      log = get_last_activity_log(account)
+
+      assert log.action == "insert"
+      assert log.inserted_at != nil
+      assert log.originator_type == "user"
+      assert log.originator_uuid == user.uuid
+      assert log.target_type == "account"
+      assert log.target_uuid == account.uuid
+      assert log.target_changes == %{
+        "metadata" => %{"something" => "interesting"},
+        "name" => "A test account",
+        "parent_uuid" => parent.uuid
+      }
+      assert log.target_encrypted_changes == %{
+        "encrypted_metadata" => %{"something" => "secret"}
+      }
+    end
+
     test "creates a new account with no parent_id" do
       parent = Account.get_master_account()
 
@@ -303,6 +337,42 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["data"]["name"] == "updated_name"
       assert response["data"]["description"] == "updated_description"
     end
+
+    test "generates an activity log" do
+      user = get_test_admin()
+      account = User.get_account(user)
+
+      request_data =
+        params_for(:account, %{
+          id: account.id,
+          name: "updated_name",
+          description: "updated_description",
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      response = admin_user_request("/account.update", request_data)
+
+      assert response["success"] == true
+
+      account = Account.get(response["data"]["id"])
+      log = get_last_activity_log(account)
+
+      assert log.action == "update"
+      assert log.inserted_at != nil
+      assert log.originator_type == "user"
+      assert log.originator_uuid == user.uuid
+      assert log.target_type == "account"
+      assert log.target_uuid == account.uuid
+      assert log.target_changes == %{
+        "name" => "updated_name",
+        "parent_uuid" => account.parent_uuid,
+        "description" => "updated_description"
+      }
+      assert log.target_encrypted_changes == %{
+        "encrypted_metadata" => %{"something" => "secret"}
+      }
+    end
+
 
     test "updates the account's categories" do
       account = :account |> insert() |> Repo.preload(:categories)
