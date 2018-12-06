@@ -107,6 +107,22 @@ class ConfigurationPage extends Component {
       awsSecretAccessKey: this.props.configurations.aws_secret_access_key.value
     })
   }
+  isSendButtonDisabled () {
+    return Object.keys(this.props.configurations).reduce((prev, curr) => {
+      console.log(
+        String(this.props.configurations[curr].value),
+        String(this.state[_.camelCase(curr)]),
+        curr
+      )
+      return (
+        prev &&
+        _.isEqual(
+          String(this.props.configurations[curr].value),
+          String(this.state[_.camelCase(curr)])
+        )
+      )
+    }, true)
+  }
   onSelectEmailAdapter = option => {
     this.setState({ emailAdapter: option.value })
   }
@@ -130,7 +146,9 @@ class ConfigurationPage extends Component {
     this.setState({ fileStorageAdapter: option.value })
   }
   onChangeInput = key => e => {
-    this.setState({ [key]: e.target.value })
+    this.setState({
+      [key]: e.target.value
+    })
   }
   onChangeRadio = enable => e => {
     this.setState({ enableStandalone: enable })
@@ -145,9 +163,9 @@ class ConfigurationPage extends Component {
       })
       if (result.data) {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.SUCCESS })
-        setTimeout(() => {
-          window.location.reload()
-        }, 2000)
+        // setTimeout(() => {
+        //   window.location.reload()
+        // }, 2000)
       } else {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
       }
@@ -162,6 +180,7 @@ class ConfigurationPage extends Component {
         onClick={this.onClickSaveConfiguration}
         key={'save'}
         loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}
+        disabled={this.isSendButtonDisabled()}
       >
         <span>Save Configuration</span>
       </Button>
@@ -253,7 +272,7 @@ class ConfigurationPage extends Component {
         <ConfigRow
           name={'Maximum Record Per Page'}
           description={configurations.max_per_page.description}
-          value={this.state.maxPerPage}
+          value={Math.abs(this.state.maxPerPage)}
           inputType='number'
           onChange={this.onChangeInput('maxPerPage')}
           inputValidator={value => Number(value) < 0}
@@ -262,7 +281,7 @@ class ConfigurationPage extends Component {
         <ConfigRow
           name={'Minimum Password Length'}
           description={configurations.min_password_length.description}
-          value={this.state.minPasswordLength}
+          value={Math.abs(this.state.minPasswordLength)}
           inputType='number'
           onChange={this.onChangeInput('minPasswordLength')}
           inputValidator={value => Number(value) < 1}

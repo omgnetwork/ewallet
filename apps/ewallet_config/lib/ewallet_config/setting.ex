@@ -258,13 +258,19 @@ defmodule EWalletConfig.Setting do
   defp extract_value(%{secret: true, encrypted_data: nil}), do: nil
 
   defp extract_value(%{secret: true, encrypted_data: data}) do
-    Map.get(data, :value) || Map.get(data, "value")
+    case Map.get(data, :value) do
+      nil -> Map.get(data, "value")
+      value -> value
+    end
   end
 
   defp extract_value(%{secret: false, data: nil}), do: nil
 
   defp extract_value(%{secret: false, data: data}) do
-    Map.get(data, :value) || Map.get(data, "value")
+    case Map.get(data, :value) do
+      nil -> Map.get(data, "value")
+      value -> value
+    end
   end
 
   defp get_options(%{options: nil}), do: nil

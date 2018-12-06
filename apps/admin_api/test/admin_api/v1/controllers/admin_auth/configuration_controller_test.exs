@@ -61,6 +61,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
           "aws_bucket" => "asd",
           "aws_region" => "asdz",
           "aws_secret_access_key" => "asdasdasdasdasd",
+          "enable_standalone" => false,
           "config_pid" => meta[:config_pid]
         })
 
@@ -71,6 +72,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
       assert data["aws_bucket"]["value"] == "asd"
       assert data["aws_region"]["value"] == "asdz"
       assert data["aws_secret_access_key"]["value"] == "asdasdasdasdasd"
+      assert data["enable_standalone"]["value"] == false
     end
 
     test "updates a list of settings with failures", meta do
@@ -81,6 +83,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
           fake_setting: "my_value",
           max_per_page: true,
           email_adapter: "fake",
+          enable_standalone: true,
           config_pid: meta[:config_pid]
         })
 
@@ -89,6 +92,9 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
 
       assert data["base_url"] != nil
       assert data["base_url"]["value"] == "new_base_url.example"
+
+      assert data["enable_standalone"] != nil
+      assert data["enable_standalone"]["value"] == true
 
       assert data["redirect_url_prefixes"] != nil
       assert data["redirect_url_prefixes"]["value"] == ["new_base_url.example", "something.else"]

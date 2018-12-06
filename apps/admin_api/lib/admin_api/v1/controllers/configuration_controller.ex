@@ -8,7 +8,8 @@ defmodule AdminAPI.V1.ConfigurationController do
   def get(conn, attrs) do
     settings =
       Config.query_settings()
-      |> Orchestrator.query(SettingOverlay, attrs, Repo)
+      |> Orchestrator.build_query(SettingOverlay, attrs)
+      |> Repo.all()
 
     render(conn, :settings, %{settings: settings})
   end
