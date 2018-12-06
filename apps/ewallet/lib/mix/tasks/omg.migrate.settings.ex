@@ -47,9 +47,10 @@ defmodule Mix.Tasks.Omg.Migrate.Settings do
   defp ask_confirmation(migration_plan) do
     _ = print_info("The following settings will be populated into the database:\n")
 
-    _ = Enum.each(migration_plan, fn {setting_name, value} ->
-      print_info("  - #{setting_name}: \"#{value}\"")
-    end)
+    _ =
+      Enum.each(migration_plan, fn {setting_name, value} ->
+        print_info("  - #{setting_name}: \"#{value}\"")
+      end)
 
     confirmed? = print_confirm?("\nAre you sure to migrate these settings to the database?")
 
@@ -77,11 +78,15 @@ defmodule Mix.Tasks.Omg.Migrate.Settings do
         print_success("  - Setting `#{setting_name}` to #{inspect(value)}... Done.")
 
       {:error, changeset} ->
-        error_message = Enum.reduce(changeset.errors, "", fn {field, {message, _}}, acc ->
-          acc <> "`#{field}` #{message}. "
-        end)
+        error_message =
+          Enum.reduce(changeset.errors, "", fn {field, {message, _}}, acc ->
+            acc <> "`#{field}` #{message}. "
+          end)
 
-        _ = print_error("  - Setting `#{setting_name}` to #{inspect(value)}... Failed. #{error_message}")
+        _ =
+          print_error(
+            "  - Setting `#{setting_name}` to #{inspect(value)}... Failed. #{error_message}"
+          )
     end
 
     migrate_each(remaining)

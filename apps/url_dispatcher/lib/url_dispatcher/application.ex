@@ -75,7 +75,8 @@ defmodule UrlDispatcher.Application do
           :noop
 
         _ ->
-          _ = Logger.warn("""
+          _ =
+            Logger.warn("""
             `#{env_name}` is no longer used but is still present as an environment variable. \
             Please consider removing it and refer to `#{setting_name}` in the database's `setting` table instead. \
             Alternatively, you may run `mix #{Mix.Task.task_name(Mix.Tasks.Omg.Migrate.Settings)}` \

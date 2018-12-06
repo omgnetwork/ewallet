@@ -16,7 +16,7 @@ config :ewallet,
        {:smtp_port, :port},
        {:smtp_username, :username},
        {:smtp_password, :password}
-     ]},
+     ]}
   ],
   env_migration_mapping: %{
     "BASE_URL" => "base_url",
