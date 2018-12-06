@@ -41,8 +41,9 @@ defmodule EWalletDB.Key do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:access_key, :secret_key, :account_uuid, :enabled],
-      [:access_key, :secret_key, :account_uuid]
+      cast: [:access_key, :secret_key, :account_uuid, :enabled],
+      required: [:access_key, :secret_key, :account_uuid],
+      prevent_saving: [:secret_key]
     )
     |> unique_constraint(:access_key, name: :key_access_key_index)
     |> put_change(:secret_key_hash, Crypto.hash_secret(attrs[:secret_key]))
@@ -51,7 +52,12 @@ defmodule EWalletDB.Key do
   end
 
   defp enable_changeset(%Key{} = key, attrs) do
-    cast_and_validate_required_for_activity_log(key, attrs, [:enabled], [:enabled])
+    cast_and_validate_required_for_activity_log(
+      key,
+      attrs,
+      cast: [:enabled],
+      required: [:enabled]
+    )
   end
 
   @doc """

@@ -77,6 +77,7 @@ defmodule ActivityLogger.ActivityLog do
   @spec all_for_target(String.t(), UUID.t()) :: [%ActivityLog{}]
   def all_for_target(type, uuid) when is_binary(type) do
     ActivityLog
+    |> order_by(desc: :inserted_at)
     |> where([a], a.target_type == ^type and a.target_uuid == ^uuid)
     |> Repo.all()
   end
@@ -138,7 +139,11 @@ defmodule ActivityLogger.ActivityLog do
          changes <- Map.delete(changes, :encrypted_changes),
          encrypted_fields <- changes[:encrypted_fields],
          changes <- Map.delete(changes, :encrypted_fields),
-         changes <- format_changes(changes, encrypted_fields) do
+         prevent_saving <- changes[:prevent_saving],
+         changes <- Map.delete(changes, :prevent_saving),
+         changes <- format_changes(changes, encrypted_fields),
+         changes <- remove_forbidden(changes, prevent_saving),
+         encrypted_changes <- remove_forbidden(encrypted_changes, prevent_saving) do
       %{
         action: Atom.to_string(action),
         target_type: target_type,
@@ -152,6 +157,15 @@ defmodule ActivityLogger.ActivityLog do
     else
       error -> error
     end
+  end
+
+  defp remove_forbidden(changes, nil), do: changes
+  defp remove_forbidden(nil, _), do: nil
+
+  defp remove_forbidden(changes, prevent_saving) do
+    changes
+    |> Enum.filter(fn {key, value} -> !Enum.member?(prevent_saving, key) end)
+    |> Enum.into(%{})
   end
 
   defp format_changes(changes, nil) do

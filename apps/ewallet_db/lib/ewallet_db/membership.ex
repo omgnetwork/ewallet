@@ -44,8 +44,8 @@ defmodule EWalletDB.Membership do
     membership
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:user_uuid, :account_uuid, :role_uuid],
-      [:user_uuid, :account_uuid, :role_uuid]
+      cast: [:user_uuid, :account_uuid, :role_uuid],
+      required: [:user_uuid, :account_uuid, :role_uuid]
     )
     |> unique_constraint(:user_uuid, name: :membership_user_id_account_id_index)
     |> assoc_constraint(:user)

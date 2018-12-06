@@ -26,18 +26,13 @@ defmodule ActivityLogger.ActivityLogging do
   @doc """
   Prepares a changeset for activity_log.
   """
-  def cast_and_validate_required_for_activity_log(
-        record,
-        attrs,
-        cast \\ [],
-        required \\ [],
-        encrypted_fields \\ []
-      ) do
+  def cast_and_validate_required_for_activity_log(record, attrs, opts \\ []) do
     record
     |> Map.delete(:originator)
-    |> cast(attrs, [:originator | cast])
-    |> validate_required([:originator | required])
-    |> put_encrypted_changes(encrypted_fields)
+    |> cast(attrs, [:originator | opts[:cast] || []])
+    |> validate_required([:originator | opts[:required] || []])
+    |> put_encrypted_changes(opts[:encrypted] || [])
+    |> put_change(:prevent_saving, opts[:prevent_saving] || [])
   end
 
   def insert_log(action, changeset, record) do

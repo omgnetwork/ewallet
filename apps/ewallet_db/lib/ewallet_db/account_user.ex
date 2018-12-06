@@ -38,8 +38,8 @@ defmodule EWalletDB.AccountUser do
     account
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:account_uuid, :user_uuid],
-      [:account_uuid, :user_uuid]
+      cast: [:account_uuid, :user_uuid],
+      required: [:account_uuid, :user_uuid]
     )
     |> unique_constraint(:account_uuid, name: :account_user_account_uuid_user_uuid_index)
     |> assoc_constraint(:account)

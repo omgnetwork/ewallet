@@ -51,14 +51,14 @@ defmodule EWalletDB.Mint do
     mint
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
         :description,
         :amount,
         :account_uuid,
         :token_uuid,
         :confirmed
       ],
-      [:amount, :token_uuid]
+      required: [:amount, :token_uuid]
     )
     |> validate_number(
       :amount,
@@ -77,8 +77,8 @@ defmodule EWalletDB.Mint do
     mint
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:transaction_uuid],
-      [:transaction_uuid]
+      cast: [:transaction_uuid],
+      required: [:transaction_uuid]
     )
     |> assoc_constraint(:transaction)
   end

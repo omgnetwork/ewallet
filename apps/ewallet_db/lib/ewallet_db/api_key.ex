@@ -47,8 +47,8 @@ defmodule EWalletDB.APIKey do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:key, :owner_app, :account_uuid, :enabled, :exchange_address],
-      [:key, :owner_app, :account_uuid]
+      cast: [:key, :owner_app, :account_uuid, :enabled, :exchange_address],
+      required: [:key, :owner_app, :account_uuid]
     )
     |> unique_constraint(:key)
     |> assoc_constraint(:account)
@@ -59,8 +59,8 @@ defmodule EWalletDB.APIKey do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:enabled],
-      [:enabled]
+      cast: [:enabled],
+      required: [:enabled]
     )
   end
 
@@ -68,8 +68,8 @@ defmodule EWalletDB.APIKey do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:enabled, :exchange_address],
-      [:enabled]
+      cast: [:enabled, :exchange_address],
+      required: [:enabled]
     )
   end
 

@@ -42,7 +42,7 @@ defmodule EWalletConfig.StoredSetting do
     setting
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
         :key,
         :data,
         :encrypted_data,
@@ -54,7 +54,7 @@ defmodule EWalletConfig.StoredSetting do
         :secret,
         :position
       ],
-      [
+      required: [
         :key,
         :type,
         :position
@@ -70,11 +70,14 @@ defmodule EWalletConfig.StoredSetting do
 
   def update_changeset(%StoredSetting{} = setting, attrs) do
     setting
-    |> cast_and_validate_required_for_activity_log(attrs, [
-      :data,
-      :encrypted_data,
-      :description
-    ])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [
+        :data,
+        :encrypted_data,
+        :description
+      ]
+    )
     |> validate_required_exclusive([:data, :encrypted_data])
     |> validate_type(setting)
     |> validate_with_options(setting)

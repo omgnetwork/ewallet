@@ -34,8 +34,8 @@ defmodule EWalletDB.Invite do
     changeset
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:user_uuid, :token, :success_url],
-      [:user_uuid, :token]
+      cast: [:user_uuid, :token, :success_url],
+      required: [:user_uuid, :token]
     )
   end
 
@@ -43,8 +43,8 @@ defmodule EWalletDB.Invite do
     changeset
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:verified_at],
-      [:verified_at]
+      cast: [:verified_at],
+      required: [:verified_at]
     )
   end
 

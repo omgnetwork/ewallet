@@ -138,7 +138,7 @@ defmodule EWalletDB.TransactionConsumption do
     consumption
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
         :amount,
         :estimated_request_amount,
         :estimated_consumption_amount,
@@ -158,13 +158,14 @@ defmodule EWalletDB.TransactionConsumption do
         :estimated_at,
         :estimated_rate
       ],
-      [
+      required: [
         :status,
         :idempotency_token,
         :transaction_request_uuid,
         :wallet_address,
         :token_uuid
-      ]
+      ],
+      encrypted: [:encrypted_metadata]
     )
     |> validate_number(
       :amount,
@@ -187,8 +188,8 @@ defmodule EWalletDB.TransactionConsumption do
     consumption
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:status, :approved_at],
-      [:status, :approved_at]
+      cast: [:status, :approved_at],
+      required: [:status, :approved_at]
     )
   end
 
@@ -196,8 +197,8 @@ defmodule EWalletDB.TransactionConsumption do
     consumption
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:status, :rejected_at],
-      [:status, :rejected_at]
+      cast: [:status, :rejected_at],
+      required: [:status, :rejected_at]
     )
   end
 
@@ -205,8 +206,8 @@ defmodule EWalletDB.TransactionConsumption do
     consumption
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:status, :confirmed_at, :transaction_uuid],
-      [:status, :confirmed_at, :transaction_uuid]
+      cast: [:status, :confirmed_at, :transaction_uuid],
+      required: [:status, :confirmed_at, :transaction_uuid]
     )
     |> assoc_constraint(:transaction)
   end
@@ -215,8 +216,8 @@ defmodule EWalletDB.TransactionConsumption do
     consumption
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:status, :failed_at, :transaction_uuid],
-      [:status, :failed_at, :transaction_uuid]
+      cast: [:status, :failed_at, :transaction_uuid],
+      required: [:status, :failed_at, :transaction_uuid]
     )
     |> assoc_constraint(:transaction)
   end
@@ -225,8 +226,8 @@ defmodule EWalletDB.TransactionConsumption do
     consumption
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:status, :failed_at, :error_code, :error_description],
-      [:status, :failed_at, :error_code]
+      cast: [:status, :failed_at, :error_code, :error_description],
+      required: [:status, :failed_at, :error_code]
     )
   end
 
@@ -234,8 +235,8 @@ defmodule EWalletDB.TransactionConsumption do
     consumption
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:status, :expired_at],
-      [:status, :expired_at]
+      cast: [:status, :expired_at],
+      required: [:status, :expired_at]
     )
   end
 

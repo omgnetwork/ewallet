@@ -243,7 +243,8 @@ defmodule EWalletConfig.SettingTest do
                type: "string",
                data: %{value: "abc"},
                position: 0,
-               originator: %ActivityLogger.System{uuid: "00000000-0000-0000-0000-000000000000"}
+               originator: %ActivityLogger.System{uuid: "00000000-0000-0000-0000-000000000000"},
+               prevent_saving: []
              }
 
       assert changeset.errors == [key: {"can't be blank", [validation: :required]}]
@@ -260,7 +261,8 @@ defmodule EWalletConfig.SettingTest do
                type: "fake",
                data: %{value: true},
                position: 0,
-               originator: %ActivityLogger.System{uuid: "00000000-0000-0000-0000-000000000000"}
+               originator: %ActivityLogger.System{uuid: "00000000-0000-0000-0000-000000000000"},
+               prevent_saving: []
              }
 
       assert changeset.errors == [type: {"is invalid", [validation: :inclusion]}]

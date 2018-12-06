@@ -106,9 +106,9 @@ defmodule EWalletDB.Account do
     account
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:name, :description, :parent_uuid, :metadata, :encrypted_metadata],
-      [:name],
-      [:encrypted_metadata]
+      cast: [:name, :description, :parent_uuid, :metadata, :encrypted_metadata],
+      required: [:name],
+      encrypted: [:encrypted_metadata]
     )
     |> validate_parent_uuid()
     |> validate_account_level(@child_level_limit)
@@ -138,7 +138,7 @@ defmodule EWalletDB.Account do
           Ecto.Changeset.t() | %Account{} | no_return()
   defp avatar_changeset(changeset, attrs) do
     changeset
-    |> cast_and_validate_required_for_activity_log(attrs, [])
+    |> cast_and_validate_required_for_activity_log(attrs)
     |> cast_attachments(attrs, [:avatar])
   end
 

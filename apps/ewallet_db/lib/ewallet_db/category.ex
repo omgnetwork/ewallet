@@ -37,8 +37,8 @@ defmodule EWalletDB.Category do
     category
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:name, :description],
-      [:name]
+      cast: [:name, :description],
+      required: [:name]
     )
     |> unique_constraint(:name)
     |> put_accounts(attrs, :account_ids)

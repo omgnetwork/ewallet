@@ -72,8 +72,9 @@ defmodule EWalletDB.Wallet do
     wallet
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      @cast_attrs,
-      [:name, :identifier]
+      cast: @cast_attrs,
+      required: [:name, :identifier],
+      encrypted: [:encrypted_metadata]
     )
     |> validate_format(
       :identifier,
@@ -87,8 +88,9 @@ defmodule EWalletDB.Wallet do
     wallet
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      @cast_attrs,
-      [:name, :identifier, :account_uuid]
+      cast: @cast_attrs,
+      required: [:name, :identifier, :account_uuid],
+      encrypted: [:encrypted_metadata]
     )
     |> validate_format(:identifier, ~r/#{@secondary}_.*/)
     |> shared_changeset()
@@ -98,8 +100,9 @@ defmodule EWalletDB.Wallet do
     wallet
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      @cast_attrs,
-      [:name, :identifier, :account_uuid]
+      cast: @cast_attrs,
+      required: [:name, :identifier, :account_uuid],
+      encrypted: [:encrypted_metadata]
     )
     |> validate_format(:identifier, ~r/#{@burn}|#{@burn}_.*/)
     |> shared_changeset()
@@ -119,7 +122,7 @@ defmodule EWalletDB.Wallet do
 
   defp enable_changeset(%Wallet{} = wallet, attrs) do
     wallet
-    |> cast_and_validate_required_for_activity_log(attrs, [:enabled], [:enabled])
+    |> cast_and_validate_required_for_activity_log(attrs, cast: [:enabled], required: [:enabled])
   end
 
   @spec all_for(any()) :: Ecto.Query.t() | nil

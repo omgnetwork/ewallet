@@ -63,7 +63,7 @@ defmodule EWalletDB.Token do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
         :symbol,
         :iso_code,
         :name,
@@ -80,12 +80,13 @@ defmodule EWalletDB.Token do
         :metadata,
         :encrypted_metadata
       ],
-      [
+      required: [
         :symbol,
         :name,
         :subunit_to_unit,
         :account_uuid
-      ]
+      ],
+      encrypted: [:encrypted_metadata]
     )
     |> validate_number(
       :subunit_to_unit,
@@ -107,7 +108,7 @@ defmodule EWalletDB.Token do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
         :iso_code,
         :name,
         :description,
@@ -118,9 +119,10 @@ defmodule EWalletDB.Token do
         :metadata,
         :encrypted_metadata
       ],
-      [
+      required: [
         :name
-      ]
+      ],
+      encrypted: [:encrypted_metadata]
     )
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
@@ -130,7 +132,7 @@ defmodule EWalletDB.Token do
 
   defp enable_changeset(%Token{} = token, attrs) do
     token
-    |> cast_and_validate_required_for_activity_log(attrs, [:enabled], [:enabled])
+    |> cast_and_validate_required_for_activity_log(attrs, cast: [:enabled], required: [:enabled])
   end
 
   defp set_id(changeset, opts) do

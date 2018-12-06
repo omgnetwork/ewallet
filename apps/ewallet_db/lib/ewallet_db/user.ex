@@ -96,7 +96,7 @@ defmodule EWalletDB.User do
     changeset
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
         :is_admin,
         :username,
         :full_name,
@@ -108,6 +108,13 @@ defmodule EWalletDB.User do
         :metadata,
         :encrypted_metadata,
         :invite_uuid
+      ],
+      encrypted: [
+        :encrypted_metadata
+      ],
+      prevent_saving: [
+        :password,
+        :password_confirmation
       ]
     )
     |> validate_confirmation(:password, message: "does not match password")
@@ -124,7 +131,7 @@ defmodule EWalletDB.User do
     user
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
         :username,
         :full_name,
         :calling_name,
@@ -132,6 +139,9 @@ defmodule EWalletDB.User do
         :metadata,
         :encrypted_metadata,
         :invite_uuid
+      ],
+      encrypted: [
+        :encrypted_metadata
       ]
     )
     |> validate_immutable(:provider_user_id)
@@ -145,12 +155,15 @@ defmodule EWalletDB.User do
     user
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
         :full_name,
         :calling_name,
         :metadata,
         :encrypted_metadata,
         :invite_uuid
+      ],
+      encrypted: [
+        :encrypted_metadata
       ]
     )
     |> assoc_constraint(:invite)
@@ -158,7 +171,7 @@ defmodule EWalletDB.User do
   end
 
   defp set_admin_changeset(user, attrs) do
-    cast_and_validate_required_for_activity_log(user, attrs, [:is_admin])
+    cast_and_validate_required_for_activity_log(user, attrs, cast: [:is_admin])
   end
 
   defp avatar_changeset(user, attrs) do
@@ -173,7 +186,11 @@ defmodule EWalletDB.User do
     user
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
+        :password,
+        :password_confirmation
+      ],
+      prevent_saving: [
         :password,
         :password_confirmation
       ]
@@ -184,7 +201,12 @@ defmodule EWalletDB.User do
   end
 
   defp enable_changeset(%User{} = user, attrs) do
-    cast_and_validate_required_for_activity_log(user, attrs, [:enabled], [:enabled])
+    cast_and_validate_required_for_activity_log(
+      user,
+      attrs,
+      cast: [:enabled],
+      required: [:enabled]
+    )
   end
 
   defp get_attr(attrs, atom_field) do
@@ -195,8 +217,8 @@ defmodule EWalletDB.User do
     user
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:email],
-      [:email]
+      cast: [:email],
+      required: [:email]
     )
     |> validate_email(:email)
     |> unique_constraint(:email)

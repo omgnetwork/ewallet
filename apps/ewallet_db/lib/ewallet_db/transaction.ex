@@ -147,7 +147,7 @@ defmodule EWalletDB.Transaction do
     transaction
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
         :idempotency_token,
         :status,
         :type,
@@ -173,7 +173,7 @@ defmodule EWalletDB.Transaction do
         :exchange_pair_uuid,
         :calculated_at
       ],
-      [
+      required: [
         :idempotency_token,
         :status,
         :type,
@@ -184,7 +184,8 @@ defmodule EWalletDB.Transaction do
         :to_token_uuid,
         :to,
         :from
-      ]
+      ],
+      encrypted: [:encrypted_metadata]
     )
     |> validate_number(:from_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_number(:to_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
@@ -214,8 +215,8 @@ defmodule EWalletDB.Transaction do
     transaction
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:status, :local_ledger_uuid],
-      [:status, :local_ledger_uuid]
+      cast: [:status, :local_ledger_uuid],
+      required: [:status, :local_ledger_uuid]
     )
     |> validate_inclusion(:status, @statuses)
   end
@@ -224,13 +225,13 @@ defmodule EWalletDB.Transaction do
     transaction
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
         :status,
         :error_code,
         :error_description,
         :error_data
       ],
-      [
+      required: [
         :status,
         :error_code
       ]

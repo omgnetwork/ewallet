@@ -27,9 +27,9 @@ defmodule ActivityLogger.TestDocument do
     changeset
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:title, :body, :secret_data],
-      [:title],
-      [:secret_data]
+      cast: [:title, :body, :secret_data],
+      required: [:title],
+      encrypted: [:secret_data]
     )
   end
 

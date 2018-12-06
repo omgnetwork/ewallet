@@ -36,8 +36,8 @@ defmodule EWalletDB.Role do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:priority, :name, :display_name],
-      [:name, :priority]
+      cast: [:priority, :name, :display_name],
+      required: [:name, :priority]
     )
     |> validate_required([:name, :priority])
     |> unique_constraint(:name)

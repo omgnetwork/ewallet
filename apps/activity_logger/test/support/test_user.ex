@@ -23,8 +23,8 @@ defmodule ActivityLogger.TestUser do
     changeset
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:username],
-      [:username]
+      cast: [:username],
+      required: [:username]
     )
   end
 

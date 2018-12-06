@@ -34,8 +34,8 @@ defmodule EWalletDB.UpdateEmailRequest do
     changeset
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:email, :token, :user_uuid],
-      [:email, :token, :user_uuid]
+      cast: [:email, :token, :user_uuid],
+      required: [:email, :token, :user_uuid]
     )
     |> validate_email(:email)
     |> unique_constraint(:token)

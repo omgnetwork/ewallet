@@ -45,8 +45,8 @@ defmodule EWalletDB.AuthToken do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:token, :owner_app, :user_uuid, :account_uuid, :expired],
-      [:token, :owner_app, :user_uuid]
+      cast: [:token, :owner_app, :user_uuid, :account_uuid, :expired],
+      required: [:token, :owner_app, :user_uuid]
     )
     |> unique_constraint(:token)
     |> assoc_constraint(:user)
@@ -56,8 +56,8 @@ defmodule EWalletDB.AuthToken do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:expired],
-      [:expired]
+      cast: [:expired],
+      required: [:expired]
     )
   end
 
@@ -65,8 +65,8 @@ defmodule EWalletDB.AuthToken do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:account_uuid],
-      [:account_uuid]
+      cast: [:account_uuid],
+      required: [:account_uuid]
     )
   end
 

@@ -115,7 +115,7 @@ defmodule EWalletDB.TransactionRequest do
     transaction_request
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [
+      cast: [
         :type,
         :amount,
         :correlation_id,
@@ -134,12 +134,13 @@ defmodule EWalletDB.TransactionRequest do
         :exchange_account_uuid,
         :exchange_wallet_address
       ],
-      [
+      required: [
         :type,
         :status,
         :token_uuid,
         :wallet_address
-      ]
+      ],
+      encrypted: [:encrypted_metadata]
     )
     |> validate_amount_if_disallow_override()
     |> validate_number(:amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
@@ -157,8 +158,8 @@ defmodule EWalletDB.TransactionRequest do
     transaction_request
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:consumptions_count],
-      [:consumptions_count]
+      cast: [:consumptions_count],
+      required: [:consumptions_count]
     )
   end
 
@@ -166,8 +167,8 @@ defmodule EWalletDB.TransactionRequest do
     transaction_request
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:status, :expired_at, :expiration_reason],
-      [:status, :expired_at, :expiration_reason]
+      cast: [:status, :expired_at, :expiration_reason],
+      required: [:status, :expired_at, :expiration_reason]
     )
     |> validate_inclusion(:status, @statuses)
   end
@@ -176,8 +177,8 @@ defmodule EWalletDB.TransactionRequest do
     transaction_request
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:updated_at],
-      [:updated_at]
+      cast: [:updated_at],
+      required: [:updated_at]
     )
   end
 

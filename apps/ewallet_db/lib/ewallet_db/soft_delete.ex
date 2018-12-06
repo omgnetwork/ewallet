@@ -90,7 +90,7 @@ defmodule EWalletDB.SoftDelete do
     cast_and_validate_required_for_activity_log(
       record,
       attrs,
-      [:deleted_at]
+      cast: [:deleted_at]
     )
   end
 

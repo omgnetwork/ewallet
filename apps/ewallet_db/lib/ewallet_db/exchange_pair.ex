@@ -61,8 +61,8 @@ defmodule EWalletDB.ExchangePair do
     exchange_pair
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      [:from_token_uuid, :to_token_uuid, :rate, :deleted_at],
-      [:from_token_uuid, :to_token_uuid, :rate]
+      cast: [:from_token_uuid, :to_token_uuid, :rate, :deleted_at],
+      required: [:from_token_uuid, :to_token_uuid, :rate]
     )
     |> validate_different_values(:from_token_uuid, :to_token_uuid)
     |> validate_immutable(:from_token_uuid)
@@ -78,7 +78,7 @@ defmodule EWalletDB.ExchangePair do
 
   defp restore_changeset(exchange_pair, attrs) do
     exchange_pair
-    |> cast_and_validate_required_for_activity_log(attrs, [:deleted_at])
+    |> cast_and_validate_required_for_activity_log(attrs, cast: [:deleted_at])
     |> unique_constraint(
       :deleted_at,
       name: "exchange_pair_from_token_uuid_to_token_uuid_index"
@@ -86,7 +86,7 @@ defmodule EWalletDB.ExchangePair do
   end
 
   defp touch_changeset(exchange_pair, attrs) do
-    cast_and_validate_required_for_activity_log(exchange_pair, attrs, [:updated_at])
+    cast_and_validate_required_for_activity_log(exchange_pair, attrs, cast: [:updated_at])
   end
 
   @doc """
