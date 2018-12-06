@@ -54,6 +54,25 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
       assert response["data"]["data"]["base_url"]["value"] == "new_base_url.example"
     end
 
+    test "updates a list of settings", meta do
+      response =
+        admin_user_request("/configuration.update", %{
+          "aws_access_key_id" => "asd",
+          "aws_bucket" => "asd",
+          "aws_region" => "asdz",
+          "aws_secret_access_key" => "asdasdasdasdasd",
+          "config_pid" => meta[:config_pid]
+        })
+
+      assert response["success"] == true
+      data = response["data"]["data"]
+
+      assert data["aws_access_key_id"]["value"] == "asd"
+      assert data["aws_bucket"]["value"] == "asd"
+      assert data["aws_region"]["value"] == "asdz"
+      assert data["aws_secret_access_key"]["value"] == "asdasdasdasdasd"
+    end
+
     test "updates a list of settings with failures", meta do
       response =
         admin_user_request("/configuration.update", %{
