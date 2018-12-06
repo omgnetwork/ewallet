@@ -16,6 +16,12 @@ defmodule EWallet.TransactionRequestPolicy do
     true
   end
 
+  def authorize(:join, %{user: _} = params, request) do
+    WalletPolicy.authorize(:join, params, request.wallet)
+  end
+
+  def authorize(:join, params, request), do: authorize(:get, params, request)
+
   # Check with the passed attributes if the current accessor can
   # create a request for the account
   def authorize(:create, params, %Wallet{} = wallet) do

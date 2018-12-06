@@ -4,44 +4,34 @@ defmodule EWalletAPI.V1.TransactionRequestChannelTest do
   alias EWalletAPI.V1.TransactionRequestChannel
   alias EWalletDB.User
 
+  defp topic(id), do: "transaction_request:#{id}"
+
   describe "join/3 as client" do
-    test "joins the channel with authenticated user and owned request" do
-      {:ok, user} = :user |> params_for() |> User.insert()
+    test "can join the channel with authenticated user and owned request" do
+      user = get_test_user()
       wallet = User.get_primary_wallet(user)
       request = insert(:transaction_request, wallet: wallet)
 
-      {res, _, socket} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, user: user}})
-        |> subscribe_and_join(TransactionRequestChannel, "transaction_request:#{request.id}")
-
-      assert res == :ok
-      assert socket.topic == "transaction_request:#{request.id}"
+      request.id
+      |> topic()
+      |> test_with_topic(TransactionRequestChannel)
+      |> assert_success(topic(request.id))
     end
 
     test "can't join channel with existing not owned address" do
-      user = insert(:user)
       request = insert(:transaction_request)
 
-      {res, code} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, user: user}})
-        |> subscribe_and_join(TransactionRequestChannel, "transaction_request:#{request.id}")
-
-      assert res == :error
-      assert code == :forbidden_channel
+      request.id
+      |> topic()
+      |> test_with_topic(TransactionRequestChannel)
+      |> assert_failure(:forbidden_channel)
     end
 
     test "can't join channel with inexisting request" do
-      user = insert(:user)
-
-      {res, code} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, user: user}})
-        |> subscribe_and_join(TransactionRequestChannel, "transaction_request:123")
-
-      assert res == :error
-      assert code == :channel_not_found
+      "123"
+      |> topic()
+      |> test_with_topic(TransactionRequestChannel)
+      |> assert_failure(:forbidden_channel)
     end
   end
 end

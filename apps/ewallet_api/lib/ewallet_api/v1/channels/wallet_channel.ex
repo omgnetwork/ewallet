@@ -4,25 +4,17 @@ defmodule EWalletAPI.V1.WalletChannel do
   Represents the address channel.
   """
   use Phoenix.Channel, async: false
-  alias EWalletDB.{User, Wallet}
+  alias EWalletDB.{Wallet}
+  alias EWallet.WalletPolicy
 
   def join("address:" <> address, _params, %{assigns: %{auth: auth}} = socket) do
-    address
-    |> Wallet.get()
-    |> join_as(auth, socket)
+    with %Wallet{} = wallet <- Wallet.get(address),
+         :ok <- Bodyguard.permit(WalletPolicy, :join, auth, wallet) do
+      {:ok, socket}
+    else
+      _ -> {:error, :forbidden_channel}
+    end
   end
 
   def join(_, _, _), do: {:error, :invalid_parameter}
-
-  defp join_as(nil, _auth, _socket), do: {:error, :channel_not_found}
-
-  defp join_as(wallet, %{authenticated: true, user: user}, socket) do
-    user
-    |> User.addresses()
-    |> Enum.member?(wallet.address)
-    |> case do
-      true -> {:ok, socket}
-      false -> {:error, :forbidden_channel}
-    end
-  end
 end
