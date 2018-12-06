@@ -6,7 +6,7 @@ defmodule EWalletAPI.V1.SelfController do
   alias EWalletDB.Token
 
   def get(conn, _attrs) do
-    render(conn, :user, %{user: conn.assigns.user})
+    render(conn, :user, %{user: conn.assigns.end_user})
   end
 
   def get_settings(conn, _attrs) do
@@ -15,7 +15,7 @@ defmodule EWalletAPI.V1.SelfController do
   end
 
   def get_wallets(conn, attrs) do
-    with {:ok, wallet} <- BalanceFetcher.all(%{"user_id" => conn.assigns.user.id}) do
+    with {:ok, wallet} <- BalanceFetcher.all(%{"user_id" => conn.assigns.end_user.id}) do
       {:ok, wallets} = Orchestrator.all([wallet], WalletOverlay, attrs)
       render(conn, :wallets, %{wallets: wallets})
     else
