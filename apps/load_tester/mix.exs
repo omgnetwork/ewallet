@@ -4,7 +4,7 @@ defmodule LoadTester.MixProject do
   def project do
     [
       app: :load_tester,
-      version: "0.1.0",
+      version: Application.get_env(:ewallet, :version),
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",

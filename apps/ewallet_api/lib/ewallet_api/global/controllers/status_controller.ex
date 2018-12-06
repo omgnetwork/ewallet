@@ -9,7 +9,9 @@ defmodule EWalletAPI.StatusController do
       services: %{
         ewallet: true,
         local_ledger: local_ledger()
-      }
+      },
+      api_versions: api_versions(),
+      ewallet_version: Application.get_env(:ewallet, :version)
     })
   end
 
@@ -19,5 +21,13 @@ defmodule EWalletAPI.StatusController do
 
   defp node_count do
     length(Node.list() ++ [Node.self()])
+  end
+
+  defp api_versions do
+    api_versions = Application.get_env(:ewallet_api, :api_versions)
+
+    Enum.map(api_versions, fn {key, value} ->
+      %{name: value[:name], media_type: key}
+    end)
   end
 end

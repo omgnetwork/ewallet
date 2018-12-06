@@ -12,7 +12,7 @@ defmodule UrlDispatcher.Plug do
   defp handle_request("/", conn) do
     conn
     |> put_status(200)
-    |> json(%{status: true})
+    |> json(%{status: true, ewallet_version: Application.get_env(:ewallet, :version)})
   end
 
   defp handle_request("/admin" <> _, conn), do: AdminPanel.Endpoint.call(conn, [])
