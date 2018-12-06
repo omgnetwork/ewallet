@@ -47,6 +47,80 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       assert invite.user.id |> User.get() |> User.admin?()
     end
 
+    test "generates activity logs" do
+      {:ok, user} = :admin |> params_for(is_admin: false) |> User.insert()
+      {:ok, invite} = Invite.generate(user, %System{}, preload: :user)
+
+      response = request(invite.user.email, invite.token, "some_password", "some_password")
+
+      assert response["success"] == true
+
+      user = User.get(response["data"]["id"])
+      logs = get_all_activity_logs(user)
+
+      # Set is admin
+      log = Enum.at(logs, 0)
+      assert log.action == "update"
+      assert log.inserted_at != nil
+      assert log.originator_type == "system"
+      assert log.originator_uuid == "00000000-0000-0000-0000-000000000000"
+      assert log.target_type == "user"
+      assert log.target_uuid == user.uuid
+      assert log.target_changes == %{"is_admin" => true}
+      assert log.target_encrypted_changes == %{}
+
+      # update invite_uuid to nil
+      log = Enum.at(logs, 1)
+      assert log.action == "update"
+      assert log.inserted_at != nil
+      assert log.originator_type == "user"
+      assert log.originator_uuid == user.uuid
+      assert log.target_type == "user"
+      assert log.target_uuid == user.uuid
+      assert log.target_changes == %{"invite_uuid" => nil}
+      assert log.target_encrypted_changes == %{}
+
+      # Update user password
+      log = Enum.at(logs, 2)
+      assert log.action == "update"
+      assert log.inserted_at != nil
+      assert log.originator_type == "user"
+      assert log.originator_uuid == user.uuid
+      assert log.target_type == "user"
+      assert log.target_uuid == user.uuid
+      assert log.target_changes == %{"password_hash" => user.password_hash}
+      assert log.target_encrypted_changes == %{}
+
+      # Invite update
+      log = Enum.at(logs, 3)
+      assert log.action == "update"
+      assert log.inserted_at != nil
+      assert log.originator_type == "invite"
+      assert log.originator_uuid == invite.uuid
+      assert log.target_type == "user"
+      assert log.target_uuid == user.uuid
+      assert log.target_changes == %{"invite_uuid" => invite.uuid}
+      assert log.target_encrypted_changes == %{}
+
+      # Set password
+      log = Enum.at(logs, 4)
+      assert log.action == "insert"
+      assert log.inserted_at != nil
+      assert log.originator_type == "system"
+      assert log.originator_uuid == "00000000-0000-0000-0000-000000000000"
+      assert log.target_type == "user"
+      assert log.target_uuid == user.uuid
+      assert log.target_changes["email"] == user.email
+      assert log.target_changes["metadata"] == user.metadata
+      assert log.target_changes["password_hash"] != user.password_hash
+      assert log.target_encrypted_changes == %{}
+
+      Enum.each(logs, fn log ->
+        assert log.target_changes["password"] == nil
+        assert log.target_encrypted_changes["password"] == nil
+      end)
+    end
+
     test "returns :invite_not_found error if the email has not been invited" do
       {:ok, user} = :admin |> params_for() |> User.insert()
       {:ok, invite} = Invite.generate(user, %System{})

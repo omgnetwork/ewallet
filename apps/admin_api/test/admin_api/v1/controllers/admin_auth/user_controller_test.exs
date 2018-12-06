@@ -330,6 +330,43 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert metadata["last_name"] == request_data.metadata["last_name"]
     end
 
+    test "generates an activity log" do
+      admin = get_test_admin()
+
+      request_data =
+        params_for(
+          :user,
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        )
+
+      response = admin_user_request("/user.create", request_data)
+
+      assert response["success"] == true
+
+      user = User.get(response["data"]["id"])
+      log = get_last_activity_log(user)
+
+      assert log.action == "insert"
+      assert log.inserted_at != nil
+      assert log.originator_type == "user"
+      assert log.originator_uuid == admin.uuid
+      assert log.target_type == "user"
+      assert log.target_uuid == user.uuid
+
+      assert log.target_changes == %{
+               "metadata" => %{"something" => "interesting"},
+               "calling_name" => user.calling_name,
+               "full_name" => user.full_name,
+               "provider_user_id" => user.provider_user_id,
+               "username" => user.username
+             }
+
+      assert log.target_encrypted_changes == %{
+               "encrypted_metadata" => %{"something" => "secret"}
+             }
+    end
+
     test "returns an error if provider_user_id is not provided" do
       request_data = params_for(:user, provider_user_id: "")
       response = admin_user_request("/user.create", request_data)

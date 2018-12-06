@@ -44,10 +44,13 @@ defmodule ActivityLogger.ActivityLogging do
   defp put_encrypted_changes(changeset, encrypted_fields) when is_list(encrypted_fields) do
     {changeset, encrypted_changes} =
       Enum.reduce(encrypted_fields, {changeset, %{}}, fn encrypted_field, {changeset, map} ->
-        {
-          changeset,
-          Map.put(map, encrypted_field, get_change(changeset, encrypted_field))
-        }
+        case get_change(changeset, encrypted_field, :not_found) do
+          :not_found ->
+            {changeset, map}
+
+          change ->
+            {changeset, Map.put(map, encrypted_field, change)}
+        end
       end)
 
     changeset

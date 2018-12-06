@@ -277,14 +277,16 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert log.originator_uuid == user.uuid
       assert log.target_type == "account"
       assert log.target_uuid == account.uuid
+
       assert log.target_changes == %{
-        "metadata" => %{"something" => "interesting"},
-        "name" => "A test account",
-        "parent_uuid" => parent.uuid
-      }
+               "metadata" => %{"something" => "interesting"},
+               "name" => "A test account",
+               "parent_uuid" => parent.uuid
+             }
+
       assert log.target_encrypted_changes == %{
-        "encrypted_metadata" => %{"something" => "secret"}
-      }
+               "encrypted_metadata" => %{"something" => "secret"}
+             }
     end
 
     test "creates a new account with no parent_id" do
@@ -363,16 +365,17 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert log.originator_uuid == user.uuid
       assert log.target_type == "account"
       assert log.target_uuid == account.uuid
-      assert log.target_changes == %{
-        "name" => "updated_name",
-        "parent_uuid" => account.parent_uuid,
-        "description" => "updated_description"
-      }
-      assert log.target_encrypted_changes == %{
-        "encrypted_metadata" => %{"something" => "secret"}
-      }
-    end
 
+      assert log.target_changes == %{
+               "name" => "updated_name",
+               "parent_uuid" => account.parent_uuid,
+               "description" => "updated_description"
+             }
+
+      assert log.target_encrypted_changes == %{
+               "encrypted_metadata" => %{"something" => "secret"}
+             }
+    end
 
     test "updates the account's categories" do
       account = :account |> insert() |> Repo.preload(:categories)

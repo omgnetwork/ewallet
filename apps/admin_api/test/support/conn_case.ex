@@ -190,8 +190,16 @@ defmodule AdminAPI.ConnCase do
     |> ActivityLogger.Repo.one()
   end
 
-  def assert_last_activity_log(action, expected_originator, expected_target) do
+  def get_all_activity_logs(schema) do
+    type = ActivityLog.get_type(schema.__struct__)
 
+    ActivityLog
+    |> order_by(desc: :inserted_at)
+    |> where(target_type: ^type)
+    |> ActivityLogger.Repo.all()
+  end
+
+  def assert_last_activity_log(action, expected_originator, expected_target) do
   end
 
   def mint!(token, amount \\ 1_000_000, originator \\ %System{}) do
