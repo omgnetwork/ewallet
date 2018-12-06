@@ -47,6 +47,7 @@ config :admin_api, :generators, context_app: false
 # Maps an accept header to the respective router version.
 config :admin_api, :api_versions, %{
   "application/vnd.omisego.v1+json" => %{
+    name: "v1",
     router: AdminAPI.V1.Router,
     endpoint: AdminAPI.V1.Endpoint,
     websocket_serializer: EWallet.Web.V1.WebsocketResponseSerializer
