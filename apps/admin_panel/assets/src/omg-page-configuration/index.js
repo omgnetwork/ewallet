@@ -109,17 +109,9 @@ class ConfigurationPage extends Component {
   }
   isSendButtonDisabled () {
     return Object.keys(this.props.configurations).reduce((prev, curr) => {
-      console.log(
-        String(this.props.configurations[curr].value),
-        String(this.state[_.camelCase(curr)]),
-        curr
-      )
       return (
         prev &&
-        _.isEqual(
-          String(this.props.configurations[curr].value),
-          String(this.state[_.camelCase(curr)])
-        )
+        String(this.props.configurations[curr].value) === String(this.state[_.camelCase(curr)])
       )
     }, true)
   }
@@ -163,9 +155,9 @@ class ConfigurationPage extends Component {
       })
       if (result.data) {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.SUCCESS })
-        // setTimeout(() => {
-        //   window.location.reload()
-        // }, 2000)
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
       } else {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
       }
