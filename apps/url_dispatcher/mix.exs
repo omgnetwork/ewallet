@@ -4,7 +4,7 @@ defmodule UrlDispatcher.Mixfile do
   def project do
     [
       app: :url_dispatcher,
-      version: "0.1.0-beta",
+      version: Application.get_env(:ewallet, :version),
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
