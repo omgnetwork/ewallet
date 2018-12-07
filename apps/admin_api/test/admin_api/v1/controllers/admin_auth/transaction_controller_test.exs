@@ -289,7 +289,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
           "per_page" => 50
         })
 
-      assert length(response["data"]["data"]) == 13
+      assert length(response["data"]["data"]) == 15
     end
 
     test "returns all the transactions when owned is true", meta do
@@ -315,7 +315,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
           "per_page" => 50
         })
 
-      assert length(response["data"]["data"]) == 13
+      assert length(response["data"]["data"]) == 15
     end
 
     test "returns all the transactions for a specific address", meta do
@@ -353,12 +353,13 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
           "search_term" => "pending"
         })
 
-      assert response["data"]["data"] |> length() == 2
+      assert response["data"]["data"] |> length() == 3
 
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
                meta.transaction_4.id,
+               meta.transaction_6.id,
                meta.transaction_8.id
              ]
     end

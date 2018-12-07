@@ -30,8 +30,8 @@ defmodule AdminAPI.V1.WalletController do
   def all_for_account(conn, %{"id" => id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, account) do
-      account
-      |> Wallet.all_for()
+      Wallet
+      |> Wallet.query_all_for_account_uuids_and_user([account.uuid])
       |> do_all(attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)
@@ -44,7 +44,7 @@ defmodule AdminAPI.V1.WalletController do
          :ok <- permit(:all, conn.assigns, account),
          descendant_uuids <- Account.get_all_descendants_uuids(account) do
       Wallet
-      |> Wallet.query_all_for_account_uuids(descendant_uuids)
+      |> Wallet.query_all_for_account_uuids_and_user(descendant_uuids)
       |> do_all(attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)

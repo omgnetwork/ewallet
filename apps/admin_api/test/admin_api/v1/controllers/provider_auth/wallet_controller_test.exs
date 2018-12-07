@@ -59,7 +59,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert is_list(response["data"]["data"])
 
       wallets = response["data"]["data"]
-      assert length(wallets) == 2
+      assert length(wallets) == 3
 
       wallets =
         Enum.map(wallets, fn wallet ->
@@ -79,6 +79,8 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
     test "returns a list of wallets according to sort_by and sort_direction" do
       account = insert(:account)
+      user = get_test_user()
+      wallet = User.get_primary_wallet(user)
 
       insert(:wallet, %{
         account: account,
@@ -115,13 +117,17 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       wallets = response["data"]["data"]
 
       assert response["success"]
-      assert Enum.count(wallets) == 4
-      assert Enum.at(wallets, 0)["address"] == "bbbb111111111111"
-      assert Enum.at(wallets, 1)["address"] == "aaaa333333333333"
-      assert Enum.at(wallets, 2)["address"] == "aaaa222222222222"
-      assert Enum.at(wallets, 3)["address"] == "aaaa111111111111"
+      assert Enum.count(wallets) == 5
+      assert Enum.at(wallets, 0)["address"] == wallet.address
+      assert Enum.at(wallets, 1)["address"] == "bbbb111111111111"
+      assert Enum.at(wallets, 2)["address"] == "aaaa333333333333"
+      assert Enum.at(wallets, 3)["address"] == "aaaa222222222222"
+      assert Enum.at(wallets, 4)["address"] == "aaaa111111111111"
 
-      Enum.each(wallets, fn wallet ->
+      [user_wallet | account_wallets] = wallets
+      assert user_wallet["user_id"] == user.id
+
+      Enum.each(account_wallets, fn wallet ->
         assert wallet["account_id"] == account.id
       end)
     end

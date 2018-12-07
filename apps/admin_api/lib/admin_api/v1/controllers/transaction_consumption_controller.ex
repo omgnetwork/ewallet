@@ -17,11 +17,9 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account),
-         linked_user_uuids <-
-           [account.uuid] |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
-      [account.uuid]
-      |> TransactionConsumption.query_all_for_account_and_user_uuids(linked_user_uuids)
+         :ok <- permit(:all, conn.assigns, account) do
+      TransactionConsumption
+      |> TransactionConsumption.query_all_for_account_uuids_and_users([account.uuid])
       |> do_all(attrs, conn)
     else
       error -> respond(error, conn, false)
@@ -31,11 +29,9 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, account),
-         descendant_uuids <- Account.get_all_descendants_uuids(account),
-         linked_user_uuids <-
-           descendant_uuids |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
-      descendant_uuids
-      |> TransactionConsumption.query_all_for_account_and_user_uuids(linked_user_uuids)
+         descendant_uuids <- Account.get_all_descendants_uuids(account) do
+      TransactionConsumption
+      |> TransactionConsumption.query_all_for_account_uuids_and_users(descendant_uuids)
       |> do_all(attrs, conn)
     else
       error -> respond(error, conn, false)
@@ -106,11 +102,9 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
-         descendant_uuids <- Account.get_all_descendants_uuids(account_uuids),
-         linked_user_uuids <-
-           descendant_uuids |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
-      descendant_uuids
-      |> TransactionConsumption.query_all_for_account_and_user_uuids(linked_user_uuids)
+         descendant_uuids <- Account.get_all_descendants_uuids(account_uuids) do
+      TransactionConsumption
+      |> TransactionConsumption.query_all_for_account_uuids_and_users(descendant_uuids)
       |> do_all(attrs, conn)
     else
       error -> respond(error, conn, false)
