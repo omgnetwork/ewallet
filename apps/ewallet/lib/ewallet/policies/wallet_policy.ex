@@ -16,13 +16,19 @@ defmodule EWallet.WalletPolicy do
 
   def authorize(:all, _params, nil), do: true
 
-  def authorize(:join, %{user: user}, %Wallet{} = wallet) do
-    user
+  def authorize(:join, %{admin_user: _} = params, wallet) do
+    authorize(:get, params, wallet)
+  end
+
+  def authorize(:join, %{key: _} = params, wallet) do
+    authorize(:get, params, wallet)
+  end
+
+  def authorize(:join, %{end_user: end_user}, %Wallet{} = wallet) do
+    end_user
     |> User.addresses()
     |> Enum.member?(wallet.address)
   end
-
-  def authorize(:join, params, wallet), do: authorize(:get, params, wallet)
 
   # Anyone can create a wallet for a user
   def authorize(:create, %{key: _key}, %{"user_id" => user_id}) when not is_nil(user_id) do

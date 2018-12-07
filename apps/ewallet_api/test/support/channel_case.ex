@@ -73,7 +73,7 @@ defmodule EWalletAPI.ChannelCase do
 
   def test_socket(provider_user_id \\ @provider_user_id) do
     socket("test", %{
-      auth: %{authenticated: true, user: User.get_by_provider_user_id(provider_user_id)}
+      auth: %{authenticated: true, end_user: User.get_by_provider_user_id(provider_user_id)}
     })
   end
 

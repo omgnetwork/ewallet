@@ -12,11 +12,17 @@ defmodule EWallet.UserPolicy do
 
   def authorize(:all, _params, nil), do: true
 
-  def authorize(:join, %{user: auth_user}, user) do
-    auth_user.uuid == user.uuid
+  def authorize(:join, %{admin_user: _} = params, user) do
+    authorize(:get, params, user)
   end
 
-  def authorize(:join, params, user), do: authorize(:get, params, user)
+  def authorize(:join, %{key: _} = params, user) do
+    authorize(:get, params, user)
+  end
+
+  def authorize(:join, %{end_user: end_user}, user) do
+    end_user.uuid == user.uuid
+  end
 
   # Anyone admin or key get any user
   def authorize(:get, _admin_user_or_key, _admin_user), do: true

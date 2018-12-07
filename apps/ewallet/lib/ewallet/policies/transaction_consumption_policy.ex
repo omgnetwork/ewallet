@@ -38,11 +38,17 @@ defmodule EWallet.TransactionConsumptionPolicy do
     PolicyHelper.viewer_authorize(user, consumption.account.id)
   end
 
-  def authorize(:join, %{user: _} = params, consumption) do
-    WalletPolicy.authorize(:join, params, consumption.wallet)
+  def authorize(:join, %{admin_user: _} = params, consumption) do
+    authorize(:get, params, consumption)
   end
 
-  def authorize(:join, params, consumption), do: authorize(:get, params, consumption)
+  def authorize(:join, %{key: _} = params, consumption) do
+    authorize(:get, params, consumption)
+  end
+
+  def authorize(:join, %{end_user: _} = params, consumption) do
+    WalletPolicy.authorize(:join, params, consumption.wallet)
+  end
 
   def authorize(:consume, params, %TransactionConsumption{} = consumption) do
     WalletPolicy.authorize(:admin, params, consumption.wallet)
