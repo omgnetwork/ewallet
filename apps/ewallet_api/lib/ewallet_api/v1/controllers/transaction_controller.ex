@@ -63,7 +63,7 @@ defmodule EWalletAPI.V1.TransactionController do
   The 'from' and 'to' fields cannot be searched for at the same
   time in the 'search_terms' param.
   """
-  def get_transactions(%{assigns: %{user: user}} = conn, attrs) do
+  def get_transactions(%{assigns: %{end_user: user}} = conn, attrs) do
     with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]) do
       attrs =
         user
@@ -83,7 +83,7 @@ defmodule EWalletAPI.V1.TransactionController do
       attrs
       |> Enum.filter(fn {k, _v} -> Enum.member?(@allowed_fields, k) end)
       |> Enum.into(%{})
-      |> Map.put("from_user_id", conn.assigns.user.id)
+      |> Map.put("from_user_id", conn.assigns.end_user.id)
       |> TransactionGate.create()
 
     case res do
