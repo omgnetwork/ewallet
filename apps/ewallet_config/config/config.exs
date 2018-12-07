@@ -26,7 +26,7 @@ config :ewallet_config,
       type: "array",
       position: 2,
        description:
-        "The whitelisted domains that are eWallet is allowed to redirect to."
+        "The whitelisted domains that eWallet is allowed to redirect to."
     },
     "enable_standalone" => %{
       key: "enable_standalone",
