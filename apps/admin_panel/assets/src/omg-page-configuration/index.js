@@ -299,7 +299,7 @@ class ConfigurationPage extends Component {
           value={String(this.state.maxPerPage)}
           inputType='number'
           onChange={this.onChangeInput('maxPerPage')}
-          inputValidator={value => Number(value) < 1}
+          inputValidator={value => Number(value) > 1}
           inputErrorMessage='invalid number'
         />
         <ConfigRow
@@ -308,7 +308,7 @@ class ConfigurationPage extends Component {
           value={String(this.state.minPasswordLength)}
           inputType='number'
           onChange={this.onChangeInput('minPasswordLength')}
-          inputValidator={value => Number(value) < 1}
+          inputValidator={value => Number(value) > 1}
           inputErrorMessage='invalid number'
         />
       </Fragment>

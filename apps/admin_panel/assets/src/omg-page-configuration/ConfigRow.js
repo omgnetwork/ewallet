@@ -36,7 +36,7 @@ const RadioButtonsContainer = styled.div`
 export default class ConfigRow extends Component {
   static propTypes = {
     description: PropTypes.string,
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    value: PropTypes.any,
     options: PropTypes.array,
     name: PropTypes.string,
     type: PropTypes.string,
