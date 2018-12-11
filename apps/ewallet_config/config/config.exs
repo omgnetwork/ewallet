@@ -12,6 +12,7 @@ config :ewallet_config,
   },
   default_settings: %{
     # Global Settings
+<<<<<<< HEAD
     "base_url" => %{
       key: "base_url",
       value: "",
@@ -20,19 +21,26 @@ config :ewallet_config,
       description:
         "The domain name."
     },
+=======
+    "base_url" => %{key: "base_url", value: "", type: "string", position: 100},
+>>>>>>> origin/master
     "redirect_url_prefixes" => %{
       key: "redirect_url_prefixes",
       value: [],
       type: "array",
+<<<<<<< HEAD
       position: 2,
        description:
         "The whitelisted domains that eWallet is allowed to redirect to."
+=======
+      position: 101
+>>>>>>> origin/master
     },
     "enable_standalone" => %{
       key: "enable_standalone",
       value: false,
       type: "boolean",
-      position: 3,
+      position: 102,
       description:
         "Enables the /user.signup endpoint in the client API, allowing users to sign up directly."
     },
@@ -40,29 +48,37 @@ config :ewallet_config,
       key: "max_per_page",
       value: 100,
       type: "integer",
-      position: 4,
+      position: 103,
       description: "The maximum number of records that can be returned for a list."
     },
     "min_password_length" => %{
       key: "min_password_length",
       value: 8,
       type: "integer",
-      position: 5,
+      position: 104,
       description: "The minimum length for passwords."
     },
+    "forget_password_request_lifetime" => %{
+      key: "forget_password_request_lifetime",
+      value: 10,
+      type: "integer",
+      position: 105,
+      description: "The duration (in minutes) that a forget password request will be valid for."
+    },
+
     # Email Settings
     "sender_email" => %{
       key: "sender_email",
       value: "admin@localhost",
       type: "string",
-      position: 6,
+      position: 200,
       description: "The address from which system emails will be sent."
     },
     "email_adapter" => %{
       key: "email_adapter",
       value: "local",
       type: "string",
-      position: 7,
+      position: 201,
       options: ["smtp", "local", "test"],
       description:
         "When set to local, a local email adapter will be used. Perfect for testing and development."
@@ -71,7 +87,7 @@ config :ewallet_config,
       key: "smtp_host",
       value: nil,
       type: "string",
-      position: 8,
+      position: 202,
       description: "The SMTP host to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
@@ -80,7 +96,7 @@ config :ewallet_config,
       key: "smtp_port",
       value: nil,
       type: "string",
-      position: 9,
+      position: 203,
       description: "The SMTP port to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
@@ -89,7 +105,7 @@ config :ewallet_config,
       key: "smtp_username",
       value: nil,
       type: "string",
-      position: 10,
+      position: 204,
       description: "The SMTP username to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
@@ -98,7 +114,7 @@ config :ewallet_config,
       key: "smtp_password",
       value: nil,
       type: "string",
-      position: 11,
+      position: 205,
       description: "The SMTP password to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
@@ -109,7 +125,7 @@ config :ewallet_config,
       key: "balance_caching_strategy",
       value: "since_beginning",
       type: "string",
-      position: 12,
+      position: 300,
       options: ["since_beginning", "since_last_cached"],
       description:
         "The strategy to use for balance caching. It will either re-calculate from the beginning or from the last caching point."
@@ -120,7 +136,7 @@ config :ewallet_config,
       key: "file_storage_adapter",
       value: "local",
       type: "string",
-      position: 13,
+      position: 400,
       options: ["local", "gcs", "aws"],
       description: "The type of storage to use for images and files."
     },
@@ -130,7 +146,7 @@ config :ewallet_config,
       key: "gcs_bucket",
       value: nil,
       type: "string",
-      position: 14,
+      position: 500,
       parent: "file_storage_adapter",
       parent_value: "gcs",
       description: "The name of the GCS bucket."
@@ -140,7 +156,7 @@ config :ewallet_config,
       value: nil,
       secret: true,
       type: "string",
-      position: 15,
+      position: 501,
       parent: "file_storage_adapter",
       parent_value: "gcs",
       description: "The credentials of the Google Cloud account."
@@ -151,7 +167,7 @@ config :ewallet_config,
       key: "aws_bucket",
       value: nil,
       type: "string",
-      position: 16,
+      position: 600,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "The name of the AWS bucket."
@@ -160,7 +176,7 @@ config :ewallet_config,
       key: "aws_region",
       value: nil,
       type: "string",
-      position: 17,
+      position: 601,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "The AWS region where your bucket lives."
@@ -169,7 +185,7 @@ config :ewallet_config,
       key: "aws_access_key_id",
       value: nil,
       type: "string",
-      position: 18,
+      position: 602,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "An AWS access key having access to the specified bucket."
@@ -179,7 +195,7 @@ config :ewallet_config,
       value: nil,
       secret: true,
       type: "string",
-      position: 19,
+      position: 603,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "An AWS secret having access to the specified bucket."

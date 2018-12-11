@@ -17,6 +17,11 @@ unless IEx.started?() do
         schedule: "* * * * *",
         task: {EWallet.TransactionConsumptionScheduler, :expire_all, []},
         run_strategy: {Quantum.RunStrategy.Random, :cluster}
+      ],
+      expire_forget_password_requests: [
+        schedule: "* * * * *",
+        task: {EWallet.ForgetPasswordRequestScheduler, :expire_all, []},
+        run_strategy: {Quantum.RunStrategy.Random, :cluster}
       ]
     ]
 end

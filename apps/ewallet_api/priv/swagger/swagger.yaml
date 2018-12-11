@@ -62,6 +62,10 @@ paths:
     $ref: 'user/paths.yaml#/user.signup'
   /user.verify_email:
     $ref: 'user/paths.yaml#/user.verify_email'
+  /user.reset_password:
+    $ref: 'user/paths.yaml#/user.reset_password'
+  /user.update_password:
+    $ref: 'user/paths.yaml#/user.update_password'
   /me.get:
     $ref: 'user/paths.yaml#/me.get'
 
