@@ -30,6 +30,16 @@ defmodule Mix.Tasks.Omg.Migrate.Settings do
     |> migrate()
   end
 
+  defp assume_yes?([]), do: false
+
+  defp assume_yes?(["-y" | _t]), do: true
+
+  defp assume_yes?(["--yes" | _t]), do: true
+
+  defp assume_yes?(["--assume_yes" | _t]), do: true
+
+  defp assume_yes?([_ | t]), do: assume_yes?(t)
+
   defp build_migration_plan(mapping) do
     Enum.reduce(mapping, [], fn {env_name, setting_name}, accumulator ->
       case System.get_env(env_name) do
@@ -62,16 +72,6 @@ defmodule Mix.Tasks.Omg.Migrate.Settings do
       false -> :aborted
     end
   end
-
-  defp assume_yes?([]), do: false
-
-  defp assume_yes?(["-y" | _t]), do: true
-
-  defp assume_yes?(["--yes" | _t]), do: true
-
-  defp assume_yes?(["--assume_yes" | _t]), do: true
-
-  defp assume_yes?([_ | t]), do: assume_yes?(t)
 
   defp migrate(:aborted) do
     print_info("Settings migration aborted.")
