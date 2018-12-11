@@ -3,13 +3,29 @@ defmodule EWallet.TransactionRequestPolicy do
   The authorization policy for accounts.
   """
   @behaviour Bodyguard.Policy
-  alias EWallet.WalletPolicy
-  alias EWalletDB.Wallet
+  alias EWallet.{WalletPolicy, AccountPolicy}
+  alias EWalletDB.{Wallet, Account}
 
   def authorize(:all, _admin_user_or_key, nil), do: true
 
+  def authorize(:all, params, %Account{} = account) do
+    AccountPolicy.authorize(:get, params, account.id)
+  end
+
   def authorize(:get, _params, _request) do
     true
+  end
+
+  def authorize(:join, %{admin_user: _} = params, request) do
+    authorize(:get, params, request)
+  end
+
+  def authorize(:join, %{key: _} = params, request) do
+    authorize(:get, params, request)
+  end
+
+  def authorize(:join, %{end_user: _} = params, request) do
+    WalletPolicy.authorize(:join, params, request.wallet)
   end
 
   # Check with the passed attributes if the current accessor can

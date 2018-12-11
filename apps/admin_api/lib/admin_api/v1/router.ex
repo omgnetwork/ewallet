@@ -102,6 +102,7 @@ defmodule AdminAPI.V1.Router do
     post("/user.get_wallets", WalletController, :all_for_user)
     post("/user.get_transactions", TransactionController, :all_for_user)
     post("/user.get_transaction_consumptions", TransactionConsumptionController, :all_for_user)
+    post("/user.enable_or_disable", UserController, :enable_or_disable)
 
     # Wallet endpoints
     post("/wallet.all", WalletController, :all)
@@ -118,19 +119,39 @@ defmodule AdminAPI.V1.Router do
     # Admin endpoints
     post("/admin.all", AdminUserController, :all)
     post("/admin.get", AdminUserController, :get)
+    post("/admin.enable_or_disable", AdminUserController, :enable_or_disable)
+
+    # Role endpoints
+    post("/role.all", RoleController, :all)
+    post("/role.get", RoleController, :get)
+    post("/role.create", RoleController, :create)
+    post("/role.update", RoleController, :update)
+    post("/role.delete", RoleController, :delete)
 
     # API Access endpoints
     post("/access_key.all", KeyController, :all)
     post("/access_key.create", KeyController, :create)
-    post("/access_key.update", KeyController, :update)
+    post("/access_key.enable_or_disable", KeyController, :enable_or_disable)
     post("/access_key.delete", KeyController, :delete)
 
+    # Deprecated in PR #535
+    post("/access_key.update", KeyController, :update)
+
+    # API Key endpoints
     post("/api_key.all", APIKeyController, :all)
     post("/api_key.create", APIKeyController, :create)
-    post("/api_key.update", APIKeyController, :update)
+    post("/api_key.enable_or_disable", APIKeyController, :enable_or_disable)
     post("/api_key.delete", APIKeyController, :delete)
 
+    # Deprecated in PR #535
+    post("/api_key.update", APIKeyController, :update)
+
+    # Settings endpoint
     post("/settings.all", SettingsController, :get_settings)
+
+    # Configuration endpoint
+    post("/configuration.get", ConfigurationController, :get)
+    post("/configuration.update", ConfigurationController, :update)
 
     # Self endpoints (operations on the currently authenticated user)
     post("/me.get", SelfController, :get)
@@ -138,6 +159,7 @@ defmodule AdminAPI.V1.Router do
     post("/me.get_account", SelfController, :get_account)
     post("/me.update", SelfController, :update)
     post("/me.update_password", SelfController, :update_password)
+    post("/me.update_email", SelfController, :update_email)
     post("/me.upload_avatar", SelfController, :upload_avatar)
 
     post("/me.logout", AdminAuthController, :logout)
@@ -155,6 +177,10 @@ defmodule AdminAPI.V1.Router do
     # Forget Password endpoints
     post("/admin.reset_password", ResetPasswordController, :reset)
     post("/admin.update_password", ResetPasswordController, :update)
+
+    # Verifying email update request is unauthenticated, because the user
+    # may be opening and verifying the email from a different device.
+    post("/admin.verify_email_update", SelfController, :verify_email)
 
     post("/status", StatusController, :index)
     post("/status.server_error", StatusController, :server_error)

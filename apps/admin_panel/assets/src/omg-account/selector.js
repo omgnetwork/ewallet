@@ -17,5 +17,6 @@ export const selectAccountsAllPagesCachedQuery = createSelectAllPagesCachedQuery
 export const selectAccountsCachedQueryPagination = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'pagination', {})
 }
+
 export const selectAccountsLoadingStatus = state => state.accountsLoadingStatus
 

@@ -255,13 +255,19 @@ defmodule AdminAPI.ConnCase do
   def provider_request(path, data \\ %{}, opts \\ [])
       when is_binary(path) and byte_size(path) > 0 do
     {status, _opts} = Keyword.pop(opts, :status, :ok)
-    secret_key = Base.url_encode64(@secret_key)
 
     build_conn()
     |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGProvider", @access_key, secret_key)
+    |> put_auth_header("OMGProvider", provider_auth_header(opts))
     |> post(@base_dir <> path, data)
     |> json_response(status)
+  end
+
+  defp provider_auth_header(opts) do
+    access_key = Keyword.get(opts, :access_key, @access_key)
+    secret_key = Keyword.get(opts, :secret_key, Base.url_encode64(@secret_key))
+
+    [access_key, secret_key]
   end
 
   @doc """
@@ -314,5 +320,168 @@ defmodule AdminAPI.ConnCase do
 
     insert_list(num_remaining, factory_name, attrs)
     Repo.all(schema)
+  end
+
+  @doc """
+  Tests that the specified endpoint supports 'match_any' filtering.
+  """
+  defmacro test_supports_match_any(endpoint, auth_type, factory, field, opts \\ []) do
+    quote do
+      test "supports match_any filtering" do
+        endpoint = unquote(endpoint)
+        auth_type = unquote(auth_type)
+        factory = unquote(factory)
+        field = unquote(field)
+        opts = unquote(opts)
+        field_name = Atom.to_string(field)
+
+        factory_attrs = Keyword.get(opts, :factory_attrs, %{})
+
+        _ = insert(factory, Map.merge(%{field => "value_1"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "value_2"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "value_3"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "value_4"}, factory_attrs))
+
+        attrs = %{
+          "match_any" => [
+            %{
+              "field" => field_name,
+              "comparator" => "eq",
+              "value" => "value_2"
+            },
+            %{
+              "field" => field_name,
+              "comparator" => "eq",
+              "value" => "value_4"
+            }
+          ]
+        }
+
+        response =
+          case auth_type do
+            :admin_auth -> admin_user_request(endpoint, attrs)
+            :provider_auth -> provider_request(endpoint, attrs)
+          end
+
+        assert response["success"]
+
+        records = response["data"]["data"]
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_2" end)
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_4" end)
+        assert Enum.count(records) == 2
+      end
+
+      test "handles unsupported match_any comparator" do
+        endpoint = unquote(endpoint)
+        auth_type = unquote(auth_type)
+        field = unquote(field)
+        field_name = Atom.to_string(field)
+
+        attrs = %{
+          "match_any" => [
+            %{
+              "field" => field_name,
+              "comparator" => "starts_with",
+              "value" => nil
+            }
+          ]
+        }
+
+        response =
+          case auth_type do
+            :admin_auth -> admin_user_request(endpoint, attrs)
+            :provider_auth -> provider_request(endpoint, attrs)
+          end
+
+        refute response["success"]
+        assert response["data"]["object"] == "error"
+        assert response["data"]["code"] == "client:invalid_parameter"
+
+        assert response["data"]["description"] ==
+                 "Invalid parameter provided. " <>
+                   "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
+      end
+    end
+  end
+
+  @doc """
+  Tests that the specified endpoint supports 'match_all' filtering.
+  """
+  defmacro test_supports_match_all(endpoint, auth_type, factory, field, opts \\ []) do
+    quote do
+      test "supports match_all filtering" do
+        endpoint = unquote(endpoint)
+        auth_type = unquote(auth_type)
+        factory = unquote(factory)
+        field = unquote(field)
+        opts = unquote(opts)
+        field_name = Atom.to_string(field)
+
+        factory_attrs = Keyword.get(opts, :factory_attrs, %{})
+
+        _ = insert(factory, Map.merge(%{field => "this_should_almost_match"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "this_should_match"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "should_not_match"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "also_should_not_match"}, factory_attrs))
+
+        attrs = %{
+          "match_all" => [
+            %{
+              "field" => field_name,
+              "comparator" => "starts_with",
+              "value" => "this_should"
+            },
+            %{
+              "field" => field_name,
+              "comparator" => "contains",
+              "value" => "should_match"
+            }
+          ]
+        }
+
+        response =
+          case auth_type do
+            :admin_auth -> admin_user_request(endpoint, attrs)
+            :provider_auth -> provider_request(endpoint, attrs)
+          end
+
+        assert response["success"]
+
+        records = response["data"]["data"]
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "this_should_match" end)
+        assert Enum.count(records) == 1
+      end
+
+      test "handles unsupported match_all comparator" do
+        endpoint = unquote(endpoint)
+        auth_type = unquote(auth_type)
+        field = unquote(field)
+        field_name = Atom.to_string(field)
+
+        attrs = %{
+          "match_all" => [
+            %{
+              "field" => field_name,
+              "comparator" => "starts_with",
+              "value" => nil
+            }
+          ]
+        }
+
+        response =
+          case auth_type do
+            :admin_auth -> admin_user_request(endpoint, attrs)
+            :provider_auth -> provider_request(endpoint, attrs)
+          end
+
+        refute response["success"]
+        assert response["data"]["object"] == "error"
+        assert response["data"]["code"] == "client:invalid_parameter"
+
+        assert response["data"]["description"] ==
+                 "Invalid parameter provided. " <>
+                   "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
+      end
+    end
   end
 end

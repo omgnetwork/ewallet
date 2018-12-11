@@ -51,12 +51,13 @@ defmodule AdminAPI.V1.KeyController do
   end
 
   @doc """
-  Updates a key.
+  Updates a key. (Deprecated)
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with %Key{} = key <- Key.get(id) || {:error, :key_not_found},
-         {:ok, key} <- Key.update(key, attrs),
+    with :ok <- permit(:update, conn.assigns, id),
+         %Key{} = key <- Key.get(id) || {:error, :key_not_found},
+         {:ok, key} <- Key.enable_or_disable(key, attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
       render(conn, :key, %{key: key})
     else
@@ -73,12 +74,35 @@ defmodule AdminAPI.V1.KeyController do
   end
 
   @doc """
+  Enable or disable a key.
+  """
+  @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def enable_or_disable(conn, %{"id" => id, "enabled" => _} = attrs) do
+    with :ok <- permit(:enable_or_disable, conn.assigns, id),
+         %Key{} = key <- Key.get(id) || {:error, :key_not_found},
+         {:ok, key} <- Key.enable_or_disable(key, attrs),
+         {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
+      render(conn, :key, %{key: key})
+    else
+      {:error, code} when is_atom(code) ->
+        handle_error(conn, code)
+
+      {:error, changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+    end
+  end
+
+  def enable_or_disable(conn, _attrs) do
+    handle_error(conn, :invalid_parameter, "`id` and `enabled` are required")
+  end
+
+  @doc """
   Soft-deletes an existing key.
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"access_key" => access_key}) do
     with :ok <- permit(:delete, conn.assigns, nil) do
-      key = Key.get(:access_key, access_key)
+      key = Key.get_by(access_key: access_key)
       do_delete(conn, key)
     else
       {:error, code} ->
@@ -110,8 +134,11 @@ defmodule AdminAPI.V1.KeyController do
 
   defp do_delete(conn, nil), do: handle_error(conn, :key_not_found)
 
-  @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
-          :ok | {:error, any()} | no_return()
+  @spec permit(
+          :all | :create | :get | :update | :enable_or_disable | :delete,
+          map(),
+          String.t() | nil
+        ) :: :ok | {:error, any()} | no_return()
   defp permit(action, params, key_id) do
     Bodyguard.permit(KeyPolicy, action, params, key_id)
   end

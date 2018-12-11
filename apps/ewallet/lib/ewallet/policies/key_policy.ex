@@ -15,11 +15,12 @@ defmodule EWallet.KeyPolicy do
     User.master_admin?(user.id)
   end
 
-  def authorize(:delete, %{key: key}, key_id) do
+  # update /enable_or_disable / delete
+  def authorize(_action, %{key: key}, key_id) do
     Account.get_master_account().uuid == key.account.uuid && key.id != key_id
   end
 
-  def authorize(:delete, %{admin_user: user}, _key_id) do
+  def authorize(_action, %{admin_user: user}, _key_id) do
     User.master_admin?(user.id)
   end
 

@@ -1,0 +1,113 @@
+UserGetBody:
+  description: The parameters to use for retrieving a specific user by its id
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: usr_01ce83q2zw7zk1dqr79t22zr1v
+
+UserBody:
+  description: The parameters to use for creating or updating a user
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          provider_user_id:
+            type: string
+          username:
+            type: string
+          full_name:
+            type: string
+          calling_name:
+            type: string
+          metadata:
+            type: object
+            additionalProperties: true
+          encrypted_metadata:
+            type: object
+            additionalProperties: true
+        required:
+          - provider_user_id
+          - username
+        example:
+          provider_user_id: wijf-fbancomw-dqwjudb
+          username: thibault@omise.co
+          full_name: Thibault Denizet
+          calling_name: Thibault
+          metadata: {first_name: Thibault, last_name: Denizet}
+          encrypted_metadata: {}
+
+UserIdentifierBody:
+  description: The parameters to use for retrieving a specific user by its id or provider_user_id
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        oneOf:
+          - properties:
+              id:
+                type: string
+            required:
+              - id
+          - properties:
+              provider_user_id:
+                type: string
+            required:
+              - provider_user_id
+        example:
+          id: usr_01ce83q2zw7zk1dqr79t22zr1v
+
+UserIdentifierWithFiltersBody:
+  description: The parameters to use for retrieving a collection owned by user by its id or provider_user_id
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        oneOf:
+          - properties:
+              id:
+                type: string
+            required:
+              - id
+          - properties:
+              provider_user_id:
+                type: string
+            required:
+              - provider_user_id
+        example:
+          id: usr_01ce83q2zw7zk1dqr79t22zr1v
+
+UserToggleStatusBody:
+  description: The parameters to enable/disable a user. Send enabled=true to enable, enabled=false to disable.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        oneOf:
+          - properties:
+              id:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - id
+              - enabled
+          - properties:
+              provider_user_id:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - provider_user_id
+              - enabled
+        example:
+          id: usr_01ct2zjh20fj210bzz078948f6
+          enabled: false

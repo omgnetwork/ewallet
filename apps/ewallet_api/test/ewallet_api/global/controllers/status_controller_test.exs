@@ -14,7 +14,11 @@ defmodule EWalletAPI.StatusControllerTest do
                "services" => %{
                  "ewallet" => true,
                  "local_ledger" => true
-               }
+               },
+               "ewallet_version" => "1.1.0",
+               "api_versions" => [
+                 %{"name" => "v1", "media_type" => "application/vnd.omisego.v1+json"}
+               ]
              }
     end
   end

@@ -4,50 +4,34 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannelTest do
   alias EWalletAPI.V1.TransactionConsumptionChannel
   alias EWalletDB.User
 
+  defp topic(id), do: "transaction_consumption:#{id}"
+
   describe "join/3 as client" do
     test "joins the channel with authenticated user and owned consumption" do
-      {:ok, user} = :user |> params_for() |> User.insert()
+      user = get_test_user()
       wallet = User.get_primary_wallet(user)
       consumption = insert(:transaction_consumption, wallet_address: wallet.address)
 
-      {res, _, socket} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, user: user}})
-        |> subscribe_and_join(
-          TransactionConsumptionChannel,
-          "transaction_consumption:#{consumption.id}"
-        )
-
-      assert res == :ok
-      assert socket.topic == "transaction_consumption:#{consumption.id}"
+      consumption.id
+      |> topic()
+      |> test_with_topic(TransactionConsumptionChannel)
+      |> assert_success(topic(consumption.id))
     end
 
     test "can't join channel with existing not owned address" do
-      user = insert(:user)
       consumption = insert(:transaction_consumption)
 
-      {res, code} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, user: user}})
-        |> subscribe_and_join(
-          TransactionConsumptionChannel,
-          "transaction_consumption:#{consumption.id}"
-        )
-
-      assert res == :error
-      assert code == :forbidden_channel
+      consumption.id
+      |> topic()
+      |> test_with_topic(TransactionConsumptionChannel)
+      |> assert_failure(:forbidden_channel)
     end
 
     test "can't join channel with inexisting consumption" do
-      user = insert(:user)
-
-      {res, code} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, user: user}})
-        |> subscribe_and_join(TransactionConsumptionChannel, "transaction_consumption:123")
-
-      assert res == :error
-      assert code == :channel_not_found
+      "123"
+      |> topic()
+      |> test_with_topic(TransactionConsumptionChannel)
+      |> assert_failure(:forbidden_channel)
     end
   end
 end

@@ -3,9 +3,9 @@ defmodule AdminAPI.V1.UserController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias Ecto.Changeset
-  alias EWallet.UserPolicy
+  alias EWallet.{UserPolicy, UserFetcher}
   alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.UserOverlay}
-  alias EWalletDB.{Account, AccountUser, User, UserQuery}
+  alias EWalletDB.{Account, AccountUser, User, UserQuery, AuthToken}
 
   @doc """
   Retrieves a list of users.
@@ -149,6 +149,29 @@ defmodule AdminAPI.V1.UserController do
   end
 
   def update(conn, _attrs), do: handle_error(conn, :invalid_parameter)
+
+  @doc """
+  Enable or disable a user.
+  """
+  @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def enable_or_disable(conn, attrs) do
+    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
+         :ok <- permit(:enable_or_disable, conn.assigns, user),
+         {:ok, updated} <- User.enable_or_disable(user, attrs),
+         :ok <- AuthToken.expire_for_user(updated) do
+      respond_single(updated, conn)
+    else
+      {:error, :invalid_parameter = error} ->
+        handle_error(
+          conn,
+          error,
+          "Invalid parameter provided. `id` or `provider_user_id` is required."
+        )
+
+      {:error, error} ->
+        handle_error(conn, error)
+    end
+  end
 
   # Respond with a list of users
   defp respond_multiple(%Paginator{} = paged_users, conn) do

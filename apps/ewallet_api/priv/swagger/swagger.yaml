@@ -1,0 +1,90 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: eWallet API
+  description: >
+    This is the documentation for the eWallet client API.
+
+    Client calls are authorized using the 'Authorization'
+    HTTP header with the following format:
+
+
+    - Client: `Authorization=OMGClient Base64(api_key:authentication_token)`
+
+    Due to HTTP-RPC nature, the API will always return a `200` HTTP status,
+    including on errors. Only in case of an internal server error that `500`
+    will be returned.
+
+
+    Error codes are available in [html](./errors), [json](./errors.json)
+    and [yaml](./errors.yaml) formats.
+  contact:
+    name: OmiseGO
+    email: thibault@omisego.co
+  license:
+    name: 'Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0'
+    url: 'https://omisego.network/'
+
+tags:
+  - name: Session
+    description: Resources related to session tokens.
+  - name: User
+    description: Resources related to users. A user is an entity uniquely identified by its provider_user_id which is the user id in the provider database.
+  - name: Wallet
+    description: Resources related to wallets of a specific user. Wallets contains the balances of tokens that users and accounts own.
+  - name: Transaction
+    description: Resources related to transactions.
+  - name: TransactionRequest
+    description: Resources related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
+  - name: TransactionConsumption
+    description: Resources related to consumption of transaction requests.
+
+servers:
+  - url: /api/client
+
+components:
+  securitySchemes:
+    ClientAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: OMGClient Base64(api_key:authentication_token)
+
+paths:
+  # SESSION
+  /user.login:
+    $ref: 'user_session/paths.yaml#/user.login'
+  /me.logout:
+    $ref: 'user_session/paths.yaml#/me.logout'
+
+  # USER
+  /user.signup:
+    $ref: 'user/paths.yaml#/user.signup'
+  /user.verify_email:
+    $ref: 'user/paths.yaml#/user.verify_email'
+  /me.get:
+    $ref: 'user/paths.yaml#/me.get'
+
+  # WALLET
+  /me.get_wallets:
+    $ref: 'wallet/paths.yaml#/me.get_wallets'
+
+  # TRANSACTIONS
+  /me.get_transactions:
+    $ref: 'transaction/paths.yaml#/me.get_transactions'
+  /me.create_transaction:
+    $ref: 'transaction/paths.yaml#/me.create_transaction'
+
+  # TRANSACTION REQUESTS
+  /me.create_transaction_request:
+    $ref: 'transaction_request/paths.yaml#/me.create_transaction_request'
+  /me.get_transaction_request:
+    $ref: 'transaction_request/paths.yaml#/me.get_transaction_request'
+  /me.consume_transaction_request:
+    $ref: 'transaction_request/paths.yaml#/me.consume_transaction_request'
+
+  # TRANSACTION CONSUMPTIONS
+  /me.approve_transaction_consumption:
+    $ref: 'transaction_consumption/paths.yaml#/me.approve_transaction_consumption'
+  /me.reject_transaction_consumption:
+    $ref: 'transaction_consumption/paths.yaml#/me.reject_transaction_consumption'

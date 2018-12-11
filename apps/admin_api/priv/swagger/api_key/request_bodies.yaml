@@ -1,0 +1,110 @@
+AccessKeyUpdateBody:
+  description: The parameters to use for updating an access key
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          expired:
+            type: boolean
+        required:
+          - id
+          - expired
+        example:
+          id: key_01ce83yphmq6vt4qnmn3ykwcw6
+          expired: true
+
+AccessKeyToggleStatusBody:
+  description: The parameters to enable/disable an access key. Send enabled=true to enable, enabled=false to disable.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          enabled:
+            type: boolean
+        required:
+          - id
+          - enabled
+        example:
+          id: key_01ce83yphmq6vt4qnmn3ykwcw6
+          enabled: false
+
+AccessKeyDeleteBody:
+  description: The parameters to use for deleting an access key
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        oneOf:
+          - properties:
+              id:
+                type: string
+            required:
+              - id
+            example:
+              id: key_01ce83yphmq6vt4qnmn3ykwcw6
+          - properties:
+              access_key:
+                type: string
+            required:
+              - access_key
+            example:
+              access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+        example:
+          id: key_01ce83yphmq6vt4qnmn3ykwcw6
+
+# API KEY REQUEST BODIES
+APIKeyUpdateBody:
+  description: The parameters to use for updating an API key
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          expired:
+            type: boolean
+        required:
+          - id
+          - expired
+        example:
+          id: api_01ce83yphmq6vt4qnmn3ykwcw6
+          expired: true
+
+APIKeyToggleStatusBody:
+  description: The parameters to enable/disable an api key. Send enabled=true to enable, enabled=false to disable.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          enabled:
+            type: boolean
+        required:
+          - id
+          - enabled
+        example:
+          id: api_01ce83yphmq6vt4qnmn3ykwcw6
+          enabled: false
+
+APIKeyDeleteBody:
+  description: The parameters to use for deleting an API key
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: api_01ce83yphmq6vt4qnmn3ykwcw6

@@ -24,6 +24,10 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "forget_password:token_not_found",
       description: "There are no password reset requests corresponding to the provided token."
     },
+    invalid_email_update_token: %{
+      code: "email_update:token_not_found",
+      description: "There are no email update requests corresponding to the provided token."
+    },
     auth_token_not_found: %{
       code: "auth_token:not_found",
       description: "There is no auth token corresponding to the provided token."
@@ -40,9 +44,17 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "transaction:id_not_found",
       description: "There is no transaction corresponding to the provided id."
     },
+    role_id_not_found: %{
+      code: "role:id_not_found",
+      description: "There is no role corresponding to the provided id."
+    },
     role_name_not_found: %{
       code: "role:name_not_found",
       description: "There is no role corresponding to the provided name."
+    },
+    role_not_empty: %{
+      code: "role:not_empty",
+      description: "The role has one or more users associated."
     },
     membership_not_found: %{
       code: "membership:not_found",

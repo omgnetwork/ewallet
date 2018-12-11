@@ -43,6 +43,9 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert Enum.at(wallets, 1)["address"] == "aaaa222222222222"
       assert Enum.at(wallets, 2)["address"] == "aaaa111111111111"
     end
+
+    test_supports_match_any("/wallet.all", :provider_auth, :wallet, :name)
+    test_supports_match_all("/wallet.all", :provider_auth, :wallet, :name)
   end
 
   describe "/account.get_wallets" do
@@ -203,7 +206,8 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
                    "current_page" => 1,
                    "is_first_page" => true,
                    "is_last_page" => true,
-                   "per_page" => 10
+                   "per_page" => 10,
+                   "count" => 1
                  },
                  "data" => [
                    %{

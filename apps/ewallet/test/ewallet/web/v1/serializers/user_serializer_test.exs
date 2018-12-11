@@ -17,6 +17,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
         calling_name: user.calling_name,
         provider_user_id: user.provider_user_id,
         email: user.email,
+        enabled: user.enabled,
         avatar: %{
           original: nil,
           large: nil,
@@ -75,6 +76,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
               small: nil,
               thumb: nil
             },
+            enabled: user1.enabled,
             metadata: %{
               "first_name" => user1.metadata["first_name"],
               "last_name" => user1.metadata["last_name"]
@@ -98,6 +100,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
               small: nil,
               thumb: nil
             },
+            enabled: user2.enabled,
             metadata: %{
               "first_name" => user2.metadata["first_name"],
               "last_name" => user2.metadata["last_name"]
@@ -116,6 +119,76 @@ defmodule EWallet.Web.V1.UserSerializerTest do
       }
 
       assert UserSerializer.serialize(paginator) == expected
+    end
+
+    test "serializes a list of users into a list object" do
+      user1 = insert(:user)
+      user2 = insert(:user)
+
+      users = [user1, user2]
+
+      expected = %{
+        object: "list",
+        data: [
+          %{
+            object: "user",
+            id: user1.id,
+            socket_topic: "user:#{user1.id}",
+            username: user1.username,
+            full_name: user1.full_name,
+            calling_name: user1.calling_name,
+            provider_user_id: user1.provider_user_id,
+            email: user1.email,
+            avatar: %{
+              original: nil,
+              large: nil,
+              small: nil,
+              thumb: nil
+            },
+            metadata: %{
+              "first_name" => user1.metadata["first_name"],
+              "last_name" => user1.metadata["last_name"]
+            },
+            encrypted_metadata: %{},
+            enabled: user1.enabled,
+            created_at: Date.to_iso8601(user1.inserted_at),
+            updated_at: Date.to_iso8601(user1.updated_at)
+          },
+          %{
+            object: "user",
+            id: user2.id,
+            socket_topic: "user:#{user2.id}",
+            username: user2.username,
+            full_name: user2.full_name,
+            calling_name: user2.calling_name,
+            provider_user_id: user2.provider_user_id,
+            email: user2.email,
+            avatar: %{
+              original: nil,
+              large: nil,
+              small: nil,
+              thumb: nil
+            },
+            metadata: %{
+              "first_name" => user2.metadata["first_name"],
+              "last_name" => user2.metadata["last_name"]
+            },
+            encrypted_metadata: %{},
+            enabled: user2.enabled,
+            created_at: Date.to_iso8601(user2.inserted_at),
+            updated_at: Date.to_iso8601(user2.updated_at)
+          }
+        ]
+      }
+
+      assert UserSerializer.serialize(users) == expected
+    end
+  end
+
+  describe "serialize/2" do
+    test "serializes users to ids" do
+      users = [user1, user2] = insert_list(2, :user)
+      assert UserSerializer.serialize(users, :id) == [user1.id, user2.id]
     end
   end
 end

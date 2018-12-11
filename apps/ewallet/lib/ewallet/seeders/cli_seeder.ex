@@ -133,7 +133,7 @@ defmodule EWallet.Seeder.CLI do
       byte_size(val) == 0 ->
         {name, process_default(default)}
 
-      length(val) > 0 ->
+      byte_size(val) > 0 ->
         {name, val}
 
       true ->

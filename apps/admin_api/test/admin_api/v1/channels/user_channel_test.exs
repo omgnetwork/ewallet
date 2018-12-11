@@ -3,44 +3,45 @@ defmodule AdminAPI.V1.UserChannelTest do
   use AdminAPI.ChannelCase, async: false
   alias AdminAPI.V1.UserChannel
   alias EWalletDB.User
+  alias Ecto.UUID
 
-  describe "join/3 as provider" do
-    test "joins the channel with authenticated account and valid user ID" do
-      account = insert(:account)
+  defp topic(id), do: "user:#{id}"
+
+  describe "join/3" do
+    test "can join the channel of a valid user ID" do
       {:ok, user} = :user |> params_for() |> User.insert()
 
-      {res, _, socket} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, account: account}})
-        |> subscribe_and_join(UserChannel, "user:#{user.id}")
+      topic = topic(user.id)
 
-      assert res == :ok
-      assert socket.topic == "user:#{user.id}"
+      test_with_auths(fn auth ->
+        auth
+        |> subscribe_and_join(UserChannel, topic)
+        |> assert_success(topic)
+      end)
     end
 
-    test "joins the channel with authenticated account and valid provider user ID" do
-      account = insert(:account)
+    test "can join the channel of a valid provider user ID" do
       {:ok, user} = :user |> params_for() |> User.insert()
+      topic = topic(user.provider_user_id)
 
-      {res, _, socket} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, account: account}})
-        |> subscribe_and_join(UserChannel, "user:#{user.provider_user_id}")
-
-      assert res == :ok
-      assert socket.topic == "user:#{user.provider_user_id}"
+      test_with_auths(fn auth ->
+        auth
+        |> subscribe_and_join(
+          UserChannel,
+          topic
+        )
+        |> assert_success(topic)
+      end)
     end
 
-    test "can't join a channel for an inexisting user" do
-      account = insert(:account)
+    test "can't join the channel of an inexisting user" do
+      topic = topic(UUID.generate())
 
-      {res, code} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, account: account}})
-        |> subscribe_and_join(UserChannel, "user:123")
-
-      assert res == :error
-      assert code == :channel_not_found
+      test_with_auths(fn auth ->
+        auth
+        |> subscribe_and_join(UserChannel, topic)
+        |> assert_failure(:forbidden_channel)
+      end)
     end
   end
 end

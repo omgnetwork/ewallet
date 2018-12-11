@@ -204,7 +204,7 @@ defmodule EWalletConfig.SettingTest do
 
       assert changeset.changes == %{
                type: "string",
-               value: "abc",
+               data: %{value: "abc"},
                position: 0
              }
 
@@ -220,14 +220,14 @@ defmodule EWalletConfig.SettingTest do
       assert changeset.changes == %{
                key: "my_key",
                type: "fake",
-               value: true,
+               data: %{value: true},
                position: 0
              }
 
       assert changeset.errors == [type: {"is invalid", [validation: :inclusion]}]
       assert changeset.valid? == false
       assert changeset.action == :insert
-      assert changeset.data == %Setting{}
+      assert changeset.data == %StoredSetting{}
     end
   end
 
@@ -354,8 +354,8 @@ defmodule EWalletConfig.SettingTest do
           %{key: "my_key_3", value: "new_value_3"}
         ])
 
-      {res1, s1} = Enum.at(res, 0)
-      {res2, s2} = Enum.at(res, 1)
+      {_key1, {res1, s1}} = Enum.at(res, 0)
+      {_key2, {res2, s2}} = Enum.at(res, 1)
 
       assert res1 == :ok
       assert s1.value == "new_value_1"
@@ -375,8 +375,8 @@ defmodule EWalletConfig.SettingTest do
           my_key_3: "new_value_3"
         })
 
-      {res1, s1} = Enum.at(res, 0)
-      {res2, s2} = Enum.at(res, 1)
+      {_key1, {res1, s1}} = Enum.at(res, 0)
+      {_key2, {res2, s2}} = Enum.at(res, 1)
 
       assert res1 == :ok
       assert s1.value == "new_value_1"
@@ -396,8 +396,8 @@ defmodule EWalletConfig.SettingTest do
           my_key_3: "new_value_3"
         )
 
-      {res1, s1} = Enum.at(res, 0)
-      {res2, s2} = Enum.at(res, 1)
+      {_key1, {res1, s1}} = Enum.at(res, 0)
+      {_key2, {res2, s2}} = Enum.at(res, 1)
 
       assert res1 == :ok
       assert s1.value == "new_value_1"
@@ -417,14 +417,14 @@ defmodule EWalletConfig.SettingTest do
           %{key: "my_key_3z", value: "new_value_3"}
         ])
 
-      {res1, s1} = Enum.at(res, 0)
-      {res2, error} = Enum.at(res, 1)
+      {_key1, {res1, s1}} = Enum.at(res, 0)
+      {_key2, {res2, s2}} = Enum.at(res, 1)
 
       assert res1 == :ok
       assert s1.value == "new_value_1"
 
       assert res2 == :error
-      assert error == :setting_not_found
+      assert s2 == :setting_not_found
     end
   end
 

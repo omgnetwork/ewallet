@@ -58,9 +58,17 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:email_not_verified",
       description: "Your user account has not been confirmed yet. Please check your emails."
     },
+    email_already_exists: %{
+      code: "user:email_already_exists",
+      description: "The provided email address already exists."
+    },
     user_already_active: %{
       code: "user:already_active",
       description: "The user already exists and active."
+    },
+    user_disabled: %{
+      code: "user:disabled",
+      description: "This user is disabled."
     },
     invalid_login_credentials: %{
       code: "user:invalid_login_credentials",
@@ -337,6 +345,11 @@ defmodule EWallet.Web.V1.ErrorHandler do
     setting_not_found: %{
       code: "setting:not_found",
       description: "There is no setting corresponding to the provided key."
+    },
+    comparator_not_supported: %{
+      code: "client:invalid_parameter",
+      template:
+        "Invalid parameter provided. Querying for '%{field}' '%{comparator}' '%{value}' is not supported."
     }
   }
 
@@ -464,11 +477,19 @@ defmodule EWallet.Web.V1.ErrorHandler do
   end
 
   defp build_template(data, template) do
-    Enum.reduce(data, template, fn {k, v}, description ->
+    Enum.reduce(data, template, fn {pattern, replacement}, description ->
       description
-      |> String.replace("%{#{k}}", "#{v}")
+      |> template_replace(pattern, replacement)
       |> replace_uuids()
     end)
+  end
+
+  defp template_replace(template, pattern, nil) do
+    String.replace(template, "%{#{pattern}}", "nil")
+  end
+
+  defp template_replace(template, pattern, replacement) do
+    String.replace(template, "%{#{pattern}}", "#{replacement}")
   end
 
   defp stringify_errors(changeset, description) do

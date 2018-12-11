@@ -21,7 +21,7 @@ defmodule EWalletDB.Repo.Seeds.RoleSeed do
   end
 
   defp run_with(writer, data) do
-    case Role.get_by_name(data.name) do
+    case Role.get_by(name: data.name) do
       nil ->
         case Role.insert(data) do
           {:ok, role} ->

@@ -5,6 +5,33 @@ defmodule EWallet.Web.MatchAllParserTest do
   alias EWalletDB.{Account, Repo, Transaction, User}
 
   describe "to_query/3" do
+    test "filter for mapped field" do
+      user_1 = insert(:user, is_admin: false)
+      user_2 = insert(:user, is_admin: false)
+      user_3 = insert(:user, is_admin: true)
+
+      attrs = %{
+        "match_all" => [
+          %{
+            "field" => "admin",
+            "comparator" => "eq",
+            "value" => "true"
+          }
+        ]
+      }
+
+      mappings = %{
+        "admin" => "is_admin"
+      }
+
+      query = MatchAllParser.to_query(User, attrs, [:is_admin], mappings)
+      result = Repo.all(query)
+
+      refute Enum.any?(result, fn user -> user.id == user_1.id end)
+      refute Enum.any?(result, fn user -> user.id == user_2.id end)
+      assert Enum.any?(result, fn user -> user.id == user_3.id end)
+    end
+
     test "filter for boolean true when given 'true' as value" do
       user_1 = insert(:user, is_admin: false)
       user_2 = insert(:user, is_admin: false)
@@ -452,6 +479,14 @@ defmodule EWallet.Web.MatchAllParserTest do
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
       refute Enum.any?(result, fn txn -> txn.id == txn_2.id end)
       assert Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+    end
+
+    test "returns the original query when given an empty list of conditions" do
+      attrs = %{
+        "match_all" => []
+      }
+
+      assert MatchAllParser.to_query(Transaction, attrs, [:status, :type]) == Transaction
     end
   end
 

@@ -20,8 +20,9 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                        "id" => api_key1.id,
                        "key" => api_key1.key,
                        "account_id" => api_key1.account.id,
-                       "expired" => false,
                        "owner_app" => api_key1.owner_app,
+                       "expired" => false,
+                       "enabled" => true,
                        "created_at" => Date.to_iso8601(api_key1.inserted_at),
                        "updated_at" => Date.to_iso8601(api_key1.updated_at),
                        "deleted_at" => Date.to_iso8601(api_key1.deleted_at)
@@ -31,8 +32,9 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                        "id" => api_key2.id,
                        "key" => api_key2.key,
                        "account_id" => api_key2.account.id,
-                       "expired" => false,
                        "owner_app" => api_key2.owner_app,
+                       "expired" => false,
+                       "enabled" => true,
                        "created_at" => Date.to_iso8601(api_key2.inserted_at),
                        "updated_at" => Date.to_iso8601(api_key2.updated_at),
                        "deleted_at" => Date.to_iso8601(api_key2.deleted_at)
@@ -42,7 +44,8 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                      "current_page" => 1,
                      "per_page" => 10,
                      "is_first_page" => true,
-                     "is_last_page" => true
+                     "is_last_page" => true,
+                     "count" => 2
                    }
                  }
                }
@@ -72,8 +75,9 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                        "id" => api_key.id,
                        "key" => api_key.key,
                        "account_id" => api_key.account.id,
-                       "expired" => false,
                        "owner_app" => api_key.owner_app,
+                       "expired" => false,
+                       "enabled" => true,
                        "created_at" => Date.to_iso8601(api_key.inserted_at),
                        "updated_at" => Date.to_iso8601(api_key.updated_at),
                        "deleted_at" => Date.to_iso8601(api_key.deleted_at)
@@ -83,11 +87,15 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                      "current_page" => 1,
                      "per_page" => 1,
                      "is_first_page" => true,
-                     "is_last_page" => false
+                     "is_last_page" => false,
+                     "count" => 1
                    }
                  }
                }
     end
+
+    test_supports_match_any("/api_key.all", :provider_auth, :api_key, :key)
+    test_supports_match_all("/api_key.all", :provider_auth, :api_key, :key)
   end
 
   describe "/api_key.create" do
@@ -103,8 +111,9 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                  "id" => api_key.id,
                  "key" => api_key.key,
                  "account_id" => Account.get_master_account().id,
-                 "expired" => false,
                  "owner_app" => "ewallet_api",
+                 "expired" => false,
+                 "enabled" => true,
                  "created_at" => Date.to_iso8601(api_key.inserted_at),
                  "updated_at" => Date.to_iso8601(api_key.updated_at),
                  "deleted_at" => Date.to_iso8601(api_key.deleted_at)
@@ -116,7 +125,7 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
   describe "/api_key.update" do
     test "disables the API key" do
       api_key = :api_key |> insert() |> Repo.preload(:account)
-      assert api_key.expired == false
+      assert api_key.enabled == true
 
       response =
         provider_request("/api_key.update", %{
@@ -126,11 +135,12 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
 
       assert response["data"]["id"] == api_key.id
       assert response["data"]["expired"] == true
+      assert response["data"]["enabled"] == false
     end
 
     test "enables the API key" do
-      api_key = :api_key |> insert(expired: true) |> Repo.preload(:account)
-      assert api_key.expired == true
+      api_key = :api_key |> insert(enabled: false) |> Repo.preload(:account)
+      assert api_key.enabled == false
 
       response =
         provider_request("/api_key.update", %{
@@ -140,11 +150,12 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
 
       assert response["data"]["id"] == api_key.id
       assert response["data"]["expired"] == false
+      assert response["data"]["enabled"] == true
     end
 
     test "does not update any other fields" do
       api_key = :api_key |> insert() |> Repo.preload(:account)
-      assert api_key.expired == false
+      assert api_key.enabled == true
 
       response =
         provider_request("/api_key.update", %{
@@ -165,6 +176,7 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                  "id" => updated.id,
                  "key" => api_key.key,
                  "expired" => true,
+                 "enabled" => false,
                  "account_id" => api_key.account.id,
                  "owner_app" => api_key.owner_app,
                  "created_at" => Date.to_iso8601(api_key.inserted_at),
@@ -172,6 +184,59 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                  "deleted_at" => Date.to_iso8601(api_key.deleted_at)
                }
              }
+    end
+  end
+
+  describe "/api_key.enable_or_disable" do
+    test "disables the API key" do
+      api_key = :api_key |> insert() |> Repo.preload(:account)
+      assert api_key.enabled == true
+
+      response =
+        provider_request("/api_key.enable_or_disable", %{
+          id: api_key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["enabled"] == false
+    end
+
+    test "disabling an API key twice doesn't re-enable it" do
+      api_key = :api_key |> insert() |> Repo.preload(:account)
+      assert api_key.enabled == true
+
+      response =
+        provider_request("/api_key.enable_or_disable", %{
+          id: api_key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["enabled"] == false
+
+      response =
+        provider_request("/api_key.enable_or_disable", %{
+          id: api_key.id,
+          enabled: false
+        })
+
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["enabled"] == false
+    end
+
+    test "enables the API key" do
+      api_key = :api_key |> insert(enabled: false) |> Repo.preload(:account)
+      assert api_key.enabled == false
+
+      response =
+        provider_request("/api_key.enable_or_disable", %{
+          id: api_key.id,
+          enabled: true
+        })
+
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["enabled"] == true
     end
   end
 
@@ -200,6 +265,27 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                  "object" => "error"
                }
              }
+    end
+
+    test "responds with an error if the user is not authorized to delete the API key" do
+      api_key = insert(:api_key)
+      key = insert(:key)
+
+      attrs = %{id: api_key.id}
+      opts = [access_key: key.access_key, secret_key: key.secret_key]
+      response = provider_request("/api_key.delete", attrs, opts)
+
+      assert response ==
+               %{
+                 "version" => "1",
+                 "success" => false,
+                 "data" => %{
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation.",
+                   "messages" => nil,
+                   "object" => "error"
+                 }
+               }
     end
   end
 end

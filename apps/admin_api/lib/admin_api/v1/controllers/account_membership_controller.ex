@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias Ecto.Query
   alias EWallet.InviteEmail
   alias EWallet.{AccountMembershipPolicy, EmailValidator}
   alias EWallet.Web.{Inviter, Orchestrator, Originator, UrlValidator, V1.MembershipOverlay}
@@ -16,16 +17,54 @@ defmodule AdminAPI.V1.AccountMembershipController do
          :ok <- permit(:get, conn.assigns, account.id),
          ancestor_uuids <- Account.get_all_ancestors_uuids(account),
          query <- Membership.all_by_account_uuids(ancestor_uuids),
-         query <- Orchestrator.build_query(query, MembershipOverlay, attrs),
+         attrs <- transform_user_filter_attrs(attrs),
+         %Query{} = query <- Orchestrator.build_query(query, MembershipOverlay, attrs),
          memberships <- Repo.all(query),
          memberships <- Membership.distinct_by_role(memberships) do
       render(conn, :memberships, %{memberships: memberships})
     else
-      {:error, error} -> handle_error(conn, error)
+      {:error, :not_allowed, field} ->
+        handle_error(conn, :query_field_not_allowed, field_name: field)
+
+      {:error, error} ->
+        handle_error(conn, error)
     end
   end
 
   def all_for_account(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  # Transform the filter attributes to the ones expected by
+  # the Orchestrator + MembershipOverlay.
+  defp transform_user_filter_attrs(attrs) do
+    user_filterables =
+      MembershipOverlay.filter_fields()
+      |> Keyword.get(:user)
+      |> Enum.map(fn field -> Atom.to_string(field) end)
+
+    attrs
+    |> transform_user_filter_attrs("match_any", user_filterables)
+    |> transform_user_filter_attrs("match_all", user_filterables)
+  end
+
+  defp transform_user_filter_attrs(attrs, match_type, filterables) do
+    case attrs[match_type] do
+      nil ->
+        attrs
+
+      _ ->
+        match_attrs = transform_user_filter_attrs(attrs[match_type], filterables)
+        Map.put(attrs, match_type, match_attrs)
+    end
+  end
+
+  defp transform_user_filter_attrs(filters, filterables) do
+    Enum.map(filters, fn filter ->
+      case Enum.member?(filterables, filter["field"]) do
+        true -> Map.put(filter, "field", "user." <> filter["field"])
+        false -> filter
+      end
+    end)
+  end
 
   @doc """
   Assigns the user to the given account and role.
@@ -34,7 +73,8 @@ defmodule AdminAPI.V1.AccountMembershipController do
     with %Account{} = account <- Account.get(attrs["account_id"]) || {:error, :unauthorized},
          :ok <- permit(:create, conn.assigns, account.id),
          {:ok, user_or_email} <- get_user_or_email(attrs),
-         %Role{} = role <- Role.get_by_name(attrs["role_name"]) || {:error, :role_name_not_found},
+         %Role{} = role <-
+           Role.get_by(name: attrs["role_name"]) || {:error, :role_name_not_found},
          {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]),
          originator <- Originator.extract(conn.assigns),
          {:ok, _} <- assign_or_invite(user_or_email, account, role, redirect_url, originator) do

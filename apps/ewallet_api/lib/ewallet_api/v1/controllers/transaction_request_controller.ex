@@ -10,7 +10,7 @@ defmodule EWalletAPI.V1.TransactionRequestController do
 
   @spec create_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create_for_user(conn, attrs) do
-    conn.assigns.user
+    conn.assigns.end_user
     |> TransactionRequestGate.create(attrs)
     |> respond(conn)
   end

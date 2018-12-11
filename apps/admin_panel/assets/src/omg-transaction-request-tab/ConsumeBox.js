@@ -14,6 +14,7 @@ import queryString from 'query-string'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
 import WalletSelect from '../omg-wallet-select'
 import TokenSelect from '../omg-token-select'
+import { createSearchTokenQuery } from '../omg-token/searchField'
 const ConsumeActionContainer = styled.form`
   display: flex;
   margin: 20px 0;
@@ -277,7 +278,7 @@ class ConsumeBox extends Component {
     }
   }
 
-  render = () => {
+  render () {
     const valid = this.props.transactionRequest.status === 'valid'
     const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
     const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
@@ -322,7 +323,7 @@ class ConsumeBox extends Component {
             }}
           />
           <TokensFetcher
-            query={{ search: this.state.searchTokenValue }}
+            query={createSearchTokenQuery(this.state.searchTokenValue)}
             render={({ data }) => {
               return (
                 <TokenAmountContainer>

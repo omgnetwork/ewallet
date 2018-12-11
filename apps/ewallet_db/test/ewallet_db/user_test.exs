@@ -50,7 +50,7 @@ defmodule EWalletDB.UserTest do
 
     # The test below can't use `test_insert_prevent_duplicate/3` with :email
     # because we need to use :admin factory to get proper data for admin user.
-    test "returns error if same :email already exists" do
+    test "returns error if same :email is already used" do
       params = params_for(:admin, %{email: "same@example.com"})
 
       {:ok, _record} = User.insert(params)
@@ -80,20 +80,21 @@ defmodule EWalletDB.UserTest do
 
     test_update_prevents_changing(User, :provider_user_id)
 
-    test "updates email successfully" do
+    test "does not update the user's email" do
       user = insert(:standalone_user)
-      {res, user} = User.update(user, %{email: "new_email@example.com", originator: user})
+      new_email = "new.email@example.com"
+
+      assert user.email != new_email
+
+      {res, updated} =
+        User.update(user, %{
+          email: new_email,
+          originator: user
+        })
 
       assert res == :ok
-      assert user.email == "new_email@example.com"
-    end
-
-    test "prevents removal of admin's email" do
-      user = insert(:admin)
-      {res, changeset} = User.update(user, %{email: nil, originator: user})
-
-      assert res == :error
-      refute changeset.valid?
+      assert updated.email == user.email
+      assert updated.email != new_email
     end
 
     test "does not update the user's password" do
@@ -203,6 +204,64 @@ defmodule EWalletDB.UserTest do
 
       assert res == :error
       refute changeset.valid?
+    end
+  end
+
+  describe "update_email/2" do
+    test "updates the email" do
+      user = insert(:standalone_user)
+      new_email = "new.email@example.com"
+      assert user.email != new_email
+
+      {res, updated} =
+        User.update_email(user, %{
+          email: new_email,
+          originator: user
+        })
+
+      assert res == :ok
+      assert updated.email == new_email
+    end
+
+    test "prevents the update if the email is already used" do
+      new_email = "new.email@example.com"
+      user = insert(:standalone_user)
+      _ = insert(:standalone_user, email: "new.email@example.com")
+
+      assert user.email != new_email
+
+      {res, changeset} =
+        User.update_email(user, %{
+          email: new_email,
+          originator: user
+        })
+
+      assert res == :error
+      refute changeset.valid?
+      assert changeset.errors == [email: {"has already been taken", []}]
+    end
+
+    test "prevents removal of the email" do
+      user = insert(:standalone_user)
+
+      assert String.length(user.email) > 0
+
+      {res, changeset} =
+        User.update_email(user, %{
+          email: nil,
+          originator: user
+        })
+
+      assert res == :error
+
+      refute changeset.valid?
+
+      assert changeset.errors == [
+               email:
+                 {"must be a valid email address format",
+                  [validation: :valid_email_address_format]},
+               email: {"can't be blank", [validation: :required]}
+             ]
     end
   end
 
@@ -413,6 +472,18 @@ defmodule EWalletDB.UserTest do
     end
   end
 
+  describe "enabled?/1" do
+    test "returns true if the user's `enabled` is true" do
+      user = insert(:user, enabled: true)
+      assert User.enabled?(user)
+    end
+
+    test "returns false if the user's `enabled` is false" do
+      user = insert(:user, enabled: false)
+      refute User.enabled?(user)
+    end
+  end
+
   describe "master_admin?/1" do
     test "returns true if the user has a membership on the top-level account" do
       user = insert(:user)
@@ -465,6 +536,24 @@ defmodule EWalletDB.UserTest do
       accounts = user |> User.get_accounts() |> Enum.map(fn account -> account.uuid end)
       assert Enum.member?(accounts, mid_account.uuid)
       assert Enum.member?(accounts, sub_account.uuid)
+    end
+  end
+
+  describe "enable_or_disable/2" do
+    test "enable the user when given true" do
+      user = insert(:user, %{enabled: false})
+      refute User.enabled?(user)
+
+      {:ok, user} = User.enable_or_disable(user, %{enabled: true})
+      assert User.enabled?(user)
+    end
+
+    test "disable the user when given false" do
+      user = insert(:user, %{enabled: true})
+      assert User.enabled?(user)
+
+      {:ok, user} = User.enable_or_disable(user, %{enabled: false})
+      refute User.enabled?(user)
     end
   end
 end

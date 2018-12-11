@@ -13,24 +13,25 @@ defmodule EWallet.Web.MatchParser do
   #    Also build a map of positional reference of the joined assocs.
   # 3. Condition the joined queryable by the parsed_input.
 
-  @spec build_query(Ecto.Queryable.t(), map(), [atom()], boolean(), atom()) :: Ecto.Queryable.t()
-  def build_query(queryable, inputs, whitelist, initial_dynamic, query_module) do
-    with rules when is_list(rules) <- parse_rules(inputs, whitelist),
+  @spec build_query(Ecto.Queryable.t(), map(), map(), [atom()], boolean(), atom()) ::
+          Ecto.Queryable.t()
+  def build_query(queryable, inputs, whitelist, dynamic, query_module, mappings \\ %{}) do
+    with rules when is_list(rules) <- parse_rules(inputs, whitelist, mappings),
          {queryable, assoc_positions} <- join_assocs(queryable, rules),
          true <- Enum.count(assoc_positions) <= 5 || {:error, :too_many_associations},
-         queryable <- filter(queryable, assoc_positions, rules, initial_dynamic, query_module),
-         queryable <- distinct(queryable, true) do
+         {:ok, queryable} <- filter(queryable, assoc_positions, rules, dynamic, query_module),
+         queryable <- add_distinct(queryable) do
       queryable
     else
       error -> error
     end
   end
 
-  # Parses a list of arbitary `%{"field" => _, "comparator" => _, "value" => _}`
+  # Parses a list of arbitrary `%{"field" => _, "comparator" => _, "value" => _}`
   # into a list of `{field, subfield, type, comparator, value}`.
-  defp parse_rules(inputs, whitelist) do
+  defp parse_rules(inputs, whitelist, mappings) do
     Enum.reduce_while(inputs, [], fn input, accumulator ->
-      case parse_rule(input, whitelist) do
+      case parse_rule(input, whitelist, mappings) do
         {:error, _} = error ->
           {:halt, error}
 
@@ -48,9 +49,10 @@ defmodule EWallet.Web.MatchParser do
   # ------------------------------
   defp parse_rule(
          %{"field" => field, "comparator" => comparator, "value" => value},
-         whitelist
+         whitelist,
+         mappings
        ) do
-    fieldset = parse_fieldset(field)
+    fieldset = parse_fieldset(field, mappings)
 
     case find_field_definition(fieldset, whitelist) do
       nil ->
@@ -61,22 +63,25 @@ defmodule EWallet.Web.MatchParser do
     end
   end
 
-  defp parse_rule(params, _) do
+  defp parse_rule(params, _, _) do
     {:error, :missing_filter_param, params}
   end
 
-  @spec parse_fieldset(String.t()) ::
-          atom() | {atom(), atom()} | {:error, :not_supported, String.t()}
-  defp parse_fieldset(field) do
+  @spec parse_fieldset(String.t(), map()) ::
+          atom()
+          | {atom(), atom()}
+          | {:error, :not_supported, String.t()}
+          | {:error, :not_allowed, String.t()}
+  defp parse_fieldset(field, mappings) do
     splitted = String.split(field, ".")
 
     # Avoid unneccessarily counting deeply nested values by taking out only 3 items.
     case Enum.take(splitted, 3) do
       [field] ->
-        String.to_existing_atom(field)
+        String.to_existing_atom(mappings[field] || field)
 
       [field, subfield] ->
-        {String.to_existing_atom(field), String.to_existing_atom(subfield)}
+        {String.to_existing_atom(mappings[field] || field), String.to_existing_atom(subfield)}
 
       [field, _subfield, _too_deep] ->
         {:error, :not_supported, field}
@@ -147,19 +152,40 @@ defmodule EWallet.Web.MatchParser do
 
   defp filter(queryable, assoc_positions, rules, initial_dynamic, query_module) do
     dynamic =
-      Enum.reduce(rules, initial_dynamic, fn rule, dynamic ->
+      Enum.reduce_while(rules, initial_dynamic, fn rule, dynamic ->
         {field_definition, comparator, value} = rule
 
-        case field_definition do
-          {field, type} ->
-            query_module.do_filter(dynamic, field, type, comparator, value)
+        query =
+          case field_definition do
+            {field, type} ->
+              query_module.do_filter(dynamic, field, type, comparator, value)
 
-          {field, subfield, type} ->
-            position = assoc_positions[field]
-            query_module.do_filter_assoc(dynamic, position, subfield, type, comparator, value)
+            {field, subfield, type} ->
+              position = assoc_positions[field]
+              query_module.do_filter_assoc(dynamic, position, subfield, type, comparator, value)
+          end
+
+        case query do
+          {:error, _, _} = error ->
+            {:halt, error}
+
+          query ->
+            {:cont, query}
         end
       end)
 
-    from(queryable, where: ^dynamic)
+    case dynamic do
+      {:error, _, _} = error ->
+        error
+
+      dynamic ->
+        {:ok, from(queryable, where: ^dynamic)}
+    end
   end
+
+  defp add_distinct(%Ecto.Query{distinct: nil} = queryable) do
+    distinct(queryable, true)
+  end
+
+  defp add_distinct(queryable), do: queryable
 end

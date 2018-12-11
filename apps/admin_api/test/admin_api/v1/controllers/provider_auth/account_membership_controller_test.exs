@@ -36,6 +36,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "updated_at" => Date.to_iso8601(user.updated_at),
                "account_role" => role.name,
                "status" => to_string(User.get_status(user)),
+               "enabled" => user.enabled,
                "avatar" => %{
                  "original" => nil,
                  "large" => nil,
@@ -75,6 +76,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "updated_at" => Date.to_iso8601(admin.updated_at),
                "account_role" => "admin",
                "status" => to_string(User.get_status(admin)),
+               "enabled" => admin.enabled,
                "avatar" => %{
                  "original" => nil,
                  "large" => nil,
@@ -127,6 +129,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                        "updated_at" => Date.to_iso8601(admin.updated_at),
                        "account_role" => "admin",
                        "status" => to_string(User.get_status(admin)),
+                       "enabled" => admin.enabled,
                        "avatar" => %{
                          "original" => nil,
                          "large" => nil,
@@ -188,6 +191,182 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                    "messages" => nil
                  }
                }
+    end
+
+    # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
+    # an admin and a membership in order for the inserted admin to appear in the result.
+    test "supports match_any filtering on the user fields" do
+      admin_1 = insert(:admin, username: "value_1")
+      admin_2 = insert(:admin, username: "value_2")
+      admin_3 = insert(:admin, username: "value_3")
+      admin_4 = insert(:admin, username: "value_4")
+      account = insert(:account)
+
+      _ = insert(:membership, %{user: admin_1, account: account})
+      _ = insert(:membership, %{user: admin_2, account: account})
+      _ = insert(:membership, %{user: admin_3, account: account})
+      _ = insert(:membership, %{user: admin_4, account: account})
+
+      attrs = %{
+        "id" => account.id,
+        "match_any" => [
+          # Filter for `user.username`
+          %{
+            "field" => "username",
+            "comparator" => "eq",
+            "value" => "value_2"
+          },
+          # Filter for `user.username`
+          %{
+            "field" => "username",
+            "comparator" => "eq",
+            "value" => "value_4"
+          }
+        ]
+      }
+
+      response = provider_request("/account.get_members", attrs)
+
+      assert response["success"]
+
+      records = response["data"]["data"]
+
+      refute Enum.any?(records, fn r -> r["id"] == admin_1.id end)
+      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
+      refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
+      assert Enum.any?(records, fn r -> r["id"] == admin_4.id end)
+      assert Enum.count(records) == 2
+    end
+
+    # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
+    # an admin and a membership in order for the inserted admin to appear in the result.
+    test "supports match_any filtering on the membership fields" do
+      admin_1 = insert(:admin, username: "value_1")
+      admin_2 = insert(:admin, username: "value_2")
+      admin_3 = insert(:admin, username: "value_3")
+      account = insert(:account)
+      role_1 = insert(:role)
+      role_2 = insert(:role)
+
+      _ = insert(:membership, %{user: admin_1, account: account, role: role_1})
+      _ = insert(:membership, %{user: admin_2, account: account, role: role_2})
+      _ = insert(:membership, %{user: admin_3, account: account, role: role_2})
+
+      attrs = %{
+        "id" => account.id,
+        "match_any" => [
+          # Filter for `membership.role.name`
+          %{
+            "field" => "role.name",
+            "comparator" => "eq",
+            "value" => role_1.name
+          },
+          # Filter for `user.username`
+          %{
+            "field" => "username",
+            "comparator" => "eq",
+            "value" => admin_3.username
+          }
+        ]
+      }
+
+      response = provider_request("/account.get_members", attrs)
+
+      assert response["success"]
+
+      records = response["data"]["data"]
+
+      assert Enum.any?(records, fn r -> r["id"] == admin_1.id end)
+      refute Enum.any?(records, fn r -> r["id"] == admin_2.id end)
+      assert Enum.any?(records, fn r -> r["id"] == admin_3.id end)
+      assert Enum.count(records) == 2
+    end
+
+    # This is a variation of `ConnCase.test_supports_match_all/5` that inserts
+    # an admin and a membership in order for the inserted admin to appear in the result.
+    test "supports match_all filtering on user fields" do
+      admin_1 = insert(:admin, %{username: "this_should_almost_match"})
+      admin_2 = insert(:admin, %{username: "this_should_match"})
+      admin_3 = insert(:admin, %{username: "should_not_match"})
+      admin_4 = insert(:admin, %{username: "also_should_not_match"})
+      account = insert(:account)
+
+      _ = insert(:membership, %{user: admin_1, account: account})
+      _ = insert(:membership, %{user: admin_2, account: account})
+      _ = insert(:membership, %{user: admin_3, account: account})
+      _ = insert(:membership, %{user: admin_4, account: account})
+
+      attrs = %{
+        "id" => account.id,
+        "match_all" => [
+          # Filter for `user.username`
+          %{
+            "field" => "username",
+            "comparator" => "starts_with",
+            "value" => "this_should"
+          },
+          # Filter for `user.username`
+          %{
+            "field" => "username",
+            "comparator" => "contains",
+            "value" => "should_match"
+          }
+        ]
+      }
+
+      response = provider_request("/account.get_members", attrs)
+
+      assert response["success"]
+
+      records = response["data"]["data"]
+      refute Enum.any?(records, fn r -> r["id"] == admin_1.id end)
+      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
+      refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
+      refute Enum.any?(records, fn r -> r["id"] == admin_4.id end)
+      assert Enum.count(records) == 1
+    end
+
+    # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
+    # an admin and a membership in order for the inserted admin to appear in the result.
+    test "supports match_all filtering on membership fields" do
+      admin_1 = insert(:admin)
+      admin_2 = insert(:admin)
+      admin_3 = insert(:admin)
+      account = insert(:account)
+      role_1 = insert(:role)
+      role_2 = insert(:role)
+
+      _ = insert(:membership, %{user: admin_1, account: account, role: role_1})
+      _ = insert(:membership, %{user: admin_2, account: account, role: role_1})
+      _ = insert(:membership, %{user: admin_3, account: account, role: role_2})
+
+      attrs = %{
+        "id" => account.id,
+        "match_all" => [
+          # Filter for `membership.role.name`
+          %{
+            "field" => "role.name",
+            "comparator" => "eq",
+            "value" => role_1.name
+          },
+          # Filter for `membership.id`
+          %{
+            "field" => "id",
+            "comparator" => "eq",
+            "value" => admin_1.id
+          }
+        ]
+      }
+
+      response = provider_request("/account.get_members", attrs)
+
+      assert response["success"]
+
+      records = response["data"]["data"]
+      assert Enum.any?(records, fn r -> r["id"] == admin_1.id end)
+      refute Enum.any?(records, fn r -> r["id"] == admin_2.id end)
+      refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
+      assert Enum.count(records) == 1
     end
   end
 

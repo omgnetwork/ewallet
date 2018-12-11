@@ -63,6 +63,10 @@ defmodule EWalletConfig.Setting do
     |> Enum.map(&build/1)
   end
 
+  def query do
+    StoredSetting
+  end
+
   @doc """
   Retrieves a setting by its string name.
   """
@@ -168,7 +172,7 @@ defmodule EWalletConfig.Setting do
         {:error, :setting_not_found}
 
       setting ->
-        attrs = cast_attrs(attrs)
+        attrs = cast_attrs(setting, attrs)
 
         setting
         |> StoredSetting.update_changeset(attrs)
@@ -182,10 +186,11 @@ defmodule EWalletConfig.Setting do
     Enum.map(attrs, fn data ->
       case data do
         {key, value} ->
-          update(key, %{value: value})
+          {key, update(key, %{value: value})}
 
         data ->
-          update(data[:key] || data["key"], data)
+          key = data[:key] || data["key"]
+          {key, update(key, data)}
       end
     end)
   end
@@ -193,7 +198,7 @@ defmodule EWalletConfig.Setting do
   @spec update_all(Map.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}]
   def update_all(attrs) do
     Enum.map(attrs, fn {key, value} ->
-      update(key, %{value: value})
+      {key, update(key, %{value: value})}
     end)
   end
 
@@ -210,44 +215,7 @@ defmodule EWalletConfig.Setting do
     |> Repo.all()
   end
 
-  defp return_from_change({:ok, stored_setting}) do
-    {:ok, build(stored_setting)}
-  end
-
-  defp return_from_change({:error, changeset}) do
-    {:error, build_changeset(changeset)}
-  end
-
-  defp cast_attrs(attrs) do
-    attrs
-    |> cast_value()
-    |> cast_options()
-    |> add_position()
-  end
-
-  defp build_changeset(changeset) do
-    %Changeset{
-      action: changeset.action,
-      changes: clean_changes(changeset.changes),
-      errors: changeset.errors,
-      data: %Setting{},
-      valid?: changeset.valid?
-    }
-  end
-
-  defp clean_changes(%{encrypted_data: data} = changes) do
-    changes
-    |> Map.delete(:encrypted_data)
-    |> Map.put(:value, data[:value])
-  end
-
-  defp clean_changes(%{data: data} = changes) do
-    changes
-    |> Map.delete(:data)
-    |> Map.put(:value, data[:value])
-  end
-
-  defp build(stored_setting) do
+  def build(stored_setting) do
     %Setting{
       uuid: stored_setting.uuid,
       id: stored_setting.id,
@@ -263,6 +231,28 @@ defmodule EWalletConfig.Setting do
       inserted_at: stored_setting.inserted_at,
       updated_at: stored_setting.updated_at
     }
+  end
+
+  defp cast_attrs(attrs) do
+    attrs
+    |> cast_value()
+    |> cast_options()
+    |> add_position()
+  end
+
+  defp cast_attrs(setting, attrs) do
+    attrs
+    |> cast_value(setting)
+    |> cast_options()
+    |> add_position()
+  end
+
+  defp return_from_change({:ok, stored_setting}) do
+    {:ok, build(stored_setting)}
+  end
+
+  defp return_from_change({:error, changeset}) do
+    {:error, changeset}
   end
 
   defp extract_value(%{secret: true, encrypted_data: nil}), do: nil
@@ -281,6 +271,18 @@ defmodule EWalletConfig.Setting do
 
   defp get_options(%{options: options}) do
     Map.get(options, :array) || Map.get(options, "array")
+  end
+
+  defp cast_value(%{value: value} = attrs, %{secret: true}) do
+    Map.put(attrs, :encrypted_data, %{value: value})
+  end
+
+  defp cast_value(%{value: value} = attrs, _) do
+    Map.put(attrs, :data, %{value: value})
+  end
+
+  defp cast_value(attrs, _) do
+    Map.put(attrs, :data, %{value: nil})
   end
 
   defp cast_value(%{secret: true, value: value} = attrs) do
