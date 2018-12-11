@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Input, Select, RadioButton } from '../omg-uikit'
+import { Input, Select, Checkbox } from '../omg-uikit'
 const ConfigRowContainer = styled.div`
   display: flex;
   border-bottom: ${props => (props.border ? `1px solid ${props.theme.colors.S200}` : 'none')};
@@ -85,8 +85,7 @@ export default class ConfigRow extends Component {
           )}
           {this.props.type === 'boolean' && (
             <RadioButtonsContainer>
-              <RadioButton label='True' checked={this.props.value} onClick={this.props.onChange(true)} />
-              <RadioButton label='False' checked={!this.props.value} onClick={this.props.onChange(false)} />
+              <Checkbox checked={this.props.value} onClick={this.props.onChange} />
             </RadioButtonsContainer>
           )}
         </ConfigCol>

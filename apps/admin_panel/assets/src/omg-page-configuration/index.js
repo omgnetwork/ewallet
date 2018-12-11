@@ -147,8 +147,8 @@ class ConfigurationPage extends Component {
       [key]: e.target.value
     })
   }
-  onChangeRadio = enable => e => {
-    this.setState({ enableStandalone: enable })
+  onChangeRadio = e => {
+    this.setState(oldState => ({ enableStandalone: !oldState.enableStandalone }))
   }
 
   onClickSaveConfiguration = async e => {
