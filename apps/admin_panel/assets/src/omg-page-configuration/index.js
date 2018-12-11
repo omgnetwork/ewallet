@@ -215,12 +215,10 @@ class ConfigurationPage extends Component {
           value={this.state.fileStorageAdapter}
           onSelectItem={this.onSelectFileStorageAdapter}
           type='select'
-          options={configurations.file_storage_adapter.options
-            .filter(option => option !== 'aws')
-            .map(option => ({
-              key: option,
-              value: option
-            }))}
+          options={configurations.file_storage_adapter.options.map(option => ({
+            key: option,
+            value: option
+          }))}
         />
         {this.state.fileStorageAdapter === 'gcs' && (
           <SubSettingContainer>
@@ -254,6 +252,43 @@ class ConfigurationPage extends Component {
             </div>
           </SubSettingContainer>
         )}
+        {this.state.fileStorageAdapter === 'aws' && (
+          <SubSettingContainer>
+            <div>
+              <ConfigRow
+                name={'AWS Bucket Name'}
+                description={configurations.aws_bucket.description}
+                value={this.state.awsBucket}
+                placeholder={'ie. aws_cloud_1'}
+                onChange={this.onChangeInput('awsBucket')}
+              />
+              <ConfigRow
+                name={'AWS Region'}
+                description={configurations.aws_region.description}
+                value={this.state.awsRegion}
+                placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
+                border={this.state.emailAdapter !== 'gcs'}
+                onChange={this.onChangeInput('awsRegion')}
+              />
+              <ConfigRow
+                name={'AWS Access Key ID'}
+                description={configurations.aws_access_key_id.description}
+                value={this.state.awsAccessKeyId}
+                placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
+                border={this.state.emailAdapter !== 'gcs'}
+                onChange={this.onChangeInput('awsAccessKeyId')}
+              />
+              <ConfigRow
+                name={'AWS Access Key ID'}
+                description={configurations.aws_secret_access_key.description}
+                value={this.state.awsSecretAccessKey}
+                placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
+                border={this.state.emailAdapter !== 'gcs'}
+                onChange={this.onChangeInput('awsSecretAccessKey')}
+              />
+            </div>
+          </SubSettingContainer>
+        )}
       </Fragment>
     )
   }
@@ -280,7 +315,7 @@ class ConfigurationPage extends Component {
       <Fragment>
         <h4>Global Setting</h4>
         <ConfigRow
-          name={'Base Url'}
+          name={'Base URL'}
           description={configurations.base_url.description}
           value={this.state.baseUrl}
           onChange={this.onChangeInput('baseUrl')}
@@ -288,7 +323,7 @@ class ConfigurationPage extends Component {
           inputErrorMessage={'This field shouldn\'t be empty'}
         />
         <ConfigRow
-          name={'Redirect Url Prefixes'}
+          name={'Redirect URL Prefixes'}
           description={configurations.redirect_url_prefixes.description}
           value={this.state.redirectUrlPrefixes}
           onChange={this.onChangeInput('redirectUrlPrefixes')}

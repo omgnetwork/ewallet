@@ -45,8 +45,8 @@ defmodule EWalletConfig.MixProject do
       {:poison, "~> 3.1"},
       {:deferred_config, "~> 0.1.0"},
       {:cloak, "~> 0.7.0-alpha"},
-      {:arc, "~> 0.8.0"},
-      {:arc_ecto, "~> 0.7.0"},
+      {:arc, "~> 0.11.0"},
+      {:arc_ecto, "~> 0.11.1"},
       {:bcrypt_elixir, "~> 1.0"},
       {:ex_ulid, github: "omisego/ex_ulid"},
       {:plug, "~> 1.0"}
