@@ -1,19 +1,22 @@
-defmodule AdminAPI.V1.ResetPasswordController do
-  use AdminAPI, :controller
-  import AdminAPI.V1.ErrorHandler
-  alias Bamboo.Email
+defmodule EWalletAPI.V1.ResetPasswordController do
+  use EWalletAPI, :controller
+  import EWalletAPI.V1.ErrorHandler
   alias EWallet.{ForgetPasswordEmail, Mailer, ResetPasswordGate}
   alias EWallet.Web.UrlValidator
 
   @doc """
-  Starts the reset password request flow for an admin.
+  Starts the reset password request flow for a user.
+
+  This function is used when the eWallet is setup as a standalone solution,
+  allowing users to reset their password without going through the integration
+  with the provider's server.
   """
   @spec reset(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def reset(conn, %{"email" => email, "redirect_url" => redirect_url})
       when not is_nil(email) and not is_nil(redirect_url) do
     with {:ok, redirect_url} <- validate_redirect_url(redirect_url),
          {:ok, request} <- ResetPasswordGate.request(email),
-         %Email{} <- send_request_email(request, redirect_url) do
+         {:ok, _email} <- send_request_email(request, redirect_url) do
       render(conn, :empty, %{success: true})
     else
       # Prevents attackers from gaining knowledge about a user's email.
@@ -41,13 +44,20 @@ defmodule AdminAPI.V1.ResetPasswordController do
   end
 
   defp send_request_email(request, redirect_url) do
-    request
-    |> ForgetPasswordEmail.create(redirect_url)
-    |> Mailer.deliver_now()
+    email =
+      request
+      |> ForgetPasswordEmail.create(redirect_url)
+      |> Mailer.deliver_now()
+
+    {:ok, email}
   end
 
   @doc """
-  Completes the reset password request flow for an admin.
+  Completes the reset password request flow for a user.
+
+  This function is used when the eWallet is setup as a standalone solution,
+  allowing users to reset their password without going through the integration
+  with the provider's server.
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{

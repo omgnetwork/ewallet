@@ -20,10 +20,6 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "access_key:unauthorized",
       description: "The current access key is not allowed to perform the requested operation."
     },
-    invalid_reset_token: %{
-      code: "forget_password:token_not_found",
-      description: "There are no password reset requests corresponding to the provided token."
-    },
     invalid_email_update_token: %{
       code: "email_update:token_not_found",
       description: "There are no email update requests corresponding to the provided token."
@@ -31,10 +27,6 @@ defmodule AdminAPI.V1.ErrorHandler do
     auth_token_not_found: %{
       code: "auth_token:not_found",
       description: "There is no auth token corresponding to the provided token."
-    },
-    user_email_not_found: %{
-      code: "user:email_not_found",
-      description: "There is no user corresponding to the provided email."
     },
     account_id_not_found: %{
       code: "account:id_not_found",
