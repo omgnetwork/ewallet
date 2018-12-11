@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/configuration.all" do
-    test "returns a list of settings and pagination data" do
+    test "returns all list of settings" do
       response = admin_user_request("/configuration.all", %{})
 
       # Asserts return data
@@ -10,34 +10,13 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
       assert response["data"]["object"] == "list"
       assert is_list(response["data"]["data"])
 
-      # Asserts pagination data
-      pagination = response["data"]["pagination"]
-      assert is_integer(pagination["per_page"])
-      assert is_integer(pagination["current_page"])
-      assert is_boolean(pagination["is_last_page"])
-      assert is_boolean(pagination["is_first_page"])
     end
 
     test "returns a list of settings" do
       response =
-        admin_user_request("/configuration.all", %{
-          per_page: 100,
-          sort_by: "position",
-          sort_dir: "asc"
-        })
-
+        admin_user_request("/configuration.all")
       assert response["success"] == true
       assert length(response["data"]["data"]) == 19
-      assert response["data"]["pagination"]["count"] == 19
-
-      first_setting = Enum.at(response["data"]["data"], 0)
-      last_setting = Enum.at(response["data"]["data"], -1)
-
-      assert first_setting["key"] == "base_url"
-      assert first_setting["position"] == 1
-
-      assert last_setting["key"] == "aws_secret_access_key"
-      assert last_setting["position"] == 19
     end
   end
 

@@ -10,13 +10,14 @@ describe('configurations reducer', () => {
         {},
         {
           type: 'CONFIGURATIONS/REQUEST/SUCCESS',
-          data: [{ id: '1', data: '1' }]
+          data: [{ id: '1', data: '1', key: 'x' }]
         }
       )
     ).toEqual({
-      '1': {
+      'x': {
         id: '1',
-        data: '1'
+        data: '1',
+        key: 'x'
       }
     })
   })
