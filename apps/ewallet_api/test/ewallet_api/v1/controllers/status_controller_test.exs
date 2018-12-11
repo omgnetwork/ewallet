@@ -1,5 +1,6 @@
 defmodule EWalletAPI.V1.StatusControllerTest do
-  use EWalletAPI.ConnCase, async: true
+  # async: false due to `Application.put_env/3` for sentry reporting
+  use EWalletAPI.ConnCase, async: false
   alias Poison.Parser
 
   describe "/status" do
@@ -33,6 +34,34 @@ defmodule EWalletAPI.V1.StatusControllerTest do
 
       assert status == 500
       assert Parser.parse!(response) == expected
+    end
+
+    test "sends a report to sentry" do
+      bypass = Bypass.open()
+
+      Bypass.expect(bypass, fn conn ->
+        assert conn.halted == false
+        assert conn.method == "POST"
+        assert conn.request_path == "/api/1/store/"
+
+        Plug.Conn.resp(conn, 200, ~s'{"id": "1234"}')
+      end)
+
+      original_dsn = Application.get_env(:sentry, :dsn)
+      original_included_envs = Application.get_env(:sentry, :included_environments)
+
+      Application.put_env(:sentry, :dsn, "http://public@localhost:#{bypass.port}/1")
+      Application.put_env(:sentry, :included_environments, [:test | original_included_envs])
+
+      try do
+        public_request("/status.server_error")
+      rescue
+        e ->
+          Sentry.capture_exception(e, result: :sync)
+      end
+
+      Application.put_env(:sentry, :dsn, original_dsn)
+      Application.put_env(:sentry, :included_environments, original_included_envs)
     end
   end
 end
