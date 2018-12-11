@@ -8,21 +8,11 @@ export const updateConfiguration = config =>
     service: () => configurationService.updateConfiguration(config)
   })
 
-export const getConfiguration = ({ page, perPage, matchAll, matcHAny, cacheKey }) => {
-  return createPaginationActionCreator({
+export const getConfiguration = () => {
+  return createActionCreator({
     actionName: 'CONFIGURATIONS',
     action: 'REQUEST',
     service: () =>
-      configurationService.getConfiguration({
-        page,
-        perPage: 100,
-        matchAll,
-        matcHAny,
-        sort: {
-          dir: 'desc',
-          by: 'position'
-        }
-      }),
-    cacheKey
+      configurationService.getConfiguration()
   })
 }
