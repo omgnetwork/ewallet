@@ -64,7 +64,7 @@ defmodule EWalletAPI.V1.ClientAuth do
       %User{} = user ->
         auth
         |> Map.put(:authenticated, true)
-        |> Map.put(:user, user)
+        |> Map.put(:end_user, user)
 
       false ->
         auth

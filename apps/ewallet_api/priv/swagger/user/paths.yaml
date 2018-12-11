@@ -26,6 +26,34 @@ user.verify_email:
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
+user.reset_password:
+  post:
+    tags:
+      - User
+    summary: Request a password reset
+    operationId: user_reset_password
+    requestBody:
+      $ref: 'request_bodies.yaml#/UserResetPasswordBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/UserResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+user.update_password:
+  post:
+    tags:
+      - User
+    summary: Perform a password reset
+    operationId: user_update_password
+    requestBody:
+      $ref: 'request_bodies.yaml#/UserUpdatePasswordBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/UserResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 me.get:
   post:
     tags:

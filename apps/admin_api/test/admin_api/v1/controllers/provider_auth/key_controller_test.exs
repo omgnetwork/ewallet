@@ -1,11 +1,11 @@
 defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, Key, Repo}
+  alias EWalletDB.{Account, Key}
 
   describe "/access_key.all" do
     test "responds with a list of keys without secret keys" do
-      key_1 = Key |> Repo.get_by(access_key: @access_key) |> Repo.preload([:account])
+      key_1 = Key.get_by(%{access_key: @access_key}, preload: :account)
       key_2 = insert(:key, %{secret_key: "the_secret_key"})
 
       response = provider_request("/access_key.all")

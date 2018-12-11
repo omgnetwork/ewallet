@@ -287,7 +287,8 @@ defmodule EWalletDB.Factory do
   def forget_password_request_factory do
     %ForgetPasswordRequest{
       token: sequence("123"),
-      enabled: true
+      enabled: true,
+      expires_at: NaiveDateTime.utc_now() |> NaiveDateTime.add(60 * 10)
     }
   end
 
