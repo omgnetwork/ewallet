@@ -151,10 +151,31 @@ class ConfigurationPage extends Component {
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.PENDING })
       const result = await this.props.updateConfiguration({
         ...this.state,
-        gcsCredentials: JSON.parse(this.state.gcsCredentials)
+        gcsCredentials: this.state.gcsCredentials
       })
       if (result.data) {
-        this.setState({ submitStatus: CONSTANT.LOADING_STATUS.SUCCESS })
+        this.setState({
+          submitStatus: CONSTANT.LOADING_STATUS.SUCCESS,
+          baseUrl: _.get(result.data.data, 'base_url.value'),
+          redirectUrlPrefixes: _.get(result.data.data, 'redirect_url_prefixes.value'),
+          enableStandalone: _.get(result.data.data, 'enable_standalone.value'),
+          maxPerPage: _.get(result.data.data, 'max_per_page.value'),
+          minPasswordLength: _.get(result.data.data, 'min_password_length.value'),
+          senderEmail: _.get(result.data.data, 'sender_email.value'),
+          emailAdapter: _.get(result.data.data, 'email_adapter.value'),
+          smtpHost: _.get(result.data.data, 'smtp_host.value'),
+          smtpPort: _.get(result.data.data, 'smtp_port.value'),
+          smtpUsername: _.get(result.data.data, 'smtp_username.value'),
+          smtpPassword: _.get(result.data.data, 'smtp_password.value'),
+          fileStorageAdapter: _.get(result.data.data, 'file_storage_adapter.value'),
+          gcsBucket: _.get(result.data.data, 'gcs_bucket.value'),
+          gcsCredentials: _.get(result.data.data, 'gcs_credentials.value'),
+          awsBucket: _.get(result.data.data, 'aws_bucket.value'),
+          awsRegion: _.get(result.data.data, 'aws_region.value'),
+          awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value'),
+          awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value'),
+          balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value')
+        })
         setTimeout(() => {
           window.location.reload()
         }, 2000)
@@ -162,6 +183,7 @@ class ConfigurationPage extends Component {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
       }
     } catch (error) {
+      console.log(error)
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
     }
   }
@@ -213,6 +235,15 @@ class ConfigurationPage extends Component {
                 placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
                 border={this.state.emailAdapter !== 'gcs'}
                 onChange={this.onChangeInput('gcsCredentials')}
+                inputErrorMessage='invalid json credential'
+                inputValidator={value => {
+                  try {
+                    JSON.parse(value)
+                    return false
+                  } catch (error) {
+                    return true
+                  }
+                }}
               />
             </div>
           </SubSettingContainer>
@@ -239,6 +270,7 @@ class ConfigurationPage extends Component {
     )
   }
   renderGlobalSetting (configurations) {
+    console.log(this.state.maxPerPage)
     return (
       <Fragment>
         <h4>Global Setting</h4>
@@ -262,18 +294,18 @@ class ConfigurationPage extends Component {
           type='boolean'
         />
         <ConfigRow
-          name={'Maximum Record Per Page'}
+          name={'Maximum Records Per Page'}
           description={configurations.max_per_page.description}
-          value={Math.abs(this.state.maxPerPage)}
+          value={String(this.state.maxPerPage)}
           inputType='number'
           onChange={this.onChangeInput('maxPerPage')}
-          inputValidator={value => Number(value) < 0}
+          inputValidator={value => Number(value) < 1}
           inputErrorMessage='invalid number'
         />
         <ConfigRow
           name={'Minimum Password Length'}
           description={configurations.min_password_length.description}
-          value={Math.abs(this.state.minPasswordLength)}
+          value={String(this.state.minPasswordLength)}
           inputType='number'
           onChange={this.onChangeInput('minPasswordLength')}
           inputValidator={value => Number(value) < 1}
