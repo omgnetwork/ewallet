@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
   # async: false due to `Application.put_env/3` for sentry reporting
   use AdminAPI.ConnCase, async: false
+  alias Plug.Conn
   alias Poison.Parser
 
   describe "/status" do
@@ -44,7 +45,7 @@ defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
         assert conn.method == "POST"
         assert conn.request_path == "/api/1/store/"
 
-        Plug.Conn.resp(conn, 200, ~s'{"id": "1234"}')
+        Conn.resp(conn, 200, ~s'{"id": "1234"}')
       end)
 
       original_dsn = Application.get_env(:sentry, :dsn)
