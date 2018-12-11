@@ -6,6 +6,7 @@ defmodule EWalletDB.Key do
   use EWalletDB.SoftDelete
   use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
+  import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
   alias EWalletConfig.Helpers.Crypto
   alias EWalletDB.{Account, Key, Repo}
@@ -66,27 +67,26 @@ defmodule EWalletDB.Key do
   end
 
   @doc """
-  Get key by id, exclude soft-deleted.
+  Retrieves a key with the given ID.
   """
-  @spec get(ExternalID.t()) :: %Key{} | nil
-  def get(id)
+  @spec get(String.t(), keyword()) :: %__MODULE__{} | nil
+  def get(id, opts \\ [])
 
-  def get(id) when is_external_id(id) do
-    Key
-    |> exclude_deleted()
-    |> Repo.get_by(id: id)
+  def get(id, opts) when is_external_id(id) do
+    get_by([id: id], opts)
   end
 
-  def get(_), do: nil
+  def get(_id, _opts), do: nil
 
   @doc """
-  Get key by its `:access_key`, exclude soft-deleted.
+  Retrieves a key using one or more fields.
   """
-  @spec get(:access_key, String.t()) :: %Key{} | nil
-  def get(:access_key, access_key) do
-    Key
+  @spec get_by(map() | keyword(), keyword()) :: %__MODULE__{} | nil
+  def get_by(fields, opts \\ []) do
+    __MODULE__
     |> exclude_deleted()
-    |> Repo.get_by(access_key: access_key)
+    |> Repo.get_by(fields)
+    |> preload_option(opts)
   end
 
   @doc """

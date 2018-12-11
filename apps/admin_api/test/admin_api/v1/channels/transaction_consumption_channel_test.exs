@@ -2,34 +2,77 @@
 defmodule AdminAPI.V1.TransactionConsumptionChannelTest do
   use AdminAPI.ChannelCase, async: false
   alias AdminAPI.V1.TransactionConsumptionChannel
+  alias EWalletDB.Account
+  alias Ecto.UUID
 
-  describe "join/3 as provider" do
-    test "joins the channel with authenticated account and valid consumption" do
-      account = insert(:account)
-      consumption = insert(:transaction_consumption)
+  defp topic(id), do: "transaction_consumption:#{id}"
 
-      {res, _, socket} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, account: account}})
-        |> subscribe_and_join(
-          TransactionConsumptionChannel,
-          "transaction_consumption:#{consumption.id}"
-        )
+  describe "join/3" do
+    test "can join the channel of a valid user's consumption" do
+      consumption = insert(:transaction_consumption, %{account: nil})
+      topic = topic(consumption.id)
 
-      assert res == :ok
-      assert socket.topic == "transaction_consumption:#{consumption.id}"
+      test_with_auths(fn auth ->
+        auth
+        |> subscribe_and_join(TransactionConsumptionChannel, topic)
+        |> assert_success(topic)
+      end)
     end
 
-    test "can't join a channel for an inexisting consumption" do
-      account = insert(:account)
+    test "can join the channel of a valid account's consumption" do
+      master = Account.get_master_account()
+      consumption = insert(:transaction_consumption, %{account: master})
+      topic = topic(consumption.id)
 
-      {res, code} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, account: account}})
-        |> subscribe_and_join(TransactionConsumptionChannel, "transaction_consumption:123")
+      test_with_auths(fn auth ->
+        auth
+        |> subscribe_and_join(TransactionConsumptionChannel, topic)
+        |> assert_success(topic)
+      end)
+    end
 
-      assert res == :error
-      assert code == :channel_not_found
+    test "can join the channel of an account's consumption that is a child of the current account" do
+      master = Account.get_master_account()
+      account = insert(:account, %{parent: master})
+      consumption = insert(:transaction_consumption, %{account: account})
+      topic = topic(consumption.id)
+
+      test_with_auths(fn auth ->
+        auth
+        |> subscribe_and_join(TransactionConsumptionChannel, topic)
+        |> assert_success(topic)
+      end)
+    end
+
+    test "can't join the channel of an account's consumption that is a parrent account" do
+      master_account = Account.get_master_account()
+      account = insert(:account, %{parent: master_account})
+      role = insert(:role, %{name: "some_role"})
+      admin = insert(:admin)
+      insert(:membership, %{user: admin, account: account, role: role})
+      insert(:key, %{account: account, access_key: "a_sub_key", secret_key: "123"})
+      consumption = insert(:transaction_consumption, %{account: master_account})
+      topic = topic(consumption.id)
+
+      test_with_auths(
+        fn auth ->
+          auth
+          |> subscribe_and_join(TransactionConsumptionChannel, topic)
+          |> assert_failure(:forbidden_channel)
+        end,
+        admin.id,
+        "a_sub_key"
+      )
+    end
+
+    test "can't join the channel of an inexisting consumption" do
+      topic = topic(UUID.generate())
+
+      test_with_auths(fn auth ->
+        auth
+        |> subscribe_and_join(TransactionConsumptionChannel, topic)
+        |> assert_failure(:forbidden_channel)
+      end)
     end
   end
 end

@@ -29,7 +29,7 @@ defmodule EWalletAPI.V1.ClientAuthPlug do
     conn
     |> assign(:authenticated, true)
     |> assign(:auth_scheme, :client)
-    |> assign(:user, auth[:user])
+    |> assign(:end_user, auth[:end_user])
     |> put_private(:auth_api_key, auth[:auth_api_key])
     |> put_private(:auth_auth_token, auth[:auth_auth_token])
   end
@@ -43,6 +43,6 @@ defmodule EWalletAPI.V1.ClientAuthPlug do
 
     conn
     |> assign(:authenticated, false)
-    |> assign(:user, nil)
+    |> assign(:end_user, nil)
   end
 end
