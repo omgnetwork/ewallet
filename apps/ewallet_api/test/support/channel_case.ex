@@ -12,8 +12,7 @@ defmodule EWalletAPI.ChannelCase do
   inside a transaction which is reset at the beginning
   of the test unless the test case is marked as async.
   """
-
-  use ExUnit.CaseTemplate, async: false
+  use ExUnit.CaseTemplate
   alias Ecto.Adapters.SQL.Sandbox
   alias EWalletConfig.ConfigTestHelper
 
