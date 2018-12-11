@@ -1,15 +1,8 @@
 import { authenticatedRequest } from './apiService'
 import _ from 'lodash'
-export function getConfiguration ({ perPage, sort, page, matchAll, matchAny }) {
+export function getConfiguration () {
   return authenticatedRequest({
-    path: '/configuration.all',
-    data: {
-      per_page: perPage,
-      sort_by: sort.by,
-      sort_dir: sort.dir,
-      match_all: matchAll,
-      match_any: matchAny
-    }
+    path: '/configuration.all'
   })
 }
 

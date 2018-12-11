@@ -93,6 +93,7 @@ class ConfigurationPage extends Component {
   state = {
     submitStatus: CONSTANT.LOADING_STATUS.DEFAULT
   }
+
   resetGcsState () {
     this.setState({
       gcsBucket: this.props.configurations.gcs_bucket.value,
@@ -108,12 +109,16 @@ class ConfigurationPage extends Component {
     })
   }
   isSendButtonDisabled () {
-    return Object.keys(this.props.configurations).reduce((prev, curr) => {
-      return (
-        prev &&
-        String(this.props.configurations[curr].value) === String(this.state[_.camelCase(curr)])
-      )
-    }, true)
+    return (
+      Object.keys(this.props.configurations).reduce((prev, curr) => {
+        return (
+          prev &&
+          String(this.props.configurations[curr].value) === String(this.state[_.camelCase(curr)])
+        )
+      }, true) ||
+      Number(this.state.maxPerPage) < 1 ||
+      Number(this.state.minPasswordLength) < 1
+    )
   }
   onSelectEmailAdapter = option => {
     this.setState({ emailAdapter: option.value })
@@ -183,7 +188,6 @@ class ConfigurationPage extends Component {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
       }
     } catch (error) {
-      console.log(error)
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
     }
   }

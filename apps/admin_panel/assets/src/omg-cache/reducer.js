@@ -75,12 +75,6 @@ export const cacheReducer = createReducer(
         [action.cacheKey]: { ids: action.data.map(d => d.id), pagination: action.pagination }
       }
     },
-    'CONFIGURATIONS/REQUEST/SUCCESS': (state, action) => {
-      return {
-        ...state,
-        [action.cacheKey]: { ids: action.data.map(d => d.key), pagination: action.pagination }
-      }
-    },
     'CURRENT_ACCOUNT/SWITCH': () => ({})
   }
 )
