@@ -43,6 +43,7 @@ defmodule Mix.Tasks.Omg.Migrate.Settings do
 
   defp ask_confirmation([], _) do
     _ = print_info("No settings could be found in the environment variables.")
+    :aborted
   end
 
   defp ask_confirmation(migration_plan, true), do: migration_plan
