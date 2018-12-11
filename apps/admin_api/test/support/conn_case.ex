@@ -92,17 +92,19 @@ defmodule AdminAPI.ConnCase do
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
     end
 
-    pid =
-      ConfigTestHelper.restart_config_genserver(
-        self(),
-        EWalletConfig.Repo,
-        [:ewallet_db, :ewallet, :admin_api],
-        %{
-          "base_url" => "http://localhost:4000",
-          "email_adapter" => "test",
-          "sender_email" => "admin@example.com"
-        }
-      )
+    config_pid = start_supervised!(EWalletConfig.Config)
+
+    ConfigTestHelper.restart_config_genserver(
+      self(),
+      config_pid,
+      EWalletConfig.Repo,
+      [:ewallet_db, :ewallet, :admin_api],
+      %{
+        "base_url" => "http://localhost:4000",
+        "email_adapter" => "test",
+        "sender_email" => "admin@example.com"
+      }
+    )
 
     # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
@@ -147,7 +149,7 @@ defmodule AdminAPI.ConnCase do
     # by returning {:ok, context_map}. But it would make the code
     # much less readable, i.e. `test "my test name", context do`,
     # and access using `context[:attribute]`.
-    %{config_pid: pid}
+    %{config_pid: config_pid}
   end
 
   def stringify_keys(%NaiveDateTime{} = value) do

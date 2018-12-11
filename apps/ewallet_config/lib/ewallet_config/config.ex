@@ -15,24 +15,28 @@ defmodule EWalletConfig.Config do
     SettingLoader
   }
 
-  @spec start_link(Map.t()) :: {:ok, pid()} | {:error, Atom.t()}
-  def start_link(named: true) do
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
-  end
-
-  @spec start_link() :: {:ok, pid()} | {:error, Atom.t()}
-  def start_link do
-    GenServer.start_link(__MODULE__, [])
-  end
-
-  @spec start_link(pid()) :: :ok | {:error, Atom.t()}
-  def stop(pid \\ __MODULE__) do
-    GenServer.stop(pid)
-  end
-
-  @spec start_link(Map.t()) :: {:ok, []}
+  @spec init(Map.t()) :: {:ok, []}
   def init(_args) do
     {:ok, []}
+  end
+
+  @spec start_link() :: GenServer.on_start()
+  def start_link, do: start_link([])
+
+  @spec start_link(keyword()) :: GenServer.on_start()
+  def start_link(args) do
+    {opts, args} =
+      case Keyword.pop(args, :named) do
+        {true, popped} -> {[name: __MODULE__], popped}
+        {_, popped} -> {[], popped}
+      end
+
+    GenServer.start_link(__MODULE__, args, opts)
+  end
+
+  @spec stop(pid()) :: :ok
+  def stop(pid \\ __MODULE__) do
+    GenServer.stop(pid)
   end
 
   @spec handle_call(:get_registered_apps, Atom.t(), [Atom.t()]) :: [{Atom.t(), [Atom.t()]}]

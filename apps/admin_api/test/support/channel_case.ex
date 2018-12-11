@@ -40,18 +40,20 @@ defmodule AdminAPI.ChannelCase do
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
     end
 
-    pid =
-      ConfigTestHelper.restart_config_genserver(
-        self(),
-        EWalletConfig.Repo,
-        [:ewallet_db, :ewallet, :admin_api],
-        %{
-          "base_url" => "http://localhost:4000",
-          "email_adapter" => "test",
-          "sender_email" => "admin@example.com"
-        }
-      )
+    config_pid = start_supervised!(EWalletConfig.Config)
 
-    %{config_pid: pid}
+    ConfigTestHelper.restart_config_genserver(
+      self(),
+      config_pid,
+      EWalletConfig.Repo,
+      [:ewallet_db, :ewallet, :admin_api],
+      %{
+        "base_url" => "http://localhost:4000",
+        "email_adapter" => "test",
+        "sender_email" => "admin@example.com"
+      }
+    )
+
+    %{config_pid: config_pid}
   end
 end

@@ -27,8 +27,11 @@ defmodule EWallet.LocalLedgerCase do
           Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
         end
 
+        config_pid = start_supervised!(EWalletConfig.Config)
+
         ConfigTestHelper.restart_config_genserver(
           self(),
+          config_pid,
           EWalletConfig.Repo,
           [:ewallet_db, :ewallet],
           %{
