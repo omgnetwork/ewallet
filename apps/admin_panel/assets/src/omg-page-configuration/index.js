@@ -227,6 +227,8 @@ class ConfigurationPage extends Component {
                 value={this.state.gcsBucket}
                 placeholder={'ie. google_cloud_1'}
                 onChange={this.onChangeInput('gcsBucket')}
+                inputValidator={value => value.length > 0}
+                inputErrorMessage={'This field shouldn\'t be empty'}
               />
               <ConfigRow
                 name={'GCS Credential JSON'}
@@ -235,13 +237,13 @@ class ConfigurationPage extends Component {
                 placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
                 border={this.state.emailAdapter !== 'gcs'}
                 onChange={this.onChangeInput('gcsCredentials')}
-                inputErrorMessage='invalid json credential'
+                inputErrorMessage='Invalid json credential'
                 inputValidator={value => {
                   try {
                     JSON.parse(value)
-                    return false
-                  } catch (error) {
                     return true
+                  } catch (error) {
+                    return false
                   }
                 }}
               />
@@ -270,7 +272,6 @@ class ConfigurationPage extends Component {
     )
   }
   renderGlobalSetting (configurations) {
-    console.log(this.state.maxPerPage)
     return (
       <Fragment>
         <h4>Global Setting</h4>
@@ -279,12 +280,16 @@ class ConfigurationPage extends Component {
           description={configurations.base_url.description}
           value={this.state.baseUrl}
           onChange={this.onChangeInput('baseUrl')}
+          inputValidator={value => value.length > 0}
+          inputErrorMessage={'This field shouldn\'t be empty'}
         />
         <ConfigRow
           name={'Redirect Url Prefixes'}
           description={configurations.redirect_url_prefixes.description}
           value={this.state.redirectUrlPrefixes}
           onChange={this.onChangeInput('redirectUrlPrefixes')}
+          inputValidator={value => value.length > 0}
+          inputErrorMessage={'This field shouldn\'t be empty'}
         />
         <ConfigRow
           name={'Enable Standalone'}
@@ -299,7 +304,7 @@ class ConfigurationPage extends Component {
           value={String(this.state.maxPerPage)}
           inputType='number'
           onChange={this.onChangeInput('maxPerPage')}
-          inputValidator={value => Number(value) > 1}
+          inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
         />
         <ConfigRow
@@ -308,7 +313,7 @@ class ConfigurationPage extends Component {
           value={String(this.state.minPasswordLength)}
           inputType='number'
           onChange={this.onChangeInput('minPasswordLength')}
-          inputValidator={value => Number(value) > 1}
+          inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
         />
       </Fragment>
@@ -324,6 +329,7 @@ class ConfigurationPage extends Component {
           value={this.state.senderEmail}
           onChange={this.onChangeInput('senderEmail')}
           inputValidator={value => isEmail(value)}
+          inputErrorMessage={'Invalid email'}
         />
         <ConfigRow
           name={'Email Adapter'}
