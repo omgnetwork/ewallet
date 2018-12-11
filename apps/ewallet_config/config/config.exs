@@ -12,29 +12,21 @@ config :ewallet_config,
   },
   default_settings: %{
     # Global Settings
-<<<<<<< HEAD
     "base_url" => %{
       key: "base_url",
       value: "",
       type: "string",
-      position: 1,
+      position: 100,
       description:
         "The domain name."
     },
-=======
-    "base_url" => %{key: "base_url", value: "", type: "string", position: 100},
->>>>>>> origin/master
     "redirect_url_prefixes" => %{
       key: "redirect_url_prefixes",
       value: [],
       type: "array",
-<<<<<<< HEAD
-      position: 2,
+      position: 101,
        description:
         "The whitelisted domains that eWallet is allowed to redirect to."
-=======
-      position: 101
->>>>>>> origin/master
     },
     "enable_standalone" => %{
       key: "enable_standalone",
