@@ -26,18 +26,20 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
           sort_dir: "asc"
         })
 
+      default_settings = Application.get_env(:ewallet_config, :default_settings)
+
       assert response["success"] == true
-      assert length(response["data"]["data"]) == 19
-      assert response["data"]["pagination"]["count"] == 19
+      assert length(response["data"]["data"]) == Enum.count(default_settings)
+      assert response["data"]["pagination"]["count"] == Enum.count(default_settings)
 
       first_setting = Enum.at(response["data"]["data"], 0)
       last_setting = Enum.at(response["data"]["data"], -1)
 
       assert first_setting["key"] == "base_url"
-      assert first_setting["position"] == 1
+      assert first_setting["position"] == default_settings["base_url"].position
 
       assert last_setting["key"] == "aws_secret_access_key"
-      assert last_setting["position"] == 19
+      assert last_setting["position"] == default_settings["aws_secret_access_key"].position
     end
   end
 

@@ -152,7 +152,8 @@ defmodule EWalletConfig.ConfigTest do
       Sandbox.allow(Repo, self(), pid)
       :ok = Config.insert_all_defaults(%{}, pid)
 
-      assert length(Config.settings()) == 19
+      default_settings = Application.get_env(:ewallet_config, :default_settings)
+      assert length(Config.settings()) == Enum.count(default_settings)
     end
   end
 

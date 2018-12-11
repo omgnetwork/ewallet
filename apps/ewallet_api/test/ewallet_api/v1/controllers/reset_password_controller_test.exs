@@ -1,5 +1,5 @@
-defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
-  use AdminAPI.ConnCase, async: true
+defmodule EWalletAPI.V1.ResetPasswordControllerTest do
+  use EWalletAPI.ConnCase, async: true
   use Bamboo.Test
   alias EWallet.ForgetPasswordEmail
   alias EWalletConfig.Helpers.Crypto
@@ -12,7 +12,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       {:ok, user} = :admin |> params_for() |> User.insert()
 
       response =
-        unauthenticated_request("/admin.reset_password", %{
+        public_request("/user.reset_password", %{
           "email" => user.email,
           "redirect_url" => @redirect_url
         })
@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       redirect_url = "http://unknown-url.com/reset_password?email={email}&token={token}"
 
       response =
-        unauthenticated_request("/admin.reset_password", %{
+        public_request("/user.reset_password", %{
           "email" => "example@mail.com",
           "redirect_url" => redirect_url
         })
@@ -46,7 +46,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
 
     test "returns an error when sending email = nil" do
       response =
-        unauthenticated_request("/admin.reset_password", %{
+        public_request("/user.reset_password", %{
           "email" => nil,
           "redirect_url" => @redirect_url
         })
@@ -59,7 +59,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       num_requests = Repo.aggregate(ForgetPasswordRequest, :count, :token)
 
       response =
-        unauthenticated_request("/admin.reset_password", %{
+        public_request("/user.reset_password", %{
           "email" => "example@mail.com",
           "redirect_url" => @redirect_url
         })
@@ -72,7 +72,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       {:ok, user} = :admin |> params_for() |> User.insert()
 
       response =
-        unauthenticated_request("/admin.reset_password", %{
+        public_request("/user.reset_password", %{
           "redirect_url" => @redirect_url
         })
 
@@ -90,7 +90,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       {:ok, user} = :admin |> params_for() |> User.insert()
 
       response =
-        unauthenticated_request("/admin.reset_password", %{
+        public_request("/user.reset_password", %{
           "email" => user.email
         })
 
@@ -113,7 +113,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert user.password_hash != Crypto.hash_password("password")
 
       response =
-        unauthenticated_request("/admin.update_password", %{
+        public_request("/user.update_password", %{
           email: user.email,
           token: request.token,
           password: "password",
@@ -126,12 +126,12 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert ForgetPasswordRequest.all_active() |> length() == 0
     end
 
-    test "returns an token_not_found error when the user is not found" do
+    test "returns a token_not_found error when the user is not found" do
       {:ok, user} = :admin |> params_for() |> User.insert()
       {:ok, request} = ForgetPasswordRequest.generate(user)
 
       response =
-        unauthenticated_request("/admin.update_password", %{
+        public_request("/user.update_password", %{
           email: "example@mail.com",
           token: request.token,
           password: "password",
@@ -150,7 +150,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert user.password_hash != Crypto.hash_password("password")
 
       response =
-        unauthenticated_request("/admin.update_password", %{
+        public_request("/user.update_password", %{
           email: user.email,
           token: "123",
           password: "password",
@@ -169,7 +169,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert user.password_hash != Crypto.hash_password("password")
 
       response =
-        unauthenticated_request("/admin.update_password", %{
+        public_request("/user.update_password", %{
           email: user.email,
           token: request.token,
           password: "short",
@@ -192,7 +192,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert user.password_hash != Crypto.hash_password("password")
 
       response =
-        unauthenticated_request("/admin.update_password", %{
+        public_request("/user.update_password", %{
           token: request.token,
           password: "password",
           password_confirmation: "password"

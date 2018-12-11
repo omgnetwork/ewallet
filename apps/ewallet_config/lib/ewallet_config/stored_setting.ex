@@ -64,7 +64,8 @@ defmodule EWalletConfig.StoredSetting do
     |> cast(attrs, [
       :data,
       :encrypted_data,
-      :description
+      :description,
+      :position
     ])
     |> validate_required_exclusive([:data, :encrypted_data])
     |> validate_type(setting)
