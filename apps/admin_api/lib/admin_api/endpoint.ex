@@ -1,6 +1,5 @@
 defmodule AdminAPI.Endpoint do
   use Phoenix.Endpoint, otp_app: :admin_api
-  use Appsignal.Phoenix
   use Sentry.Phoenix.Endpoint
 
   plug(
