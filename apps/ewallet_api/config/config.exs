@@ -83,6 +83,11 @@ config :sentry,
   server_name: elem(:inet.gethostname(), 1),
   included_environments: [:prod]
 
+# Configs for AppSignal application monitoring
+config :appsignal, :config,
+  name: "OmiseGO eWallet Suite",
+  env: Mix.env()
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
