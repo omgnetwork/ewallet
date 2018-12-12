@@ -111,6 +111,7 @@ class ConfigurationPage extends Component {
   isSendButtonDisabled () {
     return (
       Object.keys(this.props.configurations).reduce((prev, curr) => {
+        console.log(String(this.props.configurations[curr].value), String(this.state[_.camelCase(curr)]), curr)
         return (
           prev &&
           String(this.props.configurations[curr].value) === String(this.state[_.camelCase(curr)])
@@ -168,17 +169,17 @@ class ConfigurationPage extends Component {
           minPasswordLength: _.get(result.data.data, 'min_password_length.value'),
           senderEmail: _.get(result.data.data, 'sender_email.value'),
           emailAdapter: _.get(result.data.data, 'email_adapter.value'),
-          smtpHost: _.get(result.data.data, 'smtp_host.value'),
-          smtpPort: _.get(result.data.data, 'smtp_port.value'),
-          smtpUsername: _.get(result.data.data, 'smtp_username.value'),
-          smtpPassword: _.get(result.data.data, 'smtp_password.value'),
+          smtpHost: _.get(result.data.data, 'smtp_host.value', null),
+          smtpPort: _.get(result.data.data, 'smtp_port.value', null),
+          smtpUsername: _.get(result.data.data, 'smtp_username.value', null),
+          smtpPassword: _.get(result.data.data, 'smtp_password.value', null),
           fileStorageAdapter: _.get(result.data.data, 'file_storage_adapter.value'),
-          gcsBucket: _.get(result.data.data, 'gcs_bucket.value'),
-          gcsCredentials: _.get(result.data.data, 'gcs_credentials.value'),
-          awsBucket: _.get(result.data.data, 'aws_bucket.value'),
-          awsRegion: _.get(result.data.data, 'aws_region.value'),
-          awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value'),
-          awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value'),
+          gcsBucket: _.get(result.data.data, 'gcs_bucket.value', null),
+          gcsCredentials: _.get(result.data.data, 'gcs_credentials.value', null),
+          awsBucket: _.get(result.data.data, 'aws_bucket.value', null),
+          awsRegion: _.get(result.data.data, 'aws_region.value', null),
+          awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value', null),
+          awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value', null),
           balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value')
         })
         setTimeout(() => {
@@ -229,7 +230,6 @@ class ConfigurationPage extends Component {
                 value={this.state.gcsBucket}
                 placeholder={'ie. google_cloud_1'}
                 onChange={this.onChangeInput('gcsBucket')}
-                inputValidator={value => value.length > 0}
                 inputErrorMessage={'This field shouldn\'t be empty'}
               />
               <ConfigRow
@@ -237,7 +237,6 @@ class ConfigurationPage extends Component {
                 description={configurations.gcs_credentials.description}
                 value={this.state.gcsCredentials}
                 placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
-                border={this.state.emailAdapter !== 'gcs'}
                 onChange={this.onChangeInput('gcsCredentials')}
                 inputErrorMessage='Invalid json credential'
                 inputValidator={value => {
