@@ -111,7 +111,6 @@ class ConfigurationPage extends Component {
   isSendButtonDisabled () {
     return (
       Object.keys(this.props.configurations).reduce((prev, curr) => {
-        console.log(String(this.props.configurations[curr].value), String(this.state[_.camelCase(curr)]), curr)
         return (
           prev &&
           String(this.props.configurations[curr].value) === String(this.state[_.camelCase(curr)])
