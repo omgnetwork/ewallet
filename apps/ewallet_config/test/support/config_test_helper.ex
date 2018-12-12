@@ -5,8 +5,7 @@ defmodule EWalletConfig.ConfigTestHelper do
   alias EWalletConfig.Config
   alias Ecto.Adapters.SQL.Sandbox
 
-  def restart_config_genserver(parent, repo, apps, attrs) do
-    {:ok, pid} = Config.start_link()
+  def restart_config_genserver(parent, pid, repo, apps, attrs) do
     Sandbox.allow(repo, parent, pid)
 
     Config.insert_all_defaults(attrs, pid)
@@ -15,8 +14,6 @@ defmodule EWalletConfig.ConfigTestHelper do
       settings = Application.get_env(app, :settings)
       Config.register_and_load(app, settings, pid)
     end)
-
-    pid
   end
 
   def spawn(nodes \\ []) do
