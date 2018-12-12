@@ -9,12 +9,10 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
       assert response["success"]
       assert response["data"]["object"] == "list"
       assert is_list(response["data"]["data"])
-
     end
 
     test "returns a list of settings" do
-      response =
-        admin_user_request("/configuration.all")
+      response = admin_user_request("/configuration.all")
       assert response["success"] == true
       assert length(response["data"]["data"]) == 19
     end
