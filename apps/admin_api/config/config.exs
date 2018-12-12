@@ -21,7 +21,8 @@ config :admin_api, AdminAPI.Endpoint,
     view: AdminAPI.ErrorView,
     accepts: ~w(json),
     default_format: "json"
-  ]
+  ],
+  instrumenters: [Appsignal.Phoenix.Instrumenter]
 
 config :admin_api, AdminAPI.V1.Endpoint,
   render_errors: [
@@ -36,6 +37,11 @@ config :admin_api, AdminAPI.V1.Endpoint,
 
 # Config for Phoenix's generators
 config :admin_api, :generators, context_app: false
+
+# Config for Phoenix's template engines
+config :phoenix, :template_engines,
+  eex: Appsignal.Phoenix.Template.EExEngine,
+  exs: Appsignal.Phoenix.Template.ExsEngine
 
 # Two configs need to be added to have a new EWallet Admin version:
 #

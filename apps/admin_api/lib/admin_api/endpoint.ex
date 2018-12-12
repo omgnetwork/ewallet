@@ -1,5 +1,6 @@
 defmodule AdminAPI.Endpoint do
   use Phoenix.Endpoint, otp_app: :admin_api
+  use Appsignal.Phoenix
 
   plug(
     Plug.Static,
