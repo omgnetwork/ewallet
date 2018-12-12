@@ -23,7 +23,8 @@ config :ewallet_api, EWalletAPI.Endpoint,
     view: EWalletAPI.ErrorView,
     accepts: ~w(json),
     default_format: "json"
-  ]
+  ],
+  instrumenters: [Appsignal.Phoenix.Instrumenter]
 
 config :ewallet_api, EWalletAPI.V1.Endpoint,
   render_errors: [
@@ -34,9 +35,16 @@ config :ewallet_api, EWalletAPI.V1.Endpoint,
   pubsub: [
     name: EWalletAPI.PubSub,
     adapter: Phoenix.PubSub.PG2
-  ]
+  ],
+  instrumenters: [Appsignal.Phoenix.Instrumenter]
 
+# Config for Phoenix's generators
 config :ewallet_api, :generators, context_app: false
+
+# Config for Phoenix's template engines
+config :phoenix, :template_engines,
+  eex: Appsignal.Phoenix.Template.EExEngine,
+  exs: Appsignal.Phoenix.Template.ExsEngine
 
 # Two configs need to be added to have a new EWallet API version:
 #

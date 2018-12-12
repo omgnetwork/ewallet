@@ -33,7 +33,8 @@ config :admin_api, AdminAPI.V1.Endpoint,
   pubsub: [
     name: AdminAPI.PubSub,
     adapter: Phoenix.PubSub.PG2
-  ]
+  ],
+  instrumenters: [Appsignal.Phoenix.Instrumenter]
 
 # Config for Phoenix's generators
 config :admin_api, :generators, context_app: false
