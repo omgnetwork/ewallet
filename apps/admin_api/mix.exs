@@ -32,7 +32,7 @@ defmodule AdminAPI.Mixfile do
   def application do
     [
       mod: {AdminAPI.Application, []},
-      extra_applications: [:sentry, :logger, :runtime_tools, :appsignal]
+      extra_applications: [:sentry, :logger, :runtime_tools]
     ]
   end
 
@@ -51,7 +51,6 @@ defmodule AdminAPI.Mixfile do
       {:sentry, "~> 6.4"},
       {:bodyguard, "~> 2.2"},
       {:deferred_config, "~> 0.1.0"},
-      {:appsignal, "~> 1.0"},
       {:bypass, "~> 1.0.0", only: [:test]},
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},
