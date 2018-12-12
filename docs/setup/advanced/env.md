@@ -37,17 +37,27 @@ The eWallet is able to work independent of an external integration. The default 
 
 - `ENABLE_STANDALONE`: Enables standalone mode such as `/api/client/user.signup`, `/api/client/user.verify_email` and `/api/client/user.login` so that the eWallet can be used without integration with other systems. Set `ENABLE_STANDALONE=true` to enable the feature.
 
-## External redirects
+## External Redirects
 
 Some features such as email verification allows redirects to URIs external to the eWallet. For security reasons we do not allow redirects to arbitary URIs, unless the prefix is whitelisted.
 
 - `REDIRECT_URL_PREFIXES`: A comma-separated list of prefixes that are allowed to be redirected to. For example, `REDIRECT_URL_PREFIXES=https://example.com,pos-client://example.com` allows redirects to `https://example.com/some_url` and `pos-client://example.com/some_deep_linked_url`.
 
+## Application Monitoring
+
+The eWallet supports [AppSignal](https://appsignal.com/) for application monitoring. To enable AppSignal, configure the following environment variable:
+
+- `APPSIGNAL_PUSH_API_KEY`: The AppSignal's Push API key for your application.
+  For example, `APPSIGNAL_PUSH_API_KEY=00000000-0000-0000-0000-000000000000`
+
+Monitoring is automatically enabled when the above environment variable is configured.
+
 ## Error Reporting
 
 The eWallet only supports [Sentry](https://sentry.io/welcome/) for now. You can specify the DSN for it with the following environment variable:
 
-- `SENTRY_DSN`
+- `SENTRY_DSN`: The Sentry's Data Source Name for your project.
+  For example, `SENTRY_DSN=https://public_key@host:port/1`
 
 ## Balance Caching
 
