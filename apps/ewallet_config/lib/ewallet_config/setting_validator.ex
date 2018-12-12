@@ -4,6 +4,32 @@ defmodule EWalletConfig.SettingValidator do
   """
   alias Ecto.Changeset
 
+
+  def validate_positive_integer(%{changes: %{type: "integer"}} = changeset) do
+    do_validate_positive_integer(changeset)
+  end
+
+  def validate_positive_integer(changeset, %{type: "integer"}) do
+    do_validate_positive_integer(changeset)
+  end
+
+  def validate_positive_integer(changeset, _), do: changeset
+
+  def do_validate_positive_integer(changeset) do
+    value = get_value(changeset)
+    case value > 0 do
+      true  ->
+        changeset
+      false ->
+        Changeset.add_error(
+          changeset,
+          :value,
+          "must be a positive integer.",
+          validation: :value_not_allowed
+        )
+    end
+  end
+
   @spec validate_with_options(Changeset.t()) :: Changeset.t()
   def validate_with_options(%{changes: %{options: %{array: nil}}} = changeset) do
     changeset

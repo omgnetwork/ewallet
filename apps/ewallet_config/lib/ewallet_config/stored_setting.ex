@@ -57,6 +57,7 @@ defmodule EWalletConfig.StoredSetting do
     |> unique_constraint(:key)
     |> validate_type()
     |> validate_with_options()
+    |> validate_positive_integer()
   end
 
   def update_changeset(%StoredSetting{} = setting, attrs) do
@@ -70,5 +71,6 @@ defmodule EWalletConfig.StoredSetting do
     |> validate_required_exclusive([:data, :encrypted_data])
     |> validate_type(setting)
     |> validate_with_options(setting)
+    |> validate_positive_integer(setting)
   end
 end
