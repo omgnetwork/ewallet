@@ -11,7 +11,7 @@ defmodule EWalletDB.Mixfile do
       lockfile: "../../mix.lock",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env),
-      elixirc_options: [warnings_as_errors: Mix.env != :test],
+      elixirc_options: [warnings_as_errors: false],
       start_permanent: Mix.env == :prod,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
@@ -52,15 +52,16 @@ defmodule EWalletDB.Mixfile do
       {:bcrypt_elixir, "~> 1.0"},
       {:cloak, "~> 0.7.0-alpha"},
       {:plug, "~> 1.0"},
-      {:arc, "~> 0.8.0"},
-      {:arc_ecto, "~> 0.7.0"},
+      {:arc, "~> 0.11.0"},
+      {:arc_ecto, "~> 0.11.1"},
       {:deferred_config, "~> 0.1.0"},
 
       # arc GCS dependencies
       {:arc_gcs, "~> 0.0.3", runtime: false},
 
       # arc AWS dependencies
-      {:ex_aws, "~> 1.1"},
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
       {:hackney, "~> 1.6"},
       {:sweet_xml, "~> 0.6"},
 

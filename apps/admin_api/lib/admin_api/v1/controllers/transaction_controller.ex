@@ -4,10 +4,11 @@ defmodule AdminAPI.V1.TransactionController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias AdminAPI.V1.CSVExporter
   alias Ecto.Changeset
   alias EWallet.TransactionGate
   alias EWallet.TransactionPolicy
-  alias EWallet.Web.{Orchestrator, Paginator, V1.TransactionOverlay}
+  alias EWallet.Web.{Orchestrator, Paginator, V1.TransactionOverlay, V1.CSV.TransactionSerializer}
   alias EWalletDB.{Account, Repo, Transaction, User}
 
   @doc """
@@ -124,10 +125,17 @@ defmodule AdminAPI.V1.TransactionController do
     end
   end
 
-  defp query_records_and_respond(query, attrs, conn) do
-    query
-    |> Orchestrator.query(TransactionOverlay, attrs)
-    |> respond_multiple(conn)
+  defp query_records_and_respond(query, attrs, %Plug.Conn{req_headers: headers} = conn) do
+    case Enum.member?(headers, {"accept", "text/vnd.omisego.v1+csv"}) do
+      true ->
+        query
+        |> Orchestrator.build_query(TransactionOverlay, attrs)
+        |> CSVExporter.export(TransactionSerializer, conn, "transactions")
+      false ->
+        query
+        |> Orchestrator.query(TransactionOverlay, attrs)
+        |> respond_multiple(conn)
+    end
   end
 
   # Respond with a list of transactions

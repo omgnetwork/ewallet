@@ -30,7 +30,8 @@ defmodule AdminAPI.ConnCase do
   # The expected response version
   @expected_version "1"
   # The expected response version
-  @header_accept "application/vnd.omisego.v1+json"
+  @json_header_accept "application/vnd.omisego.v1+json"
+  @csv_header_accept "text/vnd.omisego.v1+csv"
 
   # Attributes for client calls
   @api_key_id UUID.generate()
@@ -62,7 +63,7 @@ defmodule AdminAPI.ConnCase do
       @endpoint unquote(@endpoint)
 
       @expected_version unquote(@expected_version)
-      @header_accept unquote(@header_accept)
+      @json_header_accept unquote(@json_header_accept)
 
       @access_key unquote(@access_key)
       @secret_key unquote(@secret_key)
@@ -237,7 +238,7 @@ defmodule AdminAPI.ConnCase do
     {status, _opts} = Keyword.pop(opts, :status, :ok)
 
     build_conn()
-    |> put_req_header("accept", @header_accept)
+    |> put_req_header("accept", @json_header_accept)
     |> post(@base_dir <> path, data)
     |> json_response(status)
   end
@@ -251,7 +252,7 @@ defmodule AdminAPI.ConnCase do
     {status, _opts} = Keyword.pop(opts, :status, :ok)
 
     build_conn()
-    |> put_req_header("accept", @header_accept)
+    |> put_req_header("accept", @json_header_accept)
     |> put_auth_header("OMGProvider", provider_auth_header(opts))
     |> post(@base_dir <> path, data)
     |> json_response(status)
@@ -269,14 +270,33 @@ defmodule AdminAPI.ConnCase do
   with given path and data, and return the parsed JSON response.
   """
   @spec admin_user_request(String.t(), map(), keyword()) :: map() | no_return()
-  def admin_user_request(path, data \\ %{}, opts \\ []) do
+  def admin_user_request(path, data \\ %{}, opts \\ [], accept \\ :json) do
+    IO.inspect(accept)
+    do_admin_user_request(path, data, opts, accept)
+  end
+
+  def do_admin_user_request(path, data, opts, :json) do
     {status, opts} = Keyword.pop(opts, :status, :ok)
 
     build_conn()
-    |> put_req_header("accept", @header_accept)
+    |> put_req_header("accept", @json_header_accept)
     |> put_auth_header("OMGAdmin", user_auth_header(opts))
     |> post(@base_dir <> path, data)
     |> json_response(status)
+  end
+
+  def do_admin_user_request(path, data, opts, :csv) do
+    IO.inspect("Sending CSV")
+    build_conn()
+    |> put_req_header("accept", @csv_header_accept)
+    |> put_auth_header("OMGAdmin", user_auth_header(opts))
+    |> post(@base_dir <> path, data)
+    |> csv_response()
+  end
+
+  defp csv_response(%Plug.Conn{resp_body: body}) do
+    IO.inspect(body)
+    body
   end
 
   defp user_auth_header(opts) do

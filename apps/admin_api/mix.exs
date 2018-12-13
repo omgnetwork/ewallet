@@ -4,14 +4,14 @@ defmodule AdminAPI.Mixfile do
   def project do
     [
       app: :admin_api,
-      version: Application.get_env(:ewallet, :version),
+      version: "1.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env),
-      elixirc_options: [warnings_as_errors: Mix.env != :test],
+      elixirc_options: [warnings_as_errors: false],
       compilers: [:phoenix] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       test_coverage: [tool: ExCoveralls],
@@ -51,6 +51,7 @@ defmodule AdminAPI.Mixfile do
       {:sentry, "~> 6.2.0"},
       {:bodyguard, "~> 2.2"},
       {:deferred_config, "~> 0.1.0"},
+      {:csv, "~> 2.0.0"},
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},
       {:ewallet, in_umbrella: true}
