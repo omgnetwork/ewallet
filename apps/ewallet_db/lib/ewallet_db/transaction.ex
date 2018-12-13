@@ -38,7 +38,7 @@ defmodule EWalletDB.Transaction do
     # internal / external
     field(:type, :string, default: @internal)
     # Payload received from client
-    field(:payload, EWalletConfig.Encrypted.Map)
+    field(:payload, EWalletDB.Encrypted.Map)
     # Response returned by ledger
     field(:local_ledger_uuid, :string)
     field(:error_code, :string)
@@ -49,7 +49,7 @@ defmodule EWalletDB.Transaction do
     field(:calculated_at, :naive_datetime)
 
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     belongs_to(
       :from_token,
@@ -185,7 +185,7 @@ defmodule EWalletDB.Transaction do
         :to,
         :from
       ],
-      encrypted: [:encrypted_metadata]
+      encrypted: [:encrypted_metadata, :payload]
     )
     |> validate_number(:from_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_number(:to_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)

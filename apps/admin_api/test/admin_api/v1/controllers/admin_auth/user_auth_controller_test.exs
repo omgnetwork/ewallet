@@ -97,6 +97,33 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
 
       assert response == expected
     end
+
+    test "generates activity logs" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      timestamp = DateTime.utc_now()
+
+      response = admin_user_request("/user.login", %{id: user.id})
+
+      assert response["success"] == true
+
+      auth_token = get_last_inserted(AuthToken)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_admin(),
+        target: auth_token,
+        changes: %{
+          "owner_app" => "ewallet_api",
+          "token" => auth_token.token,
+          "user_uuid" => user.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/user.logout" do
@@ -113,6 +140,37 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       assert response["version"] == @expected_version
       assert response["success"] == true
       assert response["data"] == %{}
+    end
+
+    test "generates activity logs" do
+      _user = insert(:user, %{provider_user_id: "1234"})
+      admin_user_request("/user.login", %{provider_user_id: "1234"})
+      auth_token = get_last_inserted(AuthToken)
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/user.logout", %{
+          "auth_token" => auth_token.token
+        })
+
+      assert response["success"] == true
+
+      auth_token = get_last_inserted(AuthToken)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_admin(),
+        target: auth_token,
+        changes: %{
+          "expired" => true
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

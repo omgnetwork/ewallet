@@ -85,7 +85,7 @@ defmodule EWalletDB.AuthToken do
   Generate an auth token for the specified user,
   then returns the auth token string.
   """
-  def generate(%User{} = user, owner_app) when is_atom(owner_app) do
+  def generate(%User{} = user, owner_app, originator) when is_atom(owner_app) do
     account = User.get_account(user)
 
     attrs = %{
@@ -93,13 +93,13 @@ defmodule EWalletDB.AuthToken do
       user_uuid: user.uuid,
       account_uuid: if(account, do: account.uuid, else: nil),
       token: Crypto.generate_base64_key(@key_length),
-      originator: user
+      originator: originator
     }
 
     insert(attrs)
   end
 
-  def generate(_, _), do: {:error, :invalid_parameter}
+  def generate(_, _, _), do: {:error, :invalid_parameter}
 
   @doc """
   Retrieves an auth token using the specified token.

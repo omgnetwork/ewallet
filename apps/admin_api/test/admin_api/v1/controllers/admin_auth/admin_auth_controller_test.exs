@@ -177,6 +177,33 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
     end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+
+      response =
+        unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
+
+      assert response["success"] == true
+      auth_token = AuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_admin(),
+        target: auth_token,
+        changes: %{
+          "account_uuid" => auth_token.account.uuid,
+          "owner_app" => "admin_api",
+          "token" => auth_token.token,
+          "user_uuid" => auth_token.user.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/auth_token.switch_account" do
@@ -243,6 +270,33 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       refute response["success"]
       assert response["data"]["code"] == "auth_token:not_found"
     end
+
+    test "generates an activity log" do
+      account = insert(:account, parent: Account.get_master_account())
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/auth_token.switch_account", %{
+          "account_id" => account.id
+        })
+
+      assert response["success"] == true
+      auth_token = AuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_admin(),
+        target: auth_token,
+        changes: %{
+          "account_uuid" => account.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/me.logout" do
@@ -265,6 +319,29 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       response2 = admin_user_request("/me.logout")
       refute response2["success"]
       assert response2["data"]["code"] == "user:auth_token_expired"
+    end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+
+      response = admin_user_request("/me.logout")
+
+      assert response["success"] == true
+      auth_token = AuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_admin(),
+        target: auth_token,
+        changes: %{
+          "expired" => true
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

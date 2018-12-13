@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Membership, Role}
+  alias EWalletDB.{Membership, Role, Repo}
   alias ActivityLogger.System
 
   describe "/role.all" do
@@ -101,6 +101,28 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
     end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+      request_data = %{name: "test_role"}
+      response = provider_request("/role.create", request_data)
+
+      assert response["success"] == true
+
+      role = Role.get(response["data"]["id"])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_key(),
+        target: role,
+        changes: %{"name" => "test_role", "priority" => role.priority},
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/role.update" do
@@ -143,6 +165,40 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
 
       assert response["data"]["description"] ==
                "There is no role corresponding to the provided id."
+    end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+      role = insert(:role)
+
+      request_data =
+        params_for(:role, %{
+          id: role.id,
+          name: "updated_name",
+          display_name: "updated_display_name"
+        })
+
+      response = provider_request("/role.update", request_data)
+
+      assert response["success"] == true
+
+      role = Role.get(response["data"]["id"])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_key(),
+        target: role,
+        changes: %{
+          "priority" => role.priority,
+          "name" => "updated_name",
+          "display_name" => "updated_display_name"
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 
@@ -215,6 +271,31 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
                    "object" => "error"
                  }
                }
+    end
+
+    test "generates an activity log" do
+      role = insert(:role)
+
+      timestamp = DateTime.utc_now()
+      response = provider_request("/role.delete", %{id: role.id})
+
+      assert response["success"] == true
+
+      role = Repo.get_by(Role, %{id: role.id})
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_key(),
+        target: role,
+        changes: %{
+          "deleted_at" => NaiveDateTime.to_iso8601(role.deleted_at)
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

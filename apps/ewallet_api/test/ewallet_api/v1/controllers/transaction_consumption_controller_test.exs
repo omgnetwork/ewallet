@@ -2,7 +2,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWallet.TestEndpoint
   alias EWallet.Web.{Date, Orchestrator}
-  alias EWalletDB.{Account, Repo, Transaction, TransactionConsumption, User}
+  alias EWalletDB.{Account, Repo, Transaction, TransactionConsumption, User, TransactionRequest}
   alias Phoenix.Socket.Broadcast
 
   alias EWallet.Web.V1.{
@@ -607,6 +607,168 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       assert response["success"] == false
+    end
+
+    test "generates an activity log", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          allow_amount_override: false,
+          amount: 1 * meta.token.subunit_to_unit,
+          correlation_id: "tBUI9WCJ",
+          encrypted_metadata: %{"a_key" => "a_value"},
+          metadata: %{"a_key" => "a_value"},
+          require_confirmation: false,
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          type: "send"
+        )
+
+      set_initial_balance(%{
+        address: meta.alice_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        client_request("/me.consume_transaction_request", %{
+          address: nil,
+          encrypted_metadata: %{"a_key" => "a_value"},
+          formatted_transaction_request_id: transaction_request.id,
+          idempotency_token: "JXcTFKJK",
+          metadata: %{"a_key" => "a_value"},
+          token_id: meta.token.id
+        })
+
+      assert response["success"] == true
+
+      transaction_request = TransactionRequest.get(transaction_request.id)
+      transaction_consumption = TransactionConsumption.get(response["data"]["id"])
+      transaction = get_last_inserted(Transaction)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 7
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: meta.bob,
+        target: transaction_consumption,
+        changes: %{
+          "estimated_at" => NaiveDateTime.to_iso8601(transaction_consumption.estimated_at),
+          "estimated_consumption_amount" => 100,
+          "estimated_rate" => 1.0,
+          "estimated_request_amount" => 100,
+          "idempotency_token" => "JXcTFKJK",
+          "token_uuid" => meta.token.uuid,
+          "transaction_request_uuid" => transaction_request.uuid,
+          "wallet_address" => meta.bob_wallet.address,
+          "metadata" => %{"a_key" => "a_value"},
+          "user_uuid" => meta.bob.uuid
+        },
+        encrypted_changes: %{"encrypted_metadata" => %{"a_key" => "a_value"}}
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: transaction_consumption,
+        changes: %{
+          "approved_at" => NaiveDateTime.to_iso8601(transaction_consumption.approved_at),
+          "status" => "approved"
+        },
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(2)
+      |> assert_activity_log(
+        action: "insert",
+        originator: transaction_consumption,
+        target: transaction,
+        changes: %{
+          "calculated_at" => NaiveDateTime.to_iso8601(transaction.calculated_at),
+          "from" => meta.alice_wallet.address,
+          "from_user_uuid" => meta.alice.uuid,
+          "from_amount" => 100,
+          "from_token_uuid" => meta.token.uuid,
+          "idempotency_token" => "JXcTFKJK",
+          "rate" => 1.0,
+          "to" => meta.bob_wallet.address,
+          "to_amount" => 100,
+          "to_token_uuid" => meta.token.uuid,
+          "to_user_uuid" => meta.bob.uuid,
+          "metadata" => %{"a_key" => "a_value"}
+        },
+        encrypted_changes: %{
+          "payload" => %{
+            "encrypted_metadata" => %{"a_key" => "a_value"},
+            "exchange_account_id" => nil,
+            "exchange_wallet_address" => nil,
+            "from_address" => meta.alice_wallet.address,
+            "from_amount" => 100,
+            "from_token_id" => meta.token.id,
+            "idempotency_token" => "JXcTFKJK",
+            "metadata" => %{"a_key" => "a_value"},
+            "to_address" => meta.bob_wallet.address,
+            "to_amount" => 100,
+            "to_token_id" => meta.token.id
+          },
+          "encrypted_metadata" => %{"a_key" => "a_value"}
+        }
+      )
+
+      logs
+      |> Enum.at(3)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: transaction,
+        changes: %{
+          "local_ledger_uuid" => transaction.local_ledger_uuid,
+          "status" => "confirmed"
+        },
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(4)
+      |> assert_activity_log(
+        action: "update",
+        originator: transaction,
+        target: transaction_consumption,
+        changes: %{
+          "confirmed_at" => NaiveDateTime.to_iso8601(transaction_consumption.confirmed_at),
+          "status" => "confirmed",
+          "transaction_uuid" => transaction.uuid
+        },
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(5)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: transaction_request,
+        changes: %{"consumptions_count" => 1},
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(6)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: transaction_request,
+        changes: %{"updated_at" => NaiveDateTime.to_iso8601(transaction_request.updated_at)},
+        encrypted_changes: %{}
+      )
     end
   end
 end

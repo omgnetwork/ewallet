@@ -256,6 +256,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
     test "generates an activity log" do
       user = get_test_admin()
       parent = User.get_account(user)
+      timestamp = DateTime.utc_now()
 
       request_data = %{
         parent_id: parent.id,
@@ -269,24 +270,41 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["success"] == true
 
       account = Account.get(response["data"]["id"])
-      log = get_last_activity_log(account)
 
-      assert log.action == "insert"
-      assert log.inserted_at != nil
-      assert log.originator_type == "user"
-      assert log.originator_uuid == user.uuid
-      assert log.target_type == "account"
-      assert log.target_uuid == account.uuid
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 3
 
-      assert log.target_changes == %{
-               "metadata" => %{"something" => "interesting"},
-               "name" => "A test account",
-               "parent_uuid" => parent.uuid
-             }
+      logs
+      |> Enum.at(0)
+      |> assert_simple_activity_log(
+        action: "insert",
+        originator_type: "account",
+        target_type: "wallet"
+      )
 
-      assert log.target_encrypted_changes == %{
-               "encrypted_metadata" => %{"something" => "secret"}
-             }
+      logs
+      |> Enum.at(1)
+      |> assert_simple_activity_log(
+        action: "insert",
+        originator_type: "account",
+        target_type: "wallet"
+      )
+
+      logs
+      |> Enum.at(2)
+      |> assert_activity_log(
+        action: "insert",
+        originator: user,
+        target: account,
+        changes: %{
+          "metadata" => %{"something" => "interesting"},
+          "name" => "A test account",
+          "parent_uuid" => parent.uuid
+        },
+        encrypted_changes: %{
+          "encrypted_metadata" => %{"something" => "secret"}
+        }
+      )
     end
 
     test "creates a new account with no parent_id" do
@@ -343,6 +361,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
     test "generates an activity log" do
       user = get_test_admin()
       account = User.get_account(user)
+      timestamp = DateTime.utc_now()
 
       request_data =
         params_for(:account, %{
@@ -357,24 +376,24 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["success"] == true
 
       account = Account.get(response["data"]["id"])
-      log = get_last_activity_log(account)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
 
-      assert log.action == "update"
-      assert log.inserted_at != nil
-      assert log.originator_type == "user"
-      assert log.originator_uuid == user.uuid
-      assert log.target_type == "account"
-      assert log.target_uuid == account.uuid
-
-      assert log.target_changes == %{
-               "name" => "updated_name",
-               "parent_uuid" => account.parent_uuid,
-               "description" => "updated_description"
-             }
-
-      assert log.target_encrypted_changes == %{
-               "encrypted_metadata" => %{"something" => "secret"}
-             }
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: user,
+        target: account,
+        changes: %{
+          "name" => "updated_name",
+          "parent_uuid" => account.parent_uuid,
+          "description" => "updated_description"
+        },
+        encrypted_changes: %{
+          "encrypted_metadata" => %{"something" => "secret"}
+        }
+      )
     end
 
     test "updates the account's categories" do
@@ -570,6 +589,42 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
 
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation."
+    end
+
+    test "generates an activity log" do
+      user = get_test_admin()
+      account = insert(:account)
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
+
+      assert response["success"] == true
+
+      account = Account.get(account.id)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: user,
+        target: account,
+        changes: %{
+          "avatar" => %{
+            "file_name" => "test.jpg",
+            "updated_at" => Ecto.DateTime.to_iso8601(account.avatar.updated_at)
+          }
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

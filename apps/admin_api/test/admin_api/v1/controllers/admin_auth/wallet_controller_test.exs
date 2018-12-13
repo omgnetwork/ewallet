@@ -561,6 +561,41 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
       length = Wallet |> Repo.all() |> length()
       assert length == 3
     end
+
+    test "generates an activity log" do
+      account = insert(:account)
+      assert Wallet |> Repo.all() |> length() == 3
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/wallet.create", %{
+          name: "MyWallet",
+          identifier: "secondary",
+          account_id: account.id
+        })
+
+      assert response["success"] == true
+
+      wallet = Wallet.get(response["data"]["address"])
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_admin(),
+        target: wallet,
+        changes: %{
+          "name" => "MyWallet",
+          "identifier" => wallet.identifier,
+          "account_uuid" => account.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/wallet.enable_or_disable" do
@@ -620,6 +655,43 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "wallet:primary_cannot_be_disabled"
+    end
+
+    test "generates an activity log" do
+      account = Account.get_master_account()
+
+      {:ok, wallet} =
+        Wallet.insert_secondary_or_burn(%{
+          "account_uuid" => account.uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary",
+          "originator" => %System{}
+        })
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/wallet.enable_or_disable", %{
+          address: wallet.address,
+          enabled: false
+        })
+
+      assert response["success"] == true
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_admin(),
+        target: wallet,
+        changes: %{
+          "enabled" => false
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

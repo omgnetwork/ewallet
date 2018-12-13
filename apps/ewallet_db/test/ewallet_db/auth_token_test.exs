@@ -12,7 +12,7 @@ defmodule EWalletDB.AuthTokenTest do
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
 
-      {res, auth_token} = AuthToken.generate(user, @owner_app)
+      {res, auth_token} = AuthToken.generate(user, @owner_app, %System{})
 
       assert res == :ok
       assert String.length(auth_token.token) == 43
@@ -20,7 +20,7 @@ defmodule EWalletDB.AuthTokenTest do
 
     test "returns error if user is invalid" do
       account = insert(:account)
-      {res, reason} = AuthToken.generate(account, @owner_app)
+      {res, reason} = AuthToken.generate(account, @owner_app, %System{})
 
       assert res == :error
       assert reason == :invalid_parameter
@@ -32,8 +32,8 @@ defmodule EWalletDB.AuthTokenTest do
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
 
-      {:ok, token1} = AuthToken.generate(user, @owner_app)
-      {:ok, token2} = AuthToken.generate(user, @owner_app)
+      {:ok, token1} = AuthToken.generate(user, @owner_app, %System{})
+      {:ok, token2} = AuthToken.generate(user, @owner_app, %System{})
 
       token_count =
         user
@@ -52,7 +52,7 @@ defmodule EWalletDB.AuthTokenTest do
       account = insert(:account)
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
-      {:ok, auth_token} = AuthToken.generate(user, @owner_app)
+      {:ok, auth_token} = AuthToken.generate(user, @owner_app, %System{})
 
       auth_user = AuthToken.authenticate(auth_token.token, @owner_app)
       assert auth_user.uuid == user.uuid
@@ -92,7 +92,7 @@ defmodule EWalletDB.AuthTokenTest do
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
 
-      {:ok, auth_token} = AuthToken.generate(user, @owner_app)
+      {:ok, auth_token} = AuthToken.generate(user, @owner_app, %System{})
 
       auth_user = AuthToken.authenticate(user.id, auth_token.token, @owner_app)
       assert auth_user.uuid == user.uuid
@@ -103,8 +103,8 @@ defmodule EWalletDB.AuthTokenTest do
       account = insert(:account)
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
-      {:ok, token1} = AuthToken.generate(user, @owner_app)
-      {:ok, token2} = AuthToken.generate(user, @owner_app)
+      {:ok, token1} = AuthToken.generate(user, @owner_app, %System{})
+      {:ok, token2} = AuthToken.generate(user, @owner_app, %System{})
 
       assert AuthToken.authenticate(user.id, token1.token, @owner_app)
       assert AuthToken.authenticate(user.id, token2.token, @owner_app)
@@ -122,7 +122,7 @@ defmodule EWalletDB.AuthTokenTest do
       account = insert(:account)
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
-      {:ok, auth_token} = AuthToken.generate(user, @owner_app)
+      {:ok, auth_token} = AuthToken.generate(user, @owner_app, %System{})
 
       another_user = insert(:admin)
       assert AuthToken.authenticate(another_user.id, auth_token.token, @owner_app) == false
@@ -134,7 +134,7 @@ defmodule EWalletDB.AuthTokenTest do
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
 
-      {:ok, auth_token} = AuthToken.generate(user, :different_app)
+      {:ok, auth_token} = AuthToken.generate(user, :different_app, %System{})
 
       assert AuthToken.authenticate(user.id, auth_token.token, @owner_app) == false
     end
@@ -144,7 +144,7 @@ defmodule EWalletDB.AuthTokenTest do
       account = insert(:account)
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
-      {:ok, _} = AuthToken.generate(user, @owner_app)
+      {:ok, _} = AuthToken.generate(user, @owner_app, %System{})
 
       assert AuthToken.authenticate(user.id, "unmatched", @owner_app) == false
     end
@@ -154,7 +154,7 @@ defmodule EWalletDB.AuthTokenTest do
       account = insert(:account)
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
-      {:ok, _} = AuthToken.generate(user, @owner_app)
+      {:ok, _} = AuthToken.generate(user, @owner_app, %System{})
 
       assert AuthToken.authenticate(user.id, nil, @owner_app) == false
     end
@@ -189,9 +189,9 @@ defmodule EWalletDB.AuthTokenTest do
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
 
-      {:ok, token1} = AuthToken.generate(user, @owner_app)
+      {:ok, token1} = AuthToken.generate(user, @owner_app, %System{})
       token1_string = token1.token
-      {:ok, token2} = AuthToken.generate(user, @owner_app)
+      {:ok, token2} = AuthToken.generate(user, @owner_app, %System{})
       token2_string = token2.token
 
       # Ensure tokens are usable.
@@ -208,9 +208,9 @@ defmodule EWalletDB.AuthTokenTest do
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
 
-      {:ok, token1} = AuthToken.generate(user, @owner_app)
+      {:ok, token1} = AuthToken.generate(user, @owner_app, %System{})
       token1_string = token1.token
-      {:ok, token2} = AuthToken.generate(user, @owner_app)
+      {:ok, token2} = AuthToken.generate(user, @owner_app, %System{})
       token2_string = token2.token
 
       # Ensure tokens are usable.

@@ -16,7 +16,8 @@ defmodule AdminAPI.V1.AdminAuthController do
          conn <- AdminUserAuthenticator.authenticate(conn, attrs["email"], attrs["password"]),
          true <- conn.assigns.authenticated || {:error, :invalid_login_credentials},
          true <- User.get_status(conn.assigns.admin_user) == :active || {:error, :invite_pending},
-         {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api),
+         originator <- Originator.extract(conn.assigns),
+         {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api, originator),
          {:ok, auth_token} <- Orchestrator.one(auth_token, AuthTokenOverlay, attrs) do
       render_token(conn, auth_token)
     else

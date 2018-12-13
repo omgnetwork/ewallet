@@ -11,7 +11,8 @@ defmodule AdminAPI.V1.UserAuthController do
   def login(conn, attrs) do
     with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
          true <- User.enabled?(user) || {:error, :user_disabled},
-         {:ok, token} = AuthToken.generate(user, :ewallet_api),
+         originator <- Originator.extract(conn.assigns),
+         {:ok, token} = AuthToken.generate(user, :ewallet_api, originator),
          {:ok, token} = Orchestrator.one(token, AuthTokenOverlay, attrs) do
       render(conn, :auth_token, %{auth_token: token})
     else

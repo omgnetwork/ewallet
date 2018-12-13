@@ -44,7 +44,7 @@ defmodule EWalletDB.Account do
     field(:relative_depth, :integer, virtual: true)
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     many_to_many(
       :categories,

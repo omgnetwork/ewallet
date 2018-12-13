@@ -500,5 +500,40 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       length = Wallet |> Repo.all() |> length()
       assert length == 3
     end
+
+    test "generates an activity log" do
+      account = insert(:account)
+      assert Wallet |> Repo.all() |> length() == 3
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/wallet.create", %{
+          name: "MyWallet",
+          identifier: "secondary",
+          account_id: account.id
+        })
+
+      assert response["success"] == true
+
+      wallet = Wallet.get(response["data"]["address"])
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_key(),
+        target: wallet,
+        changes: %{
+          "name" => "MyWallet",
+          "identifier" => wallet.identifier,
+          "account_uuid" => account.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 end

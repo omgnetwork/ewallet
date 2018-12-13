@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Invite, User}
+  alias EWalletDB.{Invite, User, Repo}
   alias ActivityLogger.System
 
   defp request(email, token, password, password_confirmation) do
@@ -50,70 +50,60 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
     test "generates activity logs" do
       {:ok, user} = :admin |> params_for(is_admin: false) |> User.insert()
       {:ok, invite} = Invite.generate(user, %System{}, preload: :user)
+      timestamp = DateTime.utc_now()
 
       response = request(invite.user.email, invite.token, "some_password", "some_password")
-
       assert response["success"] == true
 
-      user = User.get(response["data"]["id"])
-      logs = get_all_activity_logs(user)
+      invite = Repo.get_by(Invite, uuid: invite.uuid)
+      user = User.get(user.id)
 
-      # Set is admin
-      log = Enum.at(logs, 0)
-      assert log.action == "update"
-      assert log.inserted_at != nil
-      assert log.originator_type == "system"
-      assert log.originator_uuid == "00000000-0000-0000-0000-000000000000"
-      assert log.target_type == "user"
-      assert log.target_uuid == user.uuid
-      assert log.target_changes == %{"is_admin" => true}
-      assert log.target_encrypted_changes == %{}
-
-      # update invite_uuid to nil
-      log = Enum.at(logs, 1)
-      assert log.action == "update"
-      assert log.inserted_at != nil
-      assert log.originator_type == "user"
-      assert log.originator_uuid == user.uuid
-      assert log.target_type == "user"
-      assert log.target_uuid == user.uuid
-      assert log.target_changes == %{"invite_uuid" => nil}
-      assert log.target_encrypted_changes == %{}
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 4
 
       # Update user password
-      log = Enum.at(logs, 2)
-      assert log.action == "update"
-      assert log.inserted_at != nil
-      assert log.originator_type == "user"
-      assert log.originator_uuid == user.uuid
-      assert log.target_type == "user"
-      assert log.target_uuid == user.uuid
-      assert log.target_changes == %{"password_hash" => user.password_hash}
-      assert log.target_encrypted_changes == %{}
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: user,
+        target: user,
+        changes: %{"password_hash" => user.password_hash},
+        encrypted_changes: %{}
+      )
 
-      # Invite update
-      log = Enum.at(logs, 3)
-      assert log.action == "update"
-      assert log.inserted_at != nil
-      assert log.originator_type == "invite"
-      assert log.originator_uuid == invite.uuid
-      assert log.target_type == "user"
-      assert log.target_uuid == user.uuid
-      assert log.target_changes == %{"invite_uuid" => invite.uuid}
-      assert log.target_encrypted_changes == %{}
+      # Update invite_uuid to nil
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "update",
+        originator: user,
+        target: user,
+        changes: %{"invite_uuid" => nil},
+        encrypted_changes: %{}
+      )
 
-      # Set password
-      log = Enum.at(logs, 4)
-      assert log.action == "insert"
-      assert log.inserted_at != nil
-      assert log.originator_type == "system"
-      assert log.originator_uuid == "00000000-0000-0000-0000-000000000000"
-      assert log.target_type == "user"
-      assert log.target_uuid == user.uuid
-      assert log.target_changes["email"] == user.email
-      assert log.target_changes["metadata"] == user.metadata
-      assert log.target_changes["password_hash"] != user.password_hash
-      assert log.target_encrypted_changes == %{}
+      # Update verified_at for the invitation
+      logs
+      |> Enum.at(2)
+      |> assert_activity_log(
+        action: "update",
+        originator: user,
+        target: invite,
+        changes: %{"verified_at" => NaiveDateTime.to_iso8601(invite.verified_at)},
+        encrypted_changes: %{}
+      )
+
+      # Set is admin
+      logs
+      |> Enum.at(3)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: user,
+        changes: %{"is_admin" => true},
+        encrypted_changes: %{}
+      )
 
       Enum.each(logs, fn log ->
         assert log.target_changes["password"] == nil

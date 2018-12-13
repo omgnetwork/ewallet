@@ -66,6 +66,7 @@ defmodule AdminAPI.V1.RoleController do
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
          %Role{} = original <- Role.get(id) || {:error, :role_id_not_found},
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Role.update(original, attrs),
          {:ok, updated} <- Orchestrator.one(updated, RoleOverlay, attrs) do
       render(conn, :role, %{role: updated})

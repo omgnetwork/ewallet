@@ -43,7 +43,7 @@ defmodule EWalletDB.Token do
     # false
     field(:locked, :boolean)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     field(:enabled, :boolean)
 

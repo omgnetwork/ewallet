@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
   alias EWallet.MintGate
   alias EWallet.Web.Date
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, TransactionSerializer}
-  alias EWalletDB.{Mint, Repo}
+  alias EWalletDB.{Mint, Account, Transaction, Wallet, Repo}
   alias ActivityLogger.System
 
   describe "/token.get_mints" do
@@ -248,6 +248,117 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
                "Invalid parameter provided. `amount` must be greater than 0."
 
       assert response["data"]["messages"] == %{"amount" => ["number"]}
+    end
+
+    test "generates an activity log" do
+      token = insert(:token)
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/token.mint", %{
+          id: token.id,
+          amount: 1_000_000 * token.subunit_to_unit
+        })
+
+      assert response["success"] == true
+
+      mint = Mint.get(response["data"]["id"])
+      account = Account.get_master_account()
+      wallet = Account.get_primary_wallet(account)
+      genesis = Wallet.get("gnis000000000000")
+      transaction = get_last_inserted(Transaction)
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 6
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_admin(),
+        target: mint,
+        changes: %{
+          "account_uuid" => account.uuid,
+          "amount" => 100_000_000,
+          "token_uuid" => token.uuid
+        },
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "insert",
+        originator: :system,
+        target: genesis,
+        changes: %{
+          "address" => "gnis000000000000",
+          "identifier" => "genesis",
+          "name" => "genesis"
+        },
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(2)
+      |> assert_activity_log(
+        action: "insert",
+        originator: mint,
+        target: transaction,
+        changes: %{
+          "from" => "gnis000000000000",
+          "from_amount" => 100_000_000,
+          "from_token_uuid" => token.uuid,
+          "idempotency_token" => transaction.idempotency_token,
+          "to" => wallet.address,
+          "to_account_uuid" => account.uuid,
+          "to_amount" => 100_000_000,
+          "to_token_uuid" => token.uuid
+        },
+        encrypted_changes: %{
+          "payload" => %{
+            "amount" => 100_000_000,
+            "description" => nil,
+            "idempotency_token" => transaction.idempotency_token,
+            "token_id" => token.id
+          }
+        }
+      )
+
+      logs
+      |> Enum.at(3)
+      |> assert_activity_log(
+        action: "update",
+        originator: transaction,
+        target: mint,
+        changes: %{
+          "transaction_uuid" => transaction.uuid
+        },
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(4)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: transaction,
+        changes: %{
+          "local_ledger_uuid" => transaction.local_ledger_uuid,
+          "status" => "confirmed"
+        },
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(5)
+      |> assert_activity_log(
+        action: "update",
+        originator: transaction,
+        target: mint,
+        changes: %{"confirmed" => true},
+        encrypted_changes: %{}
+      )
     end
   end
 end
