@@ -11,7 +11,7 @@ defmodule EWalletAPI.V1.ClientAuthPlugTest do
       refute conn.halted
       assert conn.assigns[:authenticated] == true
       assert conn.assigns[:auth_scheme] == :client
-      assert conn.assigns.user.username == @username
+      assert conn.assigns.end_user.username == @username
     end
 
     test "halts with :invalid_api_key if api_key is missing" do
@@ -77,7 +77,7 @@ defmodule EWalletAPI.V1.ClientAuthPlugTest do
       refute conn.halted
       assert AuthToken.authenticate(@auth_token, :ewallet_api) == :token_expired
       refute conn.assigns[:authenticated]
-      refute conn.assigns[:user]
+      refute conn.assigns[:end_user]
     end
   end
 

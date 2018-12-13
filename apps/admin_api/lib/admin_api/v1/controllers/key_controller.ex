@@ -105,7 +105,7 @@ defmodule AdminAPI.V1.KeyController do
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"access_key" => access_key}) do
     with :ok <- permit(:delete, conn.assigns, nil) do
-      key = Key.get(:access_key, access_key)
+      key = Key.get_by(access_key: access_key)
       do_delete(conn, key)
     else
       {:error, code} ->

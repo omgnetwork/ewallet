@@ -26,7 +26,7 @@ defmodule EWalletDB.KeyTest do
     end
   end
 
-  describe "get/1" do
+  describe "get/2" do
     test "accepts a uuid" do
       key = insert(:key)
       result = Key.get(key.id)
@@ -47,20 +47,20 @@ defmodule EWalletDB.KeyTest do
     end
   end
 
-  describe "get/2" do
+  describe "get_by/2" do
     test "returns a key if provided an access_key" do
       key = insert(:key)
-      result = Key.get(:access_key, key.access_key)
+      result = Key.get_by(access_key: key.access_key)
       assert result.uuid == key.uuid
     end
 
     test "does not return a soft-deleted key" do
       {:ok, key} = :key |> insert() |> Key.delete(%System{})
-      assert Key.get(:access_key, key.access_key) == nil
+      assert Key.get_by(access_key: key.access_key) == nil
     end
 
     test "returns nil if the key with the given access_key is not found" do
-      assert Key.get(:access_key, "not_access_key") == nil
+      assert Key.get(access_key: "not_access_key") == nil
     end
   end
 

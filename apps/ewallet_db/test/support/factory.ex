@@ -270,7 +270,8 @@ defmodule EWalletDB.Factory do
     %ForgetPasswordRequest{
       token: sequence("123"),
       enabled: true,
-      originator: %System{}
+      originator: %System{},
+      expires_at: NaiveDateTime.utc_now() |> NaiveDateTime.add(60 * 10)
     }
   end
 

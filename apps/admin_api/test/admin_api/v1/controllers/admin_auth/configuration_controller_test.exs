@@ -1,5 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletConfig.Config
 
   describe "/configuration.get" do
     test "returns a list of settings and pagination data" do
@@ -26,18 +27,20 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
           sort_dir: "asc"
         })
 
+      default_settings = Application.get_env(:ewallet_config, :default_settings)
+
       assert response["success"] == true
-      assert length(response["data"]["data"]) == 19
-      assert response["data"]["pagination"]["count"] == 19
+      assert length(response["data"]["data"]) == Enum.count(default_settings)
+      assert response["data"]["pagination"]["count"] == Enum.count(default_settings)
 
       first_setting = Enum.at(response["data"]["data"], 0)
       last_setting = Enum.at(response["data"]["data"], -1)
 
       assert first_setting["key"] == "base_url"
-      assert first_setting["position"] == 1
+      assert first_setting["position"] == default_settings["base_url"].position
 
       assert last_setting["key"] == "aws_secret_access_key"
-      assert last_setting["position"] == 19
+      assert last_setting["position"] == default_settings["aws_secret_access_key"].position
     end
   end
 
@@ -52,6 +55,25 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
       assert response["success"] == true
       assert response["data"]["data"]["base_url"] != nil
       assert response["data"]["data"]["base_url"]["value"] == "new_base_url.example"
+    end
+
+    test "updates a list of settings", meta do
+      response =
+        admin_user_request("/configuration.update", %{
+          "aws_access_key_id" => "asd",
+          "aws_bucket" => "asd",
+          "aws_region" => "asdz",
+          "aws_secret_access_key" => "asdasdasdasdasd",
+          "config_pid" => meta[:config_pid]
+        })
+
+      assert response["success"] == true
+      data = response["data"]["data"]
+
+      assert data["aws_access_key_id"]["value"] == "asd"
+      assert data["aws_bucket"]["value"] == "asd"
+      assert data["aws_region"]["value"] == "asdz"
+      assert data["aws_secret_access_key"]["value"] == "asdasdasdasdasd"
     end
 
     test "updates a list of settings with failures", meta do

@@ -13,9 +13,16 @@ defmodule EWalletAPI.ChannelCase do
   of the test unless the test case is marked as async.
   """
 
-  use ExUnit.CaseTemplate, async: false
+  use ExUnit.CaseTemplate
+  use Phoenix.ChannelTest
   alias Ecto.Adapters.SQL.Sandbox
+  import EWalletDB.Factory
   alias EWalletConfig.ConfigTestHelper
+  alias EWalletDB.User
+
+  @endpoint EWalletAPI.V1.Endpoint
+
+  @provider_user_id "test_provider_user_id"
 
   using do
     quote do
@@ -23,13 +30,20 @@ defmodule EWalletAPI.ChannelCase do
       use Phoenix.ChannelTest
       alias Ecto.Adapters.SQL.Sandbox
       import EWalletDB.Factory
+      import EWalletAPI.ChannelCase
 
       # The default endpoint for testing
       @endpoint EWalletAPI.V1.Endpoint
+
+      @provider_user_id unquote(@provider_user_id)
     end
   end
 
   setup tags do
+    # Restarts `EWalletConfig.Config` so it does not hang on to a DB connection for too long.
+    Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+    Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+
     :ok = Sandbox.checkout(EWalletConfig.Repo)
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
@@ -42,8 +56,11 @@ defmodule EWalletAPI.ChannelCase do
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
+    config_pid = start_supervised!(EWalletConfig.Config)
+
     ConfigTestHelper.restart_config_genserver(
       self(),
+      config_pid,
       EWalletConfig.Repo,
       [:ewallet_db, :ewallet, :ewallet_api],
       %{
@@ -53,6 +70,33 @@ defmodule EWalletAPI.ChannelCase do
       }
     )
 
+    {:ok, _user} =
+      :user
+      |> params_for(%{provider_user_id: @provider_user_id})
+      |> User.insert()
+
     :ok
+  end
+
+  def get_test_user, do: User.get_by_provider_user_id(@provider_user_id)
+
+  def test_socket(provider_user_id \\ @provider_user_id) do
+    socket("test", %{
+      auth: %{authenticated: true, end_user: User.get_by_provider_user_id(provider_user_id)}
+    })
+  end
+
+  def test_with_topic(topic, channel, provider_user_id \\ @provider_user_id) do
+    subscribe_and_join(test_socket(provider_user_id), channel, topic)
+  end
+
+  def assert_success({res, _, socket}, topic) do
+    assert res == :ok
+    assert socket.topic == topic
+  end
+
+  def assert_failure({res, code}, error) do
+    assert res == :error
+    assert code == error
   end
 end

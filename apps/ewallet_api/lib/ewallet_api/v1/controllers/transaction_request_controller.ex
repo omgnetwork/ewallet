@@ -13,7 +13,7 @@ defmodule EWalletAPI.V1.TransactionRequestController do
   def create_for_user(conn, attrs) do
     attrs = Map.put(attrs, "originator", Originator.extract(conn.assigns))
 
-    conn.assigns.user
+    conn.assigns.end_user
     |> TransactionRequestGate.create(attrs)
     |> respond(conn)
   end

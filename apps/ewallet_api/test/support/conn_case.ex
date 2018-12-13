@@ -47,6 +47,7 @@ defmodule EWalletAPI.ConnCase do
       import EWalletAPI.ConnCase
       import EWalletAPI.Router.Helpers
       import EWalletDB.Factory
+      import ActivityLogger.ActivityLoggerTestHelper
 
       # Reiterate all module attributes from
       @endpoint EWalletAPI.Endpoint
@@ -61,6 +62,10 @@ defmodule EWalletAPI.ConnCase do
   end
 
   setup tags do
+    # Restarts `EWalletConfig.Config` so it does not hang on to a DB connection for too long.
+    Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+    Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
     :ok = Sandbox.checkout(EWalletConfig.Repo)
@@ -73,17 +78,19 @@ defmodule EWalletAPI.ConnCase do
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
-    pid =
-      ConfigTestHelper.restart_config_genserver(
-        self(),
-        EWalletConfig.Repo,
-        [:ewallet_db, :ewallet, :ewallet_api],
-        %{
-          "enable_standalone" => true,
-          "base_url" => "http://localhost:4000",
-          "email_adapter" => "test"
-        }
-      )
+    config_pid = start_supervised!(EWalletConfig.Config)
+
+    ConfigTestHelper.restart_config_genserver(
+      self(),
+      config_pid,
+      EWalletConfig.Repo,
+      [:ewallet_db, :ewallet, :ewallet_api],
+      %{
+        "enable_standalone" => true,
+        "base_url" => "http://localhost:4000",
+        "email_adapter" => "test"
+      }
+    )
 
     # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
@@ -108,7 +115,7 @@ defmodule EWalletAPI.ConnCase do
     # by returning {:ok, context_map}. But it would make the code
     # much less readable, i.e. `test "my test name", context do`,
     # and access using `context[:attribute]`.
-    %{config_pid: pid}
+    %{config_pid: config_pid}
   end
 
   def stringify_keys(%NaiveDateTime{} = value) do

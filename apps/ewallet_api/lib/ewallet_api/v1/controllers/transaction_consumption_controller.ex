@@ -20,7 +20,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
       |> Map.put("originator", Originator.extract(conn.assigns))
 
     with {:ok, consumption} <-
-           TransactionConsumptionConsumerGate.consume(conn.assigns.user, attrs) do
+           TransactionConsumptionConsumerGate.consume(conn.assigns.end_user, attrs) do
       consumption
       |> Orchestrator.one(TransactionConsumptionOverlay, attrs)
       |> respond(conn, true)
@@ -34,8 +34,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
     handle_error(conn, :invalid_parameter)
   end
 
-  def approve_for_user(conn, attrs), do: confirm(conn, conn.assigns.user, attrs, true)
-  def reject_for_user(conn, attrs), do: confirm(conn, conn.assigns.user, attrs, false)
+  def approve_for_user(conn, attrs), do: confirm(conn, conn.assigns.end_user, attrs, true)
+  def reject_for_user(conn, attrs), do: confirm(conn, conn.assigns.end_user, attrs, false)
 
   defp confirm(conn, user, %{"id" => id} = attrs, approved) do
     id

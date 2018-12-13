@@ -25,7 +25,9 @@ defmodule EWallet.AccountPolicy do
     PolicyHelper.viewer_authorize(user, account_id)
   end
 
-  # create/update/delete, or anything else.
+  def authorize(:join, param, account_id), do: authorize(:get, param, account_id)
+
+  # create/update/delete/join, or anything else.
   def authorize(_, %{admin_user: user}, account_id) do
     PolicyHelper.admin_authorize(user, account_id)
   end

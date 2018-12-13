@@ -22,8 +22,8 @@ defmodule AdminAPI.ConnCase do
   alias EWallet.Web.Date
   alias EWalletConfig.ConfigTestHelper
   alias EWalletDB.{Account, Key, Repo, User}
-  alias ActivityLogger.{ActivityLog, System}
   alias Utils.{Types.ExternalID, Helpers.Crypto}
+  alias ActivityLogger.System
 
   # Attributes required by Phoenix.ConnTest
   @endpoint AdminAPI.Endpoint
@@ -60,6 +60,8 @@ defmodule AdminAPI.ConnCase do
       import AdminAPI.Router.Helpers
       import EWalletDB.Factory
 
+      import ActivityLogger.ActivityLoggerTestHelper
+
       # Reiterate all module attributes from `AdminAPI.ConnCase`
       @endpoint unquote(@endpoint)
 
@@ -84,6 +86,10 @@ defmodule AdminAPI.ConnCase do
   end
 
   setup tags do
+    # Restarts `EWalletConfig.Config` so it does not hang on to a DB connection for too long.
+    Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+    Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
     :ok = Sandbox.checkout(EWalletConfig.Repo)
@@ -96,17 +102,19 @@ defmodule AdminAPI.ConnCase do
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
-    pid =
-      ConfigTestHelper.restart_config_genserver(
-        self(),
-        EWalletConfig.Repo,
-        [:ewallet_db, :ewallet, :admin_api],
-        %{
-          "base_url" => "http://localhost:4000",
-          "email_adapter" => "test",
-          "sender_email" => "admin@example.com"
-        }
-      )
+    config_pid = start_supervised!(EWalletConfig.Config)
+
+    ConfigTestHelper.restart_config_genserver(
+      self(),
+      config_pid,
+      EWalletConfig.Repo,
+      [:ewallet_db, :ewallet, :admin_api],
+      %{
+        "base_url" => "http://localhost:4000",
+        "email_adapter" => "test",
+        "sender_email" => "admin@example.com"
+      }
+    )
 
     # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
@@ -151,7 +159,7 @@ defmodule AdminAPI.ConnCase do
     # by returning {:ok, context_map}. But it would make the code
     # much less readable, i.e. `test "my test name", context do`,
     # and access using `context[:attribute]`.
-    %{config_pid: pid}
+    %{config_pid: config_pid}
   end
 
   def stringify_keys(%NaiveDateTime{} = value) do
@@ -171,6 +179,7 @@ defmodule AdminAPI.ConnCase do
   """
   def get_test_admin, do: User.get(@admin_id)
   def get_test_user, do: User.get_by_provider_user_id(@provider_user_id)
+  def get_test_key, do: Key.get_by(%{access_key: @access_key})
 
   @doc """
   Returns the last inserted record of the given schema.
@@ -179,27 +188,6 @@ defmodule AdminAPI.ConnCase do
     schema
     |> last(:inserted_at)
     |> Repo.one()
-  end
-
-  def get_last_activity_log(schema) do
-    type = ActivityLog.get_type(schema.__struct__)
-
-    ActivityLog
-    |> last(:inserted_at)
-    |> where(target_type: ^type, target_uuid: ^schema.uuid)
-    |> ActivityLogger.Repo.one()
-  end
-
-  def get_all_activity_logs(schema) do
-    type = ActivityLog.get_type(schema.__struct__)
-
-    ActivityLog
-    |> order_by(desc: :inserted_at)
-    |> where(target_type: ^type)
-    |> ActivityLogger.Repo.all()
-  end
-
-  def assert_last_activity_log(action, expected_originator, expected_target) do
   end
 
   def mint!(token, amount \\ 1_000_000, originator \\ %System{}) do
