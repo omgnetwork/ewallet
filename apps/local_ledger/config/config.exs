@@ -1,8 +1,5 @@
 use Mix.Config
 
-# BALANCE_CACHING_STRATEGY
-# since_beginning
-# since_last_cached
 config :local_ledger,
   ecto_repos: [],
   settings: [
