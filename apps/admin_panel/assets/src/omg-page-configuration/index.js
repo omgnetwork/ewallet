@@ -419,6 +419,7 @@ class ConfigurationPage extends Component {
     )
   }
   renderConfigurationPage = ({ data: configurations }) => {
+    console.log(this.props.configurations)
     return (
       <ConfigurationPageContainer>
         <TopNavigation
