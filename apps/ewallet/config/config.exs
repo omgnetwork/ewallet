@@ -31,6 +31,11 @@ config :ewallet,
     "EMAIL_ADAPTER" => "email_adapter",
     "SMTP_HOST" => "smtp_host",
     "SMTP_PORT" => "smtp_port",
+    # `SMTP_USER` is not a valid setting name, but it was previously mentioned
+    # in the documentation, so we also try to migrate that value here. This should
+    # be safe enough as long as it stays above `SMTP_USERNAME` in this list, so that
+    # `SMTP_USERNAME` always takes precedence over `SMTP_USER`.
+    "SMTP_USER" => "smtp_username",
     "SMTP_USERNAME" => "smtp_username",
     "SMTP_PASSWORD" => "smtp_password",
     "FILE_STORAGE_ADAPTER" => "file_storage_adapter",
