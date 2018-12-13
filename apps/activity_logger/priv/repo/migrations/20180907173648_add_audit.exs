@@ -23,5 +23,6 @@ defmodule ActivityLogger.Repo.Migrations.AddAudit do
 
     create index(:audit, [:target_uuid, :target_type])
     create index(:audit, [:originator_uuid, :originator_type])
+    create unique_index(:activity_log, [:id])
   end
 end

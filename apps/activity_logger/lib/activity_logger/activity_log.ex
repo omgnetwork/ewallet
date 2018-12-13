@@ -13,10 +13,9 @@ defmodule ActivityLogger.ActivityLog do
   }
 
   @primary_key {:uuid, UUID, autogenerate: true}
-  @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "activity_log" do
-    external_id(prefix: "adt_")
+    external_id(prefix: "log_")
 
     field(:action, :string)
 
@@ -57,13 +56,13 @@ defmodule ActivityLogger.ActivityLog do
     ])
   end
 
-  @spec get_schema(String.t()) :: Atom.t()
+  @spec get_schema(String.t()) :: atom()
   def get_schema(type) do
     config = Application.get_env(:activity_logger, :activity_log_types_to_schemas)
     Map.fetch!(config, type)
   end
 
-  @spec get_type(Atom.t()) :: String.t()
+  @spec get_type(atom()) :: String.t()
   def get_type(schema) do
     config = Application.get_env(:activity_logger, :schemas_to_activity_log_types)
     Map.fetch!(config, schema)
@@ -82,7 +81,7 @@ defmodule ActivityLogger.ActivityLog do
     |> Repo.all()
   end
 
-  @spec all_for_target(Atom.t(), UUID.t()) :: [%ActivityLog{}]
+  @spec all_for_target(atom(), UUID.t()) :: [%ActivityLog{}]
   def all_for_target(schema, uuid) do
     schema
     |> get_type()
@@ -164,7 +163,7 @@ defmodule ActivityLogger.ActivityLog do
 
   defp remove_forbidden(changes, prevent_saving) do
     changes
-    |> Enum.filter(fn {key, value} -> !Enum.member?(prevent_saving, key) end)
+    |> Enum.filter(fn {key, _} -> !Enum.member?(prevent_saving, key) end)
     |> Enum.into(%{})
   end
 
@@ -177,7 +176,7 @@ defmodule ActivityLogger.ActivityLog do
 
   defp format_changes(changes, encrypted_fields) do
     changes
-    |> Enum.filter(fn {key, value} ->
+    |> Enum.filter(fn {key, _} ->
       !Enum.member?(encrypted_fields, key)
     end)
     |> format_changes(nil)
@@ -191,7 +190,7 @@ defmodule ActivityLogger.ActivityLog do
   end
 
   defp format_change(field, value) do
-    {field, value}
+    {field, format_value(value)}
   end
 
   defp format_value(%Changeset{} = value) do

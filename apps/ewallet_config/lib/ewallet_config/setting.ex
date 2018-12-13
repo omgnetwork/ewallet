@@ -88,7 +88,7 @@ defmodule EWalletConfig.Setting do
   @doc """
   Retrieves a setting's value by its string name.
   """
-  @spec get_value(String.t() | Atom.t()) :: any()
+  @spec get_value(String.t() | atom()) :: any()
   def get_value(key, default \\ nil)
 
   def get_value(key, default) when is_atom(key) do
@@ -162,7 +162,7 @@ defmodule EWalletConfig.Setting do
   defp return_tx_result({:error, _}), do: {:error, :setting_insert_failed}
 
   @spec update(String.t(), map()) ::
-          {:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}
+          {:ok, %Setting{}} | {:error, atom()} | {:error, Changeset.t()}
   def update(nil, _), do: {:error, :setting_not_found}
 
   def update(key, attrs) when is_atom(key) and is_map(attrs) do
@@ -186,7 +186,7 @@ defmodule EWalletConfig.Setting do
     end
   end
 
-  @spec update_all(List.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}]
+  @spec update_all(List.t()) :: [{:ok, %Setting{}} | {:error, atom()} | {:error, Changeset.t()}]
   def update_all(attrs) when is_list(attrs) do
     case Keyword.keyword?(attrs) do
       true -> update_all_with_keyword_list(attrs)
@@ -194,7 +194,7 @@ defmodule EWalletConfig.Setting do
     end
   end
 
-  @spec update_all(map()) :: [{:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}]
+  @spec update_all(map()) :: [{:ok, %Setting{}} | {:error, atom()} | {:error, Changeset.t()}]
   def update_all(attrs) do
     originator = attrs[:originator]
 

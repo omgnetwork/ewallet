@@ -64,18 +64,18 @@ defmodule EWalletConfig.Config do
     {:reply, res, registered_apps}
   end
 
-  @spec handle_call(:reload, Atom.t(), [Atom.t()]) :: :ok
+  @spec handle_call(:reload, atom(), [atom()]) :: :ok
   def handle_call(:reload, _from, registered_apps) do
     reload_registered_apps(registered_apps)
     {:reply, :ok, registered_apps}
   end
 
-  @spec get_registered_apps(pid()) :: [{Atom.t(), [Atom.t()]}]
+  @spec get_registered_apps(pid()) :: [{atom(), [atom()]}]
   def get_registered_apps(pid \\ __MODULE__) do
     GenServer.call(pid, :get_registered_apps)
   end
 
-  @spec register_and_load(Atom.t(), [Atom.t()]) :: [{Atom.t(), [Atom.t()]}]
+  @spec register_and_load(atom(), [atom()]) :: [{atom(), [atom()]}]
   def register_and_load(app, settings, pid \\ __MODULE__)
 
   def register_and_load(app, settings, {name, node}) do
@@ -86,7 +86,7 @@ defmodule EWalletConfig.Config do
     GenServer.call(pid, {:register_and_load, app, settings})
   end
 
-  @spec reload_config(Atom.t()) :: :ok
+  @spec reload_config(atom()) :: :ok
   def reload_config(pid \\ __MODULE__) do
     GenServer.call(pid, :reload)
     trigger_nodes_reload()
@@ -104,7 +104,7 @@ defmodule EWalletConfig.Config do
     end)
   end
 
-  @spec update(map(), Atom.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()}]
+  @spec update(map(), atom()) :: [{:ok, %Setting{}} | {:error, atom()}]
   def update(attrs, pid \\ __MODULE__) do
     {config_pid, attrs} = get_config_pid(attrs)
 
@@ -135,7 +135,7 @@ defmodule EWalletConfig.Config do
 
   defp get_config_pid(attrs), do: {nil, attrs}
 
-  @spec insert_all_defaults(map(), map(), Atom.t()) :: :ok
+  @spec insert_all_defaults(map(), map(), atom()) :: :ok
   def insert_all_defaults(originator, opts \\ %{}, pid \\ __MODULE__) do
     :ok = Setting.insert_all_defaults(originator, opts)
     reload_config(pid)

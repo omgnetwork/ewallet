@@ -48,7 +48,7 @@ defmodule ActivityLogger.ActivityRepo do
         |> handle_perform_result(:delete, changeset)
       end
 
-      @spec perform(Atom.t(), %Changeset{}, Keyword.t(), Multi.t()) ::
+      @spec perform(atom(), %Changeset{}, Keyword.t(), Multi.t()) ::
               {:ok, any()}
               | {:error, any()}
               | {:error, :no_originator_given}
