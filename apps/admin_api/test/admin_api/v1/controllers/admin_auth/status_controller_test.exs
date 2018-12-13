@@ -30,7 +30,7 @@ defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
       # See example: /phoenix/test/phoenix/endpoint/render_errors_test.exs
       {status, _headers, response} =
         assert_error_sent(500, fn ->
-          unauthenticated_request("/status.server_error")
+          admin_user_request("/status.server_error")
         end)
 
       assert status == 500
@@ -55,7 +55,7 @@ defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
       Application.put_env(:sentry, :included_environments, [:test | original_included_envs])
 
       try do
-        unauthenticated_request("/status.server_error")
+        admin_user_request("/status.server_error")
       rescue
         e ->
           Sentry.capture_exception(e, result: :sync)

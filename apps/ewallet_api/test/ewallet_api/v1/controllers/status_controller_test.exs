@@ -30,7 +30,7 @@ defmodule EWalletAPI.V1.StatusControllerTest do
       # See example: /phoenix/test/phoenix/endpoint/render_errors_test.exs
       {status, _headers, response} =
         assert_error_sent(500, fn ->
-          public_request("/status.server_error")
+          client_request("/status.server_error")
         end)
 
       assert status == 500
@@ -55,7 +55,7 @@ defmodule EWalletAPI.V1.StatusControllerTest do
       Application.put_env(:sentry, :included_environments, [:test | original_included_envs])
 
       try do
-        public_request("/status.server_error")
+        client_request("/status.server_error")
       rescue
         e ->
           Sentry.capture_exception(e, result: :sync)
