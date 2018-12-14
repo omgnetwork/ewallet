@@ -5,25 +5,6 @@ defmodule ActivityLogger.ActivityLoggerTestHelper do
   use ExUnit.CaseTemplate
   import Ecto.Query
   alias ActivityLogger.{ActivityLog, System, Repo}
-  alias EWalletConfig.{Setting, StoredSetting}
-
-  def assert_activity_log(
-        log,
-        action: action,
-        originator: originator,
-        target: %Setting{} = target,
-        changes: changes,
-        encrypted_changes: encrypted_changes
-      ) do
-    assert_activity_log(
-      log,
-      action: action,
-      originator: originator,
-      target: %StoredSetting{uuid: target.uuid},
-      changes: changes,
-      encrypted_changes: encrypted_changes
-    )
-  end
 
   def assert_activity_log(
         log,

@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.ProviderAuth.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletConfig.Config
+  alias EWalletConfig.{Config, StoredSetting}
 
   describe "/configuration.get" do
     test "returns a list of settings and pagination data" do
@@ -151,7 +151,7 @@ defmodule AdminAPI.V1.ProviderAuth.ConfigurationControllerTest do
       |> assert_activity_log(
         action: "update",
         originator: get_test_key(),
-        target: setting,
+        target: %StoredSetting{uuid: setting.uuid},
         changes: %{"data" => %{"value" => "new_base_url.example"}, "position" => setting.position},
         encrypted_changes: %{}
       )
