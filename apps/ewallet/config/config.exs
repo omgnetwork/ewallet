@@ -22,8 +22,6 @@ config :ewallet,
     "BASE_URL" => "base_url",
     "REDIRECT_URL_PREFIXES" => "redirect_url_prefixes",
     "ENABLE_STANDALONE" => "enable_standalone",
-    "CORS_MAX_AGE" => "CORS_MAX_AGE",
-    "CORS_ORIGIN" => "CORS_ORIGIN",
     "BALANCE_CACHING_STRATEGY" => "balance_caching_strategy",
     "REQUEST_MAX_PER_PAGE" => "max_per_page",
     "MIN_PASSWORD_LENGTH" => "min_password_length",
@@ -31,6 +29,11 @@ config :ewallet,
     "EMAIL_ADAPTER" => "email_adapter",
     "SMTP_HOST" => "smtp_host",
     "SMTP_PORT" => "smtp_port",
+    # `SMTP_USER` is not a valid setting name, but it was previously mentioned
+    # in the documentation, so we also try to migrate that value here. This should
+    # be safe enough as long as it stays above `SMTP_USERNAME` in this list, so that
+    # `SMTP_USERNAME` always takes precedence over `SMTP_USER`.
+    "SMTP_USER" => "smtp_username",
     "SMTP_USERNAME" => "smtp_username",
     "SMTP_PASSWORD" => "smtp_password",
     "FILE_STORAGE_ADAPTER" => "file_storage_adapter",
