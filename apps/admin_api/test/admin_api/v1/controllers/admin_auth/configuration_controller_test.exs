@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/configuration.all" do
-    test "returns all list of settings" do
+    test "returns a list of configurations" do
       response = admin_user_request("/configuration.all", %{})
 
       # Asserts return data

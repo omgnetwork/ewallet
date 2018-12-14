@@ -32,7 +32,7 @@ export function updateConfiguration ({
     data: _.omitBy(
       {
         base_url: baseUrl,
-        redirect_url_prefixes: redirectUrlPrefixes,
+        redirect_url_prefixes: [redirectUrlPrefixes],
         enable_standalone: Boolean(enableStandalone),
         max_per_page: Number(maxPerPage),
         min_password_length: Number(minPasswordLength),

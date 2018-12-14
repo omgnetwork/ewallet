@@ -6,6 +6,10 @@ import Icon from '../icon'
 import { fuzzySearch } from '../../utils/search'
 const SelectContainer = styled.div`
   position: relative;
+  i[name='Chevron-Down'],
+  i[name='Chevron-Up'] {
+    cursor: pointer;
+  }
 `
 const OptionsContainer = styled.div`
   position: absolute;
@@ -65,6 +69,13 @@ export default class Select extends PureComponent {
       this.props.onSelectItem(item)
     })
   }
+  onClickChevronDown = () => {
+    this.onFocus()
+    // HACK
+    setTimeout(() => {
+      this.input.focus()
+    }, 0)
+  }
   render () {
     const filteredOption = this.props.filterByKey
       ? this.props.options.filter(option => {
@@ -73,7 +84,7 @@ export default class Select extends PureComponent {
       : this.props.options
 
     return (
-      <SelectContainer className={this.props.className}>
+      <SelectContainer className={this.props.className} active={this.state.active}>
         <Input
           {...this.props}
           onFocus={this.onFocus}
@@ -81,7 +92,13 @@ export default class Select extends PureComponent {
           onChange={this.props.onChange}
           value={this.props.value}
           registerRef={this.registerRef}
-          suffix={this.state.active ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
+          suffix={
+            this.state.active ? (
+              <Icon name='Chevron-Up' />
+            ) : (
+              <Icon name='Chevron-Down' onMouseDown={this.onClickChevronDown} />
+            )
+          }
         />
         {this.state.active && filteredOption.length > 0 && (
           <OptionsContainer optionBoxHeight={this.props.optionBoxHeight}>
