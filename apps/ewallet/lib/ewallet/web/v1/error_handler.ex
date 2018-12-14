@@ -7,6 +7,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   alias EWallet.AmountFormatter
   alias EWallet.Web.V1.ErrorSerializer
   alias EWalletDB.Token
+  alias Sentry.Event
 
   defmodule ErrorCodeNotFoundError do
     defexception message: "The error code could not be found."
@@ -497,7 +498,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
       extra: %{error_code: code},
       message: "(#{inspect(type)}) #{message}"
     ]
-    |> Sentry.Event.create_event()
+    |> Event.create_event()
     |> Sentry.send_event()
 
     build_error(:internal_server_error, supported_errors)
