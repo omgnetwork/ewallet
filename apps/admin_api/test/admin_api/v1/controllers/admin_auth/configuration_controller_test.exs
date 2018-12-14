@@ -129,5 +129,32 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
 
       assert Application.get_env(:admin_api, :base_url, "new_base_url.example")
     end
+
+    test "returns unauthorized error if the admin is not from the master account", meta do
+      auth_token = insert(:auth_token, owner_app: "admin_api")
+
+      response =
+        admin_user_request(
+          "/configuration.update",
+          %{
+            base_url: "new_base_url.example",
+            config_pid: meta[:config_pid]
+          },
+          user_id: auth_token.user.id,
+          auth_token: auth_token.token
+        )
+
+      assert response ==
+               %{
+                 "success" => false,
+                 "version" => "1",
+                 "data" => %{
+                   "object" => "error",
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation.",
+                   "messages" => nil
+                 }
+               }
+    end
   end
 end
