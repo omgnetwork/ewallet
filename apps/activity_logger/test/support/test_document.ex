@@ -29,7 +29,8 @@ defmodule ActivityLogger.TestDocument do
       attrs,
       cast: [:title, :body, :secret_data],
       required: [:title],
-      encrypted: [:secret_data]
+      encrypted: [:secret_data],
+      prevent_saving: [:body]
     )
   end
 

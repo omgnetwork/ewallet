@@ -42,7 +42,7 @@ defmodule ActivityLogger.ActivityLoggerTestHelper do
     assert log.target_encrypted_changes == encrypted_changes
   end
 
-  def assert_simple_activity_log(
+  def assert_activity_log(
         log,
         action: action,
         originator_type: o_type,
@@ -52,6 +52,20 @@ defmodule ActivityLogger.ActivityLoggerTestHelper do
     assert log.inserted_at != nil
     assert log.originator_type == o_type
     assert log.target_type == t_type
+  end
+
+  def assert_activity_log(
+        log,
+        action: action,
+        originator: originator,
+        target: target
+      ) do
+    assert log.action == action
+    assert log.inserted_at != nil
+    assert log.originator_type == ActivityLog.get_type(originator.__struct__)
+    assert log.originator_uuid == originator.uuid
+    assert log.target_type == ActivityLog.get_type(target.__struct__)
+    assert log.target_uuid == target.uuid
   end
 
   def get_all_activity_logs(schema) do

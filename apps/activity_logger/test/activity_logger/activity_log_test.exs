@@ -1,6 +1,8 @@
 defmodule ActivityLogger.ActivityLogTest do
   use ExUnit.Case
+  use ActivityLogger.ActivityLogging
   import ActivityLogger.Factory
+  import ActivityLogger.ActivityLoggerTestHelper
   alias Ecto.Adapters.SQL.Sandbox
 
   alias ActivityLogger.{
@@ -110,14 +112,12 @@ defmodule ActivityLogger.ActivityLogTest do
           originator: %System{}
         })
 
-      activity_log = ActivityLog.get_initial_activity_log("test_user", user.uuid)
-
-      assert activity_log.originator_type == "test_user"
-      assert activity_log.originator_uuid == initial_originator.uuid
-      assert activity_log.target_type == "test_user"
-      assert activity_log.target_uuid == user.uuid
-      assert activity_log.action == "insert"
-      assert activity_log.inserted_at != nil
+      ActivityLog.get_initial_activity_log("test_user", user.uuid)
+      |> assert_activity_log(
+        action: "insert",
+        originator: initial_originator,
+        target: user
+      )
     end
   end
 
@@ -141,6 +141,100 @@ defmodule ActivityLogger.ActivityLogTest do
     end
   end
 
+  describe "ActivityLog.insert/3" do
+    setup do
+      admin = insert(:test_user)
+
+      attrs = %{
+        title: "A title",
+        body: "some body that we don't want to save",
+        secret_data: %{something: "cool"},
+        originator: admin
+      }
+
+      record = insert(:test_document, attrs)
+
+      %{attrs: attrs, record: record}
+    end
+
+    test "inserts everything in target_changes by default", meta do
+      changeset =
+        %TestDocument{}
+        |> cast_and_validate_required_for_activity_log(
+          meta.attrs,
+          cast: [:title, :body, :secret_data],
+          required: [:title]
+        )
+
+      {:ok, activity_log} = ActivityLog.insert(:insert, changeset, meta.record)
+
+      assert_activity_log(
+        activity_log,
+        action: "insert",
+        originator: meta.attrs.originator,
+        target: meta.record,
+        changes: %{
+          title: meta.attrs.title,
+          body: meta.attrs.body,
+          secret_data: %{something: "cool"}
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "inserts encrypted fields in encrypted_changes", meta do
+      changeset =
+        %TestDocument{}
+        |> cast_and_validate_required_for_activity_log(
+          meta.attrs,
+          cast: [:title, :body, :secret_data],
+          required: [:title],
+          encrypted: [:secret_data]
+        )
+
+      {:ok, activity_log} = ActivityLog.insert(:insert, changeset, meta.record)
+
+      assert_activity_log(
+        activity_log,
+        action: "insert",
+        originator: meta.attrs.originator,
+        target: meta.record,
+        changes: %{
+          title: meta.attrs.title,
+          body: meta.attrs.body
+        },
+        encrypted_changes: %{
+          secret_data: meta.attrs.secret_data
+        }
+      )
+    end
+
+    test "does not insert fields protected with `prevent_saving`", meta do
+      changeset =
+        %TestDocument{}
+        |> cast_and_validate_required_for_activity_log(
+          meta.attrs,
+          cast: [:title, :body, :secret_data],
+          required: [:title],
+          prevent_saving: [:body]
+        )
+
+      {:ok, activity_log} = ActivityLog.insert(:insert, changeset, meta.record)
+
+      assert_activity_log(
+        activity_log,
+        action: "insert",
+        originator: meta.attrs.originator,
+        target: meta.record,
+        changes: %{
+          title: meta.attrs.title,
+          secret_data: meta.attrs.secret_data
+        },
+        encrypted_changes: %{}
+      )
+    end
+  end
+
   describe "ActivityLog.insert_record_with_activity_log/2" do
     test "inserts an activity_log and a document with encrypted metadata" do
       admin = insert(:test_user)
@@ -157,20 +251,18 @@ defmodule ActivityLogger.ActivityLogTest do
 
       assert res == :ok
 
-      assert activity_log.action == "insert"
-      assert activity_log.originator_type == "test_user"
-      assert activity_log.originator_uuid == admin.uuid
-      assert activity_log.target_type == "test_document"
-      assert activity_log.target_uuid == record.uuid
-
-      assert activity_log.target_changes == %{
-               "title" => record.title,
-               "body" => record.body
-             }
-
-      assert activity_log.target_encrypted_changes == %{
-               "secret_data" => %{"something" => "cool"}
-             }
+      assert_activity_log(
+        activity_log,
+        action: "insert",
+        originator: admin,
+        target: record,
+        changes: %{
+          "title" => record.title
+        },
+        encrypted_changes: %{
+          "secret_data" => %{"something" => "cool"}
+        }
+      )
 
       assert record |> ActivityLog.all_for_target() |> length() == 1
     end
@@ -196,17 +288,16 @@ defmodule ActivityLogger.ActivityLogTest do
 
       assert res == :ok
 
-      assert activity_log.action == "update"
-      assert activity_log.originator_type == "test_user"
-      assert activity_log.originator_uuid == admin.uuid
-      assert activity_log.target_type == "test_user"
-      assert activity_log.target_uuid == record.uuid
-
-      assert activity_log.target_changes == %{
-               "username" => record.username
-             }
-
-      assert activity_log.target_encrypted_changes == %{}
+      assert_activity_log(
+        activity_log,
+        action: "update",
+        originator: admin,
+        target: record,
+        changes: %{
+          "username" => record.username
+        },
+        encrypted_changes: %{}
+      )
 
       assert user |> ActivityLog.all_for_target() |> length() == 2
     end
@@ -220,11 +311,12 @@ defmodule ActivityLogger.ActivityLogTest do
 
       assert res == :ok
 
-      assert activity_log.action == "insert"
-      assert activity_log.originator_type == "test_user"
-      assert activity_log.originator_uuid == admin.uuid
-      assert activity_log.target_type == "test_user"
-      assert activity_log.target_uuid == record.uuid
+      assert_activity_log(
+        activity_log,
+        action: "insert",
+        originator: admin,
+        target: record
+      )
 
       assert record |> ActivityLog.all_for_target() |> length() == 1
     end

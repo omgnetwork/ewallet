@@ -151,7 +151,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
 
       logs
       |> Enum.at(0)
-      |> assert_simple_activity_log(
+      |> assert_activity_log(
         action: "insert",
         originator_type: "account",
         target_type: "wallet"
@@ -159,7 +159,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
 
       logs
       |> Enum.at(1)
-      |> assert_simple_activity_log(
+      |> assert_activity_log(
         action: "insert",
         originator_type: "account",
         target_type: "wallet"
