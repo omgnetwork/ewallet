@@ -12,26 +12,14 @@ defmodule AdminAPI.V1.ExportController do
   """
   @spec generate(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def generate(conn, attrs) do
-    # AdminAPI.V1.CSVExporter.export(Transaction, TransactionSerializer, conn, "med")
-    columns = TransactionSerializer.columns()
-    csv_headers = [Enum.join(columns, ","), "\n"]
-    a = "txn_01cydv4k718j5ckh7gbxkfzzpc"
-    IO.inspect("running!!")
+    a = "txn_01cyp3bpt51n06khwq6c04bc4r"
 
-    IO.inspect Repo.transaction fn ->
-      Transaction
-      # |> where([t], t.id == ^a)
-      |> Repo.stream()
-      |> Stream.map(fn e -> TransactionSerializer.serialize(e) end)
-      |> CSV.encode(headers: columns)
-      |> Enum.into(File.stream!("/Users/thibaultdenizet/src/ewallet/outputz.csv", [:write, :utf8]))
-    end
-    # |> Enum.to_list()
-    # |> Stream.each(fn e ->
-    #   IO.inspect(e)
-    # end)
-    #
-    # |> Stream.run()
+    {:ok, pid} = EWalletDB.Exporter.start(
+      "transactions",
+      Transaction,
+      Transaction, #where(Transaction, [t], t.id == ^a),
+      TransactionSerializer
+    )
 
     send_resp(conn, 200, "")
   end
