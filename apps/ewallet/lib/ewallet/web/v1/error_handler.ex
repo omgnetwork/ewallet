@@ -8,6 +8,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
   alias EWallet.Web.V1.ErrorSerializer
   alias EWalletDB.Token
 
+  defmodule ErrorCodeNotFoundError do
+    defexception message: "The error code could not be found."
+  end
+
   @errors %{
     query_field_not_allowed: %{
       code: "client:invalid_parameter",
@@ -463,18 +467,38 @@ defmodule EWallet.Web.V1.ErrorHandler do
     |> String.to_existing_atom()
     |> run_if_valid_error(supported_errors, func)
   rescue
-    ArgumentError -> internal_server_error(code)
+    ArgumentError -> handle_error_code_not_found(code, supported_errors)
   end
 
   defp run_if_valid_error(code, supported_errors, func) when is_atom(code) do
     case Map.fetch(supported_errors, code) do
       {:ok, error} -> func.(error)
-      _ -> internal_server_error(code)
+      _ -> handle_error_code_not_found(code, supported_errors)
     end
   end
 
-  defp internal_server_error(description) do
-    build(code: :internal_server_error, desc: "#{description}")
+  defp handle_error_code_not_found(code, supported_errors) when is_atom(code) do
+    handle_error_code_not_found(":#{code}", supported_errors)
+  end
+
+  defp handle_error_code_not_found(code, supported_errors) do
+    type = ErrorCodeNotFoundError
+    message = Exception.message(%ErrorCodeNotFoundError{})
+
+    [
+      error_type: :error,
+      exception: [%{
+        type: type,
+        value: message,
+        module: __MODULE__,
+      }],
+      extra: %{error_code: code},
+      message: "(#{inspect(type)}) #{message}"
+    ]
+    |> Sentry.Event.create_event()
+    |> Sentry.send_event()
+
+    build_error(:internal_server_error, supported_errors)
   end
 
   defp build(code: code, desc: description) do
