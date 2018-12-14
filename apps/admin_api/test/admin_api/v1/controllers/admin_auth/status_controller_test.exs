@@ -58,7 +58,8 @@ defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
         admin_user_request("/status.server_error")
       rescue
         # Ignores the re-raised error
-        _ -> :noop
+        _ ->
+          :noop
       end
 
       # Because Bypass takes some time to serve the endpoint and Sentry uses

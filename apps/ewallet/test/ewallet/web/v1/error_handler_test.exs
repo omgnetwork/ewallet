@@ -16,6 +16,7 @@ defmodule EWallet.Web.V1.ErrorHandlerTest do
 
       data = %{}
       types = %{name: :string}
+
       changeset =
         {data, types}
         |> Changeset.change()
@@ -63,6 +64,7 @@ defmodule EWallet.Web.V1.ErrorHandlerTest do
       }
 
       token = insert(:token)
+
       data = %{
         "address" => "some_wallet_address",
         "current_amount" => 1 * token.subunit_to_unit,
@@ -75,7 +77,7 @@ defmodule EWallet.Web.V1.ErrorHandlerTest do
         code: errors[:error_code].code,
         description:
           "The specified wallet (#{data["address"]}) does not contain enough funds. " <>
-          "Available: 1 #{token.id} - Attempted debit: 10 #{token.id}",
+            "Available: 1 #{token.id} - Attempted debit: 10 #{token.id}",
         messages: nil
       }
 

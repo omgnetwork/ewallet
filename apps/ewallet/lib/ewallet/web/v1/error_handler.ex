@@ -487,11 +487,13 @@ defmodule EWallet.Web.V1.ErrorHandler do
 
     [
       error_type: :error,
-      exception: [%{
-        type: type,
-        value: message,
-        module: __MODULE__,
-      }],
+      exception: [
+        %{
+          type: type,
+          value: message,
+          module: __MODULE__
+        }
+      ],
       extra: %{error_code: code},
       message: "(#{inspect(type)}) #{message}"
     ]
