@@ -101,8 +101,10 @@ defmodule EWallet.Web.V1.ErrorHandlerTest do
 
       assert ErrorHandler.build_error(:error_code, %{"value" => "ABCD"}, errors) == expected
     end
+  end
 
-    test "returns an error object when given a valid code" do
+  describe "build_error/2" do
+    test "returns an error object when the given code matches the error code mapping" do
       errors = %{
         error_code: %{
           code: "error:error_code",
@@ -119,11 +121,11 @@ defmodule EWallet.Web.V1.ErrorHandlerTest do
 
       assert ErrorHandler.build_error(:error_code, errors) == expected
     end
-  end
 
-  describe "build_error/2" do
     test "sends a report to sentry when the given error code could not be found" do
       errors = %{
+        # This is indirectly required in order to generate
+        # the proper error response for the unknown error.
         internal_server_error: %{
           code: "server:internal_server_error",
           description: "Something went wrong on the server."
