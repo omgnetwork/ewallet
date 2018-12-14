@@ -72,7 +72,7 @@ config :sentry,
     env: Mix.env(),
     application: Mix.Project.config()[:app]
   },
-  server_name: (:inet.gethostname() |> elem(1) |> to_string()),
+  server_name: :inet.gethostname() |> elem(1) |> to_string(),
   included_environments: [:prod]
 
 # Import environment specific config. This must remain at the bottom
