@@ -14,24 +14,25 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
   }
 
   alias Ecto.Changeset
-  alias EWalletConfig.Helpers.Assoc
+  alias Utils.Helpers.Assoc
   alias EWalletDB.{Repo, TransactionConsumption, TransactionRequest}
+  alias ActivityLogger.System
 
-  @spec approve_and_confirm(%TransactionRequest{}, %TransactionConsumption{}) ::
+  @spec approve_and_confirm(%TransactionRequest{}, %TransactionConsumption{}, map()) ::
           {:error, %TransactionConsumption{}, atom(), String.t()}
           | {:error, %TransactionConsumption{}, String.t(), String.t()}
-  def approve_and_confirm(request, consumption) do
+  def approve_and_confirm(request, consumption, originator) do
     consumption
-    |> TransactionConsumption.approve()
+    |> TransactionConsumption.approve(originator)
     |> transfer(request)
   end
 
-  @spec confirm(String.t(), boolean(), map()) ::
+  @spec confirm(String.t(), boolean(), map(), map()) ::
           {:ok, %TransactionConsumption{}}
           | {:error, atom()}
           | {:error, %TransactionConsumption{}, atom(), String.t()}
-  def confirm(id, approved, confirmer) do
-    transaction = Repo.transaction(fn -> do_confirm(id, approved, confirmer) end)
+  def confirm(id, approved, creator, originator) do
+    transaction = Repo.transaction(fn -> do_confirm(id, approved, creator, originator) end)
 
     case transaction do
       {:ok, res} -> res
@@ -40,20 +41,20 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
     end
   end
 
-  defp do_confirm(id, approved, confirmer) do
+  defp do_confirm(id, approved, creator, originator) do
     with {v, f} <- {TransactionConsumptionValidator, TransactionConsumptionFetcher},
          {:ok, consumption} <- f.get(id),
          request <- consumption.transaction_request,
          {:ok, request} <- TransactionRequestFetcher.get_with_lock(request.id),
-         {:ok, consumption} <- v.validate_before_confirmation(consumption, confirmer) do
+         {:ok, consumption} <- v.validate_before_confirmation(consumption, creator) do
       case approved do
         true ->
           consumption
-          |> TransactionConsumption.approve()
+          |> TransactionConsumption.approve(originator)
           |> transfer(request)
 
         false ->
-          consumption = TransactionConsumption.reject(consumption)
+          consumption = TransactionConsumption.reject(consumption, originator)
           {:ok, consumption}
       end
     else
@@ -166,7 +167,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
           Assoc.get(consumption, [:exchange_account, :id]),
       "exchange_wallet_address" =>
         Assoc.get(request, [:exchange_wallet, :address]) ||
-          Assoc.get(consumption, [:exchange_wallet, :address])
+          Assoc.get(consumption, [:exchange_wallet, :address]),
+      "originator" => consumption
     }
 
     case TransactionGate.create(attrs) do
@@ -174,9 +176,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
         # Expires the request if it has reached the max number of consumptions (only CONFIRMED
         # SUCCESSFUL) consumptions are accounted for.
         consumption = TransactionConsumption.confirm(consumption, transaction)
-
         request = consumption.transaction_request
-        {:ok, request} = TransactionRequest.expire_if_max_consumption(request)
+        {:ok, request} = TransactionRequest.expire_if_max_consumption(request, %System{})
 
         consumption =
           consumption
@@ -187,16 +188,22 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
 
       {:error, %Changeset{} = changeset} ->
         error = ErrorHandler.build_error(:invalid_parameter, changeset, ErrorHandler.errors())
-        consumption = TransactionConsumption.fail(consumption, error.code, error.description)
+
+        consumption =
+          TransactionConsumption.fail(consumption, error.code, error.description, %System{})
+
         {:error, consumption, :invalid_parameter, error.description}
 
       {:error, code} ->
         error = ErrorHandler.build_error(code, ErrorHandler.errors())
-        consumption = TransactionConsumption.fail(consumption, error.code, error.description)
+
+        consumption =
+          TransactionConsumption.fail(consumption, error.code, error.description, %System{})
+
         {:error, consumption, code}
 
       {:error, code, description} ->
-        consumption = TransactionConsumption.fail(consumption, code, description)
+        consumption = TransactionConsumption.fail(consumption, code, description, %System{})
         {:error, consumption, code, description}
 
       {:error, transaction, code, description} ->

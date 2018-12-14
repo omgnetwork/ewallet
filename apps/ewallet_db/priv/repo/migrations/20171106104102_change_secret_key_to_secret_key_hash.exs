@@ -1,7 +1,7 @@
 defmodule EWalletDB.Repo.Migrations.ChangeSecretKeyToSecretKeyHash do
   use Ecto.Migration
   import Ecto.Query
-  alias EWalletConfig.Helpers.Crypto
+  alias Utils.Helpers.Crypto
   alias EWalletDB.Repo
 
   def up do

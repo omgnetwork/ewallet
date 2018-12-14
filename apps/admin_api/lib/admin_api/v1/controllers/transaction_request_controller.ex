@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.TransactionRequestPolicy
-  alias EWallet.Web.{Orchestrator, Paginator, V1.TransactionRequestOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TransactionRequestOverlay}
 
   alias EWallet.{
     TransactionRequestFetcher,
@@ -82,6 +82,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     attrs
+    |> Map.put("originator", Originator.extract(conn.assigns))
     |> Map.put("creator", conn.assigns)
     |> TransactionRequestGate.create()
     |> respond(conn)

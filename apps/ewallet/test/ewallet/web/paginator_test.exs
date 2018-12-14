@@ -4,6 +4,7 @@ defmodule EWallet.Web.PaginatorTest do
   alias EWallet.Web.Paginator
   alias EWalletConfig.Config
   alias EWalletDB.{Account, Repo}
+  alias ActivityLogger.System
 
   describe "EWallet.Web.Paginator.paginate_attrs/2" do
     test "paginates with default values if attrs not given" do
@@ -46,7 +47,14 @@ defmodule EWallet.Web.PaginatorTest do
     end
 
     test "returns per_page but never greater than the system's _defined_ maximum", meta do
-      {:ok, _setting} = Config.update([max_per_page: 20], meta[:config_pid])
+      {:ok, [max_per_page: {:ok, _}]} =
+        Config.update(
+          [
+            max_per_page: 20,
+            originator: %System{}
+          ],
+          meta[:config_pid]
+        )
 
       paginator = Paginator.paginate_attrs(Account, %{"per_page" => 100})
       assert paginator.pagination.per_page == 20

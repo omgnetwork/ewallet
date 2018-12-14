@@ -5,7 +5,7 @@ defmodule EWalletDB.MembershipChecker do
   """
   alias EWalletDB.{Account, Membership}
 
-  def allowed?(user, account, role) do
+  def allowed?(user, account, role, originator) do
     memberships = Membership.all_by_user(user, [:role, :account])
     membership_accounts_uuids = load_uuids(memberships, :account_uuid)
 
@@ -16,7 +16,8 @@ defmodule EWalletDB.MembershipChecker do
       user,
       role,
       memberships,
-      membership_accounts_uuids
+      membership_accounts_uuids,
+      originator
     )
   end
 
@@ -67,20 +68,21 @@ defmodule EWalletDB.MembershipChecker do
          user,
          role,
          memberships,
-         membership_accounts_uuids
+         membership_accounts_uuids,
+         originator
        ) do
     descendants_uuids = account |> Account.get_all_descendants() |> load_uuids(:uuid)
 
     descendants_uuids
     |> intersect(membership_accounts_uuids)
-    |> search_descendants(user, role, memberships)
+    |> search_descendants(user, role, memberships, originator)
   end
 
-  defp init_descendants_search_or_return(allowed?, _, _, _, _, _), do: allowed?
+  defp init_descendants_search_or_return(allowed?, _, _, _, _, _, _), do: allowed?
 
   def search_descendants([]), do: true
 
-  def search_descendants(uuids_intersect, user, role, memberships) do
+  def search_descendants(uuids_intersect, user, role, memberships, originator) do
     Enum.each(uuids_intersect, fn matching_descendant_uuid ->
       membership =
         Enum.find(memberships, fn membership ->
@@ -88,7 +90,7 @@ defmodule EWalletDB.MembershipChecker do
         end)
 
       if role.priority <= membership.role.priority do
-        Membership.unassign(user, membership.account)
+        Membership.unassign(user, membership.account, originator)
       end
     end)
 

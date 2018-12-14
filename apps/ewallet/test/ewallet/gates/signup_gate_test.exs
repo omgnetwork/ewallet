@@ -3,6 +3,7 @@ defmodule EWallet.SignupGateTest do
   alias EWallet.SignupGate
   alias EWallet.VerificationEmail
   alias EWalletDB.{Invite, User}
+  alias ActivityLogger.System
 
   @verification_url "http://localhost:4000/verification_url?email={email}&token={token}"
   @success_url "http://localhost:4000/success_url"
@@ -138,7 +139,7 @@ defmodule EWallet.SignupGateTest do
   describe "verify_email/1" do
     test "returns the invite when the verification is successful" do
       {:ok, user} = :standalone_user |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
+      {:ok, invite} = Invite.generate(user, %System{})
 
       {res, invite} =
         SignupGate.verify_email(%{
@@ -152,7 +153,7 @@ defmodule EWallet.SignupGateTest do
 
     test "returns an error when the email format is invalid" do
       {:ok, user} = :standalone_user |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
+      {:ok, invite} = Invite.generate(user, %System{})
 
       {res, code} =
         SignupGate.verify_email(%{
@@ -166,7 +167,7 @@ defmodule EWallet.SignupGateTest do
 
     test "returns :missing_token error when the token is not provided" do
       {:ok, user} = :standalone_user |> params_for() |> User.insert()
-      {:ok, _invite} = Invite.generate(user)
+      {:ok, _invite} = Invite.generate(user, %System{})
 
       {res, code} =
         SignupGate.verify_email(%{
@@ -179,7 +180,7 @@ defmodule EWallet.SignupGateTest do
 
     test "returns :email_token_not_found error when the email and token do not match" do
       {:ok, user} = :standalone_user |> params_for() |> User.insert()
-      {:ok, _invite} = Invite.generate(user)
+      {:ok, _invite} = Invite.generate(user, %System{})
 
       {res, code} =
         SignupGate.verify_email(%{

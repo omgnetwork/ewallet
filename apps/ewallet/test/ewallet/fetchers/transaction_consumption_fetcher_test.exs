@@ -1,6 +1,7 @@
 defmodule EWallet.TransactionConsumptionFetcherTest do
   use EWallet.LocalLedgerCase, async: true
   alias Ecto.Adapters.SQL.Sandbox
+  alias ActivityLogger.System
 
   alias EWallet.{
     TestEndpoint,
@@ -62,7 +63,8 @@ defmodule EWallet.TransactionConsumptionFetcherTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok

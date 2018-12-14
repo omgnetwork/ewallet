@@ -15,6 +15,7 @@ defmodule EWalletConfig.SchemaCase do
         Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
 
         Sandbox.checkout(Repo)
+        Sandbox.checkout(ActivityLogger.Repo)
       end
     end
   end

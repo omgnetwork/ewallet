@@ -5,7 +5,7 @@ defmodule AdminAPI.V1.TokenController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.{Helper, MintGate, TokenPolicy}
-  alias EWallet.Web.{Orchestrator, Paginator, V1.TokenOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
   alias EWalletDB.{Account, Mint, Token}
 
   @doc """
@@ -80,15 +80,23 @@ defmodule AdminAPI.V1.TokenController do
   defp do_create(conn, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0 do
     attrs
     |> Map.put("account_uuid", Account.get_master_account().uuid)
+    |> Originator.set_in_attrs(conn.assigns)
     |> Token.insert()
-    |> MintGate.mint_token(%{"amount" => amount})
+    |> MintGate.mint_token(%{
+      "amount" => amount,
+      "originator" => Originator.extract(conn.assigns)
+    })
     |> respond_single(conn)
   end
 
   defp do_create(conn, %{"amount" => amount} = attrs) when is_binary(amount) do
     case Helper.string_to_integer(amount) do
       {:ok, amount} ->
-        attrs = Map.put(attrs, "amount", amount)
+        attrs =
+          attrs
+          |> Map.put("amount", amount)
+          |> Originator.set_in_attrs(conn.assigns)
+
         create(conn, attrs)
 
       {:error, code, description} ->
@@ -101,6 +109,7 @@ defmodule AdminAPI.V1.TokenController do
       nil ->
         attrs
         |> Map.put("account_uuid", Account.get_master_account().uuid)
+        |> Originator.set_in_attrs(conn.assigns)
         |> Token.insert()
         |> respond_single(conn)
 
@@ -116,6 +125,7 @@ defmodule AdminAPI.V1.TokenController do
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
          %Token{} = token <- Token.get(id) || :token_not_found,
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Token.update(token, attrs) do
       respond_single(updated, conn)
     else
@@ -134,6 +144,7 @@ defmodule AdminAPI.V1.TokenController do
   def enable_or_disable(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:enable_or_disable, conn.assigns, id),
          %Token{} = token <- Token.get(id) || :token_not_found,
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Token.enable_or_disable(token, attrs) do
       respond_single(updated, conn)
     else

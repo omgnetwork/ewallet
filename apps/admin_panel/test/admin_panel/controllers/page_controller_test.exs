@@ -4,12 +4,14 @@ defmodule AdminPanel.PageControllerTest do
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias EWalletDB.APIKey
+  alias ActivityLogger.System
 
   # Attributes required by Phoenix.ConnTest
   @endpoint AdminPanel.Endpoint
 
   setup do
     Sandbox.checkout(EWalletDB.Repo)
+    Sandbox.checkout(ActivityLogger.Repo)
   end
 
   describe "GET request to /admin" do
@@ -25,7 +27,12 @@ defmodule AdminPanel.PageControllerTest do
 
     test "returns the main front-end app with the API key" do
       _account = insert(:account)
-      {:ok, api_key} = APIKey.insert(%{owner_app: "admin_api"})
+
+      {:ok, api_key} =
+        APIKey.insert(%{
+          owner_app: "admin_api",
+          originator: %System{}
+        })
 
       response =
         build_conn()

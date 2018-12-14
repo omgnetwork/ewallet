@@ -1,6 +1,7 @@
 defmodule EWalletDB.Repo.Seeds.KeySampleSeed do
   alias EWallet.Web.Preloader
   alias EWalletDB.{Account, Key}
+  alias EWalletDB.Seeder
 
   def seed do
     [
@@ -12,7 +13,7 @@ defmodule EWalletDB.Repo.Seeds.KeySampleSeed do
   def run(writer, args) do
     account = Account.get_by(name: "master_account")
 
-    case Key.insert(%{account_uuid: account.uuid}) do
+    case Key.insert(%{account_uuid: account.uuid, originator: %Seeder{}}) do
       {:ok, key} ->
         {:ok, key} = Preloader.preload_one(key, :account)
 

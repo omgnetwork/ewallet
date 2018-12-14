@@ -3,10 +3,12 @@ defmodule EWalletDB.ForgetPasswordRequest do
   Ecto Schema representing a password reset request.
   """
   use Ecto.Schema
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias EWalletConfig.Helpers.Crypto
   alias EWalletDB.{Repo, User}
+  alias Utils.Helpers.Crypto
+  alias ActivityLogger.System
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @token_length 32
@@ -28,12 +30,20 @@ defmodule EWalletDB.ForgetPasswordRequest do
     field(:expires_at, :naive_datetime)
 
     timestamps()
+    activity_logging()
   end
 
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:token, :user_uuid, :expires_at])
-    |> validate_required([:token, :user_uuid, :expires_at])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:token, :user_uuid, :expires_at],
+      required: [
+        :token,
+        :user_uuid,
+        :expires_at
+      ]
+    )
     |> assoc_constraint(:user)
   end
 
@@ -135,7 +145,13 @@ defmodule EWalletDB.ForgetPasswordRequest do
 
     expires_at = NaiveDateTime.utc_now() |> NaiveDateTime.add(60 * lifetime_minutes)
 
-    with {:ok, _} <- insert(%{token: token, user_uuid: user.uuid, expires_at: expires_at}),
+    with {:ok, _} <-
+           insert(%{
+             token: token,
+             user_uuid: user.uuid,
+             expires_at: expires_at,
+             originator: %System{}
+           }),
          %__MODULE__{} = request <- __MODULE__.get(user, token) do
       {:ok, request}
     else
@@ -146,6 +162,6 @@ defmodule EWalletDB.ForgetPasswordRequest do
   defp insert(attrs) do
     %__MODULE__{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
   end
 end

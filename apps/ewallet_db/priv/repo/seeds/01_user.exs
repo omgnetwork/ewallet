@@ -1,6 +1,7 @@
 defmodule EWalletDB.Repo.Seeds.UserSeed do
-  alias EWalletConfig.{System, Helpers.Crypto}
   alias EWalletDB.{Account, AccountUser, User}
+  alias Utils.Helpers.Crypto
+  alias EWalletDB.Seeder
 
   @argsline_desc """
   This email and password combination is required for logging into the admin panel.
@@ -27,14 +28,14 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       metadata: %{},
       account_uuid: Account.get_master_account().uuid,
       is_admin: true,
-      originator: %System{}
+      originator: %Seeder{}
     }
 
     case User.get_by_email(data.email) do
       nil ->
         case User.insert(data) do
           {:ok, user} ->
-            {:ok, _} = AccountUser.link(data.account_uuid, user.uuid)
+            {:ok, _} = AccountUser.link(data.account_uuid, user.uuid, %Seeder{})
 
             writer.success("""
               ID       : #{user.id}

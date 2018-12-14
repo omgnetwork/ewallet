@@ -1,12 +1,13 @@
 defmodule EWalletDB.Repo.Seeds.AccountSampleSeed do
   alias EWallet.Web.Preloader
   alias EWalletDB.Account
+  alias EWalletDB.Seeder
 
   @seed_data [
-    %{name: "brand1", description: "Brand 1", parent_name: "master_account"},
-    %{name: "brand2", description: "Brand 2", parent_name: "master_account"},
-    %{name: "branch1", description: "Branch 1", parent_name: "master_account"},
-    %{name: "branch2", description: "Branch 2", parent_name: "master_account"}
+    %{name: "brand1", description: "Brand 1", parent_name: "master_account", originator: %Seeder{}},
+    %{name: "brand2", description: "Brand 2", parent_name: "master_account", originator: %Seeder{}},
+    %{name: "branch1", description: "Branch 1", parent_name: "master_account", originator: %Seeder{}},
+    %{name: "branch2", description: "Branch 2", parent_name: "master_account", originator: %Seeder{}}
   ]
 
   def seed do
