@@ -11,13 +11,13 @@ Below are the general settings needed for the eWallet to run.
 ## Incoming Requests
 
 The eWallet allows you to configure different aspects of the incoming requests.
-We try to provide sane default values, but if needed, the following environment variables are configurable:
+We try to provide sane default values, but if needed, the following settings are configurable:
 
 - `max_per_page`: The maximum value of `per_page` a request can make. This helps prevent requests from overloading the system by sending a very high `per_page` value.
 
 ## Standalone eWallet
 
-The eWallet is able to work independent of an external integration. The default configurations expect the eWallet to be integrated with another system, but the following environment variables can be configured:
+The eWallet is able to work independent of an external integration. The default configurations expect the eWallet to be integrated with another system, but the following settings can be configured:
 
 - `enable_standalone`: Enables standalone mode such as `/api/client/user.signup`, `/api/client/user.verify_email` and `/api/client/user.login` so that the eWallet can be used without integration with other systems. Set to `true` to enable the feature.
 
@@ -45,7 +45,7 @@ Strategies available:
 
 ## Emails
 
-To enable emails in the eWallet (for forget password or inviting admins), you'll need to set the following environment variables:
+To enable emails in the eWallet (for forget password or inviting admins), you'll need to set the following settings:
 
 - `sender_email`: The email address to appear as the sender.
 - `email_adapter`: The adapter to use for sending emails. (`local`|`test`|`smtp`, defaults to `local`)
@@ -61,7 +61,7 @@ To enable emails in the eWallet (for forget password or inviting admins), you'll
 
 - `file_storage_adapter`: (`local`|`aws`|`gcs`, defaults to `local`)
 
-In order to use the file upload feature (for profile pictures and account logos), environment variables need to be defined.
+In order to use the file upload feature (for profile pictures and account logos), the following settings need to be defined.
 
 ### Amazon S3
 
