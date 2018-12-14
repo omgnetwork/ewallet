@@ -233,6 +233,34 @@ defmodule ActivityLogger.ActivityLogTest do
         encrypted_changes: %{}
       )
     end
+
+    test "Inserts encrypted_changes, but does not insert fields protected with `prevent_saving`",
+         meta do
+      changeset =
+        %TestDocument{}
+        |> cast_and_validate_required_for_activity_log(
+          meta.attrs,
+          cast: [:title, :body, :secret_data],
+          required: [:title],
+          prevent_saving: [:body],
+          encrypted: [:secret_data]
+        )
+
+      {:ok, activity_log} = ActivityLog.insert(:insert, changeset, meta.record)
+
+      assert_activity_log(
+        activity_log,
+        action: "insert",
+        originator: meta.attrs.originator,
+        target: meta.record,
+        changes: %{
+          title: meta.attrs.title
+        },
+        encrypted_changes: %{
+          secret_data: meta.attrs.secret_data
+        }
+      )
+    end
   end
 
   describe "ActivityLog.insert_record_with_activity_log/2" do
