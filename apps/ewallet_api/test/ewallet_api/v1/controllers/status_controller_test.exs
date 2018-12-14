@@ -57,9 +57,14 @@ defmodule EWalletAPI.V1.StatusControllerTest do
       try do
         client_request("/status.server_error")
       rescue
-        e ->
-          Sentry.capture_exception(e, result: :sync)
+        # Ignores the re-raised error
+        _ -> :noop
       end
+
+      # Because Bypass takes some time to serve the endpoint and Sentry uses
+      # `Task.Supervisor.async_nolink/3` deep inside its code, the only way
+      # to wait for the reporting to complete is to sleep...
+      :timer.sleep(1000)
 
       Application.put_env(:sentry, :dsn, original_dsn)
       Application.put_env(:sentry, :included_environments, original_included_envs)
