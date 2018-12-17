@@ -8,54 +8,35 @@ defmodule EWallet.CSVExporter do
   defstruct uuid: "22222222-2222-2222-2222-222222222222"
 
   def start(export, schema, query, serializer) do
-    name = "#{schema}-#{export.inserted_at}.csv"
+    count = get_count(query)
+    estimated_size = get_size_estimate(query, serializer)
+    {:ok, export} = Export.init(export, schema, count, estimated_size, %CSVExporter{})
 
     {:ok, pid} = GenServer.start_link(__MODULE__, [
-      name: name,
-      schema: schema,
+      export: export,
       query: query,
       serializer: serializer,
-      export: export
     ], name: {:global, export.uuid})
 
     :ok = GenServer.cast(pid, :upload)
 
-    {:ok, export} = update_export(export, Export.processing(), 1)
     {:ok, pid, export}
   end
 
-  def init(name: name, schema: schema, query: query, serializer: serializer, export: export) do
+  def init(export: export, query: query, serializer: serializer) do
     {:ok, %{
-      filename: name,
-      path: "#{File.storage_dir(nil, nil)}/#{name}",
-      schema: schema,
       query: query,
       serializer: serializer,
-      export: export,
-      processed_count: 0,
-      total_count: 0,
-      estimated_size: 0,
-      adapter: get_adapter(),
-      content: ""
+      export: export
     }}
   end
 
   def handle_cast(:upload, state) do
-    state
-    |> set_state()
-    |> state.adapter.upload(
-      &update_export/4
-    )
+    IO.inspect(state.export)
+    adapter_module = get_adapter_module(state.export.adapter)
+    adapter_module.upload(state, &update_export/4)
 
     {:noreply, state}
-  end
-
-  defp get_adapter() do
-    case Config.get(:file_storage_adapter) do
-      "aws"   -> S3Exporter
-      "gcs"   -> nil
-      "local" -> nil
-    end
   end
 
   defp update_export(export, status, completion, url \\ nil) do
@@ -67,13 +48,12 @@ defmodule EWallet.CSVExporter do
     })
   end
 
-  defp set_state(state) do
-    count = get_count(state.query)
-    estimated_size = get_size_estimate(state.query, state.serializer)
-
-    state
-    |> Map.put(:total_count, count)
-    |> Map.put(:estimated_size, estimated_size * count)
+  defp get_adapter_module(export) do
+    case Config.get(:file_storage_adapter) do
+      "aws"   -> S3Exporter
+      "gcs"   -> nil
+      "local" -> nil
+    end
   end
 
   defp get_count(query) do

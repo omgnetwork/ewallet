@@ -286,7 +286,6 @@ defmodule AdminAPI.ConnCase do
   """
   @spec admin_user_request(String.t(), map(), keyword()) :: map() | no_return()
   def admin_user_request(path, data \\ %{}, opts \\ [], accept \\ :json) do
-    IO.inspect(accept)
     do_admin_user_request(path, data, opts, accept)
   end
 

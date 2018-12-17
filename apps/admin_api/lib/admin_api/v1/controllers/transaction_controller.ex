@@ -16,11 +16,6 @@ defmodule AdminAPI.V1.TransactionController do
     with :ok <- permit(:export, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
          attrs = Originator.set_in_attrs(attrs, conn.assigns, :originator) do
-      # a = "txn_01cyp3bpt51n06khwq6c04bc4r"
-
-
-
-      # where(Transaction, [t], t.id == ^a)
       Transaction
       |> Transaction.query_all_for_account_uuids_and_users(account_uuids)
       |> Orchestrator.build_query(TransactionOverlay, attrs)

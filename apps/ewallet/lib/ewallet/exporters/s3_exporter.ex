@@ -5,10 +5,10 @@ defmodule EWallet.S3Exporter do
   @min_byte_size 5_243_000
 
   def upload(args, update_export) do
-    case args[:estimated_size] > @min_byte_size * 2 do
+    case args.export.estimated_size > @min_byte_size * 2 do
       true ->
-        parts = trunc(args[:estimated_size] / @min_byte_size)
-        chunk_size = args[:estimated_size] / parts
+        parts = trunc(args.export.estimated_size / @min_byte_size)
+        chunk_size = args.export.estimated_size / parts
 
         chunk = fn line, acc ->
           {:cont, "#{acc}#{line}"}
@@ -31,7 +31,7 @@ defmodule EWallet.S3Exporter do
           |> Stream.with_index(1)
           |> Stream.each(fn {chunk, index} ->
             completion = 100
-            (chunk * index) / args[:estimated_size] * 100
+            (chunk * index) / args.export.estimated_size * 100
             {:ok, export} = update_export.(args.export, Export.processing(), completion)
           end)
           |> ExAws.S3.upload(get_bucket(), args.path)
@@ -49,7 +49,7 @@ defmodule EWallet.S3Exporter do
 
         # direct upload
         EWalletDB.Uploaders.File.store(%{
-          filename: args.filename,
+          filename: args.export.filename,
           binary: data
         })
         |> case do

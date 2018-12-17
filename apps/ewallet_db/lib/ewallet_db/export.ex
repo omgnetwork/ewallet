@@ -9,12 +9,14 @@ defmodule EWalletDB.Export do
   import EWalletConfig.Validator
   import Ecto.{Changeset, Query}
   alias Ecto.{Changeset, Multi, UUID}
+  alias EWalletConfig.Config
 
   alias EWalletDB.{
     Export,
     Repo,
     User,
-    Key
+    Key,
+    Uploaders.File
   }
 
   @new "new"
@@ -40,11 +42,12 @@ defmodule EWalletDB.Export do
     field(:status, :string)
     field(:completion, :integer)
     field(:url, :string)
-    # filename
-    # failure reason
-    # estimated size
-    # actual size
-    # adapter
+    field(:filename, :string)
+    field(:path, :string)
+    field(:failure_reason, :string)
+    field(:estimated_size, :float)
+    field(:total_count, :integer)
+    field(:adapter, :string)
     field(:params, :map)
 
     belongs_to(
@@ -75,7 +78,6 @@ defmodule EWalletDB.Export do
         :schema,
         :status,
         :completion,
-        :url,
         :params,
         :user_uuid,
         :key_uuid
@@ -101,7 +103,13 @@ defmodule EWalletDB.Export do
       cast: [
         :status,
         :completion,
-        :url
+        :url,
+        :path,
+        :filename,
+        :adapter,
+        :schema,
+        :total_count,
+        :estimated_size
       ],
       required: [
         :status,
@@ -109,6 +117,30 @@ defmodule EWalletDB.Export do
       ]
     )
     |> validate_inclusion(:status, [@new, @processing, @completed, @failed])
+  end
+
+  def all_for(%User{} = user) do
+    from(t in Export, where: t.user_uuid == ^user.uuid)
+  end
+
+  def all_for(%Key{} = key) do
+    from(t in Export, where: t.key_uuid == ^key.uuid)
+  end
+
+  def init(export, schema, count, estimated_size, originator) do
+    filename = "#{schema}-#{export.inserted_at}.csv"
+
+    Export.update(export, %{
+      status: Export.processing(),
+      completion: 1,
+      path: "#{File.storage_dir(nil, nil)}/#{filename}",
+      filename: filename,
+      adapter: Config.get(:file_storage_adapter),
+      schema: schema,
+      total_count: count,
+      estimated_size: estimated_size,
+      originator: originator
+    })
   end
 
   @doc """
