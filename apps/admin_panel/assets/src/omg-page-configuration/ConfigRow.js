@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Input, Select, Checkbox } from '../omg-uikit'
@@ -25,7 +25,7 @@ const ConfigCol = styled.div`
 `
 const RadioButtonsContainer = styled.div`
   display: flex;
-  >div {
+  > div {
     display: inline-block;
     :first-child {
       margin-right: 25px;
@@ -46,7 +46,8 @@ export default class ConfigRow extends Component {
     placeholder: PropTypes.string,
     inputType: PropTypes.string,
     inputValidator: PropTypes.func,
-    inputErrorMessage: PropTypes.string
+    inputErrorMessage: PropTypes.string,
+    valueRenderer: PropTypes.number
   }
 
   static defaultProps = {
@@ -55,39 +56,47 @@ export default class ConfigRow extends Component {
     border: true
   }
 
+  renderInputType () {
+    return (
+      <Fragment>
+        {this.props.type === 'input' && (
+          <Input
+            value={this.props.value}
+            normalPlaceholder={this.props.placeholder}
+            onChange={this.props.onChange}
+            type={this.props.inputType}
+            validator={this.props.inputValidator}
+            errorText={this.props.inputErrorMessage}
+          />
+        )}
+        {this.props.type === 'select' && (
+          <Select
+            value={this.props.value}
+            options={this.props.options}
+            onChange={this.props.onChange}
+            onSelectItem={this.props.onSelectItem}
+            normalPlaceholder={this.props.placeholder}
+            type={this.props.inputType}
+            validator={this.props.inputValidator}
+            errorText={this.props.inputErrorMessage}
+          />
+        )}
+        {this.props.type === 'boolean' && (
+          <RadioButtonsContainer>
+            <Checkbox checked={this.props.value} onClick={this.props.onChange} />
+          </RadioButtonsContainer>
+        )}
+      </Fragment>
+    )
+  }
+
   render () {
     return (
       <ConfigRowContainer border={this.props.border}>
         <ConfigCol>{this.props.name}</ConfigCol>
         <ConfigCol>{this.props.description}</ConfigCol>
         <ConfigCol>
-          {this.props.type === 'input' && (
-            <Input
-              value={this.props.value}
-              normalPlaceholder={this.props.placeholder}
-              onChange={this.props.onChange}
-              type={this.props.inputType}
-              validator={this.props.inputValidator}
-              errorText={this.props.inputErrorMessage}
-            />
-          )}
-          {this.props.type === 'select' && (
-            <Select
-              value={this.props.value}
-              options={this.props.options}
-              onChange={this.props.onChange}
-              onSelectItem={this.props.onSelectItem}
-              normalPlaceholder={this.props.placeholder}
-              type={this.props.inputType}
-              validator={this.props.inputValidator}
-              errorText={this.props.inputErrorMessage}
-            />
-          )}
-          {this.props.type === 'boolean' && (
-            <RadioButtonsContainer>
-              <Checkbox checked={this.props.value} onClick={this.props.onChange} />
-            </RadioButtonsContainer>
-          )}
+          {this.props.valueRenderer ? this.props.valueRenderer() : this.renderInputType()}
         </ConfigCol>
       </ConfigRowContainer>
     )

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
-import { Button } from '../omg-uikit'
+import { Button, AddButton, Input } from '../omg-uikit'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -22,10 +22,6 @@ const ConfigurationPageContainer = styled.div`
   h4 {
     margin-top: 50px;
   }
-  button {
-    padding-left: 25px;
-    padding-right: 25px;
-  }
 `
 
 const SubSettingContainer = styled.div`
@@ -38,6 +34,16 @@ const SubSettingContainer = styled.div`
     div:first-child {
       flex: 0 0 175px;
     }
+  }
+`
+
+const InputPrefixContainer = styled.div``
+
+const PrefixContainer = styled.div`
+  text-align: right;
+  a {
+    display: block;
+    margin-top: 5px;
   }
 `
 
@@ -147,6 +153,13 @@ class ConfigurationPage extends Component {
       [key]: e.target.value
     })
   }
+  onChangeInputredirectUrlPrefixes = index => e => {
+    const newState = this.state.redirectUrlPrefixes.slice()
+    newState[index] = e.target.value
+    this.setState({
+      redirectUrlPrefixes: newState
+    })
+  }
   onChangeRadio = e => {
     this.setState(oldState => ({ enableStandalone: !oldState.enableStandalone }))
   }
@@ -182,7 +195,7 @@ class ConfigurationPage extends Component {
           balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value')
         })
         setTimeout(() => {
-          window.location.reload()
+          // window.location.reload()
         }, 2000)
       } else {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
@@ -190,6 +203,12 @@ class ConfigurationPage extends Component {
     } catch (error) {
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
     }
+  }
+
+  onClickAddPrefix = e => {
+    this.setState(oldState => {
+      return { redirectUrlPrefixes: [...oldState.redirectUrlPrefixes, ''] }
+    })
   }
   renderSaveButton = () => {
     return (
@@ -229,8 +248,6 @@ class ConfigurationPage extends Component {
                 value={this.state.gcsBucket}
                 placeholder={'ie. google_cloud_1'}
                 onChange={this.onChangeInput('gcsBucket')}
-                inputValidator={value => value.length > 0}
-                inputErrorMessage={'This field shouldn\'t be empty'}
               />
               <ConfigRow
                 name={'GCS Credential JSON'}
@@ -322,14 +339,30 @@ class ConfigurationPage extends Component {
           inputValidator={value => value.length > 0}
           inputErrorMessage={'This field shouldn\'t be empty'}
         />
-        <ConfigRow
-          name={'Redirect URL Prefixes'}
-          description={configurations.redirect_url_prefixes.description}
-          value={this.state.redirectUrlPrefixes}
-          onChange={this.onChangeInput('redirectUrlPrefixes')}
-          inputValidator={value => value.length > 0}
-          inputErrorMessage={'This field shouldn\'t be empty'}
-        />
+        <div>
+          <ConfigRow
+            name={'Redirect URL Prefixes'}
+            description={configurations.redirect_url_prefixes.description}
+            valueRenderer={() => {
+              return (
+                <div>
+                  {this.state.redirectUrlPrefixes.map((prefix, index) => (
+                    <InputPrefixContainer>
+                      <Input
+                        value={this.state.redirectUrlPrefixes[index]}
+                        onChange={this.onChangeInputredirectUrlPrefixes(index)}
+                        key={index}
+                      />
+                    </InputPrefixContainer>
+                  ))}
+                  <PrefixContainer>
+                    <a onClick={this.onClickAddPrefix}>Add More Prefixes</a>
+                  </PrefixContainer>
+                </div>
+              )
+            }}
+          />
+        </div>
         <ConfigRow
           name={'Enable Standalone'}
           description={configurations.enable_standalone.description}

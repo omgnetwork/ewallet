@@ -71,7 +71,7 @@ export default class Select extends PureComponent {
   }
   onClickChevronDown = () => {
     this.onFocus()
-    // HACK
+    // HACK FOR FOCUSING SELECT WHEN CLOCK CHEVRON DOWN
     setTimeout(() => {
       this.input.focus()
     }, 0)

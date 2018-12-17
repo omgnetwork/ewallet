@@ -1,5 +1,5 @@
 import * as configurationService from '../services/configurationService'
-import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
+import { createActionCreator } from '../utils/createActionCreator'
 
 export const updateConfiguration = config =>
   createActionCreator({
