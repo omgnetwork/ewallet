@@ -12,6 +12,7 @@ defmodule EWallet.TransactionGate do
   }
 
   alias EWalletDB.{AccountUser, Transaction}
+  alias ActivityLogger.System
   alias LocalLedger.Transaction, as: LedgerTransaction
 
   def create(attrs) do
@@ -55,6 +56,7 @@ defmodule EWallet.TransactionGate do
         } = attrs
       ) do
     Transaction.get_or_insert(%{
+      originator: attrs["originator"],
       idempotency_token: idempotency_token,
       from_account_uuid: from[:from_account_uuid],
       from_user_uuid: from[:from_user_uuid],
@@ -73,7 +75,7 @@ defmodule EWallet.TransactionGate do
       exchange_wallet_address: exchange[:exchange_wallet_address],
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
-      payload: attrs,
+      payload: Map.delete(attrs, "originator"),
       type: Transaction.internal()
     })
   end
@@ -92,21 +94,21 @@ defmodule EWallet.TransactionGate do
   end
 
   def update_transaction({:ok, ledger_transaction}, transaction) do
-    Transaction.confirm(transaction, ledger_transaction.uuid)
+    Transaction.confirm(transaction, ledger_transaction.uuid, %System{})
   end
 
   def update_transaction({:error, code, description}, transaction) do
-    Transaction.fail(transaction, code, description)
+    Transaction.fail(transaction, code, description, %System{})
   end
 
-  defp link(%Transaction{from_account_uuid: account_uuid, to_user_uuid: user_uuid})
+  defp link(%Transaction{from_account_uuid: account_uuid, to_user_uuid: user_uuid} = transaction)
        when not is_nil(account_uuid) and not is_nil(user_uuid) do
-    AccountUser.link(account_uuid, user_uuid)
+    AccountUser.link(account_uuid, user_uuid, transaction)
   end
 
-  defp link(%Transaction{from_user_uuid: user_uuid, to_account_uuid: account_uuid})
+  defp link(%Transaction{from_user_uuid: user_uuid, to_account_uuid: account_uuid} = transaction)
        when not is_nil(account_uuid) and not is_nil(user_uuid) do
-    AccountUser.link(account_uuid, user_uuid)
+    AccountUser.link(account_uuid, user_uuid, transaction)
   end
 
   defp link(_), do: nil

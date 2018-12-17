@@ -3,7 +3,8 @@ defmodule EWalletDB.Transaction do
   Ecto Schema representing transactions.
   """
   use Ecto.Schema
-  use EWalletConfig.Types.ExternalID
+  use Utils.Types.ExternalID
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   import EWalletDB.Validator
@@ -30,14 +31,14 @@ defmodule EWalletDB.Transaction do
     external_id(prefix: "txn_")
 
     field(:idempotency_token, :string)
-    field(:from_amount, EWalletConfig.Types.Integer)
-    field(:to_amount, EWalletConfig.Types.Integer)
+    field(:from_amount, Utils.Types.Integer)
+    field(:to_amount, Utils.Types.Integer)
     # pending -> confirmed
     field(:status, :string, default: @pending)
     # internal / external
     field(:type, :string, default: @internal)
     # Payload received from client
-    field(:payload, EWalletConfig.Encrypted.Map)
+    field(:payload, EWalletDB.Encrypted.Map)
     # Response returned by ledger
     field(:local_ledger_uuid, :string)
     field(:error_code, :string)
@@ -48,7 +49,7 @@ defmodule EWalletDB.Transaction do
     field(:calculated_at, :naive_datetime)
 
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     belongs_to(
       :from_token,
@@ -139,48 +140,53 @@ defmodule EWalletDB.Transaction do
     )
 
     timestamps()
+    activity_logging()
   end
 
   defp changeset(%Transaction{} = transaction, attrs) do
     transaction
-    |> cast(attrs, [
-      :idempotency_token,
-      :status,
-      :type,
-      :payload,
-      :metadata,
-      :encrypted_metadata,
-      :from_account_uuid,
-      :to_account_uuid,
-      :from_user_uuid,
-      :to_user_uuid,
-      :from_token_uuid,
-      :to_token_uuid,
-      :from_amount,
-      :to_amount,
-      :exchange_account_uuid,
-      :exchange_wallet_address,
-      :to,
-      :from,
-      :rate,
-      :local_ledger_uuid,
-      :error_code,
-      :error_description,
-      :exchange_pair_uuid,
-      :calculated_at
-    ])
-    |> validate_required([
-      :idempotency_token,
-      :status,
-      :type,
-      :payload,
-      :from_amount,
-      :from_token_uuid,
-      :to_amount,
-      :to_token_uuid,
-      :to,
-      :from
-    ])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [
+        :idempotency_token,
+        :status,
+        :type,
+        :payload,
+        :metadata,
+        :encrypted_metadata,
+        :from_account_uuid,
+        :to_account_uuid,
+        :from_user_uuid,
+        :to_user_uuid,
+        :from_token_uuid,
+        :to_token_uuid,
+        :from_amount,
+        :to_amount,
+        :exchange_account_uuid,
+        :exchange_wallet_address,
+        :to,
+        :from,
+        :rate,
+        :local_ledger_uuid,
+        :error_code,
+        :error_description,
+        :exchange_pair_uuid,
+        :calculated_at
+      ],
+      required: [
+        :idempotency_token,
+        :status,
+        :type,
+        :payload,
+        :from_amount,
+        :from_token_uuid,
+        :to_amount,
+        :to_token_uuid,
+        :to,
+        :from
+      ],
+      encrypted: [:encrypted_metadata, :payload]
+    )
     |> validate_number(:from_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_number(:to_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_from_wallet_identifier()
@@ -207,23 +213,29 @@ defmodule EWalletDB.Transaction do
 
   defp confirm_changeset(%Transaction{} = transaction, attrs) do
     transaction
-    |> cast(attrs, [:status, :local_ledger_uuid])
-    |> validate_required([:status, :local_ledger_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:status, :local_ledger_uuid],
+      required: [:status, :local_ledger_uuid]
+    )
     |> validate_inclusion(:status, @statuses)
   end
 
   defp fail_changeset(%Transaction{} = transaction, attrs) do
     transaction
-    |> cast(attrs, [
-      :status,
-      :error_code,
-      :error_description,
-      :error_data
-    ])
-    |> validate_required([
-      :status,
-      :error_code
-    ])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [
+        :status,
+        :error_code,
+        :error_description,
+        :error_data
+      ],
+      required: [
+        :status,
+        :error_code
+      ]
+    )
     |> validate_inclusion(:status, @statuses)
   end
 
@@ -236,6 +248,19 @@ defmodule EWalletDB.Transaction do
 
   def all_for_user(user) do
     from(t in Transaction, where: t.from_user_uuid == ^user.uuid or t.to_user_uuid == ^user.uuid)
+  end
+
+  def query_all_for_account_uuids_and_users(query, account_uuids) do
+    where(
+      query,
+      [w],
+      w.from_account_uuid in ^account_uuids or w.to_account_uuid in ^account_uuids or
+        not is_nil(w.from_user_uuid) or not is_nil(w.to_user_uuid)
+    )
+  end
+
+  def query_all_for_account_uuids(query, account_uuids) do
+    where(query, [w], w.account_uuid in ^account_uuids)
   end
 
   def all_for_account_and_user_uuids(account_uuids, user_uuids) do
@@ -315,62 +340,88 @@ defmodule EWalletDB.Transaction do
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
     changeset = changeset(%Transaction{}, attrs)
 
-    Multi.new()
-    |> Multi.insert(:transaction, changeset, opts)
-    |> Multi.run(:transaction_1, fn %{transaction: transaction} ->
-      case get(transaction.id, preload: [:from_wallet, :to_wallet, :from_token, :to_token]) do
-        nil ->
-          {:ok, get_by_idempotency_token(transaction.idempotency_token)}
+    Repo.perform(
+      :insert,
+      changeset,
+      opts,
+      Multi.run(Multi.new(), :transaction_1, fn %{record: transaction} ->
+        case get(transaction.id, preload: [:from_wallet, :to_wallet, :from_token, :to_token]) do
+          nil ->
+            {:ok, get_by_idempotency_token(transaction.idempotency_token)}
 
-        transaction ->
-          {:ok, transaction}
-      end
-    end)
-    |> Repo.transaction()
-    |> case do
-      {:ok, %{transaction: _transaction, transaction_1: nil}} ->
-        {:error, :inserted_transaction_could_not_be_loaded}
+          transaction ->
+            {:ok, transaction}
+        end
+      end)
+    )
+    |> handle_insert_result(:insert, changeset)
+  end
 
-      {:ok, %{transaction: _transaction, transaction_1: transaction_1}} ->
-        {:ok, transaction_1}
+  defp handle_insert_result(
+         {:ok, %{record: _transaction, transaction_1: nil}},
+         _action,
+         _changeset
+       ) do
+    {:error, :inserted_transaction_could_not_be_loaded}
+  end
 
-      {:error, _failed_operation, failed_value, _changes_so_far} ->
-        {:error, failed_value}
-    end
+  defp handle_insert_result(
+         {:ok, %{record: _transaction, transaction_1: transaction_1}},
+         action,
+         changeset
+       ) do
+    insert_log(action, changeset, transaction_1)
+
+    {:ok, transaction_1}
+  end
+
+  defp handle_insert_result(
+         {:error, _failed_operation, changeset, _changes_so_far},
+         _action,
+         _changeset
+       ) do
+    {:error, changeset}
   end
 
   @doc """
   Confirms a transaction and saves the ledger's response.
   """
-  def confirm(transaction, local_ledger_uuid) do
+  def confirm(transaction, local_ledger_uuid, originator) do
     transaction
-    |> confirm_changeset(%{status: @confirmed, local_ledger_uuid: local_ledger_uuid})
-    |> Repo.update()
+    |> confirm_changeset(%{
+      status: @confirmed,
+      local_ledger_uuid: local_ledger_uuid,
+      originator: originator
+    })
+    |> Repo.update_record_with_activity_log()
     |> handle_update_result()
   end
 
   @doc """
   Sets a transaction as failed and saves the ledger's response.
   """
-  def fail(transaction, error_code, error_description) when is_map(error_description) do
+  def fail(transaction, error_code, error_description, originator)
+      when is_map(error_description) do
     do_fail(
       %{
         status: @failed,
         error_code: error_code,
         error_description: nil,
-        error_data: error_description
+        error_data: error_description,
+        originator: originator
       },
       transaction
     )
   end
 
-  def fail(transaction, error_code, error_description) do
+  def fail(transaction, error_code, error_description, originator) do
     do_fail(
       %{
         status: @failed,
         error_code: error_code,
         error_description: error_description,
-        error_data: nil
+        error_data: nil,
+        originator: originator
       },
       transaction
     )
@@ -385,7 +436,7 @@ defmodule EWalletDB.Transaction do
   defp do_fail(data, transaction) do
     transaction
     |> fail_changeset(data)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
     |> handle_update_result()
   end
 

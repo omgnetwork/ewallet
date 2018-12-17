@@ -2,6 +2,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWalletAPI.V1.ClientAuth
   alias EWalletDB.AuthToken
+  alias ActivityLogger.System
 
   def auth_header(key, token) do
     encoded_key = Base.encode64(key <> ":" <> token)
@@ -30,7 +31,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
       assert auth.authenticated
       assert auth[:authenticated] == true
       assert auth[:account] != nil
-      assert auth[:user] != nil
+      assert auth[:end_user] != nil
     end
 
     test "halts with :invalid_api_key if api_key is missing", meta do
@@ -39,7 +40,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
       assert auth.authenticated == false
       assert auth[:auth_error] == :invalid_api_key
       assert auth[:account] == nil
-      assert auth[:user] == nil
+      assert auth[:end_user] == nil
     end
 
     test "halts with :invalid_api_key if api_key is incorrect", meta do
@@ -48,7 +49,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
       assert auth.authenticated == false
       assert auth[:auth_error] == :invalid_api_key
       assert auth[:account] == nil
-      assert auth[:user] == nil
+      assert auth[:end_user] == nil
     end
 
     test "halts with :auth_token_not_found if auth_token is missing", meta do
@@ -57,7 +58,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
       assert auth.authenticated == false
       assert auth[:auth_error] == :auth_token_not_found
       assert auth[:account].uuid == meta.api_key.account.uuid
-      assert auth[:user] == nil
+      assert auth[:end_user] == nil
     end
 
     test "halts with :auth_token_not_found if auth_token is incorrect", meta do
@@ -66,17 +67,17 @@ defmodule EWalletAPI.V1.ClientAuthTest do
       assert auth.authenticated == false
       assert auth[:auth_error] == :auth_token_not_found
       assert auth[:account].uuid == meta.api_key.account.uuid
-      assert auth[:user] == nil
+      assert auth[:end_user] == nil
     end
 
     test "halts with :auth_token_expired if auth_token exists but expired", meta do
-      {:ok, auth_token} = AuthToken.expire(meta.auth_token.token, :ewallet_api)
+      {:ok, auth_token} = AuthToken.expire(meta.auth_token.token, :ewallet_api, %System{})
       auth = auth_header(meta.api_key.key, auth_token.token)
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :auth_token_expired
       assert auth[:account].uuid == meta.api_key.account.uuid
-      assert auth[:user] == nil
+      assert auth[:end_user] == nil
     end
 
     test "halts with :invalid_auth_scheme if auth header is not provided" do
@@ -88,7 +89,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
       assert auth.authenticated == false
       assert auth[:auth_error] == :invalid_auth_scheme
       assert auth[:account] == nil
-      assert auth[:user] == nil
+      assert auth[:end_user] == nil
     end
 
     test "halts with :invalid_auth_scheme if auth header is not a valid auth scheme" do
@@ -102,7 +103,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
       assert auth.authenticated == false
       assert auth[:auth_error] == :invalid_auth_scheme
       assert auth[:account] == nil
-      assert auth[:user] == nil
+      assert auth[:end_user] == nil
     end
 
     test "halts with :invalid_auth_scheme if auth header is invalid" do
@@ -116,7 +117,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
       assert auth.authenticated == false
       assert auth[:auth_error] == :invalid_auth_scheme
       assert auth[:account] == nil
-      assert auth[:user] == nil
+      assert auth[:end_user] == nil
     end
   end
 end

@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.AuthControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletConfig.Helpers.Crypto
-  alias EWalletDB.User
+  alias Utils.Helpers.Crypto
+  alias EWalletDB.{User, AuthToken}
 
   describe "/user.login" do
     setup do
@@ -105,6 +105,32 @@ defmodule EWalletAPI.V1.AuthControllerTest do
       assert response["data"]["description"] ==
                "Invalid parameter provided. `password` can't be blank."
     end
+
+    test "generates an activity log", context do
+      timestamp = DateTime.utc_now()
+
+      response = client_request("/user.login", context.request_data)
+
+      assert response["success"] == true
+      auth_token = get_last_inserted(AuthToken)
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: context.user,
+        target: auth_token,
+        changes: %{
+          "owner_app" => "ewallet_api",
+          "token" => auth_token.token,
+          "user_uuid" => context.user.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/me.logout" do
@@ -114,6 +140,31 @@ defmodule EWalletAPI.V1.AuthControllerTest do
       assert response["version"] == @expected_version
       assert response["success"] == true
       assert response["data"] == %{}
+    end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+
+      response = client_request("/me.logout")
+
+      assert response["success"] == true
+      user = get_test_user()
+      auth_token = get_last_inserted(AuthToken)
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: user,
+        target: auth_token,
+        changes: %{
+          "expired" => true
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

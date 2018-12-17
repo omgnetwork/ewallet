@@ -127,6 +127,60 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
     end
+
+    test "generates an activity log" do
+      user = get_test_admin()
+      parent = User.get_account(user)
+      timestamp = DateTime.utc_now()
+
+      request_data = %{
+        parent_id: parent.id,
+        name: "A test account",
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
+      }
+
+      response = provider_request("/account.create", request_data)
+
+      assert response["success"] == true
+
+      account = Account.get(response["data"]["id"])
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 3
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator_type: "account",
+        target_type: "wallet"
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "insert",
+        originator_type: "account",
+        target_type: "wallet"
+      )
+
+      logs
+      |> Enum.at(2)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_key(),
+        target: account,
+        changes: %{
+          "metadata" => %{"something" => "interesting"},
+          "name" => "A test account",
+          "parent_uuid" => parent.uuid
+        },
+        encrypted_changes: %{
+          "encrypted_metadata" => %{"something" => "secret"}
+        }
+      )
+    end
   end
 
   describe "/account.update" do
@@ -185,6 +239,44 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "unauthorized"
+    end
+
+    test "generates an activity log" do
+      user = get_test_admin()
+      account = User.get_account(user)
+      timestamp = DateTime.utc_now()
+
+      request_data =
+        params_for(:account, %{
+          id: account.id,
+          name: "updated_name",
+          description: "updated_description",
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      response = provider_request("/account.update", request_data)
+
+      assert response["success"] == true
+
+      account = Account.get(response["data"]["id"])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_key(),
+        target: account,
+        changes: %{
+          "name" => "updated_name",
+          "parent_uuid" => account.parent_uuid,
+          "description" => "updated_description"
+        },
+        encrypted_changes: %{
+          "encrypted_metadata" => %{"something" => "secret"}
+        }
+      )
     end
   end
 
@@ -308,6 +400,41 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "unauthorized"
+    end
+
+    test "generates an activity log" do
+      account = insert(:account)
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
+
+      assert response["success"] == true
+
+      account = Account.get(account.id)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_key(),
+        target: account,
+        changes: %{
+          "avatar" => %{
+            "file_name" => "test.jpg",
+            "updated_at" => Ecto.DateTime.to_iso8601(account.avatar.updated_at)
+          }
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

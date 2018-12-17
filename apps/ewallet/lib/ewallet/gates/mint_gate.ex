@@ -35,7 +35,8 @@ defmodule EWallet.MintGate do
       "idempotency_token" => attrs["idempotency_token"] || UUID.generate(),
       "token_id" => token.id,
       "amount" => amount,
-      "description" => attrs["description"]
+      "description" => attrs["description"],
+      "originator" => attrs["originator"]
     }
     |> insert()
     |> case do
@@ -81,7 +82,8 @@ defmodule EWallet.MintGate do
           "idempotency_token" => idempotency_token,
           "token_id" => token_id,
           "amount" => amount,
-          "description" => description
+          "description" => description,
+          "originator" => originator
         } = attrs
       ) do
     with {:ok, token} <- TokenFetcher.fetch(%{"token_id" => token_id}),
@@ -93,20 +95,25 @@ defmodule EWallet.MintGate do
             token_uuid: token.uuid,
             amount: amount,
             account_uuid: account.uuid,
-            description: description
+            description: description,
+            originator: originator
           })
         end)
-        |> Multi.run(:transaction, fn _ ->
+        |> Multi.run(:transaction, fn %{mint: mint} ->
           GenesisGate.create(%{
             idempotency_token: idempotency_token,
             amount: amount,
             token: token,
             account: account,
-            attrs: attrs
+            attrs: attrs,
+            originator: mint
           })
         end)
         |> Multi.run(:mint_with_transaction, fn %{transaction: transaction, mint: mint} ->
-          Mint.update(mint, %{transaction_uuid: transaction.uuid})
+          Mint.update(mint, %{
+            transaction_uuid: transaction.uuid,
+            originator: transaction
+          })
         end)
 
       case Repo.transaction(multi) do

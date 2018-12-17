@@ -1,6 +1,7 @@
 defmodule EWalletDB.Repo.Seeds.MembershipSampleSeed do
   alias EWallet.Web.Preloader
   alias EWalletDB.{Account, Membership, Role, User}
+  alias EWalletDB.Seeder
 
   @seed_data [
     %{email: "admin_brand1@example.com", role_name: "admin", account_name: "brand1"},
@@ -30,7 +31,7 @@ defmodule EWalletDB.Repo.Seeds.MembershipSampleSeed do
 
     case Membership.get_by_user_and_account(user, account) do
       nil ->
-        case Membership.assign(user, account, role) do
+        case Membership.assign(user, account, role, %Seeder{}) do
           {:ok, membership} ->
             {:ok, membership} = Preloader.preload_one(membership, [:user, :account, :role])
 

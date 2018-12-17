@@ -11,7 +11,8 @@ defmodule EWallet.Web.SerializerCase do
       alias EWalletDB.Repo
 
       setup do
-        :ok = Sandbox.checkout(Repo)
+        :ok = Sandbox.checkout(EWalletDB.Repo)
+        :ok = Sandbox.checkout(ActivityLogger.Repo)
       end
     end
   end

@@ -1,6 +1,6 @@
 # credo:disable-for-this-file
 defmodule EWalletDB.Repo.Seeds.SettingSeed do
-  alias EWalletConfig.Config
+  alias EWalletConfig.{Config, Setting}
 
   @argsline_desc """
   The base URL is needed for various operators in the eWallet. It will be saved in the
@@ -39,11 +39,15 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
   defp run_with(writer, {key, data}) do
     case Config.get_setting(key) do
       nil ->
-        case Config.insert(data) do
+        data
+        |> Map.put(:originator, %EWalletDB.Seeder{})
+        |> Config.insert()
+        |> case do
           {:ok, setting} ->
             writer.success("""
-              Key   : #{setting.key}
-              Value : #{setting.value}
+              Key      : #{setting.key}
+              Value    : #{setting.value}
+              Position : #{setting.position}
             """)
           {:error, changeset} ->
             writer.error("  The setting could not be inserted:")
@@ -53,10 +57,34 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
             writer.error("  Unknown error.")
         end
       setting ->
-        writer.warn("""
-          Key   : #{setting.key}
-          Value : #{setting.value}
-        """)
+        case sync_position(key, setting, data) do
+          {:ok, old_position, new_position} ->
+            writer.warn("""
+              Key      : #{setting.key}
+              Value    : #{setting.value}
+              Position : #{old_position} -> #{new_position}
+            """)
+
+          {:error, changeset} ->
+            writer.error("  The setting's position could not be synchronized:")
+            writer.print_errors(changeset)
+
+          nil ->
+            writer.warn("""
+              Key      : #{setting.key}
+              Value    : #{setting.value}
+              Position : #{setting.position}
+            """)
+        end
     end
   end
+
+  defp sync_position(key, %{position: old_pos}, %{position: new_pos}) when is_integer(old_pos) and is_integer(new_pos) and old_pos != new_pos do
+    case Setting.update(key, %{position: new_pos}) do
+      {:ok, _} -> {:ok, old_pos, new_pos}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  defp sync_position(_, _, _), do: nil
 end

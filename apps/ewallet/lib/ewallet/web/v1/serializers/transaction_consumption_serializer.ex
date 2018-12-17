@@ -15,7 +15,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
     WalletSerializer
   }
 
-  alias EWalletConfig.Helpers.Assoc
+  alias Utils.Helpers.Assoc
   alias EWalletDB.TransactionConsumption
 
   def serialize(%Paginator{} = paginator) do

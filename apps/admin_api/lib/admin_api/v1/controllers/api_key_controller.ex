@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.APIKeyController do
   import AdminAPI.V1.ErrorHandler
   alias Ecto.Changeset
   alias EWallet.APIKeyPolicy
-  alias EWallet.Web.{Orchestrator, Paginator, V1.APIKeyOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.APIKeyOverlay}
   alias EWalletDB.APIKey
 
   @doc """
@@ -36,7 +36,11 @@ defmodule AdminAPI.V1.APIKeyController do
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
          # Admin API doesn't use API Keys anymore. Defaulting to "ewallet_api".
-         {:ok, api_key} <- APIKey.insert(%{owner_app: "ewallet_api"}),
+         {:ok, api_key} <-
+           APIKey.insert(%{
+             owner_app: "ewallet_api",
+             originator: Originator.extract(conn.assigns)
+           }),
          {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
       render(conn, :api_key, %{api_key: api_key})
     else
@@ -52,6 +56,7 @@ defmodule AdminAPI.V1.APIKeyController do
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
          %APIKey{} = api_key <- APIKey.get(id) || {:error, :api_key_not_found},
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, api_key} <- APIKey.update(api_key, attrs),
          {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
       render(conn, :api_key, %{api_key: api_key})
@@ -75,6 +80,7 @@ defmodule AdminAPI.V1.APIKeyController do
   def enable_or_disable(conn, %{"id" => id, "enabled" => _} = attrs) do
     with :ok <- permit(:enable_or_disable, conn.assigns, id),
          %APIKey{} = api_key <- APIKey.get(id) || {:error, :api_key_not_found},
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, api_key} <- APIKey.enable_or_disable(api_key, attrs),
          {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
       render(conn, :api_key, %{api_key: api_key})
@@ -111,7 +117,9 @@ defmodule AdminAPI.V1.APIKeyController do
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp do_delete(conn, %APIKey{} = key) do
-    case APIKey.delete(key) do
+    originator = Originator.extract(conn.assigns)
+
+    case APIKey.delete(key, originator) do
       {:ok, _key} ->
         render(conn, :empty_response)
 

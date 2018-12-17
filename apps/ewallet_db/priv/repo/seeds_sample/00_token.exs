@@ -3,6 +3,7 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
   alias EWallet.MintGate
   alias EWallet.Web.Preloader
   alias EWalletDB.{Account, Token}
+  alias EWalletDB.Seeder
 
   @seed_data [
     %{
@@ -10,35 +11,40 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
       name: "OmiseGO",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 OMG
-      account_name: "master_account"
+      account_name: "master_account",
+      originator: %Seeder{}
     },
     %{
       symbol: "KNC",
       name: "Kyber",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000,  # 1,000,000 KNC
-      account_name: "master_account"
+      account_name: "master_account",
+      originator: %Seeder{}
     },
     %{
       symbol: "BTC",
       name: "Bitcoin",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 BTC
-      account_name: "master_account"
+      account_name: "master_account",
+      originator: %Seeder{}
     },
     %{
       symbol: "OEM",
       name: "One EM",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 OEM
-      account_name: "master_account"
+      account_name: "master_account",
+      originator: %Seeder{}
     },
     %{
       symbol: "ETH",
       name: "Ether",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 ETH
-      account_name: "master_account"
+      account_name: "master_account",
+      originator: %Seeder{}
     },
   ]
 
@@ -95,7 +101,8 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
       "token_id" => token.id,
       "amount" => data.genesis_amount,
       "description" => "Seeded #{data.genesis_amount} #{token.id}.",
-      "metadata" => %{}
+      "metadata" => %{},
+      "originator" => %Seeder{}
     }
 
     case MintGate.insert(mint_data) do

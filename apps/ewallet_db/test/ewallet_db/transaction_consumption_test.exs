@@ -1,6 +1,7 @@
 defmodule EWalletDB.TransactionConsumptionTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.TransactionConsumption
+  alias ActivityLogger.System
 
   describe "TransactionConsumption factory" do
     test_has_valid_factory(TransactionConsumption)
@@ -90,35 +91,40 @@ defmodule EWalletDB.TransactionConsumptionTest do
         insert(
           :transaction_consumption,
           transaction_request_uuid: request.uuid,
-          status: "pending"
+          status: "pending",
+          originator: nil
         )
 
       consumption_2 =
         insert(
           :transaction_consumption,
           transaction_request_uuid: request.uuid,
-          status: "confirmed"
+          status: "confirmed",
+          originator: nil
         )
 
       _consumption_3 =
         insert(
           :transaction_consumption,
           transaction_request_uuid: request.uuid,
-          status: "failed"
+          status: "failed",
+          originator: nil
         )
 
       _consumption_4 =
         insert(
           :transaction_consumption,
           transaction_request_uuid: request.uuid,
-          status: "expired"
+          status: "expired",
+          originator: nil
         )
 
       consumption_5 =
         insert(
           :transaction_consumption,
           transaction_request_uuid: request.uuid,
-          status: "confirmed"
+          status: "confirmed",
+          originator: nil
         )
 
       consumptions = TransactionConsumption.all_active_for_request(request.uuid)
@@ -165,7 +171,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
     test "approves the consumption" do
       consumption = insert(:transaction_consumption)
       assert consumption.status == "pending"
-      consumption = TransactionConsumption.approve(consumption)
+      consumption = TransactionConsumption.approve(consumption, %System{})
       assert consumption.status == "approved"
     end
   end
@@ -174,7 +180,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
     test "rejects the consumption" do
       consumption = insert(:transaction_consumption)
       assert consumption.status == "pending"
-      consumption = TransactionConsumption.reject(consumption)
+      consumption = TransactionConsumption.reject(consumption, %System{})
       assert consumption.status == "rejected"
     end
   end

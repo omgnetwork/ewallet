@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
   alias EWalletDB.{User, Account, AuthToken, Role, Membership}
+  alias ActivityLogger.System
 
   @owner_app :some_app
 
@@ -177,7 +178,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
       admin = insert(:admin, %{email: "admin@omise.co"})
       _membership = insert(:membership, %{user: admin, account: account, role: role})
 
-      {:ok, token} = AuthToken.generate(admin, @owner_app)
+      {:ok, token} = AuthToken.generate(admin, @owner_app, %System{})
       token_string = token.token
       # Ensure tokens is usable.
       assert AuthToken.authenticate(token_string, @owner_app)
@@ -198,13 +199,13 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
       role = Role.get_by(name: "admin")
 
       admin = get_test_admin()
-      {:ok, _m} = Membership.unassign(admin, master)
+      {:ok, _m} = Membership.unassign(admin, master, %System{})
 
       master_admin = insert(:admin, %{email: "admin@omise.co"})
       _membership = insert(:membership, %{user: master_admin, account: master, role: role})
 
       sub_acc = insert(:account, parent: master, name: "Account 1")
-      {:ok, _m} = Membership.assign(admin, sub_acc, role)
+      {:ok, _m} = Membership.assign(admin, sub_acc, role, %System{})
 
       response =
         admin_user_request("/user.enable_or_disable", %{
@@ -253,6 +254,38 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
 
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation."
+    end
+
+    test "generates an activity log" do
+      account = Account.get_master_account()
+      role = insert(:role, %{name: "some_role"})
+      admin = insert(:admin, %{email: "admin@omise.co"})
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/admin.enable_or_disable", %{
+          id: admin.id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+      admin = User.get(admin.id)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_admin(),
+        target: admin,
+        changes: %{
+          "enabled" => false
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

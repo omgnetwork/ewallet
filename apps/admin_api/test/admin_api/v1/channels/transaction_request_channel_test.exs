@@ -2,31 +2,65 @@
 defmodule AdminAPI.V1.TransactionRequestChannelTest do
   use AdminAPI.ChannelCase, async: false
   alias AdminAPI.V1.TransactionRequestChannel
+  alias EWalletDB.Account
+  alias Ecto.UUID
 
-  describe "join/3 as provider" do
-    test "joins the channel with authenticated account and valid request" do
-      account = insert(:account)
+  defp topic(id), do: "transaction_request:#{id}"
+
+  describe "join/3" do
+    test "can join the channel of a valid request" do
       request = insert(:transaction_request)
+      topic = topic(request.id)
 
-      {res, _, socket} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, account: account}})
-        |> subscribe_and_join(TransactionRequestChannel, "transaction_request:#{request.id}")
-
-      assert res == :ok
-      assert socket.topic == "transaction_request:#{request.id}"
+      test_with_auths(fn auth ->
+        auth
+        |> subscribe_and_join(TransactionRequestChannel, topic)
+        |> assert_success(topic)
+      end)
     end
 
-    test "can't join a channel for an inexisting request" do
-      account = insert(:account)
+    test "can join the channel of an account's request that is a child of the current account" do
+      master = Account.get_master_account()
+      account = insert(:account, %{parent: master})
+      request = insert(:transaction_request, %{account: account})
+      topic = topic(request.id)
 
-      {res, code} =
-        "test"
-        |> socket(%{auth: %{authenticated: true, account: account}})
-        |> subscribe_and_join(TransactionRequestChannel, "transaction_request:123")
+      test_with_auths(fn auth ->
+        auth
+        |> subscribe_and_join(TransactionRequestChannel, topic)
+        |> assert_success(topic)
+      end)
+    end
 
-      assert res == :error
-      assert code == :channel_not_found
+    test "can join the channel of an account's request that is a parrent account" do
+      master_account = Account.get_master_account()
+      account = insert(:account, %{parent: master_account})
+      role = insert(:role, %{name: "some_role"})
+      admin = insert(:admin)
+      insert(:membership, %{user: admin, account: account, role: role})
+      insert(:key, %{account: account, access_key: "a_sub_key", secret_key: "123"})
+      request = insert(:transaction_request, %{account: master_account})
+      topic = topic(request.id)
+
+      test_with_auths(
+        fn auth ->
+          auth
+          |> subscribe_and_join(TransactionRequestChannel, topic)
+          |> assert_success(topic)
+        end,
+        admin.id,
+        "a_sub_key"
+      )
+    end
+
+    test "can't join the channel of an inexisting request" do
+      topic = topic(UUID.generate())
+
+      test_with_auths(fn auth ->
+        auth
+        |> subscribe_and_join(TransactionRequestChannel, topic)
+        |> assert_failure(:forbidden_channel)
+      end)
     end
   end
 end
