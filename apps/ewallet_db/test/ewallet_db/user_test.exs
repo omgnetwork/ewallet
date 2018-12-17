@@ -1,7 +1,8 @@
 defmodule EWalletDB.UserTest do
   use EWalletDB.SchemaCase
-  alias EWalletConfig.Helpers.Crypto
-  alias EWalletDB.{Account, Audit, Invite, User}
+  alias Utils.Helpers.Crypto
+  alias EWalletDB.{Account, Invite, User}
+  alias ActivityLogger.{System, ActivityLog}
 
   describe "User factory" do
     test_has_valid_factory(User)
@@ -21,12 +22,12 @@ defmodule EWalletDB.UserTest do
       assert user.metadata["first_name"] == inserted_user.metadata["first_name"]
       assert user.metadata["last_name"] == inserted_user.metadata["last_name"]
 
-      audits = Audit.all_for_target(User, user.uuid)
+      audits = ActivityLog.all_for_target(User, user.uuid)
       assert length(audits) == 1
 
       audit = Enum.at(audits, 0)
       assert audit.originator_uuid != nil
-      assert audit.originator_type == "user"
+      assert audit.originator_type == "system"
     end
 
     test_insert_generate_uuid(User, :uuid)
@@ -68,13 +69,13 @@ defmodule EWalletDB.UserTest do
   end
 
   describe "update/2" do
-    test_update_field_ok(User, :username, insert(:admin))
-    test_update_field_ok(User, :full_name, insert(:admin))
-    test_update_field_ok(User, :calling_name, insert(:admin))
+    test_update_field_ok(User, :username)
+    test_update_field_ok(User, :full_name)
+    test_update_field_ok(User, :calling_name)
 
-    test_update_field_ok(User, :metadata, insert(:admin), %{"field" => "old"}, %{"field" => "new"})
+    test_update_field_ok(User, :metadata, %{"field" => "old"}, %{"field" => "new"})
 
-    test_update_field_ok(User, :encrypted_metadata, insert(:admin), %{"field" => "old"}, %{
+    test_update_field_ok(User, :encrypted_metadata, %{"field" => "old"}, %{
       "field" => "new"
     })
 
@@ -447,7 +448,7 @@ defmodule EWalletDB.UserTest do
       user = insert(:user)
       refute User.admin?(user)
 
-      {:ok, user} = User.set_admin(user, true)
+      {:ok, user} = User.set_admin(user, true, %System{})
       assert User.admin?(user)
     end
 
@@ -455,7 +456,7 @@ defmodule EWalletDB.UserTest do
       user = insert(:admin)
       assert User.admin?(user)
 
-      {:ok, user} = User.set_admin(user, false)
+      {:ok, user} = User.set_admin(user, false, %System{})
       refute User.admin?(user)
     end
   end
@@ -544,7 +545,12 @@ defmodule EWalletDB.UserTest do
       user = insert(:user, %{enabled: false})
       refute User.enabled?(user)
 
-      {:ok, user} = User.enable_or_disable(user, %{enabled: true})
+      {:ok, user} =
+        User.enable_or_disable(user, %{
+          enabled: true,
+          originator: %System{}
+        })
+
       assert User.enabled?(user)
     end
 
@@ -552,7 +558,12 @@ defmodule EWalletDB.UserTest do
       user = insert(:user, %{enabled: true})
       assert User.enabled?(user)
 
-      {:ok, user} = User.enable_or_disable(user, %{enabled: false})
+      {:ok, user} =
+        User.enable_or_disable(user, %{
+          enabled: false,
+          originator: %System{}
+        })
+
       refute User.enabled?(user)
     end
   end

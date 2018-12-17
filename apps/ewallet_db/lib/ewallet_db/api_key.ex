@@ -4,10 +4,11 @@ defmodule EWalletDB.APIKey do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
-  use EWalletConfig.Types.ExternalID
+  use Utils.Types.ExternalID
+  use ActivityLogger.ActivityLogging
   import Ecto.Changeset
   alias Ecto.UUID
-  alias EWalletConfig.Helpers.Crypto
+  alias Utils.Helpers.Crypto
   alias EWalletDB.{Account, APIKey, Repo}
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -39,12 +40,16 @@ defmodule EWalletDB.APIKey do
     field(:enabled, :boolean, default: true)
     timestamps()
     soft_delete()
+    activity_logging()
   end
 
   defp changeset(%APIKey{} = key, attrs) do
     key
-    |> cast(attrs, [:key, :owner_app, :account_uuid, :enabled, :exchange_address])
-    |> validate_required([:key, :owner_app, :account_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:key, :owner_app, :account_uuid, :enabled, :exchange_address],
+      required: [:key, :owner_app, :account_uuid]
+    )
     |> unique_constraint(:key)
     |> assoc_constraint(:account)
     |> assoc_constraint(:exchange_wallet)
@@ -52,14 +57,20 @@ defmodule EWalletDB.APIKey do
 
   defp enable_changeset(%APIKey{} = key, attrs) do
     key
-    |> cast(attrs, [:enabled])
-    |> validate_required([:enabled])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:enabled],
+      required: [:enabled]
+    )
   end
 
   defp update_changeset(%APIKey{} = key, attrs) do
     key
-    |> cast(attrs, [:enabled, :exchange_address])
-    |> validate_required([:enabled])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:enabled, :exchange_address],
+      required: [:enabled]
+    )
   end
 
   @doc """
@@ -86,7 +97,7 @@ defmodule EWalletDB.APIKey do
 
     %APIKey{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
   end
 
   @doc """
@@ -97,13 +108,13 @@ defmodule EWalletDB.APIKey do
 
     api_key
     |> update_changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 
   def update(%APIKey{} = api_key, attrs) do
     api_key
     |> update_changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
@@ -112,7 +123,7 @@ defmodule EWalletDB.APIKey do
   def enable_or_disable(%APIKey{} = api_key, attrs) do
     api_key
     |> enable_changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 
   defp get_master_account_uuid do
@@ -192,10 +203,10 @@ defmodule EWalletDB.APIKey do
   @doc """
   Soft-deletes the given API key.
   """
-  def delete(api_key), do: SoftDelete.delete(api_key)
+  def delete(api_key, originator), do: SoftDelete.delete(api_key, originator)
 
   @doc """
   Restores the given API key from soft-delete.
   """
-  def restore(api_key), do: SoftDelete.restore(api_key)
+  def restore(api_key, originator), do: SoftDelete.restore(api_key, originator)
 end

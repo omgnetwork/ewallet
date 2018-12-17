@@ -2,7 +2,7 @@ defmodule EWalletAPI.V1.TransactionController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.{TransactionGate, WalletFetcher}
-  alias EWallet.Web.{Orchestrator, Paginator, V1.TransactionOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TransactionOverlay}
   alias EWalletDB.{Repo, Transaction, User}
 
   @allowed_fields [
@@ -84,6 +84,7 @@ defmodule EWalletAPI.V1.TransactionController do
       |> Enum.filter(fn {k, _v} -> Enum.member?(@allowed_fields, k) end)
       |> Enum.into(%{})
       |> Map.put("from_user_id", conn.assigns.end_user.id)
+      |> Map.put("originator", Originator.extract(conn.assigns))
       |> TransactionGate.create()
 
     case res do

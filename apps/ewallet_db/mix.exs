@@ -64,7 +64,8 @@ defmodule EWalletDB.Mixfile do
       {:hackney, "~> 1.6"},
       {:sweet_xml, "~> 0.6"},
 
-      {:ewallet_config, in_umbrella: true}
+      {:ewallet_config, in_umbrella: true},
+      {:activity_logger, in_umbrella: true}
     ]
   end
 

@@ -3,6 +3,7 @@ defmodule EWallet.Web.MatchAnyParserTest do
   import EWalletDB.Factory
   alias EWallet.Web.{MatchAnyParser, Preloader}
   alias EWalletDB.{Account, Repo, Transaction, User}
+  alias ActivityLogger.System
 
   describe "to_query/3" do
     test "filter for boolean true when given 'true' as value" do
@@ -222,7 +223,7 @@ defmodule EWallet.Web.MatchAnyParserTest do
       txn_3 = insert(:transaction)
 
       {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
-      {:ok, _user} = User.set_admin(txn_2.from_user, true)
+      {:ok, _user} = User.set_admin(txn_2.from_user, true, %System{})
 
       attrs = %{
         "match_any" => [

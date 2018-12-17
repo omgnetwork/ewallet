@@ -2,11 +2,12 @@ defmodule EWalletDB.SoftDeleteTest do
   use EWalletDB.SchemaCase
   import EWalletDB.SoftDelete
   alias EWalletDB.{Key, Repo}
+  alias ActivityLogger.System
 
   describe "exclude_deleted/1" do
     test "returns records that are not soft-deleted" do
       key = insert(:key)
-      {:ok, deleted} = :key |> insert() |> Key.delete()
+      {:ok, deleted} = :key |> insert() |> Key.delete(%System{})
 
       result =
         Key
@@ -20,7 +21,7 @@ defmodule EWalletDB.SoftDeleteTest do
 
   describe "deleted?/1" do
     test "returns true if record is soft-deleted" do
-      {:ok, key} = :key |> insert() |> Key.delete()
+      {:ok, key} = :key |> insert() |> Key.delete(%System{})
       assert Key.deleted?(key)
     end
 
@@ -32,28 +33,28 @@ defmodule EWalletDB.SoftDeleteTest do
 
   describe "delete/2" do
     test "returns an :ok with the soft-deleted record" do
-      {res, key} = :key |> insert() |> Key.delete()
+      {res, key} = :key |> insert() |> Key.delete(%System{})
 
       assert res == :ok
       assert Key.deleted?(key)
     end
 
     test "populates :deleted_at field" do
-      {:ok, key} = :key |> insert() |> Key.delete()
+      {:ok, key} = :key |> insert() |> Key.delete(%System{})
       assert key.deleted_at != nil
     end
   end
 
   describe "restore/2" do
     test "returns an :ok with the record not soft-deleted" do
-      {res, key} = :key |> insert() |> Key.restore()
+      {res, key} = :key |> insert() |> Key.restore(%System{})
 
       assert res == :ok
       refute Key.deleted?(key)
     end
 
     test "set :deleted_at field to nil" do
-      {:ok, key} = :key |> insert() |> Key.restore()
+      {:ok, key} = :key |> insert() |> Key.restore(%System{})
       assert key.deleted_at == nil
     end
   end

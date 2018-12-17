@@ -1,6 +1,7 @@
 defmodule EWalletDB.Repo.Seeds.ExchangePairSeed do
   alias EWallet.Web.Preloader
   alias EWalletDB.{ExchangePair, Token}
+  alias EWalletDB.Seeder
 
   @pairs [
     %{from_token_symbol: "BTC", to_token_symbol: "OEM", rate: 1_000_000},
@@ -37,7 +38,8 @@ defmodule EWalletDB.Repo.Seeds.ExchangePairSeed do
           ExchangePair.insert(%{
             from_token_uuid: from_token.uuid,
             to_token_uuid: to_token.uuid,
-            rate: args.rate
+            rate: args.rate,
+            originator: %Seeder{}
           })
 
         {:ok, pair} = Preloader.preload_one(pair, [:from_token, :to_token])

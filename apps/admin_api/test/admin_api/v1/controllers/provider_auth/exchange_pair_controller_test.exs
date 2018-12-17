@@ -191,6 +191,36 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["description"] ==
                "Invalid parameter provided. `to_token_id` can't be blank."
     end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+      request_data = insert_params()
+      response = provider_request("/exchange_pair.create", request_data)
+
+      assert response["success"] == true
+
+      exchange_pair =
+        ExchangePair
+        |> get_last_inserted()
+        |> Repo.preload([:from_token, :to_token])
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_key(),
+        target: exchange_pair,
+        changes: %{
+          "from_token_uuid" => exchange_pair.from_token.uuid,
+          "rate" => exchange_pair.rate,
+          "to_token_uuid" => exchange_pair.to_token.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/exchange_pair.update" do
@@ -325,6 +355,35 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["description"] ==
                "Invalid parameter provided. `rate` must be greater than 0."
     end
+
+    test "generates an activity log" do
+      exchange_pair = :exchange_pair |> insert() |> Repo.preload([:from_token, :to_token])
+      timestamp = DateTime.utc_now()
+
+      request_data = %{
+        id: exchange_pair.id,
+        rate: 999.99
+      }
+
+      response = provider_request("/exchange_pair.update", request_data)
+
+      assert response["success"] == true
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_key(),
+        target: exchange_pair,
+        changes: %{
+          "rate" => request_data.rate
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/exchange_pair.delete" do
@@ -422,6 +481,30 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
                    "object" => "error"
                  }
                }
+    end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+      exchange_pair = insert(:exchange_pair)
+
+      response = provider_request("/exchange_pair.delete", %{id: exchange_pair.id})
+
+      assert response["success"] == true
+      exchange_pair = Repo.get_by(ExchangePair, %{id: exchange_pair.id})
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_key(),
+        target: exchange_pair,
+        changes: %{
+          "deleted_at" => NaiveDateTime.to_iso8601(exchange_pair.deleted_at)
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

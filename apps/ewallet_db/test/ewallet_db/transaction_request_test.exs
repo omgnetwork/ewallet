@@ -1,6 +1,7 @@
 defmodule EWalletDB.TransactionRequestTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.TransactionRequest
+  alias ActivityLogger.System
 
   describe "TransactionRequest factory" do
     test_has_valid_factory(TransactionRequest)
@@ -92,7 +93,7 @@ defmodule EWalletDB.TransactionRequestTest do
   describe "touch/1" do
     test "updates the updated_at field" do
       request = insert(:transaction_request)
-      {:ok, updated} = TransactionRequest.touch(request)
+      {:ok, updated} = TransactionRequest.touch(request, %System{})
       assert NaiveDateTime.compare(updated.updated_at, request.updated_at) == :gt
     end
   end
@@ -215,7 +216,7 @@ defmodule EWalletDB.TransactionRequestTest do
       t = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, -60, :seconds))
       assert TransactionRequest.expired?(t) == false
 
-      TransactionRequest.expire(t, "testing")
+      TransactionRequest.expire(t, %System{}, "testing")
 
       t = TransactionRequest.get(t.id)
       assert TransactionRequest.expired?(t) == true
@@ -227,7 +228,7 @@ defmodule EWalletDB.TransactionRequestTest do
   describe "expire_if_past_expiration_date/1" do
     test "does nothing if expiration date is not set" do
       request = insert(:transaction_request, expiration_date: nil)
-      {res, request} = TransactionRequest.expire_if_past_expiration_date(request)
+      {res, request} = TransactionRequest.expire_if_past_expiration_date(request, %System{})
       assert res == :ok
       assert %TransactionRequest{} = request
       assert TransactionRequest.valid?(request) == true
@@ -236,7 +237,7 @@ defmodule EWalletDB.TransactionRequestTest do
     test "does nothing if expiration date is not past" do
       future_date = NaiveDateTime.add(NaiveDateTime.utc_now(), 60, :second)
       request = insert(:transaction_request, expiration_date: future_date)
-      {res, request} = TransactionRequest.expire_if_past_expiration_date(request)
+      {res, request} = TransactionRequest.expire_if_past_expiration_date(request, %System{})
       assert res == :ok
       assert %TransactionRequest{} = request
       assert TransactionRequest.valid?(request) == true
@@ -245,7 +246,7 @@ defmodule EWalletDB.TransactionRequestTest do
     test "expires the request if expiration date is past" do
       past_date = NaiveDateTime.add(NaiveDateTime.utc_now(), -60, :second)
       request = insert(:transaction_request, expiration_date: past_date)
-      {res, request} = TransactionRequest.expire_if_past_expiration_date(request)
+      {res, request} = TransactionRequest.expire_if_past_expiration_date(request, %System{})
       assert res == :ok
       assert TransactionRequest.expired?(request) == true
     end
@@ -254,7 +255,7 @@ defmodule EWalletDB.TransactionRequestTest do
   describe "expire_if_max_consumption/1" do
     test "touches the request if max_consumptions is equal to nil" do
       request = insert(:transaction_request, max_consumptions: nil)
-      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request, %System{})
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
@@ -264,7 +265,7 @@ defmodule EWalletDB.TransactionRequestTest do
 
     test "touches the request if max_consumptions is equal to 0" do
       request = insert(:transaction_request, max_consumptions: 0)
-      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request, %System{})
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
@@ -273,7 +274,7 @@ defmodule EWalletDB.TransactionRequestTest do
 
     test "touches the request if max_consumptions has not been reached" do
       request = insert(:transaction_request, max_consumptions: 3)
-      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request, %System{})
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
@@ -297,7 +298,7 @@ defmodule EWalletDB.TransactionRequestTest do
           status: "confirmed"
         )
 
-      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request, %System{})
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert updated_request.expired_at != nil

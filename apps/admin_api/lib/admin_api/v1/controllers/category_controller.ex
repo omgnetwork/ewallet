@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.CategoryController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.CategoryPolicy
-  alias EWallet.Web.{Orchestrator, Paginator, V1.CategoryOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.CategoryOverlay}
   alias EWalletDB.Category
 
   @doc """
@@ -46,6 +46,7 @@ defmodule AdminAPI.V1.CategoryController do
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, category} <- Category.insert(attrs),
          {:ok, category} <- Orchestrator.one(category, CategoryOverlay, attrs) do
       render(conn, :category, %{category: category})
@@ -65,6 +66,7 @@ defmodule AdminAPI.V1.CategoryController do
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
          %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Category.update(original, attrs),
          {:ok, updated} <- Orchestrator.one(updated, CategoryOverlay, attrs) do
       render(conn, :category, %{category: updated})
@@ -86,7 +88,8 @@ defmodule AdminAPI.V1.CategoryController do
   def delete(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:delete, conn.assigns, id),
          %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
-         {:ok, deleted} <- Category.delete(category),
+         originator <- Originator.extract(conn.assigns),
+         {:ok, deleted} <- Category.delete(category, originator),
          {:ok, deleted} <- Orchestrator.one(deleted, CategoryOverlay, attrs) do
       render(conn, :category, %{category: deleted})
     else
