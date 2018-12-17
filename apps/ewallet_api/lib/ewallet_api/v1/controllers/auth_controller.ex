@@ -2,7 +2,7 @@ defmodule EWalletAPI.V1.AuthController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
   alias EWalletAPI.V1.{ClientAuthPlug, EndUserAuthenticator}
-  alias EWallet.Web.{Orchestrator, V1.AuthTokenOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, V1.AuthTokenOverlay}
   alias EWalletDB.{AuthToken, User}
 
   @doc """
@@ -18,7 +18,8 @@ defmodule EWalletAPI.V1.AuthController do
          true <- conn.assigns.authenticated || {:error, :invalid_login_credentials},
          true <-
            User.get_status(conn.assigns.end_user) == :active || {:error, :email_not_verified},
-         {:ok, auth_token} <- AuthToken.generate(conn.assigns.end_user, :ewallet_api),
+         originator <- Originator.extract(conn.assigns),
+         {:ok, auth_token} <- AuthToken.generate(conn.assigns.end_user, :ewallet_api, originator),
          {:ok, auth_token} = Orchestrator.one(auth_token, AuthTokenOverlay, attrs) do
       render(conn, :auth_token, %{auth_token: auth_token})
     else

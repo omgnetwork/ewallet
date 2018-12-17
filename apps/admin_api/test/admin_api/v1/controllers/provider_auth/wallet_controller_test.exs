@@ -3,6 +3,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
   alias EWallet.Web.Date
   alias EWallet.Web.V1.UserSerializer
   alias EWalletDB.{Account, AccountUser, Repo, Token, User, Wallet}
+  alias ActivityLogger.System
 
   describe "/wallet.all" do
     test "returns a list of wallets and pagination data" do
@@ -59,7 +60,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert is_list(response["data"]["data"])
 
       wallets = response["data"]["data"]
-      assert length(wallets) == 2
+      assert length(wallets) == 3
 
       wallets =
         Enum.map(wallets, fn wallet ->
@@ -79,6 +80,8 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
     test "returns a list of wallets according to sort_by and sort_direction" do
       account = insert(:account)
+      user = get_test_user()
+      wallet = User.get_primary_wallet(user)
 
       insert(:wallet, %{
         account: account,
@@ -115,13 +118,17 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       wallets = response["data"]["data"]
 
       assert response["success"]
-      assert Enum.count(wallets) == 4
-      assert Enum.at(wallets, 0)["address"] == "bbbb111111111111"
-      assert Enum.at(wallets, 1)["address"] == "aaaa333333333333"
-      assert Enum.at(wallets, 2)["address"] == "aaaa222222222222"
-      assert Enum.at(wallets, 3)["address"] == "aaaa111111111111"
+      assert Enum.count(wallets) == 5
+      assert Enum.at(wallets, 0)["address"] == wallet.address
+      assert Enum.at(wallets, 1)["address"] == "bbbb111111111111"
+      assert Enum.at(wallets, 2)["address"] == "aaaa333333333333"
+      assert Enum.at(wallets, 3)["address"] == "aaaa222222222222"
+      assert Enum.at(wallets, 4)["address"] == "aaaa111111111111"
 
-      Enum.each(wallets, fn wallet ->
+      [user_wallet | account_wallets] = wallets
+      assert user_wallet["user_id"] == user.id
+
+      Enum.each(account_wallets, fn wallet ->
         assert wallet["account_id"] == account.id
       end)
     end
@@ -321,7 +328,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
       # Pick the 2nd inserted wallet
       target = Enum.at(wallets, 1)
-      {:ok, _} = AccountUser.link(account.uuid, target.user_uuid)
+      {:ok, _} = AccountUser.link(account.uuid, target.user_uuid, %System{})
 
       response = provider_request("/wallet.get", %{"address" => target.address})
 
@@ -498,6 +505,41 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       # The account's wallets made to use the request
       length = Wallet |> Repo.all() |> length()
       assert length == 3
+    end
+
+    test "generates an activity log" do
+      account = insert(:account)
+      assert Wallet |> Repo.all() |> length() == 3
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/wallet.create", %{
+          name: "MyWallet",
+          identifier: "secondary",
+          account_id: account.id
+        })
+
+      assert response["success"] == true
+
+      wallet = Wallet.get(response["data"]["address"])
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_key(),
+        target: wallet,
+        changes: %{
+          "name" => "MyWallet",
+          "identifier" => wallet.identifier,
+          "account_uuid" => account.uuid
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

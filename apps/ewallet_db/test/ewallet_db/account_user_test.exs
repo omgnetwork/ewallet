@@ -56,7 +56,9 @@ defmodule EWalletDB.AccountUserTest do
     test "links an account and a user" do
       account = insert(:account)
       user = insert(:user)
-      {res, account_user} = AccountUser.link(account.uuid, user.uuid)
+      admin = insert(:admin)
+
+      {res, account_user} = AccountUser.link(account.uuid, user.uuid, admin)
 
       assert res == :ok
       assert account_user.account_uuid == account.uuid
@@ -66,8 +68,10 @@ defmodule EWalletDB.AccountUserTest do
     test "prevents an account and a user from being linked more than once" do
       account = insert(:account)
       user = insert(:user)
-      {:ok, _account_user} = AccountUser.link(account.uuid, user.uuid)
-      {res, _changeset} = AccountUser.link(account.uuid, user.uuid)
+      admin = insert(:admin)
+
+      {:ok, _account_user} = AccountUser.link(account.uuid, user.uuid, admin)
+      {res, _changeset} = AccountUser.link(account.uuid, user.uuid, admin)
 
       assert res == :ok
       assert AccountUser |> Repo.all() |> length() == 1
@@ -77,8 +81,10 @@ defmodule EWalletDB.AccountUserTest do
       account_1 = insert(:account)
       account_2 = insert(:account)
       user = insert(:user)
-      {res_1, _account_user} = AccountUser.link(account_1.uuid, user.uuid)
-      {res_2, _account_user} = AccountUser.link(account_2.uuid, user.uuid)
+      admin = insert(:admin)
+
+      {res_1, _account_user} = AccountUser.link(account_1.uuid, user.uuid, admin)
+      {res_2, _account_user} = AccountUser.link(account_2.uuid, user.uuid, admin)
 
       assert res_1 == :ok
       assert res_2 == :ok
@@ -90,9 +96,10 @@ defmodule EWalletDB.AccountUserTest do
       account = insert(:account)
       user_1 = insert(:user)
       user_2 = insert(:user)
+      admin = insert(:admin)
 
-      {res_1, _account_user} = AccountUser.link(account.uuid, user_1.uuid)
-      {res_2, _account_user} = AccountUser.link(account.uuid, user_2.uuid)
+      {res_1, _account_user} = AccountUser.link(account.uuid, user_1.uuid, admin)
+      {res_2, _account_user} = AccountUser.link(account.uuid, user_2.uuid, admin)
 
       assert res_1 == :ok
       assert res_2 == :ok

@@ -2,6 +2,7 @@ defmodule EWallet.TransactionRequestFetcherTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.{TransactionRequestFetcher, TransactionRequestGate}
   alias EWalletDB.{TransactionRequest, User}
+  alias ActivityLogger.System
 
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()
@@ -27,7 +28,8 @@ defmodule EWallet.TransactionRequestFetcherTest do
           "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
-          "address" => meta.user_wallet.address
+          "address" => meta.user_wallet.address,
+          "originator" => %System{}
         })
 
       assert {:ok, request} = TransactionRequestFetcher.get(request.id)

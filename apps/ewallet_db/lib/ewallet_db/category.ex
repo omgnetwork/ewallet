@@ -4,11 +4,12 @@ defmodule EWalletDB.Category do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
-  use EWalletConfig.Types.ExternalID
+  use Utils.Types.ExternalID
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
-  alias EWalletConfig.Helpers.InputAttribute
+  alias Utils.Helpers.InputAttribute
   alias EWalletDB.{Account, Repo}
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -18,8 +19,6 @@ defmodule EWalletDB.Category do
 
     field(:name, :string)
     field(:description, :string)
-    timestamps()
-    soft_delete()
 
     many_to_many(
       :accounts,
@@ -28,12 +27,19 @@ defmodule EWalletDB.Category do
       join_keys: [category_uuid: :uuid, account_uuid: :uuid],
       on_replace: :delete
     )
+
+    timestamps()
+    soft_delete()
+    activity_logging()
   end
 
   defp changeset(category, attrs) do
     category
-    |> cast(attrs, [:name, :description])
-    |> validate_required(:name)
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:name, :description],
+      required: [:name]
+    )
     |> unique_constraint(:name)
     |> put_accounts(attrs, :account_ids)
   end
@@ -95,7 +101,7 @@ defmodule EWalletDB.Category do
   def insert(attrs) do
     %__MODULE__{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
   end
 
   @doc """
@@ -105,7 +111,7 @@ defmodule EWalletDB.Category do
   def update(category, attrs) do
     category
     |> changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
@@ -118,9 +124,9 @@ defmodule EWalletDB.Category do
   Soft-deletes the given category. The operation fails if the category
   has one more more accounts associated.
   """
-  @spec delete(%__MODULE__{}) ::
+  @spec delete(%__MODULE__{}, map()) ::
           {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()} | {:error, atom()}
-  def delete(category) do
+  def delete(category, originator) do
     empty? =
       category
       |> Repo.preload(:accounts)
@@ -128,7 +134,7 @@ defmodule EWalletDB.Category do
       |> Enum.empty?()
 
     case empty? do
-      true -> SoftDelete.delete(category)
+      true -> SoftDelete.delete(category, originator)
       false -> {:error, :category_not_empty}
     end
   end
@@ -136,6 +142,6 @@ defmodule EWalletDB.Category do
   @doc """
   Restores the given category from soft-delete.
   """
-  @spec restore(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
-  def restore(category), do: SoftDelete.restore(category)
+  @spec restore(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def restore(category, originator), do: SoftDelete.restore(category, originator)
 end

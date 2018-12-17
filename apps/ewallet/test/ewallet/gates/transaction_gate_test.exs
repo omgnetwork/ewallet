@@ -5,6 +5,7 @@ defmodule EWallet.TransactionGateTest do
   alias Ecto.UUID
   alias EWallet.{BalanceFetcher, TransactionGate}
   alias EWalletDB.{Account, Token, Transaction, User, Wallet}
+  alias ActivityLogger.System
 
   def init_wallet(address, token, amount \\ 1_000) do
     master_account = Account.get_master_account()
@@ -32,7 +33,8 @@ defmodule EWallet.TransactionGateTest do
         "token_id" => token.id,
         "amount" => 100 * token.subunit_to_unit,
         "metadata" => %{some: "data"},
-        "idempotency_token" => idempotency_token
+        "idempotency_token" => idempotency_token,
+        "originator" => %System{}
       }
     end
 
@@ -63,7 +65,8 @@ defmodule EWallet.TransactionGateTest do
           error_description: response["description"],
           error_data: nil,
           status: status,
-          type: Transaction.internal()
+          type: Transaction.internal(),
+          originator: %System{}
         })
 
       {idempotency_token, transaction, attrs}
@@ -205,7 +208,8 @@ defmodule EWallet.TransactionGateTest do
           "token_id" => token.id,
           "amount" => 0,
           "metadata" => %{some: "data"},
-          "idempotency_token" => idempotency_token
+          "idempotency_token" => idempotency_token,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -234,7 +238,11 @@ defmodule EWallet.TransactionGateTest do
       attrs = build_addresses_attrs(idempotency_token, wallet1, wallet2, token)
       init_wallet(wallet1.address, token, 1_000)
 
-      {:ok, _token} = Token.enable_or_disable(token, %{enabled: false})
+      {:ok, _token} =
+        Token.enable_or_disable(token, %{
+          enabled: false,
+          originator: %System{}
+        })
 
       {status, code} = TransactionGate.create(attrs)
       assert status == :error
@@ -250,13 +258,18 @@ defmodule EWallet.TransactionGateTest do
         Wallet.insert_secondary_or_burn(%{
           "account_uuid" => account.uuid,
           "name" => "MySecondary",
-          "identifier" => "secondary"
+          "identifier" => "secondary",
+          "originator" => %System{}
         })
 
       attrs = build_addresses_attrs(idempotency_token, wallet3, wallet2, token)
       init_wallet(wallet3.address, token, 1_000)
 
-      {:ok, _wallet3} = Wallet.enable_or_disable(wallet3, %{enabled: false})
+      {:ok, _wallet3} =
+        Wallet.enable_or_disable(wallet3, %{
+          enabled: false,
+          originator: %System{}
+        })
 
       {status, code} = TransactionGate.create(attrs)
       assert status == :error
@@ -272,13 +285,18 @@ defmodule EWallet.TransactionGateTest do
         Wallet.insert_secondary_or_burn(%{
           "account_uuid" => account.uuid,
           "name" => "MySecondary",
-          "identifier" => "secondary"
+          "identifier" => "secondary",
+          "originator" => %System{}
         })
 
       attrs = build_addresses_attrs(idempotency_token, wallet1, wallet3, token)
       init_wallet(wallet1.address, token, 1_000)
 
-      {:ok, _wallet3} = Wallet.enable_or_disable(wallet3, %{enabled: false})
+      {:ok, _wallet3} =
+        Wallet.enable_or_disable(wallet3, %{
+          enabled: false,
+          originator: %System{}
+        })
 
       {status, code} = TransactionGate.create(attrs)
       assert status == :error
@@ -315,7 +333,8 @@ defmodule EWallet.TransactionGateTest do
           "to_amount" => 200 * token_1.subunit_to_unit,
           "exchange_account_id" => account.id,
           "metadata" => %{something: "interesting"},
-          "encrypted_metadata" => %{something: "secret"}
+          "encrypted_metadata" => %{something: "secret"},
+          "originator" => %System{}
         })
 
       {:ok, b1} = BalanceFetcher.get(token_1.id, wallet_1)

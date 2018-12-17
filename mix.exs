@@ -83,6 +83,7 @@ defmodule EWallet.Umbrella.Mixfile do
         "docs/setup/advanced/api_specs.md",
         "docs/setup/advanced/clustering.md",
         "docs/setup/advanced/env.md",
+        "docs/setup/advanced/settings.md",
         "docs/setup/upgrading/20180619-encryption-upgrade.md",
         "docs/setup/bare_metal.md",
         "docs/setup/docker.md",
@@ -120,6 +121,7 @@ defmodule EWallet.Umbrella.Mixfile do
         ],
         "Advanced Setup": [
           "docs/setup/advanced/env.md",
+          "docs/setup/advanced/settings.md",
           "docs/setup/advanced/clustering.md",
           "docs/setup/advanced/api_specs.md"
         ]

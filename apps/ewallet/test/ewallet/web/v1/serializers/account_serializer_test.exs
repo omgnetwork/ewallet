@@ -4,12 +4,13 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
   alias EWallet.Web.{Date, Orchestrator, Paginator}
   alias EWallet.Web.V1.{AccountOverlay, AccountSerializer, CategorySerializer}
   alias EWalletDB.Account
+  alias ActivityLogger.System
 
   describe "AccountSerializer.serialize/1" do
     test "serializes an account into V1 response format" do
       master = :account |> insert()
       category = :category |> insert()
-      {:ok, account} = :account |> insert() |> Account.add_category(category)
+      {:ok, account} = :account |> insert() |> Account.add_category(category, %System{})
       {:ok, account} = Orchestrator.one(account, AccountOverlay)
 
       assert AccountSerializer.serialize(account) == %{

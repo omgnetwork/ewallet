@@ -3,7 +3,7 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.Date
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, TransactionSerializer, UserSerializer}
-  alias EWalletConfig.Helpers.Assoc
+  alias Utils.Helpers.Assoc
   alias EWalletDB.{Repo, Token}
 
   describe "serialize/1 for single transaction" do

@@ -3,6 +3,7 @@ defmodule EWalletDB.Membership do
   Ecto Schema representing user memberships.
   """
   use Ecto.Schema
+  use ActivityLogger.ActivityLogging
   import Ecto.Changeset
   import Ecto.Query, except: [update: 2]
   alias Ecto.UUID
@@ -36,12 +37,16 @@ defmodule EWalletDB.Membership do
     )
 
     timestamps()
+    activity_logging()
   end
 
   def changeset(%Membership{} = membership, attrs) do
     membership
-    |> cast(attrs, [:user_uuid, :account_uuid, :role_uuid])
-    |> validate_required([:user_uuid, :account_uuid, :role_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:user_uuid, :account_uuid, :role_uuid],
+      required: [:user_uuid, :account_uuid, :role_uuid]
+    )
     |> unique_constraint(:user_uuid, name: :membership_user_id_account_id_index)
     |> assoc_constraint(:user)
     |> assoc_constraint(:account)
@@ -93,25 +98,26 @@ defmodule EWalletDB.Membership do
   @doc """
   Assigns the user to the given account and role.
   """
-  def assign(user, account, role_name) when is_binary(role_name) do
+  def assign(user, account, role_name, originator) when is_binary(role_name) do
     case Role.get_by(name: role_name) do
       nil ->
         {:error, :role_not_found}
 
       role ->
-        assign(user, account, role)
+        assign(user, account, role, originator)
     end
   end
 
-  def assign(%User{} = user, %Account{} = account, %Role{} = role) do
+  def assign(%User{} = user, %Account{} = account, %Role{} = role, originator) do
     case get_by_user_and_account(user, account) do
       nil ->
-        case MembershipChecker.allowed?(user, account, role) do
+        case MembershipChecker.allowed?(user, account, role, originator) do
           true ->
             insert(%{
               account_uuid: account.uuid,
               user_uuid: user.uuid,
-              role_uuid: role.uuid
+              role_uuid: role.uuid,
+              originator: originator
             })
 
           false ->
@@ -119,36 +125,43 @@ defmodule EWalletDB.Membership do
         end
 
       existing ->
-        update(existing, %{role_uuid: role.uuid})
+        update(existing, %{
+          role_uuid: role.uuid,
+          originator: originator
+        })
     end
   end
 
   @doc """
   Unassigns the user from the given account.
   """
-  def unassign(%User{} = user, %Account{} = account) do
+  def unassign(%User{} = user, %Account{} = account, originator) do
     case get_by_user_and_account(user, account) do
       nil ->
         {:error, :membership_not_found}
 
       membership ->
-        delete(membership)
+        delete(membership, originator)
     end
   end
 
   defp insert(attrs) do
     %Membership{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
   end
 
   defp update(%Membership{} = membership, attrs) do
     membership
     |> changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 
-  defp delete(%Membership{} = membership) do
-    Repo.delete(membership)
+  defp delete(%Membership{} = membership, originator) do
+    membership
+    |> changeset(%{
+      originator: originator
+    })
+    |> Repo.delete_record_with_activity_log()
   end
 end

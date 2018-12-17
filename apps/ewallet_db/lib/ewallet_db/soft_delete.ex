@@ -61,7 +61,8 @@ defmodule EWalletDB.SoftDelete do
   end
   ```
   """
-  import Ecto.{Changeset, Query}
+  use ActivityLogger.ActivityLogging
+  import Ecto.Query
   alias EWalletDB.Repo
 
   @doc false
@@ -85,6 +86,14 @@ defmodule EWalletDB.SoftDelete do
     end
   end
 
+  defp soft_delete_changeset(record, attrs) do
+    cast_and_validate_required_for_activity_log(
+      record,
+      attrs,
+      cast: [:deleted_at]
+    )
+  end
+
   @doc """
   Scopes a query down to only records that are not deleted.
   """
@@ -104,20 +113,26 @@ defmodule EWalletDB.SoftDelete do
   @doc """
   Soft-deletes the given struct.
   """
-  @spec delete(struct()) :: any()
-  def delete(struct) do
+  @spec delete(struct(), map()) :: any()
+  def delete(struct, originator) do
     struct
-    |> change(deleted_at: NaiveDateTime.utc_now())
-    |> Repo.update()
+    |> soft_delete_changeset(%{
+      deleted_at: NaiveDateTime.utc_now(),
+      originator: originator
+    })
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
   Restores the given struct from soft-delete.
   """
-  @spec restore(struct()) :: any()
-  def restore(struct) do
+  @spec restore(struct(), map()) :: any()
+  def restore(struct, originator) do
     struct
-    |> change(deleted_at: nil)
-    |> Repo.update()
+    |> soft_delete_changeset(%{
+      deleted_at: nil,
+      originator: originator
+    })
+    |> Repo.update_record_with_activity_log()
   end
 end

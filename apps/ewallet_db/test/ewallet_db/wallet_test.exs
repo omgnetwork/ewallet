@@ -1,7 +1,7 @@
 defmodule EWalletDB.WalletTest do
   use EWalletDB.SchemaCase
   alias Ecto.UUID
-  alias EWalletConfig.Types.WalletAddress
+  alias Utils.Types.WalletAddress
   alias EWalletDB.{Account, User, Wallet}
 
   describe "Wallet factory" do

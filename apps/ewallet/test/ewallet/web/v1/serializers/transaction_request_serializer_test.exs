@@ -1,6 +1,6 @@
 defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
   use EWallet.Web.SerializerCase, :v1
-  alias EWalletConfig.Helpers.Assoc
+  alias Utils.Helpers.Assoc
   alias EWalletDB.TransactionRequest
 
   alias EWallet.Web.V1.{

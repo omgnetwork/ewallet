@@ -27,8 +27,7 @@ defmodule AdminAPI.V1.SelfController do
   """
   def update(conn, attrs) do
     with {:ok, current_user} <- permit(:update, conn.assigns),
-         originator <- Originator.extract(conn.assigns),
-         attrs <- Map.put(attrs, "originator", originator),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, user} <- User.update(current_user, attrs) do
       respond_single(user, conn)
     else
@@ -42,8 +41,7 @@ defmodule AdminAPI.V1.SelfController do
   """
   def update_password(conn, attrs) do
     with {:ok, current_user} <- permit(:update_password, conn.assigns),
-         originator <- Originator.extract(conn.assigns),
-         attrs <- Map.put(attrs, "originator", originator),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, user} <- User.update_password(current_user, attrs) do
       respond_single(user, conn)
     else

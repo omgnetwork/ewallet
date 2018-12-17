@@ -3,6 +3,7 @@ defmodule EWallet.Web.InviterTest do
   use Bamboo.Test
   alias EWallet.Web.{Inviter, MockInviteEmail, Preloader}
   alias EWalletDB.{Account, Invite, Membership, User}
+  alias ActivityLogger.System
 
   @user_redirect_url "http://localhost:4000/some_redirect_url?email={email}&token={token}"
   @user_success_url "http://localhost:4000/some_success_url"
@@ -177,7 +178,7 @@ defmodule EWallet.Web.InviterTest do
   describe "send_email/3" do
     test "creates and sends the invite email" do
       {:ok, user} = :admin |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
+      {:ok, invite} = Invite.generate(user, %System{})
 
       {res, _} = Inviter.send_email(invite, @admin_redirect_url, &MockInviteEmail.create/2)
 

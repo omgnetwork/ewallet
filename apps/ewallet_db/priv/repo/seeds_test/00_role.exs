@@ -1,10 +1,11 @@
 # credo:disable-for-this-file
 defmodule EWalletDB.Repo.Seeds.RoleSeed do
   alias EWalletDB.Role
+  alias EWalletDB.Seeder
 
   @seed_data [
-    %{name: "admin", display_name: "Admin"},
-    %{name: "viewer", display_name: "Viewer"},
+    %{name: "admin", display_name: "Admin", originator: %Seeder{}},
+    %{name: "viewer", display_name: "Viewer", originator: %Seeder{}},
   ]
 
   def seed do
