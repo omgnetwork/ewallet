@@ -2,7 +2,7 @@ import { authenticatedRequest } from './apiService'
 
 export function getUsers ({ accountId, perPage, sort, page, matchAll, matchAny }) {
   return authenticatedRequest({
-    path: '/account.get_users',
+    path: '/users.all',
     data: {
       id: accountId,
       per_page: perPage,
