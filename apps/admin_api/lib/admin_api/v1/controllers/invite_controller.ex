@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.InviteController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.UserView
-  alias EWallet.Web.Preloader
+  alias EWallet.Web.{Originator, Preloader}
   alias EWalletDB.{Invite, User}
 
   @doc """
@@ -18,7 +18,8 @@ defmodule AdminAPI.V1.InviteController do
     with %Invite{} = invite <- Invite.get(email, token) || {:error, :invite_not_found},
          {:ok, invite} <- Preloader.preload_one(invite, :user),
          {:ok, _} <- Invite.accept(invite, password, password_confirmation),
-         {:ok, _} <- User.set_admin(invite.user, true) do
+         originator <- Originator.get_initial_originator(invite),
+         {:ok, _} <- User.set_admin(invite.user, true, originator) do
       render(conn, UserView, :user, %{user: invite.user})
     else
       {:error, error_code} when is_atom(error_code) ->

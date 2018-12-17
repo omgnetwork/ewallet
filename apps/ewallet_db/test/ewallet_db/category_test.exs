@@ -1,6 +1,7 @@
 defmodule EWalletDB.CategoryTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.Category
+  alias ActivityLogger.System
 
   defp insert_category(accounts) do
     account_ids = Enum.map(accounts, fn account -> account.id end)
@@ -40,8 +41,8 @@ defmodule EWalletDB.CategoryTest do
   end
 
   describe "update/1" do
-    test_update_field_ok(Category, :name, insert(:admin))
-    test_update_field_ok(Category, :description, insert(:admin))
+    test_update_field_ok(Category, :name)
+    test_update_field_ok(Category, :description)
   end
 
   describe "update/2 with account_ids" do
@@ -54,7 +55,11 @@ defmodule EWalletDB.CategoryTest do
       assert_accounts(category, [acc1, acc2])
 
       # Now update with additional account_ids
-      {:ok, updated} = Category.update(category, %{account_ids: [acc1.id, acc2.id, acc3.id]})
+      {:ok, updated} =
+        Category.update(category, %{
+          account_ids: [acc1.id, acc2.id, acc3.id],
+          originator: %System{}
+        })
 
       # Assert that the 3rd account is added
       assert_accounts(updated, [acc1, acc2, acc3])
@@ -68,7 +73,11 @@ defmodule EWalletDB.CategoryTest do
       assert_accounts(category, [acc1, acc2])
 
       # Now update by removing a account from category_ids
-      {:ok, updated} = Category.update(category, %{account_ids: [acc1.id]})
+      {:ok, updated} =
+        Category.update(category, %{
+          account_ids: [acc1.id],
+          originator: %System{}
+        })
 
       # Only one account should be left
       assert_accounts(updated, [acc1])
@@ -82,7 +91,11 @@ defmodule EWalletDB.CategoryTest do
       assert_accounts(category, [acc1, acc2])
 
       # Now update by setting account_ids to an empty list
-      {:ok, updated} = Category.update(category, %{account_ids: []})
+      {:ok, updated} =
+        Category.update(category, %{
+          account_ids: [],
+          originator: %System{}
+        })
 
       # No category should be left
       assert_accounts(updated, [])
@@ -96,7 +109,11 @@ defmodule EWalletDB.CategoryTest do
       assert_accounts(category, [acc1, acc2])
 
       # Now update by passing a nil account_ids
-      {:ok, updated} = Category.update(category, %{account_ids: nil})
+      {:ok, updated} =
+        Category.update(category, %{
+          account_ids: nil,
+          originator: %System{}
+        })
 
       # The categories should remain the same
       assert_accounts(updated, [acc1, acc2])
@@ -131,7 +148,7 @@ defmodule EWalletDB.CategoryTest do
       # Make sure that the category has an account
       assert_accounts(category, [account])
 
-      {res, code} = Category.delete(category)
+      {res, code} = Category.delete(category, %System{})
 
       assert res == :error
       assert code == :category_not_empty

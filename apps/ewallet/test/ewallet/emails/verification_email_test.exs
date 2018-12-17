@@ -2,10 +2,11 @@ defmodule EWallet.VerificationEmailTest do
   use EWallet.DBCase, async: true
   alias EWallet.VerificationEmail
   alias EWalletDB.{Invite, User}
+  alias ActivityLogger.System
 
   defp create_email(email) do
     {:ok, user} = :standalone_user |> params_for(email: email) |> User.insert()
-    {:ok, invite} = Invite.generate(user)
+    {:ok, invite} = Invite.generate(user, %System{})
 
     {VerificationEmail.create(invite, "https://invite_url/?email={email}&token={token}"),
      invite.token}

@@ -98,6 +98,38 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
       assert response["success"] == false
       assert response["data"]["code"] == "user:email_already_exists"
     end
+
+    test "generates activity logs" do
+      admin = get_test_admin()
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/me.update_email", %{
+          "email" => "test_email_update@example.com",
+          "redirect_url" => @redirect_url
+        })
+
+      assert response["success"] == true
+
+      request = Repo.get_by(UpdateEmailRequest, user_uuid: admin.uuid)
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: admin,
+        target: request,
+        changes: %{
+          "email" => "test_email_update@example.com",
+          "token" => request.token,
+          "user_uuid" => admin.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/me.update_email_verification" do
@@ -207,6 +239,37 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided."
+    end
+
+    test "generates activity logs" do
+      admin = get_test_admin()
+      new_email = "test_email_update@example.com"
+      request = UpdateEmailRequest.generate(admin, new_email)
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        unauthenticated_request("/admin.verify_email_update", %{
+          email: new_email,
+          token: request.token
+        })
+
+      assert response["success"] == true
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: request,
+        target: admin,
+        changes: %{
+          "email" => "test_email_update@example.com"
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

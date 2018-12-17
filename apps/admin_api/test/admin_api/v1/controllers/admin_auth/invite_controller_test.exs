@@ -1,7 +1,8 @@
 defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Invite, User}
+  alias EWalletDB.{Invite, User, Repo}
+  alias ActivityLogger.System
 
   defp request(email, token, password, password_confirmation) do
     unauthenticated_request("/invite.accept", %{
@@ -15,7 +16,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
   describe "InviteController.accept/2" do
     test "returns success if invite is accepted successfully" do
       {:ok, user} = :admin |> params_for(is_admin: false) |> User.insert()
-      {:ok, invite} = Invite.generate(user, preload: :user)
+      {:ok, invite} = Invite.generate(user, %System{}, preload: :user)
 
       response = request(invite.user.email, invite.token, "some_password", "some_password")
 
@@ -46,9 +47,73 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       assert invite.user.id |> User.get() |> User.admin?()
     end
 
+    test "generates activity logs" do
+      {:ok, user} = :admin |> params_for(is_admin: false) |> User.insert()
+      {:ok, invite} = Invite.generate(user, %System{}, preload: :user)
+      timestamp = DateTime.utc_now()
+
+      response = request(invite.user.email, invite.token, "some_password", "some_password")
+      assert response["success"] == true
+
+      invite = Repo.get_by(Invite, uuid: invite.uuid)
+      user = User.get(user.id)
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 4
+
+      # Update user password
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: user,
+        target: user,
+        changes: %{"password_hash" => user.password_hash},
+        encrypted_changes: %{}
+      )
+
+      # Update invite_uuid to nil
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "update",
+        originator: user,
+        target: user,
+        changes: %{"invite_uuid" => nil},
+        encrypted_changes: %{}
+      )
+
+      # Update verified_at for the invitation
+      logs
+      |> Enum.at(2)
+      |> assert_activity_log(
+        action: "update",
+        originator: user,
+        target: invite,
+        changes: %{"verified_at" => NaiveDateTime.to_iso8601(invite.verified_at)},
+        encrypted_changes: %{}
+      )
+
+      # Set is admin
+      logs
+      |> Enum.at(3)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: user,
+        changes: %{"is_admin" => true},
+        encrypted_changes: %{}
+      )
+
+      Enum.each(logs, fn log ->
+        assert log.target_changes["password"] == nil
+        assert log.target_encrypted_changes["password"] == nil
+      end)
+    end
+
     test "returns :invite_not_found error if the email has not been invited" do
       {:ok, user} = :admin |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
+      {:ok, invite} = Invite.generate(user, %System{})
 
       response = request("unknown@example.com", invite.token, "some_password", "some_password")
 
@@ -62,7 +127,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
     test "returns :invite_not_found error if the token is incorrect" do
       {:ok, user} = :admin |> params_for() |> User.insert()
-      {:ok, _invite} = Invite.generate(user)
+      {:ok, _invite} = Invite.generate(user, %System{})
 
       response = request(user.email, "wrong_token", "some_password", "some_password")
 
@@ -76,7 +141,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
     test "returns client:invalid_parameter error if the password has less than 8 characters" do
       {:ok, user} = :admin |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
+      {:ok, invite} = Invite.generate(user, %System{})
 
       response = request(user.email, invite.token, "short", "short")
 
@@ -90,7 +155,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
     test "returns :invalid_parameter error if a required parameter is missing" do
       {:ok, user} = :admin |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
+      {:ok, invite} = Invite.generate(user, %System{})
 
       # Missing passwords
       response =

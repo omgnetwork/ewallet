@@ -1,6 +1,7 @@
 defmodule EWalletAPI.V1.VerifyEmailControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Invite, User}
+  alias ActivityLogger.System
 
   describe "verify/2" do
     defp verify_email(email, token) do
@@ -10,7 +11,7 @@ defmodule EWalletAPI.V1.VerifyEmailControllerTest do
 
     test "redirects to the default success_url when invite.success_url is not given" do
       {:ok, user} = :standalone_user |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
+      {:ok, invite} = Invite.generate(user, %System{})
 
       conn = verify_email(user.email, invite.token)
 
@@ -19,7 +20,9 @@ defmodule EWalletAPI.V1.VerifyEmailControllerTest do
 
     test "redirects to the invite.success_url on success" do
       {:ok, user} = :standalone_user |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user, success_url: "https://example.com/success_url")
+
+      {:ok, invite} =
+        Invite.generate(user, %System{}, success_url: "https://example.com/success_url")
 
       conn = verify_email(user.email, invite.token)
 
@@ -28,7 +31,7 @@ defmodule EWalletAPI.V1.VerifyEmailControllerTest do
 
     test "returns an error when the email is invalid" do
       {:ok, user} = :standalone_user |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
+      {:ok, invite} = Invite.generate(user, %System{})
 
       conn = verify_email("wrong@example.com", invite.token)
       response = text_response(conn, :ok)
@@ -39,7 +42,7 @@ defmodule EWalletAPI.V1.VerifyEmailControllerTest do
 
     test "returns an error when the token is invalid" do
       {:ok, user} = :standalone_user |> params_for() |> User.insert()
-      {:ok, _invite} = Invite.generate(user)
+      {:ok, _invite} = Invite.generate(user, %System{})
 
       conn = verify_email(user.email, "wrong_token")
       response = text_response(conn, :ok)

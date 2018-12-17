@@ -9,6 +9,10 @@ defmodule EWalletConfig.Application do
     import Supervisor.Spec
     DeferredConfig.populate(:ewallet_config)
 
+    ActivityLogger.configure(%{
+      EWalletConfig.StoredSetting => "setting"
+    })
+
     # List all child processes to be supervised
     children = [
       # Starts a worker by calling: EWalletConfig.Worker.start_link(arg)

@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.TransactionGate
   alias EWalletDB.{Account, Repo, Transaction, User}
+  alias ActivityLogger.System
 
   # credo:disable-for-next-line
   setup do
@@ -23,7 +24,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
         "to_address" => wallet_2.address,
         "amount" => 1,
         "token_id" => token.id,
-        "idempotency_token" => "1231"
+        "idempotency_token" => "1231",
+        "originator" => %System{}
       })
 
     assert transaction_1.status == "confirmed"
@@ -37,7 +39,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
         "to_address" => wallet_1.address,
         "amount" => 1,
         "token_id" => token.id,
-        "idempotency_token" => "1232"
+        "idempotency_token" => "1232",
+        "originator" => %System{}
       })
 
     assert transaction_2.status == "confirmed"
@@ -48,7 +51,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
         "to_address" => wallet_3.address,
         "amount" => 1,
         "token_id" => token.id,
-        "idempotency_token" => "1233"
+        "idempotency_token" => "1233",
+        "originator" => %System{}
       })
 
     assert transaction_3.status == "confirmed"
@@ -74,7 +78,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
         "to_address" => wallet_2.address,
         "amount" => 1,
         "token_id" => token.id,
-        "idempotency_token" => "1237"
+        "idempotency_token" => "1237",
+        "originator" => %System{}
       })
 
     assert transaction_7.status == "confirmed"
@@ -289,7 +294,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
           "per_page" => 50
         })
 
-      assert length(response["data"]["data"]) == 13
+      # 13 account transactions + 2 user transactions
+      assert length(response["data"]["data"]) == 15
     end
 
     test "returns all the transactions when owned is true", meta do
@@ -315,7 +321,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
           "per_page" => 50
         })
 
-      assert length(response["data"]["data"]) == 13
+      assert length(response["data"]["data"]) == 15
     end
 
     test "returns all the transactions for a specific address", meta do
@@ -353,12 +359,13 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
           "search_term" => "pending"
         })
 
-      assert response["data"]["data"] |> length() == 2
+      assert response["data"]["data"] |> length() == 3
 
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
                meta.transaction_4.id,
+               meta.transaction_6.id,
                meta.transaction_8.id
              ]
     end
@@ -779,6 +786,78 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
                "messages" => nil,
                "object" => "error"
              }
+    end
+
+    test "generates an activity log" do
+      token = insert(:token)
+      mint!(token)
+
+      wallet_1 = insert(:wallet)
+      wallet_2 = insert(:wallet)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token,
+        amount: 2_000_000
+      })
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/transaction.create", %{
+          "idempotency_token" => "123",
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "token_id" => token.id,
+          "amount" => 1_000_000
+        })
+
+      assert response["success"] == true
+
+      transaction = Transaction.get(response["data"]["id"])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 2
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_key(),
+        target: transaction,
+        changes: %{
+          "from" => wallet_1.address,
+          "from_amount" => 1_000_000,
+          "from_token_uuid" => token.uuid,
+          "from_user_uuid" => wallet_1.user.uuid,
+          "idempotency_token" => "123",
+          "to" => wallet_2.address,
+          "to_amount" => 1_000_000,
+          "to_token_uuid" => token.uuid,
+          "to_user_uuid" => wallet_2.user.uuid
+        },
+        encrypted_changes: %{
+          "payload" => %{
+            "amount" => 1_000_000,
+            "from_address" => wallet_1.address,
+            "idempotency_token" => "123",
+            "to_address" => wallet_2.address,
+            "token_id" => token.id
+          }
+        }
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: transaction,
+        changes: %{
+          "local_ledger_uuid" => transaction.local_ledger_uuid,
+          "status" => "confirmed"
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 
@@ -1233,6 +1312,98 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
                "messages" => nil,
                "object" => "error"
              }
+    end
+
+    test "generates an activity log" do
+      account = Account.get_master_account()
+      account_wallet = Account.get_primary_wallet(account)
+      {:ok, user_1} = :user |> params_for() |> User.insert()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
+
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token_1,
+        amount: 2_000_000
+      })
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/transaction.create", %{
+          "idempotency_token" => "12344",
+          "exchange_account_id" => account.id,
+          "from_amount" => 1_000,
+          "from_token_id" => token_1.id,
+          "from_address" => wallet_1.address,
+          "to_amount" => 1_000 * pair.rate,
+          "to_token_id" => token_2.id,
+          "to_address" => wallet_2.address
+        })
+
+      assert response["success"] == true
+
+      transaction = Transaction.get(response["data"]["id"])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 2
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_key(),
+        target: transaction,
+        changes: %{
+          "from" => wallet_1.address,
+          "from_token_uuid" => token_1.uuid,
+          "from_user_uuid" => user_1.uuid,
+          "to" => wallet_2.address,
+          "to_token_uuid" => token_2.uuid,
+          "to_user_uuid" => user_2.uuid,
+          "from_amount" => 1000,
+          "idempotency_token" => "12344",
+          "to_amount" => 2000,
+          "calculated_at" => NaiveDateTime.to_iso8601(transaction.calculated_at),
+          "exchange_account_uuid" => account.uuid,
+          "exchange_pair_uuid" => pair.uuid,
+          "exchange_wallet_address" => account_wallet.address,
+          "rate" => 2.0
+        },
+        encrypted_changes: %{
+          "payload" => %{
+            "from_address" => wallet_1.address,
+            "to_address" => wallet_2.address,
+            "idempotency_token" => "12344",
+            "exchange_account_id" => account.id,
+            "from_amount" => 1000,
+            "from_token_id" => token_1.id,
+            "to_amount" => 2000,
+            "to_token_id" => token_2.id
+          }
+        }
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: transaction,
+        changes: %{
+          "local_ledger_uuid" => transaction.local_ledger_uuid,
+          "status" => "confirmed"
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

@@ -1,11 +1,13 @@
 # credo:disable-for-this-file
 defmodule EWalletDB.Repo.Seeds.AccountSeed do
   alias EWalletDB.Account
+  alias EWalletDB.Seeder
 
   @seed_data %{
     name: "master_account",
     description: "Master Account",
     parent_id: nil,
+    originator: %Seeder{}
   }
 
   def seed do

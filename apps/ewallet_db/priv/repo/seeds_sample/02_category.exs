@@ -1,10 +1,11 @@
 defmodule EWalletDB.Repo.Seeds.CategorySampleSeed do
   alias EWallet.Web.Preloader
   alias EWalletDB.{Account, Category}
+  alias EWalletDB.Seeder
 
   @seed_data [
-    %{name: "category1", description: "Sample Category 1", account_names: ["brand1", "branch1"]},
-    %{name: "category2", description: "Sample Category 2", account_names: ["brand2", "branch2"]},
+    %{name: "category1", description: "Sample Category 1", account_names: ["brand1", "branch1"], originator: %Seeder{}},
+    %{name: "category2", description: "Sample Category 2", account_names: ["brand2", "branch2"], originator: %Seeder{}},
   ]
 
   def seed do
@@ -57,7 +58,7 @@ defmodule EWalletDB.Repo.Seeds.CategorySampleSeed do
         Enum.each(data.account_names, fn(name) ->
           [name: name]
           |> Account.get_by()
-          |> Account.add_category(category)
+          |> Account.add_category(category, %Seeder{})
         end)
         {:ok, category}
 

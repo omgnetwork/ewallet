@@ -3,7 +3,8 @@ defmodule EWalletDB.Mint do
   Ecto Schema representing mints.
   """
   use Ecto.Schema
-  use EWalletConfig.Types.ExternalID
+  use Utils.Types.ExternalID
+  use ActivityLogger.ActivityLogging
   import Ecto.{Query, Changeset}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
@@ -15,7 +16,7 @@ defmodule EWalletDB.Mint do
     external_id(prefix: "mnt_")
 
     field(:description, :string)
-    field(:amount, EWalletConfig.Types.Integer)
+    field(:amount, Utils.Types.Integer)
     field(:confirmed, :boolean, default: false)
 
     belongs_to(
@@ -43,12 +44,22 @@ defmodule EWalletDB.Mint do
     )
 
     timestamps()
+    activity_logging()
   end
 
   defp changeset(%Mint{} = mint, attrs) do
     mint
-    |> cast(attrs, [:description, :amount, :account_uuid, :token_uuid, :confirmed])
-    |> validate_required([:amount, :token_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [
+        :description,
+        :amount,
+        :account_uuid,
+        :token_uuid,
+        :confirmed
+      ],
+      required: [:amount, :token_uuid]
+    )
     |> validate_number(
       :amount,
       greater_than: 0,
@@ -64,8 +75,11 @@ defmodule EWalletDB.Mint do
 
   defp update_changeset(%Mint{} = mint, attrs) do
     mint
-    |> cast(attrs, [:transaction_uuid])
-    |> validate_required([:transaction_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:transaction_uuid],
+      required: [:transaction_uuid]
+    )
     |> assoc_constraint(:transaction)
   end
 
@@ -78,7 +92,7 @@ defmodule EWalletDB.Mint do
     |> where([m], m.token_uuid == ^token.uuid)
     |> select([m], sum(m.amount))
     |> Repo.one()
-    |> EWalletConfig.Types.Integer.load!()
+    |> Utils.Types.Integer.load!()
   end
 
   @doc """
@@ -108,7 +122,7 @@ defmodule EWalletDB.Mint do
   def insert(attrs) do
     %Mint{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
   end
 
   @doc """
@@ -116,27 +130,24 @@ defmodule EWalletDB.Mint do
   """
   @spec update(mint :: %Mint{}, attrs :: map()) :: {:ok, %Mint{}} | {:error, Ecto.Changeset.t()}
   def update(%Mint{} = mint, attrs) do
-    changeset = update_changeset(mint, attrs)
-
-    case Repo.update(changeset) do
-      {:ok, mint} ->
-        {:ok, mint}
-
-      result ->
-        result
-    end
+    mint
+    |> update_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
   Confirms a mint.
   """
-  def confirm(%Mint{confirmed: true} = mint), do: mint
+  def confirm(%Mint{confirmed: true} = mint, _), do: mint
 
-  def confirm(%Mint{confirmed: false} = mint) do
+  def confirm(%Mint{confirmed: false} = mint, originator) do
     {:ok, mint} =
       mint
-      |> changeset(%{confirmed: true})
-      |> Repo.update()
+      |> changeset(%{
+        confirmed: true,
+        originator: originator
+      })
+      |> Repo.update_record_with_activity_log()
 
     mint
   end

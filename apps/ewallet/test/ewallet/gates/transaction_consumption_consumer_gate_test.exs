@@ -8,6 +8,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
   }
 
   alias EWalletDB.{Token, TransactionConsumption, TransactionRequest, User, Wallet}
+  alias ActivityLogger.System
 
   setup do
     {:ok, pid} = TestEndpoint.start_link()
@@ -59,7 +60,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => nil,
-          "account_id" => nil
+          "account_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == {:error, :account_id_not_found}
@@ -74,7 +76,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => nil,
-          "account_id" => "fake"
+          "account_id" => "fake",
+          "originator" => %System{}
         })
 
       assert res == {:error, :account_id_not_found}
@@ -90,7 +93,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "account_id" => meta.account.id,
-          "address" => nil
+          "address" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -106,7 +110,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => nil,
-          "account_id" => meta.account.id
+          "account_id" => meta.account.id,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -123,7 +128,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "account_id" => meta.account.id,
-          "address" => meta.account_wallet.address
+          "address" => meta.account_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -144,7 +150,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "token_id" => nil,
           "account_id" => meta.account.id,
           "provider_user_id" => meta.sender.provider_user_id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -163,7 +170,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "token_id" => nil,
           "account_id" => meta.account.id,
           "provider_user_id" => meta.sender.provider_user_id,
-          "address" => meta.account_wallet.address
+          "address" => meta.account_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == {:error, :user_wallet_mismatch}
@@ -179,7 +187,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "account_id" => meta.account.id,
-          "address" => "fake-0000-0000-0000"
+          "address" => "fake-0000-0000-0000",
+          "originator" => %System{}
         })
 
       assert res == {:error, :account_wallet_not_found}
@@ -195,7 +204,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "account_id" => meta.account.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == {:error, :account_wallet_mismatch}
@@ -222,7 +232,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -237,7 +248,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "1234",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -253,7 +265,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
-          "provider_user_id" => nil
+          "provider_user_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == {:error, :provider_user_id_not_found}
@@ -268,7 +281,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => nil,
-          "provider_user_id" => "fake"
+          "provider_user_id" => "fake",
+          "originator" => %System{}
         })
 
       assert res == {:error, :provider_user_id_not_found}
@@ -285,7 +299,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => nil,
-          "provider_user_id" => meta.sender.provider_user_id
+          "provider_user_id" => meta.sender.provider_user_id,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -295,7 +310,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     test "with valid provider_user_id and a valid address", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
-      {res, request} =
+      {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
           "formatted_transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
@@ -304,11 +319,12 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "provider_user_id" => meta.sender.provider_user_id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
-      assert %TransactionConsumption{} = request
+      assert %TransactionConsumption{} = consumption
     end
 
     test "with valid provider_user_id and an invalid address", meta do
@@ -321,7 +337,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "provider_user_id" => meta.sender.provider_user_id,
-          "address" => "fake-0000-0000-0000"
+          "address" => "fake-0000-0000-0000",
+          "originator" => %System{}
         })
 
       assert res == {:error, :user_wallet_not_found}
@@ -337,7 +354,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "provider_user_id" => meta.sender.provider_user_id,
-          "address" => meta.receiver_wallet.address
+          "address" => meta.receiver_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == {:error, :user_wallet_mismatch}
@@ -354,7 +372,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => nil,
-          "address" => nil
+          "address" => nil,
+          "originator" => %System{}
         })
 
       assert res == {:error, :wallet_not_found}
@@ -369,7 +388,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => nil,
-          "address" => meta.account_wallet.address
+          "address" => meta.account_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -385,14 +405,19 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => nil,
-          "address" => "fake-0000-0000-0000"
+          "address" => "fake-0000-0000-0000",
+          "originator" => %System{}
         })
 
       assert res == {:error, :wallet_not_found}
     end
 
     test "receives an error when the token is disabled", meta do
-      {:ok, token} = Token.enable_or_disable(meta.token, %{enabled: false})
+      {:ok, token} =
+        Token.enable_or_disable(meta.token, %{
+          enabled: false,
+          originator: %System{}
+        })
 
       {res, code} =
         TransactionConsumptionConsumerGate.consume(%{
@@ -402,7 +427,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => token.id,
-          "address" => meta.account_wallet.address
+          "address" => meta.account_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -414,10 +440,15 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         Wallet.insert_secondary_or_burn(%{
           "account_uuid" => meta.account.uuid,
           "name" => "MySecondary",
-          "identifier" => "secondary"
+          "identifier" => "secondary",
+          "originator" => %System{}
         })
 
-      {:ok, wallet} = Wallet.enable_or_disable(wallet, %{enabled: false})
+      {:ok, wallet} =
+        Wallet.enable_or_disable(wallet, %{
+          enabled: false,
+          originator: %System{}
+        })
 
       {res, code} =
         TransactionConsumptionConsumerGate.consume(%{
@@ -427,7 +458,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => nil,
-          "address" => wallet.address
+          "address" => wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -444,7 +476,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "amount" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == {:error, :invalid_parameter}
@@ -460,7 +493,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       {res, consumption_1} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => meta.request.id,
-          "idempotency_token" => "123"
+          "idempotency_token" => "123",
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -475,7 +509,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       {res, consumption_2} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => meta.request.id,
-          "idempotency_token" => "123"
+          "idempotency_token" => "123",
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -503,7 +538,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -520,7 +556,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -551,7 +588,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -567,7 +605,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -601,7 +640,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -628,7 +668,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => meta.sender_wallet.address,
           "metadata" => %{},
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -640,7 +681,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
     test "returns an 'expired_transaction_request' error when the request is expired", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, request} = TransactionRequest.expire(meta.request)
+      {:ok, request} = TransactionRequest.expire(meta.request, %System{})
 
       {res, error} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
@@ -650,7 +691,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => meta.sender_wallet.address,
           "metadata" => %{},
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -681,7 +723,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -695,7 +738,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -728,7 +772,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -742,7 +787,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "1234",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -751,7 +797,12 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
     test "allows only one consume per user with four consumes at the same time", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions_per_user: 1})
+
+      {:ok, request} =
+        TransactionRequest.update(meta.request, %{
+          max_consumptions_per_user: 1,
+          originator: %System{}
+        })
 
       pid = self()
 
@@ -770,7 +821,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
               "address" => nil,
               "metadata" => nil,
               "idempotency_token" => "1",
-              "token_id" => nil
+              "token_id" => nil,
+              "originator" => %System{}
             })
 
           send(pid, {:updated_1, res, response})
@@ -791,7 +843,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
               "address" => nil,
               "metadata" => nil,
               "idempotency_token" => "2",
-              "token_id" => nil
+              "token_id" => nil,
+              "originator" => %System{}
             })
 
           send(pid, {:updated_2, res, response})
@@ -812,7 +865,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
               "address" => nil,
               "metadata" => nil,
               "idempotency_token" => "3",
-              "token_id" => nil
+              "token_id" => nil,
+              "originator" => %System{}
             })
 
           send(pid, {:updated_3, res, response})
@@ -833,7 +887,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
               "address" => nil,
               "metadata" => nil,
               "idempotency_token" => "4",
-              "token_id" => nil
+              "token_id" => nil,
+              "originator" => %System{}
             })
 
           send(pid, {:updated_4, res, response})
@@ -877,7 +932,12 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
          same idempotency_token",
          meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
+
+      {:ok, request} =
+        TransactionRequest.update(meta.request, %{
+          max_consumptions: 1,
+          originator: %System{}
+        })
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
@@ -887,7 +947,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -901,7 +962,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -913,7 +975,12 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           consumptions has been reached",
          meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
+
+      {:ok, request} =
+        TransactionRequest.update(meta.request, %{
+          max_consumptions: 1,
+          originator: %System{}
+        })
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
@@ -923,7 +990,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -937,7 +1005,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "1234",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -946,7 +1015,12 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
     test "allows only one consume with four consumes at the same time", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
+
+      {:ok, request} =
+        TransactionRequest.update(meta.request, %{
+          max_consumptions: 1,
+          originator: %System{}
+        })
 
       pid = self()
 
@@ -965,7 +1039,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
               "address" => nil,
               "metadata" => nil,
               "idempotency_token" => "1",
-              "token_id" => nil
+              "token_id" => nil,
+              "originator" => %System{}
             })
 
           send(pid, {:updated_1, res, response})
@@ -986,7 +1061,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
               "address" => nil,
               "metadata" => nil,
               "idempotency_token" => "2",
-              "token_id" => nil
+              "token_id" => nil,
+              "originator" => %System{}
             })
 
           send(pid, {:updated_2, res, response})
@@ -1007,7 +1083,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
               "address" => nil,
               "metadata" => nil,
               "idempotency_token" => "3",
-              "token_id" => nil
+              "token_id" => nil,
+              "originator" => %System{}
             })
 
           send(pid, {:updated_3, res, response})
@@ -1028,7 +1105,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
               "address" => nil,
               "metadata" => nil,
               "idempotency_token" => "4",
-              "token_id" => nil
+              "token_id" => nil,
+              "originator" => %System{}
             })
 
           send(pid, {:updated_4, res, response})
@@ -1053,7 +1131,12 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           increment it",
          meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 2})
+
+      {:ok, request} =
+        TransactionRequest.update(meta.request, %{
+          max_consumptions: 2,
+          originator: %System{}
+        })
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
@@ -1063,7 +1146,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -1077,7 +1161,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "1234",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -1095,7 +1180,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
       {:ok, request} =
         TransactionRequest.update(meta.request, %{
-          max_consumptions: 1
+          max_consumptions: 1,
+          originator: %System{}
         })
 
       {res, consumption} =
@@ -1106,7 +1192,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => meta.sender_wallet.address,
           "metadata" => %{},
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -1120,7 +1207,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "1234",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -1134,7 +1222,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
       {:ok, request} =
         TransactionRequest.update(meta.request, %{
-          require_confirmation: true
+          require_confirmation: true,
+          originator: %System{}
         })
 
       {res, consumption_1} =
@@ -1145,7 +1234,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => meta.sender_wallet.address,
           "metadata" => %{},
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -1159,7 +1249,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => meta.sender_wallet.address,
           "metadata" => %{},
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -1176,7 +1267,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         TransactionRequest.update(meta.request, %{
           require_confirmation: true,
           # 60 seconds
-          consumption_lifetime: 60_000
+          consumption_lifetime: 60_000,
+          originator: %System{}
         })
 
       {res, consumption} =
@@ -1187,7 +1279,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => meta.sender_wallet.address,
           "metadata" => %{},
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -1203,7 +1296,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       {:ok, request} =
         TransactionRequest.update(meta.request, %{
           # 60 seconds
-          consumption_lifetime: 60_000
+          consumption_lifetime: 60_000,
+          originator: %System{}
         })
 
       {res, consumption} =
@@ -1214,7 +1308,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => meta.sender_wallet.address,
           "metadata" => %{},
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -1227,7 +1322,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
       {:ok, request} =
         TransactionRequest.update(meta.request, %{
-          allow_amount_override: true
+          allow_amount_override: true,
+          originator: %System{}
         })
 
       {res, consumption} =
@@ -1238,7 +1334,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => meta.sender_wallet.address,
           "metadata" => %{},
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -1253,7 +1350,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
       {:ok, request} =
         TransactionRequest.update(meta.request, %{
-          allow_amount_override: false
+          allow_amount_override: false,
+          originator: %System{}
         })
 
       {res, error} =
@@ -1264,7 +1362,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => meta.sender_wallet.address,
           "metadata" => %{},
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -1301,7 +1400,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => meta.sender_wallet.address,
           "metadata" => %{},
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -1322,7 +1422,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -1335,7 +1436,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -1362,7 +1464,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => nil,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -1383,7 +1486,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => "fake-0000-0000-0000",
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -1402,7 +1506,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => wallet.address,
           "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil
+          "token_id" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -1414,7 +1519,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "correlation_id" => nil,
           "amount" => nil,
-          "metadata" => nil
+          "metadata" => nil,
+          "originator" => %System{}
         })
 
       assert res == :error

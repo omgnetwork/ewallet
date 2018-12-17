@@ -2,12 +2,16 @@ defmodule EWallet.Web.UrlValidatorTest do
   use EWallet.DBCase
   alias EWallet.Web.UrlValidator
   alias EWalletConfig.Config
+  alias ActivityLogger.System
 
   describe "allowed_redirect_url?/1" do
     test "returns true if the given url has the whitelisted prefix", meta do
-      {:ok, _settings} =
+      {:ok, [redirect_url_prefixes: {:ok, _}]} =
         Config.update(
-          [redirect_url_prefixes: ["http://test_redirect_prefix"]],
+          [
+            redirect_url_prefixes: ["http://test_redirect_prefix"],
+            originator: %System{}
+          ],
           meta[:config_pid]
         )
 

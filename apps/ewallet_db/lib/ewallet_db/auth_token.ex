@@ -3,11 +3,12 @@ defmodule EWalletDB.AuthToken do
   Ecto Schema representing an authentication token.
   """
   use Ecto.Schema
-  use EWalletConfig.Types.ExternalID
+  use Utils.Types.ExternalID
+  use ActivityLogger.ActivityLogging
   import Ecto.Changeset
   import Ecto.Query, only: [from: 2]
   alias Ecto.UUID
-  alias EWalletConfig.Helpers.Crypto
+  alias Utils.Helpers.Crypto
   alias EWalletDB.{Account, AuthToken, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -37,54 +38,68 @@ defmodule EWalletDB.AuthToken do
 
     field(:expired, :boolean)
     timestamps()
+    activity_logging()
   end
 
   defp changeset(%AuthToken{} = token, attrs) do
     token
-    |> cast(attrs, [:token, :owner_app, :user_uuid, :account_uuid, :expired])
-    |> validate_required([:token, :owner_app, :user_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:token, :owner_app, :user_uuid, :account_uuid, :expired],
+      required: [:token, :owner_app, :user_uuid]
+    )
     |> unique_constraint(:token)
     |> assoc_constraint(:user)
   end
 
   defp expire_changeset(%AuthToken{} = token, attrs) do
     token
-    |> cast(attrs, [:expired])
-    |> validate_required([:expired])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:expired],
+      required: [:expired]
+    )
   end
 
   defp switch_account_changeset(%AuthToken{} = token, attrs) do
     token
-    |> cast(attrs, [:account_uuid])
-    |> validate_required([:account_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:account_uuid],
+      required: [:account_uuid]
+    )
   end
 
-  @spec switch_account(%__MODULE__{}, %Account{}) ::
+  @spec switch_account(%__MODULE__{}, %Account{}, map()) ::
           {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
-  def switch_account(token, account) do
+  def switch_account(token, account, originator) do
     token
-    |> switch_account_changeset(%{account_uuid: account.uuid})
-    |> Repo.update()
+    |> switch_account_changeset(%{
+      account_uuid: account.uuid,
+      originator: originator
+    })
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
   Generate an auth token for the specified user,
   then returns the auth token string.
   """
-  def generate(%User{} = user, owner_app) when is_atom(owner_app) do
+  def generate(%User{} = user, owner_app, originator) when is_atom(owner_app) do
     account = User.get_account(user)
 
     attrs = %{
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: if(account, do: account.uuid, else: nil),
-      token: Crypto.generate_base64_key(@key_length)
+      token: Crypto.generate_base64_key(@key_length),
+      originator: originator
     }
 
     insert(attrs)
   end
 
-  def generate(_, _), do: {:error, :invalid_parameter}
+  def generate(_, _, _), do: {:error, :invalid_parameter}
 
   @doc """
   Retrieves an auth token using the specified token.
@@ -159,18 +174,21 @@ defmodule EWalletDB.AuthToken do
   defp insert(attrs) do
     %AuthToken{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
   end
 
   # Expires the given token.
-  def expire(token, owner_app) when is_binary(token) and is_atom(owner_app) do
+  def expire(token, owner_app, originator) when is_binary(token) and is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
-    |> expire()
+    |> expire(originator)
   end
 
-  def expire(%AuthToken{} = token) do
-    update(token, %{expired: true})
+  def expire(%AuthToken{} = token, originator) do
+    update(token, %{
+      expired: true,
+      originator: originator
+    })
   end
 
   def expire_for_user(%{enabled: true}), do: :ok
@@ -192,6 +210,6 @@ defmodule EWalletDB.AuthToken do
   defp update(%AuthToken{} = token, attrs) do
     token
     |> expire_changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 end

@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.ProviderAuth.SelfControllerTest do
   use AdminAPI.ConnCase, async: true
   import Ecto.Query
   alias EWalletDB.{Membership, Repo}
+  alias ActivityLogger.System
 
   @update_email_url "http://localhost:4000/update_email?email={email}&token={token}"
 
@@ -92,7 +93,7 @@ defmodule AdminAPI.V1.ProviderAuth.SelfControllerTest do
 
       # Clear all memberships for this user then add just one for precision
       Repo.delete_all(from(m in Membership, where: m.user_uuid == ^user.uuid))
-      Membership.assign(user, account, "admin")
+      Membership.assign(user, account, "admin", %System{})
 
       response = provider_request("/me.get_accounts")
 
