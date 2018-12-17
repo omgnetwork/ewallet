@@ -1,6 +1,6 @@
 alias EWallet.CLI
 alias EWalletConfig.Config
-alias EWalletDB.AuthToken
+alias EWalletDB.{AuthToken, Seeder}
 
 # :prod environment does not have a default :base_url value and should not have one.
 # But we have a fallback value here so we can generate a friendly output message for seeding.
@@ -15,7 +15,7 @@ admin_api_swagger_ui_url = base_url <> "/api/admin/docs"
 api_key_id              = Application.get_env(:ewallet, :seed_admin_api_key).id
 api_key                 = Application.get_env(:ewallet, :seed_admin_api_key).key
 admin                   = Application.get_env(:ewallet, :seed_admin_user)
-{:ok, admin_auth_token} = AuthToken.generate(admin, :admin_api)
+{:ok, admin_auth_token} = AuthToken.generate(admin, :admin_api, %Seeder{})
 
 # Output the seeding result
 CLI.heading("Setting up the OmiseGO eWallet Server")

@@ -1,7 +1,8 @@
 defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.Category
+  alias EWalletDB.{Category, Repo}
   alias EWalletDB.Helpers.Preloader
+  alias ActivityLogger.System
 
   describe "/category.all" do
     test "returns a list of categories and pagination data" do
@@ -101,6 +102,28 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
     end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+      request_data = %{name: "A test category"}
+      response = admin_user_request("/category.create", request_data)
+
+      assert response["success"] == true
+
+      category = Category.get(response["data"]["id"])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_admin(),
+        target: category,
+        changes: %{"name" => "A test category"},
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/category.update" do
@@ -163,6 +186,35 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert response["data"]["description"] ==
                "There is no category corresponding to the provided id."
     end
+
+    test "generates an activity log" do
+      category = insert(:category)
+      timestamp = DateTime.utc_now()
+
+      request_data =
+        params_for(:category, %{
+          id: category.id,
+          name: "updated_name",
+          description: "updated_description"
+        })
+
+      response = admin_user_request("/category.update", request_data)
+
+      assert response["success"] == true
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_admin(),
+        target: category,
+        changes: %{"name" => "updated_name", "description" => "updated_description"},
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/category.delete" do
@@ -181,7 +233,10 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       {:ok, category} =
         :category
         |> insert()
-        |> Category.update(%{account_ids: [account.id]})
+        |> Category.update(%{
+          account_ids: [account.id],
+          originator: %System{}
+        })
 
       response = admin_user_request("/category.delete", %{id: category.id})
 
@@ -233,6 +288,29 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
                    "object" => "error"
                  }
                }
+    end
+
+    test "generates an activity log" do
+      category = insert(:category)
+      timestamp = DateTime.utc_now()
+
+      response = admin_user_request("/category.delete", %{id: category.id})
+
+      assert response["success"] == true
+
+      category = Repo.get_by(Category, %{id: category.id})
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_admin(),
+        target: category,
+        changes: %{"deleted_at" => NaiveDateTime.to_iso8601(category.deleted_at)},
+        encrypted_changes: %{}
+      )
     end
   end
 end

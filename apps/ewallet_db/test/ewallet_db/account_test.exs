@@ -2,6 +2,7 @@ defmodule EWalletDB.AccountTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.Helpers.Preloader
   alias EWalletDB.{Account, Repo}
+  alias ActivityLogger.System
 
   describe "Account factory" do
     test_has_valid_factory(Account)
@@ -22,7 +23,7 @@ defmodule EWalletDB.AccountTest do
     end
 
     test "inserts and associates categories when provided a list of category_ids" do
-      [cat1, cat2] = insert_list(2, :category)
+      [cat1, cat2] = insert_list(2, :category, originator: nil)
 
       {:ok, account} =
         :account
@@ -85,14 +86,14 @@ defmodule EWalletDB.AccountTest do
   end
 
   describe "update/2" do
-    test_update_field_ok(Account, :name, insert(:admin))
-    test_update_field_ok(Account, :description, insert(:admin))
+    test_update_field_ok(Account, :name)
+    test_update_field_ok(Account, :description)
   end
 
   describe "update/2 with category_ids" do
     test "associates the category if it's been added to category_ids" do
       # Prepare 4 categories. We will start off the account with 2, add 1, and leave one behind.
-      [cat1, cat2, cat3, _not_used] = insert_list(4, :category)
+      [cat1, cat2, cat3, _not_used] = insert_list(4, :category, originator: nil)
 
       {:ok, account} =
         :account
@@ -104,14 +105,18 @@ defmodule EWalletDB.AccountTest do
       assert_categories(account, [cat1, cat2])
 
       # Now update with additional category_ids
-      {:ok, updated} = Account.update(account, %{category_ids: [cat1.id, cat2.id, cat3.id]})
+      {:ok, updated} =
+        Account.update(account, %{
+          category_ids: [cat1.id, cat2.id, cat3.id],
+          originator: %System{}
+        })
 
       # Assert that the 3rd category is added
       assert_categories(updated, [cat1, cat2, cat3])
     end
 
     test "removes the category if it's no longer in the category_ids" do
-      [cat1, cat2] = insert_list(2, :category)
+      [cat1, cat2] = insert_list(2, :category, originator: nil)
 
       {:ok, account} =
         :account
@@ -123,14 +128,18 @@ defmodule EWalletDB.AccountTest do
       assert_categories(account, [cat1, cat2])
 
       # Now update by removing a category from category_ids
-      {:ok, updated} = Account.update(account, %{category_ids: [cat1.id]})
+      {:ok, updated} =
+        Account.update(account, %{
+          category_ids: [cat1.id],
+          originator: %System{}
+        })
 
       # Only one category should be left
       assert_categories(updated, [cat1])
     end
 
     test "removes all categories if category_ids is an empty list" do
-      [cat1, cat2] = insert_list(2, :category)
+      [cat1, cat2] = insert_list(2, :category, originator: nil)
 
       {:ok, account} =
         :account
@@ -142,14 +151,18 @@ defmodule EWalletDB.AccountTest do
       assert_categories(account, [cat1, cat2])
 
       # Now update by setting category_ids to an empty list
-      {:ok, updated} = Account.update(account, %{category_ids: []})
+      {:ok, updated} =
+        Account.update(account, %{
+          category_ids: [],
+          originator: %System{}
+        })
 
       # No category should be left
       assert_categories(updated, [])
     end
 
     test "does nothing if category_ids is nil" do
-      [cat1, cat2] = insert_list(2, :category)
+      [cat1, cat2] = insert_list(2, :category, originator: nil)
 
       {:ok, account} =
         :account
@@ -161,7 +174,11 @@ defmodule EWalletDB.AccountTest do
       assert_categories(account, [cat1, cat2])
 
       # Now update by passing a nil category_ids
-      {:ok, updated} = Account.update(account, %{category_ids: nil})
+      {:ok, updated} =
+        Account.update(account, %{
+          category_ids: nil,
+          originator: %System{}
+        })
 
       # The categories should remain the same
       assert_categories(updated, [cat1, cat2])
@@ -416,7 +433,7 @@ defmodule EWalletDB.AccountTest do
 
   describe "add_category/2" do
     test "returns an account with the added category" do
-      [cat1, cat2] = insert_list(2, :category)
+      [cat1, cat2] = insert_list(2, :category, originator: nil)
 
       account =
         :account
@@ -425,7 +442,7 @@ defmodule EWalletDB.AccountTest do
 
       assert account.categories == [cat1]
 
-      {:ok, account} = Account.add_category(account, cat2)
+      {:ok, account} = Account.add_category(account, cat2, %System{})
       account = Account.get(account.id, preload: :categories)
 
       assert Enum.member?(account.categories, cat1)
@@ -436,7 +453,7 @@ defmodule EWalletDB.AccountTest do
 
   describe "remove_category/2" do
     test "returns an account with the removed category" do
-      [cat1, cat2] = insert_list(2, :category)
+      [cat1, cat2] = insert_list(2, :category, originator: nil)
 
       account =
         :account
@@ -447,7 +464,7 @@ defmodule EWalletDB.AccountTest do
       assert Enum.member?(account.categories, cat2)
       assert Enum.count(account.categories) == 2
 
-      {:ok, account} = Account.remove_category(account, cat1)
+      {:ok, account} = Account.remove_category(account, cat1, %System{})
       account = Account.get(account.id, preload: :categories)
 
       assert Enum.member?(account.categories, cat2)

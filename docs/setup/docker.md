@@ -44,8 +44,6 @@ services:
       LOCAL_LEDGER_DATABASE_URL: "postgresql://postgres:passw0rd@postgres:5432/local_ledger"
       EWALLET_SECRET_KEY: "<ewallet_secret_key_here>"
       LOCAL_LEDGER_SECRET_KEY: "<local_ledger_secret_key_here>"
-      SMTP_HOST: mailhog
-      SMTP_PORT: 1025
     ports:
       - 4000:4000
 

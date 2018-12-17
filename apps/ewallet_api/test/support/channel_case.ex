@@ -47,11 +47,13 @@ defmodule EWalletAPI.ChannelCase do
     :ok = Sandbox.checkout(EWalletConfig.Repo)
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
+    :ok = Sandbox.checkout(ActivityLogger.Repo)
 
     unless tags[:async] do
       Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
       Sandbox.mode(EWalletDB.Repo, {:shared, self()})
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+      Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
     config_pid = start_supervised!(EWalletConfig.Config)

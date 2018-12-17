@@ -39,7 +39,10 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
   defp run_with(writer, {key, data}) do
     case Config.get_setting(key) do
       nil ->
-        case Config.insert(data) do
+        data
+        |> Map.put(:originator, %EWalletDB.Seeder{})
+        |> Config.insert()
+        |> case do
           {:ok, setting} ->
             writer.success("""
               Key      : #{setting.key}

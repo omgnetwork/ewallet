@@ -2,10 +2,11 @@ defmodule EWallet.InviteEmailTest do
   use EWallet.DBCase
   alias EWallet.InviteEmail
   alias EWalletDB.{Invite, User}
+  alias ActivityLogger.System
 
   defp create_email(email) do
     {:ok, admin} = :admin |> params_for(email: email) |> User.insert()
-    {:ok, invite} = Invite.generate(admin)
+    {:ok, invite} = Invite.generate(admin, %System{})
 
     {InviteEmail.create(invite, "https://invite_url/?email={email}&token={token}"), invite.token}
   end

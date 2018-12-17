@@ -2,7 +2,7 @@ defmodule EWallet.PolicyHelper do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
-  alias EWalletConfig.Intersecter
+  alias Utils.Intersecter
   alias EWalletDB.{Account, Membership, Role}
 
   def admin_authorize(user, account_id_or_uuids) do

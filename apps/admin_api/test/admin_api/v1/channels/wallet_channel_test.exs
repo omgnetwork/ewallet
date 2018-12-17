@@ -3,6 +3,7 @@ defmodule AdminAPI.V1.WalletChannelTest do
   use AdminAPI.ChannelCase, async: false
   alias AdminAPI.V1.WalletChannel
   alias EWalletDB.{Account, AccountUser}
+  alias ActivityLogger.System
 
   defp topic(address), do: "address:#{address}"
 
@@ -10,7 +11,7 @@ defmodule AdminAPI.V1.WalletChannelTest do
     test "can join the channel of a current account's user's wallet" do
       user = insert(:user)
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       wallet = insert(:wallet, %{user: user})
       topic = topic(wallet.address)
@@ -26,7 +27,7 @@ defmodule AdminAPI.V1.WalletChannelTest do
       user = insert(:user)
       master = Account.get_master_account()
       account = insert(:account, %{parent: master})
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       wallet = insert(:wallet, %{user: user})
       topic = topic(wallet.address)
@@ -41,7 +42,7 @@ defmodule AdminAPI.V1.WalletChannelTest do
     test "can't join the channel of a parent account's user's wallet" do
       user = insert(:user)
       master_account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(master_account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(master_account.uuid, user.uuid, %System{})
       wallet = insert(:wallet, %{user: user})
 
       account = insert(:account, %{parent: master_account})

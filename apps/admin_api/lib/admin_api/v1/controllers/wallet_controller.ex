@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.WalletController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.{UUIDFetcher, WalletPolicy}
-  alias EWallet.Web.{Orchestrator, Paginator, V1.WalletOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.WalletOverlay}
   alias EWalletDB.{Account, User, Wallet}
 
   @doc """
@@ -102,7 +102,8 @@ defmodule AdminAPI.V1.WalletController do
 
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, attrs) do
+    with :ok <- permit(:create, conn.assigns, attrs),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns) do
       attrs
       |> UUIDFetcher.replace_external_ids()
       |> Wallet.insert_secondary_or_burn()
@@ -119,6 +120,7 @@ defmodule AdminAPI.V1.WalletController do
   def enable_or_disable(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
          :ok <- permit(:enable_or_disable, conn.assigns, wallet),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Wallet.enable_or_disable(wallet, attrs) do
       respond_single(updated, conn, attrs)
     else

@@ -13,6 +13,7 @@ defmodule EWalletDB.ValidatorCase do
       setup do
         :ok = Sandbox.checkout(EWalletDB.Repo)
         :ok = Sandbox.checkout(EWalletConfig.Repo)
+        :ok = Sandbox.checkout(ActivityLogger.Repo)
 
         :ok
       end

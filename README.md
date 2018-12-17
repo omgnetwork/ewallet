@@ -47,6 +47,7 @@ Optionally, deeper dives into the eWallet are available:
 You can also follow our advanced setup guides to customize your eWallet server:
 
 - [Environment variables](docs/setup/advanced/env.md)
+- [Settings](docs/setup/advanced/settings.md)
 - [Clustering](docs/setup/advanced/clustering.md)
 - [Upgrading](docs/setup/upgrading/)
 

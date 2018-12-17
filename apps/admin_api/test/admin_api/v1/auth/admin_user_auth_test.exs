@@ -2,6 +2,7 @@ defmodule AdminAPI.Web.V1.AdminUserAuthTest do
   use AdminAPI.ConnCase, async: true
   alias AdminAPI.V1.AdminUserAuth
   alias EWalletDB.{AuthToken, User}
+  alias ActivityLogger.System
 
   def auth_header(user_id, token) do
     encoded_key = Base.encode64(user_id <> ":" <> token)
@@ -51,7 +52,7 @@ defmodule AdminAPI.Web.V1.AdminUserAuthTest do
 
     test "returns authenticated: false when given expired token", meta do
       auth_token = insert(:auth_token, user: meta.user, owner_app: "admin_api")
-      AuthToken.expire(auth_token.token, :admin_api)
+      AuthToken.expire(auth_token.token, :admin_api, %System{})
       auth = auth_header(meta.user.id, auth_token.token)
 
       assert auth.authenticated == false

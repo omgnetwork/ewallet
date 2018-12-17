@@ -9,6 +9,7 @@ defmodule EWalletAPI.V1.ClientAuthPlug do
   import Plug.Conn
   import EWalletAPI.V1.ErrorHandler
   alias EWalletAPI.V1.ClientAuth
+  alias EWallet.Web.Originator
   alias EWalletDB.AuthToken
 
   def init(opts), do: opts
@@ -39,7 +40,9 @@ defmodule EWalletAPI.V1.ClientAuthPlug do
   """
   def expire_token(conn) do
     token_string = conn.private[:auth_auth_token]
-    AuthToken.expire(token_string, :ewallet_api)
+    originator = Originator.extract(conn.assigns)
+
+    AuthToken.expire(token_string, :ewallet_api, originator)
 
     conn
     |> assign(:authenticated, false)

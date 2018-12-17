@@ -1,7 +1,7 @@
 defmodule EWalletDB.Repo.Seeds.UserSeed do
   alias EWalletDB.{Account, AccountUser, User}
   # credo:disable-for-next-line Credo.Check.Readability.AliasOrder
-  alias EWalletConfig.System, as: OriginatorSystem
+  alias EWalletDB.Seeder
 
   @seed_data [
     %{
@@ -10,7 +10,7 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       metadata: %{},
       account_name: "master_account",
       is_admin: true,
-      originator: %OriginatorSystem{}
+      originator: %Seeder{}
     },
     %{
       email: System.get_env("E2E_TEST_ADMIN_1_EMAIL") || "test_admin_1@example.com",
@@ -18,7 +18,7 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       metadata: %{},
       account_name: "master_account",
       is_admin: true,
-      originator: %OriginatorSystem{}
+      originator: %Seeder{}
     },
     %{
       email: System.get_env("E2E_TEST_USER_EMAIL") || "test_user@example.com",
@@ -26,7 +26,7 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       metadata: %{},
       account_name: "master_account",
       is_admin: false,
-      originator: %OriginatorSystem{}
+      originator: %Seeder{}
     },
   ]
 
@@ -49,7 +49,7 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
         case User.insert(data) do
           {:ok, user} ->
             account = Account.get_by(name: data.account_name)
-            {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+            {:ok, _} = AccountUser.link(account.uuid, user.uuid, %Seeder{})
 
             writer.success("""
               ID       : #{user.id}

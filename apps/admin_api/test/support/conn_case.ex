@@ -20,8 +20,10 @@ defmodule AdminAPI.ConnCase do
   alias Ecto.UUID
   alias EWallet.{MintGate, TransactionGate}
   alias EWallet.Web.Date
-  alias EWalletConfig.{ConfigTestHelper, Helpers.Crypto, Types.ExternalID}
+  alias EWalletConfig.ConfigTestHelper
   alias EWalletDB.{Account, Key, Repo, User}
+  alias Utils.{Types.ExternalID, Helpers.Crypto}
+  alias ActivityLogger.System
 
   # Attributes required by Phoenix.ConnTest
   @endpoint AdminAPI.Endpoint
@@ -58,6 +60,8 @@ defmodule AdminAPI.ConnCase do
       import AdminAPI.Router.Helpers
       import EWalletDB.Factory
 
+      import ActivityLogger.ActivityLoggerTestHelper
+
       # Reiterate all module attributes from `AdminAPI.ConnCase`
       @endpoint unquote(@endpoint)
 
@@ -89,11 +93,13 @@ defmodule AdminAPI.ConnCase do
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
     :ok = Sandbox.checkout(EWalletConfig.Repo)
+    :ok = Sandbox.checkout(ActivityLogger.Repo)
 
     unless tags[:async] do
       Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
       Sandbox.mode(EWalletDB.Repo, {:shared, self()})
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+      Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
     config_pid = start_supervised!(EWalletConfig.Config)
@@ -173,6 +179,7 @@ defmodule AdminAPI.ConnCase do
   """
   def get_test_admin, do: User.get(@admin_id)
   def get_test_user, do: User.get_by_provider_user_id(@provider_user_id)
+  def get_test_key, do: Key.get_by(%{access_key: @access_key})
 
   @doc """
   Returns the last inserted record of the given schema.
@@ -183,14 +190,15 @@ defmodule AdminAPI.ConnCase do
     |> Repo.one()
   end
 
-  def mint!(token, amount \\ 1_000_000) do
+  def mint!(token, amount \\ 1_000_000, originator \\ %System{}) do
     {:ok, mint, _transaction} =
       MintGate.insert(%{
         "idempotency_token" => UUID.generate(),
         "token_id" => token.id,
         "amount" => amount * token.subunit_to_unit,
         "description" => "Minting #{amount} #{token.symbol}",
-        "metadata" => %{}
+        "metadata" => %{},
+        "originator" => originator
       })
 
     assert mint.confirmed == true
@@ -220,7 +228,7 @@ defmodule AdminAPI.ConnCase do
     )
   end
 
-  def transfer!(from, to, token, amount) do
+  def transfer!(from, to, token, amount, originator \\ %System{}) do
     {:ok, transaction} =
       TransactionGate.create(%{
         "from_address" => from,
@@ -228,7 +236,8 @@ defmodule AdminAPI.ConnCase do
         "token_id" => token.id,
         "amount" => amount,
         "metadata" => %{},
-        "idempotency_token" => UUID.generate()
+        "idempotency_token" => UUID.generate(),
+        "originator" => originator
       })
 
     transaction

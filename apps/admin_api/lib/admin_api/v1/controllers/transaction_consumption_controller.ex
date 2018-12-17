@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.TransactionConsumptionPolicy
-  alias EWallet.Web.{Orchestrator, Paginator, V1.TransactionConsumptionOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TransactionConsumptionOverlay}
 
   alias EWallet.{
     TransactionConsumptionConfirmerGate,
@@ -137,7 +137,8 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   def consume(conn, %{"idempotency_token" => idempotency_token} = attrs)
       when idempotency_token != nil do
-    with {:ok, consumption} <- TransactionConsumptionConsumerGate.consume(attrs) do
+    with attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, consumption} <- TransactionConsumptionConsumerGate.consume(attrs) do
       consumption
       |> Orchestrator.one(TransactionConsumptionOverlay, attrs)
       |> respond(conn, true)
@@ -155,7 +156,13 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   def reject(conn, attrs), do: confirm(conn, conn.assigns, attrs, false)
 
   defp confirm(conn, confirmer, %{"id" => id} = attrs, approved) do
-    case TransactionConsumptionConfirmerGate.confirm(id, approved, confirmer) do
+    id
+    |> TransactionConsumptionConfirmerGate.confirm(
+      approved,
+      confirmer,
+      Originator.extract(conn.assigns)
+    )
+    |> case do
       {:ok, consumption} ->
         consumption
         |> Orchestrator.one(TransactionConsumptionOverlay, attrs)

@@ -2,12 +2,13 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer}
   alias EWalletDB.{Account, AccountUser, Repo, TransactionRequest, User}
+  alias ActivityLogger.System
 
   describe "/transaction_request.all" do
     setup do
       user = get_test_user()
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       tr_1 = insert(:transaction_request, user_uuid: user.uuid, status: "valid")
       tr_2 = insert(:transaction_request, account_uuid: account.uuid, status: "valid")
@@ -131,7 +132,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/transaction_request.create", %{
@@ -189,7 +190,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/transaction_request.create", %{
@@ -247,7 +248,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/transaction_request.create", %{
@@ -317,7 +318,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
       account = Account.get_master_account()
       user = get_test_user()
       wallet = User.get_primary_wallet(user)
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/transaction_request.create", %{
@@ -338,6 +339,62 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                  "object" => "error"
                }
              }
+    end
+
+    test "generates an activity log" do
+      account = Account.get_master_account()
+      user = get_test_user()
+      token = insert(:token)
+      account_wallet = Account.get_primary_wallet(account)
+      wallet = User.get_primary_wallet(user)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/transaction_request.create", %{
+          type: "send",
+          token_id: token.id,
+          correlation_id: "123",
+          amount: 1_000,
+          address: wallet.address,
+          exchange_wallet_address: account_wallet.address
+        })
+
+      assert response["success"] == true
+
+      transaction_request = TransactionRequest.get(response["data"]["id"])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 2
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_key(),
+        target: transaction_request,
+        changes: %{
+          "amount" => 1000,
+          "correlation_id" => "123",
+          "exchange_account_uuid" => account.uuid,
+          "exchange_wallet_address" => account_wallet.address,
+          "token_uuid" => token.uuid,
+          "type" => "send",
+          "user_uuid" => user.uuid,
+          "wallet_address" => wallet.address
+        },
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: transaction_request,
+        changes: %{"consumptions_count" => 0},
+        encrypted_changes: %{}
+      )
     end
   end
 
