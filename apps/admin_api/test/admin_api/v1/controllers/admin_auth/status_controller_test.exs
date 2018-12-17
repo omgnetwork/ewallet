@@ -1,5 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
-  use AdminAPI.ConnCase, async: true
+  # async: false due to `Application.put_env/3` for sentry reporting
+  use AdminAPI.ConnCase, async: false
+  alias Plug.Conn
   alias Poison.Parser
 
   describe "/status" do
@@ -28,11 +30,45 @@ defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
       # See example: /phoenix/test/phoenix/endpoint/render_errors_test.exs
       {status, _headers, response} =
         assert_error_sent(500, fn ->
-          unauthenticated_request("/status.server_error")
+          admin_user_request("/status.server_error")
         end)
 
       assert status == 500
       assert Parser.parse!(response) == expected
+    end
+
+    test "sends a report to sentry" do
+      bypass = Bypass.open()
+
+      Bypass.expect(bypass, fn conn ->
+        assert conn.halted == false
+        assert conn.method == "POST"
+        assert conn.request_path == "/api/1/store/"
+
+        Conn.resp(conn, 200, ~s'{"id": "1234"}')
+      end)
+
+      original_dsn = Application.get_env(:sentry, :dsn)
+      original_included_envs = Application.get_env(:sentry, :included_environments)
+
+      Application.put_env(:sentry, :dsn, "http://public@localhost:#{bypass.port}/1")
+      Application.put_env(:sentry, :included_environments, [:test | original_included_envs])
+
+      try do
+        admin_user_request("/status.server_error")
+      rescue
+        # Ignores the re-raised error
+        _ ->
+          :noop
+      end
+
+      # Because Bypass takes some time to serve the endpoint and Sentry uses
+      # `Task.Supervisor.async_nolink/3` deep inside its code, the only way
+      # to wait for the reporting to complete is to sleep...
+      :timer.sleep(1000)
+
+      Application.put_env(:sentry, :dsn, original_dsn)
+      Application.put_env(:sentry, :included_environments, original_included_envs)
     end
   end
 end

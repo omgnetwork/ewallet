@@ -41,6 +41,10 @@ defmodule EWalletAPI.V1.Router do
     post("/me.consume_transaction_request", TransactionConsumptionController, :consume_for_user)
 
     post("/me.logout", AuthController, :logout)
+
+    # Simulate a server error. Useful for testing the internal server error response
+    # and error reporting. Locked behind authentication to prevent spamming.
+    post("/status.server_error", StatusController, :server_error)
   end
 
   # Standalone endpoints
@@ -60,7 +64,6 @@ defmodule EWalletAPI.V1.Router do
     pipe_through([:api])
 
     post("/status", StatusController, :index)
-    post("/status.server_error", StatusController, :server_error)
 
     match(:*, "/*path", FallbackController, :not_found)
   end
