@@ -17,14 +17,14 @@ config :ewallet_config,
       value: "",
       type: "string",
       position: 100,
-      description: "The domain name."
+      description: "The domain name where this eWallet is accessible."
     },
     "redirect_url_prefixes" => %{
       key: "redirect_url_prefixes",
       value: [],
       type: "array",
       position: 101,
-      description: "The whitelisted domains that eWallet is allowed to redirect to."
+      description: "The whitelisted domain names the eWallet can redirect to (for password resets, etc.)."
     },
     "enable_standalone" => %{
       key: "enable_standalone",

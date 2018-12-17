@@ -2,13 +2,13 @@ defmodule AdminAPI.V1.ConfigurationController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
 
-  alias EWallet.Web.{Orchestrator, V1.SettingOverlay}
+  alias EWallet.Web.{Orchestrator, V1.ConfigurationOverlay}
   alias EWalletConfig.{Config, Repo}
 
   def get(conn, attrs) do
     settings =
       Config.query_settings()
-      |> Orchestrator.build_query(SettingOverlay, attrs)
+      |> Orchestrator.build_query(ConfigurationOverlay, attrs)
       |> Repo.all()
 
     render(conn, :settings, %{settings: settings})
