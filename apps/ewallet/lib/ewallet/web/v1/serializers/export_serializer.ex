@@ -2,11 +2,19 @@ defmodule EWallet.Web.V1.ExportSerializer do
   @moduledoc """
   Serializes exports data into V1 response format.
   """
-  alias EWallet.Web.V1.{AccountSerializer, UserSerializer, ExportSerializer}
+  alias Ecto.Association.NotLoaded
+  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.V1.{AccountSerializer, UserSerializer, ExportSerializer, PaginatorSerializer}
   alias Utils.Helpers.Assoc
   alias EWalletDB.User
 
+  def serialize(%Paginator{} = paginator) do
+    IO.inspect("f")
+    PaginatorSerializer.serialize(paginator, &serialize/1)
+  end
+
   def serialize(export) do
+    IO.inspect("allo")
     %{
       object: "export",
       id: export.id,
@@ -22,4 +30,7 @@ defmodule EWallet.Web.V1.ExportSerializer do
       updated_at: Date.to_iso8601(export.updated_at)
     }
   end
+
+  def serialize(%NotLoaded{}), do: nil
+  def serialize(nil), do: nil
 end

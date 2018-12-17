@@ -11,51 +11,40 @@ defmodule ExportOverlay do
 
   def preload_assocs,
     do: [
-      :account
+      :user, :key
     ]
 
   def default_preload_assocs,
-    do: [
-      :account
-    ]
+    do: []
 
   def search_fields,
     do: [
       :id,
-      :key,
-      :owner_app
+      :filename
     ]
 
   def sort_fields,
     do: [
       :id,
-      :key,
-      :owner_app,
+      :filename,
       :inserted_at,
-      :updated_at,
-      :deleted_at
+      :updated_at
     ]
 
   def self_filter_fields,
     do: [
       :id,
-      :key,
-      :owner_app,
-      :expired,
+      :filename,
       :inserted_at,
-      :updated_at,
-      :deleted_at
+      :updated_at
     ]
 
   def filter_fields,
     do: [
       id: nil,
-      key: nil,
-      owner_app: nil,
-      expired: nil,
+      filename: nil,
       inserted_at: nil,
       updated_at: nil,
-      deleted_at: nil,
       user: UserOverlay.self_filter_fields(),
       key: KeyOverlay.self_filter_fields(),
     ]

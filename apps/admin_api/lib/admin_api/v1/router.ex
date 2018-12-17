@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.Router do
     post("/auth_token.switch_account", AdminAuthController, :switch_account)
 
     # Exports
-    post("/export.generate", ExportController, :generate)
+    post("/export.all", ExportController, :all)
 
     # Exchange pair endpoints
     post("/exchange_pair.all", ExchangePairController, :all)
