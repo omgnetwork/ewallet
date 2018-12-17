@@ -15,7 +15,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
     test "returns a list of settings" do
       response = admin_user_request("/configuration.all")
       assert response["success"] == true
-      assert length(response["data"]["data"]) == 20
+      assert length(response["data"]["data"]) == length(Application.get_env(:ewallet_config, :default_settings))
     end
   end
 
