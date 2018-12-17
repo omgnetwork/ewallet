@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
-import { Button, AddButton, Input } from '../omg-uikit'
+import { Button, Icon, Input } from '../omg-uikit'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -15,7 +15,7 @@ import {
 import { getConfiguration, updateConfiguration } from '../omg-configuration/action'
 import CONSTANT from '../constants'
 import { isEmail } from '../utils/validator'
-
+import _ from 'lodash'
 const ConfigurationPageContainer = styled.div`
   position: relative;
   padding-bottom: 150px;
@@ -36,14 +36,35 @@ const SubSettingContainer = styled.div`
     }
   }
 `
+const InputPrefixContainer = styled.div`
+  display: flex;
+  align-items: center;
+  i {
+    visibility: ${props => (props.hide ? 'hidden' : 'visible')};
+    opacity: 0;
+    font-size: 8px;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  :hover > i {
+    opacity: 1;
+  }
+`
 
-const InputPrefixContainer = styled.div``
+const InputsPrefixContainer = styled.div`
+  ${InputPrefixContainer} {
+    :not(:first-child) {
+      margin-top: 20px;
+    }
+  }
+`
 
 const PrefixContainer = styled.div`
   text-align: right;
   a {
     display: block;
     margin-top: 5px;
+    color: ${props => (props.active ? props.theme.colors.BL400 : props.theme.colors.S500)};
   }
 `
 
@@ -126,6 +147,10 @@ class ConfigurationPage extends Component {
       Number(this.state.minPasswordLength) < 1
     )
   }
+  isAddPrefixButtonDisabled () {
+    const lastDynamicInputPrefix = _.last(this.state.redirectUrlPrefixes)
+    return lastDynamicInputPrefix.length <= 0
+  }
   onSelectEmailAdapter = option => {
     this.setState({ emailAdapter: option.value })
   }
@@ -134,6 +159,15 @@ class ConfigurationPage extends Component {
     this.setState({ balanceCachingStrategy: option.value })
   }
 
+  onClickRemovePrefix = index => e => {
+    if (this.state.redirectUrlPrefixes.length > 1) {
+      const newState = this.state.redirectUrlPrefixes.slice()
+      newState.splice(index, 1)
+      this.setState({
+        redirectUrlPrefixes: newState
+      })
+    }
+  }
   onSelectFileStorageAdapter = option => {
     switch (option.value) {
       case 'aws':
@@ -195,7 +229,7 @@ class ConfigurationPage extends Component {
           balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value')
         })
         setTimeout(() => {
-          // window.location.reload()
+          window.location.reload()
         }, 2000)
       } else {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
@@ -206,9 +240,11 @@ class ConfigurationPage extends Component {
   }
 
   onClickAddPrefix = e => {
-    this.setState(oldState => {
-      return { redirectUrlPrefixes: [...oldState.redirectUrlPrefixes, ''] }
-    })
+    if (!this.isAddPrefixButtonDisabled()) {
+      this.setState(oldState => {
+        return { redirectUrlPrefixes: [...oldState.redirectUrlPrefixes, ''] }
+      })
+    }
   }
   renderSaveButton = () => {
     return (
@@ -345,20 +381,24 @@ class ConfigurationPage extends Component {
             description={configurations.redirect_url_prefixes.description}
             valueRenderer={() => {
               return (
-                <div>
+                <InputsPrefixContainer>
                   {this.state.redirectUrlPrefixes.map((prefix, index) => (
-                    <InputPrefixContainer>
+                    <InputPrefixContainer
+                      key={index}
+                      hide={this.state.redirectUrlPrefixes.length === 1}
+                    >
                       <Input
                         value={this.state.redirectUrlPrefixes[index]}
                         onChange={this.onChangeInputredirectUrlPrefixes(index)}
-                        key={index}
+                        normalPlaceholder={`ie. https://website${index}.com`}
                       />
+                      <Icon name='Close' onClick={this.onClickRemovePrefix(index)} />
                     </InputPrefixContainer>
                   ))}
-                  <PrefixContainer>
-                    <a onClick={this.onClickAddPrefix}>Add More Prefixes</a>
+                  <PrefixContainer active={!this.isAddPrefixButtonDisabled()}>
+                    <a onClick={this.onClickAddPrefix}>Add More Prefix</a>
                   </PrefixContainer>
-                </div>
+                </InputsPrefixContainer>
               )
             }}
           />

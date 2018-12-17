@@ -47,7 +47,7 @@ export default class ConfigRow extends Component {
     inputType: PropTypes.string,
     inputValidator: PropTypes.func,
     inputErrorMessage: PropTypes.string,
-    valueRenderer: PropTypes.number
+    valueRenderer: PropTypes.func
   }
 
   static defaultProps = {
