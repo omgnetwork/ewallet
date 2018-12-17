@@ -5,7 +5,7 @@ defmodule AdminAPI.V1.ConfigurationController do
   alias EWallet.Web.{Orchestrator, Originator, V1.ConfigurationOverlay}
   alias EWalletConfig.{Config, Repo}
 
-  def get(conn, attrs) do
+  def all(conn, attrs) do
     settings =
       Config.query_settings()
       |> Orchestrator.build_query(ConfigurationOverlay, attrs)
