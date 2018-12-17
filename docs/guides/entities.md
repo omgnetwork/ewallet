@@ -8,7 +8,7 @@
 
 - __Users__: A user can either be a regular user or a staff user (a.k.a admin) In the first case, it would be someone using the end-user applications created by providers (mobile applications for example), who was added to the eWallet database by the provider. In the second case, it's a user able to access the OmiseGO admin panel.
 
-- __Wallets__: A balance identified by an address which is used to group transactions and holds a value. A user can have more than one balance if needed, and a balance can contain different currencies. You can learn more about wallets [there](/docs/wallets.md).
+- __Wallets__: A balance identified by an address which is used to group transactions and holds a value. A user can have more than one balance if needed, and a balance can contain different currencies. You can learn more about wallets [there](/docs/design/wallets.md).
 
 - __Transactions__: A transaction is an exchange of value between two wallets. Transactions are stored in the local ledger using a DEB approach. DEB (Double Entry Bookkeeping) is a system where an entry is created and DEBIT/CREDIT transactions are linked to it. The sum of all debits minus the sum of all credits for a specific entry has to be equal to 0. Summing up all credit transactions minus all debit transactions for a specific balance address and token symbol gives the balance of that address.
 

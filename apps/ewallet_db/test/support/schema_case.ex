@@ -38,6 +38,7 @@ defmodule EWalletDB.SchemaCase do
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL
   alias EWalletDB.{Account, User}
+  alias ActivityLogger.System
 
   defmacro __using__(_opts) do
     quote do
@@ -50,6 +51,7 @@ defmodule EWalletDB.SchemaCase do
       setup do
         :ok = Sandbox.checkout(EWalletDB.Repo)
         :ok = Sandbox.checkout(EWalletConfig.Repo)
+        :ok = Sandbox.checkout(ActivityLogger.Repo)
         %{} = get_or_insert_master_account()
 
         :ok
@@ -431,12 +433,11 @@ defmodule EWalletDB.SchemaCase do
   @doc """
   Test schema's update/2 does update the given field
   """
-  defmacro test_update_field_ok(schema, field, originator, old \\ "old", new \\ "new") do
+  defmacro test_update_field_ok(schema, field, old \\ "old", new \\ "new") do
     quote do
       test "updates #{unquote(field)} successfully" do
         schema = unquote(schema)
         field = unquote(field)
-        originator = unquote(originator)
         old = unquote(old)
         new = unquote(new)
 
@@ -448,7 +449,7 @@ defmodule EWalletDB.SchemaCase do
 
         {res, updated} =
           schema.update(original, %{
-            :originator => originator,
+            :originator => %System{},
             field => new
           })
 
@@ -475,7 +476,11 @@ defmodule EWalletDB.SchemaCase do
           |> params_for(%{field => old})
           |> schema.insert()
 
-        {res, changeset} = schema.update(original, %{field => new})
+        {res, changeset} =
+          schema.update(original, %{
+            :originator => %System{},
+            field => new
+          })
 
         assert res == :error
         assert changeset.errors == [{field, {"can't be changed", []}}]
@@ -500,7 +505,11 @@ defmodule EWalletDB.SchemaCase do
           |> params_for(%{field => old})
           |> schema.insert()
 
-        {res, updated} = schema.update(original, %{field => new})
+        {res, updated} =
+          schema.update(original, %{
+            field => new,
+            originator: %System{}
+          })
 
         assert res == :ok
         assert Map.fetch!(updated, field) == old
@@ -580,7 +589,7 @@ defmodule EWalletDB.SchemaCase do
           |> params_for(%{})
           |> schema.insert()
 
-        {:ok, record} = schema.delete(record)
+        {:ok, record} = schema.delete(record, %System{})
 
         assert record.deleted_at != nil
         assert schema.deleted?(record)
@@ -602,7 +611,7 @@ defmodule EWalletDB.SchemaCase do
         # Makes sure the record is not already deleted before testing
         refute schema.deleted?(record)
 
-        {res, record} = schema.delete(record)
+        {res, record} = schema.delete(record, %System{})
         assert res == :ok
         assert schema.deleted?(record)
       end
@@ -617,14 +626,14 @@ defmodule EWalletDB.SchemaCase do
         {_, record} =
           schema
           |> get_factory()
-          |> params_for(%{})
+          |> params_for()
           |> schema.insert()
 
         # Makes sure the record is already soft-deleted before testing
-        {:ok, record} = schema.delete(record)
+        {:ok, record} = schema.delete(record, %System{})
         assert schema.deleted?(record)
 
-        {res, record} = schema.restore(record)
+        {res, record} = schema.restore(record, %System{})
 
         assert res == :ok
         refute schema.deleted?(record)

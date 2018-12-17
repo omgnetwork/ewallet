@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, User}
+  alias EWalletDB.{Account, User, Membership}
 
   @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
 
@@ -532,6 +532,40 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       assert response["data"]["description"] ==
                "There is no role corresponding to the provided name."
     end
+
+    test "generates an activity log" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      account = insert(:account)
+      role = insert(:role)
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/account.assign_user", %{
+          user_id: user.id,
+          account_id: account.id,
+          role_name: role.name,
+          redirect_url: @redirect_url
+        })
+
+      assert response["success"] == true
+      membership = get_last_inserted(Membership)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_key(),
+        target: membership,
+        changes: %{
+          "account_uuid" => account.uuid,
+          "role_uuid" => role.uuid,
+          "user_uuid" => user.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/account.unassign_user" do
@@ -598,6 +632,34 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
 
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation."
+    end
+
+    test "generates an activity log" do
+      account = insert(:account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      membership = insert(:membership, %{account: account, user: user})
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/account.unassign_user", %{
+          user_id: user.id,
+          account_id: account.id
+        })
+
+      assert response["success"] == true
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "delete",
+        originator: get_test_key(),
+        target: membership,
+        changes: %{},
+        encrypted_changes: %{}
+      )
     end
   end
 end

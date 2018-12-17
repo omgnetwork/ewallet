@@ -2,6 +2,7 @@ defmodule EWalletDB.KeyTest do
   use EWalletDB.SchemaCase
   alias Ecto.UUID
   alias EWalletDB.Key
+  alias ActivityLogger.System
 
   describe "Key factory" do
     test_has_valid_factory(Key)
@@ -19,7 +20,7 @@ defmodule EWalletDB.KeyTest do
       assert Enum.empty?(Key.all())
       keys = insert_list(5, :key)
       # Soft delete d key
-      {:ok, _key} = keys |> Enum.at(0) |> Key.delete()
+      {:ok, _key} = keys |> Enum.at(0) |> Key.delete(%System{})
 
       assert length(Key.all()) == 4
     end
@@ -33,7 +34,7 @@ defmodule EWalletDB.KeyTest do
     end
 
     test "does not return a soft-deleted key" do
-      {:ok, key} = :key |> insert() |> Key.delete()
+      {:ok, key} = :key |> insert() |> Key.delete(%System{})
       assert Key.get(key.id) == nil
     end
 
@@ -54,7 +55,7 @@ defmodule EWalletDB.KeyTest do
     end
 
     test "does not return a soft-deleted key" do
-      {:ok, key} = :key |> insert() |> Key.delete()
+      {:ok, key} = :key |> insert() |> Key.delete(%System{})
       assert Key.get_by(access_key: key.access_key) == nil
     end
 
@@ -95,7 +96,12 @@ defmodule EWalletDB.KeyTest do
       {:ok, key} = Key.insert(params_for(:key))
       assert key.enabled == true
 
-      {:ok, updated} = Key.enable_or_disable(key, %{"expired" => true})
+      {:ok, updated} =
+        Key.enable_or_disable(key, %{
+          "expired" => true,
+          "originator" => %System{}
+        })
+
       assert updated.enabled == false
     end
 
@@ -103,7 +109,12 @@ defmodule EWalletDB.KeyTest do
       {:ok, key} = Key.insert(params_for(:key))
       assert key.enabled == true
 
-      {:ok, updated} = Key.enable_or_disable(key, %{enabled: false})
+      {:ok, updated} =
+        Key.enable_or_disable(key, %{
+          enabled: false,
+          originator: %System{}
+        })
+
       assert updated.enabled == false
     end
 
@@ -111,26 +122,60 @@ defmodule EWalletDB.KeyTest do
       {:ok, key} = Key.insert(params_for(:key))
       assert key.enabled == true
 
-      {:ok, updated1} = Key.enable_or_disable(key, %{enabled: false})
+      {:ok, updated1} =
+        Key.enable_or_disable(key, %{
+          enabled: false,
+          originator: %System{}
+        })
+
       assert updated1.enabled == false
 
-      {:ok, updated2} = Key.enable_or_disable(key, %{enabled: false})
+      {:ok, updated2} =
+        Key.enable_or_disable(key, %{
+          enabled: false,
+          originator: %System{}
+        })
+
       assert updated2.enabled == false
     end
 
     test "enable a key successfuly when given 'expired' attribute" do
-      {:ok, key} = Key.insert(params_for(:key, %{enabled: false}))
+      {:ok, key} =
+        Key.insert(
+          params_for(:key, %{
+            enabled: false,
+            originator: %System{}
+          })
+        )
+
       assert key.enabled == false
 
-      {:ok, updated} = Key.enable_or_disable(key, %{"expired" => false})
+      {:ok, updated} =
+        Key.enable_or_disable(key, %{
+          "expired" => false,
+          "originator" => %System{}
+        })
+
       assert updated.enabled == true
     end
 
     test "enable a key successfuly when given 'enabled' attribute" do
-      {:ok, key} = Key.insert(params_for(:key, %{enabled: false}))
+      {:ok, key} =
+        Key.insert(
+          params_for(:key, %{
+            enabled: false,
+            originator: %System{}
+          })
+        )
+
       assert key.enabled == false
 
-      {:ok, updated} = Key.enable_or_disable(key, %{enabled: true})
+      {:ok, updated} =
+        Key.enable_or_disable(key, %{
+          enabled: true,
+          originator: %System{}
+        })
+
       assert updated.enabled == true
     end
   end
@@ -167,7 +212,8 @@ defmodule EWalletDB.KeyTest do
 
       {:ok, _key} =
         Key.enable_or_disable(key, %{
-          enabled: false
+          enabled: false,
+          originator: %System{}
         })
 
       res = Key.authenticate("access123", Base.url_encode64("secret321"))

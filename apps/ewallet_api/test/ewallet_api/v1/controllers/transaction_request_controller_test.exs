@@ -264,6 +264,52 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                }
              }
     end
+
+    test "generates an activity log" do
+      user = get_test_user()
+      token = insert(:token)
+      wallet = User.get_primary_wallet(user)
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        client_request("/me.create_transaction_request", %{
+          type: "send",
+          token_id: token.id
+        })
+
+      assert response["success"] == true
+
+      request = TransactionRequest.get(response["data"]["id"])
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 2
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: user,
+        target: request,
+        changes: %{
+          "token_uuid" => token.uuid,
+          "type" => "send",
+          "user_uuid" => user.uuid,
+          "wallet_address" => wallet.address
+        },
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: request,
+        changes: %{"consumptions_count" => 0},
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/me.get_transaction_request" do

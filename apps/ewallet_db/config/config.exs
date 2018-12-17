@@ -1,19 +1,8 @@
 use Mix.Config
 
-audits = %{
-  EWalletConfig.System => "system",
-  EWalletDB.User => "user",
-  EWalletDB.Invite => "invite",
-  EWalletDB.Key => "key",
-  EWalletDB.ForgetPasswordRequest => "forget_password_request",
-  EWalletDB.UpdateEmailRequest => "update_email_request"
-}
-
 config :ewallet_db,
   ecto_repos: [EWalletDB.Repo],
   env: Mix.env(),
-  schemas_to_audit_types: audits,
-  audit_types_to_schemas: Enum.into(audits, %{}, fn {key, value} -> {value, key} end),
   settings: [
     :base_url,
     :min_password_length,

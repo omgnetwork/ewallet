@@ -11,6 +11,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
   }
 
   alias EWalletDB.{AccountUser, TransactionConsumption, TransactionRequest, User}
+  alias ActivityLogger.System
 
   setup do
     {:ok, pid} = TestEndpoint.start_link()
@@ -55,7 +56,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
   describe "confirm/3 with Account" do
     test "confirms the consumption if approved as account", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
       transaction_request =
         insert(
@@ -77,7 +78,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -86,7 +88,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: meta.account})
+        TransactionConsumptionConfirmerGate.confirm(
+          consumption.id,
+          true,
+          %{
+            account: meta.account
+          },
+          %System{}
+        )
 
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
@@ -117,7 +126,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -126,7 +136,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: meta.account})
+        TransactionConsumptionConfirmerGate.confirm(
+          consumption.id,
+          true,
+          %{
+            account: meta.account
+          },
+          %System{}
+        )
 
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
@@ -156,7 +173,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -165,12 +183,19 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:error, :unauthorized} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: account})
+        TransactionConsumptionConfirmerGate.confirm(
+          consumption.id,
+          true,
+          %{
+            account: account
+          },
+          %System{}
+        )
     end
 
     test "confirms a user's consumption if created and approved as account", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
       {res, request} =
         TransactionRequestGate.create(%{
@@ -182,7 +207,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "provider_user_id" => meta.receiver.provider_user_id,
           "address" => meta.receiver_wallet.address,
           "require_confirmation" => true,
-          "creator" => %{account: meta.account}
+          "creator" => %{account: meta.account},
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -196,7 +222,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -205,7 +232,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: meta.account})
+        TransactionConsumptionConfirmerGate.confirm(
+          consumption.id,
+          true,
+          %{
+            account: meta.account
+          },
+          %System{}
+        )
 
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
@@ -234,7 +268,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -242,13 +277,22 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.status == "pending"
       assert consumption.approved_at == nil
 
-      res = TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: account})
+      res =
+        TransactionConsumptionConfirmerGate.confirm(
+          consumption.id,
+          true,
+          %{
+            account: account
+          },
+          %System{}
+        )
+
       assert res == {:error, :unauthorized}
     end
 
     test "fails to confirm the consumption if expired", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
       transaction_request =
         insert(
@@ -270,7 +314,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -278,18 +323,25 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.status == "pending"
       assert consumption.approved_at == nil
 
-      {:ok, transaction_request} = TransactionRequest.expire(transaction_request)
+      {:ok, transaction_request} = TransactionRequest.expire(transaction_request, %System{})
       assert transaction_request.expired_at != nil
 
       res =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: meta.account})
+        TransactionConsumptionConfirmerGate.confirm(
+          consumption.id,
+          true,
+          %{
+            account: meta.account
+          },
+          %System{}
+        )
 
       assert res == {:error, :expired_transaction_request}
     end
 
     test "rejects the consumption if not confirmed as account", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
       transaction_request =
         insert(
@@ -311,7 +363,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -320,9 +373,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, false, %{
-          account: meta.account
-        })
+        TransactionConsumptionConfirmerGate.confirm(
+          consumption.id,
+          false,
+          %{
+            account: meta.account
+          },
+          %System{}
+        )
 
       assert consumption.status == "rejected"
       assert consumption.approved_at == nil
@@ -330,7 +388,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
     test "allows only one confirmation with two confirms at the same time", meta do
       initialize_wallet(meta.sender_wallet, 1_000_000, meta.token)
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
       request =
         insert(
@@ -353,7 +411,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => UUID.generate(),
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         }
       end
 
@@ -381,7 +440,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
             Sandbox.allow(LocalLedgerDB.Repo, pid, self())
 
             {res, response} =
-              TransactionConsumptionConfirmerGate.confirm(c.id, true, %{account: meta.account})
+              TransactionConsumptionConfirmerGate.confirm(
+                c.id,
+                true,
+                %{
+                  account: meta.account
+                },
+                %System{}
+              )
 
             send(pid, {String.to_atom("updated_#{i + 1}"), res, response})
           end)
@@ -423,7 +489,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -432,9 +499,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{
-          end_user: meta.receiver
-        })
+        TransactionConsumptionConfirmerGate.confirm(
+          consumption.id,
+          true,
+          %{
+            end_user: meta.receiver
+          },
+          %System{}
+        )
 
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
@@ -453,7 +525,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "provider_user_id" => meta.receiver.provider_user_id,
           "address" => meta.receiver_wallet.address,
           "require_confirmation" => true,
-          "creator" => %{end_user: meta.receiver}
+          "creator" => %{end_user: meta.receiver},
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -467,7 +540,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -476,9 +550,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{
-          end_user: meta.receiver
-        })
+        TransactionConsumptionConfirmerGate.confirm(
+          consumption.id,
+          true,
+          %{
+            end_user: meta.receiver
+          },
+          %System{}
+        )
 
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
@@ -506,7 +585,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -515,7 +595,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       res =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{end_user: meta.sender})
+        TransactionConsumptionConfirmerGate.confirm(
+          consumption.id,
+          true,
+          %{
+            end_user: meta.sender
+          },
+          %System{}
+        )
 
       assert res == {:error, :unauthorized}
     end
@@ -543,7 +630,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+          "address" => meta.sender_wallet.address,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -551,13 +639,18 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.status == "pending"
       assert consumption.approved_at == nil
 
-      {:ok, transaction_request} = TransactionRequest.expire(transaction_request)
+      {:ok, transaction_request} = TransactionRequest.expire(transaction_request, %System{})
       assert transaction_request.expired_at != nil
 
       res =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{
-          end_user: meta.receiver
-        })
+        TransactionConsumptionConfirmerGate.confirm(
+          consumption.id,
+          true,
+          %{
+            end_user: meta.receiver
+          },
+          %System{}
+        )
 
       assert res == {:error, :expired_transaction_request}
     end

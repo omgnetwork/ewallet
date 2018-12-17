@@ -1,5 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletConfig.{Config, StoredSetting}
 
   describe "/configuration.all" do
     test "returns a list of configurations" do
@@ -109,6 +110,32 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
       assert response["success"] == true
 
       assert Application.get_env(:admin_api, :base_url, "new_base_url.example")
+    end
+
+    test "generates an activity log", meta do
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/configuration.update", %{
+          base_url: "new_base_url.example",
+          config_pid: meta[:config_pid]
+        })
+
+      assert response["success"] == true
+      setting = Config.get_setting(:base_url)
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_admin(),
+        target: %StoredSetting{uuid: setting.uuid},
+        changes: %{"data" => %{"value" => "new_base_url.example"}, "position" => setting.position},
+        encrypted_changes: %{}
+      )
     end
   end
 end

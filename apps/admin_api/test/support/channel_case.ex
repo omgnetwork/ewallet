@@ -17,8 +17,9 @@ defmodule AdminAPI.ChannelCase do
   use Phoenix.ChannelTest
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
-  alias EWalletConfig.{ConfigTestHelper, Helpers.Crypto, Types.ExternalID}
+  alias EWalletConfig.ConfigTestHelper
   alias EWalletDB.{Key, Account, User}
+  alias Utils.{Types.ExternalID, Helpers.Crypto}
 
   # Attributes for provider calls
   @access_key "test_access_key"
@@ -52,27 +53,35 @@ defmodule AdminAPI.ChannelCase do
   end
 
   setup tags do
+    # Restarts `EWalletConfig.Config` so it does not hang on to a DB connection for too long.
+    Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+    Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
     :ok = Sandbox.checkout(EWalletConfig.Repo)
+    :ok = Sandbox.checkout(ActivityLogger.Repo)
 
     unless tags[:async] do
       Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
       Sandbox.mode(EWalletDB.Repo, {:shared, self()})
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+      Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
-    pid =
-      ConfigTestHelper.restart_config_genserver(
-        self(),
-        EWalletConfig.Repo,
-        [:ewallet_db, :ewallet, :admin_api],
-        %{
-          "base_url" => "http://localhost:4000",
-          "email_adapter" => "test",
-          "sender_email" => "admin@example.com"
-        }
-      )
+    config_pid = start_supervised!(EWalletConfig.Config)
+
+    ConfigTestHelper.restart_config_genserver(
+      self(),
+      config_pid,
+      EWalletConfig.Repo,
+      [:ewallet_db, :ewallet, :admin_api],
+      %{
+        "base_url" => "http://localhost:4000",
+        "email_adapter" => "test",
+        "sender_email" => "admin@example.com"
+      }
+    )
 
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
 
@@ -94,7 +103,7 @@ defmodule AdminAPI.ChannelCase do
     })
     |> Key.insert()
 
-    %{config_pid: pid}
+    %{config_pid: config_pid}
   end
 
   def admin_auth_socket(admin_id \\ @admin_id) do

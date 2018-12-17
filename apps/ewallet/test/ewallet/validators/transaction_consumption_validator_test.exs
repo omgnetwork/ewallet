@@ -2,6 +2,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.{TestEndpoint, TransactionConsumptionValidator}
   alias EWalletDB.{Account, Repo, TransactionConsumption, TransactionRequest, User}
+  alias ActivityLogger.System
 
   describe "validate_before_consumption/3" do
     test "expires a transaction request if past expiration date" do
@@ -19,7 +20,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
 
     test "returns expiration reason if transaction request has expired" do
-      {:ok, request} = :transaction_request |> insert() |> TransactionRequest.expire()
+      {:ok, request} = :transaction_request |> insert() |> TransactionRequest.expire(%System{})
       wallet = request.wallet
 
       {:error, error} =

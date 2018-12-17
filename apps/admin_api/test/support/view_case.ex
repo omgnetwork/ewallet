@@ -14,6 +14,7 @@ defmodule AdminAPI.ViewCase do
 
       setup do
         :ok = Sandbox.checkout(Repo)
+        :ok = Sandbox.checkout(ActivityLogger.Repo)
       end
 
       # The expected response version

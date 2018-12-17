@@ -6,6 +6,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   alias EWallet.{Helper, TokenFetcher, TransactionConsumptionPolicy}
   alias EWallet.Web.V1.Event
   alias EWalletDB.{ExchangePair, Repo, Token, TransactionConsumption, TransactionRequest, Wallet}
+  alias ActivityLogger.System
 
   @spec validate_before_consumption(
           %TransactionRequest{},
@@ -20,7 +21,7 @@ defmodule EWallet.TransactionConsumptionValidator do
          token_id <- attrs["token_id"],
          true <- wallet.enabled || {:error, :wallet_is_disabled},
          :ok <- validate_only_one_exchange_address_in_pair(request, wallet_exchange),
-         {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request),
+         {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request, %System{}),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
          {:ok, amount} <- validate_amount(request, amount),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
@@ -45,14 +46,15 @@ defmodule EWallet.TransactionConsumptionValidator do
           {:ok, %TransactionConsumption{}}
           | {:error, atom()}
           | no_return()
-  def validate_before_confirmation(consumption, confirmer) do
+  def validate_before_confirmation(consumption, originator) do
     with {request, wallet} <- {consumption.transaction_request, consumption.wallet},
          request <- Repo.preload(request, [:wallet]),
-         :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :confirm, confirmer, request),
-         {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request),
+         :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :confirm, originator, request),
+         {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request, %System{}),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
-         {:ok, consumption} = TransactionConsumption.expire_if_past_expiration_date(consumption) do
+         {:ok, consumption} =
+           TransactionConsumption.expire_if_past_expiration_date(consumption, %System{}) do
       case TransactionConsumption.expired?(consumption) do
         false ->
           {:ok, consumption}

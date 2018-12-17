@@ -15,7 +15,7 @@ defmodule EWallet.TransactionRequestGate do
     WalletFetcher
   }
 
-  alias EWalletConfig.Helpers.Assoc
+  alias Utils.Helpers.Assoc
   alias EWalletDB.{Account, TransactionRequest, User, Wallet}
 
   @spec create(map()) :: {:ok, %TransactionRequest{}} | {:error, atom()}
@@ -175,12 +175,12 @@ defmodule EWallet.TransactionRequestGate do
 
   def create(_, _attrs), do: {:error, :invalid_parameter}
 
-  @spec expire_if_past_expiration_date(%TransactionRequest{}) ::
+  @spec expire_if_past_expiration_date(%TransactionRequest{}, map()) ::
           {:ok, %TransactionRequest{}}
           | {:error, atom()}
           | {:error, map()}
-  def expire_if_past_expiration_date(request) do
-    res = TransactionRequest.expire_if_past_expiration_date(request)
+  def expire_if_past_expiration_date(request, originator) do
+    res = TransactionRequest.expire_if_past_expiration_date(request, originator)
 
     case res do
       {:ok, %TransactionRequest{status: "expired"} = request} ->
@@ -215,7 +215,8 @@ defmodule EWallet.TransactionRequestGate do
       max_consumptions: attrs["max_consumptions"],
       max_consumptions_per_user: attrs["max_consumptions_per_user"],
       exchange_account_uuid: Assoc.get_if_exists(exchange_wallet, [:account_uuid]),
-      exchange_wallet_address: Assoc.get_if_exists(exchange_wallet, [:address])
+      exchange_wallet_address: Assoc.get_if_exists(exchange_wallet, [:address]),
+      originator: attrs["originator"]
     })
   end
 

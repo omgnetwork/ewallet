@@ -47,7 +47,6 @@ Many configurations have default values pre-defined. If your environment require
 
 Environment variable | Description
 -------------------- | -----------
-`BASE_URL` | The URL where the application can be accessed. <br /> _Defaults to `http://localhost:4000`_
 `PORT` | The internal listening port for the application <br /> _Defaults to `4000`_
 `DATABASE_URL` | The URL where the eWallet database can be accessed. <br /> _Defaults to `postgres://localhost/ewallet_dev`_
 `LOCAL_LEDGER_DATABASE_URL` | The URL where the LocalLedger database can be accessed. <br /> _Defaults to `postgres://localhost/local_ledger_dev`_

@@ -10,7 +10,12 @@ defmodule EWalletConfig.SchemaCase do
       alias EWalletConfig.Repo
 
       setup do
+        # Restarts `EWalletConfig.Config` so it does not hang on to a DB connection for too long.
+        Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+        Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+
         Sandbox.checkout(Repo)
+        Sandbox.checkout(ActivityLogger.Repo)
       end
     end
   end

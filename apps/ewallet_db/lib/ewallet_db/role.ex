@@ -3,8 +3,9 @@ defmodule EWalletDB.Role do
   Ecto Schema representing user roles.
   """
   use Ecto.Schema
-  use EWalletConfig.Types.ExternalID
+  use Utils.Types.ExternalID
   use EWalletDB.SoftDelete
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
@@ -28,11 +29,16 @@ defmodule EWalletDB.Role do
 
     timestamps()
     soft_delete()
+    activity_logging()
   end
 
   defp changeset(%Role{} = key, attrs) do
     key
-    |> cast(attrs, [:priority, :name, :display_name])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:priority, :name, :display_name],
+      required: [:name, :priority]
+    )
     |> validate_required([:name, :priority])
     |> unique_constraint(:name)
   end
@@ -90,7 +96,7 @@ defmodule EWalletDB.Role do
 
     %Role{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert_record_with_activity_log()
   end
 
   @doc """
@@ -100,7 +106,7 @@ defmodule EWalletDB.Role do
   def update(role, attrs) do
     role
     |> changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
@@ -113,9 +119,9 @@ defmodule EWalletDB.Role do
   Soft-deletes the given role. The operation fails if the role
   has one more more users associated.
   """
-  @spec delete(%__MODULE__{}) ::
+  @spec delete(%__MODULE__{}, map()) ::
           {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()} | {:error, atom()}
-  def delete(role) do
+  def delete(role, originator) do
     empty? =
       role
       |> Repo.preload(:users)
@@ -123,7 +129,7 @@ defmodule EWalletDB.Role do
       |> Enum.empty?()
 
     case empty? do
-      true -> SoftDelete.delete(role)
+      true -> SoftDelete.delete(role, originator)
       false -> {:error, :role_not_empty}
     end
   end
@@ -131,8 +137,8 @@ defmodule EWalletDB.Role do
   @doc """
   Restores the given role from soft-delete.
   """
-  @spec restore(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
-  def restore(role), do: SoftDelete.restore(role)
+  @spec restore(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def restore(role, originator), do: SoftDelete.restore(role, originator)
 
   @doc """
   Compares that the given string value is equivalent to the given role.

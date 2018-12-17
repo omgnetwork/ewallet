@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.AdminUserAuthenticator do
   It returns the associated user if authenticated, `false` otherwise.
   """
   import Plug.Conn
-  alias EWalletConfig.Helpers.Crypto
+  alias Utils.Helpers.Crypto
   alias EWalletDB.{AuthToken, User}
 
   def authenticate(conn, email, password) when is_binary(email) do
@@ -41,9 +41,9 @@ defmodule AdminAPI.V1.AdminUserAuthenticator do
   @doc """
   Expires the authentication token used in this connection.
   """
-  def expire_token(conn) do
+  def expire_token(conn, originator) do
     token_string = conn.private[:auth_auth_token]
-    AuthToken.expire(token_string, :admin_api)
+    AuthToken.expire(token_string, :admin_api, originator)
     handle_fail_auth(conn, :auth_token_expired)
   end
 
