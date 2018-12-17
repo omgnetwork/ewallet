@@ -5,17 +5,12 @@ defmodule EWallet.Web.V1.CSV.TransactionSerializer do
   alias Ecto.Association.NotLoaded
 
   alias EWallet.Web.V1.{
-    AccountSerializer,
     ErrorHandler,
-    ExchangePairSerializer,
-    PaginatorSerializer,
-    TokenSerializer,
-    UserSerializer,
-    WalletSerializer
+    PaginatorSerializer
   }
 
   alias EWallet.Web.{Date, Paginator}
-  alias EWalletConfig.Helpers.Assoc
+  alias Utils.Helpers.Assoc
   alias EWalletDB.Transaction
 
   def serialize(%Paginator{} = paginator) do

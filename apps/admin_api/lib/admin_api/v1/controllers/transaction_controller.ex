@@ -4,12 +4,32 @@ defmodule AdminAPI.V1.TransactionController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.AccountHelper
+  alias AdminAPI.V1.{AccountHelper, ExportController}
   alias Ecto.Changeset
-  alias EWallet.TransactionGate
-  alias EWallet.TransactionPolicy
-  alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.TransactionOverlay}
-  alias EWalletDB.{Account, Repo, Transaction, User}
+  alias EWallet.{TransactionPolicy, TransactionGate, ExportGate, CSVExporter}
+  alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.TransactionOverlay, V1.CSV.TransactionSerializer}
+  alias EWalletDB.{Account, Repo, Transaction, User, Export}
+
+  import Ecto.Query
+
+  def export(conn, attrs) do
+    with :ok <- permit(:export, conn.assigns, nil),
+         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
+         attrs = Originator.set_in_attrs(attrs, conn.assigns, :originator) do
+      # a = "txn_01cyp3bpt51n06khwq6c04bc4r"
+
+
+
+      # where(Transaction, [t], t.id == ^a)
+      Transaction
+      |> Transaction.query_all_for_account_uuids_and_users(account_uuids)
+      |> Orchestrator.build_query(TransactionOverlay, attrs)
+      |> ExportGate.export("transaction", TransactionSerializer, attrs)
+      |> respond_single(conn)
+    else
+      {:error, error} -> handle_error(conn, error)
+    end
+  end
 
   @doc """
   Retrieves a list of transactions.
@@ -125,17 +145,10 @@ defmodule AdminAPI.V1.TransactionController do
     end
   end
 
-  defp query_records_and_respond(query, attrs, %Plug.Conn{req_headers: headers} = conn) do
-    case Enum.member?(headers, {"accept", "text/vnd.omisego.v1+csv"}) do
-      true ->
-        query
-        |> Orchestrator.build_query(TransactionOverlay, attrs)
-        |> CSVExporter.export(TransactionSerializer, conn, "transactions")
-      false ->
-        query
-        |> Orchestrator.query(TransactionOverlay, attrs)
-        |> respond_multiple(conn)
-    end
+  defp query_records_and_respond(query, attrs, conn) do
+    query
+    |> Orchestrator.query(TransactionOverlay, attrs)
+    |> respond_multiple(conn)
   end
 
   # Respond with a list of transactions
@@ -152,8 +165,12 @@ defmodule AdminAPI.V1.TransactionController do
     render(conn, :transaction, %{transaction: transaction})
   end
 
-  defp respond_single({:ok, transaction}, conn) do
+  defp respond_single({:ok, %Transaction{} = transaction}, conn) do
     render(conn, :transaction, %{transaction: transaction})
+  end
+
+  defp respond_single({:ok, %Export{} = export}, conn) do
+    render(conn, :export, %{export: export})
   end
 
   defp respond_single({:error, _transaction, code, description}, conn) do

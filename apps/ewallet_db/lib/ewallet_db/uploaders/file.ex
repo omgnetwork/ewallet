@@ -13,7 +13,7 @@ defmodule EWalletDB.Uploaders.File do
   end
 
   # Override the storage directory:
-  def storage_dir(_version, {_file, scope}) do
+  def storage_dir(_, _) do
     "private/uploads/#{Mix.env()}/exports"
   end
 end

@@ -10,20 +10,10 @@ defmodule AdminAPI.V1.Router do
     plug(:accepts, ["json"])
   end
 
-  pipeline :api_export do
-    plug(:accepts, ["json", "csv"])
-  end
-
   # Pipeline for endpoints that require user authentication or provider
   # authentication
   pipeline :admin_api do
     plug(AdminAPIAuthPlug)
-  end
-
-  scope "/", AdminAPI.V1 do
-    pipe_through([:api_export, :admin_api])
-
-    post("/transaction.all", TransactionController, :all)
   end
 
   # Authenticated endpoints
@@ -53,6 +43,8 @@ defmodule AdminAPI.V1.Router do
     post("/token.mint", MintController, :mint)
 
     # Transaction endpoints
+    post("/transaction.all", TransactionController, :all)
+    post("/transaction.export", TransactionController, :export)
     post("/transaction.get", TransactionController, :get)
     post("/transaction.create", TransactionController, :create)
     post("/transaction.calculate", TransactionCalculationController, :calculate)
