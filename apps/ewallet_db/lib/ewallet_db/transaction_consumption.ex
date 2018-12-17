@@ -334,6 +334,10 @@ defmodule EWalletDB.TransactionConsumption do
   def query_all_for(field_name, value),
     do: where(TransactionConsumption, [t], field(t, ^field_name) == ^value)
 
+  def query_all_for_account_uuids_and_users(query, account_uuids) do
+    where(query, [w], w.account_uuid in ^account_uuids or not is_nil(w.user_uuid))
+  end
+
   @spec query_all_for_account_and_user_uuids([String.t()], [String.t()]) :: Ecto.Queryable.t()
   def query_all_for_account_and_user_uuids(account_uuids, user_uuids) do
     from(
