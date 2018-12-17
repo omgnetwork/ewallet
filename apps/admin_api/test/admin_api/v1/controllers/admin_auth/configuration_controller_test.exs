@@ -1,5 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletConfig.{Config, StoredSetting}
 
   describe "/configuration.get" do
     test "returns a list of settings and pagination data" do
@@ -26,18 +27,20 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
           sort_dir: "asc"
         })
 
+      default_settings = Application.get_env(:ewallet_config, :default_settings)
+
       assert response["success"] == true
-      assert length(response["data"]["data"]) == 19
-      assert response["data"]["pagination"]["count"] == 19
+      assert length(response["data"]["data"]) == Enum.count(default_settings)
+      assert response["data"]["pagination"]["count"] == Enum.count(default_settings)
 
       first_setting = Enum.at(response["data"]["data"], 0)
       last_setting = Enum.at(response["data"]["data"], -1)
 
       assert first_setting["key"] == "base_url"
-      assert first_setting["position"] == 1
+      assert first_setting["position"] == default_settings["base_url"].position
 
       assert last_setting["key"] == "aws_secret_access_key"
-      assert last_setting["position"] == 19
+      assert last_setting["position"] == default_settings["aws_secret_access_key"].position
     end
   end
 
@@ -126,6 +129,32 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
       assert response["success"] == true
 
       assert Application.get_env(:admin_api, :base_url, "new_base_url.example")
+    end
+
+    test "generates an activity log", meta do
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/configuration.update", %{
+          base_url: "new_base_url.example",
+          config_pid: meta[:config_pid]
+        })
+
+      assert response["success"] == true
+      setting = Config.get_setting(:base_url)
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_admin(),
+        target: %StoredSetting{uuid: setting.uuid},
+        changes: %{"data" => %{"value" => "new_base_url.example"}, "position" => setting.position},
+        encrypted_changes: %{}
+      )
     end
   end
 end

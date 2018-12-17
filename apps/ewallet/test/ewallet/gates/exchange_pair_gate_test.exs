@@ -2,6 +2,7 @@ defmodule EWallet.ExchangePairGateTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.ExchangePairGate
   alias EWalletDB.{ExchangePair, Repo}
+  alias ActivityLogger.System
 
   describe "insert/2" do
     test "inserts an exchange pair" do
@@ -12,7 +13,8 @@ defmodule EWallet.ExchangePairGateTest do
         ExchangePairGate.insert(%{
           "rate" => 2.0,
           "from_token_id" => eth.id,
-          "to_token_id" => omg.id
+          "to_token_id" => omg.id,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -33,7 +35,8 @@ defmodule EWallet.ExchangePairGateTest do
           "rate" => 2.0,
           "from_token_id" => eth.id,
           "to_token_id" => omg.id,
-          "sync_opposite" => true
+          "sync_opposite" => true,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -64,7 +67,8 @@ defmodule EWallet.ExchangePairGateTest do
           "rate" => 927_361,
           "from_token_id" => eth.id,
           "to_token_id" => omg.id,
-          "sync_opposite" => true
+          "sync_opposite" => true,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -79,7 +83,8 @@ defmodule EWallet.ExchangePairGateTest do
 
       {res, pairs} =
         ExchangePairGate.update(pair.id, %{
-          "rate" => 999
+          "rate" => 999,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -95,7 +100,8 @@ defmodule EWallet.ExchangePairGateTest do
       {res, pairs} =
         ExchangePairGate.update(pair.id, %{
           "rate" => 777,
-          "sync_opposite" => true
+          "sync_opposite" => true,
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -111,7 +117,8 @@ defmodule EWallet.ExchangePairGateTest do
       {res, code} =
         ExchangePairGate.update(pair.id, %{
           "rate" => 999,
-          "sync_opposite" => true
+          "sync_opposite" => true,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -125,7 +132,8 @@ defmodule EWallet.ExchangePairGateTest do
     test "returns :exchange_pair_id_not_found error if the exchange pair is not found" do
       {res, code} =
         ExchangePairGate.update("wrong_id", %{
-          "rate" => 999
+          "rate" => 999,
+          "originator" => %System{}
         })
 
       assert res == :error
@@ -137,7 +145,7 @@ defmodule EWallet.ExchangePairGateTest do
     test "deletes the exchange pair" do
       pair = insert(:exchange_pair)
 
-      {res, deleted} = ExchangePairGate.delete(pair.id, %{"sync_opposite" => false})
+      {res, deleted} = ExchangePairGate.delete(pair.id, %{"sync_opposite" => false}, %System{})
 
       assert res == :ok
       assert Enum.count(deleted) == 1
@@ -149,7 +157,7 @@ defmodule EWallet.ExchangePairGateTest do
       pair = insert(:exchange_pair)
       opposite = insert(:exchange_pair, from_token: pair.to_token, to_token: pair.from_token)
 
-      {res, deleted} = ExchangePairGate.delete(pair.id, %{"sync_opposite" => true})
+      {res, deleted} = ExchangePairGate.delete(pair.id, %{"sync_opposite" => true}, %System{})
 
       assert res == :ok
       assert Enum.count(deleted) == 2
@@ -161,7 +169,7 @@ defmodule EWallet.ExchangePairGateTest do
       # Create a pair without the opposite so a deletion with `sync_opposite: true` should fail
       pair = insert(:exchange_pair, rate: 2.0)
 
-      {res, code} = ExchangePairGate.delete(pair.id, %{"sync_opposite" => true})
+      {res, code} = ExchangePairGate.delete(pair.id, %{"sync_opposite" => true}, %System{})
 
       assert res == :error
       assert code == :exchange_opposite_pair_not_found
@@ -173,7 +181,7 @@ defmodule EWallet.ExchangePairGateTest do
     end
 
     test "returns :exchange_pair_id_not_found error if the exchange pair is not found" do
-      {res, code} = ExchangePairGate.delete("wrong_id", %{})
+      {res, code} = ExchangePairGate.delete("wrong_id", %{}, %System{})
 
       assert res == :error
       assert code == :exchange_pair_id_not_found

@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{Account, AccountUser, User, AuthToken}
+  alias ActivityLogger.System
 
   @owner_app :some_app
 
@@ -29,10 +30,10 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       user_4 = insert(:user, %{username: "missed_user1"})
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user_1.uuid)
-      {:ok, _} = AccountUser.link(account.uuid, user_2.uuid)
-      {:ok, _} = AccountUser.link(account.uuid, user_3.uuid)
-      {:ok, _} = AccountUser.link(account.uuid, user_4.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user_1.uuid, %System{})
+      {:ok, _} = AccountUser.link(account.uuid, user_2.uuid, %System{})
+      {:ok, _} = AccountUser.link(account.uuid, user_3.uuid, %System{})
+      {:ok, _} = AccountUser.link(account.uuid, user_4.uuid, %System{})
 
       attrs = %{
         # Search is case-insensitive
@@ -62,7 +63,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       target = Enum.at(users, 1)
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, target.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, target.uuid, %System{})
 
       response = provider_request("/user.get", %{"id" => target.id})
 
@@ -94,7 +95,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
         |> insert()
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, inserted_user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, inserted_user.uuid, %System{})
 
       request_data = %{provider_user_id: inserted_user.provider_user_id}
       response = provider_request("/user.get", request_data)
@@ -241,6 +242,73 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
 
       assert response["data"]["messages"] == %{"username" => ["required"]}
     end
+
+    test "generates an activity log" do
+      request_data =
+        params_for(
+          :user,
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        )
+
+      timestamp = DateTime.utc_now()
+
+      response = provider_request("/user.create", request_data)
+
+      assert response["success"] == true
+
+      user = User.get(response["data"]["id"])
+      wallet = User.get_primary_wallet(user)
+      account_user = get_last_inserted(AccountUser)
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 3
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: user,
+        target: wallet,
+        changes: %{
+          "identifier" => "primary",
+          "name" => "primary",
+          "user_uuid" => user.uuid
+        },
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_key(),
+        target: user,
+        changes: %{
+          "metadata" => %{"something" => "interesting"},
+          "calling_name" => user.calling_name,
+          "full_name" => user.full_name,
+          "provider_user_id" => user.provider_user_id,
+          "username" => user.username
+        },
+        encrypted_changes: %{
+          "encrypted_metadata" => %{"something" => "secret"}
+        }
+      )
+
+      logs
+      |> Enum.at(2)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_key(),
+        target: account_user,
+        changes: %{
+          "account_uuid" => account_user.account_uuid,
+          "user_uuid" => user.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/user.update" do
@@ -259,7 +327,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
         })
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response = provider_request("/user.update", request_data)
 
@@ -280,7 +348,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       {:ok, user} = :user |> params_for() |> User.insert()
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       request_data =
         params_for(:user, %{
@@ -304,7 +372,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
         })
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/user.update", %{
@@ -326,7 +394,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
         })
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/user.update", %{
@@ -349,7 +417,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
         })
 
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
       response =
         provider_request("/user.update", %{
@@ -403,15 +471,62 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided."
     end
+
+    test "generates an activity log" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+
+      # Prepare the update data while keeping only provider_user_id the same
+      request_data =
+        params_for(:user, %{
+          provider_user_id: user.provider_user_id,
+          username: "updated_username",
+          metadata: %{
+            first_name: "updated_first_name",
+            last_name: "updated_last_name"
+          }
+        })
+
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
+
+      timestamp = DateTime.utc_now()
+
+      response = provider_request("/user.update", request_data)
+
+      assert response["success"] == true
+
+      user = User.get(response["data"]["id"])
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_key(),
+        target: user,
+        changes: %{
+          "metadata" => %{
+            "first_name" => "updated_first_name",
+            "last_name" => "updated_last_name"
+          },
+          "username" => "updated_username",
+          "calling_name" => user.calling_name,
+          "full_name" => user.full_name
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/user.enable_or_disable" do
     test "disable a user succeed and disable his tokens given his id" do
       user = insert(:user, %{enabled: true})
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
-      {:ok, token} = AuthToken.generate(user, @owner_app)
+      {:ok, token} = AuthToken.generate(user, @owner_app, %System{})
       token_string = token.token
       # Ensure tokens is usable.
       assert AuthToken.authenticate(token_string, @owner_app)
@@ -430,9 +545,9 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
     test "disable a user succeed and disable his tokens given his provider user id" do
       user = insert(:user, %{enabled: true})
       account = Account.get_master_account()
-      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
-      {:ok, token} = AuthToken.generate(user, @owner_app)
+      {:ok, token} = AuthToken.generate(user, @owner_app, %System{})
       token_string = token.token
       # Ensure tokens is usable.
       assert AuthToken.authenticate(token_string, @owner_app)
@@ -452,7 +567,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       master = Account.get_master_account()
 
       user = insert(:user, %{enabled: true})
-      {:ok, _} = AccountUser.link(master.uuid, user.uuid)
+      {:ok, _} = AccountUser.link(master.uuid, user.uuid, %System{})
 
       sub_acc = insert(:account, parent: master, name: "Account 1")
       key = insert(:key, %{account: sub_acc})
@@ -497,6 +612,37 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
 
       assert response["data"]["description"] ==
                "Invalid parameter provided. `id` or `provider_user_id` is required."
+    end
+
+    test "generates an activity log" do
+      user = insert(:user, %{enabled: true})
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/user.enable_or_disable", %{
+          id: user.id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_key(),
+        target: user,
+        changes: %{
+          "enabled" => false
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

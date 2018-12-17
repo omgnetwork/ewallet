@@ -3,6 +3,7 @@ defmodule EWalletDB.Repo.Seeds.TransactionRequestSeed do
   alias EWallet.TransactionConsumptionConfirmerGate
   alias EWallet.Web.Preloader
   alias EWalletDB.{Account, Token, TransactionConsumption, TransactionRequest, User}
+  alias EWalletDB.Seeder
 
   @num_requests 20
   @request_correlation_id_prefix "transaction_request_"
@@ -94,13 +95,13 @@ defmodule EWalletDB.Repo.Seeds.TransactionRequestSeed do
     |> TransactionConsumption.insert()
     |> case do
       {:ok, consumption} ->
-        consumption = TransactionConsumption.approve(consumption)
+        consumption = TransactionConsumption.approve(consumption, %Seeder{})
 
         {:ok, consumption} =
           Preloader.preload_one(consumption, [:token, :wallet, :transaction_request])
 
         {:ok, consumption} =
-          TransactionConsumptionConfirmerGate.approve_and_confirm(request, consumption)
+          TransactionConsumptionConfirmerGate.approve_and_confirm(request, consumption, %Seeder{})
 
         writer.success("""
             Transaction Consumption ID : #{consumption.id}
@@ -142,6 +143,7 @@ defmodule EWalletDB.Repo.Seeds.TransactionRequestSeed do
       max_consumptions_per_user: rand(attrs.max_consumptions_per_user),
       exchange_account_id: nil,
       exchange_wallet_address: nil,
+      originator: %Seeder{}
     }
   end
 
@@ -158,6 +160,7 @@ defmodule EWalletDB.Repo.Seeds.TransactionRequestSeed do
       wallet_address: user_wallet.address,
       estimated_request_amount: request.amount,
       estimated_consumption_amount: request.amount,
+      originator: %Seeder{}
     }
   end
 

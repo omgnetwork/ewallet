@@ -1,6 +1,7 @@
 defmodule EWalletDB.Repo.Seeds.APIKeySampleSeed do
   alias EWallet.Web.Preloader
   alias EWalletDB.{Account, APIKey}
+  alias EWalletDB.Seeder
 
   def seed do
     [
@@ -11,8 +12,9 @@ defmodule EWalletDB.Repo.Seeds.APIKeySampleSeed do
 
   def run(writer, args) do
     account = Account.get_by(name: "master_account")
+    data = %{account_uuid: account.uuid, owner_app: "ewallet_api", originator: %Seeder{}}
 
-    case APIKey.insert(%{account_uuid: account.uuid, owner_app: "ewallet_api"}) do
+    case APIKey.insert(data) do
       {:ok, api_key} ->
         {:ok, api_key} = Preloader.preload_one(api_key, :account)
 

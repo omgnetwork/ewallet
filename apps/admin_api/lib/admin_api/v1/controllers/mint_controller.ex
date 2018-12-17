@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.MintController do
   import AdminAPI.V1.ErrorHandler
   alias Ecto.Changeset
   alias EWallet.{MintGate, MintPolicy}
-  alias EWallet.Web.{Orchestrator, Paginator, V1.MintOverlay}
+  alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.MintOverlay}
   alias EWalletDB.{Mint, Token}
   alias Plug.Conn
 
@@ -39,6 +39,8 @@ defmodule AdminAPI.V1.MintController do
         } = attrs
       ) do
     with :ok <- permit(:create, conn.assigns, token_id),
+         originator <- Originator.extract(conn.assigns),
+         attrs <- Map.put(attrs, "originator", originator),
          %Token{} = token <- Token.get(token_id) || :token_not_found,
          {:ok, mint, _token} <- MintGate.mint_token(token, attrs),
          {:ok, mint} <- Orchestrator.one(mint, MintOverlay, attrs) do

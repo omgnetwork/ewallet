@@ -11,7 +11,8 @@ defmodule EWallet.GenesisGate do
         account: account,
         token: token,
         amount: amount,
-        attrs: attrs
+        attrs: attrs,
+        originator: originator
       }) do
     Transaction.get_or_insert(%{
       idempotency_token: idempotency_token,
@@ -24,7 +25,8 @@ defmodule EWallet.GenesisGate do
       to_amount: amount,
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
-      payload: attrs
+      payload: Map.delete(attrs, "originator"),
+      originator: originator
     })
   end
 
@@ -54,7 +56,7 @@ defmodule EWallet.GenesisGate do
     do: {:error, code, description, mint}
 
   defp confirm_and_return(transaction, mint) do
-    mint = Mint.confirm(mint)
+    mint = Mint.confirm(mint, transaction)
     {:ok, mint, transaction}
   end
 end

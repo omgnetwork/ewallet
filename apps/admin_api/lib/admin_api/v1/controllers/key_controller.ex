@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.KeyController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.KeyPolicy
-  alias EWallet.Web.{Orchestrator, Paginator, V1.KeyOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.KeyOverlay}
   alias EWalletDB.Key
 
   @doc """
@@ -38,7 +38,8 @@ defmodule AdminAPI.V1.KeyController do
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
-         {:ok, key} <- Key.insert(%{}),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns, :originator),
+         {:ok, key} <- Key.insert(attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
       render(conn, :key, %{key: key})
     else
@@ -57,6 +58,7 @@ defmodule AdminAPI.V1.KeyController do
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
          %Key{} = key <- Key.get(id) || {:error, :key_not_found},
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, key} <- Key.enable_or_disable(key, attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
       render(conn, :key, %{key: key})
@@ -80,6 +82,7 @@ defmodule AdminAPI.V1.KeyController do
   def enable_or_disable(conn, %{"id" => id, "enabled" => _} = attrs) do
     with :ok <- permit(:enable_or_disable, conn.assigns, id),
          %Key{} = key <- Key.get(id) || {:error, :key_not_found},
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, key} <- Key.enable_or_disable(key, attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
       render(conn, :key, %{key: key})
@@ -102,7 +105,7 @@ defmodule AdminAPI.V1.KeyController do
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"access_key" => access_key}) do
     with :ok <- permit(:delete, conn.assigns, nil) do
-      key = Key.get(:access_key, access_key)
+      key = Key.get_by(access_key: access_key)
       do_delete(conn, key)
     else
       {:error, code} ->
@@ -123,7 +126,9 @@ defmodule AdminAPI.V1.KeyController do
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp do_delete(conn, %Key{} = key) do
-    case Key.delete(key) do
+    originator = Originator.extract(conn.assigns)
+
+    case Key.delete(key, originator) do
       {:ok, _key} ->
         render(conn, :empty_response)
 

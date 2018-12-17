@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.AdminAuthController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AdminUserAuthenticator
   alias EWallet.AccountPolicy
-  alias EWallet.Web.{Orchestrator, V1.AuthTokenOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, V1.AuthTokenOverlay}
   alias EWalletDB.{Account, AuthToken, User}
 
   @doc """
@@ -16,7 +16,8 @@ defmodule AdminAPI.V1.AdminAuthController do
          conn <- AdminUserAuthenticator.authenticate(conn, attrs["email"], attrs["password"]),
          true <- conn.assigns.authenticated || {:error, :invalid_login_credentials},
          true <- User.get_status(conn.assigns.admin_user) == :active || {:error, :invite_pending},
-         {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api),
+         originator <- Originator.extract(conn.assigns),
+         {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api, originator),
          {:ok, auth_token} <- Orchestrator.one(auth_token, AuthTokenOverlay, attrs) do
       render_token(conn, auth_token)
     else
@@ -32,7 +33,8 @@ defmodule AdminAPI.V1.AdminAuthController do
          token <- conn.private.auth_auth_token,
          %AuthToken{} = token <-
            AuthToken.get_by_token(token, :admin_api) || {:error, :auth_token_not_found},
-         {:ok, token} <- AuthToken.switch_account(token, account),
+         originator <- Originator.extract(conn.assigns),
+         {:ok, token} <- AuthToken.switch_account(token, account, originator),
          {:ok, token} <- Orchestrator.one(token, AuthTokenOverlay, attrs) do
       render_token(conn, token)
     else
@@ -51,9 +53,10 @@ defmodule AdminAPI.V1.AdminAuthController do
   Invalidates the authentication token used in this request.
   """
   def logout(conn, _attrs) do
-    with {:ok, _current_user} <- permit(:update, conn.assigns) do
+    with {:ok, _current_user} <- permit(:update, conn.assigns),
+         originator <- Originator.extract(conn.assigns) do
       conn
-      |> AdminUserAuthenticator.expire_token()
+      |> AdminUserAuthenticator.expire_token(originator)
       |> render(:empty_response, %{})
     else
       {:error, code} ->

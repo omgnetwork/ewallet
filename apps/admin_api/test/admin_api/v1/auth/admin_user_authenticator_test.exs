@@ -1,8 +1,9 @@
 defmodule AdminAPI.Web.V1.AdminUserAuthenticatorTest do
   use AdminAPI.ConnCase, async: true
   alias AdminAPI.V1.AdminUserAuthenticator
-  alias EWalletConfig.Helpers.Crypto
   alias EWalletDB.User
+  alias Utils.Helpers.Crypto
+  alias ActivityLogger.System
 
   describe "authenticate/3" do
     test "returns authenticated:true if email and password are valid" do
@@ -54,7 +55,7 @@ defmodule AdminAPI.Web.V1.AdminUserAuthenticatorTest do
 
     test "returns authenticated:false if user is disabled" do
       admin = get_test_admin()
-      User.enable_or_disable(admin, %{enabled: false})
+      User.enable_or_disable(admin, %{enabled: false, originator: %System{}})
       conn = AdminUserAuthenticator.authenticate(build_conn(), @user_email, @password)
       assert_error(conn)
     end

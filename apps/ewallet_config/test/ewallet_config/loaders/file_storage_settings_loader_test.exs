@@ -13,8 +13,11 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
       :gcs_credentials
     ])
 
+    config_pid = start_supervised!(EWalletConfig.Config)
+
     ConfigTestHelper.restart_config_genserver(
       self(),
+      config_pid,
       EWalletConfig.Repo,
       [:my_app],
       opts

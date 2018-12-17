@@ -1,6 +1,6 @@
 defmodule EWalletDB.Repo.Seeds.AuthTokenSeed do
   alias EWallet.Web.Preloader
-  alias EWalletDB.{AuthToken, User}
+  alias EWalletDB.{AuthToken, User, Seeder}
 
   def seed do
     [
@@ -13,7 +13,7 @@ defmodule EWalletDB.Repo.Seeds.AuthTokenSeed do
     user = User.get_by_email(args[:admin_email])
     owner_app = :admin_api
 
-    case AuthToken.generate(user, owner_app) do
+    case AuthToken.generate(user, owner_app, %Seeder{}) do
       {:ok, token} ->
         {:ok, token} = Preloader.preload_one(token, :user)
 

@@ -3,7 +3,6 @@ defmodule AdminAPI.V1.ResetPasswordView do
   alias EWallet.Web.V1.ResponseSerializer
 
   def render("empty.json", %{success: success}) do
-    %{}
-    |> ResponseSerializer.serialize(success: success)
+    ResponseSerializer.serialize(%{}, success: success)
   end
 end

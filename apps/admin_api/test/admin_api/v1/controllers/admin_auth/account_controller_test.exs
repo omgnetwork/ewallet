@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Account, Membership, Repo, Role, User}
+  alias ActivityLogger.System
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -48,7 +49,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
     test "returns a list of accounts that the current user can access" do
       master = Account.get_master_account()
       user = get_test_admin()
-      {:ok, _m} = Membership.unassign(user, master)
+      {:ok, _m} = Membership.unassign(user, master, %System{})
 
       role = Role.get_by(name: "admin")
 
@@ -60,7 +61,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
 
       # We add user to acc_2, so he should have access to
       # acc_2 and its descendants: acc_3, acc_4, acc_5
-      {:ok, _m} = Membership.assign(user, acc_2, role)
+      {:ok, _m} = Membership.assign(user, acc_2, role, %System{})
 
       response = admin_user_request("/account.all", %{})
       accounts = response["data"]["data"]
@@ -76,7 +77,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
     test "returns only one account if the user is at the last level" do
       master = Account.get_master_account()
       user = get_test_admin()
-      {:ok, _m} = Membership.unassign(user, master)
+      {:ok, _m} = Membership.unassign(user, master, %System{})
 
       role = Role.get_by(name: "admin")
 
@@ -86,7 +87,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       _acc_4 = insert(:account, parent: acc_3, name: "Account 4")
       acc_5 = insert(:account, parent: acc_3, name: "Account 5")
 
-      {:ok, _m} = Membership.assign(user, acc_5, role)
+      {:ok, _m} = Membership.assign(user, acc_5, role, %System{})
 
       response = admin_user_request("/account.all", %{})
       accounts = response["data"]["data"]
@@ -180,12 +181,12 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       user = get_test_admin()
       role = Role.get_by(name: "admin")
 
-      {:ok, _m} = Membership.unassign(user, master)
+      {:ok, _m} = Membership.unassign(user, master, %System{})
       accounts = insert_list(3, :account)
 
       # Pick the 2nd inserted account
       target = Enum.at(accounts, 1)
-      Membership.assign(user, target, role)
+      Membership.assign(user, target, role, %System{})
       response = admin_user_request("/account.get", %{"id" => target.id})
 
       assert response["success"]
@@ -196,7 +197,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
     test "gets unauthorized if the user doesn't have access" do
       master = Account.get_master_account()
       user = get_test_admin()
-      {:ok, _m} = Membership.unassign(user, master)
+      {:ok, _m} = Membership.unassign(user, master, %System{})
       accounts = insert_list(3, :account)
       # Pick the 2nd inserted account
       target = Enum.at(accounts, 1)
@@ -252,6 +253,60 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
     end
 
+    test "generates an activity log" do
+      user = get_test_admin()
+      parent = User.get_account(user)
+      timestamp = DateTime.utc_now()
+
+      request_data = %{
+        parent_id: parent.id,
+        name: "A test account",
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
+      }
+
+      response = admin_user_request("/account.create", request_data)
+
+      assert response["success"] == true
+
+      account = Account.get(response["data"]["id"])
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 3
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator_type: "account",
+        target_type: "wallet"
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "insert",
+        originator_type: "account",
+        target_type: "wallet"
+      )
+
+      logs
+      |> Enum.at(2)
+      |> assert_activity_log(
+        action: "insert",
+        originator: user,
+        target: account,
+        changes: %{
+          "metadata" => %{"something" => "interesting"},
+          "name" => "A test account",
+          "parent_uuid" => parent.uuid
+        },
+        encrypted_changes: %{
+          "encrypted_metadata" => %{"something" => "secret"}
+        }
+      )
+    end
+
     test "creates a new account with no parent_id" do
       parent = Account.get_master_account()
 
@@ -301,6 +356,44 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["data"]["object"] == "account"
       assert response["data"]["name"] == "updated_name"
       assert response["data"]["description"] == "updated_description"
+    end
+
+    test "generates an activity log" do
+      user = get_test_admin()
+      account = User.get_account(user)
+      timestamp = DateTime.utc_now()
+
+      request_data =
+        params_for(:account, %{
+          id: account.id,
+          name: "updated_name",
+          description: "updated_description",
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      response = admin_user_request("/account.update", request_data)
+
+      assert response["success"] == true
+
+      account = Account.get(response["data"]["id"])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: user,
+        target: account,
+        changes: %{
+          "name" => "updated_name",
+          "parent_uuid" => account.parent_uuid,
+          "description" => "updated_description"
+        },
+        encrypted_changes: %{
+          "encrypted_metadata" => %{"something" => "secret"}
+        }
+      )
     end
 
     test "updates the account's categories" do
@@ -496,6 +589,42 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
 
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation."
+    end
+
+    test "generates an activity log" do
+      user = get_test_admin()
+      account = insert(:account)
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
+
+      assert response["success"] == true
+
+      account = Account.get(account.id)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: user,
+        target: account,
+        changes: %{
+          "avatar" => %{
+            "file_name" => "test.jpg",
+            "updated_at" => Ecto.DateTime.to_iso8601(account.avatar.updated_at)
+          }
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 end

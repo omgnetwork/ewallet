@@ -47,3 +47,51 @@ UserVerifyEmailBody:
         example:
           email: johndoe@example.com
           token: some_token_string
+
+UserResetPasswordBody:
+  description: The parameters to use for requesting a password reset
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          email:
+            type: string
+            format: email
+          redirect_url:
+            type: string
+        required:
+          - email
+          - redirect_url
+        example:
+          email: johndoe@example.com
+          redirect_url: 'https://example.com/reset_password?email={email}&token={token}'
+
+UserUpdatePasswordBody:
+  description: The parameters to use for resetting the user's password
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          email:
+            type: string
+            format: email
+          token:
+            type: string
+          password:
+            type: string
+            format: password
+          password_confirmation:
+            type: string
+            format: password
+        required:
+          - email
+          - token
+          - password
+          - password_confirmation
+        example:
+          email: johndoe@example.com
+          token: some_token_string
+          password: new_password
+          password_confirmation: new_password
