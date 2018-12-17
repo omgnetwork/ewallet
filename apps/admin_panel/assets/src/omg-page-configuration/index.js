@@ -37,14 +37,16 @@ const SubSettingContainer = styled.div`
   }
 `
 const InputPrefixContainer = styled.div`
-  display: flex;
-  align-items: center;
+  position: relative;
   i {
+    position: absolute;
+    right: -20px;
+    top: 0;
     visibility: ${props => (props.hide ? 'hidden' : 'visible')};
     opacity: 0;
     font-size: 8px;
     cursor: pointer;
-    margin-left: 10px;
+    padding: 10px;
   }
   :hover > i {
     opacity: 1;
