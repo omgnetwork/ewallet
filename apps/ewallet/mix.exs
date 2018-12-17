@@ -29,7 +29,7 @@ defmodule EWallet.Mixfile do
   def application do
     [
       mod: {EWallet.Application, []},
-      extra_applications: [:logger]
+      extra_applications: [:sentry, :logger]
     ]
   end
 
@@ -49,6 +49,8 @@ defmodule EWallet.Mixfile do
       {:bamboo_smtp, "~> 1.4.0"},
       {:decimal, "~> 1.0"},
       {:deferred_config, "~> 0.1.0"},
+      {:sentry, "~> 6.4"},
+      {:bypass, "~> 1.0.0", only: [:test]},
       {:ewallet_db, in_umbrella: true},
       {:ewallet_config, in_umbrella: true},
       {:local_ledger, in_umbrella: true},
