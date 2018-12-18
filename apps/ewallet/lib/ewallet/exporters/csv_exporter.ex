@@ -1,7 +1,7 @@
 defmodule EWallet.CSVExporter do
   use GenServer
   import Ecto.Query
-  alias EWallet.{S3Exporter, CSVExporter}
+  alias EWallet.{S3Adapter, GCSAdapter, LocalAdapter, CSVExporter}
   alias EWalletDB.{Repo, Export, Uploaders.File}
   alias EWalletConfig.Config
 
@@ -32,7 +32,6 @@ defmodule EWallet.CSVExporter do
   end
 
   def handle_cast(:upload, state) do
-    IO.inspect(state.export)
     adapter_module = get_adapter_module(state.export.adapter)
     adapter_module.upload(state, &update_export/4)
 
@@ -50,9 +49,9 @@ defmodule EWallet.CSVExporter do
 
   defp get_adapter_module(export) do
     case Config.get(:file_storage_adapter) do
-      "aws"   -> S3Exporter
-      "gcs"   -> nil
-      "local" -> nil
+      "aws"   -> S3Adapter
+      "gcs"   -> GCSAdapter
+      "local" -> LocalAdapter
     end
   end
 

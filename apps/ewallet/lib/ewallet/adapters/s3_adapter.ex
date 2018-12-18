@@ -1,33 +1,14 @@
-defmodule EWallet.S3Exporter do
+defmodule EWallet.S3Adapter do
   alias EWalletDB.{Repo, Export, Uploaders.File}
   alias EWalletConfig.Config
 
   @min_byte_size 5_243_000
 
-  def generate_signed_url(export) do
-    host = Application.get_env(:arc, :asset_host)
-
-    config = %{
-      access_key_id: Application.get_env(:ewallet, :aws_access_key_id),
-      secret_access_key: Application.get_env(:ewallet, :aws_secret_access_key),
-      region: Application.get_env(:ewallet, :aws_region)
-    }
-
-    http_method = :get
-    url = "#{host}/#{export.path}"
-    service = :s3
-    now = DateTime.utc_now()
-    datetime = {{now.year, now.month, now.day}, {now.hour, now.minute, now.second}}
-    expires = 1200
-
-    ExAws.Auth.presigned_url(http_method, url, service, datetime, config, expires)
-  end
-
   def upload(args, update_export) do
-    case args.export.estimated_size > @min_byte_size * 2 do
+    case args[:estimated_size] > @min_byte_size * 2 do
       true ->
-        parts = trunc(args.export.estimated_size / @min_byte_size)
-        chunk_size = args.export.estimated_size / parts
+        parts = trunc(args[:estimated_size] / @min_byte_size)
+        chunk_size = args[:estimated_size] / parts
 
         chunk = fn line, acc ->
           {:cont, "#{acc}#{line}"}
@@ -49,8 +30,7 @@ defmodule EWallet.S3Exporter do
           |> Stream.chunk_while("", chunk, after_chunk)
           |> Stream.with_index(1)
           |> Stream.each(fn {chunk, index} ->
-            completion = 100
-            (chunk * index) / args.export.estimated_size * 100
+            completion = chunk_size * index
             {:ok, export} = update_export.(args.export, Export.processing(), completion)
           end)
           |> ExAws.S3.upload(get_bucket(), args.path)
@@ -68,7 +48,7 @@ defmodule EWallet.S3Exporter do
 
         # direct upload
         EWalletDB.Uploaders.File.store(%{
-          filename: args.export.filename,
+          filename: args.filename,
           binary: data
         })
         |> case do
