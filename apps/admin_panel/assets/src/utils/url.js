@@ -25,5 +25,12 @@ export function appendParams (url, params) {
 }
 
 export function isAbsoluteURL (url) {
-  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url)
+	let schemeWhitelist =  ["http://", "https://", "ws://", "wss://"];
+	for (let i = 0; i < schemeWhitelist.length; i++) {
+		let scheme =  schemeWhitelist[i];
+		if (url.startsWith(scheme)) {
+			return true;
+		}
+	}
+	return false;
 };
