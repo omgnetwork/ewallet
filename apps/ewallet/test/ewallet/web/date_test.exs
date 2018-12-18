@@ -13,9 +13,10 @@ defmodule EWallet.Web.DateTest do
 
     test "formats a normal date time" do
       {:ok, date, 0} = DateTime.from_iso8601("2000-01-01T10:01:02Z")
+      IO.inspect(date)
       formatted_date = Date.to_iso8601(date)
 
-      assert formatted_date == "2000-01-01T10:01:02"
+      assert formatted_date == "2000-01-01T10:01:02Z"
     end
 
     test "Raise an exception if the type is not supported" do

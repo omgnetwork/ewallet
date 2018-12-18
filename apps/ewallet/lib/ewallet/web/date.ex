@@ -8,6 +8,13 @@ defmodule EWallet.Web.Date do
   @doc """
   Parses the given date time to an iso8601 string.
   """
+  def to_iso8601(%DateTime{} = date) do
+    DateTime.to_iso8601(date)
+  end
+
+  @doc """
+  Parses the given NaiveDateTime to an iso8601 string.
+  """
   def to_iso8601(%NaiveDateTime{} = date) do
     NaiveDateTime.to_iso8601(date)
   end
