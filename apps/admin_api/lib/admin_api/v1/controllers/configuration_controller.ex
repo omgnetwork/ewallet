@@ -4,6 +4,7 @@ defmodule AdminAPI.V1.ConfigurationController do
 
   alias EWallet.Web.{Orchestrator, Originator, V1.ConfigurationOverlay}
   alias EWalletConfig.{Config, Repo}
+  alias EWallet.ConfigurationPolicy
 
   def all(conn, attrs) do
     settings =
@@ -15,12 +16,12 @@ defmodule AdminAPI.V1.ConfigurationController do
   end
 
   def update(conn, attrs) do
-    with attrs <- put_originator(conn, attrs),
+    with :ok <- permit(:update, conn.assigns),
+         attrs <- put_originator(conn, attrs),
          {:ok, settings} <- Config.update(attrs) do
       render(conn, :settings_with_errors, %{settings: settings})
     else
-      {:error, code} ->
-        handle_error(conn, code)
+      {:error, code} -> handle_error(conn, code)
     end
   end
 
@@ -40,5 +41,10 @@ defmodule AdminAPI.V1.ConfigurationController do
 
   defp put_originator(conn, attrs) when is_map(attrs) do
     Map.put(attrs, :originator, Originator.extract(conn.assigns))
+  end
+
+  @spec permit(:get | :update, map()) :: any()
+  defp permit(action, params) do
+    Bodyguard.permit(ConfigurationPolicy, action, params, nil)
   end
 end
