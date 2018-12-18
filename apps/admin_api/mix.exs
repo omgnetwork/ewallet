@@ -4,7 +4,7 @@ defmodule AdminAPI.Mixfile do
   def project do
     [
       app: :admin_api,
-      version: Application.get_env(:ewallet, :version),
+      version: "1.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -46,11 +46,12 @@ defmodule AdminAPI.Mixfile do
   defp deps do
     [
       {:phoenix, "~> 1.3.0"},
-      {:cowboy, "~> 1.0"},
+      {:plug_cowboy, "~> 1.0"},
       {:cors_plug, "~> 1.5"},
-      {:sentry, "~> 6.2.0"},
+      {:sentry, "~> 6.4"},
       {:bodyguard, "~> 2.2"},
       {:deferred_config, "~> 0.1.0"},
+      {:bypass, "~> 1.0.0", only: [:test]},
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},
       {:ewallet, in_umbrella: true}
