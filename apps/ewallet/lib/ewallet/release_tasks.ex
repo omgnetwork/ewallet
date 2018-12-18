@@ -4,6 +4,8 @@ defmodule EWallet.ReleaseTasks do
   """
   alias Ecto.Migrator
   alias EWallet.Seeder.CLI
+  alias EWalletConfig.Config
+  alias ActivityLogger.System
 
   #
   # Utils
@@ -90,5 +92,46 @@ defmodule EWallet.ReleaseTasks do
     app = Keyword.get(repo.config, :otp_app)
     repo_underscore = repo |> Module.split() |> List.last() |> Macro.underscore()
     Path.join([priv_dir(app), repo_underscore, filename])
+  end
+
+  #
+  # Config
+  #
+
+  @config_start_apps [:crypto, :ssl, :postgrex, :ecto, :cloak, :ewallet]
+  @config_apps [:activity_logger, :ewallet_config]
+
+  def config do
+    case :init.get_plain_arguments() do
+      [key, value] ->
+        Enum.each(@config_start_apps, &Application.ensure_all_started/1)
+        Enum.each(@config_apps, &ensure_app_started/1)
+        config_update(key, value)
+
+      _ ->
+        IO.puts("Usage: bin/ewallet config KEY VALUE")
+        :init.stop(1)
+    end
+  end
+
+  def config_update(key, value) when not is_binary(key), do: config_update(to_string(key), value)
+
+  def config_update(key, value) when not is_binary(value),
+    do: config_update(key, to_string(value))
+
+  def config_update(key, value) do
+    case Config.update(%{key => value, originator: %System{}}) do
+      {:ok, [{key, {:ok, _}}]} ->
+        IO.puts("Successfully updated #{key} to #{value}")
+        :init.stop()
+
+      {:ok, [{key, {:error, :setting_not_found}}]} ->
+        IO.puts("Error: #{key} is not a valid settings")
+        :init.stop(1)
+
+      _ ->
+        IO.puts("Error: unknown error")
+        :init.stop(1)
+    end
   end
 end
