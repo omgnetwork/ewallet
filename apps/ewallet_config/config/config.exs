@@ -24,7 +24,8 @@ config :ewallet_config,
       value: [],
       type: "array",
       position: 101,
-      description: "The URL prefixes where the eWallet are allowed to redirect to (for password resets, etc.)"
+      description:
+        "The URL prefixes where the eWallet are allowed to redirect to (for password resets, etc.)"
     },
     "enable_standalone" => %{
       key: "enable_standalone",

@@ -140,6 +140,9 @@ class ConfigurationPage extends Component {
   isSendButtonDisabled () {
     return (
       Object.keys(this.props.configurations).reduce((prev, curr) => {
+        if (String(this.props.configurations[curr].value) !== String(this.state[_.camelCase(curr)])) {
+          console.log(curr)
+        }
         return (
           prev &&
           String(this.props.configurations[curr].value) === String(this.state[_.camelCase(curr)])
@@ -228,7 +231,8 @@ class ConfigurationPage extends Component {
           awsRegion: _.get(result.data.data, 'aws_region.value'),
           awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value'),
           awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value'),
-          balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value')
+          balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value'),
+          forgetPasswordRequestLifetime: _.get(result.data.data, 'forget_password_request_lifetime.value')
         })
         setTimeout(() => {
           window.location.reload()
@@ -427,6 +431,15 @@ class ConfigurationPage extends Component {
           value={String(this.state.minPasswordLength)}
           inputType='number'
           onChange={this.onChangeInput('minPasswordLength')}
+          inputValidator={value => Number(value) >= 1}
+          inputErrorMessage='invalid number'
+        />
+        <ConfigRow
+          name={'Forget Password Request Lifetime'}
+          description={configurations.forget_password_request_lifetime.description}
+          value={String(this.state.forgetPasswordRequestLifetime)}
+          inputType='number'
+          onChange={this.onChangeInput('forgetPasswordRequestLifetime')}
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
         />
