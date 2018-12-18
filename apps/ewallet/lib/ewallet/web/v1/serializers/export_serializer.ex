@@ -9,20 +9,19 @@ defmodule EWallet.Web.V1.ExportSerializer do
   alias EWalletDB.User
 
   def serialize(%Paginator{} = paginator) do
-    IO.inspect("f")
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
 
   def serialize(export) do
-    IO.inspect("allo")
     %{
       object: "export",
       id: export.id,
       socket_topic: "export:#{export.id}",
+      filename: export.filename,
       schema: export.schema,
       status: export.status,
       completion: export.completion,
-      download_url: nil,
+      download_url: export.url,
       user_id: Assoc.get(export, [:user, :id]),
       key_id: Assoc.get(export, [:key, :id]),
       params: export.params,

@@ -115,6 +115,28 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
     }
   end
 
+      # 
+      # test "returns all the transactions in csv", meta do
+      #   IO.inspect("Sending request")
+      #   response =
+      #     admin_user_request("/transaction.all", %{
+      #       "sort_by" => "created",
+      #       "sort_dir" => "asc",
+      #       "per_page" => 20
+      #     }, [], :csv)
+      #
+      #   response
+      #   |> CSV.decode()
+      #   |> Stream.each(fn row ->
+      #     assert [
+      #       ["id", _],
+      #       ["idempotency_token", _],
+      #       ["from_user_id", _]
+      #     ] = row
+      #   end)
+      # end
+
+
   describe "/transaction.all" do
     test "returns all the transactions", meta do
       response =
@@ -149,26 +171,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
                  transaction.id == data["id"]
                end)
              end)
-    end
-
-    test "returns all the transactions in csv", meta do
-      IO.inspect("Sending request")
-      response =
-        admin_user_request("/transaction.all", %{
-          "sort_by" => "created",
-          "sort_dir" => "asc",
-          "per_page" => 20
-        }, [], :csv)
-
-      response
-      |> CSV.decode()
-      |> Stream.each(fn row ->
-        assert [
-          ["id", _],
-          ["idempotency_token", _],
-          ["from_user_id", _]
-        ] = row
-      end)
     end
 
     test "returns all the transactions for a specific address", meta do

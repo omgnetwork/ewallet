@@ -13,6 +13,7 @@ defmodule EWalletDB.Factory do
     APIKey,
     AuthToken,
     Category,
+    Export,
     ExchangePair,
     ForgetPasswordRequest,
     Invite,
@@ -44,6 +45,24 @@ defmodule EWalletDB.Factory do
     schema
     |> struct
     |> Strategy.name_from_struct()
+  end
+
+  def export_factory do
+    %Export{
+      schema: "transaction",
+      filename: sequence("filename"),
+      format: "csv",
+      status: "completed",
+      completion: 100,
+      url: nil,
+      path: "/my/path",
+      failure_reason: nil,
+      estimated_size: 100_000,
+      total_count: 100,
+      adapter: "local",
+      params: %{"sort_by" => "created_at", "sort_dir" => "desc"},
+      originator: %System{}
+    }
   end
 
   def category_factory do

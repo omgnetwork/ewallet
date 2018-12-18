@@ -4,6 +4,25 @@ defmodule EWallet.S3Exporter do
 
   @min_byte_size 5_243_000
 
+  def generate_signed_url(export) do
+    host = Application.get_env(:arc, :asset_host)
+
+    config = %{
+      access_key_id: Application.get_env(:ewallet, :aws_access_key_id),
+      secret_access_key: Application.get_env(:ewallet, :aws_secret_access_key),
+      region: Application.get_env(:ewallet, :aws_region)
+    }
+
+    http_method = :get
+    url = "#{host}/#{export.path}"
+    service = :s3
+    now = DateTime.utc_now()
+    datetime = {{now.year, now.month, now.day}, {now.hour, now.minute, now.second}}
+    expires = 1200
+
+    ExAws.Auth.presigned_url(http_method, url, service, datetime, config, expires)
+  end
+
   def upload(args, update_export) do
     case args.export.estimated_size > @min_byte_size * 2 do
       true ->

@@ -7,6 +7,7 @@ defmodule EWalletDB.Export do
   use Utils.Types.ExternalID
   use ActivityLogger.ActivityLogging
   import EWalletConfig.Validator
+  import EWalletDB.Helpers.Preloader
   import Ecto.{Changeset, Query}
   alias Ecto.{Changeset, Multi, UUID}
   alias EWalletConfig.Config
@@ -125,6 +126,28 @@ defmodule EWalletDB.Export do
 
   def all_for(%Key{} = key) do
     from(t in Export, where: t.key_uuid == ^key.uuid)
+  end
+
+  @doc """
+  Retrieves an export with the given ID.
+  """
+  @spec get(String.t(), keyword()) :: %Export{} | nil | no_return()
+  def get(id, opts \\ [])
+
+  def get(id, opts) when is_external_id(id) do
+    get_by([id: id], opts)
+  end
+
+  def get(_id, _opts), do: nil
+
+  @doc """
+  Retrieves an export using one or more fields.
+  """
+  @spec get_by(map() | keyword(), keyword()) :: %Export{} | nil | no_return()
+  def get_by(fields, opts \\ []) do
+    Export
+    |> Repo.get_by(fields)
+    |> preload_option(opts)
   end
 
   def init(export, schema, count, estimated_size, originator) do

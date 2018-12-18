@@ -51,20 +51,14 @@ config :admin_api, :api_versions, %{
     router: AdminAPI.V1.Router,
     endpoint: AdminAPI.V1.Endpoint,
     websocket_serializer: EWallet.Web.V1.WebsocketResponseSerializer
-  },
-  "text/vnd.omisego.v1+csv" => %{
-    name: "v1",
-    router: AdminAPI.V1.Router,
-    endpoint: AdminAPI.V1.Endpoint
-  },
+  }
 }
 
 # Maps accept header to an extension type so Phoenix knows
 # what format to respond with.
 # Run `mix deps.clean --build mime` when updaing this mapping.
 config :mime, :types, %{
-  "application/vnd.omisego.v1+json" => ["json"],
-  "text/vnd.omisego.v1+csv" => ["csv"]
+  "application/vnd.omisego.v1+json" => ["json"]
 }
 
 # Configs for Sentry exception reporting

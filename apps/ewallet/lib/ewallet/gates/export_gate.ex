@@ -5,6 +5,18 @@ defmodule EWallet.ExportGate do
   alias EWallet.CSVExporter
   alias EWalletDB.{User, Key, Export}
 
+  def generate_url(%{adapter: "aws"} = export) do
+    EWallet.S3Exporter.generate_signed_url(export)
+  end
+
+  def generate_url(%{adapter: "gcs"} = export) do
+    {:ok, ""}
+  end
+
+  def generate_url(%{adapter: "local"} = export) do
+    {:ok, ""}
+  end
+
   def export(query, schema, serializer, attrs) do
     # generate an export
     with {:ok, export} <- insert_export(schema, attrs),
