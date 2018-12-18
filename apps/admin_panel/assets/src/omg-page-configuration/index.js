@@ -232,7 +232,7 @@ class ConfigurationPage extends Component {
         })
         setTimeout(() => {
           window.location.reload()
-        }, 2000)
+        }, 1500)
       } else {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
       }
