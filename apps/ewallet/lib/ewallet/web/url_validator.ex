@@ -18,15 +18,15 @@ defmodule EWallet.Web.UrlValidator do
   Checks that the given url is allowed by the given prefix
   """
   def allowed_redirect_url?(url, prefix) do
-    # Add trailing slashes to prevent urls such as "https://example.comnotexample.com"
-    # matching "https://example.com"
-    url = trailing_slash(url)
-    prefix = trailing_slash(prefix)
+    # Add trailing slashes to prevent urls such as 'https://example.comnotexample.com'
+    # matching 'https://example.com'
+    url = trailing_slashed(url)
+    prefix = trailing_slashed(prefix)
 
     String.starts_with?(url, prefix)
   end
 
-  defp trailing_slash(string) do
-    string |> URI.merge("/") |> to_string()
+  defp trailing_slashed(string) do
+    if String.ends_with?(string, "/"), do: string, else: string <> "/"
   end
 end
