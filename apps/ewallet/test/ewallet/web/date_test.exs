@@ -8,14 +8,14 @@ defmodule EWallet.Web.DateTest do
       naive_date = ~N[2000-01-01 10:01:02]
       formatted_date = Date.to_iso8601(naive_date)
 
-      assert formatted_date == "2000-01-01T10:01:02Z"
+      assert formatted_date == "2000-01-01T10:01:02"
     end
 
     test "formats a normal date time" do
       {:ok, date, 0} = DateTime.from_iso8601("2000-01-01T10:01:02Z")
       formatted_date = Date.to_iso8601(date)
 
-      assert formatted_date == "2000-01-01T10:01:02Z"
+      assert formatted_date == "2000-01-01T10:01:02"
     end
 
     test "Raise an exception if the type is not supported" do
