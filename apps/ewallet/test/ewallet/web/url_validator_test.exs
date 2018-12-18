@@ -5,25 +5,72 @@ defmodule EWallet.Web.UrlValidatorTest do
   alias ActivityLogger.System
 
   describe "allowed_redirect_url?/1" do
-    test "returns true if the given url has the whitelisted prefix", meta do
+    setup meta do
       {:ok, [redirect_url_prefixes: {:ok, _}]} =
         Config.update(
           [
-            redirect_url_prefixes: ["http://test_redirect_prefix"],
+            redirect_url_prefixes: [
+              "https://example.com/allowed",
+              "https://another.example.com/allowed"
+            ],
             originator: %System{}
           ],
           meta[:config_pid]
         )
 
-      assert UrlValidator.allowed_redirect_url?("http://test_redirect_prefix/allowed")
+      :ok
     end
 
-    test "returns true if the given url is prefixed with the base url" do
-      assert UrlValidator.allowed_redirect_url?("http://localhost:4000/allowed")
+    test "returns true if the given url matches at least one of the prefixes" do
+      assert UrlValidator.allowed_redirect_url?("https://example.com/allowed")
+      assert UrlValidator.allowed_redirect_url?("https://another.example.com/allowed")
     end
 
-    test "returns false if the given url is not in the whitelisted prefixes" do
-      refute UrlValidator.allowed_redirect_url?("http://something-else.com/allowed")
+    test "returns false if the given url matches none of the prefixes" do
+      refute UrlValidator.allowed_redirect_url?("https://example.com")
+      refute UrlValidator.allowed_redirect_url?("https://another.example.com")
+      refute UrlValidator.allowed_redirect_url?("https://example.com/not-allowed")
+      refute UrlValidator.allowed_redirect_url?("https://another.example.com/not-allowed")
+    end
+  end
+
+  describe "allowed_redirect_url?/2 with a non-trailing slashed prefix" do
+    setup do
+      {:ok, %{allowed: "https://example.com"}}
+    end
+
+    test "returns true if the given url matches the prefix", meta do
+      assert UrlValidator.allowed_redirect_url?("https://example.com", meta.allowed)
+      assert UrlValidator.allowed_redirect_url?("https://example.com/", meta.allowed)
+      assert UrlValidator.allowed_redirect_url?("https://example.com/segment", meta.allowed)
+      assert UrlValidator.allowed_redirect_url?("https://example.com/segment/", meta.allowed)
+    end
+
+    test "returns false if the given url does not match the prefix", meta do
+      refute UrlValidator.allowed_redirect_url?("https://something-else.com", meta.allowed)
+      refute UrlValidator.allowed_redirect_url?("https://example.com@fake.com", meta.allowed)
+      refute UrlValidator.allowed_redirect_url?("https://example.comfake.com", meta.allowed)
+      refute UrlValidator.allowed_redirect_url?("https://example.com.fake.com", meta.allowed)
+    end
+  end
+
+  describe "allowed_redirect_url?/2 with a trailing-slashed prefix" do
+    setup do
+      {:ok, %{allowed: "https://example.com/"}}
+    end
+
+    test "returns true if the given url matches the prefix", meta do
+      assert UrlValidator.allowed_redirect_url?("https://example.com", meta.allowed)
+      assert UrlValidator.allowed_redirect_url?("https://example.com/", meta.allowed)
+      assert UrlValidator.allowed_redirect_url?("https://example.com/segment", meta.allowed)
+      assert UrlValidator.allowed_redirect_url?("https://example.com/segment/", meta.allowed)
+    end
+
+    test "returns false if the given url does not match the prefix", meta do
+      refute UrlValidator.allowed_redirect_url?("https://something-else.com", meta.allowed)
+      refute UrlValidator.allowed_redirect_url?("https://example.com@fake.com", meta.allowed)
+      refute UrlValidator.allowed_redirect_url?("https://example.comfake.com", meta.allowed)
+      refute UrlValidator.allowed_redirect_url?("https://example.com.fake.com", meta.allowed)
     end
   end
 end
