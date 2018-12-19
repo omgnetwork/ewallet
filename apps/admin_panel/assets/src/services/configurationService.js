@@ -25,7 +25,8 @@ export function updateConfiguration ({
   awsRegion,
   awsAccessKeyId,
   awsSecretAccessKey,
-  balanceCachingStrategy
+  balanceCachingStrategy,
+  forgetPasswordRequestLifetime
 }) {
   return authenticatedRequest({
     path: '/configuration.update',
@@ -51,7 +52,8 @@ export function updateConfiguration ({
         aws_region: awsRegion,
         aws_access_key_id: awsAccessKeyId,
         aws_secret_access_key: awsSecretAccessKey,
-        balance_caching_strategy: balanceCachingStrategy
+        balance_caching_strategy: balanceCachingStrategy,
+        forget_password_request_lifetime: Number(forgetPasswordRequestLifetime)
       },
       _.isNil
     )

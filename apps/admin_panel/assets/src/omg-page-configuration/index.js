@@ -112,6 +112,7 @@ class ConfigurationPage extends Component {
         awsAccessKeyId: props.configurations.aws_access_key_id.value,
         awsSecretAccessKey: props.configurations.aws_secret_access_key.value,
         balanceCachingStrategy: props.configurations.balance_caching_strategy.value,
+        forgetPasswordRequestLifetime: props.configurations.forget_password_request_lifetime.value,
         fetched: true
       }
     } else {
@@ -140,8 +141,9 @@ class ConfigurationPage extends Component {
   isSendButtonDisabled () {
     return (
       Object.keys(this.props.configurations).reduce((prev, curr) => {
-        if (String(this.props.configurations[curr].value) !== String(this.state[_.camelCase(curr)])) {
-          console.log(curr)
+        if (
+          String(this.props.configurations[curr].value) !== String(this.state[_.camelCase(curr)])
+        ) {
         }
         return (
           prev &&
@@ -206,10 +208,7 @@ class ConfigurationPage extends Component {
   onClickSaveConfiguration = async e => {
     try {
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.PENDING })
-      const result = await this.props.updateConfiguration({
-        ...this.state,
-        gcsCredentials: this.state.gcsCredentials
-      })
+      const result = await this.props.updateConfiguration(this.state)
       if (result.data) {
         this.setState({
           submitStatus: CONSTANT.LOADING_STATUS.SUCCESS,
@@ -232,7 +231,10 @@ class ConfigurationPage extends Component {
           awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value'),
           awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value'),
           balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value'),
-          forgetPasswordRequestLifetime: _.get(result.data.data, 'forget_password_request_lifetime.value')
+          forgetPasswordRequestLifetime: _.get(
+            result.data.data,
+            'forget_password_request_lifetime.value'
+          )
         })
         setTimeout(() => {
           window.location.reload()
@@ -440,8 +442,6 @@ class ConfigurationPage extends Component {
           value={String(this.state.forgetPasswordRequestLifetime)}
           inputType='number'
           onChange={this.onChangeInput('forgetPasswordRequestLifetime')}
-          inputValidator={value => Number(value) >= 1}
-          inputErrorMessage='invalid number'
         />
       </Fragment>
     )
