@@ -152,7 +152,7 @@ defmodule EWalletDB.Export do
 
   def init(export, schema, count, estimated_size, originator) do
     time = Timex.format!(export.inserted_at, "%Y-%m-%d_%H:%M:%S:%L", :strftime)
-    filename = "#{schema}-#{time}.csv"
+    filename = "#{schema}-#{export.key_uuid || export.user_uuid}-#{time}.csv"
 
     Export.update(export, %{
       status: Export.processing(),
