@@ -53,7 +53,7 @@ defmodule EWalletDB.Mixfile do
       {:cloak, "~> 0.7.0-alpha"},
       {:plug, "~> 1.0"},
       {:arc, "~> 0.11.0"},
-      {:arc_ecto, "~> 0.11.1"},
+      {:arc_ecto, github: "omisego/arc_ecto"},
       {:deferred_config, "~> 0.1.0"},
 
       # arc GCS dependencies

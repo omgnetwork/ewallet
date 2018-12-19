@@ -1,4 +1,4 @@
-defmodule EWallet.Web.V1.SettingOverlay do
+defmodule EWallet.Web.V1.ConfigurationOverlay do
   @moduledoc """
   Overlay for the Setting schema.
   """

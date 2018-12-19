@@ -1,5 +1,7 @@
 defmodule EWalletAPI.Endpoint do
   use Phoenix.Endpoint, otp_app: :ewallet_api
+  use Appsignal.Phoenix
+  use Sentry.Phoenix.Endpoint
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

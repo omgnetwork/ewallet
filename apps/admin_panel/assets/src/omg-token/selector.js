@@ -17,7 +17,7 @@ export const selectMintedTokenHistoryCachedQuery = state => cacheKey => {
   })
 }
 
-export const selectTokensLoadingStatus = state => state.tokensLoadingStatus
+export const selectTokensLoadingStatus = state => state.loadingStatus.tokens
 export const selectGetTokenById = state => id => {
   return state.tokens[id]
 }

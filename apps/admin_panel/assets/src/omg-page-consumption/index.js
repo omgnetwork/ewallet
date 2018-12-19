@@ -129,7 +129,6 @@ class ConsumptionPage extends Component {
   }
   renderConsumptionPage = ({ data: consumptions, individualLoadingStatus, pagination, fetch }) => {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-consumption-tab']
-    console.log(activeIndexKey)
     return (
       <ConsumptionPageContainer>
         <TopNavigation title={'Transaction Consumptions'} buttons={[]} />

@@ -1,4 +1,4 @@
-defmodule EWallet.Web.V1.ConfigSettingSerializer do
+defmodule EWallet.Web.V1.ConfigurationSerializer do
   @moduledoc """
   Serializes setting(s) into V1 response format.
   """
@@ -28,7 +28,7 @@ defmodule EWallet.Web.V1.ConfigSettingSerializer do
 
   def serialize(%Setting{} = setting) do
     %{
-      object: "configuration_setting",
+      object: "configuration",
       id: setting.id,
       key: setting.key,
       value: setting.value,
@@ -62,7 +62,7 @@ defmodule EWallet.Web.V1.ConfigSettingSerializer do
 
   def serialize({key, {:ok, setting}}, data) do
     Map.put(data, key, %{
-      object: "configuration_setting",
+      object: "configuration",
       id: setting.id,
       key: setting.key,
       value: setting.value,
