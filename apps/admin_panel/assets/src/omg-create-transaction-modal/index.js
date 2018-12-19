@@ -256,6 +256,7 @@ class CreateTransaction extends Component {
               onSelectItem={this.onSelectTokenSelect('fromToken')}
               onChange={this.onChangeSearchToken('fromToken')}
               value={this.state.fromTokenSearchToken}
+              filterByKey
               options={
                 fromWallet
                   ? fromWallet.balances.map(b => ({
@@ -312,6 +313,7 @@ class CreateTransaction extends Component {
                 onSelectItem={this.onSelectTokenSelect('toToken')}
                 onChange={this.onChangeSearchToken('toToken')}
                 value={this.state.toTokenSearchToken}
+                filterByKey
                 options={
                   toWallet
                     ? toWallet.balances.map(b => ({

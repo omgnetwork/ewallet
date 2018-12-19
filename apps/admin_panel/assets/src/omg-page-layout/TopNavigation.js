@@ -47,11 +47,9 @@ export default class TopNavigation extends PureComponent {
   static propTypes = {
     buttons: PropTypes.array,
     title: PropTypes.string,
-    types: PropTypes.bool,
     secondaryAction: PropTypes.bool
   }
   static defaultProps = {
-    types: true,
     secondaryAction: true
   }
   renderSecondaryActions () {

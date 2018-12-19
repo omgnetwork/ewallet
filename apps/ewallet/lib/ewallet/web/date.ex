@@ -6,19 +6,17 @@ defmodule EWallet.Web.Date do
   alias EWallet.Errors.InvalidDateFormatError
 
   @doc """
-  Parses the given naive date time to an iso8601 string.
-  """
-  def to_iso8601(%NaiveDateTime{} = date) do
-    date
-    |> DateTime.from_naive!("Etc/UTC")
-    |> to_iso8601()
-  end
-
-  @doc """
   Parses the given date time to an iso8601 string.
   """
   def to_iso8601(%DateTime{} = date) do
     DateTime.to_iso8601(date)
+  end
+
+  @doc """
+  Parses the given NaiveDateTime to an iso8601 string.
+  """
+  def to_iso8601(%NaiveDateTime{} = date) do
+    NaiveDateTime.to_iso8601(date)
   end
 
   @doc """
