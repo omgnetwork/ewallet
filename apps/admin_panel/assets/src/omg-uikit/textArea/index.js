@@ -108,7 +108,7 @@ class InputComonent extends PureComponent {
     suffix: PropTypes.node,
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.any]),
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     type: PropTypes.string,
     validator: PropTypes.func
   }
@@ -119,6 +119,7 @@ class InputComonent extends PureComponent {
     registerRef: () => {},
     onPressEscape: () => {},
     onPressEnter: () => {},
+    validator: () => {},
     type: 'string'
   }
   state = {
@@ -178,14 +179,14 @@ class InputComonent extends PureComponent {
             onFocus={this.onFocus}
             onBlur={this.onBlur}
             onChange={this.onChange}
-            error={this.props.validator ? !this.props.validator(this.props.value) : this.props.error}
+            error={this.props.validator ? this.props.validator(this.props.value) : this.props.error}
             type={this.props.type === 'amount' ? 'string' : this.props.type}
           />
           <Placeholder inputActive={this.isInputActive()}>{placeholder}</Placeholder>
           <Suffix>{this.props.suffix}</Suffix>
         </InnerContainer>
         <Error
-          error={this.props.validator ? !this.props.validator(this.props.value) : this.props.error}
+          error={this.props.validator ? this.props.validator(this.props.value) : this.props.error}
         >
           {this.props.errorText}
         </Error>

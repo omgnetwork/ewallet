@@ -2,19 +2,17 @@ defmodule AdminAPI.V1.ConfigurationController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
 
-  alias EWallet.Web.{Orchestrator, Originator, V1.SettingOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, V1.ConfigurationOverlay}
   alias EWalletConfig.{Config, Repo}
   alias EWallet.ConfigurationPolicy
 
-  def get(conn, attrs) do
-    with :ok <- permit(:get, conn.assigns),
-         settings =
-           Config.query_settings()
-           |> Orchestrator.query(SettingOverlay, attrs, Repo) do
-      render(conn, :settings, %{settings: settings})
-    else
-      {:error, code} -> handle_error(conn, code)
-    end
+  def all(conn, attrs) do
+    settings =
+      Config.query_settings()
+      |> Orchestrator.build_query(ConfigurationOverlay, attrs)
+      |> Repo.all()
+
+    render(conn, :settings, %{settings: settings})
   end
 
   def update(conn, attrs) do

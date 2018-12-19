@@ -1,16 +1,16 @@
 defmodule AdminAPI.V1.ConfigurationView do
   use AdminAPI, :view
-  alias EWallet.Web.V1.{ConfigSettingSerializer, ResponseSerializer}
+  alias EWallet.Web.V1.{ConfigurationSerializer, ResponseSerializer}
 
   def render("settings.json", %{settings: settings}) do
     settings
-    |> ConfigSettingSerializer.serialize()
+    |> ConfigurationSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 
   def render("settings_with_errors.json", %{settings: settings}) do
     settings
-    |> ConfigSettingSerializer.serialize_with_errors()
+    |> ConfigurationSerializer.serialize_with_errors()
     |> ResponseSerializer.serialize(success: true)
   end
 end
