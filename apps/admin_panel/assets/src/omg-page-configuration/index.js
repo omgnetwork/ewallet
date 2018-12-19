@@ -442,6 +442,8 @@ class ConfigurationPage extends Component {
           value={String(this.state.forgetPasswordRequestLifetime)}
           inputType='number'
           onChange={this.onChangeInput('forgetPasswordRequestLifetime')}
+          inputValidator={value => Number(value) >= 1}
+          inputErrorMessage='invalid number'
         />
       </Fragment>
     )
