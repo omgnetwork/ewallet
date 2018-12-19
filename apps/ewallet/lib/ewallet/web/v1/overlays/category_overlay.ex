@@ -6,6 +6,8 @@ defmodule EWallet.Web.V1.CategoryOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.AccountOverlay
 
+  def serializer, do: EWallet.Web.V1.CategorySerializer
+
   def preload_assocs, do: [:accounts]
 
   def default_preload_assocs,

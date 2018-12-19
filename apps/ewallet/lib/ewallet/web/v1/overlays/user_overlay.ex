@@ -13,6 +13,8 @@ defmodule EWallet.Web.V1.UserOverlay do
     AccountOverlay
   }
 
+  def serializer, do: EWallet.Web.V1.UserSerializer
+
   def preload_assocs,
     do: []
 

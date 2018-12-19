@@ -9,6 +9,8 @@ defmodule EWallet.Web.V1.WalletOverlay do
     AccountOverlay
   }
 
+  def serializer, do: EWallet.Web.V1.WalletSerializer
+
   def preload_assocs,
     do: [
       :user,

@@ -4,6 +4,8 @@ defmodule EWallet.Web.V1.SettingOverlay do
   """
   @behaviour EWallet.Web.V1.Overlay
 
+  def serializer, do: EWallet.Web.V1.ConfigSettingSerializer
+
   def preload_assocs,
     do: []
 

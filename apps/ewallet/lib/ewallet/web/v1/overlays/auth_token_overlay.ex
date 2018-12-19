@@ -4,6 +4,8 @@ defmodule EWallet.Web.V1.AuthTokenOverlay do
   """
   @behaviour EWallet.Web.V1.Overlay
 
+  def serializer, do: EWallet.Web.V1.UserAuthTokenSerializer
+
   def preload_assocs,
     do: []
 

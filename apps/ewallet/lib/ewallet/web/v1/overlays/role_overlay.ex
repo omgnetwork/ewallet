@@ -6,6 +6,8 @@ defmodule EWallet.Web.V1.RoleOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.{UserOverlay}
 
+  def serializer, do: EWallet.Web.V1.RoleSerializer
+
   def preload_assocs,
     do: [
       :users

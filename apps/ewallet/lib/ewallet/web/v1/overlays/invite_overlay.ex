@@ -8,6 +8,8 @@ defmodule EWallet.Web.V1.InviteOverlay do
     UserOverlay
   }
 
+  def serializer, do: nil
+
   def preload_assocs,
     do: [:user]
 
