@@ -28,7 +28,7 @@ export function isAbsoluteURL (url) {
 	let schemeWhitelist =  ["http://", "https://", "ws://", "wss://"];
 	for (let i = 0; i < schemeWhitelist.length; i++) {
 		let scheme =  schemeWhitelist[i];
-		if (url.startsWith(scheme)) {
+		if (url.indexOf(scheme) === 0) {
 			return true;
 		}
 	}
