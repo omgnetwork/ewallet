@@ -8,7 +8,7 @@ export const configurationReducer = createReducer(
       return { ...state, ..._.keyBy(action.data.data, 'key') }
     },
     'CONFIGURATIONS/UPDATE/SUCCESS': (state, action) => {
-      return { ...state, ...action.data.data }
+      return { ...state, ..._.filter(action.data.data, ({ object }) => object !== 'error') }
     }
   }
 )
