@@ -25,14 +25,17 @@ export function updateConfiguration ({
   awsRegion,
   awsAccessKeyId,
   awsSecretAccessKey,
-  balanceCachingStrategy
+  balanceCachingStrategy,
+  forgetPasswordRequestLifetime
 }) {
   return authenticatedRequest({
     path: '/configuration.update',
     data: _.omitBy(
       {
         base_url: baseUrl,
-        redirect_url_prefixes: redirectUrlPrefixes,
+        redirect_url_prefixes: Array.isArray(redirectUrlPrefixes)
+          ? redirectUrlPrefixes
+          : [redirectUrlPrefixes],
         enable_standalone: Boolean(enableStandalone),
         max_per_page: Number(maxPerPage),
         min_password_length: Number(minPasswordLength),
@@ -49,7 +52,8 @@ export function updateConfiguration ({
         aws_region: awsRegion,
         aws_access_key_id: awsAccessKeyId,
         aws_secret_access_key: awsSecretAccessKey,
-        balance_caching_strategy: balanceCachingStrategy
+        balance_caching_strategy: balanceCachingStrategy,
+        forget_password_request_lifetime: Number(forgetPasswordRequestLifetime)
       },
       _.isNil
     )

@@ -1,8 +1,9 @@
 defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletConfig.{Config, StoredSetting}
 
   describe "/configuration.all" do
-    test "returns all list of settings" do
+    test "returns a list of configurations" do
       response = admin_user_request("/configuration.all", %{})
 
       # Asserts return data
@@ -14,7 +15,9 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
     test "returns a list of settings" do
       response = admin_user_request("/configuration.all")
       assert response["success"] == true
-      assert length(response["data"]["data"]) == 19
+
+      assert length(response["data"]["data"]) ==
+               Enum.count(Application.get_env(:ewallet_config, :default_settings))
     end
   end
 
@@ -109,6 +112,59 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
       assert response["success"] == true
 
       assert Application.get_env(:admin_api, :base_url, "new_base_url.example")
+    end
+
+    test "returns unauthorized error if the admin is not from the master account", meta do
+      auth_token = insert(:auth_token, owner_app: "admin_api")
+
+      response =
+        admin_user_request(
+          "/configuration.update",
+          %{
+            base_url: "new_base_url.example",
+            config_pid: meta[:config_pid]
+          },
+          user_id: auth_token.user.id,
+          auth_token: auth_token.token
+        )
+
+      assert response ==
+               %{
+                 "success" => false,
+                 "version" => "1",
+                 "data" => %{
+                   "object" => "error",
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation.",
+                   "messages" => nil
+                 }
+               }
+    end
+
+    test "generates an activity log", meta do
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/configuration.update", %{
+          base_url: "new_base_url.example",
+          config_pid: meta[:config_pid]
+        })
+
+      assert response["success"] == true
+      setting = Config.get_setting(:base_url)
+
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: get_test_admin(),
+        target: %StoredSetting{uuid: setting.uuid},
+        changes: %{"data" => %{"value" => "new_base_url.example"}, "position" => setting.position},
+        encrypted_changes: %{}
+      )
     end
   end
 end

@@ -4,6 +4,7 @@ defmodule EWallet.MintGateTest do
   alias Ecto.UUID
   alias EWallet.MintGate
   alias EWalletDB.Token
+  alias ActivityLogger.System
 
   describe "insert/2" do
     test "inserts a new confirmed mint" do
@@ -15,7 +16,8 @@ defmodule EWallet.MintGateTest do
           "token_id" => btc.id,
           "amount" => 10_000 * btc.subunit_to_unit,
           "description" => "Minting 10_000 #{btc.symbol}",
-          "metadata" => %{}
+          "metadata" => %{},
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -33,7 +35,8 @@ defmodule EWallet.MintGateTest do
           "token_id" => btc.id,
           "amount" => :math.pow(10, 35),
           "description" => "Minting 10_000 #{btc.symbol}",
-          "metadata" => %{}
+          "metadata" => %{},
+          "originator" => %System{}
         })
 
       assert res == :ok
@@ -51,7 +54,8 @@ defmodule EWallet.MintGateTest do
           "token_id" => token.id,
           "amount" => nil,
           "description" => "description",
-          "metadata" => %{}
+          "metadata" => %{},
+          "originator" => %System{}
         })
 
       assert res == :error

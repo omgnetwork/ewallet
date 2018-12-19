@@ -1,7 +1,7 @@
 defmodule EWalletConfig.Vault do
   @moduledoc false
 
-  use Cloak.Vault, otp_app: :ewallet_db
+  use Cloak.Vault, otp_app: :ewallet_config
 
   @impl Cloak.Vault
   def init(config) do

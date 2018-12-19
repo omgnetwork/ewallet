@@ -3,11 +3,11 @@ defmodule EWalletDB.Invite do
   Ecto Schema representing invite.
   """
   use Ecto.Schema
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   alias Ecto.{Multi, UUID}
-  alias EWalletConfig.Types.VirtualStruct
-  alias EWalletConfig.Helpers.Crypto
-  alias EWalletDB.{Audit, Invite, Repo, User}
+  alias Utils.Helpers.Crypto
+  alias EWalletDB.{Invite, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @token_length 32
@@ -17,7 +17,6 @@ defmodule EWalletDB.Invite do
     field(:token, :string)
     field(:success_url, :string)
     field(:verified_at, :naive_datetime)
-    field(:originator, VirtualStruct, virtual: true)
 
     belongs_to(
       :user,
@@ -28,18 +27,25 @@ defmodule EWalletDB.Invite do
     )
 
     timestamps()
+    activity_logging()
   end
 
   defp changeset_insert(changeset, attrs) do
     changeset
-    |> cast(attrs, [:user_uuid, :token, :success_url, :originator])
-    |> validate_required([:user_uuid, :token, :originator])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:user_uuid, :token, :success_url],
+      required: [:user_uuid, :token]
+    )
   end
 
   defp changeset_accept(changeset, attrs) do
     changeset
-    |> cast(attrs, [:verified_at, :originator])
-    |> validate_required([:verified_at, :originator])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:verified_at],
+      required: [:verified_at]
+    )
   end
 
   @doc """
@@ -103,9 +109,7 @@ defmodule EWalletDB.Invite do
   @doc """
   Generates an invite for the given user.
   """
-  def generate(user, opts \\ []) do
-    originator = Audit.get_initial_originator(user)
-
+  def generate(user, originator, opts \\ []) do
     # Insert a new invite
     %Invite{}
     |> changeset_insert(%{
@@ -114,18 +118,22 @@ defmodule EWalletDB.Invite do
       success_url: opts[:success_url],
       originator: originator
     })
-    |> Audit.insert_record_with_audit(
+    |> Repo.insert_record_with_activity_log(
+      [],
       # Assign the invite to the user
       Multi.run(Multi.new(), :user, fn %{record: record} ->
         {:ok, _user} =
           user
-          |> change(%{invite_uuid: record.uuid})
-          |> Repo.update()
+          |> change(%{
+            invite_uuid: record.uuid,
+            originator: record
+          })
+          |> Repo.update_record_with_activity_log()
       end)
     )
     |> case do
-      {:ok, result} ->
-        {:ok, Repo.preload(result.record, opts[:preload] || [])}
+      {:ok, invite} ->
+        {:ok, Repo.preload(invite, opts[:preload] || [])}
 
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
@@ -142,8 +150,8 @@ defmodule EWalletDB.Invite do
          {:ok, _user} <- User.update(invite.user, attrs),
          invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
          changeset <- changeset_accept(invite, invite_attrs),
-         {:ok, result} <- Audit.update_record_with_audit(changeset) do
-      {:ok, result.record}
+         {:ok, invite} <- Repo.update_record_with_activity_log(changeset) do
+      {:ok, invite}
     else
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
@@ -169,8 +177,8 @@ defmodule EWalletDB.Invite do
          {:ok, _user} <- User.update(user, user_attrs),
          invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
          changeset <- changeset_accept(invite, invite_attrs),
-         {:ok, result} <- Audit.update_record_with_audit(changeset) do
-      {:ok, result.record}
+         {:ok, invite} <- Repo.update_record_with_activity_log(changeset) do
+      {:ok, invite}
     else
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}

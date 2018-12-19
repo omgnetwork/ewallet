@@ -4,20 +4,17 @@ defmodule EWalletDB.User do
   """
   use Arc.Ecto.Schema
   use Ecto.Schema
-  use EWalletConfig.Types.ExternalID
+  use Utils.Types.ExternalID
+  use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
-  import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
-  alias EWalletConfig.Helpers.Crypto
-
-  alias EWalletConfig.Types.VirtualStruct
+  alias Utils.Helpers.Crypto
 
   alias EWalletDB.{
     Account,
     AccountUser,
-    Audit,
     AuthToken,
     Invite,
     Membership,
@@ -41,9 +38,8 @@ defmodule EWalletDB.User do
     field(:password_confirmation, :string, virtual: true)
     field(:password_hash, :string)
     field(:provider_user_id, :string)
-    field(:originator, VirtualStruct, virtual: true)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
     field(:enabled, :boolean, default: true)
 
@@ -91,27 +87,36 @@ defmodule EWalletDB.User do
     )
 
     timestamps()
+    activity_logging()
   end
 
   defp changeset(changeset, attrs) do
     password_hash = attrs |> get_attr(:password) |> Crypto.hash_password()
 
     changeset
-    |> cast(attrs, [
-      :is_admin,
-      :username,
-      :full_name,
-      :calling_name,
-      :provider_user_id,
-      :email,
-      :password,
-      :password_confirmation,
-      :metadata,
-      :encrypted_metadata,
-      :invite_uuid,
-      :originator
-    ])
-    |> validate_required([:originator])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [
+        :is_admin,
+        :username,
+        :full_name,
+        :calling_name,
+        :provider_user_id,
+        :email,
+        :password,
+        :password_confirmation,
+        :metadata,
+        :encrypted_metadata,
+        :invite_uuid
+      ],
+      encrypted: [
+        :encrypted_metadata
+      ],
+      prevent_saving: [
+        :password,
+        :password_confirmation
+      ]
+    )
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
@@ -124,17 +129,21 @@ defmodule EWalletDB.User do
 
   defp update_user_changeset(user, attrs) do
     user
-    |> cast(attrs, [
-      :username,
-      :full_name,
-      :calling_name,
-      :provider_user_id,
-      :metadata,
-      :encrypted_metadata,
-      :invite_uuid,
-      :originator
-    ])
-    |> validate_required([:originator])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [
+        :username,
+        :full_name,
+        :calling_name,
+        :provider_user_id,
+        :metadata,
+        :encrypted_metadata,
+        :invite_uuid
+      ],
+      encrypted: [
+        :encrypted_metadata
+      ]
+    )
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
@@ -144,45 +153,60 @@ defmodule EWalletDB.User do
 
   defp update_admin_changeset(user, attrs) do
     user
-    |> cast(attrs, [
-      :full_name,
-      :calling_name,
-      :metadata,
-      :encrypted_metadata,
-      :invite_uuid,
-      :originator
-    ])
-    |> validate_required([:originator])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [
+        :full_name,
+        :calling_name,
+        :metadata,
+        :encrypted_metadata,
+        :invite_uuid
+      ],
+      encrypted: [
+        :encrypted_metadata
+      ]
+    )
     |> assoc_constraint(:invite)
     |> validate_by_roles(attrs)
   end
 
+  defp set_admin_changeset(user, attrs) do
+    cast_and_validate_required_for_activity_log(user, attrs, cast: [:is_admin])
+  end
+
   defp avatar_changeset(user, attrs) do
     user
-    |> cast(attrs, [:originator])
+    |> cast_and_validate_required_for_activity_log(attrs, [])
     |> cast_attachments(attrs, [:avatar])
-    |> validate_required([:originator])
   end
 
   defp password_changeset(user, attrs) do
     password_hash = attrs |> get_attr(:password) |> Crypto.hash_password()
 
     user
-    |> cast(attrs, [
-      :password,
-      :password_confirmation,
-      :originator
-    ])
-    |> validate_required([:originator])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [
+        :password,
+        :password_confirmation
+      ],
+      prevent_saving: [
+        :password,
+        :password_confirmation
+      ]
+    )
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_password(:password)
     |> put_change(:password_hash, password_hash)
   end
 
   defp enable_changeset(%User{} = user, attrs) do
-    user
-    |> cast(attrs, [:enabled])
-    |> validate_required([:enabled])
+    cast_and_validate_required_for_activity_log(
+      user,
+      attrs,
+      cast: [:enabled],
+      required: [:enabled]
+    )
   end
 
   defp get_attr(attrs, atom_field) do
@@ -191,11 +215,11 @@ defmodule EWalletDB.User do
 
   defp email_changeset(user, attrs) do
     user
-    |> cast(attrs, [
-      :email,
-      :originator
-    ])
-    |> validate_required([:email, :originator])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:email],
+      required: [:email]
+    )
     |> validate_email(:email)
     |> unique_constraint(:email)
   end
@@ -320,7 +344,8 @@ defmodule EWalletDB.User do
   def insert(attrs) do
     %User{}
     |> changeset(attrs)
-    |> Audit.insert_record_with_audit(
+    |> Repo.insert_record_with_activity_log(
+      [],
       Multi.run(Multi.new(), :wallet, fn %{record: record} ->
         case User.admin?(record) do
           true -> {:ok, nil}
@@ -329,14 +354,11 @@ defmodule EWalletDB.User do
       end)
     )
     |> case do
-      {:ok, result} ->
-        user = Repo.preload(result.record, [:wallets])
-        {:ok, user}
+      {:ok, user} ->
+        {:ok, Repo.preload(user, [:wallets])}
 
-      # Only the account insertion should fail. If the wallet insert fails, there is
-      # something wrong with our code.
-      {:error, _failed_operation, changeset, _changes_so_far} ->
-        {:error, changeset}
+      error ->
+        error
     end
   end
 
@@ -348,7 +370,8 @@ defmodule EWalletDB.User do
     %{
       user_uuid: user.uuid,
       name: identifier,
-      identifier: identifier
+      identifier: identifier,
+      originator: user
     }
     |> Wallet.insert()
   end
@@ -365,7 +388,7 @@ defmodule EWalletDB.User do
         update_user_changeset(user, attrs)
       end
 
-    update_with_audit(changeset)
+    Repo.update_record_with_activity_log(changeset)
   end
 
   @doc """
@@ -402,7 +425,7 @@ defmodule EWalletDB.User do
   defp do_update_password(user, attrs) do
     user
     |> password_changeset(attrs)
-    |> update_with_audit()
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
@@ -412,7 +435,7 @@ defmodule EWalletDB.User do
   def update_email(%User{} = user, attrs) do
     user
     |> email_changeset(attrs)
-    |> update_with_audit()
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
@@ -431,19 +454,7 @@ defmodule EWalletDB.User do
 
     user
     |> avatar_changeset(updated_attrs)
-    |> update_with_audit()
-  end
-
-  defp update_with_audit(changeset) do
-    changeset
-    |> Audit.update_record_with_audit()
-    |> case do
-      {:ok, result} ->
-        {:ok, get(result.record.id)}
-
-      {:error, _failed_operation, changeset, _changes_so_far} ->
-        {:error, changeset}
-    end
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
@@ -585,11 +596,14 @@ defmodule EWalletDB.User do
   @doc """
   Sets the user's admin status.
   """
-  @spec set_admin(%User{}, boolean()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
-  def set_admin(user, boolean) do
+  @spec set_admin(%User{}, boolean(), map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
+  def set_admin(user, boolean, originator) do
     user
-    |> change(is_admin: boolean)
-    |> Repo.update()
+    |> set_admin_changeset(%{
+      is_admin: boolean,
+      originator: originator
+    })
+    |> Repo.update_record_with_activity_log()
   end
 
   @doc """
@@ -691,6 +705,6 @@ defmodule EWalletDB.User do
   def enable_or_disable(user, attrs) do
     user
     |> enable_changeset(attrs)
-    |> Repo.update()
+    |> Repo.update_record_with_activity_log()
   end
 end

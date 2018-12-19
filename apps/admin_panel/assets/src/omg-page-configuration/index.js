@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
-import { Button } from '../omg-uikit'
+import { Button, Icon, Input } from '../omg-uikit'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -15,16 +15,12 @@ import {
 import { getConfiguration, updateConfiguration } from '../omg-configuration/action'
 import CONSTANT from '../constants'
 import { isEmail } from '../utils/validator'
-
+import _ from 'lodash'
 const ConfigurationPageContainer = styled.div`
   position: relative;
   padding-bottom: 150px;
   h4 {
     margin-top: 50px;
-  }
-  button {
-    padding-left: 25px;
-    padding-right: 25px;
   }
 `
 
@@ -38,6 +34,39 @@ const SubSettingContainer = styled.div`
     div:first-child {
       flex: 0 0 175px;
     }
+  }
+`
+const InputPrefixContainer = styled.div`
+  position: relative;
+  i {
+    position: absolute;
+    right: -20px;
+    top: 0;
+    visibility: ${props => (props.hide ? 'hidden' : 'visible')};
+    opacity: 0;
+    font-size: 8px;
+    cursor: pointer;
+    padding: 10px;
+  }
+  :hover > i {
+    opacity: 1;
+  }
+`
+
+const InputsPrefixContainer = styled.div`
+  ${InputPrefixContainer} {
+    :not(:first-child) {
+      margin-top: 20px;
+    }
+  }
+`
+
+const PrefixContainer = styled.div`
+  text-align: right;
+  a {
+    display: block;
+    margin-top: 5px;
+    color: ${props => (props.active ? props.theme.colors.BL400 : props.theme.colors.S500)};
   }
 `
 
@@ -83,6 +112,7 @@ class ConfigurationPage extends Component {
         awsAccessKeyId: props.configurations.aws_access_key_id.value,
         awsSecretAccessKey: props.configurations.aws_secret_access_key.value,
         balanceCachingStrategy: props.configurations.balance_caching_strategy.value,
+        forgetPasswordRequestLifetime: props.configurations.forget_password_request_lifetime.value,
         fetched: true
       }
     } else {
@@ -112,13 +142,19 @@ class ConfigurationPage extends Component {
     return (
       Object.keys(this.props.configurations).reduce((prev, curr) => {
         return (
-          prev &&
-          String(this.props.configurations[curr].value) === String(this.state[_.camelCase(curr)])
+          (prev &&
+            String(this.props.configurations[curr].value) ===
+              String(this.state[_.camelCase(curr)])) ||
+          (_.isNil(this.state[_.camelCase(curr)]) && _.isNil(this.props.configurations[curr].value))
         )
       }, true) ||
       Number(this.state.maxPerPage) < 1 ||
       Number(this.state.minPasswordLength) < 1
     )
+  }
+  isAddPrefixButtonDisabled () {
+    const lastDynamicInputPrefix = _.last(this.state.redirectUrlPrefixes)
+    return lastDynamicInputPrefix.length <= 0
   }
   onSelectEmailAdapter = option => {
     this.setState({ emailAdapter: option.value })
@@ -128,6 +164,15 @@ class ConfigurationPage extends Component {
     this.setState({ balanceCachingStrategy: option.value })
   }
 
+  onClickRemovePrefix = index => e => {
+    if (this.state.redirectUrlPrefixes.length > 1) {
+      const newState = this.state.redirectUrlPrefixes.slice()
+      newState.splice(index, 1)
+      this.setState({
+        redirectUrlPrefixes: newState
+      })
+    }
+  }
   onSelectFileStorageAdapter = option => {
     switch (option.value) {
       case 'aws':
@@ -147,6 +192,13 @@ class ConfigurationPage extends Component {
       [key]: e.target.value
     })
   }
+  onChangeInputredirectUrlPrefixes = index => e => {
+    const newState = this.state.redirectUrlPrefixes.slice()
+    newState[index] = e.target.value
+    this.setState({
+      redirectUrlPrefixes: newState
+    })
+  }
   onChangeRadio = e => {
     this.setState(oldState => ({ enableStandalone: !oldState.enableStandalone }))
   }
@@ -154,10 +206,7 @@ class ConfigurationPage extends Component {
   onClickSaveConfiguration = async e => {
     try {
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.PENDING })
-      const result = await this.props.updateConfiguration({
-        ...this.state,
-        gcsCredentials: this.state.gcsCredentials
-      })
+      const result = await this.props.updateConfiguration(this.state)
       if (result.data) {
         this.setState({
           submitStatus: CONSTANT.LOADING_STATUS.SUCCESS,
@@ -168,27 +217,35 @@ class ConfigurationPage extends Component {
           minPasswordLength: _.get(result.data.data, 'min_password_length.value'),
           senderEmail: _.get(result.data.data, 'sender_email.value'),
           emailAdapter: _.get(result.data.data, 'email_adapter.value'),
-          smtpHost: _.get(result.data.data, 'smtp_host.value', null),
-          smtpPort: _.get(result.data.data, 'smtp_port.value', null),
-          smtpUsername: _.get(result.data.data, 'smtp_username.value', null),
-          smtpPassword: _.get(result.data.data, 'smtp_password.value', null),
+          smtpHost: _.get(result.data.data, 'smtp_host.value'),
+          smtpPort: _.get(result.data.data, 'smtp_port.value'),
+          smtpUsername: _.get(result.data.data, 'smtp_username.value'),
+          smtpPassword: _.get(result.data.data, 'smtp_password.value'),
           fileStorageAdapter: _.get(result.data.data, 'file_storage_adapter.value'),
-          gcsBucket: _.get(result.data.data, 'gcs_bucket.value', null),
-          gcsCredentials: _.get(result.data.data, 'gcs_credentials.value', null),
-          awsBucket: _.get(result.data.data, 'aws_bucket.value', null),
-          awsRegion: _.get(result.data.data, 'aws_region.value', null),
-          awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value', null),
-          awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value', null),
+          gcsBucket: _.get(result.data.data, 'gcs_bucket.value'),
+          gcsCredentials: _.get(result.data.data, 'gcs_credentials.value'),
+          awsBucket: _.get(result.data.data, 'aws_bucket.value'),
+          awsRegion: _.get(result.data.data, 'aws_region.value'),
+          awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value'),
+          awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value'),
           balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value')
         })
         setTimeout(() => {
           window.location.reload()
-        }, 2000)
+        }, 1500)
       } else {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
       }
     } catch (error) {
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
+    }
+  }
+
+  onClickAddPrefix = e => {
+    if (!this.isAddPrefixButtonDisabled()) {
+      this.setState(oldState => {
+        return { redirectUrlPrefixes: [...oldState.redirectUrlPrefixes, ''] }
+      })
     }
   }
   renderSaveButton = () => {
@@ -229,13 +286,13 @@ class ConfigurationPage extends Component {
                 value={this.state.gcsBucket}
                 placeholder={'ie. google_cloud_1'}
                 onChange={this.onChangeInput('gcsBucket')}
-                inputErrorMessage={'This field shouldn\'t be empty'}
               />
               <ConfigRow
                 name={'GCS Credential JSON'}
                 description={configurations.gcs_credentials.description}
                 value={this.state.gcsCredentials}
                 placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
+                border={this.state.emailAdapter !== 'gcs'}
                 onChange={this.onChangeInput('gcsCredentials')}
                 inputErrorMessage='Invalid json credential'
                 inputValidator={value => {
@@ -320,14 +377,34 @@ class ConfigurationPage extends Component {
           inputValidator={value => value.length > 0}
           inputErrorMessage={'This field shouldn\'t be empty'}
         />
-        <ConfigRow
-          name={'Redirect URL Prefixes'}
-          description={configurations.redirect_url_prefixes.description}
-          value={this.state.redirectUrlPrefixes}
-          onChange={this.onChangeInput('redirectUrlPrefixes')}
-          inputValidator={value => value.length > 0}
-          inputErrorMessage={'This field shouldn\'t be empty'}
-        />
+        <div>
+          <ConfigRow
+            name={'Redirect URL Prefixes'}
+            description={configurations.redirect_url_prefixes.description}
+            valueRenderer={() => {
+              return (
+                <InputsPrefixContainer>
+                  {this.state.redirectUrlPrefixes.map((prefix, index) => (
+                    <InputPrefixContainer
+                      key={index}
+                      hide={this.state.redirectUrlPrefixes.length === 1}
+                    >
+                      <Input
+                        value={this.state.redirectUrlPrefixes[index]}
+                        onChange={this.onChangeInputredirectUrlPrefixes(index)}
+                        normalPlaceholder={`ie. https://website${index}.com`}
+                      />
+                      <Icon name='Close' onClick={this.onClickRemovePrefix(index)} />
+                    </InputPrefixContainer>
+                  ))}
+                  <PrefixContainer active={!this.isAddPrefixButtonDisabled()}>
+                    <a onClick={this.onClickAddPrefix}>Add More Prefix</a>
+                  </PrefixContainer>
+                </InputsPrefixContainer>
+              )
+            }}
+          />
+        </div>
         <ConfigRow
           name={'Enable Standalone'}
           description={configurations.enable_standalone.description}
@@ -350,6 +427,15 @@ class ConfigurationPage extends Component {
           value={String(this.state.minPasswordLength)}
           inputType='number'
           onChange={this.onChangeInput('minPasswordLength')}
+          inputValidator={value => Number(value) >= 1}
+          inputErrorMessage='invalid number'
+        />
+        <ConfigRow
+          name={'Forget Password Request Lifetime'}
+          description={configurations.forget_password_request_lifetime.description}
+          value={String(this.state.forgetPasswordRequestLifetime)}
+          inputType='number'
+          onChange={this.onChangeInput('forgetPasswordRequestLifetime')}
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
         />
@@ -419,7 +505,6 @@ class ConfigurationPage extends Component {
     )
   }
   renderConfigurationPage = ({ data: configurations }) => {
-    console.log(this.props.configurations)
     return (
       <ConfigurationPageContainer>
         <TopNavigation

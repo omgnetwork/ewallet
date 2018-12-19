@@ -4,9 +4,11 @@ defmodule EWalletDB.AccountUser do
   """
   use Ecto.Schema
   use Arc.Ecto.Schema
+  use ActivityLogger.ActivityLogging
   import Ecto.Changeset
   alias Ecto.UUID
-  alias EWalletDB.{Account, AccountUser, Repo, User}
+  alias EWalletDB.{Account, AccountUser, User}
+  alias EWalletDB.Repo
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -28,13 +30,17 @@ defmodule EWalletDB.AccountUser do
     )
 
     timestamps()
+    activity_logging()
   end
 
   @spec changeset(account :: %AccountUser{}, attrs :: map()) :: Ecto.Changeset.t()
   defp changeset(%AccountUser{} = account, attrs) do
     account
-    |> cast(attrs, [:account_uuid, :user_uuid])
-    |> validate_required([:account_uuid, :user_uuid])
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:account_uuid, :user_uuid],
+      required: [:account_uuid, :user_uuid]
+    )
     |> unique_constraint(:account_uuid, name: :account_user_account_uuid_user_uuid_index)
     |> assoc_constraint(:account)
     |> assoc_constraint(:user)
@@ -46,13 +52,14 @@ defmodule EWalletDB.AccountUser do
 
     %AccountUser{}
     |> changeset(attrs)
-    |> Repo.insert(opts)
+    |> Repo.insert_record_with_activity_log(opts)
   end
 
-  def link(account_uuid, user_uuid) do
+  def link(account_uuid, user_uuid, originator) do
     insert(%{
       account_uuid: account_uuid,
-      user_uuid: user_uuid
+      user_uuid: user_uuid,
+      originator: originator
     })
   end
 end

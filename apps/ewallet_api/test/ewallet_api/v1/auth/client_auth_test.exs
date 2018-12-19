@@ -2,6 +2,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWalletAPI.V1.ClientAuth
   alias EWalletDB.AuthToken
+  alias ActivityLogger.System
 
   def auth_header(key, token) do
     encoded_key = Base.encode64(key <> ":" <> token)
@@ -70,7 +71,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
     end
 
     test "halts with :auth_token_expired if auth_token exists but expired", meta do
-      {:ok, auth_token} = AuthToken.expire(meta.auth_token.token, :ewallet_api)
+      {:ok, auth_token} = AuthToken.expire(meta.auth_token.token, :ewallet_api, %System{})
       auth = auth_header(meta.api_key.key, auth_token.token)
 
       assert auth.authenticated == false

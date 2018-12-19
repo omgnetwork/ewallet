@@ -4,9 +4,10 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
   import Ecto.Query
   alias AdminAPI.UpdateEmailAddressEmail
   alias EWallet.Web.Date
-  alias EWalletConfig.Helpers.{Crypto, Assoc}
   alias EWalletDB.{Account, Membership, Repo, User}
   alias EWalletDB.{Account, Membership, Repo, UpdateEmailRequest, User}
+  alias Utils.Helpers.{Crypto, Assoc}
+  alias ActivityLogger.System
 
   @update_email_url "http://localhost:4000/update_email?email={email}&token={token}"
 
@@ -60,6 +61,36 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
 
       assert response["data"]["description"] ==
                "Invalid parameter provided. `metadata` is invalid."
+    end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/me.update", %{
+          metadata: %{"key" => "value_1337"},
+          encrypted_metadata: %{"key" => "value_1337"}
+        })
+
+      assert response["success"] == true
+
+      admin = get_test_admin()
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: admin,
+        target: admin,
+        changes: %{
+          "metadata" => %{"key" => "value_1337"}
+        },
+        encrypted_changes: %{
+          "encrypted_metadata" => %{"key" => "value_1337"}
+        }
+      )
     end
   end
 
@@ -122,6 +153,35 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
 
       assert response["data"]["description"] ==
                "Invalid parameter provided. `password` must be 8 characters or more."
+    end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/me.update_password", %{
+          old_password: @password,
+          password: "the_new_password",
+          password_confirmation: "the_new_password"
+        })
+
+      assert response["success"] == true
+
+      admin = get_test_admin()
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: admin,
+        target: admin,
+        changes: %{
+          "password_hash" => admin.password_hash
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 
@@ -187,6 +247,37 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/me.update_email", %{
+          "email" => "test.sends.verification.email@example.com",
+          "redirect_url" => @update_email_url
+        })
+
+      assert response["success"] == true
+
+      admin = get_test_admin()
+      request = Repo.get_by(UpdateEmailRequest, user_uuid: admin.uuid)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: admin,
+        target: request,
+        changes: %{
+          "email" => "test.sends.verification.email@example.com",
+          "token" => request.token,
+          "user_uuid" => admin.uuid
+        },
+        encrypted_changes: %{}
+      )
     end
   end
 
@@ -297,6 +388,36 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided."
+    end
+
+    test "generates an activity log" do
+      admin = get_test_admin()
+      new_email = "test_email_update@example.com"
+      request = UpdateEmailRequest.generate(admin, new_email)
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        unauthenticated_request("/admin.verify_email_update", %{
+          email: new_email,
+          token: request.token
+        })
+
+      assert response["success"] == true
+
+      request = Repo.get_by(UpdateEmailRequest, user_uuid: admin.uuid)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: request,
+        target: admin,
+        changes: %{"email" => "test_email_update@example.com"},
+        encrypted_changes: %{}
+      )
     end
   end
 
@@ -435,6 +556,39 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
       admin = User.get(admin.id)
       assert admin.avatar == nil
     end
+
+    test "generates an activity log" do
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/me.upload_avatar", %{
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
+
+      assert response["success"] == true
+
+      admin = get_test_admin()
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: admin,
+        target: admin,
+        changes: %{
+          "avatar" => %{
+            "file_name" => "test.jpg",
+            "updated_at" => NaiveDateTime.to_iso8601(admin.avatar.updated_at)
+          }
+        },
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/me.get_account" do
@@ -498,7 +652,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
 
       # Clear all memberships for this user then add just one for precision
       Repo.delete_all(from(m in Membership, where: m.user_uuid == ^user.uuid))
-      Membership.assign(user, account, "admin")
+      Membership.assign(user, account, "admin", %System{})
 
       assert admin_user_request("/me.get_accounts") ==
                %{

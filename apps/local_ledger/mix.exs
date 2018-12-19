@@ -4,7 +4,7 @@ defmodule LocalLedger.Mixfile do
   def project do
     [
       app: :local_ledger,
-      version: Application.get_env(:ewallet, :version),
+      version: "1.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -33,10 +33,11 @@ defmodule LocalLedger.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:local_ledger_db, in_umbrella: true},
       {:deferred_config, "~> 0.1.0"},
       {:quantum, ">= 2.2.6"},
-      {:timex, "~> 3.0"}
+      {:timex, "~> 3.0"},
+      {:local_ledger_db, in_umbrella: true},
+      {:ewallet_config, in_umbrella: true}
     ]
   end
 end

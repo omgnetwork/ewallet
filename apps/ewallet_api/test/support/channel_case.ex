@@ -13,7 +13,7 @@ defmodule EWalletAPI.ChannelCase do
   of the test unless the test case is marked as async.
   """
 
-  use ExUnit.CaseTemplate, async: false
+  use ExUnit.CaseTemplate
   use Phoenix.ChannelTest
   alias Ecto.Adapters.SQL.Sandbox
   import EWalletDB.Factory
@@ -40,18 +40,27 @@ defmodule EWalletAPI.ChannelCase do
   end
 
   setup tags do
+    # Restarts `EWalletConfig.Config` so it does not hang on to a DB connection for too long.
+    Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+    Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+
     :ok = Sandbox.checkout(EWalletConfig.Repo)
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
+    :ok = Sandbox.checkout(ActivityLogger.Repo)
 
     unless tags[:async] do
       Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
       Sandbox.mode(EWalletDB.Repo, {:shared, self()})
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+      Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
+
+    config_pid = start_supervised!(EWalletConfig.Config)
 
     ConfigTestHelper.restart_config_genserver(
       self(),
+      config_pid,
       EWalletConfig.Repo,
       [:ewallet_db, :ewallet, :ewallet_api],
       %{

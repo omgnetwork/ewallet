@@ -4,7 +4,7 @@ defmodule UrlDispatcher.Mixfile do
   def project do
     [
       app: :url_dispatcher,
-      version: Application.get_env(:ewallet, :version),
+      version: "1.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -39,6 +39,7 @@ defmodule UrlDispatcher.Mixfile do
       {:plug, "~> 1.2"},
       {:cowboy, "~> 1.0"},
       {:deferred_config, "~> 0.1.0"},
+      {:ewallet, in_umbrella: true},
       {:admin_api, in_umbrella: true},
       {:admin_panel, in_umbrella: true},
       {:ewallet_api, in_umbrella: true}

@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.TransactionRequestPolicy
-  alias EWallet.Web.{Orchestrator, Paginator, V1.TransactionRequestOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TransactionRequestOverlay}
 
   alias EWallet.{
     TransactionRequestFetcher,
@@ -15,11 +15,9 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @spec all(Plug.Conn.t(), map) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
-         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
-         linked_user_uuids <-
-           account_uuids |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
-      account_uuids
-      |> TransactionRequest.query_all_for_account_and_user_uuids(linked_user_uuids)
+         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
+      TransactionRequest
+      |> TransactionRequest.query_all_for_account_uuids_and_users(account_uuids)
       |> do_all(attrs, conn)
     else
       error -> respond(error, conn)
@@ -29,11 +27,9 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account),
-         linked_user_uuids <-
-           [account.uuid] |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
-      [account.uuid]
-      |> TransactionRequest.query_all_for_account_and_user_uuids(linked_user_uuids)
+         :ok <- permit(:all, conn.assigns, account) do
+      TransactionRequest
+      |> TransactionRequest.query_all_for_account_uuids_and_users([account.uuid])
       |> do_all(attrs, conn)
     else
       error -> respond(error, conn)
@@ -43,11 +39,9 @@ defmodule AdminAPI.V1.TransactionRequestController do
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, account),
-         descendant_uuids <- Account.get_all_descendants_uuids(account),
-         linked_user_uuids <-
-           descendant_uuids |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
-      descendant_uuids
-      |> TransactionRequest.query_all_for_account_and_user_uuids(linked_user_uuids)
+         descendant_uuids <- Account.get_all_descendants_uuids(account) do
+      TransactionRequest
+      |> TransactionRequest.query_all_for_account_uuids_and_users(descendant_uuids)
       |> do_all(attrs, conn)
     else
       error -> respond(error, conn)
@@ -82,6 +76,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     attrs
+    |> Map.put("originator", Originator.extract(conn.assigns))
     |> Map.put("creator", conn.assigns)
     |> TransactionRequestGate.create()
     |> respond(conn)

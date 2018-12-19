@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.RoleController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.RolePolicy
-  alias EWallet.Web.{Orchestrator, Paginator, V1.RoleOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.RoleOverlay}
   alias EWalletDB.Role
 
   @doc """
@@ -46,6 +46,7 @@ defmodule AdminAPI.V1.RoleController do
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, role} <- Role.insert(attrs),
          {:ok, role} <- Orchestrator.one(role, RoleOverlay, attrs) do
       render(conn, :role, %{role: role})
@@ -65,6 +66,7 @@ defmodule AdminAPI.V1.RoleController do
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
          %Role{} = original <- Role.get(id) || {:error, :role_id_not_found},
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Role.update(original, attrs),
          {:ok, updated} <- Orchestrator.one(updated, RoleOverlay, attrs) do
       render(conn, :role, %{role: updated})
@@ -86,7 +88,8 @@ defmodule AdminAPI.V1.RoleController do
   def delete(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:delete, conn.assigns, id),
          %Role{} = role <- Role.get(id) || {:error, :role_id_not_found},
-         {:ok, deleted} <- Role.delete(role),
+         originator <- Originator.extract(conn.assigns),
+         {:ok, deleted} <- Role.delete(role, originator),
          {:ok, deleted} <- Orchestrator.one(deleted, RoleOverlay, attrs) do
       render(conn, :role, %{role: deleted})
     else

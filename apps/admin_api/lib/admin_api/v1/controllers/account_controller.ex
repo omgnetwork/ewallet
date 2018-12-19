@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.AccountController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.AccountPolicy
-  alias EWallet.Web.{Orchestrator, Paginator, V1.AccountOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.AccountOverlay}
   alias EWalletDB.Account
 
   @doc """
@@ -74,6 +74,7 @@ defmodule AdminAPI.V1.AccountController do
 
     with :ok <- permit(:create, conn.assigns, parent.id),
          attrs <- Map.put(attrs, "parent_uuid", parent.uuid),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, account} <- Account.insert(attrs),
          {:ok, account} <- Orchestrator.one(account, AccountOverlay, attrs) do
       render(conn, :account, %{account: account})
@@ -95,6 +96,7 @@ defmodule AdminAPI.V1.AccountController do
   def update(conn, %{"id" => account_id} = attrs) do
     with %Account{} = original <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, original.id),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Account.update(original, attrs),
          {:ok, updated} <- Orchestrator.one(updated, AccountOverlay, attrs) do
       render(conn, :account, %{account: updated})
@@ -116,6 +118,7 @@ defmodule AdminAPI.V1.AccountController do
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, account.id),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          %{} = saved <- Account.store_avatar(account, attrs),
          {:ok, saved} <- Orchestrator.one(saved, AccountOverlay, attrs) do
       render(conn, :account, %{account: saved})

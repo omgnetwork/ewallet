@@ -1,10 +1,18 @@
 defmodule EWalletAPI.ConfigTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletConfig.Config
+  alias ActivityLogger.System
 
   describe "ewallet_api.enable_standalone" do
     test "allows /user.signup when configured to true", meta do
-      {:ok, _} = Config.update(%{enable_standalone: true}, meta[:config_pid])
+      {:ok, [enable_standalone: {:ok, _}]} =
+        Config.update(
+          %{
+            enable_standalone: true,
+            originator: %System{}
+          },
+          meta[:config_pid]
+        )
 
       response = client_request("/user.signup")
 
@@ -14,7 +22,14 @@ defmodule EWalletAPI.ConfigTest do
     end
 
     test "prohibits /user.signup when configured to false", meta do
-      {:ok, _} = Config.update(%{enable_standalone: false}, meta[:config_pid])
+      {:ok, [enable_standalone: {:ok, _}]} =
+        Config.update(
+          %{
+            enable_standalone: false,
+            originator: %System{}
+          },
+          meta[:config_pid]
+        )
 
       response = client_request("/user.signup")
 

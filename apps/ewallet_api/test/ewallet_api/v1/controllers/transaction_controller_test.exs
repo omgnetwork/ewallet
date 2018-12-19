@@ -521,6 +521,83 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
                }
              }
     end
+
+    test "generates an activity log" do
+      user_1 = get_test_user()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
+
+      token = insert(:token)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token,
+        amount: 200_000
+      })
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        client_request("/me.create_transaction", %{
+          idempotency_token: UUID.generate(),
+          from_address: wallet_1.address,
+          to_address: wallet_2.address,
+          token_id: token.id,
+          amount: 100 * token.subunit_to_unit,
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      assert response["success"] == true
+
+      transaction = Transaction.get(response["data"]["id"])
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 2
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: user_1,
+        target: transaction,
+        changes: %{
+          "from" => wallet_1.address,
+          "from_amount" => 10_000,
+          "from_token_uuid" => token.uuid,
+          "from_user_uuid" => user_1.uuid,
+          "idempotency_token" => transaction.idempotency_token,
+          "metadata" => %{"something" => "interesting"},
+          "to" => wallet_2.address,
+          "to_amount" => 10_000,
+          "to_token_uuid" => token.uuid,
+          "to_user_uuid" => user_2.uuid
+        },
+        encrypted_changes: %{
+          "encrypted_metadata" => %{"something" => "secret"},
+          "payload" => %{
+            "amount" => 10_000,
+            "encrypted_metadata" => %{"something" => "secret"},
+            "from_address" => wallet_1.address,
+            "from_user_id" => user_1.id,
+            "idempotency_token" => transaction.idempotency_token,
+            "metadata" => %{"something" => "interesting"},
+            "to_address" => wallet_2.address,
+            "token_id" => token.id
+          }
+        }
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: transaction,
+        changes: %{"local_ledger_uuid" => transaction.local_ledger_uuid, "status" => "confirmed"},
+        encrypted_changes: %{}
+      )
+    end
   end
 
   describe "/me.create_transaction with exchange" do

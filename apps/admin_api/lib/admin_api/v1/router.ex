@@ -150,7 +150,7 @@ defmodule AdminAPI.V1.Router do
     post("/settings.all", SettingsController, :get_settings)
 
     # Configuration endpoint
-    post("/configuration.all", ConfigurationController, :get)
+    post("/configuration.all", ConfigurationController, :all)
     post("/configuration.update", ConfigurationController, :update)
 
     # Self endpoints (operations on the currently authenticated user)
@@ -163,6 +163,10 @@ defmodule AdminAPI.V1.Router do
     post("/me.upload_avatar", SelfController, :upload_avatar)
 
     post("/me.logout", AdminAuthController, :logout)
+
+    # Simulate a server error. Useful for testing the internal server error response
+    # and error reporting. Locked behind authentication to prevent spamming.
+    post("/status.server_error", StatusController, :server_error)
   end
 
   # Public endpoints and Fallback endpoints.
@@ -183,7 +187,6 @@ defmodule AdminAPI.V1.Router do
     post("/admin.verify_email_update", SelfController, :verify_email)
 
     post("/status", StatusController, :index)
-    post("/status.server_error", StatusController, :server_error)
 
     match(:*, "/*path", FallbackController, :not_found)
   end

@@ -1,6 +1,7 @@
 defmodule EWalletDB.MembershipTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.{Account, Membership, Repo, User}
+  alias ActivityLogger.System
 
   describe "Membership factory" do
     # Not using `test_has_valid_factory/1` macro here because `Membership.insert/1` is private.
@@ -46,7 +47,7 @@ defmodule EWalletDB.MembershipTest do
       account = insert(:account)
       role = insert(:role, %{name: "some_role"})
 
-      {res, membership} = Membership.assign(user, account, "some_role")
+      {res, membership} = Membership.assign(user, account, "some_role", %System{})
 
       assert res == :ok
       assert membership.user_uuid == user.uuid
@@ -61,8 +62,8 @@ defmodule EWalletDB.MembershipTest do
       insert(:role, %{name: "old_role"})
       insert(:role, %{name: "new_role"})
 
-      {:ok, _membership} = Membership.assign(user, account, "old_role")
-      {:ok, _membership} = Membership.assign(user, account, "new_role")
+      {:ok, _membership} = Membership.assign(user, account, "old_role", %System{})
+      {:ok, _membership} = Membership.assign(user, account, "new_role", %System{})
 
       user = Repo.preload(user, :roles, force: true)
       assert User.get_roles(user) == ["new_role"]
@@ -78,10 +79,10 @@ defmodule EWalletDB.MembershipTest do
       viewer = insert(:role, name: "viewer", priority: 1)
 
       # We assign to the master account
-      {:ok, inserted_membership} = Membership.assign(user, level_0, admin)
+      {:ok, inserted_membership} = Membership.assign(user, level_0, admin, %System{})
 
       # So we can't assign the role viewer here on a lower account
-      {res, reason} = Membership.assign(user, level_2, viewer)
+      {res, reason} = Membership.assign(user, level_2, viewer, %System{})
 
       assert res == :error
       assert reason == :user_already_has_rights
@@ -100,8 +101,8 @@ defmodule EWalletDB.MembershipTest do
       admin = insert(:role, name: "admin", priority: 0)
       viewer = insert(:role, name: "viewer", priority: 1)
 
-      {:ok, _membership} = Membership.assign(user, level_0, viewer)
-      {res, membership} = Membership.assign(user, level_2, admin)
+      {:ok, _membership} = Membership.assign(user, level_0, viewer, %System{})
+      {res, membership} = Membership.assign(user, level_2, admin, %System{})
 
       assert res == :ok
       assert membership.user_uuid == user.uuid
@@ -122,9 +123,9 @@ defmodule EWalletDB.MembershipTest do
       viewer = insert(:role, name: "viewer", priority: 1)
       grunt = insert(:role, name: "grunt", priority: 2)
 
-      {:ok, _membership} = Membership.assign(user, level_0, viewer)
-      {:ok, _membership} = Membership.assign(user, level_2, admin)
-      {res, reason} = Membership.assign(user, level_3, grunt)
+      {:ok, _membership} = Membership.assign(user, level_0, viewer, %System{})
+      {:ok, _membership} = Membership.assign(user, level_2, admin, %System{})
+      {res, reason} = Membership.assign(user, level_3, grunt, %System{})
 
       assert res == :error
       assert reason == :user_already_has_rights
@@ -141,9 +142,9 @@ defmodule EWalletDB.MembershipTest do
       viewer = insert(:role, name: "viewer", priority: 1)
       grunt = insert(:role, name: "grunt", priority: 2)
 
-      {:ok, _membership} = Membership.assign(user, level_0, grunt)
-      {:ok, _membership} = Membership.assign(user, level_2, viewer)
-      {res, membership} = Membership.assign(user, level_3, admin)
+      {:ok, _membership} = Membership.assign(user, level_0, grunt, %System{})
+      {:ok, _membership} = Membership.assign(user, level_2, viewer, %System{})
+      {res, membership} = Membership.assign(user, level_3, admin, %System{})
 
       assert res == :ok
       assert membership.user_uuid == user.uuid
@@ -162,8 +163,8 @@ defmodule EWalletDB.MembershipTest do
       admin = insert(:role, name: "admin", priority: 0)
       viewer = insert(:role, name: "viewer", priority: 1)
 
-      {:ok, _membership} = Membership.assign(user, level_2, admin)
-      {res, membership} = Membership.assign(user, level_0, viewer)
+      {:ok, _membership} = Membership.assign(user, level_2, admin, %System{})
+      {res, membership} = Membership.assign(user, level_0, viewer, %System{})
 
       assert res == :ok
       assert membership.user_uuid == user.uuid
@@ -182,8 +183,8 @@ defmodule EWalletDB.MembershipTest do
       admin = insert(:role, name: "admin", priority: 0)
       viewer = insert(:role, name: "viewer", priority: 1)
 
-      {:ok, inserted_membership} = Membership.assign(user, level_2, viewer)
-      {res, membership} = Membership.assign(user, level_0, admin)
+      {:ok, inserted_membership} = Membership.assign(user, level_2, viewer, %System{})
+      {res, membership} = Membership.assign(user, level_0, admin, %System{})
 
       assert res == :ok
       assert membership.user_uuid == user.uuid
@@ -201,8 +202,8 @@ defmodule EWalletDB.MembershipTest do
       level_2 = insert(:account, parent: level_1)
       admin = insert(:role, name: "admin", priority: 0)
 
-      {:ok, inserted_membership} = Membership.assign(user, level_2, admin)
-      {res, membership} = Membership.assign(user, level_0, admin)
+      {:ok, inserted_membership} = Membership.assign(user, level_2, admin, %System{})
+      {res, membership} = Membership.assign(user, level_0, admin, %System{})
 
       assert res == :ok
       assert membership.user_uuid == user.uuid
@@ -225,8 +226,8 @@ defmodule EWalletDB.MembershipTest do
 
       admin = insert(:role, name: "admin", priority: 0)
 
-      {:ok, inserted_membership} = Membership.assign(user, level_2_1, admin)
-      {res, membership} = Membership.assign(user, level_2_2, admin)
+      {:ok, inserted_membership} = Membership.assign(user, level_2_1, admin, %System{})
+      {res, membership} = Membership.assign(user, level_2_2, admin, %System{})
 
       assert res == :ok
       assert membership.user_uuid == user.uuid
@@ -249,9 +250,9 @@ defmodule EWalletDB.MembershipTest do
 
       admin = insert(:role, name: "admin", priority: 0)
 
-      {:ok, _inserted_membership_1} = Membership.assign(user, level_2_1, admin)
-      {:ok, _inserted_membership_2} = Membership.assign(user, level_2_2, admin)
-      {res, membership} = Membership.assign(user, level_0, admin)
+      {:ok, _inserted_membership_1} = Membership.assign(user, level_2_1, admin, %System{})
+      {:ok, _inserted_membership_2} = Membership.assign(user, level_2_2, admin, %System{})
+      {res, membership} = Membership.assign(user, level_0, admin, %System{})
 
       assert res == :ok
       assert membership.user_uuid == user.uuid
@@ -266,7 +267,7 @@ defmodule EWalletDB.MembershipTest do
       account = insert(:account)
       role = insert(:role, %{name: "some_role"})
 
-      {res, membership} = Membership.assign(user, account, "some_role")
+      {res, membership} = Membership.assign(user, account, "some_role", %System{})
 
       assert res == :ok
       assert membership.user_uuid == user.uuid
@@ -278,7 +279,7 @@ defmodule EWalletDB.MembershipTest do
       user = insert(:user)
       account = insert(:account)
 
-      {res, reason} = Membership.assign(user, account, "missing_role")
+      {res, reason} = Membership.assign(user, account, "missing_role", %System{})
       assert res == :error
       assert reason == :role_not_found
     end
@@ -292,7 +293,7 @@ defmodule EWalletDB.MembershipTest do
       {user, account} = insert_user_with_role("some_role")
       assert User.get_roles(user) == ["some_role"]
 
-      {:ok, _} = Membership.unassign(user, account)
+      {:ok, _} = Membership.unassign(user, account, %System{})
       assert User.get_roles(user) == []
     end
 
@@ -300,7 +301,7 @@ defmodule EWalletDB.MembershipTest do
       user = insert(:user)
       account = insert(:account)
 
-      assert Membership.unassign(user, account) == {:error, :membership_not_found}
+      assert Membership.unassign(user, account, %System{}) == {:error, :membership_not_found}
     end
   end
 end
