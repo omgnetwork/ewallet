@@ -22,7 +22,7 @@ defmodule EWallet.ExchangeTest do
       {res, rate, pair} = Exchange.get_rate(context.omg, context.eth)
 
       assert res == :ok
-      assert Decimal.equal?(rate, Decimal.new(100.0))
+      assert Decimal.equal?(rate, Decimal.from_float(100.0))
       assert pair.uuid == inserted_pair.uuid
     end
 
