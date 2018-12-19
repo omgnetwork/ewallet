@@ -6,6 +6,7 @@ defmodule ActivityLogger.ActivityLog do
   use Utils.Types.ExternalID
   import Ecto.{Changeset, Query}
   alias Ecto.{Changeset, UUID}
+  alias Utils.Helpers.Assoc
 
   alias ActivityLogger.{
     ActivityLog,
@@ -21,11 +22,13 @@ defmodule ActivityLogger.ActivityLog do
 
     field(:target_type, :string)
     field(:target_uuid, UUID)
+    field(:target_id, :string)
     field(:target_changes, :map)
     field(:target_encrypted_changes, ActivityLogger.Encrypted.Map, default: %{})
 
     field(:originator_uuid, UUID)
     field(:originator_type, :string)
+    field(:originator_id, :string)
 
     field(:metadata, :map, default: %{})
 
@@ -38,9 +41,11 @@ defmodule ActivityLogger.ActivityLog do
       :action,
       :target_type,
       :target_uuid,
+      :target_id,
       :target_changes,
       :target_encrypted_changes,
       :originator_uuid,
+      :originator_id,
       :originator_type,
       :metadata,
       :inserted_at
@@ -147,9 +152,11 @@ defmodule ActivityLogger.ActivityLog do
         action: Atom.to_string(action),
         target_type: target_type,
         target_uuid: record.uuid,
+        target_id: Assoc.get_if_exists(record, [:id]),
         target_changes: changes,
         target_encrypted_changes: encrypted_changes || %{},
         originator_uuid: originator.uuid,
+        originator_id: Assoc.get_if_exists(originator, [:id]),
         originator_type: originator_type,
         inserted_at: NaiveDateTime.utc_now()
       }
