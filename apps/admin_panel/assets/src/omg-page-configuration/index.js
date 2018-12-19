@@ -231,7 +231,7 @@ class ConfigurationPage extends Component {
           balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value')
         })
         setTimeout(() => {
-          // window.location.reload()
+          window.location.reload()
         }, 1500)
       } else {
         this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
