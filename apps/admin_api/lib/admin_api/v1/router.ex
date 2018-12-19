@@ -25,6 +25,8 @@ defmodule AdminAPI.V1.Router do
     # Exports
     post("/export.all", ExportController, :all)
     post("/export.get", ExportController, :get)
+    post("/export.download", ExportController, :download)
+    get("/export.download", ExportController, :download)
 
     # Exchange pair endpoints
     post("/exchange_pair.all", ExchangePairController, :all)

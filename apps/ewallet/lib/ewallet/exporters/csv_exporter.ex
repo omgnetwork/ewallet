@@ -1,16 +1,14 @@
 defmodule EWallet.CSVExporter do
   use GenServer
   import Ecto.Query
-  alias EWallet.{S3Adapter, GCSAdapter, LocalAdapter, CSVExporter}
+  alias EWallet.{S3Adapter, GCSAdapter, LocalAdapter, CSVExporter, Exporter}
   alias EWalletDB.{Repo, Export, Uploaders.File}
   alias EWalletConfig.Config
-
-  defstruct uuid: "22222222-2222-2222-2222-222222222222"
 
   def start(export, schema, query, serializer) do
     count = get_count(query)
     estimated_size = get_size_estimate(query, serializer)
-    {:ok, export} = Export.init(export, schema, count, estimated_size, %CSVExporter{})
+    {:ok, export} = Export.init(export, schema, count, estimated_size, %Exporter{})
 
     {:ok, pid} = GenServer.start_link(__MODULE__, [
       export: export,
@@ -33,18 +31,9 @@ defmodule EWallet.CSVExporter do
 
   def handle_cast(:upload, state) do
     adapter_module = get_adapter_module(state.export.adapter)
-    adapter_module.upload(state, &update_export/4)
+    adapter_module.upload(state)
 
     {:noreply, state}
-  end
-
-  defp update_export(export, status, completion, url \\ nil) do
-    Export.update(export, %{
-      originator: %CSVExporter{},
-      status: status,
-      completion: completion,
-      url: url
-    })
   end
 
   defp get_adapter_module(export) do

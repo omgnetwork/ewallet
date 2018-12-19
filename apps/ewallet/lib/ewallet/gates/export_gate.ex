@@ -2,19 +2,19 @@ defmodule EWallet.ExportGate do
   @moduledoc """
   TODO
   """
-  alias EWallet.CSVExporter
+  alias EWallet.{CSVExporter, S3Adapter, GCSAdapter, LocalAdapter}
   alias EWalletDB.{User, Key, Export}
 
   def generate_url(%{adapter: "aws"} = export) do
-    EWallet.S3Exporter.generate_signed_url(export)
+    S3Adapter.generate_signed_url(export)
   end
 
   def generate_url(%{adapter: "gcs"} = export) do
-    {:ok, ""}
+    GCSAdapter.generate_signed_url(export)
   end
 
   def generate_url(%{adapter: "local"} = export) do
-    {:ok, ""}
+    LocalAdapter.generate_signed_url(export)
   end
 
   def export(query, schema, serializer, attrs) do

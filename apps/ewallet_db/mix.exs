@@ -47,7 +47,7 @@ defmodule EWalletDB.Mixfile do
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 2.1.6"},
       {:ex_machina, "~> 2.2", only: :test},
-
+      {:timex, "~> 3.0"},
       {:poison, "~> 3.1"},
       {:bcrypt_elixir, "~> 1.0"},
       {:cloak, "~> 0.7.0-alpha"},

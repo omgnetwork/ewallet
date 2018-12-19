@@ -32,6 +32,19 @@ defmodule AdminAPI.V1.ExportController do
     end
   end
 
+  def download(conn, %{"id" => id} = attrs) do
+    with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
+         :ok <- permit(:get, conn.assigns, export) do
+      send_download(conn, {:file, export.path}, filename: export.filename, content_type: "text/csv", charset: "utf-8")
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+
+      nil ->
+        handle_error(conn, :export_id_not_found)
+    end
+  end
+
   defp render_exports(%Paginator{} = paged_exports, conn) do
     render(conn, :exports, %{exports: paged_exports})
   end

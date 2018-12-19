@@ -9,7 +9,7 @@ defmodule EWalletDB.Repo.Migrations.AddExports do
       add :schema, :string, null: false
       add :status, :string, null: false
       add :format, :string, null: false
-      add :completion, :integer, default: 0, null: false
+      add :completion, :float, default: 0, null: false
       add :url, :string
       add :filename, :string
       add :path, :string

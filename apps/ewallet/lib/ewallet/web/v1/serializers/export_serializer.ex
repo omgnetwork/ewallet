@@ -22,6 +22,7 @@ defmodule EWallet.Web.V1.ExportSerializer do
       status: export.status,
       completion: export.completion,
       download_url: export.url,
+      adapter: export.adapter,
       user_id: Assoc.get(export, [:user, :id]),
       key_id: Assoc.get(export, [:key, :id]),
       params: export.params,

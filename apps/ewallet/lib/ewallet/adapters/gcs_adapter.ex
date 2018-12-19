@@ -1,80 +1,34 @@
 defmodule EWallet.GCSAdapter do
-  alias EWalletDB.{Repo, Export, Uploaders.File}
-  alias EWalletConfig.Config
+  alias EWallet.AdapterHelper
+  alias EWalletDB.{Repo, Export, Uploaders}
+  alias EWalletConfig.{Config, Storage.Local}
 
-  @min_byte_size 5_243_000
+   @default_expiry_time 60 * 5
 
-  def upload(args, update_export) do
-    case args[:estimated_size] > @min_byte_size * 2 do
-      true ->
-        parts = trunc(args[:estimated_size] / @min_byte_size)
-        chunk_size = args[:estimated_size] / parts
+  def generate_signed_url(export) do
+    url = Uploaders.File.url({export.filename, nil}, :original, signed: true)
+    {:ok, url}
+  end
 
-        chunk = fn line, acc ->
-          {:cont, "#{acc}#{line}"}
-        end
+  def upload(args) do
+    :ok = AdapterHelper.setup_local_dir()
+    path = AdapterHelper.build_local_path(args.export.filename)
+    chunk_size = args.export.estimated_size / 90
 
-        after_chunk = fn acc ->
-          if byte_size(acc) >= chunk_size do
-            {:cont, acc, ""}
-          else
-            {:cont, acc}
-          end
-        end
+    {:ok, _file} = AdapterHelper.stream_to_file(path, args.export, args.query, args.serializer, chunk_size)
 
-        Repo.transaction(fn ->
-          args.query
-          |> Repo.stream(max_rows: 500)
-          |> Stream.map(fn e -> args.serializer.serialize(e) end)
-          |> CSV.encode(headers: args.serializer.columns)
-          |> Stream.chunk_while("", chunk, after_chunk)
-          |> Stream.with_index(1)
-          |> Stream.each(fn {chunk, index} ->
-            completion = 100
-            (chunk * index) / args[:estimated_size] * 100
-            {:ok, export} = update_export.(args.export, Export.processing(), completion)
-          end)
-          |> ExAws.S3.upload(get_bucket(), args.path)
-          |> ExAws.request()
-          |> case do
-            {:ok, %{status_code: 200}} -> {:ok, nil}
-            {:ok, :done} -> {:ok, nil}
-            {:error, error} -> {:error, error}
-          end
-        end, timeout: :infinity)
-
-      false ->
-        # query and ...
-        {:ok, data} = to_full_csv(args.query, args.serializer)
-
-        # direct upload
-        EWalletDB.Uploaders.File.store(%{
-          filename: args.filename,
-          binary: data
-        })
-        |> case do
-          {:ok, filename} ->
-            {:ok, export} = update_export.(args.export, Export.completed(), 100, filename)
-          {:error, error} ->
-            {:ok, export} = update_export.(args.export, Export.failed(), 0, error)
-            {:error, error}
-        end
+    case Uploaders.File.store(path) do
+      {:ok, filename} ->
+        handle_successful_upload(args.export, path)
+      {:error, error} ->
+        {:ok, export} = AdapterHelper.store_error(args.export, error)
+        {:error, args.export}
     end
   end
 
-  defp get_bucket() do
-    Config.get(:aws_bucket)
-  end
-
-  defp to_full_csv(query, serializer) do
-    Repo.transaction fn ->
-      query
-      |> Repo.stream(max_rows: 500)
-      |> Stream.map(fn e ->
-        serializer.serialize(e)
-      end)
-      |> CSV.encode(headers: serializer.columns)
-      |> Enum.join("")
-    end
+  defp handle_successful_upload(export, path) do
+    {:ok, export} = AdapterHelper.update_export(export, Export.completed(), 100)
+    File.rm(path)
+    {:ok, export}
   end
 end
