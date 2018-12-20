@@ -6,7 +6,6 @@ defmodule EWallet.Web.V1.ActivityLogSerializer do
   alias EWallet.Web.{Date, Paginator}
   alias EWallet.Web.V1.{PaginatorSerializer, Overlay}
   alias ActivityLogger.ActivityLog
-  alias Utils.Helpers.Assoc
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -25,10 +24,10 @@ defmodule EWallet.Web.V1.ActivityLogSerializer do
       id: activity_log.id,
       action: activity_log.action,
       originator_type: activity_log.originator_type,
-      originator_id: Assoc.get(activity_log, [:originator, :id]),
+      originator_identifier: activity_log.originator_identifier,
       originator: serialize_for_schema(activity_log.originator),
       target_type: activity_log.target_type,
-      target_id: Assoc.get(activity_log, [:target, :id]),
+      target_identifier: activity_log.target_identifier,
       target: serialize_for_schema(activity_log.target),
       target_changes: activity_log.target_changes,
       target_encrypted_changes: activity_log.target_encrypted_changes,

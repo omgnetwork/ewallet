@@ -15,9 +15,9 @@ defmodule EWallet.Web.V1.ActivityLogOverlay do
     do: [
       :id,
       :action,
-      :target_id,
+      :target_identifier,
       :target_type,
-      :originator_id,
+      :originator_identifier,
       :originator_type
     ]
 
@@ -25,9 +25,9 @@ defmodule EWallet.Web.V1.ActivityLogOverlay do
     do: [
       :id,
       :action,
-      :target_id,
+      :target_identifier,
       :target_type,
-      :originator_id,
+      :originator_identifier,
       :originator_type,
       :inserted_at
     ]
@@ -36,9 +36,9 @@ defmodule EWallet.Web.V1.ActivityLogOverlay do
     do: [
       :id,
       :action,
-      :target_id,
+      :target_identifier,
       :target_type,
-      :originator_id,
+      :originator_identifier,
       :originator_type,
       :inserted_at
     ]
@@ -47,9 +47,9 @@ defmodule EWallet.Web.V1.ActivityLogOverlay do
     do: [
       :id,
       :action,
-      :target_id,
+      :target_identifier,
       :target_type,
-      :originator_id,
+      :originator_identifier,
       :originator_type,
       :inserted_at
     ]
