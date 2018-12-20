@@ -16,7 +16,6 @@ defmodule EWallet.Web.V1.ExportSerializer do
     %{
       object: "export",
       id: export.id,
-      socket_topic: "export:#{export.id}",
       filename: export.filename,
       schema: export.schema,
       status: export.status,

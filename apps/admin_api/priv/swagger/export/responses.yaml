@@ -1,0 +1,12 @@
+ExportResponse:
+  description: Returns a single export
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/ExportResponseSchema'
+ExportsResponse:
+  description: Returns a list of exports
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/ExportsResponseSchema'

@@ -66,6 +66,8 @@ tags:
     description: Resources related to the configuration of the eWallet.
   - name: API Access
     description: Resources related to API access.
+  - name: Export
+    description: Resources related to exports.
 servers:
   - url: /api/admin
 components:
@@ -1435,7 +1437,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_47
+                                items: &ref_44
                                   description: The object schema for an exchange pair
                                   type: object
                                   properties: &ref_20
@@ -2389,7 +2391,7 @@ paths:
                                 items:
                                   description: The object schema for a wallet
                                   type: object
-                                  properties: &ref_43
+                                  properties:
                                     object:
                                       type: string
                                     socket_topic:
@@ -2431,7 +2433,7 @@ paths:
                                           - object
                                           - token
                                           - amount
-                                  required: &ref_44
+                                  required:
                                     - object
                                     - socket_topic
                                     - address
@@ -2559,7 +2561,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_30
       responses:
-        '200': &ref_48
+        '200': &ref_45
           description: Returns a list of transaction requests
           content:
             application/vnd.omisego.v1+json:
@@ -2581,7 +2583,7 @@ paths:
                                     The response schema for a transaction
                                     request
                                   type: object
-                                  properties: &ref_49
+                                  properties: &ref_46
                                     object:
                                       type: string
                                     id:
@@ -2640,7 +2642,7 @@ paths:
                                       type: string
                                     updated_at:
                                       type: string
-                                  required: &ref_50
+                                  required: &ref_47
                                     - object
                                     - id
                                     - formatted_id
@@ -3487,201 +3489,6 @@ paths:
       responses:
         '200': *ref_37
         '500': *ref_2
-  /wallet.all:
-    post:
-      tags:
-        - Wallet
-      summary: Get the list of wallets
-      operationId: wallet_all
-      security:
-        - ProviderAuth: []
-        - AdminAuth: []
-      requestBody: *ref_11
-      responses:
-        '200': *ref_39
-        '500': *ref_2
-  /wallet.create:
-    post:
-      tags:
-        - Wallet
-      summary: Create a wallet
-      operationId: wallet_create
-      security:
-        - ProviderAuth: []
-        - AdminAuth: []
-      requestBody:
-        description: The parameters to use for creating a wallet
-        required: true
-        content:
-          application/vnd.omisego.v1+json:
-            schema:
-              example:
-                name: My Wallet
-                identifier: secondary
-                user_id: usr_01cbfg6v9thrc3sd9m1v4gazjv
-              oneOf:
-                - properties:
-                    name:
-                      type: string
-                    identifier:
-                      type: string
-                      enum:
-                        - burn
-                        - secondary
-                    provider_user_id:
-                      type: string
-                  required:
-                    - name
-                    - identifier
-                    - provider_user_id
-                - properties:
-                    name:
-                      type: string
-                    identifier:
-                      type: string
-                      enum:
-                        - burn
-                        - secondary
-                    user_id:
-                      type: string
-                  required:
-                    - name
-                    - identifier
-                    - user_id
-                - properties:
-                    name:
-                      type: string
-                    identifier:
-                      type: string
-                      enum:
-                        - burn
-                        - secondary
-                    account_id:
-                      type: string
-                  required:
-                    - name
-                    - identifier
-                    - account_id
-      responses:
-        '200': &ref_45
-          description: Returns a single wallet
-          content:
-            application/vnd.omisego.v1+json:
-              schema:
-                description: The response schema for a wallet
-                allOf:
-                  - *ref_1
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        description: The object schema for a wallet
-                        properties: *ref_43
-                        required: *ref_44
-                    example:
-                      data:
-                        object: wallet
-                        socket_topic: 'wallet:XXX123'
-                        address: XXX123
-                        name: primary
-                        identifier: primary
-                        metadata: {}
-                        encrypted_metadata: {}
-                        enabled: true
-                        user_id: usr_01cbfg6v9thrc3sd9m1v4gazjv
-                        user: {}
-                        account_id: null
-                        account: null
-                        balances:
-                          - amount: 0
-                            token:
-                              object: token
-                              id: tok_BTC_01cbffybmtbbb449r05zgfct2h
-                              symbol: BTC
-                              name: Bitcoin
-                              subunit_to_unit: 100000000000000000
-        '500': *ref_2
-  /wallet.get:
-    post:
-      tags:
-        - Wallet
-      summary: Get a specific wallet
-      operationId: wallet_get
-      security:
-        - ProviderAuth: []
-        - AdminAuth: []
-      requestBody:
-        description: The parameters to use for retrieving a wallet by its address
-        required: true
-        content:
-          application/vnd.omisego.v1+json:
-            schema:
-              properties:
-                address:
-                  type: string
-              required:
-                - address
-              example:
-                address: kxhk519271652215
-      responses:
-        '200': *ref_45
-        '500': *ref_2
-  /wallet.get_transaction_consumptions:
-    post:
-      tags:
-        - Wallet
-      summary: Get the list of transaction consumptions for a wallet
-      operationId: wallet_get_consumptions
-      security:
-        - ProviderAuth: []
-        - AdminAuth: []
-      requestBody:
-        description: The parameters to use for listing the consumptions for a wallet
-        required: true
-        content:
-          application/vnd.omisego.v1+json:
-            schema:
-              allOf:
-                - *ref_16
-              properties:
-                address:
-                  type: string
-              required:
-                - address
-              example:
-                address: kxhk519271652215
-      responses:
-        '200': *ref_42
-        '500': *ref_2
-  /wallet.enable_or_disable:
-    post:
-      tags:
-        - Wallet
-      summary: Enable or disable a specific wallet
-      operationId: wallet_enable_or_disable
-      security:
-        - ProviderAuth: []
-        - AdminAuth: []
-      requestBody:
-        description: The parameters to use to enable or disable a wallet.
-        required: true
-        content:
-          application/vnd.omisego.v1+json:
-            schema:
-              properties:
-                address:
-                  type: string
-                enabled:
-                  type: boolean
-              required:
-                - address
-                - enabled
-              example:
-                address: kxhk519271652215
-                enabled: false
-      responses:
-        '200': *ref_45
-        '500': *ref_2
   /transaction.all:
     post:
       tags:
@@ -3694,6 +3501,111 @@ paths:
       requestBody: *ref_11
       responses:
         '200': *ref_41
+        '500': *ref_2
+  /transaction.export:
+    post:
+      tags:
+        - Transaction
+      summary: Generate an export of transactions
+      operationId: transaction_export
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The default parameters to use when querying a filtered resource
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - properties:
+                    search_term:
+                      type: string
+                    match_all: *ref_4
+                    match_any: *ref_4
+                    sort_by:
+                      type: string
+                    sort_dir:
+                      type: string
+                      enum:
+                        - asc
+                        - desc
+                  example:
+                    match_all: []
+                    match_any: []
+                    sort_by: created_at
+                    sort_dir: desc
+      responses:
+        '200': &ref_57
+          description: Returns a single export
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an export
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for an export
+                        properties: &ref_55
+                          object:
+                            type: string
+                          id:
+                            type: string
+                          filename:
+                            type: string
+                          schema:
+                            type: string
+                          status:
+                            type: string
+                          completion:
+                            type: float
+                          download_url:
+                            type: string
+                          adapter:
+                            type: string
+                          user_id:
+                            type: string
+                          key_id:
+                            type: string
+                          params:
+                            type: object
+                          pid:
+                            type: string
+                          created_at:
+                            type: string
+                            format: date-time
+                          updated_at:
+                            type: string
+                            format: date-time
+                        required: &ref_56
+                          - object
+                          - id
+                          - filename
+                          - schema
+                          - status
+                          - completion
+                          - adapter
+                          - created_at
+                          - updated_at
+                    example:
+                      data:
+                        object: export
+                        id: exp_01ca2p8jqans5aty5gj5etmjcf
+                        filename: transactions.csv
+                        schema: transaction
+                        status: completed
+                        completion: 100
+                        download_url: 'https://example.com/my_file'
+                        adapter: local
+                        user_id: usr_01ca2p8jqans5aty5gj5etmjcf
+                        key_id: nil
+                        params: {}
+                        pid: 'PID#124'
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
         '500': *ref_2
   /transaction.get:
     post:
@@ -3718,7 +3630,7 @@ paths:
               example:
                 id: txn_01ce83x8w4db56f3fcjy4n4qpc
       responses:
-        '200': &ref_46
+        '200': &ref_43
           description: Returns a single transaction
           content:
             application/vnd.omisego.v1+json:
@@ -3848,7 +3760,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': *ref_46
+        '200': *ref_43
         '500': *ref_2
   /transaction.calculate:
     post:
@@ -3906,7 +3818,7 @@ paths:
                             type: integer
                           to_token_id:
                             type: string
-                          exchange_pair: *ref_47
+                          exchange_pair: *ref_44
                           calculated_at:
                             type: string
                             format: date-time
@@ -3963,7 +3875,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_11
       responses:
-        '200': *ref_48
+        '200': *ref_45
         '500': *ref_2
   /transaction_request.create:
     post:
@@ -4072,7 +3984,7 @@ paths:
                 correlation_id: some correlation id
                 address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
       responses:
-        '200': &ref_51
+        '200': &ref_48
           description: Transaction request response
           content:
             application/vnd.omisego.v1+json:
@@ -4085,8 +3997,8 @@ paths:
                       data:
                         type: object
                         description: The response schema for a transaction request
-                        properties: *ref_49
-                        required: *ref_50
+                        properties: *ref_46
+                        required: *ref_47
                     example:
                       data:
                         object: transaction_request
@@ -4136,7 +4048,7 @@ paths:
               example:
                 formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
       responses:
-        '200': *ref_51
+        '200': *ref_48
         '500': *ref_2
   /transaction_request.consume:
     post:
@@ -4196,7 +4108,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': &ref_52
+        '200': &ref_49
           description: Transaction request consumption response
           content:
             application/vnd.omisego.v1+json:
@@ -4395,7 +4307,7 @@ paths:
               example:
                 id: txc_01abfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_52
+        '200': *ref_49
         '500': *ref_2
   /transaction_consumption.approve:
     post:
@@ -4407,7 +4319,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_53
+      requestBody: &ref_50
         description: Approve or reject a consumption using the specified ID.
         required: true
         content:
@@ -4421,7 +4333,7 @@ paths:
               example:
                 id: txn_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_52
+        '200': *ref_49
         '500': *ref_2
   /transaction_consumption.reject:
     post:
@@ -4433,9 +4345,9 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_53
+      requestBody: *ref_50
       responses:
-        '200': *ref_52
+        '200': *ref_49
         '500': *ref_2
   /access_key.all:
     post:
@@ -4465,7 +4377,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_54
+                                items: &ref_51
                                   description: The object schema for an access key
                                   type: object
                                   properties:
@@ -4525,7 +4437,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': &ref_55
+        '200': &ref_52
           description: Returns a single access key
           content:
             application/vnd.omisego.v1+json:
@@ -4535,7 +4447,7 @@ paths:
                   - *ref_1
                   - type: object
                     properties:
-                      data: *ref_54
+                      data: *ref_51
                     example:
                       data:
                         object: key
@@ -4576,7 +4488,7 @@ paths:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
                 expired: true
       responses:
-        '200': *ref_55
+        '200': *ref_52
         '500': *ref_2
   /access_key.enable_or_disable:
     post:
@@ -4607,7 +4519,7 @@ paths:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-        '200': *ref_55
+        '200': *ref_52
         '500': *ref_2
   /access_key.delete:
     post:
@@ -4672,7 +4584,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_56
+                                items: &ref_53
                                   description: The object schema for an API key
                                   type: object
                                   properties:
@@ -4732,7 +4644,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': &ref_57
+        '200': &ref_54
           description: Returns a single API key
           content:
             application/vnd.omisego.v1+json:
@@ -4742,7 +4654,7 @@ paths:
                   - *ref_1
                   - type: object
                     properties:
-                      data: *ref_56
+                      data: *ref_53
                     example:
                       data:
                         object: api_key
@@ -4783,7 +4695,7 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 expired: true
       responses:
-        '200': *ref_57
+        '200': *ref_54
         '500': *ref_2
   /api_key.enable_or_disable:
     post:
@@ -4814,7 +4726,7 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-        '200': *ref_57
+        '200': *ref_54
         '500': *ref_2
   /api_key.delete:
     post:
@@ -4840,6 +4752,101 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
       responses:
         '200': *ref_10
+        '500': *ref_2
+  /export.all:
+    post:
+      tags:
+        - Export
+      summary: Get the list of exports for the current user
+      operationId: export_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_11
+      responses:
+        '200':
+          description: Returns a list of exports
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of exports
+                allOf:
+                  - *ref_12
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: The object schema for an export
+                                  type: object
+                                  properties: *ref_55
+                                  required: *ref_56
+                    example:
+                      data:
+                        data:
+                          - object: export
+                            id: exp_01ca2p8jqans5aty5gj5etmjcf
+                            filename: transactions.csv
+                            schema: transaction
+                            status: completed
+                            completion: 100
+                            download_url: 'https://example.com/my_file'
+                            adapter: local
+                            user_id: usr_01ca2p8jqans5aty5gj5etmjcf
+                            key_id: nil
+                            params: {}
+                            pid: 'PID#124'
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_2
+  /export.get:
+    post:
+      tags:
+        - Export
+      summary: Get a specific export
+      operationId: export_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: &ref_58
+        description: The parameters to use for retrieving a specific export by its id
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: exp_01ca2p8jqans5aty5gj5etmjcf
+      responses:
+        '200': *ref_57
+        '500': *ref_2
+  /export.download:
+    post:
+      tags:
+        - Export
+      summary: Download a local export
+      operationId: export_download
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_58
+      responses:
+        '200':
+          description: A CSV file
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                type: string
+                format: binary
         '500': *ref_2
   /configuration.get:
     post:

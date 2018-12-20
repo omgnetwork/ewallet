@@ -69,6 +69,8 @@ tags:
     description: Resources related to the configuration of the eWallet.
   - name: API Access
     description: Resources related to API access.
+  - name: Export
+    description: Resources related to exports.
 
 servers:
   - url: /api/admin
@@ -235,21 +237,11 @@ paths:
   /user.enable_or_disable:
     $ref: 'user/paths.yaml#/user.enable_or_disable'
 
-  # WALLET
-  /wallet.all:
-    $ref: 'wallet/paths.yaml#/wallet.all'
-  /wallet.create:
-    $ref: 'wallet/paths.yaml#/wallet.create'
-  /wallet.get:
-    $ref: 'wallet/paths.yaml#/wallet.get'
-  /wallet.get_transaction_consumptions:
-    $ref: 'wallet/paths.yaml#/wallet.get_transaction_consumptions'
-  /wallet.enable_or_disable:
-    $ref: 'wallet/paths.yaml#/wallet.enable_or_disable'
-
   # TRANSACTION
   /transaction.all:
     $ref: 'transaction/paths.yaml#/transaction.all'
+  /transaction.export:
+    $ref: 'transaction/paths.yaml#/transaction.export'
   /transaction.get:
     $ref: 'transaction/paths.yaml#/transaction.get'
   /transaction.create:
@@ -300,6 +292,14 @@ paths:
     $ref: 'api_key/paths.yaml#/api_key.enable_or_disable'
   /api_key.delete:
     $ref: 'api_key/paths.yaml#/api_key.delete'
+
+  # WALLET
+  /export.all:
+    $ref: 'export/paths.yaml#/export.all'
+  /export.get:
+    $ref: 'export/paths.yaml#/export.get'
+  /export.download:
+    $ref: 'export/paths.yaml#/export.download'
 
   # CONFIGURATION
   /configuration.get:
