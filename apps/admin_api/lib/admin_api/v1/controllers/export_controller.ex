@@ -34,9 +34,9 @@ defmodule AdminAPI.V1.ExportController do
 
   def download(conn, %{"id" => id}) do
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, export) do
-      path = Path.join(Application.get_env(:ewallet, :root), export.path)
-
+         :ok <- permit(:get, conn.assigns, export),
+         path <- Path.join(Application.get_env(:ewallet, :root), export.path),
+         true <- File.exists?(path) || {:error, :file_not_found} do
       send_download(
         conn,
         {:file, path},

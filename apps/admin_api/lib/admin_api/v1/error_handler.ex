@@ -91,6 +91,10 @@ defmodule AdminAPI.V1.ErrorHandler do
     export_no_records: %{
       code: "export:no_records",
       description: "The given export query did not return any records."
+    },
+    file_not_found: %{
+      code: "file:not_found",
+      description: "The file could not be found on the server."
     }
   }
 

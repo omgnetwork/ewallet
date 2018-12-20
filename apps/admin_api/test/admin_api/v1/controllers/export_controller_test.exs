@@ -69,20 +69,6 @@ defmodule AdminAPI.V1.ExportControllerTest do
       assert response["data"]["filename"] == target.filename
     end
 
-    test "returns a download URL when aws" do
-      user = get_test_admin()
-      exports = insert_list(3, :export, user_uuid: user.uuid)
-
-      # Pick the 2nd inserted export
-      target = Enum.at(exports, 1)
-      response = admin_user_request("/export.get", %{"id" => target.id})
-
-      assert response["success"]
-      assert response["data"]["object"] == "export"
-      assert response["data"]["filename"] == target.filename
-      assert response["data"]["url"] != nil
-    end
-
     test "returns 'unauthorized' if the export is not owned" do
       export = insert(:export)
       response = admin_user_request("/export.get", %{"id" => export.id})
@@ -119,7 +105,7 @@ defmodule AdminAPI.V1.ExportControllerTest do
   end
 
   describe "/export.download" do
-    test "returns a file" do
+    test "returns a 'file:not_found' error when the file does not exist" do
       user = get_test_admin()
       exports = insert_list(3, :export, user_uuid: user.uuid)
 
@@ -127,23 +113,8 @@ defmodule AdminAPI.V1.ExportControllerTest do
       target = Enum.at(exports, 1)
       response = admin_user_request("/export.download", %{"id" => target.id})
 
-      assert response["success"]
-      assert response["data"]["object"] == "export"
-      assert response["data"]["filename"] == target.filename
-    end
-
-    test "returns a download URL when aws" do
-      user = get_test_admin()
-      exports = insert_list(3, :export, user_uuid: user.uuid)
-
-      # Pick the 2nd inserted export
-      target = Enum.at(exports, 1)
-      response = admin_user_request("/export.download", %{"id" => target.id})
-
-      assert response["success"]
-      assert response["data"]["object"] == "export"
-      assert response["data"]["filename"] == target.filename
-      assert response["data"]["url"] != nil
+      assert response["success"] == false
+      assert response["data"]["code"] == "file:not_found"
     end
 
     test "returns 'unauthorized' if the export is not owned" do
