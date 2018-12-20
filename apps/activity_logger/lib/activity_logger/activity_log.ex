@@ -162,7 +162,8 @@ defmodule ActivityLogger.ActivityLog do
         target_changes: changes,
         target_encrypted_changes: encrypted_changes || %{},
         originator_uuid: originator.uuid,
-        originator_identifier: Assoc.get_if_exists(originator, [get_identifier(originator.__struct__)]),
+        originator_identifier:
+          Assoc.get_if_exists(originator, [get_identifier(originator.__struct__)]),
         originator_type: originator_type,
         inserted_at: NaiveDateTime.utc_now()
       }
