@@ -1,4 +1,7 @@
 defmodule EWallet.LocalAdapter do
+  @moduledoc """
+  Export Adapter for local storage.
+  """
   alias EWallet.AdapterHelper
   alias EWalletDB.Export
 

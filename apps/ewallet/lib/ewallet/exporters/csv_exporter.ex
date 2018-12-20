@@ -1,4 +1,8 @@
 defmodule EWallet.CSVExporter do
+  @moduledoc """
+  Entry point for a CSV exporter. Runs a GenServer that will take
+  care of the export using the appropriate adapter.
+  """
   use GenServer
   import Ecto.Query
   alias EWallet.{S3Adapter, GCSAdapter, LocalAdapter, Exporter}
@@ -49,7 +53,7 @@ defmodule EWallet.CSVExporter do
     {:noreply, state}
   end
 
-  defp get_adapter_module() do
+  defp get_adapter_module do
     case Application.get_env(:ewallet, :file_storage_adapter) do
       "aws" -> S3Adapter
       "gcs" -> GCSAdapter
@@ -75,14 +79,16 @@ defmodule EWallet.CSVExporter do
     end
   end
 
-  defp serialize_sample(sample_records, _serializer) when length(sample_records) == 0 do
-    {:error, :export_no_records}
-  end
-
   defp serialize_sample(sample_records, serializer) do
-    sample_records
-    |> Enum.map(fn r -> serializer.serialize(r) end)
-    |> CSV.encode(headers: serializer.columns)
-    |> Enum.to_list()
+    case Enum.empty?(sample_records) do
+      true ->
+        {:error, :export_no_records}
+
+      false ->
+        sample_records
+        |> Enum.map(fn r -> serializer.serialize(r) end)
+        |> CSV.encode(headers: serializer.columns)
+        |> Enum.to_list()
+    end
   end
 end

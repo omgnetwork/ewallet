@@ -1,4 +1,9 @@
 defmodule EWallet.AdapterHelper do
+  @moduledoc """
+  Helper for everything export-related. This module contains
+  streaming functions to load data from the DB and send it
+  to a file/remote storage.
+  """
   alias EWallet.Exporter
   alias EWalletDB.{Repo, Export, Uploaders}
   alias EWalletConfig.Storage.Local
@@ -8,7 +13,8 @@ defmodule EWallet.AdapterHelper do
   def stream_to_file(path, export, query, serializer, chunk_size) do
     Repo.transaction(
       fn ->
-        stream_to_chunk(export, query, serializer, chunk_size)
+        export
+        |> stream_to_chunk(query, serializer, chunk_size)
         |> Stream.into(File.stream!(path, [:write, :utf8]))
         |> Stream.run()
       end,

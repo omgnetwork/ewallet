@@ -1,4 +1,7 @@
 defmodule EWallet.GCSAdapter do
+  @moduledoc """
+  Export Adapter for Google Cloud Storage.
+  """
   alias EWallet.AdapterHelper
   alias EWalletDB.{Export, Uploaders}
 

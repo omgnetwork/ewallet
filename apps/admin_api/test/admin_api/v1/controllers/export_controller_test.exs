@@ -51,7 +51,7 @@ defmodule AdminAPI.V1.ExportControllerTest do
       exports = response["data"]["data"]
 
       assert response["success"]
-      assert Enum.count(exports) == 0
+      assert Enum.empty?(exports)
     end
   end
 

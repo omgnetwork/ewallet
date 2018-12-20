@@ -1,6 +1,10 @@
 defmodule EWallet.S3Adapter do
+  @moduledoc """
+  Export Adapter for Amazon S3.
+  """
   alias EWallet.AdapterHelper
   alias EWalletDB.{Repo, Export, Uploaders}
+  alias ExAws.S3
 
   @min_byte_size 5_243_000
 
@@ -11,45 +15,56 @@ defmodule EWallet.S3Adapter do
   def upload(args) do
     case args.export.estimated_size > @min_byte_size * 2 do
       true ->
-        parts = trunc(args.export.estimated_size / @min_byte_size)
-        chunk_size = args.export.estimated_size / parts
-
-        Repo.transaction(
-          fn ->
-            args.export
-            |> AdapterHelper.stream_to_chunk(args.query, args.serializer, chunk_size)
-            |> ExAws.S3.upload(get_bucket(), args.path)
-            |> ExAws.request()
-            |> case do
-              {:ok, %{status_code: 200}} -> {:ok, nil}
-              {:ok, :done} -> {:ok, nil}
-              {:error, error} -> {:error, error}
-            end
-          end,
-          timeout: :infinity
-        )
+        stream_upload(args)
 
       false ->
-        # query and ...
-        {:ok, data} = to_full_csv(args.query, args.serializer)
+        direct_upload(args)
+    end
+  end
 
-        # direct upload
-        Uploaders.File.store(%{
-          filename: args.export.filename,
-          binary: data
-        })
+  defp stream_upload(args) do
+    parts = trunc(args.export.estimated_size / @min_byte_size)
+    chunk_size = args.export.estimated_size / parts
+
+    Repo.transaction(
+      fn ->
+        args.export
+        |> AdapterHelper.stream_to_chunk(args.query, args.serializer, chunk_size)
+        |> S3.upload(get_bucket(), args.path)
+        |> ExAws.request()
         |> case do
-          {:ok, _filename} ->
+          {:ok, _} ->
             AdapterHelper.update_export(args.export, Export.completed(), 100)
 
           {:error, error} ->
             {:ok, export} = AdapterHelper.store_error(args.export, error)
             {:error, export}
         end
+      end,
+      timeout: :infinity
+    )
+  end
+
+  defp direct_upload(args) do
+    {:ok, data} = to_full_csv(args.query, args.serializer)
+
+    # direct upload
+    %{
+      filename: args.export.filename,
+      binary: data
+    }
+    |> Uploaders.File.store()
+    |> case do
+      {:ok, _filename} ->
+        AdapterHelper.update_export(args.export, Export.completed(), 100)
+
+      {:error, error} ->
+        {:ok, export} = AdapterHelper.store_error(args.export, error)
+        {:error, export}
     end
   end
 
-  defp get_bucket() do
+  defp get_bucket do
     Application.get_env(:ewallet, :aws_bucket)
   end
 

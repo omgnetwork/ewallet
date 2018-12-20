@@ -182,7 +182,7 @@ defmodule EWalletDB.Export do
   @doc """
 
   """
-  # TODO spec
+  @spec update(%Export{}, map()) :: {:ok, %Export{}} | {:error, Ecto.Changeset.t()}
   def update(%Export{} = export, attrs) do
     export
     |> update_changeset(attrs)
