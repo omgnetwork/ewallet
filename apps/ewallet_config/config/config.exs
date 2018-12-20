@@ -12,12 +12,20 @@ config :ewallet_config,
   },
   default_settings: %{
     # Global Settings
-    "base_url" => %{key: "base_url", value: "", type: "string", position: 100},
+    "base_url" => %{
+      key: "base_url",
+      value: "",
+      type: "string",
+      position: 100,
+      description: "The URL where the base of the eWallet is accessible from."
+    },
     "redirect_url_prefixes" => %{
       key: "redirect_url_prefixes",
       value: [],
       type: "array",
-      position: 101
+      position: 101,
+      description:
+        "The URL prefixes where the eWallet are allowed to redirect to (for password resets, etc.)"
     },
     "enable_standalone" => %{
       key: "enable_standalone",

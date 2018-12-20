@@ -150,7 +150,7 @@ defmodule AdminAPI.V1.Router do
     post("/settings.all", SettingsController, :get_settings)
 
     # Configuration endpoint
-    post("/configuration.get", ConfigurationController, :get)
+    post("/configuration.all", ConfigurationController, :all)
     post("/configuration.update", ConfigurationController, :update)
 
     # Activity logs endpoint

@@ -18,5 +18,5 @@ export const selectAccountsCachedQueryPagination = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'pagination', {})
 }
 
-export const selectAccountsLoadingStatus = state => state.accountsLoadingStatus
+export const selectAccountsLoadingStatus = state => state.loadingStatus.accounts
 

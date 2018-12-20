@@ -4,7 +4,7 @@ defmodule AdminAPI.Mixfile do
   def project do
     [
       app: :admin_api,
-      version: Application.get_env(:ewallet, :version),
+      version: "1.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -32,7 +32,7 @@ defmodule AdminAPI.Mixfile do
   def application do
     [
       mod: {AdminAPI.Application, []},
-      extra_applications: [:sentry, :logger, :runtime_tools]
+      extra_applications: [:sentry, :logger, :runtime_tools, :appsignal]
     ]
   end
 
@@ -51,6 +51,7 @@ defmodule AdminAPI.Mixfile do
       {:sentry, "~> 6.4"},
       {:bodyguard, "~> 2.2"},
       {:deferred_config, "~> 0.1.0"},
+      {:appsignal, "~> 1.0"},
       {:bypass, "~> 1.0.0", only: [:test]},
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},

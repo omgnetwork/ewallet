@@ -21,7 +21,8 @@ config :admin_api, AdminAPI.Endpoint,
     view: AdminAPI.ErrorView,
     accepts: ~w(json),
     default_format: "json"
-  ]
+  ],
+  instrumenters: [Appsignal.Phoenix.Instrumenter]
 
 config :admin_api, AdminAPI.V1.Endpoint,
   render_errors: [
@@ -32,10 +33,16 @@ config :admin_api, AdminAPI.V1.Endpoint,
   pubsub: [
     name: AdminAPI.PubSub,
     adapter: Phoenix.PubSub.PG2
-  ]
+  ],
+  instrumenters: [Appsignal.Phoenix.Instrumenter]
 
 # Config for Phoenix's generators
 config :admin_api, :generators, context_app: false
+
+# Config for Phoenix's template engines
+config :phoenix, :template_engines,
+  eex: Appsignal.Phoenix.Template.EExEngine,
+  exs: Appsignal.Phoenix.Template.ExsEngine
 
 # Two configs need to be added to have a new EWallet Admin version:
 #
@@ -73,6 +80,11 @@ config :sentry,
   },
   server_name: :inet.gethostname() |> elem(1) |> to_string(),
   included_environments: [:prod]
+
+# Configs for AppSignal application monitoring
+config :appsignal, :config,
+  name: "OmiseGO eWallet Suite",
+  env: Mix.env()
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

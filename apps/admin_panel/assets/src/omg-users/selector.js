@@ -28,7 +28,7 @@ export const selectUserWithWallet = userId =>
     }
   })
 
-export const selectUsersLoadingStatus = state => state.usersLoadingStatus
+export const selectUsersLoadingStatus = state => state.loadingStatus.users
 
 export const selectGetUserById = state => id => state.users[id]
 

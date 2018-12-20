@@ -23,11 +23,21 @@ The eWallet needs access to two different databases: one for the eWallet itself 
 - `DATABASE_URL`
 - `LOCAL_LEDGER_DATABASE_URL`
 
+## Application Monitoring
+
+The eWallet supports [AppSignal](https://appsignal.com/) for application monitoring. To enable AppSignal, configure the following environment variable:
+
+- `APPSIGNAL_PUSH_API_KEY`: The AppSignal's Push API key for your application.
+For example, `APPSIGNAL_PUSH_API_KEY=00000000-0000-0000-0000-000000000000`
+
+Monitoring is automatically enabled when the above environment variable is configured.
+
 ## Error Reporting
 
 The eWallet only supports [Sentry](https://sentry.io/welcome/) for now. You can specify the DSN for it with the following environment variable:
 
-- `SENTRY_DSN`
+- `SENTRY_DSN`: The Sentry's Data Source Name for your project.
+  For example, `SENTRY_DSN=https://public_key@host:port/1`
 
 ### Local File Storage
 

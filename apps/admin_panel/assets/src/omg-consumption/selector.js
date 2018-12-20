@@ -28,4 +28,4 @@ export const selectGetConsumptionById = state => id => state.consumptions[id] ||
 export const selectConsumptionsAllPagesCachedQuery = createSelectAllPagesCachedQuery(
   selectGetConsumptionById
 )
-export const selectConsumptionsLoadingStatus = state => state.consumptionsLoadingStatus
+export const selectConsumptionsLoadingStatus = state => state.loadingStatus.consumptions

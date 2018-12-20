@@ -430,7 +430,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
         changes: %{
           "avatar" => %{
             "file_name" => "test.jpg",
-            "updated_at" => Ecto.DateTime.to_iso8601(account.avatar.updated_at)
+            "updated_at" => NaiveDateTime.to_iso8601(account.avatar.updated_at)
           }
         },
         encrypted_changes: %{}

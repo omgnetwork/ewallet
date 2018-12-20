@@ -4,7 +4,7 @@ defmodule EWalletDB.Mixfile do
   def project do
     [
       app: :ewallet_db,
-      version: Application.get_env(:ewallet, :version),
+      version: "1.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -52,15 +52,16 @@ defmodule EWalletDB.Mixfile do
       {:bcrypt_elixir, "~> 1.0"},
       {:cloak, "~> 0.7.0-alpha"},
       {:plug, "~> 1.0"},
-      {:arc, "~> 0.8.0"},
-      {:arc_ecto, "~> 0.7.0"},
+      {:arc, "~> 0.11.0"},
+      {:arc_ecto, github: "omisego/arc_ecto"},
       {:deferred_config, "~> 0.1.0"},
 
       # arc GCS dependencies
       {:arc_gcs, "~> 0.0.3", runtime: false},
 
       # arc AWS dependencies
-      {:ex_aws, "~> 1.1"},
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
       {:hackney, "~> 1.6"},
       {:sweet_xml, "~> 0.6"},
 

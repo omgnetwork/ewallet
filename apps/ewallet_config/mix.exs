@@ -4,7 +4,7 @@ defmodule EWalletConfig.MixProject do
   def project do
     [
       app: :ewallet_config,
-      version: Application.get_env(:ewallet, :version),
+      version: "1.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -45,8 +45,8 @@ defmodule EWalletConfig.MixProject do
       {:poison, "~> 3.1"},
       {:deferred_config, "~> 0.1.0"},
       {:cloak, "~> 0.7.0-alpha"},
-      {:arc, "~> 0.8.0"},
-      {:arc_ecto, "~> 0.7.0"},
+      {:arc, "~> 0.11.0"},
+      {:arc_ecto, github: "omisego/arc_ecto"},
       {:bcrypt_elixir, "~> 1.0"},
       {:plug, "~> 1.0"},
       {:utils, in_umbrella: true},

@@ -16,7 +16,7 @@ class UserProvider extends Component {
     history: PropTypes.object
   }
   componentDidMount = async () => {
-    if (this.props.currentUserLoadingStatus === 'DEFAULT') {
+    if (!this.props.currentUserLoadingStatus) {
       const result = await this.props.getCurrentUser()
       if (!result.data) {
         this.props.history.push('/login')
