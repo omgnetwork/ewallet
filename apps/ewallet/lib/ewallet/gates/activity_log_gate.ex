@@ -65,7 +65,8 @@ defmodule EWallet.ActivityLogGate do
     Map.put(preloads, schema, uuids)
   end
 
-  # Loops through the given preload map, loads the structs from the DB and format them in the following format:
+  # Loops through the given preload map, loads the structs from the DB and format
+  # them in the following format:
   # %{
   #   "entity_A": %{
   #     uuid1: %EntityA1{
@@ -102,27 +103,27 @@ defmodule EWallet.ActivityLogGate do
       |> overlay.overlay_for_module()
       |> apply(:default_preload_assocs, [])
 
-    from(
-      s in module,
-      where: s.uuid in ^uuids
-    )
+    query =
+      from(
+        s in module,
+        where: s.uuid in ^uuids
+      )
+
+    query
     |> Repo.all()
     |> Preloader.preload_all(default_preload_assocs)
   end
 
   # Takes a successful tuple of results and format it into a map with the uuid as a key
   defp format_and_append_query_result({:ok, results}, acc, module) do
-    formatted_result =
-      results
-      |> Enum.map(&{&1.uuid, &1})
-      |> Enum.into(%{})
-
+    formatted_result = Enum.into(results, %{}, &{&1.uuid, &1})
     Map.put(acc, ActivityLog.get_type(module), formatted_result)
   end
 
   defp format_and_append_query_result({:error, _}, acc, _), do: acc
 
-  # Loops through the original list of activity logs and adds :originator and :target keys for each log
+  # Loops through the original list of activity logs and adds :originator and
+  # :target keys for each log
   defp add_to_original(preloads, activity_logs) do
     Enum.map(activity_logs, fn activity_log ->
       value = preloads[activity_log.originator_type][activity_log.originator_uuid]

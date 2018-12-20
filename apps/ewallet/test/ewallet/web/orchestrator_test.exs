@@ -8,6 +8,7 @@ defmodule EWallet.Web.OrchestratorTest do
   defmodule MockOverlay do
     @behaviour EWallet.Web.V1.Overlay
 
+    def serializer, do: nil
     def preload_assocs, do: [:categories]
     def default_preload_assocs, do: [:parent]
     def sort_fields, do: [:id]
