@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.ActivityLogController do
   alias ActivityLogger.ActivityLog
 
   @doc """
-  Retrieves a list of categories.
+  Retrieves a list of activity logs.
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
