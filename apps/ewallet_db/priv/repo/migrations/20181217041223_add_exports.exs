@@ -19,6 +19,7 @@ defmodule EWalletDB.Repo.Migrations.AddExports do
       add :total_count, :integer
       add :actual_size, :float
       add :adapter, :string
+      add :pid, :string
       add :user_uuid, references(:user, column: :uuid, type: :uuid)
       add :key_uuid, references(:key, column: :uuid, type: :uuid)
 

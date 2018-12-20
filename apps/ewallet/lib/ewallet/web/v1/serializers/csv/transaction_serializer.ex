@@ -13,10 +13,6 @@ defmodule EWallet.Web.V1.CSV.TransactionSerializer do
   alias Utils.Helpers.Assoc
   alias EWalletDB.Transaction
 
-  def serialize(%Paginator{} = paginator) do
-    PaginatorSerializer.serialize(paginator, &serialize/1)
-  end
-
   def columns do
     [
       :id,
@@ -46,8 +42,11 @@ defmodule EWallet.Web.V1.CSV.TransactionSerializer do
     ]
   end
 
+  def serialize(%Paginator{} = paginator) do
+    PaginatorSerializer.serialize(paginator, &serialize/1)
+  end
+
   def serialize(%Transaction{} = transaction) do
-    # IO.inspect(transaction)
     error = build_error(transaction)
 
     %{
@@ -81,11 +80,11 @@ defmodule EWallet.Web.V1.CSV.TransactionSerializer do
     end)
   end
 
-  def format(value) when is_map(value), do: Poison.encode!(value)
-  def format(value), do: value
-
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
+
+  defp format(value) when is_map(value), do: Poison.encode!(value)
+  defp format(value), do: value
 
   defp build_error(%Transaction{error_code: nil}), do: nil
 

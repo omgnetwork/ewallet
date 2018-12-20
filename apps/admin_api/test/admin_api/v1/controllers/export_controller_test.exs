@@ -1,7 +1,5 @@
 defmodule AdminAPI.V1.ExportControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Account, Membership, Repo, Role, User}
-  alias ActivityLogger.System
 
   describe "/export.all" do
     test "returns a list of exports and pagination data" do
@@ -71,13 +69,76 @@ defmodule AdminAPI.V1.ExportControllerTest do
       assert response["data"]["filename"] == target.filename
     end
 
-    test "returns a download URL" do
+    test "returns a download URL when aws" do
       user = get_test_admin()
       exports = insert_list(3, :export, user_uuid: user.uuid)
 
       # Pick the 2nd inserted export
       target = Enum.at(exports, 1)
       response = admin_user_request("/export.get", %{"id" => target.id})
+
+      assert response["success"]
+      assert response["data"]["object"] == "export"
+      assert response["data"]["filename"] == target.filename
+      assert response["data"]["url"] != nil
+    end
+
+    test "returns 'unauthorized' if the export is not owned" do
+      export = insert(:export)
+      response = admin_user_request("/export.get", %{"id" => export.id})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+
+      assert response["data"]["description"] ==
+               "You are not allowed to perform the requested operation."
+    end
+
+    test "returns 'unauthorized' if the given ID was not found" do
+      response = admin_user_request("/export.get", %{"id" => "exp_12345678901234567890123456"})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+
+      assert response["data"]["description"] ==
+               "You are not allowed to perform the requested operation."
+    end
+
+    test "returns 'unauthorized' if the given ID format is invalid" do
+      response = admin_user_request("/export.get", %{"id" => "not_an_id"})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+
+      assert response["data"]["description"] ==
+               "You are not allowed to perform the requested operation."
+    end
+  end
+
+  describe "/export.download" do
+    test "returns a file" do
+      user = get_test_admin()
+      exports = insert_list(3, :export, user_uuid: user.uuid)
+
+      # Pick the 2nd inserted export
+      target = Enum.at(exports, 1)
+      response = admin_user_request("/export.download", %{"id" => target.id})
+
+      assert response["success"]
+      assert response["data"]["object"] == "export"
+      assert response["data"]["filename"] == target.filename
+    end
+
+    test "returns a download URL when aws" do
+      user = get_test_admin()
+      exports = insert_list(3, :export, user_uuid: user.uuid)
+
+      # Pick the 2nd inserted export
+      target = Enum.at(exports, 1)
+      response = admin_user_request("/export.download", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "export"

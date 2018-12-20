@@ -3,8 +3,6 @@ defmodule EWallet.ExportPolicy do
   The authorization policy for accounts.
   """
   @behaviour Bodyguard.Policy
-  alias EWallet.PolicyHelper
-  alias EWalletDB.Account
 
   def authorize(:get, %{admin_user: admin_user}, export) do
     export.user_uuid == admin_user.uuid

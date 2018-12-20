@@ -1,4 +1,4 @@
-defmodule ExportOverlay do
+defmodule EWallet.Web.V1.ExportOverlay do
   @moduledoc """
   Overlay for the Export schema.
   """
@@ -15,7 +15,9 @@ defmodule ExportOverlay do
     ]
 
   def default_preload_assocs,
-    do: []
+    do: [
+      :user, :key
+    ]
 
   def search_fields,
     do: [

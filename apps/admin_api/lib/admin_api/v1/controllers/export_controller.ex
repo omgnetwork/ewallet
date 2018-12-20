@@ -1,11 +1,9 @@
 defmodule AdminAPI.V1.ExportController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.ExportView
   alias EWallet.{ExportGate, ExportPolicy}
-  alias EWallet.Web.{Originator, Orchestrator, Paginator}
-  alias EWalletDB.{Repo, Export}
-  import Ecto.Query
+  alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.ExportOverlay}
+  alias EWalletDB.Export
 
   def all(conn, attrs) do
     conn.assigns
@@ -31,11 +29,13 @@ defmodule AdminAPI.V1.ExportController do
         handle_error(conn, :export_id_not_found)
     end
   end
+  def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  def download(conn, %{"id" => id} = attrs) do
+  def download(conn, %{"id" => id}) do
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, export) do
-      send_download(conn, {:file, export.path}, filename: export.filename, content_type: "text/csv", charset: "utf-8")
+      path = Path.join(Application.get_env(:ewallet, :root), export.path)
+      send_download(conn, {:file, path}, filename: export.filename, content_type: "text/csv", charset: "utf-8")
     else
       {:error, code} ->
         handle_error(conn, code)
@@ -44,6 +44,7 @@ defmodule AdminAPI.V1.ExportController do
         handle_error(conn, :export_id_not_found)
     end
   end
+  def download(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp render_exports(%Paginator{} = paged_exports, conn) do
     render(conn, :exports, %{exports: paged_exports})

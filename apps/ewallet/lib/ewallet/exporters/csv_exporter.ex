@@ -1,24 +1,31 @@
 defmodule EWallet.CSVExporter do
   use GenServer
   import Ecto.Query
-  alias EWallet.{S3Adapter, GCSAdapter, LocalAdapter, CSVExporter, Exporter}
-  alias EWalletDB.{Repo, Export, Uploaders.File}
-  alias EWalletConfig.Config
+  alias EWallet.{S3Adapter, GCSAdapter, LocalAdapter, Exporter}
+  alias EWalletDB.{Repo, Export}
+  alias Utils.Helper.PidHelper
 
   def start(export, schema, query, serializer) do
-    count = get_count(query)
-    estimated_size = get_size_estimate(query, serializer)
-    {:ok, export} = Export.init(export, schema, count, estimated_size, %Exporter{})
-
-    {:ok, pid} = GenServer.start_link(__MODULE__, [
-      export: export,
-      query: query,
-      serializer: serializer,
-    ], name: {:global, export.uuid})
-
-    :ok = GenServer.cast(pid, :upload)
-
-    {:ok, pid, export}
+    with count <- get_count(query),
+         {:ok, record_estimated_size} <- get_size_estimate(query, serializer),
+         estimated_size <- record_estimated_size * count,
+         {:ok, export} <- Export.init(export, schema, count, estimated_size, %Exporter{}),
+         {:ok, pid} <- GenServer.start_link(__MODULE__, [
+           export: export,
+           query: query,
+           serializer: serializer,
+         ], name: {:global, export.uuid}),
+         {:ok, export} <- Export.update(export, %{
+           pid: PidHelper.pid_to_binary(pid),
+           originator: %Exporter{}
+         }),
+         :ok <- GenServer.cast(pid, :upload)
+    do
+       {:ok, pid, export}
+    else
+      error ->
+        error
+    end
   end
 
   def init(export: export, query: query, serializer: serializer) do
@@ -30,14 +37,14 @@ defmodule EWallet.CSVExporter do
   end
 
   def handle_cast(:upload, state) do
-    adapter_module = get_adapter_module(state.export.adapter)
+    adapter_module = get_adapter_module()
     adapter_module.upload(state)
 
     {:noreply, state}
   end
 
-  defp get_adapter_module(export) do
-    case Config.get(:file_storage_adapter) do
+  defp get_adapter_module() do
+    case Application.get_env(:ewallet, :file_storage_adapter) do
       "aws"   -> S3Adapter
       "gcs"   -> GCSAdapter
       "local" -> LocalAdapter
@@ -57,12 +64,12 @@ defmodule EWallet.CSVExporter do
       {:error, _} = error ->
         error
       [_columns | rows] ->
-        byte_size(Enum.join(rows)) / length(rows)
+        {:ok, byte_size(Enum.join(rows)) / length(rows)}
     end
   end
 
   defp serialize_sample(sample_records, _serializer) when length(sample_records) == 0 do
-    {:error, :no_records}
+    {:error, :export_no_records}
   end
 
   defp serialize_sample(sample_records, serializer) do

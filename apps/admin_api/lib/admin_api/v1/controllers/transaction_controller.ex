@@ -4,13 +4,11 @@ defmodule AdminAPI.V1.TransactionController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.{AccountHelper, ExportController}
+  alias AdminAPI.V1.AccountHelper
   alias Ecto.Changeset
-  alias EWallet.{TransactionPolicy, TransactionGate, ExportGate, CSVExporter}
-  alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.TransactionOverlay, V1.CSV.TransactionSerializer}
+  alias EWallet.{TransactionPolicy, TransactionGate, ExportGate}
+  alias EWallet.Web.{Originator, Preloader, Orchestrator, Paginator, V1.TransactionOverlay, V1.ExportOverlay, V1.CSV.TransactionSerializer}
   alias EWalletDB.{Account, Repo, Transaction, User, Export}
-
-  import Ecto.Query
 
   @doc """
   Creates an export transactions.
@@ -26,7 +24,8 @@ defmodule AdminAPI.V1.TransactionController do
       |> ExportGate.export("transaction", TransactionSerializer, attrs)
       |> respond_single(conn)
     else
-      {:error, error} -> handle_error(conn, error)
+      {:error, error} ->
+        handle_error(conn, error)
     end
   end
 
@@ -169,6 +168,7 @@ defmodule AdminAPI.V1.TransactionController do
   end
 
   defp respond_single({:ok, %Export{} = export}, conn) do
+    {:ok, export} = Preloader.preload_one(export, ExportOverlay.default_preload_assocs())
     render(conn, :export, %{export: export})
   end
 

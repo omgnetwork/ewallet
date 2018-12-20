@@ -9,7 +9,7 @@ defmodule EWalletDB.Export do
   import EWalletConfig.Validator
   import EWalletDB.Helpers.Preloader
   import Ecto.{Changeset, Query}
-  alias Ecto.{Changeset, Multi, UUID}
+  alias Ecto.UUID
   alias EWalletConfig.Config
 
   alias EWalletDB.{
@@ -45,6 +45,7 @@ defmodule EWalletDB.Export do
     field(:url, :string)
     field(:filename, :string)
     field(:path, :string)
+    field(:pid, :string)
     field(:failure_reason, :string)
     field(:estimated_size, :float)
     field(:total_count, :integer)
@@ -110,7 +111,8 @@ defmodule EWalletDB.Export do
         :adapter,
         :schema,
         :total_count,
-        :estimated_size
+        :estimated_size,
+        :pid
       ],
       required: [
         :status,

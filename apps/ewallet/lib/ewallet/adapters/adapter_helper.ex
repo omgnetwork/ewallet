@@ -1,7 +1,7 @@
 defmodule EWallet.AdapterHelper do
   alias EWallet.Exporter
   alias EWalletDB.{Repo, Export, Uploaders}
-  alias EWalletConfig.{Config, Storage.Local}
+  alias EWalletConfig.Storage.Local
 
   @rows_count 500
 
@@ -14,29 +14,28 @@ defmodule EWallet.AdapterHelper do
   end
 
   def stream_to_chunk(export, query, serializer, chunk_size) do
-    chunk = fn line, acc ->
-      {:cont, "#{acc}#{line}"}
+    chunk = fn line, {acc, count} ->
+      if byte_size(acc) >= chunk_size do
+        {:cont, {"#{acc}#{line}", count + 1}, {"", count + 1}}
+      else
+        {:cont, {"#{acc}#{line}", count + 1}}
+      end
     end
 
-    after_chunk = fn acc ->
-      if byte_size(acc) >= chunk_size do
-        {:cont, acc, ""}
-      else
-        {:cont, acc}
-      end
+    after_chunk = fn {acc, count} ->
+      {:cont, {acc, count}, {"", count}}
     end
 
     query
     |> Repo.stream(max_rows: @rows_count)
     |> Stream.map(fn e -> serializer.serialize(e) end)
     |> CSV.encode(headers: serializer.columns)
-    |> Stream.chunk_while("", chunk, after_chunk)
-    |> Stream.with_index(1)
-    |> Stream.map(fn {chunk, index} ->
-      {:ok, export} = update_export(
+    |> Stream.chunk_while({"", 0}, chunk, after_chunk)
+    |> Stream.map(fn {chunk, count} ->
+      {:ok, _export} = update_export(
         export,
         Export.processing(),
-        chunk_size * index
+        count * 100 / export.total_count - 1 # -1 for header row
       )
 
       chunk
@@ -44,18 +43,27 @@ defmodule EWallet.AdapterHelper do
   end
 
   def setup_local_dir do
-    File.mkdir_p(Uploaders.File.storage_dir(nil, nil))
+    File.mkdir_p(local_dir())
+  end
+
+  def local_dir do
+    [
+      Application.get_env(:ewallet, :root),
+      Uploaders.File.storage_dir(nil, nil)
+    ]
+    |> Path.join()
   end
 
   def build_local_path(filename) do
     Local.get_path(Uploaders.File.storage_dir(nil, nil), filename)
   end
 
-  def update_export(export, status, completion) do
+  def update_export(export, status, completion, pid \\ nil) do
     Export.update(export, %{
       originator: %Exporter{},
       status: status,
-      completion: completion
+      completion: completion,
+      pid: pid
     })
   end
 

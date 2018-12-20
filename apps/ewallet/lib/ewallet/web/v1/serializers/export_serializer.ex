@@ -26,6 +26,7 @@ defmodule EWallet.Web.V1.ExportSerializer do
       user_id: Assoc.get(export, [:user, :id]),
       key_id: Assoc.get(export, [:key, :id]),
       params: export.params,
+      pid: export.pid,
       created_at: Date.to_iso8601(export.inserted_at),
       updated_at: Date.to_iso8601(export.updated_at)
     }
