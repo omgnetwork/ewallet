@@ -305,7 +305,7 @@ paths:
   /api_key.delete:
     $ref: 'api_key/paths.yaml#/api_key.delete'
 
-  # WALLET
+  # EXPORT
   /export.all:
     $ref: 'export/paths.yaml#/export.all'
   /export.get:
