@@ -42,18 +42,19 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
       |> CSV.decode()
       |> Stream.each(fn row ->
         assert [
-          ["id", _],
-          ["idempotency_token", _],
-          ["from_user_id", _]
-        ] = row
+                 ["id", _],
+                 ["idempotency_token", _],
+                 ["from_user_id", _]
+               ] = row
       end)
 
-      {:ok, _} = [
-        Application.get_env(:ewallet, :root),
-        Uploaders.File.storage_dir(nil, nil)
-      ]
-      |> Path.join()
-      |> File.rm_rf()
+      {:ok, _} =
+        [
+          Application.get_env(:ewallet, :root),
+          Uploaders.File.storage_dir(nil, nil)
+        ]
+        |> Path.join()
+        |> File.rm_rf()
     end
   end
 

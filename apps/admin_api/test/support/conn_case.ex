@@ -307,7 +307,6 @@ defmodule AdminAPI.ConnCase do
     |> post(@base_dir <> path, data)
   end
 
-
   defp user_auth_header(opts) do
     user_id = Keyword.get(opts, :user_id, @admin_id)
     auth_token = Keyword.get(opts, :auth_token, @auth_token)

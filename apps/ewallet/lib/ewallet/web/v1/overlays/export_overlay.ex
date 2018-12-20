@@ -11,12 +11,14 @@ defmodule EWallet.Web.V1.ExportOverlay do
 
   def preload_assocs,
     do: [
-      :user, :key
+      :user,
+      :key
     ]
 
   def default_preload_assocs,
     do: [
-      :user, :key
+      :user,
+      :key
     ]
 
   def search_fields,
@@ -66,6 +68,6 @@ defmodule EWallet.Web.V1.ExportOverlay do
       inserted_at: nil,
       updated_at: nil,
       user: UserOverlay.self_filter_fields(),
-      key: KeyOverlay.self_filter_fields(),
+      key: KeyOverlay.self_filter_fields()
     ]
 end

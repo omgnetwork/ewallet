@@ -12,11 +12,13 @@ defmodule EWallet.GCSAdapter do
     path = AdapterHelper.build_local_path(args.export.filename)
     chunk_size = args.export.estimated_size / 90
 
-    {:ok, _file} = AdapterHelper.stream_to_file(path, args.export, args.query, args.serializer, chunk_size)
+    {:ok, _file} =
+      AdapterHelper.stream_to_file(path, args.export, args.query, args.serializer, chunk_size)
 
     case Uploaders.File.store(path) do
       {:ok, _filename} ->
         handle_successful_upload(args.export, path)
+
       {:error, error} ->
         {:ok, export} = AdapterHelper.store_error(args.export, error)
         {:error, export}

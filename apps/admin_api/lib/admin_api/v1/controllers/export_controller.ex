@@ -29,13 +29,21 @@ defmodule AdminAPI.V1.ExportController do
         handle_error(conn, :export_id_not_found)
     end
   end
+
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
   def download(conn, %{"id" => id}) do
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, export) do
       path = Path.join(Application.get_env(:ewallet, :root), export.path)
-      send_download(conn, {:file, path}, filename: export.filename, content_type: "text/csv", charset: "utf-8")
+
+      send_download(
+        conn,
+        {:file, path},
+        filename: export.filename,
+        content_type: "text/csv",
+        charset: "utf-8"
+      )
     else
       {:error, code} ->
         handle_error(conn, code)
@@ -44,6 +52,7 @@ defmodule AdminAPI.V1.ExportController do
         handle_error(conn, :export_id_not_found)
     end
   end
+
   def download(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp render_exports(%Paginator{} = paged_exports, conn) do

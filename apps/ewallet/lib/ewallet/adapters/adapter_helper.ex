@@ -6,11 +6,14 @@ defmodule EWallet.AdapterHelper do
   @rows_count 500
 
   def stream_to_file(path, export, query, serializer, chunk_size) do
-    Repo.transaction(fn ->
-      stream_to_chunk(export, query, serializer, chunk_size)
-      |> Stream.into(File.stream!(path, [:write, :utf8]))
-      |> Stream.run()
-    end, timeout: :infinity)
+    Repo.transaction(
+      fn ->
+        stream_to_chunk(export, query, serializer, chunk_size)
+        |> Stream.into(File.stream!(path, [:write, :utf8]))
+        |> Stream.run()
+      end,
+      timeout: :infinity
+    )
   end
 
   def stream_to_chunk(export, query, serializer, chunk_size) do
@@ -32,11 +35,13 @@ defmodule EWallet.AdapterHelper do
     |> CSV.encode(headers: serializer.columns)
     |> Stream.chunk_while({"", 0}, chunk, after_chunk)
     |> Stream.map(fn {chunk, count} ->
-      {:ok, _export} = update_export(
-        export,
-        Export.processing(),
-        count * 100 / export.total_count - 1 # -1 for header row
-      )
+      {:ok, _export} =
+        update_export(
+          export,
+          Export.processing(),
+          # -1 for header row
+          count * 100 / export.total_count - 1
+        )
 
       chunk
     end)

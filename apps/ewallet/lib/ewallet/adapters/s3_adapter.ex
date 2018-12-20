@@ -14,17 +14,20 @@ defmodule EWallet.S3Adapter do
         parts = trunc(args.export.estimated_size / @min_byte_size)
         chunk_size = args.export.estimated_size / parts
 
-        Repo.transaction(fn ->
-          args.export
-          |> AdapterHelper.stream_to_chunk(args.query, args.serializer, chunk_size)
-          |> ExAws.S3.upload(get_bucket(), args.path)
-          |> ExAws.request()
-          |> case do
-            {:ok, %{status_code: 200}} -> {:ok, nil}
-            {:ok, :done} -> {:ok, nil}
-            {:error, error} -> {:error, error}
-          end
-        end, timeout: :infinity)
+        Repo.transaction(
+          fn ->
+            args.export
+            |> AdapterHelper.stream_to_chunk(args.query, args.serializer, chunk_size)
+            |> ExAws.S3.upload(get_bucket(), args.path)
+            |> ExAws.request()
+            |> case do
+              {:ok, %{status_code: 200}} -> {:ok, nil}
+              {:ok, :done} -> {:ok, nil}
+              {:error, error} -> {:error, error}
+            end
+          end,
+          timeout: :infinity
+        )
 
       false ->
         # query and ...
@@ -38,6 +41,7 @@ defmodule EWallet.S3Adapter do
         |> case do
           {:ok, _filename} ->
             AdapterHelper.update_export(args.export, Export.completed(), 100)
+
           {:error, error} ->
             {:ok, export} = AdapterHelper.store_error(args.export, error)
             {:error, export}
@@ -50,7 +54,7 @@ defmodule EWallet.S3Adapter do
   end
 
   defp to_full_csv(query, serializer) do
-    Repo.transaction fn ->
+    Repo.transaction(fn ->
       query
       |> Repo.stream(max_rows: 500)
       |> Stream.map(fn e ->
@@ -58,6 +62,6 @@ defmodule EWallet.S3Adapter do
       end)
       |> CSV.encode(headers: serializer.columns)
       |> Enum.join("")
-    end
+    end)
   end
 end

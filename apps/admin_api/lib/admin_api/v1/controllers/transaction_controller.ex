@@ -7,7 +7,17 @@ defmodule AdminAPI.V1.TransactionController do
   alias AdminAPI.V1.AccountHelper
   alias Ecto.Changeset
   alias EWallet.{TransactionPolicy, TransactionGate, ExportGate}
-  alias EWallet.Web.{Originator, Preloader, Orchestrator, Paginator, V1.TransactionOverlay, V1.ExportOverlay, V1.CSV.TransactionSerializer}
+
+  alias EWallet.Web.{
+    Originator,
+    Preloader,
+    Orchestrator,
+    Paginator,
+    V1.TransactionOverlay,
+    V1.ExportOverlay,
+    V1.CSV.TransactionSerializer
+  }
+
   alias EWalletDB.{Account, Repo, Transaction, User, Export}
 
   @doc """

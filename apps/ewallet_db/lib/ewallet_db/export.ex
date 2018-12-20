@@ -88,7 +88,7 @@ defmodule EWalletDB.Export do
         :schema,
         :status,
         :completion,
-        :params,
+        :params
       ]
     )
     |> validate_required_exclusive([:user_uuid, :key_uuid])

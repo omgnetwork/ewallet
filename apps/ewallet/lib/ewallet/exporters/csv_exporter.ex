@@ -10,18 +10,23 @@ defmodule EWallet.CSVExporter do
          {:ok, record_estimated_size} <- get_size_estimate(query, serializer),
          estimated_size <- record_estimated_size * count,
          {:ok, export} <- Export.init(export, schema, count, estimated_size, %Exporter{}),
-         {:ok, pid} <- GenServer.start_link(__MODULE__, [
-           export: export,
-           query: query,
-           serializer: serializer,
-         ], name: {:global, export.uuid}),
-         {:ok, export} <- Export.update(export, %{
-           pid: PidHelper.pid_to_binary(pid),
-           originator: %Exporter{}
-         }),
-         :ok <- GenServer.cast(pid, :upload)
-    do
-       {:ok, pid, export}
+         {:ok, pid} <-
+           GenServer.start_link(
+             __MODULE__,
+             [
+               export: export,
+               query: query,
+               serializer: serializer
+             ],
+             name: {:global, export.uuid}
+           ),
+         {:ok, export} <-
+           Export.update(export, %{
+             pid: PidHelper.pid_to_binary(pid),
+             originator: %Exporter{}
+           }),
+         :ok <- GenServer.cast(pid, :upload) do
+      {:ok, pid, export}
     else
       error ->
         error
@@ -29,11 +34,12 @@ defmodule EWallet.CSVExporter do
   end
 
   def init(export: export, query: query, serializer: serializer) do
-    {:ok, %{
-      query: query,
-      serializer: serializer,
-      export: export
-    }}
+    {:ok,
+     %{
+       query: query,
+       serializer: serializer,
+       export: export
+     }}
   end
 
   def handle_cast(:upload, state) do
@@ -45,8 +51,8 @@ defmodule EWallet.CSVExporter do
 
   defp get_adapter_module() do
     case Application.get_env(:ewallet, :file_storage_adapter) do
-      "aws"   -> S3Adapter
-      "gcs"   -> GCSAdapter
+      "aws" -> S3Adapter
+      "gcs" -> GCSAdapter
       "local" -> LocalAdapter
     end
   end
@@ -63,6 +69,7 @@ defmodule EWallet.CSVExporter do
     |> case do
       {:error, _} = error ->
         error
+
       [_columns | rows] ->
         {:ok, byte_size(Enum.join(rows)) / length(rows)}
     end

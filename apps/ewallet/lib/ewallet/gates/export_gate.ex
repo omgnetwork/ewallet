@@ -46,7 +46,7 @@ defmodule EWallet.ExportGate do
       status: Export.new(),
       completion: 0,
       originator: owner,
-      params: Map.delete(attrs, :originator),
+      params: Map.delete(attrs, :originator)
     }
     |> Map.put(owner_key, owner.uuid)
   end
