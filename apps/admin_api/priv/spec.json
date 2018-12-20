@@ -36359,7 +36359,10 @@
                               "action": "insert",
                               "created_at": "2018-12-20T08:58:10.445Z",
                               "metadata": {},
-                              "originator": {
+                              "originator": "nil",
+                              "originator_identifier": "nil",
+                              "originator_type": "system",
+                              "target": {
                                 "avatar": {
                                   "large": "nil",
                                   "original": "nil",
@@ -36383,15 +36386,12 @@
                                 "updated_at": "2018-12-20T08:58:10.403Z",
                                 "username": "johndoe0"
                               },
-                              "originator_identifier": "nil",
-                              "originator_type": "user",
-                              "target": "nil",
+                              "target_identifier": "usr_01cz5dc8k3c6y4mf3gw1v8at2t",
+                              "target_type": "user",
                               "target_changes": {
                                 "some": "change"
                               },
-                              "target_encrypted_changes": {},
-                              "target_identifier": "nil",
-                              "target_type": "system"
+                              "target_encrypted_changes": {}
                             }
                           ]
                         }
