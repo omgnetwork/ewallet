@@ -5,8 +5,6 @@ defmodule EWallet.Web.V1.ActivityLogOverlay do
 
   @behaviour EWallet.Web.V1.Overlay
 
-  def serializer, do: EWallet.Web.V1.ActivityLogSerializer
-
   def preload_assocs, do: []
 
   def default_preload_assocs, do: []

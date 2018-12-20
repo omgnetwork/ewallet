@@ -69,14 +69,18 @@ defmodule ActivityLogger.ActivityLog do
 
   @spec get_type(atom()) :: String.t()
   def get_type(schema) do
-    config = Application.get_env(:activity_logger, :schemas_to_activity_log_config)
-    Map.fetch!(config, schema)[:type]
+    :activity_logger
+    |> Application.get_env(:schemas_to_activity_log_config)
+    |> Map.fetch!(schema)
+    |> Map.fetch!(:type)
   end
 
   @spec get_identifier(atom()) :: atom() | nil
   def get_identifier(schema) do
-    config = Application.get_env(:activity_logger, :schemas_to_activity_log_config)
-    Map.fetch!(config, schema)[:identifier]
+    :activity_logger
+    |> Application.get_env(:schemas_to_activity_log_config)
+    |> Map.fetch!(schema)
+    |> Map.fetch!(:identifier)
   end
 
   @spec all_for_target(map()) :: [%ActivityLog{}]

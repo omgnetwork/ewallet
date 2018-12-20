@@ -6,8 +6,6 @@ defmodule EWallet.Web.V1.MintOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.{AccountOverlay, TokenOverlay, TransactionOverlay}
 
-  def serializer, do: EWallet.Web.V1.MintSerializer
-
   def preload_assocs,
     do: [
       :token,

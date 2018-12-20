@@ -14,8 +14,6 @@ defmodule EWallet.Web.V1.TransactionRequestOverlay do
     WalletOverlay
   }
 
-  def serializer, do: EWallet.Web.V1.TransactionRequestSerializer
-
   def preload_assocs,
     do: [
       :account,

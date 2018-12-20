@@ -9,8 +9,6 @@ defmodule EWallet.Web.V1.APIKeyOverlay do
     WalletOverlay
   }
 
-  def serializer, do: EWallet.Web.V1.APIKeySerializer
-
   def preload_assocs,
     do: [
       :account

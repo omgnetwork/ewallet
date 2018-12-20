@@ -6,8 +6,6 @@ defmodule EWallet.Web.V1.KeyOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.AccountOverlay
 
-  def serializer, do: EWallet.Web.V1.KeySerializer
-
   def preload_assocs,
     do: [
       :account

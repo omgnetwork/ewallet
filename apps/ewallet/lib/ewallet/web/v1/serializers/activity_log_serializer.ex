@@ -4,7 +4,7 @@ defmodule EWallet.Web.V1.ActivityLogSerializer do
   """
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Paginator}
-  alias EWallet.Web.V1.{PaginatorSerializer, Overlay}
+  alias EWallet.Web.V1.{PaginatorSerializer, ModuleMapper}
   alias ActivityLogger.ActivityLog
 
   def serialize(%Paginator{} = paginator) do
@@ -50,13 +50,8 @@ defmodule EWallet.Web.V1.ActivityLogSerializer do
 
   defp serialize_for_schema(schema) do
     schema.__struct__
-    |> serializer_for_module()
+    |> ModuleMapper.config_for_module()
+    |> Map.fetch!(:serializer)
     |> apply(:serialize, [schema])
-  end
-
-  defp serializer_for_module(module) do
-    module
-    |> Overlay.overlay_for_module()
-    |> apply(:serializer, [])
   end
 end

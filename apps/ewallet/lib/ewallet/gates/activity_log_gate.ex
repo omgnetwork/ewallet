@@ -10,10 +10,10 @@ defmodule EWallet.ActivityLogGate do
   @doc """
   Adds the originator and target struct for each activity log in the list.
   """
-  def add_originator_and_target(activity_logs, overlay) when is_list(activity_logs) do
+  def add_originator_and_target(activity_logs, module_mapper) when is_list(activity_logs) do
     activity_logs
-    |> format_preload_values(overlay)
-    |> query_preload(overlay)
+    |> format_preload_values(module_mapper)
+    |> query_preload(module_mapper)
     |> add_to_original(activity_logs)
   end
 
@@ -23,18 +23,18 @@ defmodule EWallet.ActivityLogGate do
   #   Entity2: [uuid1, uuid2],
   #   ....
   # }
-  defp format_preload_values(data, overlay) do
+  defp format_preload_values(data, module_mapper) do
     Enum.reduce(data, %{}, fn activity_log, acc ->
       acc
       |> add_preload_if_valid(
         ActivityLog.get_schema(activity_log.originator_type),
         activity_log.originator_uuid,
-        overlay
+        module_mapper
       )
       |> add_preload_if_valid(
         ActivityLog.get_schema(activity_log.target_type),
         activity_log.target_uuid,
-        overlay
+        module_mapper
       )
     end)
   end
@@ -42,8 +42,8 @@ defmodule EWallet.ActivityLogGate do
   # Checks if the given schema needs to be loaded.
   # If no -> do nothing
   # If yes -> adds an array of uuids for the given schema key
-  defp add_preload_if_valid(preloads, schema, uuid, overlay) do
-    case preloadable?(schema, overlay) do
+  defp add_preload_if_valid(preloads, schema, uuid, module_mapper) do
+    case preloadable?(schema, module_mapper) do
       true ->
         preloads
         |> Map.put_new(schema, [])
@@ -88,19 +88,20 @@ defmodule EWallet.ActivityLogGate do
   #   },
   #   ...
   # }
-  defp query_preload(preloads, overlay) do
+  defp query_preload(preloads, module_mapper) do
     Enum.reduce(preloads, %{}, fn {module, uuids}, acc ->
       module
-      |> query_for_module(uuids, overlay)
+      |> query_for_module(uuids, module_mapper)
       |> format_and_append_query_result(acc, module)
     end)
   end
 
   # Queries the results and their default preloaded associations for the given uuids
-  defp query_for_module(module, uuids, overlay) do
+  defp query_for_module(module, uuids, module_mapper) do
     default_preload_assocs =
       module
-      |> overlay.overlay_for_module()
+      |> module_mapper.config_for_module()
+      |> Map.fetch!(:overlay)
       |> apply(:default_preload_assocs, [])
 
     query =
@@ -133,5 +134,5 @@ defmodule EWallet.ActivityLogGate do
     end)
   end
 
-  defp preloadable?(schema, overlay), do: overlay.overlay_for_module(schema) != nil
+  defp preloadable?(schema, module_mapper), do: module_mapper.config_for_module(schema) != nil
 end

@@ -12,8 +12,6 @@ defmodule EWallet.Web.V1.AccountOverlay do
     MembershipOverlay
   }
 
-  def serializer, do: EWallet.Web.V1.AccountSerializer
-
   def preload_assocs,
     do: [
       :parent,

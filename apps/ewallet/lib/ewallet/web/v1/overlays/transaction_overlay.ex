@@ -11,8 +11,6 @@ defmodule EWallet.Web.V1.TransactionOverlay do
     TokenOverlay
   }
 
-  def serializer, do: EWallet.Web.V1.TransactionSerializer
-
   def preload_assocs, do: default_preload_assocs()
 
   def default_preload_assocs,

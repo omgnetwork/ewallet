@@ -16,8 +16,6 @@ defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
     WalletOverlay
   }
 
-  def serializer, do: EWallet.Web.V1.TransactionConsumptionSerializer
-
   def preload_assocs, do: default_preload_assocs()
 
   def default_preload_assocs,
