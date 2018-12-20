@@ -1,9 +1,6 @@
 defmodule EWallet.GCSAdapter do
   alias EWallet.AdapterHelper
-  alias EWalletDB.{Repo, Export, Uploaders}
-  alias EWalletConfig.{Config, Storage.Local}
-
-   @default_expiry_time 60 * 5
+  alias EWalletDB.{Export, Uploaders}
 
   def generate_signed_url(export) do
     url = Uploaders.File.url({export.filename, nil}, :original, signed: true)
@@ -18,11 +15,11 @@ defmodule EWallet.GCSAdapter do
     {:ok, _file} = AdapterHelper.stream_to_file(path, args.export, args.query, args.serializer, chunk_size)
 
     case Uploaders.File.store(path) do
-      {:ok, filename} ->
+      {:ok, _filename} ->
         handle_successful_upload(args.export, path)
       {:error, error} ->
         {:ok, export} = AdapterHelper.store_error(args.export, error)
-        {:error, args.export}
+        {:error, export}
     end
   end
 

@@ -1,7 +1,6 @@
 defmodule EWallet.S3Adapter do
   alias EWallet.AdapterHelper
   alias EWalletDB.{Repo, Export, Uploaders}
-  alias EWalletConfig.Config
 
   @min_byte_size 5_243_000
 
@@ -37,7 +36,7 @@ defmodule EWallet.S3Adapter do
           binary: data
         })
         |> case do
-          {:ok, filename} ->
+          {:ok, _filename} ->
             AdapterHelper.update_export(args.export, Export.completed(), 100)
           {:error, error} ->
             {:ok, export} = AdapterHelper.store_error(args.export, error)

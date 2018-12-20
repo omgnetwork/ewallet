@@ -4,15 +4,15 @@ defmodule EWallet.Web.V1.ExportSerializer do
   """
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Paginator}
-  alias EWallet.Web.V1.{AccountSerializer, UserSerializer, ExportSerializer, PaginatorSerializer}
+  alias EWallet.Web.V1.PaginatorSerializer
   alias Utils.Helpers.Assoc
-  alias EWalletDB.User
+  alias EWalletDB.Export
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
 
-  def serialize(export) do
+  def serialize(%Export{} = export) do
     %{
       object: "export",
       id: export.id,

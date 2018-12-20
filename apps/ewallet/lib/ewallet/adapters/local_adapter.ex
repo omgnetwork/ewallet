@@ -1,9 +1,5 @@
 defmodule EWallet.LocalAdapter do
   alias EWallet.AdapterHelper
-  alias EWalletDB.{Repo, Export, Uploaders}
-  alias EWalletConfig.{Config, Storage.Local}
-
-  @min_byte_size 5_243_000
 
   def generate_signed_url(_export) do
     {:ok, nil}
