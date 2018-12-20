@@ -237,6 +237,18 @@ paths:
   /user.enable_or_disable:
     $ref: 'user/paths.yaml#/user.enable_or_disable'
 
+  # WALLET
+  /wallet.all:
+   $ref: 'wallet/paths.yaml#/wallet.all'
+  /wallet.create:
+   $ref: 'wallet/paths.yaml#/wallet.create'
+  /wallet.get:
+   $ref: 'wallet/paths.yaml#/wallet.get'
+  /wallet.get_transaction_consumptions:
+   $ref: 'wallet/paths.yaml#/wallet.get_transaction_consumptions'
+  /wallet.enable_or_disable:
+   $ref: 'wallet/paths.yaml#/wallet.enable_or_disable'
+
   # TRANSACTION
   /transaction.all:
     $ref: 'transaction/paths.yaml#/transaction.all'
