@@ -13,7 +13,7 @@ erl_crash.dump
 /apps/admin_api/public/uploads
 !/public/uploads/test.txt
 /public/docs
-private
+/private
 
 # Dev
 .env
