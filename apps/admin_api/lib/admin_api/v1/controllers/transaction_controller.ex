@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.TransactionController do
   @doc """
   Creates an export transactions.
   """
-  @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  @spec export(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def export(conn, attrs) do
     with :ok <- permit(:export, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
