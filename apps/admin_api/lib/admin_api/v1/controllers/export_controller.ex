@@ -36,11 +36,7 @@ defmodule AdminAPI.V1.ExportController do
          {:ok, export} <- Orchestrator.one(export, ExportOverlay, attrs) do
       render(conn, :export, %{export: export})
     else
-      {:error, code} ->
-        handle_error(conn, code)
-
-      nil ->
-        handle_error(conn, :export_id_not_found)
+      {:error, code} -> handle_error(conn, code)
     end
   end
 
@@ -59,11 +55,7 @@ defmodule AdminAPI.V1.ExportController do
         charset: "utf-8"
       )
     else
-      {:error, code} ->
-        handle_error(conn, code)
-
-      nil ->
-        handle_error(conn, :export_id_not_found)
+      {:error, code} -> handle_error(conn, code)
     end
   end
 
