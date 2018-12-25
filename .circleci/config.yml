@@ -1,0 +1,306 @@
+version: 2
+
+presets:
+  defaults: &defaults
+    working_directory: ~/src
+    docker:
+      - image: omisegoimages/ewallet-builder:stable
+    environment:
+      IMAGE_NAME: "omisego/ewallet"
+
+
+jobs:
+  build_test:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache: &ewallet_deps
+          name: Restoring eWallet dependencies from cache
+          keys:
+            - v1-ewallet-deps-{{ checksum "mix.lock" }}
+            - v1-ewallet-deps-
+      - restore_cache: &ewallet_test_build
+          name: Restoring eWallet test artifacts from cache
+          keys:
+            - v1-ewallet-test-build-{{ checksum "mix.exs" }}
+            - v1-ewallet-test-build-
+      - run:
+          name: Retrieving eWallet dependencies
+          command: |
+            set -xe
+            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
+            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
+            make deps-ewallet
+      - save_cache:
+          name: Caching eWallet dependencies
+          key: v1-ewallet-deps-{{ checksum "mix.lock" }}
+          paths:
+            - deps
+      - run:
+          name: Building eWallet in test environment
+          command: |
+            set -xe
+            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
+            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
+            make build-test
+      - save_cache:
+          name: Caching eWallet test artifacts
+          key: v1-ewallet-test-build-{{ checksum "mix.exs" }}
+          paths:
+            - _build/test
+
+  lint:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache: *ewallet_deps
+      - restore_cache: *ewallet_test_build
+      - run:
+          name: Checking code formattings
+          command: |
+            set +xe
+            make check-format
+      - run:
+          name: Checking credo
+          command: |
+            set -xe
+            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
+            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
+            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
+            make deps-ewallet
+            make check-credo
+          environment:
+            MIX_ENV: test
+
+  test:
+    <<: *defaults
+    docker:
+      - image: omisegoimages/ewallet-builder:stable
+      - image: postgres:9.6-alpine
+    steps:
+      - checkout
+      - restore_cache: *ewallet_deps
+      - restore_cache: *ewallet_test_build
+      - restore_cache: &ewallet_deps_assets
+          name: Restoring eWallet assets dependencies from cache
+          keys:
+            - v1-ewallet-assets-deps-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
+            - v1-ewallet-assets-deps-
+      - run:
+          name: Running eWallet tests
+          command: |
+            set -xe
+            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
+            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
+            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
+            # TODO: Remove me after done testing pipeline.
+            make test-ewallet || true
+          environment:
+            DATABASE_URL: postgresql://postgres:@localhost:5432/ewallet
+            LOCAL_LEDGER_DATABASE_URL: postgresql://postgres:@localhost:5432/ledger
+            USE_JUNIT: 1
+            MIX_ENV: test
+      - run:
+          name: Running eWallet assets tests
+          command: |
+            set -xe
+            make deps-assets
+            make test-assets
+      - save_cache:
+          name: Caching eWallet test dependencies
+          key: v1-ewallet-assets-deps-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
+          paths:
+            - apps/admin_panel/assets/node_modules
+
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache: *ewallet_deps
+      - restore_cache: *ewallet_deps_assets
+      - restore_cache:
+          name: Restoring eWallet production artifacts from cache
+          keys:
+            - v1-ewallet-prod-build-{{ checksum "mix.exs" }}
+            - v1-ewallet-prod-build-
+      - setup_remote_docker
+      - run:
+          name: Building eWallet in production environment
+          command: |
+            set -xe
+            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
+            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
+            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
+            make build-prod
+      - save_cache:
+          name: Caching eWallet artifacts
+          key: v1-ewallet-prod-build-{{ checksum "mix.exs" }}
+          paths:
+            - _build/prod/.mix
+            - _build/prod/consolidated
+            - _build/prod/lib
+      - restore_cache:
+          name: Restoring Docker image artifacts from cache
+          keys:
+            - v1-docker-image-{{ checksum "Dockerfile" }}
+            - v1-docker-image-
+      - run:
+          name: Building Docker image
+          command: |
+            set -xe
+            docker load -i ~/caches/docker-layers.tar || true
+            make docker-build IMAGE_NAME=$IMAGE_NAME
+            mkdir -p ~/caches /tmp/workspace
+            docker save -o ~/caches/docker-layers.tar "$IMAGE_NAME"
+            docker save -o /tmp/workspace/docker-image.tar "$IMAGE_NAME"
+      - save_cache:
+          name: Saving Docker image layer cache
+          paths:
+            - ~/caches/docker-layers.tar
+          key: v1-docker-image-{{ checksum "Dockerfile" }}
+      - persist_to_workspace:
+          name: Persisting workspace
+          root: /tmp/workspace
+          paths:
+            - docker-image.tar
+
+  test_e2e:
+    <<: *defaults
+    steps:
+      - setup_remote_docker
+      - checkout
+      - attach_workspace: &attach_workspace
+          name: Attaching workspace
+          at: /tmp/workspace
+      - run:
+          name: Preparing E2E environments
+          command: |
+            set -xe
+
+            cat <<EOF > .env
+            E2E_HTTP_HOST=http://ewallet:4000
+            E2E_SOCKET_HOST=ws://ewallet:4000
+            E2E_TEST_ADMIN_EMAIL=$(openssl rand -hex 4)@example.com
+            E2E_TEST_ADMIN_PASSWORD=$(openssl rand -base64 24 | tr '+/' '-_')
+            E2E_TEST_ADMIN_1_EMAIL=$(openssl rand -hex 4)@example.com
+            E2E_TEST_ADMIN_1_PASSWORD=$(openssl rand -base64 24 | tr '+/' '-_')
+            E2E_TEST_USER_EMAIL=$(openssl rand -hex 4)@example.com
+            E2E_TEST_USER_PASSWORD=$(openssl rand -base64 24 | tr '+/' '-_')
+            EOF
+
+            docker load -i /tmp/workspace/docker-image.tar
+            docker network create net0
+
+            sh docker-gen.sh -i "$IMAGE_NAME" -n net0 -f .env > docker-compose.override.yml
+            docker-compose up -d postgres mail
+            docker-compose run --rm ewallet bin/ewallet initdb
+            docker-compose run --rm ewallet bin/ewallet seed -e
+            docker-compose run --rm ewallet bin/ewallet config base_url http://ewallet:4000
+            docker-compose run --rm ewallet bin/ewallet config email_adapter smtp
+            docker-compose run --rm ewallet bin/ewallet config smtp_host mail
+            docker-compose run --rm ewallet bin/ewallet config smtp_port 1025
+      - run:
+          name: Running E2E tests
+          command: |
+            set -xe
+
+            # Primary container cannot connect directly to the Docker-in-Docker instance.
+            # We need to spawn another image to do so.
+            git clone https://github.com/omisego/e2e.git ~/e2e
+            docker create -v /src --name srcs alpine:3.8 /bin/true
+            docker cp ~/e2e srcs:/src
+            docker cp .env srcs:/src/e2e/.env
+
+            docker-compose up -d ewallet
+            trap "docker-compose logs ewallet" 0 1 2 3 6 14 15
+
+            docker run --rm \
+                --init \
+                --network net0 \
+                --volumes-from srcs \
+              omisegoimages/ewallet-builder:stable \
+              sh -c "cd /src/e2e && pipenv install && pipenv run robot tests"
+
+  publish:
+    <<: *defaults
+    steps:
+      - setup_remote_docker
+      - attach_workspace: *attach_workspace
+      - run:
+          name: Logging into Docker Hub
+          command: |
+            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+      - run:
+          name: Publishing Docker image
+          command: |
+            set -xe
+            docker load -i /tmp/workspace/docker-image.tar
+
+            IMAGE_TAG=""
+            if [ -n "$CIRCLE_TAG" ]; then
+                _ver="${CIRCLE_TAG#*v}"
+
+                # Given a v1.0.0-pre.1 tag, this will generate:
+                # - 1.0
+                # - 1.0.0-pre
+                # - 1.0.0-pre.1
+                while true; do
+                    case "$_ver" in
+                        *.* ) IMAGE_TAG="$_ver $IMAGE_TAG"; _ver="${_ver%.*}";;
+                        * )   break;;
+                    esac
+                done
+
+                # In case the commit is HEAD of master branch, also tag stable.
+                if [ -n "$CIRCLE_REPOSITORY_URL" ] && [ -n "$CIRCLE_SHA1" ]; then
+                    _ref="refs/heads/master"
+                    _head="$(git ls-remote "$CIRCLE_REPOSITORY_URL" "$_ref" | awk '{ print $1 }')"
+                    if [ "$CIRCLE_SHA1" = "$_head" ]; then
+                        IMAGE_TAG="stable $IMAGE_TAG"
+                    fi
+                fi
+            elif [ "$CIRCLE_BRANCH" = "master" ]; then
+                IMAGE_TAG="dev"
+                IMAGE_TAG="dev-$(git rev-parse --short HEAD) $IMAGE_TAG"
+            fi
+
+            for tag in $IMAGE_TAG; do
+                docker tag "$IMAGE_NAME" "$IMAGE_NAME:$tag"
+                docker push "$IMAGE_NAME:$tag"
+            done
+
+
+workflows:
+  version: 2
+  test_build:
+    jobs:
+      - build_test
+
+      - lint:
+          requires:
+            - build_test
+
+      - test:
+          requires:
+            - build_test
+
+      - build:
+          requires:
+            - lint
+            - test
+          filters: &mainline_branches
+            branches:
+              only:
+                - master
+            tags:
+              only: /^v.*/
+
+      - test_e2e:
+          requires:
+            - build
+          filters: *mainline_branches
+
+      - publish:
+          requires:
+            - test_e2e
+          filters: *mainline_branches
