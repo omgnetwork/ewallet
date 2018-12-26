@@ -84,7 +84,15 @@ defmodule EWallet.Exporters.AdapterHelper do
     Local.get_path(Uploaders.File.storage_dir(nil, nil), filename)
   end
 
-  def update_export(export, status, completion, pid \\ nil) do
+  def update_export(export, status, completion) do
+    Export.update(export, %{
+      originator: %Exporter{},
+      status: status,
+      completion: completion
+    })
+  end
+
+  def update_export(export, status, completion, pid) do
     Export.update(export, %{
       originator: %Exporter{},
       status: status,

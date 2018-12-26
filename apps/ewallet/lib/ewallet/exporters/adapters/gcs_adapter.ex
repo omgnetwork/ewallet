@@ -43,7 +43,7 @@ defmodule EWallet.Exporters.GCSAdapter do
   end
 
   defp handle_successful_upload(export, path) do
-    {:ok, export} = AdapterHelper.update_export(export, Export.completed(), 100)
+    {:ok, export} = AdapterHelper.update_export(export, Export.completed(), 100, nil)
     File.rm(path)
     {:ok, export}
   end

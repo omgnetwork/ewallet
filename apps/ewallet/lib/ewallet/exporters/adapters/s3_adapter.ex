@@ -49,7 +49,7 @@ defmodule EWallet.Exporters.S3Adapter do
         |> ExAws.request()
         |> case do
           {:ok, _} ->
-            AdapterHelper.update_export(args.export, Export.completed(), 100)
+            AdapterHelper.update_export(args.export, Export.completed(), 100, nil)
 
           {:error, error} ->
             {:ok, export} = AdapterHelper.store_error(args.export, error)
@@ -71,7 +71,7 @@ defmodule EWallet.Exporters.S3Adapter do
     |> Uploaders.File.store()
     |> case do
       {:ok, _filename} ->
-        AdapterHelper.update_export(args.export, Export.completed(), 100)
+        AdapterHelper.update_export(args.export, Export.completed(), 100, nil)
 
       {:error, error} ->
         {:ok, export} = AdapterHelper.store_error(args.export, error)
