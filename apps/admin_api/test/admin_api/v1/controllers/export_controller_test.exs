@@ -127,8 +127,20 @@ defmodule AdminAPI.V1.ExportControllerTest do
       target = Enum.at(exports, 1)
       response = admin_user_request("/export.download", %{"id" => target.id})
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "file:not_found"
+      assert response["data"]["description"] == "The file could not be found on the server."
+    end
+
+    test "returns an 'export:not_local' error when the given export uses a non-local adapter" do
+      user = get_test_admin()
+      export = insert(:export, user_uuid: user.uuid, adapter: "gcs")
+
+      response = admin_user_request("/export.download", %{"id" => export.id})
+
+      refute response["success"]
+      assert response["data"]["code"] == "export:not_local"
+      assert response["data"]["description"] == "The given export is not stored locally."
     end
 
     test "returns 'unauthorized' if the export is not owned" do
