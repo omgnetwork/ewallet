@@ -16,17 +16,11 @@ defmodule EWallet.Web.V1.ActivityLogSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Paginator}
-  alias EWallet.Web.V1.ActivityLogSerializer
+  alias EWallet.Web.V1.{AccountSerializer, ActivityLogSerializer, UserSerializer}
 
   describe "ActivityLogSerializer.serialize/1" do
     test "serializes an activity_log into V1 response format" do
-      user = insert(:user)
-
-      activity_log =
-        :activity_log
-        |> insert(%{originator_type: "user", originator_uuid: user.uuid})
-        |> Map.put(:originator, user)
-        |> Map.put(:target, nil)
+      activity_log = insert(:activity_log_preloaded)
 
       expected = %{
         action: activity_log.action,
@@ -34,54 +28,25 @@ defmodule EWallet.Web.V1.ActivityLogSerializerTest do
         id: activity_log.id,
         metadata: activity_log.metadata,
         object: "activity_log",
-        originator: %{
-          avatar: %{
-            original: nil,
-            large: nil,
-            small: nil,
-            thumb: nil
-          },
-          calling_name: user.calling_name,
-          created_at: Date.to_iso8601(user.inserted_at),
-          email: user.email,
-          enabled: user.enabled,
-          encrypted_metadata: user.encrypted_metadata,
-          full_name: user.full_name,
-          id: user.id,
-          metadata: user.metadata,
-          object: "user",
-          provider_user_id: user.provider_user_id,
-          socket_topic: "user:#{user.id}",
-          updated_at: Date.to_iso8601(user.updated_at),
-          username: user.username
-        },
+        originator: UserSerializer.serialize(activity_log.originator),
         originator_identifier: nil,
         originator_type: "user",
-        target: nil,
+        target: AccountSerializer.serialize(activity_log.target),
         target_changes: activity_log.target_changes,
         target_encrypted_changes: activity_log.target_encrypted_changes,
         target_identifier: nil,
-        target_type: "system"
+        target_type: "account"
       }
 
       assert ActivityLogSerializer.serialize(activity_log) == expected
     end
 
     test "serializes an activity_log paginator into a list object" do
-      activity_log1 =
-        :activity_log
-        |> insert()
-        |> Map.put(:originator, nil)
-        |> Map.put(:target, nil)
-
-      activity_log2 =
-        :activity_log
-        |> insert()
-        |> Map.put(:originator, nil)
-        |> Map.put(:target, nil)
+      activity_log_1 = insert(:activity_log_preloaded)
+      activity_log_2 = insert(:activity_log_preloaded)
 
       paginator = %Paginator{
-        data: [activity_log1, activity_log2],
+        data: [activity_log_1, activity_log_2],
         pagination: %{
           current_page: 9,
           per_page: 7,
@@ -93,38 +58,8 @@ defmodule EWallet.Web.V1.ActivityLogSerializerTest do
       expected = %{
         object: "list",
         data: [
-          %{
-            action: activity_log1.action,
-            # to check
-            created_at: Date.to_iso8601(activity_log1.inserted_at),
-            id: activity_log1.id,
-            metadata: activity_log1.metadata,
-            object: "activity_log",
-            originator: nil,
-            originator_identifier: nil,
-            originator_type: "system",
-            target: nil,
-            target_changes: activity_log1.target_changes,
-            target_encrypted_changes: activity_log1.target_encrypted_changes,
-            target_identifier: nil,
-            target_type: "system"
-          },
-          %{
-            action: activity_log2.action,
-            # to check
-            created_at: Date.to_iso8601(activity_log2.inserted_at),
-            id: activity_log2.id,
-            metadata: activity_log2.metadata,
-            object: "activity_log",
-            originator: nil,
-            originator_identifier: nil,
-            originator_type: "system",
-            target: nil,
-            target_changes: activity_log2.target_changes,
-            target_encrypted_changes: activity_log2.target_encrypted_changes,
-            target_identifier: nil,
-            target_type: "system"
-          }
+          ActivityLogSerializer.serialize(activity_log_1),
+          ActivityLogSerializer.serialize(activity_log_2)
         ],
         pagination: %{
           current_page: 9,
