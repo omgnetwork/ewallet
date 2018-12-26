@@ -19,7 +19,8 @@ defmodule EWallet.CSVExporter do
   """
   use GenServer
   import Ecto.Query
-  alias EWallet.{S3Adapter, GCSAdapter, LocalAdapter, Exporter}
+  alias EWallet.Exporter
+  alias EWallet.Exporters.{S3Adapter, GCSAdapter, LocalAdapter}
   alias EWalletDB.{Repo, Export}
   alias Utils.Helper.PidHelper
 

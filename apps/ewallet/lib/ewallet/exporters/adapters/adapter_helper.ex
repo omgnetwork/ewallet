@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.AdapterHelper do
+defmodule EWallet.Exporters.AdapterHelper do
   @moduledoc """
   Helper for everything export-related. This module contains
   streaming functions to load data from the DB and send it

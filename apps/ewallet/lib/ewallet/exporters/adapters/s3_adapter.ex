@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.S3Adapter do
+defmodule EWallet.Exporters.S3Adapter do
   @moduledoc """
   Export Adapter for Amazon S3.
   """
-  alias EWallet.AdapterHelper
+  alias EWallet.Exporters.AdapterHelper
   alias EWalletDB.{Repo, Export, Uploaders}
   alias ExAws.S3
 
