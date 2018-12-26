@@ -39,45 +39,27 @@ defmodule EWallet.ActivityLogGate do
   #   ....
   # }
   defp format_preload_values(data, module_mapper) do
-    Enum.reduce(data, %{}, fn activity_log, acc ->
-      acc
-      |> add_preload_if_valid(
-        ActivityLog.get_schema(activity_log.originator_type),
-        activity_log.originator_uuid,
-        module_mapper
-      )
-      |> add_preload_if_valid(
-        ActivityLog.get_schema(activity_log.target_type),
-        activity_log.target_uuid,
-        module_mapper
-      )
-    end)
+    {data, []}
+    |> extract_entity_uuids(:originator_type, :originator_uuid, module_mapper)
+    |> extract_entity_uuids(:target_type, :target_uuid, module_mapper)
+    |> elem(1)
+    |> Enum.uniq()
+    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
   end
 
-  # Checks if the given schema needs to be loaded.
-  # If no -> do nothing
-  # If yes -> adds an array of uuids for the given schema key
-  defp add_preload_if_valid(preloads, schema, uuid, module_mapper) do
-    case preloadable?(schema, module_mapper) do
-      true ->
-        preloads
-        |> Map.put_new(schema, [])
-        |> add_uuid_if_not_present(schema, uuid)
+  defp extract_entity_uuids({raw, extracted}, schema_type, record_identifier, module_mapper) do
+    extracted =
+      Enum.reduce(raw, extracted, fn activity_log, acc ->
+        schema = activity_log |> Map.get(schema_type) |> ActivityLog.get_schema()
 
-      false ->
-        preloads
-    end
-  end
+        if preloadable?(schema, module_mapper) do
+          [{schema, Map.get(activity_log, record_identifier)} | acc]
+        else
+          acc
+        end
+      end)
 
-  # Adds the given uuid to the list for the schema if not already present
-  defp add_uuid_if_not_present(preloads, schema, uuid) do
-    uuids =
-      case !Enum.member?(preloads[schema], uuid) do
-        true -> [uuid | preloads[schema]]
-        false -> preloads[schema]
-      end
-
-    Map.put(preloads, schema, uuids)
+    {raw, extracted}
   end
 
   # Loops through the given preload map, loads the structs from the DB and format
