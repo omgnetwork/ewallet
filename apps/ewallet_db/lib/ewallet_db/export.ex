@@ -136,10 +136,16 @@ defmodule EWalletDB.Export do
     |> validate_inclusion(:status, [@new, @processing, @completed, @failed])
   end
 
+  @doc """
+  Retrieves a list of all exports created by the given user.
+  """
   def all_for(%User{} = user) do
     from(t in Export, where: t.user_uuid == ^user.uuid)
   end
 
+  @doc """
+  Retrieves a list of all exports created by the given key.
+  """
   def all_for(%Key{} = key) do
     from(t in Export, where: t.key_uuid == ^key.uuid)
   end
@@ -166,6 +172,9 @@ defmodule EWalletDB.Export do
     |> preload_option(opts)
   end
 
+  @doc """
+  Initiates the given inserted export.
+  """
   def init(export, schema, count, estimated_size, originator) do
     time = Timex.format!(export.inserted_at, "%Y-%m-%d_%H:%M:%S:%L", :strftime)
     filename = "#{schema}-#{export.key_uuid || export.user_uuid}-#{time}.csv"
@@ -184,7 +193,7 @@ defmodule EWalletDB.Export do
   end
 
   @doc """
-
+  Inserts a new export.
   """
   @spec insert(map()) :: {:ok, %Export{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
@@ -194,7 +203,7 @@ defmodule EWalletDB.Export do
   end
 
   @doc """
-
+  Updates the given export with the given attributes.
   """
   @spec update(%Export{}, map()) :: {:ok, %Export{}} | {:error, Ecto.Changeset.t()}
   def update(%Export{} = export, attrs) do

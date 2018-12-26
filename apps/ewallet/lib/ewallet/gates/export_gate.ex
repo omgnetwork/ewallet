@@ -14,7 +14,7 @@
 
 defmodule EWallet.ExportGate do
   @moduledoc """
-  TODO
+  Handles the logic for creating and saving and export.
   """
   alias EWallet.CSVExporter
   alias EWallet.Exporters.{S3Adapter, GCSAdapter, LocalAdapter}
