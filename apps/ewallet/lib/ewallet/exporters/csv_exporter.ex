@@ -76,8 +76,14 @@ defmodule EWallet.CSVExporter do
     end
   end
 
-  defp get_count(query) do
-    Repo.aggregate(query, :count, :uuid)
+  defp get_count(queryable) do
+    # `Ecto.Repo.Queryable.query_for_aggregate/3` has problems aggregating queries
+    # that have both distinct and order_by, and it causes the following error:
+    # `for SELECT DISTINCT, ORDER BY expressions must appear in select list`
+    # Since we don't require order_by when counting anyway, we remove it before aggregating.
+    queryable = %{queryable | order_bys: []}
+
+    Repo.aggregate(queryable, :count, :uuid)
   end
 
   defp get_size_estimate(query, serializer) do
