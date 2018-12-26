@@ -39,6 +39,9 @@ defmodule EWallet.Web.V1.ExportSerializer do
       user_id: Assoc.get(export, [:user, :id]),
       key_id: Assoc.get(export, [:key, :id]),
       params: export.params,
+      # The PID is used to identify the process responsible for exporting.
+      # It is returned to the client and could potentially be used to check
+      # what's up with a process.
       pid: export.pid,
       created_at: Date.to_iso8601(export.inserted_at),
       updated_at: Date.to_iso8601(export.updated_at)
