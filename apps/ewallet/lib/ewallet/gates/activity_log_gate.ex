@@ -24,8 +24,8 @@ defmodule EWallet.ActivityLogGate do
   @doc """
   Adds the originator and target struct for each activity log in the list.
   """
-  @spec add_originator_and_target([%ActivityLog{}], module()) :: [%ActivityLog{}]
-  def add_originator_and_target(activity_logs, module_mapper) do
+  @spec load_originator_and_target([%ActivityLog{}], module()) :: [%ActivityLog{}]
+  def load_originator_and_target(activity_logs, module_mapper) do
     activity_logs
     |> format_preload_values(module_mapper)
     |> query_preload(module_mapper)

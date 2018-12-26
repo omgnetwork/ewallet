@@ -19,8 +19,8 @@ defmodule EWallet.ActivityLogGateTest do
   alias EWalletDB.{User, Token}
   alias ActivityLogger.ActivityLog
 
-  describe "add_originator_and_target/2" do
-    test "inserts the originator and target structs in the list" do
+  describe "load_originator_and_target/2" do
+    test "loads the originator and target structs in the list" do
       user = insert(:user)
       token = insert(:token)
 
@@ -50,7 +50,7 @@ defmodule EWallet.ActivityLogGateTest do
       assert_raise KeyError, fn -> activity_log2.originator end
       assert_raise KeyError, fn -> activity_log2.target end
 
-      activity_logs = ActivityLogGate.add_originator_and_target(activity_logs, ModuleMapper)
+      activity_logs = ActivityLogGate.load_originator_and_target(activity_logs, ModuleMapper)
 
       assert Enum.at(activity_logs, 0).originator.uuid == user.uuid
       assert Enum.at(activity_logs, 0).target.uuid == token.uuid

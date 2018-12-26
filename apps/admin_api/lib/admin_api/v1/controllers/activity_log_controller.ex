@@ -26,7 +26,7 @@ defmodule AdminAPI.V1.ActivityLogController do
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns),
          %Paginator{} = paginator <- Orchestrator.query(ActivityLog, ActivityLogOverlay, attrs),
-         activity_logs <- ActivityLogGate.add_originator_and_target(paginator.data, ModuleMapper),
+         activity_logs <- ActivityLogGate.load_originator_and_target(paginator.data, ModuleMapper),
          %Paginator{} = paginator <- Map.put(paginator, :data, activity_logs) do
       render(conn, :activity_logs, %{activity_logs: paginator})
     else
