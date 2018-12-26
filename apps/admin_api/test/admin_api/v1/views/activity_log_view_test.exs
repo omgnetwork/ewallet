@@ -4,7 +4,6 @@ defmodule AdminAPI.V1.ActivityLogViewTest do
   alias EWallet.Web.{Date, Paginator}
   alias EWallet.Web.V1.{AccountSerializer, ActivityLogSerializer, UserSerializer}
 
-
   describe "AdminAPI.V1.ActivityLogView.render/2" do
     test "renders activity_log.json with correct response format" do
       activity_log = insert(:activity_log_preloaded)
@@ -29,7 +28,8 @@ defmodule AdminAPI.V1.ActivityLogViewTest do
         }
       }
 
-      assert ActivityLogView.render("activity_log.json", %{activity_log: activity_log}) == expected
+      assert ActivityLogView.render("activity_log.json", %{activity_log: activity_log}) ==
+               expected
     end
 
     test "renders activity_logs.json with correct response structure" do

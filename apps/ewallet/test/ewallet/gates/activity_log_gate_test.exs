@@ -67,7 +67,7 @@ defmodule EWallet.ActivityLogGateTest do
           :activity_log,
           %{
             originator_type: ActivityLog.get_type(User),
-            originator_uuid: random_uuid,
+            originator_uuid: random_uuid
           }
         )
 
