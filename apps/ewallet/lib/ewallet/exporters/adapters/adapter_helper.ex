@@ -23,6 +23,7 @@ defmodule EWallet.Exporters.AdapterHelper do
   alias EWalletConfig.Storage.Local
 
   @rows_count 500
+  @timeout_milliseconds 1 * 60 * 60 * 1000
 
   def stream_to_file(path, export, query, serializer, chunk_size) do
     Repo.transaction(
@@ -32,7 +33,7 @@ defmodule EWallet.Exporters.AdapterHelper do
         |> Stream.into(File.stream!(path, [:write, :utf8]))
         |> Stream.run()
       end,
-      timeout: :infinity
+      timeout: @timeout_milliseconds
     )
   end
 

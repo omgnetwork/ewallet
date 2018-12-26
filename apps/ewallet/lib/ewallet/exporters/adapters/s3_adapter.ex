@@ -21,6 +21,7 @@ defmodule EWallet.Exporters.S3Adapter do
   alias ExAws.S3
 
   @min_byte_size 5_243_000
+  @timeout_milliseconds 1 * 60 * 60 * 1000
 
   def generate_signed_url(export) do
     {:ok, Uploaders.File.url({export.filename, nil}, :original, signed: true)}
@@ -55,7 +56,7 @@ defmodule EWallet.Exporters.S3Adapter do
             {:error, export}
         end
       end,
-      timeout: :infinity
+      timeout: @timeout_milliseconds
     )
   end
 
