@@ -14,6 +14,7 @@
 
 defmodule EWallet.ActivityLogGateTest do
   use EWallet.LocalLedgerCase, async: true
+  alias Ecto.UUID
   alias EWallet.{ActivityLogGate}
   alias EWallet.Web.V1.ModuleMapper
   alias EWalletDB.{User, Token}
@@ -56,6 +57,46 @@ defmodule EWallet.ActivityLogGateTest do
       assert Enum.at(activity_logs, 0).target.uuid == token.uuid
       assert Enum.at(activity_logs, 1).originator.uuid == user.uuid
       assert Enum.at(activity_logs, 1).target == nil
+    end
+
+    test "returns nil originator when the originator_uuid could not be matched" do
+      random_uuid = UUID.generate()
+
+      activity_log =
+        insert(
+          :activity_log,
+          %{
+            originator_type: ActivityLog.get_type(User),
+            originator_uuid: random_uuid,
+          }
+        )
+
+      assert_raise KeyError, fn -> activity_log.originator end
+
+      activity_logs = ActivityLogGate.load_originator_and_target([activity_log], ModuleMapper)
+
+      assert Enum.at(activity_logs, 0).originator_uuid == random_uuid
+      assert Enum.at(activity_logs, 0).originator == nil
+    end
+
+    test "returns nil target when the target_uuid could not be matched" do
+      random_uuid = UUID.generate()
+
+      activity_log =
+        insert(
+          :activity_log,
+          %{
+            target_type: ActivityLog.get_type(Token),
+            target_uuid: random_uuid
+          }
+        )
+
+      assert_raise KeyError, fn -> activity_log.target end
+
+      activity_logs = ActivityLogGate.load_originator_and_target([activity_log], ModuleMapper)
+
+      assert Enum.at(activity_logs, 0).target_uuid == random_uuid
+      assert Enum.at(activity_logs, 0).target == nil
     end
   end
 end
