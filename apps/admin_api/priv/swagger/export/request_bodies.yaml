@@ -1,0 +1,13 @@
+ExportGetBody:
+  description: The parameters to use for retrieving a specific export by its id
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: exp_01ca2p8jqans5aty5gj5etmjcf

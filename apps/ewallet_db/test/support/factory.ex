@@ -5,7 +5,7 @@ defmodule EWalletDB.Factory do
   use ExMachina.Ecto, repo: EWalletDB.Repo
   alias ExMachina.Strategy
   alias Utils.{Types.WalletAddress, Helpers.Crypto}
-  alias ActivityLogger.System
+  alias ActivityLogger.{System, ActivityLog}
 
   alias EWalletDB.{
     Account,
@@ -13,6 +13,7 @@ defmodule EWalletDB.Factory do
     APIKey,
     AuthToken,
     Category,
+    Export,
     ExchangePair,
     ForgetPasswordRequest,
     Invite,
@@ -44,6 +45,24 @@ defmodule EWalletDB.Factory do
     schema
     |> struct
     |> Strategy.name_from_struct()
+  end
+
+  def export_factory do
+    %Export{
+      schema: "transaction",
+      filename: sequence("filename"),
+      format: "csv",
+      status: "completed",
+      completion: 100,
+      url: nil,
+      path: "/my/path",
+      failure_reason: nil,
+      estimated_size: 100_000,
+      total_count: 100,
+      adapter: "local",
+      params: %{"sort_by" => "created_at", "sort_dir" => "desc"},
+      originator: %System{}
+    }
   end
 
   def category_factory do
@@ -307,5 +326,36 @@ defmodule EWalletDB.Factory do
       transaction_request_uuid: insert(:transaction_request).uuid,
       originator: %System{}
     }
+  end
+
+  def activity_log_factory do
+    system = %System{}
+
+    %ActivityLog{
+      action: "insert",
+      target_type: ActivityLog.get_type(system.__struct__),
+      target_uuid: system.uuid,
+      target_changes: %{some: "change"},
+      originator_uuid: system.uuid,
+      originator_type: ActivityLog.get_type(system.__struct__),
+      inserted_at: NaiveDateTime.utc_now()
+    }
+  end
+
+  def activity_log_preloaded_factory do
+    admin = insert(:admin)
+    account = insert(:account)
+
+    %ActivityLog{
+      action: "insert",
+      target_type: ActivityLog.get_type(account.__struct__),
+      target_uuid: account.uuid,
+      target_changes: %{description: "description changed"},
+      originator_uuid: admin.uuid,
+      originator_type: ActivityLog.get_type(admin.__struct__),
+      inserted_at: NaiveDateTime.utc_now()
+    }
+    |> Map.put(:originator, admin)
+    |> Map.put(:target, account)
   end
 end

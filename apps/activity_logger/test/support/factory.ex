@@ -35,7 +35,8 @@ defmodule ActivityLogger.Factory do
       target_uuid: system.uuid,
       target_changes: %{some: "change"},
       originator_uuid: system.uuid,
-      originator_type: ActivityLog.get_type(system.__struct__)
+      originator_type: ActivityLog.get_type(system.__struct__),
+      inserted_at: NaiveDateTime.utc_now()
     }
   end
 

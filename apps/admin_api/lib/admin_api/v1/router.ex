@@ -22,6 +22,11 @@ defmodule AdminAPI.V1.Router do
 
     post("/auth_token.switch_account", AdminAuthController, :switch_account)
 
+    # Exports
+    post("/export.all", ExportController, :all)
+    post("/export.get", ExportController, :get)
+    post("/export.download", ExportController, :download)
+
     # Exchange pair endpoints
     post("/exchange_pair.all", ExchangePairController, :all)
     post("/exchange_pair.get", ExchangePairController, :get)
@@ -41,6 +46,7 @@ defmodule AdminAPI.V1.Router do
 
     # Transaction endpoints
     post("/transaction.all", TransactionController, :all)
+    post("/transaction.export", TransactionController, :export)
     post("/transaction.get", TransactionController, :get)
     post("/transaction.create", TransactionController, :create)
     post("/transaction.calculate", TransactionCalculationController, :calculate)
@@ -152,6 +158,9 @@ defmodule AdminAPI.V1.Router do
     # Configuration endpoint
     post("/configuration.all", ConfigurationController, :all)
     post("/configuration.update", ConfigurationController, :update)
+
+    # Activity logs endpoint
+    post("/activity_log.all", ActivityLogController, :all)
 
     # Self endpoints (operations on the currently authenticated user)
     post("/me.get", SelfController, :get)

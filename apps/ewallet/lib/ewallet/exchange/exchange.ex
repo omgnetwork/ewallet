@@ -24,7 +24,7 @@ defmodule EWallet.Exchange do
            preload: [:from_token, :to_token]
          ) do
       {:ok, pair} ->
-        rate = Decimal.new(pair.rate)
+        rate = Decimal.from_float(pair.rate)
         subunit_scale = Decimal.div(to_token.subunit_to_unit, from_token.subunit_to_unit)
         {:ok, Decimal.mult(rate, subunit_scale), pair}
 
