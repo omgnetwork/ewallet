@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.MembershipSerializer do
+defmodule EWallet.Web.V1.MembershipSerializer do
   @moduledoc """
   Serializes membership(s) into V1 response format.
   """

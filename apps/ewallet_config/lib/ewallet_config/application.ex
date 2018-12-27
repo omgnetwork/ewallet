@@ -10,7 +10,7 @@ defmodule EWalletConfig.Application do
     DeferredConfig.populate(:ewallet_config)
 
     ActivityLogger.configure(%{
-      EWalletConfig.StoredSetting => "setting"
+      EWalletConfig.StoredSetting => %{type: "setting", identifier: :id}
     })
 
     # List all child processes to be supervised
