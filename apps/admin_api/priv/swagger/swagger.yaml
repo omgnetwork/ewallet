@@ -71,6 +71,8 @@ tags:
     description: Resources related to the activity logs.
   - name: API Access
     description: Resources related to API access.
+  - name: Export
+    description: Resources related to exports.
 
 servers:
   - url: /api/admin
@@ -252,6 +254,8 @@ paths:
   # TRANSACTION
   /transaction.all:
     $ref: 'transaction/paths.yaml#/transaction.all'
+  /transaction.export:
+    $ref: 'transaction/paths.yaml#/transaction.export'
   /transaction.get:
     $ref: 'transaction/paths.yaml#/transaction.get'
   /transaction.create:
@@ -302,6 +306,14 @@ paths:
     $ref: 'api_key/paths.yaml#/api_key.enable_or_disable'
   /api_key.delete:
     $ref: 'api_key/paths.yaml#/api_key.delete'
+
+  # EXPORT
+  /export.all:
+    $ref: 'export/paths.yaml#/export.all'
+  /export.get:
+    $ref: 'export/paths.yaml#/export.get'
+  /export.download:
+    $ref: 'export/paths.yaml#/export.download'
 
   # CONFIGURATION
   /configuration.get:

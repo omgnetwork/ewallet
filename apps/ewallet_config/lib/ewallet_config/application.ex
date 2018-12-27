@@ -23,6 +23,7 @@ defmodule EWalletConfig.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: EWalletConfig.Supervisor]
+
     Supervisor.start_link(children, opts)
   end
 end

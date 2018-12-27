@@ -9,7 +9,7 @@ defmodule EWalletDB.APIKey do
   import Ecto.Changeset
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
-  alias EWalletDB.{Account, APIKey, Repo}
+  alias EWalletDB.{Account, APIKey, Repo, Wallet}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   # String length = ceil(key_bytes / 3 * 4)

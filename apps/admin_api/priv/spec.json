@@ -77,6 +77,10 @@
     {
       "name": "API Access",
       "description": "Resources related to API access."
+    },
+    {
+      "name": "Export",
+      "description": "Resources related to exports."
     }
   ],
   "servers": [
@@ -28134,6 +28138,313 @@
         }
       }
     },
+    "/transaction.export": {
+      "post": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Generate an export of transactions",
+        "operationId": "transaction_export",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The default parameters to use when querying a filtered resource",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "search_term": {
+                        "type": "string"
+                      },
+                      "match_all": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "comparator": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "comparator",
+                            "value"
+                          ]
+                        }
+                      },
+                      "match_any": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "comparator": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "comparator",
+                            "value"
+                          ]
+                        }
+                      },
+                      "sort_by": {
+                        "type": "string"
+                      },
+                      "sort_dir": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    },
+                    "example": {
+                      "match_all": [],
+                      "match_any": [],
+                      "sort_by": "created_at",
+                      "sort_dir": "desc"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a single export",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an export",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for an export",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "filename": {
+                              "type": "string"
+                            },
+                            "schema": {
+                              "type": "string"
+                            },
+                            "status": {
+                              "type": "string"
+                            },
+                            "completion": {
+                              "type": "float"
+                            },
+                            "download_url": {
+                              "type": "string"
+                            },
+                            "adapter": {
+                              "type": "string"
+                            },
+                            "user_id": {
+                              "type": "string"
+                            },
+                            "key_id": {
+                              "type": "string"
+                            },
+                            "params": {
+                              "type": "object"
+                            },
+                            "pid": {
+                              "type": "string"
+                            },
+                            "created_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "id",
+                            "filename",
+                            "schema",
+                            "status",
+                            "completion",
+                            "adapter",
+                            "created_at",
+                            "updated_at"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "export",
+                          "id": "exp_01ca2p8jqans5aty5gj5etmjcf",
+                          "filename": "transactions.csv",
+                          "schema": "transaction",
+                          "status": "completed",
+                          "completion": 100,
+                          "download_url": "https://example.com/my_file",
+                          "adapter": "local",
+                          "user_id": "usr_01ca2p8jqans5aty5gj5etmjcf",
+                          "key_id": "nil",
+                          "params": {},
+                          "pid": "PID#124",
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T10:00:00Z"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/transaction.get": {
       "post": {
         "tags": [
@@ -35336,6 +35647,809 @@
                     "success": true,
                     "data": {}
                   }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/export.all": {
+      "post": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Get the list of exports for the current user",
+        "operationId": "export_all",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The default parameters to use when querying a paginated resource",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "page": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "per_page": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "search_term": {
+                        "type": "string"
+                      },
+                      "match_all": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "comparator": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "comparator",
+                            "value"
+                          ]
+                        }
+                      },
+                      "match_any": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "comparator": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "comparator",
+                            "value"
+                          ]
+                        }
+                      },
+                      "sort_by": {
+                        "type": "string"
+                      },
+                      "sort_dir": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    },
+                    "example": {
+                      "page": 1,
+                      "per_page": 10,
+                      "match_all": [],
+                      "match_any": [],
+                      "sort_by": "created_at",
+                      "sort_dir": "desc"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a list of exports",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a list of exports",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "allOf": [
+                        {
+                          "description": "The response schema for a successful operation",
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string"
+                            },
+                            "success": {
+                              "type": "boolean"
+                            },
+                            "data": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "success",
+                            "data"
+                          ],
+                          "example": {
+                            "version": "1",
+                            "success": true,
+                            "data": {}
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "data": {
+                              "type": "object",
+                              "allOf": [
+                                {
+                                  "description": "The object schema for a paginated list",
+                                  "type": "object",
+                                  "properties": {
+                                    "object": {
+                                      "type": "string"
+                                    },
+                                    "data": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object"
+                                      }
+                                    },
+                                    "pagination": {
+                                      "type": "object",
+                                      "items": {
+                                        "type": "object"
+                                      },
+                                      "properties": {
+                                        "per_page": {
+                                          "type": "integer"
+                                        },
+                                        "current_page": {
+                                          "type": "integer"
+                                        },
+                                        "count": {
+                                          "type": "integer"
+                                        },
+                                        "is_first_page": {
+                                          "type": "boolean"
+                                        },
+                                        "is_last_page": {
+                                          "type": "boolean"
+                                        }
+                                      },
+                                      "required": [
+                                        "per_page",
+                                        "current_page",
+                                        "count",
+                                        "is_first_page",
+                                        "is_last_page"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "object",
+                                    "data",
+                                    "pagination"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "data"
+                          ],
+                          "example": {
+                            "data": {
+                              "object": "list",
+                              "data": null,
+                              "pagination": {
+                                "per_page": 10,
+                                "current_page": 1,
+                                "count": 5,
+                                "is_first_page": true,
+                                "is_last_page": true
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "allOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "data": {
+                                  "type": "array",
+                                  "items": {
+                                    "description": "The object schema for an export",
+                                    "type": "object",
+                                    "properties": {
+                                      "object": {
+                                        "type": "string"
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "filename": {
+                                        "type": "string"
+                                      },
+                                      "schema": {
+                                        "type": "string"
+                                      },
+                                      "status": {
+                                        "type": "string"
+                                      },
+                                      "completion": {
+                                        "type": "float"
+                                      },
+                                      "download_url": {
+                                        "type": "string"
+                                      },
+                                      "adapter": {
+                                        "type": "string"
+                                      },
+                                      "user_id": {
+                                        "type": "string"
+                                      },
+                                      "key_id": {
+                                        "type": "string"
+                                      },
+                                      "params": {
+                                        "type": "object"
+                                      },
+                                      "pid": {
+                                        "type": "string"
+                                      },
+                                      "created_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      },
+                                      "updated_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      }
+                                    },
+                                    "required": [
+                                      "object",
+                                      "id",
+                                      "filename",
+                                      "schema",
+                                      "status",
+                                      "completion",
+                                      "adapter",
+                                      "created_at",
+                                      "updated_at"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "data": [
+                            {
+                              "object": "export",
+                              "id": "exp_01ca2p8jqans5aty5gj5etmjcf",
+                              "filename": "transactions.csv",
+                              "schema": "transaction",
+                              "status": "completed",
+                              "completion": 100,
+                              "download_url": "https://example.com/my_file",
+                              "adapter": "local",
+                              "user_id": "usr_01ca2p8jqans5aty5gj5etmjcf",
+                              "key_id": "nil",
+                              "params": {},
+                              "pid": "PID#124",
+                              "created_at": "2018-01-01T00:00:00Z",
+                              "updated_at": "2018-01-01T10:00:00Z"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/export.get": {
+      "post": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Get a specific export",
+        "operationId": "export_get",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to use for retrieving a specific export by its id",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "example": {
+                  "id": "exp_01ca2p8jqans5aty5gj5etmjcf"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a single export",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an export",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for an export",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "filename": {
+                              "type": "string"
+                            },
+                            "schema": {
+                              "type": "string"
+                            },
+                            "status": {
+                              "type": "string"
+                            },
+                            "completion": {
+                              "type": "float"
+                            },
+                            "download_url": {
+                              "type": "string"
+                            },
+                            "adapter": {
+                              "type": "string"
+                            },
+                            "user_id": {
+                              "type": "string"
+                            },
+                            "key_id": {
+                              "type": "string"
+                            },
+                            "params": {
+                              "type": "object"
+                            },
+                            "pid": {
+                              "type": "string"
+                            },
+                            "created_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "id",
+                            "filename",
+                            "schema",
+                            "status",
+                            "completion",
+                            "adapter",
+                            "created_at",
+                            "updated_at"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "export",
+                          "id": "exp_01ca2p8jqans5aty5gj5etmjcf",
+                          "filename": "transactions.csv",
+                          "schema": "transaction",
+                          "status": "completed",
+                          "completion": 100,
+                          "download_url": "https://example.com/my_file",
+                          "adapter": "local",
+                          "user_id": "usr_01ca2p8jqans5aty5gj5etmjcf",
+                          "key_id": "nil",
+                          "params": {},
+                          "pid": "PID#124",
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T10:00:00Z"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/export.download": {
+      "post": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Download a local export",
+        "operationId": "export_download",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to use for retrieving a specific export by its id",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "example": {
+                  "id": "exp_01ca2p8jqans5aty5gj5etmjcf"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A CSV file",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }

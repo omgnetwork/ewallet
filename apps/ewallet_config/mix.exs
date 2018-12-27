@@ -11,7 +11,6 @@ defmodule EWalletConfig.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.6",
       elixirc_paths: elixirc_paths(Mix.env()),
-      elixirc_options: [warnings_as_errors: Mix.env() != :test],
       start_permanent: Mix.env() == :prod,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [

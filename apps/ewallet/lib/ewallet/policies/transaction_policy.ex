@@ -12,6 +12,7 @@ defmodule EWallet.TransactionPolicy do
 
   # Everyone can see all the transactions
   def authorize(:all, _admin_user_or_key, _data), do: true
+  def authorize(:export, _admin_user_or_key, _data), do: true
 
   # Anyone can get a transaction
   def authorize(:get, _admin_user_or_key, _data) do

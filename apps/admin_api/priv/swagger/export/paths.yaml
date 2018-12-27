@@ -1,0 +1,53 @@
+export.all:
+  post:
+    tags:
+      - Export
+    summary: Get the list of exports for the current user
+    operationId: export_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/ExportsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+export.get:
+  post:
+    tags:
+      - Export
+    summary: Get a specific export
+    operationId: export_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ExportGetBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/ExportResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+export.download:
+  post:
+    tags:
+      - Export
+    summary: Download a local export
+    operationId: export_download
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ExportGetBody'
+    responses:
+      '200':
+        description: A CSV file
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              type: string
+              format: binary
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
