@@ -1,0 +1,16 @@
+activity_log.all:
+  post:
+    tags:
+      - ActivityLog
+    summary: Get a list of activity logs
+    operationId: activity_log_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/ActivityLogsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
