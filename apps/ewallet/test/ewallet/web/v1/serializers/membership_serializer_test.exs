@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.MembershipSerializerTest do
+defmodule EWallet.Web.V1.MembershipSerializerTest do
   use EWallet.Web.SerializerCase, :v1
-  alias AdminAPI.V1.MembershipSerializer
+  alias EWallet.Web.V1.MembershipSerializer
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Orchestrator, V1.MembershipOverlay}
   alias EWalletDB.User

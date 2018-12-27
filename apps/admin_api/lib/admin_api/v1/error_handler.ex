@@ -101,6 +101,18 @@ defmodule AdminAPI.V1.ErrorHandler do
     exchange_opposite_pair_not_found: %{
       code: "exchange:opposite_pair_not_found",
       description: "The opposite exchange pair for the given tokens could not be found."
+    },
+    export_no_records: %{
+      code: "export:no_records",
+      description: "The given export query did not return any records."
+    },
+    export_not_local: %{
+      code: "export:not_local",
+      description: "The given export is not stored locally."
+    },
+    file_not_found: %{
+      code: "file:not_found",
+      description: "The file could not be found on the server."
     }
   }
 

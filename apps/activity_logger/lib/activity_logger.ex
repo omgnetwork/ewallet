@@ -17,18 +17,18 @@ defmodule ActivityLogger do
   Documentation for ActivityLogger.
   """
 
-  def configure(schemas_to_activity_log_types) do
-    update_config(:schemas_to_activity_log_types, schemas_to_activity_log_types)
+  def configure(schemas_to_activity_log_config) do
+    update_config(:schemas_to_activity_log_config, schemas_to_activity_log_config)
 
     update_config(
       :activity_log_types_to_schemas,
-      to_activity_log_types(schemas_to_activity_log_types)
+      to_activity_log_types(schemas_to_activity_log_config)
     )
   end
 
-  defp to_activity_log_types(schemas_to_activity_log_types) do
-    Enum.into(schemas_to_activity_log_types, %{}, fn {key, value} ->
-      {value, key}
+  defp to_activity_log_types(schemas_to_activity_log_config) do
+    Enum.into(schemas_to_activity_log_config, %{}, fn {key, value} ->
+      {value[:type], key}
     end)
   end
 

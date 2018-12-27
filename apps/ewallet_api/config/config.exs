@@ -67,7 +67,8 @@ config :ewallet_api, :api_versions, %{
 # what format to respond with.
 # Run `mix deps.clean --build mime` when updaing this mapping.
 config :mime, :types, %{
-  "application/vnd.omisego.v1+json" => ["json"]
+  "application/vnd.omisego.v1+json" => ["json"],
+  "text/vnd.omisego.v1+csv" => ["csv"]
 }
 
 # Configs for Sentry exception reporting

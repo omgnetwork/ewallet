@@ -30,9 +30,9 @@ defmodule ActivityLogger.ActivityLogTest do
     :ok = Sandbox.checkout(ActivityLogger.Repo)
 
     ActivityLogger.configure(%{
-      ActivityLogger.System => "system",
-      ActivityLogger.TestDocument => "test_document",
-      ActivityLogger.TestUser => "test_user"
+      ActivityLogger.System => %{type: "system", identifier: nil},
+      ActivityLogger.TestDocument => %{type: "test_document", identifier: :id},
+      ActivityLogger.TestUser => %{type: "test_user", identifier: :id}
     })
   end
 

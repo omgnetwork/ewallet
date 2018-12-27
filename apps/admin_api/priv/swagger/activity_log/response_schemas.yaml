@@ -1,0 +1,45 @@
+ActivityLogsResponseSchema:
+  description: The response schema for a list of activity log
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../../../../ewallet/priv/swagger/activity_log/schemas.yaml#/ActivityLogSchema'
+    example:
+      data:
+        data:
+          - object: activity_log
+            id: log_01cz5dc8mdh68wqmhzpcjqg8xe
+            action: insert
+            created_at: 2018-12-20T08:58:10.445722
+            metadata: {}
+            originator: nil
+            originator_identifier: nil
+            originator_type: system
+            target:
+              avatar: {large: nil, original: nil, small: nil, thumb: nil}
+              calling_name: John0
+              created_at: 2018-12-20T08:58:10.403256
+              email: nil
+              enabled: true
+              encrypted_metadata: {}
+              full_name: John Doe0
+              id: usr_01cz5dc8k3c6y4mf3gw1v8at2t
+              metadata: {first_name: John1, last_name: Doe0}
+              object: user
+              provider_user_id: provider_id0
+              socket_topic: user:usr_01cz5dc8k3c6y4mf3gw1v8at2t
+              updated_at: 2018-12-20T08:58:10.403264
+              username: johndoe0
+            target_identifier: usr_01cz5dc8k3c6y4mf3gw1v8at2t
+            target_type: user
+            target_changes: {some: change}
+            target_encrypted_changes: {}

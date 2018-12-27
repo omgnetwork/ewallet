@@ -22,15 +22,17 @@ defmodule EWalletConfig.Storage.Local do
   alias Arc.Definition.Versioning
   alias EWalletConfig.Config
 
+  def get_path(destination_dir, filename) do
+    Path.join([
+      Application.get_env(:ewallet, :root),
+      destination_dir,
+      filename
+    ])
+  end
+
   def put(definition, version, {file, scope}) do
     destination_dir = definition.storage_dir(version, {file, scope})
-
-    path =
-      Path.join([
-        Application.get_env(:ewallet, :root),
-        destination_dir,
-        file.file_name
-      ])
+    path = get_path(destination_dir, file.file_name)
 
     path |> Path.dirname() |> File.mkdir_p!()
 

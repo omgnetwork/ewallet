@@ -15,6 +15,23 @@ transaction.all:
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
+transaction.export:
+  post:
+    tags:
+      - Transaction
+    summary: Generate an export of transactions
+    operationId: transaction_export
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/FilteredRequestBody'
+    responses:
+      '200':
+        $ref: '../export/responses.yaml#/ExportResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 transaction.get:
   post:
     tags:
@@ -48,7 +65,7 @@ transaction.create:
         $ref: 'responses.yaml#/TransactionResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
-        
+
 transaction.calculate:
   post:
     tags:

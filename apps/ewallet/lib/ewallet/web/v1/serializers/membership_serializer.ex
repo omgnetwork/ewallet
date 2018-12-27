@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.MembershipSerializer do
+defmodule EWallet.Web.V1.MembershipSerializer do
   @moduledoc """
   Serializes membership(s) into V1 response format.
   """
