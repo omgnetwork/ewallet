@@ -149,8 +149,8 @@ defmodule LocalLedgerDB.Entry do
   substracting one from the other.
   """
   def calculate_current_amount(address, token_id) do
-    credit = sum_entries_amount(address, token_id, @credit) || Decimal.from_float(0)
-    debit = sum_entries_amount(address, token_id, @debit) || Decimal.from_float(0)
+    credit = sum_entries_amount(address, token_id, @credit) || Decimal.new(0)
+    debit = sum_entries_amount(address, token_id, @debit) || Decimal.new(0)
     Decimal.to_integer(credit) - Decimal.to_integer(debit)
   end
 
