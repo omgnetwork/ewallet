@@ -129,29 +129,33 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
       account_2 = insert(:account)
       account_3 = insert(:account, parent: account_2)
 
-      insert(:wallet, %{
-        account: account_1,
-        address: "aaaa111111111111",
-        identifier: "secondary_1"
-      })
+      account_1_wallet_1 =
+        insert(:wallet, %{
+          account: account_1,
+          address: "aaaa111111111111",
+          identifier: "secondary_1"
+        })
 
-      insert(:wallet, %{
-        account: account_2,
-        address: "aaaa333333333333",
-        identifier: "secondary_2"
-      })
+      account_2_wallet_1 =
+        insert(:wallet, %{
+          account: account_2,
+          address: "aaaa333333333333",
+          identifier: "secondary_2"
+        })
 
-      insert(:wallet, %{
-        account: account_3,
-        address: "aaaa222222222222",
-        identifier: "secondary_3"
-      })
+      account_3_wallet_1 =
+        insert(:wallet, %{
+          account: account_3,
+          address: "aaaa222222222222",
+          identifier: "secondary_3"
+        })
 
-      insert(:wallet, %{
-        account: account_3,
-        address: "bbbb111111111111",
-        identifier: "secondary_4"
-      })
+      account_3_wallet_2 =
+        insert(:wallet, %{
+          account: account_3,
+          address: "bbbb111111111111",
+          identifier: "secondary_4"
+        })
 
       attrs = %{
         "id" => account_2.id,
@@ -165,10 +169,23 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
       assert response["success"]
       assert Enum.count(wallets) == 5
-      assert Enum.at(wallets, 0)["address"] == user_wallet.address
-      assert Enum.at(wallets, 1)["address"] == "bbbb111111111111"
-      assert Enum.at(wallets, 2)["address"] == "aaaa333333333333"
-      assert Enum.at(wallets, 3)["address"] == "aaaa222222222222"
+
+      ordered_addresses =
+        [
+          user_wallet.address,
+          account_1_wallet_1.address,
+          account_2_wallet_1.address,
+          account_3_wallet_1.address,
+          account_3_wallet_2.address
+        ]
+        |> Enum.sort()
+        |> Enum.reverse()
+
+      assert Enum.at(wallets, 0)["address"] == Enum.at(ordered_addresses, 0)
+      assert Enum.at(wallets, 1)["address"] == Enum.at(ordered_addresses, 1)
+      assert Enum.at(wallets, 2)["address"] == Enum.at(ordered_addresses, 2)
+      assert Enum.at(wallets, 3)["address"] == Enum.at(ordered_addresses, 3)
+      assert Enum.at(wallets, 4)["address"] == Enum.at(ordered_addresses, 4)
 
       wallets =
         Enum.map(wallets, fn wallet ->
