@@ -64,11 +64,19 @@ defmodule EWallet.Exchange do
         ) :: {:ok, Calculation.t()} | {:error, atom()}
 
   # Converts `from_amount` and `to_amount` to Decimal before operating on them
-  def validate(from_amount, from_token, to_amount, to_token) when is_number(from_amount) do
+  def validate(from_amount, from_token, to_amount, to_token) when is_float(from_amount) do
+    validate(Decimal.from_float(from_amount), from_token, to_amount, to_token)
+  end
+
+  def validate(from_amount, from_token, to_amount, to_token) when is_float(to_amount) do
+    validate(from_amount, from_token, Decimal.from_float(to_amount), to_token)
+  end
+
+  def validate(from_amount, from_token, to_amount, to_token) when is_integer(from_amount) do
     validate(Decimal.new(from_amount), from_token, to_amount, to_token)
   end
 
-  def validate(from_amount, from_token, to_amount, to_token) when is_number(to_amount) do
+  def validate(from_amount, from_token, to_amount, to_token) when is_integer(to_amount) do
     validate(from_amount, from_token, Decimal.new(to_amount), to_token)
   end
 
@@ -132,11 +140,19 @@ defmodule EWallet.Exchange do
   end
 
   # Converts `from_amount` and `to_amount` to Decimal before operating on them
-  def calculate(from_amount, from_token, to_amount, to_token) when is_number(from_amount) do
+  def calculate(from_amount, from_token, to_amount, to_token) when is_float(from_amount) do
+    calculate(Decimal.from_float(from_amount), from_token, to_amount, to_token)
+  end
+
+  def calculate(from_amount, from_token, to_amount, to_token) when is_float(to_amount) do
+    calculate(from_amount, from_token, Decimal.from_float(to_amount), to_token)
+  end
+
+  def calculate(from_amount, from_token, to_amount, to_token) when is_integer(from_amount) do
     calculate(Decimal.new(from_amount), from_token, to_amount, to_token)
   end
 
-  def calculate(from_amount, from_token, to_amount, to_token) when is_number(to_amount) do
+  def calculate(from_amount, from_token, to_amount, to_token) when is_integer(to_amount) do
     calculate(from_amount, from_token, Decimal.new(to_amount), to_token)
   end
 

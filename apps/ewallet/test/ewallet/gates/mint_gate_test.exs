@@ -47,7 +47,7 @@ defmodule EWallet.MintGateTest do
         MintGate.insert(%{
           "idempotency_token" => UUID.generate(),
           "token_id" => btc.id,
-          "amount" => :math.pow(10, 35),
+          "amount" => 100_000_000_000_000_000_000_000_000_000_000_000 - 1,
           "description" => "Minting 10_000 #{btc.symbol}",
           "metadata" => %{},
           "originator" => %System{}
@@ -56,6 +56,7 @@ defmodule EWallet.MintGateTest do
       assert res == :ok
       assert mint != nil
       assert mint.confirmed == true
+      assert mint.amount == 100_000_000_000_000_000_000_000_000_000_000_000 - 1
       assert transaction.status == "confirmed"
     end
 

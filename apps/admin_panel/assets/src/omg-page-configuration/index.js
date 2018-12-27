@@ -149,7 +149,8 @@ class ConfigurationPage extends Component {
         )
       }, true) ||
       Number(this.state.maxPerPage) < 1 ||
-      Number(this.state.minPasswordLength) < 1
+      Number(this.state.minPasswordLength) < 1 ||
+      Number(this.state.forgetPasswordRequestLifetime) < 1
     )
   }
   isAddPrefixButtonDisabled () {

@@ -18,124 +18,110 @@ defmodule EWalletConfig.SettingValidator do
   """
   alias Ecto.Changeset
 
-  @spec validate_with_options(Changeset.t()) :: Changeset.t()
-  def validate_with_options(%{changes: %{options: %{array: nil}}} = changeset) do
-    changeset
-  end
+  @doc """
+  Validate that the value is allowed by the setting's options.
+  """
+  @spec validate_setting_with_options(Changeset.t()) :: Changeset.t()
+  def validate_setting_with_options(changeset) do
+    value = get_value(changeset)
+    options = get_options(changeset)
 
-  def validate_with_options(%{changes: %{options: options}} = changeset) do
-    options = Map.get(options, :array)
-
-    changeset
-    |> get_value()
-    |> do_validate_with_options(options, changeset)
-  end
-
-  def validate_with_options(changeset) do
-    changeset
-  end
-
-  @spec validate_with_options(Changeset.t(), Setting.t()) :: Changeset.t()
-  def validate_with_options(changeset, %{options: nil}), do: changeset
-
-  def validate_with_options(changeset, %{options: options}) do
-    options = Map.get(options, "array")
-
-    changeset
-    |> get_value()
-    |> do_validate_with_options(options, changeset)
-  end
-
-  defp do_validate_with_options(nil, _options, changeset) do
-    changeset
-  end
-
-  defp do_validate_with_options(value, options, changeset) do
-    case Enum.member?(options, value) do
-      true ->
-        changeset
-
-      false ->
-        Changeset.add_error(
-          changeset,
-          :value,
-          "must be one of '#{Enum.join(options, "', '")}'",
-          validation: :value_not_allowed
-        )
+    if valid_with_options?(value, options) do
+      changeset
+    else
+      Changeset.add_error(
+        changeset,
+        :value,
+        "must be one of '#{Enum.join(options, "', '")}'",
+        validation: :value_not_allowed
+      )
     end
   end
 
-  @spec validate_type(Changeset.t()) :: Changeset.t()
-  def validate_type(%{errors: [type: {"is invalid", [validation: :inclusion]}]} = changeset) do
+  # Skip when the value is nil
+  defp valid_with_options?(nil, _), do: true
+
+  # Skip when the options is nil
+  defp valid_with_options?(_, nil), do: true
+
+  # Evaluate the rest
+  defp valid_with_options?(value, options), do: Enum.member?(options, value)
+
+  @doc """
+  Validate that the value is compatible with the setting's type.
+  """
+  @spec validate_setting_type(Changeset.t()) :: Changeset.t()
+
+  # Skip if the setting type is already invalid
+  def validate_setting_type(
+        %{errors: [type: {"is invalid", [validation: :inclusion]}]} = changeset
+      ) do
     changeset
   end
 
-  def validate_type(%{changes: %{type: type}} = changeset) do
-    changeset
-    |> get_value()
-    |> do_validate_type(%{type: type}, changeset)
+  def validate_setting_type(changeset) do
+    value = get_value(changeset)
+    type = get_type(changeset)
+
+    if valid_setting_type?(value, type) do
+      changeset
+    else
+      Changeset.add_error(
+        changeset,
+        :value,
+        "must be of type '#{type}'",
+        validation: :invalid_type_for_value
+      )
+    end
   end
 
-  def validate_type(changeset, setting) do
-    changeset
-    |> get_value(setting)
-    |> do_validate_type(setting, changeset)
+  #
+  # Setting's type-value validator
+  #
+
+  defp valid_setting_type?(nil, _), do: true
+
+  defp valid_setting_type?(value, "string") when is_binary(value), do: true
+
+  defp valid_setting_type?(value, "integer") when is_integer(value), do: true
+
+  defp valid_setting_type?(value, "unsigned_integer") when is_integer(value) and value >= 0 do
+    true
   end
 
-  defp do_validate_type(nil, _, changeset) do
-    changeset
+  defp valid_setting_type?(value, "map") when is_map(value), do: true
+
+  defp valid_setting_type?(value, "array") when is_list(value), do: true
+
+  defp valid_setting_type?(value, "boolean") when is_boolean(value), do: true
+
+  defp valid_setting_type?(_, _), do: false
+
+  #
+  # Changeset getters
+  #
+  defp get_options(changeset) do
+    case Changeset.get_field(changeset, :options) do
+      nil -> nil
+      options -> Map.get(options, :array) || Map.get(options, "array")
+    end
   end
 
-  defp do_validate_type(value, %{type: "string"}, changeset) when is_binary(value) do
-    changeset
-  end
-
-  defp do_validate_type(value, %{type: "integer"}, changeset) when is_integer(value) do
-    changeset
-  end
-
-  defp do_validate_type(value, %{type: "map"}, changeset) when is_map(value) do
-    changeset
-  end
-
-  defp do_validate_type(value, %{type: "array"}, changeset) when is_list(value) do
-    changeset
-  end
-
-  defp do_validate_type(value, %{type: "boolean"}, changeset) when is_boolean(value) do
-    changeset
-  end
-
-  defp do_validate_type(_value, %{type: type}, changeset) do
-    Changeset.add_error(
-      changeset,
-      :value,
-      "must be of type '#{type}'",
-      validation: :invalid_type_for_value
-    )
-  end
-
-  defp get_value(%{changes: %{secret: true}} = changeset) do
-    changeset
-    |> Changeset.get_field(:encrypted_data)
-    |> Map.get(:value)
+  defp get_type(changeset) do
+    Changeset.get_field(changeset, :type)
   end
 
   defp get_value(changeset) do
-    changeset
-    |> Changeset.get_field(:data)
-    |> Map.get(:value)
-  end
+    case Changeset.get_field(changeset, :secret) do
+      true ->
+        changeset
+        |> Changeset.get_field(:encrypted_data)
+        |> Map.get(:value)
 
-  defp get_value(changeset, %{secret: true}) do
-    changeset
-    |> Changeset.get_field(:encrypted_data)
-    |> Map.get(:value)
-  end
-
-  defp get_value(changeset, _setting) do
-    changeset
-    |> Changeset.get_field(:data)
-    |> Map.get(:value)
+      false ->
+        changeset
+        |> Changeset.get_field(:data)
+        |> Map.get(:value)
+    end
   end
 end

@@ -28,6 +28,7 @@ defmodule EWalletConfig.StoredSetting do
   @types [
     "string",
     "integer",
+    "unsigned_integer",
     "map",
     "boolean",
     "array"
@@ -78,8 +79,8 @@ defmodule EWalletConfig.StoredSetting do
     |> validate_inclusion(:type, @types)
     |> validate_required_exclusive([:data, :encrypted_data])
     |> unique_constraint(:key)
-    |> validate_type()
-    |> validate_with_options()
+    |> validate_setting_type()
+    |> validate_setting_with_options()
   end
 
   def update_changeset(%StoredSetting{} = setting, attrs) do
@@ -94,7 +95,7 @@ defmodule EWalletConfig.StoredSetting do
       ]
     )
     |> validate_required_exclusive([:data, :encrypted_data])
-    |> validate_type(setting)
-    |> validate_with_options(setting)
+    |> validate_setting_type()
+    |> validate_setting_with_options()
   end
 end
