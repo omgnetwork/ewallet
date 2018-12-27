@@ -33,7 +33,7 @@ defmodule EWallet.MintGateTest do
         MintGate.insert(%{
           "idempotency_token" => UUID.generate(),
           "token_id" => btc.id,
-          "amount" => :math.pow(10, 35),
+          "amount" => 10 |> :math.pow(35) |> round(),
           "description" => "Minting 10_000 #{btc.symbol}",
           "metadata" => %{},
           "originator" => %System{}
