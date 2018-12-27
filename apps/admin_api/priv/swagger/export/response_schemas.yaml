@@ -1,0 +1,57 @@
+ExportResponseSchema:
+  description: The response schema for an export
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: '../../../../ewallet/priv/swagger/export/schemas.yaml#/ExportSchema'
+    example:
+      data:
+        object: export
+        id: exp_01ca2p8jqans5aty5gj5etmjcf
+        filename: transactions.csv
+        schema: "transaction"
+        status: "completed"
+        completion: 100
+        download_url: https://example.com/my_file
+        adapter: "local"
+        user_id: usr_01ca2p8jqans5aty5gj5etmjcf
+        key_id: nil
+        params: {}
+        pid: "PID#124"
+        created_at: '2018-01-01T00:00:00Z'
+        updated_at: '2018-01-01T10:00:00Z'
+ExportsResponseSchema:
+  description: The response schema for a list of exports
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../../../../ewallet/priv/swagger/export/schemas.yaml#/ExportSchema'
+    example:
+      data:
+        data:
+          - object: export
+            id: exp_01ca2p8jqans5aty5gj5etmjcf
+            filename: transactions.csv
+            schema: "transaction"
+            status: "completed"
+            completion: 100
+            download_url: https://example.com/my_file
+            adapter: "local"
+            user_id: usr_01ca2p8jqans5aty5gj5etmjcf
+            key_id: nil
+            params: {}
+            pid: "PID#124"
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'

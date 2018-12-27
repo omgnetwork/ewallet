@@ -23,7 +23,8 @@ config :ewallet_api, EWalletAPI.Endpoint,
     view: EWalletAPI.ErrorView,
     accepts: ~w(json),
     default_format: "json"
-  ]
+  ],
+  instrumenters: [Appsignal.Phoenix.Instrumenter]
 
 config :ewallet_api, EWalletAPI.V1.Endpoint,
   render_errors: [
@@ -34,9 +35,16 @@ config :ewallet_api, EWalletAPI.V1.Endpoint,
   pubsub: [
     name: EWalletAPI.PubSub,
     adapter: Phoenix.PubSub.PG2
-  ]
+  ],
+  instrumenters: [Appsignal.Phoenix.Instrumenter]
 
+# Config for Phoenix's generators
 config :ewallet_api, :generators, context_app: false
+
+# Config for Phoenix's template engines
+config :phoenix, :template_engines,
+  eex: Appsignal.Phoenix.Template.EExEngine,
+  exs: Appsignal.Phoenix.Template.ExsEngine
 
 # Two configs need to be added to have a new EWallet API version:
 #
@@ -59,7 +67,8 @@ config :ewallet_api, :api_versions, %{
 # what format to respond with.
 # Run `mix deps.clean --build mime` when updaing this mapping.
 config :mime, :types, %{
-  "application/vnd.omisego.v1+json" => ["json"]
+  "application/vnd.omisego.v1+json" => ["json"],
+  "text/vnd.omisego.v1+csv" => ["csv"]
 }
 
 # Configs for Sentry exception reporting
@@ -74,6 +83,11 @@ config :sentry,
   },
   server_name: :inet.gethostname() |> elem(1) |> to_string(),
   included_environments: [:prod]
+
+# Configs for AppSignal application monitoring
+config :appsignal, :config,
+  name: "OmiseGO eWallet Suite",
+  env: Mix.env()
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

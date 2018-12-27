@@ -158,3 +158,22 @@ PaginatedRequestBodySchema:
     match_any: []
     sort_by: created_at
     sort_dir: desc
+
+FilteredRequestBodySchema:
+  properties:
+    search_term:
+      type: string
+    match_all:
+      $ref: '#/AdvancedFilteringSchema'
+    match_any:
+      $ref: '#/AdvancedFilteringSchema'
+    sort_by:
+      type: string
+    sort_dir:
+      type: string
+      enum: [asc, desc]
+  example:
+    match_all: []
+    match_any: []
+    sort_by: created_at
+    sort_dir: desc

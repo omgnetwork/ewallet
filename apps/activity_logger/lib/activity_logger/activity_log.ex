@@ -6,6 +6,7 @@ defmodule ActivityLogger.ActivityLog do
   use Utils.Types.ExternalID
   import Ecto.{Changeset, Query}
   alias Ecto.{Changeset, UUID}
+  alias Utils.Helpers.Assoc
 
   alias ActivityLogger.{
     ActivityLog,
@@ -21,11 +22,13 @@ defmodule ActivityLogger.ActivityLog do
 
     field(:target_type, :string)
     field(:target_uuid, UUID)
+    field(:target_identifier, :string)
     field(:target_changes, :map)
     field(:target_encrypted_changes, ActivityLogger.Encrypted.Map, default: %{})
 
     field(:originator_uuid, UUID)
     field(:originator_type, :string)
+    field(:originator_identifier, :string)
 
     field(:metadata, :map, default: %{})
 
@@ -38,9 +41,11 @@ defmodule ActivityLogger.ActivityLog do
       :action,
       :target_type,
       :target_uuid,
+      :target_identifier,
       :target_changes,
       :target_encrypted_changes,
       :originator_uuid,
+      :originator_identifier,
       :originator_type,
       :metadata,
       :inserted_at
@@ -64,8 +69,18 @@ defmodule ActivityLogger.ActivityLog do
 
   @spec get_type(atom()) :: String.t()
   def get_type(schema) do
-    config = Application.get_env(:activity_logger, :schemas_to_activity_log_types)
-    Map.fetch!(config, schema)
+    :activity_logger
+    |> Application.get_env(:schemas_to_activity_log_config)
+    |> Map.fetch!(schema)
+    |> Map.fetch!(:type)
+  end
+
+  @spec get_identifier(atom()) :: atom() | nil
+  def get_identifier(schema) do
+    :activity_logger
+    |> Application.get_env(:schemas_to_activity_log_config)
+    |> Map.fetch!(schema)
+    |> Map.fetch!(:identifier)
   end
 
   @spec all_for_target(map()) :: [%ActivityLog{}]
@@ -147,9 +162,12 @@ defmodule ActivityLogger.ActivityLog do
         action: Atom.to_string(action),
         target_type: target_type,
         target_uuid: record.uuid,
+        target_identifier: Assoc.get_if_exists(record, [get_identifier(record.__struct__)]),
         target_changes: changes,
         target_encrypted_changes: encrypted_changes || %{},
         originator_uuid: originator.uuid,
+        originator_identifier:
+          Assoc.get_if_exists(originator, [get_identifier(originator.__struct__)]),
         originator_type: originator_type,
         inserted_at: NaiveDateTime.utc_now()
       }

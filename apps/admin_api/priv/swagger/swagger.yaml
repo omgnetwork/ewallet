@@ -67,8 +67,12 @@ tags:
     description: Resources related to consumption of transaction requests.
   - name: Configuration
     description: Resources related to the configuration of the eWallet.
+  - name: ActivityLog
+    description: Resources related to the activity logs.
   - name: API Access
     description: Resources related to API access.
+  - name: Export
+    description: Resources related to exports.
 
 servers:
   - url: /api/admin
@@ -250,6 +254,8 @@ paths:
   # TRANSACTION
   /transaction.all:
     $ref: 'transaction/paths.yaml#/transaction.all'
+  /transaction.export:
+    $ref: 'transaction/paths.yaml#/transaction.export'
   /transaction.get:
     $ref: 'transaction/paths.yaml#/transaction.get'
   /transaction.create:
@@ -301,8 +307,20 @@ paths:
   /api_key.delete:
     $ref: 'api_key/paths.yaml#/api_key.delete'
 
+  # EXPORT
+  /export.all:
+    $ref: 'export/paths.yaml#/export.all'
+  /export.get:
+    $ref: 'export/paths.yaml#/export.get'
+  /export.download:
+    $ref: 'export/paths.yaml#/export.download'
+
   # CONFIGURATION
   /configuration.get:
     $ref: 'configuration/paths.yaml#/configuration.get'
   /configuration.update:
     $ref: 'configuration/paths.yaml#/configuration.update'
+
+  # ACTIVITY LOG
+  /activity_log.all:
+    $ref: 'activity_log/paths.yaml#/activity_log.all'

@@ -11,7 +11,6 @@ defmodule AdminAPI.Mixfile do
       lockfile: "../../mix.lock",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env),
-      elixirc_options: [warnings_as_errors: Mix.env != :test],
       compilers: [:phoenix] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       test_coverage: [tool: ExCoveralls],
@@ -32,7 +31,7 @@ defmodule AdminAPI.Mixfile do
   def application do
     [
       mod: {AdminAPI.Application, []},
-      extra_applications: [:sentry, :logger, :runtime_tools]
+      extra_applications: [:sentry, :logger, :runtime_tools, :appsignal]
     ]
   end
 
@@ -51,6 +50,8 @@ defmodule AdminAPI.Mixfile do
       {:sentry, "~> 6.4"},
       {:bodyguard, "~> 2.2"},
       {:deferred_config, "~> 0.1.0"},
+      {:csv, "~> 2.0.0"},
+      {:appsignal, "~> 1.0"},
       {:bypass, "~> 1.0.0", only: [:test]},
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},

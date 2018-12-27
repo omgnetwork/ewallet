@@ -1,0 +1,42 @@
+ActivityLogSchema:
+  description: The object schema for an authentication token
+  type: object
+  properties:
+    id:
+      type: string
+    action:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+    metadata:
+      type: object
+    originator:
+      type: object
+    originator_identifier:
+      type: string
+    originator_type:
+      type: string
+    target:
+      type: object
+    target_changes:
+      type: object
+    target_encrypted_changes:
+      type: object
+    target_identifier:
+      type: string
+    target_type:
+      type: string
+  required:
+    - id
+    - action
+    - created_at
+    - metadata
+    - originator
+    - originator_identifier
+    - originator_type
+    - target
+    - target_changes
+    - target_encrypted_changes
+    - target_identifier
+    - target_type
