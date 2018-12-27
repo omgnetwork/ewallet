@@ -140,7 +140,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       response =
         admin_user_request("/token.mint", %{
           id: token.id,
-          amount: :math.pow(10, 35)
+          amount: 10 |> :math.pow(35) |> round()
         })
 
       mint = Mint |> Repo.all() |> Enum.at(0)
