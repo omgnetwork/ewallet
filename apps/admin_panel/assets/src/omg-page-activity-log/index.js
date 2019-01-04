@@ -6,7 +6,7 @@ import { Button, Icon, Avatar } from '../omg-uikit'
 import Copy from '../omg-copy'
 import CreateAccountModal from '../omg-create-account-modal'
 import ExportModal from '../omg-export-modal'
-import AccountsFetcher from '../omg-account/accountsFetcher'
+import ActivityLogFetcher from '../omg-activity-log/ActivityLogFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -179,7 +179,7 @@ class AccountPage extends Component {
 
   render () {
     return (
-      <AccountsFetcher
+      <ActivityLogFetcher
         render={this.renderAccountPage}
         {...this.state}
         {...this.props}

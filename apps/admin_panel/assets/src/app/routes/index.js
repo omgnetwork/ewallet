@@ -24,7 +24,7 @@ import ReqestConsumptionPage from '../../omg-page-consumption'
 import TransactionRequestPage from '../../omg-page-transaction-request'
 import ConfigurationPage from '../../omg-page-configuration'
 import { getCurrentAccountFromLocalStorage } from '../../services/sessionService'
-import ActivityLogPage from '../../omg-page-activity'
+import ActivityLogPage from '../../omg-page-activity-log'
 const currentAccount = getCurrentAccountFromLocalStorage()
 const redirectUrl = currentAccount ? `${currentAccount.id}/dashboard` : '/login'
 // prettier-ignore
