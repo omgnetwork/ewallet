@@ -40,9 +40,10 @@ export const downloadExportFileById = file => async dispatch => {
         tempLink.click()
       }
       if (file.adapter === 'gcs') {
+        // GCS SAVE
       }
       if (file.adapter === 'aws') {
-        console.log(file)
+        // AWS SAVE
       }
       return dispatch({
         type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.SUCCESS}`,
