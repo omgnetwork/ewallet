@@ -1,3 +1,17 @@
+# Copyright 2018 OmiseGO Pte Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 defmodule EWalletDB.Application do
   @moduledoc """
   The EWalletDB Data Store
@@ -15,26 +29,26 @@ defmodule EWalletDB.Application do
     Config.register_and_load(:ewallet_db, settings)
 
     ActivityLogger.configure(%{
-      EWalletDB.Seeder => "seeder",
-      EWalletDB.User => "user",
-      EWalletDB.Invite => "invite",
-      EWalletDB.Key => "key",
-      EWalletDB.ForgetPasswordRequest => "forget_password_request",
-      EWalletDB.UpdateEmailRequest => "update_email_request",
-      EWalletDB.AccountUser => "account_user",
-      EWalletDB.Transaction => "transaction",
-      EWalletDB.Mint => "mint",
-      EWalletDB.TransactionRequest => "transaction_request",
-      EWalletDB.TransactionConsumption => "transaction_consumption",
-      EWalletDB.Account => "account",
-      EWalletDB.Category => "category",
-      EWalletDB.ExchangePair => "exchange_pair",
-      EWalletDB.Wallet => "wallet",
-      EWalletDB.Membership => "membership",
-      EWalletDB.AuthToken => "auth_token",
-      EWalletDB.APIKey => "api_key",
-      EWalletDB.Token => "token",
-      EWalletDB.Role => "role"
+      EWalletDB.Seeder => %{type: "seeder", identifier: nil},
+      EWalletDB.User => %{type: "user", identifier: :id},
+      EWalletDB.Invite => %{type: "invite", identifier: nil},
+      EWalletDB.Key => %{type: "key", identifier: :id},
+      EWalletDB.ForgetPasswordRequest => %{type: "forget_password_request", identifier: nil},
+      EWalletDB.UpdateEmailRequest => %{type: "update_email_request", identifier: nil},
+      EWalletDB.AccountUser => %{type: "account_user", identifier: nil},
+      EWalletDB.Transaction => %{type: "transaction", identifier: :id},
+      EWalletDB.Mint => %{type: "mint", identifier: :id},
+      EWalletDB.TransactionRequest => %{type: "transaction_request", identifier: :id},
+      EWalletDB.TransactionConsumption => %{type: "transaction_consumption", identifier: :id},
+      EWalletDB.Account => %{type: "account", identifier: :id},
+      EWalletDB.Category => %{type: "category", identifier: :id},
+      EWalletDB.ExchangePair => %{type: "exchange_pair", identifier: :id},
+      EWalletDB.Wallet => %{type: "wallet", identifier: :address},
+      EWalletDB.Membership => %{type: "membership", identifier: :id},
+      EWalletDB.AuthToken => %{type: "auth_token", identifier: :id},
+      EWalletDB.APIKey => %{type: "api_key", identifier: :id},
+      EWalletDB.Token => %{type: "token", identifier: :id},
+      EWalletDB.Role => %{type: "role", identifier: :id}
     })
 
     # Config.configure_file_storage()

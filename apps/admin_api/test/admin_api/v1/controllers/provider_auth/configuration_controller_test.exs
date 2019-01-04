@@ -1,46 +1,30 @@
+# Copyright 2018 OmiseGO Pte Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 defmodule AdminAPI.V1.ProviderAuth.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletConfig.{Config, StoredSetting}
 
   describe "/configuration.get" do
-    test "returns a list of settings and pagination data" do
-      response = provider_request("/configuration.get", %{})
-
+    test "returns a list of settings" do
+      response = provider_request("/configuration.all", %{})
+      default_settings = Application.get_env(:ewallet_config, :default_settings)
       # Asserts return data
       assert response["success"]
       assert response["data"]["object"] == "list"
       assert is_list(response["data"]["data"])
-
-      # Asserts pagination data
-      pagination = response["data"]["pagination"]
-      assert is_integer(pagination["per_page"])
-      assert is_integer(pagination["current_page"])
-      assert is_boolean(pagination["is_last_page"])
-      assert is_boolean(pagination["is_first_page"])
-    end
-
-    test "returns a list of settings" do
-      response =
-        provider_request("/configuration.get", %{
-          per_page: 100,
-          sort_by: "position",
-          sort_dir: "asc"
-        })
-
-      default_settings = Application.get_env(:ewallet_config, :default_settings)
-
-      assert response["success"] == true
       assert length(response["data"]["data"]) == Enum.count(default_settings)
-      assert response["data"]["pagination"]["count"] == Enum.count(default_settings)
-
-      first_setting = Enum.at(response["data"]["data"], 0)
-      last_setting = Enum.at(response["data"]["data"], -1)
-
-      assert first_setting["key"] == "base_url"
-      assert first_setting["position"] == default_settings["base_url"].position
-
-      assert last_setting["key"] == "aws_secret_access_key"
-      assert last_setting["position"] == default_settings["aws_secret_access_key"].position
     end
   end
 

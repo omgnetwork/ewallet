@@ -1,3 +1,17 @@
+# Copyright 2018 OmiseGO Pte Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 defmodule EWallet.Exchange do
   @moduledoc """
   Provides exchange functionalities.
@@ -24,7 +38,7 @@ defmodule EWallet.Exchange do
            preload: [:from_token, :to_token]
          ) do
       {:ok, pair} ->
-        rate = Decimal.new(pair.rate)
+        rate = Decimal.from_float(pair.rate)
         subunit_scale = Decimal.div(to_token.subunit_to_unit, from_token.subunit_to_unit)
         {:ok, Decimal.mult(rate, subunit_scale), pair}
 
@@ -50,11 +64,19 @@ defmodule EWallet.Exchange do
         ) :: {:ok, Calculation.t()} | {:error, atom()}
 
   # Converts `from_amount` and `to_amount` to Decimal before operating on them
-  def validate(from_amount, from_token, to_amount, to_token) when is_number(from_amount) do
+  def validate(from_amount, from_token, to_amount, to_token) when is_float(from_amount) do
+    validate(Decimal.from_float(from_amount), from_token, to_amount, to_token)
+  end
+
+  def validate(from_amount, from_token, to_amount, to_token) when is_float(to_amount) do
+    validate(from_amount, from_token, Decimal.from_float(to_amount), to_token)
+  end
+
+  def validate(from_amount, from_token, to_amount, to_token) when is_integer(from_amount) do
     validate(Decimal.new(from_amount), from_token, to_amount, to_token)
   end
 
-  def validate(from_amount, from_token, to_amount, to_token) when is_number(to_amount) do
+  def validate(from_amount, from_token, to_amount, to_token) when is_integer(to_amount) do
     validate(from_amount, from_token, Decimal.new(to_amount), to_token)
   end
 
@@ -118,11 +140,19 @@ defmodule EWallet.Exchange do
   end
 
   # Converts `from_amount` and `to_amount` to Decimal before operating on them
-  def calculate(from_amount, from_token, to_amount, to_token) when is_number(from_amount) do
+  def calculate(from_amount, from_token, to_amount, to_token) when is_float(from_amount) do
+    calculate(Decimal.from_float(from_amount), from_token, to_amount, to_token)
+  end
+
+  def calculate(from_amount, from_token, to_amount, to_token) when is_float(to_amount) do
+    calculate(from_amount, from_token, Decimal.from_float(to_amount), to_token)
+  end
+
+  def calculate(from_amount, from_token, to_amount, to_token) when is_integer(from_amount) do
     calculate(Decimal.new(from_amount), from_token, to_amount, to_token)
   end
 
-  def calculate(from_amount, from_token, to_amount, to_token) when is_number(to_amount) do
+  def calculate(from_amount, from_token, to_amount, to_token) when is_integer(to_amount) do
     calculate(from_amount, from_token, Decimal.new(to_amount), to_token)
   end
 

@@ -1,3 +1,17 @@
+# Copyright 2018 OmiseGO Pte Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 defmodule EWalletConfig.StoredSetting do
   @moduledoc """
   Ecto Schema representing stored settings.
@@ -14,6 +28,7 @@ defmodule EWalletConfig.StoredSetting do
   @types [
     "string",
     "integer",
+    "unsigned_integer",
     "map",
     "boolean",
     "array"
@@ -64,8 +79,8 @@ defmodule EWalletConfig.StoredSetting do
     |> validate_inclusion(:type, @types)
     |> validate_required_exclusive([:data, :encrypted_data])
     |> unique_constraint(:key)
-    |> validate_type()
-    |> validate_with_options()
+    |> validate_setting_type()
+    |> validate_setting_with_options()
   end
 
   def update_changeset(%StoredSetting{} = setting, attrs) do
@@ -80,7 +95,7 @@ defmodule EWalletConfig.StoredSetting do
       ]
     )
     |> validate_required_exclusive([:data, :encrypted_data])
-    |> validate_type(setting)
-    |> validate_with_options(setting)
+    |> validate_setting_type()
+    |> validate_setting_with_options()
   end
 end

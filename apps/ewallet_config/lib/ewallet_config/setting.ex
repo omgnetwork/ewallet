@@ -1,3 +1,17 @@
+# Copyright 2018 OmiseGO Pte Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 defmodule EWalletConfig.Setting do
   @moduledoc """
   Schema overlay acting as an interface to the StoredSetting schema.
@@ -282,13 +296,19 @@ defmodule EWalletConfig.Setting do
   defp extract_value(%{secret: true, encrypted_data: nil}), do: nil
 
   defp extract_value(%{secret: true, encrypted_data: data}) do
-    Map.get(data, :value) || Map.get(data, "value")
+    case Map.get(data, :value) do
+      nil -> Map.get(data, "value")
+      value -> value
+    end
   end
 
   defp extract_value(%{secret: false, data: nil}), do: nil
 
   defp extract_value(%{secret: false, data: data}) do
-    Map.get(data, :value) || Map.get(data, "value")
+    case Map.get(data, :value) do
+      nil -> Map.get(data, "value")
+      value -> value
+    end
   end
 
   defp get_options(%{options: nil}), do: nil

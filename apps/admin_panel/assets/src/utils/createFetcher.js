@@ -27,7 +27,7 @@ export const createFetcher = (entity, reducer, selectors) => {
         }),
         onFetchComplete: PropTypes.func,
         cacheKey: PropTypes.string,
-        data: PropTypes.array,
+        data: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
         pagination: PropTypes.object
       }
       static defaultProps = {

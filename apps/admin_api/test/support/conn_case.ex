@@ -1,3 +1,17 @@
+# Copyright 2018 OmiseGO Pte Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 defmodule AdminAPI.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
@@ -102,19 +116,7 @@ defmodule AdminAPI.ConnCase do
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
-    config_pid = start_supervised!(EWalletConfig.Config)
-
-    ConfigTestHelper.restart_config_genserver(
-      self(),
-      config_pid,
-      EWalletConfig.Repo,
-      [:ewallet_db, :ewallet, :admin_api],
-      %{
-        "base_url" => "http://localhost:4000",
-        "email_adapter" => "test",
-        "sender_email" => "admin@example.com"
-      }
-    )
+    config_pid = start_config_server()
 
     # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
@@ -160,6 +162,24 @@ defmodule AdminAPI.ConnCase do
     # much less readable, i.e. `test "my test name", context do`,
     # and access using `context[:attribute]`.
     %{config_pid: config_pid}
+  end
+
+  def start_config_server do
+    config_pid = start_supervised!(EWalletConfig.Config)
+
+    ConfigTestHelper.restart_config_genserver(
+      self(),
+      config_pid,
+      EWalletConfig.Repo,
+      [:ewallet_db, :ewallet, :admin_api],
+      %{
+        "base_url" => "http://localhost:4000",
+        "email_adapter" => "test",
+        "sender_email" => "admin@example.com"
+      }
+    )
+
+    config_pid
   end
 
   def stringify_keys(%NaiveDateTime{} = value) do
@@ -287,11 +307,16 @@ defmodule AdminAPI.ConnCase do
   def admin_user_request(path, data \\ %{}, opts \\ []) do
     {status, opts} = Keyword.pop(opts, :status, :ok)
 
+    path
+    |> admin_user_raw_request(data, opts)
+    |> json_response(status)
+  end
+
+  def admin_user_raw_request(path, data \\ %{}, opts \\ []) do
     build_conn()
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGAdmin", user_auth_header(opts))
     |> post(@base_dir <> path, data)
-    |> json_response(status)
   end
 
   defp user_auth_header(opts) do

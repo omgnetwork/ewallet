@@ -10,6 +10,8 @@ This server application and the SDKs will later be plugged onto a blockchain and
 
 The SDKs for integrating your apps with the eWallet are available in [Ruby](https://github.com/omisego/ruby-sdk) ([sample server](https://github.com/omisego/sample-server)), [iOS](https://github.com/omisego/ios-sdk) ([sample app](https://github.com/omisego/sample-ios)) and [Android](https://github.com/omisego/android-sdk) ([sample app](https://github.com/omisego/sample-android)).
 
+Point of Sale's merchant ([iOS](https://github.com/omisego/pos-merchant-ios) and [Android](https://github.com/omisego/pos-merchant-android)) and customer ([iOS](https://github.com/omisego/pos-client-ios) and [Android](https://github.com/omisego/pos-client-android)) apps are also available. They demonstrate how the eWallet server application and SDKs can be used to build apps for physical storefronts.
+
 ## Overview
 
 Here is an overview of all the eWallet components and what needs to be integrated by a provider.

@@ -56,23 +56,23 @@ export const alertsReducer = createReducer([], {
     return [...state, createAlertState('Invited member successfully.', 'success')]
   },
   'CATEGORY/CREATE/SUCCESS': (state, { category }) => {
-    return [...state, createAlertState(`Created category successfully.`, 'success')]
+    return [...state, createAlertState('Created category successfully.', 'success')]
   },
   'CURRENT_USER/UPDATE/SUCCESS': (state, { user }) => {
-    return [...state, createAlertState(`Updated user setting successfully.`, 'success')]
+    return [...state, createAlertState('Updated user setting successfully.', 'success')]
   },
   'PASSWORD/UPDATE/SUCCESS': (state, { user }) => {
-    return [...state, createAlertState(`Updated password successfully.`, 'success')]
+    return [...state, createAlertState('Updated password successfully.', 'success')]
   },
   'TRANSACTION/CREATE/SUCCESS': (state, { transaction }) => {
-    return [...state, createAlertState(`Transferred successfully.`, 'success')]
+    return [...state, createAlertState('Transferred successfully.', 'success')]
   },
   'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
-    return [...state, createAlertState(`Transaction request has successfully created.`, 'success')]
+    return [...state, createAlertState('Transaction request has successfully created.', 'success')]
   },
   'TRANSACTION_REQUEST/CONSUME/SUCCESS': (state, { data }) => {
     if (data.status === 'confirmed') {
-      return [...state, createAlertState(`Consumed transaction request.`, 'success')]
+      return [...state, createAlertState('Consumed transaction request.', 'success')]
     }
     return state
   },
@@ -150,5 +150,12 @@ export const alertsReducer = createReducer([], {
       ]
     }
     return state
+  },
+  'CONFIGURATIONS/UPDATE/SUCCESS': (state, { data }) => {
+    const updatedFileStorage = data.data.file_storage_adapter
+    return [...state, createAlertState('Updated configurations successfully, reloading application..', 'success')]
+  },
+  'CONFIGURATIONS/UPDATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
   }
 })

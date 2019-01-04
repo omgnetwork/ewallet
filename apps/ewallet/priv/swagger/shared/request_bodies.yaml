@@ -6,3 +6,11 @@ PaginatedRequestBody:
       schema:
         allOf:
         - $ref: '../shared/schemas.yaml#/PaginatedRequestBodySchema'
+FilteredRequestBody:
+  description: The default parameters to use when querying a filtered resource
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../shared/schemas.yaml#/FilteredRequestBodySchema'

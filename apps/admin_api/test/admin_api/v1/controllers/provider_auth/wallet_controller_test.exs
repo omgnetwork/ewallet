@@ -1,3 +1,17 @@
+# Copyright 2018 OmiseGO Pte Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
@@ -81,31 +95,35 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
     test "returns a list of wallets according to sort_by and sort_direction" do
       account = insert(:account)
       user = get_test_user()
-      wallet = User.get_primary_wallet(user)
+      user_wallet = User.get_primary_wallet(user)
 
-      insert(:wallet, %{
-        account: account,
-        address: "aaaa111111111111",
-        identifier: "secondary_1"
-      })
+      account_wallet_1 =
+        insert(:wallet, %{
+          account: account,
+          address: "aaaa111111111111",
+          identifier: "secondary_1"
+        })
 
-      insert(:wallet, %{
-        account: account,
-        address: "aaaa333333333333",
-        identifier: "secondary_2"
-      })
+      account_wallet_2 =
+        insert(:wallet, %{
+          account: account,
+          address: "aaaa333333333333",
+          identifier: "secondary_2"
+        })
 
-      insert(:wallet, %{
-        account: account,
-        address: "aaaa222222222222",
-        identifier: "secondary_3"
-      })
+      account_wallet_3 =
+        insert(:wallet, %{
+          account: account,
+          address: "aaaa222222222222",
+          identifier: "secondary_3"
+        })
 
-      insert(:wallet, %{
-        account: account,
-        address: "bbbb111111111111",
-        identifier: "secondary_4"
-      })
+      account_wallet_4 =
+        insert(:wallet, %{
+          account: account,
+          address: "bbbb111111111111",
+          identifier: "secondary_4"
+        })
 
       attrs = %{
         "id" => account.id,
@@ -119,11 +137,23 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
       assert response["success"]
       assert Enum.count(wallets) == 5
-      assert Enum.at(wallets, 0)["address"] == wallet.address
-      assert Enum.at(wallets, 1)["address"] == "bbbb111111111111"
-      assert Enum.at(wallets, 2)["address"] == "aaaa333333333333"
-      assert Enum.at(wallets, 3)["address"] == "aaaa222222222222"
-      assert Enum.at(wallets, 4)["address"] == "aaaa111111111111"
+
+      ordered_addresses =
+        [
+          user_wallet.address,
+          account_wallet_1.address,
+          account_wallet_2.address,
+          account_wallet_3.address,
+          account_wallet_4.address
+        ]
+        |> Enum.sort()
+        |> Enum.reverse()
+
+      assert Enum.at(wallets, 0)["address"] == Enum.at(ordered_addresses, 0)
+      assert Enum.at(wallets, 1)["address"] == Enum.at(ordered_addresses, 1)
+      assert Enum.at(wallets, 2)["address"] == Enum.at(ordered_addresses, 2)
+      assert Enum.at(wallets, 3)["address"] == Enum.at(ordered_addresses, 3)
+      assert Enum.at(wallets, 4)["address"] == Enum.at(ordered_addresses, 4)
 
       [user_wallet | account_wallets] = wallets
       assert user_wallet["user_id"] == user.id

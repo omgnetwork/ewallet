@@ -1,0 +1,44 @@
+ExportSchema:
+  description: The object schema for an export
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    filename:
+      type: string
+    schema:
+      type: string
+    status:
+      type: string
+    completion:
+      type: float
+    download_url:
+      type: string
+    adapter:
+      type: string
+    user_id:
+      type: string
+    key_id:
+      type: string
+    params:
+      type: object
+    pid:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+  required:
+    - object
+    - id
+    - filename
+    - schema
+    - status
+    - completion
+    - adapter
+    - created_at
+    - updated_at

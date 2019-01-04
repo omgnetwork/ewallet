@@ -1,3 +1,17 @@
+# Copyright 2018 OmiseGO Pte Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 defmodule AdminAPI.V1.TransactionController do
   @moduledoc """
   The controller to serve transaction endpoints.
@@ -6,10 +20,38 @@ defmodule AdminAPI.V1.TransactionController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias Ecto.Changeset
-  alias EWallet.TransactionGate
-  alias EWallet.TransactionPolicy
-  alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.TransactionOverlay}
-  alias EWalletDB.{Account, Repo, Transaction, User}
+  alias EWallet.{TransactionPolicy, TransactionGate, ExportGate}
+
+  alias EWallet.Web.{
+    Originator,
+    Preloader,
+    Orchestrator,
+    Paginator,
+    V1.TransactionOverlay,
+    V1.ExportOverlay,
+    V1.CSV.TransactionSerializer
+  }
+
+  alias EWalletDB.{Account, Repo, Transaction, User, Export}
+
+  @doc """
+  Creates an export transactions.
+  """
+  @spec export(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def export(conn, attrs) do
+    with :ok <- permit(:export, conn.assigns, nil),
+         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
+         attrs = Originator.set_in_attrs(attrs, conn.assigns, :originator) do
+      Transaction
+      |> Transaction.query_all_for_account_uuids_and_users(account_uuids)
+      |> Orchestrator.build_query(TransactionOverlay, attrs)
+      |> ExportGate.export("transaction", TransactionSerializer, attrs)
+      |> respond_single(conn)
+    else
+      {:error, error} ->
+        handle_error(conn, error)
+    end
+  end
 
   @doc """
   Retrieves a list of transactions.
@@ -145,8 +187,13 @@ defmodule AdminAPI.V1.TransactionController do
     render(conn, :transaction, %{transaction: transaction})
   end
 
-  defp respond_single({:ok, transaction}, conn) do
+  defp respond_single({:ok, %Transaction{} = transaction}, conn) do
     render(conn, :transaction, %{transaction: transaction})
+  end
+
+  defp respond_single({:ok, %Export{} = export}, conn) do
+    {:ok, export} = Preloader.preload_one(export, ExportOverlay.default_preload_assocs())
+    render(conn, :export, %{export: export})
   end
 
   defp respond_single({:error, _transaction, code, description}, conn) do

@@ -1,46 +1,37 @@
+# Copyright 2018 OmiseGO Pte Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletConfig.{Config, StoredSetting}
 
-  describe "/configuration.get" do
-    test "returns a list of settings and pagination data" do
-      response = admin_user_request("/configuration.get", %{})
+  describe "/configuration.all" do
+    test "returns a list of configurations" do
+      response = admin_user_request("/configuration.all", %{})
 
       # Asserts return data
       assert response["success"]
       assert response["data"]["object"] == "list"
       assert is_list(response["data"]["data"])
-
-      # Asserts pagination data
-      pagination = response["data"]["pagination"]
-      assert is_integer(pagination["per_page"])
-      assert is_integer(pagination["current_page"])
-      assert is_boolean(pagination["is_last_page"])
-      assert is_boolean(pagination["is_first_page"])
     end
 
     test "returns a list of settings" do
-      response =
-        admin_user_request("/configuration.get", %{
-          per_page: 100,
-          sort_by: "position",
-          sort_dir: "asc"
-        })
-
-      default_settings = Application.get_env(:ewallet_config, :default_settings)
-
+      response = admin_user_request("/configuration.all")
       assert response["success"] == true
-      assert length(response["data"]["data"]) == Enum.count(default_settings)
-      assert response["data"]["pagination"]["count"] == Enum.count(default_settings)
 
-      first_setting = Enum.at(response["data"]["data"], 0)
-      last_setting = Enum.at(response["data"]["data"], -1)
-
-      assert first_setting["key"] == "base_url"
-      assert first_setting["position"] == default_settings["base_url"].position
-
-      assert last_setting["key"] == "aws_secret_access_key"
-      assert last_setting["position"] == default_settings["aws_secret_access_key"].position
+      assert length(response["data"]["data"]) ==
+               Enum.count(Application.get_env(:ewallet_config, :default_settings))
     end
   end
 
@@ -64,6 +55,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
           "aws_bucket" => "asd",
           "aws_region" => "asdz",
           "aws_secret_access_key" => "asdasdasdasdasd",
+          "enable_standalone" => false,
           "config_pid" => meta[:config_pid]
         })
 
@@ -74,6 +66,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
       assert data["aws_bucket"]["value"] == "asd"
       assert data["aws_region"]["value"] == "asdz"
       assert data["aws_secret_access_key"]["value"] == "asdasdasdasdasd"
+      assert data["enable_standalone"]["value"] == false
     end
 
     test "updates a list of settings with failures", meta do
@@ -84,6 +77,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
           fake_setting: "my_value",
           max_per_page: true,
           email_adapter: "fake",
+          enable_standalone: true,
           config_pid: meta[:config_pid]
         })
 
@@ -92,6 +86,9 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
 
       assert data["base_url"] != nil
       assert data["base_url"]["value"] == "new_base_url.example"
+
+      assert data["enable_standalone"] != nil
+      assert data["enable_standalone"]["value"] == true
 
       assert data["redirect_url_prefixes"] != nil
       assert data["redirect_url_prefixes"]["value"] == ["new_base_url.example", "something.else"]

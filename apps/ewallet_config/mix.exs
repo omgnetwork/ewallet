@@ -11,7 +11,6 @@ defmodule EWalletConfig.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.6",
       elixirc_paths: elixirc_paths(Mix.env()),
-      elixirc_options: [warnings_as_errors: Mix.env() != :test],
       start_permanent: Mix.env() == :prod,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
@@ -45,8 +44,8 @@ defmodule EWalletConfig.MixProject do
       {:poison, "~> 3.1"},
       {:deferred_config, "~> 0.1.0"},
       {:cloak, "~> 0.7.0-alpha"},
-      {:arc, "~> 0.8.0"},
-      {:arc_ecto, "~> 0.7.0"},
+      {:arc, "~> 0.11.0"},
+      {:arc_ecto, github: "omisego/arc_ecto"},
       {:bcrypt_elixir, "~> 1.0"},
       {:plug, "~> 1.0"},
       {:utils, in_umbrella: true},
