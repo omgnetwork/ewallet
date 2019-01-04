@@ -127,8 +127,17 @@ defmodule ActivityLogger.ActivityLog do
     )
   end
 
-  @spec get_initial_originator(map()) :: map()
-  def get_initial_originator(record) do
+  @doc """
+  Returns the initial originator, a.k.a. the originator that inserted
+  the given record to the database.
+
+  In a transactional operation, e.g. during tests, where the insert
+  maybe happening in another repo such as `EWalletDB.Repo`, the record
+  may not be visible to this function yet. In a scenario like this,
+  you can dependency-inject the visible repo via `repo`.
+  """
+  @spec get_initial_originator(map(), module()) :: map()
+  def get_initial_originator(record, repo \\ Repo) do
     activity_log_type = get_type(record.__struct__)
     activity_log = ActivityLog.get_initial_activity_log(activity_log_type, record.uuid)
     originator_schema = ActivityLog.get_schema(activity_log.originator_type)
@@ -138,7 +147,7 @@ defmodule ActivityLogger.ActivityLog do
         %ActivityLogger.System{uuid: activity_log.originator_uuid}
 
       schema ->
-        Repo.get(schema, activity_log.originator_uuid)
+        repo.get(schema, activity_log.originator_uuid)
     end
   end
 

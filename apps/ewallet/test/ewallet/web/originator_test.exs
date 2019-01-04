@@ -16,7 +16,7 @@ defmodule EWallet.Web.OriginatorTest do
   use EWallet.DBCase
   import EWalletDB.Factory
   alias EWallet.Web.Originator
-  alias EWalletDB.{Account, Key, User}
+  alias EWalletDB.{Account, Key, Repo, User}
   alias Plug.Conn
 
   setup do
@@ -57,6 +57,7 @@ defmodule EWallet.Web.OriginatorTest do
   describe "get_initial_originator/1" do
     test "returns the originator that inserted the record" do
       insert_user = insert(:user)
+      update_user = insert(:user)
 
       {:ok, inserted} =
         :account
@@ -66,10 +67,10 @@ defmodule EWallet.Web.OriginatorTest do
       {:ok, updated} =
         Account.update(inserted, %{
           name: "updated_name",
-          originator: insert(:user)
+          originator: update_user
         })
 
-      assert Originator.get_initial_originator(updated) == insert_user
+      assert Originator.get_initial_originator(updated, Repo).uuid == insert_user.uuid
     end
   end
 end
