@@ -8,8 +8,8 @@ export const getActivityLogs = ({ matchAll, matchAny, page, perPage, cacheKey })
       activityLogService.getActivityLogs({
         perPage,
         page,
-        sortDir: { by: 'created_at', dir: 'desc' },
-        sortby: 'asc',
+        sortDir: 'desc',
+        sortBy: 'created_at',
         matchAll,
         matchAny
       }),
