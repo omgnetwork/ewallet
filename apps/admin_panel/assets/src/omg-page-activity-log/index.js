@@ -2,10 +2,6 @@ import React, { Component } from 'react'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
-import { Button, Icon, Avatar } from '../omg-uikit'
-import Copy from '../omg-copy'
-import CreateAccountModal from '../omg-create-account-modal'
-import ExportModal from '../omg-export-modal'
 import ActivityLogFetcher from '../omg-activity-log/ActivityLogFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -123,7 +119,19 @@ class AccountPage extends Component {
       case 'token':
         return <Link to={`/tokens/${id}`}>{id}</Link>
       case 'transaction':
-        return <Link to={`/transactions/${id}`}>{id}</Link>
+        const query = {
+          ...queryString.parse(this.props.location.search),
+          'show-transaction-tab': id
+        }
+        return (
+          <Link
+            to={{
+              search: queryString.stringify(query)
+            }}
+          >
+            {id}
+          </Link>
+        )
       default:
         return id
     }
