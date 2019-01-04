@@ -3,7 +3,7 @@ import * as activityLogService from '../services/activityLogService'
 export const getActivityLogs = ({ matchAll, matchAny, page, perPage, cacheKey }) =>
   createPaginationActionCreator({
     action: 'REQUEST',
-    actionName: 'ACTIVITES',
+    actionName: 'ACTIVITIES',
     service: () =>
       activityLogService.getActivityLogs({
         perPage,

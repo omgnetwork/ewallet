@@ -1,9 +1,10 @@
 import { authenticatedRequest } from './apiService'
 
-export function getActivityLogs ({ perPage, sortBy, sortDir, matchAll, matchAny }) {
+export function getActivityLogs ({ perPage, page, sortBy, sortDir, matchAll, matchAny }) {
   return authenticatedRequest({
-    path: '/activity.all',
+    path: '/activity_log.all',
     data: {
+      page,
       per_page: perPage,
       sort_by: sortBy,
       sort_dir: sortDir,

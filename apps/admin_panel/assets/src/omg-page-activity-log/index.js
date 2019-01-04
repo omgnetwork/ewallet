@@ -11,6 +11,8 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+import Link from '../omg-links'
+import { createSearchActivityLogQuery } from './searchField'
 const AccountPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -37,7 +39,7 @@ const AccountPageContainer = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
@@ -66,76 +68,38 @@ class AccountPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
   }
-  constructor (props) {
-    super(props)
-    this.state = {
-      createAccountModalOpen: queryString.parse(props.location.search).createAccount || false,
-      exportModalOpen: false
-    }
-  }
-  onClickCreateAccount = () => {
-    this.setState({ createAccountModalOpen: true })
-  }
-  onRequestCloseCreateAccount = () => {
-    this.setState({ createAccountModalOpen: false })
-  }
-  onClickExport = () => {
-    this.setState({ exportModalOpen: true })
-  }
-  onRequestCloseExport = () => {
-    this.setState({ exportModalOpen: false })
-  }
-  renderExportButton = () => {
-    return (
-      <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
-        <Icon name='Export' />
-        <span>Export</span>
-      </Button>
-    )
-  }
-  renderCreateAccountButton = () => {
-    return (
-      <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
-      </Button>
-    )
-  }
   getColumns = accounts => {
     return [
-      { key: 'name', title: 'NAME', sort: true },
-      { key: 'id', title: 'ID', sort: true },
-      { key: 'description', title: 'DESCRIPTION', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'avatar', title: 'AVATAR', hide: true }
+      { key: 'originator', title: 'ORIGINATOR' },
+      { key: 'originator_type', title: 'ORIGINATOR TYPE' },
+      { key: 'action', title: 'ACTION' },
+      { key: 'target', title: 'TARGET' },
+      { key: 'target_type', title: 'TARGE TYPET' },
+      { key: 'created_at', title: 'CREATED AT' }
     ]
   }
-  getRow = accounts => {
-    return accounts.map(d => {
-      return {
-        ...d,
-        avatar: _.get(d, 'avatar.thumb'),
-        key: d.id
-      }
-    })
-  }
-  onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/accounts/${data.id}`)
-  }
-  rowRenderer (key, data, rows) {
-    if (key === 'name') {
-      return (
-        <NameColumn>
-          <Avatar image={rows.avatar} name={data.slice(0, 2)} /> <span>{data}</span>
-        </NameColumn>
-      )
-    }
-    if (key === 'id') {
+  rowRenderer = (key, data, row) => {
+    if (key === 'originator') {
       return (
         <span>
-          <span>{data}</span> <Copy data={data} />
+          {row.originator
+            ? this.getLink(row.originator_type, row.originator.id || row.originator.address)
+            : '-'}
         </span>
       )
+    }
+    if (key === 'originator_type') {
+      return <span>{row.originator_type}</span>
+    }
+    if (key === 'target') {
+      return (
+        <span>
+          {row.target ? this.getLink(row.target_type, row.target.id || row.target.address) : '-'}
+        </span>
+      )
+    }
+    if (key === 'target_type') {
+      return <span>{row.target_type}</span>
     }
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
@@ -148,45 +112,54 @@ class AccountPage extends Component {
     }
     return data
   }
-  renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetch }) => {
+  getLink (type, id) {
+    switch (type) {
+      case 'wallet':
+        return <Link to={`/wallets/${id}`}>{id}</Link>
+      case 'account':
+        return <Link to={`/accounts/${id}`}>{id}</Link>
+      case 'user':
+        return <Link to={`/users/${id}`}>{id}</Link>
+      case 'token':
+        return <Link to={`/tokens/${id}`}>{id}</Link>
+      case 'transaction':
+        return <Link to={`/transactions/${id}`}>{id}</Link>
+      default:
+        return id
+    }
+  }
+  renderActivityPage = ({ data: activities, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
-        <TopNavigation title={'Account'} buttons={[this.renderCreateAccountButton()]} />
+        <TopNavigation title={'Activities'} buttons={[]} />
         <SortableTableContainer
           innerRef={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable
-            rows={this.getRow(accounts)}
-            columns={this.getColumns(accounts)}
+            rows={activities}
+            columns={this.getColumns()}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
-            onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation
           />
         </SortableTableContainer>
-        <CreateAccountModal
-          open={this.state.createAccountModalOpen}
-          onRequestClose={this.onRequestCloseCreateAccount}
-          onCreateAccount={fetch}
-        />
-        <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </AccountPageContainer>
     )
   }
 
   render () {
+    const search = queryString.parse(this.props.location.search).search
     return (
       <ActivityLogFetcher
-        render={this.renderAccountPage}
+        render={this.renderActivityPage}
         {...this.state}
         {...this.props}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: 12,
-          search: queryString.parse(this.props.location.search).search
+          ...createSearchActivityLogQuery(search)
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
