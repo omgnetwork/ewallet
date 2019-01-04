@@ -58,9 +58,10 @@ defmodule ActivityLogger.ActivityRepoTest do
       activity_logs = ActivityLog.all_for_target(TestDocument, record.uuid)
 
       assert length(activity_logs) == 1
+
       assert Enum.any?(activity_logs, fn a ->
-        a.action == "insert" && a.originator_uuid == meta.attrs.originator.uuid
-      end)
+               a.action == "insert" && a.originator_uuid == meta.attrs.originator.uuid
+             end)
     end
   end
 
@@ -79,12 +80,14 @@ defmodule ActivityLogger.ActivityRepoTest do
       activity_logs = ActivityLog.all_for_target(TestDocument, record.uuid)
 
       assert length(activity_logs) == 2
+
       assert Enum.any?(activity_logs, fn a ->
-        a.action == "insert" && a.originator_type == "system"
-      end)
+               a.action == "insert" && a.originator_type == "system"
+             end)
+
       assert Enum.any?(activity_logs, fn a ->
-        a.action == "update" && a.originator_uuid == meta.attrs.originator.uuid
-      end)
+               a.action == "update" && a.originator_uuid == meta.attrs.originator.uuid
+             end)
     end
   end
 
@@ -102,12 +105,14 @@ defmodule ActivityLogger.ActivityRepoTest do
       activity_logs = ActivityLog.all_for_target(TestDocument, record.uuid)
 
       assert length(activity_logs) == 2
+
       assert Enum.any?(activity_logs, fn a ->
-        a.action == "insert" && a.originator_type == "system"
-      end)
+               a.action == "insert" && a.originator_type == "system"
+             end)
+
       assert Enum.any?(activity_logs, fn a ->
-        a.action == "delete" && a.originator_uuid == meta.attrs.originator.uuid
-      end)
+               a.action == "delete" && a.originator_uuid == meta.attrs.originator.uuid
+             end)
     end
   end
 end

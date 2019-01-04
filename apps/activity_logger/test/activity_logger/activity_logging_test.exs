@@ -65,7 +65,9 @@ defmodule ActivityLogger.ActivityLoggingTest do
 
     test "invalidates the changeset if originator is not provided", meta do
       attrs = Map.put(meta.attrs, :originator, nil)
-      changeset = ActivityLogging.cast_and_validate_required_for_activity_log(%TestDocument{}, attrs)
+
+      changeset =
+        ActivityLogging.cast_and_validate_required_for_activity_log(%TestDocument{}, attrs)
 
       refute changeset.valid?
       assert changeset.errors == [originator: {"can't be blank", [validation: :required]}]
