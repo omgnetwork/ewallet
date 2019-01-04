@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Web.Date do
+defmodule Utils.Helpers.DateFormatter do
   @moduledoc """
   This module allows formatting of a date (naive or date time) into an iso8601 string.
   """
@@ -30,7 +30,9 @@ defmodule EWallet.Web.Date do
   Parses the given NaiveDateTime to an iso8601 string.
   """
   def to_iso8601(%NaiveDateTime{} = date) do
-    NaiveDateTime.to_iso8601(date)
+    date
+    |> DateTime.from_naive!("Etc/UTC")
+    |> to_iso8601()
   end
 
   @doc """

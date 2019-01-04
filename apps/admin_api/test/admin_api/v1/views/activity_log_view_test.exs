@@ -1,8 +1,9 @@
 defmodule AdminAPI.V1.ActivityLogViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.ActivityLogView
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.{AccountSerializer, ActivityLogSerializer, UserSerializer}
+  alias Utils.Helpers.DateFormatter
 
   describe "AdminAPI.V1.ActivityLogView.render/2" do
     test "renders activity_log.json with correct response format" do
@@ -24,7 +25,7 @@ defmodule AdminAPI.V1.ActivityLogViewTest do
           target_changes: activity_log.target_changes,
           target_encrypted_changes: activity_log.target_encrypted_changes,
           metadata: activity_log.metadata,
-          created_at: Date.to_iso8601(activity_log.inserted_at)
+          created_at: DateFormatter.to_iso8601(activity_log.inserted_at)
         }
       }
 

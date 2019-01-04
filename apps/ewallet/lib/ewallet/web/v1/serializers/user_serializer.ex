@@ -17,9 +17,10 @@ defmodule EWallet.Web.V1.UserSerializer do
   Serializes user(s) into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator, V1.PaginatorSerializer}
+  alias EWallet.Web.{Paginator, V1.PaginatorSerializer}
   alias EWalletDB.Uploaders.Avatar
   alias EWalletDB.User
+  alias Utils.Helpers.DateFormatter
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -46,8 +47,8 @@ defmodule EWallet.Web.V1.UserSerializer do
       encrypted_metadata: user.encrypted_metadata || %{},
       avatar: Avatar.urls({user.avatar, user}),
       enabled: user.enabled,
-      created_at: Date.to_iso8601(user.inserted_at),
-      updated_at: Date.to_iso8601(user.updated_at)
+      created_at: DateFormatter.to_iso8601(user.inserted_at),
+      updated_at: DateFormatter.to_iso8601(user.updated_at)
     }
   end
 

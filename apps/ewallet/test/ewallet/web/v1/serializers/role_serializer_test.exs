@@ -15,8 +15,9 @@
 defmodule EWallet.Web.V1.RoleSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.RoleSerializer
+  alias Utils.Helpers.DateFormatter
 
   describe "serialize/1" do
     test "serializes a role into V1 response format" do
@@ -28,8 +29,8 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
         name: role.name,
         priority: role.priority,
         display_name: role.display_name,
-        created_at: Date.to_iso8601(role.inserted_at),
-        updated_at: Date.to_iso8601(role.updated_at)
+        created_at: DateFormatter.to_iso8601(role.inserted_at),
+        updated_at: DateFormatter.to_iso8601(role.updated_at)
       }
 
       assert RoleSerializer.serialize(role) == expected
@@ -58,8 +59,8 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
             name: role1.name,
             priority: role1.priority,
             display_name: role1.display_name,
-            created_at: Date.to_iso8601(role1.inserted_at),
-            updated_at: Date.to_iso8601(role1.updated_at)
+            created_at: DateFormatter.to_iso8601(role1.inserted_at),
+            updated_at: DateFormatter.to_iso8601(role1.updated_at)
           },
           %{
             object: "role",
@@ -67,8 +68,8 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
             name: role2.name,
             priority: role2.priority,
             display_name: role2.display_name,
-            created_at: Date.to_iso8601(role2.inserted_at),
-            updated_at: Date.to_iso8601(role2.updated_at)
+            created_at: DateFormatter.to_iso8601(role2.inserted_at),
+            updated_at: DateFormatter.to_iso8601(role2.updated_at)
           }
         ],
         pagination: %{

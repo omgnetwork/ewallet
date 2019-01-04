@@ -17,10 +17,9 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
   use Bamboo.Test
   import Ecto.Query
   alias AdminAPI.UpdateEmailAddressEmail
-  alias EWallet.Web.Date
   alias EWalletDB.{Account, Membership, Repo, User}
   alias EWalletDB.{Account, Membership, Repo, UpdateEmailRequest, User}
-  alias Utils.Helpers.{Crypto, Assoc}
+  alias Utils.Helpers.{Crypto, Assoc, DateFormatter}
   alias ActivityLogger.System
 
   @update_email_url "http://localhost:4000/update_email?email={email}&token={token}"
@@ -597,7 +596,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
         changes: %{
           "avatar" => %{
             "file_name" => "test.jpg",
-            "updated_at" => NaiveDateTime.to_iso8601(admin.avatar.updated_at)
+            "updated_at" => DateFormatter.to_iso8601(admin.avatar.updated_at)
           }
         },
         encrypted_changes: %{}
@@ -634,8 +633,8 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
                      "small" => nil,
                      "thumb" => nil
                    },
-                   "created_at" => Date.to_iso8601(account.inserted_at),
-                   "updated_at" => Date.to_iso8601(account.updated_at)
+                   "created_at" => DateFormatter.to_iso8601(account.inserted_at),
+                   "updated_at" => DateFormatter.to_iso8601(account.updated_at)
                  }
                }
     end
@@ -696,8 +695,8 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
                          "small" => nil,
                          "thumb" => nil
                        },
-                       "created_at" => Date.to_iso8601(account.inserted_at),
-                       "updated_at" => Date.to_iso8601(account.updated_at)
+                       "created_at" => DateFormatter.to_iso8601(account.inserted_at),
+                       "updated_at" => DateFormatter.to_iso8601(account.updated_at)
                      }
                    ],
                    "pagination" => %{

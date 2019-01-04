@@ -17,7 +17,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
   Serializes transaction request consumption data into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
 
   alias EWallet.Web.V1.{
     AccountSerializer,
@@ -29,7 +29,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
     WalletSerializer
   }
 
-  alias Utils.Helpers.Assoc
+  alias Utils.Helpers.{Assoc, DateFormatter}
   alias EWalletDB.TransactionConsumption
 
   def serialize(%Paginator{} = paginator) do
@@ -69,14 +69,14 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       address: consumption.wallet_address,
       metadata: consumption.metadata || %{},
       encrypted_metadata: consumption.encrypted_metadata || %{},
-      expiration_date: Date.to_iso8601(consumption.expiration_date),
+      expiration_date: DateFormatter.to_iso8601(consumption.expiration_date),
       status: consumption.status,
-      approved_at: Date.to_iso8601(consumption.approved_at),
-      rejected_at: Date.to_iso8601(consumption.rejected_at),
-      confirmed_at: Date.to_iso8601(consumption.confirmed_at),
-      failed_at: Date.to_iso8601(consumption.failed_at),
-      expired_at: Date.to_iso8601(consumption.expired_at),
-      created_at: Date.to_iso8601(consumption.inserted_at)
+      approved_at: DateFormatter.to_iso8601(consumption.approved_at),
+      rejected_at: DateFormatter.to_iso8601(consumption.rejected_at),
+      confirmed_at: DateFormatter.to_iso8601(consumption.confirmed_at),
+      failed_at: DateFormatter.to_iso8601(consumption.failed_at),
+      expired_at: DateFormatter.to_iso8601(consumption.expired_at),
+      created_at: DateFormatter.to_iso8601(consumption.inserted_at)
     }
   end
 

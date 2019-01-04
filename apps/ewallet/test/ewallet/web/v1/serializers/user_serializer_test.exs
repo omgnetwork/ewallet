@@ -15,8 +15,9 @@
 defmodule EWallet.Web.V1.UserSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.UserSerializer
+  alias Utils.Helpers.DateFormatter
 
   describe "serialize/1" do
     test "serializes a user into correct JSON format" do
@@ -43,8 +44,8 @@ defmodule EWallet.Web.V1.UserSerializerTest do
           "last_name" => user.metadata["last_name"]
         },
         encrypted_metadata: %{},
-        created_at: Date.to_iso8601(user.inserted_at),
-        updated_at: Date.to_iso8601(user.updated_at)
+        created_at: DateFormatter.to_iso8601(user.inserted_at),
+        updated_at: DateFormatter.to_iso8601(user.updated_at)
       }
 
       assert UserSerializer.serialize(user) == expected
@@ -96,8 +97,8 @@ defmodule EWallet.Web.V1.UserSerializerTest do
               "last_name" => user1.metadata["last_name"]
             },
             encrypted_metadata: %{},
-            created_at: Date.to_iso8601(user1.inserted_at),
-            updated_at: Date.to_iso8601(user1.updated_at)
+            created_at: DateFormatter.to_iso8601(user1.inserted_at),
+            updated_at: DateFormatter.to_iso8601(user1.updated_at)
           },
           %{
             object: "user",
@@ -120,8 +121,8 @@ defmodule EWallet.Web.V1.UserSerializerTest do
               "last_name" => user2.metadata["last_name"]
             },
             encrypted_metadata: %{},
-            created_at: Date.to_iso8601(user2.inserted_at),
-            updated_at: Date.to_iso8601(user2.updated_at)
+            created_at: DateFormatter.to_iso8601(user2.inserted_at),
+            updated_at: DateFormatter.to_iso8601(user2.updated_at)
           }
         ],
         pagination: %{
@@ -165,8 +166,8 @@ defmodule EWallet.Web.V1.UserSerializerTest do
             },
             encrypted_metadata: %{},
             enabled: user1.enabled,
-            created_at: Date.to_iso8601(user1.inserted_at),
-            updated_at: Date.to_iso8601(user1.updated_at)
+            created_at: DateFormatter.to_iso8601(user1.inserted_at),
+            updated_at: DateFormatter.to_iso8601(user1.updated_at)
           },
           %{
             object: "user",
@@ -189,8 +190,8 @@ defmodule EWallet.Web.V1.UserSerializerTest do
             },
             encrypted_metadata: %{},
             enabled: user2.enabled,
-            created_at: Date.to_iso8601(user2.inserted_at),
-            updated_at: Date.to_iso8601(user2.updated_at)
+            created_at: DateFormatter.to_iso8601(user2.inserted_at),
+            updated_at: DateFormatter.to_iso8601(user2.updated_at)
           }
         ]
       }

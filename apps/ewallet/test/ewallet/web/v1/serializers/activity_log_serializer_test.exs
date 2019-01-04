@@ -15,8 +15,9 @@
 defmodule EWallet.Web.V1.ActivityLogSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.{AccountSerializer, ActivityLogSerializer, UserSerializer}
+  alias Utils.Helpers.DateFormatter
 
   describe "ActivityLogSerializer.serialize/1" do
     test "serializes an activity_log into V1 response format" do
@@ -24,7 +25,7 @@ defmodule EWallet.Web.V1.ActivityLogSerializerTest do
 
       expected = %{
         action: activity_log.action,
-        created_at: Date.to_iso8601(activity_log.inserted_at),
+        created_at: DateFormatter.to_iso8601(activity_log.inserted_at),
         id: activity_log.id,
         metadata: activity_log.metadata,
         object: "activity_log",

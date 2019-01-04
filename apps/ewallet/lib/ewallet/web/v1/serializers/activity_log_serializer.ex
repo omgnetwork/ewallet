@@ -17,9 +17,10 @@ defmodule EWallet.Web.V1.ActivityLogSerializer do
   Serializes activity_logs into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.{PaginatorSerializer, ModuleMapper}
   alias ActivityLogger.ActivityLog
+  alias Utils.Helpers.DateFormatter
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -46,7 +47,7 @@ defmodule EWallet.Web.V1.ActivityLogSerializer do
       target_changes: activity_log.target_changes,
       target_encrypted_changes: activity_log.target_encrypted_changes,
       metadata: activity_log.metadata,
-      created_at: Date.to_iso8601(activity_log.inserted_at)
+      created_at: DateFormatter.to_iso8601(activity_log.inserted_at)
     }
   end
 

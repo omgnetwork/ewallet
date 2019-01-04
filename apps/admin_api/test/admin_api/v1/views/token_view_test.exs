@@ -15,7 +15,8 @@
 defmodule AdminAPI.V1.TokenViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.TokenView
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
+  alias Utils.Helpers.DateFormatter
 
   describe "AdminAPI.V1.TokenView.render/2" do
     test "renders token.json with correct response structure" do
@@ -33,8 +34,8 @@ defmodule AdminAPI.V1.TokenViewTest do
           encrypted_metadata: %{},
           enabled: true,
           subunit_to_unit: token.subunit_to_unit,
-          created_at: Date.to_iso8601(token.inserted_at),
-          updated_at: Date.to_iso8601(token.updated_at)
+          created_at: DateFormatter.to_iso8601(token.inserted_at),
+          updated_at: DateFormatter.to_iso8601(token.updated_at)
         }
       }
 
@@ -70,8 +71,8 @@ defmodule AdminAPI.V1.TokenViewTest do
               encrypted_metadata: %{},
               enabled: true,
               subunit_to_unit: token1.subunit_to_unit,
-              created_at: Date.to_iso8601(token1.inserted_at),
-              updated_at: Date.to_iso8601(token1.updated_at)
+              created_at: DateFormatter.to_iso8601(token1.inserted_at),
+              updated_at: DateFormatter.to_iso8601(token1.updated_at)
             },
             %{
               object: "token",
@@ -82,8 +83,8 @@ defmodule AdminAPI.V1.TokenViewTest do
               encrypted_metadata: %{},
               enabled: true,
               subunit_to_unit: token2.subunit_to_unit,
-              created_at: Date.to_iso8601(token2.inserted_at),
-              updated_at: Date.to_iso8601(token2.updated_at)
+              created_at: DateFormatter.to_iso8601(token2.inserted_at),
+              updated_at: DateFormatter.to_iso8601(token2.updated_at)
             }
           ],
           pagination: %{

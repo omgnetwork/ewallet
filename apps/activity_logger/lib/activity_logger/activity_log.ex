@@ -20,7 +20,7 @@ defmodule ActivityLogger.ActivityLog do
   use Utils.Types.ExternalID
   import Ecto.{Changeset, Query}
   alias Ecto.{Changeset, UUID}
-  alias Utils.Helpers.Assoc
+  alias Utils.Helpers.{Assoc, DateFormatter}
 
   alias ActivityLogger.{
     ActivityLog,
@@ -227,6 +227,20 @@ defmodule ActivityLogger.ActivityLog do
 
   defp format_value(%Changeset{} = value) do
     value.data.uuid
+  end
+
+  defp format_value(%DateTime{} = value) do
+    DateFormatter.to_iso8601(value)
+  end
+
+  defp format_value(%NaiveDateTime{} = value) do
+    DateFormatter.to_iso8601(value)
+  end
+
+  defp format_value(values) when is_map(values) do
+    Enum.into(values, %{}, fn {key, value} ->
+      {key, format_value(value)}
+    end)
   end
 
   defp format_value(value), do: value
