@@ -22,6 +22,7 @@ import WalletDetailPage from '../../omg-page-wallet-detail'
 import UserDetailPage from '../../omg-page-user-detail'
 import ReqestConsumptionPage from '../../omg-page-consumption'
 import TransactionRequestPage from '../../omg-page-transaction-request'
+import TransactionExportPage from '../../omg-page-transaction-export'
 import ConfigurationPage from '../../omg-page-configuration'
 import { getCurrentAccountFromLocalStorage } from '../../services/sessionService'
 const currentAccount = getCurrentAccountFromLocalStorage()
@@ -44,6 +45,7 @@ export default () => (
       <AuthenticatedRoute path='/:accountId/tokens/:viewTokenId' exact component={TokenDetailPage} />
       <AuthenticatedRoute path='/:accountId/wallets' exact component={WalletPage} />
       <AuthenticatedRoute path='/:accountId/transaction' exact component={TransactionPage} />
+      <AuthenticatedRoute path='/:accountId/transaction/export' exact component={TransactionExportPage} />
       <AuthenticatedRoute path='/:accountId/api' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/:accountId/setting/:state' exact component={AccountSettingPage} />
       <AuthenticatedRoute path='/:accountId/user_setting' exact component={UserSettingPage} />

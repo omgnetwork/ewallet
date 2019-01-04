@@ -20,7 +20,7 @@ import { cacheReducer } from '../omg-cache/reducer'
 import { exchangePairsReducer } from '../omg-exchange-pair/reducer'
 import { configurationReducer } from '../omg-configuration/reducer'
 import { loadingStatusReducer } from '../omg-loading-status/reducer'
-
+import { exportsReducer } from '../omg-export/reducer'
 export default combineReducers({
   app: appReducer,
   loadingBar: loadingBarReducer,
@@ -43,5 +43,6 @@ export default combineReducers({
   cacheQueries: cacheReducer,
   mintedTokenHistory: mintedTokenHistoryReducer,
   configurations: configurationReducer,
+  exports: exportsReducer,
   loadingStatus: loadingStatusReducer
 })

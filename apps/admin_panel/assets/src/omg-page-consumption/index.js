@@ -142,7 +142,6 @@ class ConsumptionPage extends Component {
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation
-            onClickLoadMore={this.onClickLoadMore}
             activeIndexKey={activeIndexKey}
           />
         </SortableTableContainer>

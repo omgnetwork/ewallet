@@ -142,15 +142,12 @@ class ConfigurationPage extends Component {
     return (
       Object.keys(this.props.configurations).reduce((prev, curr) => {
         return (
-          (prev &&
-            String(this.props.configurations[curr].value) ===
-              String(this.state[_.camelCase(curr)])) ||
-          (_.isNil(this.state[_.camelCase(curr)]) && _.isNil(this.props.configurations[curr].value))
+          prev &&
+          String(this.props.configurations[curr].value) === String(this.state[_.camelCase(curr)])
         )
       }, true) ||
       Number(this.state.maxPerPage) < 1 ||
-      Number(this.state.minPasswordLength) < 1 ||
-      Number(this.state.forgetPasswordRequestLifetime) < 1
+      Number(this.state.minPasswordLength) < 1
     )
   }
   isAddPrefixButtonDisabled () {

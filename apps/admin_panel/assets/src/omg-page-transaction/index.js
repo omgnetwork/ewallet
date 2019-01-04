@@ -44,7 +44,7 @@ const TransactionPageContainer = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
@@ -123,7 +123,8 @@ class TransactionPage extends Component {
   static propTypes = {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
-    history: PropTypes.object
+    history: PropTypes.object,
+    match: PropTypes.object
   }
   state = {
     createTransactionModalOpen: false
@@ -139,9 +140,13 @@ class TransactionPage extends Component {
     this.props.history.push({
       search: queryString.stringify({
         ...searchObject,
-        ['show-transaction-tab']: data.id
+        'show-transaction-tab': data.id
       })
     })
+  }
+  onClickExport = e => {
+    const accountId = this.props.match.params.accountId
+    this.props.history.push(`/${accountId}/transaction/export`)
   }
   renderCreateTransactionButton = () => {
     return (
@@ -154,6 +159,13 @@ class TransactionPage extends Component {
         <Icon name='Transaction' />
         <span>Transfer</span>
       </TransferButton>
+    )
+  }
+  renderExportButton () {
+    return (
+      <Button size='small' styleType='secondary' key={'export'} onClick={this.onClickExport}>
+        Export
+      </Button>
     )
   }
   rowRenderer = (key, data, rows) => {
@@ -217,7 +229,10 @@ class TransactionPage extends Component {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-transaction-tab']
     return (
       <TransactionPageContainer>
-        <TopNavigation title={'Transaction'} buttons={[this.renderCreateTransactionButton()]} />
+        <TopNavigation
+          title={'Transaction'}
+          buttons={[this.renderCreateTransactionButton(), this.renderExportButton()]}
+        />
         <SortableTable
           rows={transactions}
           columns={columns}
