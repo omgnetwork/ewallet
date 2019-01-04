@@ -24,6 +24,7 @@ import ReqestConsumptionPage from '../../omg-page-consumption'
 import TransactionRequestPage from '../../omg-page-transaction-request'
 import ConfigurationPage from '../../omg-page-configuration'
 import { getCurrentAccountFromLocalStorage } from '../../services/sessionService'
+import ActivityLogPage from '../../omg-page-activity'
 const currentAccount = getCurrentAccountFromLocalStorage()
 const redirectUrl = currentAccount ? `${currentAccount.id}/dashboard` : '/login'
 // prettier-ignore
@@ -54,6 +55,7 @@ export default () => (
       <AuthenticatedRoute path='/:accountId/consumptions' exact component={ReqestConsumptionPage} />
       <AuthenticatedRoute path='/:accountId/requests' exact component={TransactionRequestPage} />
       <AuthenticatedRoute path='/:accountId/configuration' exact component={ConfigurationPage} />
+      <AuthenticatedRoute path='/:accountId/activity' exact component={ActivityLogPage} />
     </Switch>
   </Router>
 )
