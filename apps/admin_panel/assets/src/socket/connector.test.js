@@ -1,6 +1,6 @@
 import SocketConnector from './connector'
 describe('websocket', () => {
-  const socket = new SocketConnector()
+  const socket = new SocketConnector('url')
   class MockWebSocket {
     constructor () {
       this.events = {}
