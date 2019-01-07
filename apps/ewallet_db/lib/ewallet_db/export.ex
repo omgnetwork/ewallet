@@ -93,6 +93,7 @@ defmodule EWalletDB.Export do
       cast: [
         :schema,
         :status,
+        :format,
         :completion,
         :params,
         :user_uuid,
