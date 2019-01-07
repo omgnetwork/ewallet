@@ -28,6 +28,13 @@ export const getExports = ({ page, perPage, matchAll, matchAny, cacheKey }) => {
 }
 
 export const downloadExportFileById = file => async dispatch => {
+  const dispatchError = error => {
+    console.error('failed to dispatch action EXPORT/DOWNLOAD', 'with error', error)
+    return dispatch({
+      type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.FAILED}`,
+      error: error
+    })
+  }
   try {
     const result = await exportService.downloadExportFileById(file.id)
     if (result.data) {
@@ -39,11 +46,16 @@ export const downloadExportFileById = file => async dispatch => {
         tempLink.setAttribute('download', `${file.filename}.csv`)
         tempLink.click()
       }
-      if (file.adapter === 'gcs') {
-        // GCS SAVE
-      }
-      if (file.adapter === 'aws') {
-        // AWS SAVE
+      if (file.adapter === 'gcs' || file.adapter === 'aws') {
+        const result = await exportService.getExportFileById(file.id)
+        if (result.data.success) {
+          window.location.href = result.data.data.download_url
+        } else {
+          return dispatch({
+            type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.FAILED}`,
+            error: `Failed to fetch file ${file.id}`
+          })
+        }
       }
       return dispatch({
         type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.SUCCESS}`,
@@ -55,10 +67,6 @@ export const downloadExportFileById = file => async dispatch => {
       })
     }
   } catch (error) {
-    console.error('failed to dispatch action EXPORT/DOWNLOAD', 'with error', error)
-    return dispatch({
-      type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.FAILED}`,
-      error: error
-    })
+    dispatchError(error)
   }
 }

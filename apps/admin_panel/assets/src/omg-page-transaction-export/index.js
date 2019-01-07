@@ -20,11 +20,6 @@ import ProgressBar from './ProgressBar'
 const Container = styled.div`
   position: relative;
   padding-bottom: 50px;
-  td:nth-child(2) {
-    width: 190px;
-  }
-  td {
-    height: 50px;
   }
 `
 const DetailContainer = styled.div`
@@ -74,7 +69,7 @@ const TimestampContainer = styled.div`
     padding: 5px;
     border: 1px solid ${props => props.theme.colors.S400};
     border-radius: 4px;
-
+    color: ${props => props.disabled ? props.theme.colors.S400 : props.theme.colors.B400};
     :hover {
       background-color: ${props => props.theme.colors.BL400};
       color: white;
@@ -92,7 +87,23 @@ const ProgressTextContainer = styled.div`
     margin-left: auto;
   }
 `
-const columns = [{ key: 'params', title: 'QUERY' }, { key: 'status', title: 'STATUS' }]
+
+const TableContainer = styled.div`
+  td:nth-child(2) {
+    width: 190px;
+  }
+  td {
+    height: 50px;
+  }
+  td:first-child {
+    width: 50%;
+  }
+`
+const columns = [
+  { key: 'params', title: 'QUERY' },
+  { key: 'status', title: 'STATUS' },
+  { key: 'created_at', title: 'CREATED DATE' }
+]
 
 const enhance = compose(
   withRouter,
@@ -170,7 +181,7 @@ class TransactionExportPage extends Component {
 
   rowRenderer = (key, data, row) => {
     switch (key) {
-      case 'status':
+      case 'created_at':
         return (
           <TimestampContainer>
             <span>{moment(row.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
@@ -187,7 +198,7 @@ class TransactionExportPage extends Component {
           )
         } else if (row.status === 'processing' || row.status === 'new') {
           return (
-            <div>
+            <div style={{ maxWidth: '450px' }}>
               <ProgressTextContainer>
                 <span>Exporting...</span>
                 <span>{row.completion}%</span>
@@ -246,7 +257,7 @@ class TransactionExportPage extends Component {
                       </Button>
                     </FormDetailContainer>
                   </ExportFormContainer>
-                  <div>
+                  <TableContainer>
                     <SortableTable
                       rows={data}
                       columns={columns}
@@ -257,7 +268,7 @@ class TransactionExportPage extends Component {
                       rowRenderer={this.rowRenderer}
                       loadingEffect={false}
                     />
-                  </div>
+                  </TableContainer>
                 </DetailContainer>
               </div>
             )
