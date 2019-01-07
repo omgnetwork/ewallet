@@ -157,7 +157,7 @@ defmodule EWallet.Web.V1.ConfigurationSerializerTest do
       expected = %{
         object: "map",
         data: %{
-          "setting_key1" => ConfigurationSerializer.serialize(stored_setting),
+          stored_setting.key => ConfigurationSerializer.serialize(stored_setting),
           "config_two" => %{
             object: "error",
             code: "client:invalid_parameter",
