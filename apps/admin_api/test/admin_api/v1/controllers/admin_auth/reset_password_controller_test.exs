@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
   use AdminAPI.ConnCase, async: true
   use Bamboo.Test
   alias EWallet.ForgetPasswordEmail
-  alias Utils.Helpers.Crypto
+  alias Utils.Helpers.{Crypto, DateFormatter}
   alias EWalletDB.{ForgetPasswordRequest, Repo, User}
 
   @redirect_url "http://localhost:4000/reset_password?email={email}&token={token}"
@@ -148,7 +148,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
         changes: %{
           "token" => request.token,
           "user_uuid" => user.uuid,
-          "expires_at" => NaiveDateTime.to_iso8601(request.expires_at)
+          "expires_at" => DateFormatter.to_iso8601(request.expires_at)
         },
         encrypted_changes: %{}
       )

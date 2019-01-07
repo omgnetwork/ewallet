@@ -14,8 +14,9 @@
 
 defmodule EWalletAPI.V1.TransactionRequestControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer}
+  alias EWallet.Web.V1.{TokenSerializer, UserSerializer}
   alias EWalletDB.{Repo, TransactionRequest, User}
+  alias Utils.Helpers.DateFormatter
 
   describe "/me.create_transaction_request" do
     test "creates a transaction request with all the params" do
@@ -70,8 +71,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "max_consumptions" => 3,
                  "max_consumptions_per_user" => 1,
                  "current_consumptions_count" => 0,
-                 "created_at" => Date.to_iso8601(request.inserted_at),
-                 "updated_at" => Date.to_iso8601(request.updated_at)
+                 "created_at" => DateFormatter.to_iso8601(request.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(request.updated_at)
                }
              }
     end
@@ -123,8 +124,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "exchange_account_id" => nil,
                  "exchange_wallet" => nil,
                  "exchange_wallet_address" => nil,
-                 "created_at" => Date.to_iso8601(request.inserted_at),
-                 "updated_at" => Date.to_iso8601(request.updated_at)
+                 "created_at" => DateFormatter.to_iso8601(request.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(request.updated_at)
                }
              }
     end
@@ -177,8 +178,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "exchange_account_id" => nil,
                  "exchange_wallet" => nil,
                  "exchange_wallet_address" => nil,
-                 "created_at" => Date.to_iso8601(request.inserted_at),
-                 "updated_at" => Date.to_iso8601(request.updated_at)
+                 "created_at" => DateFormatter.to_iso8601(request.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(request.updated_at)
                }
              }
     end

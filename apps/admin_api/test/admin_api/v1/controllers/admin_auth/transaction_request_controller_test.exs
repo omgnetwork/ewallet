@@ -14,7 +14,7 @@
 
 defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, UserSerializer, WalletSerializer}
   alias EWalletDB.{Account, AccountUser, Repo, TransactionRequest, User, Wallet}
   alias ActivityLogger.System
@@ -206,8 +206,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
                    account_wallet
                    |> WalletSerializer.serialize_without_balances()
                    |> stringify_keys(),
-                 "created_at" => Date.to_iso8601(request.inserted_at),
-                 "updated_at" => Date.to_iso8601(request.updated_at)
+                 "created_at" => DateFormatter.to_iso8601(request.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(request.updated_at)
                }
              }
     end
@@ -270,8 +270,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
                    account_wallet
                    |> WalletSerializer.serialize_without_balances()
                    |> stringify_keys(),
-                 "created_at" => Date.to_iso8601(request.inserted_at),
-                 "updated_at" => Date.to_iso8601(request.updated_at)
+                 "created_at" => DateFormatter.to_iso8601(request.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(request.updated_at)
                }
              }
     end
@@ -328,8 +328,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
                  "max_consumptions" => nil,
                  "current_consumptions_count" => 0,
                  "max_consumptions_per_user" => nil,
-                 "created_at" => Date.to_iso8601(request.inserted_at),
-                 "updated_at" => Date.to_iso8601(request.updated_at)
+                 "created_at" => DateFormatter.to_iso8601(request.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(request.updated_at)
                }
              }
     end
@@ -386,8 +386,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
                  "max_consumptions" => nil,
                  "current_consumptions_count" => 0,
                  "max_consumptions_per_user" => nil,
-                 "created_at" => Date.to_iso8601(request.inserted_at),
-                 "updated_at" => Date.to_iso8601(request.updated_at)
+                 "created_at" => DateFormatter.to_iso8601(request.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(request.updated_at)
                }
              }
     end

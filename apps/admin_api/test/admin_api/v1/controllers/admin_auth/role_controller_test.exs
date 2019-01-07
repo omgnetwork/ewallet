@@ -16,6 +16,7 @@ defmodule AdminAPI.V1.AdminAuth.RoleControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Membership, Role, Repo}
   alias ActivityLogger.System
+  alias Utils.Helpers.DateFormatter
 
   describe "/role.all" do
     test "returns a list of roles and pagination data" do
@@ -306,7 +307,7 @@ defmodule AdminAPI.V1.AdminAuth.RoleControllerTest do
         originator: get_test_admin(),
         target: role,
         changes: %{
-          "deleted_at" => NaiveDateTime.to_iso8601(role.deleted_at)
+          "deleted_at" => DateFormatter.to_iso8601(role.deleted_at)
         },
         encrypted_changes: %{}
       )

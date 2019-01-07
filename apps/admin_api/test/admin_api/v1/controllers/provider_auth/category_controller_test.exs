@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.ProviderAuth.CategoryControllerTest do
   alias EWalletDB.{Category, Repo}
   alias EWalletDB.Helpers.Preloader
   alias ActivityLogger.System
+  alias Utils.Helpers.DateFormatter
 
   describe "/category.all" do
     test "returns a list of categories and pagination data" do
@@ -322,7 +323,7 @@ defmodule AdminAPI.V1.ProviderAuth.CategoryControllerTest do
         action: "update",
         originator: get_test_key(),
         target: category,
-        changes: %{"deleted_at" => NaiveDateTime.to_iso8601(category.deleted_at)},
+        changes: %{"deleted_at" => DateFormatter.to_iso8601(category.deleted_at)},
         encrypted_changes: %{}
       )
     end

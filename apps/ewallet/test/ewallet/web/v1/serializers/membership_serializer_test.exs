@@ -16,8 +16,9 @@ defmodule EWallet.Web.V1.MembershipSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias EWallet.Web.V1.MembershipSerializer
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Orchestrator, V1.MembershipOverlay}
+  alias EWallet.Web.{Orchestrator, V1.MembershipOverlay}
   alias EWalletDB.User
+  alias Utils.Helpers.DateFormatter
 
   describe "serialize/1" do
     test "serializes a membership into user json" do
@@ -48,8 +49,8 @@ defmodule EWallet.Web.V1.MembershipSerializerTest do
           small: nil,
           thumb: nil
         },
-        created_at: Date.to_iso8601(user.inserted_at),
-        updated_at: Date.to_iso8601(user.updated_at),
+        created_at: DateFormatter.to_iso8601(user.inserted_at),
+        updated_at: DateFormatter.to_iso8601(user.updated_at),
         account_role: role.name,
         status: User.get_status(user),
         account: %{
@@ -65,8 +66,8 @@ defmodule EWallet.Web.V1.MembershipSerializerTest do
           object: "account",
           parent_id: nil,
           socket_topic: "account:#{account.id}",
-          created_at: Date.to_iso8601(account.inserted_at),
-          updated_at: Date.to_iso8601(account.updated_at)
+          created_at: DateFormatter.to_iso8601(account.inserted_at),
+          updated_at: DateFormatter.to_iso8601(account.updated_at)
         }
       }
 
@@ -109,8 +110,8 @@ defmodule EWallet.Web.V1.MembershipSerializerTest do
           small: nil,
           thumb: nil
         },
-        created_at: Date.to_iso8601(user.inserted_at),
-        updated_at: Date.to_iso8601(user.updated_at),
+        created_at: DateFormatter.to_iso8601(user.inserted_at),
+        updated_at: DateFormatter.to_iso8601(user.updated_at),
         account_role: role.name,
         status: User.get_status(user),
         account: %{
@@ -126,8 +127,8 @@ defmodule EWallet.Web.V1.MembershipSerializerTest do
           object: "account",
           parent_id: nil,
           socket_topic: "account:#{account.id}",
-          created_at: Date.to_iso8601(account.inserted_at),
-          updated_at: Date.to_iso8601(account.updated_at)
+          created_at: DateFormatter.to_iso8601(account.inserted_at),
+          updated_at: DateFormatter.to_iso8601(account.updated_at)
         }
       }
 

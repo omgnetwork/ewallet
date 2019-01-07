@@ -28,8 +28,8 @@ defmodule EWallet.Web.V1.TransactionSerializer do
     WalletSerializer
   }
 
-  alias EWallet.Web.{Date, Paginator}
-  alias Utils.Helpers.Assoc
+  alias EWallet.Web.Paginator
+  alias Utils.Helpers.{Assoc, DateFormatter}
   alias EWalletDB.Transaction
 
   def serialize(%Paginator{} = paginator) do
@@ -68,7 +68,7 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       exchange: %{
         object: "exchange",
         rate: transaction.rate,
-        calculated_at: Date.to_iso8601(transaction.calculated_at),
+        calculated_at: DateFormatter.to_iso8601(transaction.calculated_at),
         exchange_pair_id: Assoc.get(transaction, [:exchange_pair, :id]),
         exchange_pair: ExchangePairSerializer.serialize(transaction.exchange_pair),
         exchange_account_id: Assoc.get(transaction, [:exchange_account, :id]),
@@ -81,8 +81,8 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       status: transaction.status,
       error_code: error[:code],
       error_description: error[:description],
-      created_at: Date.to_iso8601(transaction.inserted_at),
-      updated_at: Date.to_iso8601(transaction.updated_at)
+      created_at: DateFormatter.to_iso8601(transaction.inserted_at),
+      updated_at: DateFormatter.to_iso8601(transaction.updated_at)
     }
   end
 

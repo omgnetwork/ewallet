@@ -15,7 +15,7 @@
 defmodule AdminAPI.V1.ProviderAuth.MintControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.MintGate
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, TransactionSerializer}
   alias EWalletDB.{Mint, Repo, Account, Wallet, Transaction}
   alias ActivityLogger.System
@@ -70,8 +70,8 @@ defmodule AdminAPI.V1.ProviderAuth.MintControllerTest do
         "transaction" =>
           inserted_mint.transaction |> TransactionSerializer.serialize() |> stringify_keys(),
         "transaction_id" => inserted_mint.transaction.id,
-        "created_at" => Date.to_iso8601(inserted_mint.inserted_at),
-        "updated_at" => Date.to_iso8601(inserted_mint.updated_at)
+        "created_at" => DateFormatter.to_iso8601(inserted_mint.inserted_at),
+        "updated_at" => DateFormatter.to_iso8601(inserted_mint.updated_at)
       })
 
       # Asserts pagination data

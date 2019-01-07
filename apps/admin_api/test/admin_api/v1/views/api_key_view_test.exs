@@ -15,7 +15,8 @@
 defmodule AdminAPI.V1.APIKeyViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.APIKeyView
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
+  alias Utils.Helpers.DateFormatter
 
   describe "render/2" do
     test "renders api_key.json with correct response format" do
@@ -32,9 +33,9 @@ defmodule AdminAPI.V1.APIKeyViewTest do
           owner_app: api_key.owner_app,
           expired: false,
           enabled: true,
-          created_at: Date.to_iso8601(api_key.inserted_at),
-          updated_at: Date.to_iso8601(api_key.updated_at),
-          deleted_at: Date.to_iso8601(api_key.deleted_at)
+          created_at: DateFormatter.to_iso8601(api_key.inserted_at),
+          updated_at: DateFormatter.to_iso8601(api_key.updated_at),
+          deleted_at: DateFormatter.to_iso8601(api_key.deleted_at)
         }
       }
 
@@ -69,9 +70,9 @@ defmodule AdminAPI.V1.APIKeyViewTest do
               owner_app: api_key1.owner_app,
               expired: false,
               enabled: true,
-              created_at: Date.to_iso8601(api_key1.inserted_at),
-              updated_at: Date.to_iso8601(api_key1.updated_at),
-              deleted_at: Date.to_iso8601(api_key1.deleted_at)
+              created_at: DateFormatter.to_iso8601(api_key1.inserted_at),
+              updated_at: DateFormatter.to_iso8601(api_key1.updated_at),
+              deleted_at: DateFormatter.to_iso8601(api_key1.deleted_at)
             },
             %{
               object: "api_key",
@@ -81,9 +82,9 @@ defmodule AdminAPI.V1.APIKeyViewTest do
               owner_app: api_key2.owner_app,
               expired: false,
               enabled: true,
-              created_at: Date.to_iso8601(api_key2.inserted_at),
-              updated_at: Date.to_iso8601(api_key2.updated_at),
-              deleted_at: Date.to_iso8601(api_key2.deleted_at)
+              created_at: DateFormatter.to_iso8601(api_key2.inserted_at),
+              updated_at: DateFormatter.to_iso8601(api_key2.updated_at),
+              deleted_at: DateFormatter.to_iso8601(api_key2.deleted_at)
             }
           ],
           pagination: %{

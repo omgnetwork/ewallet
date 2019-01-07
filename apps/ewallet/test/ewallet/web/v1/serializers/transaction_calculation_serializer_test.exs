@@ -15,7 +15,7 @@
 defmodule EWallet.Web.V1.TransactionCalculationSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias EWallet.Exchange.Calculation
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWallet.Web.V1.{ExchangePairSerializer, TransactionCalculationSerializer}
 
   describe "serialize/1" do
@@ -40,7 +40,7 @@ defmodule EWallet.Web.V1.TransactionCalculationSerializerTest do
         to_token_id: calculation.to_token.id,
         actual_rate: calculation.actual_rate,
         exchange_pair: ExchangePairSerializer.serialize(calculation.pair),
-        calculated_at: Date.to_iso8601(calculation.calculated_at)
+        calculated_at: DateFormatter.to_iso8601(calculation.calculated_at)
       }
 
       assert TransactionCalculationSerializer.serialize(calculation) == expected

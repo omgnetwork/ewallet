@@ -14,7 +14,7 @@
 
 defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
   use EWallet.Web.SerializerCase, :v1
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias Utils.Helpers.Assoc
   alias EWalletDB.TransactionConsumption
 
@@ -75,12 +75,12 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
         metadata: %{},
         encrypted_metadata: %{},
         expiration_date: nil,
-        approved_at: Date.to_iso8601(consumption.approved_at),
-        rejected_at: Date.to_iso8601(consumption.rejected_at),
-        confirmed_at: Date.to_iso8601(consumption.confirmed_at),
-        failed_at: Date.to_iso8601(consumption.failed_at),
-        expired_at: Date.to_iso8601(consumption.expired_at),
-        created_at: Date.to_iso8601(consumption.inserted_at)
+        approved_at: DateFormatter.to_iso8601(consumption.approved_at),
+        rejected_at: DateFormatter.to_iso8601(consumption.rejected_at),
+        confirmed_at: DateFormatter.to_iso8601(consumption.confirmed_at),
+        failed_at: DateFormatter.to_iso8601(consumption.failed_at),
+        expired_at: DateFormatter.to_iso8601(consumption.expired_at),
+        created_at: DateFormatter.to_iso8601(consumption.inserted_at)
       }
 
       assert TransactionConsumptionSerializer.serialize(consumption) == expected

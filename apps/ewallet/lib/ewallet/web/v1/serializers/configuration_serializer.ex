@@ -19,9 +19,10 @@ defmodule EWallet.Web.V1.ConfigurationSerializer do
   alias Ecto.Association.NotLoaded
   alias Ecto.Changeset
   alias EWallet.Web.V1.ErrorHandler
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWalletConfig.{Setting, StoredSetting}
+  alias Utils.Helpers.DateFormatter
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -53,8 +54,8 @@ defmodule EWallet.Web.V1.ConfigurationSerializer do
       parent_value: setting.parent_value,
       secret: setting.secret,
       position: setting.position,
-      created_at: Date.to_iso8601(setting.inserted_at),
-      updated_at: Date.to_iso8601(setting.updated_at)
+      created_at: DateFormatter.to_iso8601(setting.inserted_at),
+      updated_at: DateFormatter.to_iso8601(setting.updated_at)
     }
   end
 
@@ -87,8 +88,8 @@ defmodule EWallet.Web.V1.ConfigurationSerializer do
       parent_value: setting.parent_value,
       secret: setting.secret,
       position: setting.position,
-      created_at: Date.to_iso8601(setting.inserted_at),
-      updated_at: Date.to_iso8601(setting.updated_at)
+      created_at: DateFormatter.to_iso8601(setting.inserted_at),
+      updated_at: DateFormatter.to_iso8601(setting.updated_at)
     })
   end
 

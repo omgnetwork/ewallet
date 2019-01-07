@@ -15,8 +15,9 @@
 defmodule AdminAPI.V1.KeyViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.KeyView
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWalletDB.Helpers.Preloader
+  alias Utils.Helpers.DateFormatter
 
   describe "render/2" do
     test "renders key.json with correct response format" do
@@ -33,9 +34,9 @@ defmodule AdminAPI.V1.KeyViewTest do
           account_id: key.account.id,
           expired: !key.enabled,
           enabled: key.enabled,
-          created_at: Date.to_iso8601(key.inserted_at),
-          updated_at: Date.to_iso8601(key.updated_at),
-          deleted_at: Date.to_iso8601(key.deleted_at)
+          created_at: DateFormatter.to_iso8601(key.inserted_at),
+          updated_at: DateFormatter.to_iso8601(key.updated_at),
+          deleted_at: DateFormatter.to_iso8601(key.deleted_at)
         }
       }
 
@@ -70,9 +71,9 @@ defmodule AdminAPI.V1.KeyViewTest do
               account_id: key1.account.id,
               expired: !key1.enabled,
               enabled: key1.enabled,
-              created_at: Date.to_iso8601(key1.inserted_at),
-              updated_at: Date.to_iso8601(key1.updated_at),
-              deleted_at: Date.to_iso8601(key1.deleted_at)
+              created_at: DateFormatter.to_iso8601(key1.inserted_at),
+              updated_at: DateFormatter.to_iso8601(key1.updated_at),
+              deleted_at: DateFormatter.to_iso8601(key1.deleted_at)
             },
             %{
               object: "key",
@@ -82,9 +83,9 @@ defmodule AdminAPI.V1.KeyViewTest do
               account_id: key2.account.id,
               expired: !key2.enabled,
               enabled: key2.enabled,
-              created_at: Date.to_iso8601(key2.inserted_at),
-              updated_at: Date.to_iso8601(key2.updated_at),
-              deleted_at: Date.to_iso8601(key2.deleted_at)
+              created_at: DateFormatter.to_iso8601(key2.inserted_at),
+              updated_at: DateFormatter.to_iso8601(key2.updated_at),
+              deleted_at: DateFormatter.to_iso8601(key2.deleted_at)
             }
           ],
           pagination: %{
