@@ -15,9 +15,10 @@
 defmodule EWallet.Web.V1.ExchangePairSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.{ExchangePairSerializer, TokenSerializer}
   alias EWalletDB.ExchangePair
+  alias Utils.Helpers.DateFormatter
 
   describe "serialize/1" do
     test "serializes an exchange pair into V1 response format" do
@@ -32,8 +33,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
         to_token_id: exchange_pair.to_token.id,
         to_token: TokenSerializer.serialize(exchange_pair.to_token),
         rate: exchange_pair.rate,
-        created_at: Date.to_iso8601(exchange_pair.inserted_at),
-        updated_at: Date.to_iso8601(exchange_pair.updated_at),
+        created_at: DateFormatter.to_iso8601(exchange_pair.inserted_at),
+        updated_at: DateFormatter.to_iso8601(exchange_pair.updated_at),
         deleted_at: nil
       }
 
@@ -66,8 +67,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             to_token_id: exchange_pair1.to_token.id,
             to_token: TokenSerializer.serialize(exchange_pair1.to_token),
             rate: exchange_pair1.rate,
-            created_at: Date.to_iso8601(exchange_pair1.inserted_at),
-            updated_at: Date.to_iso8601(exchange_pair1.updated_at),
+            created_at: DateFormatter.to_iso8601(exchange_pair1.inserted_at),
+            updated_at: DateFormatter.to_iso8601(exchange_pair1.updated_at),
             deleted_at: nil
           },
           %{
@@ -79,8 +80,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             to_token_id: exchange_pair2.to_token.id,
             to_token: TokenSerializer.serialize(exchange_pair2.to_token),
             rate: exchange_pair2.rate,
-            created_at: Date.to_iso8601(exchange_pair2.inserted_at),
-            updated_at: Date.to_iso8601(exchange_pair2.updated_at),
+            created_at: DateFormatter.to_iso8601(exchange_pair2.inserted_at),
+            updated_at: DateFormatter.to_iso8601(exchange_pair2.updated_at),
             deleted_at: nil
           }
         ],

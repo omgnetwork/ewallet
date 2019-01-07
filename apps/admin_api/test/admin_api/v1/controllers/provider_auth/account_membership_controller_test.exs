@@ -15,7 +15,7 @@
 defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWalletDB.{Account, User, Membership}
 
   @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
@@ -46,8 +46,8 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "email" => user.email,
                "metadata" => user.metadata,
                "encrypted_metadata" => %{},
-               "created_at" => Date.to_iso8601(user.inserted_at),
-               "updated_at" => Date.to_iso8601(user.updated_at),
+               "created_at" => DateFormatter.to_iso8601(user.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(user.updated_at),
                "account_role" => role.name,
                "status" => to_string(User.get_status(user)),
                "enabled" => user.enabled,
@@ -70,8 +70,8 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                  "object" => "account",
                  "parent_id" => account.parent.id,
                  "socket_topic" => "account:#{account.id}",
-                 "created_at" => Date.to_iso8601(account.inserted_at),
-                 "updated_at" => Date.to_iso8601(account.updated_at)
+                 "created_at" => DateFormatter.to_iso8601(account.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(account.updated_at)
                }
              })
 
@@ -86,8 +86,8 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "email" => admin.email,
                "metadata" => admin.metadata,
                "encrypted_metadata" => %{},
-               "created_at" => Date.to_iso8601(admin.inserted_at),
-               "updated_at" => Date.to_iso8601(admin.updated_at),
+               "created_at" => DateFormatter.to_iso8601(admin.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(admin.updated_at),
                "account_role" => "admin",
                "status" => to_string(User.get_status(admin)),
                "enabled" => admin.enabled,
@@ -110,8 +110,8 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                  "object" => "account",
                  "parent_id" => nil,
                  "socket_topic" => "account:#{master.id}",
-                 "created_at" => Date.to_iso8601(master.inserted_at),
-                 "updated_at" => Date.to_iso8601(master.updated_at)
+                 "created_at" => DateFormatter.to_iso8601(master.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(master.updated_at)
                }
              })
     end
@@ -139,8 +139,8 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                        "email" => admin.email,
                        "metadata" => admin.metadata,
                        "encrypted_metadata" => %{},
-                       "created_at" => Date.to_iso8601(admin.inserted_at),
-                       "updated_at" => Date.to_iso8601(admin.updated_at),
+                       "created_at" => DateFormatter.to_iso8601(admin.inserted_at),
+                       "updated_at" => DateFormatter.to_iso8601(admin.updated_at),
                        "account_role" => "admin",
                        "status" => to_string(User.get_status(admin)),
                        "enabled" => admin.enabled,
@@ -168,8 +168,8 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                          "object" => "account",
                          "parent_id" => nil,
                          "socket_topic" => "account:#{master.id}",
-                         "created_at" => Date.to_iso8601(master.inserted_at),
-                         "updated_at" => Date.to_iso8601(master.updated_at)
+                         "created_at" => DateFormatter.to_iso8601(master.inserted_at),
+                         "updated_at" => DateFormatter.to_iso8601(master.updated_at)
                        }
                      }
                    ]

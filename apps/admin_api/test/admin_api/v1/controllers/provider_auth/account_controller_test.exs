@@ -15,6 +15,7 @@
 defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Account, Repo, User}
+  alias Utils.Helpers.DateFormatter
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -444,7 +445,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
         changes: %{
           "avatar" => %{
             "file_name" => "test.jpg",
-            "updated_at" => NaiveDateTime.to_iso8601(account.avatar.updated_at)
+            "updated_at" => DateFormatter.to_iso8601(account.avatar.updated_at)
           }
         },
         encrypted_changes: %{}

@@ -17,10 +17,10 @@ defmodule EWallet.Web.V1.AccountSerializer do
   Serializes account(s) into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.{CategorySerializer, PaginatorSerializer}
   alias EWalletDB.Account
-  alias Utils.Helpers.Assoc
+  alias Utils.Helpers.{Assoc, DateFormatter}
   alias EWalletDB.Uploaders.Avatar
 
   def serialize(%Paginator{} = paginator) do
@@ -48,8 +48,8 @@ defmodule EWallet.Web.V1.AccountSerializer do
       avatar: Avatar.urls({account.avatar, account}),
       metadata: account.metadata || %{},
       encrypted_metadata: account.encrypted_metadata || %{},
-      created_at: Date.to_iso8601(account.inserted_at),
-      updated_at: Date.to_iso8601(account.updated_at)
+      created_at: DateFormatter.to_iso8601(account.inserted_at),
+      updated_at: DateFormatter.to_iso8601(account.updated_at)
     }
   end
 

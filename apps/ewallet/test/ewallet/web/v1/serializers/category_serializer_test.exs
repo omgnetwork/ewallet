@@ -15,8 +15,9 @@
 defmodule EWallet.Web.V1.CategorySerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.{AccountSerializer, CategorySerializer}
+  alias Utils.Helpers.DateFormatter
 
   describe "CategorySerializer.serialize/1" do
     test "serializes a category into V1 response format" do
@@ -29,8 +30,8 @@ defmodule EWallet.Web.V1.CategorySerializerTest do
         description: category.description,
         account_ids: AccountSerializer.serialize(category.accounts, :id),
         accounts: AccountSerializer.serialize(category.accounts),
-        created_at: Date.to_iso8601(category.inserted_at),
-        updated_at: Date.to_iso8601(category.updated_at)
+        created_at: DateFormatter.to_iso8601(category.inserted_at),
+        updated_at: DateFormatter.to_iso8601(category.updated_at)
       }
 
       assert CategorySerializer.serialize(category) == expected
@@ -60,8 +61,8 @@ defmodule EWallet.Web.V1.CategorySerializerTest do
             description: category1.description,
             account_ids: AccountSerializer.serialize(category1.accounts, :id),
             accounts: AccountSerializer.serialize(category1.accounts),
-            created_at: Date.to_iso8601(category1.inserted_at),
-            updated_at: Date.to_iso8601(category1.updated_at)
+            created_at: DateFormatter.to_iso8601(category1.inserted_at),
+            updated_at: DateFormatter.to_iso8601(category1.updated_at)
           },
           %{
             object: "category",
@@ -70,8 +71,8 @@ defmodule EWallet.Web.V1.CategorySerializerTest do
             description: category2.description,
             account_ids: AccountSerializer.serialize(category2.accounts, :id),
             accounts: AccountSerializer.serialize(category2.accounts),
-            created_at: Date.to_iso8601(category2.inserted_at),
-            updated_at: Date.to_iso8601(category2.updated_at)
+            created_at: DateFormatter.to_iso8601(category2.inserted_at),
+            updated_at: DateFormatter.to_iso8601(category2.updated_at)
           }
         ],
         pagination: %{

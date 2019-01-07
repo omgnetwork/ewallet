@@ -16,7 +16,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
   use EWalletAPI.ConnCase, async: true
   use Bamboo.Test
   alias EWallet.ForgetPasswordEmail
-  alias Utils.Helpers.Crypto
+  alias Utils.Helpers.{Crypto, DateFormatter}
   alias EWalletDB.{ForgetPasswordRequest, Repo, User}
 
   @redirect_url "http://localhost:4000/reset_password?email={email}&token={token}"
@@ -146,7 +146,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
         originator: :system,
         target: request,
         changes: %{
-          "expires_at" => NaiveDateTime.to_iso8601(request.expires_at),
+          "expires_at" => DateFormatter.to_iso8601(request.expires_at),
           "token" => request.token,
           "user_uuid" => user.uuid
         },

@@ -14,7 +14,7 @@
 
 defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWallet.Web.V1.UserSerializer
   alias EWalletDB.{Account, AccountUser, Repo, Token, User, Wallet}
   alias ActivityLogger.System
@@ -260,8 +260,8 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
                      "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => user.id,
                      "enabled" => true,
-                     "created_at" => Date.to_iso8601(user_wallet.inserted_at),
-                     "updated_at" => Date.to_iso8601(user_wallet.updated_at),
+                     "created_at" => DateFormatter.to_iso8601(user_wallet.inserted_at),
+                     "updated_at" => DateFormatter.to_iso8601(user_wallet.updated_at),
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -275,8 +275,8 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
-                           "created_at" => Date.to_iso8601(btc.inserted_at),
-                           "updated_at" => Date.to_iso8601(btc.updated_at)
+                           "created_at" => DateFormatter.to_iso8601(btc.inserted_at),
+                           "updated_at" => DateFormatter.to_iso8601(btc.updated_at)
                          }
                        },
                        %{
@@ -291,8 +291,8 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
-                           "created_at" => Date.to_iso8601(omg.inserted_at),
-                           "updated_at" => Date.to_iso8601(omg.updated_at)
+                           "created_at" => DateFormatter.to_iso8601(omg.inserted_at),
+                           "updated_at" => DateFormatter.to_iso8601(omg.updated_at)
                          }
                        }
                      ]

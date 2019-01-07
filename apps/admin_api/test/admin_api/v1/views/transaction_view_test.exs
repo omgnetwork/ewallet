@@ -15,8 +15,8 @@
 defmodule AdminAPI.V1.TransactionViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.TransactionView
-  alias EWallet.Web.{Date, Paginator, V1.AccountSerializer, V1.TokenSerializer, V1.UserSerializer}
-  alias Utils.Helpers.Assoc
+  alias EWallet.Web.{Paginator, V1.AccountSerializer, V1.TokenSerializer, V1.UserSerializer}
+  alias Utils.Helpers.{Assoc, DateFormatter}
 
   describe "AdminAPI.V1.TransactionView.render/2" do
     test "renders transaction.json with correct response structure" do
@@ -69,8 +69,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
           status: transaction.status,
           error_code: nil,
           error_description: nil,
-          created_at: Date.to_iso8601(transaction.inserted_at),
-          updated_at: Date.to_iso8601(transaction.updated_at)
+          created_at: DateFormatter.to_iso8601(transaction.inserted_at),
+          updated_at: DateFormatter.to_iso8601(transaction.updated_at)
         }
       }
 
@@ -144,8 +144,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
               status: transaction1.status,
               error_code: nil,
               error_description: nil,
-              created_at: Date.to_iso8601(transaction1.inserted_at),
-              updated_at: Date.to_iso8601(transaction1.updated_at)
+              created_at: DateFormatter.to_iso8601(transaction1.inserted_at),
+              updated_at: DateFormatter.to_iso8601(transaction1.updated_at)
             },
             %{
               object: "transaction",
@@ -189,8 +189,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
               status: transaction2.status,
               error_code: nil,
               error_description: nil,
-              created_at: Date.to_iso8601(transaction2.inserted_at),
-              updated_at: Date.to_iso8601(transaction2.updated_at)
+              created_at: DateFormatter.to_iso8601(transaction2.inserted_at),
+              updated_at: DateFormatter.to_iso8601(transaction2.updated_at)
             }
           ],
           pagination: %{

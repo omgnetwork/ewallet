@@ -23,8 +23,8 @@ defmodule EWallet.Web.V1.CSV.TransactionSerializer do
     PaginatorSerializer
   }
 
-  alias EWallet.Web.{Date, Paginator}
-  alias Utils.Helpers.Assoc
+  alias EWallet.Web.Paginator
+  alias Utils.Helpers.{Assoc, DateFormatter}
   alias EWalletDB.Transaction
 
   def columns do
@@ -77,7 +77,7 @@ defmodule EWallet.Web.V1.CSV.TransactionSerializer do
       to_amount: transaction.to_amount,
       to_token_id: Assoc.get(transaction, [:to_token, :id]),
       exchange_rate: transaction.rate,
-      exchange_rate_calculated_at: Date.to_iso8601(transaction.calculated_at),
+      exchange_rate_calculated_at: DateFormatter.to_iso8601(transaction.calculated_at),
       exchange_pair_id: Assoc.get(transaction, [:exchange_pair, :id]),
       exchange_account_id: Assoc.get(transaction, [:exchange_account, :id]),
       exchange_wallet_address: Assoc.get(transaction, [:exchange_wallet, :address]),
@@ -86,8 +86,8 @@ defmodule EWallet.Web.V1.CSV.TransactionSerializer do
       status: transaction.status,
       error_code: error[:code],
       error_description: error[:description],
-      created_at: Date.to_iso8601(transaction.inserted_at),
-      updated_at: Date.to_iso8601(transaction.updated_at)
+      created_at: DateFormatter.to_iso8601(transaction.inserted_at),
+      updated_at: DateFormatter.to_iso8601(transaction.updated_at)
     }
     |> Enum.into(%{}, fn {key, value} ->
       {key, format(value)}

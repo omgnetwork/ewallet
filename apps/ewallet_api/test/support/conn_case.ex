@@ -36,6 +36,7 @@ defmodule EWalletAPI.ConnCase do
   alias EWalletDB.{Account, Repo, User}
   alias EWalletConfig.ConfigTestHelper
   alias ActivityLogger.System
+  alias Utils.Helpers.DateFormatter
 
   # Attributes required by Phoenix.ConnTest
   @endpoint EWalletAPI.Endpoint
@@ -133,7 +134,7 @@ defmodule EWalletAPI.ConnCase do
   end
 
   def stringify_keys(%NaiveDateTime{} = value) do
-    Date.to_iso8601(value)
+    DateFormatter.to_iso8601(value)
   end
 
   def stringify_keys(map) when is_map(map) do
