@@ -17,9 +17,10 @@ defmodule EWallet.Web.V1.CategorySerializer do
   Serializes categories into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.{AccountSerializer, PaginatorSerializer}
   alias EWalletDB.Category
+  alias Utils.Helpers.DateFormatter
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -40,8 +41,8 @@ defmodule EWallet.Web.V1.CategorySerializer do
       description: category.description,
       account_ids: AccountSerializer.serialize(category.accounts, :id),
       accounts: AccountSerializer.serialize(category.accounts),
-      created_at: Date.to_iso8601(category.inserted_at),
-      updated_at: Date.to_iso8601(category.updated_at)
+      created_at: DateFormatter.to_iso8601(category.inserted_at),
+      updated_at: DateFormatter.to_iso8601(category.updated_at)
     }
   end
 

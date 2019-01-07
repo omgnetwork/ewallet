@@ -14,7 +14,7 @@
 
 defmodule AdminAPI.V1.AdminAuth.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWalletDB.{Account, Key, Repo}
 
   describe "/access_key.all" do
@@ -72,9 +72,9 @@ defmodule AdminAPI.V1.AdminAuth.KeyControllerTest do
       assert response["data"]["account_id"] == Account.get_master_account().id
       assert response["data"]["expired"] == !key.enabled
       assert response["data"]["enabled"] == key.enabled
-      assert response["data"]["created_at"] == Date.to_iso8601(key.inserted_at)
-      assert response["data"]["updated_at"] == Date.to_iso8601(key.updated_at)
-      assert response["data"]["deleted_at"] == Date.to_iso8601(key.deleted_at)
+      assert response["data"]["created_at"] == DateFormatter.to_iso8601(key.inserted_at)
+      assert response["data"]["updated_at"] == DateFormatter.to_iso8601(key.updated_at)
+      assert response["data"]["deleted_at"] == DateFormatter.to_iso8601(key.deleted_at)
 
       # We cannot know the `secret_key` from the controller call,
       # so we can only check that it is a string with some length.
@@ -342,7 +342,7 @@ defmodule AdminAPI.V1.AdminAuth.KeyControllerTest do
         action: "update",
         originator: get_test_admin(),
         target: key,
-        changes: %{"deleted_at" => NaiveDateTime.to_iso8601(key.deleted_at)},
+        changes: %{"deleted_at" => DateFormatter.to_iso8601(key.deleted_at)},
         encrypted_changes: %{}
       )
     end

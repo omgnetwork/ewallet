@@ -15,8 +15,9 @@
 defmodule EWallet.Web.V1.KeySerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.KeySerializer
+  alias Utils.Helpers.DateFormatter
 
   describe "serialize/1" do
     test "serializes a key into the correct response format" do
@@ -30,9 +31,9 @@ defmodule EWallet.Web.V1.KeySerializerTest do
         account_id: key.account.id,
         expired: !key.enabled,
         enabled: key.enabled,
-        created_at: Date.to_iso8601(key.inserted_at),
-        updated_at: Date.to_iso8601(key.updated_at),
-        deleted_at: Date.to_iso8601(key.deleted_at)
+        created_at: DateFormatter.to_iso8601(key.inserted_at),
+        updated_at: DateFormatter.to_iso8601(key.updated_at),
+        deleted_at: DateFormatter.to_iso8601(key.deleted_at)
       }
 
       assert KeySerializer.serialize(key) == expected
@@ -67,9 +68,9 @@ defmodule EWallet.Web.V1.KeySerializerTest do
             account_id: key1.account.id,
             expired: !key1.enabled,
             enabled: key1.enabled,
-            created_at: Date.to_iso8601(key1.inserted_at),
-            updated_at: Date.to_iso8601(key1.updated_at),
-            deleted_at: Date.to_iso8601(key1.deleted_at)
+            created_at: DateFormatter.to_iso8601(key1.inserted_at),
+            updated_at: DateFormatter.to_iso8601(key1.updated_at),
+            deleted_at: DateFormatter.to_iso8601(key1.deleted_at)
           },
           %{
             object: "key",
@@ -79,9 +80,9 @@ defmodule EWallet.Web.V1.KeySerializerTest do
             account_id: key2.account.id,
             expired: !key2.enabled,
             enabled: key2.enabled,
-            created_at: Date.to_iso8601(key2.inserted_at),
-            updated_at: Date.to_iso8601(key2.updated_at),
-            deleted_at: Date.to_iso8601(key2.deleted_at)
+            created_at: DateFormatter.to_iso8601(key2.inserted_at),
+            updated_at: DateFormatter.to_iso8601(key2.updated_at),
+            deleted_at: DateFormatter.to_iso8601(key2.deleted_at)
           }
         ],
         pagination: %{

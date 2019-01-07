@@ -26,8 +26,8 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
     WalletSerializer
   }
 
-  alias EWallet.Web.{Date, Paginator}
-  alias Utils.Helpers.Assoc
+  alias EWallet.Web.Paginator
+  alias Utils.Helpers.{Assoc, DateFormatter}
   alias EWalletDB.TransactionRequest
   alias ActivityLogger.System
 
@@ -69,10 +69,10 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       allow_amount_override: transaction_request.allow_amount_override,
       metadata: transaction_request.metadata || %{},
       encrypted_metadata: transaction_request.encrypted_metadata || %{},
-      expiration_date: Date.to_iso8601(transaction_request.expiration_date),
-      expired_at: Date.to_iso8601(transaction_request.expired_at),
-      created_at: Date.to_iso8601(transaction_request.inserted_at),
-      updated_at: Date.to_iso8601(transaction_request.updated_at)
+      expiration_date: DateFormatter.to_iso8601(transaction_request.expiration_date),
+      expired_at: DateFormatter.to_iso8601(transaction_request.expired_at),
+      created_at: DateFormatter.to_iso8601(transaction_request.inserted_at),
+      updated_at: DateFormatter.to_iso8601(transaction_request.updated_at)
     }
   end
 

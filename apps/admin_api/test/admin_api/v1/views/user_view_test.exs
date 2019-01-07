@@ -15,8 +15,9 @@
 defmodule AdminAPI.V1.UserViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.UserView
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWalletDB.User
+  alias Utils.Helpers.DateFormatter
 
   describe "AdminAPI.V1.UserView.render/2" do
     test "renders user.json with correct response structure" do
@@ -49,8 +50,8 @@ defmodule AdminAPI.V1.UserViewTest do
             "last_name" => user.metadata["last_name"]
           },
           encrypted_metadata: %{},
-          created_at: Date.to_iso8601(user.inserted_at),
-          updated_at: Date.to_iso8601(user.updated_at)
+          created_at: DateFormatter.to_iso8601(user.inserted_at),
+          updated_at: DateFormatter.to_iso8601(user.updated_at)
         }
       }
 
@@ -98,8 +99,8 @@ defmodule AdminAPI.V1.UserViewTest do
                 "last_name" => user1.metadata["last_name"]
               },
               encrypted_metadata: %{},
-              created_at: Date.to_iso8601(user1.inserted_at),
-              updated_at: Date.to_iso8601(user1.updated_at)
+              created_at: DateFormatter.to_iso8601(user1.inserted_at),
+              updated_at: DateFormatter.to_iso8601(user1.updated_at)
             },
             %{
               object: "user",
@@ -122,8 +123,8 @@ defmodule AdminAPI.V1.UserViewTest do
                 "last_name" => user2.metadata["last_name"]
               },
               encrypted_metadata: %{},
-              created_at: Date.to_iso8601(user2.inserted_at),
-              updated_at: Date.to_iso8601(user2.updated_at)
+              created_at: DateFormatter.to_iso8601(user2.inserted_at),
+              updated_at: DateFormatter.to_iso8601(user2.updated_at)
             }
           ],
           pagination: %{

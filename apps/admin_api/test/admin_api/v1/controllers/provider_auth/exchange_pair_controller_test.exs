@@ -15,6 +15,7 @@
 defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{ExchangePair, Repo}
+  alias Utils.Helpers.DateFormatter
 
   describe "/exchange_pair.all" do
     test "returns a list of exchange pairs and pagination data" do
@@ -515,7 +516,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
         originator: get_test_key(),
         target: exchange_pair,
         changes: %{
-          "deleted_at" => NaiveDateTime.to_iso8601(exchange_pair.deleted_at)
+          "deleted_at" => DateFormatter.to_iso8601(exchange_pair.deleted_at)
         },
         encrypted_changes: %{}
       )

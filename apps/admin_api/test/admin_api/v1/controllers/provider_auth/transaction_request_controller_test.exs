@@ -14,9 +14,10 @@
 
 defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer}
+  alias EWallet.Web.{V1.TokenSerializer, V1.UserSerializer}
   alias EWalletDB.{Account, AccountUser, Repo, TransactionRequest, User}
   alias ActivityLogger.System
+  alias Utils.Helpers.DateFormatter
 
   describe "/transaction_request.all" do
     setup do
@@ -193,8 +194,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                  "current_consumptions_count" => 0,
                  "max_consumptions_per_user" => nil,
                  "metadata" => %{},
-                 "created_at" => Date.to_iso8601(request.inserted_at),
-                 "updated_at" => Date.to_iso8601(request.updated_at)
+                 "created_at" => DateFormatter.to_iso8601(request.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(request.updated_at)
                }
              }
     end
@@ -251,8 +252,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                  "max_consumptions" => nil,
                  "current_consumptions_count" => 0,
                  "max_consumptions_per_user" => nil,
-                 "created_at" => Date.to_iso8601(request.inserted_at),
-                 "updated_at" => Date.to_iso8601(request.updated_at)
+                 "created_at" => DateFormatter.to_iso8601(request.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(request.updated_at)
                }
              }
     end

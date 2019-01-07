@@ -25,7 +25,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
     UserSerializer
   }
 
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
 
   describe "serialize/1 for single transaction request" do
     test "serializes into correct V1 transaction_request format" do
@@ -68,8 +68,8 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
         max_consumptions: nil,
         max_consumptions_per_user: nil,
         current_consumptions_count: 0,
-        created_at: Date.to_iso8601(transaction_request.inserted_at),
-        updated_at: Date.to_iso8601(transaction_request.updated_at)
+        created_at: DateFormatter.to_iso8601(transaction_request.inserted_at),
+        updated_at: DateFormatter.to_iso8601(transaction_request.updated_at)
       }
 
       assert TransactionRequestSerializer.serialize(transaction_request) == expected

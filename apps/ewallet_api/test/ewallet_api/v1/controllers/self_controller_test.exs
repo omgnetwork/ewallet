@@ -14,7 +14,7 @@
 
 defmodule EWalletAPI.V1.SelfControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWalletDB.{Account, User}
 
   describe "/me.get" do
@@ -70,8 +70,8 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                      "metadata" => %{},
                      "name" => "primary",
                      "enabled" => true,
-                     "created_at" => Date.to_iso8601(user_wallet.inserted_at),
-                     "updated_at" => Date.to_iso8601(user_wallet.updated_at),
+                     "created_at" => DateFormatter.to_iso8601(user_wallet.inserted_at),
+                     "updated_at" => DateFormatter.to_iso8601(user_wallet.updated_at),
                      "user" => %{
                        "avatar" => %{
                          "large" => nil,
@@ -79,7 +79,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                          "small" => nil,
                          "thumb" => nil
                        },
-                       "created_at" => Date.to_iso8601(user.inserted_at),
+                       "created_at" => DateFormatter.to_iso8601(user.inserted_at),
                        "email" => nil,
                        "encrypted_metadata" => %{},
                        "id" => user.id,
@@ -87,7 +87,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                        "object" => "user",
                        "provider_user_id" => user.provider_user_id,
                        "socket_topic" => "user:#{user.id}",
-                       "updated_at" => Date.to_iso8601(user.updated_at),
+                       "updated_at" => DateFormatter.to_iso8601(user.updated_at),
                        "username" => user.username,
                        "full_name" => user.full_name,
                        "calling_name" => user.calling_name,
@@ -107,8 +107,8 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
-                           "created_at" => Date.to_iso8601(btc.inserted_at),
-                           "updated_at" => Date.to_iso8601(btc.updated_at)
+                           "created_at" => DateFormatter.to_iso8601(btc.inserted_at),
+                           "updated_at" => DateFormatter.to_iso8601(btc.updated_at)
                          }
                        },
                        %{
@@ -123,8 +123,8 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
-                           "created_at" => Date.to_iso8601(omg.inserted_at),
-                           "updated_at" => Date.to_iso8601(omg.updated_at)
+                           "created_at" => DateFormatter.to_iso8601(omg.inserted_at),
+                           "updated_at" => DateFormatter.to_iso8601(omg.updated_at)
                          }
                        }
                      ]

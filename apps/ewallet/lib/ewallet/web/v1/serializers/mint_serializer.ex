@@ -17,7 +17,7 @@ defmodule EWallet.Web.V1.MintSerializer do
   Serializes address data into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
 
   alias EWallet.Web.V1.{
     AccountSerializer,
@@ -26,7 +26,7 @@ defmodule EWallet.Web.V1.MintSerializer do
     TransactionSerializer
   }
 
-  alias Utils.Helpers.Assoc
+  alias Utils.Helpers.{Assoc, DateFormatter}
   alias EWalletDB.Mint
 
   def serialize(%Paginator{} = paginator) do
@@ -53,8 +53,8 @@ defmodule EWallet.Web.V1.MintSerializer do
       account: AccountSerializer.serialize(mint.account),
       transaction_id: Assoc.get(mint, [:transaction, :id]),
       transaction: TransactionSerializer.serialize(mint.transaction),
-      created_at: Date.to_iso8601(mint.inserted_at),
-      updated_at: Date.to_iso8601(mint.updated_at)
+      created_at: DateFormatter.to_iso8601(mint.inserted_at),
+      updated_at: DateFormatter.to_iso8601(mint.updated_at)
     }
   end
 end

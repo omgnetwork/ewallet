@@ -20,6 +20,7 @@ defmodule EWalletAPI.V1.SignupControllerTest do
   alias EWallet.VerificationEmail
   alias EWalletDB.{Invite, User, AccountUser, Repo}
   alias ActivityLogger.System
+  alias Utils.Helpers.DateFormatter
 
   describe "/user.signup" do
     test "returns success with an empty response" do
@@ -292,7 +293,7 @@ defmodule EWalletAPI.V1.SignupControllerTest do
         action: "update",
         originator: context.user,
         target: invite,
-        changes: %{"verified_at" => NaiveDateTime.to_iso8601(invite.verified_at)},
+        changes: %{"verified_at" => DateFormatter.to_iso8601(invite.verified_at)},
         encrypted_changes: %{}
       )
     end
