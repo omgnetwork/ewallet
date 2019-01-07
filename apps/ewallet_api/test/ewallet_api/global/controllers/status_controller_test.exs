@@ -17,6 +17,8 @@ defmodule EWalletAPI.StatusControllerTest do
 
   describe "GET request to root url" do
     test "returns status ok" do
+      Application.put_env(:ewallet, :version, "0.9.9")
+
       response =
         build_conn()
         |> get(@base_dir <> "/")
@@ -29,7 +31,7 @@ defmodule EWalletAPI.StatusControllerTest do
                  "ewallet" => true,
                  "local_ledger" => true
                },
-               "ewallet_version" => "1.1.0",
+               "ewallet_version" => "0.9.9",
                "api_versions" => [
                  %{"name" => "v1", "media_type" => "application/vnd.omisego.v1+json"}
                ]

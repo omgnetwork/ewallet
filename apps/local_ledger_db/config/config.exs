@@ -2,7 +2,8 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :local_ledger_db, ecto_repos: [LocalLedgerDB.Repo]
+config :local_ledger_db,
+  ecto_repos: [LocalLedgerDB.Repo]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

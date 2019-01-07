@@ -17,6 +17,8 @@ defmodule AdminAPI.StatusControllerTest do
 
   describe "GET request to /" do
     test "returns status ok" do
+      Application.put_env(:ewallet, :version, "0.9.9")
+
       response =
         build_conn()
         |> get(@base_dir <> "/")
@@ -24,7 +26,7 @@ defmodule AdminAPI.StatusControllerTest do
 
       assert response == %{
                "success" => true,
-               "ewallet_version" => "1.1.0",
+               "ewallet_version" => "0.9.9",
                "api_versions" => [
                  %{"name" => "v1", "media_type" => "application/vnd.omisego.v1+json"}
                ]
