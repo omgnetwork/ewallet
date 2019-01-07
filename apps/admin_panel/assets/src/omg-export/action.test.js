@@ -8,10 +8,14 @@ const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 
 let store
+const preservedWindow = Object.assign({}, window)
 describe('export actions', () => {
   beforeEach(() => {
     jest.resetAllMocks()
     store = mockStore()
+  })
+
+  beforeAll(() => {
     global.window = Object.create(window)
     Object.defineProperty(window, 'location', {
       value: {
@@ -23,6 +27,10 @@ describe('export actions', () => {
         createObjectURL: jest.fn()
       }
     })
+  })
+
+  afterAll(() => {
+    global.window = preservedWindow
   })
 
   test('[downloadExportFileById] with AWS storage type should dispatch success action with correct params if get export successfully', () => {
