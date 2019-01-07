@@ -25,9 +25,8 @@ defmodule LocalLedgerDB.Application do
 
     # List all child processes to be supervised
     children = [
-      supervisor(LocalLedgerDB.Repo, [])
-      # Starts a worker by calling: LocalLedgerDB.Worker.start_link(arg)
-      # {LocalLedgerDB.Worker, arg},
+      supervisor(LocalLedgerDB.Repo, []),
+      supervisor(LocalLedgerDB.Vault, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

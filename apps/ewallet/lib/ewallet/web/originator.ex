@@ -34,13 +34,18 @@ defmodule EWallet.Web.Originator do
     user
   end
 
-  @spec set_in_attrs(map(), map()) :: map()
+  @spec set_in_attrs(map(), struct(), String.t()) :: map()
   def set_in_attrs(attrs, originator, key \\ "originator") do
     Map.put(attrs, key, extract(originator))
   end
 
-  @spec get_initial_originator(map()) :: map()
+  @spec get_initial_originator(struct()) :: struct() | nil
   def get_initial_originator(record) do
     ActivityLog.get_initial_originator(record)
+  end
+
+  @spec get_initial_originator(struct(), module()) :: struct() | nil
+  def get_initial_originator(record, repo) do
+    ActivityLog.get_initial_originator(record, repo)
   end
 end
