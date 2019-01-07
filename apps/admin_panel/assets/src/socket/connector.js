@@ -5,6 +5,9 @@ import CONSTANT from '../constants'
 import uuid from 'uuid/v4'
 class SocketConnector {
   constructor (url, params = {}) {
+    if (!url) {
+      throw new Error('socket URL is not provided.')
+    }
     this.socket = null
     this.url = this.normalizeUrl(url)
     this.params = Object.assign(params, {
