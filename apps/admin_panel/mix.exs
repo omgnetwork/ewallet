@@ -4,7 +4,7 @@ defmodule AdminPanel.Mixfile do
   def project do
     [
       app: :admin_panel,
-      version: "1.1.0-pre.1",
+      version: "1.1.0-pre.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -43,10 +43,10 @@ defmodule AdminPanel.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:cowboy, "~> 1.0"},
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},
       {:phoenix, "~> 1.3.0"},
+      {:plug_cowboy, "~> 1.0"}
     ]
   end
 end

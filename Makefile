@@ -62,11 +62,13 @@ build-assets: deps-assets
 # If we call mix phx.digest without mix compile, mix release will silently fail
 # for some reason. Always make sure to run mix compile first.
 build-prod: deps-ewallet build-assets
+	env MIX_ENV=prod mix deps.clean mime --build
 	env MIX_ENV=prod mix compile
 	env MIX_ENV=prod mix phx.digest
 	env MIX_ENV=prod mix release
 
 build-test: deps-ewallet
+	env MIX_ENV=test mix deps.clean mime --build
 	env MIX_ENV=test mix compile
 
 .PHONY: build-assets build-prod build-test

@@ -34,6 +34,8 @@ RUN apk add --update --no-cache --virtual .ewallet-runtime \
 
 COPY rootfs /
 
+# USER directive is not being used here since privileges are dropped via
+# s6-setuigid in /entrypoint. s6-overlay is required to be run as root.
 ARG user=ewallet
 ARG group=ewallet
 ARG uid=10000
@@ -51,9 +53,14 @@ ADD _build/prod/rel/ewallet/releases/${release_version}/ewallet.tar.gz /app
 RUN chown -R ewallet:ewallet /app
 WORKDIR /app
 
+# eWallet app is using PORT environment variable to determine which port to run
+# the application server.
 ENV PORT 4000
 
 EXPOSE $PORT
+
+# These are ports required for clustering. The range is defined in vm.args
+# in inet_dist_listen_min and inet_dist_listen_max.
 EXPOSE 4369 6900 6901 6902 6903 6904 6905 6906 6907 6908 6909
 
 ENTRYPOINT ["/init", "/entrypoint"]

@@ -93,8 +93,7 @@ jobs:
             # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
             find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
             find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            # TODO: Remove me after done testing pipeline.
-            make test-ewallet || true
+            make test-ewallet
           environment:
             DATABASE_URL: postgresql://postgres:@localhost:5432/ewallet
             LOCAL_LEDGER_DATABASE_URL: postgresql://postgres:@localhost:5432/ledger

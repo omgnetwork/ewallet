@@ -4,7 +4,7 @@ defmodule LocalLedger.Mixfile do
   def project do
     [
       app: :local_ledger,
-      version: "1.1.0-pre.1",
+      version: "1.1.0-pre.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
