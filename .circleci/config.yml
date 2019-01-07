@@ -260,7 +260,7 @@ jobs:
                 fi
             elif [ "$CIRCLE_BRANCH" = "master" ]; then
                 IMAGE_TAG="dev"
-                IMAGE_TAG="dev-$(git rev-parse --short HEAD) $IMAGE_TAG"
+                IMAGE_TAG="dev-$(echo "$CIRCLE_SHA1" | head -c 8) $IMAGE_TAG"
             fi
 
             for tag in $IMAGE_TAG; do
