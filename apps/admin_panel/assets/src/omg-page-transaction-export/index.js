@@ -209,9 +209,9 @@ class TransactionExportPage extends Component {
             <div style={{ maxWidth: '450px' }}>
               <ProgressTextContainer>
                 <span>Exporting...</span>
-                <span>{row.completion}%</span>
+                <span>{row.completion.toFixed(0)}%</span>
               </ProgressTextContainer>
-              <ProgressBar percentage={row.completion} />
+              <ProgressBar percentage={row.completion.toFixed(2)} />
             </div>
           )
         }
