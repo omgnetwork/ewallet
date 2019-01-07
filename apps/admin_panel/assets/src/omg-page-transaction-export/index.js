@@ -69,10 +69,12 @@ const TimestampContainer = styled.div`
     padding: 5px;
     border: 1px solid ${props => props.theme.colors.S400};
     border-radius: 4px;
-    color: ${props => props.disabled ? props.theme.colors.S400 : props.theme.colors.B400};
+    display: block;
+    color: ${props => (props.disabled ? props.theme.colors.S400 : props.theme.colors.B400)};
     :hover {
-      background-color: ${props => props.theme.colors.BL400};
-      color: white;
+      background-color: ${props => props.disabled ? 'inherit' : props.theme.colors.BL400};
+      color: ${props => (props.disabled ? props.theme.colors.S400 : 'white')};
+      cursor: ${props => (props.disabled ? 'auto' : 'pointer')};
     }
   }
 `
@@ -97,6 +99,9 @@ const TableContainer = styled.div`
   }
   td:first-child {
     width: 50%;
+  }
+  td {
+    cursor: auto;
   }
 `
 const columns = [
@@ -183,9 +188,12 @@ class TransactionExportPage extends Component {
     switch (key) {
       case 'created_at':
         return (
-          <TimestampContainer>
+          <TimestampContainer disabled={row.completion < 100}>
             <span>{moment(row.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
-            <Icon name='Download' onClick={this.onClickDownload(row)} />
+            <Icon
+              name='Download'
+              onClick={this.onClickDownload(row)}
+            />
           </TimestampContainer>
         )
       case 'params':
