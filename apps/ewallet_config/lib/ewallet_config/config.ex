@@ -118,7 +118,7 @@ defmodule EWalletConfig.Config do
     end)
   end
 
-  @spec update(map(), atom()) :: [{:ok, %Setting{}} | {:error, atom()}]
+  @spec update(map(), atom()) :: [{:ok, %Setting{}} | {:error, Ecto.Changeset.t()} | {:error, atom()}]
   def update(attrs, pid \\ __MODULE__) do
     {config_pid, attrs} = get_config_pid(attrs)
 
