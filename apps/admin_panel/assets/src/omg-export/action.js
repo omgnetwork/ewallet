@@ -35,38 +35,57 @@ export const downloadExportFileById = file => async dispatch => {
       error: error
     })
   }
-  try {
-    const result = await exportService.downloadExportFileById(file.id)
-    if (result.data) {
-      if (file.adapter === 'local') {
-        const csvData = new window.Blob([result.data], { type: 'text/csv;charset=utf-8;' })
-        const csvURL = window.URL.createObjectURL(csvData)
-        const tempLink = document.createElement('a')
-        tempLink.href = csvURL
-        tempLink.setAttribute('download', `${file.filename}.csv`)
-        tempLink.click()
-      }
-      if (file.adapter === 'gcs' || file.adapter === 'aws') {
-        const result = await exportService.getExportFileById(file.id)
-        if (result.data.success) {
-          window.location.href = result.data.data.download_url
-        } else {
-          return dispatch({
-            type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.FAILED}`,
-            error: `Failed to fetch file ${file.id}`
-          })
-        }
-      }
+
+  const downloadWithUrl = async fileId => {
+    const result = await exportService.getExportFileById(fileId)
+    if (result.data.success) {
+      window.location.href = result.data.data.download_url
       return dispatch({
         type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.SUCCESS}`,
         data: result.data
       })
     } else {
       return dispatch({
-        type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.FAILED}`
+        type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.FAILED}`,
+        error: `Failed to fetch file ${file.id}`
       })
+    }
+  }
+
+  try {
+    dispatch({
+      type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.INITIATED}`
+    })
+    switch (file.adapter) {
+      case 'local':
+        const result = await exportService.downloadExportFileById(file.id)
+        if (result.data) {
+          createBlobDownloadCsvLink(result.data, file.filename)
+          return dispatch({
+            type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.SUCCESS}`,
+            data: result.data
+          })
+        } else {
+          return dispatch({
+            type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.FAILED}`,
+            error: result.data
+          })
+        }
+      case 'gcs':
+        return downloadWithUrl(file.id)
+      case 'aws':
+        return downloadWithUrl(file.id)
     }
   } catch (error) {
     dispatchError(error)
   }
+}
+
+export const createBlobDownloadCsvLink = (data, filename) => {
+  const csvData = new window.Blob([data], { type: 'text/csv;charset=utf-8;' })
+  const csvURL = window.URL.createObjectURL(csvData)
+  const tempLink = document.createElement('a')
+  tempLink.href = csvURL
+  tempLink.setAttribute('download', `${filename}.csv`)
+  tempLink.click()
 }
