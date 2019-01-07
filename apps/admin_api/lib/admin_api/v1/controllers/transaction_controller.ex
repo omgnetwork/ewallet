@@ -41,15 +41,15 @@ defmodule AdminAPI.V1.TransactionController do
   def export(conn, attrs) do
     with :ok <- permit(:export, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
-         attrs = Originator.set_in_attrs(attrs, conn.assigns, :originator) do
-      Transaction
-      |> Transaction.query_all_for_account_uuids_and_users(account_uuids)
-      |> Orchestrator.build_query(TransactionOverlay, attrs)
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns, :originator),
+         query <- Transaction.query_all_for_account_uuids_and_users(Transaction, account_uuids),
+         %Ecto.Query{} = query <- Orchestrator.build_query(query, TransactionOverlay, attrs)
+         do
+      query
       |> ExportGate.export("transaction", TransactionSerializer, attrs)
       |> respond_single(conn)
     else
-      {:error, error} ->
-        handle_error(conn, error)
+      error -> respond_single(error, conn)
     end
   end
 
