@@ -25,12 +25,14 @@ defmodule UrlDispatcher.PlugTest do
 
   describe "call/2" do
     test "returns success status when requesting /" do
+      Application.put_env(:ewallet, :version, "0.9.9")
+
       conn = request("/")
 
       refute conn.halted
       assert conn.status == 200
 
-      assert conn.resp_body == ~s({"status":true,"ewallet_version":"1.1.0"})
+      assert conn.resp_body == ~s({"status":true,"ewallet_version":"0.9.9"})
     end
 
     test "returns a 200 response when requesting /api" do

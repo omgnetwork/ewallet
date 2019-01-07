@@ -179,7 +179,7 @@ defmodule EWalletConfig.Setting do
           {:ok, %Setting{}} | {:error, atom()} | {:error, Changeset.t()}
   def update(nil, _), do: {:error, :setting_not_found}
 
-  def update(key, attrs) when is_atom(key) and is_map(attrs) do
+  def update(key, attrs) when is_atom(key) do
     key
     |> Atom.to_string()
     |> update(attrs)

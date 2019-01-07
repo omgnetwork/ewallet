@@ -4,7 +4,7 @@ defmodule LocalLedgerDB.Mixfile do
   def project do
     [
       app: :local_ledger_db,
-      version: "1.1.0",
+      version: "1.1.0-pre.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -34,12 +34,13 @@ defmodule LocalLedgerDB.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:postgrex, ">= 0.0.0"},
-      {:ecto, "~> 2.1.6"},
-      {:poison, "~> 3.1"},
-      {:cloak, "~> 0.7.0-alpha"},
+      {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
+      {:ecto, "~> 2.1.6"},
+      {:ewallet_config, in_umbrella: true},
       {:ex_machina, "~> 2.2", only: :test},
+      {:poison, "~> 3.1"},
+      {:postgrex, ">= 0.0.0"},
     ]
   end
 
