@@ -17,9 +17,10 @@ defmodule EWallet.Web.V1.RoleSerializer do
   Serializes roles into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWalletDB.Role
+  alias Utils.Helpers.DateFormatter
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -39,8 +40,8 @@ defmodule EWallet.Web.V1.RoleSerializer do
       name: role.name,
       priority: role.priority,
       display_name: role.display_name,
-      created_at: Date.to_iso8601(role.inserted_at),
-      updated_at: Date.to_iso8601(role.updated_at)
+      created_at: DateFormatter.to_iso8601(role.inserted_at),
+      updated_at: DateFormatter.to_iso8601(role.updated_at)
     }
   end
 

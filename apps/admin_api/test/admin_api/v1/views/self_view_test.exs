@@ -15,7 +15,7 @@
 defmodule AdminAPI.V1.SelfViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.SelfView
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWalletDB.User
 
   describe "render/2" do
@@ -49,8 +49,8 @@ defmodule AdminAPI.V1.SelfViewTest do
             "last_name" => user.metadata["last_name"]
           },
           encrypted_metadata: %{},
-          created_at: Date.to_iso8601(user.inserted_at),
-          updated_at: Date.to_iso8601(user.updated_at)
+          created_at: DateFormatter.to_iso8601(user.inserted_at),
+          updated_at: DateFormatter.to_iso8601(user.updated_at)
         }
       }
 

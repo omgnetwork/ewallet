@@ -15,7 +15,7 @@
 defmodule EWallet.Web.V1.TransactionSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, TransactionSerializer, UserSerializer}
   alias Utils.Helpers.Assoc
   alias EWalletDB.{Repo, Token}
@@ -70,8 +70,8 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
         status: transaction.status,
         error_code: nil,
         error_description: nil,
-        created_at: Date.to_iso8601(transaction.inserted_at),
-        updated_at: Date.to_iso8601(transaction.updated_at)
+        created_at: DateFormatter.to_iso8601(transaction.inserted_at),
+        updated_at: DateFormatter.to_iso8601(transaction.updated_at)
       }
 
       assert TransactionSerializer.serialize(transaction) == expected

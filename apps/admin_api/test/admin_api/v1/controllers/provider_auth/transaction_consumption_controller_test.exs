@@ -26,8 +26,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
   }
 
   alias EWallet.{BalanceFetcher, TestEndpoint}
-  alias EWallet.Web.{Date, Orchestrator, V1.WebsocketResponseSerializer}
+  alias EWallet.Web.{Orchestrator, V1.WebsocketResponseSerializer}
   alias Phoenix.Socket.Broadcast
+  alias Utils.Helpers.DateFormatter
 
   alias EWallet.Web.V1.{
     AccountSerializer,
@@ -836,11 +837,11 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                  "metadata" => %{},
                  "encrypted_metadata" => %{},
                  "expiration_date" => nil,
-                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
-                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
-                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
-                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
-                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "created_at" => DateFormatter.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => DateFormatter.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
                  "expired_at" => nil
                }
              }
@@ -964,11 +965,11 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                  "metadata" => %{},
                  "encrypted_metadata" => %{},
                  "expiration_date" => nil,
-                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
-                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
-                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
-                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
-                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "created_at" => DateFormatter.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => DateFormatter.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
                  "expired_at" => nil
                }
              }
@@ -2099,7 +2100,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
         target: transaction_consumption,
         changes: %{
           "account_uuid" => meta.account.uuid,
-          "estimated_at" => NaiveDateTime.to_iso8601(transaction_consumption.estimated_at),
+          "estimated_at" => DateFormatter.to_iso8601(transaction_consumption.estimated_at),
           "estimated_consumption_amount" => 10_000_000,
           "estimated_rate" => 1.0,
           "estimated_request_amount" => 10_000_000,
@@ -2118,7 +2119,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
         originator: :system,
         target: transaction_consumption,
         changes: %{
-          "approved_at" => NaiveDateTime.to_iso8601(transaction_consumption.approved_at),
+          "approved_at" => DateFormatter.to_iso8601(transaction_consumption.approved_at),
           "status" => "approved"
         },
         encrypted_changes: %{}
@@ -2131,7 +2132,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
         originator: transaction_consumption,
         target: transaction,
         changes: %{
-          "calculated_at" => NaiveDateTime.to_iso8601(transaction.calculated_at),
+          "calculated_at" => DateFormatter.to_iso8601(transaction.calculated_at),
           "from" => meta.account_wallet.address,
           "from_account_uuid" => meta.account.uuid,
           "from_amount" => 10_000_000,
@@ -2193,7 +2194,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
         originator: transaction,
         target: transaction_consumption,
         changes: %{
-          "confirmed_at" => NaiveDateTime.to_iso8601(transaction_consumption.confirmed_at),
+          "confirmed_at" => DateFormatter.to_iso8601(transaction_consumption.confirmed_at),
           "status" => "confirmed",
           "transaction_uuid" => transaction.uuid
         },
@@ -2216,7 +2217,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
         action: "update",
         originator: :system,
         target: transaction_request,
-        changes: %{"updated_at" => NaiveDateTime.to_iso8601(transaction_request.updated_at)},
+        changes: %{"updated_at" => DateFormatter.to_iso8601(transaction_request.updated_at)},
         encrypted_changes: %{}
       )
     end

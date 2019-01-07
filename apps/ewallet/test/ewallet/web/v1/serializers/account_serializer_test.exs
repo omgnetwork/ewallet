@@ -15,10 +15,11 @@
 defmodule EWallet.Web.V1.AccountSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Orchestrator, Paginator}
+  alias EWallet.Web.{Orchestrator, Paginator}
   alias EWallet.Web.V1.{AccountOverlay, AccountSerializer, CategorySerializer}
   alias EWalletDB.Account
   alias ActivityLogger.System
+  alias Utils.Helpers.DateFormatter
 
   describe "AccountSerializer.serialize/1" do
     test "serializes an account into V1 response format" do
@@ -45,8 +46,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
                  small: nil,
                  thumb: nil
                },
-               created_at: Date.to_iso8601(account.inserted_at),
-               updated_at: Date.to_iso8601(account.updated_at)
+               created_at: DateFormatter.to_iso8601(account.inserted_at),
+               updated_at: DateFormatter.to_iso8601(account.updated_at)
              }
     end
 
@@ -77,8 +78,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
               small: nil,
               thumb: nil
             },
-            created_at: Date.to_iso8601(account1.inserted_at),
-            updated_at: Date.to_iso8601(account1.updated_at)
+            created_at: DateFormatter.to_iso8601(account1.inserted_at),
+            updated_at: DateFormatter.to_iso8601(account1.updated_at)
           },
           %{
             object: "account",
@@ -98,8 +99,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
               small: nil,
               thumb: nil
             },
-            created_at: Date.to_iso8601(account2.inserted_at),
-            updated_at: Date.to_iso8601(account2.updated_at)
+            created_at: DateFormatter.to_iso8601(account2.inserted_at),
+            updated_at: DateFormatter.to_iso8601(account2.updated_at)
           }
         ]
       }
@@ -142,8 +143,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
               small: nil,
               thumb: nil
             },
-            created_at: Date.to_iso8601(account1.inserted_at),
-            updated_at: Date.to_iso8601(account1.updated_at)
+            created_at: DateFormatter.to_iso8601(account1.inserted_at),
+            updated_at: DateFormatter.to_iso8601(account1.updated_at)
           },
           %{
             object: "account",
@@ -163,8 +164,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
               small: nil,
               thumb: nil
             },
-            created_at: Date.to_iso8601(account2.inserted_at),
-            updated_at: Date.to_iso8601(account2.updated_at)
+            created_at: DateFormatter.to_iso8601(account2.inserted_at),
+            updated_at: DateFormatter.to_iso8601(account2.updated_at)
           }
         ],
         pagination: %{

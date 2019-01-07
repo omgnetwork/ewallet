@@ -17,9 +17,10 @@ defmodule EWallet.Web.V1.KeySerializer do
   Serializes key(s) into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWalletDB.Key
+  alias Utils.Helpers.DateFormatter
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -33,9 +34,9 @@ defmodule EWallet.Web.V1.KeySerializer do
       secret_key: key.secret_key,
       account_id: key.account.id,
       enabled: key.enabled,
-      created_at: Date.to_iso8601(key.inserted_at),
-      updated_at: Date.to_iso8601(key.updated_at),
-      deleted_at: Date.to_iso8601(key.deleted_at),
+      created_at: DateFormatter.to_iso8601(key.inserted_at),
+      updated_at: DateFormatter.to_iso8601(key.updated_at),
+      deleted_at: DateFormatter.to_iso8601(key.deleted_at),
       # Attributes below are DEPRECATED and will be removed in the future:
       # "expired" has been replaced by "enabled" in PR #535
       expired: !key.enabled

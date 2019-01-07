@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
   alias EWallet.TransactionGate
   alias EWalletDB.{Account, Repo, Transaction, User}
   alias ActivityLogger.System
+  alias Utils.Helpers.DateFormatter
 
   # credo:disable-for-next-line
   setup do
@@ -1386,7 +1387,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
           "from_amount" => 1000,
           "idempotency_token" => "12344",
           "to_amount" => 2000,
-          "calculated_at" => NaiveDateTime.to_iso8601(transaction.calculated_at),
+          "calculated_at" => DateFormatter.to_iso8601(transaction.calculated_at),
           "exchange_account_uuid" => account.uuid,
           "exchange_pair_uuid" => pair.uuid,
           "exchange_wallet_address" => account_wallet.address,

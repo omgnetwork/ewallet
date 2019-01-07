@@ -14,7 +14,7 @@
 
 defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWalletDB.Helpers.Preloader
   alias EWalletDB.{Account, APIKey, Repo}
 
@@ -37,9 +37,9 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                        "owner_app" => api_key1.owner_app,
                        "expired" => false,
                        "enabled" => true,
-                       "created_at" => Date.to_iso8601(api_key1.inserted_at),
-                       "updated_at" => Date.to_iso8601(api_key1.updated_at),
-                       "deleted_at" => Date.to_iso8601(api_key1.deleted_at)
+                       "created_at" => DateFormatter.to_iso8601(api_key1.inserted_at),
+                       "updated_at" => DateFormatter.to_iso8601(api_key1.updated_at),
+                       "deleted_at" => DateFormatter.to_iso8601(api_key1.deleted_at)
                      },
                      %{
                        "object" => "api_key",
@@ -49,9 +49,9 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                        "owner_app" => api_key2.owner_app,
                        "expired" => false,
                        "enabled" => true,
-                       "created_at" => Date.to_iso8601(api_key2.inserted_at),
-                       "updated_at" => Date.to_iso8601(api_key2.updated_at),
-                       "deleted_at" => Date.to_iso8601(api_key2.deleted_at)
+                       "created_at" => DateFormatter.to_iso8601(api_key2.inserted_at),
+                       "updated_at" => DateFormatter.to_iso8601(api_key2.updated_at),
+                       "deleted_at" => DateFormatter.to_iso8601(api_key2.deleted_at)
                      }
                    ],
                    "pagination" => %{
@@ -92,9 +92,9 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                        "owner_app" => api_key.owner_app,
                        "expired" => false,
                        "enabled" => true,
-                       "created_at" => Date.to_iso8601(api_key.inserted_at),
-                       "updated_at" => Date.to_iso8601(api_key.updated_at),
-                       "deleted_at" => Date.to_iso8601(api_key.deleted_at)
+                       "created_at" => DateFormatter.to_iso8601(api_key.inserted_at),
+                       "updated_at" => DateFormatter.to_iso8601(api_key.updated_at),
+                       "deleted_at" => DateFormatter.to_iso8601(api_key.deleted_at)
                      }
                    ],
                    "pagination" => %{
@@ -128,9 +128,9 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                  "owner_app" => "ewallet_api",
                  "expired" => false,
                  "enabled" => true,
-                 "created_at" => Date.to_iso8601(api_key.inserted_at),
-                 "updated_at" => Date.to_iso8601(api_key.updated_at),
-                 "deleted_at" => Date.to_iso8601(api_key.deleted_at)
+                 "created_at" => DateFormatter.to_iso8601(api_key.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(api_key.updated_at),
+                 "deleted_at" => DateFormatter.to_iso8601(api_key.deleted_at)
                }
              }
     end
@@ -219,9 +219,9 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                  "enabled" => false,
                  "account_id" => api_key.account.id,
                  "owner_app" => api_key.owner_app,
-                 "created_at" => Date.to_iso8601(api_key.inserted_at),
-                 "updated_at" => Date.to_iso8601(updated.updated_at),
-                 "deleted_at" => Date.to_iso8601(api_key.deleted_at)
+                 "created_at" => DateFormatter.to_iso8601(api_key.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(updated.updated_at),
+                 "deleted_at" => DateFormatter.to_iso8601(api_key.deleted_at)
                }
              }
     end
@@ -401,7 +401,7 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
         action: "update",
         originator: get_test_admin(),
         target: api_key,
-        changes: %{"deleted_at" => NaiveDateTime.to_iso8601(api_key.deleted_at)},
+        changes: %{"deleted_at" => DateFormatter.to_iso8601(api_key.deleted_at)},
         encrypted_changes: %{}
       )
     end
