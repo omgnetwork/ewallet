@@ -1,79 +1,68 @@
-FROM omisegoimages/ewallet-base:1.6-otp20-stretch
+FROM alpine:3.8
 
-COPY . /app
+LABEL maintainer="OmiseGO Team <omg@omise.co>"
+LABEL description="Official image for OmiseGO eWallet"
+
+ENV LANG=C.UTF-8
+
+## S6
+##
+
+ENV S6_VERSION="1.21.4.0"
+
+RUN set -xe \
+ && apk add --update --no-cache --virtual .fetch-deps \
+        curl \
+        ca-certificates \
+ && S6_DOWNLOAD_URL="https://github.com/just-containers/s6-overlay/releases/download/v${S6_VERSION}/s6-overlay-amd64.tar.gz" \
+ && S6_DOWNLOAD_SHA256="e903f138dea67e75afc0f61e79eba529212b311dc83accc1e18a449d58a2b10c" \
+ && curl -fsL -o s6-overlay.tar.gz "${S6_DOWNLOAD_URL}" \
+ && echo "${S6_DOWNLOAD_SHA256}  s6-overlay.tar.gz" |sha256sum -c - \
+ && tar -xzC / -f s6-overlay.tar.gz \
+ && rm s6-overlay.tar.gz \
+ && apk del .fetch-deps
+
+## Application
+##
+
+RUN apk add --update --no-cache --virtual .ewallet-runtime \
+        bash \
+        imagemagick \
+        libressl \
+        libressl-dev \
+        lksctp-tools
+
+COPY rootfs /
+
+# USER directive is not being used here since privileges are dropped via
+# s6-setuigid in /entrypoint. s6-overlay is required to be run as root.
+ARG user=ewallet
+ARG group=ewallet
+ARG uid=10000
+ARG gid=10000
+
+RUN set -xe \
+ && addgroup -g ${gid} ${group} \
+ && adduser -D -h /app -u ${uid} -G ${group} ${user} \
+ && chown "${uid}:${gid}" "/app" \
+ && chmod +x /entrypoint
+
+ARG release_version
+
+ADD _build/prod/rel/ewallet/releases/${release_version}/ewallet.tar.gz /app
+RUN chown -R ewallet:ewallet /app
 WORKDIR /app
 
-RUN set -xe && \
-    groupadd -r ewallet && \
-    useradd -r -g ewallet ewallet && \
-    chown -R ewallet /app
-
-RUN set -xe && \
-    rm -f /etc/apt/sources.list.d/chris-lea-node_js-stretch.list && \
-    curl -fsL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
-    curl -fsL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-    echo "deb https://deb.nodesource.com/node_8.x stretch main" > /etc/apt/sources.list.d/nodesource.list && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-    apt-get update && \
-    apt-get install -y nodejs yarn && \
-    execlineb -P -c " \
-        s6-setuidgid ewallet \
-        s6-env HOME=/tmp/ewallet \
-        cd /app/apps/admin_panel/assets \
-        if { yarn install } \
-        if { yarn build } \
-        rm -rf node_modules \
-        rm -rf /tmp/ewallet \
-    " && \
-    apt-get remove -y nodejs yarn && \
-    apt-get clean && \
-    rm -rf /etc/apt/sources.list.d/nodesource.list && \
-    rm -rf /etc/apt/sources.list.d/yarn.list
-
-RUN set -xe && \
-    execlineb -P -c " \
-        s6-setuidgid ewallet \
-        s6-env HOME=/tmp/ewallet \
-        s6-env MIX_ENV=prod \
-        if { mix local.hex --force } \
-        if { mix local.rebar --force } \
-        if { mix deps.get } \
-        mix compile \
-        if {mix docs --output=public/docs} \
-        rm -rf /tmp/ewallet"
-
+# eWallet app is using PORT environment variable to determine which port to run
+# the application server.
 ENV PORT 4000
 
-EXPOSE 4000
-EXPOSE 4369
-EXPOSE 6900 6901 6902 6903 6904 6905 6906 6907 6908 6909
+EXPOSE $PORT
 
-RUN set -xe && \
-    SERVICE_DIR=/etc/services.d/ewallet/ && \
-    mkdir -p "$SERVICE_DIR" && \
-    echo '#!/bin/execlineb -P' > $SERVICE_DIR/run && \
-    echo 'with-contenv' >> $SERVICE_DIR/run && \
-    echo 'cd /app' >> $SERVICE_DIR/run && \
-    echo 's6-setuidgid ewallet' >> $SERVICE_DIR/run && \
-    echo 's6-env HOME=/tmp/ewallet' >> ${SERVICE_DIR}/run && \
-    echo 's6-env MIX_ENV=prod' >> $SERVICE_DIR/run && \
-    echo 'backtick -in default_host { s6-hostname }' >> $SERVICE_DIR/run && \
-    echo 'backtick -in default_cookie { openssl rand -hex 8 }' >> $SERVICE_DIR/run && \
-    echo 'importas -iu default_host default_host' >> $SERVICE_DIR/run && \
-    echo 'importas -iu default_cookie default_cookie' >> $SERVICE_DIR/run && \
-    echo 'importas -D $default_host NODE_HOST NODE_HOST' >> $SERVICE_DIR/run && \
-    echo 'importas -D $default_cookie ERLANG_COOKIE ERLANG_COOKIE' >> $SERVICE_DIR/run && \
-    echo 'importas -D ewallet NODE_NAME NODE_NAME' >> $SERVICE_DIR/run && \
-    echo 'importas -D localhost NODE_DNS NODE_DNS' >> $SERVICE_DIR/run && \
-    echo 'elixir' >> $SERVICE_DIR/run && \
-    echo '  --erl "-kernel inet_dist_listen_min 6900"' >> $SERVICE_DIR/run && \
-    echo '  --erl "-kernel inet_dist_listen_max 6909"' >> $SERVICE_DIR/run && \
-    echo '  --name "${NODE_NAME}@${NODE_HOST}"' >> $SERVICE_DIR/run && \
-    echo '  --cookie $ERLANG_COOKIE' >> $SERVICE_DIR/run && \
-    echo '  -S mix omg.server --no-watch' >> $SERVICE_DIR/run && \
-    echo '#!/bin/execlineb -S1' > $SERVICE_DIR/finish && \
-    echo 'if { s6-test ${1} -ne 0 }' >> $SERVICE_DIR/finish && \
-    echo 'if { s6-test ${1} -ne 256 }' >> $SERVICE_DIR/finish && \
-    echo 's6-svscanctl -t /var/run/s6/services' >> $SERVICE_DIR/finish
+# These are ports required for clustering. The range is defined in vm.args
+# in inet_dist_listen_min and inet_dist_listen_max.
+EXPOSE 4369 6900 6901 6902 6903 6904 6905 6906 6907 6908 6909
 
-ENTRYPOINT ["/init"]
+ENTRYPOINT ["/init", "/entrypoint"]
+
+CMD ["foreground"]

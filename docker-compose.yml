@@ -1,0 +1,43 @@
+---
+version: "3"
+
+services:
+  postgres:
+    image: postgres:9.6.9-alpine
+    restart: always
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+    networks:
+      - intnet
+    environment:
+      POSTGRESQL_PASSWORD: passw0rd
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
+      interval: 30s
+      retries: 3
+
+  mail:
+    image: mailhog/mailhog:v1.0.0
+    restart: always
+    networks:
+      - intnet
+
+  ewallet:
+    image: omisego/ewallet:dev
+    restart: always
+    networks:
+      - intnet
+    depends_on:
+      - postgres
+      - mail
+    environment:
+      DATABASE_URL: "postgresql://postgres:passw0rd@postgres:5432/ewallet"
+      LOCAL_LEDGER_DATABASE_URL: "postgresql://postgres:passw0rd@postgres:5432/local_ledger"
+      EWALLET_SECRET_KEY: "CHANGE_ME"
+      LOCAL_LEDGER_SECRET_KEY: "CHANGE_ME"
+
+networks:
+  intnet:
+
+volumes:
+  postgres-db:
