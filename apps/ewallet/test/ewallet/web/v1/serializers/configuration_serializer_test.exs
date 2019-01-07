@@ -43,7 +43,7 @@ defmodule EWallet.Web.V1.ConfigurationSerializerTest do
         secret: stored_setting.secret,
         position: stored_setting.position,
         created_at: Date.to_iso8601(stored_setting.inserted_at),
-        updated_at: Date.to_iso8601(stored_setting.updated_at),
+        updated_at: Date.to_iso8601(stored_setting.updated_at)
       }
 
       assert ConfigurationSerializer.serialize(stored_setting) == expected
@@ -85,7 +85,7 @@ defmodule EWallet.Web.V1.ConfigurationSerializerTest do
         secret: context.setting.secret,
         position: context.setting.position,
         created_at: Date.to_iso8601(context.setting.inserted_at),
-        updated_at: Date.to_iso8601(context.setting.updated_at),
+        updated_at: Date.to_iso8601(context.setting.updated_at)
       }
 
       assert ConfigurationSerializer.serialize(context.setting) == expected
@@ -100,16 +100,18 @@ defmodule EWallet.Web.V1.ConfigurationSerializerTest do
     end
 
     test "serializes a configuration paginator into a list object", context do
-      setting_1 = %{context.setting |
-        uuid: UUID.generate(),
-        id: "stg_" <> ULID.generate(),
-        key: "some_setting_1"
+      setting_1 = %{
+        context.setting
+        | uuid: UUID.generate(),
+          id: "stg_" <> ULID.generate(),
+          key: "some_setting_1"
       }
 
-      setting_2 = %{context.setting |
-        uuid: UUID.generate(),
-        id: "stg_" <> ULID.generate(),
-        key: "some_setting_2"
+      setting_2 = %{
+        context.setting
+        | uuid: UUID.generate(),
+          id: "stg_" <> ULID.generate(),
+          key: "some_setting_2"
       }
 
       paginator = %Paginator{

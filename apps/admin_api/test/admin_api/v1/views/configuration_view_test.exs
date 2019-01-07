@@ -62,7 +62,8 @@ defmodule AdminAPI.V1.ConfigurationViewTest do
         data: ConfigurationSerializer.serialize_with_errors(settings)
       }
 
-      assert ConfigurationView.render("settings_with_errors.json", %{settings: settings}) == expected
+      assert ConfigurationView.render("settings_with_errors.json", %{settings: settings}) ==
+               expected
     end
   end
 end
