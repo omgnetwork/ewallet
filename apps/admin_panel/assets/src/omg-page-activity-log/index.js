@@ -70,8 +70,8 @@ class AccountPage extends Component {
       { key: 'originator_type', title: 'ORIGINATOR TYPE' },
       { key: 'action', title: 'ACTION' },
       { key: 'target', title: 'TARGET' },
-      { key: 'target_type', title: 'TARGE TYPET' },
-      { key: 'created_at', title: 'CREATED AT' }
+      { key: 'target_type', title: 'TARGE TYPE' },
+      { key: 'created_at', title: 'CREATED DATE' }
     ]
   }
   rowRenderer = (key, data, row) => {
