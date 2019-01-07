@@ -16,11 +16,12 @@ defmodule EWallet.Web.V1.ConfigurationSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
   alias Ecto.UUID
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.ConfigurationSerializer
   alias EWalletConfig.Factory, as: ConfigFactory
   alias EWalletConfig.{Setting, StoredSetting}
   alias ExULID.ULID
+  alias Utils.Helpers.DateFormatter
 
   setup do
     :ok = Sandbox.checkout(EWalletConfig.Repo)
@@ -42,8 +43,8 @@ defmodule EWallet.Web.V1.ConfigurationSerializerTest do
         parent_value: stored_setting.parent_value,
         secret: stored_setting.secret,
         position: stored_setting.position,
-        created_at: Date.to_iso8601(stored_setting.inserted_at),
-        updated_at: Date.to_iso8601(stored_setting.updated_at)
+        created_at: DateFormatter.to_iso8601(stored_setting.inserted_at),
+        updated_at: DateFormatter.to_iso8601(stored_setting.updated_at)
       }
 
       assert ConfigurationSerializer.serialize(stored_setting) == expected
@@ -84,8 +85,8 @@ defmodule EWallet.Web.V1.ConfigurationSerializerTest do
         parent_value: context.setting.parent_value,
         secret: context.setting.secret,
         position: context.setting.position,
-        created_at: Date.to_iso8601(context.setting.inserted_at),
-        updated_at: Date.to_iso8601(context.setting.updated_at)
+        created_at: DateFormatter.to_iso8601(context.setting.inserted_at),
+        updated_at: DateFormatter.to_iso8601(context.setting.updated_at)
       }
 
       assert ConfigurationSerializer.serialize(context.setting) == expected
