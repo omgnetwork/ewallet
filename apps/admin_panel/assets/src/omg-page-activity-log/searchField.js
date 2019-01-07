@@ -4,7 +4,17 @@ export function createSearchActivityLogQuery (value = '') {
   return {
     matchAny: [
       {
-        field: 'originator.id',
+        field: 'originator_identifier',
+        comparator: 'contains',
+        value: matchValue
+      },
+      {
+        field: 'action',
+        comparator: 'contains',
+        value: matchValue
+      },
+      {
+        field: 'originator_type',
         comparator: 'contains',
         value: matchValue
       }
