@@ -183,7 +183,7 @@ defmodule EWalletDB.Export do
 
     Export.update(export, %{
       status: Export.processing(),
-      completion: 1,
+      completion: 0,
       path: "#{File.storage_dir(nil, nil)}/#{filename}",
       filename: filename,
       adapter: Config.get(:file_storage_adapter),
