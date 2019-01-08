@@ -52,7 +52,7 @@ defmodule EWallet.ExportGateTest do
 
   describe "export/4" do
     test "creates an export on behalf of a user" do
-      _ = insert_list(5, :transaction)
+      _ = insert_list(19, :transaction)
 
       query = Queryable.to_query(Transaction)
       attrs = %{originator: insert(:user)}
@@ -61,14 +61,12 @@ defmodule EWallet.ExportGateTest do
 
       assert res == :ok
       assert export.schema == "transaction"
-      assert export.total_count == 5
-      assert export.completion == 1.0
-      assert export.failure_reason == nil
+      assert export.total_count == 19
       assert export.user_uuid == attrs.originator.uuid
     end
 
     test "creates an export on behalf of a key" do
-      _ = insert_list(5, :transaction)
+      _ = insert_list(22, :transaction)
 
       query = Queryable.to_query(Transaction)
       attrs = %{originator: insert(:key)}
@@ -77,9 +75,7 @@ defmodule EWallet.ExportGateTest do
 
       assert res == :ok
       assert export.schema == "transaction"
-      assert export.total_count == 5
-      assert export.completion == 1.0
-      assert export.failure_reason == nil
+      assert export.total_count == 22
       assert export.key_uuid == attrs.originator.uuid
     end
   end

@@ -15,7 +15,6 @@
 defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
   use AdminAPI.ConnCase, async: false
   alias EWalletDB.Uploaders
-  alias Utils.Helper.PidHelper
 
   def setup do
     assert Application.get_env(:ewallet, :file_storage_adapter) == "local"
@@ -40,9 +39,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
       assert data["completion"] == 1.0
       assert data["status"] == "processing"
       assert data["user_id"] == admin.id
-
-      pid = PidHelper.pid_from_string(data["pid"])
-      assert %{export: _} = :sys.get_state(pid)
+      assert data["pid"]
 
       response = admin_user_request("/export.get", %{"id" => data["id"]})
       data = response["data"]

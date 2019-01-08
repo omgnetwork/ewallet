@@ -44,7 +44,7 @@ defmodule EWallet.Exporters.LocalAdapterTest do
         user_uuid: user.uuid
       })
 
-    {:ok, export} = Export.init(export, export.schema, length(transactions), 100, user)
+    {:ok, export} = Export.init(export, export.schema, length(transactions), 1024, user)
 
     query = from(t in Transaction, where: t.to_token_uuid == ^token.uuid)
 

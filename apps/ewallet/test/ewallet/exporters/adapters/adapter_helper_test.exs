@@ -121,29 +121,29 @@ defmodule EWallet.Exporters.AdapterHelperTest do
   describe "update_export/3" do
     test "returns an export with the updated status and completion", context do
       refute context.export.status == Export.completed()
-      refute context.export.completion == 1.0
+      refute context.export.completion == 100
 
-      {res, export} = AdapterHelper.update_export(context.export, Export.completed(), 1.0)
+      {res, export} = AdapterHelper.update_export(context.export, Export.completed(), 100)
 
       assert res == :ok
       assert export.status == Export.completed()
-      assert export.completion == 1.0
+      assert export.completion == 100
     end
   end
 
   describe "update_export/4" do
     test "returns an export with the updated status, completion and pid", context do
       refute context.export.status == Export.completed()
-      refute context.export.completion == 1.0
+      refute context.export.completion == 100
       refute context.export.pid
 
       pid = PidHelper.pid_to_binary(self())
 
-      {res, export} = AdapterHelper.update_export(context.export, Export.completed(), 1.0, pid)
+      {res, export} = AdapterHelper.update_export(context.export, Export.completed(), 100, pid)
 
       assert res == :ok
       assert export.status == Export.completed()
-      assert export.completion == 1.0
+      assert export.completion == 100
       assert export.pid == pid
     end
   end

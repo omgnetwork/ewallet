@@ -201,6 +201,24 @@ defmodule EWalletDB.ExportTest do
       assert changeset.errors == [completion: {"can't be blank", [validation: :required]}]
     end
 
+    test "returns error when `:completion` is less than 0", context do
+      attrs = Map.put(context.attrs, :completion, -1)
+      {res, changeset} = Export.insert(attrs)
+
+      assert res == :error
+      refute changeset.valid?
+      assert changeset.errors == [completion: {"must be greater than or equal to %{number}", [validation: :number, number: 0]}]
+    end
+
+    test "returns error when `:completion` is greater than 100", context do
+      attrs = Map.put(context.attrs, :completion, 101)
+      {res, changeset} = Export.insert(attrs)
+
+      assert res == :error
+      refute changeset.valid?
+      assert changeset.errors == [completion: {"must be less than or equal to %{number}", [validation: :number, number: 100]}]
+    end
+
     test "returns error when `:params` is not present", context do
       attrs = Map.delete(context.attrs, :params)
       {res, changeset} = Export.insert(attrs)
