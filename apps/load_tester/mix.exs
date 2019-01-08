@@ -4,7 +4,7 @@ defmodule LoadTester.MixProject do
   def project do
     [
       app: :load_tester,
-      version: "1.1.0",
+      version: "1.1.0-pre.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -27,7 +27,7 @@ defmodule LoadTester.MixProject do
   defp deps do
     [
       {:chaperon, "~> 0.2.3"},
-      {:deferred_config, "~> 0.1.0"}
+      {:deferred_config, "~> 0.1.0"},
     ]
   end
 end

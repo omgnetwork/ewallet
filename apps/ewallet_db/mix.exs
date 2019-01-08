@@ -4,7 +4,7 @@ defmodule EWalletDB.Mixfile do
   def project do
     [
       app: :ewallet_db,
-      version: "1.1.0",
+      version: "1.1.0-pre.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -43,17 +43,19 @@ defmodule EWalletDB.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:postgrex, ">= 0.0.0"},
-      {:ecto, "~> 2.1.6"},
-      {:ex_machina, "~> 2.2", only: :test},
-      {:timex, "~> 3.0"},
-      {:poison, "~> 3.1"},
-      {:bcrypt_elixir, "~> 1.0"},
-      {:cloak, "~> 0.7.0-alpha"},
-      {:plug, "~> 1.0"},
+      {:activity_logger, in_umbrella: true},
       {:arc, "~> 0.11.0"},
       {:arc_ecto, github: "omisego/arc_ecto"},
+      {:bcrypt_elixir, "~> 1.0"},
+      {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
+      {:ecto, "~> 2.1.6"},
+      {:ewallet_config, in_umbrella: true},
+      {:ex_machina, "~> 2.2", only: :test},
+      {:plug, "~> 1.0"},
+      {:poison, "~> 3.1"},
+      {:postgrex, ">= 0.0.0"},
+      {:timex, "~> 3.0"},
 
       # arc GCS dependencies
       {:arc_gcs, "~> 0.0.3", runtime: false},
@@ -63,9 +65,6 @@ defmodule EWalletDB.Mixfile do
       {:ex_aws_s3, "~> 2.0"},
       {:hackney, "~> 1.6"},
       {:sweet_xml, "~> 0.6"},
-
-      {:ewallet_config, in_umbrella: true},
-      {:activity_logger, in_umbrella: true}
     ]
   end
 
