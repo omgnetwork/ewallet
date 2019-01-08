@@ -47,12 +47,14 @@ defmodule EWallet.Exporters.AdapterHelperTest do
 
     {:ok, export} = Export.init(export, export.schema, length(transactions), 100, user)
 
+    query = from(t in Transaction, where: t.to_token_uuid == ^token.uuid)
+
     %{
       export: export,
+      query: query,
+      serializer: serializer,
       transactions: transactions,
-      token: token,
-      chunk_size: chunk_size,
-      serializer: serializer
+      chunk_size: chunk_size
     }
   end
 
@@ -62,13 +64,11 @@ defmodule EWallet.Exporters.AdapterHelperTest do
 
       refute File.exists?(path)
 
-      query = from(t in Transaction, where: t.to_token_uuid == ^context.token.uuid)
-
       {res, result} =
         AdapterHelper.stream_to_file(
           path,
           context.export,
-          query,
+          context.query,
           context.serializer,
           context.chunk_size
         )
@@ -84,12 +84,10 @@ defmodule EWallet.Exporters.AdapterHelperTest do
 
   describe "stream_to_chunk/4" do
     test "returns a stream", context do
-      query = from(t in Transaction, where: t.to_token_uuid == ^context.token.uuid)
-
       stream =
         AdapterHelper.stream_to_chunk(
           context.export,
-          query,
+          context.query,
           context.serializer,
           context.chunk_size
         )
