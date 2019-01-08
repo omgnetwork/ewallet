@@ -36,7 +36,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
       data = response["data"]
 
       assert data["adapter"] == "local"
-      assert data["completion"] == 1.0
       assert data["status"] == "processing"
       assert data["user_id"] == admin.id
       assert data["pid"]
@@ -44,7 +43,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
       response = admin_user_request("/export.get", %{"id" => data["id"]})
       data = response["data"]
 
-      assert data["completion"] == 100
       assert data["status"] == "completed"
 
       response = admin_user_raw_request("/export.download", %{"id" => data["id"]})
