@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
-  use AdminAPI.ConnCase, async: false
+  use AdminAPI.ConnCase
   alias EWalletDB.Uploaders
 
   def setup do
@@ -40,9 +40,13 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
       assert data["user_id"] == admin.id
       assert data["pid"]
 
+      # Sleep a little bit so the export above has some time to process
+      Process.sleep(1000)
+
       response = admin_user_request("/export.get", %{"id" => data["id"]})
       data = response["data"]
 
+      assert data["completion"] == 100
       assert data["status"] == "completed"
 
       response = admin_user_raw_request("/export.download", %{"id" => data["id"]})
