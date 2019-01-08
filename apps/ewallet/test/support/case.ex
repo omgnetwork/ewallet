@@ -12,25 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWalletConfig.SchemaCase do
+defmodule EWallet.Case do
   @moduledoc """
-  This module defines common behaviors shared for EWalletConfig schema tests.
+  A test case template for all tests.
   """
+  use ExUnit.CaseTemplate
+
+  @temp_test_file_dir "private/temp_test_files"
+
   defmacro __using__(_opts) do
     quote do
       use ExUnit.Case
-      import EWalletConfig.SchemaCase
-      alias Ecto.Adapters.SQL.Sandbox
-      alias EWalletConfig.Repo
+      import EWallet.Case
 
       setup do
-        # Restarts `EWalletConfig.Config` so it does not hang on to a DB connection across tests.
-        Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
-        Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
-
-        Sandbox.checkout(Repo)
-        Sandbox.checkout(ActivityLogger.Repo)
+        # Create the directory to store the temporary test files
+        :ok = File.mkdir_p!(test_file_path())
       end
     end
+  end
+
+  def test_file_path do
+    :ewallet
+    |> Application.get_env(:root)
+    |> Path.join(@temp_test_file_dir)
+  end
+
+  def test_file_path(file_name) do
+    Path.join(test_file_path(), file_name)
   end
 end
