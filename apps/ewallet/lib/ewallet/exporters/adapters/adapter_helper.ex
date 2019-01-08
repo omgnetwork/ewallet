@@ -56,8 +56,8 @@ defmodule EWallet.Exporters.AdapterHelper do
     |> CSV.encode(headers: serializer.columns)
     |> Stream.chunk_while({"", 0}, chunk, after_chunk)
     |> Stream.map(fn {chunk, count} ->
+      # -1 for header row
       completion =
-        # -1 for header row
         case count * 100 / export.total_count - 1 do
           count when count <= 100 -> count
           _ -> 100
