@@ -45,8 +45,7 @@ defmodule EWallet.Exporters.AdapterHelperTest do
         user_uuid: user.uuid
       })
 
-    {:ok, export} =
-      Export.init(export, export.schema, length(transactions), 100, user)
+    {:ok, export} = Export.init(export, export.schema, length(transactions), 100, user)
 
     %{
       export: export,
@@ -59,12 +58,20 @@ defmodule EWallet.Exporters.AdapterHelperTest do
 
   describe "stream_to_file/5" do
     test "streams the data to the given file path", context do
-      path = test_file_path("test-stream-to-file-#{:rand.uniform(999999)}.txt")
+      path = test_file_path("test-stream-to-file-#{:rand.uniform(999_999)}.txt")
 
       refute File.exists?(path)
 
       query = from(t in Transaction, where: t.to_token_uuid == ^context.token.uuid)
-      {res, result} = AdapterHelper.stream_to_file(path, context.export, query, context.serializer, context.chunk_size)
+
+      {res, result} =
+        AdapterHelper.stream_to_file(
+          path,
+          context.export,
+          query,
+          context.serializer,
+          context.chunk_size
+        )
 
       assert res == :ok
       assert result == :ok
@@ -78,7 +85,14 @@ defmodule EWallet.Exporters.AdapterHelperTest do
   describe "stream_to_chunk/4" do
     test "returns a stream", context do
       query = from(t in Transaction, where: t.to_token_uuid == ^context.token.uuid)
-      stream = AdapterHelper.stream_to_chunk(context.export, query, context.serializer, context.chunk_size)
+
+      stream =
+        AdapterHelper.stream_to_chunk(
+          context.export,
+          query,
+          context.serializer,
+          context.chunk_size
+        )
 
       assert %Stream{} = stream
     end

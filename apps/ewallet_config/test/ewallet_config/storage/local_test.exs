@@ -41,7 +41,7 @@ defmodule EWalletConfig.Storage.LocalTest do
       binary = "some_data_to_save"
 
       file = %Arc.File{
-        file_name: "test-#{:rand.uniform(999999)}.txt",
+        file_name: "test-#{:rand.uniform(999_999)}.txt",
         binary: binary
       }
 
@@ -56,17 +56,17 @@ defmodule EWalletConfig.Storage.LocalTest do
         |> MockDefinition.storage_dir(nil)
         |> Local.get_path(file.file_name)
         |> File.rm()
-      end
+    end
 
     test "save to file from a path and returns the file name" do
       # Prepare the data
       source_path =
         nil
         |> MockDefinition.storage_dir(nil)
-        |> Local.get_path("test-source-#{:rand.uniform(999999)}.txt")
+        |> Local.get_path("test-source-#{:rand.uniform(999_999)}.txt")
 
       file = %Arc.File{
-        file_name: "test-#{:rand.uniform(999999)}.txt",
+        file_name: "test-#{:rand.uniform(999_999)}.txt",
         path: source_path
       }
 
@@ -105,7 +105,7 @@ defmodule EWalletConfig.Storage.LocalTest do
     end
 
     test "returns a url for the given file", context do
-      file = %Arc.File{file_name: "test-#{:rand.uniform(999999)}.txt"}
+      file = %Arc.File{file_name: "test-#{:rand.uniform(999_999)}.txt"}
 
       expected =
         context.base_url
@@ -120,7 +120,7 @@ defmodule EWalletConfig.Storage.LocalTest do
   describe "delete/3" do
     test "deletes the given file" do
       file = %Arc.File{
-        file_name: "test-#{:rand.uniform(999999)}.txt",
+        file_name: "test-#{:rand.uniform(999_999)}.txt",
         binary: "this file should be deleted soon"
       }
 
