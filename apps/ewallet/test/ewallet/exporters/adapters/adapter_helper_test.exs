@@ -18,6 +18,7 @@ defmodule EWallet.Exporters.AdapterHelperTest do
   alias EWallet.Exporters.AdapterHelper
   alias EWallet.Web.V1.CSV.TransactionSerializer
   alias EWalletDB.{Export, Transaction}
+  alias Utils.Helper.PidHelper
 
   setup do
     # Insert transactions with a newly inserted token to avoid side effects.
@@ -84,26 +85,67 @@ defmodule EWallet.Exporters.AdapterHelperTest do
   end
 
   describe "setup_local_dir/0" do
-
+    test "returns :ok" do
+      res = AdapterHelper.setup_local_dir()
+      assert res == :ok
+    end
   end
 
   describe "local_dir/0" do
-
+    test "returns a string starting with the root dir" do
+      path = AdapterHelper.local_dir()
+      assert String.starts_with?(path, Application.get_env(:ewallet, :root))
+    end
   end
 
   describe "build_local_path/1" do
-
+    test "returns a string starting with the root dir and ends with the given file name" do
+      path = AdapterHelper.build_local_path("local_file_name.txt")
+      assert String.starts_with?(path, Application.get_env(:ewallet, :root))
+      assert String.ends_with?(path, "local_file_name.txt")
+    end
   end
 
   describe "update_export/3" do
+    test "returns an export with the updated status and completion", context do
+      refute context.export.status == Export.completed()
+      refute context.export.completion == 1.0
 
+      {res, export} = AdapterHelper.update_export(context.export, Export.completed(), 1.0)
+
+      assert res == :ok
+      assert export.status == Export.completed()
+      assert export.completion == 1.0
+    end
   end
 
   describe "update_export/4" do
+    test "returns an export with the updated status, completion and pid", context do
+      refute context.export.status == Export.completed()
+      refute context.export.completion == 1.0
+      refute context.export.pid
 
+      pid = PidHelper.pid_to_binary(self())
+
+      {res, export} = AdapterHelper.update_export(context.export, Export.completed(), 1.0, pid)
+
+      assert res == :ok
+      assert export.status == Export.completed()
+      assert export.completion == 1.0
+      assert export.pid == pid
+    end
   end
 
   describe "store_error/2" do
+    test "returns an export with the given error", context do
+      refute context.export.status == Export.failed()
+      assert context.export.failure_reason == nil
 
+      {res, export} = AdapterHelper.store_error(context.export, "some_error")
+
+      assert res == :ok
+      assert export.status == Export.failed()
+      assert export.failure_reason == "some_error"
+    end
   end
 end
