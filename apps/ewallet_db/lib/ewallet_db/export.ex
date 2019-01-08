@@ -126,6 +126,7 @@ defmodule EWalletDB.Export do
         :adapter,
         :schema,
         :total_count,
+        :failure_reason,
         :estimated_size,
         :pid
       ],
