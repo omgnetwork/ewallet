@@ -69,7 +69,8 @@ defmodule EWallet.ExchangeAccountFetcherTest do
       assert reason == :exchange_account_wallet_not_found
     end
 
-    test "returns :exchange_account_wallet_mismatch if the wallet does not belong to the account", context do
+    test "returns :exchange_account_wallet_mismatch if the wallet does not belong to the account",
+         context do
       attrs = %{
         "exchange_account_id" => context.account.id,
         "exchange_wallet_address" => insert(:wallet).address

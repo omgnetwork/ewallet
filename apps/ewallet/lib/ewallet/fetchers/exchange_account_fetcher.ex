@@ -58,8 +58,7 @@ defmodule EWallet.ExchangeAccountFetcher do
       when not is_nil(exchange_wallet_address) do
     with {:ok, exchange_wallet} <- WalletFetcher.get(nil, exchange_wallet_address),
          exchange_wallet <- Repo.preload(exchange_wallet, [:account]),
-         %Account{} <-
-           exchange_wallet.account || {:error, :exchange_address_not_account} do
+         %Account{} <- exchange_wallet.account || {:error, :exchange_address_not_account} do
       {:ok, exchange_wallet}
     else
       {:error, :wallet_not_found} ->
