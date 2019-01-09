@@ -69,11 +69,13 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
       [_, api_key] = insert_list(2, :api_key, owner_app: "test_admin_auth_api_key_all")
 
       attrs = %{
-        match_all: [%{
-          field: "owner_app",
-          comparator: "eq",
-          value: "test_admin_auth_api_key_all"
-        }],
+        match_all: [
+          %{
+            field: "owner_app",
+            comparator: "eq",
+            value: "test_admin_auth_api_key_all"
+          }
+        ],
         page: 1,
         per_page: 1,
         sort_by: "created_at",

@@ -70,11 +70,13 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
 
       # Note that per_page is set to only a single record
       attrs = %{
-        match_all: [%{
-          field: "owner_app",
-          comparator: "eq",
-          value: "test_provider_auth_api_key_all"
-        }],
+        match_all: [
+          %{
+            field: "owner_app",
+            comparator: "eq",
+            value: "test_provider_auth_api_key_all"
+          }
+        ],
         page: 1,
         per_page: 1,
         sort_by: "created_at",
