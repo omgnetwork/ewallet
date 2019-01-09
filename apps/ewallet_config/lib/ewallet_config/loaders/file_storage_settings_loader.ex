@@ -25,7 +25,7 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
   end
 
   defp load_file_storage(nil, _app) do
-    if Mix.env() != :test do
+    if Application.get_env(:ewallet, :env) != :test do
       Logger.warn(~s([File Storage Configuration]: Setting hasn't been generated.))
     end
   end

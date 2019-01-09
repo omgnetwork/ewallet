@@ -18,7 +18,8 @@ defmodule EWallet.Umbrella.Mixfile do
       dialyzer: [
         flags: [:underspecs, :unknown, :unmatched_returns],
         plt_add_apps: [:iex, :mix],
-        ignore_warnings: ".dialyzer_ignore.exs"
+        ignore_warnings: ".dialyzer_ignore.exs",
+        flags: ~w(-Wunmatched_returns -Werror_handling -Wunderspecs)
       ]
     ]
   end
@@ -31,9 +32,11 @@ defmodule EWallet.Umbrella.Mixfile do
   defp deps do
     [
       {:credo, "0.10.0", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
+      {:distillery, "~> 1.5", runtime: false},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:excoveralls, "~> 0.8", only: :test, runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false}
+      {:junit_formatter, "~> 2.2", only: :test}
     ]
   end
 

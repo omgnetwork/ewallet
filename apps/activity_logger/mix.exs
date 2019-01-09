@@ -4,7 +4,7 @@ defmodule ActivityLogger.MixProject do
   def project do
     [
       app: :activity_logger,
-      version: "1.1.0",
+      version: "1.1.0-pre.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -39,13 +39,13 @@ defmodule ActivityLogger.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:postgrex, ">= 0.0.0"},
-      {:poison, "~> 3.1"},
-      {:ecto, "~> 2.1.6"},
+      {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
+      {:ecto, "~> 2.1.6"},
       {:ex_machina, "~> 2.2", only: :test},
-      {:cloak, "~> 0.7.0-alpha"},
-      {:utils, in_umbrella: true}
+      {:poison, "~> 3.1"},
+      {:postgrex, ">= 0.0.0"},
+      {:utils, in_umbrella: true},
     ]
   end
 
