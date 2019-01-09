@@ -55,6 +55,7 @@ defmodule EWalletDB.Export do
     field(:schema, :string)
     field(:format, :string, default: @default_format)
     field(:status, :string)
+    # Completion is between 0 and 100
     field(:completion, :float)
     field(:url, :string)
     field(:filename, :string)
@@ -93,6 +94,7 @@ defmodule EWalletDB.Export do
       cast: [
         :schema,
         :status,
+        :format,
         :completion,
         :params,
         :user_uuid,
@@ -106,6 +108,8 @@ defmodule EWalletDB.Export do
       ]
     )
     |> validate_required_exclusive([:user_uuid, :key_uuid])
+    |> validate_number(:completion, greater_than_or_equal_to: 0)
+    |> validate_number(:completion, less_than_or_equal_to: 100)
     |> validate_inclusion(:format, @formats)
     |> validate_inclusion(:status, [@new, @processing, @completed, @failed])
     |> assoc_constraint(:user)
@@ -125,6 +129,7 @@ defmodule EWalletDB.Export do
         :adapter,
         :schema,
         :total_count,
+        :failure_reason,
         :estimated_size,
         :pid
       ],
@@ -133,6 +138,8 @@ defmodule EWalletDB.Export do
         :completion
       ]
     )
+    |> validate_number(:completion, greater_than_or_equal_to: 0)
+    |> validate_number(:completion, less_than_or_equal_to: 100)
     |> validate_inclusion(:status, [@new, @processing, @completed, @failed])
   end
 
