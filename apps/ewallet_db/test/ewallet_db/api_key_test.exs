@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWalletDB.APIKeyTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias Ecto.UUID
   alias EWalletDB.APIKey
   alias ActivityLogger.System

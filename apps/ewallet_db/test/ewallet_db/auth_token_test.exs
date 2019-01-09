@@ -13,9 +13,10 @@
 # limitations under the License.
 
 defmodule EWalletDB.AuthTokenTest do
-  use EWalletDB.SchemaCase
-  alias EWalletDB.{AuthToken, Membership}
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias ActivityLogger.System
+  alias EWalletDB.{AuthToken, Membership, Repo}
 
   @owner_app :some_app
 

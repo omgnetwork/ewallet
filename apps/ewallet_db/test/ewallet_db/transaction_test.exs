@@ -13,10 +13,11 @@
 # limitations under the License.
 
 defmodule EWalletDB.TransactionTest do
-  use EWalletDB.SchemaCase
-  alias Ecto.UUID
-  alias EWalletDB.Transaction
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias ActivityLogger.System
+  alias Ecto.UUID
+  alias EWalletDB.{Transaction, Repo}
 
   describe "Transaction factory" do
     test_has_valid_factory(Transaction)
