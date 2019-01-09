@@ -16,10 +16,10 @@ defmodule EWallet.AddressRecordFetcherTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.AddressRecordFetcher
-  alias Utils.Types.WalletAddress
   alias Utils.Types.ExternalID
+  alias Utils.Types.WalletAddress
 
-  describe "fetch/3" do
+  describe "fetch/1" do
     setup do
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)
