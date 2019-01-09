@@ -40,8 +40,18 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
       assert data["user_id"] == admin.id
       assert data["pid"]
 
-      # Sleep a little bit so the export above has some time to process
-      Process.sleep(1000)
+      # Wait until the export process shuts down and check that it shutted down normally
+      pid = Utils.Helper.PidHelper.pid_from_string(data["pid"])
+      ref = Process.monitor(pid)
+
+      receive do
+        {:DOWN, ^ref, :process, object, reason} ->
+          assert object == pid
+          assert reason == :normal
+      after
+        60_000 ->
+          flunk("The export process timed out after 60 seconds")
+      end
 
       response = admin_user_request("/export.get", %{"id" => data["id"]})
       data = response["data"]
