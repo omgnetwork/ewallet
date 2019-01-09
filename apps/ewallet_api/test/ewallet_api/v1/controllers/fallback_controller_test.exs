@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWalletAPI.V1.FallbackControllerTest do
-  use EWalletAPI.ConnCase, async: false
+  use EWalletAPI.ConnCase, async: true
 
   describe "/not_found" do
     test "returns correct error response format and error message" do
