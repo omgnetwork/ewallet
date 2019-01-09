@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule LocalLedger.EntryTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import LocalLedgerDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
