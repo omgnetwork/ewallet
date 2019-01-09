@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule Utils.Helpers.InputAttributeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Utils.Helpers.InputAttribute
 
   describe "get/2" do
