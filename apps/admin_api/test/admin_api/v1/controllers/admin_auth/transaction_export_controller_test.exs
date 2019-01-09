@@ -15,6 +15,7 @@
 defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
   use AdminAPI.ConnCase
   alias EWalletDB.Uploaders
+  alias Utils.Helper.PidHelper
 
   def setup do
     assert Application.get_env(:ewallet, :file_storage_adapter) == "local"
@@ -41,7 +42,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
       assert data["pid"]
 
       # Wait until the export process shuts down and check that it shutted down normally
-      pid = Utils.Helper.PidHelper.pid_from_string(data["pid"])
+      pid = PidHelper.pid_from_string(data["pid"])
       ref = Process.monitor(pid)
 
       receive do
