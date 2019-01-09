@@ -13,7 +13,9 @@
 # limitations under the License.
 
 defmodule EWallet.TransactionConsumptionConsumerGateTest do
-  use EWallet.LocalLedgerCase, async: true
+  # `async: false` as this test module spawns new processes that check out the sandbox
+  use EWallet.DBCase, async: false
+  import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
 
   alias EWallet.{
@@ -21,7 +23,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     TransactionConsumptionConsumerGate
   }
 
-  alias EWalletDB.{Token, TransactionConsumption, TransactionRequest, User, Wallet}
+  alias EWalletDB.{Account, Token, TransactionConsumption, TransactionRequest, User, Wallet}
   alias ActivityLogger.System
 
   setup do

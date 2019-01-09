@@ -13,9 +13,10 @@
 # limitations under the License.
 
 defmodule EWallet.TransactionRequestGateTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.TransactionRequestGate
-  alias EWalletDB.{AccountUser, Token, TransactionRequest, User, Wallet}
+  alias EWalletDB.{Account, AccountUser, Token, TransactionRequest, User, Wallet}
   alias ActivityLogger.System
 
   setup do

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.Web.V1.EventTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
   import ExUnit.CaptureLog
   require Logger
   alias EWallet.TestEndpoint

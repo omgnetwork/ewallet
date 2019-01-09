@@ -13,8 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.MintGateTest do
-  use EWallet.LocalLedgerCase, async: true
-  alias Ecto.Adapters.SQL.Sandbox
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias Ecto.UUID
   alias EWallet.MintGate
   alias EWalletDB.Token

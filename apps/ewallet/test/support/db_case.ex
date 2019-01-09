@@ -14,12 +14,15 @@
 
 defmodule EWallet.DBCase do
   @moduledoc """
-  A test case template for tests that need to connect to the DB.
+  A test case template for tests that need to connect to the database.
   """
   use ExUnit.CaseTemplate
   import EWalletDB.Factory
+  alias ActivityLogger.System
+  alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
-  alias EWalletDB.Repo
+  alias EWallet.{MintGate, TransactionGate}
+  alias EWalletDB.{Account, Repo}
   alias EWalletConfig.ConfigTestHelper
 
   using do
@@ -55,6 +58,8 @@ defmodule EWallet.DBCase do
       }
     )
 
+    {:ok, _account} = :account |> params_for(parent: nil) |> Account.insert()
+
     %{config_pid: config_pid}
   end
 
@@ -64,5 +69,53 @@ defmodule EWallet.DBCase do
 
     insert_list(num_remaining, factory_name, attrs)
     Repo.all(schema)
+  end
+
+  def mint!(token, amount \\ 1_000_000) do
+    {:ok, mint, _transaction} =
+      MintGate.insert(%{
+        "idempotency_token" => UUID.generate(),
+        "token_id" => token.id,
+        "amount" => amount * token.subunit_to_unit,
+        "description" => "Minting #{amount} #{token.symbol}",
+        "metadata" => %{},
+        "originator" => %System{}
+      })
+
+    assert mint.confirmed == true
+    mint
+  end
+
+  def transfer!(from, to, token, amount) do
+    {:ok, transaction} =
+      TransactionGate.create(%{
+        "from_address" => from,
+        "to_address" => to,
+        "token_id" => token.id,
+        "amount" => amount,
+        "metadata" => %{},
+        "idempotency_token" => UUID.generate(),
+        "originator" => %System{}
+      })
+
+    transaction
+  end
+
+  def initialize_wallet(wallet, amount, token) do
+    master_account = Account.get_master_account()
+    master_wallet = Account.get_primary_wallet(master_account)
+
+    {:ok, transaction} =
+      TransactionGate.create(%{
+        "from_address" => master_wallet.address,
+        "to_address" => wallet.address,
+        "token_id" => token.id,
+        "amount" => amount * token.subunit_to_unit,
+        "metadata" => %{},
+        "idempotency_token" => UUID.generate(),
+        "originator" => %System{}
+      })
+
+    transaction
   end
 end

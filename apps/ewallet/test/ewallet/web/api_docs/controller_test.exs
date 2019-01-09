@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.Web.APIDocs.ControllerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   use Plug.Test
 
   defmodule TestRouter do

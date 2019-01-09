@@ -26,8 +26,6 @@ defmodule EWallet.Web.InviterTest do
 
   describe "invite_user/5" do
     test "sends email and returns the invite if successful" do
-      {:ok, _account} = :account |> params_for(parent: nil) |> Account.insert()
-
       {res, invite} =
         Inviter.invite_user(
           "test@example.com",
@@ -42,8 +40,6 @@ defmodule EWallet.Web.InviterTest do
     end
 
     test "links the user with master account" do
-      {:ok, _account} = :account |> params_for(parent: nil) |> Account.insert()
-
       {:ok, invite} =
         Inviter.invite_user(
           "test@example.com",
@@ -59,7 +55,6 @@ defmodule EWallet.Web.InviterTest do
     end
 
     test "resends the verification email if the user has not verified their email" do
-      {:ok, _account} = :account |> params_for(parent: nil) |> Account.insert()
       invite = insert(:invite)
       {:ok, user} = :standalone_user |> params_for(invite: invite) |> User.insert()
 

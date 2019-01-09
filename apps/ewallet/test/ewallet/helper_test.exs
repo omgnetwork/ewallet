@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.HelperTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias EWallet.Helper
 
   describe "to_existing_atoms/1" do

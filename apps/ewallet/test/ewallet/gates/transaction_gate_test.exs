@@ -13,9 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.TransactionGateTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
   import EWalletDB.Factory
-  alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
   alias EWallet.{BalanceFetcher, TransactionGate}
   alias EWalletDB.{Account, Token, Transaction, User, Wallet}
