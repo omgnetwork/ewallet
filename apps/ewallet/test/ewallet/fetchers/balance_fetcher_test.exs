@@ -127,10 +127,12 @@ defmodule EWallet.BalanceFetcherTest do
       )
 
       {status, wallets} =
-        BalanceFetcher.all(%{"wallets" => [
-          context.user_wallet,
-          context.master_wallet
-        ]})
+        BalanceFetcher.all(%{
+          "wallets" => [
+            context.user_wallet,
+            context.master_wallet
+          ]
+        })
 
       assert status == :ok
 
@@ -187,8 +189,7 @@ defmodule EWallet.BalanceFetcherTest do
         12_000 * context.omg.subunit_to_unit
       )
 
-      {status, wallet} =
-        BalanceFetcher.all(%{"wallet" => context.user_wallet})
+      {status, wallet} = BalanceFetcher.all(%{"wallet" => context.user_wallet})
 
       assert status == :ok
       assert wallet.address == context.user_wallet.address
