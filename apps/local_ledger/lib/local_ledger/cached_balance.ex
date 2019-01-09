@@ -65,9 +65,10 @@ defmodule LocalLedger.CachedBalance do
   defp get_balances(wallet), do: get_balances([wallet])
 
   defp calculate_all_amounts(computed_balances, wallets) do
-    computed_balances = Enum.into(computed_balances, %{}, fn balance ->
-      {balance.wallet_address, balance}
-    end)
+    computed_balances =
+      Enum.into(computed_balances, %{}, fn balance ->
+        {balance.wallet_address, balance}
+      end)
 
     Enum.into(wallets, %{}, fn wallet ->
       {wallet.address, calculate_amounts(computed_balances[wallet.address], wallet)}

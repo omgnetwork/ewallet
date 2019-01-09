@@ -54,7 +54,7 @@ defmodule LocalLedgerDB.CachedBalance do
     CachedBalance
     |> distinct([c], c.wallet_address)
     |> where([c], c.wallet_address in ^addresses)
-    |> order_by([c], [desc: c.wallet_address, desc: c.computed_at])
+    |> order_by([c], desc: c.wallet_address, desc: c.computed_at)
     |> Repo.all()
   end
 

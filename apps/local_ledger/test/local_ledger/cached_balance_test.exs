@@ -231,20 +231,26 @@ defmodule LocalLedger.CachedBalanceTest do
       assert res == :ok
 
       assert balances == %{
-        wallet.address => %{"tok_BTC_5678" => 160_524 - 74_961, "tok_OMG_1234" => 120_000 - 61_047}
-      }
+               wallet.address => %{
+                 "tok_BTC_5678" => 160_524 - 74_961,
+                 "tok_OMG_1234" => 120_000 - 61_047
+               }
+             }
 
       cached_balance = LocalLedgerDB.CachedBalance.get(wallet.address)
       assert cached_balance != nil
 
       assert balances == %{
-        wallet.address => %{"tok_BTC_5678" => 160_524 - 74_961, "tok_OMG_1234" => 120_000 - 61_047}
-      }
+               wallet.address => %{
+                 "tok_BTC_5678" => 160_524 - 74_961,
+                 "tok_OMG_1234" => 120_000 - 61_047
+               }
+             }
 
       assert cached_balance.amounts == %{
-         "tok_OMG_1234" => 120_000 - 61_047,
-         "tok_BTC_5678" => 160_524 - 74_961
-       }
+               "tok_OMG_1234" => 120_000 - 61_047,
+               "tok_BTC_5678" => 160_524 - 74_961
+             }
     end
 
     test "uses the cached balance and adds the entries that happened after", %{
@@ -272,11 +278,11 @@ defmodule LocalLedger.CachedBalanceTest do
              }
 
       assert balances == %{
-        wallet.address => %{
-           "tok_OMG_1234" => 58_953 + 1_337 - 789,
-           "tok_BTC_5678" => 160_524 - 74_961 + 1_232 - 234
-         }
-      }
+               wallet.address => %{
+                 "tok_OMG_1234" => 58_953 + 1_337 - 789,
+                 "tok_BTC_5678" => 160_524 - 74_961 + 1_232 - 234
+               }
+             }
     end
 
     test "calculates the balances for multiple address", %{token_1: token_1, wallet: wallet} do
@@ -303,18 +309,26 @@ defmodule LocalLedger.CachedBalanceTest do
       {res, balances} = CachedBalance.all([wallet, wallet_2])
 
       assert res == :ok
+
       assert balances == %{
-        wallet.address => %{"tok_BTC_5678" => 160_524 - 74_961, "tok_OMG_1234" => 120_000 - 61_047},
-        wallet_2.address => %{"tok_OMG_1234" => 120_000 - 61_047}
-      }
+               wallet.address => %{
+                 "tok_BTC_5678" => 160_524 - 74_961,
+                 "tok_OMG_1234" => 120_000 - 61_047
+               },
+               wallet_2.address => %{"tok_OMG_1234" => 120_000 - 61_047}
+             }
 
       {res, balances} = CachedBalance.all([wallet, wallet_2])
 
       assert res == :ok
+
       assert balances == %{
-        wallet.address => %{"tok_BTC_5678" => 160_524 - 74_961, "tok_OMG_1234" => 120_000 - 61_047},
-        wallet_2.address => %{"tok_OMG_1234" => 120_000 - 61_047}
-      }
+               wallet.address => %{
+                 "tok_BTC_5678" => 160_524 - 74_961,
+                 "tok_OMG_1234" => 120_000 - 61_047
+               },
+               wallet_2.address => %{"tok_OMG_1234" => 120_000 - 61_047}
+             }
     end
   end
 
