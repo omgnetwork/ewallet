@@ -41,4 +41,8 @@ defmodule EWallet.Case do
   def test_file_path(file_name) do
     Path.join(test_file_path(), file_name)
   end
+
+  def is_url?(url) do
+    String.starts_with?(url, "https://") || String.starts_with?(url, "http://")
+  end
 end

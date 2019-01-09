@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Exporters.LocalAdapterTest do
+defmodule EWallet.Exporters.S3AdapterTest do
   use EWallet.DBCase
   import Ecto.Query
-  alias EWallet.Exporters.LocalAdapter
+  alias EWallet.Exporters.S3Adapter
   alias EWallet.Web.V1.CSV.TransactionSerializer
   alias EWalletDB.{Export, Transaction}
 
@@ -25,6 +25,13 @@ defmodule EWallet.Exporters.LocalAdapterTest do
     user = insert(:user)
     transactions = insert_list(20, :transaction, to_token: token)
     serializer = TransactionSerializer
+
+    # Suggest a number that will result in at least 3 chunks
+    chunk_size =
+      case Integer.floor_div(length(transactions), 3) do
+        floor when floor >= 1 -> floor
+        _ -> 1
+      end
 
     {:ok, export} =
       Export.insert(%{
@@ -37,20 +44,25 @@ defmodule EWallet.Exporters.LocalAdapterTest do
         user_uuid: user.uuid
       })
 
-    {:ok, export} = Export.init(export, export.schema, length(transactions), 1024, user)
+    {:ok, export} = Export.init(export, export.schema, length(transactions), 100, user)
 
     query = from(t in Transaction, where: t.to_token_uuid == ^token.uuid)
 
     %{
       export: export,
       query: query,
-      serializer: serializer
+      serializer: serializer,
+      transactions: transactions,
+      chunk_size: chunk_size
     }
   end
 
   describe "generate_signed_url/1" do
-    test "returns nil", context do
-      assert LocalAdapter.generate_signed_url(context.export) === {:ok, nil}
+    test "returns a url", context do
+      {res, url} = S3Adapter.generate_signed_url(context.export)
+
+      assert res == :ok
+      assert is_url?(url)
     end
   end
 
@@ -62,7 +74,7 @@ defmodule EWallet.Exporters.LocalAdapterTest do
         serializer: context.serializer
       }
 
-      {res, export} = LocalAdapter.upload(args)
+      {res, export} = S3Adapter.upload(args)
 
       assert res == :ok
       assert export.status == Export.completed()
