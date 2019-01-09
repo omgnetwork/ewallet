@@ -32,8 +32,8 @@ defmodule EWallet.Web.SortParserTest do
 
       attrs = %{"sort_by" => "name", "sort_dir" => "asc"}
 
+      # Exclude master account before retrieval, it was inserted globally
       sorted =
-        # Exclude master account which was inserted globally
         Account
         |> where([a], a.uuid != ^master_account.uuid)
         |> SortParser.to_query(attrs, [:name])
@@ -50,8 +50,8 @@ defmodule EWallet.Web.SortParserTest do
 
       attrs = %{"sort_by" => "description", "sort_dir" => "desc"}
 
+      # Exclude master account before retrieval, it was inserted globally
       sorted =
-        # Exclude master account which was inserted globally
         Account
         |> where([a], a.uuid != ^master_account.uuid)
         |> SortParser.to_query(attrs, [:description])
@@ -69,8 +69,8 @@ defmodule EWallet.Web.SortParserTest do
       mapped_fields = %{"some_description_field" => "description"}
       attrs = %{"sort_by" => "some_description_field", "sort_dir" => "desc"}
 
+      # Exclude master account which was inserted globally
       sorted =
-        # Exclude master account which was inserted globally
         Account
         |> where([a], a.uuid != ^master_account.uuid)
         |> SortParser.to_query(attrs, [:description], mapped_fields)

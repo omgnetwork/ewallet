@@ -15,7 +15,7 @@
 defmodule EWalletDB.AccountUserTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
-  alias EWalletDB.{AccountUser, Repo
+  alias EWalletDB.{AccountUser, Repo}
 
   describe "AccountUser factory" do
     test_has_valid_factory(AccountUser)
