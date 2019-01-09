@@ -14,10 +14,10 @@
 
 defmodule EWallet.SignupGateTest do
   use EWallet.DBCase, async: true
-  alias EWallet.SignupGate
-  alias EWallet.VerificationEmail
-  alias EWalletDB.{Invite, User}
+  import EWalletDB.Factory
   alias ActivityLogger.System
+  alias EWallet.{SignupGate, VerificationEmail}
+  alias EWalletDB.{Invite, User}
 
   @verification_url "http://localhost:4000/verification_url?email={email}&token={token}"
   @success_url "http://localhost:4000/success_url"

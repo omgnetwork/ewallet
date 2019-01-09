@@ -14,6 +14,7 @@
 
 defmodule EWallet.VerificationEmailTest do
   use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.VerificationEmail
   alias EWalletDB.{Invite, User}
   alias ActivityLogger.System

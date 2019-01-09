@@ -14,6 +14,7 @@
 
 defmodule EWallet.ForgetPasswordRequestSchedulerTest do
   use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.ForgetPasswordRequestScheduler
   alias EWalletDB.{ForgetPasswordRequest, Repo}
 

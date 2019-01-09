@@ -14,6 +14,7 @@
 
 defmodule EWallet.ResetPasswordGateTest do
   use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.ResetPasswordGate
   alias EWalletDB.{ForgetPasswordRequest, User}
 

@@ -13,11 +13,12 @@
 # limitations under the License.
 
 defmodule EWallet.Web.InviterTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   use Bamboo.Test
+  alias ActivityLogger.System
   alias EWallet.Web.{Inviter, MockInviteEmail, Preloader}
   alias EWalletDB.{Account, Invite, Membership, User}
-  alias ActivityLogger.System
 
   @user_redirect_url "http://localhost:4000/some_redirect_url?email={email}&token={token}"
   @user_success_url "http://localhost:4000/some_success_url"

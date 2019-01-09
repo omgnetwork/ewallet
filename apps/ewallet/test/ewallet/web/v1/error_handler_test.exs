@@ -15,6 +15,7 @@
 defmodule EWallet.Web.V1.ErrorHandlerTest do
   # async: false due to `Application.put_env/3` for sentry reporting
   use EWallet.DBCase, async: false
+  import EWalletDB.Factory
   alias EWallet.Web.V1.ErrorHandler
   alias Ecto.Changeset
   alias Plug.Conn
