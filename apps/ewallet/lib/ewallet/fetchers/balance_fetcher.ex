@@ -16,8 +16,7 @@ defmodule EWallet.BalanceFetcher do
   @moduledoc """
   Handles the retrieval and formatting of balances from the local ledger.
   """
-  alias EWalletDB.{Token, User}
-  alias LocalLedger.Wallet
+  alias EWalletDB.{Token, User, Wallet}
 
   @spec all(map()) :: {:ok, %EWalletDB.Wallet{}} | {:error, atom()}
 
@@ -47,7 +46,7 @@ defmodule EWallet.BalanceFetcher do
 
       user ->
         wallet = User.get_primary_wallet(user)
-        format_all(wallet)
+        {:ok, format_all(wallet)}
     end
   end
 
@@ -77,7 +76,7 @@ defmodule EWallet.BalanceFetcher do
 
       user ->
         wallet = User.get_primary_wallet(user)
-        format_all(wallet)
+        {:ok, format_all(wallet)}
     end
   end
 
@@ -101,7 +100,30 @@ defmodule EWallet.BalanceFetcher do
 
   """
   def all(%{"wallet" => wallet}) do
-    format_all(wallet)
+    {:ok, format_all(wallet)}
+  end
+
+  @doc """
+  Prepare the list of balances and turn them into a suitable format for
+  EWalletAPI using only a list of wallets.
+
+  ## Examples
+
+    res = BalanceFetcher.all([%Wallet{}])
+
+    case res do
+      {:ok, balances} ->
+        # Everything went well, do something.
+        # response is the response returned by the local ledger (LocalLedger for
+        # example).
+      {:error, code, description} ->
+        # Something went wrong on the other side (LocalLedger maybe) and the
+        # retrieval failed.
+    end
+
+  """
+  def all(%{"wallets" => wallets}) do
+    {:ok, format_all(wallets)}
   end
 
   @doc """
@@ -113,7 +135,7 @@ defmodule EWallet.BalanceFetcher do
     res = BalanceFetcher.all(%{"address" => "d26fc18f-d403-4a39-a039-21e2bc713688"})
 
     case res do
-      {:ok, wallets} ->
+      {:ok, balances} ->
         # Everything went well, do something.
         # response is the response returned by the local ledger (LocalLedger for
         # example).
@@ -124,7 +146,13 @@ defmodule EWallet.BalanceFetcher do
 
   """
   def all(%{"address" => address}) do
-    address |> EWalletDB.Wallet.get() |> format_all()
+    case Wallet.get(address) do
+      nil ->
+        {:error, :wallet_not_found}
+
+      wallet ->
+        {:ok, format_all(wallet)}
+    end
   end
 
   @doc """
@@ -170,21 +198,46 @@ defmodule EWallet.BalanceFetcher do
     end
 
   """
-  def get(id, wallet) do
-    id |> Wallet.get_balance(wallet.address) |> process_response(wallet, :one)
+  def get(id, %Wallet{} = wallet) do
+    wallet =
+      id
+      |> LocalLedger.Wallet.get_balance(wallet.address)
+      |> process_response(wallet, :one)
+
+    {:ok, wallet}
+  end
+
+  defp format_all(wallets) when is_list(wallets) do
+    wallets
+    |> Enum.map(fn wallet -> wallet.address end)
+    |> LocalLedger.Wallet.all_balances()
+    |> process_response(wallets, :all)
   end
 
   defp format_all(wallet) do
-    wallet.address |> Wallet.all_balances() |> process_response(wallet, :all)
+    wallet.address
+    |> LocalLedger.Wallet.all_balances()
+    |> process_response(wallet, :all)
+  end
+
+  defp process_response({:ok, data}, wallets, type) when is_list(wallets) do
+    Enum.map(wallets, fn wallet ->
+      balances =
+        type
+        |> load_tokens(data[wallet.address])
+        |> map_tokens(data[wallet.address])
+
+      Map.put(wallet, :balances, balances)
+    end)
   end
 
   defp process_response({:ok, data}, wallet, type) do
     balances =
       type
-      |> load_tokens(data)
-      |> map_tokens(data)
+      |> load_tokens(data[wallet.address])
+      |> map_tokens(data[wallet.address])
 
-    {:ok, Map.put(wallet, :balances, balances)}
+    Map.put(wallet, :balances, balances)
   end
 
   defp load_tokens(:all, _), do: Token.all()
