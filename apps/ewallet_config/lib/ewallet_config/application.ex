@@ -31,7 +31,9 @@ defmodule EWalletConfig.Application do
     children = [
       supervisor(EWalletConfig.Repo, []),
       supervisor(EWalletConfig.Config, [[named: true]]),
-      supervisor(EWalletConfig.Vault, [])
+      supervisor(EWalletConfig.Vault, []),
+      supervisor(EWalletConfig.FileStorageSupervisor, []),
+      {DynamicSupervisor, name: EWalletConfig.DynamicSupervisor, strategy: :one_for_one}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

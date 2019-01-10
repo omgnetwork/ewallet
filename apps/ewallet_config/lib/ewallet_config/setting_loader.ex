@@ -20,8 +20,10 @@ defmodule EWalletConfig.SettingLoader do
   alias EWalletConfig.{Setting, FileStorageSettingsLoader}
 
   def load_settings(app, settings) when is_atom(app) and is_list(settings) do
+    stored_settings = Setting.all() |> Enum.into(%{}, fn s -> {s.key, s} end)
+
     Enum.each(settings, fn key ->
-      load_setting(app, key)
+      load_setting(app, key, stored_settings)
     end)
 
     if Enum.member?(settings, :file_storage_adapter) do
@@ -29,31 +31,31 @@ defmodule EWalletConfig.SettingLoader do
     end
   end
 
-  def load_settings(_, _), do: nil
+  def load_settings(_, _, _), do: nil
 
-  def load_setting(app, {setting, keys}) do
-    Application.put_env(app, setting, build_values_map(app, keys))
+  def load_setting(app, {setting, keys}, stored_settings) do
+    Application.put_env(app, setting, build_values_map(app, keys, stored_settings))
   end
 
-  def load_setting(app, key) do
-    Application.put_env(app, key, fetch_value(app, key))
+  def load_setting(app, key, stored_settings) do
+    Application.put_env(app, key, fetch_value(app, key, stored_settings))
   end
 
-  defp build_values_map(app, keys) do
-    Enum.into(keys, %{}, fn key -> handle_mapped_keys(app, key) end)
+  defp build_values_map(app, keys, stored_settings) do
+    Enum.into(keys, %{}, fn key -> handle_mapped_keys(app, key, stored_settings) end)
   end
 
-  defp handle_mapped_keys(app, {db_setting_name, app_setting_name})
+  defp handle_mapped_keys(app, {db_setting_name, app_setting_name}, stored_settings)
        when is_atom(app_setting_name) do
-    {app_setting_name, fetch_value(app, db_setting_name)}
+    {app_setting_name, fetch_value(app, db_setting_name, stored_settings)}
   end
 
-  defp handle_mapped_keys(app, key) do
-    {key, fetch_value(app, key)}
+  defp handle_mapped_keys(app, key, stored_settings) do
+    {key, fetch_value(app, key, stored_settings)}
   end
 
-  defp fetch_value(app, key) do
-    case Setting.get(key) do
+  defp fetch_value(app, key, stored_settings) do
+    case Map.get(stored_settings, Atom.to_string(key)) do
       nil ->
         if Application.get_env(:ewallet, :env) != :test, do: warn(app, key)
         nil

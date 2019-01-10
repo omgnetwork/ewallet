@@ -49,6 +49,27 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
       assert Application.get_env(:arc, :storage) == EWalletConfig.Storage.Local
     end
 
+    test "clears GCS and AWS env when using local" do
+      init(%{
+        "file_storage_adapter" => "aws",
+        "aws_bucket" => "bucket",
+        "aws_region" => "azeroth",
+        "aws_access_key_id" => "123",
+        "aws_secret_access_key" => "456"
+      })
+
+      assert Application.get_env(:arc, :bucket) == nil
+      assert Application.get_env(:arc, :asset_host) == nil
+      assert Application.get_env(:goth, :json) == nil
+      assert Application.get_env(:arc, :asset_host) == nil
+      assert Application.get_env(:ex_aws, :secret_access_key) == nil
+      assert Application.get_env(:ex_aws, :region) == nil
+      assert Application.get_env(:ex_aws, :s3) == nil
+      assert Application.get_env(:ex_aws, :debug_requests) == nil
+      assert Application.get_env(:ex_aws, :recv_timeout) == nil
+      assert Application.get_env(:ex_aws, :hackney) == nil
+    end
+
     test "load aws storage env" do
       init(%{
         "file_storage_adapter" => "aws",
@@ -79,16 +100,101 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
       assert Application.get_env(:arc, :asset_host, "https://s3-azeroth.amazonaws.com/#bucket")
     end
 
+    test "clears GCS env when using AWS" do
+      init(%{
+        "file_storage_adapter" => "aws",
+        "aws_bucket" => "bucket",
+        "aws_region" => "azeroth",
+        "aws_access_key_id" => "123",
+        "aws_secret_access_key" => "456"
+      })
+
+      assert Application.get_env(:goth, :json) == nil
+    end
+
     test "load gcs storage env" do
       init(%{
         "file_storage_adapter" => "gcs",
         "gcs_bucket" => "bucket",
-        "gcs_credentials" => "123"
+        "gcs_credentials" => ~s({
+          "type": "service_account",
+          "project_id": "ewallet",
+          "private_key_id": "private_key_id",
+          "private_key": "private_key",
+          "client_email": "email@example.com",
+          "client_id": "123",
+          "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+          "token_uri": "https://oauth2.googleapis.com/token",
+          "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+          "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/google-cloud-storage-test-acco%40omise-go.iam.gserviceaccount.com"
+        })
       })
 
       assert Application.get_env(:arc, :storage) == Arc.Storage.GCS
       assert Application.get_env(:arc, :bucket) == "bucket"
-      assert Application.get_env(:goth, :json) == "123"
+
+      assert Application.get_env(:goth, :json) |> Poison.decode!() == %{
+               "type" => "service_account",
+               "project_id" => "ewallet",
+               "private_key_id" => "private_key_id",
+               "private_key" => "private_key",
+               "client_email" => "email@example.com",
+               "client_id" => "123",
+               "auth_uri" => "https://accounts.google.com/o/oauth2/auth",
+               "token_uri" => "https://oauth2.googleapis.com/token",
+               "auth_provider_x509_cert_url" => "https://www.googleapis.com/oauth2/v1/certs",
+               "client_x509_cert_url" =>
+                 "https://www.googleapis.com/robot/v1/metadata/x509/google-cloud-storage-test-acco%40omise-go.iam.gserviceaccount.com"
+             }
+    end
+
+    test "clears AWS env when using GCS" do
+      init(%{
+        "file_storage_adapter" => "gcs",
+        "gcs_bucket" => "bucket",
+        "gcs_credentials" => ~s({
+          "type": "service_account",
+          "project_id": "ewallet",
+          "private_key_id": "private_key_id",
+          "private_key": "private_key",
+          "client_email": "email@example.com",
+          "client_id": "123",
+          "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+          "token_uri": "https://oauth2.googleapis.com/token",
+          "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+          "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/google-cloud-storage-test-acco%40omise-go.iam.gserviceaccount.com"
+        })
+      })
+
+      assert Application.get_env(:arc, :asset_host) == nil
+      assert Application.get_env(:ex_aws, :secret_access_key) == nil
+      assert Application.get_env(:ex_aws, :region) == nil
+      assert Application.get_env(:ex_aws, :s3) == nil
+      assert Application.get_env(:ex_aws, :debug_requests) == nil
+      assert Application.get_env(:ex_aws, :recv_timeout) == nil
+      assert Application.get_env(:ex_aws, :hackney) == nil
+      assert Application.get_env(:arc, :asset_host) == nil
+    end
+
+    test "starts the Goth supervisor when using gcs" do
+      init(%{
+        "file_storage_adapter" => "gcs",
+        "gcs_bucket" => "bucket",
+        "gcs_credentials" => ~s({
+          "type": "service_account",
+          "project_id": "ewallet",
+          "private_key_id": "private_key_id",
+          "private_key": "private_key",
+          "client_email": "email@example.com",
+          "client_id": "123",
+          "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+          "token_uri": "https://oauth2.googleapis.com/token",
+          "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+          "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/google-cloud-storage-test-acco%40omise-go.iam.gserviceaccount.com"
+        })
+      })
+
+      assert Process.whereis(Goth.Supervisor)
     end
   end
 end
