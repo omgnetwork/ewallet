@@ -18,6 +18,8 @@ defmodule EWalletConfig.Storage.LocalTest do
   alias EWalletConfig.Config
   alias EWalletConfig.Storage.Local
 
+  @temp_test_file_dir "private/temp_test_files"
+
   defmodule MockDefinition do
     use Arc.Definition
     def storage_dir(_, _), do: "private/temp_test_files/"
@@ -140,8 +142,8 @@ defmodule EWalletConfig.Storage.LocalTest do
   end
 
   defp test_file_path do
-    :ewallet
-    |> Application.get_env(:root)
+    "../../"
+    |> Path.absname()
     |> Path.join(@temp_test_file_dir)
   end
 end
