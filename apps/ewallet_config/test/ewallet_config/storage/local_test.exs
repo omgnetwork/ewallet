@@ -23,6 +23,13 @@ defmodule EWalletConfig.Storage.LocalTest do
     def storage_dir(_, _), do: "private/temp_test_files/"
   end
 
+  setup do
+    # Create the directory to store the temporary test files
+    :ok = File.mkdir_p!(test_file_path())
+
+    :ok
+  end
+
   describe "get_path/2" do
     test "returns the path with the root dir prepended" do
       root_dir = Application.get_env(:ewallet, :root)
@@ -130,5 +137,11 @@ defmodule EWalletConfig.Storage.LocalTest do
       # Invoke & assert
       assert Local.delete(MockDefinition, "v1", {file, nil}) == :ok
     end
+  end
+
+  defp test_file_path do
+    :ewallet
+    |> Application.get_env(:root)
+    |> Path.join(@temp_test_file_dir)
   end
 end
