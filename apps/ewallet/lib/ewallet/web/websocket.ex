@@ -94,7 +94,7 @@ defmodule EWallet.Web.WebSocket do
     invalid_version(conn, accept, error_handler)
   end
 
-  def invalid_version(conn, accept, error_handler) do
+  defp invalid_version(conn, accept, error_handler) do
     conn =
       conn
       |> assign(:accept, inspect(accept))
@@ -103,7 +103,7 @@ defmodule EWallet.Web.WebSocket do
     {:error, conn}
   end
 
-  def get_accept_version(accept, app) do
+  defp get_accept_version(accept, app) do
     app
     |> Application.get_env(:api_versions)
     |> Map.fetch(accept)
