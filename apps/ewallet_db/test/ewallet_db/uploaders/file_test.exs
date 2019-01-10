@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWalletDB.Uploaders.FileTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Arc.File
   alias EWalletDB.Uploaders.File
 
