@@ -201,12 +201,12 @@ jobs:
       - run:
           name: Configure E2E secret
           command: |
-            docker-compose run --rm ewallet bin/ewallet config aws_bucket $AWS_BUCKET
-            docker-compose run --rm ewallet bin/ewallet config aws_region $AWS_REGION
-            docker-compose run --rm ewallet bin/ewallet config aws_access_key_id $AWS_ACCESS_KEY_ID
-            docker-compose run --rm ewallet bin/ewallet config aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-            docker-compose run --rm ewallet bin/ewallet config gcs_bucket $GCS_BUCKET
-            docker-compose run --rm ewallet bin/ewallet config gcs_credentials $GCS_CREDENTIALS             
+            docker-compose run --rm ewallet bin/ewallet config aws_bucket $AWS_BUCKET > /dev/null
+            docker-compose run --rm ewallet bin/ewallet config aws_region $AWS_REGION > /dev/null
+            docker-compose run --rm ewallet bin/ewallet config aws_access_key_id $AWS_ACCESS_KEY_ID > /dev/null
+            docker-compose run --rm ewallet bin/ewallet config aws_secret_access_key $AWS_SECRET_ACCESS_KEY > /dev/null
+            docker-compose run --rm ewallet bin/ewallet config gcs_bucket $GCS_BUCKET > /dev/null
+            docker-compose run --rm ewallet bin/ewallet config gcs_credentials $GCS_CREDENTIALS > /dev/null
       - run:
           name: Running E2E tests
           command: |
