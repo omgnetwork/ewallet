@@ -50,12 +50,19 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
     end
 
     test "clears GCS and AWS env when using local" do
+      Application.put_env(:arc, :bucket, "something")
+      Application.put_env(:arc, :asset_host, "something")
+      Application.put_env(:goth, :json, "something")
+      Application.put_env(:arc, :asset_host, "something")
+      Application.put_env(:ex_aws, :secret_access_key, "something")
+      Application.put_env(:ex_aws, :region, "something")
+      Application.put_env(:ex_aws, :s3, "something")
+      Application.put_env(:ex_aws, :debug_requests, "something")
+      Application.put_env(:ex_aws, :recv_timeout, "something")
+      Application.put_env(:ex_aws, :hackney, "something")
+
       init(%{
-        "file_storage_adapter" => "aws",
-        "aws_bucket" => "bucket",
-        "aws_region" => "azeroth",
-        "aws_access_key_id" => "123",
-        "aws_secret_access_key" => "456"
+        "file_storage_adapter" => "local"
       })
 
       assert Application.get_env(:arc, :bucket) == nil
@@ -101,6 +108,8 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
     end
 
     test "clears GCS env when using AWS" do
+      Application.put_env(:goth, :json, "{}")
+
       init(%{
         "file_storage_adapter" => "aws",
         "aws_bucket" => "bucket",
@@ -149,6 +158,15 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
     end
 
     test "clears AWS env when using GCS" do
+      Application.get_env(:arc, :asset_host, "something")
+      Application.get_env(:ex_aws, :secret_access_key, "something")
+      Application.get_env(:ex_aws, :region, "something")
+      Application.get_env(:ex_aws, :s3, "something")
+      Application.get_env(:ex_aws, :debug_requests, "something")
+      Application.get_env(:ex_aws, :recv_timeout, "something")
+      Application.get_env(:ex_aws, :hackney, "something")
+      Application.get_env(:arc, :asset_host, "something")
+
       init(%{
         "file_storage_adapter" => "gcs",
         "gcs_bucket" => "bucket",
