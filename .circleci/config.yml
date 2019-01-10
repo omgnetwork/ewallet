@@ -300,7 +300,6 @@ workflows:
             branches:
               only:
                 - master
-                - 631-e2e-storage-setup
             tags:
               only: /^v.*/
 
