@@ -70,6 +70,13 @@ jobs:
             make check-credo
           environment:
             MIX_ENV: test
+      - run:
+          name: Checking dialyzer
+          command: |
+            set -xe
+            make check-dialyzer
+          environment:
+            MIX_ENV: test
 
   test:
     <<: *defaults

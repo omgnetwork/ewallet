@@ -49,6 +49,9 @@ check-format:
 check-credo:
 	mix credo
 
+check-dialyzer:
+	mix dialyzer
+
 .PHONY: format check-format check-credo
 
 #
