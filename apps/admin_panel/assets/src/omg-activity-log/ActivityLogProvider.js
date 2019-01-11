@@ -12,9 +12,10 @@ class ActivityProvider extends Component {
   }
 
   componentDidMount () {
-    if (!this.props.activity) {
-      this.props.getActivityLogById(this.props.activityId)
-    }
+    // Endpoint is not exist yet
+    // if (!this.props.activity) {
+    //   this.props.getActivityLogById(this.props.activityId)
+    // }
   }
   render () {
     return this.props.render({
