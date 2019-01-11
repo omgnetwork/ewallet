@@ -48,15 +48,19 @@ defmodule AdminAPI.V1.AccountControllerTest do
         "sort_dir" => "desc"
       }
 
-      test_with_auths("/account.all", fn {_, response} ->
-        accounts = response["data"]["data"]
+      test_with_auths(
+        "/account.all",
+        fn {_, response} ->
+          accounts = response["data"]["data"]
 
-        assert response["success"]
-        assert Enum.count(accounts) == 3
-        assert Enum.at(accounts, 0)["name"] == "Matched 3"
-        assert Enum.at(accounts, 1)["name"] == "Matched 2"
-        assert Enum.at(accounts, 2)["name"] == "Matched 1"
-      end, attrs)
+          assert response["success"]
+          assert Enum.count(accounts) == 3
+          assert Enum.at(accounts, 0)["name"] == "Matched 3"
+          assert Enum.at(accounts, 1)["name"] == "Matched 2"
+          assert Enum.at(accounts, 2)["name"] == "Matched 1"
+        end,
+        attrs
+      )
     end
 
     test_supports_match_any("/account.all", :account, :name)
@@ -80,16 +84,22 @@ defmodule AdminAPI.V1.AccountControllerTest do
       {:ok, _m} = Membership.assign(user, acc_2, role, %System{})
       key = insert(:key, %{account: acc_2})
 
-      test_with_auths("/account.all", fn {_, response} ->
-        accounts = response["data"]["data"]
+      test_with_auths(
+        "/account.all",
+        fn {_, response} ->
+          accounts = response["data"]["data"]
 
-        assert response["success"]
-        assert Enum.count(accounts) == 4
-        assert Enum.any?(accounts, fn account -> account["name"] == "Account 2" end)
-        assert Enum.any?(accounts, fn account -> account["name"] == "Account 3" end)
-        assert Enum.any?(accounts, fn account -> account["name"] == "Account 4" end)
-        assert Enum.any?(accounts, fn account -> account["name"] == "Account 5" end)
-      end, %{}, access_key: key.access_key, secret_key: key.secret_key)
+          assert response["success"]
+          assert Enum.count(accounts) == 4
+          assert Enum.any?(accounts, fn account -> account["name"] == "Account 2" end)
+          assert Enum.any?(accounts, fn account -> account["name"] == "Account 3" end)
+          assert Enum.any?(accounts, fn account -> account["name"] == "Account 4" end)
+          assert Enum.any?(accounts, fn account -> account["name"] == "Account 5" end)
+        end,
+        %{},
+        access_key: key.access_key,
+        secret_key: key.secret_key
+      )
     end
 
     test "returns only one account if the user is at the last level" do
@@ -108,13 +118,19 @@ defmodule AdminAPI.V1.AccountControllerTest do
       {:ok, _m} = Membership.assign(user, acc_5, role, %System{})
       key = insert(:key, %{account: acc_5})
 
-      test_with_auths("/account.all", fn {_, response} ->
-        accounts = response["data"]["data"]
+      test_with_auths(
+        "/account.all",
+        fn {_, response} ->
+          accounts = response["data"]["data"]
 
-        assert response["success"]
-        assert Enum.count(accounts) == 1
-        assert Enum.at(accounts, 0)["name"] == "Account 5"
-      end, %{}, access_key: key.access_key, secret_key: key.secret_key)
+          assert response["success"]
+          assert Enum.count(accounts) == 1
+          assert Enum.at(accounts, 0)["name"] == "Account 5"
+        end,
+        %{},
+        access_key: key.access_key,
+        secret_key: key.secret_key
+      )
     end
   end
 
@@ -122,19 +138,23 @@ defmodule AdminAPI.V1.AccountControllerTest do
     test "returns a list of children accounts and pagination data" do
       account = Account.get_master_account()
 
-      test_with_auths("/account.get_descendants", fn {_, response} ->
-        # Asserts return data
-        assert response["success"]
-        assert response["data"]["object"] == "list"
-        assert is_list(response["data"]["data"])
+      test_with_auths(
+        "/account.get_descendants",
+        fn {_, response} ->
+          # Asserts return data
+          assert response["success"]
+          assert response["data"]["object"] == "list"
+          assert is_list(response["data"]["data"])
 
-        # Asserts pagination data
-        pagination = response["data"]["pagination"]
-        assert is_integer(pagination["per_page"])
-        assert is_integer(pagination["current_page"])
-        assert is_boolean(pagination["is_last_page"])
-        assert is_boolean(pagination["is_first_page"])
-      end, %{id: account.id})
+          # Asserts pagination data
+          pagination = response["data"]["pagination"]
+          assert is_integer(pagination["per_page"])
+          assert is_integer(pagination["current_page"])
+          assert is_boolean(pagination["is_last_page"])
+          assert is_boolean(pagination["is_first_page"])
+        end,
+        %{id: account.id}
+      )
     end
 
     test "returns a list of children accounts" do
@@ -149,15 +169,19 @@ defmodule AdminAPI.V1.AccountControllerTest do
         "sort_dir" => "desc"
       }
 
-      test_with_auths("/account.get_descendants", fn {_, response} ->
-        accounts = response["data"]["data"]
+      test_with_auths(
+        "/account.get_descendants",
+        fn {_, response} ->
+          accounts = response["data"]["data"]
 
-        assert response["success"]
-        assert Enum.count(accounts) == 3
-        assert Enum.at(accounts, 0)["name"] == "account_4"
-        assert Enum.at(accounts, 1)["name"] == "account_3"
-        assert Enum.at(accounts, 2)["name"] == "account_2"
-      end, attrs)
+          assert response["success"]
+          assert Enum.count(accounts) == 3
+          assert Enum.at(accounts, 0)["name"] == "account_4"
+          assert Enum.at(accounts, 1)["name"] == "account_3"
+          assert Enum.at(accounts, 2)["name"] == "account_2"
+        end,
+        attrs
+      )
     end
 
     test "returns a list of accounts according to search_term, sort_by and sort_direction" do
@@ -173,14 +197,18 @@ defmodule AdminAPI.V1.AccountControllerTest do
         "sort_dir" => "desc"
       }
 
-      test_with_auths("/account.get_descendants", fn {_, response} ->
-        accounts = response["data"]["data"]
+      test_with_auths(
+        "/account.get_descendants",
+        fn {_, response} ->
+          accounts = response["data"]["data"]
 
-        assert response["success"]
-        assert Enum.count(accounts) == 2
-        assert Enum.at(accounts, 0)["name"] == "account_4:MaTcHed"
-        assert Enum.at(accounts, 1)["name"] == "account_3:MaTcHed"
-      end, attrs)
+          assert response["success"]
+          assert Enum.count(accounts) == 2
+          assert Enum.at(accounts, 0)["name"] == "account_4:MaTcHed"
+          assert Enum.at(accounts, 1)["name"] == "account_3:MaTcHed"
+        end,
+        attrs
+      )
     end
   end
 
@@ -192,11 +220,15 @@ defmodule AdminAPI.V1.AccountControllerTest do
       # Pick the 2nd inserted account
       target = Enum.at(accounts, 1)
 
-      test_with_auths("/account.get", fn {_, response} ->
-        assert response["success"]
-        assert response["data"]["object"] == "account"
-        assert response["data"]["name"] == target.name
-      end, %{"id" => target.id})
+      test_with_auths(
+        "/account.get",
+        fn {_, response} ->
+          assert response["success"]
+          assert response["data"]["object"] == "account"
+          assert response["data"]["name"] == target.name
+        end,
+        %{"id" => target.id}
+      )
     end
 
     test "returns an account by the given account's external ID if the user has
@@ -213,11 +245,17 @@ defmodule AdminAPI.V1.AccountControllerTest do
       Membership.assign(admin, target, role, %System{})
       key = insert(:key, %{account: target})
 
-      test_with_auths("/account.get", fn {_, response} ->
-        assert response["success"]
-        assert response["data"]["object"] == "account"
-        assert response["data"]["name"] == target.name
-      end, %{"id" => target.id}, access_key: key.access_key, secret_key: key.secret_key)
+      test_with_auths(
+        "/account.get",
+        fn {_, response} ->
+          assert response["success"]
+          assert response["data"]["object"] == "account"
+          assert response["data"]["name"] == target.name
+        end,
+        %{"id" => target.id},
+        access_key: key.access_key,
+        secret_key: key.secret_key
+      )
     end
 
     test "returns unauthorized if the user doesn't have access" do
@@ -230,34 +268,48 @@ defmodule AdminAPI.V1.AccountControllerTest do
       target = Enum.at(accounts, 1)
       key = insert(:key, %{account: key_account})
 
-      test_with_auths("/account.get", fn {_, response} ->
-        refute response["success"]
-        assert response["data"]["code"] == "unauthorized"
-      end, %{"id" => target.id}, access_key: key.access_key, secret_key: key.secret_key)
+      test_with_auths(
+        "/account.get",
+        fn {_, response} ->
+          refute response["success"]
+          assert response["data"]["code"] == "unauthorized"
+        end,
+        %{"id" => target.id},
+        access_key: key.access_key,
+        secret_key: key.secret_key
+      )
     end
 
     # The user should not know any information about the account it doesn't have access to.
     # So even the account is not found, the user is unauthorized to know that.
     test "returns 'unauthorized' if the given ID is in correct format but not found" do
-      test_with_auths("/account.get", fn {_, response} ->
-        refute response["success"]
-        assert response["data"]["object"] == "error"
-        assert response["data"]["code"] == "unauthorized"
+      test_with_auths(
+        "/account.get",
+        fn {_, response} ->
+          refute response["success"]
+          assert response["data"]["object"] == "error"
+          assert response["data"]["code"] == "unauthorized"
 
-        assert response["data"]["description"] ==
-                 "You are not allowed to perform the requested operation."
-      end, %{"id" => "acc_00000000000000000000000000"})
+          assert response["data"]["description"] ==
+                   "You are not allowed to perform the requested operation."
+        end,
+        %{"id" => "acc_00000000000000000000000000"}
+      )
     end
 
     test "returns 'unauthorized' if the given ID is not in the correct format" do
-      test_with_auths("/account.get", fn {_, response} ->
-        refute response["success"]
-        assert response["data"]["object"] == "error"
-        assert response["data"]["code"] == "unauthorized"
+      test_with_auths(
+        "/account.get",
+        fn {_, response} ->
+          refute response["success"]
+          assert response["data"]["object"] == "error"
+          assert response["data"]["code"] == "unauthorized"
 
-        assert response["data"]["description"] ==
-                 "You are not allowed to perform the requested operation."
-      end, %{"id" => "invalid_format"})
+          assert response["data"]["description"] ==
+                   "You are not allowed to perform the requested operation."
+        end,
+        %{"id" => "invalid_format"}
+      )
     end
   end
 
@@ -280,14 +332,18 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.create", fn {auth, response} ->
-        assert response["success"] == true
-        assert response["data"]["object"] == "account"
-        assert response["data"]["name"] == request_data[auth].name
-        assert response["data"]["parent_id"] == parent.id
-        assert response["data"]["metadata"] == %{"something" => "interesting"}
-        assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
-      end, request_data)
+      test_with_auths(
+        "/account.create",
+        fn {auth, response} ->
+          assert response["success"] == true
+          assert response["data"]["object"] == "account"
+          assert response["data"]["name"] == request_data[auth].name
+          assert response["data"]["parent_id"] == parent.id
+          assert response["data"]["metadata"] == %{"something" => "interesting"}
+          assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
+        end,
+        request_data
+      )
     end
 
     test "creates a new account with no parent_id" do
@@ -306,25 +362,33 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.create", fn {auth, response} ->
-        assert response["success"] == true
-        assert response["data"]["object"] == "account"
-        assert response["data"]["name"] == request_data[auth].name
-        assert response["data"]["parent_id"] == parent.id
-        assert response["data"]["metadata"] == %{"something" => "interesting"}
-        assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
-      end, request_data)
+      test_with_auths(
+        "/account.create",
+        fn {auth, response} ->
+          assert response["success"] == true
+          assert response["data"]["object"] == "account"
+          assert response["data"]["name"] == request_data[auth].name
+          assert response["data"]["parent_id"] == parent.id
+          assert response["data"]["metadata"] == %{"something" => "interesting"}
+          assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
+        end,
+        request_data
+      )
     end
 
     test "returns an error if account name is not provided" do
       parent = User.get_account(get_test_admin())
       request_data = %{name: "", parent_id: parent.id}
 
-      test_with_auths("/account.create", fn {_, response} ->
-        refute response["success"]
-        assert response["data"]["object"] == "error"
-        assert response["data"]["code"] == "client:invalid_parameter"
-      end, request_data)
+      test_with_auths(
+        "/account.create",
+        fn {_, response} ->
+          refute response["success"]
+          assert response["data"]["object"] == "error"
+          assert response["data"]["code"] == "client:invalid_parameter"
+        end,
+        request_data
+      )
     end
 
     test "generates an activity log" do
@@ -344,7 +408,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      assert_logs = fn (logs, originator, target) ->
+      assert_logs = fn logs, originator, target ->
         assert Enum.count(logs) == 3
 
         logs
@@ -384,16 +448,16 @@ defmodule AdminAPI.V1.AccountControllerTest do
       response = admin_user_request("/account.create", request_data[:provider_auth])
       assert response["success"] == true
       account = Account.get(response["data"]["id"])
+
       timestamp
       |> get_all_activity_logs_since()
       |> assert_logs.(user, account)
-
-
 
       timestamp = DateTime.utc_now()
       response = provider_request("/account.create", request_data[:admin_auth])
       assert response["success"] == true
       account = Account.get(response["data"]["id"])
+
       timestamp
       |> get_all_activity_logs_since()
       |> assert_logs.(get_test_key(), account)
@@ -417,13 +481,16 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.update", fn {auth, response} ->
-        assert response["success"] == true
-        assert response["data"]["object"] == "account"
-        assert response["data"]["name"] == request_data[auth].name
-        assert response["data"]["description"] == request_data[auth].description
-      end, request_data)
-
+      test_with_auths(
+        "/account.update",
+        fn {auth, response} ->
+          assert response["success"] == true
+          assert response["data"]["object"] == "account"
+          assert response["data"]["name"] == request_data[auth].name
+          assert response["data"]["description"] == request_data[auth].description
+        end,
+        request_data
+      )
     end
 
     test "updates the account's categories" do
@@ -443,36 +510,50 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.update", fn {auth, response} ->
-        assert response["success"] == true
-        assert response["data"]["object"] == "account"
-        assert response["data"]["category_ids"] == request_data[auth].category_ids
-        assert List.first(response["data"]["categories"]["data"])["id"] == List.first(request_data[auth].category_ids)
-      end, request_data)
+      test_with_auths(
+        "/account.update",
+        fn {auth, response} ->
+          assert response["success"] == true
+          assert response["data"]["object"] == "account"
+          assert response["data"]["category_ids"] == request_data[auth].category_ids
+
+          assert List.first(response["data"]["categories"]["data"])["id"] ==
+                   List.first(request_data[auth].category_ids)
+        end,
+        request_data
+      )
     end
 
     test "returns a 'client:invalid_parameter' error if id is not provided" do
       request_data = params_for(:account, %{id: nil})
 
-      test_with_auths("/account.update", fn {_, response} ->
-        refute response["success"]
-        assert response["data"]["object"] == "error"
-        assert response["data"]["code"] == "client:invalid_parameter"
-        assert response["data"]["description"] == "Invalid parameter provided."
-      end, request_data)
+      test_with_auths(
+        "/account.update",
+        fn {_, response} ->
+          refute response["success"]
+          assert response["data"]["object"] == "error"
+          assert response["data"]["code"] == "client:invalid_parameter"
+          assert response["data"]["description"] == "Invalid parameter provided."
+        end,
+        request_data
+      )
     end
 
     test "returns a 'unauthorized' error if id is invalid" do
       request_data = params_for(:account, %{id: "invalid_format"})
 
-      test_with_auths("/account.update", fn {_, response} ->
-       refute response["success"]
-       assert response["data"]["object"] == "error"
-       assert response["data"]["code"] == "unauthorized"
+      test_with_auths(
+        "/account.update",
+        fn {_, response} ->
+          refute response["success"]
+          assert response["data"]["object"] == "error"
+          assert response["data"]["code"] == "unauthorized"
 
-       assert response["data"]["description"] ==
-                "You are not allowed to perform the requested operation."
-      end, request_data)
+          assert response["data"]["description"] ==
+                   "You are not allowed to perform the requested operation."
+        end,
+        request_data
+      )
     end
 
     test "generates an activity log" do
@@ -494,7 +575,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      assert_logs = fn (logs, originator, target) ->
+      assert_logs = fn logs, originator, target ->
         assert Enum.count(logs) == 1
 
         logs
@@ -517,6 +598,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       response = admin_user_request("/account.update", request_data[:provider_auth])
       assert response["success"] == true
       account = Account.get(response["data"]["id"])
+
       timestamp
       |> get_all_activity_logs_since()
       |> assert_logs.(admin, account)
@@ -525,11 +607,11 @@ defmodule AdminAPI.V1.AccountControllerTest do
       response = provider_request("/account.update", request_data[:admin_auth])
       assert response["success"] == true
       account = Account.get(response["data"]["id"])
+
       timestamp
       |> get_all_activity_logs_since()
       |> assert_logs.(get_test_key(), account)
     end
-
   end
 
   describe "/account.upload_avatar" do
@@ -554,24 +636,34 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.upload_avatar", fn {auth, response} ->
-        assert response["success"]
-        assert response["data"]["object"] == "account"
+      test_with_auths(
+        "/account.upload_avatar",
+        fn {auth, response} ->
+          assert response["success"]
+          assert response["data"]["object"] == "account"
 
-        assert response["data"]["avatar"]["large"] =~
-                 "http://localhost:4000/public/uploads/test/account/avatars/#{request_data[auth].id}/large.png?v="
+          assert response["data"]["avatar"]["large"] =~
+                   "http://localhost:4000/public/uploads/test/account/avatars/#{
+                     request_data[auth].id
+                   }/large.png?v="
 
-        assert response["data"]["avatar"]["original"] =~
-                 "http://localhost:4000/public/uploads/test/account/avatars/#{request_data[auth].id}/original.jpg?v="
+          assert response["data"]["avatar"]["original"] =~
+                   "http://localhost:4000/public/uploads/test/account/avatars/#{
+                     request_data[auth].id
+                   }/original.jpg?v="
 
-        assert response["data"]["avatar"]["small"] =~
-                 "http://localhost:4000/public/uploads/test/account/avatars/#{request_data[auth].id}/small.png?v="
+          assert response["data"]["avatar"]["small"] =~
+                   "http://localhost:4000/public/uploads/test/account/avatars/#{
+                     request_data[auth].id
+                   }/small.png?v="
 
-        assert response["data"]["avatar"]["thumb"] =~
-                 "http://localhost:4000/public/uploads/test/account/avatars/#{request_data[auth].id}/thumb.png?v="
-      end, request_data)
-
-
+          assert response["data"]["avatar"]["thumb"] =~
+                   "http://localhost:4000/public/uploads/test/account/avatars/#{
+                     request_data[auth].id
+                   }/thumb.png?v="
+        end,
+        request_data
+      )
     end
 
     test "fails to upload an invalid file" do
@@ -585,10 +677,14 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.upload_avatar", fn {_, response} ->
-        refute response["success"]
-        assert response["data"]["code"] == "client:invalid_parameter"
-      end, request_data)
+      test_with_auths(
+        "/account.upload_avatar",
+        fn {_, response} ->
+          refute response["success"]
+          assert response["data"]["code"] == "client:invalid_parameter"
+        end,
+        request_data
+      )
     end
 
     test "returns an error when 'avatar' is not sent" do
@@ -598,10 +694,14 @@ defmodule AdminAPI.V1.AccountControllerTest do
         "id" => account.id
       }
 
-      test_with_auths("/account.upload_avatar", fn {_, response} ->
-        refute response["success"]
-        assert response["data"]["code"] == "client:invalid_parameter"
-      end, request_data)
+      test_with_auths(
+        "/account.upload_avatar",
+        fn {_, response} ->
+          refute response["success"]
+          assert response["data"]["code"] == "client:invalid_parameter"
+        end,
+        request_data
+      )
     end
 
     test "removes the avatar from an account" do
@@ -625,9 +725,13 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.upload_avatar", fn {_, response} ->
-        assert response["success"]
-      end, request_data)
+      test_with_auths(
+        "/account.upload_avatar",
+        fn {_, response} ->
+          assert response["success"]
+        end,
+        request_data
+      )
 
       request_data = %{
         :provider_auth => %{
@@ -640,11 +744,15 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.upload_avatar", fn {auth, response} ->
-        assert response["success"]
-        account = Account.get(request_data[auth].id)
-        assert account.avatar == nil
-      end, request_data)
+      test_with_auths(
+        "/account.upload_avatar",
+        fn {auth, response} ->
+          assert response["success"]
+          account = Account.get(request_data[auth].id)
+          assert account.avatar == nil
+        end,
+        request_data
+      )
     end
 
     test "removes the avatar from an account with empty string" do
@@ -668,9 +776,13 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.upload_avatar", fn {_, response} ->
-        assert response["success"]
-      end, request_data)
+      test_with_auths(
+        "/account.upload_avatar",
+        fn {_, response} ->
+          assert response["success"]
+        end,
+        request_data
+      )
 
       request_data = %{
         :provider_auth => %{
@@ -683,11 +795,15 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.upload_avatar", fn {auth, response} ->
-        assert response["success"]
-        account = Account.get(request_data[auth].id)
-        assert account.avatar == nil
-      end, request_data)
+      test_with_auths(
+        "/account.upload_avatar",
+        fn {auth, response} ->
+          assert response["success"]
+          account = Account.get(request_data[auth].id)
+          assert account.avatar == nil
+        end,
+        request_data
+      )
     end
 
     test "removes the avatar from an account with 'null' string" do
@@ -711,9 +827,13 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.upload_avatar", fn {_, response} ->
-        assert response["success"]
-      end, request_data)
+      test_with_auths(
+        "/account.upload_avatar",
+        fn {_, response} ->
+          assert response["success"]
+        end,
+        request_data
+      )
 
       request_data = %{
         :provider_auth => %{
@@ -726,11 +846,15 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.upload_avatar", fn {auth, response} ->
-        assert response["success"]
-        account = Account.get(request_data[auth].id)
-        assert account.avatar == nil
-      end, request_data)
+      test_with_auths(
+        "/account.upload_avatar",
+        fn {auth, response} ->
+          assert response["success"]
+          account = Account.get(request_data[auth].id)
+          assert account.avatar == nil
+        end,
+        request_data
+      )
     end
 
     test "returns 'unauthorized' if the given account ID was not found" do
@@ -742,14 +866,18 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths("/account.upload_avatar", fn {_, response} ->
-        refute response["success"]
-        assert response["data"]["object"] == "error"
-        assert response["data"]["code"] == "unauthorized"
+      test_with_auths(
+        "/account.upload_avatar",
+        fn {_, response} ->
+          refute response["success"]
+          assert response["data"]["object"] == "error"
+          assert response["data"]["code"] == "unauthorized"
 
-        assert response["data"]["description"] ==
-                 "You are not allowed to perform the requested operation."
-      end, request_data)
+          assert response["data"]["description"] ==
+                   "You are not allowed to perform the requested operation."
+        end,
+        request_data
+      )
     end
 
     test "generates an activity log" do
@@ -774,7 +902,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      assert_logs = fn (logs, originator, target) ->
+      assert_logs = fn logs, originator, target ->
         assert Enum.count(logs) == 1
 
         logs
@@ -797,6 +925,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       response = admin_user_request("/account.upload_avatar", request_data[:provider_auth])
       assert response["success"] == true
       account = Account.get(account1.id)
+
       timestamp
       |> get_all_activity_logs_since()
       |> assert_logs.(admin, account)
@@ -805,6 +934,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       response = provider_request("/account.upload_avatar", request_data[:admin_auth])
       assert response["success"] == true
       account = Account.get(account2.id)
+
       timestamp
       |> get_all_activity_logs_since()
       |> assert_logs.(get_test_key(), account)
