@@ -83,6 +83,7 @@ class SearchGroup extends PureComponent {
       <SearchGroupContainer onSubmit={this.onSearch} noValidate search={this.state.searching}>
         <Icon name='Search' button hoverable={!this.state.searching} onClick={this.onClickSearch} />
         <InlineInput
+          {...this.props}
           search={this.state.searching}
           registerRef={this.registerRef}
           onPressEscape={this.handleClickOutside}

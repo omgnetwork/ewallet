@@ -100,9 +100,6 @@ class AccountPage extends Component {
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
     }
-    if (key === 'updated_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
-    }
     if (key === 'avatar') {
       return null
     }
@@ -139,7 +136,7 @@ class AccountPage extends Component {
   renderActivityPage = ({ data: activities, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
-        <TopNavigation title={'Activities'} buttons={[]} />
+        <TopNavigation title={'Activities'} buttons={[]} normalPlaceholder='originator id, action' />
         <SortableTableContainer
           innerRef={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
