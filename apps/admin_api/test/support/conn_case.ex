@@ -276,6 +276,33 @@ defmodule AdminAPI.ConnCase do
     |> json_response(status)
   end
 
+  def test_with_auths(path, func, data \\ %{}, opts \\ [])
+
+  def test_with_auths(
+        path,
+        func,
+        %{:provider_auth => provider_auth_params, :admin_auth => admin_auth_params},
+        opts
+      ) do
+    Enum.each(
+      [
+        {:provider_auth, provider_request(path, provider_auth_params, opts)},
+        {:admin_auth, admin_user_request(path, admin_auth_params, opts)}
+      ],
+      func
+    )
+  end
+
+  def test_with_auths(path, func, data, opts) do
+    Enum.each(
+      [
+        {:provider_auth, provider_request(path, data, opts)},
+        {:admin_auth, admin_user_request(path, data, opts)}
+      ],
+      func
+    )
+  end
+
   @doc """
   A helper function that generates a valid provider request
   with given path and data, and return the parsed JSON response.
@@ -358,11 +385,10 @@ defmodule AdminAPI.ConnCase do
   @doc """
   Tests that the specified endpoint supports 'match_any' filtering.
   """
-  defmacro test_supports_match_any(endpoint, auth_type, factory, field, opts \\ []) do
+  defmacro test_supports_match_any(endpoint, factory, field, opts \\ []) do
     quote do
       test "supports match_any filtering" do
         endpoint = unquote(endpoint)
-        auth_type = unquote(auth_type)
         factory = unquote(factory)
         field = unquote(field)
         opts = unquote(opts)
@@ -390,23 +416,22 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        response =
-          case auth_type do
-            :admin_auth -> admin_user_request(endpoint, attrs)
-            :provider_auth -> provider_request(endpoint, attrs)
-          end
+        test_with_auths(
+          endpoint,
+          fn {_, response} ->
+            assert response["success"]
 
-        assert response["success"]
-
-        records = response["data"]["data"]
-        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_2" end)
-        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_4" end)
-        assert Enum.count(records) == 2
+            records = response["data"]["data"]
+            assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_2" end)
+            assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_4" end)
+            assert Enum.count(records) == 2
+          end,
+          attrs
+        )
       end
 
       test "handles unsupported match_any comparator" do
         endpoint = unquote(endpoint)
-        auth_type = unquote(auth_type)
         field = unquote(field)
         field_name = Atom.to_string(field)
 
@@ -420,19 +445,19 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        response =
-          case auth_type do
-            :admin_auth -> admin_user_request(endpoint, attrs)
-            :provider_auth -> provider_request(endpoint, attrs)
-          end
+        test_with_auths(
+          endpoint,
+          fn {_, response} ->
+            refute response["success"]
+            assert response["data"]["object"] == "error"
+            assert response["data"]["code"] == "client:invalid_parameter"
 
-        refute response["success"]
-        assert response["data"]["object"] == "error"
-        assert response["data"]["code"] == "client:invalid_parameter"
-
-        assert response["data"]["description"] ==
-                 "Invalid parameter provided. " <>
-                   "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
+            assert response["data"]["description"] ==
+                     "Invalid parameter provided. " <>
+                       "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
+          end,
+          attrs
+        )
       end
     end
   end
@@ -440,11 +465,10 @@ defmodule AdminAPI.ConnCase do
   @doc """
   Tests that the specified endpoint supports 'match_all' filtering.
   """
-  defmacro test_supports_match_all(endpoint, auth_type, factory, field, opts \\ []) do
+  defmacro test_supports_match_all(endpoint, factory, field, opts \\ []) do
     quote do
       test "supports match_all filtering" do
         endpoint = unquote(endpoint)
-        auth_type = unquote(auth_type)
         factory = unquote(factory)
         field = unquote(field)
         opts = unquote(opts)
@@ -472,22 +496,21 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        response =
-          case auth_type do
-            :admin_auth -> admin_user_request(endpoint, attrs)
-            :provider_auth -> provider_request(endpoint, attrs)
-          end
+        test_with_auths(
+          endpoint,
+          fn {_, response} ->
+            assert response["success"]
 
-        assert response["success"]
-
-        records = response["data"]["data"]
-        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "this_should_match" end)
-        assert Enum.count(records) == 1
+            records = response["data"]["data"]
+            assert Enum.any?(records, fn r -> Map.get(r, field_name) == "this_should_match" end)
+            assert Enum.count(records) == 1
+          end,
+          attrs
+        )
       end
 
       test "handles unsupported match_all comparator" do
         endpoint = unquote(endpoint)
-        auth_type = unquote(auth_type)
         field = unquote(field)
         field_name = Atom.to_string(field)
 
@@ -501,19 +524,19 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        response =
-          case auth_type do
-            :admin_auth -> admin_user_request(endpoint, attrs)
-            :provider_auth -> provider_request(endpoint, attrs)
-          end
+        test_with_auths(
+          endpoint,
+          fn {_, response} ->
+            refute response["success"]
+            assert response["data"]["object"] == "error"
+            assert response["data"]["code"] == "client:invalid_parameter"
 
-        refute response["success"]
-        assert response["data"]["object"] == "error"
-        assert response["data"]["code"] == "client:invalid_parameter"
-
-        assert response["data"]["description"] ==
-                 "Invalid parameter provided. " <>
-                   "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
+            assert response["data"]["description"] ==
+                     "Invalid parameter provided. " <>
+                       "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
+          end,
+          attrs
+        )
       end
     end
   end
