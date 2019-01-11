@@ -1,5 +1,6 @@
 version: 2
 
+
 presets:
   defaults: &defaults
     working_directory: ~/src
@@ -60,11 +61,11 @@ jobs:
             - apps/admin_panel/assets/node_modules
       -  persist_to_workspace:
           name: Persisting workspace
-          root: ~/src
+          root: ~/
           paths:
-            - deps
-            - _build
-            - apps/admin_panel/assets/node_modules
+            - src/deps
+            - src/_build
+            - src/apps/admin_panel/assets/node_modules
 
   lint:
     <<: *defaults
@@ -72,7 +73,7 @@ jobs:
       - checkout
       - attach_workspace: &ewallet_workspace
           name: Attaching workspace
-          at: ~/src
+          at: ~/
       - run:
           name: Checking code formattings
           command: |
@@ -136,6 +137,7 @@ jobs:
       - restore_cache:
           name: Restoring Docker image artifacts from cache
           keys:
+            - v1-docker-image-{{ checksum "Dockerfile" }}-{{ checksum "mix.exs" }}
             - v1-docker-image-{{ checksum "Dockerfile" }}
             - v1-docker-image-
       - run:
@@ -144,19 +146,18 @@ jobs:
             set -xe
             docker load -i ~/caches/docker-layers.tar || true
             make docker-build IMAGE_NAME=$IMAGE_NAME
-            mkdir -p ~/caches /tmp/workspace
+            mkdir -p ~/caches
             docker save -o ~/caches/docker-layers.tar "$IMAGE_NAME"
-            docker save -o /tmp/workspace/docker-image.tar "$IMAGE_NAME"
       - save_cache:
           name: Saving Docker image layer cache
           paths:
             - ~/caches/docker-layers.tar
-          key: v1-docker-image-{{ checksum "Dockerfile" }}
+          key: v1-docker-image-{{ checksum "Dockerfile" }}-{{ checksum "mix.exs" }}
       - persist_to_workspace:
           name: Persisting workspace
-          root: /tmp/workspace
+          root: ~/
           paths:
-            - docker-image.tar
+            - caches/docker-layers.tar
 
   test_e2e:
     <<: *defaults
@@ -165,7 +166,7 @@ jobs:
       - checkout
       - attach_workspace: &ewallet_docker_workspace
           name: Attaching workspace
-          at: /tmp/workspace
+          at: ~/
       - run:
           name: Preparing E2E environments
           command: |
@@ -182,7 +183,7 @@ jobs:
             E2E_TEST_USER_PASSWORD=$(openssl rand -base64 24 | tr '+/' '-_')
             EOF
 
-            docker load -i /tmp/workspace/docker-image.tar
+            docker load -i ~/caches/docker-layers.tar
             docker network create net0
 
             sh docker-gen.sh -i "$IMAGE_NAME" -n net0 -f .env > docker-compose.override.yml
@@ -228,7 +229,7 @@ jobs:
           name: Publishing Docker image
           command: |
             set -xe
-            docker load -i /tmp/workspace/docker-image.tar
+            docker load -i ~/caches/docker-layers.tar
 
             IMAGE_TAG=""
             if [ -n "$CIRCLE_TAG" ]; then
@@ -269,15 +270,12 @@ workflows:
   test_build:
     jobs:
       - build_test
-
       - lint:
           requires:
             - build_test
-
       - test:
           requires:
             - build_test
-
       - build:
           requires:
             - lint
@@ -289,12 +287,10 @@ workflows:
                 - 633-dialyxir
             tags:
               only: /^v.*/
-
       - test_e2e:
           requires:
             - build
           filters: *mainline_branches
-
       - publish:
           requires:
             - test_e2e
