@@ -16,15 +16,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          name: Restoring eWallet dependencies from cache
+          name: Restoring eWallet artifacts from cache
           keys:
-            - v1-ewallet-deps-{{ checksum "mix.lock" }}
-            - v1-ewallet-deps-
-      - restore_cache:
-          name: Restoring eWallet test artifacts from cache
-          keys:
-            - v1-ewallet-test-build-{{ checksum "mix.exs" }}
-            - v1-ewallet-test-build-
+            - v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
+            - v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-
+            - v1-ewallet-{{ checksum "mix.lock" }}-
+            - v1-ewallet-
       - run:
           name: Building eWallet in test environment
           command: |
@@ -34,30 +31,17 @@ jobs:
             #   See also admin_api/config/config.exs
             mix deps.clean bcrypt_elixir mime --build
             make build-test
-      - save_cache:
-          name: Caching eWallet dependencies
-          key: v1-ewallet-deps-{{ checksum "mix.lock" }}
-          paths:
-            - deps
-      - save_cache:
-          name: Caching eWallet test artifacts
-          key: v1-ewallet-test-build-{{ checksum "mix.exs" }}
-          paths:
-            - _build/test
-      - restore_cache:
-          name: Restoring eWallet assets dependencies from cache
-          keys:
-            - v1-ewallet-assets-deps-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
-            - v1-ewallet-assets-deps-
       - run:
           name: Building eWallet assets
           command: |
             set -xe
             make deps-assets
       - save_cache:
-          name: Caching eWallet assets dependencies
-          key: v1-ewallet-assets-deps-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
+          name: Caching eWallet artifacts
+          key: v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
           paths:
+            - deps
+            - _build/test
             - apps/admin_panel/assets/node_modules
       -  persist_to_workspace:
           name: Persisting workspace
@@ -120,28 +104,16 @@ jobs:
       - restore_cache:
           name: Restoring eWallet production artifacts from cache
           keys:
-            - v1-ewallet-prod-build-{{ checksum "mix.exs" }}
-            - v1-ewallet-prod-build-
+            - v1-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
+            - v1-ewallet-prod-{{ checksum "mix.exs" }}-
+            - v1-ewallet-prod-
       - run:
           name: Building eWallet in production environment
           command: |
             set -xe
             make build-prod
-      - save_cache:
-          name: Caching eWallet artifacts
-          key: v1-ewallet-prod-build-{{ checksum "mix.exs" }}
-          paths:
-            - _build/prod/.mix
-            - _build/prod/consolidated
-            - _build/prod/lib
-      - restore_cache:
-          name: Restoring Docker image artifacts from cache
-          keys:
-            - v1-docker-image-{{ checksum "Dockerfile" }}-{{ checksum "mix.exs" }}
-            - v1-docker-image-{{ checksum "Dockerfile" }}
-            - v1-docker-image-
       - run:
-          name: Building Docker image
+          name: Building eWallet Docker image
           command: |
             set -xe
             docker load -i ~/caches/docker-layers.tar || true
@@ -149,10 +121,13 @@ jobs:
             mkdir -p ~/caches
             docker save -o ~/caches/docker-layers.tar "$IMAGE_NAME"
       - save_cache:
-          name: Saving Docker image layer cache
+          name: Caching eWallet production artifacts
+          key: v1-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
           paths:
+            - _build/prod/.mix
+            - _build/prod/consolidated
+            - _build/prod/lib
             - ~/caches/docker-layers.tar
-          key: v1-docker-image-{{ checksum "Dockerfile" }}-{{ checksum "mix.exs" }}
       - persist_to_workspace:
           name: Persisting workspace
           root: ~/
