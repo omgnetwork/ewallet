@@ -14,47 +14,65 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache: &ewallet_deps
+      - restore_cache:
           name: Restoring eWallet dependencies from cache
           keys:
             - v1-ewallet-deps-{{ checksum "mix.lock" }}
             - v1-ewallet-deps-
-      - restore_cache: &ewallet_test_build
+      - restore_cache:
           name: Restoring eWallet test artifacts from cache
           keys:
             - v1-ewallet-test-build-{{ checksum "mix.exs" }}
             - v1-ewallet-test-build-
       - run:
-          name: Retrieving eWallet dependencies
+          name: Building eWallet in test environment
           command: |
             set -xe
-            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
-            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            make deps-ewallet
+            # * Clean bcrypt_elixir to avoid NIF issue due to broken cache.
+            # * Clean mime in order to make the new type recognized by mime app.
+            #   See also admin_api/config/config.exs
+            mix deps.clean bcrypt_elixir mime --build
+            make build-test
       - save_cache:
           name: Caching eWallet dependencies
           key: v1-ewallet-deps-{{ checksum "mix.lock" }}
           paths:
             - deps
-      - run:
-          name: Building eWallet in test environment
-          command: |
-            set -xe
-            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
-            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            make build-test
       - save_cache:
           name: Caching eWallet test artifacts
           key: v1-ewallet-test-build-{{ checksum "mix.exs" }}
           paths:
             - _build/test
+      - restore_cache:
+          name: Restoring eWallet assets dependencies from cache
+          keys:
+            - v1-ewallet-assets-deps-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
+            - v1-ewallet-assets-deps-
+      - run:
+          name: Building eWallet assets
+          command: |
+            set -xe
+            make deps-assets
+      - save_cache:
+          name: Caching eWallet assets dependencies
+          key: v1-ewallet-assets-deps-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
+          paths:
+            - apps/admin_panel/assets/node_modules
+      -  persist_to_workspace:
+          name: Persisting workspace
+          root: ~/src
+          paths:
+            - deps
+            - _build
+            - apps/admin_panel/assets/node_modules
 
   lint:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache: *ewallet_deps
-      - restore_cache: *ewallet_test_build
+      - attach_workspace: &ewallet_workspace
+          name: Attaching workspace
+          at: ~/src
       - run:
           name: Checking code formattings
           command: |
@@ -64,10 +82,6 @@ jobs:
           name: Checking credo
           command: |
             set -xe
-            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
-            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            make deps-ewallet
             make check-credo
           environment:
             MIX_ENV: test
@@ -79,20 +93,11 @@ jobs:
       - image: postgres:9.6-alpine
     steps:
       - checkout
-      - restore_cache: *ewallet_deps
-      - restore_cache: *ewallet_test_build
-      - restore_cache: &ewallet_deps_assets
-          name: Restoring eWallet assets dependencies from cache
-          keys:
-            - v1-ewallet-assets-deps-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
-            - v1-ewallet-assets-deps-
+      - attach_workspace: *ewallet_workspace
       - run:
           name: Running eWallet tests
           command: |
             set -xe
-            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
-            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
             make test-ewallet
           environment:
             DATABASE_URL: postgresql://postgres:@localhost:5432/ewallet
@@ -103,33 +108,23 @@ jobs:
           name: Running eWallet assets tests
           command: |
             set -xe
-            make deps-assets
             make test-assets
-      - save_cache:
-          name: Caching eWallet test dependencies
-          key: v1-ewallet-assets-deps-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
-          paths:
-            - apps/admin_panel/assets/node_modules
 
   build:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache: *ewallet_deps
-      - restore_cache: *ewallet_deps_assets
+      - setup_remote_docker
+      - attach_workspace: *ewallet_workspace
       - restore_cache:
           name: Restoring eWallet production artifacts from cache
           keys:
             - v1-ewallet-prod-build-{{ checksum "mix.exs" }}
             - v1-ewallet-prod-build-
-      - setup_remote_docker
       - run:
           name: Building eWallet in production environment
           command: |
             set -xe
-            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
-            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
             make build-prod
       - save_cache:
           name: Caching eWallet artifacts
@@ -168,7 +163,7 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
-      - attach_workspace: &attach_workspace
+      - attach_workspace: &ewallet_docker_workspace
           name: Attaching workspace
           at: /tmp/workspace
       - run:
@@ -224,7 +219,7 @@ jobs:
     <<: *defaults
     steps:
       - setup_remote_docker
-      - attach_workspace: *attach_workspace
+      - attach_workspace: *ewallet_docker_workspace
       - run:
           name: Logging into Docker Hub
           command: |
@@ -291,6 +286,7 @@ workflows:
             branches:
               only:
                 - master
+                - 633-dialyxir
             tags:
               only: /^v.*/
 
