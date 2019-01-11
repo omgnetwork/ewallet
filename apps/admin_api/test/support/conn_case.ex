@@ -276,6 +276,69 @@ defmodule AdminAPI.ConnCase do
     |> json_response(status)
   end
 
+
+  @doc """
+  Converts the given test block into 2 independent tests: one that makes a provider_auth request,
+  and another that makes an admin_auth request.
+
+  This function converts all `request/3` calls found in the code block into
+  `provider_request/3` and `admin_user_request/3` automatically.
+
+  For example:
+
+  ```
+  temp_test_with_auths "request function is converted" do
+    response = request("/account.all", %{})
+  end
+  ```
+
+  Becomes:
+
+  ```
+  test "request function is converted with admin_auth" do
+    response = admin_user_request("/account.all", %{})
+  end
+
+  test "request function is converted with provider_auth" do
+    response = provider_request("/account.all", %{})
+  end
+  ```
+  """
+  defmacro temp_test_with_auths(test_name, do: test_block) do
+    provider_test_block = Macro.prewalk(test_block, fn
+      {:make_request, meta, args} -> {:provider_request, meta, args}
+      node -> node
+    end)
+
+    admin_test_block = Macro.prewalk(test_block, fn
+      {:make_request, meta, args} -> {:admin_user_request, meta, args}
+      node -> node
+    end)
+
+    quote do
+      test unquote(test_name) <> " with admin_auth" do
+        unquote(provider_test_block)
+      end
+
+      test unquote(test_name) <> " with provider_auth" do
+        unquote(admin_test_block)
+      end
+    end
+  end
+
+  @doc """
+  Make a request using `provider_request/3` or `admin_user_request/3`
+  depending on the running context.
+
+  This function can only be used within `temp_test_with_auths/2`, and cannot
+  be invoked directly.
+
+  To make a request, use `provider_request/3` or `admin_user_request/3` instead.
+  """
+  def request(_, _ \\ %{}, _ \\ []) do
+    raise UndefinedFunctionError
+  end
+
   def test_with_auths(path, func, data \\ %{}, opts \\ [])
 
   def test_with_auths(
