@@ -84,7 +84,9 @@ jobs:
       - restore_cache:
           name: Restoring runtime PLT from cache
           keys:
-            - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}
+            - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
+            - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-
+            - v1-ewallet-plt-
       - attach_workspace: &ewallet_workspace
           name: Attaching workspace
           at: ~/
@@ -92,14 +94,16 @@ jobs:
           name: Checking dialyzer
           command: |
             set -xe
+            export PLT_CORE_PATH=$HOME/var/dialyzer
+            mkdir -p $PLT_CORE_PATH
             make check-dialyzer
           environment:
             MIX_ENV: test
       - save_cache:
           name: Caching runtime PLT
-          key: v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}
+          key: v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
           paths:
-            - ~/.mix/*.plt
+            - ~/var/dialyzer
           when: always
 
   test:

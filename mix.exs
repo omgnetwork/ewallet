@@ -18,6 +18,7 @@ defmodule EWallet.Umbrella.Mixfile do
       dialyzer: [
         flags: [:underspecs, :unknown, :unmatched_returns],
         plt_add_apps: [:iex, :mix],
+        plt_core_path: System.get_env("PLT_CORE_PATH"),
         ignore_warnings: ".dialyzer_ignore.exs",
         flags: ~w(-Wunmatched_returns -Werror_handling -Wunderspecs)
       ]
