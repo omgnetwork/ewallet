@@ -13,3 +13,12 @@ export function getActivityLogs ({ perPage, page, sortBy, sortDir, matchAll, mat
     }
   })
 }
+
+export function getActivityLogById (id) {
+  return authenticatedRequest({
+    path: '/activity_log.get',
+    data: {
+      id
+    }
+  })
+}

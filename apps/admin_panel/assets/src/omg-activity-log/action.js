@@ -1,4 +1,4 @@
-import { createPaginationActionCreator } from '../utils/createActionCreator'
+import { createPaginationActionCreator, createActionCreator } from '../utils/createActionCreator'
 import * as activityLogService from '../services/activityLogService'
 export const getActivityLogs = ({ matchAll, matchAny, page, perPage, cacheKey }) =>
   createPaginationActionCreator({
@@ -14,4 +14,11 @@ export const getActivityLogs = ({ matchAll, matchAny, page, perPage, cacheKey })
         matchAny
       }),
     cacheKey
+  })
+
+export const getActivityLogById = id =>
+  createActionCreator({
+    action: 'REQUEST',
+    actionName: 'ACTIVITY',
+    service: () => activityLogService.getActivityLogById(id)
   })

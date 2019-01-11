@@ -7,7 +7,7 @@ export const selectActivitiesCachedQuery = state => cacheKey => {
     return selectGetActivityById(state)(activityId)
   })
 }
-export const selectGetActivityById = state => id => state.activities[id]
+export const selectGetActivityById = state => id => state.activities[id] || {}
 
 export const selectActivitiesCachedQueryPagination = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'pagination', {})

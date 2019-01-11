@@ -2,31 +2,31 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { selectGetActivityById } from './selector'
+import { getActivityLogById } from '../omg-activity-log/action'
 class ActivityProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
-    getactivityById: PropTypes.func,
+    getActivityLogById: PropTypes.func,
     activity: PropTypes.object,
     activityId: PropTypes.string
   }
 
-  componentDidMount () => {
+  componentDidMount () {
     if (!this.props.activity) {
-      this.props.getactivityById(this.props.activityId)
+      this.props.getActivityLogById(this.props.activityId)
     }
   }
   render () {
     return this.props.render({
-      activity: this.props.activity,
-      wallet: this.props.wallet
+      activity: this.props.activity
     })
   }
 }
 export default connect(
   (state, props) => {
     return {
-      activity: selectGetActivityById(state)(this.props.activityId)
+      activity: selectGetActivityById(state)(props.activityId)
     }
   },
-  { ActivityProvider  , getWalletsByUserId }
-)(UserProvider)
+  { getActivityLogById }
+)(ActivityProvider)

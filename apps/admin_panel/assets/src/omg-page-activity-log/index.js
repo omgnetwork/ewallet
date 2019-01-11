@@ -64,6 +64,16 @@ class AccountPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
   }
+  onClickRow = (data, index) => e => {
+    if (e.target.nodeName === 'A') return
+    const searchObject = queryString.parse(this.props.location.search)
+    this.props.history.push({
+      search: queryString.stringify({
+        ...searchObject,
+        'show-activity-tab': data.id
+      })
+    })
+  }
   getColumns = accounts => {
     return [
       { key: 'originator', title: 'ORIGINATOR' },
@@ -149,6 +159,7 @@ class AccountPage extends Component {
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation
+            onClickRow={this.onClickRow}
           />
         </SortableTableContainer>
       </AccountPageContainer>

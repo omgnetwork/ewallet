@@ -14,6 +14,7 @@ import Alert from '../omg-alert'
 import LoadingBar from 'react-redux-loading-bar'
 import TransactionRequestPanel from '../omg-transaction-request-tab'
 import TransactionPanel from '../omg-transaction-panel'
+import ActivityPanel from '../omg-page-activity-log/ActivityPanel'
 import queryString from 'query-string'
 import ConsumptionPanel from '../omg-consumption-panel'
 const Container = styled.div`
@@ -25,7 +26,7 @@ const SideNav = styled(SideNavigation)`
   display: inline-block;
   vertical-align: top;
   flex: 0 0 auto;
-  width : 240px;
+  width: 240px;
 `
 
 const ContentContainer = styled.div`
@@ -134,16 +135,10 @@ class AppLayout extends Component {
           </Content>
         </ContentContainer>
         <Alert />
-        {searchObject['show-request-tab'] && (
-          <TransactionRequestPanel />
-        )}
-        {searchObject['show-consumption-tab'] && (
-        <ConsumptionPanel />
-        )}
-        {searchObject['show-transaction-tab'] && (
-        <TransactionPanel />
-        )}
-
+        {searchObject['show-request-tab'] && <TransactionRequestPanel />}
+        {searchObject['show-consumption-tab'] && <ConsumptionPanel />}
+        {searchObject['show-transaction-tab'] && <TransactionPanel />}
+        {searchObject['show-activity-tab'] && <ActivityPanel />}
       </Container>
     )
   }
