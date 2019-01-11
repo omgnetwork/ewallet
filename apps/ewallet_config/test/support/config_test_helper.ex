@@ -81,7 +81,7 @@ defmodule EWalletConfig.ConfigTestHelper do
 
   defp ensure_applications_started(node) do
     rpc(node, Application, :ensure_all_started, [:mix])
-    rpc(node, Mix, :env, [Mix.env()])
+    rpc(node, Mix, :env, [Application.get_env(:ewallet, :env)])
 
     for {app_name, _, _} <- Application.loaded_applications() do
       rpc(node, Application, :ensure_all_started, [app_name])

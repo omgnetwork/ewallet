@@ -14,7 +14,7 @@
 
 defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWalletDB.{Account, AccountUser, User, AuthToken, Role, Membership}
   alias ActivityLogger.System
 
@@ -247,8 +247,8 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
             "last_name" => inserted_user.metadata["last_name"]
           },
           "encrypted_metadata" => %{},
-          "created_at" => Date.to_iso8601(inserted_user.inserted_at),
-          "updated_at" => Date.to_iso8601(inserted_user.updated_at),
+          "created_at" => DateFormatter.to_iso8601(inserted_user.inserted_at),
+          "updated_at" => DateFormatter.to_iso8601(inserted_user.updated_at),
           "email" => nil,
           "enabled" => inserted_user.enabled,
           "avatar" => %{

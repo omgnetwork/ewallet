@@ -14,9 +14,9 @@
 
 defmodule EWalletAPI.V1.TransactionViewTest do
   use EWalletAPI.ViewCase, :v1
-  alias EWallet.Web.{Date, V1.AccountSerializer, V1.TokenSerializer, V1.UserSerializer}
+  alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, UserSerializer}
   alias EWalletAPI.V1.TransactionView
-  alias Utils.Helpers.Assoc
+  alias Utils.Helpers.{Assoc, DateFormatter}
 
   describe "EWalletAPI.V1.TransactionView.render/2" do
     test "renders transaction.json with correct structure" do
@@ -69,8 +69,8 @@ defmodule EWalletAPI.V1.TransactionViewTest do
           status: transaction.status,
           error_code: nil,
           error_description: nil,
-          created_at: Date.to_iso8601(transaction.inserted_at),
-          updated_at: Date.to_iso8601(transaction.updated_at)
+          created_at: DateFormatter.to_iso8601(transaction.inserted_at),
+          updated_at: DateFormatter.to_iso8601(transaction.updated_at)
         }
       }
 

@@ -17,7 +17,7 @@ defmodule EWallet.Web.V1.TransactionCalculationSerializer do
   Serializes a transaction calculation into V1 JSON response format.
   """
   alias EWallet.Exchange.Calculation
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWallet.Web.V1.ExchangePairSerializer
 
   def serialize(%Calculation{} = calculation) do
@@ -29,7 +29,7 @@ defmodule EWallet.Web.V1.TransactionCalculationSerializer do
       to_token_id: calculation.to_token.id,
       actual_rate: calculation.actual_rate,
       exchange_pair: ExchangePairSerializer.serialize(calculation.pair),
-      calculated_at: Date.to_iso8601(calculation.calculated_at)
+      calculated_at: DateFormatter.to_iso8601(calculation.calculated_at)
     }
   end
 

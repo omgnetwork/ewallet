@@ -1,0 +1,7 @@
+-name <%= release_name %>@${NODE_HOST}
+-setcookie ${ERLANG_COOKIE}
+
+# Min/max port for Erlang to connect to nodes.
+# Used for clustering.
+-kernel inet_dist_listen_min 6900
+-kernel inet_dist_listen_max 6909

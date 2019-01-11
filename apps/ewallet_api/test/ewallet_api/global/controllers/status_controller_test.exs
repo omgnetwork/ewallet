@@ -17,6 +17,8 @@ defmodule EWalletAPI.StatusControllerTest do
 
   describe "GET request to root url" do
     test "returns status ok" do
+      Application.put_env(:ewallet, :version, "1.1.0")
+
       response =
         build_conn()
         |> get(@base_dir <> "/")

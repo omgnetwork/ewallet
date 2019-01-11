@@ -17,7 +17,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
   Serializes address data into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
 
   alias EWallet.Web.V1.{
     AccountSerializer,
@@ -29,7 +29,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
 
   alias EWallet.BalanceFetcher
   alias EWalletDB.{Wallet, Helpers.Preloader}
-  alias Utils.Helpers.Assoc
+  alias Utils.Helpers.{Assoc, DateFormatter}
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -61,8 +61,8 @@ defmodule EWallet.Web.V1.WalletSerializer do
       account: AccountSerializer.serialize(wallet.account),
       balances: serialize_balances(wallet.balances),
       enabled: wallet.enabled,
-      created_at: Date.to_iso8601(wallet.inserted_at),
-      updated_at: Date.to_iso8601(wallet.updated_at)
+      created_at: DateFormatter.to_iso8601(wallet.inserted_at),
+      updated_at: DateFormatter.to_iso8601(wallet.updated_at)
     }
   end
 
@@ -83,8 +83,8 @@ defmodule EWallet.Web.V1.WalletSerializer do
       account: AccountSerializer.serialize(wallet.account),
       balances: nil,
       enabled: wallet.enabled,
-      created_at: Date.to_iso8601(wallet.inserted_at),
-      updated_at: Date.to_iso8601(wallet.updated_at)
+      created_at: DateFormatter.to_iso8601(wallet.inserted_at),
+      updated_at: DateFormatter.to_iso8601(wallet.updated_at)
     }
   end
 

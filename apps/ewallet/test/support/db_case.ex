@@ -16,13 +16,14 @@ defmodule EWallet.DBCase do
   @moduledoc """
   A test case template for tests that need to connect to the DB.
   """
+  use ExUnit.CaseTemplate
   import EWalletDB.Factory
   alias EWalletDB.Repo
   alias EWalletConfig.ConfigTestHelper
 
   defmacro __using__(_opts) do
     quote do
-      use ExUnit.Case
+      use EWallet.Case
       import EWallet.DBCase
       import EWalletDB.Factory
       alias Ecto.Adapters.SQL.Sandbox

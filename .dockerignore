@@ -1,10 +1,8 @@
 # Build
-/_build/
 /cover/
 /deps/
 /docs/
 /.fetch
-*.ez
 node_modules
 
 # Erlang

@@ -33,10 +33,9 @@ defmodule AdminAPI.ConnCase do
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
   alias EWallet.{MintGate, TransactionGate}
-  alias EWallet.Web.Date
   alias EWalletConfig.ConfigTestHelper
   alias EWalletDB.{Account, Key, Repo, User}
-  alias Utils.{Types.ExternalID, Helpers.Crypto}
+  alias Utils.{Types.ExternalID, Helpers.Crypto, Helpers.DateFormatter}
   alias ActivityLogger.System
 
   # Attributes required by Phoenix.ConnTest
@@ -183,7 +182,7 @@ defmodule AdminAPI.ConnCase do
   end
 
   def stringify_keys(%NaiveDateTime{} = value) do
-    Date.to_iso8601(value)
+    DateFormatter.to_iso8601(value)
   end
 
   def stringify_keys(map) when is_map(map) do

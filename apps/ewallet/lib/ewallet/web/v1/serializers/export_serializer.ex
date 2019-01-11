@@ -17,9 +17,9 @@ defmodule EWallet.Web.V1.ExportSerializer do
   Serializes exports data into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.PaginatorSerializer
-  alias Utils.Helpers.Assoc
+  alias Utils.Helpers.{Assoc, DateFormatter}
   alias EWalletDB.Export
 
   def serialize(%Paginator{} = paginator) do
@@ -43,8 +43,8 @@ defmodule EWallet.Web.V1.ExportSerializer do
       # It is returned to the client and could potentially be used to check
       # what's up with a process.
       pid: export.pid,
-      created_at: Date.to_iso8601(export.inserted_at),
-      updated_at: Date.to_iso8601(export.updated_at)
+      created_at: DateFormatter.to_iso8601(export.inserted_at),
+      updated_at: DateFormatter.to_iso8601(export.updated_at)
     }
   end
 

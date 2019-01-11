@@ -15,9 +15,10 @@
 defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWallet.TestEndpoint
-  alias EWallet.Web.{Date, Orchestrator}
+  alias EWallet.Web.Orchestrator
   alias EWalletDB.{Account, Repo, Transaction, TransactionConsumption, User, TransactionRequest}
   alias Phoenix.Socket.Broadcast
+  alias Utils.Helpers.DateFormatter
 
   alias EWallet.Web.V1.{
     TokenSerializer,
@@ -123,11 +124,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "exchange_wallet_address" => nil,
                  "exchange_wallet" => nil,
                  "exchange_account" => nil,
-                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
-                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
-                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
-                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
-                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "created_at" => DateFormatter.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => DateFormatter.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
                  "expired_at" => nil
                }
              }
@@ -209,11 +210,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "exchange_wallet_address" => nil,
                  "exchange_wallet" => nil,
                  "exchange_account" => nil,
-                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
-                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
-                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
-                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
-                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "created_at" => DateFormatter.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => DateFormatter.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
                  "expired_at" => nil
                }
              }
@@ -292,11 +293,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "exchange_wallet_address" => nil,
                  "exchange_wallet" => nil,
                  "exchange_account" => nil,
-                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
-                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
-                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
-                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
-                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "created_at" => DateFormatter.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => DateFormatter.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
                  "expired_at" => nil
                }
              }
@@ -380,11 +381,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "exchange_wallet_address" => nil,
                  "exchange_wallet" => nil,
                  "exchange_account" => nil,
-                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
-                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
-                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
-                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
-                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "created_at" => DateFormatter.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => DateFormatter.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
                  "expired_at" => nil
                }
              }
@@ -672,7 +673,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         originator: meta.bob,
         target: transaction_consumption,
         changes: %{
-          "estimated_at" => NaiveDateTime.to_iso8601(transaction_consumption.estimated_at),
+          "estimated_at" => DateFormatter.to_iso8601(transaction_consumption.estimated_at),
           "estimated_consumption_amount" => 100,
           "estimated_rate" => 1.0,
           "estimated_request_amount" => 100,
@@ -693,7 +694,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         originator: :system,
         target: transaction_consumption,
         changes: %{
-          "approved_at" => NaiveDateTime.to_iso8601(transaction_consumption.approved_at),
+          "approved_at" => DateFormatter.to_iso8601(transaction_consumption.approved_at),
           "status" => "approved"
         },
         encrypted_changes: %{}
@@ -706,7 +707,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         originator: transaction_consumption,
         target: transaction,
         changes: %{
-          "calculated_at" => NaiveDateTime.to_iso8601(transaction.calculated_at),
+          "calculated_at" => DateFormatter.to_iso8601(transaction.calculated_at),
           "from" => meta.alice_wallet.address,
           "from_user_uuid" => meta.alice.uuid,
           "from_amount" => 100,
@@ -757,7 +758,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         originator: transaction,
         target: transaction_consumption,
         changes: %{
-          "confirmed_at" => NaiveDateTime.to_iso8601(transaction_consumption.confirmed_at),
+          "confirmed_at" => DateFormatter.to_iso8601(transaction_consumption.confirmed_at),
           "status" => "confirmed",
           "transaction_uuid" => transaction.uuid
         },
@@ -780,7 +781,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         action: "update",
         originator: :system,
         target: transaction_request,
-        changes: %{"updated_at" => NaiveDateTime.to_iso8601(transaction_request.updated_at)},
+        changes: %{"updated_at" => DateFormatter.to_iso8601(transaction_request.updated_at)},
         encrypted_changes: %{}
       )
     end

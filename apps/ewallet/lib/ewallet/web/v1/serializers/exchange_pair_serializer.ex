@@ -17,10 +17,10 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
   Serializes exchange pairs into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.Paginator
   alias EWallet.Web.V1.{PaginatorSerializer, TokenSerializer}
   alias EWalletDB.ExchangePair
-  alias Utils.Helpers.Assoc
+  alias Utils.Helpers.{Assoc, DateFormatter}
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -43,9 +43,9 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
       to_token_id: Assoc.get(exchange_pair, [:to_token, :id]),
       to_token: TokenSerializer.serialize(exchange_pair.to_token),
       rate: exchange_pair.rate,
-      created_at: Date.to_iso8601(exchange_pair.inserted_at),
-      updated_at: Date.to_iso8601(exchange_pair.updated_at),
-      deleted_at: Date.to_iso8601(exchange_pair.deleted_at)
+      created_at: DateFormatter.to_iso8601(exchange_pair.inserted_at),
+      updated_at: DateFormatter.to_iso8601(exchange_pair.updated_at),
+      deleted_at: DateFormatter.to_iso8601(exchange_pair.deleted_at)
     }
   end
 

@@ -14,7 +14,7 @@
 
 defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.Date
+  alias Utils.Helpers.DateFormatter
   alias EWalletDB.{Invite, User, Repo}
   alias ActivityLogger.System
 
@@ -50,8 +50,8 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
           "last_name" => invite.user.metadata["last_name"]
         },
         "encrypted_metadata" => %{},
-        "created_at" => Date.to_iso8601(invite.user.inserted_at),
-        "updated_at" => Date.to_iso8601(invite.user.updated_at)
+        "created_at" => DateFormatter.to_iso8601(invite.user.inserted_at),
+        "updated_at" => DateFormatter.to_iso8601(invite.user.updated_at)
       }
 
       assert response["success"]
@@ -104,7 +104,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
         action: "update",
         originator: user,
         target: invite,
-        changes: %{"verified_at" => NaiveDateTime.to_iso8601(invite.verified_at)},
+        changes: %{"verified_at" => DateFormatter.to_iso8601(invite.verified_at)},
         encrypted_changes: %{}
       )
 

@@ -23,8 +23,8 @@ defmodule EWallet.Web.V1.CSV.TransactionSerializer do
     PaginatorSerializer
   }
 
-  alias EWallet.Web.{Date, Paginator}
-  alias Utils.Helpers.Assoc
+  alias EWallet.Web.Paginator
+  alias Utils.Helpers.{Assoc, DateFormatter}
   alias EWalletDB.Transaction
 
   def columns do
@@ -36,11 +36,13 @@ defmodule EWallet.Web.V1.CSV.TransactionSerializer do
       :from_address,
       :from_amount,
       :from_token_id,
+      :from_token_subunit_to_unit,
       :to_user_id,
       :to_account_id,
       :to_address,
       :to_amount,
       :to_token_id,
+      :to_token_subunit_to_unit,
       :exchange_rate,
       :exchange_rate_calculated_at,
       :exchange_pair_id,
@@ -70,14 +72,16 @@ defmodule EWallet.Web.V1.CSV.TransactionSerializer do
       from_account_id: Assoc.get(transaction, [:from_account, :id]),
       from_address: transaction.from,
       from_amount: transaction.from_amount,
+      from_token_subunit_to_unit: Assoc.get(transaction, [:from_token, :subunit_to_unit]),
       from_token_id: Assoc.get(transaction, [:from_token, :id]),
       to_user_id: Assoc.get(transaction, [:to_user, :id]),
       to_account_id: Assoc.get(transaction, [:to_account, :id]),
       to_address: transaction.to,
       to_amount: transaction.to_amount,
+      to_token_subunit_to_unit: Assoc.get(transaction, [:to_token, :subunit_to_unit]),
       to_token_id: Assoc.get(transaction, [:to_token, :id]),
       exchange_rate: transaction.rate,
-      exchange_rate_calculated_at: Date.to_iso8601(transaction.calculated_at),
+      exchange_rate_calculated_at: DateFormatter.to_iso8601(transaction.calculated_at),
       exchange_pair_id: Assoc.get(transaction, [:exchange_pair, :id]),
       exchange_account_id: Assoc.get(transaction, [:exchange_account, :id]),
       exchange_wallet_address: Assoc.get(transaction, [:exchange_wallet, :address]),
@@ -86,8 +90,8 @@ defmodule EWallet.Web.V1.CSV.TransactionSerializer do
       status: transaction.status,
       error_code: error[:code],
       error_description: error[:description],
-      created_at: Date.to_iso8601(transaction.inserted_at),
-      updated_at: Date.to_iso8601(transaction.updated_at)
+      created_at: DateFormatter.to_iso8601(transaction.inserted_at),
+      updated_at: DateFormatter.to_iso8601(transaction.updated_at)
     }
     |> Enum.into(%{}, fn {key, value} ->
       {key, format(value)}
