@@ -41,6 +41,7 @@ const SubDetailTitle = styled.div`
   border-bottom: 1px solid ${props => props.theme.colors.S400};
   > span {
     padding: 0 5px;
+    vertical-align: middle;
     :first-child {
       padding-left: 0;
     }
@@ -125,11 +126,11 @@ class TransactionRequestPanel extends Component {
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
               <h4>
-                {activity.originator_type} | {activity.action} |{' '}
-                {moment(activity.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}
+                {_.upperFirst(activity.action)} : {_.upperFirst(activity.target_type)}
               </h4>
               <SubDetailTitle>
-                <span>{activity.id}</span> | <span>{activity.action}</span>
+                <span>{activity.id}</span>|<span>{activity.action}</span>|
+                <span>{moment(activity.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
               </SubDetailTitle>
               <div>
                 <InformationItem>
@@ -182,8 +183,7 @@ class TransactionRequestPanel extends Component {
                 <h5>Changes</h5>
                 {Object.keys(activity.target_changes).map(key => (
                   <InformationItem key={key}>
-                    <b> {_.startCase(_.toLower(key))}</b>{' '}
-                    <span className='colon'> : </span>
+                    <b> {_.startCase(_.toLower(key))}</b> <span className='colon'> : </span>
                     <span>{JSON.stringify(activity.target_changes[key]).replace(/"/g, '')}</span>
                   </InformationItem>
                 ))}
