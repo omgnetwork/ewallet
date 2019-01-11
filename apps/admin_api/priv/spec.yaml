@@ -3197,11 +3197,8 @@ paths:
               properties:
                 email:
                   type: string
-                redirect_url:
-                  type: string
               example:
                 email: new.email@example.com
-                redirect_url: 'https://example.com'
       responses:
         '200': *ref_35
         '500': *ref_2

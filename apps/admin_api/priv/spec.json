@@ -20160,14 +20160,10 @@
                 "properties": {
                   "email": {
                     "type": "string"
-                  },
-                  "redirect_url": {
-                    "type": "string"
                   }
                 },
                 "example": {
-                  "email": "new.email@example.com",
-                  "redirect_url": "https://example.com"
+                  "email": "new.email@example.com"
                 }
               }
             }
