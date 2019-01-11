@@ -50,7 +50,7 @@ check-credo:
 	mix credo
 
 check-dialyzer:
-	mix dialyzer
+	mix dialyzer --halt-exit-status
 
 .PHONY: format check-format check-credo
 
