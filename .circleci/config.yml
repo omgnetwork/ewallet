@@ -70,6 +70,24 @@ jobs:
             make check-credo
           environment:
             MIX_ENV: test
+
+  dialyze:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Determining runtime versions
+          command: |
+            set -xe
+            mkdir -p ~/var
+            elixir --version > ~/var/elixir-version
+      - restore_cache:
+          name: Restoring runtime PLT from cache
+          keys:
+            - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}
+      - attach_workspace: &ewallet_workspace
+          name: Attaching workspace
+          at: ~/
       - run:
           name: Checking dialyzer
           command: |
@@ -77,6 +95,11 @@ jobs:
             make check-dialyzer
           environment:
             MIX_ENV: test
+      - save_cache:
+          name: Caching runtime PLT
+          key: v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}
+          paths:
+            - ~/.mix/*.plt
 
   test:
     <<: *defaults
@@ -256,6 +279,9 @@ workflows:
           requires:
             - build_test
       - test:
+          requires:
+            - build_test
+      - dialyze:
           requires:
             - build_test
       - build:
