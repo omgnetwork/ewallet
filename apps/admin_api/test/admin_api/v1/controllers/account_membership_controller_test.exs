@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
+defmodule AdminAPI.V1.AccountMembershipControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
   alias Utils.Helpers.DateFormatter
@@ -21,7 +21,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
   @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
 
   describe "/account.get_members" do
-    test "returns a list of users with role and status" do
+    test_with_auths "returns a list of users with role and status" do
       master = Account.get_master_account()
       admin = get_test_admin()
       account = insert(:account)
@@ -29,7 +29,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       role = insert(:role)
       _ = insert(:membership, %{account: account, user: user, role: role})
 
-      response = provider_request("/account.get_members", %{id: account.id})
+      response = request("/account.get_members", %{id: account.id})
 
       assert response["success"] == true
       # created user + admin user = 2
@@ -116,12 +116,12 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
              })
     end
 
-    test "returns the upper admins only if the account has no members" do
+    test_with_auths "returns the upper admins only if the account has no members" do
       admin = get_test_admin()
       master = Account.get_master_account()
       account = insert(:account)
 
-      assert provider_request("/account.get_members", %{id: account.id}) ==
+      assert request("/account.get_members", %{id: account.id}) ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -177,8 +177,8 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                }
     end
 
-    test "returns account:id_not_found error if account id could not be found" do
-      assert provider_request("/account.get_members", %{
+    test_with_auths "returns unauthorized error if account id could not be found" do
+      assert request("/account.get_members", %{
                id: "acc_12345678901234567890123456"
              }) ==
                %{
@@ -193,8 +193,8 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                }
     end
 
-    test "returns invalid_parameter error if account id is not provided" do
-      assert provider_request("/account.get_members", %{}) ==
+    test_with_auths "returns invalid_parameter error if account id is not provided" do
+      assert request("/account.get_members", %{}) ==
                %{
                  "success" => false,
                  "version" => "1",
@@ -209,7 +209,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
 
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
-    test "supports match_any filtering on the user fields" do
+    test_with_auths "supports match_any filtering on the user fields" do
       admin_1 = insert(:admin, username: "value_1")
       admin_2 = insert(:admin, username: "value_2")
       admin_3 = insert(:admin, username: "value_3")
@@ -239,7 +239,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
         ]
       }
 
-      response = provider_request("/account.get_members", attrs)
+      response = request("/account.get_members", attrs)
 
       assert response["success"]
 
@@ -254,7 +254,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
 
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
-    test "supports match_any filtering on the membership fields" do
+    test_with_auths "supports match_any filtering on the membership fields" do
       admin_1 = insert(:admin, username: "value_1")
       admin_2 = insert(:admin, username: "value_2")
       admin_3 = insert(:admin, username: "value_3")
@@ -284,7 +284,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
         ]
       }
 
-      response = provider_request("/account.get_members", attrs)
+      response = request("/account.get_members", attrs)
 
       assert response["success"]
 
@@ -298,7 +298,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
 
     # This is a variation of `ConnCase.test_supports_match_all/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
-    test "supports match_all filtering on user fields" do
+    test_with_auths "supports match_all filtering on user fields" do
       admin_1 = insert(:admin, %{username: "this_should_almost_match"})
       admin_2 = insert(:admin, %{username: "this_should_match"})
       admin_3 = insert(:admin, %{username: "should_not_match"})
@@ -328,7 +328,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
         ]
       }
 
-      response = provider_request("/account.get_members", attrs)
+      response = request("/account.get_members", attrs)
 
       assert response["success"]
 
@@ -342,7 +342,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
 
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
-    test "supports match_all filtering on membership fields" do
+    test_with_auths "supports match_all filtering on membership fields" do
       admin_1 = insert(:admin)
       admin_2 = insert(:admin)
       admin_3 = insert(:admin)
@@ -372,7 +372,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
         ]
       }
 
-      response = provider_request("/account.get_members", attrs)
+      response = request("/account.get_members", attrs)
 
       assert response["success"]
 
@@ -385,11 +385,11 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
   end
 
   describe "/account.assign_user" do
-    test "returns empty success if assigned with user_id successfully" do
+    test_with_auths "returns empty success if assigned with user_id successfully" do
       {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
-        provider_request("/account.assign_user", %{
+        request("/account.assign_user", %{
           user_id: user.id,
           account_id: insert(:account).id,
           role_name: insert(:role).name,
@@ -400,9 +400,9 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       assert response["data"] == %{}
     end
 
-    test "returns empty success if assigned with email successfully" do
+    test_with_auths "returns empty success if assigned with email successfully" do
       response =
-        provider_request("/account.assign_user", %{
+        request("/account.assign_user", %{
           email: insert(:admin).email,
           account_id: insert(:account).id,
           role_name: insert(:role).name,
@@ -413,13 +413,13 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       assert response["data"] == %{}
     end
 
-    test "returns empty success if the user has a pending confirmation" do
+    test_with_auths "returns empty success if the user has a pending confirmation" do
       email = "user_pending_confirmation@example.com"
       account = insert(:account)
       role = insert(:role)
 
       response =
-        provider_request("/account.assign_user", %{
+        request("/account.assign_user", %{
           email: email,
           account_id: account.id,
           role_name: role.name,
@@ -432,7 +432,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       assert User.get_status(user) == :pending_confirmation
 
       response =
-        provider_request("/account.assign_user", %{
+        request("/account.assign_user", %{
           email: email,
           account_id: account.id,
           role_name: role.name,
@@ -444,9 +444,9 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       assert response["data"] == %{}
     end
 
-    test "returns an error if the email format is invalid" do
+    test_with_auths "returns an error if the email format is invalid" do
       response =
-        provider_request("/account.assign_user", %{
+        request("/account.assign_user", %{
           email: "invalid_format",
           account_id: insert(:account).id,
           role_name: insert(:role).name,
@@ -459,9 +459,9 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       assert response["data"]["description"] == "The format of the provided email is invalid."
     end
 
-    test "returns an error if the email is nil" do
+    test_with_auths "returns an error if the email is nil" do
       response =
-        provider_request("/account.assign_user", %{
+        request("/account.assign_user", %{
           email: nil,
           account_id: insert(:account).id,
           role_name: insert(:role).name,
@@ -474,11 +474,11 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       assert response["data"]["description"] == "The format of the provided email is invalid."
     end
 
-    test "returns client:invalid_parameter error if the redirect_url is not allowed" do
+    test_with_auths "returns client:invalid_parameter error if the redirect_url is not allowed" do
       redirect_url = "http://unknown-url.com/invite?email={email}&token={token}"
 
       response =
-        provider_request("/account.assign_user", %{
+        request("/account.assign_user", %{
           email: "wrong.redirect.url@example.com",
           account_id: insert(:account).id,
           role_name: insert(:role).name,
@@ -492,9 +492,9 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "The given `redirect_url` is not allowed. Got: '#{redirect_url}'."
     end
 
-    test "returns an error if the given user id does not exist" do
+    test_with_auths "returns an error if the given user id does not exist" do
       response =
-        provider_request("/account.assign_user", %{
+        request("/account.assign_user", %{
           user_id: UUID.generate(),
           account_id: insert(:account).id,
           role_name: insert(:role).name,
@@ -509,11 +509,11 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "There is no user corresponding to the provided id."
     end
 
-    test "returns an error if the given account id does not exist" do
+    test_with_auths "returns an error if the given account id does not exist" do
       {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
-        provider_request("/account.assign_user", %{
+        request("/account.assign_user", %{
           user_id: user.id,
           account_id: "acc_12345678901234567890123456",
           role_name: insert(:role).name,
@@ -528,11 +528,11 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "You are not allowed to perform the requested operation."
     end
 
-    test "returns an error if the given role does not exist" do
+    test_with_auths "returns an error if the given role does not exist" do
       {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
-        provider_request("/account.assign_user", %{
+        request("/account.assign_user", %{
           user_id: user.id,
           account_id: insert(:account).id,
           role_name: "invalid_role",
@@ -547,7 +547,41 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "There is no role corresponding to the provided name."
     end
 
-    test "generates an activity log" do
+    test_with_auths "generates an activity log for an admin request" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      account = insert(:account)
+      role = insert(:role)
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/account.assign_user", %{
+          user_id: user.id,
+          account_id: account.id,
+          role_name: role.name,
+          redirect_url: @redirect_url
+        })
+
+      assert response["success"] == true
+      membership = get_last_inserted(Membership)
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: get_test_admin(),
+        target: membership,
+        changes: %{
+          "account_uuid" => account.uuid,
+          "role_uuid" => role.uuid,
+          "user_uuid" => user.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test_with_auths "generates an activity log for a provider request" do
       {:ok, user} = :user |> params_for() |> User.insert()
       account = insert(:account)
       role = insert(:role)
@@ -583,13 +617,13 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
   end
 
   describe "/account.unassign_user" do
-    test "returns empty success if unassigned successfully" do
+    test_with_auths "returns empty success if unassigned successfully" do
       account = insert(:account)
       {:ok, user} = :user |> params_for() |> User.insert()
       _membership = insert(:membership, %{account: account, user: user})
 
       response =
-        provider_request("/account.unassign_user", %{
+        request("/account.unassign_user", %{
           user_id: user.id,
           account_id: account.id
         })
@@ -598,12 +632,12 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       assert response["data"] == %{}
     end
 
-    test "returns an error if the user was not previously assigned to the account" do
+    test_with_auths "returns an error if the user was not previously assigned to the account" do
       {:ok, user} = :user |> params_for() |> User.insert()
       account = insert(:account)
 
       response =
-        provider_request("/account.unassign_user", %{
+        request("/account.unassign_user", %{
           user_id: user.id,
           account_id: account.id
         })
@@ -616,9 +650,9 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "The user is not assigned to the provided account."
     end
 
-    test "returns an error if the given user id does not exist" do
+    test_with_auths "returns an error if the given user id does not exist" do
       response =
-        provider_request("/account.unassign_user", %{
+        request("/account.unassign_user", %{
           user_id: UUID.generate(),
           account_id: insert(:account).id
         })
@@ -631,11 +665,11 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "There is no user corresponding to the provided id."
     end
 
-    test "returns an error if the given account id does not exist" do
+    test_with_auths "returns an error if the given account id does not exist" do
       {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
-        provider_request("/account.unassign_user", %{
+        request("/account.unassign_user", %{
           user_id: user.id,
           account_id: "acc_12345678901234567890123456"
         })
@@ -648,7 +682,35 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "You are not allowed to perform the requested operation."
     end
 
-    test "generates an activity log" do
+    test "generates an activity log for an admin request" do
+      account = insert(:account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      membership = insert(:membership, %{account: account, user: user})
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/account.unassign_user", %{
+          user_id: user.id,
+          account_id: account.id
+        })
+
+      assert response["success"] == true
+      logs = get_all_activity_logs_since(timestamp)
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "delete",
+        originator: get_test_admin(),
+        target: membership,
+        changes: %{},
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for a provider request" do
       account = insert(:account)
       {:ok, user} = :user |> params_for() |> User.insert()
       membership = insert(:membership, %{account: account, user: user})
