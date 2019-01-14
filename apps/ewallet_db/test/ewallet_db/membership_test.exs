@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWalletDB.MembershipTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias EWalletDB.{Account, Membership, Repo, User}
   alias ActivityLogger.System
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule Utils.Helpers.CryptoTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Utils.Helpers.Crypto
 
   describe "generate_base64_key/1" do

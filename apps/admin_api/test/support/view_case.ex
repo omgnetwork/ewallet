@@ -20,7 +20,7 @@ defmodule AdminAPI.ViewCase do
 
   def v1 do
     quote do
-      use ExUnit.Case
+      use ExUnit.Case, async: true
       import EWalletDB.Factory
       import Phoenix.View
       alias Ecto.Adapters.SQL.Sandbox

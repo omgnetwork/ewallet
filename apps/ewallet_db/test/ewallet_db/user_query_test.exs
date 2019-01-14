@@ -13,8 +13,9 @@
 # limitations under the License.
 
 defmodule EWalletDB.UserQueryTest do
-  use EWalletDB.SchemaCase
-  alias EWalletDB.{User, UserQuery}
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
+  alias EWalletDB.{User, UserQuery, Repo}
 
   describe "where_has_membership/1" do
     test "returns only users with memberships" do

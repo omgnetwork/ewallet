@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.Web.SearchParserTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Web.SearchParser
   alias EWalletDB.{Account, Repo}

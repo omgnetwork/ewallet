@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule AdminAPI.UpdateEmailAddressEmailTest do
-  use AdminAPI.ConnCase
+  use AdminAPI.ConnCase, async: true
   alias AdminAPI.UpdateEmailAddressEmail
   alias EWalletDB.UpdateEmailRequest
 

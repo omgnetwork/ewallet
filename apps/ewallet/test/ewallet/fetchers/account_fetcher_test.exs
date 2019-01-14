@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.AccountFetcherTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.AccountFetcher
   alias EWalletDB.{Account, User}
 

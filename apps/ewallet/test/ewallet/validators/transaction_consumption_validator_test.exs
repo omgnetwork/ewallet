@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.TransactionConsumptionValidatorTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.{TestEndpoint, TransactionConsumptionValidator}
   alias EWalletDB.{Account, Repo, TransactionConsumption, TransactionRequest, User}
   alias ActivityLogger.System

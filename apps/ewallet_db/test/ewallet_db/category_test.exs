@@ -13,9 +13,10 @@
 # limitations under the License.
 
 defmodule EWalletDB.CategoryTest do
-  use EWalletDB.SchemaCase
-  alias EWalletDB.Category
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias ActivityLogger.System
+  alias EWalletDB.{Category, Repo}
 
   defp insert_category(accounts) do
     account_ids = Enum.map(accounts, fn account -> account.id end)

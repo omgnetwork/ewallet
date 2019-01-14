@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWalletDB.WalletTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias Ecto.UUID
   alias Utils.Types.WalletAddress
   alias EWalletDB.{Account, User, Wallet}

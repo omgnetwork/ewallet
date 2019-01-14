@@ -13,9 +13,10 @@
 # limitations under the License.
 
 defmodule EWalletDB.TokenTest do
-  use EWalletDB.SchemaCase
-  alias EWalletDB.Token
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias ActivityLogger.System
+  alias EWalletDB.Token
 
   describe "Token factory" do
     test_has_valid_factory(Token)

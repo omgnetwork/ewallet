@@ -13,9 +13,10 @@
 # limitations under the License.
 
 defmodule EWallet.WalletFetcherTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.WalletFetcher
-  alias EWalletDB.{User, Wallet}
+  alias EWalletDB.{Account, User, Wallet}
 
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()

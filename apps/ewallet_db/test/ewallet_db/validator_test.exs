@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWalletDB.ValidatorTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
   import Ecto.Changeset
   import EWalletDB.Validator
 

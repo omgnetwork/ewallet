@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.Web.PreloaderTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Web.Preloader
   alias EWalletDB.{Repo, Token, Transaction}

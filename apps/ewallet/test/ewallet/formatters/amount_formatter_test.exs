@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.AmountFormatterTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias EWallet.AmountFormatter
 
   describe "format/2" do

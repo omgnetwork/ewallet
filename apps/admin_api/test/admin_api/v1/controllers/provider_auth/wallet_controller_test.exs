@@ -155,12 +155,8 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert Enum.at(wallets, 3)["address"] == Enum.at(ordered_addresses, 3)
       assert Enum.at(wallets, 4)["address"] == Enum.at(ordered_addresses, 4)
 
-      [user_wallet | account_wallets] = wallets
-      assert user_wallet["user_id"] == user.id
-
-      Enum.each(account_wallets, fn wallet ->
-        assert wallet["account_id"] == account.id
-      end)
+      assert Enum.count(wallets, fn w -> w["user_id"] == user.id end) == 1
+      assert Enum.count(wallets, fn w -> w["account_id"] == account.id end) == 4
     end
   end
 
@@ -220,8 +216,8 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       master_wallet = Account.get_primary_wallet(account)
       {:ok, user} = :user |> params_for() |> User.insert()
       user_wallet = User.get_primary_wallet(user)
-      {:ok, btc} = :token |> params_for(symbol: "BTC") |> Token.insert()
-      {:ok, omg} = :token |> params_for(symbol: "OMG") |> Token.insert()
+      {:ok, btc} = :token |> params_for() |> Token.insert()
+      {:ok, omg} = :token |> params_for() |> Token.insert()
 
       mint!(btc)
       mint!(omg)
