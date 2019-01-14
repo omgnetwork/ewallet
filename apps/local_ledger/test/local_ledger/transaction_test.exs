@@ -396,7 +396,7 @@ defmodule LocalLedger.TransactionTest do
       caller_pid = self()
       num_spawns = 200
       amount_per_transaction = 2
-      timeout_ms = 10000
+      timeout_ms = 10_000
 
       balance_mederic = get_current_balance("mederic")
       balance_thibault = get_current_balance("thibault")
