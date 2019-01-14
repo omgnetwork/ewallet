@@ -276,96 +276,6 @@ defmodule AdminAPI.ConnCase do
     |> json_response(status)
   end
 
-
-  @doc """
-  Converts the given test block into 2 independent tests: one that makes a provider_auth request,
-  and another that makes an admin_auth request.
-
-  This function converts all `request/3` calls found in the code block into
-  `provider_request/3` and `admin_user_request/3` automatically.
-
-  For example:
-
-  ```
-  temp_test_with_auths "request function is converted" do
-    response = request("/account.all", %{})
-  end
-  ```
-
-  Becomes:
-
-  ```
-  test "request function is converted with admin_auth" do
-    response = admin_user_request("/account.all", %{})
-  end
-
-  test "request function is converted with provider_auth" do
-    response = provider_request("/account.all", %{})
-  end
-  ```
-  """
-  defmacro temp_test_with_auths(test_name, do: test_block) do
-    provider_test_block = Macro.prewalk(test_block, fn
-      {:make_request, meta, args} -> {:provider_request, meta, args}
-      node -> node
-    end)
-
-    admin_test_block = Macro.prewalk(test_block, fn
-      {:make_request, meta, args} -> {:admin_user_request, meta, args}
-      node -> node
-    end)
-
-    quote do
-      test unquote(test_name) <> " with admin_auth" do
-        unquote(provider_test_block)
-      end
-
-      test unquote(test_name) <> " with provider_auth" do
-        unquote(admin_test_block)
-      end
-    end
-  end
-
-  @doc """
-  Make a request using `provider_request/3` or `admin_user_request/3`
-  depending on the running context.
-
-  This function can only be used within `temp_test_with_auths/2`, and cannot
-  be invoked directly.
-
-  To make a request, use `provider_request/3` or `admin_user_request/3` instead.
-  """
-  def request(_, _ \\ %{}, _ \\ []) do
-    raise UndefinedFunctionError
-  end
-
-  def test_with_auths(path, func, data \\ %{}, opts \\ [])
-
-  def test_with_auths(
-        path,
-        func,
-        %{:provider_auth => provider_auth_params, :admin_auth => admin_auth_params},
-        opts
-      ) do
-    Enum.each(
-      [
-        {:provider_auth, provider_request(path, provider_auth_params, opts)},
-        {:admin_auth, admin_user_request(path, admin_auth_params, opts)}
-      ],
-      func
-    )
-  end
-
-  def test_with_auths(path, func, data, opts) do
-    Enum.each(
-      [
-        {:provider_auth, provider_request(path, data, opts)},
-        {:admin_auth, admin_user_request(path, data, opts)}
-      ],
-      func
-    )
-  end
-
   @doc """
   A helper function that generates a valid provider request
   with given path and data, and return the parsed JSON response.
@@ -450,7 +360,7 @@ defmodule AdminAPI.ConnCase do
   """
   defmacro test_supports_match_any(endpoint, factory, field, opts \\ []) do
     quote do
-      test "supports match_any filtering" do
+      test_with_auths "supports match_any filtering" do
         endpoint = unquote(endpoint)
         factory = unquote(factory)
         field = unquote(field)
@@ -479,21 +389,17 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        test_with_auths(
-          endpoint,
-          fn {_, response} ->
-            assert response["success"]
+        response = request(endpoint, attrs)
 
-            records = response["data"]["data"]
-            assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_2" end)
-            assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_4" end)
-            assert Enum.count(records) == 2
-          end,
-          attrs
-        )
+        assert response["success"]
+
+        records = response["data"]["data"]
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_2" end)
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_4" end)
+        assert Enum.count(records) == 2
       end
 
-      test "handles unsupported match_any comparator" do
+      test_with_auths "handles unsupported match_any comparator" do
         endpoint = unquote(endpoint)
         field = unquote(field)
         field_name = Atom.to_string(field)
@@ -508,19 +414,15 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        test_with_auths(
-          endpoint,
-          fn {_, response} ->
-            refute response["success"]
-            assert response["data"]["object"] == "error"
-            assert response["data"]["code"] == "client:invalid_parameter"
+        response = request(endpoint, attrs)
 
-            assert response["data"]["description"] ==
-                     "Invalid parameter provided. " <>
-                       "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
-          end,
-          attrs
-        )
+        refute response["success"]
+        assert response["data"]["object"] == "error"
+        assert response["data"]["code"] == "client:invalid_parameter"
+
+        assert response["data"]["description"] ==
+                 "Invalid parameter provided. " <>
+                   "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
       end
     end
   end
@@ -530,7 +432,7 @@ defmodule AdminAPI.ConnCase do
   """
   defmacro test_supports_match_all(endpoint, factory, field, opts \\ []) do
     quote do
-      test "supports match_all filtering" do
+      test_with_auths "supports match_all filtering" do
         endpoint = unquote(endpoint)
         factory = unquote(factory)
         field = unquote(field)
@@ -559,20 +461,16 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        test_with_auths(
-          endpoint,
-          fn {_, response} ->
-            assert response["success"]
+        response = request(endpoint, attrs)
 
-            records = response["data"]["data"]
-            assert Enum.any?(records, fn r -> Map.get(r, field_name) == "this_should_match" end)
-            assert Enum.count(records) == 1
-          end,
-          attrs
-        )
+        assert response["success"]
+
+        records = response["data"]["data"]
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "this_should_match" end)
+        assert Enum.count(records) == 1
       end
 
-      test "handles unsupported match_all comparator" do
+      test_with_auths "handles unsupported match_all comparator" do
         endpoint = unquote(endpoint)
         field = unquote(field)
         field_name = Atom.to_string(field)
@@ -587,20 +485,80 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        test_with_auths(
-          endpoint,
-          fn {_, response} ->
-            refute response["success"]
-            assert response["data"]["object"] == "error"
-            assert response["data"]["code"] == "client:invalid_parameter"
+        response = request(endpoint, attrs)
 
-            assert response["data"]["description"] ==
-                     "Invalid parameter provided. " <>
-                       "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
-          end,
-          attrs
-        )
+        refute response["success"]
+        assert response["data"]["object"] == "error"
+        assert response["data"]["code"] == "client:invalid_parameter"
+
+        assert response["data"]["description"] ==
+                 "Invalid parameter provided. " <>
+                   "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
       end
     end
+  end
+
+  @doc """
+  Converts the given test block into 2 independent tests: one that makes a provider_auth request,
+  and another that makes an admin_auth request.
+
+  This function converts all `request/3` calls found in the code block into
+  `provider_request/3` and `admin_user_request/3` automatically.
+
+  For example:
+
+  ```
+  temp_test_with_auths "request function is converted" do
+    response = request("/account.all", %{})
+  end
+  ```
+
+  Becomes:
+
+  ```
+  test "request function is converted with admin_auth" do
+    response = admin_user_request("/account.all", %{})
+  end
+
+  test "request function is converted with provider_auth" do
+    response = provider_request("/account.all", %{})
+  end
+  ```
+  """
+  defmacro test_with_auths(test_name, do: test_block) do
+    provider_test_block =
+      Macro.prewalk(test_block, fn
+        {:request, meta, args} -> {:provider_request, meta, args}
+        node -> node
+      end)
+
+    admin_test_block =
+      Macro.prewalk(test_block, fn
+        {:request, meta, args} -> {:admin_user_request, meta, args}
+        node -> node
+      end)
+
+    quote do
+      test unquote(test_name) <> " with admin_auth" do
+        unquote(provider_test_block)
+      end
+
+      test unquote(test_name) <> " with provider_auth" do
+        unquote(admin_test_block)
+      end
+    end
+  end
+
+  @doc """
+  Make a request using `provider_request/3` or `admin_user_request/3`
+  depending on the running context.
+
+  This function can only be used within `temp_test_with_auths/2`, and cannot
+  be invoked directly.
+
+  To make a request, use `provider_request/3` or `admin_user_request/3` instead.
+  """
+  def request(_, _ \\ %{}, _ \\ []) do
+    raise UndefinedFunctionError
   end
 end

@@ -19,23 +19,22 @@ defmodule AdminAPI.V1.AccountControllerTest do
   alias Utils.Helpers.DateFormatter
 
   describe "/account.all" do
-    test "returns a list of accounts and pagination data" do
-      test_with_auths("/account.all", fn {_, response} ->
-        # Asserts return data
-        assert response["success"]
-        assert response["data"]["object"] == "list"
-        assert is_list(response["data"]["data"])
+    test_with_auths "returns a list of accounts and pagination data" do
+      response = request("/account.all")
+      # Asserts return data
+      assert response["success"]
+      assert response["data"]["object"] == "list"
+      assert is_list(response["data"]["data"])
 
-        # Asserts pagination data
-        pagination = response["data"]["pagination"]
-        assert is_integer(pagination["per_page"])
-        assert is_integer(pagination["current_page"])
-        assert is_boolean(pagination["is_last_page"])
-        assert is_boolean(pagination["is_first_page"])
-      end)
+      # Asserts pagination data
+      pagination = response["data"]["pagination"]
+      assert is_integer(pagination["per_page"])
+      assert is_integer(pagination["current_page"])
+      assert is_boolean(pagination["is_last_page"])
+      assert is_boolean(pagination["is_first_page"])
     end
 
-    temp_test_with_auths "returns a list of accounts according to search_term, sort_by and sort_direction" do
+    test_with_auths "returns a list of accounts according to search_term, sort_by and sort_direction" do
       insert(:account, %{name: "Matched 2"})
       insert(:account, %{name: "Matched 3"})
       insert(:account, %{name: "Matched 1"})
@@ -58,38 +57,10 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert Enum.at(accounts, 2)["name"] == "Matched 1"
     end
 
-    test "returns a list of accounts according to search_term, sort_by and sort_direction" do
-      insert(:account, %{name: "Matched 2"})
-      insert(:account, %{name: "Matched 3"})
-      insert(:account, %{name: "Matched 1"})
-      insert(:account, %{name: "Missed 1"})
-
-      attrs = %{
-        # Search is case-insensitive
-        "search_term" => "MaTcHed",
-        "sort_by" => "name",
-        "sort_dir" => "desc"
-      }
-
-      test_with_auths(
-        "/account.all",
-        fn {_, response} ->
-          accounts = response["data"]["data"]
-
-          assert response["success"]
-          assert Enum.count(accounts) == 3
-          assert Enum.at(accounts, 0)["name"] == "Matched 3"
-          assert Enum.at(accounts, 1)["name"] == "Matched 2"
-          assert Enum.at(accounts, 2)["name"] == "Matched 1"
-        end,
-        attrs
-      )
-    end
-
     test_supports_match_any("/account.all", :account, :name)
     test_supports_match_all("/account.all", :account, :name)
 
-    test "returns a list of accounts that the current user can access" do
+    test_with_auths "returns a list of accounts that the current user can access" do
       master = Account.get_master_account()
       user = get_test_admin()
       {:ok, _m} = Membership.unassign(user, master, %System{})
@@ -107,25 +78,20 @@ defmodule AdminAPI.V1.AccountControllerTest do
       {:ok, _m} = Membership.assign(user, acc_2, role, %System{})
       key = insert(:key, %{account: acc_2})
 
-      test_with_auths(
-        "/account.all",
-        fn {_, response} ->
-          accounts = response["data"]["data"]
+      response =
+        request("/account.all", %{}, access_key: key.access_key, secret_key: key.secret_key)
 
-          assert response["success"]
-          assert Enum.count(accounts) == 4
-          assert Enum.any?(accounts, fn account -> account["name"] == "Account 2" end)
-          assert Enum.any?(accounts, fn account -> account["name"] == "Account 3" end)
-          assert Enum.any?(accounts, fn account -> account["name"] == "Account 4" end)
-          assert Enum.any?(accounts, fn account -> account["name"] == "Account 5" end)
-        end,
-        %{},
-        access_key: key.access_key,
-        secret_key: key.secret_key
-      )
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 4
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 2" end)
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 3" end)
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 4" end)
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 5" end)
     end
 
-    test "returns only one account if the user is at the last level" do
+    test_with_auths "returns only one account if the user is at the last level" do
       master = Account.get_master_account()
       user = get_test_admin()
       {:ok, _m} = Membership.unassign(user, master, %System{})
@@ -141,46 +107,37 @@ defmodule AdminAPI.V1.AccountControllerTest do
       {:ok, _m} = Membership.assign(user, acc_5, role, %System{})
       key = insert(:key, %{account: acc_5})
 
-      test_with_auths(
-        "/account.all",
-        fn {_, response} ->
-          accounts = response["data"]["data"]
+      response =
+        request("/account.all", %{}, access_key: key.access_key, secret_key: key.secret_key)
 
-          assert response["success"]
-          assert Enum.count(accounts) == 1
-          assert Enum.at(accounts, 0)["name"] == "Account 5"
-        end,
-        %{},
-        access_key: key.access_key,
-        secret_key: key.secret_key
-      )
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 1
+      assert Enum.at(accounts, 0)["name"] == "Account 5"
     end
   end
 
   describe "/account.get_descendants" do
-    test "returns a list of children accounts and pagination data" do
+    test_with_auths "returns a list of children accounts and pagination data" do
       account = Account.get_master_account()
 
-      test_with_auths(
-        "/account.get_descendants",
-        fn {_, response} ->
-          # Asserts return data
-          assert response["success"]
-          assert response["data"]["object"] == "list"
-          assert is_list(response["data"]["data"])
+      response = request("/account.get_descendants", %{id: account.id})
 
-          # Asserts pagination data
-          pagination = response["data"]["pagination"]
-          assert is_integer(pagination["per_page"])
-          assert is_integer(pagination["current_page"])
-          assert is_boolean(pagination["is_last_page"])
-          assert is_boolean(pagination["is_first_page"])
-        end,
-        %{id: account.id}
-      )
+      # Asserts return data
+      assert response["success"]
+      assert response["data"]["object"] == "list"
+      assert is_list(response["data"]["data"])
+
+      # Asserts pagination data
+      pagination = response["data"]["pagination"]
+      assert is_integer(pagination["per_page"])
+      assert is_integer(pagination["current_page"])
+      assert is_boolean(pagination["is_last_page"])
+      assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of children accounts" do
+    test_with_auths "returns a list of children accounts" do
       _account_1 = insert(:account, name: "account_1")
       account_2 = insert(:account, name: "account_2")
       account_3 = insert(:account, parent: account_2, name: "account_3")
@@ -192,22 +149,18 @@ defmodule AdminAPI.V1.AccountControllerTest do
         "sort_dir" => "desc"
       }
 
-      test_with_auths(
-        "/account.get_descendants",
-        fn {_, response} ->
-          accounts = response["data"]["data"]
+      response = request("/account.get_descendants", attrs)
 
-          assert response["success"]
-          assert Enum.count(accounts) == 3
-          assert Enum.at(accounts, 0)["name"] == "account_4"
-          assert Enum.at(accounts, 1)["name"] == "account_3"
-          assert Enum.at(accounts, 2)["name"] == "account_2"
-        end,
-        attrs
-      )
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 3
+      assert Enum.at(accounts, 0)["name"] == "account_4"
+      assert Enum.at(accounts, 1)["name"] == "account_3"
+      assert Enum.at(accounts, 2)["name"] == "account_2"
     end
 
-    test "returns a list of accounts according to search_term, sort_by and sort_direction" do
+    test_with_auths "returns a list of accounts according to search_term, sort_by and sort_direction" do
       _account_1 = insert(:account, name: "account_1")
       account_2 = insert(:account, name: "account_2:matchez")
       account_3 = insert(:account, parent: account_2, name: "account_3:MaTcHed")
@@ -220,41 +173,33 @@ defmodule AdminAPI.V1.AccountControllerTest do
         "sort_dir" => "desc"
       }
 
-      test_with_auths(
-        "/account.get_descendants",
-        fn {_, response} ->
-          accounts = response["data"]["data"]
+      response = request("/account.get_descendants", attrs)
 
-          assert response["success"]
-          assert Enum.count(accounts) == 2
-          assert Enum.at(accounts, 0)["name"] == "account_4:MaTcHed"
-          assert Enum.at(accounts, 1)["name"] == "account_3:MaTcHed"
-        end,
-        attrs
-      )
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 2
+      assert Enum.at(accounts, 0)["name"] == "account_4:MaTcHed"
+      assert Enum.at(accounts, 1)["name"] == "account_3:MaTcHed"
     end
   end
 
   describe "/account.get" do
-    test "returns an account by the given account's external ID if the user has
+    test_with_auths "returns an account by the given account's external ID if the user has
           an indirect membership" do
       account = insert(:account)
       accounts = insert_list(3, :account, parent: account)
       # Pick the 2nd inserted account
       target = Enum.at(accounts, 1)
 
-      test_with_auths(
-        "/account.get",
-        fn {_, response} ->
-          assert response["success"]
-          assert response["data"]["object"] == "account"
-          assert response["data"]["name"] == target.name
-        end,
-        %{"id" => target.id}
-      )
+      response = request("/account.get", %{"id" => target.id})
+
+      assert response["success"]
+      assert response["data"]["object"] == "account"
+      assert response["data"]["name"] == target.name
     end
 
-    test "returns an account by the given account's external ID if the user has
+    test_with_auths "returns an account by the given account's external ID if the user has
           a direct membership" do
       master = Account.get_master_account()
       admin = get_test_admin()
@@ -268,20 +213,20 @@ defmodule AdminAPI.V1.AccountControllerTest do
       Membership.assign(admin, target, role, %System{})
       key = insert(:key, %{account: target})
 
-      test_with_auths(
-        "/account.get",
-        fn {_, response} ->
-          assert response["success"]
-          assert response["data"]["object"] == "account"
-          assert response["data"]["name"] == target.name
-        end,
-        %{"id" => target.id},
-        access_key: key.access_key,
-        secret_key: key.secret_key
-      )
+      response =
+        request(
+          "/account.get",
+          %{"id" => target.id},
+          access_key: key.access_key,
+          secret_key: key.secret_key
+        )
+
+      assert response["success"]
+      assert response["data"]["object"] == "account"
+      assert response["data"]["name"] == target.name
     end
 
-    test "returns unauthorized if the user doesn't have access" do
+    test_with_auths "returns unauthorized if the user doesn't have access" do
       master = Account.get_master_account()
       user = get_test_admin()
       {:ok, _m} = Membership.unassign(user, master, %System{})
@@ -291,408 +236,327 @@ defmodule AdminAPI.V1.AccountControllerTest do
       target = Enum.at(accounts, 1)
       key = insert(:key, %{account: key_account})
 
-      test_with_auths(
-        "/account.get",
-        fn {_, response} ->
-          refute response["success"]
-          assert response["data"]["code"] == "unauthorized"
-        end,
-        %{"id" => target.id},
-        access_key: key.access_key,
-        secret_key: key.secret_key
-      )
+      response =
+        request(
+          "/account.get",
+          %{"id" => target.id},
+          access_key: key.access_key,
+          secret_key: key.secret_key
+        )
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
 
     # The user should not know any information about the account it doesn't have access to.
     # So even the account is not found, the user is unauthorized to know that.
-    test "returns 'unauthorized' if the given ID is in correct format but not found" do
-      test_with_auths(
-        "/account.get",
-        fn {_, response} ->
-          refute response["success"]
-          assert response["data"]["object"] == "error"
-          assert response["data"]["code"] == "unauthorized"
+    test_with_auths "returns 'unauthorized' if the given ID is in correct format but not found" do
+      response = request("/account.get", %{"id" => "acc_00000000000000000000000000"})
 
-          assert response["data"]["description"] ==
-                   "You are not allowed to perform the requested operation."
-        end,
-        %{"id" => "acc_00000000000000000000000000"}
-      )
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+
+      assert response["data"]["description"] ==
+               "You are not allowed to perform the requested operation."
     end
 
-    test "returns 'unauthorized' if the given ID is not in the correct format" do
-      test_with_auths(
-        "/account.get",
-        fn {_, response} ->
-          refute response["success"]
-          assert response["data"]["object"] == "error"
-          assert response["data"]["code"] == "unauthorized"
+    test_with_auths "returns 'unauthorized' if the given ID is not in the correct format" do
+      response = request("/account.get", %{"id" => "invalid_format"})
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
 
-          assert response["data"]["description"] ==
-                   "You are not allowed to perform the requested operation."
-        end,
-        %{"id" => "invalid_format"}
-      )
+      assert response["data"]["description"] ==
+               "You are not allowed to perform the requested operation."
     end
   end
 
   describe "/account.create" do
-    test "creates a new account and returns it" do
+    test_with_auths "creates a new account and returns it" do
       parent = User.get_account(get_test_admin())
 
-      request_data = %{
-        :provider_auth => %{
-          parent_id: parent.id,
-          name: "Account 1",
-          metadata: %{something: "interesting"},
-          encrypted_metadata: %{something: "secret"}
-        },
-        :admin_auth => %{
-          parent_id: parent.id,
-          name: "Account 2",
-          metadata: %{something: "interesting"},
-          encrypted_metadata: %{something: "secret"}
-        }
+      attrs = %{
+        parent_id: parent.id,
+        name: "A new account",
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
       }
 
-      test_with_auths(
-        "/account.create",
-        fn {auth, response} ->
-          assert response["success"] == true
-          assert response["data"]["object"] == "account"
-          assert response["data"]["name"] == request_data[auth].name
-          assert response["data"]["parent_id"] == parent.id
-          assert response["data"]["metadata"] == %{"something" => "interesting"}
-          assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
-        end,
-        request_data
-      )
+      response = request("/account.create", attrs)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "account"
+      assert response["data"]["name"] == attrs.name
+      assert response["data"]["parent_id"] == parent.id
+      assert response["data"]["metadata"] == %{"something" => "interesting"}
+      assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
     end
 
-    test "creates a new account with no parent_id" do
+    test_with_auths "creates a new account with no parent_id" do
       parent = Account.get_master_account()
 
-      request_data = %{
-        :provider_auth => %{
-          name: "Account 1",
-          metadata: %{something: "interesting"},
-          encrypted_metadata: %{something: "secret"}
-        },
-        :admin_auth => %{
-          name: "Account 2",
-          metadata: %{something: "interesting"},
-          encrypted_metadata: %{something: "secret"}
-        }
+      attrs = %{
+        name: "A new account",
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
       }
 
-      test_with_auths(
-        "/account.create",
-        fn {auth, response} ->
-          assert response["success"] == true
-          assert response["data"]["object"] == "account"
-          assert response["data"]["name"] == request_data[auth].name
-          assert response["data"]["parent_id"] == parent.id
-          assert response["data"]["metadata"] == %{"something" => "interesting"}
-          assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
-        end,
-        request_data
-      )
+      response = request("/account.create", attrs)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "account"
+      assert response["data"]["name"] == attrs.name
+      assert response["data"]["parent_id"] == parent.id
+      assert response["data"]["metadata"] == %{"something" => "interesting"}
+      assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
     end
 
-    test "returns an error if account name is not provided" do
+    test_with_auths "returns an error if account name is not provided" do
       parent = User.get_account(get_test_admin())
-      request_data = %{name: "", parent_id: parent.id}
+      attrs = %{name: "", parent_id: parent.id}
 
-      test_with_auths(
-        "/account.create",
-        fn {_, response} ->
-          refute response["success"]
-          assert response["data"]["object"] == "error"
-          assert response["data"]["code"] == "client:invalid_parameter"
-        end,
-        request_data
+      response = request("/account.create", attrs)
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    defp assert_create_logs(logs, originator: originator, target: target, parent: parent) do
+      assert Enum.count(logs) == 3
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator_type: "account",
+        target_type: "wallet"
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "insert",
+        originator_type: "account",
+        target_type: "wallet"
+      )
+
+      logs
+      |> Enum.at(2)
+      |> assert_activity_log(
+        action: "insert",
+        originator: originator,
+        target: target,
+        changes: %{
+          "metadata" => %{"something" => "interesting"},
+          "name" => target.name,
+          "parent_uuid" => parent.uuid
+        },
+        encrypted_changes: %{
+          "encrypted_metadata" => %{"something" => "secret"}
+        }
       )
     end
 
-    test "generates an activity log" do
+    test "generates an activity log for an admin request" do
       user = get_test_admin()
       parent = User.get_account(user)
 
-      request_data = %{
-        :provider_auth => %{
-          name: "Account 1",
-          metadata: %{something: "interesting"},
-          encrypted_metadata: %{something: "secret"}
-        },
-        :admin_auth => %{
-          name: "Account 2",
-          metadata: %{something: "interesting"},
-          encrypted_metadata: %{something: "secret"}
-        }
+      attrs = %{
+        name: "A new account",
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
       }
 
-      assert_logs = fn logs, originator, target ->
-        assert Enum.count(logs) == 3
-
-        logs
-        |> Enum.at(0)
-        |> assert_activity_log(
-          action: "insert",
-          originator_type: "account",
-          target_type: "wallet"
-        )
-
-        logs
-        |> Enum.at(1)
-        |> assert_activity_log(
-          action: "insert",
-          originator_type: "account",
-          target_type: "wallet"
-        )
-
-        logs
-        |> Enum.at(2)
-        |> assert_activity_log(
-          action: "insert",
-          originator: originator,
-          target: target,
-          changes: %{
-            "metadata" => %{"something" => "interesting"},
-            "name" => target.name,
-            "parent_uuid" => parent.uuid
-          },
-          encrypted_changes: %{
-            "encrypted_metadata" => %{"something" => "secret"}
-          }
-        )
-      end
-
       timestamp = DateTime.utc_now()
-      response = admin_user_request("/account.create", request_data[:provider_auth])
+      response = admin_user_request("/account.create", attrs)
       assert response["success"] == true
       account = Account.get(response["data"]["id"])
 
       timestamp
       |> get_all_activity_logs_since()
-      |> assert_logs.(user, account)
+      |> assert_create_logs(originator: user, target: account, parent: parent)
+    end
+
+    test "generates an activity log for a provider request" do
+      parent = User.get_account(get_test_admin())
+
+      attrs = %{
+        name: "A new account",
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
+      }
 
       timestamp = DateTime.utc_now()
-      response = provider_request("/account.create", request_data[:admin_auth])
+      response = provider_request("/account.create", attrs)
       assert response["success"] == true
       account = Account.get(response["data"]["id"])
 
       timestamp
       |> get_all_activity_logs_since()
-      |> assert_logs.(get_test_key(), account)
+      |> assert_create_logs(originator: get_test_key(), target: account, parent: parent)
     end
   end
 
   describe "/account.update" do
-    test "updates the given account" do
+    test_with_auths "updates the given account" do
       account = Account.get_master_account()
 
-      request_data = %{
-        :provider_auth => %{
-          id: account.id,
-          name: "updated name 1",
-          description: "updated description 1"
-        },
-        :admin_auth => %{
-          id: account.id,
-          name: "updated name 2",
-          description: "updated description 2"
-        }
+      attrs = %{
+        id: account.id,
+        name: "updated name",
+        description: "updated description"
       }
 
-      test_with_auths(
-        "/account.update",
-        fn {auth, response} ->
-          assert response["success"] == true
-          assert response["data"]["object"] == "account"
-          assert response["data"]["name"] == request_data[auth].name
-          assert response["data"]["description"] == request_data[auth].description
-        end,
-        request_data
-      )
+      response = request("/account.update", attrs)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "account"
+      assert response["data"]["name"] == attrs.name
+      assert response["data"]["description"] == attrs.description
     end
 
-    test "updates the account's categories" do
+    test_with_auths "updates the account's categories" do
       account = :account |> insert() |> Repo.preload(:categories)
       categories = insert_list(2, :category)
+      category = Enum.at(categories, 0).id
       assert Enum.empty?(account.categories)
 
       # Prepare the update data while keeping only id the same
-      request_data = %{
-        :provider_auth => %{
-          id: account.id,
-          category_ids: [Enum.at(categories, 0).id]
-        },
-        :admin_auth => %{
-          id: account.id,
-          category_ids: [Enum.at(categories, 1).id]
-        }
+      attrs = %{
+        id: account.id,
+        category_ids: [category]
       }
 
-      test_with_auths(
-        "/account.update",
-        fn {auth, response} ->
-          assert response["success"] == true
-          assert response["data"]["object"] == "account"
-          assert response["data"]["category_ids"] == request_data[auth].category_ids
+      response = request("/account.update", attrs)
 
-          assert List.first(response["data"]["categories"]["data"])["id"] ==
-                   List.first(request_data[auth].category_ids)
-        end,
-        request_data
+      assert response["success"] == true
+      assert response["data"]["object"] == "account"
+      assert response["data"]["category_ids"] == attrs.category_ids
+
+      assert List.first(response["data"]["categories"]["data"])["id"] == category
+    end
+
+    test_with_auths "returns a 'client:invalid_parameter' error if id is not provided" do
+      attrs = params_for(:account, %{id: nil})
+
+      response = request("/account.update", attrs)
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided."
+    end
+
+    test_with_auths "returns a 'unauthorized' error if id is invalid" do
+      attrs = params_for(:account, %{id: "invalid_format"})
+
+      response = request("/account.update", attrs)
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+
+      assert response["data"]["description"] ==
+               "You are not allowed to perform the requested operation."
+    end
+
+    defp assert_update_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{
+          "name" => target.name,
+          "description" => target.description
+        },
+        encrypted_changes: %{
+          "encrypted_metadata" => target.encrypted_metadata
+        }
       )
     end
 
-    test "returns a 'client:invalid_parameter' error if id is not provided" do
-      request_data = params_for(:account, %{id: nil})
-
-      test_with_auths(
-        "/account.update",
-        fn {_, response} ->
-          refute response["success"]
-          assert response["data"]["object"] == "error"
-          assert response["data"]["code"] == "client:invalid_parameter"
-          assert response["data"]["description"] == "Invalid parameter provided."
-        end,
-        request_data
-      )
-    end
-
-    test "returns a 'unauthorized' error if id is invalid" do
-      request_data = params_for(:account, %{id: "invalid_format"})
-
-      test_with_auths(
-        "/account.update",
-        fn {_, response} ->
-          refute response["success"]
-          assert response["data"]["object"] == "error"
-          assert response["data"]["code"] == "unauthorized"
-
-          assert response["data"]["description"] ==
-                   "You are not allowed to perform the requested operation."
-        end,
-        request_data
-      )
-    end
-
-    test "generates an activity log" do
+    test "generates an activity log for an admin request" do
       admin = get_test_admin()
       account = Account.get_master_account()
 
-      request_data = %{
-        :provider_auth => %{
-          id: account.id,
-          name: "updated name 1",
-          description: "updated description 1",
-          encrypted_metadata: %{something: "secret 1"}
-        },
-        :admin_auth => %{
-          id: account.id,
-          name: "updated name 2",
-          description: "updated description 2",
-          encrypted_metadata: %{something: "secret 2"}
-        }
+      attrs = %{
+        id: account.id,
+        name: "updated name",
+        description: "updated description",
+        encrypted_metadata: %{something: "updated secret"}
       }
 
-      assert_logs = fn logs, originator, target ->
-        assert Enum.count(logs) == 1
-
-        logs
-        |> Enum.at(0)
-        |> assert_activity_log(
-          action: "update",
-          originator: originator,
-          target: target,
-          changes: %{
-            "name" => target.name,
-            "description" => target.description
-          },
-          encrypted_changes: %{
-            "encrypted_metadata" => target.encrypted_metadata
-          }
-        )
-      end
-
       timestamp = DateTime.utc_now()
-      response = admin_user_request("/account.update", request_data[:provider_auth])
+      response = admin_user_request("/account.update", attrs)
       assert response["success"] == true
       account = Account.get(response["data"]["id"])
 
       timestamp
       |> get_all_activity_logs_since()
-      |> assert_logs.(admin, account)
+      |> assert_update_logs(admin, account)
+    end
+
+    test "generates an activity log for a provider request" do
+      account = Account.get_master_account()
+
+      attrs = %{
+        id: account.id,
+        name: "updated name",
+        description: "updated description",
+        encrypted_metadata: %{something: "updated secret"}
+      }
 
       timestamp = DateTime.utc_now()
-      response = provider_request("/account.update", request_data[:admin_auth])
+      response = provider_request("/account.update", attrs)
       assert response["success"] == true
       account = Account.get(response["data"]["id"])
 
       timestamp
       |> get_all_activity_logs_since()
-      |> assert_logs.(get_test_key(), account)
+      |> assert_update_logs(get_test_key(), account)
     end
   end
 
   describe "/account.upload_avatar" do
-    test "uploads an avatar for the specified account" do
-      account1 = insert(:account)
-      account2 = insert(:account)
+    test_with_auths "uploads an avatar for the specified account" do
+      account = insert(:account)
 
-      request_data = %{
-        :provider_auth => %{
-          id: account1.id,
-          avatar: %Plug.Upload{
-            path: "test/support/assets/test.jpg",
-            filename: "test.jpg"
-          }
-        },
-        :admin_auth => %{
-          id: account2.id,
-          avatar: %Plug.Upload{
-            path: "test/support/assets/test.jpg",
-            filename: "test.jpg"
-          }
+      attrs = %{
+        id: account.id,
+        avatar: %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
         }
       }
 
-      test_with_auths(
-        "/account.upload_avatar",
-        fn {auth, response} ->
-          assert response["success"]
-          assert response["data"]["object"] == "account"
+      response = request("/account.upload_avatar", attrs)
 
-          assert response["data"]["avatar"]["large"] =~
-                   "http://localhost:4000/public/uploads/test/account/avatars/#{
-                     request_data[auth].id
-                   }/large.png?v="
+      assert response["success"]
+      assert response["data"]["object"] == "account"
 
-          assert response["data"]["avatar"]["original"] =~
-                   "http://localhost:4000/public/uploads/test/account/avatars/#{
-                     request_data[auth].id
-                   }/original.jpg?v="
+      assert response["data"]["avatar"]["large"] =~
+               "http://localhost:4000/public/uploads/test/account/avatars/#{attrs.id}/large.png?v="
 
-          assert response["data"]["avatar"]["small"] =~
-                   "http://localhost:4000/public/uploads/test/account/avatars/#{
-                     request_data[auth].id
-                   }/small.png?v="
+      assert response["data"]["avatar"]["original"] =~
+               "http://localhost:4000/public/uploads/test/account/avatars/#{attrs.id}/original.jpg?v="
 
-          assert response["data"]["avatar"]["thumb"] =~
-                   "http://localhost:4000/public/uploads/test/account/avatars/#{
-                     request_data[auth].id
-                   }/thumb.png?v="
-        end,
-        request_data
-      )
+      assert response["data"]["avatar"]["small"] =~
+               "http://localhost:4000/public/uploads/test/account/avatars/#{attrs.id}/small.png?v="
+
+      assert response["data"]["avatar"]["thumb"] =~
+               "http://localhost:4000/public/uploads/test/account/avatars/#{attrs.id}/thumb.png?v="
     end
 
-    test "fails to upload an invalid file" do
+    test_with_auths "fails to upload an invalid file" do
       account = insert(:account)
 
-      request_data = %{
+      attrs = %{
         "id" => account.id,
         "avatar" => %Plug.Upload{
           path: "test/support/assets/file.json",
@@ -700,188 +564,105 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths(
-        "/account.upload_avatar",
-        fn {_, response} ->
-          refute response["success"]
-          assert response["data"]["code"] == "client:invalid_parameter"
-        end,
-        request_data
-      )
+      response = request("/account.upload_avatar", attrs)
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
     end
 
-    test "returns an error when 'avatar' is not sent" do
+    test_with_auths "returns an error when 'avatar' is not sent" do
       account = insert(:account)
 
-      request_data = %{
+      attrs = %{
         "id" => account.id
       }
 
-      test_with_auths(
-        "/account.upload_avatar",
-        fn {_, response} ->
-          refute response["success"]
-          assert response["data"]["code"] == "client:invalid_parameter"
-        end,
-        request_data
-      )
+      response = request("/account.upload_avatar", attrs)
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
     end
 
-    test "removes the avatar from an account" do
-      account1 = insert(:account)
-      account2 = insert(:account)
+    test_with_auths "removes the avatar from an account" do
+      account = insert(:account)
 
-      request_data = %{
-        :provider_auth => %{
-          id: account1.id,
-          avatar: %Plug.Upload{
-            path: "test/support/assets/test.jpg",
-            filename: "test.jpg"
-          }
-        },
-        :admin_auth => %{
-          id: account2.id,
-          avatar: %Plug.Upload{
-            path: "test/support/assets/test.jpg",
-            filename: "test.jpg"
-          }
+      attrs = %{
+        id: account.id,
+        avatar: %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
         }
       }
 
-      test_with_auths(
-        "/account.upload_avatar",
-        fn {_, response} ->
-          assert response["success"]
-        end,
-        request_data
-      )
+      response = request("/account.upload_avatar", attrs)
+      assert response["success"]
 
-      request_data = %{
-        :provider_auth => %{
-          id: account1.id,
-          avatar: nil
-        },
-        :admin_auth => %{
-          id: account2.id,
-          avatar: nil
-        }
+      attrs = %{
+        id: account.id,
+        avatar: nil
       }
 
-      test_with_auths(
-        "/account.upload_avatar",
-        fn {auth, response} ->
-          assert response["success"]
-          account = Account.get(request_data[auth].id)
-          assert account.avatar == nil
-        end,
-        request_data
-      )
+      response = request("/account.upload_avatar", attrs)
+
+      assert response["success"]
+      account = Account.get(attrs.id)
+      assert account.avatar == nil
     end
 
-    test "removes the avatar from an account with empty string" do
-      account1 = insert(:account)
-      account2 = insert(:account)
+    test_with_auths "removes the avatar from an account with empty string" do
+      account = insert(:account)
 
-      request_data = %{
-        :provider_auth => %{
-          id: account1.id,
-          avatar: %Plug.Upload{
-            path: "test/support/assets/test.jpg",
-            filename: "test.jpg"
-          }
-        },
-        :admin_auth => %{
-          id: account2.id,
-          avatar: %Plug.Upload{
-            path: "test/support/assets/test.jpg",
-            filename: "test.jpg"
-          }
+      attrs = %{
+        id: account.id,
+        avatar: %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
         }
       }
 
-      test_with_auths(
-        "/account.upload_avatar",
-        fn {_, response} ->
-          assert response["success"]
-        end,
-        request_data
-      )
+      response = request("/account.upload_avatar", attrs)
+      assert response["success"]
 
-      request_data = %{
-        :provider_auth => %{
-          id: account1.id,
-          avatar: ""
-        },
-        :admin_auth => %{
-          id: account2.id,
-          avatar: ""
-        }
+      attrs = %{
+        id: account.id,
+        avatar: ""
       }
 
-      test_with_auths(
-        "/account.upload_avatar",
-        fn {auth, response} ->
-          assert response["success"]
-          account = Account.get(request_data[auth].id)
-          assert account.avatar == nil
-        end,
-        request_data
-      )
+      response = request("/account.upload_avatar", attrs)
+
+      assert response["success"]
+      account = Account.get(attrs.id)
+      assert account.avatar == nil
     end
 
-    test "removes the avatar from an account with 'null' string" do
-      account1 = insert(:account)
-      account2 = insert(:account)
+    test_with_auths "removes the avatar from an account with 'null' string" do
+      account = insert(:account)
 
-      request_data = %{
-        :provider_auth => %{
-          id: account1.id,
-          avatar: %Plug.Upload{
-            path: "test/support/assets/test.jpg",
-            filename: "test.jpg"
-          }
-        },
-        :admin_auth => %{
-          id: account2.id,
-          avatar: %Plug.Upload{
-            path: "test/support/assets/test.jpg",
-            filename: "test.jpg"
-          }
+      attrs = %{
+        id: account.id,
+        avatar: %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
         }
       }
 
-      test_with_auths(
-        "/account.upload_avatar",
-        fn {_, response} ->
-          assert response["success"]
-        end,
-        request_data
-      )
+      response = request("/account.upload_avatar", attrs)
+      assert response["success"]
 
-      request_data = %{
-        :provider_auth => %{
-          id: account1.id,
-          avatar: "null"
-        },
-        :admin_auth => %{
-          id: account2.id,
-          avatar: "null"
-        }
+      attrs = %{
+        id: account.id,
+        avatar: "null"
       }
 
-      test_with_auths(
-        "/account.upload_avatar",
-        fn {auth, response} ->
-          assert response["success"]
-          account = Account.get(request_data[auth].id)
-          assert account.avatar == nil
-        end,
-        request_data
-      )
+      response = request("/account.upload_avatar", attrs)
+
+      assert response["success"]
+      account = Account.get(attrs.id)
+      assert account.avatar == nil
     end
 
-    test "returns 'unauthorized' if the given account ID was not found" do
-      request_data = %{
+    test_with_auths "returns 'unauthorized' if the given account ID was not found" do
+      attrs = %{
         id: "fake",
         avatar: %Plug.Upload{
           path: "test/support/assets/test.jpg",
@@ -889,78 +670,76 @@ defmodule AdminAPI.V1.AccountControllerTest do
         }
       }
 
-      test_with_auths(
-        "/account.upload_avatar",
-        fn {_, response} ->
-          refute response["success"]
-          assert response["data"]["object"] == "error"
-          assert response["data"]["code"] == "unauthorized"
+      response = request("/account.upload_avatar", attrs)
 
-          assert response["data"]["description"] ==
-                   "You are not allowed to perform the requested operation."
-        end,
-        request_data
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+
+      assert response["data"]["description"] ==
+               "You are not allowed to perform the requested operation."
+    end
+
+    defp assert_avatar_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{
+          "avatar" => %{
+            "file_name" => "test.jpg",
+            "updated_at" => DateFormatter.to_iso8601(target.avatar.updated_at)
+          }
+        },
+        encrypted_changes: %{}
       )
     end
 
-    test "generates an activity log" do
+    test "generates an activity log for an admin request" do
       admin = get_test_admin()
-      account1 = insert(:account)
-      account2 = insert(:account)
+      account = insert(:account)
 
-      request_data = %{
-        :provider_auth => %{
-          id: account1.id,
-          avatar: %Plug.Upload{
-            path: "test/support/assets/test.jpg",
-            filename: "test.jpg"
-          }
-        },
-        :admin_auth => %{
-          id: account2.id,
-          avatar: %Plug.Upload{
-            path: "test/support/assets/test.jpg",
-            filename: "test.jpg"
-          }
+      attrs = %{
+        id: account.id,
+        avatar: %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
         }
       }
 
-      assert_logs = fn logs, originator, target ->
-        assert Enum.count(logs) == 1
-
-        logs
-        |> Enum.at(0)
-        |> assert_activity_log(
-          action: "update",
-          originator: originator,
-          target: target,
-          changes: %{
-            "avatar" => %{
-              "file_name" => "test.jpg",
-              "updated_at" => DateFormatter.to_iso8601(target.avatar.updated_at)
-            }
-          },
-          encrypted_changes: %{}
-        )
-      end
-
       timestamp = DateTime.utc_now()
-      response = admin_user_request("/account.upload_avatar", request_data[:provider_auth])
+      response = admin_user_request("/account.upload_avatar", attrs)
       assert response["success"] == true
-      account = Account.get(account1.id)
+      account = Account.get(account.id)
 
       timestamp
       |> get_all_activity_logs_since()
-      |> assert_logs.(admin, account)
+      |> assert_avatar_logs(admin, account)
+    end
+
+    test "generates an activity log for a provider request" do
+      account = insert(:account)
+
+      attrs = %{
+        id: account.id,
+        avatar: %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      }
 
       timestamp = DateTime.utc_now()
-      response = provider_request("/account.upload_avatar", request_data[:admin_auth])
+      response = provider_request("/account.upload_avatar", attrs)
       assert response["success"] == true
-      account = Account.get(account2.id)
+      account = Account.get(account.id)
 
       timestamp
       |> get_all_activity_logs_since()
-      |> assert_logs.(get_test_key(), account)
+      |> assert_avatar_logs(get_test_key(), account)
     end
   end
 end
