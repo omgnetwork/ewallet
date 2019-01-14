@@ -13,8 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.BalanceFetcherTest do
-  use EWallet.LocalLedgerCase, async: true
-  alias Ecto.Adapters.SQL.Sandbox
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.BalanceFetcher
   alias EWalletDB.{Account, Token, User}
 

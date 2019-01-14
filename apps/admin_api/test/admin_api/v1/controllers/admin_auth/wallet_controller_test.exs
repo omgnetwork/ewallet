@@ -269,8 +269,8 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
       master_wallet = Account.get_primary_wallet(account)
       {:ok, user} = :user |> params_for() |> User.insert()
       user_wallet = User.get_primary_wallet(user)
-      {:ok, btc} = :token |> params_for(symbol: "BTC") |> Token.insert()
-      {:ok, omg} = :token |> params_for(symbol: "OMG") |> Token.insert()
+      {:ok, btc} = :token |> params_for() |> Token.insert()
+      {:ok, omg} = :token |> params_for() |> Token.insert()
 
       mint!(btc)
       mint!(omg)

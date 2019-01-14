@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule UrlDispatcher.PlugTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   use Plug.Test
   alias UrlDispatcher.Plug
 

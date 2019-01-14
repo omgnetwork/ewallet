@@ -13,9 +13,10 @@
 # limitations under the License.
 
 defmodule EWalletDB.TransactionConsumptionTest do
-  use EWalletDB.SchemaCase
-  alias EWalletDB.TransactionConsumption
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias ActivityLogger.System
+  alias EWalletDB.TransactionConsumption
 
   describe "TransactionConsumption factory" do
     test_has_valid_factory(TransactionConsumption)

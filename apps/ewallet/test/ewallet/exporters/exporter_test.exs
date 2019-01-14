@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Errors.InvalidDateFormatError do
-  defexception message: "Invalid date format error, supports only NaiveDateTime and DateTime"
+defmodule EWallet.ExporterTest do
+  use ExUnit.Case
+  alias EWallet.Exporter
+
+  test "struct has uuid" do
+    assert Map.has_key?(%Exporter{}, :uuid)
+  end
 end

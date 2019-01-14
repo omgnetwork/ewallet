@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.Web.MatchAnyParserTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Web.{MatchAnyParser, Preloader}
   alias EWalletDB.{Account, Repo, Transaction, User}

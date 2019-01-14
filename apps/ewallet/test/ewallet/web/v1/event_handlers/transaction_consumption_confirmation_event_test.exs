@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.TestEndpoint
   alias EWallet.Web.V1.TransactionConsumptionEventHandler
   alias EWalletDB.Repo

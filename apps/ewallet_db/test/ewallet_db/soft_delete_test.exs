@@ -13,8 +13,8 @@
 # limitations under the License.
 
 defmodule EWalletDB.SoftDeleteTest do
-  use EWalletDB.SchemaCase
-  import EWalletDB.SoftDelete
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.{Factory, SoftDelete}
   alias EWalletDB.{Key, Repo}
   alias ActivityLogger.System
 

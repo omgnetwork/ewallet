@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule LocalLedgerDB.WalletTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import LocalLedgerDB.Factory
   alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
