@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Errors.InvalidDateFormatError do
+defmodule Utils.Errors.InvalidDateFormatError do
   defexception message: "Invalid date format error, supports only NaiveDateTime and DateTime"
 end
