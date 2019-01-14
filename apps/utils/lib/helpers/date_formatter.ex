@@ -17,7 +17,7 @@ defmodule Utils.Helpers.DateFormatter do
   This module allows formatting of a date (naive or date time) into an iso8601 string.
   """
 
-  alias EWallet.Errors.InvalidDateFormatError
+  alias Utils.Errors.InvalidDateFormatError
 
   @doc """
   Parses the given date time to an iso8601 string.
