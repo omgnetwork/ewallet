@@ -69,7 +69,21 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
                "The given `redirect_url` is not allowed. Got: '#{redirect_url}'."
     end
 
-    test "returns an error when sending email = nil" do
+    test "returns client:invalid_parameter error when the given email is not in an email format" do
+      response =
+        admin_user_request("/me.update_email", %{
+          "email" => "not an email",
+          "redirect_url" => @redirect_url
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `email` must be a valid email address format."
+    end
+
+    test "returns client:invalid_parameter error when the given email = nil" do
       response =
         admin_user_request("/me.update_email", %{
           "email" => nil,
@@ -78,9 +92,10 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
 
-    test "returns an error if the email is not supplied" do
+    test "returns client:invalid_parameter error if the email is not supplied" do
       response =
         admin_user_request("/me.update_email", %{
           "redirect_url" => @redirect_url
@@ -88,9 +103,10 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
 
-    test "returns an error if the redirect_url is not supplied" do
+    test "returns client:invalid_parameter error if the redirect_url is not supplied" do
       response =
         admin_user_request("/me.update_email", %{
           "email" => "test_update_email@example.com"
@@ -98,9 +114,10 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
 
-    test "returns an error if there is already a user with the associated email" do
+    test "returns user:email_already_exists error if there is already a user with the associated email" do
       another_admin = insert(:admin)
 
       response =
@@ -150,7 +167,7 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
     test "returns success and updates the user's email" do
       admin = get_test_admin()
       new_email = "test_email_update@example.com"
-      request = UpdateEmailRequest.generate(admin, new_email)
+      {:ok, request} = UpdateEmailRequest.generate(admin, new_email)
 
       # Make sure the email is not the same
       assert admin.email != new_email
@@ -171,7 +188,7 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
     test "returns an email_already_exists error when the email is used by another user" do
       admin = get_test_admin()
       new_email = "test_email_update@example.com"
-      request = UpdateEmailRequest.generate(admin, new_email)
+      {:ok, request} = UpdateEmailRequest.generate(admin, new_email)
 
       # Meanwhile, another admin has also been created with the new email.
       _ = insert(:admin, email: new_email)
@@ -192,7 +209,7 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
     test "returns a token_not_found error when the email is invalid" do
       admin = get_test_admin()
       new_email = "test_email_update@example.com"
-      request = UpdateEmailRequest.generate(admin, new_email)
+      {:ok, request} = UpdateEmailRequest.generate(admin, new_email)
 
       response =
         unauthenticated_request("/admin.verify_email_update", %{
@@ -210,7 +227,7 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
     test "returns a token_not_found error when the token is invalid" do
       admin = get_test_admin()
       new_email = "test_email_update@example.com"
-      _request = UpdateEmailRequest.generate(admin, new_email)
+      {:ok, _request} = UpdateEmailRequest.generate(admin, new_email)
 
       response =
         unauthenticated_request("/admin.verify_email_update", %{
@@ -228,7 +245,7 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
     test "returns an invalid parameter error when the email is not given" do
       admin = get_test_admin()
       new_email = "test_email_update@example.com"
-      request = UpdateEmailRequest.generate(admin, new_email)
+      {:ok, request} = UpdateEmailRequest.generate(admin, new_email)
 
       response =
         unauthenticated_request("/admin.verify_email_update", %{
@@ -243,7 +260,7 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
     test "returns an invalid parameter error when the token is not given" do
       admin = get_test_admin()
       new_email = "test_email_update@example.com"
-      request = UpdateEmailRequest.generate(admin, new_email)
+      {:ok, request} = UpdateEmailRequest.generate(admin, new_email)
 
       response =
         unauthenticated_request("/admin.verify_email_update", %{
@@ -258,7 +275,7 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
     test "generates activity logs" do
       admin = get_test_admin()
       new_email = "test_email_update@example.com"
-      request = UpdateEmailRequest.generate(admin, new_email)
+      {:ok, request} = UpdateEmailRequest.generate(admin, new_email)
 
       timestamp = DateTime.utc_now()
 
