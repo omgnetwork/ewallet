@@ -210,7 +210,7 @@ defmodule EWallet.BalanceFetcherTest do
   end
 
   describe "get/2" do
-    test "retrieve the specific wallet from a token and an address", context do
+    test "retrieve a specific balance from a token and an address", context do
       transfer!(
         context.master_wallet.address,
         context.user_wallet.address,

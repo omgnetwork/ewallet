@@ -333,6 +333,31 @@ defmodule LocalLedger.CachedBalanceTest do
   end
 
   describe "get/2" do
+    test "calculates the balances for the given wallets", %{
+      wallet: wallet
+    } do
+      wallet_2 = insert(:wallet)
+
+      {res, wallets} = CachedBalance.get([wallet, wallet_2], "tok_OMG_1234")
+      assert res == :ok
+
+      assert wallets == %{
+               wallet.address => %{"tok_OMG_1234" => 120_000 - 61_047},
+               wallet_2.address => %{"tok_OMG_1234" => 0}
+             }
+
+      cached_balance = LocalLedgerDB.CachedBalance.get(wallet.address)
+      assert cached_balance != nil
+
+      assert cached_balance.amounts == %{
+               "tok_OMG_1234" => 120_000 - 61_047,
+               "tok_BTC_5678" => 160_524 - 74_961
+             }
+
+      cached_balance = LocalLedgerDB.CachedBalance.get(wallet_2.address)
+      assert cached_balance == nil
+    end
+
     test "calculates the balance and inserts a new cached balance if not existing", %{
       wallet: wallet
     } do

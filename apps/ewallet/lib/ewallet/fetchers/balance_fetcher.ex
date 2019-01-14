@@ -82,16 +82,6 @@ defmodule EWallet.BalanceFetcher do
 
   @doc """
   Prepare the list of balances and turn them into a
-  suitable format for EWalletAPI using a user and a token_id
-  """
-  @spec get(%User{}, %Token{}) :: {:ok, %EWalletDB.Wallet{}} | {:error, atom()}
-  def get(%User{} = user, %Token{} = token) do
-    user_wallet = User.get_primary_wallet(user)
-    get(token.id, user_wallet)
-  end
-
-  @doc """
-  Prepare the list of balances and turn them into a
   suitable format for EWalletAPI using a token_id and an address
   """
   @spec get(String.t(), %Token{}) :: {:ok, %EWalletDB.Wallet{}} | {:error, atom()}
