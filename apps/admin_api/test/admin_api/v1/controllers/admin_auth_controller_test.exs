@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
+defmodule AdminAPI.V1.AdminAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
   alias ActivityLogger.System
@@ -285,6 +285,20 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       assert response["data"]["code"] == "auth_token:not_found"
     end
 
+    test "gets access_key:unauthorized back when requesting with a provider key" do
+      account = insert(:account)
+
+      # User belongs to the master account and has access to the sub account
+      # just created
+      response =
+        provider_request("/auth_token.switch_account", %{
+          "account_id" => account.id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "access_key:unauthorized"
+    end
+
     test "generates an activity log" do
       account = insert(:account, parent: Account.get_master_account())
       timestamp = DateTime.utc_now()
@@ -333,6 +347,12 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       response2 = admin_user_request("/me.logout")
       refute response2["success"]
       assert response2["data"]["code"] == "user:auth_token_expired"
+    end
+
+    test "gets access_key:unauthorized back when requesting with a provider key" do
+      response = provider_request("/me.logout")
+      refute response["success"]
+      assert response["data"]["code"] == "access_key:unauthorized"
     end
 
     test "generates an activity log" do
