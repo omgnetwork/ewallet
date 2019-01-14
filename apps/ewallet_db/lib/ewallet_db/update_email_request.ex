@@ -59,6 +59,7 @@ defmodule EWalletDB.UpdateEmailRequest do
   @doc """
   Retrieves all active requests.
   """
+  @spec all_active() :: [%__MODULE__{}]
   def all_active do
     UpdateEmailRequest
     |> where([c], c.enabled == true)
@@ -95,6 +96,7 @@ defmodule EWalletDB.UpdateEmailRequest do
   @doc """
   Deletes all the current requests for a user.
   """
+  @spec disable_all_for(%User{}) :: {integer(), nil | [term()]} | no_return()
   def disable_all_for(user) do
     UpdateEmailRequest
     |> where([f], f.user_uuid == ^user.uuid)
@@ -104,19 +106,15 @@ defmodule EWalletDB.UpdateEmailRequest do
   @doc """
   Generates a change email request for the given user.
   """
-  @spec generate(%User{}, String.t()) :: %UpdateEmailRequest{} | {:error, Changeset.t()}
+  @spec generate(%User{}, String.t()) ::
+          {:ok, %UpdateEmailRequest{}} | {:error, Ecto.Changeset.t()}
   def generate(user, email) do
-    token = Crypto.generate_base64_key(@token_length)
-
-    {:ok, _} =
-      insert(%{
-        token: token,
-        email: email,
-        user_uuid: user.uuid,
-        originator: user
-      })
-
-    UpdateEmailRequest.get(email, token)
+    insert(%{
+      token: Crypto.generate_base64_key(@token_length),
+      email: email,
+      user_uuid: user.uuid,
+      originator: user
+    })
   end
 
   defp insert(attrs) do
