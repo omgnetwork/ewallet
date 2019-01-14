@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWalletConfig.FileStorageSupervisorTest do
-  use EWalletConfig.SchemaCase, async: true
+  use EWalletConfig.SchemaCase, async: false
   alias EWalletConfig.{ConfigTestHelper, FileStorageSupervisor, FileStorageSettingsLoader}
 
   def init do
