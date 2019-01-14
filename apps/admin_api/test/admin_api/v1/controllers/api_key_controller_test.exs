@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
+defmodule AdminAPI.V1.APIKeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Utils.Helpers.DateFormatter
   alias EWalletDB.Helpers.Preloader
   alias EWalletDB.{Account, APIKey, Repo}
 
   describe "/api_key.all" do
-    test "responds with a list of api keys when no params are given" do
+    test_with_auths "responds with a list of api keys when no params are given" do
       [api_key1, api_key2] = APIKey |> ensure_num_records(2) |> Preloader.preload(:account)
 
-      assert admin_user_request("/api_key.all") ==
+      assert request("/api_key.all") ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -65,7 +65,7 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                }
     end
 
-    test "responds with a list of api keys when given params" do
+    test_with_auths "responds with a list of api keys when given params" do
       [api_key, _] = ensure_num_records(APIKey, 2)
       api_key = Preloader.preload(api_key, :account)
 
@@ -77,7 +77,7 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
         sort_dir: "asc"
       }
 
-      assert admin_user_request("/api_key.all", attrs) ==
+      assert request("/api_key.all", attrs) ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -108,13 +108,13 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                }
     end
 
-    test_supports_match_any("/api_key.all", :admin_auth, :api_key, :key)
-    test_supports_match_all("/api_key.all", :admin_auth, :api_key, :key)
+    test_supports_match_any("/api_key.all", :api_key, :key)
+    test_supports_match_all("/api_key.all", :api_key, :key)
   end
 
   describe "/api_key.create" do
-    test "responds with an API key on success" do
-      response = admin_user_request("/api_key.create", %{})
+    test_with_auths "responds with an API key on success" do
+      response = request("/api_key.create", %{})
       api_key = get_last_inserted(APIKey)
 
       assert response == %{
@@ -135,40 +135,56 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
              }
     end
 
-    test "generates an activity log" do
-      timestamp = DateTime.utc_now()
-      response = admin_user_request("/api_key.create", %{})
-
-      assert response["success"] == true
-      api_key = get_last_inserted(APIKey)
-      account = Account.get_master_account()
-
-      logs = get_all_activity_logs_since(timestamp)
+    defp assert_create_logs(logs, originator, target) do
       assert Enum.count(logs) == 1
 
       logs
       |> Enum.at(0)
       |> assert_activity_log(
         action: "insert",
-        originator: get_test_admin(),
-        target: api_key,
+        originator: originator,
+        target: target,
         changes: %{
-          "account_uuid" => account.uuid,
-          "key" => response["data"]["key"],
+          "account_uuid" => target.account.uuid,
+          "key" => target.key,
           "owner_app" => "ewallet_api"
         },
         encrypted_changes: %{}
       )
     end
+
+    test "generates an activity log with an admin request" do
+      timestamp = DateTime.utc_now()
+      response = admin_user_request("/api_key.create", %{})
+
+      assert response["success"] == true
+      api_key = get_last_inserted(APIKey) |> Repo.preload(:account)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_logs(get_test_admin(), api_key)
+    end
+
+    test "generates an activity log with a provider request" do
+      timestamp = DateTime.utc_now()
+      response = provider_request("/api_key.create", %{})
+
+      assert response["success"] == true
+      api_key = get_last_inserted(APIKey) |> Repo.preload(:account)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_logs(get_test_key(), api_key)
+    end
   end
 
   describe "/api_key.update" do
-    test "disables the API key" do
+    test_with_auths "disables the API key" do
       api_key = :api_key |> insert() |> Repo.preload(:account)
       assert api_key.enabled == true
 
       response =
-        admin_user_request("/api_key.update", %{
+        request("/api_key.update", %{
           id: api_key.id,
           expired: true
         })
@@ -178,12 +194,12 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
       assert response["data"]["enabled"] == false
     end
 
-    test "enables the API key" do
+    test_with_auths "enables the API key" do
       api_key = :api_key |> insert(enabled: false) |> Repo.preload(:account)
       assert api_key.enabled == false
 
       response =
-        admin_user_request("/api_key.update", %{
+        request("/api_key.update", %{
           id: api_key.id,
           expired: false
         })
@@ -193,12 +209,12 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
       assert response["data"]["enabled"] == true
     end
 
-    test "does not update any other fields" do
+    test_with_auths "does not update any other fields" do
       api_key = :api_key |> insert() |> Repo.preload(:account)
       assert api_key.enabled == true
 
       response =
-        admin_user_request("/api_key.update", %{
+        request("/api_key.update", %{
           id: api_key.id,
           expired: true,
           owner_app: "something",
@@ -226,7 +242,23 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
              }
     end
 
-    test "generates an activity log" do
+    defp assert_update_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{
+          "enabled" => false
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
       api_key = :api_key |> insert() |> Repo.preload(:account)
       timestamp = DateTime.utc_now()
 
@@ -238,30 +270,36 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
 
       assert response["success"] == true
 
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_update_logs(get_test_admin(), api_key)
+    end
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_admin(),
-        target: api_key,
-        changes: %{
-          "enabled" => false
-        },
-        encrypted_changes: %{}
-      )
+    test "generates an activity log for a provider request" do
+      api_key = :api_key |> insert() |> Repo.preload(:account)
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/api_key.update", %{
+          id: api_key.id,
+          expired: true
+        })
+
+      assert response["success"] == true
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_update_logs(get_test_key(), api_key)
     end
   end
 
   describe "/api_key.enable_or_disable" do
-    test "disables the API key" do
+    test_with_auths "disables the API key" do
       api_key = :api_key |> insert() |> Repo.preload(:account)
       assert api_key.enabled == true
 
       response =
-        admin_user_request("/api_key.enable_or_disable", %{
+        request("/api_key.enable_or_disable", %{
           id: api_key.id,
           enabled: false
         })
@@ -270,12 +308,12 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
       assert response["data"]["enabled"] == false
     end
 
-    test "disabling an API key twice doesn't re-enable it" do
+    test_with_auths "disabling an API key twice doesn't re-enable it" do
       api_key = :api_key |> insert() |> Repo.preload(:account)
       assert api_key.enabled == true
 
       response =
-        admin_user_request("/api_key.enable_or_disable", %{
+        request("/api_key.enable_or_disable", %{
           id: api_key.id,
           enabled: false
         })
@@ -284,7 +322,7 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
       assert response["data"]["enabled"] == false
 
       response =
-        admin_user_request("/api_key.enable_or_disable", %{
+        request("/api_key.enable_or_disable", %{
           id: api_key.id,
           enabled: false
         })
@@ -293,12 +331,12 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
       assert response["data"]["enabled"] == false
     end
 
-    test "enables the API key" do
+    test_with_auths "enables the API key" do
       api_key = :api_key |> insert(enabled: false) |> Repo.preload(:account)
       assert api_key.enabled == false
 
       response =
-        admin_user_request("/api_key.enable_or_disable", %{
+        request("/api_key.enable_or_disable", %{
           id: api_key.id,
           enabled: true
         })
@@ -307,7 +345,23 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
       assert response["data"]["enabled"] == true
     end
 
-    test "generates an activity log" do
+    defp assert_enable_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{
+          "enabled" => false
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
       api_key = :api_key |> insert() |> Repo.preload(:account)
       timestamp = DateTime.utc_now()
 
@@ -319,27 +373,33 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
 
       assert response["success"] == true
 
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_enable_logs(get_test_admin(), api_key)
+    end
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_admin(),
-        target: api_key,
-        changes: %{
-          "enabled" => false
-        },
-        encrypted_changes: %{}
-      )
+    test "generates an activity log for a provider request" do
+      api_key = :api_key |> insert() |> Repo.preload(:account)
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/api_key.enable_or_disable", %{
+          id: api_key.id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_enable_logs(get_test_key(), api_key)
     end
   end
 
   describe "/api_key.delete" do
-    test "responds with an empty success if provided a valid id" do
+    test_with_auths "responds with an empty success if provided a valid id" do
       api_key = insert(:api_key)
-      response = admin_user_request("/api_key.delete", %{id: api_key.id})
+      response = request("/api_key.delete", %{id: api_key.id})
 
       assert response == %{
                "version" => "1",
@@ -348,8 +408,8 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
              }
     end
 
-    test "responds with an error if the provided id is not found" do
-      response = admin_user_request("/api_key.delete", %{id: "wrong_id"})
+    test_with_auths "responds with an error if the provided id is not found" do
+      response = request("/api_key.delete", %{id: "wrong_id"})
 
       assert response == %{
                "version" => "1",
@@ -363,13 +423,21 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
              }
     end
 
-    test "responds with an error if the user is not authorized to delete the API key" do
+    test_with_auths "responds with an error if the user is not authorized to delete the API key" do
       api_key = insert(:api_key)
       auth_token = insert(:auth_token, owner_app: "admin_api")
+      key = insert(:key)
 
       attrs = %{id: api_key.id}
-      opts = [user_id: auth_token.user.id, auth_token: auth_token.token]
-      response = admin_user_request("/api_key.delete", attrs, opts)
+
+      opts = [
+        user_id: auth_token.user.id,
+        auth_token: auth_token.token,
+        access_key: key.access_key,
+        secret_key: key.secret_key
+      ]
+
+      response = request("/api_key.delete", attrs, opts)
 
       assert response ==
                %{
@@ -384,7 +452,21 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                }
     end
 
-    test "generates an activity log" do
+    defp assert_delete_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{"deleted_at" => DateFormatter.to_iso8601(target.deleted_at)},
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
       api_key = insert(:api_key)
       timestamp = DateTime.utc_now()
       response = admin_user_request("/api_key.delete", %{id: api_key.id})
@@ -392,18 +474,24 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
       assert response["success"] == true
 
       api_key = Repo.get_by(APIKey, %{id: api_key.id})
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_admin(),
-        target: api_key,
-        changes: %{"deleted_at" => DateFormatter.to_iso8601(api_key.deleted_at)},
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_delete_logs(get_test_admin(), api_key)
+    end
+
+    test "generates an activity log for a provider request" do
+      api_key = insert(:api_key)
+      timestamp = DateTime.utc_now()
+      response = provider_request("/api_key.delete", %{id: api_key.id})
+
+      assert response["success"] == true
+
+      api_key = Repo.get_by(APIKey, %{id: api_key.id})
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_delete_logs(get_test_key(), api_key)
     end
   end
 end
