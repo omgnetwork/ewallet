@@ -155,12 +155,8 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert Enum.at(wallets, 3)["address"] == Enum.at(ordered_addresses, 3)
       assert Enum.at(wallets, 4)["address"] == Enum.at(ordered_addresses, 4)
 
-      [user_wallet | account_wallets] = wallets
-      assert user_wallet["user_id"] == user.id
-
-      Enum.each(account_wallets, fn wallet ->
-        assert wallet["account_id"] == account.id
-      end)
+      assert Enum.count(wallets, fn w -> w["user_id"] == user.id end) == 1
+      assert Enum.count(wallets, fn w -> w["account_id"] == account.id end) == 4
     end
   end
 
