@@ -290,7 +290,7 @@ class ConfigurationPage extends Component {
                 name={'GCS Credential JSON'}
                 description={configurations.gcs_credentials.description}
                 value={this.state.gcsCredentials}
-                placeholder={'ie. {"type": "service_account", "project_id": "your-porject-id" ...'}
+                placeholder={'ie. {"type": "service_account", "project_id": "your-project-id" ...'}
                 border={this.state.emailAdapter !== 'gcs'}
                 onChange={this.onChangeInput('gcsCredentials')}
                 inputErrorMessage='Invalid json credential'
