@@ -31,6 +31,8 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
   end
 
   defp load_file_storage("aws", app) do
+    cleanup_gcs()
+
     aws_bucket = Application.get_env(app, :aws_bucket)
     aws_region = Application.get_env(app, :aws_region)
     aws_access_key_id = Application.get_env(app, :aws_access_key_id)
@@ -52,19 +54,44 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
   end
 
   defp load_file_storage("gcs", app) do
+    cleanup_aws()
+
     gcs_bucket = Application.get_env(app, :gcs_bucket)
     gcs_credentials = Application.get_env(app, :gcs_credentials)
 
     Application.put_env(:arc, :storage, Arc.Storage.GCS)
     Application.put_env(:arc, :bucket, gcs_bucket)
     Application.put_env(:goth, :json, gcs_credentials)
+
+    {:ok, _pid} = GenServer.call(EWalletConfig.FileStorageSupervisor, :start_goth)
   end
 
   defp load_file_storage("local", _app) do
+    cleanup_gcs()
+    cleanup_aws()
     Application.put_env(:arc, :storage, EWalletConfig.Storage.Local)
   end
 
   defp load_file_storage(storage, _app) do
     Logger.warn(~s([File Storage Configuration]: Unknown option: "#{storage}"))
+  end
+
+  defp cleanup_gcs do
+    Application.delete_env(:arc, :storage)
+    Application.delete_env(:arc, :bucket)
+    Application.delete_env(:goth, :json)
+  end
+
+  defp cleanup_aws do
+    Application.delete_env(:arc, :asset_host)
+    Application.delete_env(:ex_aws, :secret_access_key)
+    Application.delete_env(:ex_aws, :region)
+    Application.delete_env(:ex_aws, :s3)
+    Application.delete_env(:ex_aws, :debug_requests)
+    Application.delete_env(:ex_aws, :recv_timeout)
+    Application.delete_env(:ex_aws, :hackney)
+    Application.delete_env(:arc, :storage)
+    Application.delete_env(:arc, :bucket)
+    Application.delete_env(:arc, :asset_host)
   end
 end
