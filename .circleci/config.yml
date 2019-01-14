@@ -1,5 +1,6 @@
 version: 2
 
+
 presets:
   defaults: &defaults
     working_directory: ~/src
@@ -14,47 +15,49 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache: &ewallet_deps
-          name: Restoring eWallet dependencies from cache
+      - restore_cache:
+          name: Restoring eWallet artifacts from cache
           keys:
-            - v1-ewallet-deps-{{ checksum "mix.lock" }}
-            - v1-ewallet-deps-
-      - restore_cache: &ewallet_test_build
-          name: Restoring eWallet test artifacts from cache
-          keys:
-            - v1-ewallet-test-build-{{ checksum "mix.exs" }}
-            - v1-ewallet-test-build-
-      - run:
-          name: Retrieving eWallet dependencies
-          command: |
-            set -xe
-            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
-            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            make deps-ewallet
-      - save_cache:
-          name: Caching eWallet dependencies
-          key: v1-ewallet-deps-{{ checksum "mix.lock" }}
-          paths:
-            - deps
+            - v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
+            - v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-
+            - v1-ewallet-{{ checksum "mix.lock" }}-
+            - v1-ewallet-
       - run:
           name: Building eWallet in test environment
           command: |
             set -xe
-            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
-            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
+            # * Clean bcrypt_elixir to avoid NIF issue due to broken cache.
+            # * Clean mime in order to make the new type recognized by mime app.
+            #   See also admin_api/config/config.exs
+            mix deps.clean bcrypt_elixir mime --build
             make build-test
+      - run:
+          name: Building eWallet assets
+          command: |
+            set -xe
+            make deps-assets
       - save_cache:
-          name: Caching eWallet test artifacts
-          key: v1-ewallet-test-build-{{ checksum "mix.exs" }}
+          name: Caching eWallet artifacts
+          key: v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
           paths:
+            - deps
             - _build/test
+            - apps/admin_panel/assets/node_modules
+      -  persist_to_workspace:
+          name: Persisting workspace
+          root: ~/
+          paths:
+            - src/deps
+            - src/_build
+            - src/apps/admin_panel/assets/node_modules
 
   lint:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache: *ewallet_deps
-      - restore_cache: *ewallet_test_build
+      - attach_workspace: &ewallet_workspace
+          name: Attaching workspace
+          at: ~/
       - run:
           name: Checking code formattings
           command: |
@@ -64,13 +67,44 @@ jobs:
           name: Checking credo
           command: |
             set -xe
-            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
-            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            make deps-ewallet
             make check-credo
           environment:
             MIX_ENV: test
+
+  dialyze:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Determining runtime versions
+          command: |
+            set -xe
+            mkdir -p ~/var
+            elixir --version > ~/var/elixir-version
+      - restore_cache:
+          name: Restoring runtime PLT from cache
+          keys:
+            - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
+            - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-
+            - v1-ewallet-plt-
+      - attach_workspace: &ewallet_workspace
+          name: Attaching workspace
+          at: ~/
+      - run:
+          name: Checking dialyzer
+          command: |
+            set -xe
+            export PLT_CORE_PATH=$HOME/var/dialyzer
+            mkdir -p $PLT_CORE_PATH
+            make check-dialyzer
+          environment:
+            MIX_ENV: test
+      - save_cache:
+          name: Caching runtime PLT
+          key: v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
+          paths:
+            - ~/var/dialyzer
+          when: always
 
   test:
     <<: *defaults
@@ -79,20 +113,11 @@ jobs:
       - image: postgres:9.6-alpine
     steps:
       - checkout
-      - restore_cache: *ewallet_deps
-      - restore_cache: *ewallet_test_build
-      - restore_cache: &ewallet_deps_assets
-          name: Restoring eWallet assets dependencies from cache
-          keys:
-            - v1-ewallet-assets-deps-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
-            - v1-ewallet-assets-deps-
+      - attach_workspace: *ewallet_workspace
       - run:
           name: Running eWallet tests
           command: |
             set -xe
-            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
-            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
             make test-ewallet
           environment:
             DATABASE_URL: postgresql://postgres:@localhost:5432/ewallet
@@ -103,74 +128,55 @@ jobs:
           name: Running eWallet assets tests
           command: |
             set -xe
-            make deps-assets
             make test-assets
-      - save_cache:
-          name: Caching eWallet test dependencies
-          key: v1-ewallet-assets-deps-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
-          paths:
-            - apps/admin_panel/assets/node_modules
 
   build:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache: *ewallet_deps
-      - restore_cache: *ewallet_deps_assets
+      - setup_remote_docker
+      - attach_workspace: *ewallet_workspace
       - restore_cache:
           name: Restoring eWallet production artifacts from cache
           keys:
-            - v1-ewallet-prod-build-{{ checksum "mix.exs" }}
-            - v1-ewallet-prod-build-
-      - setup_remote_docker
+            - v1-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
+            - v1-ewallet-prod-{{ checksum "mix.exs" }}-
+            - v1-ewallet-prod-
       - run:
           name: Building eWallet in production environment
           command: |
             set -xe
-            # Force rebuilding bcrypt_elixir otherwise it's gonna fail loading NIFs
-            find deps/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
-            find _build/ -name bcrypt_elixir -print0 | xargs -0 rm -rf || true
             make build-prod
-      - save_cache:
-          name: Caching eWallet artifacts
-          key: v1-ewallet-prod-build-{{ checksum "mix.exs" }}
-          paths:
-            - _build/prod/.mix
-            - _build/prod/consolidated
-            - _build/prod/lib
-      - restore_cache:
-          name: Restoring Docker image artifacts from cache
-          keys:
-            - v1-docker-image-{{ checksum "Dockerfile" }}
-            - v1-docker-image-
       - run:
-          name: Building Docker image
+          name: Building eWallet Docker image
           command: |
             set -xe
             docker load -i ~/caches/docker-layers.tar || true
             make docker-build IMAGE_NAME=$IMAGE_NAME
-            mkdir -p ~/caches /tmp/workspace
+            mkdir -p ~/caches
             docker save -o ~/caches/docker-layers.tar "$IMAGE_NAME"
-            docker save -o /tmp/workspace/docker-image.tar "$IMAGE_NAME"
       - save_cache:
-          name: Saving Docker image layer cache
+          name: Caching eWallet production artifacts
+          key: v1-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
           paths:
+            - _build/prod/.mix
+            - _build/prod/consolidated
+            - _build/prod/lib
             - ~/caches/docker-layers.tar
-          key: v1-docker-image-{{ checksum "Dockerfile" }}
       - persist_to_workspace:
           name: Persisting workspace
-          root: /tmp/workspace
+          root: ~/
           paths:
-            - docker-image.tar
+            - caches/docker-layers.tar
 
   test_e2e:
     <<: *defaults
     steps:
       - setup_remote_docker
       - checkout
-      - attach_workspace: &attach_workspace
+      - attach_workspace: &ewallet_docker_workspace
           name: Attaching workspace
-          at: /tmp/workspace
+          at: ~/
       - run:
           name: Preparing E2E environments
           command: |
@@ -187,7 +193,7 @@ jobs:
             E2E_TEST_USER_PASSWORD=$(openssl rand -base64 24 | tr '+/' '-_')
             EOF
 
-            docker load -i /tmp/workspace/docker-image.tar
+            docker load -i ~/caches/docker-layers.tar
             docker network create net0
 
             sh docker-gen.sh -i "$IMAGE_NAME" -n net0 -f .env > docker-compose.override.yml
@@ -233,7 +239,7 @@ jobs:
     <<: *defaults
     steps:
       - setup_remote_docker
-      - attach_workspace: *attach_workspace
+      - attach_workspace: *ewallet_docker_workspace
       - run:
           name: Logging into Docker Hub
           command: |
@@ -242,7 +248,7 @@ jobs:
           name: Publishing Docker image
           command: |
             set -xe
-            docker load -i /tmp/workspace/docker-image.tar
+            docker load -i ~/caches/docker-layers.tar
 
             IMAGE_TAG=""
             if [ -n "$CIRCLE_TAG" ]; then
@@ -283,15 +289,15 @@ workflows:
   test_build:
     jobs:
       - build_test
-
       - lint:
           requires:
             - build_test
-
       - test:
           requires:
             - build_test
-
+      - dialyze:
+          requires:
+            - build_test
       - build:
           requires:
             - lint
@@ -302,12 +308,10 @@ workflows:
                 - master
             tags:
               only: /^v.*/
-
       - test_e2e:
           requires:
             - build
           filters: *mainline_branches
-
       - publish:
           requires:
             - test_e2e
