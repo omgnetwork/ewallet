@@ -21,7 +21,7 @@ defmodule EWallet.UpdateEmailGate do
   def update(user, email_address) do
     with {:ok, email_address} <- validate_email_unused(email_address),
          {_, _} <- UpdateEmailRequest.disable_all_for(user),
-         %UpdateEmailRequest{} = request <- UpdateEmailRequest.generate(user, email_address) do
+         {:ok, request} <- UpdateEmailRequest.generate(user, email_address) do
       {:ok, request}
     else
       error -> error
