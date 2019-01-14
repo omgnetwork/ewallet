@@ -15,6 +15,7 @@
 defmodule EWallet.Exporters.S3AdapterTest do
   use EWallet.DBCase
   import Ecto.Query
+  import EWalletDB.Factory
   alias EWallet.Exporters.S3Adapter
   alias EWallet.Web.V1.CSV.TransactionSerializer
   alias EWalletDB.{Export, Transaction}

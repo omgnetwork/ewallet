@@ -25,6 +25,8 @@ defmodule EWallet.DBCase do
   alias EWalletDB.{Account, Repo}
   alias EWalletConfig.ConfigTestHelper
 
+  @temp_test_file_dir "private/temp_test_files"
+
   using do
     quote do
       import EWallet.DBCase
@@ -32,6 +34,9 @@ defmodule EWallet.DBCase do
   end
 
   setup tags do
+    # Create the directory to store the temporary test files
+    :ok = File.mkdir_p!(test_file_path())
+
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
     :ok = Sandbox.checkout(EWalletConfig.Repo)
@@ -117,5 +122,19 @@ defmodule EWallet.DBCase do
       })
 
     transaction
+  end
+
+  def test_file_path do
+    :ewallet
+    |> Application.get_env(:root)
+    |> Path.join(@temp_test_file_dir)
+  end
+
+  def test_file_path(file_name) do
+    Path.join(test_file_path(), file_name)
+  end
+
+  def is_url?(url) do
+    String.starts_with?(url, "https://") || String.starts_with?(url, "http://")
   end
 end
