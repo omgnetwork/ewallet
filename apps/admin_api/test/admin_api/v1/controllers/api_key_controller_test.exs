@@ -158,7 +158,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
       response = admin_user_request("/api_key.create", %{})
 
       assert response["success"] == true
-      api_key = get_last_inserted(APIKey) |> Repo.preload(:account)
+      api_key = APIKey |> get_last_inserted() |> Repo.preload(:account)
 
       timestamp
       |> get_all_activity_logs_since()
@@ -170,7 +170,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
       response = provider_request("/api_key.create", %{})
 
       assert response["success"] == true
-      api_key = get_last_inserted(APIKey) |> Repo.preload(:account)
+      api_key = APIKey |> get_last_inserted() |> Repo.preload(:account)
 
       timestamp
       |> get_all_activity_logs_since()

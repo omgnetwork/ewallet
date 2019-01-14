@@ -580,7 +580,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
         })
 
       assert response["success"] == true
-      membership = get_last_inserted(Membership) |> Repo.preload([:account, :role, :user])
+      membership = Membership |> get_last_inserted() |> Repo.preload([:account, :role, :user])
 
       timestamp
       |> get_all_activity_logs_since()
@@ -602,7 +602,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
         })
 
       assert response["success"] == true
-      membership = get_last_inserted(Membership) |> Repo.preload([:account, :role, :user])
+      membership = Membership |> get_last_inserted() |> Repo.preload([:account, :role, :user])
 
       timestamp
       |> get_all_activity_logs_since()
