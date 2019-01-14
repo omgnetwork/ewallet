@@ -390,7 +390,7 @@ defmodule LocalLedger.TransactionTest do
       assert get_current_balance("sirn") == -150
     end
 
-    test "raises an InsufficientFundsError with many inserts happening at the
+    test "returns an InsufficientFundsError with many inserts happening at the
           same time and not enough funds" do
       genesis()
       caller_pid = self()
@@ -477,9 +477,9 @@ defmodule LocalLedger.TransactionTest do
 
       # Assert that all :error results are because of :insufficient_funds
       assert Enum.all?(error_results, fn
-        {_task, {_status, {:error, :insufficient_funds, _}}} -> true
-        _ -> false
-      end)
+               {_task, {_status, {:error, :insufficient_funds, _}}} -> true
+               _ -> false
+             end)
 
       # Assert the balances
       transferred_amount = num_ok_results * amount_per_transaction
