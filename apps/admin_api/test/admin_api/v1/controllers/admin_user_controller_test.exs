@@ -223,11 +223,15 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       key = insert(:key, %{account: sub_acc})
 
       response =
-        request("/user.enable_or_disable", %{
-          id: master_admin.id,
-          enabled: false
-        },access_key: key.access_key,
-        secret_key: key.secret_key)
+        request(
+          "/user.enable_or_disable",
+          %{
+            id: master_admin.id,
+            enabled: false
+          },
+          access_key: key.access_key,
+          secret_key: key.secret_key
+        )
 
       assert response["success"] == false
       assert response["data"]["code"] == "unauthorized"
@@ -272,7 +276,23 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
                "You are not allowed to perform the requested operation."
     end
 
-    test_with_auths "generates an activity log for an admin reuqest" do
+    defp assert_enable_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{
+          "enabled" => target.enabled
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
       account = Account.get_master_account()
       role = insert(:role, %{name: "some_role"})
       admin = insert(:admin, %{email: "admin@omise.co"})
@@ -288,22 +308,13 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
 
       assert response["success"] == true
       admin = User.get(admin.id)
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_admin(),
-        target: admin,
-        changes: %{
-          "enabled" => false
-        },
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_enable_logs(get_test_admin(), admin)
     end
-    test_with_auths "generates an activity log for a provider request" do
+
+    test "generates an activity log for a provider request" do
       account = Account.get_master_account()
       role = insert(:role, %{name: "some_role"})
       admin = insert(:admin, %{email: "admin@omise.co"})
@@ -319,20 +330,10 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
 
       assert response["success"] == true
       admin = User.get(admin.id)
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_key(),
-        target: admin,
-        changes: %{
-          "enabled" => false
-        },
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_enable_logs(get_test_key(), admin)
     end
   end
 end

@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
   alias Utils.Helpers.DateFormatter
-  alias EWalletDB.{Account, User, Membership}
+  alias EWalletDB.{Account, User, Membership, Repo}
 
   @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
 
@@ -547,7 +547,25 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
                "There is no role corresponding to the provided name."
     end
 
-    test_with_auths "generates an activity log for an admin request" do
+    defp assert_assign_user_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: originator,
+        target: target,
+        changes: %{
+          "account_uuid" => target.account.uuid,
+          "role_uuid" => target.role.uuid,
+          "user_uuid" => target.user.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
       {:ok, user} = :user |> params_for() |> User.insert()
       account = insert(:account)
       role = insert(:role)
@@ -562,26 +580,14 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
         })
 
       assert response["success"] == true
-      membership = get_last_inserted(Membership)
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
+      membership = get_last_inserted(Membership) |> Repo.preload([:account, :role, :user])
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "insert",
-        originator: get_test_admin(),
-        target: membership,
-        changes: %{
-          "account_uuid" => account.uuid,
-          "role_uuid" => role.uuid,
-          "user_uuid" => user.uuid
-        },
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_assign_user_logs(get_test_admin(), membership)
     end
 
-    test_with_auths "generates an activity log for a provider request" do
+    test "generates an activity log for a provider request" do
       {:ok, user} = :user |> params_for() |> User.insert()
       account = insert(:account)
       role = insert(:role)
@@ -596,23 +602,11 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
         })
 
       assert response["success"] == true
-      membership = get_last_inserted(Membership)
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
+      membership = get_last_inserted(Membership) |> Repo.preload([:account, :role, :user])
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "insert",
-        originator: get_test_key(),
-        target: membership,
-        changes: %{
-          "account_uuid" => account.uuid,
-          "role_uuid" => role.uuid,
-          "user_uuid" => user.uuid
-        },
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_assign_user_logs(get_test_key(), membership)
     end
   end
 
@@ -682,6 +676,20 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
                "You are not allowed to perform the requested operation."
     end
 
+    defp assert_unassign_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "delete",
+        originator: originator,
+        target: target,
+        changes: %{},
+        encrypted_changes: %{}
+      )
+    end
+
     test "generates an activity log for an admin request" do
       account = insert(:account)
       {:ok, user} = :user |> params_for() |> User.insert()
@@ -696,18 +704,10 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
         })
 
       assert response["success"] == true
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "delete",
-        originator: get_test_admin(),
-        target: membership,
-        changes: %{},
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_unassign_logs(get_test_admin(), membership)
     end
 
     test "generates an activity log for a provider request" do
@@ -724,18 +724,10 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
         })
 
       assert response["success"] == true
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "delete",
-        originator: get_test_key(),
-        target: membership,
-        changes: %{},
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_unassign_logs(get_test_key(), membership)
     end
   end
 end
