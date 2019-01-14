@@ -48,15 +48,15 @@ defmodule EWalletConfig.FileStorageSupervisor do
 
     case goth do
       {:ok, pid} ->
-        {:reply, :ok, pid}
+        {:reply, {:ok, pid}, pid}
 
       {:error, {:already_started, pid}} ->
-        {:reply, :ok, pid}
+        {:reply, {:ok, pid}, pid}
     end
   end
 
   @spec handle_call(:start_goth, any(), pid()) :: :ok
-  def handle_call(:start_goth, _from, pid), do: {:reply, :ok, pid}
+  def handle_call(:start_goth, _from, pid), do: {:reply, {:ok, pid}, pid}
 
   @spec handle_call(:stop_goth, any(), nil) :: :ok
   def handle_call(:stop_goth, _from, nil), do: {:reply, :ok, nil}
