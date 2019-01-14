@@ -56,9 +56,8 @@ defmodule EWalletConfig.FileStorageSupervisorTest do
   describe "start_link/0" do
     test "stops and starts a new Supervisor" do
       :ok = FileStorageSupervisor.stop()
-      {res, pid} = FileStorageSupervisor.start_link()
+      {:ok, pid} = FileStorageSupervisor.start_link()
 
-      assert res == :ok
       assert pid != nil
     end
   end
