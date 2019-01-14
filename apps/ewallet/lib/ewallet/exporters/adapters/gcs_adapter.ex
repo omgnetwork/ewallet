@@ -16,7 +16,7 @@ defmodule EWallet.Exporters.GCSAdapter do
   @moduledoc """
   Export Adapter for Google Cloud Storage.
   """
-  alias EWallet.Exporters.AdapterHelper
+  alias EWallet.AdapterHelper
   alias EWalletDB.{Export, Uploaders}
 
   def generate_signed_url(export) do

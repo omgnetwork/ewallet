@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Exporters.AdapterHelperTest do
+defmodule EWallet.AdapterHelperTest do
   use EWallet.DBCase
   import Ecto.Query
-  alias EWallet.Exporters.AdapterHelper
+  alias EWallet.AdapterHelper
   alias EWallet.Web.V1.CSV.TransactionSerializer
   alias EWalletDB.{Export, Transaction}
   alias Utils.Helper.PidHelper

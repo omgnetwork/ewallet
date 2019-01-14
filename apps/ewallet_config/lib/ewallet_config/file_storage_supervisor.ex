@@ -38,7 +38,13 @@ defmodule EWalletConfig.FileStorageSupervisor do
     GenServer.stop(pid)
   end
 
-  @spec handle_call(:start_goth, any(), nil) :: :ok
+  @spec handle_call(:status, any(), nil) :: :ko
+  def handle_call(:status, _from, nil), do: {:reply, :ko, nil}
+
+  @spec handle_call(:status, any(), pid()) :: :ok
+  def handle_call(:status, _from, pid), do: {:reply, :ok, pid}
+
+  @spec handle_call(:start_goth, any(), nil) :: {:ok, pid()} | {:ok, nil}
   def handle_call(:start_goth, _from, nil) do
     goth =
       DynamicSupervisor.start_child(EWalletConfig.DynamicSupervisor, %{
@@ -52,10 +58,16 @@ defmodule EWalletConfig.FileStorageSupervisor do
 
       {:error, {:already_started, pid}} ->
         {:reply, {:ok, pid}, pid}
+
+      error ->
+        Logger.warn("Failed to start Goth server, probably due to an invalid configuration.")
+        Logger.warn(inspect(error))
+
+        {:reply, {:ok, nil}, nil}
     end
   end
 
-  @spec handle_call(:start_goth, any(), pid()) :: :ok
+  @spec handle_call(:start_goth, any(), pid()) :: {:ok, pid()}
   def handle_call(:start_goth, _from, pid), do: {:reply, {:ok, pid}, pid}
 
   @spec handle_call(:stop_goth, any(), nil) :: :ok

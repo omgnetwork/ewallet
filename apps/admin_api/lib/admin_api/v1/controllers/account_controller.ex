@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AccountController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
-  alias EWallet.AccountPolicy
+  alias EWallet.{AccountPolicy, AdapterHelper}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.AccountOverlay}
   alias EWalletDB.Account
 
@@ -132,6 +132,7 @@ defmodule AdminAPI.V1.AccountController do
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, account.id),
+         :ok <- AdapterHelper.check_adapter_status(),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          %{} = saved <- Account.store_avatar(account, attrs),
          {:ok, saved} <- Orchestrator.one(saved, AccountOverlay, attrs) do
