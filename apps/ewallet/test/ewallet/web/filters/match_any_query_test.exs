@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.Web.MatchAnyQueryTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
   import Ecto.Query
   import EWalletDB.Factory
   alias EWallet.Web.MatchAnyQuery

@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWalletDB.ForgetPasswordRequestTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias EWalletDB.{ForgetPasswordRequest, Repo}
 
   describe "all_active/0" do

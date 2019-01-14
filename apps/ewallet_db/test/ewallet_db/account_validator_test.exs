@@ -13,11 +13,11 @@
 # limitations under the License.
 
 defmodule EWalletDB.AccountValidatorTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
+  import Ecto.Changeset
+  import EWalletDB.{AccountValidator, Factory}
   alias Ecto.UUID
   alias EWalletDB.Account
-  import Ecto.Changeset
-  import EWalletDB.AccountValidator
 
   describe "validate_parent_uuid/1" do
     test "returns valid if parent_uuid is not nil" do

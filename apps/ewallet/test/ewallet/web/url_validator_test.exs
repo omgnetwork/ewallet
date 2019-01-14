@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.Web.UrlValidatorTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
   alias EWallet.Web.UrlValidator
   alias EWalletConfig.Config
   alias ActivityLogger.System

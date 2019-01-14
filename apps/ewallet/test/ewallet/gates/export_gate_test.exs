@@ -14,6 +14,7 @@
 
 defmodule EWallet.ExportGateTest do
   use EWallet.DBCase
+  import EWalletDB.Factory
   alias Ecto.Queryable
   alias EWallet.ExportGate
   alias EWallet.Web.V1.CSV.TransactionSerializer

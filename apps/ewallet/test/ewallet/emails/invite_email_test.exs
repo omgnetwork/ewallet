@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.InviteEmailTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.InviteEmail
   alias EWalletDB.{Invite, User}
   alias ActivityLogger.System
