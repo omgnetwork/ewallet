@@ -297,7 +297,6 @@ workflows:
             branches:
               only:
                 - master
-                - 633-dialyxir
             tags:
               only: /^v.*/
       - test_e2e:
