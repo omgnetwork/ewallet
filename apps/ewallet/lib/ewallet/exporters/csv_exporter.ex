@@ -65,7 +65,7 @@ defmodule EWallet.CSVExporter do
     adapter_module = get_adapter_module()
     adapter_module.upload(state)
 
-    {:noreply, state}
+    {:stop, :normal, state}
   end
 
   defp get_adapter_module do
