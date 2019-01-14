@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
-  use AdminAPI.ConnCase, async: false
+  use AdminAPI.ConnCase
   alias EWalletDB.Uploaders
   alias Utils.Helper.PidHelper
 
@@ -37,12 +37,22 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
       data = response["data"]
 
       assert data["adapter"] == "local"
-      assert data["completion"] == 1.0
       assert data["status"] == "processing"
       assert data["user_id"] == admin.id
+      assert data["pid"]
 
+      # Wait until the export process shuts down and check that it shutted down normally
       pid = PidHelper.pid_from_string(data["pid"])
-      assert %{export: _} = :sys.get_state(pid)
+      ref = Process.monitor(pid)
+
+      receive do
+        {:DOWN, ^ref, :process, object, reason} ->
+          assert object == pid
+          assert reason == :normal
+      after
+        60_000 ->
+          flunk("The export process timed out after 60 seconds")
+      end
 
       response = admin_user_request("/export.get", %{"id" => data["id"]})
       data = response["data"]

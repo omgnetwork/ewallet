@@ -14,7 +14,7 @@
 
 defmodule Utils.Helpers.DateFormatterTest do
   use ExUnit.Case, async: true
-  alias EWallet.Errors.InvalidDateFormatError
+  alias Utils.Errors.InvalidDateFormatError
   alias Utils.Helpers.DateFormatter
 
   describe "to_iso8601/1" do
