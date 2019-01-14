@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.ProviderAuth.ActivityControllerTest do
+defmodule AdminAPI.V1.ActivityControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/activity_log.all" do
-    test "returns a list of activity_logs and pagination data" do
-      response = provider_request("/activity_log.all")
+    test_with_auths "returns a list of activity_logs and pagination data" do
+      response = request("/activity_log.all")
 
       # Asserts return data
       assert response["success"]
@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.ProviderAuth.ActivityControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of activity_logs according to search_term, sort_by and sort_direction" do
+    test_with_auths "returns a list of activity_logs according to search_term, sort_by and sort_direction" do
       insert(:activity_log, %{action: "Matched 2"})
       insert(:activity_log, %{action: "Matched 3"})
       insert(:activity_log, %{action: "Matched 1"})
@@ -45,7 +45,7 @@ defmodule AdminAPI.V1.ProviderAuth.ActivityControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = provider_request("/activity_log.all", attrs)
+      response = request("/activity_log.all", attrs)
       activity_logs = response["data"]["data"]
 
       assert response["success"]
@@ -55,15 +55,27 @@ defmodule AdminAPI.V1.ProviderAuth.ActivityControllerTest do
       assert Enum.at(activity_logs, 2)["action"] == "Matched 1"
     end
 
-    test_supports_match_any("/activity_log.all", :admin_auth, :activity_log, :action)
-    test_supports_match_all("/activity_log.all", :admin_auth, :activity_log, :action)
+    test_supports_match_any("/activity_log.all", :activity_log, :action)
+    test_supports_match_all("/activity_log.all", :activity_log, :action)
   end
 
-  test "returns unauthorized error if the admin is not from the master account" do
+  test_with_auths "returns unauthorized error if the admin is not from the master account" do
+    auth_token = insert(:auth_token, owner_app: "admin_api")
     key = insert(:key)
-    opts = [access_key: key.access_key, secret_key: key.secret_key]
 
-    response = provider_request("/activity_log.all", %{}, opts)
+    opts = [
+      access_key: key.access_key,
+      secret_key: key.secret_key,
+      user_id: auth_token.user.id,
+      auth_token: auth_token.token
+    ]
+
+    response =
+      request(
+        "/activity_log.all",
+        %{},
+        opts
+      )
 
     assert response ==
              %{
