@@ -15,7 +15,7 @@
 defmodule LocalLedger.CachedBalance do
   @moduledoc """
   This module is an interface to the abstract balances stored in DB. It is responsible for caching
-  wallets and serves as an interface to retrieve the current balances (which will either be
+  balances and serves as an interface to retrieve the current balances (which will either be
   loaded from a cached balance or computed - or both).
   """
   alias LocalLedgerDB.{CachedBalance, Entry, Wallet}
@@ -32,27 +32,47 @@ defmodule LocalLedger.CachedBalance do
   end
 
   @doc """
-  Get all the balances for the given wallet.
+  Get all the balances for the given wallet or wallets.
   """
-  @spec all(%Wallet{}) :: {:ok, map()}
-  def all(wallet) do
-    {:ok, get_amounts(wallet)}
+  @spec all(%Wallet{} | [%Wallet{}]) :: {:ok, map()}
+  def all(wallet_or_wallets) do
+    {:ok, get_balances(wallet_or_wallets)}
   end
 
   @doc """
   Get the balance for the specified token (token_id) and
   the given wallet.
   """
-  @spec get(%Wallet{}, String.t()) :: {:ok, map()}
-  def get(wallet, token_id) do
-    amounts = get_amounts(wallet)
-    {:ok, %{token_id => amounts[token_id] || 0}}
+  @spec get(%Wallet{} | [%Wallet{}], String.t()) :: {:ok, map()}
+  def get(wallet_or_wallets, token_id) do
+    balances =
+      wallet_or_wallets
+      |> get_balances()
+      |> Enum.into(%{}, fn {address, amounts} ->
+        {address, %{token_id => amounts[token_id] || 0}}
+      end)
+
+    {:ok, balances}
   end
 
-  defp get_amounts(wallet) do
-    wallet.address
-    |> CachedBalance.get()
-    |> calculate_amounts(wallet)
+  defp get_balances(wallets) when is_list(wallets) do
+    wallets
+    |> Enum.map(fn wallet -> wallet.address end)
+    |> CachedBalance.all()
+    |> calculate_all_amounts(wallets)
+  end
+
+  defp get_balances(wallet), do: get_balances([wallet])
+
+  defp calculate_all_amounts(computed_balances, wallets) do
+    computed_balances =
+      Enum.into(computed_balances, %{}, fn balance ->
+        {balance.wallet_address, balance}
+      end)
+
+    Enum.into(wallets, %{}, fn wallet ->
+      {wallet.address, calculate_amounts(computed_balances[wallet.address], wallet)}
+    end)
   end
 
   defp calculate_amounts(nil, wallet), do: calculate_from_beginning_and_insert(wallet)
