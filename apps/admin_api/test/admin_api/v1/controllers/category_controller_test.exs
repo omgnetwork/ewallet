@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
+defmodule AdminAPI.V1.CategoryControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Category, Repo}
   alias EWalletDB.Helpers.Preloader
@@ -20,8 +20,8 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
   alias Utils.Helpers.DateFormatter
 
   describe "/category.all" do
-    test "returns a list of categories and pagination data" do
-      response = admin_user_request("/category.all")
+    test_with_auths "returns a list of categories and pagination data" do
+      response = request("/category.all")
 
       # Asserts return data
       assert response["success"]
@@ -36,7 +36,7 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of categories according to search_term, sort_by and sort_direction" do
+    test_with_auths "returns a list of categories according to search_term, sort_by and sort_direction" do
       insert(:category, %{name: "Matched 2"})
       insert(:category, %{name: "Matched 3"})
       insert(:category, %{name: "Matched 1"})
@@ -49,7 +49,7 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = admin_user_request("/category.all", attrs)
+      response = request("/category.all", attrs)
       categories = response["data"]["data"]
 
       assert response["success"]
@@ -59,25 +59,25 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert Enum.at(categories, 2)["name"] == "Matched 1"
     end
 
-    test_supports_match_any("/category.all", :admin_auth, :category, :name)
-    test_supports_match_all("/category.all", :admin_auth, :category, :name)
+    test_supports_match_any("/category.all", :category, :name)
+    test_supports_match_all("/category.all", :category, :name)
   end
 
   describe "/category.get" do
-    test "returns an category by the given category's ID" do
+    test_with_auths "returns an category by the given category's ID" do
       categories = insert_list(3, :category)
 
       # Pick the 2nd inserted category
       target = Enum.at(categories, 1)
-      response = admin_user_request("/category.get", %{"id" => target.id})
+      response = request("/category.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "category"
       assert response["data"]["name"] == target.name
     end
 
-    test "returns 'category:id_not_found' if the given ID was not found" do
-      response = admin_user_request("/category.get", %{"id" => "cat_12345678901234567890123456"})
+    test_with_auths "returns 'category:id_not_found' if the given ID was not found" do
+      response = request("/category.get", %{"id" => "cat_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -87,8 +87,8 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
                "There is no category corresponding to the provided id."
     end
 
-    test "returns 'category:id_not_found' if the given ID format is invalid" do
-      response = admin_user_request("/category.get", %{"id" => "not_an_id"})
+    test_with_auths "returns 'category:id_not_found' if the given ID format is invalid" do
+      response = request("/category.get", %{"id" => "not_an_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -100,25 +100,39 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
   end
 
   describe "/category.create" do
-    test "creates a new category and returns it" do
+    test_with_auths "creates a new category and returns it" do
       request_data = %{name: "A test category"}
-      response = admin_user_request("/category.create", request_data)
+      response = request("/category.create", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "category"
       assert response["data"]["name"] == request_data.name
     end
 
-    test "returns an error if the category name is not provided" do
+    test_with_auths "returns an error if the category name is not provided" do
       request_data = %{name: ""}
-      response = admin_user_request("/category.create", request_data)
+      response = request("/category.create", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
     end
 
-    test "generates an activity log" do
+    defp assert_create_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: originator,
+        target: target,
+        changes: %{"name" => target.name},
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
       timestamp = DateTime.utc_now()
       request_data = %{name: "A test category"}
       response = admin_user_request("/category.create", request_data)
@@ -126,23 +140,29 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert response["success"] == true
 
       category = Category.get(response["data"]["id"])
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "insert",
-        originator: get_test_admin(),
-        target: category,
-        changes: %{"name" => "A test category"},
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_logs(get_test_admin(), category)
+    end
+
+    test "generates an activity log for a provider request" do
+      timestamp = DateTime.utc_now()
+      request_data = %{name: "A test category"}
+      response = provider_request("/category.create", request_data)
+
+      assert response["success"] == true
+
+      category = Category.get(response["data"]["id"])
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_logs(get_test_key(), category)
     end
   end
 
   describe "/category.update" do
-    test "updates the given category" do
+    test_with_auths "updates the given category" do
       category = insert(:category)
 
       # Prepare the update data while keeping only id the same
@@ -153,7 +173,7 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
           description: "updated_description"
         })
 
-      response = admin_user_request("/category.update", request_data)
+      response = request("/category.update", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "category"
@@ -161,7 +181,7 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert response["data"]["description"] == "updated_description"
     end
 
-    test "updates the category's accounts" do
+    test_with_auths "updates the category's accounts" do
       category = :category |> insert() |> Preloader.preload(:accounts)
       account = :account |> insert()
       assert Enum.empty?(category.accounts)
@@ -172,7 +192,7 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
         account_ids: [account.id]
       }
 
-      response = admin_user_request("/category.update", request_data)
+      response = request("/category.update", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "category"
@@ -180,9 +200,9 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert List.first(response["data"]["accounts"]["data"])["id"] == account.id
     end
 
-    test "returns a 'client:invalid_parameter' error if id is not provided" do
+    test_with_auths "returns a 'client:invalid_parameter' error if id is not provided" do
       request_data = params_for(:category, %{id: nil})
-      response = admin_user_request("/category.update", request_data)
+      response = request("/category.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -190,9 +210,9 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided."
     end
 
-    test "returns an 'unauthorized' error if id is invalid" do
+    test_with_auths "returns an 'unauthorized' error if id is invalid" do
       request_data = params_for(:category, %{id: "invalid_format"})
-      response = admin_user_request("/category.update", request_data)
+      response = request("/category.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -202,7 +222,21 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
                "There is no category corresponding to the provided id."
     end
 
-    test "generates an activity log" do
+    defp assert_update_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{"name" => target.name, "description" => target.description},
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
       category = insert(:category)
       timestamp = DateTime.utc_now()
 
@@ -217,32 +251,47 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
 
       assert response["success"] == true
 
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
+      category = Category.get(category.id)
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_admin(),
-        target: category,
-        changes: %{"name" => "updated_name", "description" => "updated_description"},
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_update_logs(get_test_admin(), category)
+    end
+
+    test "generates an activity log for a provider request" do
+      category = insert(:category)
+      timestamp = DateTime.utc_now()
+
+      request_data =
+        params_for(:category, %{
+          id: category.id,
+          name: "updated_name",
+          description: "updated_description"
+        })
+
+      response = provider_request("/category.update", request_data)
+
+      assert response["success"] == true
+
+      category = Category.get(category.id)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_update_logs(get_test_key(), category)
     end
   end
 
   describe "/category.delete" do
-    test "responds success with the deleted category" do
+    test_with_auths "responds success with the deleted category" do
       category = insert(:category)
-      response = admin_user_request("/category.delete", %{id: category.id})
+      response = request("/category.delete", %{id: category.id})
 
       assert response["success"] == true
       assert response["data"]["object"] == "category"
       assert response["data"]["id"] == category.id
     end
 
-    test "responds with an error if the category has one or more associated accounts" do
+    test_with_auths "responds with an error if the category has one or more associated accounts" do
       account = insert(:account)
 
       {:ok, category} =
@@ -253,7 +302,7 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
           originator: %System{}
         })
 
-      response = admin_user_request("/category.delete", %{id: category.id})
+      response = request("/category.delete", %{id: category.id})
 
       assert response ==
                %{
@@ -268,8 +317,8 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
                }
     end
 
-    test "responds with an error if the provided id is not found" do
-      response = admin_user_request("/category.delete", %{id: "wrong_id"})
+    test_with_auths "responds with an error if the provided id is not found" do
+      response = request("/category.delete", %{id: "wrong_id"})
 
       assert response ==
                %{
@@ -284,13 +333,21 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
                }
     end
 
-    test "responds with an error if the user is not authorized to delete the category" do
+    test_with_auths "responds with an error if the user is not authorized to delete the category" do
       category = insert(:category)
       auth_token = insert(:auth_token, owner_app: "admin_api")
+      key = insert(:key)
 
       attrs = %{id: category.id}
-      opts = [user_id: auth_token.user.id, auth_token: auth_token.token]
-      response = admin_user_request("/category.delete", attrs, opts)
+
+      opts = [
+        user_id: auth_token.user.id,
+        auth_token: auth_token.token,
+        access_key: key.access_key,
+        secret_key: key.secret_key
+      ]
+
+      response = request("/category.delete", attrs, opts)
 
       assert response ==
                %{
@@ -305,7 +362,21 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
                }
     end
 
-    test "generates an activity log" do
+    defp assert_delete_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{"deleted_at" => DateFormatter.to_iso8601(target.deleted_at)},
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
       category = insert(:category)
       timestamp = DateTime.utc_now()
 
@@ -314,18 +385,25 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert response["success"] == true
 
       category = Repo.get_by(Category, %{id: category.id})
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_admin(),
-        target: category,
-        changes: %{"deleted_at" => DateFormatter.to_iso8601(category.deleted_at)},
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_delete_logs(get_test_admin(), category)
+    end
+
+    test "generates an activity log for a provider request" do
+      category = insert(:category)
+      timestamp = DateTime.utc_now()
+
+      response = provider_request("/category.delete", %{id: category.id})
+
+      assert response["success"] == true
+
+      category = Repo.get_by(Category, %{id: category.id})
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_delete_logs(get_test_key(), category)
     end
   end
 end
