@@ -55,7 +55,7 @@ jobs:
             - src/_build
             - src/apps/admin_panel/assets/node_modules
       - slack/status:
-          fail_only: true
+          fail_only: "true"
 
   lint:
     <<: *defaults
@@ -77,7 +77,7 @@ jobs:
           environment:
             MIX_ENV: test
       - slack/status:
-          fail_only: true
+          fail_only: "true"
 
   dialyze:
     <<: *defaults
@@ -116,7 +116,7 @@ jobs:
       ## We're silenting dialyzer failure until we've fixed all dialyzer offense.
       ## TODO: enable this once Dialyzer is fixed.
       # - slack/status:
-      #     fail_only: true
+      #     fail_only: "true"
 
   test:
     <<: *defaults
@@ -142,7 +142,7 @@ jobs:
             set -xe
             make test-assets
       - slack/status:
-          fail_only: true
+          fail_only: "true"
 
   report:
     <<: *defaults
@@ -188,7 +188,7 @@ jobs:
           paths:
             - caches/docker-layers.tar
       - slack/status:
-          fail_only: true
+          fail_only: "true"
 
   test_e2e:
     <<: *defaults
@@ -256,7 +256,7 @@ jobs:
               omisegoimages/ewallet-builder:stable \
               sh -c "cd /src/e2e && pipenv install && pipenv run robot tests"
       - slack/status:
-          fail_only: true
+          fail_only: "true"
 
   publish:
     <<: *defaults
