@@ -15,6 +15,7 @@
 defmodule EWalletAPI.V1.WalletViewTest do
   use EWalletAPI.ViewCase, :v1
   alias EWalletAPI.V1.WalletView
+  alias EWallet.BalanceFetcher
   alias EWallet.Web.Paginator
   alias EWallet.Web.V1.WalletSerializer
   alias Ecto.Adapters.SQL.Sandbox
@@ -28,6 +29,9 @@ defmodule EWalletAPI.V1.WalletViewTest do
     test "renders wallets.json with the given wallets" do
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)
+
+      {:ok, wallet_1} = BalanceFetcher.all(%{"wallet" => wallet_1})
+      {:ok, wallet_2} = BalanceFetcher.all(%{"wallet" => wallet_2})
 
       paginator = %Paginator{
         data: [wallet_1, wallet_2],
