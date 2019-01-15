@@ -38,10 +38,10 @@ UserBody:
           - username
         example:
           provider_user_id: wijf-fbancomw-dqwjudb
-          username: thibault@omise.co
-          full_name: Thibault Denizet
-          calling_name: Thibault
-          metadata: {first_name: Thibault, last_name: Denizet}
+          username: john@example.com
+          full_name: John Doe
+          calling_name: John
+          metadata: {first_name: John, last_name: Doe}
           encrypted_metadata: {}
 
 UserIdentifierBody:
