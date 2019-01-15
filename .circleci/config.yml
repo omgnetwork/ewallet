@@ -14,6 +14,18 @@ executors:
       IMAGE_NAME: "omisego/ewallet"
 
 
+commands:
+  slack_notify_failure:
+    description: "Notify Slack only on failure"
+    steps:
+      - slack/notify:
+          color: "#ed5c5c"
+          message: |
+            :no_good: ${CIRCLE_BRANCH} failed during ${CIRCLE_JOB} :rage:
+            https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_WORKSPACE_ID}
+          when: on_fail
+
+
 jobs:
   build_test:
     executor: builder
@@ -54,8 +66,7 @@ jobs:
             - src/deps
             - src/_build
             - src/apps/admin_panel/assets/node_modules
-      - slack/status:
-          fail_only: "true"
+      - slack_notify_failure
 
   lint:
     executor: builder
@@ -76,8 +87,7 @@ jobs:
             make check-credo
           environment:
             MIX_ENV: test
-      - slack/status:
-          fail_only: "true"
+      - slack_notify_failure
 
   dialyze:
     executor: builder
@@ -115,8 +125,7 @@ jobs:
           when: always
       ## We're silenting dialyzer failure until we've fixed all dialyzer offense.
       ## TODO: enable this once Dialyzer is fixed.
-      # - slack/status:
-      #     fail_only: "true"
+      # - slack_notify_failure
 
   test:
     executor: builder
@@ -141,8 +150,7 @@ jobs:
           command: |
             set -xe
             make test-assets
-      - slack/status:
-          fail_only: "true"
+      - slack_notify_failure
 
   build:
     executor: builder
@@ -182,8 +190,7 @@ jobs:
           root: ~/
           paths:
             - caches/docker-layers.tar
-      - slack/status:
-          fail_only: "true"
+      - slack_notify_failure
 
   test_e2e:
     executor: builder
@@ -250,8 +257,7 @@ jobs:
                 --volumes-from srcs \
               omisegoimages/ewallet-builder:stable \
               sh -c "cd /src/e2e && pipenv install && pipenv run robot tests"
-      - slack/status:
-          fail_only: "true"
+      - slack_notify_failure
 
   publish:
     executor: builder
@@ -304,7 +310,11 @@ jobs:
   report:
     executor: slack/alpine
     steps:
-      - slack/status
+      - slack/notify:
+          color: "#1CBF43"
+          message: |
+            :tada: ${CIRCLE_BRANCH} was successfully built :allthethings:
+            https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_WORKSPACE_ID}
 
 
 workflows:
