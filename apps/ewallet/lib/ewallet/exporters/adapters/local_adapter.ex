@@ -16,7 +16,7 @@ defmodule EWallet.Exporters.LocalAdapter do
   @moduledoc """
   Export Adapter for local storage.
   """
-  alias EWallet.Exporters.AdapterHelper
+  alias EWallet.AdapterHelper
   alias EWalletDB.Export
 
   def generate_signed_url(_export) do

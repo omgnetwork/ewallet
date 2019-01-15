@@ -16,7 +16,7 @@ defmodule EWallet.Exporters.S3Adapter do
   @moduledoc """
   Export Adapter for Amazon S3.
   """
-  alias EWallet.Exporters.AdapterHelper
+  alias EWallet.AdapterHelper
   alias EWalletDB.{Repo, Export, Uploaders}
   alias ExAws.S3
 
