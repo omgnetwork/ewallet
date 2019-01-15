@@ -1,8 +1,3 @@
-# This file is responsible for configuring your application
-# and its dependencies with the aid of the Mix.Config module.
-#
-# This configuration file is loaded before any dependency and
-# is restricted to this project.
 use Mix.Config
 
 # General application configuration
@@ -10,7 +5,7 @@ config :admin_panel,
   namespace: AdminPanel,
   ecto_repos: [],
   dist_path: Path.expand("../priv/static/", __DIR__),
-  webpack_watch: false
+  webpack_watch: {:system, "WEBPACK_WATCH", true}
 
 # Configures the endpoint
 config :admin_panel, AdminPanel.Endpoint,
