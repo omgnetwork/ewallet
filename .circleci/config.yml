@@ -17,14 +17,21 @@ commands:
       - run:
           name: Notify Slack on failure
           command: |
-            MESSAGE="${CIRCLE_BRANCH} failed during ${CIRCLE_JOB}"
+            MESSAGE="Build ${CIRCLE_BUILD_NUM} for ${CIRCLE_BRANCH} failed during ${CIRCLE_JOB}"
             WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
             curl -X POST -H 'Content-Type: application/json' --data "{ \
               \"attachments\": [ \
                 { \
                   \"fallback\": \"${MESSAGE}\", \
-                  \"text\": \":no_good: ${MESSAGE} :rage:\n${WORKFLOW_URL}\", \
-                  \"color\": \"#ed2c5c\" \
+                  \"text\": \":no_good: ${MESSAGE} :rage:\", \
+                  \"color\": \"#ed2c5c\", \
+                  \"actions\": [ \
+                    { \
+                      \"type\": \"button\", \
+                      \"text\": \"Visit Job\", \
+                      \"url\": \"$WORKFLOW_URL\" \
+                    } \
+                  ] \
                 } \
               ] \
             }" ${SLACK_WEBHOOK}
@@ -36,14 +43,21 @@ commands:
       - run:
           name: Notify Slack
           command: |
-            MESSAGE="${CIRCLE_BRANCH} was successfully built!"
+            MESSAGE="Build ${CIRCLE_BUILD_NUM} for ${CIRCLE_BRANCH} was successfully built!"
             WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
             curl -X POST -H 'Content-Type: application/json' --data "{ \
               \"attachments\": [ \
                 { \
                   \"fallback\": \"${MESSAGE}\", \
-                  \"text\": \":tada: ${MESSAGE} :allthethings:\n${WORKFLOW_URL}\", \
-                  \"color\": \"#1cbf43\" \
+                  \"text\": \":tada: ${MESSAGE} :allthethings:\", \
+                  \"color\": \"#1cbf43\", \
+                  \"actions\": [ \
+                    { \
+                      \"type\": \"button\", \
+                      \"text\": \"Visit workflow\", \
+                      \"url\": \"${WORKFLOW_URL}\" \
+                    } \
+                  ] \
                 } \
               ] \
             }" ${SLACK_WEBHOOK}
