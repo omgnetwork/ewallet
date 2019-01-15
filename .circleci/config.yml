@@ -5,18 +5,18 @@ orbs:
   slack: circleci/slack@1.0.0
 
 
-presets:
-  defaults: &defaults
-    working_directory: ~/src
+executors:
+  builder:
     docker:
       - image: omisegoimages/ewallet-builder:stable
+    working_directory: ~/src
     environment:
       IMAGE_NAME: "omisego/ewallet"
 
 
 jobs:
   build_test:
-    <<: *defaults
+    executor: builder
     steps:
       - checkout
       - restore_cache:
@@ -58,7 +58,7 @@ jobs:
           fail_only: "true"
 
   lint:
-    <<: *defaults
+    executor: builder
     steps:
       - checkout
       - attach_workspace: &ewallet_workspace
@@ -80,7 +80,7 @@ jobs:
           fail_only: "true"
 
   dialyze:
-    <<: *defaults
+    executor: builder
     steps:
       - checkout
       - run:
@@ -119,7 +119,7 @@ jobs:
       #     fail_only: "true"
 
   test:
-    <<: *defaults
+    executor: builder
     docker:
       - image: omisegoimages/ewallet-builder:stable
       - image: postgres:9.6-alpine
@@ -144,13 +144,8 @@ jobs:
       - slack/status:
           fail_only: "true"
 
-  report:
-    <<: *defaults
-    steps:
-      - slack/status
-
   build:
-    <<: *defaults
+    executor: builder
     steps:
       - checkout
       - setup_remote_docker
@@ -191,7 +186,7 @@ jobs:
           fail_only: "true"
 
   test_e2e:
-    <<: *defaults
+    executor: builder
     steps:
       - setup_remote_docker
       - checkout
@@ -259,7 +254,7 @@ jobs:
           fail_only: "true"
 
   publish:
-    <<: *defaults
+    executor: builder
     steps:
       - setup_remote_docker
       - attach_workspace: *ewallet_docker_workspace
@@ -305,6 +300,10 @@ jobs:
                 docker tag "$IMAGE_NAME" "$IMAGE_NAME:$tag"
                 docker push "$IMAGE_NAME:$tag"
             done
+
+  report:
+    executor: slack/alpine
+    steps:
       - slack/status
 
 
@@ -351,4 +350,8 @@ workflows:
       - publish:
           requires:
             - test_e2e
+          filters: *mainline_branches
+      - report:
+          requires:
+            - publish
           filters: *mainline_branches
