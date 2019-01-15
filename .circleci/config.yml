@@ -147,7 +147,7 @@ jobs:
   report:
     <<: *defaults
     steps:
-      - slack/status:
+      - slack/status
 
   build:
     <<: *defaults
