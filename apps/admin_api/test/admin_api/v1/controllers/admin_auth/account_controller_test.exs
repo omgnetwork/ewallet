@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
   alias EWalletDB.{Account, Membership, Repo, Role, User}
   alias ActivityLogger.System
   alias Utils.Helpers.DateFormatter
+  alias EWalletConfig.Config
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -480,6 +481,33 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
 
       assert response["data"]["avatar"]["thumb"] =~
                "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/thumb.png?v="
+    end
+
+    test "fails to upload avatar with GCS adapter and an invalid configuration", meta do
+      account = insert(:account)
+
+      {:ok, _} =
+        Config.update(
+          %{
+            file_storage_adapter: "gcs",
+            gcs_bucket: "bucket",
+            gcs_credentials: "123",
+            originator: %System{}
+          },
+          meta[:config_pid]
+        )
+
+      response =
+        admin_user_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "adapter:server_not_running"
     end
 
     test "fails to upload an invalid file" do

@@ -16,6 +16,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
   use AdminAPI.ConnCase
   alias EWalletDB.Uploaders
   alias Utils.Helper.PidHelper
+  alias EWalletConfig.Config
+  alias ActivityLogger.System
 
   def setup do
     assert Application.get_env(:ewallet, :file_storage_adapter) == "local"
@@ -80,6 +82,31 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
         |> Path.join()
         |> File.rm_rf()
     end
+  end
+
+  test "fails to generate a CSV when GCS is not properly configured", meta do
+    {:ok, _} =
+      Config.update(
+        %{
+          file_storage_adapter: "gcs",
+          gcs_bucket: "bucket",
+          gcs_credentials: "123",
+          originator: %System{}
+        },
+        meta[:config_pid]
+      )
+
+    insert_list(1, :transaction)
+    assert Application.get_env(:ewallet, :file_storage_adapter) == "gcs"
+
+    response =
+      admin_user_request("/transaction.export", %{
+        "sort_by" => "created",
+        "sort_dir" => "desc"
+      })
+
+    assert response["success"] == false
+    assert response["data"]["code"] == "adapter:server_not_running"
   end
 
   test "returns an 'export:no_records' error when there are no records" do
