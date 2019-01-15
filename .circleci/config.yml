@@ -39,7 +39,7 @@ commands:
                       \"value\": \"<$CIRCLE_URL|$CIRCLE_BUILD_NUM>\", \
                       \"short\": true \
                     } \
-                  ], \
+                  ] \
                 } \
               ] \
             }" ${SLACK_WEBHOOK}
@@ -73,7 +73,7 @@ commands:
                       \"value\": \"<$CIRCLE_URL|$CIRCLE_BUILD_NUM>\", \
                       \"short\": true \
                     } \
-                  ], \
+                  ] \
                 } \
               ] \
             }" ${SLACK_WEBHOOK}
