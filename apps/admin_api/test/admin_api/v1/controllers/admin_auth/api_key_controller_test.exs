@@ -23,12 +23,12 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
       [api_key1, api_key2] = APIKey |> ensure_num_records(2) |> Preloader.preload(:account)
 
       response = admin_user_request("/api_key.all")
-      records = response["data"]["data"]
+      api_keys = response["data"]["data"]
 
-      assert response["pagination"]["count"] == 2
-      assert Enum.count(records) == 2
-      assert Enum.any?(records, fn r -> r.id == api_key1.id end)
-      assert Enum.any?(records, fn r -> r.id == api_key2.id end)
+      assert response["data"]["pagination"]["count"] == 2
+      assert Enum.count(api_keys) == 2
+      assert Enum.any?(api_keys, fn a -> a["id"] == api_key1.id end)
+      assert Enum.any?(api_keys, fn a -> a["id"] == api_key2.id end)
     end
 
     test "responds with a list of api keys when given params" do
@@ -50,13 +50,13 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
       }
 
       response = admin_user_request("/api_key.all", attrs)
-      records = response["data"]["data"]
+      api_keys = response["data"]["data"]
 
       # Returning 1 due to `per_page: 1`
-      assert response["pagination"]["count"] == 1
-      assert Enum.count(records) == 1
-      refute Enum.any?(records, fn r -> r.id == api_key1.id end)
-      assert Enum.any?(records, fn r -> r.id == api_key2.id end)
+      assert response["data"]["pagination"]["count"] == 1
+      assert Enum.count(api_keys) == 1
+      refute Enum.any?(api_keys, fn a -> a["id"] == api_key1.id end)
+      assert Enum.any?(api_keys, fn a -> a["id"] == api_key2.id end)
     end
 
     test "responds with a list of api keys excluding the soft-deleted ones" do
