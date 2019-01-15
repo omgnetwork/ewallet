@@ -12,8 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Exchange.CalculationTest do
-  use ExUnit.Case
+defmodule EWallet.Web.V1.ListSerializerTest do
+  use EWallet.Web.SerializerCase, :v1
+  alias EWallet.Web.V1.ListSerializer
 
-  # No tests for a purely struct module
+  describe "serialize/1" do
+    test "serializes into a list object" do
+      list = ["any", "kind", "of", "list", 1, 2, 3]
+
+      expected = %{
+        object: "list",
+        data: list
+      }
+
+      assert ListSerializer.serialize(list) == expected
+    end
+  end
 end

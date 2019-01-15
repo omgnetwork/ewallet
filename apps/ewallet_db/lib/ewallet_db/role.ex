@@ -55,6 +55,7 @@ defmodule EWalletDB.Role do
     )
     |> validate_required([:name, :priority])
     |> unique_constraint(:name)
+    |> unique_constraint(:priority)
   end
 
   @doc """
