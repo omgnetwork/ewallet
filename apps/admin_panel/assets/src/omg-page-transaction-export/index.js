@@ -5,7 +5,7 @@ import SortableTable from '../omg-table'
 import ExportFetcher from '../omg-export/exportFetcher'
 import { downloadExportFileById, getExports } from '../omg-export/action'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
-import TopBar from '../omg-page-detail-layout/TopBarDetail'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import { Input, Button, Icon } from '../omg-uikit'
@@ -18,21 +18,12 @@ import moment from 'moment'
 import CONSTANT from '../constants'
 import ProgressBar from './ProgressBar'
 import ConfirmationModal from '../omg-confirmation-modal'
+import { Manager, Reference, Popper } from 'react-popper'
 const Container = styled.div`
   position: relative;
   padding-bottom: 50px;
-  }
 `
-const DetailContainer = styled.div`
-  display: flex;
-  > div {
-    flex: 1 1 auto;
-  }
-  > div:first-child {
-    max-width: 400px;
-    padding-right: 20px;
-  }
-`
+const DetailContainer = styled.div``
 const FormDetailContainer = styled.form`
   border: 1px solid #ebeff7;
   border-radius: 2px;
@@ -55,6 +46,17 @@ const ExportFormContainer = styled.div`
     margin-top: 20px;
     padding-left: 40px;
     padding-right: 40px;
+  }
+  background-color: white;
+  width: 400px;
+  z-index: 2;
+  position: relative;
+  > i {
+    position: absolute;
+    right: 25px;
+    color: ${props => props.theme.colors.S500};
+    top: 25px;
+    cursor: pointer;
   }
 `
 const TimestampContainer = styled.div`
@@ -191,7 +193,10 @@ class TransactionExportPage extends Component {
     }
   }
   closeConfirmationModal = e => {
-    this.setState({ confirmationModalOpen: false })
+    this.setState({ confirmationModalOpen: false, fromDate: '', toDate: '' })
+  }
+  onClickGenerate = e => {
+    this.setState({ generateExportOpen: true })
   }
   onClickDownload = id => async e => {
     this.props.downloadExportFileById(id)
@@ -207,16 +212,15 @@ class TransactionExportPage extends Component {
         )
       case 'filename':
         if (row.status === 'completed') {
-          console.log(row)
           return <a onClick={this.onClickDownload(row)}>{`${row.schema}-${row.created_at}`}</a>
         } else if (row.status === 'processing' || row.status === 'new') {
           return (
             <div style={{ maxWidth: '450px' }}>
               <ProgressTextContainer>
                 <span>Exporting...</span>
-                <span>{row.completion}%</span>
+                <span>{row.completion.toFixed(2)}%</span>
               </ProgressTextContainer>
-              <ProgressBar percentage={row.completion} />
+              <ProgressBar percentage={row.completion.toFixed(2)} />
             </div>
           )
         }
@@ -227,7 +231,7 @@ class TransactionExportPage extends Component {
             ? row.params.match_all.map((query, i) => (
               <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
-                {moment(query.value).isValid()
+                  {moment(query.value).isValid()
                     ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
                     : query.value}{' '}
                   ]
@@ -242,7 +246,7 @@ class TransactionExportPage extends Component {
             ? row.params.match_any.map((query, i) => (
               <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
-                {moment(query.value).isValid()
+                  {moment(query.value).isValid()
                     ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
                     : query.value}{' '}
                   ]
@@ -255,7 +259,64 @@ class TransactionExportPage extends Component {
         return data
     }
   }
-
+  onClickClose = e => {
+    this.setState({ generateExportOpen: false })
+  }
+  renderExportButton (fetch) {
+    return (
+      <Manager>
+        <Reference>
+          {({ ref, style }) => (
+            <div ref={ref} style={{ ...style, display: 'inline-block', marginLeft: '10px' }}>
+              <Button styleType='primary' onClick={this.onClickGenerate}>
+                <Icon name='Export' /> Generate
+              </Button>
+            </div>
+          )}
+        </Reference>
+        {this.state.generateExportOpen && (
+          <Popper
+            placement='auto-end'
+            eventsEnabled={false}
+            place='below'
+            modifiers={{ offset: { enabled: true, offset: 500 } }}
+          >
+            {({ ref, style, placement, arrowProps }) => (
+              <div ref={ref} style={{ ...style, zIndex: 1 }} data-placement={placement}>
+                <ExportFormContainer>
+                  <Icon name='Close' onClick={this.onClickClose} />
+                  <FormDetailContainer onSubmit={this.onClickExport(fetch)}>
+                    <div>
+                      <h5>From Date</h5>
+                      <DateTimeHotFix
+                        onChange={this.onDateTimeFromChange}
+                        onFocus={this.onDateTimeFromFocus}
+                        value={this.state.fromDate}
+                        placeholder='From date..'
+                      />
+                    </div>
+                    <div>
+                      <h5>To Date</h5>
+                      <DateTimeHotFix
+                        onChange={this.onDateTimeToChange}
+                        onFocus={this.onDateTimeToFocus}
+                        value={this.state.toDate}
+                        placeholder='To date..'
+                      />
+                    </div>
+                    <Button loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}>
+                      Export
+                    </Button>
+                  </FormDetailContainer>
+                </ExportFormContainer>
+                <div ref={arrowProps.ref} style={arrowProps.style} />
+              </div>
+            )}
+          </Popper>
+        )}
+      </Manager>
+    )
+  }
   render () {
     return (
       <Container>
@@ -267,39 +328,13 @@ class TransactionExportPage extends Component {
           render={({ data, individualLoadingStatus, pagination, fetch }) => {
             return (
               <div>
-                <DetailLayout backPath={`/${this.props.match.params.accountId}/transaction`}>
-                  <TopBar
-                    title={'Export Transactions'}
-                    breadcrumbItems={['Transaction', 'export']}
-                    buttons={[]}
-                  />
-                </DetailLayout>
+                <TopNavigation
+                  title={'Export Transactions'}
+                  buttons={[this.renderExportButton(fetch)]}
+                  secondaryAction={false}
+                />
+
                 <DetailContainer>
-                  <ExportFormContainer>
-                    <FormDetailContainer onSubmit={this.onClickExport(fetch)}>
-                      <div>
-                        <h5>From Date</h5>
-                        <DateTimeHotFix
-                          onChange={this.onDateTimeFromChange}
-                          onFocus={this.onDateTimeFromFocus}
-                          value={this.state.fromDate}
-                          placeholder='From date..'
-                        />
-                      </div>
-                      <div>
-                        <h5>To Date</h5>
-                        <DateTimeHotFix
-                          onChange={this.onDateTimeToChange}
-                          onFocus={this.onDateTimeToFocus}
-                          value={this.state.toDate}
-                          placeholder='To date..'
-                        />
-                      </div>
-                      <Button loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}>
-                        Export
-                      </Button>
-                    </FormDetailContainer>
-                  </ExportFormContainer>
                   <TableContainer>
                     <SortableTable
                       rows={data}
