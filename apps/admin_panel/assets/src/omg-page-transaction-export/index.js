@@ -98,6 +98,12 @@ const TableContainer = styled.div`
       text-decoration: underline;
     }
   }
+  td:first-child {
+    max-width: 200px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
   .string-value {
     white-space: nowrap;
   }
