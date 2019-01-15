@@ -27,6 +27,9 @@ const AccountPageContainer = styled.div`
   }
   td {
     white-space: nowrap;
+    a:hover {
+      text-decoration: underline;
+    }
   }
   tr:hover {
     td:nth-child(2) {
