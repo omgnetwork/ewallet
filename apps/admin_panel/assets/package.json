@@ -71,6 +71,8 @@
     "react-dom": "^16.2.0",
     "react-helmet": "^5.2.0",
     "react-hot-loader": "^4.0.0",
+    "react-json-tree": "^0.11.2",
+    "react-json-view": "^1.19.1",
     "react-loading": "^1.0.4",
     "react-modal": "^3.3.2",
     "react-redux": "^5.0.7",

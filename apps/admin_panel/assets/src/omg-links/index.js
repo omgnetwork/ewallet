@@ -7,7 +7,8 @@ class LinkWithAccount extends Component {
     to: PropTypes.string.isRequired,
     children: PropTypes.node,
     match: PropTypes.object.isRequired,
-    location: PropTypes.object.isRequired
+    location: PropTypes.object.isRequired,
+    onClick: PropTypes.func
   }
 
   render () {

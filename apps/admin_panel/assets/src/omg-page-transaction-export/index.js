@@ -17,6 +17,7 @@ import queryString from 'query-string'
 import moment from 'moment'
 import CONSTANT from '../constants'
 import ProgressBar from './ProgressBar'
+
 const Container = styled.div`
   position: relative;
   padding-bottom: 50px;
@@ -69,12 +70,10 @@ const TimestampContainer = styled.div`
     padding: 5px;
     border: 1px solid ${props => props.theme.colors.S400};
     border-radius: 4px;
-    display: block;
     color: ${props => (props.disabled ? props.theme.colors.S400 : props.theme.colors.B400)};
     :hover {
-      background-color: ${props => props.disabled ? 'inherit' : props.theme.colors.BL400};
-      color: ${props => (props.disabled ? props.theme.colors.S400 : 'white')};
-      cursor: ${props => (props.disabled ? 'auto' : 'pointer')};
+      background-color: ${props => props.theme.colors.BL400};
+      color: white;
     }
   }
 `
@@ -96,12 +95,9 @@ const TableContainer = styled.div`
   }
   td {
     height: 50px;
-  }
-  td:first-child {
-    width: 50%;
-  }
-  td {
-    cursor: auto;
+    a:hover {
+      text-decoration: underline;
+    }
   }
 `
 const columns = [
@@ -183,25 +179,22 @@ class TransactionExportPage extends Component {
   onClickDownload = id => async e => {
     this.props.downloadExportFileById(id)
   }
-
   rowRenderer = (key, data, row) => {
     switch (key) {
       case 'created_at':
         return (
-          <TimestampContainer disabled={row.completion < 100}>
+          <TimestampContainer>
             <span>{moment(row.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
-            <Icon
-              name='Download'
-              onClick={this.onClickDownload(row)}
-            />
+            <Icon name='Download' onClick={this.onClickDownload(row)} />
           </TimestampContainer>
         )
       case 'params':
         if (row.status === 'completed') {
           return (
             <div>
-              <div>start: {moment(data.match_all[0].value).format('ddd, DD/MM/YYYY hh:mm:ss')}</div>
-              <div>end: {moment(data.match_all[1].value).format('ddd, DD/MM/YYYY hh:mm:ss')}</div>
+              <div>
+                <a onClick={this.onClickDownload(row)}>{row.filename}</a>
+              </div>
             </div>
           )
         } else if (row.status === 'processing' || row.status === 'new') {
@@ -209,13 +202,12 @@ class TransactionExportPage extends Component {
             <div style={{ maxWidth: '450px' }}>
               <ProgressTextContainer>
                 <span>Exporting...</span>
-                <span>{row.completion.toFixed(0)}%</span>
+                <span>{row.completion}%</span>
               </ProgressTextContainer>
-              <ProgressBar percentage={row.completion.toFixed(2)} />
+              <ProgressBar percentage={row.completion} />
             </div>
           )
         }
-
       default:
         return data
     }

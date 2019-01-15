@@ -25,12 +25,12 @@ export function appendParams (url, params) {
 }
 
 export function isAbsoluteURL (url) {
-	let schemeWhitelist =  ["http://", "https://", "ws://", "wss://"];
-	for (let i = 0; i < schemeWhitelist.length; i++) {
-		let scheme =  schemeWhitelist[i];
-		if (url.indexOf(scheme) === 0) {
-			return true;
-		}
-	}
-	return false;
+  let schemeWhitelist = ['http://', 'https://', 'ws://', 'wss://']
+  for (let i = 0; i < schemeWhitelist.length; i++) {
+    let scheme = schemeWhitelist[i]
+    if (url.indexOf(scheme) === 0) {
+      return true
+    }
+  }
+  return false
 };
