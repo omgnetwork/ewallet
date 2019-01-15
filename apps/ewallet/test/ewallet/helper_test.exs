@@ -52,8 +52,8 @@ defmodule EWallet.HelperTest do
     test "converts integer to boolean" do
       assert Helper.to_boolean(1)
       assert Helper.to_boolean(2)
-      assert Helper.to_boolean(65535)
-      assert Helper.to_boolean(99999)
+      assert Helper.to_boolean(65_535)
+      assert Helper.to_boolean(99_999)
       refute Helper.to_boolean(0)
       refute Helper.to_boolean(-1)
     end
