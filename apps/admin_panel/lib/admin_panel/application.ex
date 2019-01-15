@@ -26,21 +26,11 @@ defmodule AdminPanel.Application do
   def start(_type, _args) do
     DeferredConfig.populate(:admin_panel)
 
-    children = []
-
-    # AdminPanel.Endpoint is not being served as part of UrlDispatcher.Plug
-    # so they're handled here separately.
-    serve_endpoints = Application.get_env(:url_dispatcher, :serve_endpoints)
-
-    children =
-      children ++
-        case Helper.to_boolean(serve_endpoints) do
-          true ->
-            [supervisor(Endpoint, [])]
-
-          _ ->
-            []
-        end
+    # Always run AdminPanel.Endpoint as part of supervision tree
+    # regardless whether UrlDispatcher is enabled or not, since UrlDispatcher
+    # is not guarantee to be started, so we should not try to access the
+    # :url_dispatcher env here.
+    children = [supervisor(Endpoint, [])]
 
     # Simply spawn a webpack process as part of supervision tree in case
     # webpack_watch is enabled. It probably doesn't make sense to watch
