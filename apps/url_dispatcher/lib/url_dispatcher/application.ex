@@ -16,23 +16,72 @@ defmodule UrlDispatcher.Application do
   @moduledoc false
   use Application
   require Logger
+  alias EWallet.Helper
+  alias Phoenix.Endpoint.CowboyWebSocket
   alias Plug.Adapters.Cowboy
-  alias UrlDispatcher.SocketDispatcher
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
     DeferredConfig.populate(:url_dispatcher)
 
-    # List all child processes to be supervised
+    serve_endpoints = Application.get_env(:url_dispatcher, :serve_endpoints)
     children =
-      prepare_children([
-        {
-          :http,
-          UrlDispatcher.Plug,
-          port_for(:url_dispatcher),
-          websockets_dispatcher() ++ [http_dispatcher()]
-        }
-      ])
+      case Helper.to_boolean(serve_endpoints) do
+        true ->
+          dispatchers = []
+          port = Application.get_env(:url_dispatcher, :port)
+          _ = Logger.info("Running UrlDispatcher.Plug with Cowboy on port #{port}.")
+
+          # This is the WebSocket endpoint for client API. They must come before
+          # the catch-all route otherwise it would never get matched.
+          dispatchers =
+            dispatchers ++
+              websocket_spec(
+                "/api/client",
+                EWalletAPI.WebSocket,
+                EWalletAPI.V1.Endpoint
+              )
+
+          # This is the WebSocket endpoint for admin API. They must come before
+          # the catch-all route otherwise it would never get matched.
+          dispatchers =
+            dispatchers ++
+              websocket_spec(
+                "/api/admin",
+                AdminAPI.WebSocket,
+                AdminAPI.V1.Endpoint
+              )
+
+          # This is a catch-all route and must always come last. UrlDispatcher
+          # is responsible for all non-WebSockets requests, except the AdminPanel
+          # which is handled inside AdminPanel.Application.
+          dispatchers =
+            dispatchers ++
+              [
+                {
+                  :_,
+                  Cowboy.Handler,
+                  {UrlDispatcher.Plug, []}
+                }
+              ]
+
+          # Finally, this is the actual children spec. We manually build the spec
+          # instead of using Plug.Cowboy.child_spec since we need quite few
+          # customizations of the dispatcher and thus it's simpler to just use
+          # the Plug.Cowboy directly in the supervision tree.
+          [
+            {
+              Plug.Cowboy,
+              scheme: :http,
+              plug: UrlDispatcher.Plug,
+              options: [port: port, dispatch: [{:_, dispatchers}]]
+            }
+          ]
+
+        _ ->
+          _ = Logger.info("UrlDispatcher.Plug disabled.")
+          []
+      end
 
     _ = warn_unused_envs()
 
@@ -42,61 +91,54 @@ defmodule UrlDispatcher.Application do
     Supervisor.start_link(children, opts)
   end
 
-  defp websockets_dispatcher do
-    _ = Logger.info("Setting up websockets dispatchers...")
-    SocketDispatcher.websockets()
+  # WebSocket specs
+  #
+
+  defp websocket_spec(prefix, ws_handler, endpoint) do
+    websocket_spec(prefix, ws_handler, endpoint, endpoint.__sockets__())
   end
 
-  defp http_dispatcher do
-    {:_, Plug.Adapters.Cowboy.Handler, {UrlDispatcher.Plug, []}}
+  defp websocket_spec(prefix, ws_handler, endpoint, [{path, socket} | t]) do
+    _ = Logger.info("Running #{inspect(endpoint)} WebSocket endpoint at #{prefix}#{path}.")
+
+    [
+      {
+        "#{prefix}#{path}",
+        CowboyWebSocket,
+        {
+          ws_handler,
+          {
+            endpoint,
+            socket,
+            :websocket
+          }
+        }
+      }
+      | websocket_spec(prefix, ws_handler, endpoint, t)
+    ]
   end
 
-  defp port_for(app) do
-    app
-    |> Application.get_env(:port)
-    |> port_to_integer()
+  defp websocket_spec(_, _, _, []) do
+    []
   end
 
-  defp port_to_integer(port) when is_binary(port), do: String.to_integer(port)
-  defp port_to_integer(port) when is_integer(port), do: port
-
-  defp prepare_children(children) when is_list(children) do
-    if server?(), do: Enum.map(children, &prepare_children/1), else: []
-  end
-
-  defp prepare_children({scheme, plug, port, dispatchers}) do
-    _ = Logger.info("Running #{inspect(plug)} with Cowboy #{scheme} on port #{port}")
-
-    Cowboy.child_spec(
-      scheme,
-      plug,
-      [],
-      port: port,
-      dispatch: [{:_, dispatchers}]
-    )
-  end
-
-  defp server? do
-    Application.get_env(:url_dispatcher, :serve_endpoints, false)
-  end
+  # Useful warning messages
+  #
 
   defp warn_unused_envs do
-    mapping = Application.get_env(:ewallet, :env_migration_mapping)
-
-    Enum.each(mapping, fn {env_name, setting_name} ->
-      case System.get_env(env_name) do
+    for {env, setting} <- Application.get_env(:ewallet, :env_migration_mapping) do
+      case System.get_env(env) do
         nil ->
-          :noop
+          :ok
 
         _ ->
           _ =
             Logger.warn("""
-            `#{env_name}` is no longer used but is still present as an environment variable. \
-            Please consider removing it and refer to `#{setting_name}` in the database's `setting` table instead. \
-            Alternatively, you may run `mix #{Mix.Task.task_name(Mix.Tasks.Omg.Migrate.Settings)}` \
-            from the command line to migrate all your environment variable settings to the database at once. \
+            `#{env}` is no longer used but is still present as an environment variable. \
+            Please consider removing it and refer to `#{setting}` in the database's \
+            `setting` table instead.
             """)
       end
-    end)
+    end
   end
 end
