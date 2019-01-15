@@ -17,21 +17,29 @@ commands:
       - run:
           name: Notify Slack on failure
           command: |
-            MESSAGE="Build ${CIRCLE_BUILD_NUM} for ${CIRCLE_BRANCH} failed during ${CIRCLE_JOB}"
+            GH_URL="https://github.com/omisego/ewallet/tree/${CIRCLE_BRANCH}"
+            CIRCLE_URL="https://circleci.com/gh/omisego/ewallet/${CIRCLE_BUILD_NUM}
             WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
+            MESSAGE="Workflow for ${CIRCLE_BRANCH} has failed during ${CIRCLE_JOB}"
+            RICH_MESSAGE="Workflow for *${CIRCLE_BRANCH}* has failed during ${CIRCLE_JOB}"
             curl -X POST -H 'Content-Type: application/json' --data "{ \
               \"attachments\": [ \
                 { \
                   \"fallback\": \"${MESSAGE}\", \
-                  \"text\": \":no_good: ${MESSAGE} :rage:\", \
+                  \"text\": \":no_good: ${RICH_MESSAGE}\", \
+                  \"mrkdwn\": true, \
                   \"color\": \"#ed2c5c\", \
-                  \"actions\": [ \
+                  \"fields\": [ \
                     { \
-                      \"type\": \"button\", \
-                      \"text\": \"Visit Job\", \
-                      \"url\": \"$WORKFLOW_URL\" \
+                      \"title\": \"Branch\", \
+                      \"value\": \"<$GH_URL|$CIRCLE_BRANCH>\", \
+                      \"short\": true \
+                    }, { \
+                      \"title\": \"Build\", \
+                      \"value\": \"<$CIRCLE_URL|$CIRCLE_BUILD_NUM>\", \
+                      \"short\": true \
                     } \
-                  ] \
+                  ], \
                 } \
               ] \
             }" ${SLACK_WEBHOOK}
@@ -43,21 +51,29 @@ commands:
       - run:
           name: Notify Slack
           command: |
-            MESSAGE="Build ${CIRCLE_BUILD_NUM} for ${CIRCLE_BRANCH} was successfully built!"
+            GH_URL="https://github.com/omisego/ewallet/tree/${CIRCLE_BRANCH}"
+            CIRCLE_URL="https://circleci.com/gh/omisego/ewallet/${CIRCLE_BUILD_NUM}
             WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
+            MESSAGE="Workflow for ${CIRCLE_BRANCH} has been successfully built"
+            RICH_MESSAGE="Workflow for *${CIRCLE_BRANCH}* has been successfully built"
             curl -X POST -H 'Content-Type: application/json' --data "{ \
               \"attachments\": [ \
                 { \
                   \"fallback\": \"${MESSAGE}\", \
-                  \"text\": \":tada: ${MESSAGE} :allthethings:\", \
+                  \"text\": \":white_check_mark: ${RICH_MESSAGE}\", \
+                  \"mrkdwn\": true, \
                   \"color\": \"#1cbf43\", \
-                  \"actions\": [ \
+                  \"fields\": [ \
                     { \
-                      \"type\": \"button\", \
-                      \"text\": \"Visit workflow\", \
-                      \"url\": \"${WORKFLOW_URL}\" \
+                      \"title\": \"Branch\", \
+                      \"value\": \"<$GH_URL|$CIRCLE_BRANCH>\", \
+                      \"short\": true \
+                    }, { \
+                      \"title\": \"Build\", \
+                      \"value\": \"<$CIRCLE_URL|$CIRCLE_BUILD_NUM>\", \
+                      \"short\": true \
                     } \
-                  ] \
+                  ], \
                 } \
               ] \
             }" ${SLACK_WEBHOOK}
