@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Exporters.AdapterHelper do
+defmodule EWallet.AdapterHelper do
   @moduledoc """
   Helper for everything export-related. This module contains
   streaming functions to load data from the DB and send it
@@ -20,7 +20,7 @@ defmodule EWallet.Exporters.AdapterHelper do
   """
   alias EWallet.Exporter
   alias EWalletDB.{Repo, Export, Uploaders}
-  alias EWalletConfig.Storage.Local
+  alias EWalletConfig.{FileStorageSupervisor, Storage.Local}
 
   @rows_count 500
   @timeout_milliseconds 1 * 60 * 60 * 1000
@@ -114,4 +114,19 @@ defmodule EWallet.Exporters.AdapterHelper do
       failure_reason: error
     })
   end
+
+  def check_adapter_status do
+    case Application.get_env(:ewallet, :file_storage_adapter) do
+      "gcs" ->
+        FileStorageSupervisor
+        |> GenServer.call(:status)
+        |> handle_adapter_status()
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp handle_adapter_status(:ko), do: {:error, :adapter_server_not_running}
+  defp handle_adapter_status(:ok), do: :ok
 end

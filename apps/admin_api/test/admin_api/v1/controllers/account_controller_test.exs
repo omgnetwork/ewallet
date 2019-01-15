@@ -553,6 +553,33 @@ defmodule AdminAPI.V1.AccountControllerTest do
                "http://localhost:4000/public/uploads/test/account/avatars/#{attrs.id}/thumb.png?v="
     end
 
+    test_with_auths "fails to upload avatar with GCS adapter and an invalid configuration" do
+      account = insert(:account)
+
+      {:ok, _} =
+        Config.update(
+          %{
+            file_storage_adapter: "gcs",
+            gcs_bucket: "bucket",
+            gcs_credentials: "123",
+            originator: %System{}
+          },
+          meta[:config_pid]
+        )
+
+      response =
+        request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "adapter:server_not_running"
+    end
+
     test_with_auths "fails to upload an invalid file" do
       account = insert(:account)
 
