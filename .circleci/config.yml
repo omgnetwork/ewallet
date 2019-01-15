@@ -11,7 +11,7 @@ executors:
 
 
 commands:
-  slack_notify_failure:
+  notify_slack_failure:
     description: "Notify Slack only on failure"
     steps:
       - run:
@@ -29,6 +29,31 @@ commands:
               ] \
             }" ${SLACK_WEBHOOK}
           when: on_fail
+
+  notify_slack:
+    description: "Notify Slack"
+    steps:
+      - run:
+          name: Notify Slack
+          command: |
+            MESSAGE="${CIRCLE_BRANCH} was successfully built!"
+            WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
+            curl -X POST -H 'Content-Type: application/json' --data "{ \
+              \"attachments\": [ \
+                { \
+                  \"fallback\": \"${MESSAGE}\", \
+                  \"text\": \":tada: ${MESSAGE} :allthethings:\n${WORKFLOW_URL}\", \
+                  \"color\": \"#1cbf43\" \
+                } \
+              ] \
+            }" ${SLACK_WEBHOOK}
+
+  setup_ewallet_workspace:
+    description: "Setup eWallet workspace"
+    steps:
+      - attach_workspace:
+          name: Attaching workspace
+          at: ~/
 
 
 jobs:
@@ -71,15 +96,13 @@ jobs:
             - src/deps
             - src/_build
             - src/apps/admin_panel/assets/node_modules
-      - slack_notify_failure
+      - notify_slack_failure
 
   lint:
     executor: builder
     steps:
       - checkout
-      - attach_workspace: &ewallet_workspace
-          name: Attaching workspace
-          at: ~/
+      - setup_ewallet_workspace
       - run:
           name: Checking code formattings
           command: |
@@ -92,12 +115,13 @@ jobs:
             make check-credo
           environment:
             MIX_ENV: test
-      - slack_notify_failure
+      - notify_slack_failure
 
   dialyze:
     executor: builder
     steps:
       - checkout
+      - setup_ewallet_workspace
       - run:
           name: Determining runtime versions
           command: |
@@ -110,9 +134,6 @@ jobs:
             - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
             - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-
             - v1-ewallet-plt-
-      - attach_workspace: &ewallet_workspace
-          name: Attaching workspace
-          at: ~/
       - run:
           name: Checking dialyzer
           command: |
@@ -130,7 +151,7 @@ jobs:
           when: always
       ## We're silenting dialyzer failure until we've fixed all dialyzer offense.
       ## TODO: enable this once Dialyzer is fixed.
-      # - slack_notify_failure
+      # - notify_slack_failure
 
   test:
     executor: builder
@@ -139,7 +160,7 @@ jobs:
       - image: postgres:9.6-alpine
     steps:
       - checkout
-      - attach_workspace: *ewallet_workspace
+      - setup_ewallet_workspace
       - run:
           name: Running eWallet tests
           command: |
@@ -155,14 +176,19 @@ jobs:
           command: |
             set -xe
             make test-assets
-      - slack_notify_failure
+      - notify_slack_failure
+
+  report:
+    executor: builder
+    steps:
+      - notify_slack
 
   build:
     executor: builder
     steps:
       - checkout
       - setup_remote_docker
-      - attach_workspace: *ewallet_workspace
+      - setup_ewallet_workspace
       - restore_cache:
           name: Restoring eWallet production artifacts from cache
           keys:
@@ -195,16 +221,14 @@ jobs:
           root: ~/
           paths:
             - caches/docker-layers.tar
-      - slack_notify_failure
+      - notify_slack_failure
 
   test_e2e:
     executor: builder
     steps:
-      - setup_remote_docker
       - checkout
-      - attach_workspace: &ewallet_docker_workspace
-          name: Attaching workspace
-          at: ~/
+      - setup_remote_docker
+      - setup_ewallet_workspace
       - run:
           name: Preparing E2E environments
           command: |
@@ -262,13 +286,13 @@ jobs:
                 --volumes-from srcs \
               omisegoimages/ewallet-builder:stable \
               sh -c "cd /src/e2e && pipenv install && pipenv run robot tests"
-      - slack_notify_failure
+      - notify_slack_failure
 
   publish:
     executor: builder
     steps:
       - setup_remote_docker
-      - attach_workspace: *ewallet_docker_workspace
+      - setup_ewallet_workspace
       - run:
           name: Logging into Docker Hub
           command: |
@@ -311,24 +335,7 @@ jobs:
                 docker tag "$IMAGE_NAME" "$IMAGE_NAME:$tag"
                 docker push "$IMAGE_NAME:$tag"
             done
-
-  report:
-    executor: builder
-    steps:
-      - run:
-          name: Notify Slack
-          command: |
-            MESSAGE="${CIRCLE_BRANCH} was successfully built!"
-            WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
-            curl -X POST -H 'Content-Type: application/json' --data "{ \
-              \"attachments\": [ \
-                { \
-                  \"fallback\": \"${MESSAGE}\", \
-                  \"text\": \":tada: ${MESSAGE} :allthethings:\n${WORKFLOW_URL}\", \
-                  \"color\": \"#1cbf43\" \
-                } \
-              ] \
-            }" ${SLACK_WEBHOOK}
+      - notify_slack
 
 
 workflows:
@@ -373,8 +380,4 @@ workflows:
       - publish:
           requires:
             - test_e2e
-          filters: *mainline_branches
-      - report:
-          requires:
-            - publish
           filters: *mainline_branches
