@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWalletConfig.SettingTest do
-  use EWalletConfig.SchemaCase
+  use EWalletConfig.SchemaCase, async: true
   alias EWalletConfig.{Repo, Setting, StoredSetting}
   alias ActivityLogger.System
 

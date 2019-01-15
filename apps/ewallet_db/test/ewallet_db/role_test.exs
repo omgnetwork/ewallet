@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWalletDB.RoleTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias EWalletDB.{Membership, Role}
   alias ActivityLogger.System
 

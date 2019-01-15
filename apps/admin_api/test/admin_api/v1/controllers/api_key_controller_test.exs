@@ -65,16 +65,22 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                }
     end
 
-    test_with_auths "responds with a list of api keys when given params" do
-      [api_key, _] = ensure_num_records(APIKey, 2)
-      api_key = Preloader.preload(api_key, :account)
+    test_with_auths "responds with a list of api keys when given pagination params" do
+      [_, api_key] = insert_list(2, :api_key, owner_app: "test_admin_auth_api_key_all")
 
+      # Note that per_page is set to only a single record
       attrs = %{
-        search_term: "",
+        match_all: [
+          %{
+            field: "owner_app",
+            comparator: "eq",
+            value: "test_admin_auth_api_key_all"
+          }
+        ],
         page: 1,
         per_page: 1,
         sort_by: "created_at",
-        sort_dir: "asc"
+        sort_dir: "desc"
       }
 
       assert request("/api_key.all", attrs) ==

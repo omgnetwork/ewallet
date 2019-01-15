@@ -13,9 +13,10 @@
 # limitations under the License.
 
 defmodule EWalletDB.UserTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias Utils.Helpers.Crypto
-  alias EWalletDB.{Account, Invite, User}
+  alias EWalletDB.{Account, Invite, User, Repo}
   alias ActivityLogger.{System, ActivityLog}
 
   describe "User factory" do

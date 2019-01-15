@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule LocalLedger.Transaction.ValidatorTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias LocalLedger.Errors.{AmountNotPositiveError, InvalidAmountError, SameAddressError}
   alias LocalLedger.Transaction.Validator
 

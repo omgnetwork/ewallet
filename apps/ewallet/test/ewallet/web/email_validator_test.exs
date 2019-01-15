@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.EmailValidatorTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias EWallet.EmailValidator
 
   describe "valid?/1" do

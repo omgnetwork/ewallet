@@ -1,5 +1,5 @@
 defmodule EWalletConfig.SettingValidatorTest do
-  use EWalletConfig.SchemaCase
+  use EWalletConfig.SchemaCase, async: true
   import Ecto.Changeset
   import EWalletConfig.SettingValidator
   alias EWalletConfig.StoredSetting

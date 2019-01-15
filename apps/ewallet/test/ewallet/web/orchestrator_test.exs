@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.Web.OrchestratorTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.Orchestrator

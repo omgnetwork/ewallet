@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.ExchangePairGateTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.ExchangePairGate
   alias EWalletDB.{ExchangePair, Repo}
   alias ActivityLogger.System

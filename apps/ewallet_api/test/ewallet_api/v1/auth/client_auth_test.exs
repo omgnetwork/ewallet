@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWalletAPI.V1.ClientAuthTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWalletAPI.V1.ClientAuth
   alias EWalletDB.AuthToken
   alias ActivityLogger.System

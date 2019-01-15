@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.TokenFetcherTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.TokenFetcher
 
   describe "fetch/3 with token_id" do

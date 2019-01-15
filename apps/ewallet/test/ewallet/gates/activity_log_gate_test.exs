@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.ActivityLogGateTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias Ecto.UUID
   alias EWallet.{ActivityLogGate}
   alias EWallet.Web.V1.ModuleMapper

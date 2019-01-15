@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWalletDB.MintTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias EWalletDB.Mint
 
   describe "Mint factory" do

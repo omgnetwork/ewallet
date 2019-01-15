@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.TransactionFormatterTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.TransactionFormatter
   alias EWalletDB.Account
 
