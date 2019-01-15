@@ -1,10 +1,6 @@
 version: 2.1
 
 
-orbs:
-  slack: circleci/slack@1.0.0
-
-
 executors:
   builder:
     docker:
@@ -18,11 +14,20 @@ commands:
   slack_notify_failure:
     description: "Notify Slack only on failure"
     steps:
-      - slack/notify:
-          color: "#ed5c5c"
-          message: |
-            :no_good: ${CIRCLE_BRANCH} failed during ${CIRCLE_JOB} :rage:
-            https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_WORKSPACE_ID}
+      - run:
+          name: Notify Slack on failure
+          command: |
+            MESSAGE="${CIRCLE_BRANCH} failed during ${CIRCLE_JOB}"
+            WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
+            curl -X POST -H 'Content-Type: application/json' --data "{ \
+              \"attachments\": [ \
+                { \
+                  \"fallback\": \"${MESSAGE}\", \
+                  \"text\": \":no_good: ${MESSAGE} :rage:\n${WORKFLOW_URL}\", \
+                  \"color\": \"#ed2c5c\" \
+                } \
+              ] \
+            }" ${SLACK_WEBHOOK}
           when: on_fail
 
 
@@ -308,13 +313,22 @@ jobs:
             done
 
   report:
-    executor: slack/alpine
+    executor: builder
     steps:
-      - slack/notify:
-          color: "#1CBF43"
-          message: |
-            :tada: ${CIRCLE_BRANCH} was successfully built :allthethings:
-            https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_WORKSPACE_ID}
+      - run:
+          name: Notify Slack
+          command: |
+            MESSAGE="${CIRCLE_BRANCH} was successfully built!"
+            WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
+            curl -X POST -H 'Content-Type: application/json' --data "{ \
+              \"attachments\": [ \
+                { \
+                  \"fallback\": \"${MESSAGE}\", \
+                  \"text\": \":tada: ${MESSAGE} :allthethings:\n${WORKFLOW_URL}\", \
+                  \"color\": \"#1cbf43\" \
+                } \
+              ] \
+            }" ${SLACK_WEBHOOK}
 
 
 workflows:
