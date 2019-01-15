@@ -34,6 +34,7 @@
 defmodule Mix.Tasks.Omg.Server do
   @moduledoc """
   Starts the application by configuring all endpoints servers to run.
+  This task is intended to be run in development environment.
 
   ## Command line options
 
@@ -45,37 +46,48 @@ defmodule Mix.Tasks.Omg.Server do
 
       mix omg.server --no-deps-check
 
-  The `--no-halt` flag is automatically added.
+  The `--no-halt` flag is automatically added in case `omg.server`
+  is invoked directly without IEx console attached. If you wish to run
+  `omg.server` with IEx without starting the server, you can use:
+
+      iex -S mix omg.server --no-serve
 
   ## OmiseGO-specific options
 
   This task can also be run with the following flags:
 
   - `--no-watch` - disables watching and building when frontend assets change
+  - `--no-serve` - disables serving endpoints
   """
 
   use Mix.Task
   alias Mix.Tasks.Run
-  import Application, only: [put_env: 3]
 
   @shortdoc "Starts the eWallet applications and their servers"
 
   @doc false
-  def run(args) do
-    configure_env(args)
-    Run.run(run_args())
+  def run(args), do: run(args, [])
+
+  defp run(["--no-watch" | t], args2) do
+    System.put_env("WEBPACK_WATCH", "false")
+    run(t, args2)
   end
 
-  defp configure_env(["--no-watch" | rest]) do
-    put_env(:admin_panel, :start_with_no_watch, true)
-    configure_env(rest)
+  defp run(["--no-serve" | t], args2) do
+    System.put_env("SERVE_ENDPOINTS", "false")
+    run(t, args2)
   end
 
-  defp configure_env([_ | rest]), do: configure_env(rest)
-  defp configure_env([]), do: put_env(:url_dispatcher, :serve_endpoints, true)
+  defp run([h | t], args2), do: run(t, args2 ++ [h])
 
-  defp run_args do
-    if iex_running?(), do: [], else: ["--no-halt"]
+  defp run([], args2) do
+    case iex_running?() do
+      true ->
+        Run.run(args2)
+
+      _ ->
+        Run.run(args2 ++ ["--no-halt"])
+    end
   end
 
   defp iex_running? do
