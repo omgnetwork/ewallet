@@ -227,16 +227,25 @@ defmodule LocalLedger.CachedBalanceTest do
     test "calculates the balance and inserts a new cached balance if not existing", %{
       wallet: wallet
     } do
-      {res, amounts} = CachedBalance.all(wallet)
+      {res, balances} = CachedBalance.all(wallet)
       assert res == :ok
 
-      assert amounts == %{
-               "tok_OMG_1234" => 120_000 - 61_047,
-               "tok_BTC_5678" => 160_524 - 74_961
+      assert balances == %{
+               wallet.address => %{
+                 "tok_BTC_5678" => 160_524 - 74_961,
+                 "tok_OMG_1234" => 120_000 - 61_047
+               }
              }
 
       cached_balance = LocalLedgerDB.CachedBalance.get(wallet.address)
       assert cached_balance != nil
+
+      assert balances == %{
+               wallet.address => %{
+                 "tok_BTC_5678" => 160_524 - 74_961,
+                 "tok_OMG_1234" => 120_000 - 61_047
+               }
+             }
 
       assert cached_balance.amounts == %{
                "tok_OMG_1234" => 120_000 - 61_047,
@@ -249,14 +258,14 @@ defmodule LocalLedger.CachedBalanceTest do
       token_2: token_2,
       wallet: wallet
     } do
-      {:ok, _amounts} = CachedBalance.all(wallet)
+      {:ok, _balances} = CachedBalance.all(wallet)
 
       insert_list(1, :credit, token: token_1, wallet: wallet, amount: 1_337)
       insert_list(1, :debit, token: token_1, wallet: wallet, amount: 789)
       insert_list(1, :credit, token: token_2, wallet: wallet, amount: 1_232)
       insert_list(1, :debit, token: token_2, wallet: wallet, amount: 234)
 
-      {:ok, amounts} = CachedBalance.all(wallet)
+      {:ok, balances} = CachedBalance.all(wallet)
 
       cached_count = LocalLedgerDB.CachedBalance |> Repo.all() |> length()
       cached_balance = LocalLedgerDB.CachedBalance.get(wallet.address)
@@ -268,20 +277,93 @@ defmodule LocalLedger.CachedBalanceTest do
                "tok_BTC_5678" => 160_524 - 74_961
              }
 
-      assert amounts == %{
-               "tok_OMG_1234" => 58_953 + 1_337 - 789,
-               "tok_BTC_5678" => 160_524 - 74_961 + 1_232 - 234
+      assert balances == %{
+               wallet.address => %{
+                 "tok_OMG_1234" => 58_953 + 1_337 - 789,
+                 "tok_BTC_5678" => 160_524 - 74_961 + 1_232 - 234
+               }
+             }
+    end
+
+    test "calculates the balances for multiple address", %{token_1: token_1, wallet: wallet} do
+      wallet_2 = insert(:wallet)
+
+      # Total: +120_000 OMG
+      insert_list(
+        12,
+        :credit,
+        token: token_1,
+        wallet: wallet_2,
+        amount: 10_000
+      )
+
+      # Total: -61_047 OMG
+      insert_list(
+        9,
+        :debit,
+        token: token_1,
+        wallet: wallet_2,
+        amount: 6_783
+      )
+
+      {res, balances} = CachedBalance.all([wallet, wallet_2])
+
+      assert res == :ok
+
+      assert balances == %{
+               wallet.address => %{
+                 "tok_BTC_5678" => 160_524 - 74_961,
+                 "tok_OMG_1234" => 120_000 - 61_047
+               },
+               wallet_2.address => %{"tok_OMG_1234" => 120_000 - 61_047}
+             }
+
+      {res, balances} = CachedBalance.all([wallet, wallet_2])
+
+      assert res == :ok
+
+      assert balances == %{
+               wallet.address => %{
+                 "tok_BTC_5678" => 160_524 - 74_961,
+                 "tok_OMG_1234" => 120_000 - 61_047
+               },
+               wallet_2.address => %{"tok_OMG_1234" => 120_000 - 61_047}
              }
     end
   end
 
   describe "get/2" do
+    test "calculates the balances for the given wallets", %{
+      wallet: wallet
+    } do
+      wallet_2 = insert(:wallet)
+
+      {res, wallets} = CachedBalance.get([wallet, wallet_2], "tok_OMG_1234")
+      assert res == :ok
+
+      assert wallets == %{
+               wallet.address => %{"tok_OMG_1234" => 120_000 - 61_047},
+               wallet_2.address => %{"tok_OMG_1234" => 0}
+             }
+
+      cached_balance = LocalLedgerDB.CachedBalance.get(wallet.address)
+      assert cached_balance != nil
+
+      assert cached_balance.amounts == %{
+               "tok_OMG_1234" => 120_000 - 61_047,
+               "tok_BTC_5678" => 160_524 - 74_961
+             }
+
+      cached_balance = LocalLedgerDB.CachedBalance.get(wallet_2.address)
+      assert cached_balance == nil
+    end
+
     test "calculates the balance and inserts a new cached balance if not existing", %{
       wallet: wallet
     } do
       {res, amounts} = CachedBalance.get(wallet, "tok_OMG_1234")
       assert res == :ok
-      assert amounts == %{"tok_OMG_1234" => 120_000 - 61_047}
+      assert amounts == %{wallet.address => %{"tok_OMG_1234" => 120_000 - 61_047}}
 
       cached_balance = LocalLedgerDB.CachedBalance.get(wallet.address)
       assert cached_balance != nil

@@ -19,7 +19,7 @@ defmodule AdminAPI.V1.WalletController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
-  alias EWallet.{UUIDFetcher, WalletPolicy}
+  alias EWallet.{UUIDFetcher, WalletPolicy, BalanceFetcher}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.WalletOverlay}
   alias EWalletDB.{Account, User, Wallet}
 
@@ -99,13 +99,15 @@ defmodule AdminAPI.V1.WalletController do
   defp do_all(query, attrs, conn) do
     query
     |> Orchestrator.query(WalletOverlay, attrs)
+    |> add_balances()
     |> respond_multiple(conn)
   end
 
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, wallet) do
+         :ok <- permit(:get, conn.assigns, wallet),
+         {:ok, wallet} <- add_balances(wallet) do
       respond_single(wallet, conn, attrs)
     else
       {:error, error} -> handle_error(conn, error)
@@ -121,6 +123,7 @@ defmodule AdminAPI.V1.WalletController do
       attrs
       |> UUIDFetcher.replace_external_ids()
       |> Wallet.insert_secondary_or_burn()
+      |> add_balances()
       |> respond_single(conn, attrs)
     else
       {:error, error} -> handle_error(conn, error)
@@ -135,7 +138,8 @@ defmodule AdminAPI.V1.WalletController do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
          :ok <- permit(:enable_or_disable, conn.assigns, wallet),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, updated} <- Wallet.enable_or_disable(wallet, attrs) do
+         {:ok, updated} <- Wallet.enable_or_disable(wallet, attrs),
+         {:ok, updated} <- add_balances(updated) do
       respond_single(updated, conn, attrs)
     else
       {:error, error} -> handle_error(conn, error)
@@ -145,6 +149,21 @@ defmodule AdminAPI.V1.WalletController do
   def enable_or_disable(conn, _),
     do:
       handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
+
+  defp add_balances(%Paginator{} = paged_wallets) do
+    {:ok, wallets} = BalanceFetcher.all(%{"wallets" => paged_wallets.data})
+    %{paged_wallets | data: wallets}
+  end
+
+  defp add_balances(%Wallet{} = wallet) do
+    BalanceFetcher.all(%{"wallet" => wallet})
+  end
+
+  defp add_balances({:ok, wallet}) do
+    BalanceFetcher.all(%{"wallet" => wallet})
+  end
+
+  defp add_balances(error), do: error
 
   # Respond with a list of wallets
   defp respond_multiple(%Paginator{} = paged_wallets, conn) do
