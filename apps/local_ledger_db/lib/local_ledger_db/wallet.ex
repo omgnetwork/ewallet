@@ -101,7 +101,16 @@ defmodule LocalLedgerDB.Wallet do
   end
 
   @doc """
-  Retrieve a balance using the specified address.
+  Retrieve wallets using the specified addresses.
+  """
+  def all(addresses) do
+    Wallet
+    |> where([w], w.address in ^addresses)
+    |> Repo.all()
+  end
+
+  @doc """
+  Retrieve a wallet using the specified address.
   """
   def get(address) do
     Repo.get_by(Wallet, address: address)
