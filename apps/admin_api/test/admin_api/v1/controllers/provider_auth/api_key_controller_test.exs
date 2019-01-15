@@ -114,6 +114,19 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                }
     end
 
+    test "responds with a list of api keys excluding the soft-deleted ones" do
+      [api_key1, api_key2, api_key3] = ensure_num_records(APIKey, 3)
+      {:ok, soft_deleted} = APIKey.delete(api_key2)
+
+      response = provider_request("/api_key.all")
+      api_keys = response["data"]["data"]
+
+      assert Enum.count(api_keys) == 2
+      assert Enum.any?(api_keys, fn a -> a.id == api_key1.id end)
+      refute Enum.any?(api_keys, fn a -> a.id == api_key2.id end)
+      assert Enum.any?(api_keys, fn a -> a.id == api_key3.id end)
+    end
+
     test_supports_match_any("/api_key.all", :provider_auth, :api_key, :key)
     test_supports_match_all("/api_key.all", :provider_auth, :api_key, :key)
   end
