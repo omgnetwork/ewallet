@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import ExportFetcher from '../omg-export/exportFetcher'
 import { downloadExportFileById, getExports } from '../omg-export/action'
-import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
@@ -19,11 +18,12 @@ import CONSTANT from '../constants'
 import ProgressBar from './ProgressBar'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { Manager, Reference, Popper } from 'react-popper'
+
 const Container = styled.div`
   position: relative;
   padding-bottom: 50px;
 `
-const DetailContainer = styled.div``
+
 const FormDetailContainer = styled.form`
   border: 1px solid #ebeff7;
   border-radius: 2px;
@@ -111,6 +111,12 @@ const TableContainer = styled.div`
     white-space: nowrap;
   }
 `
+
+const TitleContainer = styled.div`
+  > i {
+    cursor: pointer;
+  }
+`
 const columns = [
   { key: 'filename', title: 'NAME' },
   { key: 'params_match_all', title: 'MATCH ALL' },
@@ -132,7 +138,7 @@ const enhance = compose(
 )
 class TransactionExportPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
+    history: PropTypes.object,
     exportTransaction: PropTypes.func,
     location: PropTypes.object,
     downloadExportFileById: PropTypes.func,
@@ -231,7 +237,7 @@ class TransactionExportPage extends Component {
             ? row.params.match_all.map((query, i) => (
               <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
-                  {moment(query.value).isValid()
+                {moment(query.value).isValid()
                     ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
                     : query.value}{' '}
                   ]
@@ -246,7 +252,7 @@ class TransactionExportPage extends Component {
             ? row.params.match_any.map((query, i) => (
               <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
-                  {moment(query.value).isValid()
+                {moment(query.value).isValid()
                     ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
                     : query.value}{' '}
                   ]
@@ -329,25 +335,28 @@ class TransactionExportPage extends Component {
             return (
               <div>
                 <TopNavigation
-                  title={'Export Transactions'}
+                  title={
+                    <TitleContainer>
+                      <Icon name='Arrow-Left' onClick={this.props.history.goBack} /> Export
+                      Transactions
+                    </TitleContainer>
+                  }
                   buttons={[this.renderExportButton(fetch)]}
                   secondaryAction={false}
                 />
+                <TableContainer>
+                  <SortableTable
+                    rows={data}
+                    columns={columns}
+                    loadingStatus={individualLoadingStatus}
+                    isFirstPage={pagination.is_first_page}
+                    isLastPage={pagination.is_last_page}
+                    navigation
+                    rowRenderer={this.rowRenderer}
+                    loadingEffect={false}
+                  />
+                </TableContainer>
 
-                <DetailContainer>
-                  <TableContainer>
-                    <SortableTable
-                      rows={data}
-                      columns={columns}
-                      loadingStatus={individualLoadingStatus}
-                      isFirstPage={pagination.is_first_page}
-                      isLastPage={pagination.is_last_page}
-                      navigation
-                      rowRenderer={this.rowRenderer}
-                      loadingEffect={false}
-                    />
-                  </TableContainer>
-                </DetailContainer>
                 <ConfirmationModal
                   open={this.state.confirmationModalOpen}
                   onRequestClose={this.closeConfirmationModal}
