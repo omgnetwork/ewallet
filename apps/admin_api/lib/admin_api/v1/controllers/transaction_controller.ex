@@ -20,7 +20,7 @@ defmodule AdminAPI.V1.TransactionController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias Ecto.Changeset
-  alias EWallet.{TransactionPolicy, TransactionGate, ExportGate}
+  alias EWallet.{TransactionPolicy, TransactionGate, ExportGate, AdapterHelper}
 
   alias EWallet.Web.{
     Originator,
@@ -40,6 +40,7 @@ defmodule AdminAPI.V1.TransactionController do
   @spec export(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def export(conn, attrs) do
     with :ok <- permit(:export, conn.assigns, nil),
+         :ok <- AdapterHelper.check_adapter_status(),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns, :originator),
          query <- Transaction.query_all_for_account_uuids_and_users(Transaction, account_uuids),

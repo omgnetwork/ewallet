@@ -98,7 +98,7 @@ defmodule LocalLedgerDB.Entry do
   end
 
   @doc """
-  Calculate the total wallets for all the specified tokens associated
+  Calculate the total balances for all the specified tokens associated
   with the given address.
   """
   def calculate_all_balances(address, options \\ %{}) do

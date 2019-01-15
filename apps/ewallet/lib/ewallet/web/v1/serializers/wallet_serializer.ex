@@ -27,7 +27,6 @@ defmodule EWallet.Web.V1.WalletSerializer do
     UserSerializer
   }
 
-  alias EWallet.BalanceFetcher
   alias EWalletDB.{Wallet, Helpers.Preloader}
   alias Utils.Helpers.{Assoc, DateFormatter}
 
@@ -45,8 +44,6 @@ defmodule EWallet.Web.V1.WalletSerializer do
   def serialize(nil), do: nil
 
   def serialize(%Wallet{} = wallet) do
-    {:ok, wallet} = BalanceFetcher.all(%{"wallet" => wallet})
-
     %{
       object: "wallet",
       socket_topic: "wallet:#{wallet.address}",
