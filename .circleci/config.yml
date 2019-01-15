@@ -1,4 +1,8 @@
-version: 2
+version: 2.1
+
+
+orbs:
+  slack: circleci/slack@1.0.0
 
 
 presets:
@@ -43,13 +47,16 @@ jobs:
             - deps
             - _build/test
             - apps/admin_panel/assets/node_modules
-      -  persist_to_workspace:
+      - persist_to_workspace:
           name: Persisting workspace
           root: ~/
           paths:
             - src/deps
             - src/_build
             - src/apps/admin_panel/assets/node_modules
+      - slack/status:
+          name: Reporting potential failures to Slack
+          fail_only: true
 
   lint:
     <<: *defaults
@@ -70,6 +77,9 @@ jobs:
             make check-credo
           environment:
             MIX_ENV: test
+      - slack/status:
+          name: Reporting potential failures to Slack
+          fail_only: true
 
   dialyze:
     <<: *defaults
@@ -105,6 +115,11 @@ jobs:
           paths:
             - ~/var/dialyzer
           when: always
+      ## We're silenting dialyzer failure until we've fixed all dialyzer offense.
+      ## TODO: enable this once Dialyzer is fixed.
+      # - slack/status:
+      #     name: Reporting potential failures to Slack
+      #     fail_only: true
 
   test:
     <<: *defaults
@@ -129,6 +144,15 @@ jobs:
           command: |
             set -xe
             make test-assets
+      - slack/status:
+          name: Reporting potential failures to Slack
+          fail_only: true
+
+  report:
+    <<: *defaults
+    steps:
+      - slack/status:
+          name: Reporting status to Slack
 
   build:
     <<: *defaults
@@ -168,6 +192,9 @@ jobs:
           root: ~/
           paths:
             - caches/docker-layers.tar
+      - slack/status:
+          name: Reporting potential failures to Slack
+          fail_only: true
 
   test_e2e:
     <<: *defaults
@@ -234,6 +261,9 @@ jobs:
                 --volumes-from srcs \
               omisegoimages/ewallet-builder:stable \
               sh -c "cd /src/e2e && pipenv install && pipenv run robot tests"
+      - slack/status:
+          name: Reporting potential failures to Slack
+          fail_only: true
 
   publish:
     <<: *defaults
@@ -282,6 +312,8 @@ jobs:
                 docker tag "$IMAGE_NAME" "$IMAGE_NAME:$tag"
                 docker push "$IMAGE_NAME:$tag"
             done
+      - slack/status:
+          name: Reporting status to Slack
 
 
 workflows:
@@ -298,6 +330,18 @@ workflows:
       - dialyze:
           requires:
             - build_test
+
+      # Non-mainline branches only
+      - report:
+          requires:
+            - lint
+            - test
+          filters:
+            branches:
+              ignore:
+                - master
+
+      # Mainline branches only
       - build:
           requires:
             - lint
