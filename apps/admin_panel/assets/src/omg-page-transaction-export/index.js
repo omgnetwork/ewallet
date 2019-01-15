@@ -17,6 +17,7 @@ import queryString from 'query-string'
 import moment from 'moment'
 import CONSTANT from '../constants'
 import ProgressBar from './ProgressBar'
+import ConfirmationModal from '../omg-confirmation-modal'
 const Container = styled.div`
   position: relative;
   padding-bottom: 50px;
@@ -135,7 +136,7 @@ class TransactionExportPage extends Component {
     downloadExportFileById: PropTypes.func,
     getExports: PropTypes.func
   }
-  state = { submitStatus: CONSTANT.LOADING_STATUS.DEFAULT }
+  state = { submitStatus: CONSTANT.LOADING_STATUS.DEFAULT, confirmationModalOpen: false }
 
   componentDidMount = () => {
     this._pollingExport = setInterval(() => {
@@ -162,30 +163,36 @@ class TransactionExportPage extends Component {
   onDateTimeToFocus = e => {
     this.setState({ toDate: '' })
   }
-  onClickExport = fetch => async e => {
+  onClickExport = (fetch, confirm) => async e => {
     e.preventDefault()
-    this.setState({ submitStatus: CONSTANT.LOADING_STATUS.PENDING })
-    try {
-      const query = createSearchTransactionExportQuery({
-        fromDate: this.state.fromDate,
-        toDate: this.state.toDate
-      })
-      const result = await this.props.exportTransaction(query)
-      if (result.data) {
-        this.setState({
-          submitStatus: CONSTANT.LOADING_STATUS.SUCCESS
+    if (!this.state.fromDate && !this.state.toDate && !confirm) {
+      this.setState({ confirmationModalOpen: true })
+    } else {
+      this.setState({ submitStatus: CONSTANT.LOADING_STATUS.PENDING, confirmationModalOpen: false })
+      try {
+        const query = createSearchTransactionExportQuery({
+          fromDate: this.state.fromDate,
+          toDate: this.state.toDate
         })
-        fetch()
-      } else {
-        this.setState({
-          submitStatus: CONSTANT.LOADING_STATUS.FAILED
-        })
+        const result = await this.props.exportTransaction(query)
+        if (result.data) {
+          this.setState({
+            submitStatus: CONSTANT.LOADING_STATUS.SUCCESS
+          })
+          fetch()
+        } else {
+          this.setState({
+            submitStatus: CONSTANT.LOADING_STATUS.FAILED
+          })
+        }
+      } catch (error) {
+        this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
       }
-    } catch (error) {
-      this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
     }
   }
-
+  closeConfirmationModal = e => {
+    this.setState({ confirmationModalOpen: false })
+  }
   onClickDownload = id => async e => {
     this.props.downloadExportFileById(id)
   }
@@ -212,32 +219,37 @@ class TransactionExportPage extends Component {
             </div>
           )
         }
+        return '-'
       case 'params_match_all':
-        if (row.status === 'completed') {
-          return row.params.match_all.map(query => (
-            <div style={{ whiteSpace: 'nowrap' }}>
-              {query.field}:{query.comparator}:
-              {moment(query.value).isValid()
-                ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
-                : query.value}
-            </div>
-          ))
-        } else {
-          return '-'
-        }
+        return row.params.match_all
+          ? row.params.match_all.length
+            ? row.params.match_all.map((query, i) => (
+              <div style={{ whiteSpace: 'nowrap' }} key={i}>
+                  [ {query.field} ] [ {query.comparator} :{' '}
+                {moment(query.value).isValid()
+                    ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
+                    : query.value}{' '}
+                  ]
+                </div>
+              ))
+            : '-'
+          : '-'
+
       case 'params_match_any':
-        if (row.status === 'completed') {
-          return row.params.match_all.map(query => (
-            <div style={{ whiteSpace: 'nowrap' }}>
-              {query.field}:{query.comparator}:
-              {moment(query.value).isValid()
-                ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
-                : query.value}
-            </div>
-          ))
-        } else {
-          return '-'
-        }
+        return row.params.match_any
+          ? row.params.match_any.length
+            ? row.params.match_any.map((query, i) => (
+              <div style={{ whiteSpace: 'nowrap' }} key={i}>
+                  [ {query.field} ] [ {query.comparator} :{' '}
+                {moment(query.value).isValid()
+                    ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
+                    : query.value}{' '}
+                  ]
+                </div>
+              ))
+            : '-'
+          : '-'
+
       default:
         return data
     }
@@ -300,6 +312,16 @@ class TransactionExportPage extends Component {
                     />
                   </TableContainer>
                 </DetailContainer>
+                <ConfirmationModal
+                  open={this.state.confirmationModalOpen}
+                  onRequestClose={this.closeConfirmationModal}
+                  onOk={this.onClickExport(fetch, true)}
+                >
+                  <div style={{ marginBottom: '15px', padding: '15px' }}>
+                    Leaving the fields empty will{' '}
+                    <span style={{ color: 'red' }}>export all transactions</span>
+                  </div>
+                </ConfirmationModal>
               </div>
             )
           }}

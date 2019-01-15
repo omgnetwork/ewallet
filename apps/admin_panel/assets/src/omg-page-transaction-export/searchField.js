@@ -1,16 +1,18 @@
 export function createSearchTransactionExportQuery ({ fromDate, toDate }) {
-  return {
-    matchAll: [
-      {
-        field: 'created_at',
-        comparator: 'gte',
-        value: fromDate
-      },
-      {
-        field: 'created_at',
-        comparator: 'lte',
-        value: toDate
-      }
-    ]
+  const query = { matchAll: [] }
+  if (fromDate) {
+    query.matchAll.push({
+      field: 'created_at',
+      comparator: 'gte',
+      value: fromDate
+    })
   }
+  if (toDate) {
+    query.matchAll.push({
+      field: 'created_at',
+      comparator: 'lte',
+      value: toDate
+    })
+  }
+  return query
 }
