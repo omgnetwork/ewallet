@@ -20,8 +20,8 @@ commands:
             GH_URL="https://github.com/omisego/ewallet/tree/${CIRCLE_BRANCH}"
             CIRCLE_URL="https://circleci.com/gh/omisego/ewallet/${CIRCLE_BUILD_NUM}"
             WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
-            MESSAGE="Workflow for ewallet/${CIRCLE_BRANCH} has failed during ${CIRCLE_JOB}"
-            RICH_MESSAGE="Workflow for *ewallet/${CIRCLE_BRANCH}* has failed during ${CIRCLE_JOB}"
+            MESSAGE="omisego/ewallet branch ${CIRCLE_BRANCH} has failed during ${CIRCLE_JOB}"
+            RICH_MESSAGE="*omisego/ewallet* branch *${CIRCLE_BRANCH}* has failed during ${CIRCLE_JOB}"
 
             curl -X POST -H 'Content-Type: application/json' --data "{ \
               \"attachments\": [ \
@@ -55,8 +55,8 @@ commands:
             GH_URL="https://github.com/omisego/ewallet/tree/${CIRCLE_BRANCH}"
             CIRCLE_URL="https://circleci.com/gh/omisego/ewallet/${CIRCLE_BUILD_NUM}"
             WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
-            MESSAGE="Workflow for ewallet/${CIRCLE_BRANCH} has been successfully built"
-            RICH_MESSAGE="Workflow for *ewallet/${CIRCLE_BRANCH}* has been successfully built"
+            MESSAGE="omisego/ewallet branch ${CIRCLE_BRANCH} has been successfully built"
+            RICH_MESSAGE="*omisego/ewallet* branch *${CIRCLE_BRANCH}* has been successfully built"
 
             curl -X POST -H 'Content-Type: application/json' --data "{ \
               \"attachments\": [ \
