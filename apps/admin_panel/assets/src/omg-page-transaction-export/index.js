@@ -17,7 +17,6 @@ import queryString from 'query-string'
 import moment from 'moment'
 import CONSTANT from '../constants'
 import ProgressBar from './ProgressBar'
-
 const Container = styled.div`
   position: relative;
   padding-bottom: 50px;
@@ -99,9 +98,14 @@ const TableContainer = styled.div`
       text-decoration: underline;
     }
   }
+  .string-value {
+    white-space: nowrap;
+  }
 `
 const columns = [
-  { key: 'params', title: 'QUERY' },
+  { key: 'filename', title: 'FILE NAME' },
+  { key: 'params_match_all', title: 'MATCH ALL' },
+  { key: 'params_match_any', title: 'MATCH ANY' },
   { key: 'status', title: 'STATUS' },
   { key: 'created_at', title: 'CREATED DATE' }
 ]
@@ -188,15 +192,9 @@ class TransactionExportPage extends Component {
             <Icon name='Download' onClick={this.onClickDownload(row)} />
           </TimestampContainer>
         )
-      case 'params':
+      case 'filename':
         if (row.status === 'completed') {
-          return (
-            <div>
-              <div>
-                <a onClick={this.onClickDownload(row)}>{row.filename}</a>
-              </div>
-            </div>
-          )
+          return <a onClick={this.onClickDownload(row)}>{row.filename}</a>
         } else if (row.status === 'processing' || row.status === 'new') {
           return (
             <div style={{ maxWidth: '450px' }}>
@@ -207,6 +205,32 @@ class TransactionExportPage extends Component {
               <ProgressBar percentage={row.completion} />
             </div>
           )
+        }
+      case 'params_match_all':
+        if (row.status === 'completed') {
+          return row.params.match_all.map(query => (
+            <div style={{ whiteSpace: 'nowrap' }}>
+              {query.field}:{query.comparator}:
+              {moment(query.value).isValid()
+                ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
+                : query.value}
+            </div>
+          ))
+        } else {
+          return '-'
+        }
+      case 'params_match_any':
+        if (row.status === 'completed') {
+          return row.params.match_all.map(query => (
+            <div style={{ whiteSpace: 'nowrap' }}>
+              {query.field}:{query.comparator}:
+              {moment(query.value).isValid()
+                ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
+                : query.value}
+            </div>
+          ))
+        } else {
+          return '-'
         }
       default:
         return data
@@ -226,7 +250,7 @@ class TransactionExportPage extends Component {
               <div>
                 <DetailLayout backPath={`/${this.props.match.params.accountId}/transaction`}>
                   <TopBar
-                    title={'Export'}
+                    title={'Export Transactions'}
                     breadcrumbItems={['Transaction', 'export']}
                     buttons={[]}
                   />
