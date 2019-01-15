@@ -203,7 +203,7 @@ jobs:
           command: |
             set -xe
 
-            cat <<EOF > .env
+            cat \<<EOF > .env
             E2E_HTTP_HOST=http://ewallet:4000
             E2E_SOCKET_HOST=ws://ewallet:4000
             E2E_TEST_ADMIN_EMAIL=$(openssl rand -hex 4)@example.com
