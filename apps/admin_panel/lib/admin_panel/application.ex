@@ -31,6 +31,7 @@ defmodule AdminPanel.Application do
     # AdminPanel.Endpoint is not being served as part of UrlDispatcher.Plug
     # so they're handled here separately.
     serve_endpoints = Application.get_env(:url_dispatcher, :serve_endpoints)
+
     children =
       children ++
         case Helper.to_boolean(serve_endpoints) do
@@ -45,6 +46,7 @@ defmodule AdminPanel.Application do
     # webpack_watch is enabled. It probably doesn't make sense to watch
     # webpack without enabling endpoint serving, but we allow it anyway.
     webpack_watch = Application.get_env(:admin_panel, :webpack_watch)
+
     children =
       children ++
         case Helper.to_boolean(webpack_watch) do

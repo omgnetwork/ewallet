@@ -25,6 +25,7 @@ defmodule UrlDispatcher.Application do
     DeferredConfig.populate(:url_dispatcher)
 
     serve_endpoints = Application.get_env(:url_dispatcher, :serve_endpoints)
+
     children =
       case Helper.to_boolean(serve_endpoints) do
         true ->
