@@ -110,7 +110,7 @@ const TableContainer = styled.div`
   }
 `
 const columns = [
-  { key: 'filename', title: 'FILE NAME' },
+  { key: 'filename', title: 'NAME' },
   { key: 'params_match_all', title: 'MATCH ALL' },
   { key: 'params_match_any', title: 'MATCH ANY' },
   { key: 'status', title: 'STATUS' },
@@ -207,7 +207,8 @@ class TransactionExportPage extends Component {
         )
       case 'filename':
         if (row.status === 'completed') {
-          return <a onClick={this.onClickDownload(row)}>{row.filename}</a>
+          console.log(row)
+          return <a onClick={this.onClickDownload(row)}>{`${row.schema}-${row.created_at}`}</a>
         } else if (row.status === 'processing' || row.status === 'new') {
           return (
             <div style={{ maxWidth: '450px' }}>
