@@ -29,9 +29,11 @@ defmodule AdminAPI.Application do
 
     Config.configure_cors_plug()
 
-    # Define workers and child supervisors to be supervised
+    # Always run AdminAPI.Endpoint and AdminAPI.V1.Endpoint in supervision tree
+    # regardless whether UrlDispatcher is enabled or not, since UrlDispatcher
+    # is not guarantee to be started, so we should not try to access the
+    # :url_dispatcher env here.
     children = [
-      # Start the endpoint when the application starts
       supervisor(AdminAPI.Endpoint, []),
       supervisor(AdminAPI.V1.Endpoint, [])
     ]
