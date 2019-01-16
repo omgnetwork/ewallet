@@ -16,7 +16,7 @@ That's the simple version. Transaction requests come with a bunch of options to 
 
 When creating transaction requests, a certain number of fields are optional but allow the configuration of the request. Walking through those fields is a good way to get a better understanding.
 
-See [the Swagger doc](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionRequest/transaction_request_create) for more details.
+See [the Swagger doc](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionRequest) for more details.
 
 Here is the model attributes when creating transaction requests:
 
@@ -113,8 +113,8 @@ Here is the flow used in the sample OMGShop application:
 
 4. The path can now have two different outputs. If the request does not require confirmation (`require_confirmation=false`), the consumption will be finalized and an actual transaction will be generated.
 
-5. If a confirmation is required (for example, Alice was sending money and wants to see who is trying to get her money and approve it), Alice's app needs to be listening to websocket events. By joining the websocket channel `transaction_request:{alice_transaction_request_id}`, she will receive events such as `transaction_consumption_request`. When receiving those events, she can then [approve](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionRequest/approve_transaction_consumption) or [reject](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionRequest/reject_transaction_consumption) it.
+5. If a confirmation is required (for example, Alice was sending money and wants to see who is trying to get her money and approve it), Alice's app needs to be listening to websocket events. By joining the websocket channel `transaction_request:{alice_transaction_request_id}`, she will receive events such as `transaction_consumption_request`. When receiving those events, she can then [approve](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionConsumption/approve_transaction_consumption) or [reject](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionConsumption/reject_transaction_consumption) it.
 
 6. Bob's app should be listening to the `transaction_consumption:{bob_consumption_id}` in order to know if it was approved or rejected by Alice. He will receive a `transaction_consumption_finalized` with either a confirmed consumption, or a rejected one (or potentially a failed one if the sender didn't have enough funds).
 
-You can check the [Websocket docs](/docs/websockets/ewallet_api.md) for more details on the available events.
+You can check the [Websocket docs](/docs/guides/ewallet_api_websockets.md) for more details on the available events.
