@@ -68,6 +68,20 @@ defmodule AdminAPI.V1.ExportControllerTest do
       assert response["success"]
       assert Enum.empty?(exports)
     end
+
+    test_supports_match_any(
+      "/export.all",
+      :export,
+      :filename,
+      factory_attrs: %{user_uuid: get_test_admin().uuid, key_uuid: get_test_key().uuid}
+    )
+
+    test_supports_match_all(
+      "/export.all",
+      :export,
+      :filename,
+      factory_attrs: %{user_uuid: get_test_admin().uuid, key_uuid: get_test_key().uuid}
+    )
   end
 
   describe "/export.get" do
