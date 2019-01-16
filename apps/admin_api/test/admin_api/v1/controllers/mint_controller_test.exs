@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
+defmodule AdminAPI.V1.MintControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.MintGate
   alias Utils.Helpers.DateFormatter
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, TransactionSerializer}
-  alias EWalletDB.{Mint, Account, Transaction, Wallet, Repo}
+  alias EWalletDB.{Mint, Transaction, Wallet, Repo}
   alias ActivityLogger.System
 
   describe "/token.get_mints" do
-    test "returns a list of mints and pagination data" do
+    test_with_auths "returns a list of mints and pagination data" do
       token = insert(:token)
 
       {:ok, inserted_mint, _} =
@@ -45,7 +45,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
         })
 
       response =
-        admin_user_request("/token.get_mints", %{
+        request("/token.get_mints", %{
           "id" => token.id,
           "sort_by" => "asc",
           "sort" => "created_at"
@@ -82,7 +82,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of mints according to search_term, sort_by and sort_direction" do
+    test_with_auths "returns a list of mints according to search_term, sort_by and sort_direction" do
       token = insert(:token)
 
       insert(:mint, %{token_uuid: token.uuid, description: "XYZ1"})
@@ -97,7 +97,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = admin_user_request("/token.get_mints", attrs)
+      response = request("/token.get_mints", attrs)
 
       mints = response["data"]["data"]
 
@@ -110,11 +110,11 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
   end
 
   describe "/token.mint" do
-    test "mints an existing token" do
+    test_with_auths "mints an existing token" do
       token = insert(:token)
 
       response =
-        admin_user_request("/token.mint", %{
+        request("/token.mint", %{
           id: token.id,
           amount: 1_000_000 * token.subunit_to_unit
         })
@@ -129,11 +129,11 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert mint.token_uuid == token.uuid
     end
 
-    test "mints an existing token with string amount" do
+    test_with_auths "mints an existing token with string amount" do
       token = insert(:token)
 
       response =
-        admin_user_request("/token.mint", %{
+        request("/token.mint", %{
           id: token.id,
           amount: "100000000"
         })
@@ -148,11 +148,11 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert mint.token_uuid == token.uuid
     end
 
-    test "mints an existing token with a big number" do
+    test_with_auths "mints an existing token with a big number" do
       token = insert(:token)
 
       response =
-        admin_user_request("/token.mint", %{
+        request("/token.mint", %{
           id: token.id,
           amount: 100_000_000_000_000_000_000_000_000_000_000_000 - 1
         })
@@ -167,11 +167,11 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert mint.token_uuid == token.uuid
     end
 
-    test "fails to mint with amount = nil" do
+    test_with_auths "fails to mint with amount = nil" do
       token = insert(:token)
 
       response =
-        admin_user_request("/token.mint", %{
+        request("/token.mint", %{
           id: token.id,
           amount: nil
         })
@@ -181,9 +181,9 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided."
     end
 
-    test "fails to mint a non existing token" do
+    test_with_auths "fails to mint a non existing token" do
       response =
-        admin_user_request("/token.mint", %{
+        request("/token.mint", %{
           id: "123",
           amount: 1_000_000
         })
@@ -193,11 +193,11 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert response["data"]["code"] == "token:id_not_found"
     end
 
-    test "fails to mint a disabled token" do
+    test_with_auths "fails to mint a disabled token" do
       token = insert(:token, enabled: false)
 
       response =
-        admin_user_request("/token.mint", %{
+        request("/token.mint", %{
           id: token.id,
           amount: "100000000"
         })
@@ -209,11 +209,11 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert mint == nil
     end
 
-    test "fails to mint with mint amount sent as string" do
+    test_with_auths "fails to mint with mint amount sent as string" do
       token = insert(:token)
 
       response =
-        admin_user_request("/token.mint", %{
+        request("/token.mint", %{
           id: token.id,
           amount: "abc"
         })
@@ -226,11 +226,11 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
                "Invalid parameter provided. String number is not a valid number: 'abc'."
     end
 
-    test "fails to mint with mint amount == 0" do
+    test_with_auths "fails to mint with mint amount == 0" do
       token = insert(:token)
 
       response =
-        admin_user_request("/token.mint", %{
+        request("/token.mint", %{
           id: token.id,
           amount: 0
         })
@@ -245,11 +245,11 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert response["data"]["messages"] == %{"amount" => ["number"]}
     end
 
-    test "fails to mint with mint amount < 0" do
+    test_with_auths "fails to mint with mint amount < 0" do
       token = insert(:token)
 
       response =
-        admin_user_request("/token.mint", %{
+        request("/token.mint", %{
           id: token.id,
           amount: -1
         })
@@ -264,37 +264,26 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert response["data"]["messages"] == %{"amount" => ["number"]}
     end
 
-    test "generates an activity log" do
-      token = insert(:token)
-      timestamp = DateTime.utc_now()
-
-      response =
-        admin_user_request("/token.mint", %{
-          id: token.id,
-          amount: 1_000_000 * token.subunit_to_unit
-        })
-
-      assert response["success"] == true
-
-      mint = Mint.get(response["data"]["id"])
-      account = Account.get_master_account()
-      wallet = Account.get_primary_wallet(account)
+    defp assert_mint_logs(logs, originator, mint) do
       genesis = Wallet.get("gnis000000000000")
-      transaction = get_last_inserted(Transaction)
 
-      logs = get_all_activity_logs_since(timestamp)
+      transaction =
+        Transaction
+        |> get_last_inserted()
+        |> Repo.preload([:from_token, :to_wallet, :to_account, :to_token])
+
       assert Enum.count(logs) == 6
 
       logs
       |> Enum.at(0)
       |> assert_activity_log(
         action: "insert",
-        originator: get_test_admin(),
+        originator: originator,
         target: mint,
         changes: %{
-          "account_uuid" => account.uuid,
-          "amount" => 100_000_000,
-          "token_uuid" => token.uuid
+          "account_uuid" => mint.account.uuid,
+          "amount" => mint.amount,
+          "token_uuid" => mint.token.uuid
         },
         encrypted_changes: %{}
       )
@@ -322,19 +311,19 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
         changes: %{
           "from" => "gnis000000000000",
           "from_amount" => 100_000_000,
-          "from_token_uuid" => token.uuid,
+          "from_token_uuid" => transaction.from_token.uuid,
           "idempotency_token" => transaction.idempotency_token,
-          "to" => wallet.address,
-          "to_account_uuid" => account.uuid,
+          "to" => transaction.to_wallet.address,
+          "to_account_uuid" => transaction.to_account.uuid,
           "to_amount" => 100_000_000,
-          "to_token_uuid" => token.uuid
+          "to_token_uuid" => transaction.to_token.uuid
         },
         encrypted_changes: %{
           "payload" => %{
             "amount" => 100_000_000,
             "description" => nil,
             "idempotency_token" => transaction.idempotency_token,
-            "token_id" => token.id
+            "token_id" => transaction.to_token.id
           }
         }
       )
@@ -373,6 +362,44 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
         changes: %{"confirmed" => true},
         encrypted_changes: %{}
       )
+    end
+
+    test "generates an activity log for an admin request" do
+      token = insert(:token)
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/token.mint", %{
+          id: token.id,
+          amount: 1_000_000 * token.subunit_to_unit
+        })
+
+      assert response["success"] == true
+
+      mint = response["data"]["id"] |> Mint.get() |> Repo.preload([:account, :token])
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_mint_logs(get_test_admin(), mint)
+    end
+
+    test "generates an activity log for a provider request" do
+      token = insert(:token)
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/token.mint", %{
+          id: token.id,
+          amount: 1_000_000 * token.subunit_to_unit
+        })
+
+      assert response["success"] == true
+
+      mint = response["data"]["id"] |> Mint.get() |> Repo.preload([:account, :token])
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_mint_logs(get_test_key(), mint)
     end
   end
 end
