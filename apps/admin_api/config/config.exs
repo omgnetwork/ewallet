@@ -10,7 +10,8 @@ config :admin_api,
   namespace: AdminAPI,
   ecto_repos: [],
   settings: [
-    :sender_email
+    :sender_email,
+    :file_storage_adapter
   ]
 
 # Configs for the endpoint
