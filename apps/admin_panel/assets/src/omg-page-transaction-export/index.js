@@ -282,10 +282,8 @@ class TransactionExportPage extends Component {
         </Reference>
         {this.state.generateExportOpen && (
           <Popper
-            placement='auto-end'
             eventsEnabled={false}
-            place='below'
-            modifiers={{ offset: { enabled: true, offset: 500 } }}
+            place='bottom-start'
           >
             {({ ref, style, placement, arrowProps }) => (
               <div ref={ref} style={{ ...style, zIndex: 1 }} data-placement={placement}>
