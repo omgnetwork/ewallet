@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
+defmodule AdminAPI.V1.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Utils.Helpers.DateFormatter
   alias EWalletDB.{Account, Key, Repo}
 
   describe "/access_key.all" do
-    test "responds with a list of keys without secret keys" do
+    test_with_auths "responds with a list of keys without secret keys" do
       key_1 = Key.get_by(%{access_key: @access_key}, preload: :account)
       key_2 = insert(:key, %{secret_key: "the_secret_key"})
 
-      response = provider_request("/access_key.all")
+      response = request("/access_key.all")
 
       assert Enum.all?(response["data"]["data"], fn key -> key["object"] == "key" end)
       assert Enum.all?(response["data"]["data"], fn key -> key["secret_key"] == nil end)
@@ -38,12 +38,12 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
              end)
     end
 
-    test "responds with a list of keys excluding the soft-deleted ones" do
+    test_with_auths "responds with a list of keys excluding the soft-deleted ones" do
       originator = insert(:user)
       [key1, key2, key3] = ensure_num_records(Key, 3)
       {:ok, _} = Key.delete(key2, originator)
 
-      response = provider_request("/access_key.all")
+      response = request("/access_key.all")
       keys = response["data"]["data"]
 
       assert Enum.count(keys) == 2
@@ -52,13 +52,13 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       assert Enum.any?(keys, fn a -> a["id"] == key3.id end)
     end
 
-    test_supports_match_any("/access_key.all", :provider_auth, :key, :access_key)
-    test_supports_match_all("/access_key.all", :provider_auth, :key, :access_key)
+    test_supports_match_any("/access_key.all", :key, :access_key)
+    test_supports_match_all("/access_key.all", :key, :access_key)
   end
 
   describe "/access_key.create" do
-    test "responds with a key with the secret key" do
-      response = provider_request("/access_key.create")
+    test_with_auths "responds with a key with the secret key" do
+      response = request("/access_key.create")
       key = get_last_inserted(Key)
 
       # Cannot do `assert response == %{...}` because we don't know the value of `secret_key`.
@@ -95,40 +95,56 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       assert String.length(response["data"]["secret_key"]) > 0
     end
 
-    test "generates an activity log" do
-      timestamp = DateTime.utc_now()
-      response = provider_request("/access_key.create")
-
-      assert response["success"] == true
-      key = get_last_inserted(Key)
-      account = Account.get_master_account()
-
-      logs = get_all_activity_logs_since(timestamp)
+    defp assert_create_logs(logs, originator, target) do
       assert Enum.count(logs) == 1
 
       logs
       |> Enum.at(0)
       |> assert_activity_log(
         action: "insert",
-        originator: get_test_key(),
-        target: key,
+        originator: originator,
+        target: target,
         changes: %{
-          "account_uuid" => account.uuid,
-          "access_key" => key.access_key,
-          "secret_key_hash" => key.secret_key_hash
+          "account_uuid" => target.account.uuid,
+          "access_key" => target.access_key,
+          "secret_key_hash" => target.secret_key_hash
         },
         encrypted_changes: %{}
       )
     end
+
+    test_with_auths "generates an activity log for an admin request" do
+      timestamp = DateTime.utc_now()
+      response = admin_user_request("/access_key.create")
+
+      assert response["success"] == true
+      key = Key |> get_last_inserted() |> Repo.preload(:account)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_logs(get_test_admin(), key)
+    end
+
+    test_with_auths "generates an activity log for a provider request" do
+      timestamp = DateTime.utc_now()
+      response = provider_request("/access_key.create")
+
+      assert response["success"] == true
+      key = Key |> get_last_inserted() |> Repo.preload(:account)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_logs(get_test_key(), key)
+    end
   end
 
   describe "/access_key.update" do
-    test "disables the key" do
+    test_with_auths "disables the key" do
       key = insert(:key)
       assert key.enabled == true
 
       response =
-        provider_request("/access_key.update", %{
+        request("/access_key.update", %{
           id: key.id,
           expired: true
         })
@@ -138,12 +154,12 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       assert response["data"]["enabled"] == false
     end
 
-    test "enables the key" do
+    test_with_auths "enables the key" do
       key = insert(:key, enabled: false)
       assert key.enabled == false
 
       response =
-        provider_request("/access_key.update", %{
+        request("/access_key.update", %{
           id: key.id,
           expired: false
         })
@@ -153,12 +169,12 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       assert response["data"]["enabled"] == true
     end
 
-    test "does not update any other fields" do
+    test_with_auths "does not update any other fields" do
       key = insert(:key, access_key: "key", secret_key: "secret", secret_key_hash: "hash")
       assert key.enabled == true
 
       response =
-        provider_request("/access_key.update", %{
+        request("/access_key.update", %{
           id: key.id,
           expired: true,
           access_key: "new_key",
@@ -177,42 +193,64 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       assert updated.secret_key_hash == key.secret_key_hash
     end
 
-    test "generates an activity log" do
-      key = insert(:key)
-      timestamp = DateTime.utc_now()
-
-      response =
-        provider_request("/access_key.update", %{
-          id: key.id,
-          expired: true
-        })
-
-      assert response["success"] == true
-
-      logs = get_all_activity_logs_since(timestamp)
+    defp assert_update_logs(logs, originator, target) do
       assert Enum.count(logs) == 1
 
       logs
       |> Enum.at(0)
       |> assert_activity_log(
         action: "update",
-        originator: get_test_key(),
-        target: key,
+        originator: originator,
+        target: target,
         changes: %{
           "enabled" => false
         },
         encrypted_changes: %{}
       )
     end
+
+    test "generates an activity log for an admin request" do
+      key = insert(:key)
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/access_key.enable_or_disable", %{
+          id: key.id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_update_logs(get_test_admin(), key)
+    end
+
+    test "generates an activity log for a provider request" do
+      key = insert(:key)
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/access_key.enable_or_disable", %{
+          id: key.id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_update_logs(get_test_key(), key)
+    end
   end
 
   describe "/access_key.enable_or_disable" do
-    test "disables the key" do
+    test_with_auths "disables the key" do
       key = insert(:key)
       assert key.enabled == true
 
       response =
-        provider_request("/access_key.enable_or_disable", %{
+        request("/access_key.enable_or_disable", %{
           id: key.id,
           enabled: false
         })
@@ -221,12 +259,12 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       assert response["data"]["enabled"] == false
     end
 
-    test "disabling a key twice doesn't re-enable it" do
+    test_with_auths "disabling a key twice doesn't re-enable it" do
       key = insert(:key)
       assert key.enabled == true
 
       response =
-        provider_request("/access_key.enable_or_disable", %{
+        request("/access_key.enable_or_disable", %{
           id: key.id,
           enabled: false
         })
@@ -235,7 +273,7 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       assert response["data"]["enabled"] == false
 
       response =
-        provider_request("/access_key.enable_or_disable", %{
+        request("/access_key.enable_or_disable", %{
           id: key.id,
           enabled: false
         })
@@ -244,12 +282,12 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       assert response["data"]["enabled"] == false
     end
 
-    test "enables the key" do
+    test_with_auths "enables the key" do
       key = insert(:key, enabled: false)
       assert key.enabled == false
 
       response =
-        provider_request("/access_key.enable_or_disable", %{
+        request("/access_key.enable_or_disable", %{
           id: key.id,
           enabled: true
         })
@@ -258,7 +296,40 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       assert response["data"]["enabled"] == true
     end
 
-    test "generates an activity log" do
+    defp assert_enable_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{
+          "enabled" => false
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
+      key = insert(:key)
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/access_key.enable_or_disable", %{
+          id: key.id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_enable_logs(get_test_admin(), key)
+    end
+
+    test "generates an activity log for a provider request" do
       key = insert(:key)
       timestamp = DateTime.utc_now()
 
@@ -270,40 +341,29 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
 
       assert response["success"] == true
 
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
-
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_key(),
-        target: key,
-        changes: %{
-          "enabled" => false
-        },
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_enable_logs(get_test_key(), key)
     end
   end
 
   describe "/access_key.delete" do
-    test "responds with an empty success if provided a key id" do
+    test_with_auths "responds with an empty success if provided a key id" do
       key = insert(:key)
-      response = provider_request("/access_key.delete", %{id: key.id})
+      response = request("/access_key.delete", %{id: key.id})
 
       assert response == %{"version" => "1", "success" => true, "data" => %{}}
     end
 
-    test "responds with an empty success if provided an access_key" do
+    test_with_auths "responds with an empty success if provided an access_key" do
       key = insert(:key)
-      response = provider_request("/access_key.delete", %{access_key: key.access_key})
+      response = request("/access_key.delete", %{access_key: key.access_key})
 
       assert response == %{"version" => "1", "success" => true, "data" => %{}}
     end
 
-    test "responds with an error if the provided id is not found" do
-      response = provider_request("/access_key.delete", %{id: "wrong_id"})
+    test_with_auths "responds with an error if the provided id is not found" do
+      response = request("/access_key.delete", %{id: "wrong_id"})
 
       assert response == %{
                "version" => "1",
@@ -317,13 +377,21 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
              }
     end
 
-    test "responds with an error if the user is not authorized to delete the key" do
+    test_with_auths "responds with an error if the user is not authorized to delete the key" do
       key_to_delete = insert(:key)
       key = insert(:key)
+      auth_token = insert(:auth_token, owner_app: "admin_api")
 
       attrs = %{id: key_to_delete.id}
-      opts = [access_key: key.access_key, secret_key: key.secret_key]
-      response = provider_request("/access_key.delete", attrs, opts)
+
+      opts = [
+        user_id: auth_token.user.id,
+        auth_token: auth_token.token,
+        access_key: key.access_key,
+        secret_key: key.secret_key
+      ]
+
+      response = request("/access_key.delete", attrs, opts)
 
       assert response ==
                %{
@@ -338,7 +406,36 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
                }
     end
 
-    test "generates an activity log" do
+    defp assert_delete_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{"deleted_at" => DateFormatter.to_iso8601(target.deleted_at)},
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
+      key = insert(:key)
+
+      timestamp = DateTime.utc_now()
+      response = admin_user_request("/access_key.delete", %{id: key.id})
+
+      assert response["success"] == true
+
+      key = Repo.get_by(Key, %{id: key.id})
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_delete_logs(get_test_admin(), key)
+    end
+
+    test "generates an activity log for a provider request" do
       key = insert(:key)
 
       timestamp = DateTime.utc_now()
@@ -347,18 +444,10 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       assert response["success"] == true
 
       key = Repo.get_by(Key, %{id: key.id})
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_key(),
-        target: key,
-        changes: %{"deleted_at" => DateFormatter.to_iso8601(key.deleted_at)},
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_delete_logs(get_test_key(), key)
     end
   end
 end
