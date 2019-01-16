@@ -74,7 +74,7 @@ defmodule EWallet.Exporters.S3Adapter do
         AdapterHelper.update_export(args.export, Export.completed(), 100, nil)
 
       {:error, error} ->
-        {:ok, export} = AdapterHelper.store_error(args.export, error)
+        {:ok, export} = AdapterHelper.store_error(args.export, "Upload failed.", inspect(error))
         {:error, export}
     end
   end

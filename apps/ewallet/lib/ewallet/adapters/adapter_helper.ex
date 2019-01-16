@@ -107,11 +107,12 @@ defmodule EWallet.AdapterHelper do
     })
   end
 
-  def store_error(export, error) do
+  def store_error(export, error, full_error \\ nil) do
     Export.update(export, %{
       originator: %Exporter{},
       status: Export.failed(),
-      failure_reason: error
+      failure_reason: error,
+      full_error: nil
     })
   end
 

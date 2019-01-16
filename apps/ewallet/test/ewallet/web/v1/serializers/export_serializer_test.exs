@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+  # Copyright 2018 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ defmodule EWallet.Web.V1.ExportSerializerTest do
         key_id: Assoc.get(export, [:key, :id]),
         params: export.params,
         pid: export.pid,
+        failure_reason: nil,
         created_at: DateFormatter.to_iso8601(export.inserted_at),
         updated_at: DateFormatter.to_iso8601(export.updated_at)
       }
@@ -83,6 +84,7 @@ defmodule EWallet.Web.V1.ExportSerializerTest do
             key_id: Assoc.get(export_1, [:key, :id]),
             params: export_1.params,
             pid: export_1.pid,
+            failure_reason: nil,
             created_at: DateFormatter.to_iso8601(export_1.inserted_at),
             updated_at: DateFormatter.to_iso8601(export_1.updated_at)
           },
@@ -99,6 +101,7 @@ defmodule EWallet.Web.V1.ExportSerializerTest do
             key_id: Assoc.get(export_2, [:key, :id]),
             params: export_2.params,
             pid: export_2.pid,
+            failure_reason: nil,
             created_at: DateFormatter.to_iso8601(export_2.inserted_at),
             updated_at: DateFormatter.to_iso8601(export_2.updated_at)
           }
