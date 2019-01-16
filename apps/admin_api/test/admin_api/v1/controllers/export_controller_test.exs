@@ -16,8 +16,8 @@ defmodule AdminAPI.V1.ExportControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/export.all" do
-    test "returns a list of exports and pagination data" do
-      response = admin_user_request("/export.all")
+    test_with_auths "returns a list of exports and pagination data" do
+      response = request("/export.all")
 
       # Asserts return data
       assert response["success"]
@@ -32,12 +32,13 @@ defmodule AdminAPI.V1.ExportControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of exports according to search_term, sort_by and sort_direction" do
+    test_with_auths "returns a list of exports according to search_term, sort_by and sort_direction" do
       user = get_test_admin()
-      insert(:export, %{filename: "Matched 2", user_uuid: user.uuid})
-      insert(:export, %{filename: "Matched 3", user_uuid: user.uuid})
-      insert(:export, %{filename: "Matched 1", user_uuid: user.uuid})
-      insert(:export, %{filename: "Missed 1", user_uuid: user.uuid})
+      key = get_test_key()
+      insert(:export, %{filename: "Matched 2", user_uuid: user.uuid, key_uuid: key.uuid})
+      insert(:export, %{filename: "Matched 3", user_uuid: user.uuid, key_uuid: key.uuid})
+      insert(:export, %{filename: "Matched 1", user_uuid: user.uuid, key_uuid: key.uuid})
+      insert(:export, %{filename: "Missed 1", user_uuid: user.uuid, key_uuid: key.uuid})
 
       attrs = %{
         # Search is case-insensitive
@@ -46,7 +47,7 @@ defmodule AdminAPI.V1.ExportControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = admin_user_request("/export.all", attrs)
+      response = request("/export.all", attrs)
       exports = response["data"]["data"]
 
       assert response["success"]
@@ -56,12 +57,12 @@ defmodule AdminAPI.V1.ExportControllerTest do
       assert Enum.at(exports, 2)["filename"] == "Matched 1"
     end
 
-    test "does not return exports not owned" do
+    test_with_auths "does not return exports not owned" do
       insert(:export)
       insert(:export)
       insert(:export)
 
-      response = admin_user_request("/export.all", %{})
+      response = request("/export.all", %{})
       exports = response["data"]["data"]
 
       assert response["success"]
@@ -70,22 +71,23 @@ defmodule AdminAPI.V1.ExportControllerTest do
   end
 
   describe "/export.get" do
-    test "returns an export by the given export's ID" do
+    test_with_auths "returns an export by the given export's ID" do
       user = get_test_admin()
-      exports = insert_list(3, :export, user_uuid: user.uuid)
+      key = get_test_key()
+      exports = insert_list(3, :export, user_uuid: user.uuid, key_uuid: key.uuid)
 
       # Pick the 2nd inserted export
       target = Enum.at(exports, 1)
-      response = admin_user_request("/export.get", %{"id" => target.id})
+      response = request("/export.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "export"
       assert response["data"]["filename"] == target.filename
     end
 
-    test "returns 'unauthorized' if the export is not owned" do
+    test_with_auths "returns 'unauthorized' if the export is not owned" do
       export = insert(:export)
-      response = admin_user_request("/export.get", %{"id" => export.id})
+      response = request("/export.get", %{"id" => export.id})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -95,8 +97,8 @@ defmodule AdminAPI.V1.ExportControllerTest do
                "You are not allowed to perform the requested operation."
     end
 
-    test "returns 'unauthorized' if the given ID was not found" do
-      response = admin_user_request("/export.get", %{"id" => "exp_12345678901234567890123456"})
+    test_with_auths "returns 'unauthorized' if the given ID was not found" do
+      response = request("/export.get", %{"id" => "exp_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -106,8 +108,8 @@ defmodule AdminAPI.V1.ExportControllerTest do
                "You are not allowed to perform the requested operation."
     end
 
-    test "returns 'unauthorized' if the given ID format is invalid" do
-      response = admin_user_request("/export.get", %{"id" => "not_an_id"})
+    test_with_auths "returns 'unauthorized' if the given ID format is invalid" do
+      response = request("/export.get", %{"id" => "not_an_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -119,33 +121,35 @@ defmodule AdminAPI.V1.ExportControllerTest do
   end
 
   describe "/export.download" do
-    test "returns a 'file:not_found' error when the file does not exist" do
+    test_with_auths "returns a 'file:not_found' error when the file does not exist" do
       user = get_test_admin()
-      exports = insert_list(3, :export, user_uuid: user.uuid)
+      key = get_test_key()
+      exports = insert_list(3, :export, user_uuid: user.uuid, key_uuid: key.uuid)
 
       # Pick the 2nd inserted export
       target = Enum.at(exports, 1)
-      response = admin_user_request("/export.download", %{"id" => target.id})
+      response = request("/export.download", %{"id" => target.id})
 
       refute response["success"]
       assert response["data"]["code"] == "file:not_found"
       assert response["data"]["description"] == "The file could not be found on the server."
     end
 
-    test "returns an 'export:not_local' error when the given export uses a non-local adapter" do
+    test_with_auths "returns an 'export:not_local' error when the given export uses a non-local adapter" do
       user = get_test_admin()
-      export = insert(:export, user_uuid: user.uuid, adapter: "gcs")
+      key = get_test_key()
+      export = insert(:export, user_uuid: user.uuid, key_uuid: key.uuid, adapter: "gcs")
 
-      response = admin_user_request("/export.download", %{"id" => export.id})
+      response = request("/export.download", %{"id" => export.id})
 
       refute response["success"]
       assert response["data"]["code"] == "export:not_local"
       assert response["data"]["description"] == "The given export is not stored locally."
     end
 
-    test "returns 'unauthorized' if the export is not owned" do
+    test_with_auths "returns 'unauthorized' if the export is not owned" do
       export = insert(:export)
-      response = admin_user_request("/export.get", %{"id" => export.id})
+      response = request("/export.get", %{"id" => export.id})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -155,8 +159,8 @@ defmodule AdminAPI.V1.ExportControllerTest do
                "You are not allowed to perform the requested operation."
     end
 
-    test "returns 'unauthorized' if the given ID was not found" do
-      response = admin_user_request("/export.get", %{"id" => "exp_12345678901234567890123456"})
+    test_with_auths "returns 'unauthorized' if the given ID was not found" do
+      response = request("/export.get", %{"id" => "exp_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -166,8 +170,8 @@ defmodule AdminAPI.V1.ExportControllerTest do
                "You are not allowed to perform the requested operation."
     end
 
-    test "returns 'unauthorized' if the given ID format is invalid" do
-      response = admin_user_request("/export.get", %{"id" => "not_an_id"})
+    test_with_auths "returns 'unauthorized' if the given ID format is invalid" do
+      response = request("/export.get", %{"id" => "not_an_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
