@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.FallbackControllerTest do
+defmodule AdminAPI.V1.FallbackControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/not_found" do
@@ -31,7 +31,7 @@ defmodule AdminAPI.V1.AdminAuth.FallbackControllerTest do
       assert unauthenticated_request("/not_found") == expected
     end
 
-    test "returns correct error response for user-authenticated requests" do
+    test_with_auths "returns correct error response for user-authenticated requests" do
       expected = %{
         "version" => "1",
         "success" => false,
@@ -43,7 +43,7 @@ defmodule AdminAPI.V1.AdminAuth.FallbackControllerTest do
         }
       }
 
-      assert admin_user_request("/not_found") == expected
+      assert request("/not_found") == expected
     end
   end
 end
