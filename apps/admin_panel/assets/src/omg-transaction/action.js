@@ -49,6 +49,13 @@ export const getTransactionById = id =>
     service: () => transactionService.getTransactionById(id)
   })
 
+export const exportTransaction = query =>
+  createActionCreator({
+    actionName: 'TRANSACTIONS',
+    action: 'EXPORT',
+    service: () => transactionService.exportTransaction(query)
+  })
+
 export const calculate = ({ fromTokenId, toTokenId, fromAmount, toAmount }) =>
   createActionCreator({
     actionName: 'TRANSACTION',

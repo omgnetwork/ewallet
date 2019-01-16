@@ -109,6 +109,7 @@ a {
   right:0;
   background-color: rgba(0,0,0,0.5);
   overflow: auto;
+  z-index: 2;
 }
 
 .ReactModal__Content.react-modal {
@@ -145,9 +146,6 @@ a {
 }
 b {
   font-weight: 600;
-}
-span {
-  vertical-align: middle;
 }
 
 

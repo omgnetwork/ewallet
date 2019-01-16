@@ -65,6 +65,7 @@ export const createFetcher = (entity, reducer, selectors) => {
           await this.fetchDebounce()
         }
       }
+
       getQuery = () => {
         return { page: 1, perPage: 10, ...this.props.query }
       }
