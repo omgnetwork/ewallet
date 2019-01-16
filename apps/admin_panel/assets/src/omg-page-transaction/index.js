@@ -104,6 +104,11 @@ const TransferButton = styled(Button)`
   padding-right: 40px;
 `
 
+const ExportButton = styled(Button)`
+  padding-left: 30px;
+  padding-right: 30px;
+`
+
 const columns = [
   { key: 'id', title: 'TRANSACTION ID' },
   { key: 'toFrom', title: 'FROM/TO' },
@@ -163,9 +168,9 @@ class TransactionPage extends Component {
   }
   renderExportButton () {
     return (
-      <Button size='small' styleType='secondary' key={'export'} onClick={this.onClickExport}>
+      <ExportButton size='small' styleType='secondary' key={'export'} onClick={this.onClickExport}>
         Export
-      </Button>
+      </ExportButton>
     )
   }
   rowRenderer = (key, data, rows) => {
