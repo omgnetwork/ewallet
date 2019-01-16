@@ -115,7 +115,7 @@ const TableContainer = styled.div`
 const AlertEmptyTextContainer = styled.div`
   max-width: 500px;
   font-size: 14px;
-  >div:nth-child(2) {
+  > div:nth-child(2) {
     margin: 20px 0;
   }
   span {
@@ -224,12 +224,12 @@ class TransactionExportPage extends Component {
         return (
           <TimestampContainer>
             <span>{moment(row.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
-            <Icon name='Download' onClick={this.onClickDownload(row)} />
+            {row.status === 'completed' && <Icon name='Download' onClick={this.onClickDownload(row)} />}
           </TimestampContainer>
         )
       case 'filename':
         if (row.status === 'completed') {
-          return <a onClick={this.onClickDownload(row)}>{`${row.schema}-${row.created_at}`}</a>
+          return <a onClick={this.onClickDownload(row)}>{row.filename}</a>
         } else if (row.status === 'processing' || row.status === 'new') {
           return (
             <div style={{ maxWidth: '450px' }}>
@@ -379,7 +379,8 @@ class TransactionExportPage extends Component {
                 >
                   <AlertEmptyTextContainer>
                     <div>
-                      Leaving the date fields empty will generate an export for <span>all the transactions</span> since the beginning of time.
+                      Leaving the date fields empty will generate an export for{' '}
+                      <span>all the transactions</span> since the beginning of time.
                     </div>
                     <div>Do you want to proceed?</div>
                   </AlertEmptyTextContainer>
