@@ -18,7 +18,7 @@ import CONSTANT from '../constants'
 import ProgressBar from './ProgressBar'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { Manager, Reference, Popper } from 'react-popper'
-
+import { MarkContainer } from '../omg-page-transaction'
 const Container = styled.div`
   position: relative;
   padding-bottom: 50px;
@@ -102,7 +102,8 @@ const TableContainer = styled.div`
     }
   }
   td:first-child {
-    max-width: 200px;
+    width: 30%;
+    min-width: 300px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -133,9 +134,18 @@ const columns = [
   { key: 'params_match_all', title: 'MATCH ALL' },
   { key: 'params_match_any', title: 'MATCH ANY' },
   { key: 'status', title: 'STATUS' },
-  { key: 'created_at', title: 'CREATED DATE' }
+  { key: 'created_at', title: 'EXPORTED AT' }
 ]
-
+const StatusContainer = styled.div`
+  white-space: nowrap;
+  span {
+    vertical-align: middle;
+  }
+  i {
+    color: white;
+    font-size: 10px;
+  }
+`
 const enhance = compose(
   withRouter,
   connect(
@@ -224,7 +234,9 @@ class TransactionExportPage extends Component {
         return (
           <TimestampContainer>
             <span>{moment(row.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
-            {row.status === 'completed' && <Icon name='Download' onClick={this.onClickDownload(row)} />}
+            {row.status === 'completed' && (
+              <Icon name='Download' onClick={this.onClickDownload(row)} />
+            )}
           </TimestampContainer>
         )
       case 'filename':
@@ -238,6 +250,13 @@ class TransactionExportPage extends Component {
                 <span>{row.completion.toFixed(2)}%</span>
               </ProgressTextContainer>
               <ProgressBar percentage={row.completion.toFixed(2)} />
+            </div>
+          )
+        } else if (row.status === 'failed') {
+          return (
+            <div>
+              <div>{row.filename}</div>
+              <div style={{ color: 'red' }}>{row.failure_reason}</div>
             </div>
           )
         }
@@ -271,7 +290,29 @@ class TransactionExportPage extends Component {
               ))
             : '-'
           : '-'
-
+      case 'status':
+        return (
+          <StatusContainer>
+            {data === 'failed' && (
+              <MarkContainer status='failed'>
+                <Icon name='Close' />
+              </MarkContainer>
+            )}
+            {data === 'completed' && (
+              <MarkContainer status='success'>
+                <Icon name='Checked' />
+              </MarkContainer>
+            )}
+            {data === 'processing' && (
+              <img
+                src={require('../../statics/images/loading.gif')}
+                width={20}
+                style={{ verticalAlign: 'middle' }}
+              />
+            )}{' '}
+            <span>{data}</span>
+          </StatusContainer>
+        )
       default:
         return data
     }
