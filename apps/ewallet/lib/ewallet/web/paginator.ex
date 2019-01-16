@@ -49,6 +49,10 @@ defmodule EWallet.Web.Paginator do
     parse_string_param(queryable, attrs, "page", page, repo)
   end
 
+  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, repo) when not is_integer(per_page) do
+    parse_string_param(queryable, attrs, "per_page", per_page, repo)
+  end
+
   def paginate_attrs(queryable, %{"page_record_id" => page_record_id} = attrs, repo) when is_bitstring(page_record_id) do
     per_page = get_per_page(attrs)
     paginate(queryable, %{"page_record_id" => page_record_id, "per_page" => per_page} = attrs, repo)
@@ -58,14 +62,12 @@ defmodule EWallet.Web.Paginator do
     {:error, :invalid_parameter, "`page` must be non-negative integer"}
   end
 
-  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, repo)
-      when not is_integer(per_page) do
-    parse_string_param(queryable, attrs, "per_page", per_page, repo)
+  def paginate_attrs(_, %{"per_page" => per_page}, _repo) when is_integer(per_page) and per_page < 1 do
+    {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
 
-  def paginate_attrs(_, %{"per_page" => per_page}, _repo)
-      when is_integer(per_page) and per_page < 1 do
-    {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
+  def paginate_attrs(_, %{"page_record_id" => page_record_id}, _repo) when not is_bitstring(page_record_id) do
+    {:error, :invalid_parameter, "`page_record_id` must be a string"}
   end
 
   def paginate_attrs(queryable, attrs, repo) do

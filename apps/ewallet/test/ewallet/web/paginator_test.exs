@@ -98,6 +98,11 @@ defmodule EWallet.Web.PaginatorTest do
       result = Paginator.paginate_attrs(Account, %{"per_page" => "per page what?"})
       assert {:error, :invalid_parameter, _} = result
     end
+
+    test "returns :error if given attrs.page_record_id is not a string" do
+      result = Paginator.paginate_attrs(Account, %{"page_record_id" => 1})
+      assert {:error, :invalid_parameter, _} = result
+    end
   end
 
   describe "EWallet.Web.Paginator.paginate/3" do
