@@ -2,7 +2,7 @@ use Mix.Config
 
 config :url_dispatcher,
   ecto_repos: [],
-  serve_endpoints: {:system, "SERVE_ENDPOINTS", true},
+  serve_endpoints: {:system, "SERVE_ENDPOINTS", false},
   port: {:system, "PORT", 4000, {String, :to_integer}}
 
 # Import environment specific config. This must remain at the bottom

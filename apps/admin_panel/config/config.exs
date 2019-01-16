@@ -5,7 +5,7 @@ config :admin_panel,
   namespace: AdminPanel,
   ecto_repos: [],
   dist_path: Path.expand("../priv/static/", __DIR__),
-  webpack_watch: {:system, "WEBPACK_WATCH", true}
+  webpack_watch: {:system, "WEBPACK_WATCH", false}
 
 # Configures the endpoint
 config :admin_panel, AdminPanel.Endpoint,

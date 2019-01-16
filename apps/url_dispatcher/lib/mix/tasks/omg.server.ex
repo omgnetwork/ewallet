@@ -66,7 +66,11 @@ defmodule Mix.Tasks.Omg.Server do
   @shortdoc "Starts the eWallet applications and their servers"
 
   @doc false
-  def run(args), do: run(args, [])
+  def run(args) do
+    System.put_env("WEBPACK_WATCH", "true")
+    System.put_env("SERVE_ENDPOINTS", "true")
+    run(args, [])
+  end
 
   defp run(["--no-watch" | t], args2) do
     System.put_env("WEBPACK_WATCH", "false")
