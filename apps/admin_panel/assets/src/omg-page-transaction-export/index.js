@@ -112,6 +112,17 @@ const TableContainer = styled.div`
   }
 `
 
+const AlertEmptyTextContainer = styled.div`
+  max-width: 500px;
+  font-size: 14px;
+  >div:nth-child(2) {
+    margin: 20px 0;
+  }
+  span {
+    color: red;
+  }
+`
+
 const TitleContainer = styled.div`
   > i {
     cursor: pointer;
@@ -282,8 +293,14 @@ class TransactionExportPage extends Component {
         </Reference>
         {this.state.generateExportOpen && (
           <Popper
-            eventsEnabled={false}
-            place='bottom-start'
+            placement='left-start'
+            positionFixed
+            modifiers={{
+              offset: {
+                enabled: true,
+                offset: 100
+              }
+            }}
           >
             {({ ref, style, placement, arrowProps }) => (
               <div ref={ref} style={{ ...style, zIndex: 1 }} data-placement={placement}>
@@ -360,10 +377,12 @@ class TransactionExportPage extends Component {
                   onRequestClose={this.closeConfirmationModal}
                   onOk={this.onClickExport(fetch, true)}
                 >
-                  <div style={{ marginBottom: '15px', padding: '15px' }}>
-                    Leaving the fields empty will{' '}
-                    <span style={{ color: 'red' }}>export all transactions</span>
-                  </div>
+                  <AlertEmptyTextContainer>
+                    <div>
+                      Leaving the date fields empty will generate an export for <span>all the transactions</span> since the beginning of time.
+                    </div>
+                    <div>Do you want to proceed?</div>
+                  </AlertEmptyTextContainer>
                 </ConfirmationModal>
               </div>
             )
