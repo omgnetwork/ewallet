@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
+defmodule AdminAPI.V1.RoleControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Membership, Role, Repo}
   alias ActivityLogger.System
   alias Utils.Helpers.DateFormatter
 
   describe "/role.all" do
-    test "returns a list of roles and pagination data" do
-      response = provider_request("/role.all")
+    test_with_auths "returns a list of roles and pagination data" do
+      response = request("/role.all")
 
       # Asserts return data
       assert response["success"]
@@ -35,7 +35,7 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of roles according to search_term, sort_by and sort_direction" do
+    test_with_auths "returns a list of roles according to search_term, sort_by and sort_direction" do
       insert(:role, %{name: "matched_2"})
       insert(:role, %{name: "matched_3"})
       insert(:role, %{name: "matched_1"})
@@ -48,7 +48,7 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = provider_request("/role.all", attrs)
+      response = request("/role.all", attrs)
       roles = response["data"]["data"]
 
       assert response["success"]
@@ -58,25 +58,25 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
       assert Enum.at(roles, 2)["name"] == "matched_1"
     end
 
-    test_supports_match_any("/role.all", :provider_auth, :role, :name)
-    test_supports_match_all("/role.all", :provider_auth, :role, :name)
+    test_supports_match_any("/role.all", :role, :name)
+    test_supports_match_all("/role.all", :role, :name)
   end
 
   describe "/role.get" do
-    test "returns an role by the given role's ID" do
+    test_with_auths "returns an role by the given role's ID" do
       roles = insert_list(3, :role)
 
       # Pick the 2nd inserted role
       target = Enum.at(roles, 1)
-      response = provider_request("/role.get", %{"id" => target.id})
+      response = request("/role.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "role"
       assert response["data"]["name"] == target.name
     end
 
-    test "returns 'role:id_not_found' if the given ID was not found" do
-      response = provider_request("/role.get", %{"id" => "rol_12345678901234567890123456"})
+    test_with_auths "returns 'role:id_not_found' if the given ID was not found" do
+      response = request("/role.get", %{"id" => "rol_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -86,8 +86,8 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
                "There is no role corresponding to the provided id."
     end
 
-    test "returns 'role:id_not_found' if the given ID format is invalid" do
-      response = provider_request("/role.get", %{"id" => "not_an_id"})
+    test_with_auths "returns 'role:id_not_found' if the given ID format is invalid" do
+      response = request("/role.get", %{"id" => "not_an_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -99,25 +99,53 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
   end
 
   describe "/role.create" do
-    test "creates a new role and returns it" do
+    test_with_auths "creates a new role and returns it" do
       request_data = %{name: "test_role"}
-      response = provider_request("/role.create", request_data)
+      response = request("/role.create", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "role"
       assert response["data"]["name"] == request_data.name
     end
 
-    test "returns an error if the role name is not provided" do
+    test_with_auths "returns an error if the role name is not provided" do
       request_data = %{name: ""}
-      response = provider_request("/role.create", request_data)
+      response = request("/role.create", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
     end
 
-    test "generates an activity log" do
+    defp assert_create_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: originator,
+        target: target,
+        changes: %{"name" => target.name, "priority" => target.priority},
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
+      timestamp = DateTime.utc_now()
+      request_data = %{name: "test_role"}
+      response = admin_user_request("/role.create", request_data)
+
+      assert response["success"] == true
+
+      role = Role.get(response["data"]["id"])
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_logs(get_test_admin(), role)
+    end
+
+    test "generates an activity log for a provider request" do
       timestamp = DateTime.utc_now()
       request_data = %{name: "test_role"}
       response = provider_request("/role.create", request_data)
@@ -125,23 +153,15 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
       assert response["success"] == true
 
       role = Role.get(response["data"]["id"])
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "insert",
-        originator: get_test_key(),
-        target: role,
-        changes: %{"name" => "test_role", "priority" => role.priority},
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_logs(get_test_key(), role)
     end
   end
 
   describe "/role.update" do
-    test "updates the given role" do
+    test_with_auths "updates the given role" do
       role = insert(:role)
 
       # Prepare the update data while keeping only id the same
@@ -152,7 +172,7 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
           display_name: "updated_display_name"
         })
 
-      response = provider_request("/role.update", request_data)
+      response = request("/role.update", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "role"
@@ -160,9 +180,9 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
       assert response["data"]["display_name"] == "updated_display_name"
     end
 
-    test "returns a 'client:invalid_parameter' error if id is not provided" do
+    test_with_auths "returns a 'client:invalid_parameter' error if id is not provided" do
       request_data = params_for(:role, %{id: nil})
-      response = provider_request("/role.update", request_data)
+      response = request("/role.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -170,9 +190,9 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided."
     end
 
-    test "returns an 'unauthorized' error if id is invalid" do
+    test_with_auths "returns an 'unauthorized' error if id is invalid" do
       request_data = params_for(:role, %{id: "invalid_format"})
-      response = provider_request("/role.update", request_data)
+      response = request("/role.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -182,7 +202,47 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
                "There is no role corresponding to the provided id."
     end
 
-    test "generates an activity log" do
+    defp assert_update_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{
+          "name" => target.name,
+          "priority" => target.priority,
+          "display_name" => target.display_name
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
+      timestamp = DateTime.utc_now()
+      role = insert(:role)
+
+      request_data =
+        params_for(:role, %{
+          id: role.id,
+          name: "updated_name",
+          display_name: "updated_display_name"
+        })
+
+      response = admin_user_request("/role.update", request_data)
+
+      assert response["success"] == true
+
+      role = Role.get(response["data"]["id"])
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_update_logs(get_test_admin(), role)
+    end
+
+    test "generates an activity log for a provider request" do
       timestamp = DateTime.utc_now()
       role = insert(:role)
 
@@ -198,36 +258,24 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
       assert response["success"] == true
 
       role = Role.get(response["data"]["id"])
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_key(),
-        target: role,
-        changes: %{
-          "priority" => role.priority,
-          "name" => "updated_name",
-          "display_name" => "updated_display_name"
-        },
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_update_logs(get_test_key(), role)
     end
   end
 
   describe "/role.delete" do
-    test "responds success with the deleted role" do
+    test_with_auths "responds success with the deleted role" do
       role = insert(:role)
-      response = provider_request("/role.delete", %{id: role.id})
+      response = request("/role.delete", %{id: role.id})
 
       assert response["success"] == true
       assert response["data"]["object"] == "role"
       assert response["data"]["id"] == role.id
     end
 
-    test "responds with an error if the role has one or more associated users" do
+    test_with_auths "responds with an error if the role has one or more associated users" do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "test_role_not_empty")
@@ -236,7 +284,7 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
       users = role.id |> Role.get(preload: :users) |> Map.get(:users)
       assert Enum.count(users) > 0
 
-      response = admin_user_request("/role.delete", %{id: role.id})
+      response = request("/role.delete", %{id: role.id})
 
       assert response ==
                %{
@@ -251,8 +299,8 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
                }
     end
 
-    test "responds with an error if the provided id is not found" do
-      response = provider_request("/role.delete", %{id: "wrong_id"})
+    test_with_auths "responds with an error if the provided id is not found" do
+      response = request("/role.delete", %{id: "wrong_id"})
 
       assert response ==
                %{
@@ -267,13 +315,21 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
                }
     end
 
-    test "responds with an error if the user is not authorized to delete the role" do
+    test_with_auths "responds with an error if the user is not authorized to delete the role" do
       role = insert(:role)
+      auth_token = insert(:auth_token, owner_app: "admin_api")
       key = insert(:key)
 
       attrs = %{id: role.id}
-      opts = [access_key: key.access_key, secret_key: key.secret_key]
-      response = provider_request("/role.delete", attrs, opts)
+
+      opts = [
+        user_id: auth_token.user.id,
+        auth_token: auth_token.token,
+        access_key: key.access_key,
+        secret_key: key.secret_key
+      ]
+
+      response = request("/role.delete", attrs, opts)
 
       assert response ==
                %{
@@ -288,7 +344,36 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
                }
     end
 
-    test "generates an activity log" do
+    defp assert_delete_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{"deleted_at" => DateFormatter.to_iso8601(target.deleted_at)},
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
+      role = insert(:role)
+
+      timestamp = DateTime.utc_now()
+      response = admin_user_request("/role.delete", %{id: role.id})
+
+      assert response["success"] == true
+
+      role = Repo.get_by(Role, %{id: role.id})
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_delete_logs(get_test_admin(), role)
+    end
+
+    test "generates an activity log for a provider request" do
       role = insert(:role)
 
       timestamp = DateTime.utc_now()
@@ -297,20 +382,10 @@ defmodule AdminAPI.V1.ProviderAuth.RoleControllerTest do
       assert response["success"] == true
 
       role = Repo.get_by(Role, %{id: role.id})
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_key(),
-        target: role,
-        changes: %{
-          "deleted_at" => DateFormatter.to_iso8601(role.deleted_at)
-        },
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_delete_logs(get_test_key(), role)
     end
   end
 end
