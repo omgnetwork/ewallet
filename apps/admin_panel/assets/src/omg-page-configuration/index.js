@@ -153,7 +153,7 @@ class ConfigurationPage extends Component {
   }
   isAddPrefixButtonDisabled () {
     const lastDynamicInputPrefix = _.last(this.state.redirectUrlPrefixes)
-    return lastDynamicInputPrefix.length <= 0
+    return lastDynamicInputPrefix && lastDynamicInputPrefix.length <= 0
   }
   onSelectEmailAdapter = option => {
     this.setState({ emailAdapter: option.value })
@@ -205,30 +205,44 @@ class ConfigurationPage extends Component {
   onClickSaveConfiguration = async e => {
     try {
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.PENDING })
-      const result = await this.props.updateConfiguration(this.state)
+      const omittedUnchange = _.omitBy(this.state, (value, key) => {
+        const configObject = this.props.configurations[_.snakeCase(key)]
+        const stateValue = this.state[key]
+        if (configObject) {
+          return _.isEqual(configObject.value, stateValue)
+        }
+        return true
+      })
+
+      const result = await this.props.updateConfiguration(omittedUnchange)
       if (result.data) {
-        this.setState({
-          submitStatus: CONSTANT.LOADING_STATUS.SUCCESS,
-          baseUrl: _.get(result.data.data, 'base_url.value'),
-          redirectUrlPrefixes: _.get(result.data.data, 'redirect_url_prefixes.value'),
-          enableStandalone: _.get(result.data.data, 'enable_standalone.value'),
-          maxPerPage: _.get(result.data.data, 'max_per_page.value'),
-          minPasswordLength: _.get(result.data.data, 'min_password_length.value'),
-          senderEmail: _.get(result.data.data, 'sender_email.value'),
-          emailAdapter: _.get(result.data.data, 'email_adapter.value'),
-          smtpHost: _.get(result.data.data, 'smtp_host.value'),
-          smtpPort: _.get(result.data.data, 'smtp_port.value'),
-          smtpUsername: _.get(result.data.data, 'smtp_username.value'),
-          smtpPassword: _.get(result.data.data, 'smtp_password.value'),
-          fileStorageAdapter: _.get(result.data.data, 'file_storage_adapter.value'),
-          gcsBucket: _.get(result.data.data, 'gcs_bucket.value'),
-          gcsCredentials: _.get(result.data.data, 'gcs_credentials.value'),
-          awsBucket: _.get(result.data.data, 'aws_bucket.value'),
-          awsRegion: _.get(result.data.data, 'aws_region.value'),
-          awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value'),
-          awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value'),
-          balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value')
-        })
+        const updatedState = _.omitBy(
+          {
+            submitStatus: CONSTANT.LOADING_STATUS.SUCCESS,
+            baseUrl: _.get(result.data.data, 'base_url.value'),
+            redirectUrlPrefixes: _.get(result.data.data, 'redirect_url_prefixes.value'),
+            enableStandalone: _.get(result.data.data, 'enable_standalone.value'),
+            maxPerPage: _.get(result.data.data, 'max_per_page.value'),
+            minPasswordLength: _.get(result.data.data, 'min_password_length.value'),
+            senderEmail: _.get(result.data.data, 'sender_email.value'),
+            emailAdapter: _.get(result.data.data, 'email_adapter.value'),
+            smtpHost: _.get(result.data.data, 'smtp_host.value'),
+            smtpPort: _.get(result.data.data, 'smtp_port.value'),
+            smtpUsername: _.get(result.data.data, 'smtp_username.value'),
+            smtpPassword: _.get(result.data.data, 'smtp_password.value'),
+            fileStorageAdapter: _.get(result.data.data, 'file_storage_adapter.value'),
+            gcsBucket: _.get(result.data.data, 'gcs_bucket.value'),
+            gcsCredentials: _.get(result.data.data, 'gcs_credentials.value'),
+            awsBucket: _.get(result.data.data, 'aws_bucket.value'),
+            awsRegion: _.get(result.data.data, 'aws_region.value'),
+            awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value'),
+            awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value'),
+            balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value')
+          },
+          _.isNil
+        )
+        this.setState(updatedState)
+
         setTimeout(() => {
           window.location.reload()
         }, 1500)
@@ -506,6 +520,7 @@ class ConfigurationPage extends Component {
     )
   }
   renderConfigurationPage = ({ data: configurations }) => {
+    console.log(this.state)
     return (
       <ConfigurationPageContainer>
         <TopNavigation
