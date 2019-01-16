@@ -20,7 +20,7 @@ describe('configurationService', () => {
   }).then(() => {
     expect(apiService.authenticatedRequest).toBeCalledWith({
       path: '/configuration.update',
-      data: { base_url: 'url', smtp_username: '', redirect_url_prefixes: [] }
+      data: { baseUrl: 'url' }
     })
   })
 })
