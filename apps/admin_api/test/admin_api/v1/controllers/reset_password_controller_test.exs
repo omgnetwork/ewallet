@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
+defmodule AdminAPI.V1.ResetPasswordControllerTest do
   use AdminAPI.ConnCase, async: true
   use Bamboo.Test
   alias EWallet.ForgetPasswordEmail
