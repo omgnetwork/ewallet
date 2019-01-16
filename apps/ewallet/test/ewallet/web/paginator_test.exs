@@ -101,8 +101,8 @@ defmodule EWallet.Web.PaginatorTest do
   end
 
   describe "EWallet.Web.Paginator.paginate/3" do
-    test "returns a EWallet.Web.Paginator with data and pagination attributes" do
-      paginator = Paginator.paginate(Account, 1, 10)
+    test "returns a EWallet.Web.Paginator with data and pagination attributes when query with page" do
+      paginator = Paginator.paginate(Account, %{"page" => 1, "per_page" => 10})
 
       assert %Paginator{} = paginator
       assert Map.has_key?(paginator, :data)
@@ -110,13 +110,22 @@ defmodule EWallet.Web.PaginatorTest do
       assert is_list(paginator.data)
     end
 
-    test "returns correct pagination data" do
+    test "returns a EWallet.Web.Paginator with data and pagination attributes when query with page_record_id" do
+      paginator = Paginator.paginate(Account, %{"page_record_id" => "1234", "per_page" => 10})
+
+      assert %Paginator{} = paginator
+      assert Map.has_key?(paginator, :data)
+      assert Map.has_key?(paginator, :pagination)
+      assert is_list(paginator.data)
+    end
+
+    test "returns correct pagination data when query by given page" do
       total = 10
       page = 2
       per_page = 3
 
       ensure_num_records(Account, total)
-      paginator = Paginator.paginate(Account, page, per_page)
+      paginator = Paginator.paginate(Account, %{"page" => page, "per_page" => per_page})
 
       # Assertions for paginator.pagination
       assert paginator.pagination == %{
@@ -129,13 +138,42 @@ defmodule EWallet.Web.PaginatorTest do
                count: 3
              }
     end
+
+    test "returns correct pagination data when query by given page_record_id" do
+      total = 10
+      per_page = 10
+      number_of_last_elements = 5 # get last 5 accounts
+      ensure_num_records(Account, total)
+
+      records_id =
+      from(a in Account, select: a.id, order_by: a.id)
+      |> Repo.all()
+      |> Enum.take(-number_of_last_elements)
+
+      start_page_record_id = Enum.at(records_id, 0)
+      paginator = Paginator.paginate(Account, %{"page_record_id" => start_page_record_id, "per_page" => per_page})
+
+      actual_records_id = paginator.data
+      |> Enum.map(fn (%EWalletDB.Account{id: id}) -> id end)
+
+      assert actual_records_id == records_id
+
+      # Assertions for paginator.pagination
+      assert paginator.pagination == %{
+               per_page: per_page,
+               current_page: 1,
+               is_first_page: true,
+               is_last_page: true,
+               count: number_of_last_elements
+             }
+    end
   end
 
   describe "EWallet.Web.Paginator.fetch/3" do
     test "returns a tuple of records and has_more flag" do
       ensure_num_records(Account, 10)
 
-      {records, has_more} = Paginator.fetch(Account, 2, 5)
+      {records, has_more} = Paginator.fetch(Account,  %{"page" => 2, "per_page" => 5})
       assert is_list(records)
       assert is_boolean(has_more)
     end
@@ -152,15 +190,15 @@ defmodule EWallet.Web.PaginatorTest do
       all_ids = Repo.all(query)
 
       # Page 1
-      {records, _} = Paginator.fetch(query, 1, per_page)
+      {records, _} = Paginator.fetch(query,  %{"page" => 1, "per_page" => per_page})
       assert records == Enum.slice(all_ids, 0..3)
 
       # Page 2
-      {records, _} = Paginator.fetch(query, 2, per_page)
+      {records, _} = Paginator.fetch(query,  %{"page" => 2, "per_page" => per_page})
       assert records == Enum.slice(all_ids, 4..7)
 
       # Page 3
-      {records, _} = Paginator.fetch(query, 3, per_page)
+      {records, _} = Paginator.fetch(query,  %{"page" => 3, "per_page" => per_page})
       assert records == Enum.slice(all_ids, 8..9)
     end
 
@@ -168,7 +206,7 @@ defmodule EWallet.Web.PaginatorTest do
       ensure_num_records(Account, 10)
 
       # Request page 2 out of div(10, 4) = 3
-      result = Paginator.fetch(Account, 2, 4)
+      result = Paginator.fetch(Account,  %{"page" => 2, "per_page" => 4})
       assert {_, true} = result
     end
 
@@ -176,7 +214,7 @@ defmodule EWallet.Web.PaginatorTest do
       ensure_num_records(Account, 9)
 
       # Request page 2 out of div(10, 4) = 3
-      result = Paginator.fetch(Account, 3, 3)
+      result = Paginator.fetch(Account,  %{"page" => 3, "per_page" => 3})
       assert {_, false} = result
     end
   end

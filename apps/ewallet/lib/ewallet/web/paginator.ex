@@ -49,6 +49,11 @@ defmodule EWallet.Web.Paginator do
     parse_string_param(queryable, attrs, "page", page, repo)
   end
 
+  def paginate_attrs(queryable, %{"page_record_id" => page_record_id} = attrs, repo) when is_bitstring(page_record_id) do
+    per_page = get_per_page(attrs)
+    paginate(queryable, %{"page_record_id" => page_record_id, "per_page" => per_page} = attrs, repo)
+  end
+
   def paginate_attrs(_, %{"page" => page}, _repo) when is_integer(page) and page < 0 do
     {:error, :invalid_parameter, "`page` must be non-negative integer"}
   end
@@ -67,7 +72,7 @@ defmodule EWallet.Web.Paginator do
     page = Map.get(attrs, "page", 1)
     per_page = get_per_page(attrs)
 
-    paginate(queryable, page, per_page, repo)
+    paginate(queryable, %{"page" => page, "per_page" => per_page}, repo)
   end
 
   # Try to parse the given string pagination parameter.
@@ -100,12 +105,33 @@ defmodule EWallet.Web.Paginator do
     end
   end
 
+  # @doc """
+  # Paginate a query using the given `page_record_id` and `per_page` and returns a paginator.
+  # """
+  def paginate(queryable, %{"page_record_id" => page_record_id, "per_page" => per_page}, repo) do
+    if repo == nil, do: repo = Repo
+
+    {records, more_page} = queryable
+    |> where([q], q.id >= ^page_record_id)
+    |> fetch(%{"page_record_id" => page_record_id, "page" => 0, "per_page" => per_page}, repo)
+
+    pagination = %{
+      per_page: per_page,
+      current_page: 1,
+      is_first_page: true,
+      # It's the last page if there are no more records
+      is_last_page: !more_page,
+      count: length(records)
+    }
+
+    %__MODULE__{data: records, pagination: pagination}
+  end
+
   @doc """
   Paginate a query using the given `page` and `per_page` and returns a paginator.
   """
-  def paginate(queryable, page, per_page, repo \\ Repo) do
-    {records, more_page} = fetch(queryable, page, per_page, repo)
-
+  def paginate(queryable, %{"page" => page, "per_page" => per_page}, repo \\ Repo) do
+    {records, more_page} = fetch(queryable, %{"page" => page, "per_page" => per_page}, repo)
     pagination = %{
       per_page: per_page,
       current_page: page,
@@ -122,19 +148,15 @@ defmodule EWallet.Web.Paginator do
   Paginate a query by explicitly specifying `page` and `per_page`
   and returns a tuple of records and a flag whether there are more pages.
   """
-  def fetch(queryable, page, per_page, repo \\ Repo) do
-    offset =
-      case page do
-        n when n > 0 -> (page - 1) * per_page
-        _ -> 0
-      end
+  def fetch(queryable, attrs, repo \\ Repo) do
+    %{"page" => page, "per_page" => per_page} = attrs
 
     # + 1 to see if it is the last page yet
     limit = per_page + 1
 
     records =
       queryable
-      |> offset(^offset)
+      |> get_query_offset(attrs)
       |> limit(^limit)
       |> repo.all()
 
@@ -142,9 +164,21 @@ defmodule EWallet.Web.Paginator do
     case Enum.count(records) do
       n when n > per_page ->
         {List.delete_at(records, -1), true}
-
       _ ->
         {records, false}
     end
   end
+
+  defp get_query_offset(queryable, %{"page" => page, "per_page" => per_page}) do
+    offset = case page do
+      n when n > 0 -> (page - 1) * per_page
+      _ -> 0
+    end
+
+    queryable
+    |> offset(^offset)
+  end
+
+  defp get_query_offset(queryable, %{"page_record_id" => _page_record_id}),
+    do: queryable
 end
