@@ -60,10 +60,11 @@ defmodule EWalletConfig.Storage.Local do
     url |> URI.encode()
   end
 
-  def delete(definition, version, file_and_scope) do
-    definition
-    |> build_local_path(version, file_and_scope)
-    |> File.rm()
+  def delete(definition, version, {file, scope}) do
+    destination_dir = definition.storage_dir(version, {file, scope})
+    path = get_path(destination_dir, file.file_name)
+
+    File.rm(path)
   end
 
   defp build_local_path(definition, version, file_and_scope) do

@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.Web.SortParserTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
+  import Ecto.Query
   import EWalletDB.Factory
   alias EWallet.Web.SortParser
   alias EWalletDB.{Account, Repo}
@@ -27,11 +28,14 @@ defmodule EWallet.Web.SortParserTest do
   describe "EWallet.Web.SortParser.to_query/4" do
     test "can sort a field by ascending order" do
       prepare_test_accounts()
+      master_account = Account.get_master_account()
 
       attrs = %{"sort_by" => "name", "sort_dir" => "asc"}
 
+      # Exclude master account before retrieval, it was inserted globally
       sorted =
         Account
+        |> where([a], a.uuid != ^master_account.uuid)
         |> SortParser.to_query(attrs, [:name])
         |> Repo.all()
 
@@ -42,11 +46,14 @@ defmodule EWallet.Web.SortParserTest do
 
     test "can sort a field by descending order" do
       prepare_test_accounts()
+      master_account = Account.get_master_account()
 
       attrs = %{"sort_by" => "description", "sort_dir" => "desc"}
 
+      # Exclude master account before retrieval, it was inserted globally
       sorted =
         Account
+        |> where([a], a.uuid != ^master_account.uuid)
         |> SortParser.to_query(attrs, [:description])
         |> Repo.all()
 
@@ -57,12 +64,15 @@ defmodule EWallet.Web.SortParserTest do
 
     test "maps the given `sort_by` with `mapped_fields` before sorting" do
       prepare_test_accounts()
+      master_account = Account.get_master_account()
 
       mapped_fields = %{"some_description_field" => "description"}
       attrs = %{"sort_by" => "some_description_field", "sort_dir" => "desc"}
 
+      # Exclude master account which was inserted globally
       sorted =
         Account
+        |> where([a], a.uuid != ^master_account.uuid)
         |> SortParser.to_query(attrs, [:description], mapped_fields)
         |> Repo.all()
 

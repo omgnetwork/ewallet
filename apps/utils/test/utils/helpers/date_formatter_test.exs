@@ -13,8 +13,8 @@
 # limitations under the License.
 
 defmodule Utils.Helpers.DateFormatterTest do
-  use ExUnit.Case
-  alias EWallet.Errors.InvalidDateFormatError
+  use ExUnit.Case, async: true
+  alias Utils.Errors.InvalidDateFormatError
   alias Utils.Helpers.DateFormatter
 
   describe "to_iso8601/1" do

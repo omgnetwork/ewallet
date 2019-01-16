@@ -38,6 +38,20 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
              end)
     end
 
+    test "responds with a list of keys excluding the soft-deleted ones" do
+      originator = insert(:user)
+      [key1, key2, key3] = ensure_num_records(Key, 3)
+      {:ok, _} = Key.delete(key2, originator)
+
+      response = provider_request("/access_key.all")
+      keys = response["data"]["data"]
+
+      assert Enum.count(keys) == 2
+      assert Enum.any?(keys, fn a -> a["id"] == key1.id end)
+      refute Enum.any?(keys, fn a -> a["id"] == key2.id end)
+      assert Enum.any?(keys, fn a -> a["id"] == key3.id end)
+    end
+
     test_supports_match_any("/access_key.all", :provider_auth, :key, :access_key)
     test_supports_match_all("/access_key.all", :provider_auth, :key, :access_key)
   end

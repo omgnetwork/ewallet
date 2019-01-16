@@ -13,8 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.BalanceFetcherTest do
-  use EWallet.LocalLedgerCase, async: true
-  alias Ecto.Adapters.SQL.Sandbox
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.BalanceFetcher
   alias EWalletDB.{Account, Token, User}
 
@@ -42,7 +42,7 @@ defmodule EWallet.BalanceFetcherTest do
   end
 
   describe "all/1" do
-    test "retrieve all wallets from a user_id", context do
+    test "retrieve all balances from a user_id", context do
       transfer!(
         context.master_wallet.address,
         context.user_wallet.address,
@@ -76,7 +76,7 @@ defmodule EWallet.BalanceFetcherTest do
       assert Enum.count(wallet.balances) == 3
     end
 
-    test "retrieve all wallets from a provider_user_id", context do
+    test "retrieve all balances from a provider_user_id", context do
       transfer!(
         context.master_wallet.address,
         context.user_wallet.address,
@@ -110,10 +110,107 @@ defmodule EWallet.BalanceFetcherTest do
       assert Enum.member?(wallet.balances, %{token: context.knc, amount: 0})
       assert Enum.count(wallet.balances) == 3
     end
+
+    test "retrieve all balances for a list of wallets", context do
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.btc,
+        150_000 * context.btc.subunit_to_unit
+      )
+
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.omg,
+        12_000 * context.omg.subunit_to_unit
+      )
+
+      {status, wallets} =
+        BalanceFetcher.all(%{
+          "wallets" => [
+            context.user_wallet,
+            context.master_wallet
+          ]
+        })
+
+      assert status == :ok
+
+      wallet_1 = Enum.at(wallets, 0)
+      wallet_2 = Enum.at(wallets, 1)
+
+      assert wallet_1.address == context.user_wallet.address
+
+      assert Enum.member?(wallet_1.balances, %{
+               token: context.btc,
+               amount: 150_000 * context.btc.subunit_to_unit
+             })
+
+      assert Enum.member?(wallet_1.balances, %{
+               token: context.omg,
+               amount: 12_000 * context.omg.subunit_to_unit
+             })
+
+      assert Enum.member?(wallet_1.balances, %{token: context.knc, amount: 0})
+      assert Enum.count(wallet_1.balances) == 3
+
+      assert wallet_2.address == context.master_wallet.address
+
+      assert Enum.member?(wallet_2.balances, %{
+               token: context.btc,
+               amount: 850_000 * context.btc.subunit_to_unit
+             })
+
+      assert Enum.member?(wallet_2.balances, %{
+               token: context.omg,
+               amount: 988_000 * context.omg.subunit_to_unit
+             })
+
+      assert Enum.member?(wallet_2.balances, %{
+               token: context.knc,
+               amount: 1_000_000 * context.knc.subunit_to_unit
+             })
+
+      assert Enum.count(wallet_2.balances) == 3
+    end
+
+    test "retrieve all balances for a wallet", context do
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.btc,
+        150_000 * context.btc.subunit_to_unit
+      )
+
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.omg,
+        12_000 * context.omg.subunit_to_unit
+      )
+
+      {status, wallet} = BalanceFetcher.all(%{"wallet" => context.user_wallet})
+
+      assert status == :ok
+      assert wallet.address == context.user_wallet.address
+
+      assert Enum.member?(wallet.balances, %{
+               token: context.btc,
+               amount: 150_000 * context.btc.subunit_to_unit
+             })
+
+      assert Enum.member?(wallet.balances, %{
+               token: context.omg,
+               amount: 12_000 * context.btc.subunit_to_unit
+             })
+
+      assert Enum.member?(wallet.balances, %{token: context.knc, amount: 0})
+      assert Enum.count(wallet.balances) == 3
+    end
   end
 
   describe "get/2" do
-    test "retrieve the specific wallet from a token and an address", context do
+    test "retrieve a specific balance from a token and an address", context do
       transfer!(
         context.master_wallet.address,
         context.user_wallet.address,

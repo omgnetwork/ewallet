@@ -15,10 +15,19 @@
 defmodule EWalletDB.MembershipChecker do
   @moduledoc """
   Module responsible for checking if a user can be added to an account.
-  Tested through Membership.assign/3 function since it's only used there for now.
   """
   alias EWalletDB.{Account, Membership}
 
+  @doc """
+  Checks whether the given originator can add the user to the given account.
+
+  Note that this function **does not check for the permission** to add a membership.
+  Its purpose is to inform whether there is a conflicting membership with the given
+  arguments or not.
+
+  Returns `true` if the user can be added to the account
+  without a conflicting existing membership.
+  """
   def allowed?(user, account, role, originator) do
     memberships = Membership.all_by_user(user, [:role, :account])
     membership_accounts_uuids = load_uuids(memberships, :account_uuid)
@@ -94,9 +103,9 @@ defmodule EWalletDB.MembershipChecker do
 
   defp init_descendants_search_or_return(allowed?, _, _, _, _, _, _), do: allowed?
 
-  def search_descendants([]), do: true
+  defp search_descendants([], _, _, _, _), do: true
 
-  def search_descendants(uuids_intersect, user, role, memberships, originator) do
+  defp search_descendants(uuids_intersect, user, role, memberships, originator) do
     Enum.each(uuids_intersect, fn matching_descendant_uuid ->
       membership =
         Enum.find(memberships, fn membership ->

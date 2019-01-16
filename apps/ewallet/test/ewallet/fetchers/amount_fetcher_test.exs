@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.AmountFetcherTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.AmountFetcher
 
   describe "fetch/3 with amount" do

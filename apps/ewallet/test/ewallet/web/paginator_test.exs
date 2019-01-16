@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.Web.PaginatorTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
   import Ecto.Query
   alias EWallet.Web.Paginator
   alias EWalletConfig.Config

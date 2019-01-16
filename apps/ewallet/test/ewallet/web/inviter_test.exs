@@ -13,11 +13,12 @@
 # limitations under the License.
 
 defmodule EWallet.Web.InviterTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   use Bamboo.Test
+  alias ActivityLogger.System
   alias EWallet.Web.{Inviter, MockInviteEmail, Preloader}
   alias EWalletDB.{Account, Invite, Membership, User}
-  alias ActivityLogger.System
 
   @user_redirect_url "http://localhost:4000/some_redirect_url?email={email}&token={token}"
   @user_success_url "http://localhost:4000/some_success_url"
@@ -25,8 +26,6 @@ defmodule EWallet.Web.InviterTest do
 
   describe "invite_user/5" do
     test "sends email and returns the invite if successful" do
-      {:ok, _account} = :account |> params_for(parent: nil) |> Account.insert()
-
       {res, invite} =
         Inviter.invite_user(
           "test@example.com",
@@ -41,8 +40,6 @@ defmodule EWallet.Web.InviterTest do
     end
 
     test "links the user with master account" do
-      {:ok, _account} = :account |> params_for(parent: nil) |> Account.insert()
-
       {:ok, invite} =
         Inviter.invite_user(
           "test@example.com",
@@ -58,7 +55,6 @@ defmodule EWallet.Web.InviterTest do
     end
 
     test "resends the verification email if the user has not verified their email" do
-      {:ok, _account} = :account |> params_for(parent: nil) |> Account.insert()
       invite = insert(:invite)
       {:ok, user} = :standalone_user |> params_for(invite: invite) |> User.insert()
 

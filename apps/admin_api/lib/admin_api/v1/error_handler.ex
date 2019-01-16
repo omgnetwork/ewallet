@@ -18,6 +18,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   """
   import Phoenix.Controller, only: [json: 2]
   import Plug.Conn, only: [halt: 1]
+  alias Ecto.Changeset
   alias EWallet.Web.V1.ErrorHandler, as: EWalletErrorHandler
   alias EWallet.Web.V1.ResponseSerializer
 
@@ -133,6 +134,10 @@ defmodule AdminAPI.V1.ErrorHandler do
     code
     |> EWalletErrorHandler.build_error(attrs, errors())
     |> respond(conn)
+  end
+
+  def handle_error(conn, %Changeset{} = changeset) do
+    handle_error(conn, :invalid_parameter, changeset)
   end
 
   def handle_error(conn, code) do

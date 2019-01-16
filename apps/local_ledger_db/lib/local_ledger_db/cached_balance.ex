@@ -48,6 +48,17 @@ defmodule LocalLedgerDB.CachedBalance do
   end
 
   @doc """
+  Retrieve a list of cached balances using the specified addresses.
+  """
+  def all(addresses) do
+    CachedBalance
+    |> distinct([c], c.wallet_address)
+    |> where([c], c.wallet_address in ^addresses)
+    |> order_by([c], desc: c.wallet_address, desc: c.computed_at)
+    |> Repo.all()
+  end
+
+  @doc """
   Retrieve a cached balance using the specified address.
   """
   def get(address) do

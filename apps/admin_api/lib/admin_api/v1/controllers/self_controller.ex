@@ -19,7 +19,7 @@ defmodule AdminAPI.V1.SelfController do
   alias AdminAPI.V1.{AccountHelper, AccountView, UserView}
   alias Bamboo.Email
   alias Ecto.Changeset
-  alias EWallet.{Mailer, UpdateEmailGate}
+  alias EWallet.{Mailer, UpdateEmailGate, AdapterHelper}
   alias EWallet.Web.{Orchestrator, Originator, UrlValidator}
   alias EWallet.Web.V1.AccountOverlay
   alias EWalletDB.{Account, User}
@@ -126,6 +126,7 @@ defmodule AdminAPI.V1.SelfController do
   def upload_avatar(conn, %{"avatar" => _} = attrs) do
     with {:ok, current_user} <- permit(:update, conn.assigns),
          originator <- Originator.extract(conn.assigns),
+         :ok <- AdapterHelper.check_adapter_status(),
          attrs <- Map.put(attrs, "originator", originator) do
       current_user
       |> User.store_avatar(attrs)

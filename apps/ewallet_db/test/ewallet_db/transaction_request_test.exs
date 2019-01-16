@@ -13,9 +13,10 @@
 # limitations under the License.
 
 defmodule EWalletDB.TransactionRequestTest do
-  use EWalletDB.SchemaCase
-  alias EWalletDB.TransactionRequest
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias ActivityLogger.System
+  alias EWalletDB.TransactionRequest
 
   describe "TransactionRequest factory" do
     test_has_valid_factory(TransactionRequest)

@@ -107,6 +107,8 @@ defmodule EWalletConfig.Config do
   end
 
   defp reload_registered_apps(registered_apps) do
+    GenServer.call(EWalletConfig.FileStorageSupervisor, :stop_goth)
+
     Enum.each(registered_apps, fn {app, settings} ->
       SettingLoader.load_settings(app, settings)
     end)
@@ -118,7 +120,9 @@ defmodule EWalletConfig.Config do
     end)
   end
 
-  @spec update(map(), atom()) :: [{:ok, %Setting{}} | {:error, atom()}]
+  @spec update(map(), atom()) :: [
+          {:ok, %Setting{}} | {:error, Ecto.Changeset.t()} | {:error, atom()}
+        ]
   def update(attrs, pid \\ __MODULE__) do
     {config_pid, attrs} = get_config_pid(attrs)
 

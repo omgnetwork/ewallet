@@ -13,8 +13,9 @@
 # limitations under the License.
 
 defmodule EWalletDB.UpdateEmailRequestTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
   import Ecto.Query
+  import EWalletDB.Factory
   alias EWalletDB.{Repo, UpdateEmailRequest}
 
   defp get_request_by_uuid(uuid) do
@@ -111,12 +112,27 @@ defmodule EWalletDB.UpdateEmailRequestTest do
       user = insert(:admin)
       new_email = "new.email@example.com"
 
-      request = UpdateEmailRequest.generate(user, new_email)
+      {res, request} = UpdateEmailRequest.generate(user, new_email)
 
+      assert res == :ok
       assert %UpdateEmailRequest{} = request
       assert request.email == new_email
       assert request.user_uuid == user.uuid
       assert String.length(request.token) == 43
+    end
+
+    test "returns an invalid changeset if the email format is invalid" do
+      user = insert(:admin)
+      {res, changeset} = UpdateEmailRequest.generate(user, "not an email")
+
+      assert res == :error
+      refute changeset.valid?
+
+      assert changeset.errors == [
+               email:
+                 {"must be a valid email address format",
+                  [validation: :valid_email_address_format]}
+             ]
     end
   end
 end
