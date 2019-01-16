@@ -18,7 +18,7 @@ defmodule LocalLedgerDB.Factory do
   """
   use ExMachina.Ecto, repo: LocalLedgerDB.Repo
   alias Ecto.UUID
-  alias LocalLedgerDB.{Entry, Token, Transaction, Wallet}
+  alias LocalLedgerDB.{Entry, CachedBalance, Token, Transaction, Wallet}
 
   def token_factory do
     %Token{
@@ -83,6 +83,14 @@ defmodule LocalLedgerDB.Factory do
       token_id: insert(:token).id,
       wallet_address: insert(:wallet).address,
       transaction_uuid: insert(:transaction).uuid
+    }
+  end
+
+  def cached_balance_factory do
+    %CachedBalance{
+      amounts: %{insert(:token).id => 1_000, insert(:token).id => 10_000},
+      computed_at: NaiveDateTime.utc_now(),
+      wallet_address: insert(:wallet).address
     }
   end
 end

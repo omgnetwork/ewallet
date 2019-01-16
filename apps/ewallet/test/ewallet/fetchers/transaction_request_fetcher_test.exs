@@ -13,9 +13,10 @@
 # limitations under the License.
 
 defmodule EWallet.TransactionRequestFetcherTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.{TransactionRequestFetcher, TransactionRequestGate}
-  alias EWalletDB.{TransactionRequest, User}
+  alias EWalletDB.{Account, TransactionRequest, User}
   alias ActivityLogger.System
 
   setup do

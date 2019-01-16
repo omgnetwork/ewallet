@@ -14,6 +14,7 @@
 
 defmodule EWalletDB.ExportTest do
   use EWalletDB.SchemaCase
+  import EWalletDB.Factory
   alias EWalletDB.{Export, Repo}
   alias Ecto.UUID
   alias Utils.Helper.PidHelper

@@ -13,20 +13,20 @@
 # limitations under the License.
 
 defmodule EWalletDB.Uploaders.FileTest do
-  use ExUnit.Case
-  alias Arc.File
+  use ExUnit.Case, async: true
+  alias Arc.File, as: ArcFile
   alias EWalletDB.Uploaders.File
 
   describe "validate/1" do
     test "returns true if the file name ends with .csv" do
-      assert File.validate({%Arc.File{file_name: "some_file.csv"}, nil})
+      assert File.validate({%ArcFile{file_name: "some_file.csv"}, nil})
     end
 
     test "returns false if the file name does not end with .csv" do
-      refute File.validate({%Arc.File{file_name: "some_file.zip"}, nil})
-      refute File.validate({%Arc.File{file_name: "some_file.exe"}, nil})
-      refute File.validate({%Arc.File{file_name: "some_file.txt"}, nil})
-      refute File.validate({%Arc.File{file_name: "some_file.jpg"}, nil})
+      refute File.validate({%ArcFile{file_name: "some_file.zip"}, nil})
+      refute File.validate({%ArcFile{file_name: "some_file.exe"}, nil})
+      refute File.validate({%ArcFile{file_name: "some_file.txt"}, nil})
+      refute File.validate({%ArcFile{file_name: "some_file.jpg"}, nil})
     end
   end
 

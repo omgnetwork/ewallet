@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.TransactionConsumptionSchedulerTest do
-  use EWallet.LocalLedgerCase, async: true
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.{TestEndpoint, TransactionConsumptionScheduler}
   alias EWallet.Web.V1.WebsocketResponseSerializer
   alias EWalletDB.TransactionConsumption

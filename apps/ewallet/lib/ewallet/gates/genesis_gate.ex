@@ -20,6 +20,11 @@ defmodule EWallet.GenesisGate do
   alias EWalletDB.{Account, Mint, Transaction, Wallet}
   alias LocalLedger.Transaction, as: LedgerTransaction
 
+  @doc """
+  Get the genesis transaction by the idempotency_token, or create a new transaction
+  if the idempotency_token could not be found.
+  """
+  @spec create(map()) :: {:ok, %Transaction{}} | {:error, Ecto.Changeset.t()}
   def create(%{
         idempotency_token: idempotency_token,
         account: account,
@@ -44,6 +49,19 @@ defmodule EWallet.GenesisGate do
     })
   end
 
+  @doc """
+  Processes the genesis transaction with the mint.
+
+  If the `transaction`'s status is pending, it inserts a corresponding `LocalLedgerDB.Transaction`,
+  and, on success, returns an `EWalletDB.Transaction` with a confirmed status along with
+  a confirmed `EWalletDB.Mint`.
+
+  If the `transaction`'s status is already confirmed, it returns the transaction untouched, while
+  still attempting to confirm the given `mint`.
+
+  If the `transaction`'s status is already failed, it returns the transaction's error code and
+  error description. It does not attempt to confirm the given `mint`.
+  """
   @spec process_with_transaction(%Transaction{}, %Mint{}) ::
           {:ok, %Mint{}, %Transaction{}} | {:error, atom(), String.t(), %Mint{}}
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.Web.OriginatorTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Web.Originator
   alias EWalletDB.{Account, Key, Repo, User}

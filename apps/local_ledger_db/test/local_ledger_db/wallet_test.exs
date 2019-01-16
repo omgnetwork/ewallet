@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule LocalLedgerDB.WalletTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import LocalLedgerDB.Factory
   alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
@@ -84,7 +84,7 @@ defmodule LocalLedgerDB.WalletTest do
     end
   end
 
-  describe "#touch" do
+  describe "touch/1" do
     test "touches the wallet" do
       {_, inserted_wallet} =
         :wallet
@@ -97,7 +97,7 @@ defmodule LocalLedgerDB.WalletTest do
     end
   end
 
-  describe "#get_or_insert" do
+  describe "get_or_insert/1" do
     test "inserts the wallet when it does not exist yet" do
       wallets = Repo.all(Wallet)
       assert wallets == []
@@ -169,7 +169,22 @@ defmodule LocalLedgerDB.WalletTest do
     end
   end
 
-  describe "#get" do
+  describe "all/1" do
+    test "retrieves all wallets matching the given addresses" do
+      wallet_1 = insert(:wallet, address: "address_1")
+      wallet_2 = insert(:wallet, address: "address_2")
+      _wallet_3 = insert(:wallet, address: "address_3")
+      _wallet_4 = insert(:wallet, address: "address_4")
+
+      wallets = Wallet.all([wallet_1.address, wallet_2.address])
+      addresses = Enum.map(wallets, fn w -> w.address end)
+
+      assert Enum.member?(addresses, wallet_1.address)
+      assert Enum.member?(addresses, wallet_2.address)
+    end
+  end
+
+  describe "get/1" do
     test "returns the existing wallet" do
       {_, inserted_wallet} =
         :wallet
@@ -186,7 +201,7 @@ defmodule LocalLedgerDB.WalletTest do
     end
   end
 
-  describe "#insert" do
+  describe "insert/1" do
     test "inserts a wallet if it does not existing" do
       assert Repo.all(Wallet) == []
       {:ok, wallet} = :wallet |> string_params_for |> Wallet.insert()
@@ -222,7 +237,7 @@ defmodule LocalLedgerDB.WalletTest do
     end
   end
 
-  describe "#lock" do
+  describe "lock/1" do
     test "locks the wallets associated with the given addresses get locked" do
       {_, wallet_1} = :wallet |> build(%{address: "123"}) |> Repo.insert()
       {_, wallet_2} = :wallet |> build(%{address: "345"}) |> Repo.insert()

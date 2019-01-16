@@ -13,8 +13,9 @@
 # limitations under the License.
 
 defmodule EWalletDB.UpdateEmailRequestTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
   import Ecto.Query
+  import EWalletDB.Factory
   alias EWalletDB.{Repo, UpdateEmailRequest}
 
   defp get_request_by_uuid(uuid) do

@@ -13,10 +13,11 @@
 # limitations under the License.
 
 defmodule EWalletDB.KeyTest do
-  use EWalletDB.SchemaCase
-  alias Ecto.UUID
-  alias EWalletDB.Key
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias ActivityLogger.System
+  alias Ecto.UUID
+  alias EWalletDB.{Key, Repo}
 
   describe "Key factory" do
     test_has_valid_factory(Key)

@@ -14,6 +14,7 @@
 
 defmodule EWallet.UpdateEmailGateTest do
   use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.UpdateEmailGate
   alias EWalletDB.{UpdateEmailRequest, User}
 

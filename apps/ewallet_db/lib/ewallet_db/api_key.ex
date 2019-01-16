@@ -88,6 +88,13 @@ defmodule EWalletDB.APIKey do
   end
 
   @doc """
+  Build the query for all APIKeys excluding the soft-deleted ones.
+  """
+  def query_all do
+    exclude_deleted(APIKey)
+  end
+
+  @doc """
   Get API key by id, exclude soft-deleted.
   """
   @spec get(String.t()) :: %APIKey{} | nil

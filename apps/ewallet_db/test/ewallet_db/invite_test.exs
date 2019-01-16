@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWalletDB.InviteTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
   alias EWalletDB.{Invite, User}

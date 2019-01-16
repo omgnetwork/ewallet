@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.ForgetPasswordEmailTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.ForgetPasswordEmail
   alias EWalletDB.ForgetPasswordRequest
 

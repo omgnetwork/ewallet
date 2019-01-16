@@ -14,4 +14,6 @@
 
 defmodule EWallet.Exchange.CalculationTest do
   use ExUnit.Case
+
+  # No tests for a purely struct module
 end

@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.ExchangeTest do
-  use EWallet.DBCase
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.Exchange
 
   setup do

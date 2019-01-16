@@ -39,10 +39,12 @@ defmodule EWallet.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:appsignal, "~> 1.0"},
       {:bamboo, "~> 0.8"},
       {:bamboo_smtp, "~> 1.4.0"},
       {:bodyguard, "~> 2.2"},
       {:bypass, "~> 1.0.0", only: [:test]},
+      {:csv, "~> 2.0.0"},
       {:decimal, "~> 1.0"},
       {:deferred_config, "~> 0.1.0"},
       {:ewallet_config, in_umbrella: true},
@@ -53,7 +55,7 @@ defmodule EWallet.Mixfile do
       {:phoenix_html, "~> 2.11.0"},
       {:quantum, "~> 2.2.6"},
       {:sentry, "~> 6.4"},
-      {:timex, "~> 3.0"},
+      {:timex, "~> 3.0"}
     ]
   end
 end

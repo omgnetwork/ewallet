@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule LocalLedger.TransactionTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import LocalLedgerDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
@@ -60,14 +60,14 @@ defmodule LocalLedger.TransactionTest do
       [
         %{
           "type" => Entry.debit_type(),
-          "address" => "o",
+          "address" => "alice",
           "metadata" => %{},
           "amount" => 100,
           "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
         },
         %{
           "type" => Entry.debit_type(),
-          "address" => "sirn",
+          "address" => "bob",
           "metadata" => %{},
           "amount" => 200,
           "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
@@ -79,14 +79,14 @@ defmodule LocalLedger.TransactionTest do
       [
         %{
           "type" => Entry.credit_type(),
-          "address" => "thibault",
+          "address" => "carol",
           "metadata" => %{},
           "amount" => 150,
           "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
         },
         %{
           "type" => Entry.credit_type(),
-          "address" => "mederic",
+          "address" => "dan",
           "metadata" => %{},
           "amount" => 150,
           "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
@@ -117,10 +117,10 @@ defmodule LocalLedger.TransactionTest do
 
       assert transaction != nil
       assert length(transaction.entries) == 4
-      assert get_current_balance("o") == -100
-      assert get_current_balance("sirn") == -200
-      assert get_current_balance("thibault") == 150
-      assert get_current_balance("mederic") == 150
+      assert get_current_balance("alice") == -100
+      assert get_current_balance("bob") == -200
+      assert get_current_balance("carol") == 150
+      assert get_current_balance("dan") == 150
     end
 
     test "inserts a transaction and two entries when the debit wallets have enough funds" do
@@ -133,14 +133,14 @@ defmodule LocalLedger.TransactionTest do
             "entries" => [
               %{
                 "type" => Entry.debit_type(),
-                "address" => "mederic",
+                "address" => "dan",
                 "metadata" => %{},
                 "amount" => 100,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               },
               %{
                 "type" => Entry.credit_type(),
-                "address" => "thibault",
+                "address" => "carol",
                 "metadata" => %{},
                 "amount" => 100,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
@@ -153,8 +153,8 @@ defmodule LocalLedger.TransactionTest do
 
       assert transaction != nil
       assert length(transaction.entries) == 2
-      assert get_current_balance("mederic") == 50
-      assert get_current_balance("thibault") == 250
+      assert get_current_balance("dan") == 50
+      assert get_current_balance("carol") == 250
     end
 
     test "returns the same transaction when the idempotency token is already in the DB" do
@@ -167,14 +167,14 @@ defmodule LocalLedger.TransactionTest do
             "entries" => [
               %{
                 "type" => Entry.debit_type(),
-                "address" => "mederic",
+                "address" => "dan",
                 "metadata" => %{},
                 "amount" => 100,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               },
               %{
                 "type" => Entry.credit_type(),
-                "address" => "thibault",
+                "address" => "carol",
                 "metadata" => %{},
                 "amount" => 100,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
@@ -199,14 +199,14 @@ defmodule LocalLedger.TransactionTest do
             "entries" => [
               %{
                 "type" => Entry.debit_type(),
-                "address" => "mederic",
+                "address" => "dan",
                 "metadata" => %{},
                 "amount" => 200,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               },
               %{
                 "type" => Entry.credit_type(),
-                "address" => "mederic",
+                "address" => "dan",
                 "metadata" => %{},
                 "amount" => 200,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
@@ -220,7 +220,7 @@ defmodule LocalLedger.TransactionTest do
       assert res == {
                :error,
                :same_address,
-               "Found identical addresses in senders and receivers: mederic."
+               "Found identical addresses in senders and receivers: dan."
              }
     end
 
@@ -234,14 +234,14 @@ defmodule LocalLedger.TransactionTest do
             "entries" => [
               %{
                 "type" => Entry.debit_type(),
-                "address" => "mederic",
+                "address" => "dan",
                 "metadata" => %{},
                 "amount" => 200,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               },
               %{
                 "type" => Entry.credit_type(),
-                "address" => "thibault",
+                "address" => "carol",
                 "metadata" => %{},
                 "amount" => 200,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
@@ -263,14 +263,14 @@ defmodule LocalLedger.TransactionTest do
             "entries" => [
               %{
                 "type" => Entry.debit_type(),
-                "address" => "mederic",
+                "address" => "dan",
                 "metadata" => %{},
                 "amount" => 200,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               },
               %{
                 "type" => Entry.credit_type(),
-                "address" => "thibault",
+                "address" => "carol",
                 "metadata" => %{},
                 "amount" => 100,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
@@ -292,14 +292,14 @@ defmodule LocalLedger.TransactionTest do
             "entries" => [
               %{
                 "type" => Entry.debit_type(),
-                "address" => "mederic",
+                "address" => "dan",
                 "metadata" => %{},
                 "amount" => 0,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               },
               %{
                 "type" => Entry.credit_type(),
-                "address" => "thibault",
+                "address" => "carol",
                 "metadata" => %{},
                 "amount" => 0,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
@@ -316,18 +316,18 @@ defmodule LocalLedger.TransactionTest do
       genesis()
       pid = self()
 
-      assert get_current_balance("mederic") == 150
-      assert get_current_balance("thibault") == 150
-      assert get_current_balance("sirn") == -200
+      assert get_current_balance("dan") == 150
+      assert get_current_balance("carol") == 150
+      assert get_current_balance("bob") == -200
 
       {:ok, new_pid} =
         Task.start_link(fn ->
           Sandbox.allow(Repo, pid, self())
           assert_receive :select_for_update, 5000
 
-          assert get_current_balance("mederic") == 50
-          assert get_current_balance("thibault") == 250
-          assert get_current_balance("sirn") == -200
+          assert get_current_balance("dan") == 50
+          assert get_current_balance("carol") == 250
+          assert get_current_balance("bob") == -200
 
           # this should block until the other entry commit
           Transaction.insert(
@@ -336,14 +336,14 @@ defmodule LocalLedger.TransactionTest do
               "entries" => [
                 %{
                   "type" => Entry.debit_type(),
-                  "address" => "mederic",
+                  "address" => "dan",
                   "metadata" => %{},
                   "amount" => 50,
                   "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
                 },
                 %{
                   "type" => Entry.credit_type(),
-                  "address" => "sirn",
+                  "address" => "bob",
                   "metadata" => %{},
                   "amount" => 50,
                   "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
@@ -363,14 +363,14 @@ defmodule LocalLedger.TransactionTest do
           "entries" => [
             %{
               "type" => Entry.debit_type(),
-              "address" => "mederic",
+              "address" => "dan",
               "metadata" => %{},
               "amount" => 100,
               "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
             },
             %{
               "type" => Entry.credit_type(),
-              "address" => "thibault",
+              "address" => "carol",
               "metadata" => %{},
               "amount" => 100,
               "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
@@ -385,86 +385,107 @@ defmodule LocalLedger.TransactionTest do
       )
 
       assert_receive :updated, 5000
-      assert get_current_balance("mederic") == 0
-      assert get_current_balance("thibault") == 250
-      assert get_current_balance("sirn") == -150
+      assert get_current_balance("dan") == 0
+      assert get_current_balance("carol") == 250
+      assert get_current_balance("bob") == -150
     end
 
-    test "raises an InsufficientFundsError with two inserts happening at the
+    test "returns an InsufficientFundsError with many inserts happening at the
           same time and not enough funds" do
       genesis()
-      pid = self()
+      caller_pid = self()
+      num_spawns = 200
+      amount_per_transaction = 2
+      timeout_ms = 10_000
 
-      assert get_current_balance("mederic") == 150
-      assert get_current_balance("thibault") == 150
-      assert get_current_balance("sirn") == -200
+      balance_dan = get_current_balance("dan")
+      balance_carol = get_current_balance("carol")
+      balance_bob = get_current_balance("bob")
 
-      {:ok, new_pid} =
-        Task.start_link(fn ->
-          Sandbox.allow(Repo, pid, self())
-          assert_receive :select_for_update, 5000
+      assert balance_dan == 150
+      assert balance_carol == 150
+      assert balance_bob == -200
 
-          # this should block until the other entry commit
-          {res, error, _} =
+      # Mederic has 150 units, sending 1 units per transaction should result in
+      # exactly 150 successful transactions, the rest (= num_spawns - successful) should fail.
+
+      tasks =
+        for _ <- 1..num_spawns do
+          Task.async(fn ->
+            # Sleeps a random number between 0 - 100 ms to better simulate concurrency
+            Process.sleep(:rand.uniform(10) * 10)
+
+            Sandbox.allow(Repo, caller_pid, self())
+
             Transaction.insert(
               %{
                 "metadata" => %{},
                 "entries" => [
                   %{
                     "type" => Entry.debit_type(),
-                    "address" => "mederic",
+                    "address" => "dan",
                     "metadata" => %{},
-                    "amount" => 100,
-                    "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+                    "amount" => amount_per_transaction,
+                    "token" => %{
+                      "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
+                      "metadata" => %{}
+                    }
                   },
                   %{
                     "type" => Entry.credit_type(),
-                    "address" => "sirn",
+                    "address" => "bob",
                     "metadata" => %{},
-                    "amount" => 100,
-                    "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+                    "amount" => amount_per_transaction,
+                    "token" => %{
+                      "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
+                      "metadata" => %{}
+                    }
                   }
                 ],
                 "idempotency_token" => UUID.generate()
               },
               %{genesis: false}
             )
+          end)
+        end
 
-          assert res == :error
-          assert error == :insufficient_funds
-          send(pid, :updated)
+      # Collect all the results
+      results = Task.yield_many(tasks, timeout_ms)
+
+      # For the sake of simplicity, assuming that within 10000ms all tasks would have returned,
+      # so there's no need to handle with `Task.shutdown/2` and so on.
+      assert length(results) == num_spawns
+
+      # Split the results into a list of :ok results and a list of :error results.
+      # Here we simply skip the information returned by `Task.yield_many/2` and
+      # focus on the return from the actual transaction calls.
+      {ok_results, error_results} =
+        Enum.split_with(results, fn
+          {_task, {_status, {:ok, _}}} -> true
+          {_task, {_status, {:error, _, _}}} -> false
         end)
 
-      send(new_pid, :select_for_update)
+      # Assert the number of :ok/:error results
+      num_ok_results = length(ok_results)
+      num_error_results = length(error_results)
 
-      Transaction.insert(
-        %{
-          "metadata" => %{},
-          "entries" => [
-            %{
-              "type" => Entry.debit_type(),
-              "address" => "mederic",
-              "metadata" => %{},
-              "amount" => 100,
-              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-            },
-            %{
-              "type" => Entry.credit_type(),
-              "address" => "thibault",
-              "metadata" => %{},
-              "amount" => 100,
-              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-            }
-          ],
-          "idempotency_token" => UUID.generate()
-        },
-        %{genesis: false}
-      )
+      expected_ok_results = Integer.floor_div(balance_dan, amount_per_transaction)
+      expected_error_results = num_spawns - expected_ok_results
 
-      assert_receive :updated, 5000
-      assert get_current_balance("mederic") == 50
-      assert get_current_balance("thibault") == 250
-      assert get_current_balance("sirn") == -200
+      assert num_ok_results == expected_ok_results
+      assert num_error_results == expected_error_results
+
+      # Assert that all :error results are because of :insufficient_funds
+      assert Enum.all?(error_results, fn
+               {_task, {_status, {:error, :insufficient_funds, _}}} -> true
+               _ -> false
+             end)
+
+      # Assert the balances
+      transferred_amount = num_ok_results * amount_per_transaction
+      assert get_current_balance("dan") == balance_dan - transferred_amount
+      assert get_current_balance("carol") == balance_carol
+      assert get_current_balance("bob") == balance_bob + transferred_amount
     end
 
     test "handles integers up to 1 trillion * 1e18" do
@@ -475,14 +496,14 @@ defmodule LocalLedger.TransactionTest do
             "entries" => [
               %{
                 "type" => Entry.debit_type(),
-                "address" => "o",
+                "address" => "alice",
                 "metadata" => %{},
                 "amount" => 1_000_000_000_000_000_000_000_000_000_000,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               },
               %{
                 "type" => Entry.credit_type(),
-                "address" => "thibault",
+                "address" => "carol",
                 "metadata" => %{},
                 "amount" => 1_000_000_000_000_000_000_000_000_000_000,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
@@ -495,8 +516,8 @@ defmodule LocalLedger.TransactionTest do
 
       assert transaction != nil
       assert length(transaction.entries) == 2
-      assert get_current_balance("o") == -1_000_000_000_000_000_000_000_000_000_000
-      assert get_current_balance("thibault") == 1_000_000_000_000_000_000_000_000_000_000
+      assert get_current_balance("alice") == -1_000_000_000_000_000_000_000_000_000_000
+      assert get_current_balance("carol") == 1_000_000_000_000_000_000_000_000_000_000
     end
 
     test "fails for integers above 1e37" do
@@ -508,14 +529,14 @@ defmodule LocalLedger.TransactionTest do
               "entries" => [
                 %{
                   "type" => Entry.debit_type(),
-                  "address" => "o",
+                  "address" => "alice",
                   "metadata" => %{},
                   "amount" => round(1.0e37),
                   "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
                 },
                 %{
                   "type" => Entry.credit_type(),
-                  "address" => "thibault",
+                  "address" => "carol",
                   "metadata" => %{},
                   "amount" => round(1.0e37),
                   "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}

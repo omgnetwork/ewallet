@@ -103,6 +103,7 @@ defmodule EWalletDB.Factory do
       address: address,
       name: sequence("Wallet name"),
       identifier: Wallet.primary(),
+      account: nil,
       user: insert(:user),
       enabled: true,
       metadata: %{},

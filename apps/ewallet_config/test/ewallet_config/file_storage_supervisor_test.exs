@@ -55,10 +55,24 @@ defmodule EWalletConfig.FileStorageSupervisorTest do
 
   describe "start_link/0" do
     test "stops and starts a new Supervisor" do
+<<<<<<< HEAD
       :ok = FileStorageSupervisor.stop()
       {:ok, pid} = FileStorageSupervisor.start_link()
 
       assert pid != nil
+=======
+      # Stops the exising GenServer via the Supervisor so the supervisor doesn't try
+      # to restart it during this test.
+      :ok = Supervisor.terminate_child(EWalletConfig.Supervisor, FileStorageSupervisor)
+
+      {:ok, pid} = FileStorageSupervisor.start_link()
+
+      assert pid != nil
+
+      # Stops the GenServer started during this test and restart the one from the supervisor.
+      :ok = FileStorageSupervisor.stop()
+      {:ok, _} = Supervisor.restart_child(EWalletConfig.Supervisor, FileStorageSupervisor)
+>>>>>>> origin/master
     end
   end
 

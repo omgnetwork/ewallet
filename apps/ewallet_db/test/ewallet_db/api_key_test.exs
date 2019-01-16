@@ -13,15 +13,36 @@
 # limitations under the License.
 
 defmodule EWalletDB.APIKeyTest do
-  use EWalletDB.SchemaCase
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
   alias Ecto.UUID
-  alias EWalletDB.APIKey
+  alias EWalletDB.{APIKey, Repo}
   alias ActivityLogger.System
 
   @owner_app :some_app
 
   describe "APIKey factory" do
     test_has_valid_factory(APIKey)
+  end
+
+  describe "query_all/0" do
+    test "returns a query for all API keys excluding the soft-deleted ones" do
+      originator = insert(:user)
+
+      api_key_1 = insert(:api_key)
+      api_key_2 = insert(:api_key)
+      api_key_3 = insert(:api_key)
+
+      {:ok, _} = APIKey.delete(api_key_2, originator)
+
+      query = APIKey.query_all()
+      records = Repo.all(query)
+
+      assert Enum.count(records) == 2
+      assert Enum.any?(records, fn r -> r.id == api_key_1.id end)
+      refute Enum.any?(records, fn r -> r.id == api_key_2.id end)
+      assert Enum.any?(records, fn r -> r.id == api_key_3.id end)
+    end
   end
 
   describe "get/1" do

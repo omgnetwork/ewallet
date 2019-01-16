@@ -49,28 +49,26 @@ defmodule EWalletDB.SchemaCase do
   end
   ```
   """
+  use ExUnit.CaseTemplate
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL
+  alias Ecto.Adapters.SQL.Sandbox
   alias EWalletDB.{Account, User}
   alias ActivityLogger.System
 
-  defmacro __using__(_opts) do
+  using do
     quote do
-      use ExUnit.Case
-      import EWalletDB.{Factory, SchemaCase}
-      alias Ecto.Adapters.SQL
-      alias Ecto.Adapters.SQL.Sandbox
-      alias EWalletDB.Repo
-
-      setup do
-        :ok = Sandbox.checkout(EWalletDB.Repo)
-        :ok = Sandbox.checkout(EWalletConfig.Repo)
-        :ok = Sandbox.checkout(ActivityLogger.Repo)
-        %{} = get_or_insert_master_account()
-
-        :ok
-      end
+      import EWalletDB.SchemaCase
     end
+  end
+
+  setup do
+    :ok = Sandbox.checkout(EWalletDB.Repo)
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
+    :ok = Sandbox.checkout(ActivityLogger.Repo)
+    %{} = get_or_insert_master_account()
+
+    :ok
   end
 
   def prepare_admin_user do

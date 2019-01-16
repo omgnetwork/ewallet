@@ -21,12 +21,12 @@ defmodule AdminAPI.V1.APIKeyController do
   alias EWalletDB.APIKey
 
   @doc """
-  Retrieves a list of API keys including soft-deleted.
+  Retrieves a list of API keys.
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil) do
-      APIKey
+      APIKey.query_all()
       |> Orchestrator.query(APIKeyOverlay, attrs)
       |> respond_multiple(conn)
     else

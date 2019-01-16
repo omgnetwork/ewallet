@@ -13,8 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.TransactionConsumptionFetcherTest do
-  use EWallet.LocalLedgerCase, async: true
-  alias Ecto.Adapters.SQL.Sandbox
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias ActivityLogger.System
 
   alias EWallet.{
@@ -23,7 +23,7 @@ defmodule EWallet.TransactionConsumptionFetcherTest do
     TransactionConsumptionFetcher
   }
 
-  alias EWalletDB.{TransactionConsumption, User}
+  alias EWalletDB.{Account, TransactionConsumption, User}
 
   setup do
     {:ok, pid} = TestEndpoint.start_link()
