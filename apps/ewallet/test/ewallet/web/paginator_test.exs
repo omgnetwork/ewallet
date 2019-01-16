@@ -163,13 +163,30 @@ defmodule EWallet.Web.PaginatorTest do
 
       assert actual_records_id == records_id
 
-      # Assertions for paginator.pagination
       assert paginator.pagination == %{
                per_page: per_page,
                current_page: 1,
                is_first_page: true,
                is_last_page: true,
                count: number_of_last_elements
+             }
+    end
+
+    test "returns empty if page_record_id doesn't exist" do
+      total = 10
+      per_page = 10
+      ensure_num_records(Account, total)
+
+      paginator = Paginator.paginate(Account, %{"page_record_id" => "1", "per_page" => per_page})
+
+      assert paginator.data === []
+
+      assert paginator.pagination == %{
+               per_page: per_page,
+               current_page: 1,
+               is_first_page: true,
+               is_last_page: true,
+               count: 0
              }
     end
   end

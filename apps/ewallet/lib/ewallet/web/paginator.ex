@@ -107,15 +107,18 @@ defmodule EWallet.Web.Paginator do
     end
   end
 
-  # @doc """
-  # Paginate a query using the given `page_record_id` and `per_page` and returns a paginator.
-  # """
-  def paginate(queryable, %{"page_record_id" => page_record_id, "per_page" => per_page}, repo) do
+  @doc """
+  Paginate a query using the given `page_record_id` and `per_page` and returns a paginator.
+  """
+  def paginate(queryable, %{"page_record_id" => page_record_id, "per_page" => per_page} = attrs, repo) do
     if repo == nil, do: repo = Repo
 
     {records, more_page} = queryable
     |> where([q], q.id >= ^page_record_id)
     |> fetch(%{"page_record_id" => page_record_id, "page" => 0, "per_page" => per_page}, repo)
+
+    records = records
+    |> records_or_empty(page_record_id)
 
     pagination = %{
       per_page: per_page,
@@ -170,6 +173,13 @@ defmodule EWallet.Web.Paginator do
         {records, false}
     end
   end
+
+  # Returns records if the first record id is equal to `page_record_id`, otherwise empty.
+  defp records_or_empty([%{id: id} | rest] = records, page_record_id) when id === page_record_id do
+    records
+  end
+
+  defp records_or_empty(records, _page_record_id), do: []
 
   defp get_query_offset(queryable, %{"page" => page, "per_page" => per_page}) do
     offset = case page do
