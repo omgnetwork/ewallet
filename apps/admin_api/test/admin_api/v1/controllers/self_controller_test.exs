@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
+defmodule AdminAPI.V1.SelfControllerTest do
   use AdminAPI.ConnCase, async: true
   use Bamboo.Test
   import Ecto.Query
@@ -31,6 +31,13 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
 
       assert response["success"]
       assert response["data"]["email"] == "email@example.com"
+    end
+
+    test "gets access_key:unauthorized back when requesting with a provider key" do
+      response = provider_request("/me.get")
+
+      refute response["success"]
+      assert response["data"]["code"] == "access_key:unauthorized"
     end
   end
 
@@ -75,6 +82,18 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
 
       assert response["data"]["description"] ==
                "Invalid parameter provided. `metadata` is invalid."
+    end
+
+    test "gets access_key:unauthorized back when requesting with a provider key" do
+      response =
+        provider_request("/me.update", %{
+          email: "test_1337@example.com",
+          metadata: %{"key" => "value_1337"},
+          encrypted_metadata: %{"key" => "value_1337"}
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "access_key:unauthorized"
     end
 
     test "generates an activity log" do
@@ -197,6 +216,18 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
         encrypted_changes: %{}
       )
     end
+
+    test "gets access_key:unauthorized back when requesting with a provider key" do
+      response =
+        provider_request("/me.update_password", %{
+          old_password: @password,
+          password: "password",
+          password_confirmation: "password"
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "access_key:unauthorized"
+    end
   end
 
   describe "/me.update_email" do
@@ -261,6 +292,17 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    test "gets access_key:unauthorized back when requesting with a provider key" do
+      response =
+        provider_request("/me.update_email", %{
+          "email" => "test.email.update.provider.unauthorized@example.com",
+          "redirect_url" => @update_email_url
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "access_key:unauthorized"
     end
 
     test "generates an activity log" do
@@ -632,6 +674,24 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
         encrypted_changes: %{}
       )
     end
+
+    test "gets access_key:unauthorized back when requesting with a provider key" do
+      account = insert(:account)
+      role = insert(:role, %{name: "some_role"})
+      admin = get_test_admin()
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      response =
+        provider_request("/me.upload_avatar", %{
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "access_key:unauthorized"
+    end
   end
 
   describe "/me.get_account" do
@@ -684,6 +744,13 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
                    "messages" => nil
                  }
                }
+    end
+
+    test "gets access_key:unauthorized back when requesting with a provider key" do
+      response = provider_request("/me.get_account")
+
+      refute response["success"]
+      assert response["data"]["code"] == "access_key:unauthorized"
     end
   end
 
@@ -738,6 +805,21 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
                    }
                  }
                }
+    end
+
+    test "gets access_key:unauthorized back when requesting with a provider key" do
+      user = get_test_admin()
+      parent = insert(:account)
+      account = insert(:account, %{parent: parent})
+
+      # Clear all memberships for this user then add just one for precision
+      Repo.delete_all(from(m in Membership, where: m.user_uuid == ^user.uuid))
+      Membership.assign(user, account, "admin", %System{})
+
+      response = provider_request("/me.get_accounts")
+
+      refute response["success"]
+      assert response["data"]["code"] == "access_key:unauthorized"
     end
   end
 end
