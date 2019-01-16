@@ -1,18 +1,96 @@
-version: 2
+version: 2.1
 
 
-presets:
-  defaults: &defaults
-    working_directory: ~/src
+executors:
+  builder:
     docker:
       - image: omisegoimages/ewallet-builder:stable
+    working_directory: ~/src
     environment:
       IMAGE_NAME: "omisego/ewallet"
 
 
+commands:
+  notify_slack_failure:
+    description: "Notify Slack only on failure"
+    steps:
+      - run:
+          name: Notify Slack on failure
+          command: |
+            GH_URL="https://github.com/omisego/ewallet/tree/${CIRCLE_BRANCH}"
+            CIRCLE_URL="https://circleci.com/gh/omisego/ewallet/${CIRCLE_BUILD_NUM}"
+            WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
+            MESSAGE="omisego/ewallet branch ${CIRCLE_BRANCH} has failed during ${CIRCLE_JOB}"
+            RICH_MESSAGE="*omisego/ewallet* branch *${CIRCLE_BRANCH}* has failed during ${CIRCLE_JOB}"
+
+            curl -X POST -H 'Content-Type: application/json' --data "{ \
+              \"attachments\": [ \
+                { \
+                  \"fallback\": \"${MESSAGE}\", \
+                  \"text\": \":no_good: ${RICH_MESSAGE}\", \
+                  \"mrkdwn\": true, \
+                  \"color\": \"#ed2c5c\", \
+                  \"fields\": [ \
+                    { \
+                      \"title\": \"Branch\", \
+                      \"value\": \"<$GH_URL|$CIRCLE_BRANCH>\", \
+                      \"short\": true \
+                    }, { \
+                      \"title\": \"Build\", \
+                      \"value\": \"<$CIRCLE_URL|$CIRCLE_BUILD_NUM>\", \
+                      \"short\": true \
+                    } \
+                  ] \
+                } \
+              ] \
+            }" ${SLACK_WEBHOOK}
+          when: on_fail
+
+  notify_slack:
+    description: "Notify Slack"
+    steps:
+      - run:
+          name: Notify Slack
+          command: |
+            GH_URL="https://github.com/omisego/ewallet/tree/${CIRCLE_BRANCH}"
+            CIRCLE_URL="https://circleci.com/gh/omisego/ewallet/${CIRCLE_BUILD_NUM}"
+            WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
+            MESSAGE="omisego/ewallet branch ${CIRCLE_BRANCH} has been successfully built"
+            RICH_MESSAGE="*omisego/ewallet* branch *${CIRCLE_BRANCH}* has been successfully built"
+
+            curl -X POST -H 'Content-Type: application/json' --data "{ \
+              \"attachments\": [ \
+                { \
+                  \"fallback\": \"${MESSAGE}\", \
+                  \"text\": \":white_check_mark: ${RICH_MESSAGE}\", \
+                  \"mrkdwn\": true, \
+                  \"color\": \"#1cbf43\", \
+                  \"fields\": [ \
+                    { \
+                      \"title\": \"Branch\", \
+                      \"value\": \"<$GH_URL|$CIRCLE_BRANCH>\", \
+                      \"short\": true \
+                    }, { \
+                      \"title\": \"Build\", \
+                      \"value\": \"<$CIRCLE_URL|$CIRCLE_BUILD_NUM>\", \
+                      \"short\": true \
+                    } \
+                  ] \
+                } \
+              ] \
+            }" ${SLACK_WEBHOOK}
+
+  setup_ewallet_workspace:
+    description: "Setup eWallet workspace"
+    steps:
+      - attach_workspace:
+          name: Attaching workspace
+          at: ~/
+
+
 jobs:
   build_test:
-    <<: *defaults
+    executor: builder
     steps:
       - checkout
       - restore_cache:
@@ -43,21 +121,20 @@ jobs:
             - deps
             - _build/test
             - apps/admin_panel/assets/node_modules
-      -  persist_to_workspace:
+      - persist_to_workspace:
           name: Persisting workspace
           root: ~/
           paths:
             - src/deps
             - src/_build
             - src/apps/admin_panel/assets/node_modules
+      - notify_slack_failure
 
   lint:
-    <<: *defaults
+    executor: builder
     steps:
       - checkout
-      - attach_workspace: &ewallet_workspace
-          name: Attaching workspace
-          at: ~/
+      - setup_ewallet_workspace
       - run:
           name: Checking code formattings
           command: |
@@ -70,11 +147,13 @@ jobs:
             make check-credo
           environment:
             MIX_ENV: test
+      - notify_slack_failure
 
   dialyze:
-    <<: *defaults
+    executor: builder
     steps:
       - checkout
+      - setup_ewallet_workspace
       - run:
           name: Determining runtime versions
           command: |
@@ -87,9 +166,6 @@ jobs:
             - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
             - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-
             - v1-ewallet-plt-
-      - attach_workspace: &ewallet_workspace
-          name: Attaching workspace
-          at: ~/
       - run:
           name: Checking dialyzer
           command: |
@@ -105,15 +181,18 @@ jobs:
           paths:
             - ~/var/dialyzer
           when: always
+      ## We're silenting dialyzer failure until we've fixed all dialyzer offense.
+      ## TODO: enable this once Dialyzer is fixed.
+      # - notify_slack_failure
 
   test:
-    <<: *defaults
+    executor: builder
     docker:
       - image: omisegoimages/ewallet-builder:stable
       - image: postgres:9.6-alpine
     steps:
       - checkout
-      - attach_workspace: *ewallet_workspace
+      - setup_ewallet_workspace
       - run:
           name: Running eWallet tests
           command: |
@@ -129,13 +208,19 @@ jobs:
           command: |
             set -xe
             make test-assets
+      - notify_slack_failure
+
+  report:
+    executor: builder
+    steps:
+      - notify_slack
 
   build:
-    <<: *defaults
+    executor: builder
     steps:
       - checkout
       - setup_remote_docker
-      - attach_workspace: *ewallet_workspace
+      - setup_ewallet_workspace
       - restore_cache:
           name: Restoring eWallet production artifacts from cache
           keys:
@@ -168,21 +253,20 @@ jobs:
           root: ~/
           paths:
             - caches/docker-layers.tar
+      - notify_slack_failure
 
   test_e2e:
-    <<: *defaults
+    executor: builder
     steps:
-      - setup_remote_docker
       - checkout
-      - attach_workspace: &ewallet_docker_workspace
-          name: Attaching workspace
-          at: ~/
+      - setup_remote_docker
+      - setup_ewallet_workspace
       - run:
           name: Preparing E2E environments
           command: |
             set -xe
 
-            cat <<EOF > .env
+            cat \<<EOF > .env
             E2E_HTTP_HOST=http://ewallet:4000
             E2E_SOCKET_HOST=ws://ewallet:4000
             E2E_TEST_ADMIN_EMAIL=$(openssl rand -hex 4)@example.com
@@ -234,12 +318,13 @@ jobs:
                 --volumes-from srcs \
               omisegoimages/ewallet-builder:stable \
               sh -c "cd /src/e2e && pipenv install && pipenv run robot tests"
+      - notify_slack_failure
 
   publish:
-    <<: *defaults
+    executor: builder
     steps:
       - setup_remote_docker
-      - attach_workspace: *ewallet_docker_workspace
+      - setup_ewallet_workspace
       - run:
           name: Logging into Docker Hub
           command: |
@@ -282,10 +367,10 @@ jobs:
                 docker tag "$IMAGE_NAME" "$IMAGE_NAME:$tag"
                 docker push "$IMAGE_NAME:$tag"
             done
+      - notify_slack
 
 
 workflows:
-  version: 2
   test_build:
     jobs:
       - build_test
@@ -298,6 +383,18 @@ workflows:
       - dialyze:
           requires:
             - build_test
+
+      # Non-mainline branches only
+      - report:
+          requires:
+            - lint
+            - test
+          filters:
+            branches:
+              ignore:
+                - master
+
+      # Mainline branches only
       - build:
           requires:
             - lint

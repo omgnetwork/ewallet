@@ -354,17 +354,17 @@ defmodule EWalletDB.AccountTest do
       account_2 = insert(:account, parent: account)
       account_3 = insert(:account, parent: account_1)
 
+      expected =
+        [account, account_1, account_2, account_3]
+        |> Enum.map(fn a -> {a.uuid, Account.get_depth(a)} end)
+        |> Enum.sort_by(fn {_, depth} -> depth end)
+
       descendants =
         Enum.map(Account.get_all_descendants(account), fn descendant ->
           {descendant.uuid, descendant.depth}
         end)
 
-      assert descendants == [
-               {account.uuid, 0},
-               {account_1.uuid, 1},
-               {account_2.uuid, 1},
-               {account_3.uuid, 2}
-             ]
+      assert descendants == expected
     end
 
     test "gets only the given account for the lower child" do

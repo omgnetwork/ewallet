@@ -86,7 +86,9 @@ defmodule EWalletDB.Key do
   end
 
   def query_all_for_account_uuids(query, account_uuids) do
-    where(query, [a], a.account_uuid in ^account_uuids)
+    query
+    |> exclude_deleted()
+    |> where([a], a.account_uuid in ^account_uuids)
   end
 
   @doc """
