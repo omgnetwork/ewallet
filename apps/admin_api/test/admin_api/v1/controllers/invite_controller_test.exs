@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
+defmodule AdminAPI.V1.InviteControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Utils.Helpers.DateFormatter
   alias EWalletDB.{Invite, User, Repo}
