@@ -21,7 +21,7 @@ defmodule AdminAPI.V1.KeyController do
   alias EWalletDB.Key
 
   @doc """
-  Retrieves a list of keys including soft-deleted.
+  Retrieves a list of keys.
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do

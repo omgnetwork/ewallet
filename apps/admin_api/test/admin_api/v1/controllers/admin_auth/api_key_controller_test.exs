@@ -22,52 +22,19 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
     test "responds with a list of api keys when no params are given" do
       [api_key1, api_key2] = APIKey |> ensure_num_records(2) |> Preloader.preload(:account)
 
-      assert admin_user_request("/api_key.all") ==
-               %{
-                 "version" => "1",
-                 "success" => true,
-                 "data" => %{
-                   "object" => "list",
-                   "data" => [
-                     %{
-                       "object" => "api_key",
-                       "id" => api_key1.id,
-                       "key" => api_key1.key,
-                       "account_id" => api_key1.account.id,
-                       "owner_app" => api_key1.owner_app,
-                       "expired" => false,
-                       "enabled" => true,
-                       "created_at" => DateFormatter.to_iso8601(api_key1.inserted_at),
-                       "updated_at" => DateFormatter.to_iso8601(api_key1.updated_at),
-                       "deleted_at" => DateFormatter.to_iso8601(api_key1.deleted_at)
-                     },
-                     %{
-                       "object" => "api_key",
-                       "id" => api_key2.id,
-                       "key" => api_key2.key,
-                       "account_id" => api_key2.account.id,
-                       "owner_app" => api_key2.owner_app,
-                       "expired" => false,
-                       "enabled" => true,
-                       "created_at" => DateFormatter.to_iso8601(api_key2.inserted_at),
-                       "updated_at" => DateFormatter.to_iso8601(api_key2.updated_at),
-                       "deleted_at" => DateFormatter.to_iso8601(api_key2.deleted_at)
-                     }
-                   ],
-                   "pagination" => %{
-                     "current_page" => 1,
-                     "per_page" => 10,
-                     "is_first_page" => true,
-                     "is_last_page" => true,
-                     "count" => 2
-                   }
-                 }
-               }
+      response = admin_user_request("/api_key.all")
+      api_keys = response["data"]["data"]
+
+      assert response["data"]["pagination"]["count"] == 2
+      assert Enum.count(api_keys) == 2
+      assert Enum.any?(api_keys, fn a -> a["id"] == api_key1.id end)
+      assert Enum.any?(api_keys, fn a -> a["id"] == api_key2.id end)
     end
 
     test "responds with a list of api keys when given params" do
-      [_, api_key] = insert_list(2, :api_key, owner_app: "test_admin_auth_api_key_all")
+      [api_key1, api_key2] = insert_list(2, :api_key, owner_app: "test_admin_auth_api_key_all")
 
+      # Note that per_page is set to only a single record
       attrs = %{
         match_all: [
           %{
@@ -82,35 +49,28 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
         sort_dir: "desc"
       }
 
-      assert admin_user_request("/api_key.all", attrs) ==
-               %{
-                 "version" => "1",
-                 "success" => true,
-                 "data" => %{
-                   "object" => "list",
-                   "data" => [
-                     %{
-                       "object" => "api_key",
-                       "id" => api_key.id,
-                       "key" => api_key.key,
-                       "account_id" => api_key.account.id,
-                       "owner_app" => api_key.owner_app,
-                       "expired" => false,
-                       "enabled" => true,
-                       "created_at" => DateFormatter.to_iso8601(api_key.inserted_at),
-                       "updated_at" => DateFormatter.to_iso8601(api_key.updated_at),
-                       "deleted_at" => DateFormatter.to_iso8601(api_key.deleted_at)
-                     }
-                   ],
-                   "pagination" => %{
-                     "current_page" => 1,
-                     "per_page" => 1,
-                     "is_first_page" => true,
-                     "is_last_page" => false,
-                     "count" => 1
-                   }
-                 }
-               }
+      response = admin_user_request("/api_key.all", attrs)
+      api_keys = response["data"]["data"]
+
+      # Returning 1 due to `per_page: 1`
+      assert response["data"]["pagination"]["count"] == 1
+      assert Enum.count(api_keys) == 1
+      refute Enum.any?(api_keys, fn a -> a["id"] == api_key1.id end)
+      assert Enum.any?(api_keys, fn a -> a["id"] == api_key2.id end)
+    end
+
+    test "responds with a list of api keys excluding the soft-deleted ones" do
+      originator = insert(:user)
+      [api_key1, api_key2, api_key3] = ensure_num_records(APIKey, 3)
+      {:ok, _} = APIKey.delete(api_key2, originator)
+
+      response = admin_user_request("/api_key.all")
+      api_keys = response["data"]["data"]
+
+      assert Enum.count(api_keys) == 2
+      assert Enum.any?(api_keys, fn a -> a["id"] == api_key1.id end)
+      refute Enum.any?(api_keys, fn a -> a["id"] == api_key2.id end)
+      assert Enum.any?(api_keys, fn a -> a["id"] == api_key3.id end)
     end
 
     test_supports_match_any("/api_key.all", :admin_auth, :api_key, :key)
