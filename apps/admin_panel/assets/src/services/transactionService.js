@@ -60,3 +60,15 @@ export function getTransactionById (id) {
     data: { id }
   })
 }
+
+export function exportTransaction ({ matchAll, matchAny }) {
+  return authenticatedRequest({
+    path: '/transaction.export',
+    data: {
+      match_all: matchAll,
+      match_any: matchAny,
+      sort_by: 'created_at',
+      sort_dir: 'desc'
+    }
+  })
+}

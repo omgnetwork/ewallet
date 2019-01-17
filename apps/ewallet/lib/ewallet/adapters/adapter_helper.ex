@@ -112,7 +112,7 @@ defmodule EWallet.AdapterHelper do
       originator: %Exporter{},
       status: Export.failed(),
       failure_reason: error,
-      full_error: nil
+      full_error: full_error
     })
   end
 

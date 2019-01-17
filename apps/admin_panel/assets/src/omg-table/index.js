@@ -45,7 +45,7 @@ const TableContainer = styled.div`
       cursor: pointer;
     }
     td {
-      opacity: ${props => (props.loading ? 0.6 : 1)};
+      opacity: ${props => (props.loading && props.loadingEffect ? 0.6 : 1)};
       padding: 10px;
       vertical-align: middle;
       color: ${props => props.theme.colors.B200};
@@ -97,10 +97,12 @@ class SortableTable extends PureComponent {
     navigation: PropTypes.bool,
     onClickLoadMore: PropTypes.func,
     pagination: PropTypes.bool,
-    pageEntity: PropTypes.string
+    pageEntity: PropTypes.string,
+    loadingEffect: PropTypes.bool
   }
   static defaultProps = {
-    pageEntity: 'page'
+    pageEntity: 'page',
+    loadingEffect: true
   }
 
   constructor (props) {
@@ -224,8 +226,7 @@ class SortableTable extends PureComponent {
     const sortBy = [queryString.parse(this.props.location.search)['sort-by']]
     const sortOrder = [queryString.parse(this.props.location.search)['sort-order']]
     const result = shouldFilter
-      ? _
-          .chain(this.props.rows)
+      ? _.chain(this.props.rows)
           .filter(d => {
             return _.reduce(
               filterQuery,
@@ -255,7 +256,10 @@ class SortableTable extends PureComponent {
   }
   render () {
     return (
-      <TableContainer loading={this.props.loadingStatus === 'PENDING'}>
+      <TableContainer
+        loading={this.props.loadingStatus === 'PENDING'}
+        loadingEffect={this.props.loadingEffect}
+      >
         <Table
           {...this.props}
           columns={this.props.columns}
@@ -272,27 +276,26 @@ class SortableTable extends PureComponent {
           page={this.getPage()}
           perPage={this.props.perPage}
         />
-        {this.props.navigation &&
-          this.props.loadingStatus !== 'INITIATED' && (
-            <NavigationContainer>
-              <Button
-                onClick={this._onClickPrev}
-                styleType='secondary'
-                disabled={this.props.isFirstPage}
-                style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
-              >
-                <Icon name='Chevron-Left' />
-              </Button>
-              <Button
-                onClick={this._onClickNext}
-                styleType='secondary'
-                disabled={this.props.isLastPage}
-                style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
-              >
-                <Icon name='Chevron-Right' />
-              </Button>
-            </NavigationContainer>
-          )}
+        {this.props.navigation && this.props.loadingStatus !== 'INITIATED' && (
+          <NavigationContainer>
+            <Button
+              onClick={this._onClickPrev}
+              styleType='secondary'
+              disabled={this.props.isFirstPage}
+              style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
+            >
+              <Icon name='Chevron-Left' />
+            </Button>
+            <Button
+              onClick={this._onClickNext}
+              styleType='secondary'
+              disabled={this.props.isLastPage}
+              style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
+            >
+              <Icon name='Chevron-Right' />
+            </Button>
+          </NavigationContainer>
+        )}
       </TableContainer>
     )
   }

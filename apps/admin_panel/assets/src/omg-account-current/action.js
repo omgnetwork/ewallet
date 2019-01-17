@@ -37,7 +37,7 @@ export const updateCurrentAccount = ({ accountId, name, description, avatar }) =
         name,
         description
       })
-      if (updatedAccount.data.success) {
+      if (updatedAccount.data.success && avatar) {
         const result = await accountService.uploadAccountAvatar({
           accountId,
           avatar

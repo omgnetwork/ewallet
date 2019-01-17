@@ -8,6 +8,7 @@ const TopNavigationContainer = styled.div`
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
+  width: 100%;
   h2 {
     display: inline-block;
     margin-right: 25px;
@@ -47,7 +48,8 @@ export default class TopNavigation extends PureComponent {
   static propTypes = {
     buttons: PropTypes.array,
     title: PropTypes.string,
-    secondaryAction: PropTypes.bool
+    secondaryAction: PropTypes.bool,
+    normalPlaceholder: PropTypes.string
   }
   static defaultProps = {
     secondaryAction: true
@@ -55,7 +57,7 @@ export default class TopNavigation extends PureComponent {
   renderSecondaryActions () {
     return (
       <SecondaryActionsContainer>
-        <SearchGroup />
+        <SearchGroup normalPlaceholder={this.props.normalPlaceholder} />
       </SecondaryActionsContainer>
     )
   }

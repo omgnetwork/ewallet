@@ -139,7 +139,6 @@ class UsersPage extends Component {
             isLastPage={pagination.is_last_page}
             navigation
             pagination={false}
-            onClickLoadMore={this.onClickLoadMore}
           />
         </SortableTableContainer>
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />

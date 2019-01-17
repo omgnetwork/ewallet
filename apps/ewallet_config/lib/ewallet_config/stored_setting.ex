@@ -73,7 +73,8 @@ defmodule EWalletConfig.StoredSetting do
         :key,
         :type,
         :position
-      ]
+      ],
+      encrypted: [:encrypted_data]
     )
     |> validate_immutable(:key)
     |> validate_inclusion(:type, @types)
@@ -92,7 +93,8 @@ defmodule EWalletConfig.StoredSetting do
         :encrypted_data,
         :description,
         :position
-      ]
+      ],
+      encrypted: [:encrypted_data]
     )
     |> validate_required_exclusive([:data, :encrypted_data])
     |> validate_setting_type()

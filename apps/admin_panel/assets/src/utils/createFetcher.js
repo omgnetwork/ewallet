@@ -65,6 +65,7 @@ export const createFetcher = (entity, reducer, selectors) => {
           await this.fetchDebounce()
         }
       }
+
       getQuery = () => {
         return { page: 1, perPage: 10, ...this.props.query }
       }
@@ -78,7 +79,6 @@ export const createFetcher = (entity, reducer, selectors) => {
         this.props
           .dispatcher({ ...this.props, ...this.getQuery() })
           .then(result => {
-            this.fetched[this.props.cacheKey] = true
             if (result.data) {
               this.setState({
                 loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
@@ -87,11 +87,11 @@ export const createFetcher = (entity, reducer, selectors) => {
               })
               this.props.onFetchComplete()
             } else {
-              this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
+              this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, data: [] })
             }
           })
           .catch(() => {
-            this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
+            this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, data: [] })
           })
       }
 
@@ -104,7 +104,7 @@ export const createFetcher = (entity, reducer, selectors) => {
           case CONSTANT.LOADING_STATUS.INITIATED:
             return this.state.data
           case CONSTANT.LOADING_STATUS.FAILED:
-            return []
+            return this.state.data
           default:
             return []
         }

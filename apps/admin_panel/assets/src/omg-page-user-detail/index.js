@@ -23,7 +23,7 @@ const ContentDetailContainer = styled.div`
   display: flex;
 `
 const DetailContainer = styled.div`
-  flex: 0 1 50%;
+  flex: 1 1 50%;
   :first-child {
     margin-right: 20px;
   }
@@ -44,9 +44,7 @@ const enhance = compose(
 )
 class TokenDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
-    history: PropTypes.object,
-    theme: PropTypes.object
+    match: PropTypes.object
   }
   renderTopBar = user => {
     return <TopBar title={user.id} breadcrumbItems={['User', user.id]} buttons={[]} />
@@ -61,7 +59,7 @@ class TokenDetailPage extends Component {
           <b>Email:</b> <span>{user.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Provider Id:</b> <span>{user.provider_user_id}</span>
+          <b>Provider Id:</b> <span>{user.provider_user_id || '-'}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Created Date:</b> <span>{moment(user.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
@@ -73,6 +71,7 @@ class TokenDetailPage extends Component {
     )
   }
   renderWallet = wallet => {
+    console.log(wallet)
     const accountId = this.props.match.params.accountId
     return (
       <Section title='BALANCE'>
@@ -113,7 +112,7 @@ class TokenDetailPage extends Component {
           {this.renderTopBar(user)}
           <ContentDetailContainer>
             <DetailContainer>{this.renderDetail(user)}</DetailContainer>
-            <DetailContainer>{this.renderWallet(wallet)}</DetailContainer>
+            {wallet && <DetailContainer>{this.renderWallet(wallet)}</DetailContainer>}
           </ContentDetailContainer>
         </ContentContainer>
       </DetailLayout>

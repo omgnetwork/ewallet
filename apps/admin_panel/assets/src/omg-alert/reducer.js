@@ -152,10 +152,20 @@ export const alertsReducer = createReducer([], {
     return state
   },
   'CONFIGURATIONS/UPDATE/SUCCESS': (state, { data }) => {
-    const updatedFileStorage = data.data.file_storage_adapter
     return [...state, createAlertState('Updated configurations successfully, reloading application..', 'success')]
   },
   'CONFIGURATIONS/UPDATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'TRANSACTIONS/EXPORT/SUCCESS': (state, { error }) => {
+    return [...state, createAlertState(
+      <div>
+       Export transactions successfully
+      </div>,
+      'success'
+    )]
+  },
+  'TRANSACTIONS/EXPORT/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   }
 })
