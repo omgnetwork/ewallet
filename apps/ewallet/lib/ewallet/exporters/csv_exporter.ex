@@ -84,8 +84,9 @@ defmodule EWallet.CSVExporter do
       {:ok, export} ->
         {:stop, :normal, %{state | export: export}}
 
-      # `status: "failed"` means that the error has already been handled (hence already set to "failed").
-      # So we simply fall through the same way as handling `{:ok, export}`.
+      # `status: "failed"` means that the error has already been handled
+      # (hence already set to "failed"). So we simply fall through the same way
+      # as handling `{:ok, export}`.
       {:error, %{status: "failed"} = export} ->
         {:stop, :normal, %{state | export: export}}
 
