@@ -102,11 +102,14 @@ const TableContainer = styled.div`
     }
   }
   td:first-child {
-    width: 30%;
-    min-width: 300px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
+    width: 300px;
+    > * {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      width: 300px;
+      display: inline-block;
+    }
   }
   .string-value {
     white-space: nowrap;
