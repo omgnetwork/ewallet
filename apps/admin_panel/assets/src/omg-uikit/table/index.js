@@ -132,7 +132,7 @@ class Table extends Component {
           unmountOnExit
 
         >
-          <table style={{ position: 'absolute', background: 'white', overflow: 'hidden' }}>
+          <table style={{ position: 'absolute', background: 'white' }}>
             <thead>{this.renderLoadingColumns()}</thead>
             <tbody>{this.renderLoadingRows()}</tbody>
           </table>
