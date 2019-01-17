@@ -231,6 +231,7 @@ jobs:
           name: Building eWallet in production environment
           command: |
             set -xe
+            mix deps.clean mime --build
             make build-prod
       - run:
           name: Building eWallet Docker image
@@ -282,21 +283,28 @@ jobs:
 
             sh docker-gen.sh -i "$IMAGE_NAME" -n net0 -f .env > docker-compose.override.yml
             docker-compose up -d postgres mail
-            docker-compose run --rm ewallet bin/ewallet initdb
-            docker-compose run --rm ewallet bin/ewallet seed -e
-            docker-compose run --rm ewallet bin/ewallet config base_url http://ewallet:4000
-            docker-compose run --rm ewallet bin/ewallet config email_adapter smtp
-            docker-compose run --rm ewallet bin/ewallet config smtp_host mail
-            docker-compose run --rm ewallet bin/ewallet config smtp_port 1025
+            docker-compose run --rm ewallet sh \<<EOF
+              bin/ewallet initdb
+              bin/ewallet seed -e
+              bin/ewallet config base_url http://ewallet:4000
+              bin/ewallet config email_adapter smtp
+              bin/ewallet config smtp_host mail
+              bin/ewallet config smtp_port 1025
+            EOF
       - run:
           name: Configure E2E secret
           command: |
-            docker-compose run --rm ewallet bin/ewallet config aws_bucket $AWS_BUCKET > /dev/null
-            docker-compose run --rm ewallet bin/ewallet config aws_region $AWS_REGION > /dev/null
-            docker-compose run --rm ewallet bin/ewallet config aws_access_key_id $AWS_ACCESS_KEY_ID > /dev/null
-            docker-compose run --rm ewallet bin/ewallet config aws_secret_access_key $AWS_SECRET_ACCESS_KEY > /dev/null
-            docker-compose run --rm ewallet bin/ewallet config gcs_bucket $GCS_BUCKET > /dev/null
-            docker-compose run --rm ewallet bin/ewallet config gcs_credentials $GCS_CREDENTIALS > /dev/null
+            docker-compose run --rm ewallet sh \<<EOF >/dev/null 2>&1
+              bin/ewallet config aws_bucket "$AWS_BUCKET"
+              bin/ewallet config aws_region "$AWS_REGION"
+              bin/ewallet config aws_access_key_id "$AWS_ACCESS_KEY_ID"
+              bin/ewallet config aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+              bin/ewallet config gcs_bucket "$GCS_BUCKET"
+            EOF
+
+            # Use printf/awk to unescape the string with double escaping.
+            unescaped_gcs_creds="$(printf "%b" "$GCS_CREDENTIALS" | awk '{ gsub("\\\\\"", "\""); print $0 }')"
+            docker-compose run --rm ewallet config gcs_credentials "$unescaped_gcs_creds" >/dev/null 2>&1
       - run:
           name: Running E2E tests
           command: |
@@ -393,6 +401,7 @@ workflows:
             branches:
               ignore:
                 - master
+                - 667-everything-is-so-broken
 
       # Mainline branches only
       - build:
@@ -403,6 +412,7 @@ workflows:
             branches:
               only:
                 - master
+                - 667-everything-is-so-broken
             tags:
               only: /^v.*/
       - test_e2e:
