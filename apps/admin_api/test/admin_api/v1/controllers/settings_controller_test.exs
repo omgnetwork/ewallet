@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.ProviderAuth.SettingsControllerTest do
+defmodule AdminAPI.V1.SettingsControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/get_settings" do
-    test "responds with a list of tokens" do
-      response = provider_request("/settings.all")
+    test_with_auths "responds with a list of tokens" do
+      response = request("/settings.all")
 
       assert response["success"]
       assert Map.has_key?(response["data"], "tokens")
