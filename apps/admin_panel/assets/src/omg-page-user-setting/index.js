@@ -18,6 +18,9 @@ const UserSettingContainer = styled.div`
 const StyledInput = styled(Input)`
   margin-bottom: 30px;
 `
+const StyledEmailInput = StyledInput.extend`
+  pointer-events: none;
+`
 const Avatar = styled(ImageUploaderAvatar)`
   margin: 0;
   display: inline-block;
@@ -157,7 +160,7 @@ class UserSettingPage extends Component {
               />
             </AvatarContainer>
             <InputsContainer>
-              <StyledInput
+              <StyledEmailInput
                 placeholder={'Email'}
                 value={this.state.email}
                 prefill
