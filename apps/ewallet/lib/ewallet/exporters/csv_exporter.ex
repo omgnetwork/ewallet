@@ -19,7 +19,7 @@ defmodule EWallet.CSVExporter do
   """
   use GenServer
   import Ecto.Query
-  alias EWallet.Exporter
+  alias EWallet.{Exporter, AdapterHelper}
   alias EWallet.Exporters.{S3Adapter, GCSAdapter, LocalAdapter}
   alias EWalletDB.{Repo, Export}
   alias Utils.Helper.PidHelper
@@ -61,11 +61,39 @@ defmodule EWallet.CSVExporter do
      }}
   end
 
+  def terminate(reason, %{export: %{status: "processing"} = export}) do
+    {:ok, _} =
+      AdapterHelper.store_error(
+        export,
+        "The export server crashed during processing.",
+        inspect(reason)
+      )
+  end
+
+  def terminate(reason, %{export: %{status: "new"} = export}) do
+    {:ok, _} =
+      AdapterHelper.store_error(export, "The export server crashed during boot.", inspect(reason))
+  end
+
+  def terminate(_reason, _state), do: :ok
+
   def handle_cast(:upload, state) do
     adapter_module = get_adapter_module()
-    adapter_module.upload(state)
 
-    {:stop, :normal, state}
+    case adapter_module.upload(state) do
+      {:ok, export} ->
+        {:stop, :normal, %{state | export: export}}
+
+      # `status: "failed"` means that the error has already been handled
+      # (hence already set to "failed"). So we simply fall through the same way
+      # as handling `{:ok, export}`.
+      {:error, %{status: "failed"} = export} ->
+        {:stop, :normal, %{state | export: export}}
+
+      {:error, export} ->
+        {:ok, export} = AdapterHelper.store_error(export, "Something went wrong.")
+        {:stop, :normal, %{state | export: export}}
+    end
   end
 
   defp get_adapter_module do

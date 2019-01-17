@@ -20,17 +20,22 @@ defmodule AdminAPI.V1.ExportController do
   alias EWalletDB.Export
 
   def all(conn, attrs) do
+    storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
+
     conn.assigns
     |> Originator.extract()
-    |> Export.all_for()
+    |> Export.all_for(storage_adapter)
     |> Orchestrator.query(ExportOverlay, attrs)
     |> render_exports(conn)
   end
 
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id} = attrs) do
+    storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
+
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, export),
+         true <- export.adapter == storage_adapter || {:error, :invalid_storage_adapter},
          {:ok, url} <- ExportGate.generate_url(export),
          export <- Map.put(export, :url, url),
          {:ok, export} <- Orchestrator.one(export, ExportOverlay, attrs) do
@@ -43,9 +48,12 @@ defmodule AdminAPI.V1.ExportController do
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
   def download(conn, %{"id" => id}) do
+    storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
+
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, export),
          true <- export.adapter == "local" || {:error, :export_not_local},
+         true <- export.adapter == storage_adapter || {:error, :invalid_storage_adapter},
          path <- Path.join(Application.get_env(:ewallet, :root), export.path),
          true <- File.exists?(path) || {:error, :file_not_found} do
       send_download(
