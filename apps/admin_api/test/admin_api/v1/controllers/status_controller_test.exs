@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
+defmodule AdminAPI.V1.StatusControllerTest do
   # async: false due to `Application.put_env/3` for sentry reporting
   use AdminAPI.ConnCase, async: false
   alias Plug.Conn
@@ -25,7 +25,7 @@ defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
   end
 
   describe "/status.server_error" do
-    test "returns correct error response format and error description" do
+    test_with_auths "returns correct error response format and error description" do
       expected = %{
         "version" => "1",
         "success" => false,
@@ -44,14 +44,14 @@ defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
       # See example: /phoenix/test/phoenix/endpoint/render_errors_test.exs
       {status, _headers, response} =
         assert_error_sent(500, fn ->
-          admin_user_request("/status.server_error")
+          request("/status.server_error")
         end)
 
       assert status == 500
       assert Parser.parse!(response) == expected
     end
 
-    test "sends a report to sentry" do
+    test_with_auths "sends a report to sentry" do
       bypass = Bypass.open()
 
       Bypass.expect(bypass, fn conn ->
@@ -69,7 +69,7 @@ defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
       Application.put_env(:sentry, :included_environments, [:test | original_included_envs])
 
       try do
-        admin_user_request("/status.server_error")
+        request("/status.server_error")
       rescue
         # Ignores the re-raised error
         _ ->
