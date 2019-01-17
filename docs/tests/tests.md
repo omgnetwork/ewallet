@@ -64,3 +64,35 @@ $ mix seed --test --yes
 `--yes` option allows to skip all prompted confirmations which is ideal when ran on an automation server.
 
 You will need to add a few environment variables before running the seed, check [Environment Variables](/docs/setup/env.md#e2e-tests) for more information.
+
+## Load tests
+
+A minimal load test suite is available in the [loadtest](/apps/loadtest) sub-application.
+
+To run the load test, first seed the data into your target eWallet server with the command below.
+Note that this command uses the same seed as the acceptance tests, with the exception that it sets
+a custom admin email and password to be used by the load test suite.
+
+```bash
+$ E2E_ENABLED=true \
+  E2E_TEST_ADMIN_EMAIL=loadtesting@example.com \
+  E2E_TEST_ADMIN_PASSWORD=loadtesting \
+  mix seed --test --yes \
+```
+
+Once the target server is seeded, run the load test suite from a different machine with the following command:
+
+```sh
+$ cd apps/load_tester && \
+  LOADTEST_TOTAL_REQUESTS=600 \
+  LOADTEST_DURATION_SECONDS=60 \
+  LOADTEST_PROTOCOL=https \
+  LOADTEST_HOST=your-server-hostname \
+  LOADTEST_EMAIL=loadtesting@example.com \
+  LOADTEST_PASSWORD=loadtesting \
+  mix run -e 'Chaperon.run_load_test(LoadTester.Runner, output: "load_test_result")'
+```
+
+With the command above, the load test suite will generate `600 / 60 = 10` requests per second. You may adjust this rate by changing the `LOADTEST_TOTAL_REQUESTS` and `LOADTEST_DURATION_SECONDS` environment variables.
+
+The result is saved to `/apps/load_tester/load_test_result.csv`.
