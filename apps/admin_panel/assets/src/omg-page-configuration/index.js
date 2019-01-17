@@ -523,7 +523,7 @@ class ConfigurationPage extends Component {
     return (
       <ConfigurationPageContainer>
         <TopNavigation
-          title={'Configuration'}
+          title={'Configurations'}
           buttons={[this.renderSaveButton()]}
           secondaryAction={false}
           types={false}

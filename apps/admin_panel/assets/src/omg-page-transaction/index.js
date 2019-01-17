@@ -235,7 +235,7 @@ class TransactionPage extends Component {
     return (
       <TransactionPageContainer>
         <TopNavigation
-          title={'Transaction'}
+          title={'Transactions'}
           buttons={[this.renderCreateTransactionButton(), this.renderExportButton()]}
         />
         <SortableTable
