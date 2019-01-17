@@ -24,6 +24,12 @@ defmodule EWallet.ReleaseTasks do
     end
   end
 
+  defp give_up do
+    IO.puts("Error: unknown error occured in release tasks. This is probably a bug.")
+    IO.puts("Please file a bug report at https://github.com/omisego/ewallet/issues/new")
+    :init.stop(1)
+  end
+
   #
   # Seed
   #
@@ -31,9 +37,15 @@ defmodule EWallet.ReleaseTasks do
   @seed_start_apps [:crypto, :ssl, :postgrex, :ecto, :cloak, :ewallet]
   @seed_std_spec [{:ewallet_config, :seeds_settings}, {:ewallet_db, :seeds}]
   @seed_e2e_spec [{:ewallet_config, :seeds_settings}, {:ewallet_db, :seeds_test}]
+  @seed_sample_spec [
+    {:ewallet_config, :seeds_settings},
+    {:ewallet_db, :seeds},
+    {:ewallet_db, :seeds_sample}
+  ]
 
   def seed, do: seed_with(@seed_std_spec)
   def seed_e2e, do: seed_with(@seed_e2e_spec)
+  def seed_sample, do: seed_with(@seed_sample_spec)
 
   defp seed_with(spec) do
     Enum.each(@seed_start_apps, &Application.ensure_all_started/1)
@@ -101,37 +113,51 @@ defmodule EWallet.ReleaseTasks do
   @config_start_apps [:crypto, :ssl, :postgrex, :ecto, :cloak, :ewallet]
   @config_apps [:activity_logger, :ewallet_config]
 
-  def config do
-    case :init.get_plain_arguments() do
+  def config_base64 do
+    case :init.get_plain_arguments do
       [key, value] ->
-        Enum.each(@config_start_apps, &Application.ensure_all_started/1)
-        Enum.each(@config_apps, &ensure_app_started/1)
-        config_update(key, value)
+        config_base64(key, value)
 
       _ ->
-        IO.puts("Usage: bin/ewallet config KEY VALUE")
-        :init.stop(1)
+        give_up()
     end
   end
 
-  def config_update(key, value) when not is_binary(key), do: config_update(to_string(key), value)
+  defp config_base64(k, v) when is_list(k) do
+    case Base.decode64(to_string(k)) do
+      {:ok, key} ->
+        config_base64(key, v)
 
-  def config_update(key, value) when not is_binary(value),
-    do: config_update(key, to_string(value))
+      _ ->
+        give_up()
+    end
+  end
 
-  def config_update(key, value) do
+  defp config_base64(k, v) when is_list(v) do
+    case Base.decode64(to_string(v)) do
+      {:ok, value} ->
+        config_base64(k, value)
+
+      _ ->
+        give_up()
+    end
+  end
+
+  defp config_base64(key, value) do
+    Enum.each(@config_start_apps, &Application.ensure_all_started/1)
+    Enum.each(@config_apps, &ensure_app_started/1)
+
     case Config.update(%{key => value, originator: %System{}}) do
       {:ok, [{key, {:ok, _}}]} ->
-        IO.puts("Successfully updated #{key} to #{value}")
+        IO.puts("Successfully updated \"#{key}\" to \"#{value}\"")
         :init.stop()
 
       {:ok, [{key, {:error, :setting_not_found}}]} ->
-        IO.puts("Error: #{key} is not a valid settings")
+        IO.puts("Error: \"#{key}\" is not a valid settings")
         :init.stop(1)
 
       _ ->
-        IO.puts("Error: unknown error")
-        :init.stop(1)
+        give_up()
     end
   end
 end

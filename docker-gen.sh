@@ -1,15 +1,20 @@
 #!/bin/sh
 
-OPTS=hdi:n:p:k:K:f:
-ARGS=$(getopt $OPTS "$*" 2>/dev/null)
-
 print_usage() {
-    printf "Usage: %s [-%s]\\n" "$0" "$OPTS"
+    printf "Usage: %s [CONFIG..] [OPTS]\\n" "$0"
     printf "\\n"
-    printf "     -h         Print this help.\\n"
-    printf "     -d         Generate a development override.\\n"
+    printf "Generates a Docker-Compose configuration overrides for various\\n"
+    printf "purposes. This script will output to STDOUT, it is expected that\\n"
+    printf "a user will pipe its output into a file. For example:\\n"
     printf "\\n"
-    printf "Config:\\n"
+    printf "     %s > docker-compose.override.yml\\n" "$0"
+    printf "\\n"
+    printf "OPTS:\\n"
+    printf "\\n"
+    printf "     -h         Prints this help.\\n"
+    printf "     -d         Generates a development override.\\n"
+    printf "\\n"
+    printf "CONFIG:\\n"
     printf "\\n"
     printf "     -i image   Specify an alternative eWallet image name.\\n"
     printf "     -n network Specify an external network.\\n"
@@ -20,14 +25,15 @@ print_usage() {
     printf "\\n"
 }
 
+ARGS=$(getopt -s sh hdi:n:p:k:K:f: "$@" 2>/dev/null)
+
 # shellcheck disable=SC2181
 if [ $? != 0 ]; then
     print_usage
     exit 1
 fi
 
-# shellcheck disable=SC2086
-set -- $ARGS
+eval set -- "$ARGS"
 
 IMAGE_NAME=""
 POSTGRES_PASSWORD=""

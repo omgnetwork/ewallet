@@ -1,9 +1,11 @@
 #!/bin/sh
+
 BASE_DIR=$(cd "$(dirname "$0")" || exit; pwd -P)
 FILE_LIST="/tmp/update_version_files"
 
 if [ -z "$1" ]; then
-    printf "Usage: %s NEW_VERSION\\n\\n" "$0"
+    printf "Usage: %s NEW_VERSION\\n" "$0"
+    printf "\\n"
     printf "Update version string in mix.exs and config.exs with NEW_VERSION\\n"
     printf "by scanning lines with version: string. This script will try its\\n"
     printf "best to retain the indention of the original string.\\n"
