@@ -63,12 +63,16 @@ defmodule EWallet.CSVExporter do
 
   def terminate(reason, %{export: %{status: "processing"} = export}) do
     {:ok, _} =
-      AdapterHelper.store_error(export, "The server crashed during processing.", inspect(reason))
+      AdapterHelper.store_error(
+        export,
+        "The export server crashed during processing.",
+        inspect(reason)
+      )
   end
 
   def terminate(reason, %{export: %{status: "new"} = export}) do
     {:ok, _} =
-      AdapterHelper.store_error(export, "The server crashed during boot.", inspect(reason))
+      AdapterHelper.store_error(export, "The export server crashed during boot.", inspect(reason))
   end
 
   def terminate(_reason, _state), do: :ok
@@ -80,6 +84,8 @@ defmodule EWallet.CSVExporter do
       {:ok, export} ->
         {:stop, :normal, %{state | export: export}}
 
+      # `status: "failed"` means that the error has already been handled (hence already set to "failed").
+      # So we simply fall through the same way as handling `{:ok, export}`.
       {:error, %{status: "failed"} = export} ->
         {:stop, :normal, %{state | export: export}}
 
