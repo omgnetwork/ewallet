@@ -79,6 +79,8 @@ defmodule AdminAPI.V1.ExportControllerTest do
 
       assert response["success"]
       assert length(exports) == 2
+      assert Enum.at(exports, 0)["adapter"] == "local"
+      assert Enum.at(exports, 1)["adapter"] == "local"
     end
   end
 
