@@ -15,68 +15,50 @@
 defmodule AdminPanel.Application do
   @moduledoc false
   use Application
+  require Logger
   alias AdminPanel.Endpoint
+  alias EWallet.Helper
   alias Phoenix.Endpoint.Watcher
+  import Supervisor.Spec
 
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-    # Define workers and child supervisors to be supervised
+    DeferredConfig.populate(:admin_panel)
+
+    # Always run AdminPanel.Endpoint as part of supervision tree
+    # regardless whether UrlDispatcher is enabled or not, since UrlDispatcher
+    # is not guarantee to be started, so we should not try to access the
+    # :url_dispatcher env here.
+    children = [supervisor(Endpoint, [])]
+
+    # Simply spawn a webpack process as part of supervision tree in case
+    # webpack_watch is enabled. It probably doesn't make sense to watch
+    # webpack without enabling endpoint serving, but we allow it anyway.
+    webpack_watch = Application.get_env(:admin_panel, :webpack_watch)
+
     children =
-      []
-      |> supervise_endpoint()
-      |> supervise_webpack_watch()
+      children ++
+        case Helper.to_boolean(webpack_watch) do
+          true ->
+            _ = Logger.info("Enabling webpack watcher.")
+
+            [
+              worker(
+                Watcher,
+                [:yarn, ["build"], [cd: Path.expand("../../assets/", __DIR__)]],
+                restart: :transient
+              )
+            ]
+
+          _ ->
+            []
+        end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: AdminPanel.Supervisor]
     Supervisor.start_link(children, opts)
-  end
-
-  # Start the endpoint when the application starts
-  defp supervise_endpoint(children) do
-    import Supervisor.Spec
-
-    [supervisor(Endpoint, []) | children]
-  end
-
-  # Add webpack watch supervisor only if webpack watch is enabled,
-  # and the application is being started as a server.
-  defp supervise_webpack_watch(children) do
-    if webpack_watch?() && server?() do
-      [webpack_watch() | children]
-    else
-      children
-    end
-  end
-
-  # Returns true when the config `:webpack_watch` is set to true,
-  # and the command is not flagged with `--no-watch`.
-  defp webpack_watch? do
-    webpack_watch = Application.get_env(:admin_panel, :webpack_watch, true)
-    start_with_no_watch = Application.get_env(:admin_panel, :start_with_no_watch, false)
-
-    webpack_watch && !start_with_no_watch
-  end
-
-  defp server? do
-    Application.get_env(:url_dispatcher, :serve_endpoints, false)
-  end
-
-  defp webpack_watch do
-    import Supervisor.Spec
-
-    worker(
-      Watcher,
-      [
-        :yarn,
-        [
-          "build"
-        ],
-        [cd: Path.expand("../../assets/", __DIR__)]
-      ],
-      restart: :transient
-    )
   end
 
   # Tell Phoenix to update the endpoint configuration
