@@ -1,79 +1,141 @@
 <img src="assets/logo.png" align="right" />
 
-# OmiseGO eWallet
+# OmiseGO eWallet Server
 
-[![CircleCI](https://circleci.com/gh/omisego/ewallet.svg?style=svg)](https://circleci.com/gh/omisego/ewallet) [![Gitter chat](https://badges.gitter.im/omisego/ewallet.png)](https://gitter.im/omisego/ewallet)
+[![](https://img.shields.io/circleci/project/github/omisego/ewallet/master.svg)](https://circleci.com/gh/omisego/ewallet/tree/master)
+[![](https://img.shields.io/gitter/room/omisego/ewallet.svg)](https://gitter.im/omisego/ewallet)
 
-This is the server application of the OmiseGO eWallet Suite that allows businesses and individuals (referred hereafter as the "provider") to setup and run their own digital wallet services through their own local ledger.
-
-This server application and the SDKs will later be plugged onto a blockchain and connected to a decentralized exchange. **Blockchain capabilities are expected to be added as they become ready.** All active instances of the OmiseGO eWallet will then become a federated network forming the top layer of the OMG network, allowing the exchange of any currency into any other in a transparent way.
-
-The SDKs for integrating your apps with the eWallet are available in [Ruby](https://github.com/omisego/ruby-sdk) ([sample server](https://github.com/omisego/sample-server)), [iOS](https://github.com/omisego/ios-sdk) ([sample app](https://github.com/omisego/sample-ios)) and [Android](https://github.com/omisego/android-sdk) ([sample app](https://github.com/omisego/sample-android)).
-
-Point of Sale's merchant ([iOS](https://github.com/omisego/pos-merchant-ios) and [Android](https://github.com/omisego/pos-merchant-android)) and customer ([iOS](https://github.com/omisego/pos-client-ios) and [Android](https://github.com/omisego/pos-client-android)) apps are also available. They demonstrate how the eWallet server application and SDKs can be used to build apps for physical storefronts.
-
-## Overview
-
-Here is an overview of all the eWallet components and what needs to be integrated by a provider.
-
-![A provider's Sample Setup](assets/provider_setup.jpg)
+**OmiseGO eWallet Server** is a server application in OmiseGO eWallet Suite that allows a provider (businesses or individuals) to setup and run their own digital wallet services through a local ledger, and to a decentralized blockchain exchange in the future to form a federated network on the OMG network allowing exchange of any currency into any other in a transparent way.
 
 ## Getting started
 
-Pick one of the following setup approaches that best suits your needs:
+The quickest way to get OmiseGO eWallet Server running on macOS and Linux is to use [Docker-Compose](https://docs.docker.com/compose/install/).
 
-| Setup                                         | Description                                                                                                                                   | Recommended for                                                                                             |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| [Bare&#x2011;metal](docs/setup/bare_metal.md) | Set up directly onto your base operating system. You will need to install Elixir, project's dependencies and Postgres manually if you havn't. | Developers and DevOps preferring to manage all dependencies and configurations themselves for any purposes. |
-| [Docker](docs/setup/docker.md)                | A pre-packaged image for production uses. No build-time dependencies. Packaged with Distillery.                                               | Developers and DevOps looking to integrate or deploy the eWallet without changing its internals.            |
+1. Install [Docker](https://docs.docker.com/install/) and [Docker-Compose](https://docs.docker.com/compose/install/)
 
-Having trouble setting up the eWallet? Check the [Setup Troubleshooting Guide](docs/setup/troubleshooting.md).
+2. Download OmiseGO eWallet Server's [docker-compose.yml](https://raw.githubusercontent.com/omisego/ewallet/master/docker-compose.yml):
+
+    ```shell
+    curl -o -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-compose.yml
+    ```
+
+3. Create `docker-compose.override.yml` either [manually](https://docs.docker.com/compose/extends/) or use auto-configuration script:
+
+    ```
+    curl -o -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-gen.sh
+    chmod +x docker-gen.sh
+    ./docker-gen.sh > docker-compose.override.yml
+    ```
+
+4. Initialize the database and start the server:
+
+    ```
+    docker-compose run --rm ewallet initdb
+    docker-compose run --rm ewallet seed
+    docker-compose up -d
+    ```
+
+For other platforms or for a more advanced setup, see also manual installation below.
+
+### Alternative installation
+
+-   [Bare metal installation](docs/setup/bare_metal.md)
+
+## Commands
+
+Docker image entrypoint is configured to recognize most commands that are used during normal operations. The way to invoke these commands depend on the installation method you choose.
+
+-   In case of Docker-Compose, use `docker-compose run --rm ewallet <command>`
+-   In case of Docker, use `docker run -it --rm omisego/ewallet <command>`
+-   In case of bare metal, see also bare metal installation instruction.
+
+### initdb
+
+For example:
+
+-   `docker-compose run --rm ewallet initdb` (Docker-Compose)
+-   `docker run -it --rm omisego/ewallet:dev initdb` (Docker)
+
+These commands create the database if not already created, or upgrade them if necessary. This command is expected to be run every time you have upgraded the version of OmiseGO eWallet Suite.
+
+### seed
+
+For example:
+
+-   `docker-compose run --rm ewallet seed` (Docker-Compose)
+-   `docker run -it --rm omisego/ewallet:dev seed` (Docker)
+
+These commands create the initial data in the database. If `seed` is run without arguments, the command will seed initial data for production environment. The `seed` command may be configured to seed with other kind of seed data:
+
+-   `seed --sample` will seed a sample data suitable for evaluating OmiseGO eWallet Server.
+-   `seed --e2e` will seed a data for [end-to-end testing](docs/setup/advanced/env.md).
+
+### config
+
+For example:
+
+-   `docker-compose run --rm ewallet config <key> <value>` (Docker-Compose)
+-   `docker run -it --rm omisego/ewallet:dev config <key> <value>` (Docker)
+
+These commands will update the configuration key (see also [settings documentation](docs/setup/advanced/settings.md)) in the database. For some keys which require whitespace, such as `gcs_credentials`, you can prevent string splitting by putting them in a single or double-quote, e.g. `config gcs_credentials "gcs configuration"`.
 
 ## Documentation
 
-Below are the links to the HTTP-RPC API documentations for the `master` branch. Note that the eWallet is not a centralized service and **the servers below are not for production uses.**
+### Setup documentation
 
--   Admin API ([**interactive**](https://ewallet.staging.omisego.io/api/admin/docs.ui) / [**yaml**](https://ewallet.staging.omisego.io/api/admin/docs.yaml) / [**json**](https://ewallet.staging.omisego.io/api/admin/docs.json)): Integrate with your server apps to perform higher-privilege operations, such as managing tokens, accounts, users, transactions, global settings, etc.
--   Client API ([**interactive**](https://ewallet.staging.omisego.io/api/client/docs.ui) / [**yaml**](https://ewallet.staging.omisego.io/api/client/docs.yaml) / [**json**](https://ewallet.staging.omisego.io/api/client/docs.json)): Integrate with your client apps to transact on behalf of a specific user, such as creating a transaction request for a specific user, updating a user's settings, etc.
+The documentation that covers configurations and design philosophy can be found in the [docs](docs/) directory of this repository. You are recommended to take a look at a documentation of respective version of OmiseGO eWallet Server you are running.
 
-We also provide the [**Ruby SDK**](https://github.com/omisego/ruby-sdk) ([sample server](https://github.com/omisego/sample-server)), [**iOS SDK**](https://github.com/omisego/ios-sdk) ([sample app](https://github.com/omisego/sample-ios)) and [**Android SDK**](https://github.com/omisego/android-sdk) ([sample app](https://github.com/omisego/sample-android)) so you do not have to deal with the HTTP-RPC layer yourself.
+-   [latest](https://github.com/omisego/ewallet/tree/master/docs)
+-   [v1.1](https://github.com/omisego/ewallet/tree/v1.1/docs)
+-   [v1.0](https://github.com/omisego/ewallet/tree/v1.0/docs)
 
-Optionally, deeper dives into the eWallet are available:
+### API documentation
 
--   [Demo](docs/demo.md): Explore the sample shop server demos without setting up your own.
--   [Guides](docs/guides/guides.md): Understand how the eWallet server works behind the scene.
--   [Design](docs/design/design.md): Find out about the technical design decisions that revolve around the eWallet server.
--   [Tests](docs/tests/tests.md): See how tests are organized for the eWallet server.
--   [FAQ](docs/faq.md): Frequently asked questions.
+OmiseGO eWallet Server is meant to be run by the provider, and thus API documentation is available in the OmiseGO eWallet Server itself rather than as an online documentation. You may be the API documentation at the following location in OmiseGO eWallet Server setup.
 
-You can also follow our advanced setup guides to customize your eWallet server:
+-   `/api/admin/docs.ui` for Admin API, used by server apps to manage tokens, accounts, transactions, global settings, etc.
+-   `/api/client/docs.ui` for Client API, used by client apps to create transaction on behalf of user, user's settings, etc.
 
--   [Environment variables](docs/setup/advanced/env.md)
--   [Settings](docs/setup/advanced/settings.md)
--   [Clustering](docs/setup/advanced/clustering.md)
--   [Upgrading](docs/setup/upgrading/)
+In case you want to explore the API documentation without installing the OmiseGO eWallet Server, you may use our [OmiseGO eWallet Staging](https://ewallet.staging.omisego.io/). Please note that OmiseGO eWallet Staging tracks development release and there might be API differences from the stable release.
 
-## Contributing
+-   [Admin API documentation](https://ewallet.staging.omisego.io/api/admin/docs.ui) ([Swagger JSON](https://ewallet.staging.omisego.io/api/admin/docs.json), [Swagger YAML](https://ewallet.staging.omisego.io/api/admin/docs.yaml))
+-   [Client API documentation](https://ewallet.staging.omisego.io/api/client/docs.ui) ([Swagger JSON](https://ewallet.staging.omisego.io/api/client/docs.json), [Swagger YAML](https://ewallet.staging.omisego.io/api/client/docs.yaml))
 
-Bug reports, feature suggestions, pull requests and feedbacks of any sorts are very welcomed.
+## SDKs
 
-Learn more from our [contributing guide](.github/CONTRIBUTING.md).
+These are SDKs for integrating with the OmiseGO eWallet Server. For example, to integrate a loyalty point system built on OmiseGO eWallet Server into an existing system.
 
-## Support
+-   [Ruby SDK](https://github.com/omisego/ruby-sdk) ([Sample Server](https://github.com/omisego/sample-server))
+-   [iOS SDK](https://github.com/omisego/ios-sdk) ([Sample App](https://github.com/omisego/sample-ios))
+-   [Android SDK](https://github.com/omisego/android-sdk) ([Sample App](https://github.com/omisego/sample-android))
 
--   [Issues](https://github.com/omisego/ewallet/issues): Browse or file a report for any bugs found
--   [Gitter](https://gitter.im/omisego/ewallet): Discuss features and suggestions in real-time
--   [StackOverflow](https://stackoverflow.com/questions/tagged/omisego): Search or create a new question with the tag `omisego`
--   Need enterprise support or hosting solutions? [Get in touch with us](mailto:thibault@omisego.co) for more details
+It is also possible to run OmiseGO eWallet Server in a standalone mode without needing to integrate into existing system. These apps demonstrate the capabilities of the OmiseGO eWallet Server as a physical Point-of-Sale server and client.
 
-## Community efforts
+-   [iOS PoS for Merchant](https://github.com/omisego/pos-merchant-ios)
+-   [iOS PoS for Customer](https://github.com/omisego/pos-client-ios)
+-   [Android PoS for Merchant](https://github.com/omisego/pos-merchant-android)
+-   [Android PoS for Customer](https://github.com/omisego/pos-client-android)
 
-We are thankful to our community for creating and maintaining these wonderful work that we otherwise could not have done ourselves. If you have ported any part of the OmiseGO eWallet to another platform, we will be very happy to list them here. [Submit us a pull request](https://github.com/omisego/ewallet/pulls).
+### Community Efforts
+
+We are thankful to our community for creating and maintaining these wonderful work that we otherwise could not have done ourselves. If you have ported any part of the OmiseGO eWallet Server to another platform, we will be happy to list them here. [Submit us a pull request](https://github.com/omisego/ewallet/pulls).
 
 -   [Alainy/OmiseGo-Go-SDK](https://github.com/Alainy/OmiseGo-Go-SDK) (Golang)
 
-Please note that these community tools and libraries are **not maintained by the OmiseGO team.**
+## Contributing
+
+Contributing to the OmiseGO eWallet Server can be contributions to the code base, bug reports, feature suggestions or any sorts of feedbacks. Please learn more from our [contributing guide](.github/CONTRIBUTING.md).
+
+## Support
+
+The OmiseGO eWallet Server team closely monitors the following channels.
+
+-   [GitHub Issues](https://github.com/omisego/ewallet/issues): Browse or file a report for any bugs found
+-   [Gitter](https://gitter.im/omisego/ewallet): Discuss features and suggestions in real-time
+-   [Stack Overflow](https://stackoverflow.com/questions/tagged/omisego): Search or create a new question with the tag `omisego`
+
+If you need enterprise support or hosting solutions, please [get in touch with us](mailto:thibault@omisego.co) for more details.
 
 ## License
 
-The OmiseGO eWallet is released under the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
+The OmiseGO eWallet Server is licensed under the [Apache License](https://www.apache.org/licenses/LICENSE-2.0)
