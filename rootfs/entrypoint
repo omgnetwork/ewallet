@@ -66,6 +66,7 @@ s6-env REPLACE_OS_VARS=yes
 ##
 ifelse { test $1 == "initdb" } { /app/bin/ewallet $@ }
 ifelse { test $1 == "seed" } { /app/bin/ewallet $@ }
+ifelse { test $1 == "config" } { /app/bin/ewallet $@ }
 
 ifelse { test $1 == "foreground" } {
   importas -D true SERVE_ENDPOINTS SERVE_ENDPOINTS

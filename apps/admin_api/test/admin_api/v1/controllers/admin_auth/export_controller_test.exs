@@ -67,6 +67,21 @@ defmodule AdminAPI.V1.ExportControllerTest do
       assert response["success"]
       assert Enum.empty?(exports)
     end
+
+    test "does not return exports made with a different adapter" do
+      user = get_test_admin()
+      insert(:export, adapter: "local", user_uuid: user.uuid)
+      insert(:export, adapter: "local", user_uuid: user.uuid)
+      insert(:export, adapter: "gcs", user_uuid: user.uuid)
+
+      response = admin_user_request("/export.all", %{})
+      exports = response["data"]["data"]
+
+      assert response["success"]
+      assert length(exports) == 2
+      assert Enum.at(exports, 0)["adapter"] == "local"
+      assert Enum.at(exports, 1)["adapter"] == "local"
+    end
   end
 
   describe "/export.get" do
@@ -93,6 +108,16 @@ defmodule AdminAPI.V1.ExportControllerTest do
 
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation."
+    end
+
+    test "returns 'adapter:invalid_storage' if the export was generated with another adapter" do
+      user = get_test_admin()
+      export = insert(:export, adapter: "gcs", user_uuid: user.uuid)
+      response = admin_user_request("/export.get", %{"id" => export.id})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "adapter:invalid_storage"
     end
 
     test "returns 'unauthorized' if the given ID was not found" do

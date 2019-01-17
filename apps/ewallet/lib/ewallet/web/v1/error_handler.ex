@@ -383,6 +383,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "adapter:server_not_running",
       description:
         "The file adapter you are using is not functionning properly (probably due to a configuration error)."
+    },
+    invalid_storage_adapter: %{
+      code: "adapter:invalid_storage",
+      description: "The file was stored in a different backend and cannot be retrieved."
     }
   }
 
