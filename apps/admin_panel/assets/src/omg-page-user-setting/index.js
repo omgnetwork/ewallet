@@ -20,6 +20,9 @@ const StyledInput = styled(Input)`
 `
 const StyledEmailInput = StyledInput.extend`
   pointer-events: none;
+  input {
+    border-bottom: none;
+  }
 `
 const Avatar = styled(ImageUploaderAvatar)`
   margin: 0;
