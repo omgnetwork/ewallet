@@ -2,11 +2,7 @@
 
 ## Can I use the eWallet right now?
 
-Sure! You can deploy it on a server (or run it locally) and start using it as a ledger. Refer to the [getting started](/#getting-started) section for more information.
-
-## When will the eWallet be official released (out of Beta)?
-
-When it's ready :) Feel free to follow the progress through PRs, issues and our monthly updates for more information.
+Sure! You can deploy it on a server (or run it locally) and start using it as a ledger. Refer to the [getting started](/README.md#getting-started) section for more information.
 
 ## Can I help?
 
