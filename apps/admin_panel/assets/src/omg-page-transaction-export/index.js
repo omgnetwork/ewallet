@@ -179,7 +179,7 @@ class TransactionExportPage extends Component {
     }, 3000)
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     clearInterval(this._pollingExport)
   }
 
@@ -238,7 +238,7 @@ class TransactionExportPage extends Component {
           <TimestampContainer>
             <span>{moment(row.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
             {row.status === 'completed' && (
-              <Icon name="Download" onClick={this.onClickDownload(row)} />
+              <Icon name='Download' onClick={this.onClickDownload(row)} />
             )}
           </TimestampContainer>
         )
@@ -268,9 +268,9 @@ class TransactionExportPage extends Component {
         return row.params.match_all
           ? row.params.match_all.length
             ? row.params.match_all.map((query, i) => (
-                <div style={{ whiteSpace: 'nowrap' }} key={i}>
+              <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
-                  {moment(query.value).isValid()
+                {moment(query.value).isValid()
                     ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
                     : query.value}{' '}
                   ]
@@ -283,9 +283,9 @@ class TransactionExportPage extends Component {
         return row.params.match_any
           ? row.params.match_any.length
             ? row.params.match_any.map((query, i) => (
-                <div style={{ whiteSpace: 'nowrap' }} key={i}>
+              <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
-                  {moment(query.value).isValid()
+                {moment(query.value).isValid()
                     ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
                     : query.value}{' '}
                   ]
@@ -297,13 +297,13 @@ class TransactionExportPage extends Component {
         return (
           <StatusContainer>
             {data === 'failed' && (
-              <MarkContainer status="failed">
-                <Icon name="Close" />
+              <MarkContainer status='failed'>
+                <Icon name='Close' />
               </MarkContainer>
             )}
             {data === 'completed' && (
-              <MarkContainer status="success">
-                <Icon name="Checked" />
+              <MarkContainer status='success'>
+                <Icon name='Checked' />
               </MarkContainer>
             )}
             {data === 'processing' && (
@@ -323,21 +323,21 @@ class TransactionExportPage extends Component {
   onClickClose = e => {
     this.setState({ generateExportOpen: false })
   }
-  renderExportButton(fetch) {
+  renderExportButton (fetch) {
     return (
       <Manager>
         <Reference>
           {({ ref, style }) => (
             <div ref={ref} style={{ ...style, display: 'inline-block', marginLeft: '10px' }}>
-              <Button styleType="primary" onClick={this.onClickGenerate}>
-                <Icon name="Export" /> Generate
+              <Button styleType='primary' onClick={this.onClickGenerate}>
+                <Icon name='Export' /> Generate
               </Button>
             </div>
           )}
         </Reference>
         {this.state.generateExportOpen && (
           <Popper
-            placement="left-start"
+            placement='left-start'
             positionFixed
             modifiers={{
               offset: {
@@ -349,7 +349,7 @@ class TransactionExportPage extends Component {
             {({ ref, style, placement, arrowProps }) => (
               <div ref={ref} style={{ ...style, zIndex: 1 }} data-placement={placement}>
                 <ExportFormContainer>
-                  <Icon name="Close" onClick={this.onClickClose} />
+                  <Icon name='Close' onClick={this.onClickClose} />
                   <FormDetailContainer onSubmit={this.onClickExport(fetch)}>
                     <div>
                       <h5>From Date</h5>
@@ -357,7 +357,7 @@ class TransactionExportPage extends Component {
                         onChange={this.onDateTimeFromChange}
                         onFocus={this.onDateTimeFromFocus}
                         value={this.state.fromDate}
-                        placeholder="From date.."
+                        placeholder='From date..'
                       />
                     </div>
                     <div>
@@ -366,7 +366,7 @@ class TransactionExportPage extends Component {
                         onChange={this.onDateTimeToChange}
                         onFocus={this.onDateTimeToFocus}
                         value={this.state.toDate}
-                        placeholder="To date.."
+                        placeholder='To date..'
                       />
                     </div>
                     <Button loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}>
@@ -382,7 +382,7 @@ class TransactionExportPage extends Component {
       </Manager>
     )
   }
-  render() {
+  render () {
     return (
       <Container>
         <ExportFetcher
@@ -396,7 +396,7 @@ class TransactionExportPage extends Component {
                 <TopNavigation
                   title={
                     <TitleContainer>
-                      <Icon name="Arrow-Left" onClick={this.props.history.goBack} /> Export
+                      <Icon name='Arrow-Left' onClick={this.props.history.goBack} /> Export
                       Transactions
                     </TitleContainer>
                   }
@@ -445,10 +445,10 @@ class DateTimeHotFix extends PureComponent {
     onFocus: PropTypes.func,
     placeholder: PropTypes.string
   }
-  render() {
+  render () {
     return (
       <DateTime
-        ref="picker"
+        ref='picker'
         closeOnSelect
         onChange={this.props.onChange}
         renderInput={(props, openCalendar, closeCalendar) => {
