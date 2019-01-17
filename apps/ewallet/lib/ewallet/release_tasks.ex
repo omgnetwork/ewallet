@@ -114,7 +114,7 @@ defmodule EWallet.ReleaseTasks do
   @config_apps [:activity_logger, :ewallet_config]
 
   def config_base64 do
-    case :init.get_plain_arguments do
+    case :init.get_plain_arguments() do
       [key, value] ->
         config_base64(key, value)
 
