@@ -60,7 +60,7 @@ defmodule EWalletConfig.FileStorageSupervisor do
         {:reply, {:ok, pid}, pid}
 
       error ->
-        if Mix.env() != :test do
+        if Application.get_env(:ewallet, :env) != :test do
           Logger.warn("Failed to start Goth server, probably due to an invalid configuration.")
           Logger.warn(inspect(error))
         end
