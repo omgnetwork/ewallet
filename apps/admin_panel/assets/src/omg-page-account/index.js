@@ -151,7 +151,7 @@ class AccountPage extends Component {
   renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
-        <TopNavigation title={'Account'} buttons={[this.renderCreateAccountButton()]} />
+        <TopNavigation title={'Accounts'} buttons={[this.renderCreateAccountButton()]} />
         <SortableTableContainer
           innerRef={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}

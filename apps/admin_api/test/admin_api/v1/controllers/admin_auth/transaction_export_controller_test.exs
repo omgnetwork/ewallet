@@ -20,14 +20,14 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
   alias ActivityLogger.System
 
   def setup do
-    assert Application.get_env(:ewallet, :file_storage_adapter) == "local"
+    assert Application.get_env(:admin_api, :file_storage_adapter) == "local"
   end
 
   describe "/transaction.export" do
     test "generates a csv file" do
       admin = get_test_admin()
       insert_list(100, :transaction)
-      assert Application.get_env(:ewallet, :file_storage_adapter) == "local"
+      assert Application.get_env(:admin_api, :file_storage_adapter) == "local"
 
       response =
         admin_user_request("/transaction.export", %{

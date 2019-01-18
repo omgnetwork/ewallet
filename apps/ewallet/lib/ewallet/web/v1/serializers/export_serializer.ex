@@ -33,6 +33,7 @@ defmodule EWallet.Web.V1.ExportSerializer do
       filename: export.filename,
       schema: export.schema,
       status: export.status,
+      failure_reason: export.failure_reason,
       completion: export.completion,
       download_url: export.url,
       adapter: export.adapter,

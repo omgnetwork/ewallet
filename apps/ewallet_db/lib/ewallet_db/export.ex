@@ -62,6 +62,7 @@ defmodule EWalletDB.Export do
     field(:path, :string)
     field(:pid, :string)
     field(:failure_reason, :string)
+    field(:full_error, :string)
     field(:estimated_size, :float)
     field(:total_count, :integer)
     field(:adapter, :string)
@@ -146,15 +147,15 @@ defmodule EWalletDB.Export do
   @doc """
   Retrieves a list of all exports created by the given user.
   """
-  def all_for(%User{} = user) do
-    from(t in Export, where: t.user_uuid == ^user.uuid)
+  def all_for(%User{} = user, storage_adapter) do
+    from(e in Export, where: e.user_uuid == ^user.uuid and e.adapter == ^storage_adapter)
   end
 
   @doc """
   Retrieves a list of all exports created by the given key.
   """
-  def all_for(%Key{} = key) do
-    from(t in Export, where: t.key_uuid == ^key.uuid)
+  def all_for(%Key{} = key, storage_adapter) do
+    from(e in Export, where: e.key_uuid == ^key.uuid and e.adapter == ^storage_adapter)
   end
 
   @doc """
@@ -184,7 +185,7 @@ defmodule EWalletDB.Export do
   """
   def init(export, schema, count, estimated_size, originator) do
     time = Timex.format!(export.inserted_at, "%Y-%m-%d_%H:%M:%S:%L", :strftime)
-    filename = "#{schema}-#{export.key_uuid || export.user_uuid}-#{time}.csv"
+    filename = "#{schema}-#{time}.csv"
 
     Export.update(export, %{
       status: Export.processing(),

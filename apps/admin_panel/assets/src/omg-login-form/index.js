@@ -74,7 +74,7 @@ class LoginForm extends Component {
         if (result.data) {
           this.setState({ error: null })
           const redirectUrl = _.get(this.props, 'location.state.from.pathname')
-          this.props.history.push(redirectUrl || `/${result.data.account_id}/dashboard`)
+          this.props.history.push(`/${result.data.account_id}/dashboard`)
         } else {
           this.setState({ error: result.error.description || result.error.message, submitted: false })
         }

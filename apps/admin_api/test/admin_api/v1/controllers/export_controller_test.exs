@@ -69,6 +69,22 @@ defmodule AdminAPI.V1.ExportControllerTest do
       assert Enum.empty?(exports)
     end
 
+    test_with_auths "does not return exports made with a different adapter" do
+      user = get_test_admin()
+      key = get_test_key()
+      insert(:export, adapter: "local", user_uuid: user.uuid, key_uuid: key.uuid)
+      insert(:export, adapter: "local", user_uuid: user.uuid, key_uuid: key.uuid)
+      insert(:export, adapter: "gcs", user_uuid: user.uuid, key_uuid: key.uuid)
+
+      response = request("/export.all", %{})
+      exports = response["data"]["data"]
+
+      assert response["success"]
+      assert length(exports) == 2
+      assert Enum.at(exports, 0)["adapter"] == "local"
+      assert Enum.at(exports, 1)["adapter"] == "local"
+    end
+
     test_supports_match_any(
       "/export.all",
       :export,
@@ -97,6 +113,17 @@ defmodule AdminAPI.V1.ExportControllerTest do
       assert response["success"]
       assert response["data"]["object"] == "export"
       assert response["data"]["filename"] == target.filename
+    end
+
+    test_with_auths "returns 'adapter:invalid_storage' if the export was generated with another adapter" do
+      user = get_test_admin()
+      key = get_test_key()
+      export = insert(:export, adapter: "gcs", user_uuid: user.uuid, key_uuid: key.uuid)
+      response = admin_user_request("/export.get", %{"id" => export.id})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "adapter:invalid_storage"
     end
 
     test_with_auths "returns 'unauthorized' if the export is not owned" do

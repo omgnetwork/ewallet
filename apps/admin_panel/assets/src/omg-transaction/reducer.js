@@ -17,10 +17,3 @@ export const transactionsReducer = createReducer(
     }
   }
 )
-
-export const transactionsLoadingStatusReducer = createReducer('DEFAULT', {
-  'TRANSACTIONS/REQUEST/INITIATED': (state, action) => 'INITIATED',
-  'TRANSACTIONS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
-  'TRANSACTIONS/REQUEST/FAILED': (state, action) => 'FAILED',
-  'CURRENT_ACCOUNT/SWITCH': () => 'DEFAULT'
-})

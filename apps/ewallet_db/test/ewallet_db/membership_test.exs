@@ -90,8 +90,8 @@ defmodule EWalletDB.MembershipTest do
       level_0 = Account.get_master_account()
       level_1 = insert(:account, parent: level_0)
       level_2 = insert(:account, parent: level_1)
-      admin = insert(:role, name: "admin", priority: 0)
-      viewer = insert(:role, name: "viewer", priority: 1)
+      admin = insert(:role, name: "admin", priority: 111_111)
+      viewer = insert(:role, name: "viewer", priority: 222_222)
 
       # We assign to the master account
       {:ok, inserted_membership} = Membership.assign(user, level_0, admin, %System{})
@@ -113,8 +113,8 @@ defmodule EWalletDB.MembershipTest do
       level_0 = Account.get_master_account()
       level_1 = insert(:account, parent: level_0)
       level_2 = insert(:account, parent: level_1)
-      admin = insert(:role, name: "admin", priority: 0)
-      viewer = insert(:role, name: "viewer", priority: 1)
+      admin = insert(:role, name: "admin", priority: 111_111)
+      viewer = insert(:role, name: "viewer", priority: 222_222)
 
       {:ok, _membership} = Membership.assign(user, level_0, viewer, %System{})
       {res, membership} = Membership.assign(user, level_2, admin, %System{})
@@ -134,9 +134,9 @@ defmodule EWalletDB.MembershipTest do
       level_1 = insert(:account, parent: level_0)
       level_2 = insert(:account, parent: level_1)
       level_3 = insert(:account, parent: level_2)
-      admin = insert(:role, name: "admin", priority: 0)
-      viewer = insert(:role, name: "viewer", priority: 1)
-      grunt = insert(:role, name: "grunt", priority: 2)
+      admin = insert(:role, name: "admin", priority: 111_111)
+      viewer = insert(:role, name: "viewer", priority: 222_222)
+      grunt = insert(:role, name: "grunt", priority: 333_333)
 
       {:ok, _membership} = Membership.assign(user, level_0, viewer, %System{})
       {:ok, _membership} = Membership.assign(user, level_2, admin, %System{})
@@ -153,9 +153,9 @@ defmodule EWalletDB.MembershipTest do
       level_1 = insert(:account, parent: level_0)
       level_2 = insert(:account, parent: level_1)
       level_3 = insert(:account, parent: level_2)
-      admin = insert(:role, name: "admin", priority: 0)
-      viewer = insert(:role, name: "viewer", priority: 1)
-      grunt = insert(:role, name: "grunt", priority: 2)
+      admin = insert(:role, name: "admin", priority: 111_111)
+      viewer = insert(:role, name: "viewer", priority: 222_222)
+      grunt = insert(:role, name: "grunt", priority: 333_333)
 
       {:ok, _membership} = Membership.assign(user, level_0, grunt, %System{})
       {:ok, _membership} = Membership.assign(user, level_2, viewer, %System{})
@@ -175,8 +175,8 @@ defmodule EWalletDB.MembershipTest do
       level_0 = Account.get_master_account()
       level_1 = insert(:account, parent: level_0)
       level_2 = insert(:account, parent: level_1)
-      admin = insert(:role, name: "admin", priority: 0)
-      viewer = insert(:role, name: "viewer", priority: 1)
+      admin = insert(:role, name: "admin", priority: 111_111)
+      viewer = insert(:role, name: "viewer", priority: 222_222)
 
       {:ok, _membership} = Membership.assign(user, level_2, admin, %System{})
       {res, membership} = Membership.assign(user, level_0, viewer, %System{})
@@ -195,8 +195,8 @@ defmodule EWalletDB.MembershipTest do
       level_0 = Account.get_master_account()
       level_1 = insert(:account, parent: level_0)
       level_2 = insert(:account, parent: level_1)
-      admin = insert(:role, name: "admin", priority: 0)
-      viewer = insert(:role, name: "viewer", priority: 1)
+      admin = insert(:role, name: "admin", priority: 111_111)
+      viewer = insert(:role, name: "viewer", priority: 222_222)
 
       {:ok, inserted_membership} = Membership.assign(user, level_2, viewer, %System{})
       {res, membership} = Membership.assign(user, level_0, admin, %System{})
@@ -215,7 +215,7 @@ defmodule EWalletDB.MembershipTest do
       level_0 = Account.get_master_account()
       level_1 = insert(:account, parent: level_0)
       level_2 = insert(:account, parent: level_1)
-      admin = insert(:role, name: "admin", priority: 0)
+      admin = insert(:role, name: "admin", priority: 111_111)
 
       {:ok, inserted_membership} = Membership.assign(user, level_2, admin, %System{})
       {res, membership} = Membership.assign(user, level_0, admin, %System{})
@@ -239,7 +239,7 @@ defmodule EWalletDB.MembershipTest do
       level_1_2 = insert(:account, parent: level_0)
       level_2_2 = insert(:account, parent: level_1_2)
 
-      admin = insert(:role, name: "admin", priority: 0)
+      admin = insert(:role, name: "admin", priority: 111_111)
 
       {:ok, inserted_membership} = Membership.assign(user, level_2_1, admin, %System{})
       {res, membership} = Membership.assign(user, level_2_2, admin, %System{})
@@ -263,7 +263,7 @@ defmodule EWalletDB.MembershipTest do
       level_1_2 = insert(:account, parent: level_0)
       level_2_2 = insert(:account, parent: level_1_2)
 
-      admin = insert(:role, name: "admin", priority: 0)
+      admin = insert(:role, name: "admin", priority: 111_111)
 
       {:ok, _inserted_membership_1} = Membership.assign(user, level_2_1, admin, %System{})
       {:ok, _inserted_membership_2} = Membership.assign(user, level_2_2, admin, %System{})

@@ -16,6 +16,11 @@ class TransactionProvider extends Component {
       this.props.getTransactionById(this.props.transactionId)
     }
   }
+  componentWillReceiveProps (newProps) {
+    if (newProps.transactionId !== this.props.transactionId) {
+      this.props.getTransactionById(newProps.transactionId)
+    }
+  }
   render () {
     return this.props.render({
       transaction: this.props.transaction

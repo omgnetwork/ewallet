@@ -121,16 +121,17 @@ class SideNavigation extends PureComponent {
     super(props)
     this.dataLink = [
       { icon: 'Dashboard', to: '/dashboard', text: 'DASHBOARD' },
-      { icon: 'Merchant', to: '/accounts', text: 'ACCOUNT' },
-      { icon: 'Token', to: '/tokens', text: 'TOKEN' },
-      { icon: 'Wallet', to: '/wallets', text: 'WALLET' },
-      { icon: 'Transaction', to: '/transaction', text: 'TRANSACTION' },
-      { icon: 'Request', to: '/requests', text: 'REQUEST' },
-      { icon: 'Consumption', to: '/consumptions', text: 'CONSUMPTION' },
-      { icon: 'Key', to: '/api', text: 'API' },
+      { icon: 'Merchant', to: '/accounts', text: 'ACCOUNTS' },
+      { icon: 'Token', to: '/tokens', text: 'TOKENS' },
+      { icon: 'Wallet', to: '/wallets', text: 'WALLETS' },
+      { icon: 'Transaction', to: '/transaction', text: 'TRANSACTIONS' },
+      { icon: 'Request', to: '/requests', text: 'REQUESTS' },
+      { icon: 'Consumption', to: '/consumptions', text: 'CONSUMPTIONS' },
+      { icon: 'Key', to: '/api', text: 'API KEYS' },
       { icon: 'People', to: '/users', text: 'USERS' },
+      { icon: 'Setting', to: '/activity', text: 'ACTIVITY LOGS' },
       { icon: 'Setting', to: '/configuration', text: 'CONFIGURATION' },
-      { icon: 'Setting', to: '/setting', text: 'SETTING' }
+      { icon: 'Setting', to: '/setting', text: 'SETTINGS' }
     ]
   }
   renderCurrentAccount = ({ currentAccount, loadingStatus }) => {

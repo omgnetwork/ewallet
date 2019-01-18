@@ -134,7 +134,7 @@ class TokenDetailPage extends Component {
     return (
       <TokenDetailPageContainer>
         <TopNavigation
-          title={'Token'}
+          title={'Tokens'}
           buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]}
         />
         <SortableTable
@@ -147,7 +147,6 @@ class TokenDetailPage extends Component {
           isFirstPage={pagination.is_first_page}
           isLastPage={pagination.is_last_page}
           navigation
-          onClickLoadMore={this.onClickLoadMore}
         />
 
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
