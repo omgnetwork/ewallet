@@ -26,8 +26,9 @@ defmodule EWalletDB.MembershipCheckerTest do
     account_3 = insert(:account, parent: account_2)
 
     # Lower number = higher priority
-    role_high = insert(:role, priority: 99)
-    role_low = insert(:role, priority: 99_999)
+    # Starts with a really high number to avoid conflict with other role inserts
+    role_high = insert(:role, priority: 111_111_111)
+    role_low = insert(:role, priority: 999_999_999)
 
     %{
       user: user,
