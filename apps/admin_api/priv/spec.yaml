@@ -790,7 +790,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_38
+      requestBody: &ref_39
         description: >-
           The parameters to use for retrieving a specific user by its id or
           provider_user_id
@@ -1247,7 +1247,7 @@ paths:
                                     transaction:
                                       type: object
                                       description: The object schema for a transaction
-                                      properties: &ref_32
+                                      properties: &ref_33
                                         object:
                                           type: string
                                         id:
@@ -1303,7 +1303,7 @@ paths:
                                         updated_at:
                                           type: string
                                           format: date-time
-                                      required: &ref_33
+                                      required: &ref_34
                                         - object
                                         - id
                                         - idempotency_token
@@ -2311,7 +2311,7 @@ paths:
                 id: acc_01ca2p8jqans5aty5gj5etmjcf
                 owned: true
       responses:
-        '200': &ref_35
+        '200': &ref_36
           description: Returns a list of users
           content:
             application/vnd.omisego.v1+json:
@@ -2373,7 +2373,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_30
       responses:
-        '200': &ref_39
+        '200': &ref_32
           description: Returns a list of wallets
           content:
             application/vnd.omisego.v1+json:
@@ -2474,6 +2474,19 @@ paths:
                                   name: Bitcoin
                                   subunit_to_unit: 100000000000000000
         '500': *ref_2
+  /account.get_wallets_and_user_wallets:
+    post:
+      tags:
+        - Account
+      summary: Get the list of wallets for the given account and all users wallets
+      operationId: account_get_wallets_and_user_wallets
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_30
+      responses:
+        '200': *ref_32
+        '500': *ref_2
   /account.get_transactions:
     post:
       tags:
@@ -2505,8 +2518,8 @@ paths:
                                 items:
                                   description: The object schema for a transaction
                                   type: object
-                                  properties: *ref_32
-                                  required: *ref_33
+                                  properties: *ref_33
+                                  required: *ref_34
                     example:
                       data:
                         object: list
@@ -2952,7 +2965,7 @@ paths:
                 email: new.email@example.com
                 token: verification_token
       responses:
-        '200': &ref_34
+        '200': &ref_35
           description: Returns a single admin panel user
           content:
             application/vnd.omisego.v1+json:
@@ -3060,7 +3073,7 @@ paths:
               example:
                 id: usr_01ce83q2zw7zk1dqr79t22zr1v
       responses:
-        '200': *ref_34
+        '200': *ref_35
         '500': *ref_2
   /admin.enable_or_disable:
     post:
@@ -3091,7 +3104,7 @@ paths:
                 id: usr_01ct2zjh20fj210bzz078948f6
                 enabled: false
       responses:
-        '200': *ref_34
+        '200': *ref_35
         '500': *ref_2
   /invite.accept:
     post:
@@ -3127,7 +3140,7 @@ paths:
       security:
         - ClientAuth: []
       responses:
-        '200': *ref_34
+        '200': *ref_35
         '500': *ref_2
   /me.get:
     post:
@@ -3138,7 +3151,7 @@ paths:
       security:
         - AdminAuth: []
       responses:
-        '200': *ref_34
+        '200': *ref_35
         '500': *ref_2
   /me.update:
     post:
@@ -3165,7 +3178,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': *ref_34
+        '200': *ref_35
         '500': *ref_2
   /me.update_email:
     post:
@@ -3190,7 +3203,7 @@ paths:
                 email: new.email@example.com
                 redirect_url: 'https://example.com'
       responses:
-        '200': *ref_34
+        '200': *ref_35
         '500': *ref_2
   /me.update_password:
     post:
@@ -3221,7 +3234,7 @@ paths:
                 password: new_password
                 password_confirmation: new_password
       responses:
-        '200': *ref_34
+        '200': *ref_35
         '500': *ref_2
   /me.upload_avatar:
     post:
@@ -3252,7 +3265,7 @@ paths:
                 id: usr_01ce83xvrsh8bzpctq3wqbprf8
                 avatar: /path/to/file
       responses:
-        '200': *ref_34
+        '200': *ref_35
         '500': *ref_2
   /me.get_account:
     post:
@@ -3290,7 +3303,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_11
       responses:
-        '200': *ref_35
+        '200': *ref_36
         '500': *ref_2
   /user.create:
     post:
@@ -3301,7 +3314,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_36
+      requestBody: &ref_37
         description: The parameters to use for creating or updating a user
         required: true
         content:
@@ -3327,15 +3340,15 @@ paths:
                 - username
               example:
                 provider_user_id: wijf-fbancomw-dqwjudb
-                username: thibault@omise.co
-                full_name: Thibault Denizet
-                calling_name: Thibault
+                username: john@example.com
+                full_name: John Doe
+                calling_name: John
                 metadata:
-                  first_name: Thibault
-                  last_name: Denizet
+                  first_name: John
+                  last_name: Doe
                 encrypted_metadata: {}
       responses:
-        '200': &ref_37
+        '200': &ref_38
           description: Returns a single user
           content:
             application/vnd.omisego.v1+json:
@@ -3377,9 +3390,9 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_36
+      requestBody: *ref_37
       responses:
-        '200': *ref_37
+        '200': *ref_38
         '500': *ref_2
   /user.get:
     post:
@@ -3390,9 +3403,9 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_38
+      requestBody: *ref_39
       responses:
-        '200': *ref_37
+        '200': *ref_38
         '500': *ref_2
   /user.get_wallets:
     post:
@@ -3426,7 +3439,7 @@ paths:
               example:
                 id: usr_01ce83q2zw7zk1dqr79t22zr1v
       responses:
-        '200': *ref_39
+        '200': *ref_32
         '500': *ref_2
   /user.get_transactions:
     post:
@@ -3492,7 +3505,7 @@ paths:
                 id: usr_01ct2zjh20fj210bzz078948f6
                 enabled: false
       responses:
-        '200': *ref_37
+        '200': *ref_38
         '500': *ref_2
   /wallet.all:
     post:
@@ -3505,7 +3518,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_11
       responses:
-        '200': *ref_39
+        '200': *ref_32
         '500': *ref_2
   /wallet.create:
     post:
@@ -3843,8 +3856,8 @@ paths:
                       data:
                         type: object
                         description: The object schema for a transaction
-                        properties: *ref_32
-                        required: *ref_33
+                        properties: *ref_33
+                        required: *ref_34
                     example:
                       data:
                         object: transaction

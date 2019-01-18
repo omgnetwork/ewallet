@@ -22,7 +22,8 @@ defmodule AdminAPI.V1.AdminAuth.AccountWalletControllerTest do
       {:ok, account_1} = :account |> params_for() |> Account.insert()
       {:ok, account_2} = :account |> params_for() |> Account.insert()
 
-      response = admin_user_request("/account.get_wallets_and_user_wallets", %{"id" => account.id})
+      response =
+        admin_user_request("/account.get_wallets_and_user_wallets", %{"id" => account.id})
 
       # Asserts return data
       assert response["success"]

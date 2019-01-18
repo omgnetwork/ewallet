@@ -158,6 +158,22 @@ account.get_descendants:
         $ref: 'responses.yaml#/AccountsResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+account.get_wallets_and_user_wallets:
+  post:
+    tags:
+      - Account
+    summary: Get the list of wallets for the given account and all users wallets
+    operationId: account_get_wallets_and_user_wallets
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBodyWithOwned'
+    responses:
+      '200':
+        $ref: '../wallet/responses.yaml#/WalletsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 account.get_wallets:
   post:
     tags:
