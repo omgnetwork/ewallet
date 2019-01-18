@@ -17,7 +17,8 @@ defmodule EWallet.Web.PaginatorTest do
   import Ecto.Query
   alias EWallet.Web.Paginator
   alias EWalletConfig.Config
-  alias EWalletDB.{Account, Repo}
+  alias EWallet.Web.V1.AccountOverlay
+  alias EWalletDB.{Account, Wallet, Repo}
   alias ActivityLogger.System
 
   describe "EWallet.Web.Paginator.paginate_attrs/2" do
@@ -99,8 +100,13 @@ defmodule EWallet.Web.PaginatorTest do
       assert {:error, :invalid_parameter, _} = result
     end
 
-    test "returns :error if given attrs.page_record_id is not a string" do
-      result = Paginator.paginate_attrs(Account, %{"page_record_id" => 1})
+    test "returns :error if given attrs.page_record_value is not a string" do
+      result = Paginator.paginate_attrs(Account, %{"page_record_value" => 1}, [:id])
+      assert {:error, :invalid_parameter, _} = result
+    end
+
+    test "returns :error if given attrs.page_record_field is not allowed" do
+      result = Paginator.paginate_attrs(Account, %{"page_record_field" => "a", "page_record_value" => "1"}, [:id, :create_at])
       assert {:error, :invalid_parameter, _} = result
     end
   end
@@ -115,8 +121,8 @@ defmodule EWallet.Web.PaginatorTest do
       assert is_list(paginator.data)
     end
 
-    test "returns a EWallet.Web.Paginator with data and pagination attributes when query with page_record_id" do
-      paginator = Paginator.paginate(Account, %{"page_record_id" => "1234", "per_page" => 10})
+    test "returns a EWallet.Web.Paginator with data and pagination attributes when query with page_record_value" do
+      paginator = Paginator.paginate(Account, %{"page_record_field" => :id, "page_record_value" => "1234", "per_page" => 10})
 
       assert %Paginator{} = paginator
       assert Map.has_key?(paginator, :data)
@@ -144,10 +150,10 @@ defmodule EWallet.Web.PaginatorTest do
              }
     end
 
-    test "returns correct pagination data when query by given page_record_id" do
+    test "returns correct pagination data when query by given `page_record_field` and `page_record_value`" do
       total = 10
       per_page = 10
-      number_of_last_elements = 5 # get last 5 accounts
+      number_of_last_elements = 2 # get last 5 accounts
       ensure_num_records(Account, total)
 
       records_id =
@@ -155,11 +161,14 @@ defmodule EWallet.Web.PaginatorTest do
       |> Repo.all()
       |> Enum.take(-number_of_last_elements)
 
-      start_page_record_id = Enum.at(records_id, 0)
-      paginator = Paginator.paginate(Account, %{"page_record_id" => start_page_record_id, "per_page" => per_page})
+      page_record_value = Enum.at(records_id, 0)
+      paginator = Paginator.paginate(
+        Account,
+        %{"page_record_field" => :id, "page_record_value" => page_record_value, "per_page" => per_page}
+      )
 
       actual_records_id = paginator.data
-      |> Enum.map(fn (%EWalletDB.Account{id: id}) -> id end)
+      |> Enum.map(fn (%Account{id: id}) -> id end)
 
       assert actual_records_id == records_id
 
@@ -172,22 +181,17 @@ defmodule EWallet.Web.PaginatorTest do
              }
     end
 
-    test "returns empty if page_record_id doesn't exist" do
+    test "returns error if page_record_value doesn't exist" do
       total = 10
       per_page = 10
       ensure_num_records(Account, total)
 
-      paginator = Paginator.paginate(Account, %{"page_record_id" => "1", "per_page" => per_page})
+      paginator = Paginator.paginate(
+        Account,
+        %{"page_record_field" => :id, "page_record_value" => "1", "per_page" => per_page}
+      )
 
-      assert paginator.data === []
-
-      assert paginator.pagination == %{
-               per_page: per_page,
-               current_page: 1,
-               is_first_page: true,
-               is_last_page: true,
-               count: 0
-             }
+      assert paginator === {:error, :invalid_parameter, "The given page_record_value `1` does not exist on the page_record_field `id`"}
     end
   end
 
@@ -195,7 +199,7 @@ defmodule EWallet.Web.PaginatorTest do
     test "returns a tuple of records and has_more flag" do
       ensure_num_records(Account, 10)
 
-      {records, has_more} = Paginator.fetch(Account,  %{"page" => 2, "per_page" => 5})
+      {records, has_more} = Paginator.fetch(Account, %{"page" => 2, "per_page" => 5})
       assert is_list(records)
       assert is_boolean(has_more)
     end
