@@ -44,7 +44,7 @@ defmodule AdminAPI.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:appsignal, "~> 1.0"},
+      {:appsignal, "~> 1.9"},
       {:bodyguard, "~> 2.2"},
       {:bypass, "~> 1.0.0", only: [:test]},
       {:cors_plug, "~> 1.5"},

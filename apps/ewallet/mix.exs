@@ -39,7 +39,7 @@ defmodule EWallet.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:appsignal, "~> 1.0"},
+      {:appsignal, "~> 1.9"},
       {:bamboo, "~> 0.8"},
       {:bamboo_smtp, "~> 1.4.0"},
       {:bodyguard, "~> 2.2"},
