@@ -13,7 +13,7 @@ class CurrentAccountProvider extends Component {
     match: PropTypes.object
   }
   componentDidMount = () => {
-    if (!this.props.currentAccountLoadingStatus) {
+    if (this.props.currentAccountLoadingStatus !== 'SUCCESS') {
       this.props.getCurrentAccount(this.props.match.params.accountId)
     }
   }
