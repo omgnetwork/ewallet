@@ -519,11 +519,10 @@ class ConfigurationPage extends Component {
     )
   }
   renderConfigurationPage = ({ data: configurations }) => {
-    console.log(this.state)
     return (
       <ConfigurationPageContainer>
         <TopNavigation
-          title={'Configurations'}
+          title={'Configuration'}
           buttons={[this.renderSaveButton()]}
           secondaryAction={false}
           types={false}
