@@ -74,7 +74,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert is_list(response["data"]["data"])
 
       wallets = response["data"]["data"]
-      assert length(wallets) == 3
+      assert length(wallets) == 2
 
       wallets =
         Enum.map(wallets, fn wallet ->
@@ -94,8 +94,6 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
     test "returns a list of wallets according to sort_by and sort_direction" do
       account = insert(:account)
-      user = get_test_user()
-      user_wallet = User.get_primary_wallet(user)
 
       account_wallet_1 =
         insert(:wallet, %{
@@ -136,11 +134,10 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       wallets = response["data"]["data"]
 
       assert response["success"]
-      assert Enum.count(wallets) == 5
+      assert Enum.count(wallets) == 4
 
       ordered_addresses =
         [
-          user_wallet.address,
           account_wallet_1.address,
           account_wallet_2.address,
           account_wallet_3.address,
@@ -155,7 +152,6 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert Enum.at(wallets, 3)["address"] == Enum.at(ordered_addresses, 3)
       assert Enum.at(wallets, 4)["address"] == Enum.at(ordered_addresses, 4)
 
-      assert Enum.count(wallets, fn w -> w["user_id"] == user.id end) == 1
       assert Enum.count(wallets, fn w -> w["account_id"] == account.id end) == 4
     end
   end
