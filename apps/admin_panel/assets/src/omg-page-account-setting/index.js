@@ -297,7 +297,7 @@ class AccountSettingPage extends Component {
     return (
       <AccountSettingContainer>
         <TopNavigation
-          title='Account Setting'
+          title='Account Settings'
           buttons={[this.renderInviteButton()]}
           secondaryAction={false}
           types={false}

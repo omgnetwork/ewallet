@@ -10,7 +10,7 @@ const StyledPagination = styled(Pagination)`
 const TableContainer = styled.div`
   position: relative;
   min-height: ${props => (props.loading ? `${props.height}px` : 'auto')};
-  overflow: auto;
+  overflow-x: auto;
 `
 const EmptyStageContainer = styled.div`
   text-align: center;
@@ -26,7 +26,6 @@ const EmptyStageContainer = styled.div`
 `
 const Tr = styled.tr`
   background-color: ${props => (props.active ? props.theme.colors.S200 : 'transparent')};
-
 `
 class Table extends Component {
   static propTypes = {
@@ -68,7 +67,7 @@ class Table extends Component {
   renderLoadingColumns = () => {
     return (
       <tr>
-        <th style={{height: '20px'}} />
+        <th style={{ height: '20px' }} />
       </tr>
     )
   }
@@ -86,7 +85,7 @@ class Table extends Component {
       return (
         <tr key={`row-${i}`} ref={row => (this.row = row)}>
           <td key={`col-rest-${i}`}>
-            <LoadingSkeleton height={'12px'} width={x} style={{margin: '5px 0'}} />
+            <LoadingSkeleton height={'12px'} width={x} style={{ margin: '5px 0' }} />
           </td>
         </tr>
       )
@@ -126,7 +125,13 @@ class Table extends Component {
         height={this.props.loadingRowNumber * 40}
         loading={this.props.loading}
       >
-        <Fade in={this.props.loading} timeout={300} key={'loading'} unmountOnExit>
+        <Fade
+          in={this.props.loading}
+          timeout={300}
+          key={'loading'}
+          unmountOnExit
+
+        >
           <table style={{ position: 'absolute', background: 'white' }}>
             <thead>{this.renderLoadingColumns()}</thead>
             <tbody>{this.renderLoadingRows()}</tbody>
@@ -144,15 +149,14 @@ class Table extends Component {
             <div>Sorry, no data yet.</div>
           </EmptyStageContainer>
         )}
-        {!this.props.loading &&
-          this.props.pagination && (
-            <StyledPagination
-              itemCounts={this.props.rows.length}
-              perPage={this.props.perPage}
-              activeKey={this.props.page}
-              onClickPagination={this.onClickPagination}
-            />
-          )}
+        {!this.props.loading && this.props.pagination && (
+          <StyledPagination
+            itemCounts={this.props.rows.length}
+            perPage={this.props.perPage}
+            activeKey={this.props.page}
+            onClickPagination={this.onClickPagination}
+          />
+        )}
       </TableContainer>
     )
   }

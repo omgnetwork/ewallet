@@ -519,7 +519,6 @@ class ConfigurationPage extends Component {
     )
   }
   renderConfigurationPage = ({ data: configurations }) => {
-    console.log(this.state)
     return (
       <ConfigurationPageContainer>
         <TopNavigation
