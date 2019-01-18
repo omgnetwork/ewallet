@@ -18,6 +18,9 @@ defmodule EWallet.Web.V1.ConfigurationOverlay do
   """
   @behaviour EWallet.Web.V1.Overlay
 
+  def page_record_fields(),
+    do: [:id]
+
   def preload_assocs,
     do: []
 

@@ -30,6 +30,9 @@ defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
     WalletOverlay
   }
 
+  def page_record_fields(),
+    do: [:id]
+
   def preload_assocs, do: default_preload_assocs()
 
   def default_preload_assocs,

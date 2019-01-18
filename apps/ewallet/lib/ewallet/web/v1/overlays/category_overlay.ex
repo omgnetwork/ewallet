@@ -20,6 +20,9 @@ defmodule EWallet.Web.V1.CategoryOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.AccountOverlay
 
+  def page_record_fields(),
+    do: [:id]
+
   def preload_assocs, do: [:accounts]
 
   def default_preload_assocs,

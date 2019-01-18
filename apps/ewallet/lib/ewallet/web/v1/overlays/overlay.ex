@@ -17,6 +17,10 @@ defmodule EWallet.Web.V1.Overlay do
   Behavior definition for overlays.
   """
 
+  # The compatible fields to `page_record_id`.
+  # Which is used for define the beginning of set of records.
+  @callback page_record_fields() :: [Atom.t()]
+
   # The fields that can be preloaded.
   @callback preload_assocs() :: [Atom.t()]
 

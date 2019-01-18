@@ -20,6 +20,9 @@ defmodule EWallet.Web.V1.MintOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.{AccountOverlay, TokenOverlay, TransactionOverlay}
 
+  def page_record_fields(),
+    do: [:id]
+
   def preload_assocs,
     do: [
       :token,
