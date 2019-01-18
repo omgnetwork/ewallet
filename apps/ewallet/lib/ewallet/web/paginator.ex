@@ -43,34 +43,54 @@ defmodule EWallet.Web.Paginator do
   """
   @spec paginate_attrs(Ecto.Query.t() | Ecto.Queryable.t(), map(), Ecto.Repo.t()) ::
           %__MODULE__{} | {:error, :invalid_parameter, String.t()}
-  def paginate_attrs(queryable, attrs, repo \\ Repo)
+  def paginate_attrs(queryable, attrs, allowed_page_record_fields \\ [], repo \\ Repo)
 
-  def paginate_attrs(queryable, %{"page" => page} = attrs, repo) when not is_integer(page) do
+  def paginate_attrs(queryable, %{"page" => page} = attrs, _allowed_page_record_fields, repo) when not is_integer(page) do
     parse_string_param(queryable, attrs, "page", page, repo)
   end
 
-  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, repo) when not is_integer(per_page) do
+  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, _allowed_page_record_fields, repo) when not is_integer(per_page) do
     parse_string_param(queryable, attrs, "per_page", per_page, repo)
   end
 
-  def paginate_attrs(queryable, %{"page_record_id" => page_record_id} = attrs, repo) when is_bitstring(page_record_id) do
+  def paginate_attrs(queryable, %{"page_record_field" => page_record_field, "page_record_value" => page_record_value} = attrs, allowed_page_record_fields, repo)
+    when is_bitstring(page_record_value) and is_bitstring(page_record_field) do
     per_page = get_per_page(attrs)
-    paginate(queryable, %{"page_record_id" => page_record_id, "per_page" => per_page} = attrs, repo)
+    page_record_field = String.to_atom(page_record_field)
+    result = Enum.any?(allowed_page_record_fields, fn(x) -> x === page_record_field end)
+    case result do
+      true ->
+        paginate(
+          queryable,
+          %{"page_record_field" => page_record_field, "page_record_value" => page_record_value, "per_page" => per_page} = attrs,
+          repo
+        )
+      _ ->
+        {:error, :invalid_parameter, "page_record_field: `#{page_record_field}` is not allowed. The available fields are: #{inspect allowed_page_record_fields}"}
+      end
   end
 
-  def paginate_attrs(_, %{"page" => page}, _repo) when is_integer(page) and page < 0 do
+  def paginate_attrs(queryable, %{"page_record_value" => page_record_value} = attrs, allowed_page_record_fields, repo)
+    when is_bitstring(page_record_value) do
+    per_page = get_per_page(attrs)
+    page_record_field = Enum.at(allowed_page_record_fields, 0) |> Atom.to_string
+    attrs = Map.put(attrs, "page_record_field", page_record_field)
+    paginate_attrs(queryable, attrs, allowed_page_record_fields, repo)
+  end
+
+  def paginate_attrs(_, %{"page" => page}, _allowed_page_record_fields, _repo) when is_integer(page) and page < 0 do
     {:error, :invalid_parameter, "`page` must be non-negative integer"}
   end
 
-  def paginate_attrs(_, %{"per_page" => per_page}, _repo) when is_integer(per_page) and per_page < 1 do
+  def paginate_attrs(_, %{"per_page" => per_page}, _allowed_page_record_fields, _repo) when is_integer(per_page) and per_page < 1 do
     {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
 
-  def paginate_attrs(_, %{"page_record_id" => page_record_id}, _repo) when not is_bitstring(page_record_id) do
-    {:error, :invalid_parameter, "`page_record_id` must be a string"}
+  def paginate_attrs(_, %{"page_record_value" => page_record_value}, _allowed_page_record_fields, _repo) when not is_bitstring(page_record_value) do
+    {:error, :invalid_parameter, "`page_record_value` must be a string"}
   end
 
-  def paginate_attrs(queryable, attrs, repo) do
+  def paginate_attrs(queryable, attrs, _allowed_page_record_fields, repo) do
     page = Map.get(attrs, "page", 1)
     per_page = get_per_page(attrs)
 
@@ -108,28 +128,35 @@ defmodule EWallet.Web.Paginator do
   end
 
   @doc """
-  Paginate a query using the given `page_record_id` and `per_page` and returns a paginator.
+  Paginate a query using the given `page_record_value` and `per_page` and returns a paginator.
   """
-  def paginate(queryable, %{"page_record_id" => page_record_id, "per_page" => per_page} = attrs, repo) do
+  def paginate(
+      queryable,
+      %{"page_record_field" => page_record_field, "page_record_value" => page_record_value, "per_page" => per_page} = attrs,
+      repo) do
     if repo == nil, do: repo = Repo
 
+    # Need to check that the [id] field exist in the schema.
     {records, more_page} = queryable
-    |> where([q], q.id >= ^page_record_id)
-    |> fetch(%{"page_record_id" => page_record_id, "page" => 0, "per_page" => per_page}, repo)
+    |> where([q], field(q, ^page_record_field) >= ^page_record_value)
+    |> order_by([q], field(q, ^page_record_field))
+    |> fetch(%{"page_record_value" => page_record_value, "page" => 0, "per_page" => per_page}, repo)
 
-    records = records
-    |> records_or_empty(page_record_id)
-
-    pagination = %{
-      per_page: per_page,
-      current_page: 1,
-      is_first_page: true,
-      # It's the last page if there are no more records
-      is_last_page: !more_page,
-      count: length(records)
-    }
-
-    %__MODULE__{data: records, pagination: pagination}
+    if length(records) > 0 && !match_record_id(records, page_record_field, page_record_value)  do
+      {:error, :invalid_parameter, "The given page_record_value `#{page_record_value}` does not exist on the page_record_field `#{page_record_field}`"}
+    else
+      %__MODULE__{
+        data: records,
+        pagination: %{
+          per_page: per_page,
+          current_page: 1,
+          is_first_page: true,
+          # It's the last page if there are no more records
+          is_last_page: !more_page,
+          count: length(records)
+        }
+      }
+    end
   end
 
   @doc """
@@ -174,12 +201,28 @@ defmodule EWallet.Web.Paginator do
     end
   end
 
-  # Returns records if the first record id is equal to `page_record_id`, otherwise empty.
-  defp records_or_empty([%{id: id} | rest] = records, page_record_id) when id === page_record_id do
-    records
+  defp match_record_id(records, page_record_field, page_record_value) do
+    value = records
+      |> Enum.at(0)
+      |> Map.get(page_record_field)
+
+    value === page_record_value
   end
 
-  defp records_or_empty(records, _page_record_id), do: []
+  # Returns records if the first record id is equal to `page_record_value`, otherwise empty.
+  defp records_or_empty(records, [allowed_record_field | _], page_record_value) do
+    # key = Atom.to_string(allowed_record_field)
+
+    # value = records
+    # |> Enum.at(0)
+    # |> Map.get(allowed_record_field)
+
+    # if value === page_record_value do
+    #   records
+    # else
+    #   []
+    # end
+  end
 
   defp get_query_offset(queryable, %{"page" => page, "per_page" => per_page}) do
     offset = case page do
@@ -191,6 +234,5 @@ defmodule EWallet.Web.Paginator do
     |> offset(^offset)
   end
 
-  defp get_query_offset(queryable, %{"page_record_id" => _page_record_id}),
-    do: queryable
+  defp get_query_offset(queryable, %{"page_record_value" => _page_record_value}), do: queryable
 end
