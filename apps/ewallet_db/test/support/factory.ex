@@ -200,7 +200,8 @@ defmodule EWalletDB.Factory do
     %Role{
       name: sequence("role"),
       display_name: "Role display name",
-      priority: sequence(""),
+      # Add a prefix temporarily so ExMachina.sequence/2 plays along nicely
+      priority: "priority" |> sequence() |> String.replace_leading("priority", ""),
       originator: %System{}
     }
   end
