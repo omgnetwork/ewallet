@@ -134,7 +134,7 @@ class TokenDetailPage extends Component {
     return (
       <TokenDetailPageContainer>
         <TopNavigation
-          title={'Token'}
+          title={'Tokens'}
           buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]}
         />
         <SortableTable

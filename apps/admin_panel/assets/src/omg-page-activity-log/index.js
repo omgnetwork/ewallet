@@ -149,7 +149,7 @@ class AccountPage extends Component {
   renderActivityPage = ({ data: activities, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
-        <TopNavigation title={'Activities'} buttons={[]} normalPlaceholder='originator id, action' />
+        <TopNavigation title={'Activity Logs'} buttons={[]} normalPlaceholder='originator id, action' />
         <SortableTableContainer
           innerRef={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
