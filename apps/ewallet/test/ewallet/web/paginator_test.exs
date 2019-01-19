@@ -17,7 +17,6 @@ defmodule EWallet.Web.PaginatorTest do
   import Ecto.Query
   alias EWallet.Web.Paginator
   alias EWalletConfig.Config
-  alias EWallet.Web.V1.AccountOverlay
   alias EWalletDB.{Account, Repo}
   alias ActivityLogger.System
 
