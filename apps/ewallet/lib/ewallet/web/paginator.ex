@@ -45,12 +45,16 @@ defmodule EWallet.Web.Paginator do
           %__MODULE__{} | {:error, :invalid_parameter, String.t()}
   def paginate_attrs(queryable, attrs, allowed_page_record_fields \\ [], repo \\ Repo)
 
-  def paginate_attrs(queryable, %{"page" => page} = attrs, _allowed_page_record_fields, repo) when not is_integer(page) do
-    parse_string_param(queryable, attrs, "page", page, repo)
+  def paginate_attrs(queryable, %{"page" => page} = attrs, allowed_page_record_fields, repo) when not is_integer(page) do
+    parse_string_param(queryable, attrs, "page", page, allowed_page_record_fields, repo)
   end
 
-  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, _allowed_page_record_fields, repo) when not is_integer(per_page) do
-    parse_string_param(queryable, attrs, "per_page", per_page, repo)
+  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, allowed_page_record_fields, repo) when not is_integer(per_page) do
+    parse_string_param(queryable, attrs, "per_page", per_page, allowed_page_record_fields, repo)
+  end
+
+  def paginate_attrs(queryable, %{"page" => _, "page_record_value" => _}, _allowed_page_record_fields, repo) do
+    {:error, :invalid_parameter, "`page` cannot be used with `page_record_value`"}
   end
 
   def paginate_attrs(queryable, %{"page_record_field" => page_record_field, "page_record_value" => page_record_value} = attrs, allowed_page_record_fields, repo)
@@ -62,7 +66,7 @@ defmodule EWallet.Web.Paginator do
       true ->
         paginate(
           queryable,
-          %{"page_record_field" => page_record_field, "page_record_value" => page_record_value, "per_page" => per_page} = attrs,
+          %{"page_record_field" => page_record_field, "page_record_value" => page_record_value, "per_page" => per_page},
           repo
         )
       _ ->
@@ -72,6 +76,7 @@ defmodule EWallet.Web.Paginator do
 
   def paginate_attrs(queryable, %{"page_record_value" => page_record_value} = attrs, allowed_page_record_fields, repo)
     when is_bitstring(page_record_value) do
+    if repo == nil, do: repo = Repo
     per_page = get_per_page(attrs)
     page_record_field = Enum.at(allowed_page_record_fields, 0) |> Atom.to_string
     attrs = Map.put(attrs, "page_record_field", page_record_field)
@@ -86,6 +91,10 @@ defmodule EWallet.Web.Paginator do
     {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
 
+  def paginate_attrs(_, %{"page_record_field" => page_record_value}, _allowed_page_record_fields, _repo) when not is_bitstring(page_record_value) do
+    {:error, :invalid_parameter, "`page_record_field` must be a string"}
+  end
+
   def paginate_attrs(_, %{"page_record_value" => page_record_value}, _allowed_page_record_fields, _repo) when not is_bitstring(page_record_value) do
     {:error, :invalid_parameter, "`page_record_value` must be a string"}
   end
@@ -98,12 +107,11 @@ defmodule EWallet.Web.Paginator do
   end
 
   # Try to parse the given string pagination parameter.
-  defp parse_string_param(queryable, attrs, name, value, repo) do
+  defp parse_string_param(queryable, attrs, name, value, allowed_page_record_fields, repo) do
     case Integer.parse(value, 10) do
       {page, ""} ->
         attrs = Map.put(attrs, name, page)
-        paginate_attrs(queryable, attrs, repo)
-
+        paginate_attrs(queryable, attrs, allowed_page_record_fields, repo)
       :error ->
         {:error, :invalid_parameter, "`#{name}` must be non-negative integer"}
     end

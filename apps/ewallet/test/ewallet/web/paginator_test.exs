@@ -18,7 +18,7 @@ defmodule EWallet.Web.PaginatorTest do
   alias EWallet.Web.Paginator
   alias EWalletConfig.Config
   alias EWallet.Web.V1.AccountOverlay
-  alias EWalletDB.{Account, Wallet, Repo}
+  alias EWalletDB.{Account, Repo}
   alias ActivityLogger.System
 
   describe "EWallet.Web.Paginator.paginate_attrs/2" do
@@ -54,6 +54,21 @@ defmodule EWallet.Web.PaginatorTest do
       paginator = Paginator.paginate_attrs(Account, %{"page" => "3", "per_page" => "4"})
       assert paginator.pagination.current_page == 3
       assert paginator.pagination.per_page == 4
+    end
+
+    test "returns a paginator with the given `page_record_value` without `page_record_field`" do
+      ensure_num_records(Account, 10)
+
+      records_id =
+      from(a in Account, select: a.id, order_by: a.id)
+      |> Repo.all()
+      |> Enum.take(-2)
+
+      page_record_value = Enum.at(records_id, 0)
+
+      paginator = Paginator.paginate_attrs(Account, %{"page_record_value" => page_record_value, "per_page" => "5"}, [:id])
+      assert paginator.pagination.current_page == 1
+      assert paginator.pagination.per_page == 5
     end
 
     test "returns per_page but never greater than the system's _default_ maximum (100)" do
@@ -97,6 +112,16 @@ defmodule EWallet.Web.PaginatorTest do
 
     test "returns :error if given attrs.per_page is a string" do
       result = Paginator.paginate_attrs(Account, %{"per_page" => "per page what?"})
+      assert {:error, :invalid_parameter, _} = result
+    end
+
+    test "returrns :error if given both attrs.page_record_value and attrs.page" do
+      result = Paginator.paginate_attrs(Account, %{"page" => 1, "page_record_value" => "acc_1234"})
+      assert {:error, :invalid_parameter, _} = result
+    end
+
+    test "returns :error if given attrs.page_record_field is not a string" do
+      result = Paginator.paginate_attrs(Account, %{"page_record_field" => 1}, [:id])
       assert {:error, :invalid_parameter, _} = result
     end
 
