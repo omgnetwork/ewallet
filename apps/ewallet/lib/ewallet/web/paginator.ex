@@ -53,7 +53,7 @@ defmodule EWallet.Web.Paginator do
     parse_string_param(queryable, attrs, "per_page", per_page, allowed_page_record_fields, repo)
   end
 
-  def paginate_attrs(_queryable, %{"page" => _page, "page_record_value" => _page_record_value}, _allowed_page_record_fields, _repo) do
+  def paginate_attrs(_, %{"page" => _, "page_record_value" => _}, _, _) do
     {:error, :invalid_parameter, "`page` cannot be used with `page_record_value`"}
   end
 
@@ -86,23 +86,23 @@ defmodule EWallet.Web.Paginator do
     paginate_attrs(queryable, attrs, allowed_page_record_fields, repo)
   end
 
-  def paginate_attrs(_, %{"page" => page}, _allowed_page_record_fields, _repo) when is_integer(page) and page < 0 do
+  def paginate_attrs(_, %{"page" => page}, _, _) when is_integer(page) and page < 0 do
     {:error, :invalid_parameter, "`page` must be non-negative integer"}
   end
 
-  def paginate_attrs(_, %{"per_page" => per_page}, _allowed_page_record_fields, _repo) when is_integer(per_page) and per_page < 1 do
+  def paginate_attrs(_, %{"per_page" => per_page}, _, _) when is_integer(per_page) and per_page < 1 do
     {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
 
-  def paginate_attrs(_, %{"page_record_field" => page_record_value}, _allowed_page_record_fields, _repo) when not is_bitstring(page_record_value) do
+  def paginate_attrs(_, %{"page_record_field" => page_record_value}, _, _) when not is_bitstring(page_record_value) do
     {:error, :invalid_parameter, "`page_record_field` must be a string"}
   end
 
-  def paginate_attrs(_, %{"page_record_value" => page_record_value}, _allowed_page_record_fields, _repo) when not is_bitstring(page_record_value) do
+  def paginate_attrs(_, %{"page_record_value" => page_record_value}, _, _) when not is_bitstring(page_record_value) do
     {:error, :invalid_parameter, "`page_record_value` must be a string"}
   end
 
-  def paginate_attrs(queryable, attrs, _allowed_page_record_fields, repo) do
+  def paginate_attrs(queryable, attrs, _, repo) do
     page = Map.get(attrs, "page", 1)
     per_page = get_per_page(attrs)
 
@@ -216,5 +216,5 @@ defmodule EWallet.Web.Paginator do
     |> offset(^offset)
   end
 
-  defp get_query_offset(queryable, %{"page_record_value" => _page_record_value}), do: queryable
+  defp get_query_offset(queryable, %{"page_record_value" => _}), do: queryable
 end
