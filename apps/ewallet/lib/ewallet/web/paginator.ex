@@ -141,7 +141,7 @@ defmodule EWallet.Web.Paginator do
   def paginate(queryable, attrs, repo \\ Repo)
 
   @doc """
-  Paginate a query using the given `page_record_value` and `per_page` and returns a paginator.
+  Paginate a query using the given `page_record_field` and `page_record_value` and returns a paginator.
   """
   def paginate(queryable, %{"page_record_field" => page_record_field, "page_record_value" => page_record_value, "per_page" => per_page}, repo) do
     {records, more_page} = queryable
@@ -152,7 +152,7 @@ defmodule EWallet.Web.Paginator do
     if length(records) > 0 && !begin_record_value(records, page_record_field, page_record_value)  do
       {:error, :invalid_parameter, "The given page_record_value `#{page_record_value}` does not exist on the page_record_field `#{page_record_field}`"}
     else
-      paginate(queryable, %{"page" => 1, "per_page" => per_page}, more_page, records, repo)
+      paginate(%{"page" => 1, "per_page" => per_page}, more_page, records)
     end
   end
 
@@ -161,10 +161,10 @@ defmodule EWallet.Web.Paginator do
   """
   def paginate(queryable, %{"page" => _, "per_page" => _} = attrs, repo) do
     {records, more_page} = fetch(queryable, attrs, repo)
-    paginate(queryable, attrs, more_page, records, repo)
+    paginate(attrs, more_page, records)
   end
 
-  def paginate(queryable, %{"page" => page, "per_page" => per_page}, more_page, records, repo) when is_list(records) do
+  def paginate(%{"page" => page, "per_page" => per_page}, more_page, records) when is_list(records) do
     pagination = %{
       per_page: per_page,
       current_page: page,
