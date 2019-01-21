@@ -48,7 +48,7 @@ class Table extends Component {
     columns: [],
     rows: [],
     loadingRowNumber: Math.round(window.innerHeight / 60),
-    loadingColNumber: 5,
+    loadingColNumber: 1,
     page: 1,
     perPage: 1000,
     pagination: false,
@@ -68,7 +68,9 @@ class Table extends Component {
   renderLoadingColumns = () => {
     return (
       <tr>
-        <th style={{ height: '20px' }} />
+        {new Array(this.props.loadingColNumber).fill().map((x, i) => {
+          return <th style={{ height: '20px' }} key={i} />
+        })}
       </tr>
     )
   }
