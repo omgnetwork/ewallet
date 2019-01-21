@@ -7,7 +7,7 @@ API access, tokens, transactions, etc.
 
 ### Development
 
-1. You will first need to create the `.env` file located under the project's root directory of the app `./assets/` with your own keys. There are 2 keys that is needed to be able to run and connect to the server `BACKEND_API_URL` and `BACKEND_WEBSOCKET_URL`
+1. You will first need to create the `.env` file located under the project's root directory of the app with your own keys. There are 2 keys that is needed to be able to run and connect to the server `BACKEND_API_URL` and `BACKEND_WEBSOCKET_URL`
 
 Example **.env** file
 ```
