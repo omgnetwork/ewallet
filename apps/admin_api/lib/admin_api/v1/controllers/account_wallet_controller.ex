@@ -14,7 +14,7 @@
 
 defmodule AdminAPI.V1.AccountWalletController do
   @moduledoc """
-  The controller to serve wallets.
+  The controller to serve account wallets.
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
@@ -70,7 +70,7 @@ defmodule AdminAPI.V1.AccountWalletController do
     handle_error(conn, code, description)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), %Account{} | %User{} | %Wallet{} | nil) ::
+  @spec permit(:all, map(), %Account{}) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, data) do
     Bodyguard.permit(WalletPolicy, action, params, data)
