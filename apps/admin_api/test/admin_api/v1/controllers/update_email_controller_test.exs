@@ -130,6 +130,17 @@ defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
       assert response["data"]["code"] == "user:email_already_exists"
     end
 
+    test "returns unauthorized when requesting  with a provider key" do
+      response =
+        provider_request("/me.update_email", %{
+          "email" => "test_email_update@example.com",
+          "redirect_url" => @redirect_url
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "access_key:unauthorized"
+    end
+
     test "generates activity logs" do
       admin = get_test_admin()
       timestamp = DateTime.utc_now()
