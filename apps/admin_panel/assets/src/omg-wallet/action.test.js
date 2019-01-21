@@ -86,7 +86,7 @@ describe('wallet actions', () => {
           expect.objectContaining({
             page: 1,
             perPage: 10,
-            sort: { by: 'created_at', dir: 'desc' }
+            sort: { by: 'identifier', dir: 'desc' }
           })
         )
         expect(store.getActions()).toEqual(expectedActions)
