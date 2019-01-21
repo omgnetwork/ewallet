@@ -49,6 +49,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
         nil ->
           {:ok, wallet} = BalanceLoader.add_balances(wallet)
           wallet
+
         _ ->
           wallet
       end
