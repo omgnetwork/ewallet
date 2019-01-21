@@ -31,6 +31,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionCalculationControllerTest do
   describe "/transaction.calculate" do
     test_with_auths "returns the calculation when all params are provided" do
       context = setup()
+
       response =
         request("/transaction.calculate", %{
           "from_amount" => 100,
@@ -57,6 +58,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionCalculationControllerTest do
 
     test_with_auths "accepts integer strings" do
       context = setup()
+
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => "100",
@@ -76,6 +78,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionCalculationControllerTest do
 
     test_with_auths "returns the calculation when `from_amount` is left out" do
       context = setup()
+
       response =
         admin_user_request("/transaction.calculate", %{
           # "from_amount" => 200 / context.pair.rate,
@@ -99,6 +102,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionCalculationControllerTest do
 
     test_with_auths "returns the calculation when `to_amount` is left out" do
       context = setup()
+
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => 300,
@@ -122,6 +126,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionCalculationControllerTest do
 
     test_with_auths "returns an error when the amounts conflict with the available exchange pair" do
       context = setup()
+
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => 100,
@@ -140,6 +145,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionCalculationControllerTest do
 
     test_with_auths "returns an error when `from_token_id` is missing" do
       context = setup()
+
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => 100,
@@ -156,6 +162,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionCalculationControllerTest do
 
     test_with_auths "returns an error when `to_token_id` is missing" do
       context = setup()
+
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => 100,
@@ -172,6 +179,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionCalculationControllerTest do
 
     test_with_auths "returns an error when both `from_token_id` and `to_token_id` are missing" do
       context = setup()
+
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => 100,
@@ -190,6 +198,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionCalculationControllerTest do
 
     test_with_auths "returns an error when both `from_amount` and `to_amount` are missing" do
       context = setup()
+
       response =
         admin_user_request("/transaction.calculate", %{
           # "from_amount" => 100,

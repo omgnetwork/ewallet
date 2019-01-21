@@ -540,11 +540,11 @@ defmodule AdminAPI.ConnCase do
 
     quote do
       test unquote(test_name) <> " with admin_auth" do
-        unquote(provider_test_block)
+        unquote(admin_test_block)
       end
 
       test unquote(test_name) <> " with provider_auth" do
-        unquote(admin_test_block)
+        unquote(provider_test_block)
       end
     end
   end

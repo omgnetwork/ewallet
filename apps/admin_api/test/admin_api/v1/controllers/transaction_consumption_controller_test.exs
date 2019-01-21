@@ -12,17 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
+defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
   use AdminAPI.ConnCase, async: true
 
   alias EWalletDB.{
     Account,
     AccountUser,
     Repo,
+    Token,
     Transaction,
     TransactionConsumption,
     TransactionRequest,
-    User
+    User,
+    Wallet
   }
 
   alias EWallet.{BalanceFetcher, TestEndpoint}
@@ -79,9 +81,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       }
     end
 
-    test "returns all the transaction_consumptions", meta do
+    test_with_auths "returns all the transaction_consumptions", meta do
       response =
-        provider_request("/transaction_consumption.all", %{
+        request("/transaction_consumption.all", %{
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -102,9 +104,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              end)
     end
 
-    test "returns all the transaction_consumptions for a specific status", meta do
+    test_with_auths "returns all the transaction_consumptions for a specific status", meta do
       response =
-        provider_request("/transaction_consumption.all", %{
+        request("/transaction_consumption.all", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
@@ -122,9 +124,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "returns all transaction_consumptions filtered", meta do
+    test_with_auths "returns all transaction_consumptions filtered", meta do
       response =
-        provider_request("/transaction_consumption.all", %{
+        request("/transaction_consumption.all", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_term" => "pending"
@@ -140,9 +142,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "returns all transaction_consumptions sorted and paginated", meta do
+    test_with_auths "returns all transaction_consumptions sorted and paginated", meta do
       response =
-        provider_request("/transaction_consumption.all", %{
+        request("/transaction_consumption.all", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "per_page" => 2,
@@ -166,20 +168,26 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
     # hence the customized factory attrs to make sure the results will be found.
     test_supports_match_any(
       "/transaction_consumption.all",
-      :provider_auth,
+      :admin_auth,
       :transaction_consumption,
       :correlation_id,
-      factory_attrs: %{user_uuid: nil, account_uuid: Account.get_master_account().uuid}
+      factory_attrs: %{
+        user_uuid: get_test_admin().uuid,
+        account_uuid: Account.get_master_account().uuid
+      }
     )
 
     # The endpoint will scope the result to the consumptions associated with the requester,
     # hence the customized factory attrs to make sure the results will be found.
     test_supports_match_all(
       "/transaction_consumption.all",
-      :provider_auth,
+      :admin_auth,
       :transaction_consumption,
       :correlation_id,
-      factory_attrs: %{user_uuid: nil, account_uuid: Account.get_master_account().uuid}
+      factory_attrs: %{
+        user_uuid: get_test_admin().uuid,
+        account_uuid: Account.get_master_account().uuid
+      }
     )
   end
 
@@ -201,9 +209,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       }
     end
 
-    test "returns :invalid_parameter when account_id is not provided" do
+    test_with_auths "returns :invalid_parameter when account id is not provided" do
       response =
-        provider_request("/account.get_transaction_consumptions", %{
+        request("/account.get_transaction_consumptions", %{
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -220,9 +228,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :unauthorized when user_id is not provided" do
+    test_with_auths "returns :account_id_not_found when id is not provided" do
       response =
-        provider_request("/account.get_transaction_consumptions", %{
+        request("/account.get_transaction_consumptions", %{
           "id" => "fake",
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -240,9 +248,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns all the transaction_consumptions for an account", meta do
+    test_with_auths "returns all the transaction_consumptions for an account", meta do
       response =
-        provider_request("/account.get_transaction_consumptions", %{
+        request("/account.get_transaction_consumptions", %{
           "id" => meta.account.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -264,9 +272,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              end)
     end
 
-    test "returns all the transaction_consumptions for a specific status", meta do
+    test_with_auths "returns all the transaction_consumptions for a specific status", meta do
       response =
-        provider_request("/account.get_transaction_consumptions", %{
+        request("/account.get_transaction_consumptions", %{
           "id" => meta.account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -285,9 +293,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "returns all transaction_consumptions sorted and paginated", meta do
+    test_with_auths "returns all transaction_consumptions sorted and paginated", meta do
       response =
-        provider_request("/account.get_transaction_consumptions", %{
+        request("/account.get_transaction_consumptions", %{
           "id" => meta.account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -327,9 +335,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       }
     end
 
-    test "returns :invalid_parameter when user_id or provider_user_id is not provided" do
+    test_with_auths "returns :invalid_parameter when id or provider_user_id is not provided" do
       response =
-        provider_request("/user.get_transaction_consumptions", %{
+        request("/user.get_transaction_consumptions", %{
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -347,10 +355,10 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :user_id_not_found when user_id is not valid" do
+    test_with_auths "returns :id_not_found when id is not valid" do
       response =
-        provider_request("/user.get_transaction_consumptions", %{
-          "user_id" => "fake",
+        request("/user.get_transaction_consumptions", %{
+          "id" => "fake",
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -367,9 +375,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :provider_user_id_not_found when provider_user_id is not valid" do
+    test_with_auths "returns :provider_user_id_not_found when provider_user_id is not valid" do
       response =
-        provider_request("/user.get_transaction_consumptions", %{
+        request("/user.get_transaction_consumptions", %{
           "provider_user_id" => "fake",
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -388,9 +396,29 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns all the transaction_consumptions for a user when given a user_id", meta do
+    test_with_auths "returns all the transaction_consumptions for a user when given an id",
+                    meta do
       response =
-        provider_request("/user.get_transaction_consumptions", %{
+        request("/user.get_transaction_consumptions", %{
+          "id" => meta.user.id,
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      assert length(response["data"]["data"]) == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_2.id,
+               meta.tc_3.id
+             ]
+    end
+
+    test_with_auths "returns all the transaction_consumptions for a user when given a user_id",
+                    meta do
+      response =
+        request("/user.get_transaction_consumptions", %{
           "user_id" => meta.user.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -406,10 +434,10 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "returns all the transaction_consumptions for a user when given a provider_user_id",
-         meta do
+    test_with_auths "returns all the transaction_consumptions for a user when given a provider_user_id",
+                    meta do
       response =
-        provider_request("/user.get_transaction_consumptions", %{
+        request("/user.get_transaction_consumptions", %{
           "provider_user_id" => meta.user.provider_user_id,
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -425,9 +453,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "returns all the transaction_consumptions for a specific status", meta do
+    test_with_auths "returns all the transaction_consumptions for a specific status", meta do
       response =
-        provider_request("/user.get_transaction_consumptions", %{
+        request("/user.get_transaction_consumptions", %{
           "user_id" => meta.user.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -445,9 +473,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "returns all transaction_consumptions sorted and paginated", meta do
+    test_with_auths "returns all transaction_consumptions sorted and paginated", meta do
       response =
-        provider_request("/user.get_transaction_consumptions", %{
+        request("/user.get_transaction_consumptions", %{
           "user_id" => meta.user.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -498,9 +526,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       }
     end
 
-    test "returns :invalid_parameter when formatted_transaction_request_id is not provided" do
+    test_with_auths "returns :invalid_parameter when formatted_transaction_request_id is not provided" do
       response =
-        provider_request("/transaction_request.get_transaction_consumptions", %{
+        request("/transaction_request.get_transaction_consumptions", %{
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -518,9 +546,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :transaction_request_id_not_found when formatted_transaction_request_id is not valid" do
+    test_with_auths "returns :unauthorized when formatted_transaction_request_id is not valid" do
       response =
-        provider_request("/transaction_request.get_transaction_consumptions", %{
+        request("/transaction_request.get_transaction_consumptions", %{
           "formatted_transaction_request_id" => "fake",
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -538,9 +566,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns all the transaction_consumptions for a transaction_request", meta do
+    test_with_auths "returns all the transaction_consumptions for a transaction_request", meta do
       response =
-        provider_request("/transaction_request.get_transaction_consumptions", %{
+        request("/transaction_request.get_transaction_consumptions", %{
           "formatted_transaction_request_id" => meta.transaction_request.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -556,9 +584,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "returns all the transaction_consumptions for a specific status", meta do
+    test_with_auths "returns all the transaction_consumptions for a specific status", meta do
       response =
-        provider_request("/transaction_request.get_transaction_consumptions", %{
+        request("/transaction_request.get_transaction_consumptions", %{
           "formatted_transaction_request_id" => meta.transaction_request.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -576,9 +604,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "returns all transaction_consumptions sorted and paginated", meta do
+    test_with_auths "returns all transaction_consumptions sorted and paginated", meta do
       response =
-        provider_request("/transaction_request.get_transaction_consumptions", %{
+        request("/transaction_request.get_transaction_consumptions", %{
           "formatted_transaction_request_id" => meta.transaction_request.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -630,9 +658,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       }
     end
 
-    test "returns :invalid_parameter when address is not provided" do
+    test_with_auths "returns :invalid_parameter when address is not provided" do
       response =
-        provider_request("/wallet.get_transaction_consumptions", %{
+        request("/wallet.get_transaction_consumptions", %{
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -649,9 +677,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :unauthorized when address is not provided" do
+    test_with_auths "returns :unauthorized when address is not provided" do
       response =
-        provider_request("/wallet.get_transaction_consumptions", %{
+        request("/wallet.get_transaction_consumptions", %{
           "address" => "fake-0000-0000-0000",
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -669,9 +697,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns all the transaction_consumptions for a wallet", meta do
+    test_with_auths "returns all the transaction_consumptions for a wallet", meta do
       response =
-        provider_request("/wallet.get_transaction_consumptions", %{
+        request("/wallet.get_transaction_consumptions", %{
           "address" => meta.wallet.address,
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -687,9 +715,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "returns all the transaction_consumptions for a specific status", meta do
+    test_with_auths "returns all the transaction_consumptions for a specific status", meta do
       response =
-        provider_request("/wallet.get_transaction_consumptions", %{
+        request("/wallet.get_transaction_consumptions", %{
           "address" => meta.wallet.address,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -707,9 +735,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "returns all transaction_consumptions sorted and paginated", meta do
+    test_with_auths "returns all transaction_consumptions sorted and paginated", meta do
       response =
-        provider_request("/wallet.get_transaction_consumptions", %{
+        request("/wallet.get_transaction_consumptions", %{
           "address" => meta.wallet.address,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -732,11 +760,11 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
   end
 
   describe "/transaction_consumption.get" do
-    test "returns the transaction consumption" do
+    test_with_auths "returns the transaction consumption" do
       transaction_consumption = insert(:transaction_consumption)
 
       response =
-        provider_request("/transaction_consumption.get", %{
+        request("/transaction_consumption.get", %{
           id: transaction_consumption.id
         })
 
@@ -744,9 +772,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert response["data"]["id"] == transaction_consumption.id
     end
 
-    test "returns an error when the request ID is not found" do
+    test_with_auths "returns an error when the consumption ID is not found" do
       response =
-        provider_request("/transaction_consumption.get", %{
+        request("/transaction_consumption.get", %{
           id: "123"
         })
 
@@ -765,7 +793,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
   end
 
   describe "/transaction_request.consume" do
-    test "consumes the request and transfers the appropriate amount of tokens", meta do
+    test_with_auths "consumes the request and transfers the appropriate amount of tokens", meta do
       transaction_request =
         insert(
           :transaction_request,
@@ -783,7 +811,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -855,7 +883,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.local_ledger_uuid != nil
     end
 
-    test "fails to consume when trying to send from a burn wallet", meta do
+    test_with_auths "fails to consume when trying to send from a burn wallet", meta do
       burn_wallet = Account.get_default_burn_wallet(meta.account)
 
       transaction_request =
@@ -868,7 +896,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
         )
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -892,8 +920,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                "Invalid parameter provided. `from` can't be the address of a burn wallet."
     end
 
-    test "consumes the request and transfers the appropriate amount of tokens with string",
-         meta do
+    test_with_auths "consumes the request and transfers the appropriate amount of tokens with string",
+                    meta do
       transaction_request =
         insert(
           :transaction_request,
@@ -911,7 +939,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -983,8 +1011,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.local_ledger_uuid != nil
     end
 
-    test "consumes the request and transfers with exchange details in request",
-         meta do
+    test_with_auths "consumes the request and transfers with exchange details in request",
+                    meta do
       token_2 = insert(:token)
       mint!(token_2)
       _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
@@ -1008,7 +1036,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1040,6 +1068,10 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
       assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
 
+      assert response["data"]["transaction"] != nil
+      assert response["data"]["transaction"]["exchange"]["exchange_pair"]["to_token_id"] != nil
+      assert response["data"]["transaction"]["exchange"]["exchange_pair"]["from_token_id"] != nil
+
       assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transaction.from_token_uuid == meta.token.uuid
       assert inserted_transaction.to_amount == 200_000 * token_2.subunit_to_unit
@@ -1059,8 +1091,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
     end
 
-    test "consumes the request and exchange with exchange_wallet in consumption",
-         meta do
+    test_with_auths "consumes the request and exchange with exchange_wallet in consumption",
+                    meta do
       token_2 = insert(:token)
       mint!(token_2)
       _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
@@ -1082,7 +1114,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1136,8 +1168,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
     end
 
-    test "consumes the request and exchange with exchange_account in consumption",
-         meta do
+    test_with_auths "consumes the request and exchange with exchange_account in consumption",
+                    meta do
       token_2 = insert(:token)
       mint!(token_2)
       _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
@@ -1159,7 +1191,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1213,8 +1245,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
     end
 
-    test "transfer and exchange if request and consumption specify the same exchange wallet address",
-         meta do
+    test_with_auths "transfer and exchange if request and consumption specify the same exchange wallet address",
+                    meta do
       token_2 = insert(:token)
       mint!(token_2)
       _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
@@ -1238,7 +1270,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1295,8 +1327,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
     end
 
-    test "fails to consume if exchange details are different and already specified in request",
-         meta do
+    test_with_auths "fails to consume if exchange details are different and already specified in request",
+                    meta do
       {:ok, account_2} = :account |> params_for() |> Account.insert()
       token_2 = insert(:token)
       mint!(token_2)
@@ -1321,7 +1353,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1340,7 +1372,68 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                "The transaction request for the given consumption already specify an exchange account and/or wallet."
     end
 
-    test "fails to consume and return an insufficient funds error", meta do
+    test_with_auths "fails to consume and return an error when amount is not specified", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: nil
+        )
+
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `amount` is required for transaction consumption."
+    end
+
+    test_with_auths "fails to consume and return an error when amount is a decimal number",
+                    meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: nil
+        )
+
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 1.2365,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `amount` is not an integer: 1.2365."
+    end
+
+    test_with_auths "fails to consume and return an insufficient funds error", meta do
       transaction_request =
         insert(
           :transaction_request,
@@ -1352,7 +1445,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
         )
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1397,7 +1490,73 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns with preload if `embed` attribute is given", meta do
+    test_with_auths "fails to consume when token is disabled", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      {:ok, token} = Token.enable_or_disable(meta.token, %{enabled: false, originator: %System{}})
+
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: token.id,
+          account_id: meta.account.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "token:disabled"
+    end
+
+    test_with_auths "fails to consume when wallet is disabled", meta do
+      {:ok, wallet} =
+        Wallet.insert_secondary_or_burn(%{
+          "account_uuid" => meta.account.uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary",
+          "originator" => %System{}
+        })
+
+      {:ok, wallet} = Wallet.enable_or_disable(wallet, %{enabled: false, originator: %System{}})
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: wallet.address,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "wallet:disabled"
+    end
+
+    test_with_auths "returns with preload if `embed` attribute is given", meta do
       transaction_request =
         insert(
           :transaction_request,
@@ -1415,7 +1574,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1430,8 +1589,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert response["data"]["account"] != nil
     end
 
-    test "returns same transaction request consumption when idempotency token is the same",
-         meta do
+    test_with_auths "returns same transaction request consumption when idempotency token is the same",
+                    meta do
       transaction_request =
         insert(
           :transaction_request,
@@ -1450,7 +1609,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "1234",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1468,7 +1627,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert response["data"]["id"] == inserted_consumption.id
 
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "1234",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1488,9 +1647,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.uuid == inserted_transaction_2.uuid
     end
 
-    test "returns idempotency error if header is not specified" do
+    test_with_auths "returns idempotency error if header is not specified" do
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           transaction_request_id: "123",
           correlation_id: nil,
           amount: nil,
@@ -1511,7 +1670,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "sends socket confirmation when require_confirmation and approved", meta do
+    test_with_auths "sends socket confirmation when require_confirmation and approved", meta do
       mint!(meta.token)
 
       # Create a require_confirmation transaction request that will be consumed soon
@@ -1534,7 +1693,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1569,7 +1728,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
       # Confirm the consumption
       response =
-        provider_request("/transaction_consumption.approve", %{
+        request("/transaction_consumption.approve", %{
           id: consumption_id
         })
 
@@ -1603,7 +1762,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
-    test "sends socket confirmation when require_confirmation and approved between users", meta do
+    test_with_auths "sends socket confirmation when require_confirmation and approved between users",
+                    meta do
       # bob = test_user
       set_initial_balance(%{
         address: meta.bob_wallet.address,
@@ -1632,7 +1792,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1667,7 +1827,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
       # Confirm the consumption
       response =
-        provider_request("/transaction_consumption.approve", %{
+        request("/transaction_consumption.approve", %{
           id: consumption_id
         })
 
@@ -1701,7 +1861,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
-    test "sends a websocket expiration event when a consumption expires", meta do
+    test_with_auths "sends a websocket expiration event when a consumption expires", meta do
       # bob = test_user
       set_initial_balance(%{
         address: meta.bob_wallet.address,
@@ -1732,7 +1892,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1796,7 +1956,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
       # If we try to approve it now, it will fail since it has already expired.
       response =
-        provider_request("/transaction_consumption.approve", %{
+        request("/transaction_consumption.approve", %{
           id: consumption_id
         })
 
@@ -1808,7 +1968,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
-    test "sends an error when approved without enough funds", meta do
+    test_with_auths "sends an error when approved without enough funds", meta do
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.bob.uuid, %System{})
 
       # Create a require_confirmation transaction request that will be consumed soon
@@ -1832,7 +1992,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1872,7 +2032,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
       # Confirm the consumption
       response =
-        provider_request("/transaction_consumption.approve", %{
+        request("/transaction_consumption.approve", %{
           id: consumption_id
         })
 
@@ -1902,7 +2062,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
-    test "sends socket confirmation when require_confirmation and rejected", meta do
+    test_with_auths "sends socket confirmation when require_confirmation and rejected", meta do
       mint!(meta.token)
 
       # Create a require_confirmation transaction request that will be consumed soon
@@ -1926,7 +2086,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -1961,7 +2121,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
       # Confirm the consumption
       response =
-        provider_request("/transaction_consumption.reject", %{
+        request("/transaction_consumption.reject", %{
           id: consumption_id
         })
 
@@ -1989,7 +2149,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request("/transaction_request.consume", %{
+        request("/transaction_request.consume", %{
           idempotency_token: "1234",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
@@ -2024,7 +2184,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
       # Confirm the consumption
       response =
-        provider_request("/transaction_consumption.approve", %{
+        request("/transaction_consumption.approve", %{
           id: consumption_id
         })
 
@@ -2052,62 +2212,38 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
-    test "generates an activity log", meta do
-      transaction_request =
-        insert(
-          :transaction_request,
-          type: "receive",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
-        )
+    defp assert_consume_logs(logs, originator, transaction_consumption) do
+      transaction =
+        get_last_inserted(Transaction)
+        |> Repo.preload([
+          :from_account,
+          :from_token,
+          :from_wallet,
+          :to_wallet,
+          :to_user,
+          :to_token
+        ])
 
-      set_initial_balance(%{
-        address: meta.bob_wallet.address,
-        token: meta.token,
-        amount: 150_000
-      })
+      alice_account_user = get_last_inserted(AccountUser) |> Repo.preload(:user)
 
-      timestamp = DateTime.utc_now()
-
-      response =
-        provider_request("/transaction_request.consume", %{
-          idempotency_token: "123",
-          formatted_transaction_request_id: transaction_request.id,
-          correlation_id: nil,
-          amount: nil,
-          address: nil,
-          metadata: nil,
-          token_id: nil,
-          account_id: meta.account.id
-        })
-
-      assert response["success"] == true
-
-      transaction_request = TransactionRequest.get(transaction_request.id)
-      transaction_consumption = TransactionConsumption.get(response["data"]["id"])
-      transaction = get_last_inserted(Transaction)
-      alice_account_user = get_last_inserted(AccountUser)
-      logs = get_all_activity_logs_since(timestamp)
       assert Enum.count(logs) == 8
 
       logs
       |> Enum.at(0)
       |> assert_activity_log(
         action: "insert",
-        originator: get_test_key(),
+        originator: originator,
         target: transaction_consumption,
         changes: %{
-          "account_uuid" => meta.account.uuid,
+          "account_uuid" => transaction_consumption.account.uuid,
           "estimated_at" => DateFormatter.to_iso8601(transaction_consumption.estimated_at),
-          "estimated_consumption_amount" => 10_000_000,
-          "estimated_rate" => 1.0,
-          "estimated_request_amount" => 10_000_000,
-          "idempotency_token" => "123",
-          "token_uuid" => meta.token.uuid,
-          "transaction_request_uuid" => transaction_request.uuid,
-          "wallet_address" => meta.account_wallet.address
+          "estimated_consumption_amount" => transaction_consumption.estimated_consumption_amount,
+          "estimated_rate" => transaction_consumption.estimated_rate,
+          "estimated_request_amount" => transaction_consumption.estimated_request_amount,
+          "idempotency_token" => transaction_consumption.idempotency_token,
+          "token_uuid" => transaction_consumption.token.uuid,
+          "transaction_request_uuid" => transaction_consumption.transaction_request.uuid,
+          "wallet_address" => transaction_consumption.wallet_address
         },
         encrypted_changes: %{}
       )
@@ -2133,30 +2269,30 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
         target: transaction,
         changes: %{
           "calculated_at" => DateFormatter.to_iso8601(transaction.calculated_at),
-          "from" => meta.account_wallet.address,
-          "from_account_uuid" => meta.account.uuid,
+          "from" => transaction.from_wallet.address,
           "from_amount" => 10_000_000,
-          "from_token_uuid" => meta.token.uuid,
-          "idempotency_token" => "123",
-          "rate" => 1.0,
-          "to" => meta.alice_wallet.address,
+          "from_account_uuid" => transaction.from_account.uuid,
+          "from_token_uuid" => transaction.from_token.uuid,
+          "idempotency_token" => transaction.idempotency_token,
+          "to" => transaction.to_wallet.address,
+          "to_user_uuid" => transaction.to_user.uuid,
           "to_amount" => 10_000_000,
-          "to_token_uuid" => meta.token.uuid,
-          "to_user_uuid" => meta.alice.uuid
+          "to_token_uuid" => transaction.to_token.uuid,
+          "rate" => transaction.rate
         },
         encrypted_changes: %{
           "payload" => %{
             "encrypted_metadata" => %{},
             "exchange_account_id" => nil,
             "exchange_wallet_address" => nil,
-            "from_address" => meta.account_wallet.address,
+            "from_address" => transaction.from_wallet.address,
             "from_amount" => 10_000_000,
-            "from_token_id" => meta.token.id,
-            "idempotency_token" => "123",
+            "from_token_id" => transaction.from_token.id,
+            "idempotency_token" => transaction.idempotency_token,
             "metadata" => %{},
-            "to_address" => meta.alice_wallet.address,
+            "to_address" => transaction.to_wallet.address,
             "to_amount" => 10_000_000,
-            "to_token_id" => meta.token.id
+            "to_token_id" => transaction.to_token.id
           }
         }
       )
@@ -2169,7 +2305,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
         target: alice_account_user,
         changes: %{
           "account_uuid" => alice_account_user.account_uuid,
-          "user_uuid" => meta.alice.uuid
+          "user_uuid" => alice_account_user.user.uuid
         },
         encrypted_changes: %{}
       )
@@ -2206,7 +2342,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       |> assert_activity_log(
         action: "update",
         originator: :system,
-        target: transaction_request,
+        target: transaction_consumption.transaction_request,
         changes: %{"consumptions_count" => 1},
         encrypted_changes: %{}
       )
@@ -2216,10 +2352,97 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       |> assert_activity_log(
         action: "update",
         originator: :system,
-        target: transaction_request,
-        changes: %{"updated_at" => DateFormatter.to_iso8601(transaction_request.updated_at)},
+        target: transaction_consumption.transaction_request,
+        changes: %{
+          "updated_at" =>
+            DateFormatter.to_iso8601(transaction_consumption.transaction_request.updated_at)
+        },
         encrypted_changes: %{}
       )
+    end
+
+    test "generates an activity log with an admin request", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      set_initial_balance(%{
+        address: meta.bob_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
+
+      assert response["success"] == true
+
+      transaction_consumption =
+        TransactionConsumption.get(response["data"]["id"])
+        |> Repo.preload([:account, :transaction_request, :token])
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_consume_logs(get_test_admin(), transaction_consumption)
+    end
+
+    test "generates an activity log with a provider request", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      set_initial_balance(%{
+        address: meta.bob_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
+
+      assert response["success"] == true
+
+      transaction_consumption =
+        TransactionConsumption.get(response["data"]["id"])
+        |> Repo.preload([:account, :transaction_request, :token])
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_consume_logs(get_test_key(), transaction_consumption)
     end
   end
 end
