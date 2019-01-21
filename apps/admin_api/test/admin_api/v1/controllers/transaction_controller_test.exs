@@ -131,14 +131,14 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
   end
 
   describe "/transaction.all" do
-    test "returns all the transactions", meta do
+    test_with_auths "returns all the transactions", meta do
       response =
-        admin_user_request("/transaction.all", %{
+        request("/transaction.all", %{
           "sort_by" => "created",
           "sort_dir" => "asc",
           "per_page" => 20
         })
-
+  
       transactions = [
         meta.mint.transaction,
         meta.init_transaction_1,
@@ -166,9 +166,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              end)
     end
 
-    test "returns all the transactions for a specific address", meta do
+    test_with_auths "returns all the transactions for a specific address", meta do
       response =
-        admin_user_request("/transaction.all", %{
+        request("/transaction.all", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
@@ -187,9 +187,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              ]
     end
 
-    test "returns all transactions filtered", meta do
+    test_with_auths "returns all transactions filtered", meta do
       response =
-        admin_user_request("/transaction.all", %{
+        request("/transaction.all", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_term" => "pending"
@@ -206,9 +206,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              ]
     end
 
-    test "returns all transactions sorted and paginated", meta do
+    test_with_auths "returns all transactions sorted and paginated", meta do
       response =
-        admin_user_request("/transaction.all", %{
+        request("/transaction.all", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "per_page" => 2,
@@ -224,9 +224,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert transaction_2["id"] == meta.init_transaction_1.id
     end
 
-    test "returns match_all filtered transactions", meta do
+    test_with_auths "returns match_all filtered transactions", meta do
       response =
-        admin_user_request("/transaction.all", %{
+        request("/transaction.all", %{
           "match_all" => [
             %{
               "field" => "from_wallet.address",
@@ -253,9 +253,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_8.id end)
     end
 
-    test "returns match_any filtered transactions", meta do
+    test_with_auths "returns match_any filtered transactions", meta do
       response =
-        admin_user_request("/transaction.all", %{
+        request("/transaction.all", %{
           "match_any" => [
             %{
               "field" => "from_wallet.address",
@@ -287,7 +287,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
   end
 
   describe "/account.get_transactions" do
-    test "returns all the transactions", meta do
+    test_with_auths "returns all the transactions", meta do
       account = Account.get_master_account()
       {:ok, account_1} = :account |> params_for() |> Account.insert()
       {:ok, account_2} = :account |> params_for() |> Account.insert()
@@ -302,7 +302,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       set_initial_balance(%{address: wallet_3.address, token: meta.token, amount: 20}, false)
 
       response =
-        admin_user_request("/account.get_transactions", %{
+        request("/account.get_transactions", %{
           "id" => account.id,
           "sort_by" => "created",
           "sort_dir" => "asc",
@@ -312,7 +312,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert length(response["data"]["data"]) == 15
     end
 
-    test "returns all the transactions when owned is true", meta do
+    test_with_auths "returns all the transactions when owned is true", meta do
       account = Account.get_master_account()
       {:ok, account_1} = :account |> params_for() |> Account.insert()
       {:ok, account_2} = :account |> params_for() |> Account.insert()
@@ -327,7 +327,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       set_initial_balance(%{address: wallet_3.address, token: meta.token, amount: 20}, false)
 
       response =
-        admin_user_request("/account.get_transactions", %{
+        request("/account.get_transactions", %{
           "id" => account.id,
           "owned" => true,
           "sort_by" => "created",
@@ -338,11 +338,11 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert length(response["data"]["data"]) == 15
     end
 
-    test "returns all the transactions for a specific address", meta do
+    test_with_auths "returns all the transactions for a specific address", meta do
       account = Account.get_master_account()
 
       response =
-        admin_user_request("/account.get_transactions", %{
+        request("/account.get_transactions", %{
           "id" => account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -362,11 +362,11 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              ]
     end
 
-    test "returns all transactions filtered", meta do
+    test_with_auths "returns all transactions filtered", meta do
       account = Account.get_master_account()
 
       response =
-        admin_user_request("/account.get_transactions", %{
+        request("/account.get_transactions", %{
           "id" => account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -384,11 +384,11 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              ]
     end
 
-    test "returns all transactions sorted and paginated", meta do
+    test_with_auths "returns all transactions sorted and paginated", meta do
       account = Account.get_master_account()
 
       response =
-        admin_user_request("/account.get_transactions", %{
+        request("/account.get_transactions", %{
           "id" => account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -407,9 +407,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
   end
 
   describe "/user.get_transactions" do
-    test "returns all the transactions for a specific user_id", meta do
+    test_with_auths "returns all the transactions for a specific user_id", meta do
       response =
-        admin_user_request("/user.get_transactions", %{
+        request("/user.get_transactions", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "user_id" => meta.user.id
@@ -422,9 +422,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       end)
     end
 
-    test "returns all the transactions for a specific provider_user_id", meta do
+    test_with_auths "returns all the transactions for a specific provider_user_id", meta do
       response =
-        admin_user_request("/user.get_transactions", %{
+        request("/user.get_transactions", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "provider_user_id" => meta.user.provider_user_id
@@ -437,9 +437,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       end)
     end
 
-    test "returns the user's transactions even when different search terms are provided", meta do
+    test_with_auths "returns the user's transactions even when different search terms are provided",
+                    meta do
       response =
-        admin_user_request("/user.get_transactions", %{
+        request("/user.get_transactions", %{
           "provider_user_id" => meta.user.provider_user_id,
           "sort_by" => "created_at",
           "sort_dir" => "desc",
@@ -453,9 +454,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       end)
     end
 
-    test "returns all transactions filtered", meta do
+    test_with_auths "returns all transactions filtered", meta do
       response =
-        admin_user_request("/user.get_transactions", %{
+        request("/user.get_transactions", %{
           "provider_user_id" => meta.user.provider_user_id,
           "search_terms" => %{"status" => "pending"}
         })
@@ -467,9 +468,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       end)
     end
 
-    test "returns all transactions sorted and paginated", meta do
+    test_with_auths "returns all transactions sorted and paginated", meta do
       response =
-        admin_user_request("/user.get_transactions", %{
+        request("/user.get_transactions", %{
           "provider_user_id" => meta.user.provider_user_id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -495,20 +496,19 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
   end
 
   describe "/transaction.get" do
-    test "returns an transaction by the given transaction's ID" do
+    test_with_auths "returns an transaction by the given transaction's ID" do
       transactions = insert_list(3, :transaction)
       # Pick the 2nd inserted transaction
       target = Enum.at(transactions, 1)
-      response = admin_user_request("/transaction.get", %{"id" => target.id})
+      response = request("/transaction.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "transaction"
       assert response["data"]["id"] == target.id
     end
 
-    test "returns 'transaction:id_not_found' if the given ID was not found" do
-      response =
-        admin_user_request("/transaction.get", %{"id" => "tfr_12345678901234567890123456"})
+    test_with_auths "returns 'transaction:id_not_found' if the given ID was not found" do
+      response = request("/transaction.get", %{"id" => "tfr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -518,8 +518,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
                "There is no transaction corresponding to the provided id."
     end
 
-    test "returns 'transaction:id_not_found' if the given ID format is invalid" do
-      response = admin_user_request("/transaction.get", %{"id" => "not_valid_id"})
+    test_with_auths "returns 'transaction:id_not_found' if the given ID format is invalid" do
+      response = request("/transaction.get", %{"id" => "not_valid_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -531,7 +531,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
   end
 
   describe "/transaction.create for same-token transactions" do
-    test "creates a transaction when all params are valid" do
+    test_with_auths "creates a transaction when all params are valid" do
       token = insert(:token)
       mint!(token)
 
@@ -545,7 +545,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -558,7 +558,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["status"] == "confirmed"
     end
 
-    test "creates a transaction when all params are valid with big numbers" do
+    test_with_auths "creates a transaction when all params are valid with big numbers" do
       token = insert(:token)
       mint!(token)
 
@@ -572,7 +572,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -587,7 +587,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["from"]["amount"] == 99_999_999_999_999_999_999_999_999
     end
 
-    test "returns a transaction when passing `from_amount` and `to_amount` instead of `amount`" do
+    test_with_auths "returns a transaction when passing `from_amount` and `to_amount` instead of `amount`" do
       token = insert(:token)
       mint!(token)
 
@@ -601,7 +601,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -615,13 +615,13 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["status"] == "confirmed"
     end
 
-    test "returns :invalid_parameter when the sending address is a burn balance" do
+    test_with_auths "returns :invalid_parameter when the sending address is a burn balance" do
       token = insert(:token)
       wallet_1 = insert(:wallet, identifier: "burn")
       wallet_2 = insert(:wallet, identifier: "primary")
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -640,13 +640,13 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              }
     end
 
-    test "returns transaction:insufficient_funds when the sending address does not have enough funds" do
+    test_with_auths "returns transaction:insufficient_funds when the sending address does not have enough funds" do
       token = insert(:token, subunit_to_unit: 100)
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -678,13 +678,13 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              }
     end
 
-    test "returns client:invalid_parameter when idempotency token is not given" do
+    test_with_auths "returns client:invalid_parameter when idempotency token is not given" do
       token = insert(:token)
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
           "token_id" => token.id,
@@ -701,7 +701,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              }
     end
 
-    test "returns wallet:to_address_not_found when from_address does not exist" do
+    test_with_auths "returns wallet:to_address_not_found when from_address does not exist" do
       token = insert(:token)
       mint!(token)
 
@@ -714,7 +714,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => "fake-0000-0000-0000",
@@ -732,12 +732,12 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              }
     end
 
-    test "returns token:id_not_found when token_id does not exist" do
+    test_with_auths "returns token:id_not_found when token_id does not exist" do
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -755,13 +755,13 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              }
     end
 
-    test "returns :invalid_parameter when amount is invalid" do
+    test_with_auths "returns :invalid_parameter when amount is invalid" do
       token = insert(:token)
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -780,12 +780,12 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              }
     end
 
-    test "returns unauthorized error when from_address does not exist" do
+    test_with_auths "returns unauthorized error when from_address does not exist" do
       token = insert(:token)
       wallet_2 = insert(:wallet)
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => "fake-0000-0000-0000",
           "to_address" => wallet_2.address,
@@ -803,7 +803,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              }
     end
 
-    test "fails to create a transaction when token is disabled" do
+    test_with_auths "fails to create a transaction when token is disabled" do
       token = insert(:token)
       mint!(token)
 
@@ -823,7 +823,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
         })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -836,7 +836,52 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["code"] == "token:disabled"
     end
 
-    test "generates an activity log" do
+    defp assert_create_without_exchange_logs(logs, originator, target) do
+      assert Enum.count(logs) == 2
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: originator,
+        target: target,
+        changes: %{
+          "from" => target.from_wallet.address,
+          "from_user_uuid" => target.from_user.uuid,
+          "to" => target.to_wallet.address,
+          "from_token_uuid" => target.from_token.uuid,
+          "to_user_uuid" => target.to_user.uuid,
+          "idempotency_token" => target.idempotency_token,
+          "from_amount" => target.from_amount,
+          "to_amount" => target.to_amount,
+          "to_token_uuid" => target.to_token.uuid
+        },
+        encrypted_changes: %{
+          "payload" => %{
+            "from_address" => target.from_wallet.address,
+            "to_address" => target.to_wallet.address,
+            "idempotency_token" => target.idempotency_token,
+            "amount" => target.to_amount,
+            "token_id" => target.to_token.id
+          }
+        }
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: target,
+        changes: %{
+          "local_ledger_uuid" => target.local_ledger_uuid,
+          "status" => "confirmed"
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
       token = insert(:token)
       mint!(token)
 
@@ -862,55 +907,47 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
 
       assert response["success"] == true
 
-      transaction = Transaction.get(response["data"]["id"])
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 2
+      transaction = Transaction.get(response["data"]["id"]) |> Repo.preload([:from_wallet, :from_token, :from_wallet, :from_user, :to_wallet, :to_token, :to_user])
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_without_exchange_logs(get_test_admin(), transaction)
+    end
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "insert",
-        originator: get_test_admin(),
-        target: transaction,
-        changes: %{
-          "from" => wallet_1.address,
-          "from_amount" => 1_000_000,
-          "from_token_uuid" => token.uuid,
-          "from_user_uuid" => wallet_1.user.uuid,
+    test "generates an activity log for a provider request" do
+      token = insert(:token)
+      mint!(token)
+
+      wallet_1 = insert(:wallet)
+      wallet_2 = insert(:wallet)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token,
+        amount: 2_000_000
+      })
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/transaction.create", %{
           "idempotency_token" => "123",
-          "to" => wallet_2.address,
-          "to_amount" => 1_000_000,
-          "to_token_uuid" => token.uuid,
-          "to_user_uuid" => wallet_2.user.uuid
-        },
-        encrypted_changes: %{
-          "payload" => %{
-            "amount" => 1_000_000,
-            "from_address" => wallet_1.address,
-            "idempotency_token" => "123",
-            "to_address" => wallet_2.address,
-            "token_id" => token.id
-          }
-        }
-      )
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "token_id" => token.id,
+          "amount" => 1_000_000
+        })
 
-      logs
-      |> Enum.at(1)
-      |> assert_activity_log(
-        action: "update",
-        originator: :system,
-        target: transaction,
-        changes: %{
-          "local_ledger_uuid" => transaction.local_ledger_uuid,
-          "status" => "confirmed"
-        },
-        encrypted_changes: %{}
-      )
+      assert response["success"] == true
+
+      transaction = Transaction.get(response["data"]["id"]) |> Repo.preload([:from_wallet, :from_token, :from_wallet, :from_user, :to_wallet, :to_token, :to_user])
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_without_exchange_logs(get_test_key(), transaction)
     end
   end
 
   describe "/transaction.create for cross-token transactions" do
-    test "returns the created transaction" do
+    test_with_auths "returns the created transaction" do
       account = Account.get_master_account()
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
@@ -932,7 +969,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "12344",
           "exchange_account_id" => account.id,
           "from_amount" => 1_000,
@@ -964,7 +1001,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["to"]["token_id"] == token_2.id
     end
 
-    test "returns the created transaction with an unfixed from_amount" do
+    test_with_auths "returns the created transaction with an unfixed from_amount" do
       account = Account.get_master_account()
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
@@ -986,7 +1023,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "12344",
           "exchange_account_id" => account.id,
           # "from_amount" => 1_000 / pair.rate,
@@ -1007,7 +1044,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["to"]["token_id"] == token_2.id
     end
 
-    test "returns the created transaction with an unfixed to_amount" do
+    test_with_auths "returns the created transaction with an unfixed to_amount" do
       account = Account.get_master_account()
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
@@ -1029,7 +1066,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "12344",
           "exchange_account_id" => account.id,
           "from_amount" => 1_000,
@@ -1050,7 +1087,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["to"]["token_id"] == token_2.id
     end
 
-    test "returns the created transaction when `from_amount` and `to_amount` are equal" do
+    test_with_auths "returns the created transaction when `from_amount` and `to_amount` are equal" do
       account = Account.get_master_account()
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
@@ -1072,7 +1109,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "12344",
           "exchange_account_id" => account.id,
           "from_amount" => 1_000,
@@ -1093,7 +1130,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["to"]["token_id"] == token_2.id
     end
 
-    test "create a transaction with exchange_account_id" do
+    test_with_auths "create a transaction with exchange_account_id" do
       account = Account.get_master_account()
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
@@ -1115,7 +1152,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "12344",
           "exchange_account_id" => account.id,
           "from_amount" => 1_000,
@@ -1134,7 +1171,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
                Account.get_primary_wallet(account).address
     end
 
-    test "create a transaction with exchange_wallet_address" do
+    test_with_auths "create a transaction with exchange_wallet_address" do
       account = Account.get_master_account()
       exchange_address = Account.get_primary_wallet(account).address
       {:ok, user_1} = :user |> params_for() |> User.insert()
@@ -1157,7 +1194,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "12344",
           "exchange_wallet_address" => exchange_address,
           "from_amount" => 1_000,
@@ -1173,7 +1210,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["exchange"]["exchange_wallet_address"] == exchange_address
     end
 
-    test "create a transaction with exchange wallet also being the `from` wallet" do
+    test_with_auths "create a transaction with exchange wallet also being the `from` wallet" do
       exchange_account = Account.get_master_account()
       exchange_wallet = Account.get_primary_wallet(exchange_account)
       {:ok, user} = :user |> params_for() |> User.insert()
@@ -1188,7 +1225,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "12344",
           "exchange_account_id" => exchange_account.id,
           "from_amount" => 1_000,
@@ -1205,7 +1242,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["to"]["address"] == user_wallet.address
     end
 
-    test "creates a transaction with exchange wallet also being the `to` wallet" do
+    test_with_auths "creates a transaction with exchange wallet also being the `to` wallet" do
       exchange_account = Account.get_master_account()
       exchange_wallet = Account.get_primary_wallet(exchange_account)
       {:ok, user} = :user |> params_for() |> User.insert()
@@ -1226,7 +1263,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "12344",
           "exchange_account_id" => exchange_account.id,
           "from_amount" => 1_000,
@@ -1243,7 +1280,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["to"]["address"] == exchange_wallet.address
     end
 
-    test "returns an error when doing a cross-token transaction with invalid rate" do
+    test_with_auths "returns an error when doing a cross-token transaction with invalid rate" do
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
 
@@ -1256,7 +1293,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "12344",
           "exchange_account_id" => "fake",
           "from_amount" => 1_000,
@@ -1271,7 +1308,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["code"] == "exchange:invalid_rate"
     end
 
-    test "returns an error when doing a cross-token transaction with invalid rate and same amounts" do
+    test_with_auths "returns an error when doing a cross-token transaction with invalid rate and same amounts" do
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
 
@@ -1284,7 +1321,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "12344",
           "exchange_account_id" => "fake",
           "from_amount" => 1_000,
@@ -1299,7 +1336,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["code"] == "exchange:invalid_rate"
     end
 
-    test "returns an error when doing a cross-token transaction with invalid exchange_account_id" do
+    test_with_auths "returns an error when doing a cross-token transaction with invalid exchange_account_id" do
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
 
@@ -1312,7 +1349,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "12344",
           "exchange_account_id" => "fake",
           "from_amount" => 1_000,
@@ -1327,7 +1364,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["code"] == "exchange:account_id_not_found"
     end
 
-    test "returns user:same_address when `from` and `to` and exchange wallet are the same address" do
+    test_with_auths "returns user:same_address when `from` and `to` and exchange wallet are the same address" do
       exchange_account = Account.get_master_account()
       wallet = Account.get_primary_wallet(exchange_account)
 
@@ -1340,7 +1377,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
 
       response =
-        admin_user_request("/transaction.create", %{
+        request("/transaction.create", %{
           "idempotency_token" => "123",
           "exchange_account_id" => exchange_account.id,
           "from_amount" => 1_000,
@@ -1362,9 +1399,61 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              }
     end
 
-    test "generates an activity log" do
+    defp assert_create_with_exchange_logs(logs, originator, target) do
+      assert Enum.count(logs) == 2
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: originator,
+        target: target,
+        changes: %{
+          "from" => target.from_wallet.address,
+          "from_token_uuid" => target.from_token.uuid,
+          "from_user_uuid" => target.from_user.uuid,
+          "to" => target.to_wallet.address,
+          "to_token_uuid" => target.to_token.uuid,
+          "to_user_uuid" => target.to_user.uuid,
+          "from_amount" => target.from_amount,
+          "idempotency_token" => target.idempotency_token,
+          "to_amount" => target.to_amount,
+          "calculated_at" => DateFormatter.to_iso8601(target.calculated_at),
+          "exchange_account_uuid" => target.exchange_account.uuid,
+          "exchange_pair_uuid" => target.exchange_pair.uuid,
+          "exchange_wallet_address" => target.exchange_wallet.address,
+          "rate" => target.rate
+        },
+        encrypted_changes: %{
+          "payload" => %{
+            "from_address" => target.from_wallet.address,
+            "to_address" => target.to_wallet.address,
+            "idempotency_token" => target.idempotency_token,
+            "exchange_account_id" => target.exchange_account.id,
+            "from_amount" => target.from_amount,
+            "from_token_id" => target.from_token.id,
+            "to_amount" => target.to_amount,
+            "to_token_id" => target.to_token.id
+          }
+        }
+      )
+
+      logs
+      |> Enum.at(1)
+      |> assert_activity_log(
+        action: "update",
+        originator: :system,
+        target: target,
+        changes: %{
+          "local_ledger_uuid" => target.local_ledger_uuid,
+          "status" => "confirmed"
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
       account = Account.get_master_account()
-      account_wallet = Account.get_primary_wallet(account)
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
       wallet_1 = User.get_primary_wallet(user_1)
@@ -1400,58 +1489,79 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
 
       assert response["success"] == true
 
-      transaction = Transaction.get(response["data"]["id"])
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 2
+      transaction =
+        Transaction.get(response["data"]["id"])
+        |> Repo.preload([
+          :from_wallet,
+          :from_token,
+          :from_user,
+          :to_wallet,
+          :to_token,
+          :to_user,
+          :exchange_pair,
+          :exchange_account,
+          :exchange_wallet
+        ])
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "insert",
-        originator: get_test_admin(),
-        target: transaction,
-        changes: %{
-          "from" => wallet_1.address,
-          "from_token_uuid" => token_1.uuid,
-          "from_user_uuid" => user_1.uuid,
-          "to" => wallet_2.address,
-          "to_token_uuid" => token_2.uuid,
-          "to_user_uuid" => user_2.uuid,
-          "from_amount" => 1000,
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_logs(get_test_admin(), transaction)
+    end
+
+    test "generates an activity log for a provider request" do
+      account = Account.get_master_account()
+      {:ok, user_1} = :user |> params_for() |> User.insert()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
+
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token_1,
+        amount: 2_000_000
+      })
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/transaction.create", %{
           "idempotency_token" => "12344",
-          "to_amount" => 2000,
-          "calculated_at" => DateFormatter.to_iso8601(transaction.calculated_at),
-          "exchange_account_uuid" => account.uuid,
-          "exchange_pair_uuid" => pair.uuid,
-          "exchange_wallet_address" => account_wallet.address,
-          "rate" => 2.0
-        },
-        encrypted_changes: %{
-          "payload" => %{
-            "from_address" => wallet_1.address,
-            "to_address" => wallet_2.address,
-            "idempotency_token" => "12344",
-            "exchange_account_id" => account.id,
-            "from_amount" => 1000,
-            "from_token_id" => token_1.id,
-            "to_amount" => 2000,
-            "to_token_id" => token_2.id
-          }
-        }
-      )
+          "exchange_account_id" => account.id,
+          "from_amount" => 1_000,
+          "from_token_id" => token_1.id,
+          "from_address" => wallet_1.address,
+          "to_amount" => 1_000 * pair.rate,
+          "to_token_id" => token_2.id,
+          "to_address" => wallet_2.address
+        })
 
-      logs
-      |> Enum.at(1)
-      |> assert_activity_log(
-        action: "update",
-        originator: :system,
-        target: transaction,
-        changes: %{
-          "local_ledger_uuid" => transaction.local_ledger_uuid,
-          "status" => "confirmed"
-        },
-        encrypted_changes: %{}
-      )
+      assert response["success"] == true
+
+      transaction =
+        Transaction.get(response["data"]["id"])
+        |> Repo.preload([
+          :from_wallet,
+          :from_token,
+          :from_user,
+          :to_wallet,
+          :to_token,
+          :to_user,
+          :exchange_pair,
+          :exchange_account,
+          :exchange_wallet
+        ])
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_create_logs(get_test_key(), transaction)
     end
   end
 end
