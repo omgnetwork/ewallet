@@ -14,13 +14,13 @@
 
 defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{AuthToken, User}
+  alias EWalletDB.{AuthToken, User, Repo}
   alias ActivityLogger.System
 
   describe "/user.login" do
-    test "responds with a new auth token if id is valid" do
+    test_with_auths "responds with a new auth token if id is valid" do
       {:ok, user} = :user |> params_for() |> User.insert()
-      response = admin_user_request("/user.login", %{id: user.id})
+      response = request("/user.login", %{id: user.id})
       auth_token = get_last_inserted(AuthToken)
 
       assert response["version"] == @expected_version
@@ -32,9 +32,9 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       assert response["data"]["user"]["id"] == user.id
     end
 
-    test "responds with a new auth token if provider_user_id is valid" do
+    test_with_auths "responds with a new auth token if provider_user_id is valid" do
       user = insert(:user, %{provider_user_id: "1234"})
-      response = admin_user_request("/user.login", %{provider_user_id: "1234"})
+      response = request("/user.login", %{provider_user_id: "1234"})
       auth_token = get_last_inserted(AuthToken)
 
       assert response["data"]["object"] == "authentication_token"
@@ -43,8 +43,8 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       assert response["data"]["user"]["provider_user_id"] == user.provider_user_id
     end
 
-    test "returns an error if provider_user_id does not match a user" do
-      response = admin_user_request("/user.login", %{provider_user_id: "not_a_user"})
+    test_with_auths "returns an error if provider_user_id does not match a user" do
+      response = request("/user.login", %{provider_user_id: "not_a_user"})
 
       expected = %{
         "version" => @expected_version,
@@ -60,8 +60,8 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       assert response == expected
     end
 
-    test "returns :invalid_parameter if provider_user_id is nil" do
-      response = admin_user_request("/user.login", %{provider_user_id: nil})
+    test_with_auths "returns :invalid_parameter if provider_user_id is nil" do
+      response = request("/user.login", %{provider_user_id: nil})
 
       expected = %{
         "version" => @expected_version,
@@ -77,8 +77,8 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       assert response == expected
     end
 
-    test "returns :invalid_parameter if provider_user_id is not provided" do
-      response = admin_user_request("/user.login", %{wrong_attr: "user1234"})
+    test_with_auths "returns :invalid_parameter if provider_user_id is not provided" do
+      response = request("/user.login", %{wrong_attr: "user1234"})
 
       expected = %{
         "version" => @expected_version,
@@ -94,9 +94,9 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       assert response == expected
     end
 
-    test "returns user:disabled if the user is disabled" do
+    test_with_auths "returns user:disabled if the user is disabled" do
       user = insert(:user, %{enabled: false, originator: %System{}})
-      response = admin_user_request("/user.login", %{id: user.id})
+      response = request("/user.login", %{id: user.id})
 
       expected = %{
         "version" => @expected_version,
@@ -112,7 +112,25 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       assert response == expected
     end
 
-    test "generates activity logs" do
+    defp assert_login_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: originator,
+        target: target,
+        changes: %{
+          "owner_app" => target.owner_app,
+          "token" => target.token,
+          "user_uuid" => target.user.uuid
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates activity logs for an admin request" do
       {:ok, user} = :user |> params_for() |> User.insert()
       timestamp = DateTime.utc_now()
 
@@ -120,34 +138,37 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
 
       assert response["success"] == true
 
-      auth_token = get_last_inserted(AuthToken)
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
+      auth_token = get_last_inserted(AuthToken) |> Repo.preload(:user)
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "insert",
-        originator: get_test_admin(),
-        target: auth_token,
-        changes: %{
-          "owner_app" => "ewallet_api",
-          "token" => auth_token.token,
-          "user_uuid" => user.uuid
-        },
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_login_logs(get_test_admin(), auth_token)
+    end
+
+    test "generates activity logs for a provider request" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      timestamp = DateTime.utc_now()
+
+      response = provider_request("/user.login", %{id: user.id})
+
+      assert response["success"] == true
+
+      auth_token = get_last_inserted(AuthToken) |> Repo.preload(:user)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_login_logs(get_test_key(), auth_token)
     end
   end
 
   describe "/user.logout" do
-    test "responds success with empty response if logout successfully" do
+    test_with_auths "responds success with empty response if logout successfully" do
       _user = insert(:user, %{provider_user_id: "1234"})
-      admin_user_request("/user.login", %{provider_user_id: "1234"})
+      request("/user.login", %{provider_user_id: "1234"})
       auth_token = get_last_inserted(AuthToken)
 
       response =
-        admin_user_request("/user.logout", %{
+        request("/user.logout", %{
           "auth_token" => auth_token.token
         })
 
@@ -156,7 +177,23 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       assert response["data"] == %{}
     end
 
-    test "generates activity logs" do
+    defp assert_logout_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{
+          "expired" => true
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates activity logs for an admin request" do
       _user = insert(:user, %{provider_user_id: "1234"})
       admin_user_request("/user.login", %{provider_user_id: "1234"})
       auth_token = get_last_inserted(AuthToken)
@@ -171,20 +208,31 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       assert response["success"] == true
 
       auth_token = get_last_inserted(AuthToken)
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_admin(),
-        target: auth_token,
-        changes: %{
-          "expired" => true
-        },
-        encrypted_changes: %{}
-      )
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_logout_logs(get_test_admin(), auth_token)
+    end
+
+    test "generates activity logs for a provider request" do
+      _user = insert(:user, %{provider_user_id: "1234"})
+      provider_request("/user.login", %{provider_user_id: "1234"})
+      auth_token = get_last_inserted(AuthToken)
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/user.logout", %{
+          "auth_token" => auth_token.token
+        })
+
+      assert response["success"] == true
+
+      auth_token = get_last_inserted(AuthToken)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_logout_logs(get_test_key(), auth_token)
     end
   end
 end
