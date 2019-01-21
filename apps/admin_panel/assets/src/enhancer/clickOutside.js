@@ -11,7 +11,7 @@ const clickOutsideEnhancer = BaseComponent =>
     }
 
     handleClickDocument = e => {
-      if (this.component && !this.component.contains(e.target)) {
+      if (this.targetComponent && !this.targetComponent.contains(e.target)) {
         this.component.handleClickOutside()
       }
     }
