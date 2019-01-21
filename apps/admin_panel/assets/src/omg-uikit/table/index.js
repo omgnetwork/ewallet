@@ -54,7 +54,7 @@ class Table extends Component {
     pagination: false,
     onClickRow: () => {}
   }
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.loadingWidthBars = new Array(this.props.loadingRowNumber).fill().map((x, i) => {
       return `${30 + Math.random() * 40}%`
@@ -118,7 +118,7 @@ class Table extends Component {
       )
     })
   }
-  render() {
+  render () {
     const dataRows = this.renderDataRows()
     return (
       <TableContainer

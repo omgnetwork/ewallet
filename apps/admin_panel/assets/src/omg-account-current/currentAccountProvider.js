@@ -35,7 +35,7 @@ const EnhancedCurrentAccountProvider = connect(
 )(withRouter(CurrentAccountProvider))
 
 export const currentAccountProviderHoc = BaseComponent =>
-  class extends Component {
+  class CurrentAccountProviderHoc extends Component {
     renderBaseComponent = ({ currentAccount, loadingStatus }) => {
       return (
         <BaseComponent
