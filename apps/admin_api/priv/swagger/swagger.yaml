@@ -182,6 +182,8 @@ paths:
     $ref: 'account/paths.yaml#/account.get_descendants'
   /account.get_wallets:
     $ref: 'account/paths.yaml#/account.get_wallets'
+  /account.get_wallets_and_user_wallets:
+    $ref: 'account/paths.yaml#/account.get_wallets_and_user_wallets'
   /account.get_transactions:
     $ref: 'account/paths.yaml#/account.get_transactions'
   /account.get_transaction_requests:

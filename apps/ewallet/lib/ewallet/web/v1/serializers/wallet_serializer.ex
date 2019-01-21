@@ -17,7 +17,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
   Serializes address data into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.Paginator
+  alias EWallet.Web.{Paginator, BalanceLoader}
 
   alias EWallet.Web.V1.{
     AccountSerializer,
@@ -44,6 +44,16 @@ defmodule EWallet.Web.V1.WalletSerializer do
   def serialize(nil), do: nil
 
   def serialize(%Wallet{} = wallet) do
+    wallet =
+      case Map.get(wallet, :balances) do
+        nil ->
+          {:ok, wallet} = BalanceLoader.add_balances(wallet)
+          wallet
+
+        _ ->
+          wallet
+      end
+
     %{
       object: "wallet",
       socket_topic: "wallet:#{wallet.address}",
