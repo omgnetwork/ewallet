@@ -138,7 +138,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
           "sort_dir" => "asc",
           "per_page" => 20
         })
-  
+
       transactions = [
         meta.mint.transaction,
         meta.init_transaction_1,
@@ -907,7 +907,18 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
 
       assert response["success"] == true
 
-      transaction = Transaction.get(response["data"]["id"]) |> Repo.preload([:from_wallet, :from_token, :from_wallet, :from_user, :to_wallet, :to_token, :to_user])
+      transaction =
+        Transaction.get(response["data"]["id"])
+        |> Repo.preload([
+          :from_wallet,
+          :from_token,
+          :from_wallet,
+          :from_user,
+          :to_wallet,
+          :to_token,
+          :to_user
+        ])
+
       timestamp
       |> get_all_activity_logs_since()
       |> assert_create_without_exchange_logs(get_test_admin(), transaction)
@@ -939,7 +950,18 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
 
       assert response["success"] == true
 
-      transaction = Transaction.get(response["data"]["id"]) |> Repo.preload([:from_wallet, :from_token, :from_wallet, :from_user, :to_wallet, :to_token, :to_user])
+      transaction =
+        Transaction.get(response["data"]["id"])
+        |> Repo.preload([
+          :from_wallet,
+          :from_token,
+          :from_wallet,
+          :from_user,
+          :to_wallet,
+          :to_token,
+          :to_user
+        ])
+
       timestamp
       |> get_all_activity_logs_since()
       |> assert_create_without_exchange_logs(get_test_key(), transaction)
