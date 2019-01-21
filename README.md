@@ -121,6 +121,7 @@ It is also possible to run OmiseGO eWallet Server in a standalone mode without n
 We are thankful to our community for creating and maintaining these wonderful work that we otherwise could not have done ourselves. If you have ported any part of the OmiseGO eWallet Server to another platform, we will be happy to list them here. [Submit us a pull request](https://github.com/omisego/ewallet/pulls).
 
 -   [Alainy/OmiseGo-Go-SDK](https://github.com/Alainy/OmiseGo-Go-SDK) (Golang)
+-   [block-base/ewallet-js](https://github.com/block-base/ewallet-js) (JavaScript)
 
 ## Contributing
 
