@@ -9,6 +9,7 @@ import moment from 'moment'
 import queryString from 'query-string'
 import Link from '../omg-links'
 import { createSearchActivityLogQuery } from './searchField'
+import { Icon } from '../omg-uikit'
 const AccountPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -60,6 +61,9 @@ export const NameColumn = styled.div`
     margin-left: 10px;
   }
 `
+const OriginatorDetailContianer = styled.div`
+  color: ${props => props.theme.colors.B100};
+`
 class AccountPage extends Component {
   static propTypes = {
     match: PropTypes.object,
@@ -68,6 +72,7 @@ class AccountPage extends Component {
     scrollTopContentContainer: PropTypes.func
   }
   onClickRow = (data, index) => e => {
+    // Click a link, ignore
     if (e.target.nodeName === 'A') return
     const searchObject = queryString.parse(this.props.location.search)
     this.props.history.push({
@@ -80,43 +85,65 @@ class AccountPage extends Component {
   getColumns = accounts => {
     return [
       { key: 'originator', title: 'ORIGINATOR' },
-      { key: 'originator_type', title: 'ORIGINATOR TYPE' },
       { key: 'action', title: 'ACTION' },
       { key: 'target', title: 'TARGET' },
       { key: 'target_type', title: 'TARGE TYPE' },
       { key: 'created_at', title: 'CREATED DATE' }
     ]
   }
+
+  getOriginatorDetail (originatorType, originator) {
+    switch (originatorType) {
+      case 'account':
+        return originator.name || originator.calling_name
+      case 'transaction':
+        return (
+          <span>
+            {originator.from.address} <Icon name='Arrow-Right' /> {originator.to.address}{' '}
+          </span>
+        )
+      case 'user':
+        return originator.email || originator.username || originator.id
+      case 'token':
+        return originator.name || originator.calling_name
+
+      default:
+        return null
+    }
+  }
   rowRenderer = (key, data, row) => {
-    if (key === 'originator') {
-      return (
-        <span>
-          {row.originator
-            ? this.getLink(row.originator_type, row.originator.id || row.originator.address)
-            : '-'}
-        </span>
-      )
+    switch (key) {
+      case 'originator':
+        return (
+          <span>
+            {row.originator ? (
+              <span>
+                <span>{_.capitalize(row.originator_type)}</span>{' '}
+                {this.getLink(row.originator_type, row.originator.id || row.originator.address)}
+                <OriginatorDetailContianer>
+                  {this.getOriginatorDetail(row.originator_type, row.originator)}
+                </OriginatorDetailContianer>
+              </span>
+            ) : (
+              '-'
+            )}
+          </span>
+        )
+      case 'target':
+        return (
+          <span>
+            {row.target ? this.getLink(row.target_type, row.target.id || row.target.address) : '-'}
+          </span>
+        )
+      case 'target_type':
+        return <span>{row.target_type}</span>
+      case 'created_at':
+        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      case 'avatar':
+        return null
+      default:
+        return data
     }
-    if (key === 'originator_type') {
-      return <span>{row.originator_type}</span>
-    }
-    if (key === 'target') {
-      return (
-        <span>
-          {row.target ? this.getLink(row.target_type, row.target.id || row.target.address) : '-'}
-        </span>
-      )
-    }
-    if (key === 'target_type') {
-      return <span>{row.target_type}</span>
-    }
-    if (key === 'created_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
-    }
-    if (key === 'avatar') {
-      return null
-    }
-    return data
   }
   getLink (type, id) {
     switch (type) {
@@ -143,13 +170,17 @@ class AccountPage extends Component {
           </Link>
         )
       default:
-        return id
+        return <span>{id}</span>
     }
   }
   renderActivityPage = ({ data: activities, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
-        <TopNavigation title={'Activity Logs'} buttons={[]} normalPlaceholder='originator id, action' />
+        <TopNavigation
+          title={'Activity Logs'}
+          buttons={[]}
+          normalPlaceholder='originator id, action'
+        />
         <SortableTableContainer
           innerRef={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
