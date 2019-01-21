@@ -19,18 +19,19 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
   alias EWalletConfig.Config
   alias ActivityLogger.System
 
-  def setup do
+  setup do
     assert Application.get_env(:admin_api, :file_storage_adapter) == "local"
+    %{}
   end
 
   describe "/transaction.export" do
-    test "generates a csv file" do
+    test_with_auths "generates a csv file" do
       admin = get_test_admin()
       insert_list(100, :transaction)
       assert Application.get_env(:admin_api, :file_storage_adapter) == "local"
 
       response =
-        admin_user_request("/transaction.export", %{
+        request("/transaction.export", %{
           "sort_by" => "created",
           "sort_dir" => "desc"
         })
@@ -40,7 +41,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
 
       assert data["adapter"] == "local"
       assert data["status"] == "processing"
-      assert data["user_id"] == admin.id
       assert data["pid"]
 
       # Wait until the export process shuts down and check that it shutted down normally
@@ -56,13 +56,13 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
           flunk("The export process timed out after 60 seconds")
       end
 
-      response = admin_user_request("/export.get", %{"id" => data["id"]})
+      response = request("/export.get", %{"id" => data["id"]})
       data = response["data"]
 
       assert data["completion"] == 100
       assert data["status"] == "completed"
 
-      response = admin_user_raw_request("/export.download", %{"id" => data["id"]})
+      response = raw_request("/export.download", %{"id" => data["id"]})
 
       response
       |> CSV.decode()
@@ -84,7 +84,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
     end
   end
 
-  test "fails to generate a CSV when GCS is not properly configured", meta do
+  test_with_auths "fails to generate a CSV when GCS is not properly configured", meta do
     {:ok, _} =
       Config.update(
         %{
@@ -100,7 +100,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
     assert Application.get_env(:ewallet, :file_storage_adapter) == "gcs"
 
     response =
-      admin_user_request("/transaction.export", %{
+      request("/transaction.export", %{
         "sort_by" => "created",
         "sort_dir" => "desc"
       })
@@ -109,9 +109,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
     assert response["data"]["code"] == "adapter:server_not_running"
   end
 
-  test "returns an 'export:no_records' error when there are no records" do
+  test_with_auths "returns an 'export:no_records' error when there are no records" do
     response =
-      admin_user_request("/transaction.export", %{
+      request("/transaction.export", %{
         "sort_by" => "created",
         "sort_dir" => "desc"
       })

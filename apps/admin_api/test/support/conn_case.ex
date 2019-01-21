@@ -284,11 +284,16 @@ defmodule AdminAPI.ConnCase do
       when is_binary(path) and byte_size(path) > 0 do
     {status, _opts} = Keyword.pop(opts, :status, :ok)
 
+    path
+    |> provider_raw_request(data, opts)
+    |> json_response(status)
+  end
+
+  def provider_raw_request(path, data \\ %{}, opts \\ []) do
     build_conn()
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGProvider", provider_auth_header(opts))
     |> post(@base_dir <> path, data)
-    |> json_response(status)
   end
 
   defp provider_auth_header(opts) do
@@ -529,12 +534,14 @@ defmodule AdminAPI.ConnCase do
     provider_test_block =
       Macro.prewalk(test_block, fn
         {:request, meta, args} -> {:provider_request, meta, args}
+        {:raw_request, meta, args} -> {:provider_raw_request, meta, args}
         node -> node
       end)
 
     admin_test_block =
       Macro.prewalk(test_block, fn
         {:request, meta, args} -> {:admin_user_request, meta, args}
+        {:raw_request, meta, args} -> {:admin_user_raw_request, meta, args}
         node -> node
       end)
 
