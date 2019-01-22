@@ -41,6 +41,10 @@ For other platforms or for a more advanced setup, see also manual installation b
 
 -   [Bare metal installation](docs/setup/bare_metal.md)
 
+### Upgrade
+
+Upgrading to a newer version? See [Upgrading the eWallet Server](docs/setup/upgrading).
+
 ## Commands
 
 Docker image entrypoint is configured to recognize most commands that are used during normal operations. The way to invoke these commands depend on the installation method you choose.
