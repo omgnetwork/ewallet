@@ -22,7 +22,6 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     Token,
     Transaction,
     TransactionConsumption,
-    TransactionRequest,
     User,
     Wallet
   }
@@ -81,7 +80,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       }
     end
 
-    test_with_auths "returns all the transaction_consumptions", meta do
+    test_with_auths "returns all the transaction_consumptions", context do
       response =
         request("/transaction_consumption.all", %{
           "sort_by" => "created",
@@ -89,9 +88,9 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         })
 
       transfers = [
-        meta.tc_1,
-        meta.tc_2,
-        meta.tc_3
+        context.tc_1,
+        context.tc_2,
+        context.tc_3
       ]
 
       assert length(response["data"]["data"]) == length(transfers)
@@ -104,7 +103,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
              end)
     end
 
-    test_with_auths "returns all the transaction_consumptions for a specific status", meta do
+    test_with_auths "returns all the transaction_consumptions for a specific status", context do
       response =
         request("/transaction_consumption.all", %{
           "sort_by" => "created_at",
@@ -119,12 +118,12 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_1.id,
-               meta.tc_2.id
+               context.tc_1.id,
+               context.tc_2.id
              ]
     end
 
-    test_with_auths "returns all transaction_consumptions filtered", meta do
+    test_with_auths "returns all transaction_consumptions filtered", context do
       response =
         request("/transaction_consumption.all", %{
           "sort_by" => "created_at",
@@ -137,12 +136,12 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_1.id,
-               meta.tc_2.id
+               context.tc_1.id,
+               context.tc_2.id
              ]
     end
 
-    test_with_auths "returns all transaction_consumptions sorted and paginated", meta do
+    test_with_auths "returns all transaction_consumptions sorted and paginated", context do
       response =
         request("/transaction_consumption.all", %{
           "sort_by" => "created_at",
@@ -159,8 +158,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_1.id,
-               meta.tc_2.id
+               context.tc_1.id,
+               context.tc_2.id
              ]
     end
 
@@ -168,7 +167,6 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     # hence the customized factory attrs to make sure the results will be found.
     test_supports_match_any(
       "/transaction_consumption.all",
-      :admin_auth,
       :transaction_consumption,
       :correlation_id,
       factory_attrs: %{
@@ -181,7 +179,6 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     # hence the customized factory attrs to make sure the results will be found.
     test_supports_match_all(
       "/transaction_consumption.all",
-      :admin_auth,
       :transaction_consumption,
       :correlation_id,
       factory_attrs: %{
@@ -248,18 +245,18 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
              }
     end
 
-    test_with_auths "returns all the transaction_consumptions for an account", meta do
+    test_with_auths "returns all the transaction_consumptions for an account", context do
       response =
         request("/account.get_transaction_consumptions", %{
-          "id" => meta.account.id,
+          "id" => context.account.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
 
       transfers = [
-        meta.tc_1,
-        meta.tc_2,
-        meta.tc_3
+        context.tc_1,
+        context.tc_2,
+        context.tc_3
       ]
 
       assert length(response["data"]["data"]) == 3
@@ -272,10 +269,10 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
              end)
     end
 
-    test_with_auths "returns all the transaction_consumptions for a specific status", meta do
+    test_with_auths "returns all the transaction_consumptions for a specific status", context do
       response =
         request("/account.get_transaction_consumptions", %{
-          "id" => meta.account.id,
+          "id" => context.account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
@@ -288,15 +285,15 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_1.id,
-               meta.tc_2.id
+               context.tc_1.id,
+               context.tc_2.id
              ]
     end
 
-    test_with_auths "returns all transaction_consumptions sorted and paginated", meta do
+    test_with_auths "returns all transaction_consumptions sorted and paginated", context do
       response =
         request("/account.get_transaction_consumptions", %{
-          "id" => meta.account.id,
+          "id" => context.account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "per_page" => 2,
@@ -311,8 +308,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_1.id,
-               meta.tc_2.id
+               context.tc_1.id,
+               context.tc_2.id
              ]
     end
   end
@@ -397,10 +394,10 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test_with_auths "returns all the transaction_consumptions for a user when given an id",
-                    meta do
+                    context do
       response =
         request("/user.get_transaction_consumptions", %{
-          "id" => meta.user.id,
+          "id" => context.user.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -410,16 +407,16 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
+               context.tc_2.id,
+               context.tc_3.id
              ]
     end
 
     test_with_auths "returns all the transaction_consumptions for a user when given a user_id",
-                    meta do
+                    context do
       response =
         request("/user.get_transaction_consumptions", %{
-          "user_id" => meta.user.id,
+          "user_id" => context.user.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -429,16 +426,16 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
+               context.tc_2.id,
+               context.tc_3.id
              ]
     end
 
     test_with_auths "returns all the transaction_consumptions for a user when given a provider_user_id",
-                    meta do
+                    context do
       response =
         request("/user.get_transaction_consumptions", %{
-          "provider_user_id" => meta.user.provider_user_id,
+          "provider_user_id" => context.user.provider_user_id,
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -448,15 +445,15 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
+               context.tc_2.id,
+               context.tc_3.id
              ]
     end
 
-    test_with_auths "returns all the transaction_consumptions for a specific status", meta do
+    test_with_auths "returns all the transaction_consumptions for a specific status", context do
       response =
         request("/user.get_transaction_consumptions", %{
-          "user_id" => meta.user.id,
+          "user_id" => context.user.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
@@ -469,14 +466,14 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id
+               context.tc_2.id
              ]
     end
 
-    test_with_auths "returns all transaction_consumptions sorted and paginated", meta do
+    test_with_auths "returns all transaction_consumptions sorted and paginated", context do
       response =
         request("/user.get_transaction_consumptions", %{
-          "user_id" => meta.user.id,
+          "user_id" => context.user.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "per_page" => 2,
@@ -491,8 +488,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
+               context.tc_2.id,
+               context.tc_3.id
              ]
     end
   end
@@ -566,10 +563,11 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
              }
     end
 
-    test_with_auths "returns all the transaction_consumptions for a transaction_request", meta do
+    test_with_auths "returns all the transaction_consumptions for a transaction_request",
+                    context do
       response =
         request("/transaction_request.get_transaction_consumptions", %{
-          "formatted_transaction_request_id" => meta.transaction_request.id,
+          "formatted_transaction_request_id" => context.transaction_request.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -579,15 +577,15 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
+               context.tc_2.id,
+               context.tc_3.id
              ]
     end
 
-    test_with_auths "returns all the transaction_consumptions for a specific status", meta do
+    test_with_auths "returns all the transaction_consumptions for a specific status", context do
       response =
         request("/transaction_request.get_transaction_consumptions", %{
-          "formatted_transaction_request_id" => meta.transaction_request.id,
+          "formatted_transaction_request_id" => context.transaction_request.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
@@ -600,14 +598,14 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id
+               context.tc_2.id
              ]
     end
 
-    test_with_auths "returns all transaction_consumptions sorted and paginated", meta do
+    test_with_auths "returns all transaction_consumptions sorted and paginated", context do
       response =
         request("/transaction_request.get_transaction_consumptions", %{
-          "formatted_transaction_request_id" => meta.transaction_request.id,
+          "formatted_transaction_request_id" => context.transaction_request.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "per_page" => 2,
@@ -622,8 +620,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
+               context.tc_2.id,
+               context.tc_3.id
              ]
     end
   end
@@ -697,10 +695,10 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
              }
     end
 
-    test_with_auths "returns all the transaction_consumptions for a wallet", meta do
+    test_with_auths "returns all the transaction_consumptions for a wallet", context do
       response =
         request("/wallet.get_transaction_consumptions", %{
-          "address" => meta.wallet.address,
+          "address" => context.wallet.address,
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -710,15 +708,15 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
+               context.tc_2.id,
+               context.tc_3.id
              ]
     end
 
-    test_with_auths "returns all the transaction_consumptions for a specific status", meta do
+    test_with_auths "returns all the transaction_consumptions for a specific status", context do
       response =
         request("/wallet.get_transaction_consumptions", %{
-          "address" => meta.wallet.address,
+          "address" => context.wallet.address,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
@@ -731,14 +729,14 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id
+               context.tc_2.id
              ]
     end
 
-    test_with_auths "returns all transaction_consumptions sorted and paginated", meta do
+    test_with_auths "returns all transaction_consumptions sorted and paginated", context do
       response =
         request("/wallet.get_transaction_consumptions", %{
-          "address" => meta.wallet.address,
+          "address" => context.wallet.address,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "per_page" => 2,
@@ -753,8 +751,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
+               context.tc_2.id,
+               context.tc_3.id
              ]
     end
   end
@@ -793,20 +791,21 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
   end
 
   describe "/transaction_request.consume" do
-    test_with_auths "consumes the request and transfers the appropriate amount of tokens", meta do
+    test_with_auths "consumes the request and transfers the appropriate amount of tokens",
+                    context do
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit
         )
 
       set_initial_balance(%{
-        address: meta.bob_wallet.address,
-        token: meta.token,
+        address: context.bob_wallet.address,
+        token: context.token,
         amount: 150_000
       })
 
@@ -819,7 +818,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id
+          account_id: context.account.id
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
@@ -834,20 +833,20 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                "success" => true,
                "version" => "1",
                "data" => %{
-                 "address" => meta.account_wallet.address,
+                 "address" => context.account_wallet.address,
                  "amount" => nil,
-                 "estimated_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
-                 "estimated_request_amount" => 100_000 * meta.token.subunit_to_unit,
-                 "finalized_request_amount" => 100_000 * meta.token.subunit_to_unit,
-                 "finalized_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "estimated_consumption_amount" => 100_000 * context.token.subunit_to_unit,
+                 "estimated_request_amount" => 100_000 * context.token.subunit_to_unit,
+                 "finalized_request_amount" => 100_000 * context.token.subunit_to_unit,
+                 "finalized_consumption_amount" => 100_000 * context.token.subunit_to_unit,
                  "correlation_id" => nil,
                  "id" => inserted_consumption.id,
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
                  "idempotency_token" => "123",
                  "object" => "transaction_consumption",
                  "status" => "confirmed",
-                 "token_id" => meta.token.id,
-                 "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "token_id" => context.token.id,
+                 "token" => context.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
                  "transaction_request" =>
                    request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
@@ -856,8 +855,9 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                    inserted_transaction |> TransactionSerializer.serialize() |> stringify_keys(),
                  "user_id" => nil,
                  "user" => nil,
-                 "account_id" => meta.account.id,
-                 "account" => meta.account |> AccountSerializer.serialize() |> stringify_keys(),
+                 "account_id" => context.account.id,
+                 "account" =>
+                   context.account |> AccountSerializer.serialize() |> stringify_keys(),
                  "exchange_account" => nil,
                  "exchange_account_id" => nil,
                  "exchange_wallet" => nil,
@@ -874,25 +874,25 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                }
              }
 
-      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.from_token_uuid == meta.token.uuid
-      assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.to_token_uuid == meta.token.uuid
-      assert inserted_transaction.to == meta.alice_wallet.address
-      assert inserted_transaction.from == meta.account_wallet.address
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
+      assert inserted_transaction.to_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == context.token.uuid
+      assert inserted_transaction.to == context.alice_wallet.address
+      assert inserted_transaction.from == context.account_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
     end
 
-    test_with_auths "fails to consume when trying to send from a burn wallet", meta do
-      burn_wallet = Account.get_default_burn_wallet(meta.account)
+    test_with_auths "fails to consume when trying to send from a burn wallet", context do
+      burn_wallet = Account.get_default_burn_wallet(context.account)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "send",
-          token_uuid: meta.token.uuid,
+          token_uuid: context.token.uuid,
           wallet: burn_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
+          amount: 100_000 * context.token.subunit_to_unit
         )
 
       response =
@@ -904,7 +904,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: nil,
-          user_id: meta.bob.id
+          user_id: context.bob.id
         })
 
       assert response["success"] == false
@@ -921,21 +921,21 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test_with_auths "consumes the request and transfers the appropriate amount of tokens with string",
-                    meta do
+                    context do
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
           amount: nil
         )
 
       set_initial_balance(%{
-        address: meta.bob_wallet.address,
-        token: meta.token,
-        amount: 100_000 * meta.token.subunit_to_unit
+        address: context.bob_wallet.address,
+        token: context.token,
+        amount: 100_000 * context.token.subunit_to_unit
       })
 
       response =
@@ -947,7 +947,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id
+          account_id: context.account.id
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
@@ -962,20 +962,20 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                "success" => true,
                "version" => "1",
                "data" => %{
-                 "address" => meta.account_wallet.address,
-                 "amount" => 100_000 * meta.token.subunit_to_unit,
-                 "estimated_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
-                 "estimated_request_amount" => 100_000 * meta.token.subunit_to_unit,
-                 "finalized_request_amount" => 100_000 * meta.token.subunit_to_unit,
-                 "finalized_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "address" => context.account_wallet.address,
+                 "amount" => 100_000 * context.token.subunit_to_unit,
+                 "estimated_consumption_amount" => 100_000 * context.token.subunit_to_unit,
+                 "estimated_request_amount" => 100_000 * context.token.subunit_to_unit,
+                 "finalized_request_amount" => 100_000 * context.token.subunit_to_unit,
+                 "finalized_consumption_amount" => 100_000 * context.token.subunit_to_unit,
                  "correlation_id" => nil,
                  "id" => inserted_consumption.id,
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
                  "idempotency_token" => "123",
                  "object" => "transaction_consumption",
                  "status" => "confirmed",
-                 "token_id" => meta.token.id,
-                 "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "token_id" => context.token.id,
+                 "token" => context.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
                  "transaction_request" =>
                    request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
@@ -984,8 +984,9 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                    inserted_transaction |> TransactionSerializer.serialize() |> stringify_keys(),
                  "user_id" => nil,
                  "user" => nil,
-                 "account_id" => meta.account.id,
-                 "account" => meta.account |> AccountSerializer.serialize() |> stringify_keys(),
+                 "account_id" => context.account.id,
+                 "account" =>
+                   context.account |> AccountSerializer.serialize() |> stringify_keys(),
                  "exchange_account" => nil,
                  "exchange_account_id" => nil,
                  "exchange_wallet" => nil,
@@ -1002,36 +1003,36 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                }
              }
 
-      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.from_token_uuid == meta.token.uuid
-      assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.to_token_uuid == meta.token.uuid
-      assert inserted_transaction.to == meta.alice_wallet.address
-      assert inserted_transaction.from == meta.account_wallet.address
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
+      assert inserted_transaction.to_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == context.token.uuid
+      assert inserted_transaction.to == context.alice_wallet.address
+      assert inserted_transaction.from == context.account_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
     end
 
     test_with_auths "consumes the request and transfers with exchange details in request",
-                    meta do
+                    context do
       token_2 = insert(:token)
       mint!(token_2)
-      _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
+      _pair = insert(:exchange_pair, from_token: context.token, to_token: token_2, rate: 2)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "send",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit,
-          exchange_account_uuid: meta.account.uuid,
-          exchange_wallet_address: meta.account_wallet.address
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit,
+          exchange_account_uuid: context.account.uuid,
+          exchange_wallet_address: context.account_wallet.address
         )
 
       set_initial_balance(%{
-        address: meta.alice_wallet.address,
-        token: meta.token,
+        address: context.alice_wallet.address,
+        token: context.token,
         amount: 150_000
       })
 
@@ -1044,7 +1045,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: token_2.id,
-          user_id: meta.bob.id
+          user_id: context.bob.id
         })
 
       assert response["success"] == true
@@ -1053,63 +1054,69 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
 
       assert response["data"]["amount"] == nil
-      assert response["data"]["finalized_request_amount"] == 100_000 * meta.token.subunit_to_unit
+
+      assert response["data"]["finalized_request_amount"] ==
+               100_000 * context.token.subunit_to_unit
+
       assert response["data"]["finalized_consumption_amount"] == 200_000 * token_2.subunit_to_unit
-      assert response["data"]["estimated_request_amount"] == 100_000 * meta.token.subunit_to_unit
+
+      assert response["data"]["estimated_request_amount"] ==
+               100_000 * context.token.subunit_to_unit
+
       assert response["data"]["estimated_consumption_amount"] == 200_000 * token_2.subunit_to_unit
       assert response["data"]["token_id"] == token_2.id
-      assert response["data"]["address"] == meta.bob_wallet.address
-      assert response["data"]["user_id"] == meta.bob.id
+      assert response["data"]["address"] == context.bob_wallet.address
+      assert response["data"]["user_id"] == context.bob.id
 
       assert response["data"]["transaction_request"]["amount"] ==
-               100_000 * meta.token.subunit_to_unit
+               100_000 * context.token.subunit_to_unit
 
-      assert response["data"]["transaction_request"]["token_id"] == meta.token.id
-      assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
-      assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
+      assert response["data"]["transaction_request"]["token_id"] == context.token.id
+      assert response["data"]["transaction_request"]["address"] == context.alice_wallet.address
+      assert response["data"]["transaction_request"]["user_id"] == context.alice.id
 
       assert response["data"]["transaction"] != nil
       assert response["data"]["transaction"]["exchange"]["exchange_pair"]["to_token_id"] != nil
       assert response["data"]["transaction"]["exchange"]["exchange_pair"]["from_token_id"] != nil
 
-      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
       assert inserted_transaction.to_amount == 200_000 * token_2.subunit_to_unit
       assert inserted_transaction.to_token_uuid == token_2.uuid
-      assert inserted_transaction.to == meta.bob_wallet.address
-      assert inserted_transaction.from == meta.alice_wallet.address
+      assert inserted_transaction.to == context.bob_wallet.address
+      assert inserted_transaction.from == context.alice_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
 
-      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.alice_wallet)
-      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.alice_wallet)
-      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * meta.token.subunit_to_unit
+      {:ok, b1} = BalanceFetcher.get(context.token.id, context.alice_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, context.alice_wallet)
+      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * context.token.subunit_to_unit
       assert Enum.at(b2.balances, 0).amount == 0
 
-      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.bob_wallet)
-      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.bob_wallet)
+      {:ok, b1} = BalanceFetcher.get(context.token.id, context.bob_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, context.bob_wallet)
       assert Enum.at(b1.balances, 0).amount == 0
-      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
+      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * context.token.subunit_to_unit
     end
 
     test_with_auths "consumes the request and exchange with exchange_wallet in consumption",
-                    meta do
+                    context do
       token_2 = insert(:token)
       mint!(token_2)
-      _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
+      _pair = insert(:exchange_pair, from_token: context.token, to_token: token_2, rate: 2)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "send",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit
         )
 
       set_initial_balance(%{
-        address: meta.alice_wallet.address,
-        token: meta.token,
+        address: context.alice_wallet.address,
+        token: context.token,
         amount: 150_000
       })
 
@@ -1122,8 +1129,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: token_2.id,
-          user_id: meta.bob.id,
-          exchange_wallet_address: meta.account_wallet.address
+          user_id: context.bob.id,
+          exchange_wallet_address: context.account_wallet.address
         })
 
       assert response["success"] == true
@@ -1132,61 +1139,67 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
 
       assert response["data"]["amount"] == nil
-      assert response["data"]["finalized_request_amount"] == 100_000 * meta.token.subunit_to_unit
+
+      assert response["data"]["finalized_request_amount"] ==
+               100_000 * context.token.subunit_to_unit
+
       assert response["data"]["finalized_consumption_amount"] == 200_000 * token_2.subunit_to_unit
-      assert response["data"]["estimated_request_amount"] == 100_000 * meta.token.subunit_to_unit
+
+      assert response["data"]["estimated_request_amount"] ==
+               100_000 * context.token.subunit_to_unit
+
       assert response["data"]["estimated_consumption_amount"] == 200_000 * token_2.subunit_to_unit
       assert response["data"]["token_id"] == token_2.id
-      assert response["data"]["exchange_wallet_address"] == meta.account_wallet.address
-      assert response["data"]["exchange_account_id"] == meta.account.id
+      assert response["data"]["exchange_wallet_address"] == context.account_wallet.address
+      assert response["data"]["exchange_account_id"] == context.account.id
 
       assert response["data"]["transaction_request"]["amount"] ==
-               100_000 * meta.token.subunit_to_unit
+               100_000 * context.token.subunit_to_unit
 
-      assert response["data"]["transaction_request"]["token_id"] == meta.token.id
-      assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
-      assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
+      assert response["data"]["transaction_request"]["token_id"] == context.token.id
+      assert response["data"]["transaction_request"]["address"] == context.alice_wallet.address
+      assert response["data"]["transaction_request"]["user_id"] == context.alice.id
       assert response["data"]["transaction_request"]["exchange_wallet_address"] == nil
       assert response["data"]["transaction_request"]["exchange_accout_id"] == nil
 
-      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
       assert inserted_transaction.to_amount == 200_000 * token_2.subunit_to_unit
       assert inserted_transaction.to_token_uuid == token_2.uuid
-      assert inserted_transaction.to == meta.bob_wallet.address
-      assert inserted_transaction.from == meta.alice_wallet.address
+      assert inserted_transaction.to == context.bob_wallet.address
+      assert inserted_transaction.from == context.alice_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
 
-      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.alice_wallet)
-      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.alice_wallet)
-      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * meta.token.subunit_to_unit
+      {:ok, b1} = BalanceFetcher.get(context.token.id, context.alice_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, context.alice_wallet)
+      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * context.token.subunit_to_unit
       assert Enum.at(b2.balances, 0).amount == 0
 
-      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.bob_wallet)
-      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.bob_wallet)
+      {:ok, b1} = BalanceFetcher.get(context.token.id, context.bob_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, context.bob_wallet)
       assert Enum.at(b1.balances, 0).amount == 0
-      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
+      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * context.token.subunit_to_unit
     end
 
     test_with_auths "consumes the request and exchange with exchange_account in consumption",
-                    meta do
+                    context do
       token_2 = insert(:token)
       mint!(token_2)
-      _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
+      _pair = insert(:exchange_pair, from_token: context.token, to_token: token_2, rate: 2)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "send",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit
         )
 
       set_initial_balance(%{
-        address: meta.alice_wallet.address,
-        token: meta.token,
+        address: context.alice_wallet.address,
+        token: context.token,
         amount: 150_000
       })
 
@@ -1199,8 +1212,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: token_2.id,
-          user_id: meta.bob.id,
-          exchange_account_id: meta.account.id
+          user_id: context.bob.id,
+          exchange_account_id: context.account.id
         })
 
       assert response["success"] == true
@@ -1209,63 +1222,69 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
 
       assert response["data"]["amount"] == nil
-      assert response["data"]["finalized_request_amount"] == 100_000 * meta.token.subunit_to_unit
+
+      assert response["data"]["finalized_request_amount"] ==
+               100_000 * context.token.subunit_to_unit
+
       assert response["data"]["finalized_consumption_amount"] == 200_000 * token_2.subunit_to_unit
-      assert response["data"]["estimated_request_amount"] == 100_000 * meta.token.subunit_to_unit
+
+      assert response["data"]["estimated_request_amount"] ==
+               100_000 * context.token.subunit_to_unit
+
       assert response["data"]["estimated_consumption_amount"] == 200_000 * token_2.subunit_to_unit
       assert response["data"]["token_id"] == token_2.id
-      assert response["data"]["exchange_wallet_address"] == meta.account_wallet.address
-      assert response["data"]["exchange_account_id"] == meta.account.id
+      assert response["data"]["exchange_wallet_address"] == context.account_wallet.address
+      assert response["data"]["exchange_account_id"] == context.account.id
 
       assert response["data"]["transaction_request"]["amount"] ==
-               100_000 * meta.token.subunit_to_unit
+               100_000 * context.token.subunit_to_unit
 
-      assert response["data"]["transaction_request"]["token_id"] == meta.token.id
-      assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
-      assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
+      assert response["data"]["transaction_request"]["token_id"] == context.token.id
+      assert response["data"]["transaction_request"]["address"] == context.alice_wallet.address
+      assert response["data"]["transaction_request"]["user_id"] == context.alice.id
       assert response["data"]["transaction_request"]["exchange_wallet_address"] == nil
       assert response["data"]["transaction_request"]["exchange_accout_id"] == nil
 
-      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
       assert inserted_transaction.to_amount == 200_000 * token_2.subunit_to_unit
       assert inserted_transaction.to_token_uuid == token_2.uuid
-      assert inserted_transaction.to == meta.bob_wallet.address
-      assert inserted_transaction.from == meta.alice_wallet.address
+      assert inserted_transaction.to == context.bob_wallet.address
+      assert inserted_transaction.from == context.alice_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
 
-      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.alice_wallet)
-      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.alice_wallet)
-      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * meta.token.subunit_to_unit
+      {:ok, b1} = BalanceFetcher.get(context.token.id, context.alice_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, context.alice_wallet)
+      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * context.token.subunit_to_unit
       assert Enum.at(b2.balances, 0).amount == 0
 
-      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.bob_wallet)
-      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.bob_wallet)
+      {:ok, b1} = BalanceFetcher.get(context.token.id, context.bob_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, context.bob_wallet)
       assert Enum.at(b1.balances, 0).amount == 0
-      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
+      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * context.token.subunit_to_unit
     end
 
     test_with_auths "transfer and exchange if request and consumption specify the same exchange wallet address",
-                    meta do
+                    context do
       token_2 = insert(:token)
       mint!(token_2)
-      _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
+      _pair = insert(:exchange_pair, from_token: context.token, to_token: token_2, rate: 2)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "send",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit,
-          exchange_account_uuid: meta.account.uuid,
-          exchange_wallet_address: meta.account_wallet.address
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit,
+          exchange_account_uuid: context.account.uuid,
+          exchange_wallet_address: context.account_wallet.address
         )
 
       set_initial_balance(%{
-        address: meta.alice_wallet.address,
-        token: meta.token,
+        address: context.alice_wallet.address,
+        token: context.token,
         amount: 150_000
       })
 
@@ -1278,8 +1297,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: token_2.id,
-          user_id: meta.bob.id,
-          exchange_account_id: meta.account.id
+          user_id: context.bob.id,
+          exchange_account_id: context.account.id
         })
 
       assert response["success"] == true
@@ -1288,67 +1307,73 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
 
       assert response["data"]["amount"] == nil
-      assert response["data"]["finalized_request_amount"] == 100_000 * meta.token.subunit_to_unit
+
+      assert response["data"]["finalized_request_amount"] ==
+               100_000 * context.token.subunit_to_unit
+
       assert response["data"]["finalized_consumption_amount"] == 200_000 * token_2.subunit_to_unit
-      assert response["data"]["estimated_request_amount"] == 100_000 * meta.token.subunit_to_unit
+
+      assert response["data"]["estimated_request_amount"] ==
+               100_000 * context.token.subunit_to_unit
+
       assert response["data"]["estimated_consumption_amount"] == 200_000 * token_2.subunit_to_unit
       assert response["data"]["token_id"] == token_2.id
-      assert response["data"]["exchange_wallet_address"] == meta.account_wallet.address
-      assert response["data"]["exchange_account_id"] == meta.account.id
+      assert response["data"]["exchange_wallet_address"] == context.account_wallet.address
+      assert response["data"]["exchange_account_id"] == context.account.id
 
       assert response["data"]["transaction_request"]["amount"] ==
-               100_000 * meta.token.subunit_to_unit
+               100_000 * context.token.subunit_to_unit
 
-      assert response["data"]["transaction_request"]["token_id"] == meta.token.id
-      assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
-      assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
+      assert response["data"]["transaction_request"]["token_id"] == context.token.id
+      assert response["data"]["transaction_request"]["address"] == context.alice_wallet.address
+      assert response["data"]["transaction_request"]["user_id"] == context.alice.id
 
       assert response["data"]["transaction_request"]["exchange_wallet_address"] ==
-               meta.account_wallet.address
+               context.account_wallet.address
 
-      assert response["data"]["transaction_request"]["exchange_account_id"] == meta.account.id
+      assert response["data"]["transaction_request"]["exchange_account_id"] == context.account.id
 
-      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
       assert inserted_transaction.to_amount == 200_000 * token_2.subunit_to_unit
       assert inserted_transaction.to_token_uuid == token_2.uuid
-      assert inserted_transaction.to == meta.bob_wallet.address
-      assert inserted_transaction.from == meta.alice_wallet.address
+      assert inserted_transaction.to == context.bob_wallet.address
+      assert inserted_transaction.from == context.alice_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
 
-      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.alice_wallet)
-      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.alice_wallet)
-      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * meta.token.subunit_to_unit
+      {:ok, b1} = BalanceFetcher.get(context.token.id, context.alice_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, context.alice_wallet)
+      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * context.token.subunit_to_unit
       assert Enum.at(b2.balances, 0).amount == 0
 
-      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.bob_wallet)
-      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.bob_wallet)
+      {:ok, b1} = BalanceFetcher.get(context.token.id, context.bob_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, context.bob_wallet)
       assert Enum.at(b1.balances, 0).amount == 0
-      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
+      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * context.token.subunit_to_unit
     end
 
     test_with_auths "fails to consume if exchange details are different and already specified in request",
-                    meta do
+                    context do
       {:ok, account_2} = :account |> params_for() |> Account.insert()
       token_2 = insert(:token)
       mint!(token_2)
-      _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
+      _pair = insert(:exchange_pair, from_token: context.token, to_token: token_2, rate: 2)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "send",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit,
-          exchange_account_uuid: meta.account.uuid,
-          exchange_wallet_address: meta.account_wallet.address
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit,
+          exchange_account_uuid: context.account.uuid,
+          exchange_wallet_address: context.account_wallet.address
         )
 
       set_initial_balance(%{
-        address: meta.alice_wallet.address,
-        token: meta.token,
+        address: context.alice_wallet.address,
+        token: context.token,
         amount: 150_000
       })
 
@@ -1361,7 +1386,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: token_2.id,
-          user_id: meta.bob.id,
+          user_id: context.bob.id,
           exchange_account_id: account_2.id
         })
 
@@ -1372,14 +1397,15 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                "The transaction request for the given consumption already specify an exchange account and/or wallet."
     end
 
-    test_with_auths "fails to consume and return an error when amount is not specified", meta do
+    test_with_auths "fails to consume and return an error when amount is not specified",
+                    context do
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
           amount: nil
         )
 
@@ -1392,7 +1418,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id
+          account_id: context.account.id
         })
 
       assert response["success"] == false
@@ -1403,14 +1429,14 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test_with_auths "fails to consume and return an error when amount is a decimal number",
-                    meta do
+                    context do
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
           amount: nil
         )
 
@@ -1423,7 +1449,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id
+          account_id: context.account.id
         })
 
       assert response["success"] == false
@@ -1433,15 +1459,15 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                "Invalid parameter provided. `amount` is not an integer: 1.2365."
     end
 
-    test_with_auths "fails to consume and return an insufficient funds error", meta do
+    test_with_auths "fails to consume and return an insufficient funds error", context do
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit
         )
 
       response =
@@ -1453,7 +1479,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id
+          account_id: context.account.id
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
@@ -1467,41 +1493,42 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                  "messages" => nil,
                  "code" => "transaction:insufficient_funds",
                  "description" =>
-                   "The specified wallet (#{meta.account_wallet.address}) does not contain enough funds. Available: 0 #{
-                     meta.token.id
-                   } - Attempted debit: 100000 #{meta.token.id}"
+                   "The specified wallet (#{context.account_wallet.address}) does not contain enough funds. Available: 0 #{
+                     context.token.id
+                   } - Attempted debit: 100000 #{context.token.id}"
                }
              }
 
-      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.from_token_uuid == meta.token.uuid
-      assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.to_token_uuid == meta.token.uuid
-      assert inserted_transaction.to == meta.alice_wallet.address
-      assert inserted_transaction.from == meta.account_wallet.address
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
+      assert inserted_transaction.to_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == context.token.uuid
+      assert inserted_transaction.to == context.alice_wallet.address
+      assert inserted_transaction.from == context.account_wallet.address
       assert inserted_transaction.error_code == "insufficient_funds"
       assert inserted_transaction.error_description == nil
 
       assert inserted_transaction.error_data == %{
-               "address" => meta.account_wallet.address,
-               "amount_to_debit" => 100_000 * meta.token.subunit_to_unit,
+               "address" => context.account_wallet.address,
+               "amount_to_debit" => 100_000 * context.token.subunit_to_unit,
                "current_amount" => 0,
-               "token_id" => meta.token.id
+               "token_id" => context.token.id
              }
     end
 
-    test_with_auths "fails to consume when token is disabled", meta do
+    test_with_auths "fails to consume when token is disabled", context do
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit
         )
 
-      {:ok, token} = Token.enable_or_disable(meta.token, %{enabled: false, originator: %System{}})
+      {:ok, token} =
+        Token.enable_or_disable(context.token, %{enabled: false, originator: %System{}})
 
       response =
         request("/transaction_request.consume", %{
@@ -1512,17 +1539,17 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: token.id,
-          account_id: meta.account.id
+          account_id: context.account.id
         })
 
       assert response["success"] == false
       assert response["data"]["code"] == "token:disabled"
     end
 
-    test_with_auths "fails to consume when wallet is disabled", meta do
+    test_with_auths "fails to consume when wallet is disabled", context do
       {:ok, wallet} =
         Wallet.insert_secondary_or_burn(%{
-          "account_uuid" => meta.account.uuid,
+          "account_uuid" => context.account.uuid,
           "name" => "MySecondary",
           "identifier" => "secondary",
           "originator" => %System{}
@@ -1534,10 +1561,10 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit
         )
 
       response =
@@ -1549,27 +1576,27 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: wallet.address,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id
+          account_id: context.account.id
         })
 
       assert response["success"] == false
       assert response["data"]["code"] == "wallet:disabled"
     end
 
-    test_with_auths "returns with preload if `embed` attribute is given", meta do
+    test_with_auths "returns with preload if `embed` attribute is given", context do
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit
         )
 
       set_initial_balance(%{
-        address: meta.bob_wallet.address,
-        token: meta.token,
+        address: context.bob_wallet.address,
+        token: context.token,
         amount: 150_000
       })
 
@@ -1582,7 +1609,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id,
+          account_id: context.account.id,
           embed: ["account"]
         })
 
@@ -1590,21 +1617,21 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test_with_auths "returns same transaction request consumption when idempotency token is the same",
-                    meta do
+                    context do
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: meta.token.uuid,
-          account_uuid: meta.account.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit
         )
 
       set_initial_balance(%{
-        address: meta.bob_wallet.address,
-        token: meta.token,
+        address: context.bob_wallet.address,
+        token: context.token,
         amount: 150_000
       })
 
@@ -1617,7 +1644,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id
+          account_id: context.account.id
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
@@ -1635,7 +1662,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id
+          account_id: context.account.id
         })
 
       inserted_consumption_2 = TransactionConsumption |> Repo.all() |> Enum.at(0)
@@ -1670,17 +1697,17 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
              }
     end
 
-    test_with_auths "sends socket confirmation when require_confirmation and approved", meta do
-      mint!(meta.token)
+    test_with_auths "sends socket confirmation when require_confirmation and approved", context do
+      mint!(context.token)
 
       # Create a require_confirmation transaction request that will be consumed soon
       transaction_request =
         insert(
           :transaction_request,
           type: "send",
-          token_uuid: meta.token.uuid,
-          account_uuid: meta.account.uuid,
-          wallet: meta.account_wallet,
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          wallet: context.account_wallet,
           amount: nil,
           require_confirmation: true
         )
@@ -1697,10 +1724,10 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.token.subunit_to_unit,
+          amount: 100_000 * context.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
-          provider_user_id: meta.bob.provider_user_id
+          provider_user_id: context.bob.provider_user_id
         })
 
       consumption_id = response["data"]["id"]
@@ -1740,12 +1767,12 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       # Check that a transaction was inserted
       inserted_transaction = Repo.get_by(Transaction, id: response["data"]["transaction_id"])
-      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.from_token_uuid == meta.token.uuid
-      assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.to_token_uuid == meta.token.uuid
-      assert inserted_transaction.to == meta.bob_wallet.address
-      assert inserted_transaction.from == meta.account_wallet.address
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
+      assert inserted_transaction.to_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == context.token.uuid
+      assert inserted_transaction.to == context.bob_wallet.address
+      assert inserted_transaction.from == context.account_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
 
       assert_receive %Phoenix.Socket.Broadcast{
@@ -1763,12 +1790,12 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test_with_auths "sends socket confirmation when require_confirmation and approved between users",
-                    meta do
+                    context do
       # bob = test_user
       set_initial_balance(%{
-        address: meta.bob_wallet.address,
-        token: meta.token,
-        amount: 1_000_000 * meta.token.subunit_to_unit
+        address: context.bob_wallet.address,
+        token: context.token,
+        amount: 1_000_000 * context.token.subunit_to_unit
       })
 
       # Create a require_confirmation transaction request that will be consumed soon
@@ -1776,10 +1803,10 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "send",
-          token_uuid: meta.token.uuid,
-          account_uuid: meta.account.uuid,
-          user_uuid: meta.bob.uuid,
-          wallet: meta.bob_wallet,
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          user_uuid: context.bob.uuid,
+          wallet: context.bob_wallet,
           amount: nil,
           require_confirmation: true
         )
@@ -1796,10 +1823,10 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.token.subunit_to_unit,
+          amount: 100_000 * context.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
-          address: meta.alice_wallet.address
+          address: context.alice_wallet.address
         })
 
       consumption_id = response["data"]["id"]
@@ -1839,12 +1866,12 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       # Check that a transaction was inserted
       inserted_transaction = Repo.get_by(Transaction, id: response["data"]["transaction_id"])
-      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.from_token_uuid == meta.token.uuid
-      assert inserted_transaction.to_token_uuid == meta.token.uuid
-      assert inserted_transaction.to == meta.alice_wallet.address
-      assert inserted_transaction.from == meta.bob_wallet.address
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.to_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
+      assert inserted_transaction.to_token_uuid == context.token.uuid
+      assert inserted_transaction.to == context.alice_wallet.address
+      assert inserted_transaction.from == context.bob_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
 
       assert_receive %Phoenix.Socket.Broadcast{
@@ -1861,12 +1888,12 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
-    test_with_auths "sends a websocket expiration event when a consumption expires", meta do
+    test_with_auths "sends a websocket expiration event when a consumption expires", context do
       # bob = test_user
       set_initial_balance(%{
-        address: meta.bob_wallet.address,
-        token: meta.token,
-        amount: 1_000_000 * meta.token.subunit_to_unit
+        address: context.bob_wallet.address,
+        token: context.token,
+        amount: 1_000_000 * context.token.subunit_to_unit
       })
 
       # Create a require_confirmation transaction request that will be consumed soon
@@ -1874,9 +1901,9 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "send",
-          token_uuid: meta.token.uuid,
-          account_uuid: meta.account.uuid,
-          wallet: meta.account_wallet,
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          wallet: context.account_wallet,
           amount: nil,
           require_confirmation: true,
 
@@ -1896,10 +1923,10 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.token.subunit_to_unit,
+          amount: 100_000 * context.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
-          address: meta.alice_wallet.address
+          address: context.alice_wallet.address
         })
 
       consumption_id = response["data"]["id"]
@@ -1968,18 +1995,18 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
-    test_with_auths "sends an error when approved without enough funds", meta do
-      {:ok, _} = AccountUser.link(meta.account.uuid, meta.bob.uuid, %System{})
+    test_with_auths "sends an error when approved without enough funds", context do
+      {:ok, _} = AccountUser.link(context.account.uuid, context.bob.uuid, %System{})
 
       # Create a require_confirmation transaction request that will be consumed soon
       transaction_request =
         insert(
           :transaction_request,
           type: "send",
-          token_uuid: meta.token.uuid,
-          account_uuid: meta.account.uuid,
-          user_uuid: meta.bob.uuid,
-          wallet: meta.bob_wallet,
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          user_uuid: context.bob.uuid,
+          wallet: context.bob_wallet,
           amount: nil,
           require_confirmation: true
         )
@@ -1996,10 +2023,10 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.token.subunit_to_unit,
+          amount: 100_000 * context.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
-          address: meta.alice_wallet.address
+          address: context.alice_wallet.address
         })
 
       consumption_id = response["data"]["id"]
@@ -2062,17 +2089,17 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
-    test_with_auths "sends socket confirmation when require_confirmation and rejected", meta do
-      mint!(meta.token)
+    test_with_auths "sends socket confirmation when require_confirmation and rejected", context do
+      mint!(context.token)
 
       # Create a require_confirmation transaction request that will be consumed soon
       transaction_request =
         insert(
           :transaction_request,
           type: "send",
-          token_uuid: meta.token.uuid,
-          account_uuid: meta.account.uuid,
-          wallet: meta.account_wallet,
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          wallet: context.account_wallet,
           amount: nil,
           require_confirmation: true,
           max_consumptions: 1
@@ -2090,10 +2117,10 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.token.subunit_to_unit,
+          amount: 100_000 * context.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
-          provider_user_id: meta.bob.provider_user_id
+          provider_user_id: context.bob.provider_user_id
         })
 
       consumption_id = response["data"]["id"]
@@ -2153,10 +2180,10 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           idempotency_token: "1234",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.token.subunit_to_unit,
+          amount: 100_000 * context.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
-          provider_user_id: meta.bob.provider_user_id
+          provider_user_id: context.bob.provider_user_id
         })
 
       consumption_id = response["data"]["id"]
@@ -2362,20 +2389,20 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       )
     end
 
-    test "generates an activity log with an admin request", meta do
+    test "generates an activity log with an admin request", context do
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit
         )
 
       set_initial_balance(%{
-        address: meta.bob_wallet.address,
-        token: meta.token,
+        address: context.bob_wallet.address,
+        token: context.token,
         amount: 150_000
       })
 
@@ -2390,7 +2417,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id
+          account_id: context.account.id
         })
 
       assert response["success"] == true
@@ -2405,20 +2432,20 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       |> assert_consume_logs(get_test_admin(), transaction_consumption)
     end
 
-    test "generates an activity log with a provider request", meta do
+    test "generates an activity log with a provider request", context do
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.alice.uuid,
-          wallet: meta.alice_wallet,
-          amount: 100_000 * meta.token.subunit_to_unit
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit
         )
 
       set_initial_balance(%{
-        address: meta.bob_wallet.address,
-        token: meta.token,
+        address: context.bob_wallet.address,
+        token: context.token,
         amount: 150_000
       })
 
@@ -2433,7 +2460,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: nil,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id
+          account_id: context.account.id
         })
 
       assert response["success"] == true

@@ -55,38 +55,38 @@ defmodule AdminAPI.V1.ActivityControllerTest do
       assert Enum.at(activity_logs, 2)["action"] == "Matched 1"
     end
 
+    test_with_auths "returns unauthorized error if the admin is not from the master account" do
+      auth_token = insert(:auth_token, owner_app: "admin_api")
+      key = insert(:key)
+
+      opts = [
+        access_key: key.access_key,
+        secret_key: key.secret_key,
+        user_id: auth_token.user.id,
+        auth_token: auth_token.token
+      ]
+
+      response =
+        request(
+          "/activity_log.all",
+          %{},
+          opts
+        )
+
+      assert response ==
+               %{
+                 "success" => false,
+                 "version" => "1",
+                 "data" => %{
+                   "object" => "error",
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation.",
+                   "messages" => nil
+                 }
+               }
+    end
+
     test_supports_match_any("/activity_log.all", :activity_log, :action)
     test_supports_match_all("/activity_log.all", :activity_log, :action)
-  end
-
-  test_with_auths "returns unauthorized error if the admin is not from the master account" do
-    auth_token = insert(:auth_token, owner_app: "admin_api")
-    key = insert(:key)
-
-    opts = [
-      access_key: key.access_key,
-      secret_key: key.secret_key,
-      user_id: auth_token.user.id,
-      auth_token: auth_token.token
-    ]
-
-    response =
-      request(
-        "/activity_log.all",
-        %{},
-        opts
-      )
-
-    assert response ==
-             %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "object" => "error",
-                 "code" => "unauthorized",
-                 "description" => "You are not allowed to perform the requested operation.",
-                 "messages" => nil
-               }
-             }
   end
 end

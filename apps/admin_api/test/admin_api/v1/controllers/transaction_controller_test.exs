@@ -131,7 +131,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
   end
 
   describe "/transaction.all" do
-    test_with_auths "returns all the transactions", meta do
+    test_with_auths "returns all the transactions", context do
       response =
         request("/transaction.all", %{
           "sort_by" => "created",
@@ -140,18 +140,18 @@ defmodule AdminAPI.V1.TransactionControllerTest do
         })
 
       transactions = [
-        meta.mint.transaction,
-        meta.init_transaction_1,
-        meta.transaction_1,
-        meta.init_transaction_2,
-        meta.transaction_2,
-        meta.transaction_3,
-        meta.transaction_4,
-        meta.transaction_5,
-        meta.transaction_6,
-        meta.init_transaction_3,
-        meta.transaction_7,
-        meta.transaction_8
+        context.mint.transaction,
+        context.init_transaction_1,
+        context.transaction_1,
+        context.init_transaction_2,
+        context.transaction_2,
+        context.transaction_3,
+        context.transaction_4,
+        context.transaction_5,
+        context.transaction_6,
+        context.init_transaction_3,
+        context.transaction_7,
+        context.transaction_8
       ]
 
       saved_transactions = Repo.all(Transaction)
@@ -166,14 +166,14 @@ defmodule AdminAPI.V1.TransactionControllerTest do
              end)
     end
 
-    test_with_auths "returns all the transactions for a specific address", meta do
+    test_with_auths "returns all the transactions for a specific address", context do
       response =
         request("/transaction.all", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
-            "from" => meta.wallet_1.address,
-            "to" => meta.wallet_2.address
+            "from" => context.wallet_1.address,
+            "to" => context.wallet_2.address
           }
         })
 
@@ -182,12 +182,12 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transaction_1.id,
-               meta.transaction_4.id
+               context.transaction_1.id,
+               context.transaction_4.id
              ]
     end
 
-    test_with_auths "returns all transactions filtered", meta do
+    test_with_auths "returns all transactions filtered", context do
       response =
         request("/transaction.all", %{
           "sort_by" => "created_at",
@@ -200,13 +200,13 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transaction_4.id,
-               meta.transaction_6.id,
-               meta.transaction_8.id
+               context.transaction_4.id,
+               context.transaction_6.id,
+               context.transaction_8.id
              ]
     end
 
-    test_with_auths "returns all transactions sorted and paginated", meta do
+    test_with_auths "returns all transactions sorted and paginated", context do
       response =
         request("/transaction.all", %{
           "sort_by" => "created_at",
@@ -220,18 +220,18 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       transaction_2 = Enum.at(response["data"]["data"], 1)
       assert transaction_2["created_at"] > transaction_1["created_at"]
 
-      assert transaction_1["id"] == meta.mint.transaction.id
-      assert transaction_2["id"] == meta.init_transaction_1.id
+      assert transaction_1["id"] == context.mint.transaction.id
+      assert transaction_2["id"] == context.init_transaction_1.id
     end
 
-    test_with_auths "returns match_all filtered transactions", meta do
+    test_with_auths "returns match_all filtered transactions", context do
       response =
         request("/transaction.all", %{
           "match_all" => [
             %{
               "field" => "from_wallet.address",
               "comparator" => "eq",
-              "value" => meta.wallet_4.address
+              "value" => context.wallet_4.address
             },
             %{
               "field" => "status",
@@ -243,51 +243,51 @@ defmodule AdminAPI.V1.TransactionControllerTest do
 
       transactions = response["data"]["data"]
 
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_1.id end)
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_2.id end)
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_3.id end)
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_4.id end)
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_5.id end)
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_6.id end)
-      assert Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_7.id end)
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_8.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_1.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_2.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_3.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_4.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_5.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_6.id end)
+      assert Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_7.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_8.id end)
     end
 
-    test_with_auths "returns match_any filtered transactions", meta do
+    test_with_auths "returns match_any filtered transactions", context do
       response =
         request("/transaction.all", %{
           "match_any" => [
             %{
               "field" => "from_wallet.address",
               "comparator" => "eq",
-              "value" => meta.wallet_2.address
+              "value" => context.wallet_2.address
             },
             %{
               "field" => "from_wallet.address",
               "comparator" => "eq",
-              "value" => meta.wallet_4.address
+              "value" => context.wallet_4.address
             }
           ]
         })
 
       transactions = response["data"]["data"]
 
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_1.id end)
-      assert Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_2.id end)
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_3.id end)
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_4.id end)
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_5.id end)
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_6.id end)
-      assert Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_7.id end)
-      assert Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_8.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_1.id end)
+      assert Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_2.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_3.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_4.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_5.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_6.id end)
+      assert Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_7.id end)
+      assert Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_8.id end)
     end
 
-    test_supports_match_any("/transaction.all", :admin_auth, :transaction, :idempotency_token)
-    test_supports_match_all("/transaction.all", :admin_auth, :transaction, :idempotency_token)
+    test_supports_match_any("/transaction.all", :transaction, :idempotency_token)
+    test_supports_match_all("/transaction.all", :transaction, :idempotency_token)
   end
 
   describe "/account.get_transactions" do
-    test_with_auths "returns all the transactions", meta do
+    test_with_auths "returns all the transactions", context do
       account = Account.get_master_account()
       {:ok, account_1} = :account |> params_for() |> Account.insert()
       {:ok, account_2} = :account |> params_for() |> Account.insert()
@@ -297,9 +297,9 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = Account.get_primary_wallet(account_2)
       wallet_3 = Account.get_primary_wallet(account_3)
 
-      set_initial_balance(%{address: wallet_1.address, token: meta.token, amount: 10}, false)
-      set_initial_balance(%{address: wallet_2.address, token: meta.token, amount: 20}, false)
-      set_initial_balance(%{address: wallet_3.address, token: meta.token, amount: 20}, false)
+      set_initial_balance(%{address: wallet_1.address, token: context.token, amount: 10}, false)
+      set_initial_balance(%{address: wallet_2.address, token: context.token, amount: 20}, false)
+      set_initial_balance(%{address: wallet_3.address, token: context.token, amount: 20}, false)
 
       response =
         request("/account.get_transactions", %{
@@ -312,7 +312,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert length(response["data"]["data"]) == 15
     end
 
-    test_with_auths "returns all the transactions when owned is true", meta do
+    test_with_auths "returns all the transactions when owned is true", context do
       account = Account.get_master_account()
       {:ok, account_1} = :account |> params_for() |> Account.insert()
       {:ok, account_2} = :account |> params_for() |> Account.insert()
@@ -322,9 +322,9 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = Account.get_primary_wallet(account_2)
       wallet_3 = Account.get_primary_wallet(account_3)
 
-      set_initial_balance(%{address: wallet_1.address, token: meta.token, amount: 10}, false)
-      set_initial_balance(%{address: wallet_2.address, token: meta.token, amount: 20}, false)
-      set_initial_balance(%{address: wallet_3.address, token: meta.token, amount: 20}, false)
+      set_initial_balance(%{address: wallet_1.address, token: context.token, amount: 10}, false)
+      set_initial_balance(%{address: wallet_2.address, token: context.token, amount: 20}, false)
+      set_initial_balance(%{address: wallet_3.address, token: context.token, amount: 20}, false)
 
       response =
         request("/account.get_transactions", %{
@@ -338,7 +338,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert length(response["data"]["data"]) == 15
     end
 
-    test_with_auths "returns all the transactions for a specific address", meta do
+    test_with_auths "returns all the transactions for a specific address", context do
       account = Account.get_master_account()
 
       response =
@@ -347,8 +347,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
-            "from" => meta.wallet_1.address,
-            "to" => meta.wallet_2.address
+            "from" => context.wallet_1.address,
+            "to" => context.wallet_2.address
           }
         })
 
@@ -357,12 +357,12 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transaction_1.id,
-               meta.transaction_4.id
+               context.transaction_1.id,
+               context.transaction_4.id
              ]
     end
 
-    test_with_auths "returns all transactions filtered", meta do
+    test_with_auths "returns all transactions filtered", context do
       account = Account.get_master_account()
 
       response =
@@ -378,13 +378,13 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transaction_4.id,
-               meta.transaction_6.id,
-               meta.transaction_8.id
+               context.transaction_4.id,
+               context.transaction_6.id,
+               context.transaction_8.id
              ]
     end
 
-    test_with_auths "returns all transactions sorted and paginated", meta do
+    test_with_auths "returns all transactions sorted and paginated", context do
       account = Account.get_master_account()
 
       response =
@@ -401,47 +401,47 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       transaction_2 = Enum.at(response["data"]["data"], 1)
       assert transaction_2["created_at"] > transaction_1["created_at"]
 
-      assert transaction_1["id"] == meta.mint.transaction.id
-      assert transaction_2["id"] == meta.init_transaction_1.id
+      assert transaction_1["id"] == context.mint.transaction.id
+      assert transaction_2["id"] == context.init_transaction_1.id
     end
   end
 
   describe "/user.get_transactions" do
-    test_with_auths "returns all the transactions for a specific user_id", meta do
+    test_with_auths "returns all the transactions for a specific user_id", context do
       response =
         request("/user.get_transactions", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
-          "user_id" => meta.user.id
+          "user_id" => context.user.id
         })
 
       assert response["data"]["data"] |> length() == 8
 
       Enum.each(response["data"]["data"], fn tx ->
-        assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], meta.user.id)
+        assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], context.user.id)
       end)
     end
 
-    test_with_auths "returns all the transactions for a specific provider_user_id", meta do
+    test_with_auths "returns all the transactions for a specific provider_user_id", context do
       response =
         request("/user.get_transactions", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
-          "provider_user_id" => meta.user.provider_user_id
+          "provider_user_id" => context.user.provider_user_id
         })
 
       assert response["data"]["data"] |> length() == 8
 
       Enum.each(response["data"]["data"], fn tx ->
-        assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], meta.user.id)
+        assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], context.user.id)
       end)
     end
 
     test_with_auths "returns the user's transactions even when different search terms are provided",
-                    meta do
+                    context do
       response =
         request("/user.get_transactions", %{
-          "provider_user_id" => meta.user.provider_user_id,
+          "provider_user_id" => context.user.provider_user_id,
           "sort_by" => "created_at",
           "sort_dir" => "desc",
           "search_terms" => %{}
@@ -450,28 +450,28 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert response["data"]["data"] |> length() == 8
 
       Enum.each(response["data"]["data"], fn tx ->
-        assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], meta.user.id)
+        assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], context.user.id)
       end)
     end
 
-    test_with_auths "returns all transactions filtered", meta do
+    test_with_auths "returns all transactions filtered", context do
       response =
         request("/user.get_transactions", %{
-          "provider_user_id" => meta.user.provider_user_id,
+          "provider_user_id" => context.user.provider_user_id,
           "search_terms" => %{"status" => "pending"}
         })
 
       assert response["data"]["data"] |> length() == 2
 
       Enum.each(response["data"]["data"], fn tx ->
-        assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], meta.user.id)
+        assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], context.user.id)
       end)
     end
 
-    test_with_auths "returns all transactions sorted and paginated", meta do
+    test_with_auths "returns all transactions sorted and paginated", context do
       response =
         request("/user.get_transactions", %{
-          "provider_user_id" => meta.user.provider_user_id,
+          "provider_user_id" => context.user.provider_user_id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "per_page" => 3,
@@ -481,16 +481,16 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert response["data"]["data"] |> length() == 3
 
       assert NaiveDateTime.compare(
-               meta.transaction_1.inserted_at,
-               meta.transaction_2.inserted_at
+               context.transaction_1.inserted_at,
+               context.transaction_2.inserted_at
              ) == :lt
 
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.init_transaction_1.id,
-               meta.transaction_1.id,
-               meta.transaction_2.id
+               context.init_transaction_1.id,
+               context.transaction_1.id,
+               context.transaction_2.id
              ]
     end
   end
@@ -1530,7 +1530,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
 
       timestamp
       |> get_all_activity_logs_since()
-      |> assert_create_logs(get_test_admin(), transaction)
+      |> assert_create_with_exchange_logs(get_test_admin(), transaction)
     end
 
     test "generates an activity log for a provider request" do
@@ -1587,7 +1587,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
 
       timestamp
       |> get_all_activity_logs_since()
-      |> assert_create_logs(get_test_key(), transaction)
+      |> assert_create_with_exchange_logs(get_test_key(), transaction)
     end
   end
 end

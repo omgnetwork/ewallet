@@ -510,7 +510,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
                "http://localhost:4000/public/uploads/test/user/avatars/#{uuid}/thumb.png?v="
     end
 
-    test "fails to upload avatar with GCS adapter and an invalid configuration", meta do
+    test "fails to upload avatar with GCS adapter and an invalid configuration", context do
       account = insert(:account)
       role = insert(:role, %{name: "some_role"})
       admin = get_test_admin()
@@ -524,7 +524,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
             gcs_credentials: "123",
             originator: %System{}
           },
-          meta[:config_pid]
+          context[:config_pid]
         )
 
       response =

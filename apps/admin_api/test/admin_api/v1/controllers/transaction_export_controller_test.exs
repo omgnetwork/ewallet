@@ -26,7 +26,6 @@ defmodule AdminAPI.V1.TransactionExportControllerTest do
 
   describe "/transaction.export" do
     test_with_auths "generates a csv file" do
-      admin = get_test_admin()
       insert_list(100, :transaction)
       assert Application.get_env(:admin_api, :file_storage_adapter) == "local"
 
@@ -82,41 +81,41 @@ defmodule AdminAPI.V1.TransactionExportControllerTest do
         |> Path.join()
         |> File.rm_rf()
     end
-  end
 
-  test_with_auths "fails to generate a CSV when GCS is not properly configured", meta do
-    {:ok, _} =
-      Config.update(
-        %{
-          file_storage_adapter: "gcs",
-          gcs_bucket: "bucket",
-          gcs_credentials: "123",
-          originator: %System{}
-        },
-        meta[:config_pid]
-      )
+    test_with_auths "fails to generate a CSV when GCS is not properly configured", context do
+      {:ok, _} =
+        Config.update(
+          %{
+            file_storage_adapter: "gcs",
+            gcs_bucket: "bucket",
+            gcs_credentials: "123",
+            originator: %System{}
+          },
+          context[:config_pid]
+        )
 
-    insert_list(1, :transaction)
-    assert Application.get_env(:ewallet, :file_storage_adapter) == "gcs"
+      insert_list(1, :transaction)
+      assert Application.get_env(:ewallet, :file_storage_adapter) == "gcs"
 
-    response =
-      request("/transaction.export", %{
-        "sort_by" => "created",
-        "sort_dir" => "desc"
-      })
+      response =
+        request("/transaction.export", %{
+          "sort_by" => "created",
+          "sort_dir" => "desc"
+        })
 
-    assert response["success"] == false
-    assert response["data"]["code"] == "adapter:server_not_running"
-  end
+      assert response["success"] == false
+      assert response["data"]["code"] == "adapter:server_not_running"
+    end
 
-  test_with_auths "returns an 'export:no_records' error when there are no records" do
-    response =
-      request("/transaction.export", %{
-        "sort_by" => "created",
-        "sort_dir" => "desc"
-      })
+    test_with_auths "returns an 'export:no_records' error when there are no records" do
+      response =
+        request("/transaction.export", %{
+          "sort_by" => "created",
+          "sort_dir" => "desc"
+        })
 
-    assert response["success"] == false
-    assert response["data"]["code"] == "export:no_records"
+      assert response["success"] == false
+      assert response["data"]["code"] == "export:no_records"
+    end
   end
 end

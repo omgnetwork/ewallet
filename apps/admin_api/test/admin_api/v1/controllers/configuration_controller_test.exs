@@ -19,7 +19,6 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
   describe "/configuration.all" do
     test_with_auths "returns a list of configurations" do
       response = request("/configuration.all", %{})
-
       # Asserts return data
       assert response["success"]
       assert response["data"]["object"] == "list"
@@ -36,12 +35,11 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
   end
 
   describe "/configuration.update" do
-    test_with_auths "updates one setting" do
-      # IO.inspect(meta)
+    test_with_auths "updates one setting", context do
       response =
         request("/configuration.update", %{
           base_url: "new_base_url.example",
-          config_pid: meta[:config_pid]
+          config_pid: context[:config_pid]
         })
 
       assert response["success"] == true
@@ -49,7 +47,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       assert response["data"]["data"]["base_url"]["value"] == "new_base_url.example"
     end
 
-    test_with_auths "updates a list of settings" do
+    test_with_auths "updates a list of settings", context do
       response =
         request("/configuration.update", %{
           "aws_access_key_id" => "asd",
@@ -57,7 +55,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
           "aws_region" => "asdz",
           "aws_secret_access_key" => "asdasdasdasdasd",
           "enable_standalone" => false,
-          "config_pid" => meta[:config_pid]
+          "config_pid" => context[:config_pid]
         })
 
       assert response["success"] == true
@@ -70,7 +68,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       assert data["enable_standalone"]["value"] == false
     end
 
-    test_with_auths "updates a list of settings with failures" do
+    test_with_auths "updates a list of settings with failures", context do
       response =
         request("/configuration.update", %{
           base_url: "new_base_url.example",
@@ -79,7 +77,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
           max_per_page: true,
           email_adapter: "fake",
           enable_standalone: true,
-          config_pid: meta[:config_pid]
+          config_pid: context[:config_pid]
         })
 
       assert response["success"] == true
@@ -117,11 +115,11 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
              }
     end
 
-    test_with_auths "reloads app env" do
+    test_with_auths "reloads app env", context do
       response =
         request("/configuration.update", %{
           base_url: "new_base_url.example",
-          config_pid: meta[:config_pid]
+          config_pid: context[:config_pid]
         })
 
       assert response["success"] == true
@@ -129,7 +127,8 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       assert Application.get_env(:admin_api, :base_url, "new_base_url.example")
     end
 
-    test_with_auths "returns unauthorized error if the admin is not from the master account" do
+    test_with_auths "returns unauthorized error if the admin is not from the master account",
+                    context do
       auth_token = insert(:auth_token, owner_app: "admin_api")
       key = insert(:key)
 
@@ -145,7 +144,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
           "/configuration.update",
           %{
             base_url: "new_base_url.example",
-            config_pid: meta[:config_pid]
+            config_pid: context[:config_pid]
           },
           opts
         )
@@ -177,13 +176,13 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       )
     end
 
-    test "generates an activity log for an admin request", meta do
+    test "generates an activity log for an admin request", context do
       timestamp = DateTime.utc_now()
 
       response =
         admin_user_request("/configuration.update", %{
           base_url: "new_base_url.example",
-          config_pid: meta[:config_pid]
+          config_pid: context[:config_pid]
         })
 
       assert response["success"] == true
@@ -194,13 +193,13 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       |> assert_update_logs(get_test_admin(), setting)
     end
 
-    test "generates an activity log for a provider request", meta do
+    test "generates an activity log for a provider request", context do
       timestamp = DateTime.utc_now()
 
       response =
         provider_request("/configuration.update", %{
           base_url: "new_base_url.example",
-          config_pid: meta[:config_pid]
+          config_pid: context[:config_pid]
         })
 
       assert response["success"] == true

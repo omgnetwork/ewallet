@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.TransactionCalculationControllerTest do
   use AdminAPI.ConnCase, async: true
 
   # credo:disable-for-next-line
-  def setup do
+  setup do
     eth = insert(:token)
     omg = insert(:token)
     pair = insert(:exchange_pair, from_token: eth, to_token: omg, rate: 10)
@@ -29,9 +29,7 @@ defmodule AdminAPI.V1.TransactionCalculationControllerTest do
   end
 
   describe "/transaction.calculate" do
-    test_with_auths "returns the calculation when all params are provided" do
-      context = setup()
-
+    test_with_auths "returns the calculation when all params are provided", context do
       response =
         request("/transaction.calculate", %{
           "from_amount" => 100,
@@ -56,9 +54,7 @@ defmodule AdminAPI.V1.TransactionCalculationControllerTest do
       assert response["data"]["exchange_pair"]["to_token"]["id"] == context.omg.id
     end
 
-    test_with_auths "accepts integer strings" do
-      context = setup()
-
+    test_with_auths "accepts integer strings", context do
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => "100",
@@ -76,9 +72,7 @@ defmodule AdminAPI.V1.TransactionCalculationControllerTest do
       assert response["data"]["to_token_id"] == context.omg.id
     end
 
-    test_with_auths "returns the calculation when `from_amount` is left out" do
-      context = setup()
-
+    test_with_auths "returns the calculation when `from_amount` is left out", context do
       response =
         admin_user_request("/transaction.calculate", %{
           # "from_amount" => 200 / context.pair.rate,
@@ -100,9 +94,7 @@ defmodule AdminAPI.V1.TransactionCalculationControllerTest do
       assert response["data"]["exchange_pair"]["id"] == context.pair.id
     end
 
-    test_with_auths "returns the calculation when `to_amount` is left out" do
-      context = setup()
-
+    test_with_auths "returns the calculation when `to_amount` is left out", context do
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => 300,
@@ -124,9 +116,8 @@ defmodule AdminAPI.V1.TransactionCalculationControllerTest do
       assert response["data"]["exchange_pair"]["id"] == context.pair.id
     end
 
-    test_with_auths "returns an error when the amounts conflict with the available exchange pair" do
-      context = setup()
-
+    test_with_auths "returns an error when the amounts conflict with the available exchange pair",
+                    context do
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => 100,
@@ -143,9 +134,7 @@ defmodule AdminAPI.V1.TransactionCalculationControllerTest do
                "expected 'from_amount' to be 100 and 'to_amount' to be 1000, got 100 and 999999"
     end
 
-    test_with_auths "returns an error when `from_token_id` is missing" do
-      context = setup()
-
+    test_with_auths "returns an error when `from_token_id` is missing", context do
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => 100,
@@ -160,9 +149,7 @@ defmodule AdminAPI.V1.TransactionCalculationControllerTest do
       assert response["data"]["description"] == "`from_token_id` is required"
     end
 
-    test_with_auths "returns an error when `to_token_id` is missing" do
-      context = setup()
-
+    test_with_auths "returns an error when `to_token_id` is missing", context do
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => 100,
@@ -177,9 +164,8 @@ defmodule AdminAPI.V1.TransactionCalculationControllerTest do
       assert response["data"]["description"] == "`to_token_id` is required"
     end
 
-    test_with_auths "returns an error when both `from_token_id` and `to_token_id` are missing" do
-      context = setup()
-
+    test_with_auths "returns an error when both `from_token_id` and `to_token_id` are missing",
+                    context do
       response =
         admin_user_request("/transaction.calculate", %{
           "from_amount" => 100,
@@ -196,9 +182,8 @@ defmodule AdminAPI.V1.TransactionCalculationControllerTest do
                "both `from_token_id` and `to_token_id` are required"
     end
 
-    test_with_auths "returns an error when both `from_amount` and `to_amount` are missing" do
-      context = setup()
-
+    test_with_auths "returns an error when both `from_amount` and `to_amount` are missing",
+                    context do
       response =
         admin_user_request("/transaction.calculate", %{
           # "from_amount" => 100,
@@ -213,8 +198,7 @@ defmodule AdminAPI.V1.TransactionCalculationControllerTest do
       assert response["data"]["description"] == "either `from_amount` or `to_amount` is required"
     end
 
-    test_with_auths "returns an error when the exchange pair does not exist" do
-      context = setup()
+    test_with_auths "returns an error when the exchange pair does not exist", context do
       other_token = insert(:token)
 
       response =

@@ -37,7 +37,7 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
       }
     end
 
-    test_with_auths "returns all the transaction_requests", meta do
+    test_with_auths "returns all the transaction_requests", context do
       response =
         request("/transaction_request.all", %{
           "sort_by" => "created",
@@ -45,9 +45,9 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
         })
 
       transfers = [
-        meta.tr_1,
-        meta.tr_2,
-        meta.tr_3
+        context.tr_1,
+        context.tr_2,
+        context.tr_3
       ]
 
       assert length(response["data"]["data"]) == length(transfers)
@@ -60,7 +60,7 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
              end)
     end
 
-    test_with_auths "returns all the transaction_requests for a specific status", meta do
+    test_with_auths "returns all the transaction_requests for a specific status", context do
       response =
         request("/transaction_request.all", %{
           "sort_by" => "created_at",
@@ -75,12 +75,12 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tr_1.id,
-               meta.tr_2.id
+               context.tr_1.id,
+               context.tr_2.id
              ]
     end
 
-    test_with_auths "returns all transaction_requests filtered", meta do
+    test_with_auths "returns all transaction_requests filtered", context do
       response =
         request("/transaction_request.all", %{
           "sort_by" => "created_at",
@@ -93,12 +93,12 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tr_1.id,
-               meta.tr_2.id
+               context.tr_1.id,
+               context.tr_2.id
              ]
     end
 
-    test_with_auths "returns all transaction_requests sorted and paginated", meta do
+    test_with_auths "returns all transaction_requests sorted and paginated", context do
       response =
         request("/transaction_request.all", %{
           "sort_by" => "created_at",
@@ -115,8 +115,8 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tr_1.id,
-               meta.tr_2.id
+               context.tr_1.id,
+               context.tr_2.id
              ]
     end
 

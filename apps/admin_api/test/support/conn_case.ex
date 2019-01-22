@@ -530,13 +530,16 @@ defmodule AdminAPI.ConnCase do
   end
   ```
   """
-  defmacro test_with_auths(test_name, do: test_block) do
+  defmacro test_with_auths(test_name, var \\ quote(do: _), do: test_block) do
+    var = Macro.escape(var)
+
     provider_test_block =
       Macro.prewalk(test_block, fn
         {:request, meta, args} -> {:provider_request, meta, args}
         {:raw_request, meta, args} -> {:provider_raw_request, meta, args}
         node -> node
       end)
+      |> Macro.escape(unquote: true)
 
     admin_test_block =
       Macro.prewalk(test_block, fn
@@ -544,14 +547,30 @@ defmodule AdminAPI.ConnCase do
         {:raw_request, meta, args} -> {:admin_user_raw_request, meta, args}
         node -> node
       end)
+      |> Macro.escape(unquote: true)
 
-    quote do
-      test unquote(test_name) <> " with admin_auth" do
-        unquote(admin_test_block)
+    quote bind_quoted: [
+            var: var,
+            test_name: test_name,
+            provider_test_block: provider_test_block,
+            admin_test_block: admin_test_block
+          ] do
+      admin_test_name = :"#{test_name} with admin_auth"
+      provider_test_name = :"#{test_name} with provider_auth"
+
+      {_, describe} = Module.get_attribute(__MODULE__, :ex_unit_describe)
+      admin_func_name = :"#{describe} #{admin_test_name}"
+      provider_func_name = :"#{describe} #{provider_test_name}"
+
+      def unquote(admin_func_name)(unquote(var)), do: unquote(admin_test_block)
+      def unquote(provider_func_name)(unquote(var)), do: unquote(provider_test_block)
+
+      test admin_test_name, meta do
+        unquote(admin_func_name)(meta)
       end
 
-      test unquote(test_name) <> " with provider_auth" do
-        unquote(provider_test_block)
+      test provider_test_name, meta do
+        unquote(provider_func_name)(meta)
       end
     end
   end

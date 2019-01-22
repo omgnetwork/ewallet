@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
   alias EWalletDB.{Account, Membership, Repo, Role, User}
   alias ActivityLogger.System
   alias Utils.Helpers.DateFormatter
+  alias EWalletConfig.Config
 
   describe "/account.all" do
     test_with_auths "returns a list of accounts and pagination data" do
@@ -553,7 +554,8 @@ defmodule AdminAPI.V1.AccountControllerTest do
                "http://localhost:4000/public/uploads/test/account/avatars/#{attrs.id}/thumb.png?v="
     end
 
-    test_with_auths "fails to upload avatar with GCS adapter and an invalid configuration" do
+    test_with_auths "fails to upload avatar with GCS adapter and an invalid configuration",
+                    context do
       account = insert(:account)
 
       {:ok, _} =
@@ -564,7 +566,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
             gcs_credentials: "123",
             originator: %System{}
           },
-          meta[:config_pid]
+          context[:config_pid]
         )
 
       response =
