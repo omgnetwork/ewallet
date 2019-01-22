@@ -149,7 +149,7 @@ defmodule EWallet.Web.MatchParser do
             {queryable, joined_assocs}
 
           {field, _subfield, _type} ->
-            queryable = join(queryable, :inner, [q], assoc in assoc(q, ^field))
+            queryable = join(queryable, :left, [q], assoc in assoc(q, ^field))
             joined_assocs = [field | joined_assocs]
 
             {queryable, joined_assocs}
