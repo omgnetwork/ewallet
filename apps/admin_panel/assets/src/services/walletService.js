@@ -13,6 +13,21 @@ export function getWallets ({ perPage, sort, matchAll, matchAny }) {
   })
 }
 
+export function getWalletsAndUserWalletsByAccountId ({ accountId, perPage, sort, owned, matchAll, matchAny }) {
+  return authenticatedRequest({
+    path: '/account.get_wallets_and_user_wallets',
+    data: {
+      per_page: perPage,
+      sort_by: sort.by,
+      sort_dir: sort.dir,
+      id: accountId,
+      owned,
+      match_all: matchAll,
+      match_any: matchAny
+    }
+  })
+}
+
 export function getWalletsByAccountId ({ accountId, perPage, sort, owned, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/account.get_wallets',

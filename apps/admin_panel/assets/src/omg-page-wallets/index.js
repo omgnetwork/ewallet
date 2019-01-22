@@ -3,7 +3,8 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
-import WalletsFetcher from '../omg-wallet/walletsFetcher'
+import ExportModal from '../omg-export-modal'
+import WalletsFetcher from '../omg-wallet/accountUsersWalletsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -70,7 +71,6 @@ class WalletPage extends Component {
       transferModalOpen: false
     }
   }
-
   onClickTransfer = () => {
     this.setState({ transferModalOpen: true })
   }

@@ -1,5 +1,10 @@
 export function createSearchAddressQuery (value = '') {
   const matchValue = value.trim()
+
+  if (matchValue === '') {
+    return { matchAny: [] }
+  }
+
   return {
     matchAny: [
       {
