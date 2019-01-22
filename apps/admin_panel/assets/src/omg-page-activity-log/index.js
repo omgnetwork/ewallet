@@ -87,7 +87,6 @@ class AccountPage extends Component {
       { key: 'originator', title: 'ORIGINATOR' },
       { key: 'action', title: 'ACTION' },
       { key: 'target', title: 'TARGET' },
-      { key: 'target_type', title: 'TARGE TYPE' },
       { key: 'created_at', title: 'CREATED DATE' }
     ]
   }
@@ -108,7 +107,7 @@ class AccountPage extends Component {
         return originator.name || originator.calling_name
 
       default:
-        return null
+        return originatorType
     }
   }
   rowRenderer = (key, data, row) => {
@@ -125,18 +124,26 @@ class AccountPage extends Component {
                 </OriginatorDetailContianer>
               </span>
             ) : (
-              '-'
+              _.capitalize(row.originator_type)
             )}
           </span>
         )
       case 'target':
         return (
           <span>
-            {row.target ? this.getLink(row.target_type, row.target.id || row.target.address) : '-'}
+            {row.target ? (
+              <span>
+                <span>{_.capitalize(row.target_type)}</span>{' '}
+                {this.getLink(row.target_type, row.target.id || row.target.address)}
+                <OriginatorDetailContianer>
+                  {this.getOriginatorDetail(row.target_type, row.target)}
+                </OriginatorDetailContianer>
+              </span>
+            ) : (
+              _.capitalize(row.target_type)
+            )}
           </span>
         )
-      case 'target_type':
-        return <span>{row.target_type}</span>
       case 'created_at':
         return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
       case 'avatar':
