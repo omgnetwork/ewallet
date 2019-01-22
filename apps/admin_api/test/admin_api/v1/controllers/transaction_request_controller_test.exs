@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
+defmodule AdminAPI.V1.TransactionRequestControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Utils.Helpers.DateFormatter
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, UserSerializer, WalletSerializer}

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
+defmodule AdminAPI.V1.TransactionExportControllerTest do
   use AdminAPI.ConnCase
   alias EWalletDB.Uploaders
   alias Utils.Helper.PidHelper

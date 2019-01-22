@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
+defmodule AdminAPI.V1.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.TransactionGate
   alias EWalletDB.{Account, Repo, Token, Transaction, User}

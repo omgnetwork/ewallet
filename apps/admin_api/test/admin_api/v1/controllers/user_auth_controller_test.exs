@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
+defmodule AdminAPI.V1.UserAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{AuthToken, User, Repo}
   alias ActivityLogger.System

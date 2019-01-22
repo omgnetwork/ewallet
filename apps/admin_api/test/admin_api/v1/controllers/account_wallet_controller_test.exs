@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AdminAuth.AccountWalletControllerTest do
+defmodule AdminAPI.V1.AccountWalletControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Account, User}
 
   describe "/account.get_wallets_and_user_wallets" do
-    test "returns a list of wallets and pagination data for the specified account" do
+    test_with_auths "returns a list of wallets and pagination data for the specified account" do
       account = Account.get_master_account()
       {:ok, account_1} = :account |> params_for() |> Account.insert()
       {:ok, account_2} = :account |> params_for() |> Account.insert()
 
       response =
-        admin_user_request("/account.get_wallets_and_user_wallets", %{"id" => account.id})
+        request("/account.get_wallets_and_user_wallets", %{"id" => account.id})
 
       # Asserts return data
       assert response["success"]
@@ -54,13 +54,13 @@ defmodule AdminAPI.V1.AdminAuth.AccountWalletControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of wallets and pagination data for the specified account with owned = true" do
+    test_with_auths "returns a list of wallets and pagination data for the specified account with owned = true" do
       account = Account.get_master_account()
       {:ok, _account_1} = :account |> params_for() |> Account.insert()
       {:ok, _account_2} = :account |> params_for() |> Account.insert()
 
       response =
-        admin_user_request("/account.get_wallets_and_user_wallets", %{
+        request("/account.get_wallets_and_user_wallets", %{
           "id" => account.id,
           "owned" => true
         })
@@ -89,7 +89,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountWalletControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of wallets according to sort_by and sort_direction" do
+    test_with_auths "returns a list of wallets according to sort_by and sort_direction" do
       user = get_test_user()
       user_wallet = User.get_primary_wallet(user)
 
@@ -132,7 +132,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountWalletControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = admin_user_request("/account.get_wallets_and_user_wallets", attrs)
+      response = request("/account.get_wallets_and_user_wallets", attrs)
       wallets = response["data"]["data"]
 
       assert response["success"]
@@ -166,12 +166,12 @@ defmodule AdminAPI.V1.AdminAuth.AccountWalletControllerTest do
   end
 
   describe "/account.get_wallets" do
-    test "returns a list of wallets and pagination data for the specified account" do
+    test_with_auths "returns a list of wallets and pagination data for the specified account" do
       account = Account.get_master_account()
       {:ok, account_1} = :account |> params_for() |> Account.insert()
       {:ok, account_2} = :account |> params_for() |> Account.insert()
 
-      response = admin_user_request("/account.get_wallets", %{"id" => account.id})
+      response = request("/account.get_wallets", %{"id" => account.id})
 
       # Asserts return data
       assert response["success"]
@@ -201,13 +201,13 @@ defmodule AdminAPI.V1.AdminAuth.AccountWalletControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of wallets and pagination data for the specified account with owned = true" do
+    test_with_auths "returns a list of wallets and pagination data for the specified account with owned = true" do
       account = Account.get_master_account()
       {:ok, _account_1} = :account |> params_for() |> Account.insert()
       {:ok, _account_2} = :account |> params_for() |> Account.insert()
 
       response =
-        admin_user_request("/account.get_wallets", %{
+        request("/account.get_wallets", %{
           "id" => account.id,
           "owned" => true
         })
@@ -236,7 +236,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountWalletControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of wallets according to sort_by and sort_direction" do
+    test_with_auths "returns a list of wallets according to sort_by and sort_direction" do
       account_1 = insert(:account)
       account_2 = insert(:account)
       account_3 = insert(:account, parent: account_2)
@@ -276,7 +276,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountWalletControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = admin_user_request("/account.get_wallets", attrs)
+      response = request("/account.get_wallets", attrs)
       wallets = response["data"]["data"]
 
       assert response["success"]
