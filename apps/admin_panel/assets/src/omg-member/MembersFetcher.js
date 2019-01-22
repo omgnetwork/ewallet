@@ -6,4 +6,3 @@ export default createFetcher('inviteLists', getListMembers, (state, props) => ({
   data: selectInvitesCachedQuery(state)(props.cacheKey),
   pagination: selectInvitesCachedQueryPagination(state)(props.cacheKey)
 }))
- 

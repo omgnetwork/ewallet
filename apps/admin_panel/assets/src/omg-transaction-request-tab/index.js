@@ -96,7 +96,7 @@ class TransactionRequestPanel extends Component {
     this.props.history.push({
       search: queryString.stringify({
         ...searchObject,
-        ['active-tab']: tab
+        'active-tab': tab
       })
     })
   }
