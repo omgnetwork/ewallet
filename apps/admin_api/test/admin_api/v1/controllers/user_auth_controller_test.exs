@@ -138,7 +138,7 @@ defmodule AdminAPI.V1.UserAuthControllerTest do
 
       assert response["success"] == true
 
-      auth_token = get_last_inserted(AuthToken) |> Repo.preload(:user)
+      auth_token = AuthToken |> get_last_inserted() |> Repo.preload(:user)
 
       timestamp
       |> get_all_activity_logs_since()
@@ -153,7 +153,7 @@ defmodule AdminAPI.V1.UserAuthControllerTest do
 
       assert response["success"] == true
 
-      auth_token = get_last_inserted(AuthToken) |> Repo.preload(:user)
+      auth_token = AuthToken |> get_last_inserted() |> Repo.preload(:user)
 
       timestamp
       |> get_all_activity_logs_since()

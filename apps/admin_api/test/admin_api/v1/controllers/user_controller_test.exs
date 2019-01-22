@@ -345,7 +345,7 @@ defmodule AdminAPI.V1.UserControllerTest do
     end
 
     defp assert_create_logs(logs, originator, target) do
-      account_user = get_last_inserted(AccountUser) |> Repo.preload(:user)
+      account_user = AccountUser |> get_last_inserted() |> Repo.preload(:user)
       wallet = User.get_primary_wallet(target)
 
       assert Enum.count(logs) == 3

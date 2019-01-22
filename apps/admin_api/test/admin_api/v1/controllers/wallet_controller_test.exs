@@ -482,7 +482,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
       assert response["success"] == true
 
-      wallet = Wallet.get(response["data"]["address"]) |> Repo.preload(:account)
+      wallet = response["data"]["address"] |> Wallet.get() |> Repo.preload(:account)
 
       timestamp
       |> get_all_activity_logs_since()
@@ -504,7 +504,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
       assert response["success"] == true
 
-      wallet = Wallet.get(response["data"]["address"]) |> Repo.preload(:account)
+      wallet = response["data"]["address"] |> Wallet.get() |> Repo.preload(:account)
 
       timestamp
       |> get_all_activity_logs_since()

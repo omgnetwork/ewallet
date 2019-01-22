@@ -908,7 +908,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert response["success"] == true
 
       transaction =
-        Transaction.get(response["data"]["id"])
+        response["data"]["id"]
+        |> Transaction.get()
         |> Repo.preload([
           :from_wallet,
           :from_token,
@@ -951,7 +952,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert response["success"] == true
 
       transaction =
-        Transaction.get(response["data"]["id"])
+        response["data"]["id"]
+        |> Transaction.get()
         |> Repo.preload([
           :from_wallet,
           :from_token,
@@ -1512,7 +1514,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert response["success"] == true
 
       transaction =
-        Transaction.get(response["data"]["id"])
+        response["data"]["id"]
+        |> Transaction.get()
         |> Repo.preload([
           :from_wallet,
           :from_token,
@@ -1568,7 +1571,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert response["success"] == true
 
       transaction =
-        Transaction.get(response["data"]["id"])
+        response["data"]["id"]
+        |> Transaction.get()
         |> Repo.preload([
           :from_wallet,
           :from_token,

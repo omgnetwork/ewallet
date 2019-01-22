@@ -583,7 +583,8 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
     assert response["success"] == true
 
     transaction_request =
-      TransactionRequest.get(response["data"]["id"])
+      response["data"]["id"]
+      |> TransactionRequest.get()
       |> Repo.preload([:exchange_account, :exchange_wallet, :token, :user, :wallet])
 
     timestamp
@@ -614,7 +615,8 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
     assert response["success"] == true
 
     transaction_request =
-      TransactionRequest.get(response["data"]["id"])
+      response["data"]["id"]
+      |> TransactionRequest.get()
       |> Repo.preload([:exchange_account, :exchange_wallet, :token, :user, :wallet])
 
     timestamp

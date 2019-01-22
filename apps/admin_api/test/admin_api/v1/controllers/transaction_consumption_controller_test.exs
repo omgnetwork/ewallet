@@ -2214,7 +2214,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
     defp assert_consume_logs(logs, originator, transaction_consumption) do
       transaction =
-        get_last_inserted(Transaction)
+        Transaction
+        |> get_last_inserted()
         |> Repo.preload([
           :from_account,
           :from_token,
@@ -2224,7 +2225,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           :to_token
         ])
 
-      alice_account_user = get_last_inserted(AccountUser) |> Repo.preload(:user)
+      alice_account_user = AccountUser |> get_last_inserted() |> Repo.preload(:user)
 
       assert Enum.count(logs) == 8
 
@@ -2395,7 +2396,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert response["success"] == true
 
       transaction_consumption =
-        TransactionConsumption.get(response["data"]["id"])
+        response["data"]["id"]
+        |> TransactionConsumption.get()
         |> Repo.preload([:account, :transaction_request, :token])
 
       timestamp
@@ -2437,7 +2439,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert response["success"] == true
 
       transaction_consumption =
-        TransactionConsumption.get(response["data"]["id"])
+        response["data"]["id"]
+        |> TransactionConsumption.get()
         |> Repo.preload([:account, :transaction_request, :token])
 
       timestamp
