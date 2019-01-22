@@ -14,6 +14,7 @@
 
 defmodule EWallet.Web.OrchestratorTest do
   use EWallet.DBCase, async: true
+  import Ecto.Query
   import EWalletDB.Factory
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.Orchestrator
@@ -25,7 +26,7 @@ defmodule EWallet.Web.OrchestratorTest do
     def page_record_fields, do: [:id]
     def preload_assocs, do: [:categories]
     def default_preload_assocs, do: [:parent]
-    def sort_fields, do: [:id]
+    def sort_fields, do: [:id, :name]
     def search_fields, do: [:id]
     def self_filter_fields, do: [:id, :name, :description]
     def filter_fields, do: [:id, :name, :description]
@@ -65,6 +66,41 @@ defmodule EWallet.Web.OrchestratorTest do
       assert res == :error
       assert error == :query_field_not_allowed
       assert params == [field_name: "status"]
+    end
+
+    test "returns records when `sort_by` and `page_record_field` are presented" do
+      total = 10
+      total_records = 5
+      ensure_num_records(Account, total)
+
+      records = from(a in Account, select: a, order_by: a.id)
+      |> Repo.all()
+      |> Enum.take(-total_records) # Take last `total_records` elements
+
+      first_record_id = records
+      |> Enum.map(fn(record) -> record.id end)
+      |> Enum.at(0)
+
+      attrs = %{
+        "page_record_field" => "id",
+        "page_record_value" => first_record_id,
+        "sort_by" => "name",
+        "sort_dir" => "desc"
+      }
+
+      # Is it not error when used with sort_by?
+      assert %{data: data, pagination: pagination} = Orchestrator.query(Account, MockOverlay, attrs)
+
+      # Is it name-descending sorted?
+      name_desc_records = records
+      |> Enum.map(fn(record) -> record.name end)
+      |> Enum.sort()
+      |> Enum.reverse()
+
+      assert name_desc_records == Enum.map(data, fn(elem) -> elem.name end)
+   
+      # Is it all has an id >= `first_record_id`?
+      assert Enum.all?(data, fn(elem) -> elem.id >= first_record_id end)
     end
   end
 
