@@ -58,11 +58,14 @@ defmodule EWallet.Web.PaginatorTest do
     test "returns a paginator with the given `page_record_value` without `page_record_field`" do
       ensure_num_records(Account, 1)
 
-      id = from(a in Account, select: a.id, order_by: a.id)
-      |> Repo.all()
-      |> Enum.at(0)
+      id =
+        from(a in Account, select: a.id, order_by: a.id)
+        |> Repo.all()
+        |> Enum.at(0)
 
-      paginator = Paginator.paginate_attrs(Account, %{"page_record_value" => id, "per_page" => "5"}, [:id])
+      paginator =
+        Paginator.paginate_attrs(Account, %{"page_record_value" => id, "per_page" => "5"}, [:id])
+
       assert paginator.pagination.current_page == 1
       assert paginator.pagination.per_page == 5
       assert paginator.pagination.count == 1
@@ -113,7 +116,9 @@ defmodule EWallet.Web.PaginatorTest do
     end
 
     test "returrns :error if given both attrs.page_record_value and attrs.page" do
-      result = Paginator.paginate_attrs(Account, %{"page" => 1, "page_record_value" => "acc_1234"})
+      result =
+        Paginator.paginate_attrs(Account, %{"page" => 1, "page_record_value" => "acc_1234"})
+
       assert {:error, :invalid_parameter, _} = result
     end
 
@@ -133,7 +138,13 @@ defmodule EWallet.Web.PaginatorTest do
     end
 
     test "returns :error if given attrs.page_record_field is not allowed" do
-      result = Paginator.paginate_attrs(Account, %{"page_record_field" => "a", "page_record_value" => "1"}, [:id, :create_at])
+      result =
+        Paginator.paginate_attrs(
+          Account,
+          %{"page_record_field" => "a", "page_record_value" => "1"},
+          [:id, :create_at]
+        )
+
       assert {:error, :invalid_parameter, _} = result
     end
   end
@@ -178,23 +189,32 @@ defmodule EWallet.Web.PaginatorTest do
 
       # Fetch last `total_records` elements from db
       # Example: [%{id: "acc_6"}, %{id: "acc_7"}, ... , %{id: "acc_10"}]
-      records_id = from(a in Account, select: a.id, order_by: a.id)
-      |> Repo.all()
-      |> Enum.take(-total_records) # get last 5 records
+      records_id =
+        from(a in Account, select: a.id, order_by: a.id)
+        |> Repo.all()
+        # get last 5 records
+        |> Enum.take(-total_records)
 
       # Example "acc_6"
       first_record_id = Enum.at(records_id, 0)
 
-      paginator = Paginator.paginate(
-        Account,
-        %{"page_record_field" => :id, "page_record_value" => first_record_id, "per_page" => per_page}
-      )
+      paginator =
+        Paginator.paginate(
+          Account,
+          %{
+            "page_record_field" => :id,
+            "page_record_value" => first_record_id,
+            "per_page" => per_page
+          }
+        )
 
       # Collect id-mapped paginator.data
-      actual_records_id = paginator.data
-      |> Enum.map(fn (%Account{id: id}) -> id end)
+      actual_records_id =
+        paginator.data
+        |> Enum.map(fn %Account{id: id} -> id end)
 
       assert actual_records_id == records_id
+
       assert paginator.pagination == %{
                per_page: per_page,
                current_page: 1,
@@ -211,21 +231,30 @@ defmodule EWallet.Web.PaginatorTest do
       ensure_num_records(Account, 10)
 
       # Fetch last `total_records` elements from db
-      records_id = from(a in Account, select: a.id, order_by: a.id)
-      |> Repo.all()
-      |> Enum.take(-per_page) # Take all elements in the last page.
+      records_id =
+        from(a in Account, select: a.id, order_by: a.id)
+        |> Repo.all()
+        # Take all elements in the last page.
+        |> Enum.take(-per_page)
 
       first_record_id = Enum.at(records_id, 0)
 
-      paginator = Paginator.paginate(
-        Account,
-        %{"page" => 2, "page_record_field" => :id, "page_record_value" => first_record_id, "per_page" => per_page}
-      )
+      paginator =
+        Paginator.paginate(
+          Account,
+          %{
+            "page" => 2,
+            "page_record_field" => :id,
+            "page_record_value" => first_record_id,
+            "per_page" => per_page
+          }
+        )
 
       # Collect mapped-sorted result.
-      actual_records_id = paginator.data
-      |> Enum.map(fn (%Account{id: id}) -> id end)
-      |> Enum.sort()
+      actual_records_id =
+        paginator.data
+        |> Enum.map(fn %Account{id: id} -> id end)
+        |> Enum.sort()
 
       assert paginator.pagination == %{
                per_page: per_page,
@@ -243,12 +272,15 @@ defmodule EWallet.Web.PaginatorTest do
       per_page = 10
       ensure_num_records(Account, total)
 
-      paginator = Paginator.paginate(
-        Account,
-        %{"page_record_field" => :id, "page_record_value" => "1", "per_page" => per_page}
-      )
+      paginator =
+        Paginator.paginate(
+          Account,
+          %{"page_record_field" => :id, "page_record_value" => "1", "per_page" => per_page}
+        )
 
-      assert paginator === {:error, :invalid_parameter, "The given page_record_value `1` does not exist on the page_record_field `id`"}
+      assert paginator ===
+               {:error, :invalid_parameter,
+                "The given page_record_value `1` does not exist on the page_record_field `id`"}
     end
   end
 
@@ -273,15 +305,15 @@ defmodule EWallet.Web.PaginatorTest do
       all_ids = Repo.all(query)
 
       # Page 1
-      {records, _} = Paginator.fetch(query,  %{"page" => 1, "per_page" => per_page})
+      {records, _} = Paginator.fetch(query, %{"page" => 1, "per_page" => per_page})
       assert records == Enum.slice(all_ids, 0..3)
 
       # Page 2
-      {records, _} = Paginator.fetch(query,  %{"page" => 2, "per_page" => per_page})
+      {records, _} = Paginator.fetch(query, %{"page" => 2, "per_page" => per_page})
       assert records == Enum.slice(all_ids, 4..7)
 
       # Page 3
-      {records, _} = Paginator.fetch(query,  %{"page" => 3, "per_page" => per_page})
+      {records, _} = Paginator.fetch(query, %{"page" => 3, "per_page" => per_page})
       assert records == Enum.slice(all_ids, 8..9)
     end
 
@@ -289,7 +321,7 @@ defmodule EWallet.Web.PaginatorTest do
       ensure_num_records(Account, 10)
 
       # Request page 2 out of div(10, 4) = 3
-      result = Paginator.fetch(Account,  %{"page" => 2, "per_page" => 4})
+      result = Paginator.fetch(Account, %{"page" => 2, "per_page" => 4})
       assert {_, true} = result
     end
 
@@ -297,7 +329,7 @@ defmodule EWallet.Web.PaginatorTest do
       ensure_num_records(Account, 9)
 
       # Request page 2 out of div(10, 4) = 3
-      result = Paginator.fetch(Account,  %{"page" => 3, "per_page" => 3})
+      result = Paginator.fetch(Account, %{"page" => 3, "per_page" => 3})
       assert {_, false} = result
     end
   end

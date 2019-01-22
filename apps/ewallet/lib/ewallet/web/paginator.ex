@@ -46,11 +46,18 @@ defmodule EWallet.Web.Paginator do
           %__MODULE__{} | {:error, :invalid_parameter, String.t()}
   def paginate_attrs(queryable, attrs, allowed_page_record_fields \\ [], repo \\ Repo)
 
-  def paginate_attrs(queryable, %{"page" => page} = attrs, allowed_page_record_fields, repo) when not is_integer(page) do
+  def paginate_attrs(queryable, %{"page" => page} = attrs, allowed_page_record_fields, repo)
+      when not is_integer(page) do
     parse_string_param(queryable, attrs, "page", page, allowed_page_record_fields, repo)
   end
 
-  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, allowed_page_record_fields, repo) when not is_integer(per_page) do
+  def paginate_attrs(
+        queryable,
+        %{"per_page" => per_page} = attrs,
+        allowed_page_record_fields,
+        repo
+      )
+      when not is_integer(per_page) do
     parse_string_param(queryable, attrs, "per_page", per_page, allowed_page_record_fields, repo)
   end
 
@@ -58,33 +65,58 @@ defmodule EWallet.Web.Paginator do
     {:error, :invalid_parameter, "`page` cannot be used with `page_record_value`"}
   end
 
-  def paginate_attrs(queryable, %{"page_record_field" => page_record_field, "page_record_value" => page_record_value} = attrs, allowed_page_record_fields, repo)
-    when is_bitstring(page_record_value) and is_bitstring(page_record_field) do
+  def paginate_attrs(
+        queryable,
+        %{"page_record_field" => page_record_field, "page_record_value" => page_record_value} =
+          attrs,
+        allowed_page_record_fields,
+        repo
+      )
+      when is_bitstring(page_record_value) and is_bitstring(page_record_field) do
     per_page = get_per_page(attrs)
     page_record_field = String.to_atom(page_record_field)
+
     paginate_attrs(
       queryable,
-      %{"per_page" => per_page, "page_record_field" => page_record_field, "page_record_value" => page_record_value},
+      %{
+        "per_page" => per_page,
+        "page_record_field" => page_record_field,
+        "page_record_value" => page_record_value
+      },
       allowed_page_record_fields,
       repo
     )
   end
 
-  def paginate_attrs(queryable, %{"page_record_field" => page_record_field, "page_record_value" => page_record_value} = attrs, allowed_page_record_fields, repo)
-    when is_bitstring(page_record_value) and is_atom(page_record_field) do
-      case page_record_field in allowed_page_record_fields do
-        true ->
-          paginate(queryable, attrs, repo)
-        _ ->
-          {:error, :invalid_parameter, "page_record_field: `#{page_record_field}` is not allowed. The available fields are: #{inspect allowed_page_record_fields}"}
-      end
+  def paginate_attrs(
+        queryable,
+        %{"page_record_field" => page_record_field, "page_record_value" => page_record_value} =
+          attrs,
+        allowed_page_record_fields,
+        repo
+      )
+      when is_bitstring(page_record_value) and is_atom(page_record_field) do
+    case page_record_field in allowed_page_record_fields do
+      true ->
+        paginate(queryable, attrs, repo)
+
+      _ ->
+        {:error, :invalid_parameter,
+         "page_record_field: `#{page_record_field}` is not allowed. The available fields are: #{
+           inspect(allowed_page_record_fields)
+         }"}
+    end
   end
 
-  def paginate_attrs(queryable, %{"page_record_value" => page_record_value} = attrs, allowed_page_record_fields, repo)
-    when is_bitstring(page_record_value) do
-
+  def paginate_attrs(
+        queryable,
+        %{"page_record_value" => page_record_value} = attrs,
+        allowed_page_record_fields,
+        repo
+      )
+      when is_bitstring(page_record_value) do
     # Set default value of `page_record_field` to the first element in `allowed_page_record_fields`
-    page_record_field = Enum.at(allowed_page_record_fields, 0) |> Atom.to_string
+    page_record_field = Enum.at(allowed_page_record_fields, 0) |> Atom.to_string()
     attrs = Map.put(attrs, "page_record_field", page_record_field)
 
     paginate_attrs(queryable, attrs, allowed_page_record_fields, repo)
@@ -94,15 +126,18 @@ defmodule EWallet.Web.Paginator do
     {:error, :invalid_parameter, "`page` must be non-negative integer"}
   end
 
-  def paginate_attrs(_, %{"per_page" => per_page}, _, _) when is_integer(per_page) and per_page < 1 do
+  def paginate_attrs(_, %{"per_page" => per_page}, _, _)
+      when is_integer(per_page) and per_page < 1 do
     {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
 
-  def paginate_attrs(_, %{"page_record_field" => page_record_value}, _, _) when not is_bitstring(page_record_value) do
+  def paginate_attrs(_, %{"page_record_field" => page_record_value}, _, _)
+      when not is_bitstring(page_record_value) do
     {:error, :invalid_parameter, "`page_record_field` must be a string"}
   end
 
-  def paginate_attrs(_, %{"page_record_value" => page_record_value}, _, _) when not is_bitstring(page_record_value) do
+  def paginate_attrs(_, %{"page_record_value" => page_record_value}, _, _)
+      when not is_bitstring(page_record_value) do
     {:error, :invalid_parameter, "`page_record_value` must be a string"}
   end
 
@@ -119,6 +154,7 @@ defmodule EWallet.Web.Paginator do
       {page, ""} ->
         attrs = Map.put(attrs, name, page)
         paginate_attrs(queryable, attrs, allowed_page_record_fields, repo)
+
       :error ->
         {:error, :invalid_parameter, "`#{name}` must be non-negative integer"}
     end
@@ -155,24 +191,41 @@ defmodule EWallet.Web.Paginator do
     paginate(attrs, more_page, records)
   end
 
-  def paginate(queryable, %{"page_record_field" => page_record_field, "page_record_value" => page_record_value, "per_page" => per_page} = attrs, repo) do
+  def paginate(
+        queryable,
+        %{
+          "page_record_field" => page_record_field,
+          "page_record_value" => page_record_value,
+          "per_page" => per_page
+        } = attrs,
+        repo
+      ) do
     # Verify if the given `page_record_value` exist to prevent unexpected result.
     if repo.get_by(queryable, id: page_record_value) == nil do
-      {:error, :invalid_parameter, "The given page_record_value `#{page_record_value}` does not exist on the page_record_field `#{page_record_field}`"}
+      {:error, :invalid_parameter,
+       "The given page_record_value `#{page_record_value}` does not exist on the page_record_field `#{
+         page_record_field
+       }`"}
     else
       page = Map.get(attrs, "page", @default_page)
 
-      {records, more_page} = queryable
-      |> where([q], field(q, ^page_record_field) >= ^page_record_value)
-      |> order_by([q], field(q, ^page_record_field)) # effect only when `sort_by` doesn't specify.
-      |> fetch(%{"page_record_value" => page_record_value, "page" => page, "per_page" => per_page}, repo)
+      {records, more_page} =
+        queryable
+        |> where([q], field(q, ^page_record_field) >= ^page_record_value)
+        # effect only when `sort_by` doesn't specify.
+        |> order_by([q], field(q, ^page_record_field))
+        |> fetch(
+          %{"page_record_value" => page_record_value, "page" => page, "per_page" => per_page},
+          repo
+        )
 
       # Return pagination result
       paginate(%{"page" => page, "per_page" => per_page}, more_page, records)
     end
   end
 
-  def paginate(%{"page" => page, "per_page" => per_page}, more_page, records) when is_list(records) do
+  def paginate(%{"page" => page, "per_page" => per_page}, more_page, records)
+      when is_list(records) do
     pagination = %{
       per_page: per_page,
       current_page: page,
@@ -205,16 +258,18 @@ defmodule EWallet.Web.Paginator do
     case Enum.count(records) do
       n when n > per_page ->
         {List.delete_at(records, -1), true}
+
       _ ->
         {records, false}
     end
   end
 
   defp get_query_offset(queryable, %{"page" => page, "per_page" => per_page}) do
-    offset = case page do
-      n when n > 0 -> (page - 1) * per_page
-      _ -> 0
-    end
+    offset =
+      case page do
+        n when n > 0 -> (page - 1) * per_page
+        _ -> 0
+      end
 
     queryable
     |> offset(^offset)

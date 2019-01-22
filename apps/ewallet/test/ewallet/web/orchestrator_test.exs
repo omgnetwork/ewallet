@@ -73,13 +73,16 @@ defmodule EWallet.Web.OrchestratorTest do
       total_records = 5
       ensure_num_records(Account, total)
 
-      records = from(a in Account, select: a, order_by: a.id)
-      |> Repo.all()
-      |> Enum.take(-total_records) # Take last `total_records` elements
+      records =
+        from(a in Account, select: a, order_by: a.id)
+        |> Repo.all()
+        # Take last `total_records` elements
+        |> Enum.take(-total_records)
 
-      first_record_id = records
-      |> Enum.map(fn(record) -> record.id end)
-      |> Enum.at(0)
+      first_record_id =
+        records
+        |> Enum.map(fn record -> record.id end)
+        |> Enum.at(0)
 
       attrs = %{
         "page_record_field" => "id",
@@ -89,18 +92,20 @@ defmodule EWallet.Web.OrchestratorTest do
       }
 
       # Is it not error when used with sort_by?
-      assert %{data: data, pagination: pagination} = Orchestrator.query(Account, MockOverlay, attrs)
+      assert %{data: data, pagination: pagination} =
+               Orchestrator.query(Account, MockOverlay, attrs)
 
       # Is it name-descending sorted?
-      name_desc_records = records
-      |> Enum.map(fn(record) -> record.name end)
-      |> Enum.sort()
-      |> Enum.reverse()
+      name_desc_records =
+        records
+        |> Enum.map(fn record -> record.name end)
+        |> Enum.sort()
+        |> Enum.reverse()
 
-      assert name_desc_records == Enum.map(data, fn(elem) -> elem.name end)
-   
+      assert name_desc_records == Enum.map(data, fn elem -> elem.name end)
+
       # Is it all has an id >= `first_record_id`?
-      assert Enum.all?(data, fn(elem) -> elem.id >= first_record_id end)
+      assert Enum.all?(data, fn elem -> elem.id >= first_record_id end)
     end
   end
 
