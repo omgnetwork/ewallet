@@ -46,7 +46,7 @@ const EnhancedUserProvider = compose(
 )(UserProvider)
 
 export const currentUserProviderHoc = BaseComponent =>
-  class extends Component {
+  class CurrentUserProviderHoc extends Component {
     renderBaseComponent = ({ currentUser, loadingStatus }) => {
       return (
         <BaseComponent {...this.props} currentUser={currentUser} loadingStatus={loadingStatus} />
