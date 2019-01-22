@@ -82,6 +82,7 @@ class AccountPage extends Component {
       })
     })
   }
+
   getColumns = accounts => {
     return [
       { key: 'originator', title: 'ORIGINATOR' },
@@ -91,23 +92,40 @@ class AccountPage extends Component {
     ]
   }
 
-  getOriginatorDetail (originatorType, originator) {
+  getOriginatorOrDetail (originatorType, originatorOrTarget) {
     switch (originatorType) {
       case 'account':
-        return originator.name || originator.calling_name
+        return originatorOrTarget.name || originatorOrTarget.calling_name
       case 'transaction':
         return (
           <span>
-            {originator.from.address} <Icon name='Arrow-Right' /> {originator.to.address}{' '}
+            {originatorOrTarget.from.address} <Icon name='Arrow-Right' />{' '}
+            {originatorOrTarget.to.address}{' '}
           </span>
         )
       case 'user':
-        return originator.email || originator.username || originator.id
+        return originatorOrTarget.email || originatorOrTarget.username || originatorOrTarget.id
       case 'token':
-        return originator.name || originator.calling_name
+        return originatorOrTarget.name || originatorOrTarget.calling_name
+      case 'setting':
+        return _.startCase(originatorOrTarget.key)
+      case 'key':
+        return _.startCase(originatorOrTarget.key)
+
+      case 'mint':
+        return originatorOrTarget.token.name
+      case 'exchange_pair':
+        return (
+          <span>
+            {originatorOrTarget.from_token.name} <Icon name='Arrow-Right' />
+            {originatorOrTarget.to_token.name}
+          </span>
+        )
+      case 'membership':
+        return originatorOrTarget.account.name
 
       default:
-        return originatorType
+        return null
     }
   }
   rowRenderer = (key, data, row) => {
@@ -117,14 +135,14 @@ class AccountPage extends Component {
           <span>
             {row.originator ? (
               <span>
-                <span>{_.capitalize(row.originator_type)}</span>{' '}
+                <span>{_.startCase(row.originator_type)}</span>{' '}
                 {this.getLink(row.originator_type, row.originator.id || row.originator.address)}
                 <OriginatorDetailContianer>
-                  {this.getOriginatorDetail(row.originator_type, row.originator)}
+                  {this.getOriginatorOrDetail(row.originator_type, row.originator)}
                 </OriginatorDetailContianer>
               </span>
             ) : (
-              _.capitalize(row.originator_type)
+              _.startCase(row.originator_type)
             )}
           </span>
         )
@@ -133,14 +151,14 @@ class AccountPage extends Component {
           <span>
             {row.target ? (
               <span>
-                <span>{_.capitalize(row.target_type)}</span>{' '}
+                <span>{_.startCase(row.target_type)}</span>{' '}
                 {this.getLink(row.target_type, row.target.id || row.target.address)}
                 <OriginatorDetailContianer>
-                  {this.getOriginatorDetail(row.target_type, row.target)}
+                  {this.getOriginatorOrDetail(row.target_type, row.target)}
                 </OriginatorDetailContianer>
               </span>
             ) : (
-              _.capitalize(row.target_type)
+              _.startCase(row.target_type)
             )}
           </span>
         )
@@ -148,6 +166,8 @@ class AccountPage extends Component {
         return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
       case 'avatar':
         return null
+      case 'action':
+        return _.startCase(data)
       default:
         return data
     }
@@ -163,23 +183,52 @@ class AccountPage extends Component {
       case 'token':
         return <Link to={`/tokens/${id}`}>{id}</Link>
       case 'transaction':
-        const query = {
+        const transactionQuery = {
           ...queryString.parse(this.props.location.search),
           'show-transaction-tab': id
         }
         return (
           <Link
             to={{
-              search: queryString.stringify(query)
+              search: queryString.stringify(transactionQuery)
+            }}
+          >
+            {id}
+          </Link>
+        )
+      case 'transaction_request':
+        const transactionRequestQuery = {
+          ...queryString.parse(this.props.location.search),
+          'show-request-tab': id
+        }
+        return (
+          <Link
+            to={{
+              search: queryString.stringify(transactionRequestQuery)
+            }}
+          >
+            {id}
+          </Link>
+        )
+      case 'transaction_consumption':
+        const transactionConsumptionQuery = {
+          ...queryString.parse(this.props.location.search),
+          'show-consumption-tab': id
+        }
+        return (
+          <Link
+            to={{
+              search: queryString.stringify(transactionConsumptionQuery)
             }}
           >
             {id}
           </Link>
         )
       default:
-        return <span>{id}</span>
+        return null
     }
   }
+
   renderActivityPage = ({ data: activities, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
