@@ -20,6 +20,7 @@ defmodule EWallet.Web.Paginator do
   import Ecto.Query
   alias EWalletDB.Repo
 
+  @default_page 1
   @default_per_page 10
   @default_max_per_page 100
 
@@ -81,8 +82,11 @@ defmodule EWallet.Web.Paginator do
 
   def paginate_attrs(queryable, %{"page_record_value" => page_record_value} = attrs, allowed_page_record_fields, repo)
     when is_bitstring(page_record_value) do
+
+    # Set default value of `page_record_field` to the first element in `allowed_page_record_fields`
     page_record_field = Enum.at(allowed_page_record_fields, 0) |> Atom.to_string
     attrs = Map.put(attrs, "page_record_field", page_record_field)
+
     paginate_attrs(queryable, attrs, allowed_page_record_fields, repo)
   end
 
@@ -103,7 +107,7 @@ defmodule EWallet.Web.Paginator do
   end
 
   def paginate_attrs(queryable, attrs, _, repo) do
-    page = Map.get(attrs, "page", 1)
+    page = Map.get(attrs, "page", @default_page)
     per_page = get_per_page(attrs)
 
     paginate(queryable, %{"page" => page, "per_page" => per_page}, repo)
@@ -138,30 +142,34 @@ defmodule EWallet.Web.Paginator do
     end
   end
 
-  def paginate(queryable, attrs, repo \\ Repo)
-
-  @doc """
-  Paginate a query using the given `page_record_field` and `page_record_value` and returns a paginator.
-  """
-  def paginate(queryable, %{"page_record_field" => page_record_field, "page_record_value" => page_record_value, "per_page" => per_page}, repo) do
-    {records, more_page} = queryable
-    |> where([q], field(q, ^page_record_field) >= ^page_record_value)
-    |> order_by([q], field(q, ^page_record_field))
-    |> fetch(%{"page_record_value" => page_record_value, "page" => 1, "per_page" => per_page}, repo)
-
-    if length(records) > 0 && !begin_record_value(records, page_record_field, page_record_value)  do
-      {:error, :invalid_parameter, "The given page_record_value `#{page_record_value}` does not exist on the page_record_field `#{page_record_field}`"}
-    else
-      paginate(%{"page" => 1, "per_page" => per_page}, more_page, records)
-    end
-  end
-
   @doc """
   Paginate a query using the given `page` and `per_page` and returns a paginator.
+  If a query has `page_record_value`, then returns a paginator with all records after the specify `page_record_value`.
   """
+  def paginate(queryable, attrs, repo \\ Repo)
+
   def paginate(queryable, %{"page" => _, "per_page" => _} = attrs, repo) do
     {records, more_page} = fetch(queryable, attrs, repo)
+
+    # Return pagination result
     paginate(attrs, more_page, records)
+  end
+
+  def paginate(queryable, %{"page_record_field" => page_record_field, "page_record_value" => page_record_value, "per_page" => per_page} = attrs, repo) do
+    # Verify if the given `page_record_value` exist to prevent unexpected result.
+    if repo.get_by(queryable, id: page_record_value) == nil do
+      {:error, :invalid_parameter, "The given page_record_value `#{page_record_value}` does not exist on the page_record_field `#{page_record_field}`"}
+    else
+      page = Map.get(attrs, "page", @default_page)
+
+      {records, more_page} = queryable
+      |> where([q], field(q, ^page_record_field) >= ^page_record_value)
+      |> order_by([q], field(q, ^page_record_field)) # effect only when `sort_by` doesn't specify.
+      |> fetch(%{"page_record_value" => page_record_value, "page" => page, "per_page" => per_page}, repo)
+
+      # Return pagination result
+      paginate(%{"page" => page, "per_page" => per_page}, more_page, records)
+    end
   end
 
   def paginate(%{"page" => page, "per_page" => per_page}, more_page, records) when is_list(records) do
@@ -202,10 +210,6 @@ defmodule EWallet.Web.Paginator do
     end
   end
 
-  defp begin_record_value([record | _], page_record_field, page_record_value) do
-    Map.get(record, page_record_field) === page_record_value
-  end
-
   defp get_query_offset(queryable, %{"page" => page, "per_page" => per_page}) do
     offset = case page do
       n when n > 0 -> (page - 1) * per_page
@@ -215,6 +219,4 @@ defmodule EWallet.Web.Paginator do
     queryable
     |> offset(^offset)
   end
-
-  defp get_query_offset(queryable, %{"page_record_value" => _}), do: queryable
 end
