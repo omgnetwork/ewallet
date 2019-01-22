@@ -116,7 +116,11 @@ defmodule EWallet.Web.Paginator do
       )
       when is_bitstring(page_record_value) do
     # Set default value of `page_record_field` to the first element in `allowed_page_record_fields`
-    page_record_field = Enum.at(allowed_page_record_fields, 0) |> Atom.to_string()
+    page_record_field =
+      allowed_page_record_fields
+      |> Enum.at(0)
+      |> Atom.to_string()
+
     attrs = Map.put(attrs, "page_record_field", page_record_field)
 
     paginate_attrs(queryable, attrs, allowed_page_record_fields, repo)

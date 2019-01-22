@@ -28,7 +28,7 @@ defmodule EWallet.Web.V1.TransactionRequestOverlay do
     WalletOverlay
   }
 
-  def page_record_fields(),
+  def page_record_fields,
     do: [:id]
 
   def preload_assocs,

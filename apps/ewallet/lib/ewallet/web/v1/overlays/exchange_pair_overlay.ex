@@ -20,7 +20,7 @@ defmodule EWallet.Web.V1.ExchangePairOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.TokenOverlay
 
-  def page_record_fields(),
+  def page_record_fields,
     do: [:id]
 
   def preload_assocs,

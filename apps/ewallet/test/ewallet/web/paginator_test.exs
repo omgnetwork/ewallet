@@ -58,8 +58,10 @@ defmodule EWallet.Web.PaginatorTest do
     test "returns a paginator with the given `page_record_value` without `page_record_field`" do
       ensure_num_records(Account, 1)
 
+      id = from(a in Account, select: a.id, order_by: a.id)
+
       id =
-        from(a in Account, select: a.id, order_by: a.id)
+        id
         |> Repo.all()
         |> Enum.at(0)
 
@@ -189,8 +191,10 @@ defmodule EWallet.Web.PaginatorTest do
 
       # Fetch last `total_records` elements from db
       # Example: [%{id: "acc_6"}, %{id: "acc_7"}, ... , %{id: "acc_10"}]
+      records_id = from(a in Account, select: a.id, order_by: a.id)
+
       records_id =
-        from(a in Account, select: a.id, order_by: a.id)
+        records_id
         |> Repo.all()
         # get last 5 records
         |> Enum.take(-total_records)
@@ -231,8 +235,10 @@ defmodule EWallet.Web.PaginatorTest do
       ensure_num_records(Account, 10)
 
       # Fetch last `total_records` elements from db
+      records_id = from(a in Account, select: a.id, order_by: a.id)
+
       records_id =
-        from(a in Account, select: a.id, order_by: a.id)
+        records_id
         |> Repo.all()
         # Take all elements in the last page.
         |> Enum.take(-per_page)

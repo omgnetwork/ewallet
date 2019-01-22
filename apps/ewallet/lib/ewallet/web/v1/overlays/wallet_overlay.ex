@@ -23,7 +23,7 @@ defmodule EWallet.Web.V1.WalletOverlay do
     AccountOverlay
   }
 
-  def page_record_fields(),
+  def page_record_fields,
     do: [:address]
 
   def preload_assocs,
