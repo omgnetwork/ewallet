@@ -105,7 +105,7 @@ class ActivityList extends Component {
     this.props.history.push({
       search: queryString.stringify({
         ...searchObject,
-        [`show-consumption-tab`]: data.id
+        'show-consumption-tab': data.id
       })
     })
   }
