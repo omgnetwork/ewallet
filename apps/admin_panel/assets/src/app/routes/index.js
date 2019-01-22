@@ -30,7 +30,7 @@ const currentAccount = getCurrentAccountFromLocalStorage()
 const redirectUrl = currentAccount ? `${currentAccount.id}/dashboard` : '/login'
 // prettier-ignore
 
-export default () => (
+const createRoute = () => (
   <Router basename='/admin/'>
     <Switch>
       <Redirect from='/' to={redirectUrl} exact />
@@ -61,3 +61,5 @@ export default () => (
     </Switch>
   </Router>
 )
+
+export default createRoute

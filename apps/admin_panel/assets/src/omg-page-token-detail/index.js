@@ -182,7 +182,7 @@ class TokenDetailPage extends Component {
         render={({ exchangePairs }) => {
           return exchangePairs.length ? (
             <DetailContainer>
-              <Section title={`RATES`}>
+              <Section title={'RATES'}>
                 <h5>1 {token.name} :</h5>
                 {exchangePairs.map(pair => {
                   return (
