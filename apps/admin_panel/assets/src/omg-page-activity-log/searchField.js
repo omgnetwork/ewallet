@@ -9,12 +9,22 @@ export function createSearchActivityLogQuery (value = '') {
         value: matchValue
       },
       {
+        field: 'target_identifier',
+        comparator: 'contains',
+        value: matchValue
+      },
+      {
         field: 'action',
         comparator: 'contains',
         value: matchValue
       },
       {
         field: 'originator_type',
+        comparator: 'contains',
+        value: matchValue
+      },
+      {
+        field: 'target_type',
         comparator: 'contains',
         value: matchValue
       }

@@ -169,12 +169,12 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Originator Type</b>
                   <span className='colon'> : </span>
-                  <span>{_.capitalize(activity.originator_type)}</span>
+                  <span>{_.startCase(activity.originator_type)}</span>
                 </InformationItem>
                 <InformationItem>
                   <b>Action</b>
                   <span className='colon'> : </span>
-                  <span>{_.capitalize(activity.action)}</span>
+                  <span>{_.startCase(activity.action)}</span>
                 </InformationItem>
                 <InformationItem>
                   <b>Target</b>
@@ -192,7 +192,7 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Target Type</b>
                   <span className='colon'> : </span>
-                  <span>{_.capitalize(activity.target_type)}</span>
+                  <span>{_.startCase(activity.target_type)}</span>
                 </InformationItem>
                 {activity.target_type === 'setting' && (
                   <InformationItem>
