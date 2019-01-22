@@ -412,7 +412,6 @@ defmodule AdminAPI.V1.UserControllerTest do
 
       user = User.get(response["data"]["id"])
 
-
       timestamp
       |> get_all_activity_logs_since()
       |> assert_create_logs(get_test_admin(), user)
@@ -433,7 +432,6 @@ defmodule AdminAPI.V1.UserControllerTest do
       assert response["success"] == true
 
       user = User.get(response["data"]["id"])
-
 
       timestamp
       |> get_all_activity_logs_since()
@@ -681,7 +679,6 @@ defmodule AdminAPI.V1.UserControllerTest do
       timestamp
       |> get_all_activity_logs_since()
       |> assert_update_logs(get_test_admin(), user)
-
     end
 
     test "generates an activity log for a provider request" do
@@ -712,7 +709,6 @@ defmodule AdminAPI.V1.UserControllerTest do
       timestamp
       |> get_all_activity_logs_since()
       |> assert_update_logs(get_test_key(), user)
-
     end
   end
 
@@ -774,13 +770,15 @@ defmodule AdminAPI.V1.UserControllerTest do
       key = insert(:key, %{account: sub_acc})
 
       response =
-        request("/user.enable_or_disable", %{
-          id: user.id,
-          enabled: false
-        },
-        access_key: key.access_key,
-        secret_key: key.secret_key
-      )
+        request(
+          "/user.enable_or_disable",
+          %{
+            id: user.id,
+            enabled: false
+          },
+          access_key: key.access_key,
+          secret_key: key.secret_key
+        )
 
       assert response["success"] == false
       assert response["data"]["code"] == "unauthorized"
@@ -847,7 +845,6 @@ defmodule AdminAPI.V1.UserControllerTest do
       timestamp
       |> get_all_activity_logs_since()
       |> assert_enable_logs(get_test_admin(), user)
-
     end
 
     test "generates an activity log for a provider request" do
@@ -868,7 +865,6 @@ defmodule AdminAPI.V1.UserControllerTest do
       timestamp
       |> get_all_activity_logs_since()
       |> assert_enable_logs(get_test_key(), user)
-
     end
   end
 end
