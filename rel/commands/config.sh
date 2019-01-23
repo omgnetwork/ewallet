@@ -33,7 +33,8 @@ print_usage() {
     printf "\\n"
     printf "OPTS:\\n"
     printf "\\n"
-    printf "     -h          Prints this help.\\n"
+    printf "     -h           Prints this help.\\n"
+    printf "     -m --migrate Migrate environment variable configurations to the database.\\n"
     printf "\\n"
 }
 
@@ -51,16 +52,21 @@ while true; do
     case "$1" in
         -- ) shift; break;;
         -h ) print_usage; exit 2;;
+        -m | --migrate ) ACTION=migrate; shift;;
         -* ) print_usage; exit 1;;
         *  ) break;;
     esac
 done
 
-# We don't want to deal with argument parsing again in Elixir. No, just no.
-# Let's sidestep all issues by passing the already-parsed value as Base64
-# and let the release task decode it.
+if [ ACTION = migrate ]; then
+    exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.ConfigMigration run
+else
+    # We don't want to deal with argument parsing again in Elixir. No, just no.
+    # Let's sidestep all issues by passing the already-parsed value as Base64
+    # and let the release task decode it.
 
-KEY="$(printf "%s" "$1" | base64)"; shift
-VALUE="$(printf "%s" "$1" | base64)"; shift
+    KEY="$(printf "%s" "$1" | base64)"; shift
+    VALUE="$(printf "%s" "$1" | base64)"; shift
 
-exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.Config run "$KEY" "$VALUE"
+    exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.Config run "$KEY" "$VALUE"
+fi
