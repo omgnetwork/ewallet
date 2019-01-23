@@ -117,6 +117,27 @@ class TransactionRequestPanel extends Component {
         return id
     }
   }
+  renderChanges (activity) {
+    return Object.keys(activity.target_changes).map(key => {
+      if (activity.target_type === 'setting') {
+        if (key === 'data') {
+          return (
+            <InformationItem key={key}>
+              <b> {_.startCase(_.toLower(activity.target.key))}</b>{' '}
+              <span className='colon'> : </span>
+              <span>{activity.target_changes[key].value}</span>
+            </InformationItem>
+          )
+        }
+      }
+      return (
+        <InformationItem key={key}>
+          <b> {_.startCase(_.toLower(key))}</b> <span className='colon'> : </span>
+          <span>{JSON.stringify(activity.target_changes[key]).replace(/"/g, '')}</span>
+        </InformationItem>
+      )
+    })
+  }
   render () {
     return (
       <ActivityLogProvider
@@ -148,12 +169,12 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Originator Type</b>
                   <span className='colon'> : </span>
-                  <span>{activity.originator_type}</span>
+                  <span>{_.startCase(activity.originator_type)}</span>
                 </InformationItem>
                 <InformationItem>
                   <b>Action</b>
                   <span className='colon'> : </span>
-                  <span>{activity.action}</span>
+                  <span>{_.startCase(activity.action)}</span>
                 </InformationItem>
                 <InformationItem>
                   <b>Target</b>
@@ -171,8 +192,15 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Target Type</b>
                   <span className='colon'> : </span>
-                  <span>{activity.target_type}</span>
+                  <span>{_.startCase(activity.target_type)}</span>
                 </InformationItem>
+                {activity.target_type === 'setting' && (
+                  <InformationItem>
+                    <b>Configuration Key</b>
+                    <span className='colon'> : </span>
+                    <span>{_.startCase(activity.target.key)}</span>
+                  </InformationItem>
+                )}
                 <InformationItem>
                   <b>Timestamp</b>
                   <span className='colon'> : </span>
@@ -181,12 +209,7 @@ class TransactionRequestPanel extends Component {
               </div>
               <ChangesContainer>
                 <h5>Changes</h5>
-                {Object.keys(activity.target_changes).map(key => (
-                  <InformationItem key={key}>
-                    <b> {_.startCase(_.toLower(key))}</b> <span className='colon'> : </span>
-                    <span>{JSON.stringify(activity.target_changes[key]).replace(/"/g, '')}</span>
-                  </InformationItem>
-                ))}
+                {this.renderChanges(activity)}
               </ChangesContainer>
             </PanelContainer>
           ) : null

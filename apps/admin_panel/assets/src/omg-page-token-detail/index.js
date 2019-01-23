@@ -186,7 +186,7 @@ class TokenDetailPage extends Component {
                 <h5>1 {token.name} :</h5>
                 {exchangePairs.map(pair => {
                   return (
-                    <DetailGroup>
+                    <DetailGroup key={pair.id}>
                       <b>{_.get(pair, 'to_token.name')}</b>
                       {pair.rate} {_.get(pair, 'to_token.symbol')}
                     </DetailGroup>
