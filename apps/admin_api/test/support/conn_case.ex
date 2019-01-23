@@ -534,7 +534,8 @@ defmodule AdminAPI.ConnCase do
     var = Macro.escape(var)
 
     provider_test_block =
-      Macro.prewalk(test_block, fn
+      test_block
+      |> Macro.prewalk(fn
         {:request, meta, args} -> {:provider_request, meta, args}
         {:raw_request, meta, args} -> {:provider_raw_request, meta, args}
         node -> node
@@ -542,7 +543,8 @@ defmodule AdminAPI.ConnCase do
       |> Macro.escape(unquote: true)
 
     admin_test_block =
-      Macro.prewalk(test_block, fn
+      test_block
+      |> Macro.prewalk(fn
         {:request, meta, args} -> {:admin_user_request, meta, args}
         {:raw_request, meta, args} -> {:admin_user_raw_request, meta, args}
         node -> node
