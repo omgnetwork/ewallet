@@ -44,21 +44,21 @@ defmodule EWallet.Web.Paginator do
   """
   @spec paginate_attrs(Ecto.Query.t() | Ecto.Queryable.t(), map(), Ecto.Repo.t()) ::
           %__MODULE__{} | {:error, :invalid_parameter, String.t()}
-  def paginate_attrs(queryable, attrs, allowed_page_record_fields \\ [], repo \\ Repo)
+  def paginate_attrs(queryable, attrs, allowed_fields \\ [], repo \\ Repo)
 
-  def paginate_attrs(queryable, %{"page" => page} = attrs, allowed_page_record_fields, repo)
+  def paginate_attrs(queryable, %{"page" => page} = attrs, allowed_fields, repo)
       when not is_integer(page) do
-    parse_string_param(queryable, attrs, "page", page, allowed_page_record_fields, repo)
+    parse_string_param(queryable, attrs, "page", page, allowed_fields, repo)
   end
 
   def paginate_attrs(
         queryable,
         %{"per_page" => per_page} = attrs,
-        allowed_page_record_fields,
+        allowed_fields,
         repo
       )
       when not is_integer(per_page) do
-    parse_string_param(queryable, attrs, "per_page", per_page, allowed_page_record_fields, repo)
+    parse_string_param(queryable, attrs, "per_page", per_page, allowed_fields, repo)
   end
 
   def paginate_attrs(_, %{"page" => _, "page_record_value" => _}, _, _) do
@@ -69,7 +69,7 @@ defmodule EWallet.Web.Paginator do
         queryable,
         %{"page_record_field" => page_record_field, "page_record_value" => page_record_value} =
           attrs,
-        allowed_page_record_fields,
+        allowed_fields,
         repo
       )
       when is_bitstring(page_record_value) and is_bitstring(page_record_field) do
@@ -83,7 +83,7 @@ defmodule EWallet.Web.Paginator do
         "page_record_field" => page_record_field,
         "page_record_value" => page_record_value
       },
-      allowed_page_record_fields,
+      allowed_fields,
       repo
     )
   end
@@ -92,18 +92,18 @@ defmodule EWallet.Web.Paginator do
         queryable,
         %{"page_record_field" => page_record_field, "page_record_value" => page_record_value} =
           attrs,
-        allowed_page_record_fields,
+        allowed_fields,
         repo
       )
       when is_bitstring(page_record_value) and is_atom(page_record_field) do
-    case page_record_field in allowed_page_record_fields do
+    case page_record_field in allowed_fields do
       true ->
         paginate(queryable, attrs, repo)
 
       _ ->
         {:error, :invalid_parameter,
          "page_record_field: `#{page_record_field}` is not allowed. The available fields are: #{
-           inspect(allowed_page_record_fields)
+           inspect(allowed_fields)
          }"}
     end
   end
@@ -111,19 +111,19 @@ defmodule EWallet.Web.Paginator do
   def paginate_attrs(
         queryable,
         %{"page_record_value" => page_record_value} = attrs,
-        allowed_page_record_fields,
+        allowed_fields,
         repo
       )
       when is_bitstring(page_record_value) do
-    # Set default value of `page_record_field` to the first element in `allowed_page_record_fields`
+    # Set default value of `page_record_field` to the first element in `allowed_fields`
     page_record_field =
-      allowed_page_record_fields
+      allowed_fields
       |> Enum.at(0)
       |> Atom.to_string()
 
     attrs = Map.put(attrs, "page_record_field", page_record_field)
 
-    paginate_attrs(queryable, attrs, allowed_page_record_fields, repo)
+    paginate_attrs(queryable, attrs, allowed_fields, repo)
   end
 
   def paginate_attrs(_, %{"page" => page}, _, _) when is_integer(page) and page < 0 do
@@ -153,11 +153,11 @@ defmodule EWallet.Web.Paginator do
   end
 
   # Try to parse the given string pagination parameter.
-  defp parse_string_param(queryable, attrs, name, value, allowed_page_record_fields, repo) do
+  defp parse_string_param(queryable, attrs, name, value, allowed_fields, repo) do
     case Integer.parse(value, 10) do
       {page, ""} ->
         attrs = Map.put(attrs, name, page)
-        paginate_attrs(queryable, attrs, allowed_page_record_fields, repo)
+        paginate_attrs(queryable, attrs, allowed_fields, repo)
 
       :error ->
         {:error, :invalid_parameter, "`#{name}` must be non-negative integer"}
