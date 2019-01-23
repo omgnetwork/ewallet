@@ -20,9 +20,6 @@ defmodule EWallet.Web.V1.ExchangePairOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.TokenOverlay
 
-  def pagination_fields,
-    do: [:id]
-
   def preload_assocs,
     do: [
       :from_token,
@@ -68,4 +65,7 @@ defmodule EWallet.Web.V1.ExchangePairOverlay do
       from_token: TokenOverlay.self_filter_fields(),
       to_token: TokenOverlay.self_filter_fields()
     ]
+
+  def pagination_fields,
+    do: [:id]
 end

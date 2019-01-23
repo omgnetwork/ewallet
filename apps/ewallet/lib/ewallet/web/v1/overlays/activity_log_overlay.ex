@@ -19,9 +19,6 @@ defmodule EWallet.Web.V1.ActivityLogOverlay do
 
   @behaviour EWallet.Web.V1.Overlay
 
-  def pagination_fields,
-    do: [:id]
-
   def preload_assocs, do: []
 
   def default_preload_assocs, do: []
@@ -68,4 +65,7 @@ defmodule EWallet.Web.V1.ActivityLogOverlay do
       :originator_type,
       :inserted_at
     ]
+
+  def pagination_fields,
+    do: [:id]
 end

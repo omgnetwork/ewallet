@@ -22,9 +22,6 @@ defmodule EWallet.Web.V1.InviteOverlay do
     UserOverlay
   }
 
-  def pagination_fields,
-    do: [:id]
-
   def preload_assocs,
     do: [:user]
 
@@ -63,4 +60,7 @@ defmodule EWallet.Web.V1.InviteOverlay do
       updated_at: nil,
       user: UserOverlay.default_preload_assocs()
     ]
+
+  def pagination_fields,
+    do: [:id]
 end

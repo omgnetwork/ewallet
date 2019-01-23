@@ -18,9 +18,6 @@ defmodule EWallet.Web.V1.ConfigurationOverlay do
   """
   @behaviour EWallet.Web.V1.Overlay
 
-  def pagination_fields,
-    do: [:id]
-
   def preload_assocs,
     do: []
 
@@ -58,4 +55,7 @@ defmodule EWallet.Web.V1.ConfigurationOverlay do
 
   def filter_fields,
     do: self_filter_fields()
+
+  def pagination_fields,
+    do: [:id]
 end

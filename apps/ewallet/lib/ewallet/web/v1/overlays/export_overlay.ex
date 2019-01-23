@@ -23,9 +23,6 @@ defmodule EWallet.Web.V1.ExportOverlay do
     KeyOverlay
   }
 
-  def pagination_fields,
-    do: [:id]
-
   def preload_assocs,
     do: [
       :user,
@@ -87,4 +84,7 @@ defmodule EWallet.Web.V1.ExportOverlay do
       user: UserOverlay.self_filter_fields(),
       key: KeyOverlay.self_filter_fields()
     ]
+
+  def pagination_fields,
+    do: [:id]
 end

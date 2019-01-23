@@ -27,9 +27,6 @@ defmodule EWallet.Web.V1.UserOverlay do
     AccountOverlay
   }
 
-  def pagination_fields,
-    do: [:id]
-
   def preload_assocs,
     do: []
 
@@ -85,4 +82,7 @@ defmodule EWallet.Web.V1.UserOverlay do
       roles: RoleOverlay.default_preload_assocs(),
       accounts: AccountOverlay.default_preload_assocs()
     ]
+
+  def pagination_fields,
+    do: [:id]
 end

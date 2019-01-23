@@ -17,9 +17,6 @@ defmodule EWallet.Web.V1.Overlay do
   Behavior definition for overlays.
   """
 
-  # The fields that can be used as `page_record_field`.
-  @callback pagination_fields() :: [Atom.t()]
-
   # The fields that can be preloaded.
   @callback preload_assocs() :: [Atom.t()]
 
@@ -39,4 +36,7 @@ defmodule EWallet.Web.V1.Overlay do
   # The fields that are allowed to be filtered.
   @callback self_filter_fields() :: [Atom.t()]
   @callback filter_fields() :: [Atom.t()]
+
+  # The fields that can be used as `page_record_field`.
+  @callback pagination_fields() :: [Atom.t()]
 end

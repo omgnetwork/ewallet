@@ -23,9 +23,6 @@ defmodule EWallet.Web.V1.WalletOverlay do
     AccountOverlay
   }
 
-  def pagination_fields,
-    do: [:address]
-
   def preload_assocs,
     do: [
       :user,
@@ -75,4 +72,7 @@ defmodule EWallet.Web.V1.WalletOverlay do
       user: UserOverlay.self_filter_fields(),
       account: AccountOverlay.self_filter_fields()
     ]
+
+  def pagination_fields,
+    do: [:address]
 end

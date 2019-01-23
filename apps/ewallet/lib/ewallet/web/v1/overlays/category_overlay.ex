@@ -20,9 +20,6 @@ defmodule EWallet.Web.V1.CategoryOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.AccountOverlay
 
-  def pagination_fields,
-    do: [:id]
-
   def preload_assocs, do: [:accounts]
 
   def default_preload_assocs,
@@ -66,4 +63,7 @@ defmodule EWallet.Web.V1.CategoryOverlay do
       deleted_at: nil,
       accounts: AccountOverlay.self_filter_fields()
     ]
+
+  def pagination_fields,
+    do: [:id]
 end

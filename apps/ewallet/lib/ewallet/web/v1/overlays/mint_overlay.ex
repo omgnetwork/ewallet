@@ -20,9 +20,6 @@ defmodule EWallet.Web.V1.MintOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.{AccountOverlay, TokenOverlay, TransactionOverlay}
 
-  def pagination_fields,
-    do: [:id]
-
   def preload_assocs,
     do: [
       :token,
@@ -75,4 +72,7 @@ defmodule EWallet.Web.V1.MintOverlay do
       account: AccountOverlay.self_filter_fields(),
       transaction: TransactionOverlay.self_filter_fields()
     ]
+
+  def pagination_fields,
+    do: [:id]
 end

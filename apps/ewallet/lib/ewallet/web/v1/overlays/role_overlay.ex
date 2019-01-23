@@ -20,9 +20,6 @@ defmodule EWallet.Web.V1.RoleOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.{UserOverlay}
 
-  def pagination_fields,
-    do: [:id]
-
   def preload_assocs,
     do: [
       :users
@@ -68,4 +65,7 @@ defmodule EWallet.Web.V1.RoleOverlay do
       updated_at: nil,
       users: UserOverlay.self_filter_fields()
     ]
+
+  def pagination_fields,
+    do: [:id]
 end
