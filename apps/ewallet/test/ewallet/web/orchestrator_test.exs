@@ -73,7 +73,7 @@ defmodule EWallet.Web.OrchestratorTest do
       total_records = 5
       ensure_num_records(Account, total)
 
-      records = from(a in Account, select: a, order_by: a.id)
+      records = from(a in Account, order_by: a.id)
 
       records =
         records
