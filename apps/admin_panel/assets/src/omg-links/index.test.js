@@ -3,7 +3,6 @@ import { shallow } from 'enzyme'
 import { LinkWithAccount } from './index'
 describe('omg-link', () => {
   test('should return correct props for react-router link when giving pathname and search as object', () => {
-    // Render a checkbox with label in the document
     const mockWithRouterProps = {
       match: { params: { accountId: 'id' } },
       location: { pathname: '/testPath' },
@@ -16,7 +15,6 @@ describe('omg-link', () => {
     })
   })
   test('should return correct props for react-router link when giving pathname and search as string', () => {
-    // Render a checkbox with label in the document
     const mockWithRouterProps = {
       match: { params: { accountId: 'id' } },
       location: { pathname: '/testPath' },

@@ -4,7 +4,7 @@ export function getActivityLogs ({ perPage, page, sortBy, sortDir, matchAll, mat
   return authenticatedRequest({
     path: '/activity_log.all',
     data: {
-      page,
+      page: page || 1,
       per_page: perPage,
       sort_by: sortBy,
       sort_dir: sortDir,
