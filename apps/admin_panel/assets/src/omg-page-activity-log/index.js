@@ -264,7 +264,7 @@ class AccountPage extends Component {
         {...this.state}
         {...this.props}
         query={{
-          page: queryString.parse(this.props.location.search).page,
+          page: Number(queryString.parse(this.props.location.search).page),
           ...createSearchActivityLogQuery(search)
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

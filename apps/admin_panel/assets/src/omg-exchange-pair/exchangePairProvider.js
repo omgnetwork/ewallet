@@ -7,7 +7,7 @@ class ExchangePairProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
     fromTokenId: PropTypes.string,
-    exchangePairs: PropTypes.object,
+    exchangePairs: PropTypes.array,
     getExchangePairs: PropTypes.func
   }
   componentDidMount = () => {

@@ -22,7 +22,6 @@ export default withRouter(
   class DetailLayout extends Component {
     static propTypes = {
       children: PropTypes.node,
-      backPath: PropTypes.string.isRequired,
       history: PropTypes.object
     }
 
