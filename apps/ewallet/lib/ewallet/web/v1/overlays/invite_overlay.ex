@@ -22,7 +22,7 @@ defmodule EWallet.Web.V1.InviteOverlay do
     UserOverlay
   }
 
-  def page_record_fields,
+  def pagination_fields,
     do: [:id]
 
   def preload_assocs,

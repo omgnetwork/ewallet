@@ -27,7 +27,7 @@ defmodule EWallet.Web.V1.UserOverlay do
     AccountOverlay
   }
 
-  def page_record_fields,
+  def pagination_fields,
     do: [:id]
 
   def preload_assocs,

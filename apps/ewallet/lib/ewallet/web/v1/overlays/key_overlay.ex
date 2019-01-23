@@ -20,7 +20,7 @@ defmodule EWallet.Web.V1.KeyOverlay do
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.AccountOverlay
 
-  def page_record_fields,
+  def pagination_fields,
     do: [:id]
 
   def preload_assocs,

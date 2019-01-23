@@ -23,7 +23,7 @@ defmodule EWallet.Web.OrchestratorTest do
   defmodule MockOverlay do
     @behaviour EWallet.Web.V1.Overlay
 
-    def page_record_fields, do: [:id]
+    def pagination_fields, do: [:id]
     def preload_assocs, do: [:categories]
     def default_preload_assocs, do: [:parent]
     def sort_fields, do: [:id, :name]

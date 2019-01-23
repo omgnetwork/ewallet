@@ -18,7 +18,7 @@ defmodule EWallet.Web.V1.AuthTokenOverlay do
   """
   @behaviour EWallet.Web.V1.Overlay
 
-  def page_record_fields,
+  def pagination_fields,
     do: [:id]
 
   def preload_assocs,
