@@ -206,10 +206,7 @@ defmodule EWallet.Web.Paginator do
       ) do
     # Verify if the given `page_record_value` exist to prevent unexpected result.
     if repo.get_by(queryable, id: page_record_value) == nil do
-      {:error, :invalid_parameter,
-       "The given page_record_value `#{page_record_value}` does not exist on the page_record_field `#{
-         page_record_field
-       }`"}
+      {:error, :unauthorized}
     else
       page = Map.get(attrs, "page", @default_page)
 

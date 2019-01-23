@@ -136,7 +136,7 @@ defmodule EWallet.Web.PaginatorTest do
 
     test "returns :error if given attrs.page_record_value doesn't exist" do
       result = Paginator.paginate_attrs(Account, %{"page_record_value" => "acc_nil"}, [:id])
-      assert {:error, :invalid_parameter, _} = result
+      assert {:error, :unauthorized} = result
     end
 
     test "returns :error if given attrs.page_record_field is not allowed" do
@@ -284,9 +284,7 @@ defmodule EWallet.Web.PaginatorTest do
           %{"page_record_field" => :id, "page_record_value" => "1", "per_page" => per_page}
         )
 
-      assert paginator ===
-               {:error, :invalid_parameter,
-                "The given page_record_value `1` does not exist on the page_record_field `id`"}
+      assert paginator === {:error, :unauthorized}
     end
   end
 
