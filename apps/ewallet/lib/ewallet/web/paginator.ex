@@ -72,7 +72,7 @@ defmodule EWallet.Web.Paginator do
         allowed_fields,
         repo
       )
-      when is_bitstring(page_record_value) and is_bitstring(page_record_field) do
+      when is_binary(page_record_value) and is_binary(page_record_field) do
     per_page = get_per_page(attrs)
     page_record_field = String.to_atom(page_record_field)
 
