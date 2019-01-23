@@ -513,7 +513,7 @@ defmodule AdminAPI.ConnCase do
   For example:
 
   ```
-  temp_test_with_auths "request function is converted" do
+  test_with_auths "request function is converted" do
     response = request("/account.all", %{})
   end
   ```
@@ -579,12 +579,25 @@ defmodule AdminAPI.ConnCase do
   Make a request using `provider_request/3` or `admin_user_request/3`
   depending on the running context.
 
-  This function can only be used within `temp_test_with_auths/2`, and cannot
+  This function can only be used within `test_with_auths/2`, and cannot
   be invoked directly.
 
   To make a request, use `provider_request/3` or `admin_user_request/3` instead.
   """
   def request(_, _ \\ %{}, _ \\ []) do
+    raise UndefinedFunctionError
+  end
+
+  @doc """
+  Make a request using `provider_raw_request/3` or `admin_user_raw_request/3`
+  depending on the running context.
+
+  This function can only be used within `test_with_auths/2`, and cannot
+  be invoked directly.
+
+  To make a request, use `provider_raw_request/3` or `admin_user_raw_request/3` instead.
+  """
+  def raw_request(_, _ \\ %{}, _ \\ []) do
     raise UndefinedFunctionError
   end
 end
