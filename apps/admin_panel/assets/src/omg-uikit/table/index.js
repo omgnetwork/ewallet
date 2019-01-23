@@ -11,6 +11,7 @@ const TableContainer = styled.div`
   position: relative;
   min-height: ${props => (props.loading ? `${props.height}px` : 'auto')};
   overflow-x: auto;
+  overflow-y: hidden;
 `
 const EmptyStageContainer = styled.div`
   text-align: center;
@@ -47,7 +48,7 @@ class Table extends Component {
     columns: [],
     rows: [],
     loadingRowNumber: Math.round(window.innerHeight / 60),
-    loadingColNumber: 5,
+    loadingColNumber: 1,
     page: 1,
     perPage: 1000,
     pagination: false,
@@ -67,7 +68,9 @@ class Table extends Component {
   renderLoadingColumns = () => {
     return (
       <tr>
-        <th style={{ height: '20px' }} />
+        {new Array(this.props.loadingColNumber).fill().map((x, i) => {
+          return <th style={{ height: '20px' }} key={i} />
+        })}
       </tr>
     )
   }
@@ -125,13 +128,7 @@ class Table extends Component {
         height={this.props.loadingRowNumber * 40}
         loading={this.props.loading}
       >
-        <Fade
-          in={this.props.loading}
-          timeout={300}
-          key={'loading'}
-          unmountOnExit
-
-        >
+        <Fade in={this.props.loading} timeout={300} key={'loading'} unmountOnExit>
           <table style={{ position: 'absolute', background: 'white' }}>
             <thead>{this.renderLoadingColumns()}</thead>
             <tbody>{this.renderLoadingRows()}</tbody>

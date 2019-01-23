@@ -47,7 +47,7 @@ const enhance = compose(
   withClickOutsideEnhancer
 )
 const EnhancedAccountSelectorMenuClickOutside = enhance(
-  class extends Component {
+  class AccountSelectorMenuClickOutside extends Component {
     static propTypes = {
       closeSwitchAccountTab: PropTypes.func,
       location: PropTypes.object,
