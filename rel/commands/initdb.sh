@@ -45,4 +45,4 @@ while true; do
     esac
 done
 
-exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks initdb
+exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.InitDB run

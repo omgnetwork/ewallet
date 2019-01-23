@@ -42,16 +42,16 @@ fi
 
 eval set -- "$ARGS"
 
-SEED_SPEC=seed
+SEED_SPEC=run
 
 while true; do
     case "$1" in
-        -e | --e2e )    SEED_SPEC=seed_e2e; shift;;
-        -s | --sample ) SEED_SPEC=seed_sample; shift;;
+        -e | --e2e )    SEED_SPEC=run_e2e; shift;;
+        -s | --sample ) SEED_SPEC=run_sample; shift;;
         -h ) print_usage; exit 2;;
         -* ) print_usage; exit 1;;
         *  ) break;;
     esac
 done
 
-exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks "$SEED_SPEC"
+exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.Seed "$SEED_SPEC"

@@ -63,4 +63,4 @@ done
 KEY="$(printf "%s" "$1" | base64)"; shift
 VALUE="$(printf "%s" "$1" | base64)"; shift
 
-exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks config_base64 "$KEY" "$VALUE"
+exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.Config run "$KEY" "$VALUE"
