@@ -16,17 +16,23 @@ defmodule Mix.Tasks.Omg.Config do
   @moduledoc """
   Manage application configurations.
 
-  ## Examples
+  ## Updating a configuration value
 
   To set a configuration value:
 
-      mix omg.config "key" "value"
+      mix omg.config key value
 
-  You may also pass a set of configuration values as json:
+  Quotes must be escaped:
 
-      mix omg.config '{"key1": "value1", "key2": "value2"}'
+      mix omg.config key "{\\"foo\\": \\"bar\\"}"
 
-  To migrate all settings from environment variables to the database::
+  Alternatively, use single quotes:
+
+      mix omg.config key '{"foo": "bar"}'
+
+  ## Migrating configurations from environment variables
+
+  To migrate all settings from environment variables to the database:
 
       mix omg.config --migrate
 
