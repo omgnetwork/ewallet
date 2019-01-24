@@ -15,6 +15,7 @@
 defmodule EWallet.ReleaseTasks.Config do
   use EWallet.ReleaseTasks
   alias ActivityLogger.System
+  alias EWallet.CLI
   alias EWalletConfig.Config
 
   @start_apps [:crypto, :ssl, :postgrex, :ecto, :cloak, :ewallet]
@@ -56,11 +57,11 @@ defmodule EWallet.ReleaseTasks.Config do
 
     case Config.update(%{key => value, originator: %System{}}) do
       {:ok, [{key, {:ok, _}}]} ->
-        puts("Successfully updated \"#{key}\" to \"#{value}\"", :success)
+        CLI.success("Successfully updated \"#{key}\" to \"#{value}\"")
         :init.stop()
 
       {:ok, [{key, {:error, :setting_not_found}}]} ->
-        puts("Error: \"#{key}\" is not a valid settings", :error)
+        CLI.error("Error: \"#{key}\" is not a valid settings")
         :init.stop(1)
 
       _ ->

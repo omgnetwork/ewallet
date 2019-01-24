@@ -15,6 +15,7 @@
 defmodule EWallet.ReleaseTasks.InitDB do
   use EWallet.ReleaseTasks
   alias Ecto.Migrator
+  alias EWallet.CLI
 
   @start_apps [:crypto, :ssl, :postgrex, :ecto]
   @apps [:ewallet_config, :activity_logger, :ewallet_db, :local_ledger_db]
@@ -37,22 +38,22 @@ defmodule EWallet.ReleaseTasks.InitDB do
   defp run_create_for(repo) do
     case repo.__adapter__.storage_up(repo.config) do
       :ok ->
-        puts("The database for #{inspect(repo)} has been created")
+        CLI.info("The database for #{inspect(repo)} has been created")
 
       {:error, :already_up} ->
-        puts("The database for #{inspect(repo)} has already been created")
+        CLI.info("The database for #{inspect(repo)} has already been created")
 
       {:error, term} when is_binary(term) ->
-        puts("The database for #{inspect(repo)} couldn't be created: #{term}", :error)
+        CLI.error("The database for #{inspect(repo)} couldn't be created: #{term}")
 
       {:error, term} ->
-        puts("The database for #{inspect(repo)} couldn't be created: #{inspect(term)}", :error)
+        CLI.error("The database for #{inspect(repo)} couldn't be created: #{inspect(term)}")
     end
   end
 
   defp run_migrations_for(repo) do
     migrations_path = priv_path_for(repo, "migrations")
-    puts("Running migration for #{inspect(repo)}...")
+    CLI.info("Running migration for #{inspect(repo)}...")
     Migrator.run(repo, migrations_path, :up, all: true)
   end
 

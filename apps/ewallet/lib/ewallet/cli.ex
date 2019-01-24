@@ -16,10 +16,12 @@ defmodule EWallet.CLI do
   @moduledoc """
   Helper module for working with the command line interface.
   """
-
   import IO
   import IO.ANSI
   alias IO.ANSI.Docs
+
+  @yes_params ["-y", "--yes", "--assume_yes"]
+  @yes_inputs ["y", "Y", "yes", "YES", "Yes"]
 
   def info(message), do: [:normal, message] |> format |> puts
 
@@ -29,13 +31,26 @@ defmodule EWallet.CLI do
 
   def warn(message), do: [:yellow, message] |> format |> puts
 
-  def error(message), do: [:red, message] |> format |> puts
+  def error(message, device \\ :stderr) do
+    formatted = format([:red, message])
+    IO.puts(device, formatted)
+  end
 
   def color(messages), do: messages |> format |> puts
 
   def heading(message), do: Docs.print_heading(message, width: 100)
 
   def print(message), do: Docs.print(message, width: 100)
+
+  def assume_yes?(args), do: Enum.any?(args, fn a -> a in @yes_params end)
+
+  def confirm?(message) do
+    # Same implementation as `Mix.Shell.IO.yes?/1` but needed here because
+    # Mix is not available with distillery releases.
+    # Link: https://github.com/elixir-lang/elixir/blob/v1.6.5/lib/mix/lib/mix/shell/io.ex#L54
+    answer = IO.gets(message <> " [Yn] ")
+    is_binary(answer) and String.trim(answer) in ["" | @yes_inputs]
+  end
 
   @spec halt(any()) :: no_return()
   def halt(message) do

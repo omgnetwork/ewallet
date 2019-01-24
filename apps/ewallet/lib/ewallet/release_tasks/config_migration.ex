@@ -18,6 +18,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   """
   use EWallet.ReleaseTasks
   alias EWallet.ReleaseTasks.CLIUser
+  alias EWallet.CLI
   alias EWalletConfig.Setting
 
   @start_apps [:logger, :postgrex, :ecto, :ewallet, :ewallet_db]
@@ -54,20 +55,20 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   defp ask_confirmation(migration_plan, assume_yes)
 
   defp ask_confirmation([], _) do
-    _ = puts("No settings could be found in the environment variables.")
+    _ = CLI.info("No settings could be found in the environment variables.")
     :aborted
   end
 
   defp ask_confirmation(migration_plan, true), do: migration_plan
 
   defp ask_confirmation(migration_plan, false) do
-    puts("The following settings will be populated into the database:\n")
+    CLI.info("The following settings will be populated into the database:\n")
 
     Enum.each(migration_plan, fn {setting_name, value} ->
-      puts("  - #{setting_name}: \"#{value}\"")
+      CLI.info("  - #{setting_name}: \"#{value}\"")
     end)
 
-    confirmed? = confirm?("\nAre you sure to migrate these settings to the database?")
+    confirmed? = CLI.confirm?("\nAre you sure to migrate these settings to the database?")
 
     case confirmed? do
       true -> migration_plan
@@ -76,13 +77,13 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   end
 
   defp migrate(:aborted) do
-    puts("Settings migration aborted.")
+    CLI.info("Settings migration aborted.")
   end
 
   defp migrate(migration_plan) do
-    puts("\nMigrating the settings to the database...\n")
+    CLI.info("\nMigrating the settings to the database...\n")
     migrate_each(migration_plan)
-    puts("\nSettings migration completed. Please remove the environment variables.", :success)
+    CLI.success("\nSettings migration completed. Please remove the environment variables.")
   end
 
   defp migrate_each([]), do: :noop
@@ -90,7 +91,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   defp migrate_each([{setting_name, value} | remaining]) do
     case Setting.update(setting_name, %{value: value, originator: %CLIUser{}}) do
       {:ok, _setting} ->
-        puts("  - Setting `#{setting_name}` to #{inspect(value)}... Done.")
+        CLI.info("  - Setting `#{setting_name}` to #{inspect(value)}... Done.")
 
       {:error, changeset} ->
         error_message =
@@ -98,7 +99,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
             acc <> "`#{field}` #{message}. "
           end)
 
-        puts(
+        CLI.error(
           "  - Setting `#{setting_name}` to #{inspect(value)}... Failed. #{error_message}",
           :error
         )
