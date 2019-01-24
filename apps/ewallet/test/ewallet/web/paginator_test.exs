@@ -150,11 +150,6 @@ defmodule EWallet.Web.PaginatorTest do
       assert {:error, :invalid_parameter, _} = result
     end
 
-    test "returns :error if given attrs.start_from is not a string" do
-      result = Paginator.paginate_attrs(Account, %{"start_from" => 1}, [:id])
-      assert {:error, :invalid_parameter, _} = result
-    end
-
     test "returns :error if given attrs.start_from doesn't exist" do
       result = Paginator.paginate_attrs(Account, %{"start_from" => "acc_nil"}, [:id])
       assert {:error, :unauthorized} = result
