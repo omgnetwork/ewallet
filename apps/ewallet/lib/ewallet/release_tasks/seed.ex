@@ -16,7 +16,17 @@ defmodule EWallet.ReleaseTasks.Seed do
   use EWallet.ReleaseTasks
   alias EWallet.Seeder.CLI
 
-  @start_apps [:crypto, :ssl, :postgrex, :ecto, :cloak, :ewallet, :ewallet_db, :ewallet_config, :activity_logger]
+  @start_apps [
+    :crypto,
+    :ssl,
+    :postgrex,
+    :ecto,
+    :cloak,
+    :ewallet,
+    :ewallet_db,
+    :ewallet_config,
+    :activity_logger
+  ]
   @std_spec [{:ewallet_config, :seeds_settings}, {:ewallet_db, :seeds}]
   @e2e_spec [{:ewallet_config, :seeds_settings}, {:ewallet_db, :seeds_test}]
   @sample_spec [

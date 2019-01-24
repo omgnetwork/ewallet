@@ -51,7 +51,7 @@ defmodule Mix.Tasks.Omg.Config do
 
   @aliases [
     m: :migrate,
-    y: :yes,
+    y: :yes
   ]
 
   def run(args) do
