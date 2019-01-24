@@ -39,6 +39,7 @@ eval set -- "$ARGS"
 
 while true; do
     case "$1" in
+        -- ) shift; break;;
         -h ) print_usage; exit 2;;
         -* ) print_usage; exit 1;;
         *  ) break;;

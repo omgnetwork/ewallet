@@ -47,6 +47,7 @@ SEED_SPEC=run
 
 while true; do
     case "$1" in
+        -- ) shift; break;;
         -e | --e2e )    SEED_SPEC=run_e2e; shift;;
         -s | --sample ) SEED_SPEC=run_sample; shift;;
         --settings )    SEED_SPEC=run_settings; shift;;
