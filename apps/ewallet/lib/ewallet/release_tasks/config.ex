@@ -56,11 +56,11 @@ defmodule EWallet.ReleaseTasks.Config do
 
     case Config.update(%{key => value, originator: %System{}}) do
       {:ok, [{key, {:ok, _}}]} ->
-        IO.puts("Successfully updated \"#{key}\" to \"#{value}\"")
+        puts("Successfully updated \"#{key}\" to \"#{value}\"", :success)
         :init.stop()
 
       {:ok, [{key, {:error, :setting_not_found}}]} ->
-        IO.puts("Error: \"#{key}\" is not a valid settings")
+        puts("Error: \"#{key}\" is not a valid settings", :error)
         :init.stop(1)
 
       _ ->

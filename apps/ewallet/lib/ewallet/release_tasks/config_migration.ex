@@ -22,10 +22,9 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   @start_apps [:logger, :crypto, :ssl, :postgrex, :ecto, :cloak, :ewallet_db]
 
   def run do
-    args = :init.get_plain_arguments()
-    assume_yes = assume_yes?(args)
-
-    run(assume_yes)
+    :init.get_plain_arguments()
+    |> assume_yes?()
+    |> run()
   end
 
   def run(assume_yes) do
@@ -40,16 +39,6 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
     :init.stop()
   end
 
-  defp assume_yes?([]), do: false
-
-  defp assume_yes?(["-y" | _t]), do: true
-
-  defp assume_yes?(["--yes" | _t]), do: true
-
-  defp assume_yes?(["--assume_yes" | _t]), do: true
-
-  defp assume_yes?([_ | t]), do: assume_yes?(t)
-
   defp build_migration_plan(mapping) do
     Enum.reduce(mapping, [], fn {env_name, setting_name}, accumulator ->
       case System.get_env(env_name) do
@@ -62,20 +51,20 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   defp ask_confirmation(migration_plan, assume_yes)
 
   defp ask_confirmation([], _) do
-    _ = print_info("No settings could be found in the environment variables.")
+    _ = puts("No settings could be found in the environment variables.")
     :aborted
   end
 
   defp ask_confirmation(migration_plan, true), do: migration_plan
 
   defp ask_confirmation(migration_plan, false) do
-    print_info("The following settings will be populated into the database:\n")
+    puts("The following settings will be populated into the database:\n")
 
     Enum.each(migration_plan, fn {setting_name, value} ->
-      print_info("  - #{setting_name}: \"#{value}\"")
+      puts("  - #{setting_name}: \"#{value}\"")
     end)
 
-    confirmed? = print_confirm?("\nAre you sure to migrate these settings to the database?")
+    confirmed? = confirm?("\nAre you sure to migrate these settings to the database?")
 
     case confirmed? do
       true -> migration_plan
@@ -84,13 +73,13 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   end
 
   defp migrate(:aborted) do
-    print_info("Settings migration aborted.")
+    puts("Settings migration aborted.")
   end
 
   defp migrate(migration_plan) do
-    print_info("\nMigrating the settings to the database...\n")
+    puts("\nMigrating the settings to the database...\n")
     migrate_each(migration_plan)
-    print_info("\nSettings migration completed. Please remove the environment variables.")
+    puts("\nSettings migration completed. Please remove the environment variables.", :success)
   end
 
   defp migrate_each([]), do: :noop
@@ -98,7 +87,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   defp migrate_each([{setting_name, value} | remaining]) do
     case Setting.update(setting_name, %{value: value}) do
       {:ok, _setting} ->
-        print_success("  - Setting `#{setting_name}` to #{inspect(value)}... Done.")
+        puts("  - Setting `#{setting_name}` to #{inspect(value)}... Done.")
 
       {:error, changeset} ->
         error_message =
@@ -106,16 +95,12 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
             acc <> "`#{field}` #{message}. "
           end)
 
-        print_error(
-          "  - Setting `#{setting_name}` to #{inspect(value)}... Failed. #{error_message}"
+        puts(
+          "  - Setting `#{setting_name}` to #{inspect(value)}... Failed. #{error_message}",
+          :error
         )
     end
 
     migrate_each(remaining)
   end
-
-  defp print_info(message), do: Mix.shell().info(message)
-  defp print_confirm?(message), do: Mix.shell().yes?(message)
-  defp print_success(message), do: Mix.shell().info([:green, :bright, message])
-  defp print_error(message), do: Mix.shell().error(message)
 end

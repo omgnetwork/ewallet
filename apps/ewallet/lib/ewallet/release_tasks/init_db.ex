@@ -37,22 +37,22 @@ defmodule EWallet.ReleaseTasks.InitDB do
   defp run_create_for(repo) do
     case repo.__adapter__.storage_up(repo.config) do
       :ok ->
-        IO.puts("The database for #{inspect(repo)} has been created")
+        puts("The database for #{inspect(repo)} has been created")
 
       {:error, :already_up} ->
-        IO.puts("The database for #{inspect(repo)} has already been created")
+        puts("The database for #{inspect(repo)} has already been created")
 
       {:error, term} when is_binary(term) ->
-        IO.puts("The database for #{inspect(repo)} couldn't be created: #{term}")
+        puts("The database for #{inspect(repo)} couldn't be created: #{term}", :error)
 
       {:error, term} ->
-        IO.puts("The database for #{inspect(repo)} couldn't be created: #{inspect(term)}")
+        puts("The database for #{inspect(repo)} couldn't be created: #{inspect(term)}", :error)
     end
   end
 
   defp run_migrations_for(repo) do
     migrations_path = priv_path_for(repo, "migrations")
-    IO.puts("Running migration for #{inspect(repo)}...")
+    puts("Running migration for #{inspect(repo)}...")
     Migrator.run(repo, migrations_path, :up, all: true)
   end
 
