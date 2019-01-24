@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set +e
+
 print_usage() {
     printf "Usage: bin/ewallet initdb [OPTS]\\n"
     printf "\\n"
@@ -24,6 +26,7 @@ eval set -- "$ARGS"
 while true; do
     case "$1" in
         -h ) print_usage; exit 2;;
+        -* ) print_usage; exit 1;;
         *  ) break;;
     esac
 done
