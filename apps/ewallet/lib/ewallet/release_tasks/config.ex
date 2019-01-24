@@ -31,6 +31,8 @@ defmodule EWallet.ReleaseTasks.Config do
     end
   end
 
+  def run(key, value), do: config_base64(key, value)
+
   defp config_base64(k, v) when is_list(k) do
     case Base.decode64(to_string(k)) do
       {:ok, key} ->

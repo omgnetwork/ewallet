@@ -49,11 +49,13 @@ fi
 eval set -- "$ARGS"
 
 ACTION=set
+ASK_CONFIRM=true
 
 while true; do
     case "$1" in
         -- ) shift; break;;
         -m | --migrate ) ACTION=migrate; shift;;
+        -y | --yes | --assume_yes ) ASK_CONFIRM=false; shift;;
         -h ) print_usage; exit 2;;
         -* ) print_usage; exit 1;;
         *  ) break;;
@@ -63,7 +65,12 @@ done
 
 if [ $ACTION = migrate ]; then
     $RELEASE_ROOT_DIR/bin/ewallet command Elixir.EWallet.ReleaseTasks.Seed run_settings &&
-    exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.ConfigMigration run
+
+    if [ "$ASK_CONFIRM" = true ]; then
+        exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.ConfigMigration run_ask_confirm
+    else
+        exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.ConfigMigration run_skip_confirm
+    fi
 elif [ $ACTION = set ]; then
     # We don't want to deal with argument parsing again in Elixir. No, just no.
     # Let's sidestep all issues by passing the already-parsed value as Base64

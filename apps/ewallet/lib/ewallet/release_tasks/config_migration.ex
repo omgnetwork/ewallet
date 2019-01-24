@@ -24,20 +24,20 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   @start_apps [:logger, :postgrex, :ecto, :ewallet, :ewallet_db]
   @apps [:activity_logger, :ewallet_config]
 
-  def run do
-    :init.get_plain_arguments()
-    |> assume_yes?()
-    |> run()
-  end
+  def run_ask_confirm, do: run(ask_confirm: true)
 
-  def run(assume_yes) do
+  def run_skip_confirm, do: run(ask_confirm: false)
+
+  def run(opts \\ []) do
     Enum.each(@start_apps, &Application.ensure_all_started/1)
     Enum.each(@apps, &ensure_app_started/1)
+
+    ask? = Keyword.get(opts, :ask_confirm, true)
 
     :ewallet
     |> Application.get_env(:env_migration_mapping)
     |> build_migration_plan()
-    |> ask_confirmation(assume_yes)
+    |> ask_confirmation(ask?)
     |> migrate()
 
     :init.stop()
@@ -52,16 +52,12 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
     end)
   end
 
-  defp ask_confirmation(migration_plan, assume_yes)
-
   defp ask_confirmation([], _) do
     _ = CLI.info("No settings could be found in the environment variables.")
     :aborted
   end
 
-  defp ask_confirmation(migration_plan, true), do: migration_plan
-
-  defp ask_confirmation(migration_plan, false) do
+  defp ask_confirmation(migration_plan, true) do
     CLI.info("The following settings will be populated into the database:\n")
 
     Enum.each(migration_plan, fn {setting_name, value} ->
@@ -75,6 +71,8 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
       false -> :aborted
     end
   end
+
+  defp ask_confirmation(migration_plan, false), do: migration_plan
 
   defp migrate(:aborted) do
     CLI.info("Settings migration aborted.")
