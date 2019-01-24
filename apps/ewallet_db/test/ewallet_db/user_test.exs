@@ -435,26 +435,7 @@ defmodule EWalletDB.UserTest do
 
       insert(:membership, %{user: user, account: account, role: role})
 
-      assert User.get_role(user.id, account.id) == "role_one"
-    end
-
-    test "returns the role that the user has in the closest parent account" do
-      user = insert(:user)
-      parent = insert(:account)
-      account = insert(:account, parent: parent)
-      role = insert(:role, %{name: "role_from_parent"})
-
-      insert(:membership, %{user: user, account: parent, role: role})
-
-      assert User.get_role(user.id, account.id) == "role_from_parent"
-    end
-
-    test "returns nil if the given user is not a member in the account or any of its parents" do
-      user = insert(:user)
-      parent = insert(:account)
-      account = insert(:account, parent: parent)
-
-      assert User.get_role(user.id, account.id) == nil
+      assert User.get_role(user, account) == "role_one"
     end
   end
 
@@ -524,34 +505,21 @@ defmodule EWalletDB.UserTest do
     end
   end
 
-  describe "get_account/1" do
-    test "returns an upper-most account that the given user has membership in" do
-      user = insert(:user)
-      top_account = insert(:account)
-      mid_account = insert(:account, %{parent: top_account})
-      _unrelated = insert(:account)
-      role = insert(:role, %{name: "role_name"})
-
-      insert(:membership, %{user: user, account: mid_account, role: role})
-      account = User.get_account(user)
-
-      assert account.id == mid_account.id
-    end
-  end
-
   describe "get_accounts/1" do
-    test "returns a list of user's accounts and their sub-accounts" do
+    test "returns a list of user's accounts" do
       user = insert(:user)
-      top_account = insert(:account)
-      mid_account = insert(:account, %{parent: top_account})
-      sub_account = insert(:account, %{parent: mid_account})
-      _unrelated = insert(:account)
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+      _account_3 = insert(:account)
       role = insert(:role, %{name: "role_name"})
 
-      insert(:membership, %{user: user, account: mid_account, role: role})
+      insert(:membership, %{user: user, account: account_1, role: role})
+      insert(:membership, %{user: user, account: account_2, role: role})
+
       accounts = user |> User.get_accounts() |> Enum.map(fn account -> account.uuid end)
-      assert Enum.member?(accounts, mid_account.uuid)
-      assert Enum.member?(accounts, sub_account.uuid)
+      assert length(accounts) == 2
+      assert Enum.member?(accounts, account_1.uuid)
+      assert Enum.member?(accounts, account_2.uuid)
     end
   end
 

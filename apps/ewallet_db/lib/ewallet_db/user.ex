@@ -565,46 +565,16 @@ defmodule EWalletDB.User do
 
   @doc """
   Retrieves the user's role on the given account.
-
-  If the user does not have a membership on the given account, it inherits
-  the role from the closest parent account that has one.
   """
   @spec get_role(String.t(), String.t()) :: String.t() | nil
-  def get_role(user_id, account_id) do
-    user_id
-    |> query_role(account_id)
-    |> Repo.one()
-  end
+  def get_role(user, account) do
+    case Membership.get_by_user_and_account(user, account) do
+      nil ->
+        nil
 
-  defp query_role(user_id, account_id) do
-    # Traverses up the account tree to find the user's role in the closest parent.
-    from(
-      r in Role,
-      join:
-        account_tree in fragment(
-          ~s/
-            WITH RECURSIVE account_tree AS (
-              SELECT a.*, m.role_uuid, m.user_uuid
-              FROM account a
-              LEFT JOIN membership AS m ON m.account_uuid = a.uuid
-              WHERE a.id = ?
-            UNION
-              SELECT parent.*, m.role_uuid, m.user_uuid
-              FROM account parent
-              LEFT JOIN membership AS m ON m.account_uuid = parent.uuid
-              JOIN account_tree ON account_tree.parent_uuid = parent.uuid
-            )
-            SELECT role_uuid FROM account_tree
-            JOIN "role" AS r ON r.uuid = role_uuid
-            JOIN "user" AS u ON u.uuid = user_uuid
-            WHERE u.id = ? LIMIT 1
-          /,
-          ^account_id,
-          ^user_id
-        ),
-      on: r.uuid == account_tree.role_uuid,
-      select: r.name
-    )
+      membership ->
+        membership.role.name
+    end
   end
 
   @doc """
@@ -636,81 +606,23 @@ defmodule EWalletDB.User do
   Checks if the user is an admin on the top-level account.
   """
   @spec master_admin?(%User{} | String.t()) :: boolean()
-  def master_admin?(%User{id: user_id}) do
-    master_admin?(user_id)
-  end
-
-  def master_admin?(user_id) do
-    User.get_role(user_id, Account.get_master_account().id) == "admin"
-  end
-
-  @doc """
-  Retrieves the upper-most account that the given user has membership in.
-  """
-  @spec get_account(%User{}) :: %Account{} | nil
-  def get_account(user) do
-    query =
-      from(
-        [q, child] in query_accounts(user),
-        order_by: [asc: child.depth, desc: child.inserted_at],
-        limit: 1
-      )
-
-    Repo.one(query)
+  def master_admin?(user) do
+    User.get_role(user, Account.get_master_account()) == "admin"
   end
 
   @spec get_all_accessible_account_uuids(%User{}) :: [String.t()] | no_return()
   def get_all_accessible_account_uuids(user) do
-    user
-    |> get_membership_account_uuids()
-    |> Account.get_all_descendants_uuids()
-  end
-
-  @doc """
-  Retrieves the list of accounts that the given user has membership, including their child accounts.
-  """
-  @spec get_accounts(%User{}) :: [%Account{}]
-  def get_accounts(user) do
-    user
-    |> query_accounts()
-    |> Repo.all()
-  end
-
-  @spec get_membership_account_uuids(%User{}) :: [String.t()] | no_return()
-  def get_membership_account_uuids(user) do
     user
     |> Membership.all_by_user()
     |> Enum.map(fn m -> Map.fetch!(m, :account_uuid) end)
   end
 
   @doc """
-  Query the list of accounts that the given user has membership, including their child accounts.
+  Retrieves the list of accounts that the given user has membership.
   """
-  @spec query_accounts(%User{}) :: Ecto.Queryable.t()
-  def query_accounts(user) do
-    account_uuids = get_membership_account_uuids(user)
-
-    # Traverses down the account tree
-    from(
-      a in Account,
-      join:
-        child in fragment(
-          """
-            WITH RECURSIVE account_tree AS (
-              SELECT account.*, 0 AS depth
-              FROM account
-              WHERE account.uuid = ANY(?)
-            UNION
-              SELECT child.*, account_tree.depth + 1 as depth
-              FROM account child
-              JOIN account_tree ON account_tree.uuid = child.parent_uuid
-            ) SELECT * FROM account_tree
-          """,
-          type(^account_uuids, {:array, UUID})
-        ),
-      on: a.uuid == child.uuid,
-      select: %{a | relative_depth: child.depth}
-    )
+  @spec get_accounts(%User{}) :: [%Account{}]
+  def get_accounts(user) do
+    Repo.preload(user, [:accounts]).accounts
   end
 
   @doc """

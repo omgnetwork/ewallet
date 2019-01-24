@@ -21,7 +21,7 @@ defmodule EWalletDB.Membership do
   import Ecto.Changeset
   import Ecto.Query, except: [update: 2]
   alias Ecto.UUID
-  alias EWalletDB.{Account, Membership, MembershipChecker, Repo, Role, User}
+  alias EWalletDB.{Account, Membership, Repo, Role, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -71,7 +71,9 @@ defmodule EWalletDB.Membership do
   Retrieves the membership for the given user and account.
   """
   def get_by_user_and_account(user, account) do
-    Repo.get_by(Membership, %{user_uuid: user.uuid, account_uuid: account.uuid})
+    Membership
+    |> Repo.get_by(%{user_uuid: user.uuid, account_uuid: account.uuid})
+    |> Repo.preload([:role])
   end
 
   @doc """
@@ -125,18 +127,12 @@ defmodule EWalletDB.Membership do
   def assign(%User{} = user, %Account{} = account, %Role{} = role, originator) do
     case get_by_user_and_account(user, account) do
       nil ->
-        case MembershipChecker.allowed?(user, account, role, originator) do
-          true ->
-            insert(%{
-              account_uuid: account.uuid,
-              user_uuid: user.uuid,
-              role_uuid: role.uuid,
-              originator: originator
-            })
-
-          false ->
-            {:error, :user_already_has_rights}
-        end
+        insert(%{
+          account_uuid: account.uuid,
+          user_uuid: user.uuid,
+          role_uuid: role.uuid,
+          originator: originator
+        })
 
       existing ->
         update(existing, %{
