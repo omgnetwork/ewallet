@@ -142,10 +142,12 @@ defmodule EWallet.Web.Paginator do
         )
 
       _ ->
-        {:error, :invalid_parameter,
-         "start_by: `#{start_by}` is not allowed. The available fields are: #{
-           inspect(allowed_fields)
-         }"}
+        available_fields = inspect(allowed_fields)
+
+        msg =
+          "start_by: `#{start_by}` is not allowed. The available fields are: #{available_fields}"
+
+        {:error, :invalid_parameter, msg}
     end
   end
 
