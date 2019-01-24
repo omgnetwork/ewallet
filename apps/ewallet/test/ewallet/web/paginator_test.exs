@@ -55,7 +55,7 @@ defmodule EWallet.Web.PaginatorTest do
       assert paginator.pagination.per_page == 4
     end
 
-    test "returns a paginator with the given `page_record_value` without `page_record_field`" do
+    test "returns a paginator with the given `start_from` without `start_by`" do
       ensure_num_records(Account, 1)
 
       id = from(a in Account, select: a.id, order_by: a.id)
@@ -66,7 +66,7 @@ defmodule EWallet.Web.PaginatorTest do
         |> Enum.at(0)
 
       paginator =
-        Paginator.paginate_attrs(Account, %{"page_record_value" => id, "per_page" => "5"}, [:id])
+        Paginator.paginate_attrs(Account, %{"start_from" => id, "per_page" => "5"}, [:id])
 
       assert paginator.pagination.current_page == 1
       assert paginator.pagination.per_page == 5
@@ -117,33 +117,32 @@ defmodule EWallet.Web.PaginatorTest do
       assert {:error, :invalid_parameter, _} = result
     end
 
-    test "returrns :error if given both attrs.page_record_value and attrs.page" do
-      result =
-        Paginator.paginate_attrs(Account, %{"page" => 1, "page_record_value" => "acc_1234"})
+    test "returrns :error if given both attrs.start_from and attrs.page" do
+      result = Paginator.paginate_attrs(Account, %{"page" => 1, "start_from" => "acc_1234"})
 
       assert {:error, :invalid_parameter, _} = result
     end
 
-    test "returns :error if given attrs.page_record_field is not a string" do
-      result = Paginator.paginate_attrs(Account, %{"page_record_field" => 1}, [:id])
+    test "returns :error if given attrs.start_by is not a string" do
+      result = Paginator.paginate_attrs(Account, %{"start_by" => 1}, [:id])
       assert {:error, :invalid_parameter, _} = result
     end
 
-    test "returns :error if given attrs.page_record_value is not a string" do
-      result = Paginator.paginate_attrs(Account, %{"page_record_value" => 1}, [:id])
+    test "returns :error if given attrs.start_from is not a string" do
+      result = Paginator.paginate_attrs(Account, %{"start_from" => 1}, [:id])
       assert {:error, :invalid_parameter, _} = result
     end
 
-    test "returns :error if given attrs.page_record_value doesn't exist" do
-      result = Paginator.paginate_attrs(Account, %{"page_record_value" => "acc_nil"}, [:id])
+    test "returns :error if given attrs.start_from doesn't exist" do
+      result = Paginator.paginate_attrs(Account, %{"start_from" => "acc_nil"}, [:id])
       assert {:error, :unauthorized} = result
     end
 
-    test "returns :error if given attrs.page_record_field is not allowed" do
+    test "returns :error if given attrs.start_by is not allowed" do
       result =
         Paginator.paginate_attrs(
           Account,
-          %{"page_record_field" => "a", "page_record_value" => "1"},
+          %{"start_by" => "a", "start_from" => "1"},
           [:id, :create_at]
         )
 
@@ -181,7 +180,7 @@ defmodule EWallet.Web.PaginatorTest do
              }
     end
 
-    test "returns correct pagination data when query by given %{`page_record_field`, `page_record_value`}" do
+    test "returns correct pagination data when query by given start_by and start_from" do
       per_page = 10
       total_records = 5
 
@@ -206,8 +205,8 @@ defmodule EWallet.Web.PaginatorTest do
         Paginator.paginate(
           Account,
           %{
-            "page_record_field" => :id,
-            "page_record_value" => first_record_id,
+            "start_by" => :id,
+            "start_from" => first_record_id,
             "per_page" => per_page
           }
         )
@@ -228,52 +227,7 @@ defmodule EWallet.Web.PaginatorTest do
              }
     end
 
-    test "returns correct pagination data when query by given %{`page`, `page_record_field`, `page_record_value`}" do
-      per_page = 5
-
-      # Generate 10 accounts
-      ensure_num_records(Account, 10)
-
-      # Fetch last `total_records` elements from db
-      records_id = from(a in Account, select: a.id, order_by: a.id)
-
-      records_id =
-        records_id
-        |> Repo.all()
-        # Take all elements in the last page.
-        |> Enum.take(-per_page)
-
-      first_record_id = Enum.at(records_id, 0)
-
-      paginator =
-        Paginator.paginate(
-          Account,
-          %{
-            "page" => 2,
-            "page_record_field" => :id,
-            "page_record_value" => first_record_id,
-            "per_page" => per_page
-          }
-        )
-
-      # Collect mapped-sorted result.
-      actual_records_id =
-        paginator.data
-        |> Enum.map(fn %Account{id: id} -> id end)
-        |> Enum.sort()
-
-      assert paginator.pagination == %{
-               per_page: per_page,
-               current_page: 2,
-               is_first_page: false,
-               is_last_page: true,
-               count: 5
-             }
-
-      assert actual_records_id == records_id
-    end
-
-    test "returns error if page_record_value doesn't exist" do
+    test "returns error if start_from doesn't exist" do
       total = 10
       per_page = 10
       ensure_num_records(Account, total)
@@ -281,7 +235,7 @@ defmodule EWallet.Web.PaginatorTest do
       paginator =
         Paginator.paginate(
           Account,
-          %{"page_record_field" => :id, "page_record_value" => "1", "per_page" => per_page}
+          %{"start_by" => :id, "start_from" => "1", "per_page" => per_page}
         )
 
       assert paginator === {:error, :unauthorized}

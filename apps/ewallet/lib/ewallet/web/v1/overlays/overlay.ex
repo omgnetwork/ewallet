@@ -37,6 +37,6 @@ defmodule EWallet.Web.V1.Overlay do
   @callback self_filter_fields() :: [Atom.t()]
   @callback filter_fields() :: [Atom.t()]
 
-  # The fields that can be used as `page_record_field`.
+  # The fields that can be used as `start_by`.
   @callback pagination_fields() :: [Atom.t()]
 end

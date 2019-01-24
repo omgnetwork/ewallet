@@ -81,6 +81,6 @@ defmodule EWallet.Web.V1.AccountOverlay do
       memberships: MembershipOverlay.self_filter_fields()
     ]
 
-    def pagination_fields,
-      do: [:id]
+  def pagination_fields,
+    do: [:id]
 end

@@ -68,7 +68,7 @@ defmodule EWallet.Web.OrchestratorTest do
       assert params == [field_name: "status"]
     end
 
-    test "returns records when `sort_by` and `page_record_field` are presented" do
+    test "returns records when `sort_by` and `start_by` are presented" do
       total = 10
       total_records = 5
       ensure_num_records(Account, total)
@@ -87,8 +87,8 @@ defmodule EWallet.Web.OrchestratorTest do
         |> Enum.at(0)
 
       attrs = %{
-        "page_record_field" => "id",
-        "page_record_value" => first_record_id,
+        "start_by" => "id",
+        "start_from" => first_record_id,
         "sort_by" => "name",
         "sort_dir" => "desc"
       }
