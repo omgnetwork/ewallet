@@ -41,7 +41,7 @@ defmodule Mix.Tasks.Omg.Config do
   ]
 
   def run(args) do
-    Logger.configure(level: :warn)
+    _ = CLI.configure_logger()
 
     args
     |> OptionParser.parse(strict: @strict_switches, aliases: @aliases)

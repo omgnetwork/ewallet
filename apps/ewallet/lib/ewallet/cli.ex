@@ -18,6 +18,7 @@ defmodule EWallet.CLI do
   """
   import IO
   import IO.ANSI
+  alias EWallet.Helper
   alias IO.ANSI.Docs
 
   @yes_params ["-y", "--yes", "--assume_yes"]
@@ -50,6 +51,16 @@ defmodule EWallet.CLI do
     # Link: https://github.com/elixir-lang/elixir/blob/v1.6.5/lib/mix/lib/mix/shell/io.ex#L54
     answer = IO.gets(message <> " [Yn] ")
     is_binary(answer) and String.trim(answer) in ["" | @yes_inputs]
+  end
+
+  def configure_logger do
+    "DEBUG"
+    |> System.get_env()
+    |> Helper.string_to_boolean()
+    |> case do
+      true -> Logger.configure(level: :debug)
+      false -> Logger.configure(level: :warn)
+    end
   end
 
   @spec halt(any()) :: no_return()

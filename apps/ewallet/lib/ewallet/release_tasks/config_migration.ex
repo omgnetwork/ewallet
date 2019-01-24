@@ -17,7 +17,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   Migrates the configurations from the machine's environment variables into the database.
   """
   use EWallet.ReleaseTasks
-  alias EWallet.ReleaseTasks.CLIUser
+  alias EWallet.ReleaseTasks.{CLIUser, Seed}
   alias EWallet.CLI
   alias EWalletConfig.Setting
 
@@ -29,6 +29,9 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   def run_skip_confirm, do: run(ask_confirm: false)
 
   def run(opts \\ []) do
+    # Make sure the settings seed has been run
+    _ = Seed.run_settings()
+
     Enum.each(@start_apps, &Application.ensure_all_started/1)
     Enum.each(@apps, &ensure_app_started/1)
 

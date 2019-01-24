@@ -24,8 +24,8 @@ defmodule Mix.Tasks.Omg.Migrate.Encryption do
   """
 
   import Ecto.Query
-
   alias Ecto.Changeset
+  alias EWallet.CLI
 
   @start_apps [:logger, :crypto, :ssl, :postgrex, :ecto, :cloak]
   @migration_spec [
@@ -52,8 +52,9 @@ defmodule Mix.Tasks.Omg.Migrate.Encryption do
   ]
 
   def run(_args) do
+    _ = CLI.configure_logger()
+
     Enum.each(@start_apps, &Application.ensure_all_started/1)
-    Logger.configure(level: :info)
 
     Enum.each(@migration_spec, fn {app_name, [repo, schemas]} ->
       {:ok, _} = Application.ensure_all_started(app_name)
