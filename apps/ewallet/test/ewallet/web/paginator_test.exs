@@ -73,6 +73,28 @@ defmodule EWallet.Web.PaginatorTest do
       assert paginator.pagination.count == 1
     end
 
+    test "returns a paginator with the given `start_from` and `start_by` equal :inserted_at" do
+      ensure_num_records(Account, 1)
+
+      inserted_at = from(a in Account, select: a.inserted_at, order_by: a.inserted_at)
+
+      inserted_at =
+        inserted_at
+        |> Repo.all()
+        |> Enum.at(0)
+
+      paginator =
+        Paginator.paginate_attrs(
+          Account,
+          %{"start_from" => inserted_at, "start_by" => "inserted_at", "per_page" => 5},
+          [:id, :inserted_at]
+        )
+
+      assert paginator.pagination.current_page == 1
+      assert paginator.pagination.per_page == 5
+      assert paginator.pagination.count == 1
+    end
+
     test "returns per_page but never greater than the system's _default_ maximum (100)" do
       paginator = Paginator.paginate_attrs(Account, %{"per_page" => 999})
       assert paginator.pagination.per_page == 100
