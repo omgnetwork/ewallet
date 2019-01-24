@@ -79,16 +79,6 @@ defmodule EWallet.Web.Paginator do
     {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
 
-  def paginate_attrs(_, %{"start_by" => start_from}, _, _)
-      when not is_binary(start_from) do
-    {:error, :invalid_parameter, "`start_by` must be a string"}
-  end
-
-  def paginate_attrs(_, %{"start_from" => start_from}, _, _)
-      when not is_binary(start_from) do
-    {:error, :invalid_parameter, "`start_from` must be a string"}
-  end
-
   def paginate_attrs(queryable, attrs, [], repo) do
     page = Map.get(attrs, "page", @default_page)
     per_page = get_per_page(attrs)
@@ -102,7 +92,7 @@ defmodule EWallet.Web.Paginator do
         allowed_fields,
         repo
       )
-      when is_binary(start_from) and is_binary(start_by) do
+      when is_binary(start_by) do
     per_page = get_per_page(attrs)
     start_by = String.to_atom(start_by)
 
@@ -128,7 +118,7 @@ defmodule EWallet.Web.Paginator do
         allowed_fields,
         repo
       )
-      when is_binary(start_from) and is_atom(start_by) do
+      when is_atom(start_by) do
     case start_by in allowed_fields do
       true ->
         paginate(
@@ -151,22 +141,16 @@ defmodule EWallet.Web.Paginator do
     end
   end
 
-  def paginate_attrs(
-        queryable,
-        %{"start_from" => start_from} = attrs,
-        allowed_fields,
-        repo
-      )
-      when is_binary(start_from) do
+  def paginate_attrs(queryable, %{"start_from" => _} = attrs, [field | _], repo) do
     # Set default value of `start_by` to the first element in `allowed_fields`
-    start_by =
-      allowed_fields
-      |> Enum.at(0)
-      |> Atom.to_string()
-
+    start_by = Atom.to_string(field)
     attrs = Map.put(attrs, "start_by", start_by)
+    paginate_attrs(queryable, attrs, [field], repo)
+  end
 
-    paginate_attrs(queryable, attrs, allowed_fields, repo)
+  def paginate_attrs(_, %{"start_by" => start_by}, _, _)
+      when not is_binary(start_by) and not is_atom(start_by) do
+    {:error, :invalid_parameter, "`start_by` must be a string"}
   end
 
   # Try to parse the given string pagination parameter.
