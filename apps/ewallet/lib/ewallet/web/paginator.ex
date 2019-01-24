@@ -161,8 +161,8 @@ defmodule EWallet.Web.Paginator do
     # Put to the existing attrs
     attrs =
       attrs
-    |> Map.put("per_page", per_page)
-    |> Map.put("page", page)
+      |> Map.put("per_page", per_page)
+      |> Map.put("page", page)
 
     paginate(queryable, attrs, repo)
   end
