@@ -103,8 +103,13 @@ defmodule LocalLedger.CachedBalance do
 
   defp calculate_with_strategy("since_last_cached", wallet) do
     case CachedBalance.get(wallet.address) do
-      nil -> calculate_from_beginning_and_insert(wallet)
-      computed_balance -> calculate_from_cached_and_insert(wallet, computed_balance)
+      nil ->
+        calculate_from_beginning_and_insert(wallet)
+
+      computed_balance ->
+        :local_ledger
+        |> Application.get_env(:balance_caching_reset_frequency)
+        |> calculate_with_reset_frequency(wallet, computed_balance)
     end
   end
 
@@ -116,12 +121,21 @@ defmodule LocalLedger.CachedBalance do
     calculate_with_strategy("since_beginning", wallet)
   end
 
+  defp calculate_with_reset_frequency(frequency, wallet, %{cached_count: cached_count})
+       when is_number(frequency) and frequency > 0 and cached_count >= frequency - 1 do
+    calculate_from_beginning_and_insert(wallet)
+  end
+
+  defp calculate_with_reset_frequency(_, wallet, computed_balance) do
+    calculate_from_cached_and_insert(wallet, computed_balance)
+  end
+
   defp calculate_from_beginning_and_insert(wallet) do
     computed_at = NaiveDateTime.utc_now()
 
     wallet.address
     |> Entry.calculate_all_balances(%{upto: computed_at})
-    |> insert(wallet, computed_at)
+    |> insert(wallet, computed_at, 1)
   end
 
   defp calculate_from_cached_and_insert(wallet, computed_balance) do
@@ -133,16 +147,17 @@ defmodule LocalLedger.CachedBalance do
       upto: computed_at
     })
     |> add_amounts(computed_balance.amounts)
-    |> insert(wallet, computed_at)
+    |> insert(wallet, computed_at, computed_balance.cached_count + 1)
   end
 
-  defp insert(amounts, wallet, computed_at) do
+  defp insert(amounts, wallet, computed_at, cached_count) do
     _ =
       if Enum.any?(amounts, fn {_token, amount} -> amount > 0 end) do
         {:ok, _} =
           CachedBalance.insert(%{
             amounts: amounts,
             wallet_address: wallet.address,
+            cached_count: cached_count,
             computed_at: computed_at
           })
       end

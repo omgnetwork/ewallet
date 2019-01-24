@@ -122,6 +122,19 @@ config :ewallet_config,
         "The strategy to use for balance caching. It will either re-calculate from the beginning or from the last caching point."
     },
 
+    # Balance Caching Reset Frequency
+    "balance_caching_reset_frequency" => %{
+      key: "balance_caching_reset_frequency",
+      value: 10,
+      type: "integer",
+      position: 301,
+      parent: "balance_caching_strategy",
+      parent_value: "since_last_cached",
+      description: "A counter is incremented everytime balances are cached, once reaching the given reset frequency,
+      the balances are re-calculated from the beginning and the counter is reset.
+      Set to 0 to always cache balances based on the previous cached value"
+    },
+
     # File Storage settings
     "file_storage_adapter" => %{
       key: "file_storage_adapter",

@@ -37,6 +37,7 @@ Some features such as email verification allows redirects to URIs external to th
 The local ledger offers a caching mechanism for wallets in order to boost the calculation speed (in case you have millions of transactions).
 
 - `balance_caching_strategy`: Specify if new cached wallets should be computed using a previous cache or by recalculating everything from scratch.
+- `balance_caching_reset_frequency`: Specify after how many times a cached balance needs to be recalculated from the beginning and not use the last cached balance.
 
 Strategies available:
 
