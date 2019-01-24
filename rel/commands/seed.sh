@@ -35,7 +35,6 @@ while true; do
         -e | --e2e )    SEED_SPEC=seed_e2e; shift;;
         -s | --sample ) SEED_SPEC=seed_sample; shift;;
         -h ) print_usage; exit 2;;
-        -* ) print_usage; exit 1;;
         *  ) break;;
     esac
 done
