@@ -94,7 +94,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
   end
 
   defp sync_position(key, %{position: old_pos}, %{position: new_pos}) when is_integer(old_pos) and is_integer(new_pos) and old_pos != new_pos do
-    case Setting.update(key, %{position: new_pos}) do
+    case Setting.update(key, %{position: new_pos, originator: %EWalletDB.Seeder{}}) do
       {:ok, _} -> {:ok, old_pos, new_pos}
       {:error, changeset} -> {:error, changeset}
     end

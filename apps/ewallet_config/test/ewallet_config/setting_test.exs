@@ -330,6 +330,38 @@ defmodule EWalletConfig.SettingTest do
       assert setting.value == "xyz"
     end
 
+    test "updates only the position and leave the value unchanged" do
+      {:ok, _} =
+        Setting.insert(%{
+          key: "my_key",
+          value: "abc",
+          type: "string",
+          position: 1,
+          originator: %System{}
+        })
+
+      {res, setting} = Setting.update("my_key", %{position: 2, originator: %System{}})
+
+      assert res == :ok
+      assert setting.value == "abc"
+      assert setting.position == 2
+    end
+
+    test "can update a value to nil" do
+      {:ok, _} =
+        Setting.insert(%{
+          key: "my_key",
+          value: "abc",
+          type: "string",
+          originator: %System{}
+        })
+
+      {res, setting} = Setting.update("my_key", %{value: nil, originator: %System{}})
+
+      assert res == :ok
+      assert setting.value == nil
+    end
+
     test "fails to update a select setting when the value is invalid" do
       {:ok, _} =
         Setting.insert(%{
