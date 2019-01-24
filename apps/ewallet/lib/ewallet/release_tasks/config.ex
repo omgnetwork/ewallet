@@ -13,6 +13,9 @@
 # limitations under the License.
 
 defmodule EWallet.ReleaseTasks.Config do
+  @moduledoc """
+  A release task that manages application configurations.
+  """
   use EWallet.ReleaseTasks
   alias ActivityLogger.System
   alias EWallet.CLI

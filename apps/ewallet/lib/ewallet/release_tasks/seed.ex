@@ -13,6 +13,9 @@
 # limitations under the License.
 
 defmodule EWallet.ReleaseTasks.Seed do
+  @moduledoc """
+  A release task that performs database seeding.
+  """
   use EWallet.ReleaseTasks
   alias EWallet.Seeder.CLI
 

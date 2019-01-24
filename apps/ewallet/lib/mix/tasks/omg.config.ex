@@ -42,6 +42,7 @@ defmodule Mix.Tasks.Omg.Config do
   use Mix.Task
   alias EWallet.CLI
   alias EWallet.ReleaseTasks.{Config, ConfigMigration}
+  alias Mix.Tasks.Help
 
   @strict_switches [
     yes: :boolean,
@@ -83,6 +84,6 @@ defmodule Mix.Tasks.Omg.Config do
 
   # Fallback
   defp do_run({_, _, _}) do
-    Mix.Tasks.Help.run(["omg.config"])
+    Help.run(["omg.config"])
   end
 end

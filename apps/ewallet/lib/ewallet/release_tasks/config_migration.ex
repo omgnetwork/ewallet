@@ -14,7 +14,8 @@
 
 defmodule EWallet.ReleaseTasks.ConfigMigration do
   @moduledoc """
-  Migrates the configurations from the machine's environment variables into the database.
+  A release task that migrates the configurations from the machine's
+  environment variables into the database.
   """
   use EWallet.ReleaseTasks
   alias EWallet.ReleaseTasks.{CLIUser, Seed}

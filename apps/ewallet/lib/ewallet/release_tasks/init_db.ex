@@ -13,6 +13,12 @@
 # limitations under the License.
 
 defmodule EWallet.ReleaseTasks.InitDB do
+  @moduledoc """
+  A release task that performs database initialization, namely database creation and migration.
+
+  This release task can also be run on initialized database in order to migrate up to the latest
+  database schema.
+  """
   use EWallet.ReleaseTasks
   alias Ecto.Migrator
   alias EWallet.CLI
