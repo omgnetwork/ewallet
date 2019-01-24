@@ -24,10 +24,12 @@ defmodule EWallet.ReleaseTasks.Seed do
     {:ewallet_db, :seeds},
     {:ewallet_db, :seeds_sample}
   ]
+  @settings_spec [{:ewallet_config, :seeds_settings}]
 
   def run, do: seed_with(@std_spec)
   def run_e2e, do: seed_with(@e2e_spec)
   def run_sample, do: seed_with(@sample_spec)
+  def run_settings, do: seed_with(@settings_spec)
 
   defp seed_with(spec) do
     Enum.each(@start_apps, &Application.ensure_all_started/1)

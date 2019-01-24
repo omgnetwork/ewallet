@@ -29,10 +29,11 @@ print_usage() {
     printf "     -h          Prints this help.\\n"
     printf "     -e --e2e    Seeds the end-to-end testing data.\\n"
     printf "     -s --sample Seeds the sample data.\\n"
+    printf "     --settings  Seeds the settings.\\n"
     printf "\\n"
 }
 
-ARGS=$(getopt -s sh -l e2e -l sample hes "$@" 2>/dev/null)
+ARGS=$(getopt -s sh -l e2e -l sample -l settings hes "$@" 2>/dev/null)
 
 # shellcheck disable=SC2181
 if [ $? != 0 ]; then
@@ -48,6 +49,7 @@ while true; do
     case "$1" in
         -e | --e2e )    SEED_SPEC=run_e2e; shift;;
         -s | --sample ) SEED_SPEC=run_sample; shift;;
+        --settings )    SEED_SPEC=run_settings; shift;;
         -h ) print_usage; exit 2;;
         -* ) print_usage; exit 1;;
         *  ) break;;
