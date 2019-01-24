@@ -325,9 +325,7 @@ defmodule EWalletConfig.Setting do
     Map.put(attrs, :data, %{value: value})
   end
 
-  defp cast_value(attrs, _) do
-    Map.put(attrs, :data, %{value: nil})
-  end
+  defp cast_value(attrs, _), do: attrs
 
   defp cast_value(%{secret: true, value: value} = attrs) do
     Map.put(attrs, :encrypted_data, %{value: value})
