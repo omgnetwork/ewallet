@@ -39,6 +39,7 @@ defmodule EWallet.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:activity_logger, in_umbrella: true},
       {:appsignal, "~> 1.9"},
       {:bamboo, "~> 0.8"},
       {:bamboo_smtp, "~> 1.4.0"},

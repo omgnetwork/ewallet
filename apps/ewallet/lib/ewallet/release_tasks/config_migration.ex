@@ -17,6 +17,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   Migrates the configurations from the machine's environment variables into the database.
   """
   use EWallet.ReleaseTasks
+  alias EWallet.ReleaseTasks.CLIUser
   alias EWalletConfig.Setting
 
   @start_apps [:logger, :postgrex, :ecto, :ewallet, :ewallet_db]
@@ -87,7 +88,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   defp migrate_each([]), do: :noop
 
   defp migrate_each([{setting_name, value} | remaining]) do
-    case Setting.update(setting_name, %{value: value}) do
+    case Setting.update(setting_name, %{value: value, originator: %CLIUser{}}) do
       {:ok, _setting} ->
         puts("  - Setting `#{setting_name}` to #{inspect(value)}... Done.")
 
