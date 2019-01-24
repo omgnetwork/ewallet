@@ -19,7 +19,8 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   use EWallet.ReleaseTasks
   alias EWalletConfig.Setting
 
-  @start_apps [:logger, :crypto, :ssl, :postgrex, :ecto, :cloak, :ewallet_db]
+  @start_apps [:logger, :postgrex, :ecto, :ewallet, :ewallet_db]
+  @apps [:activity_logger, :ewallet_config]
 
   def run do
     :init.get_plain_arguments()
@@ -29,6 +30,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
 
   def run(assume_yes) do
     Enum.each(@start_apps, &Application.ensure_all_started/1)
+    Enum.each(@apps, &ensure_app_started/1)
 
     :ewallet
     |> Application.get_env(:env_migration_mapping)
