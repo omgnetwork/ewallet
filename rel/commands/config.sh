@@ -38,7 +38,7 @@ print_usage() {
     printf "\\n"
 }
 
-ARGS=$(getopt -s sh -l migrate mh "$@" 2>/dev/null)
+ARGS=$(getopt -s sh -l migrate -l yes -l assume_yes myh "$@" 2>/dev/null)
 
 # shellcheck disable=SC2181
 if [ $? != 0 ]; then
