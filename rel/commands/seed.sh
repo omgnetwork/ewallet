@@ -52,7 +52,6 @@ while true; do
         -s | --sample ) SEED_SPEC=run_sample; shift;;
         --settings )    SEED_SPEC=run_settings; shift;;
         -h ) print_usage; exit 2;;
-        -* ) print_usage; exit 1;;
         *  ) break;;
     esac
 done
