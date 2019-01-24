@@ -5,6 +5,8 @@ API access, tokens, transactions, etc.
 
 ## Usage
 
+Running the Admin Panel in development mode locally allows you to modify the code and see changes in real-time. You may connect to any eWallet as a backend, which can be running locally or remotely that depend on your config file.
+
 ### Development
 
 1. You will first need to create the `.env` file located under the project's root directory `/apps/admin_panel/assets/` of the app with your own keys. There are 2 keys that is needed to be able to run and connect to the server `BACKEND_API_URL` and `BACKEND_WEBSOCKET_URL`
