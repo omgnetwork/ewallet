@@ -38,7 +38,7 @@ print_usage() {
     printf "\\n"
 }
 
-ARGS=$(getopt -s sh h "$@" 2>/dev/null)
+ARGS=$(getopt -s sh -l migrate mh "$@" 2>/dev/null)
 
 # shellcheck disable=SC2181
 if [ $? != 0 ]; then
@@ -47,6 +47,8 @@ if [ $? != 0 ]; then
 fi
 
 eval set -- "$ARGS"
+
+ACTION=set
 
 while true; do
     case "$1" in
@@ -58,15 +60,18 @@ while true; do
     esac
 done
 
-if [ ACTION = migrate ]; then
+
+if [ $ACTION = migrate ]; then
+    $RELEASE_ROOT_DIR/bin/ewallet command Elixir.EWallet.ReleaseTasks.Seed run_settings &&
     exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.ConfigMigration run
-else
+elif [ $ACTION = set ]; then
     # We don't want to deal with argument parsing again in Elixir. No, just no.
     # Let's sidestep all issues by passing the already-parsed value as Base64
     # and let the release task decode it.
-
     KEY="$(printf "%s" "$1" | base64)"; shift
     VALUE="$(printf "%s" "$1" | base64)"; shift
-
     exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.Config run "$KEY" "$VALUE"
+else
+    print_usage
+    exit 2
 fi
