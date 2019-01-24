@@ -5,7 +5,7 @@ API access, tokens, transactions, etc.
 
 ## Usage
 
-Running the Admin Panel in development mode locally allows you to modify the code and see changes in real-time. You may connect to any eWallet as a backend, which can be running locally or remotely that depend on your config file.
+Running the Admin Panel in development mode locally allows you to modify the code and see changes in real-time. You may connect to any eWallet as a backend, which can be running locally or remotely which will depend on your config file.
 
 ### Development
 
