@@ -153,6 +153,20 @@ defmodule EWallet.Web.Paginator do
     {:error, :invalid_parameter, "`start_by` must be a string"}
   end
 
+  def paginate_attrs(queryable, attrs, _, repo) do
+    # Set default param for `page` and `per_page`
+    page = Map.get(attrs, "page", 1)
+    per_page = get_per_page(attrs)
+
+    # Put to the existing attrs
+    attrs =
+      attrs
+    |> Map.put("per_page", per_page)
+    |> Map.put("page", page)
+
+    paginate(queryable, attrs, repo)
+  end
+
   # Try to parse the given string pagination parameter.
   defp parse_string_param(attrs, name, value) do
     case Integer.parse(value, 10) do
