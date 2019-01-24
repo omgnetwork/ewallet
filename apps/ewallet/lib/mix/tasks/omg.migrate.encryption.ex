@@ -27,6 +27,7 @@ defmodule Mix.Tasks.Omg.Migrate.Encryption do
   alias Ecto.Changeset
   alias EWallet.CLI
 
+  @shortdoc "Migrate the encryption scheme to AES-GCM"
   @start_apps [:logger, :crypto, :ssl, :postgrex, :ecto, :cloak]
   @migration_spec [
     ewallet_db: [

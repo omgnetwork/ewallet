@@ -44,6 +44,8 @@ defmodule Mix.Tasks.Omg.Config do
   alias EWallet.ReleaseTasks.{Config, ConfigMigration}
   alias Mix.Tasks.Help
 
+  @shortdoc "Update or migrate application configurations"
+
   @strict_switches [
     yes: :boolean,
     assume_yes: :boolean,
