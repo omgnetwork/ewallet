@@ -46,23 +46,54 @@ defmodule EWallet.Web.Paginator do
           %__MODULE__{} | {:error, :invalid_parameter, String.t()}
   def paginate_attrs(queryable, attrs, allowed_fields \\ [], repo \\ Repo)
 
-  def paginate_attrs(queryable, %{"page" => page} = attrs, allowed_fields, repo)
-      when not is_integer(page) do
-    parse_string_param(queryable, attrs, "page", page, allowed_fields, repo)
+  def paginate_attrs(queryable, %{"page" => page} = attrs, _, repo) when not is_integer(page) do
+    result = parse_string_param(attrs, "page", page)
+
+    case result do
+      %{"page" => _} -> paginate_attrs(queryable, result, [], repo)
+      _ -> result
+    end
   end
 
-  def paginate_attrs(
-        queryable,
-        %{"per_page" => per_page} = attrs,
-        allowed_fields,
-        repo
-      )
+  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, allowed_fields, repo)
       when not is_integer(per_page) do
-    parse_string_param(queryable, attrs, "per_page", per_page, allowed_fields, repo)
+    result = parse_string_param(attrs, "per_page", per_page)
+
+    case result do
+      %{"start_from" => _} -> paginate_attrs(queryable, result, allowed_fields, repo)
+      %{"per_page" => _} -> paginate_attrs(queryable, result, [], repo)
+      _ -> result
+    end
   end
 
   def paginate_attrs(_, %{"page" => _, "start_from" => _}, _, _) do
     {:error, :invalid_parameter, "`page` cannot be used with `start_from`"}
+  end
+
+  def paginate_attrs(_, %{"page" => page}, _, _) when is_integer(page) and page < 0 do
+    {:error, :invalid_parameter, "`page` must be non-negative integer"}
+  end
+
+  def paginate_attrs(_, %{"per_page" => per_page}, _, _)
+      when is_integer(per_page) and per_page < 1 do
+    {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
+  end
+
+  def paginate_attrs(_, %{"start_by" => start_from}, _, _)
+      when not is_binary(start_from) do
+    {:error, :invalid_parameter, "`start_by` must be a string"}
+  end
+
+  def paginate_attrs(_, %{"start_from" => start_from}, _, _)
+      when not is_binary(start_from) do
+    {:error, :invalid_parameter, "`start_from` must be a string"}
+  end
+
+  def paginate_attrs(queryable, attrs, [], repo) do
+    page = Map.get(attrs, "page", @default_page)
+    per_page = get_per_page(attrs)
+
+    paginate(queryable, %{"page" => page, "per_page" => per_page}, repo)
   end
 
   def paginate_attrs(
@@ -90,9 +121,9 @@ defmodule EWallet.Web.Paginator do
   def paginate_attrs(
         queryable,
         %{
+          "per_page" => per_page,
           "start_by" => start_by,
-          "start_from" => start_from,
-          "per_page" => per_page
+          "start_from" => start_from
         },
         allowed_fields,
         repo
@@ -103,9 +134,9 @@ defmodule EWallet.Web.Paginator do
         paginate(
           queryable,
           %{
+            "per_page" => per_page,
             "start_by" => start_by,
-            "start_from" => start_from,
-            "per_page" => per_page
+            "start_from" => start_from
           },
           repo
         )
@@ -136,38 +167,11 @@ defmodule EWallet.Web.Paginator do
     paginate_attrs(queryable, attrs, allowed_fields, repo)
   end
 
-  def paginate_attrs(_, %{"page" => page}, _, _) when is_integer(page) and page < 0 do
-    {:error, :invalid_parameter, "`page` must be non-negative integer"}
-  end
-
-  def paginate_attrs(_, %{"per_page" => per_page}, _, _)
-      when is_integer(per_page) and per_page < 1 do
-    {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
-  end
-
-  def paginate_attrs(_, %{"start_by" => start_from}, _, _)
-      when not is_binary(start_from) do
-    {:error, :invalid_parameter, "`start_by` must be a string"}
-  end
-
-  def paginate_attrs(_, %{"start_from" => start_from}, _, _)
-      when not is_binary(start_from) do
-    {:error, :invalid_parameter, "`start_from` must be a string"}
-  end
-
-  def paginate_attrs(queryable, attrs, _, repo) do
-    page = Map.get(attrs, "page", @default_page)
-    per_page = get_per_page(attrs)
-
-    paginate(queryable, %{"page" => page, "per_page" => per_page}, repo)
-  end
-
   # Try to parse the given string pagination parameter.
-  defp parse_string_param(queryable, attrs, name, value, allowed_fields, repo) do
+  defp parse_string_param(attrs, name, value) do
     case Integer.parse(value, 10) do
       {page, ""} ->
-        attrs = Map.put(attrs, name, page)
-        paginate_attrs(queryable, attrs, allowed_fields, repo)
+        Map.put(attrs, name, page)
 
       :error ->
         {:error, :invalid_parameter, "`#{name}` must be non-negative integer"}
