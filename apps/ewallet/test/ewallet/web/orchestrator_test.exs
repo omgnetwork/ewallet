@@ -94,7 +94,7 @@ defmodule EWallet.Web.OrchestratorTest do
       }
 
       # Is it not error when used with sort_by?
-      assert %{data: data, pagination: pagination} =
+      assert %{data: data, pagination: _} =
                Orchestrator.query(Account, MockOverlay, attrs)
 
       # Is it name-descending sorted?
