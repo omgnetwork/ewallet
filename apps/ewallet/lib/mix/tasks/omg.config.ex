@@ -30,14 +30,14 @@ defmodule Mix.Tasks.Omg.Config do
   alias EWallet.ReleaseTasks.{Config, ConfigMigration}
 
   @strict_switches [
+    yes: :boolean,
     assume_yes: :boolean,
     migrate: :boolean
   ]
 
   @aliases [
     m: :migrate,
-    y: :assume_yes,
-    yes: :assume_yes
+    y: :yes,
   ]
 
   def run(args) do
@@ -63,6 +63,11 @@ defmodule Mix.Tasks.Omg.Config do
     ConfigMigration.run(ask_confirm: false)
   end
 
+  defp do_run({[migrate: true, yes: true], [], []}) do
+    ConfigMigration.run(ask_confirm: false)
+  end
+
+  # Fallback
   defp do_run({_, _, _}) do
     CLI.error("Invalid arguments.")
   end

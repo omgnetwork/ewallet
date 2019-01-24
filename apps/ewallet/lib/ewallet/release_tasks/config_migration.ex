@@ -30,7 +30,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
 
   def run(opts \\ []) do
     # Make sure the settings seed has been run
-    _ = Seed.run_settings()
+    _ = Seed.run_settings_no_stop()
 
     Enum.each(@start_apps, &Application.ensure_all_started/1)
     Enum.each(@apps, &ensure_app_started/1)

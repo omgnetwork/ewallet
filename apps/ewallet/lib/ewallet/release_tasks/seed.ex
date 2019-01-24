@@ -30,11 +30,13 @@ defmodule EWallet.ReleaseTasks.Seed do
   def run_e2e, do: seed_with(@e2e_spec)
   def run_sample, do: seed_with(@sample_spec)
   def run_settings, do: seed_with(@settings_spec)
+  def run_settings_no_stop, do: seed_with(@settings_spec, false)
 
-  defp seed_with(spec) do
-    Enum.each(@start_apps, &Application.ensure_all_started/1)
-    Enum.each(spec, &ensure_app_started/1)
+  defp seed_with(spec, stop \\ true) do
+    _ = Enum.each(@start_apps, &Application.ensure_all_started/1)
+    _ = Enum.each(spec, &ensure_app_started/1)
     _ = CLI.run(spec, true)
-    :init.stop()
+
+    if stop, do: :init.stop(), else: :ok
   end
 end
