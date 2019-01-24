@@ -14,16 +14,24 @@
 
 defmodule Mix.Tasks.Omg.Config do
   @moduledoc """
-  Migrates the configurations from the machine's environment variables into the database.
+  Manage application configurations.
 
   ## Examples
 
-  Run the following command to migrate the settings:
+  To set a configuration value:
+
+      mix omg.config "key" "value"
+
+  You may also pass a set of configuration values as json:
+
+      mix omg.config '{"key1": "value1", "key2": "value2"}'
+
+  To migrate all settings from environment variables to the database::
 
       mix omg.config --migrate
 
-  You will be asked to confirm the values before the migration begins,
-  or provide flag `-y`, `--yes` or `--assume_yes` to skip the confirmation.
+  You will be asked to confirm the values before the migration begins.
+  You may provide flag `-y`, `--yes` or `--assume_yes` to skip the confirmation.
   """
   use Mix.Task
   alias EWallet.CLI
@@ -69,6 +77,6 @@ defmodule Mix.Tasks.Omg.Config do
 
   # Fallback
   defp do_run({_, _, _}) do
-    CLI.error("Invalid arguments.")
+    Mix.Tasks.Help.run(["omg.config"])
   end
 end
