@@ -53,8 +53,6 @@ defmodule EWallet.CLI do
 
   # Checks if the given input matches a confirmation statement.
   # Returns the given fallback if the input is an empty string.
-  defp confirmed?(input, fallback \\ false)
-
   defp confirmed?("", fallback), do: fallback
 
   defp confirmed?(input, _), do: Helper.to_boolean(input)
