@@ -42,8 +42,10 @@ defmodule EWallet.CLI do
 
   def print(message), do: Docs.print(message, width: 100)
 
+  @spec assume_yes?([String.t()]) :: boolean()
   def assume_yes?(args), do: Enum.any?(args, fn a -> a in @yes_params end)
 
+  @spec confirm?(String.t()) :: boolean()
   def confirm?(message) do
     message <> " [Yn] "
     |> IO.gets()
@@ -57,6 +59,7 @@ defmodule EWallet.CLI do
 
   defp confirmed?(input, _), do: Helper.to_boolean(input)
 
+  @spec configure_logger() :: :ok
   def configure_logger do
     "DEBUG"
     |> System.get_env()
