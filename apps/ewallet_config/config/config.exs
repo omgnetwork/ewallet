@@ -130,7 +130,8 @@ config :ewallet_config,
       position: 301,
       parent: "balance_caching_strategy",
       parent_value: "since_last_cached",
-      description: "A counter is incremented everytime balances are cached, once reaching the given reset frequency,
+      description:
+        "A counter is incremented everytime balances are cached, once reaching the given reset frequency,
       the balances are re-calculated from the beginning and the counter is reset.
       Set to 0 to always cache balances based on the previous cached value"
     },
