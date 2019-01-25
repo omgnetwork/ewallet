@@ -310,9 +310,18 @@ jobs:
           command: |
             set -xe
 
+            _e2e_repo="https://github.com/omisego/e2e.git"
+            _e2e_branch="ewallet/$CIRCLE_BRANCH"
+
+            if [ "$(git ls-remote $_e2e_repo "$_e2e_branch")" == "" ]; then
+              _e2e_branch="master"
+            fi
+
             # Primary container cannot connect directly to the Docker-in-Docker instance.
             # We need to spawn another image to do so.
-            git clone https://github.com/omisego/e2e.git ~/e2e
+            git clone --depth 1 -b "$_e2e_branch" https://github.com/omisego/e2e.git ~/e2e
+            printf "\\033[0;33mRunning E2E from %s branch\\n" "$_e2e_branch"
+
             docker create -v /src --name srcs alpine:3.8 /bin/true
             docker cp ~/e2e srcs:/src
             docker cp .env srcs:/src/e2e/.env
