@@ -24,8 +24,5 @@ erl_crash.dump
 .elixir_ls
 Thumbs.db
 
-# asdf
-.tool-versions
-
 # Load Tester results
 /results/
