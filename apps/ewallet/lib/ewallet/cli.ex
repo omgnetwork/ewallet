@@ -47,8 +47,17 @@ defmodule EWallet.CLI do
   def confirm?(message) do
     message <> " [Yn] "
     |> IO.gets()
-    |> Helper.to_boolean()
+    |> String.trim()
+    |> confirmed?(true)
   end
+
+  # Checks if the given input matches a confirmation statement.
+  # Returns the given fallback if the input is an empty string.
+  defp confirmed?(input, fallback \\ false)
+
+  defp confirmed?("", fallback), do: fallback
+
+  defp confirmed?(input, _), do: Helper.to_boolean(input)
 
   def configure_logger do
     "DEBUG"
