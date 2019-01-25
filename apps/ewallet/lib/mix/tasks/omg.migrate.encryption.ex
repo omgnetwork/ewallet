@@ -22,7 +22,7 @@ defmodule Mix.Tasks.Omg.Migrate.Encryption do
 
       mix omg.migrate.encryption
   """
-
+  use Mix.Task
   import Ecto.Query
   alias Ecto.Changeset
   alias EWallet.CLI
