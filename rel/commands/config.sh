@@ -53,12 +53,6 @@ run_set() {
 }
 
 run_migrate() {
-    # Run the settings seed before migrating so users don't have to know to run this first.
-    if ! "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.Seed run_settings; then
-        printf "The error occurred during seeding settings data.\\n"
-        exit 1
-    fi
-
     MIGRATION_FN="run_ask_confirm"
 
     if [ "$ASK_CONFIRM" = true ]; then
