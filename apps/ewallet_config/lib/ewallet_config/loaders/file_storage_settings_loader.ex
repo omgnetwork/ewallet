@@ -31,6 +31,7 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
   end
 
   defp load_file_storage("aws", app) do
+    cleanup_aws()
     cleanup_gcs()
 
     aws_bucket = Application.get_env(app, :aws_bucket)
@@ -55,6 +56,7 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
 
   defp load_file_storage("gcs", app) do
     cleanup_aws()
+    cleanup_gcs()
 
     gcs_bucket = Application.get_env(app, :gcs_bucket)
     gcs_credentials = Application.get_env(app, :gcs_credentials)
@@ -67,8 +69,9 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
   end
 
   defp load_file_storage("local", _app) do
-    cleanup_gcs()
     cleanup_aws()
+    cleanup_gcs()
+
     Application.put_env(:arc, :storage, EWalletConfig.Storage.Local)
   end
 
@@ -77,6 +80,7 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
   end
 
   defp cleanup_gcs do
+    _ = GenServer.call(EWalletConfig.FileStorageSupervisor, :stop_goth)
     Application.delete_env(:arc, :storage)
     Application.delete_env(:arc, :bucket)
     Application.delete_env(:goth, :json)
