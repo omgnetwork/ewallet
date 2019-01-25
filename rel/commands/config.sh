@@ -42,22 +42,22 @@ run_set() {
     # We don't want to deal with argument parsing again in Elixir. No, just no.
     # Let's sidestep all issues by passing the already-parsed value as Base64
     # and let the release task decode it.
-    KEY="$(printf "%s" "$1" | base64)"; shift
-    VALUE="$(printf "%s" "$1" | base64)"; shift
+    KEY="$(printf "%s" "$1" | base64)"
+    VALUE="$(printf "%s" "$1" | base64)"
     exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.Config run "$KEY" "$VALUE"
 }
 
 run_migrate() {
     # Run the settings seed before migrating so users don't have to know to run this first.
-    if ! $RELEASE_ROOT_DIR/bin/ewallet command Elixir.EWallet.ReleaseTasks.Seed run_settings; then
+    if ! "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.Seed run_settings; then
         printf "The error occurred during seeding settings data.\\n"
         exit 1
     fi
 
-    MIGRATION_FN = "run_ask_confirm"
+    MIGRATION_FN="run_ask_confirm"
 
     if [ "$ASK_CONFIRM" = true ]; then
-      MIGRATION_FN = "run_skip_confirm"
+      MIGRATION_FN="run_skip_confirm"
     fi
 
     exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.ConfigMigration "$MIGRATION_FN"
@@ -87,7 +87,7 @@ while true; do
 done
 
 case "$ACTION" in
-    set )     run_set;;
+    set )     run_set "$@";;
     migrate ) run_migrate;;
     * )       print_usage; exit 1;;
 esac
