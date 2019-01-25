@@ -437,7 +437,7 @@ workflows:
               ignore:
                 - master
                 - /^v.*/
-                - /\-e2e$/
+                - /.*e2e$/
             tags:
               ignore: /^v.*/
 
@@ -451,7 +451,7 @@ workflows:
               only:
                 - master
                 - /^v.*/
-                - /\-e2e$/
+                - /.*e2e$/
             tags:
               only: /^v.*/
       - test_e2e:
