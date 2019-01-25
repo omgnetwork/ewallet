@@ -32,7 +32,7 @@ defmodule EWalletConfig.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {EWalletConfig.Application, []}
+      mod: {EWalletConfig.Application, []},
     ]
   end
 
@@ -50,6 +50,15 @@ defmodule EWalletConfig.MixProject do
       {:poison, "~> 3.1"},
       {:postgrex, ">= 0.0.0"},
       {:utils, in_umbrella: true},
+
+      # arc GCS dependencies
+      {:arc_gcs, github: "omisego/arc_gcs"},
+
+      # arc AWS dependencies
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:hackney, "~> 1.6"},
+      {:sweet_xml, "~> 0.6"},
     ]
   end
 
