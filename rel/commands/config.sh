@@ -55,8 +55,8 @@ run_set() {
 run_migrate() {
     MIGRATION_FN="run_ask_confirm"
 
-    if [ "$ASK_CONFIRM" = true ]; then
-      MIGRATION_FN="run_skip_confirm"
+    if [ "$ASK_CONFIRM" = false ]; then
+      MIGRATION_FN=run_skip_confirm
     fi
 
     exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.ConfigMigration "$MIGRATION_FN"
