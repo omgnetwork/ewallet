@@ -22,7 +22,6 @@ defmodule EWallet.CLI do
   alias IO.ANSI.Docs
 
   @yes_params ["-y", "--yes", "--assume_yes"]
-  @yes_inputs ["y", "Y", "yes", "YES", "Yes"]
 
   def info(message), do: [:normal, message] |> format |> puts
 
@@ -46,17 +45,15 @@ defmodule EWallet.CLI do
   def assume_yes?(args), do: Enum.any?(args, fn a -> a in @yes_params end)
 
   def confirm?(message) do
-    # Same implementation as `Mix.Shell.IO.yes?/1` but needed here because
-    # Mix is not available with distillery releases.
-    # Link: https://github.com/elixir-lang/elixir/blob/v1.6.5/lib/mix/lib/mix/shell/io.ex#L54
-    answer = IO.gets(message <> " [Yn] ")
-    is_binary(answer) and String.trim(answer) in ["" | @yes_inputs]
+    message <> " [Yn] "
+    |> IO.gets()
+    |> Helper.to_boolean()
   end
 
   def configure_logger do
     "DEBUG"
     |> System.get_env()
-    |> Helper.string_to_boolean()
+    |> Helper.to_boolean()
     |> case do
       true -> Logger.configure(level: :debug)
       false -> Logger.configure(level: :warn)
