@@ -49,11 +49,12 @@ run_set() {
     # and let the release task decode it.
     KEY="$(printf "%s" "$1" | base64 | tr -d "\n")"; shift
     VALUE="$(printf "%s" "$1" | base64 | tr -d "\n")"; shift
+
     exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks.Config run "$KEY" "$VALUE"
 }
 
 run_migrate() {
-    MIGRATION_FN="run_ask_confirm"
+    MIGRATION_FN=run_ask_confirm
 
     if [ "$ASK_CONFIRM" = false ]; then
       MIGRATION_FN=run_skip_confirm
