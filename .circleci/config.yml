@@ -401,6 +401,10 @@ workflows:
             branches:
               ignore:
                 - master
+                - /^v.*/
+                - /\-e2e$/
+            tags:
+              ignore: /^v.*/
 
       # Mainline branches only
       - build:
