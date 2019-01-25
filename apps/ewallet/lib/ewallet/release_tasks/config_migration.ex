@@ -36,6 +36,12 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
 
     _ = Seeder.run([{:ewallet_config, :seeds_settings}], true)
 
+    # The success message from the seed, along with the gap before the migration task
+    # starts outputting again, makes it seem that the whole execution has ended while
+    # we are only halfway through. The message below suggests the user to continue waiting
+    # during that silent gap.
+    CLI.info("Starting the settings migration task...")
+
     ask? = Keyword.get(opts, :ask_confirm, true)
 
     :ewallet
