@@ -47,7 +47,7 @@ defmodule EWallet.CLI do
 
   @spec confirm?(String.t()) :: boolean()
   def confirm?(message) do
-    message <> " [Yn] "
+    (message <> " [Yn] ")
     |> IO.gets()
     |> String.trim()
     |> confirmed?(true)
