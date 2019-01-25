@@ -18,8 +18,9 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   environment variables into the database.
   """
   use EWallet.ReleaseTasks
-  alias EWallet.ReleaseTasks.{CLIUser, Seed}
+  alias EWallet.ReleaseTasks.CLIUser
   alias EWallet.CLI
+  alias EWallet.Seeder.CLI, as: Seeder
   alias EWalletConfig.Setting
 
   @start_apps [:logger, :postgrex, :ecto, :ewallet, :ewallet_db]
@@ -30,11 +31,10 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   def run_skip_confirm, do: run(ask_confirm: false)
 
   def run(opts \\ []) do
-    # Make sure the settings seed has been run
-    _ = Seed.run_settings_no_stop()
-
     Enum.each(@start_apps, &Application.ensure_all_started/1)
     Enum.each(@apps, &ensure_app_started/1)
+
+    _ = Seeder.run([{:ewallet_config, :seeds_settings}], true)
 
     ask? = Keyword.get(opts, :ask_confirm, true)
 
