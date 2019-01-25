@@ -362,8 +362,12 @@ jobs:
                 # - 1.0.0-pre.1
                 while true; do
                     case "$_ver" in
-                        *.* ) IMAGE_TAG="$_ver $IMAGE_TAG"; _ver="${_ver%.*}";;
-                        * )   break;;
+                        *.* )
+                            IMAGE_TAG="$_ver $IMAGE_TAG"
+                            _ver="${_ver%.*}"
+                            ;;
+                        * )
+                            break;;
                     esac
                 done
 
@@ -375,12 +379,26 @@ jobs:
                         IMAGE_TAG="stable $IMAGE_TAG"
                     fi
                 fi
-            elif [ "$CIRCLE_BRANCH" = "master" ]; then
-                IMAGE_TAG="dev"
-                IMAGE_TAG="dev-$(echo "$CIRCLE_SHA1" | head -c 8) $IMAGE_TAG"
+            else
+                _shortref="$(printf "%s" "$CIRCLE_SHA1" | head -c 8)"
+
+                case "$CIRCLE_BRANCH" in
+                    master )
+                        IMAGE_TAG="latest"
+                        IMAGE_TAG="$_shortref $IMAGE_TAG"
+                        ;;
+                    v* )
+                        _ver="${CIRCLE_BRANCH#*v}"
+                        IMAGE_TAG="$_ver-dev"
+                        IMAGE_TAG="$_shortref $IMAGE_TAG"
+                        ;;
+                    * )
+                        ;;
+                esac
             fi
 
             for tag in $IMAGE_TAG; do
+                printf "\\033[0;33mPublishing Docker image as %s\\n" "$IMAGE_TAG"
                 docker tag "$IMAGE_NAME" "$IMAGE_NAME:$tag"
                 docker push "$IMAGE_NAME:$tag"
             done
