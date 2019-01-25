@@ -401,7 +401,6 @@ workflows:
             branches:
               ignore:
                 - master
-                - 667-everything-is-so-broken
 
       # Mainline branches only
       - build:
@@ -412,7 +411,8 @@ workflows:
             branches:
               only:
                 - master
-                - 667-everything-is-so-broken
+                - /^v.*/
+                - /\-e2e$/
             tags:
               only: /^v.*/
       - test_e2e:
