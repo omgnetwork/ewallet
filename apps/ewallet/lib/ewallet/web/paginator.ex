@@ -181,7 +181,8 @@ defmodule EWallet.Web.Paginator do
         repo
       ) do
     {records, more_page} =
-      get_query_start_after(queryable, %{"start_by" => start_by, "start_after" => start_after})
+      queryable
+      |> get_query_start_after(%{"start_by" => start_by, "start_after" => start_after})
       # effect only when `sort_by` doesn't specify.
       |> order_by([q], field(q, ^start_by))
       |> fetch(

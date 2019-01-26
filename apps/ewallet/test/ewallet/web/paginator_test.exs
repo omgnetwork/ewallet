@@ -73,11 +73,11 @@ defmodule EWallet.Web.PaginatorTest do
     test "returns a paginator with the given `start_after` without `start_by`" do
       ensure_num_records(Account, 2)
 
-      ids =
-        from(a in Account, select: a.id, order_by: a.id)
-        |> Repo.all()
+      ids = from(a in Account, select: a.id, order_by: a.id)
 
-      [id | _] = ids
+      [id | _] =
+        ids
+        |> Repo.all()
 
       paginator =
         Paginator.paginate_attrs(Account, %{"start_after" => id, "per_page" => "5"}, [:id])
@@ -90,11 +90,11 @@ defmodule EWallet.Web.PaginatorTest do
     test "returns a paginator with the given `start_after` and `start_by` equal :inserted_at" do
       ensure_num_records(Account, 2)
 
-      iats =
-        from(a in Account, select: a.inserted_at, order_by: a.inserted_at)
-        |> Repo.all()
+      iats = from(a in Account, select: a.inserted_at, order_by: a.inserted_at)
 
-      [iat | _] = iats
+      [iat | _] =
+        iats
+        |> Repo.all()
 
       paginator =
         Paginator.paginate_attrs(
