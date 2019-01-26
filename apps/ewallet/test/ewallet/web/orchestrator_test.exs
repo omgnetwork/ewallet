@@ -88,7 +88,7 @@ defmodule EWallet.Web.OrchestratorTest do
 
       attrs = %{
         "start_by" => "id",
-        "start_from" => first_record_id,
+        "start_after" => first_record_id,
         "sort_by" => "name",
         "sort_dir" => "desc"
       }

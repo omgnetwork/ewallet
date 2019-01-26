@@ -60,65 +60,56 @@ defmodule EWallet.Web.Paginator do
     result = parse_string_param(attrs, "per_page", per_page)
 
     case result do
-      %{"start_from" => _} -> paginate_attrs(queryable, result, allowed_fields, repo)
+      %{"start_after" => _} -> paginate_attrs(queryable, result, allowed_fields, repo)
       %{"per_page" => _} -> paginate_attrs(queryable, result, [], repo)
       _ -> result
     end
   end
 
-  def paginate_attrs(_, %{"page" => _, "start_from" => _}, _, _) do
-    {:error, :invalid_parameter, "`page` cannot be used with `start_from`"}
+  # Prevent `page` to be combined with `start_after`
+  def paginate_attrs(_, %{"page" => _, "start_after" => _}, _, _) do
+    {:error, :invalid_parameter, "`page` cannot be used with `start_after`"}
   end
 
+  # Prevent negative-integer `page`.
   def paginate_attrs(_, %{"page" => page}, _, _) when is_integer(page) and page < 0 do
     {:error, :invalid_parameter, "`page` must be non-negative integer"}
   end
 
+  # Prevent non-negative, non-zero interger `per_page`
   def paginate_attrs(_, %{"per_page" => per_page}, _, _)
       when is_integer(per_page) and per_page < 1 do
     {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
 
-  def paginate_attrs(queryable, attrs, [], repo) do
-    page = Map.get(attrs, "page", @default_page)
-    per_page = get_per_page(attrs)
-
-    paginate(queryable, %{"page" => page, "per_page" => per_page}, repo)
+  # Prevent non-string, non-atom `start_by`
+  def paginate_attrs(_, %{"start_by" => start_by}, _, _)
+      when not is_binary(start_by) and not is_atom(start_by) do
+    {:error, :invalid_parameter, "`start_by` must be a string"}
   end
 
   def paginate_attrs(
         queryable,
-        %{"start_by" => start_by, "start_from" => start_from} = attrs,
+        %{"start_after" => nil} = attrs,
         allowed_fields,
         repo
-      )
-      when is_binary(start_by) do
-    per_page = get_per_page(attrs)
-    start_by = String.to_atom(start_by)
-
-    paginate_attrs(
-      queryable,
-      %{
-        "per_page" => per_page,
-        "start_by" => start_by,
-        "start_from" => start_from
-      },
-      allowed_fields,
-      repo
-    )
+      ) do
+    start_after = {:ok, nil}
+    paginate_attrs(queryable, Map.put(attrs, "start_after", start_after), allowed_fields, repo)
   end
 
   def paginate_attrs(
         queryable,
         %{
-          "per_page" => per_page,
           "start_by" => start_by,
-          "start_from" => start_from
-        },
+          "start_after" => start_after
+        } = attrs,
         allowed_fields,
         repo
-      )
-      when is_atom(start_by) do
+      ) do
+    per_page = get_per_page(attrs)
+    start_by = get_start_by(start_by)
+
     case start_by in allowed_fields do
       true ->
         paginate(
@@ -126,7 +117,7 @@ defmodule EWallet.Web.Paginator do
           %{
             "per_page" => per_page,
             "start_by" => start_by,
-            "start_from" => start_from
+            "start_after" => start_after
           },
           repo
         )
@@ -141,21 +132,21 @@ defmodule EWallet.Web.Paginator do
     end
   end
 
-  def paginate_attrs(queryable, %{"start_from" => _} = attrs, [field | _], repo) do
-    # Set default value of `start_by` to the first element in `allowed_fields`
-    start_by = Atom.to_string(field)
-    attrs = Map.put(attrs, "start_by", start_by)
-    paginate_attrs(queryable, attrs, [field], repo)
-  end
+  def paginate_attrs(queryable, %{"start_after" => _} = attrs, [field | _], repo) do
+    # Set default value of `start_by` to the first element of allowed_fields
+    per_page = get_per_page(attrs)
 
-  def paginate_attrs(_, %{"start_by" => start_by}, _, _)
-      when not is_binary(start_by) and not is_atom(start_by) do
-    {:error, :invalid_parameter, "`start_by` must be a string"}
+    attrs =
+      attrs
+      |> Map.put("start_by", field)
+      |> Map.put("per_page", per_page)
+
+    paginate_attrs(queryable, attrs, [field], repo)
   end
 
   def paginate_attrs(queryable, attrs, _, repo) do
     # Set default param for `page` and `per_page`
-    page = Map.get(attrs, "page", 1)
+    page = Map.get(attrs, "page", @default_page)
     per_page = get_per_page(attrs)
 
     # Put to the existing attrs
@@ -165,6 +156,146 @@ defmodule EWallet.Web.Paginator do
       |> Map.put("page", page)
 
     paginate(queryable, attrs, repo)
+  end
+
+  @doc """
+  Paginate a query using the given `page` and `per_page` and returns a paginator.
+  If a query has `start_after`, then returns a paginator with all records after the specify `start_after`.
+  """
+  def paginate(queryable, attrs, repo \\ Repo)
+
+  def paginate(queryable, %{"page" => _, "per_page" => _} = attrs, repo) do
+    {records, more_page} = fetch(queryable, attrs, repo)
+
+    # Return pagination result
+    paginate(attrs, more_page, records)
+  end
+
+  def paginate(
+        queryable,
+        %{
+          "start_by" => start_by,
+          "start_after" => {:ok, start_after},
+          "per_page" => per_page
+        },
+        repo
+      ) do
+    {records, more_page} =
+      get_query_start_after(queryable, %{"start_by" => start_by, "start_after" => start_after})
+      # effect only when `sort_by` doesn't specify.
+      |> order_by([q], field(q, ^start_by))
+      |> fetch(
+        %{"start_after" => start_after, "page" => 1, "per_page" => per_page},
+        repo
+      )
+
+    # Return pagination result
+    paginate(
+      %{"start_by" => start_by, "start_after" => start_after, "per_page" => per_page},
+      more_page,
+      records
+    )
+  end
+
+  def paginate(_, %{"start_after" => {:error}}, _), do: {:error, :unauthorized}
+
+  # def paginate(queryable, %{"start_after" => nil} = attrs, repo),
+  #   do: paginate(queryable, Map.put(attrs, "start_after", {:ok, nil}), repo)
+
+  # def paginate(queryable, %{"start_after" => ""} = attrs, repo),
+  #   do: paginate(queryable, Map.put(attrs, "start_after", {:ok, nil}), repo)
+
+  def paginate(
+        queryable,
+        %{
+          "start_by" => start_by,
+          "start_after" => start_after,
+          "per_page" => per_page
+        },
+        repo
+      ) do
+    # Verify if the given `start_after` exist to prevent unexpected result.
+    target = Map.put(%{}, start_by, start_after)
+    exist = repo.get_by(queryable, target) != nil
+
+    start_after =
+      if exist do
+        {:ok, start_after}
+      else
+        {:error}
+      end
+
+    paginate(
+      queryable,
+      %{
+        "start_by" => start_by,
+        "start_after" => start_after,
+        "per_page" => per_page
+      },
+      repo
+    )
+  end
+
+  def paginate(%{"page" => page, "per_page" => per_page}, more_page, records)
+      when is_list(records) do
+    pagination = %{
+      per_page: per_page,
+      current_page: page,
+      is_first_page: page <= 1,
+      # It's the last page if there are no more records
+      is_last_page: !more_page,
+      count: length(records)
+    }
+
+    %__MODULE__{data: records, pagination: pagination}
+  end
+
+  def paginate(
+        %{
+          "start_by" => start_by,
+          "start_after" => start_after,
+          "per_page" => per_page
+        },
+        more_page,
+        records
+      )
+      when is_list(records) do
+    pagination = %{
+      current_page: 1,
+      per_page: per_page,
+      start_by: Atom.to_string(start_by),
+      start_after: start_after,
+      is_first_page: true,
+      # It's the last page if there are no more records
+      is_last_page: !more_page,
+      count: length(records)
+    }
+
+    %__MODULE__{data: records, pagination: pagination}
+  end
+
+  @doc """
+  Paginate a query by explicitly specifying `page` and `per_page`
+  and returns a tuple of records and a flag whether there are more pages.
+  """
+  def fetch(queryable, %{"page" => page, "per_page" => per_page}, repo \\ Repo) do
+    # + 1 to see if it is the last page yet
+    limit = per_page + 1
+
+    records =
+      queryable
+      |> get_query_offset(%{"page" => page, "per_page" => per_page})
+      |> limit(^limit)
+      |> repo.all()
+
+    # If an extra record is found, remove last one and inform there is more.
+    case Enum.count(records) do
+      n when n > per_page ->
+        {List.delete_at(records, -1), true}
+
+      _ ->
+        {records, false}
+    end
   end
 
   # Try to parse the given string pagination parameter.
@@ -196,129 +327,21 @@ defmodule EWallet.Web.Paginator do
     end
   end
 
-  @doc """
-  Paginate a query using the given `page` and `per_page` and returns a paginator.
-  If a query has `start_from`, then returns a paginator with all records after the specify `start_from`.
-  """
-  def paginate(queryable, attrs, repo \\ Repo)
-
-  def paginate(queryable, %{"page" => _, "per_page" => _} = attrs, repo) do
-    {records, more_page} = fetch(queryable, attrs, repo)
-
-    # Return pagination result
-    paginate(attrs, more_page, records)
+  defp get_start_by(start_by) do
+    case start_by do
+      s when is_binary(s) -> String.to_atom(s)
+      _ -> start_by
+    end
   end
 
-  def paginate(
-        queryable,
-        %{
-          "start_by" => start_by,
-          "start_from" => start_from,
-          "start_exist" => true,
-          "per_page" => per_page
-        },
-        repo
-      ) do
-    {records, more_page} =
-      queryable
-      |> where([q], field(q, ^start_by) >= ^start_from)
-      # effect only when `sort_by` doesn't specify.
-      |> order_by([q], field(q, ^start_by))
-      |> fetch(
-        %{"start_from" => start_from, "page" => 1, "per_page" => per_page},
-        repo
-      )
-
-    # Return pagination result
-    paginate(%{"page" => 1, "per_page" => per_page}, more_page, records)
-  end
-
-  def paginate(_, %{"start_exist" => false}, _), do: {:error, :unauthorized}
-
-  def paginate(
-        queryable,
-        %{
-          "start_by" => start_by,
-          "start_from" => start_from,
-          "per_page" => per_page
-        },
-        repo
-      ) do
-    # Verify if the given `start_from` exist to prevent unexpected result.
-    target = Map.put(%{}, start_by, start_from)
-    exist = repo.get_by(queryable, target) != nil
-
-    paginate(
-      queryable,
-      %{
-        "start_by" => start_by,
-        "start_from" => start_from,
-        "start_exist" => exist,
-        "per_page" => per_page
-      },
-      repo
-    )
-  end
-
-  def paginate(%{"page" => page, "per_page" => per_page}, more_page, records)
-      when is_list(records) do
-    pagination = %{
-      per_page: per_page,
-      current_page: page,
-      is_first_page: page <= 1,
-      # It's the last page if there are no more records
-      is_last_page: !more_page,
-      count: length(records)
-    }
-
-    %__MODULE__{data: records, pagination: pagination}
-  end
-
-  def paginate(
-        %{
-          "start_by" => start_by,
-          "start_from" => start_from,
-          "per_page" => per_page
-        },
-        more_page,
-        records
-      )
-      when is_list(records) do
-    pagination = %{
-      page: 1,
-      per_page: per_page,
-      start_by: start_by,
-      start_from: start_from,
-      is_first_page: true,
-      # It's the last page if there are no more records
-      is_last_page: !more_page,
-      count: length(records)
-    }
-
-    %__MODULE__{data: records, pagination: pagination}
-  end
-
-  @doc """
-  Paginate a query by explicitly specifying `page` and `per_page`
-  and returns a tuple of records and a flag whether there are more pages.
-  """
-  def fetch(queryable, %{"page" => page, "per_page" => per_page}, repo \\ Repo) do
-    # + 1 to see if it is the last page yet
-    limit = per_page + 1
-
-    records =
-      queryable
-      |> get_query_offset(%{"page" => page, "per_page" => per_page})
-      |> limit(^limit)
-      |> repo.all()
-
-    # If an extra record is found, remove last one and inform there is more.
-    case Enum.count(records) do
-      n when n > per_page ->
-        {List.delete_at(records, -1), true}
+  defp get_query_start_after(queryable, %{"start_after" => start_after, "start_by" => start_by}) do
+    case start_after do
+      s when is_nil(s) or s === "" ->
+        queryable
 
       _ ->
-        {records, false}
+        queryable
+        |> where([q], field(q, ^start_by) > ^start_after)
     end
   end
 
