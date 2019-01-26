@@ -75,20 +75,14 @@ defmodule EWallet.Web.OrchestratorTest do
 
       records = from(a in Account, order_by: a.id)
 
-      records =
+      [first_record | records] =
         records
         |> Repo.all()
-        # Take last `total_records` elements
         |> Enum.take(-total_records)
-
-      first_record_id =
-        records
-        |> Enum.map(fn record -> record.id end)
-        |> Enum.at(0)
 
       attrs = %{
         "start_by" => "id",
-        "start_after" => first_record_id,
+        "start_after" => first_record.id,
         "sort_by" => "name",
         "sort_dir" => "desc"
       }
@@ -99,14 +93,14 @@ defmodule EWallet.Web.OrchestratorTest do
       # Is it name-descending sorted?
       name_desc_records =
         records
-        |> Enum.map(fn record -> record.name end)
         |> Enum.sort()
         |> Enum.reverse()
+        |> Enum.map(fn record -> record.name end)
 
-      assert name_desc_records == Enum.map(data, fn elem -> elem.name end)
+      assert name_desc_records == Enum.map(data, fn record -> record.name end)
 
       # Is it all has an id >= `first_record_id`?
-      assert Enum.all?(data, fn elem -> elem.id >= first_record_id end)
+      assert Enum.all?(data, fn record -> record.id >= first_record.id end)
     end
   end
 
