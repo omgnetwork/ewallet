@@ -1,4 +1,4 @@
-export function createSearchUsersQuery (value = '') {
+export function createSearchAdminsQuery (value = '') {
   const matchValue = value.trim()
   return {
     matchAny: [

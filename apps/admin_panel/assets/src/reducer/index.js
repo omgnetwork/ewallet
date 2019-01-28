@@ -22,8 +22,10 @@ import { configurationReducer } from '../omg-configuration/reducer'
 import { activitiesReducer } from '../omg-activity-log/reducer'
 import { loadingStatusReducer } from '../omg-loading-status/reducer'
 import { exportsReducer } from '../omg-export/reducer'
+import { adminsReducer } from '../omg-admins/reducer'
 export default combineReducers({
   app: appReducer,
+  admins: adminsReducer,
   loadingBar: loadingBarReducer,
   session: sessionReducer,
   accounts: accountsReducer,

@@ -3,13 +3,13 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
-import UsersFetcher from '../omg-users/usersFetcher'
+import AdminsFetcher from '../omg-admins/adminsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
 import Copy from '../omg-copy'
-import { createSearchUsersQuery } from '../omg-users/searchField'
+import { createSearchAdminsQuery } from '../omg-admins/searchField'
 const UserPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -64,21 +64,12 @@ class UsersPage extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      createAccountModalOpen: false,
-      exportModalOpen: false
+      createAccountModalOpen: false
     }
   }
   onClickRow = (data, index) => e => {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/users/${data.id}`)
-  }
-  renderExportButton = () => {
-    return (
-      <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
-        <Icon name='Export' />
-        <span>Export</span>
-      </Button>
-    )
   }
   renderCreateAccountButton = () => {
     return (
@@ -93,12 +84,11 @@ class UsersPage extends Component {
       { key: 'email', title: 'EMAIL', sort: true },
       { key: 'username', title: 'USERNAME', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'updated_at', title: 'LAST UPDATED', sort: true },
-      { key: 'provider_user_id', title: 'PROVIDER', sort: true }
+      { key: 'updated_at', title: 'LAST UPDATED', sort: true }
     ]
   }
-  getRow = users => {
-    return users.map(d => {
+  getRow = admins => {
+    return admins.map(d => {
       return {
         ...d,
         avatar: _.get(d, 'avatar.thumb')
@@ -106,31 +96,32 @@ class UsersPage extends Component {
     })
   }
   rowRenderer (key, data, rows) {
-    if (key === 'created_at' || key === 'updated_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+    switch (key) {
+      case 'created_at':
+        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      case 'updated_at':
+        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      case 'id':
+        return (
+          <UserIdContainer>
+            <Icon name='Profile' /> <span>{data}</span> <Copy data={data} />
+          </UserIdContainer>
+        )
+      case 'email':
+        return data || '-'
+      default:
+        data
     }
-    if (key === 'id') {
-      return (
-        <UserIdContainer>
-          <Icon name='Profile' /> <span>{data}</span> <Copy data={data} />
-        </UserIdContainer>
-      )
-    }
-    if (key === 'email') {
-      return data || '-'
-    }
-
-    return data
   }
 
-  renderUserPage = ({ data: users, individualLoadingStatus, pagination }) => {
+  renderAdminPage = ({ data: admins, individualLoadingStatus, pagination }) => {
     return (
       <UserPageContainer>
-        <TopNavigation title={'Users'} />
+        <TopNavigation title={'Admins'} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
-            rows={this.getRow(users)}
-            columns={this.getColumns(users)}
+            rows={this.getRow(admins)}
+            columns={this.getColumns(admins)}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
@@ -140,22 +131,21 @@ class UsersPage extends Component {
             pagination={false}
           />
         </SortableTableContainer>
-        <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </UserPageContainer>
     )
   }
 
   render () {
     return (
-      <UsersFetcher
+      <AdminsFetcher
         {...this.state}
         {...this.props}
-        render={this.renderUserPage}
+        render={this.renderAdminPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
           accountId: this.props.match.params.accountId,
-          ...createSearchUsersQuery(queryString.parse(this.props.location.search).search)
+          ...createSearchAdminsQuery(queryString.parse(this.props.location.search).search)
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

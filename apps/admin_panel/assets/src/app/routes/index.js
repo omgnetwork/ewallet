@@ -23,6 +23,7 @@ import ReqestConsumptionPage from '../../omg-page-consumption'
 import TransactionRequestPage from '../../omg-page-transaction-request'
 import TransactionExportPage from '../../omg-page-transaction-export'
 import ConfigurationPage from '../../omg-page-configuration'
+import AdminsPage from '../../omg-page-admins'
 import { getCurrentAccountFromLocalStorage } from '../../services/sessionService'
 import ActivityLogPage from '../../omg-page-activity-log'
 const currentAccount = getCurrentAccountFromLocalStorage()
@@ -49,6 +50,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/:accountId/setting/:state' exact component={AccountSettingPage} />
       <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />
       <AuthenticatedRoute path='/users' exact component={UserPage} />
+      <AuthenticatedRoute path='/admins' exact component={AdminsPage} />
       <AuthenticatedRoute path='/accounts/:viewAccountId' exact component={AccountDetailPage} />
       <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <AuthenticatedRoute path='/users/:userId' exact component={UserDetailPage} />
