@@ -4,7 +4,7 @@ use Mix.Config
 
 config :ewallet,
   ecto_repos: [],
-  version: "1.1.0-pre.0",
+  version: "1.1.0-pre.2",
   settings: [
     :base_url,
     :sender_email,
