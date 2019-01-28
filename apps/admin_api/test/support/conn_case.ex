@@ -284,11 +284,16 @@ defmodule AdminAPI.ConnCase do
       when is_binary(path) and byte_size(path) > 0 do
     {status, _opts} = Keyword.pop(opts, :status, :ok)
 
+    path
+    |> provider_raw_request(data, opts)
+    |> json_response(status)
+  end
+
+  def provider_raw_request(path, data \\ %{}, opts \\ []) do
     build_conn()
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGProvider", provider_auth_header(opts))
     |> post(@base_dir <> path, data)
-    |> json_response(status)
   end
 
   defp provider_auth_header(opts) do
@@ -358,11 +363,10 @@ defmodule AdminAPI.ConnCase do
   @doc """
   Tests that the specified endpoint supports 'match_any' filtering.
   """
-  defmacro test_supports_match_any(endpoint, auth_type, factory, field, opts \\ []) do
+  defmacro test_supports_match_any(endpoint, factory, field, opts \\ []) do
     quote do
-      test "supports match_any filtering" do
+      test_with_auths "supports match_any filtering" do
         endpoint = unquote(endpoint)
-        auth_type = unquote(auth_type)
         factory = unquote(factory)
         field = unquote(field)
         opts = unquote(opts)
@@ -390,11 +394,7 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        response =
-          case auth_type do
-            :admin_auth -> admin_user_request(endpoint, attrs)
-            :provider_auth -> provider_request(endpoint, attrs)
-          end
+        response = request(endpoint, attrs)
 
         assert response["success"]
 
@@ -404,9 +404,8 @@ defmodule AdminAPI.ConnCase do
         assert Enum.count(records) == 2
       end
 
-      test "handles unsupported match_any comparator" do
+      test_with_auths "handles unsupported match_any comparator" do
         endpoint = unquote(endpoint)
-        auth_type = unquote(auth_type)
         field = unquote(field)
         field_name = Atom.to_string(field)
 
@@ -420,11 +419,7 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        response =
-          case auth_type do
-            :admin_auth -> admin_user_request(endpoint, attrs)
-            :provider_auth -> provider_request(endpoint, attrs)
-          end
+        response = request(endpoint, attrs)
 
         refute response["success"]
         assert response["data"]["object"] == "error"
@@ -440,11 +435,10 @@ defmodule AdminAPI.ConnCase do
   @doc """
   Tests that the specified endpoint supports 'match_all' filtering.
   """
-  defmacro test_supports_match_all(endpoint, auth_type, factory, field, opts \\ []) do
+  defmacro test_supports_match_all(endpoint, factory, field, opts \\ []) do
     quote do
-      test "supports match_all filtering" do
+      test_with_auths "supports match_all filtering" do
         endpoint = unquote(endpoint)
-        auth_type = unquote(auth_type)
         factory = unquote(factory)
         field = unquote(field)
         opts = unquote(opts)
@@ -472,11 +466,7 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        response =
-          case auth_type do
-            :admin_auth -> admin_user_request(endpoint, attrs)
-            :provider_auth -> provider_request(endpoint, attrs)
-          end
+        response = request(endpoint, attrs)
 
         assert response["success"]
 
@@ -485,9 +475,8 @@ defmodule AdminAPI.ConnCase do
         assert Enum.count(records) == 1
       end
 
-      test "handles unsupported match_all comparator" do
+      test_with_auths "handles unsupported match_all comparator" do
         endpoint = unquote(endpoint)
-        auth_type = unquote(auth_type)
         field = unquote(field)
         field_name = Atom.to_string(field)
 
@@ -501,11 +490,7 @@ defmodule AdminAPI.ConnCase do
           ]
         }
 
-        response =
-          case auth_type do
-            :admin_auth -> admin_user_request(endpoint, attrs)
-            :provider_auth -> provider_request(endpoint, attrs)
-          end
+        response = request(endpoint, attrs)
 
         refute response["success"]
         assert response["data"]["object"] == "error"
@@ -516,5 +501,105 @@ defmodule AdminAPI.ConnCase do
                    "Querying for '#{field_name}' 'starts_with' 'nil' is not supported."
       end
     end
+  end
+
+  @doc """
+  Converts the given test block into 2 independent tests: one that makes a provider_auth request,
+  and another that makes an admin_auth request.
+
+  This function converts all `request/3` calls found in the code block into
+  `provider_request/3` and `admin_user_request/3` automatically.
+
+  For example:
+
+  ```
+  test_with_auths "request function is converted" do
+    response = request("/account.all", %{})
+  end
+  ```
+
+  Becomes:
+
+  ```
+  test "request function is converted with admin_auth" do
+    response = admin_user_request("/account.all", %{})
+  end
+
+  test "request function is converted with provider_auth" do
+    response = provider_request("/account.all", %{})
+  end
+  ```
+  """
+  defmacro test_with_auths(test_name, var \\ quote(do: _), do: test_block) do
+    var = Macro.escape(var)
+
+    provider_test_block =
+      test_block
+      |> Macro.prewalk(fn
+        {:request, meta, args} -> {:provider_request, meta, args}
+        {:raw_request, meta, args} -> {:provider_raw_request, meta, args}
+        node -> node
+      end)
+      |> Macro.escape(unquote: true)
+
+    admin_test_block =
+      test_block
+      |> Macro.prewalk(fn
+        {:request, meta, args} -> {:admin_user_request, meta, args}
+        {:raw_request, meta, args} -> {:admin_user_raw_request, meta, args}
+        node -> node
+      end)
+      |> Macro.escape(unquote: true)
+
+    quote bind_quoted: [
+            var: var,
+            test_name: test_name,
+            provider_test_block: provider_test_block,
+            admin_test_block: admin_test_block
+          ] do
+      admin_test_name = :"#{test_name} with admin_auth"
+      provider_test_name = :"#{test_name} with provider_auth"
+
+      {_, describe} = Module.get_attribute(__MODULE__, :ex_unit_describe)
+      admin_func_name = :"#{describe} #{admin_test_name}"
+      provider_func_name = :"#{describe} #{provider_test_name}"
+
+      def unquote(admin_func_name)(unquote(var)), do: unquote(admin_test_block)
+      def unquote(provider_func_name)(unquote(var)), do: unquote(provider_test_block)
+
+      test admin_test_name, meta do
+        unquote(admin_func_name)(meta)
+      end
+
+      test provider_test_name, meta do
+        unquote(provider_func_name)(meta)
+      end
+    end
+  end
+
+  @doc """
+  Make a request using `provider_request/3` or `admin_user_request/3`
+  depending on the running context.
+
+  This function can only be used within `test_with_auths/2`, and cannot
+  be invoked directly.
+
+  To make a request, use `provider_request/3` or `admin_user_request/3` instead.
+  """
+  def request(_, _, _) do
+    raise UndefinedFunctionError
+  end
+
+  @doc """
+  Make a request using `provider_raw_request/3` or `admin_user_raw_request/3`
+  depending on the running context.
+
+  This function can only be used within `test_with_auths/2`, and cannot
+  be invoked directly.
+
+  To make a request, use `provider_raw_request/3` or `admin_user_raw_request/3` instead.
+  """
+  def raw_request(_, _, _) do
+    raise UndefinedFunctionError
   end
 end

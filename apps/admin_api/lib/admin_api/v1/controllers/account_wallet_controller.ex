@@ -20,7 +20,7 @@ defmodule AdminAPI.V1.AccountWalletController do
   import AdminAPI.V1.ErrorHandler
   alias EWallet.WalletPolicy
   alias EWallet.Web.{Orchestrator, BalanceLoader, Paginator, V1.WalletOverlay}
-  alias EWalletDB.{Account, User, Wallet}
+  alias EWalletDB.{Account, Wallet}
 
   def all_for_account_and_users(conn, attrs) do
     do_all(attrs, :accounts_and_users, conn)
