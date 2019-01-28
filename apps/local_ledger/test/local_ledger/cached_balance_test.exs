@@ -162,7 +162,7 @@ defmodule LocalLedger.CachedBalanceTest do
              }
     end
 
-    test "increase the cached_count when calculating when strategy = 'since_last_cached'", %{
+    test "increase the cached_count when calculating with strategy = 'since_last_cached'", %{
       wallet: wallet,
       config_pid: config_pid
     } do
@@ -181,7 +181,7 @@ defmodule LocalLedger.CachedBalanceTest do
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 2
     end
 
-    test "Ignore the reset frequency when set to `nil` when strategy = 'since_last_cached'", %{
+    test "Ignore the reset frequency when set to `nil` with strategy = 'since_last_cached'", %{
       wallet: wallet,
       config_pid: config_pid
     } do
@@ -200,14 +200,14 @@ defmodule LocalLedger.CachedBalanceTest do
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 2
     end
 
-    test "cached_count is 1 when calculating when strategy = 'since_beginning'", %{wallet: wallet} do
+    test "cached_count is 1 when calculating with strategy = 'since_beginning'", %{wallet: wallet} do
       CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
       CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
     end
 
-    test "cached_count is reset to 1 when reaching the reset frequency when calculating when strategy = 'since_last_cached'",
+    test "cached_count is reset to 1 when reaching the reset frequency with strategy = 'since_last_cached'",
          %{wallet: wallet, config_pid: config_pid} do
       Config.update(
         %{
@@ -226,7 +226,7 @@ defmodule LocalLedger.CachedBalanceTest do
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
     end
 
-    test "Recalculate from beginning when reaching the reset frequency when calculating when strategy = 'since_last_cached'",
+    test "Recalculate from beginning when reaching the reset frequency with strategy = 'since_last_cached'",
          %{token_1: token_1, wallet: wallet, config_pid: config_pid} do
       Config.update(
         %{
