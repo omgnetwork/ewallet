@@ -28,6 +28,7 @@ defmodule EWalletAPI.Application do
     EWalletConfig.Config.register_and_load(:ewallet_api, settings)
 
     Config.configure_cors_plug()
+    EWallet.configure_socket_endpoints([EWalletAPI.V1.Endpoint])
 
     # Always run EWalletAPI.Endpoint and EWalletAPI.V1.Endpoint in supervision tree
     # regardless whether UrlDispatcher is enabled or not, since UrlDispatcher

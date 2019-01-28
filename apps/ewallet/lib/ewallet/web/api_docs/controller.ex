@@ -93,6 +93,7 @@ defmodule EWallet.Web.APIDocs.Controller do
     case get_otp_app(conn) do
       :admin_api -> "Admin API"
       :ewallet_api -> "eWallet API"
+      otp -> Atom.to_string(otp)
     end
   end
 

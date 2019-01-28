@@ -16,9 +16,20 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
   use ExUnit.Case, async: true
   use Plug.Test
 
+  Application.put_env(:ewallet, __MODULE__.Endpoint, error_handler: EWallet.Web.V1.ErrorHandler)
+
+  defmodule Endpoint do
+    use Phoenix.Endpoint, otp_app: :ewallet
+  end
+
   defmodule TestRouter do
     use Phoenix.Router
     use EWallet.Web.APIDocs, scope: "/some_scope"
+  end
+
+  setup_all do
+    Endpoint.start_link()
+    :ok
   end
 
   describe "/docs endpoints" do
@@ -110,7 +121,7 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
   defp get(path) do
     :get
     |> conn(path)
-    |> put_private(:phoenix_endpoint, EWalletAPI.Endpoint)
+    |> put_private(:phoenix_endpoint, Endpoint)
     |> TestRouter.call([])
   end
 end
