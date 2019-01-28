@@ -56,15 +56,6 @@ defmodule EWalletDB.Mixfile do
       {:poison, "~> 3.1"},
       {:postgrex, ">= 0.0.0"},
       {:timex, "~> 3.0"},
-
-      # arc GCS dependencies
-      {:arc_gcs, "~> 0.0.3", runtime: false},
-
-      # arc AWS dependencies
-      {:ex_aws, "~> 2.0"},
-      {:ex_aws_s3, "~> 2.0"},
-      {:hackney, "~> 1.6"},
-      {:sweet_xml, "~> 0.6"},
     ]
   end
 
