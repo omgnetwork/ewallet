@@ -34,19 +34,11 @@ const ContentContainer = styled.div`
   width: calc(100% - 220px);
   height: 100vh;
   overflow: auto;
+  padding-top: 50px;
 `
 const Content = styled.div`
   padding: 0 7%;
 `
-const enhance = compose(
-  connect(
-    null,
-    { switchAccount }
-  ),
-  withRouter,
-  withClickOutsideEnhancer
-)
-
 class AppLayout extends Component {
   static propTypes = {
     children: PropTypes.node,
@@ -62,7 +54,6 @@ class AppLayout extends Component {
         <LoadingBar updateTime={1000} style={{ backgroundColor: '#1A56F0', zIndex: 99999 }} />
         <SideNav />
         <ContentContainer innerRef={contentContainer => (this.contentContainer = contentContainer)}>
-          <TopBar />
           <Content>
             {React.cloneElement(this.props.children, {
               scrollTopContentContainer: this.scrollTopContentContainer
