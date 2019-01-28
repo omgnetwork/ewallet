@@ -4,10 +4,10 @@ import { Icon, Avatar } from '../omg-uikit'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
-import CurrentAccountProvider from '../omg-account-current/currentAccountProvider'
+import CurrentUserProvider from '../omg-user-current/currentUserProvider'
 import { fuzzySearch } from '../utils/search'
 const SideNavigationContainer = styled.div`
-  background-color: #F0F2F5;
+  background-color: #f0f2f5;
   height: 100%;
   padding: 50px 0;
   overflow: auto;
@@ -15,7 +15,6 @@ const SideNavigationContainer = styled.div`
 const NavigationItem = styled.div`
   padding: 5px 35px;
   white-space: nowrap;
-  letter-spacing: 1px;
   text-align: left;
   font-size: 14px;
   background-color: ${props => (props.active ? props.theme.colors.S300 : 'transparent')};
@@ -27,6 +26,7 @@ const NavigationItem = styled.div`
     margin-right: 15px;
     font-size: 14px;
     color: ${props => props.theme.colors.S500};
+    font-weight: 400;
   }
   :hover {
     background-color: ${props => props.theme.colors.S300};
@@ -46,34 +46,6 @@ const NavigationItemsContainer = styled.div`
   a {
     color: inherit;
   }
-`
-const SwitchAccountButton = styled.button`
-  padding: 5px 15px;
-  display: inline-block;
-  font-weight: 300;
-  border-radius: 4px;
-  border: 1px solid;
-  border-color: ${props => (props.active ? 'transparent' : props.theme.colors.B100)};
-  letter-spacing: 1px;
-  white-space: nowrap;
-  color: ${props => props.theme.colors.B100};
-  cursor: pointer;
-  background-color: ${props => (props.active ? props.theme.colors.B400 : 'transparent')};
-  span {
-    display: inline-block;
-    margin-bottom: 2px;
-    vertical-align: middle;
-  }
-  :hover {
-    background-color: ${props => props.theme.colors.B400};
-  }
-`
-const SwitchAccount = styled.div`
-  background-color: ${props => (props.active ? props.theme.colors.B400 : 'transparent')};
-  margin-bottom: 25px;
-  padding: 8px 35px;
-  text-align: left;
-  margin-top: 25px;
 `
 const CurrentAccountContainer = styled.div`
   text-align: left;
@@ -108,6 +80,15 @@ const LoadingLogo = styled(Avatar)`
   background-repeat: no-repeat;
   animation: ${progress} 1.5s ease-in-out infinite;
 `
+
+const MenuName = styled.div`
+  padding: 5px 35px;
+  margin-top: 30px;
+  font-size: 10px;
+  color: ${props => props.theme.colors.B100};
+  font-weight: 600;
+  letter-spacing: 1px;
+`
 class SideNavigation extends PureComponent {
   static propTypes = {
     location: PropTypes.object,
@@ -119,36 +100,82 @@ class SideNavigation extends PureComponent {
   constructor (props) {
     super(props)
     this.dataLink = [
-      { icon: 'Dashboard', to: '/dashboard', text: 'Dashboard' },
-      { icon: 'Merchant', to: '/accounts', text: 'Accounts' },
-      { icon: 'Token', to: '/tokens', text: 'Tokens' },
-      { icon: 'Wallet', to: '/wallets', text: 'Wallets' },
-      { icon: 'Transaction', to: '/transaction', text: 'Transactions' },
-      { icon: 'Request', to: '/requests', text: 'Requests' },
-      { icon: 'Consumption', to: '/consumptions', text: 'Consumptions' },
-      { icon: 'Key', to: '/api', text: 'Api Keys' },
-      { icon: 'People', to: '/users', text: 'Users' },
-      { icon: 'Setting', to: '/activity', text: 'Activity Logs' },
-      { icon: 'Setting', to: '/configuration', text: 'Configurations' },
-      { icon: 'Setting', to: '/setting', text: 'Settings' }
+      {
+        icon: 'Merchant',
+        to: '/accounts',
+        text: 'Accounts'
+      },
+      {
+        icon: 'Token',
+        to: '/tokens',
+        text: 'Tokens'
+      },
+      {
+        icon: 'Key',
+        to: '/api',
+        text: 'Api Keys'
+      },
+      {
+        icon: 'People',
+        to: '/admins',
+        text: 'Admins'
+      },
+      {
+        icon: 'Setting',
+        to: '/configuration',
+        text: 'Configurations'
+      }
+    ]
+    this.overviewLinks = [
+      {
+        icon: 'Wallet',
+        to: '/wallets',
+        text: 'Wallets'
+      },
+      {
+        icon: 'Transaction',
+        to: '/transaction',
+        text: 'Transactions'
+      },
+      {
+        icon: 'Request',
+        to: '/requests',
+        text: 'Requests'
+      },
+      {
+        icon: 'Consumption',
+        to: '/consumptions',
+        text: 'Consumptions'
+      },
+      {
+        icon: 'People',
+        to: '/users',
+        text: 'Users'
+      },
+      {
+        icon: 'Setting',
+        to: '/activity',
+        text: 'Activity Logs'
+      }
     ]
   }
-  renderCurrentAccount = ({ currentAccount, loadingStatus }) => {
+
+  renderCurrentUser = ({ currentUser, loadingStatus }) => {
     return (
       <CurrentAccountContainer>
+        {' '}
         {loadingStatus === 'SUCCESS' ? (
           <BigAvatar
-            image={_.get(currentAccount, 'avatar.large')}
-            name={
-              _.get(currentAccount, 'avatar.large')
-                ? _.get(currentAccount, 'avatar.large')
-                : _.get(currentAccount, 'name').slice(0, 2)
-            }
+            image={_.get(currentUser, 'avatar.large')}
+            name={currentUser.email || currentUser.username}
           />
         ) : (
           <LoadingLogo />
-        )}
-        <CurrentAccountName>{_.get(currentAccount, 'name', '')}</CurrentAccountName>
+        )}{' '}
+        <CurrentAccountName>
+          {' '}
+          {_.get(currentUser, 'email') || _.get(currentUser.username)}{' '}
+        </CurrentAccountName>{' '}
       </CurrentAccountContainer>
     )
   }
@@ -158,25 +185,27 @@ class SideNavigation extends PureComponent {
     return (
       <SideNavigationContainer className={this.props.className}>
         <NavigationItemsContainer>
-          <CurrentAccountProvider render={this.renderCurrentAccount} />
-          <SwitchAccount active={this.props.switchAccount}>
-            <SwitchAccountButton
-              active={this.props.switchAccount}
-              onClick={this.props.onClickSwitchAccount}
-            >
-              <span>Switch Account</span> <Icon name='Chevron-Right' />
-            </SwitchAccountButton>
-          </SwitchAccount>
+          <CurrentUserProvider render={this.renderCurrentUser} /> <MenuName> MANAGE </MenuName>{' '}
           {this.dataLink.map(link => {
             return (
-              <Link to={`/${accountIdFromLocation}${link.to}`} key={link.to}>
+              <Link to={link.to} key={link.to}>
                 <NavigationItem active={fuzzySearch(link.to, this.props.location.pathname)}>
                   <Icon name={link.icon} /> <span>{link.text}</span>
-                </NavigationItem>
+                </NavigationItem>{' '}
               </Link>
             )
-          })}
-        </NavigationItemsContainer>
+          })}{' '}
+          <MenuName> OVERVIEW </MenuName>{' '}
+          {this.overviewLinks.map(link => {
+            return (
+              <Link to={link.to} key={link.to}>
+                <NavigationItem active={fuzzySearch(link.to, this.props.location.pathname)}>
+                  <Icon name={link.icon} /> <span>{link.text}</span>
+                </NavigationItem>{' '}
+              </Link>
+            )
+          })}{' '}
+        </NavigationItemsContainer>{' '}
       </SideNavigationContainer>
     )
   }

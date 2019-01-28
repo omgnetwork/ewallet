@@ -39,25 +39,24 @@ const createRoute = () => (
       <LoginRoute path='/forget-password' exact component={ForgetPasswordForm} />
       <LoginRoute path='/create-new-password' exact component={CreateNewPasswordForm} />
       <LoginRoute path='/invite' exact component={InviteForm} />
-      <AuthenticatedRoute path='/:accountId/dashboard' exact component={DashboardPage} />
-      <AuthenticatedRoute path='/:accountId/accounts' exact component={AccountPage} />
-      <AuthenticatedRoute path='/:accountId/tokens' exact component={TokenPage} />
-      <AuthenticatedRoute path='/:accountId/tokens/:viewTokenId/:state' exact component={TokenDetailPage} />
-      <AuthenticatedRoute path='/:accountId/tokens/:viewTokenId' exact component={TokenDetailPage} />
-      <AuthenticatedRoute path='/:accountId/wallets' exact component={WalletPage} />
-      <AuthenticatedRoute path='/:accountId/transaction' exact component={TransactionPage} />
-      <AuthenticatedRoute path='/:accountId/transaction/export' exact component={TransactionExportPage} />
-      <AuthenticatedRoute path='/:accountId/api' exact component={ApiKeyPage} />
+      <AuthenticatedRoute path='/accounts' exact component={AccountPage} />
+      <AuthenticatedRoute path='/tokens' exact component={TokenPage} />
+      <AuthenticatedRoute path='/tokens/:viewTokenId/:state' exact component={TokenDetailPage} />
+      <AuthenticatedRoute path='/tokens/:viewTokenId' exact component={TokenDetailPage} />
+      <AuthenticatedRoute path='/wallets' exact component={WalletPage} />
+      <AuthenticatedRoute path='/transaction' exact component={TransactionPage} />
+      <AuthenticatedRoute path='/transaction/export' exact component={TransactionExportPage} />
+      <AuthenticatedRoute path='/api' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/:accountId/setting/:state' exact component={AccountSettingPage} />
-      <AuthenticatedRoute path='/:accountId/user_setting' exact component={UserSettingPage} />
-      <AuthenticatedRoute path='/:accountId/users' exact component={UserPage} />
-      <AuthenticatedRoute path='/:accountId/accounts/:viewAccountId' exact component={AccountDetailPage} />
-      <AuthenticatedRoute path='/:accountId/wallets/:walletAddress' exact component={WalletDetailPage} />
-      <AuthenticatedRoute path='/:accountId/users/:userId' exact component={UserDetailPage} />
-      <AuthenticatedRoute path='/:accountId/consumptions' exact component={ReqestConsumptionPage} />
-      <AuthenticatedRoute path='/:accountId/requests' exact component={TransactionRequestPage} />
-      <AuthenticatedRoute path='/:accountId/configuration' exact component={ConfigurationPage} />
-      <AuthenticatedRoute path='/:accountId/activity' exact component={ActivityLogPage} />
+      <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />
+      <AuthenticatedRoute path='/users' exact component={UserPage} />
+      <AuthenticatedRoute path='/accounts/:viewAccountId' exact component={AccountDetailPage} />
+      <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
+      <AuthenticatedRoute path='/users/:userId' exact component={UserDetailPage} />
+      <AuthenticatedRoute path='/consumptions' exact component={ReqestConsumptionPage} />
+      <AuthenticatedRoute path='/requests' exact component={TransactionRequestPage} />
+      <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
+      <AuthenticatedRoute path='/activity' exact component={ActivityLogPage} />
     </Switch>
   </Router>
 )
