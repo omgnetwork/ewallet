@@ -267,7 +267,8 @@ defmodule LocalLedger.CachedBalanceTest do
                "tok_OMG_1234" => 4_000
              }
 
-      # The reset_frequency is 3 so it will now calculate since the beginning and sync the correct value
+      # The reset_frequency is 3 so it will now calculate since the beginning
+      # and sync the correct value
       CachedBalance.cache_all()
 
       assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
