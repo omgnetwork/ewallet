@@ -1,14 +1,18 @@
-import { authenticatedRequest, authenticatedMultipartRequest, unAuthenticatedRequest } from './apiService'
+import {
+  authenticatedRequest,
+  authenticatedMultipartRequest,
+  unAuthenticatedRequest
+} from './apiService'
 
-export function getAllAdmins ({ perPage, sort, query, ...rest }) {
+export function getAllAdmins ({ perPage, sort, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/admin.all',
     data: {
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: query,
-      ...rest
+      match_all: matchAll,
+      match_any: matchAny
     }
   })
 }
