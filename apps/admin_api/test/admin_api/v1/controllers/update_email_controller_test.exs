@@ -130,7 +130,7 @@ defmodule AdminAPI.V1.UpdateEmailControllerTest do
       assert response["data"]["code"] == "user:email_already_exists"
     end
 
-    test "returns unauthorized when requesting  with a provider key" do
+    test "returns unauthorized when requesting with a provider key" do
       response =
         provider_request("/me.update_email", %{
           "email" => "test_email_update@example.com",

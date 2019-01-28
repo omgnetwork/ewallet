@@ -586,7 +586,7 @@ defmodule AdminAPI.ConnCase do
 
   To make a request, use `provider_request/3` or `admin_user_request/3` instead.
   """
-  def request(_, _ \\ %{}, _ \\ []) do
+  def request(_, _, _) do
     raise UndefinedFunctionError
   end
 
@@ -599,7 +599,7 @@ defmodule AdminAPI.ConnCase do
 
   To make a request, use `provider_raw_request/3` or `admin_user_raw_request/3` instead.
   """
-  def raw_request(_, _ \\ %{}, _ \\ []) do
+  def raw_request(_, _, _) do
     raise UndefinedFunctionError
   end
 end
