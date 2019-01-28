@@ -160,7 +160,6 @@ class WalletPage extends Component {
       <WalletsFetcher
         {...this.state}
         {...this.props}
-        accountId={this.props.match.params.accountId}
         render={this.renderWalletPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
