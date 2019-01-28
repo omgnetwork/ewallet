@@ -9,7 +9,7 @@ import { fuzzySearch } from '../utils/search'
 const SideNavigationContainer = styled.div`
   background-color: #f0f2f5;
   height: 100%;
-  padding: 50px 0;
+  padding: 25px 0;
   overflow: auto;
 `
 const NavigationItem = styled.div`
@@ -181,7 +181,6 @@ class SideNavigation extends PureComponent {
   }
 
   render () {
-    const accountIdFromLocation = this.props.match.params.accountId
     return (
       <SideNavigationContainer className={this.props.className}>
         <NavigationItemsContainer>
