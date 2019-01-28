@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set +e
+
 print_usage() {
     printf "Usage: bin/ewallet seed [OPTS]\\n"
     printf "\\n"

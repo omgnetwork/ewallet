@@ -55,7 +55,7 @@ export function updateConfiguration ({
       balance_caching_strategy: balanceCachingStrategy,
       forget_password_request_lifetime: Number(forgetPasswordRequestLifetime)
     },
-    value => _.isNil(value) || _.isNaN(value) || 0 || ''
+    value => _.isNil(value) || _.isNaN(value) || value === 0
   )
   return authenticatedRequest({
     path: '/configuration.update',

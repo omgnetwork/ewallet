@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set +e
+
 print_usage() {
     printf "Usage: bin/ewallet config [OPTS] KEY VALUE\\n"
     printf "\\n"
@@ -39,11 +41,16 @@ while true; do
     esac
 done
 
+if [ $# -lt 2 ]; then
+    print_usage
+    exit 1
+fi
+
 # We don't want to deal with argument parsing again in Elixir. No, just no.
 # Let's sidestep all issues by passing the already-parsed value as Base64
 # and let the release task decode it.
 
-KEY="$(printf "%s" "$1" | base64)"; shift
-VALUE="$(printf "%s" "$1" | base64)"; shift
+KEY="$(printf "%s" "$1" | base64 | tr -d "\n")"; shift
+VALUE="$(printf "%s" "$1" | base64 | tr -d "\n")"; shift
 
 exec "$RELEASE_ROOT_DIR/bin/ewallet" command Elixir.EWallet.ReleaseTasks config_base64 "$KEY" "$VALUE"
