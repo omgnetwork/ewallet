@@ -16,10 +16,12 @@ defmodule EWallet.CLI do
   @moduledoc """
   Helper module for working with the command line interface.
   """
-
   import IO
   import IO.ANSI
+  alias EWallet.Helper
   alias IO.ANSI.Docs
+
+  @yes_params ["-y", "--yes", "--assume_yes"]
 
   def info(message), do: [:normal, message] |> format |> puts
 
@@ -29,13 +31,44 @@ defmodule EWallet.CLI do
 
   def warn(message), do: [:yellow, message] |> format |> puts
 
-  def error(message), do: [:red, message] |> format |> puts
+  def error(message, device \\ :stderr) do
+    formatted = format([:red, message])
+    IO.puts(device, formatted)
+  end
 
   def color(messages), do: messages |> format |> puts
 
   def heading(message), do: Docs.print_heading(message, width: 100)
 
   def print(message), do: Docs.print(message, width: 100)
+
+  @spec assume_yes?([String.t()]) :: boolean()
+  def assume_yes?(args), do: Enum.any?(args, fn a -> a in @yes_params end)
+
+  @spec confirm?(String.t()) :: boolean()
+  def confirm?(message) do
+    (message <> " [Yn] ")
+    |> IO.gets()
+    |> String.trim()
+    |> confirmed?(true)
+  end
+
+  # Checks if the given input matches a confirmation statement.
+  # Returns the given fallback if the input is an empty string.
+  defp confirmed?("", fallback), do: fallback
+
+  defp confirmed?(input, _), do: Helper.to_boolean(input)
+
+  @spec configure_logger() :: :ok
+  def configure_logger do
+    "DEBUG"
+    |> System.get_env()
+    |> Helper.to_boolean()
+    |> case do
+      true -> Logger.configure(level: :debug)
+      false -> Logger.configure(level: :warn)
+    end
+  end
 
   @spec halt(any()) :: no_return()
   def halt(message) do

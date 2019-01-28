@@ -30,6 +30,7 @@ defmodule EWalletDB.Repo.Reporters.SeedsSettingsReporter do
 
     writer.print("""
 
+    Settings seed has completed successfully!
     You can update those values using the Admin API.
     """)
   end
