@@ -68,8 +68,7 @@ class UsersPage extends Component {
     }
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/users/${data.id}`)
+    this.props.history.push(`/admins/${data.id}`)
   }
   renderCreateAccountButton = () => {
     return (
@@ -143,8 +142,6 @@ class UsersPage extends Component {
         render={this.renderAdminPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: 15,
-          accountId: this.props.match.params.accountId,
           ...createSearchAdminsQuery(queryString.parse(this.props.location.search).search)
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

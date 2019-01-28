@@ -17,6 +17,13 @@ export function getAllAdmins ({ perPage, sort, matchAll, matchAny }) {
   })
 }
 
+export function getAdminById (id) {
+  return authenticatedRequest({
+    path: '/admin.get',
+    data: { id }
+  })
+}
+
 export function uploadAvatar ({ id, avatar }) {
   const formData = new window.FormData()
   formData.append('id', id)

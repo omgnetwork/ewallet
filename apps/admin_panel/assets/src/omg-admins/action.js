@@ -1,5 +1,5 @@
 import * as adminService from '../services/adminService'
-import { createPaginationActionCreator } from '../utils/createActionCreator'
+import { createPaginationActionCreator, createActionCreator } from '../utils/createActionCreator'
 
 export const getAdmins = ({ page, perPage, cacheKey, matchAll, matchAny }) =>
   createPaginationActionCreator({
@@ -14,4 +14,11 @@ export const getAdmins = ({ page, perPage, cacheKey, matchAll, matchAny }) =>
         matchAny
       }),
     cacheKey
+  })
+
+export const getAdminById = id =>
+  createActionCreator({
+    actionName: 'ADMIN',
+    action: 'REQUEST',
+    service: () => adminService.getAdminById(id)
   })

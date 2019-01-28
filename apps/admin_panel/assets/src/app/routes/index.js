@@ -26,6 +26,7 @@ import ConfigurationPage from '../../omg-page-configuration'
 import AdminsPage from '../../omg-page-admins'
 import { getCurrentAccountFromLocalStorage } from '../../services/sessionService'
 import ActivityLogPage from '../../omg-page-activity-log'
+import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
 const currentAccount = getCurrentAccountFromLocalStorage()
 const redirectUrl = currentAccount ? `${currentAccount.id}/dashboard` : '/login'
@@ -52,6 +53,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />
       <AuthenticatedRoute path='/users' exact component={UserPage} />
       <AuthenticatedRoute path='/admins' exact component={AdminsPage} />
+      <AuthenticatedRoute path='/admins/:adminId' exact component={AdminDetailPage} />
       <AuthenticatedRoute path='/accounts/:viewAccountId' exact component={AccountDetailPage} />
       <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <AuthenticatedRoute path='/users/:userId' exact component={UserDetailPage} />

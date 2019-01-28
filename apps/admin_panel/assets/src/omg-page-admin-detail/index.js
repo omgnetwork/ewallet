@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
-import UserProvider from '../omg-users/userProvider'
+import AdminProvider from '../omg-admins/adminProvider'
 import { compose } from 'recompose'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
@@ -46,26 +46,23 @@ class TokenDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object
   }
-  renderTopBar = user => {
-    return <TopBar title={user.id} breadcrumbItems={['User', user.id]} buttons={[]} />
+  renderTopBar = admin => {
+    return <TopBar title={admin.id} breadcrumbItems={['Admin', admin.id]} buttons={[]} />
   }
-  renderDetail = user => {
+  renderDetail = admin => {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
-          <b>Id:</b> <span>{user.id}</span> <Copy data={user.id} />
+          <b>Id:</b> <span>{admin.id}</span> <Copy data={admin.id} />
         </DetailGroup>
         <DetailGroup>
-          <b>Email:</b> <span>{user.email || '-'}</span>
+          <b>Email:</b> <span>{admin.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Provider Id:</b> <span>{user.provider_user_id || '-'}</span>
+          <b>Created Date:</b> <span>{moment(admin.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(user.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
-        </DetailGroup>
-        <DetailGroup>
-          <b>Last Update:</b> <span>{moment(user.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Last Update:</b> <span>{moment(admin.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
       </Section>
     )
@@ -103,33 +100,31 @@ class TokenDetailPage extends Component {
       </Section>
     )
   }
-  renderUserDetailContainer = (user, wallet) => {
-    const accountId = this.props.match.params.accountId
+  renderUserDetailContainer = admin => {
     return (
       <DetailLayout backPath={'/users'}>
         <ContentContainer>
-          {this.renderTopBar(user)}
+          {this.renderTopBar(admin)}
           <ContentDetailContainer>
-            <DetailContainer>{this.renderDetail(user)}</DetailContainer>
-            {wallet && <DetailContainer>{this.renderWallet(wallet)}</DetailContainer>}
+            <DetailContainer>{this.renderDetail(admin)}</DetailContainer>
           </ContentDetailContainer>
         </ContentContainer>
       </DetailLayout>
     )
   }
 
-  renderUserDetailPage = ({ user, wallet }) => {
+  renderUserDetailPage = ({ admin }) => {
     return (
       <UserDetailContainer>
-        {user ? this.renderUserDetailContainer(user, wallet) : null}
+        {admin ? this.renderUserDetailContainer(admin) : null}
       </UserDetailContainer>
     )
   }
   render () {
     return (
-      <UserProvider
+      <AdminProvider
         render={this.renderUserDetailPage}
-        userId={this.props.match.params.userId}
+        adminId={this.props.match.params.adminId}
         {...this.state}
         {...this.props}
       />

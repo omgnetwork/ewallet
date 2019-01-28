@@ -70,8 +70,7 @@ class UsersPage extends Component {
     }
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/users/${data.id}`)
+    this.props.history.push(`/users/${data.id}`)
   }
   renderExportButton = () => {
     return (
