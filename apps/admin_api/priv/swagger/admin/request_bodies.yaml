@@ -165,8 +165,11 @@ AdminUpdateEmailBody:
         properties:
           email:
             type: string
+          redirect_url:
+            type: string
         example:
           email: new.email@example.com
+          redirect_url: https://example.com
 
 AdminUploadBody:
   description: The parameters to use for uploading an admin's avatar. Only supports .jpg, .jpeg, .gif and .png.
