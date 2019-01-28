@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import SideNavigation from './SideNavigation'
+import SideNavigation from './SideNavigationV2'
 import TopBar from './TopBar'
 import PropTypes from 'prop-types'
 import AccountSelectorMenu from './AccountSelectorMenu'
