@@ -26,6 +26,50 @@ defmodule EWalletDB.Role do
   alias EWalletDB.{Membership, Repo, Role, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @account_roles %{
+    admin: %{
+      account: %{read: :account, update: :account},
+      categories: %{read: :global},
+      admin_users: %{read: :account, create: :account, update: :account},
+      end_users: %{read: :account, create: :account, update: :account},
+      access_keys: %{read: :account, create: :account, update: :account, disable: :account},
+      api_keys: %{read: :account, create: :account, update: :account, disable: :account},
+      tokens: %{read: :global},
+      mints: :none,
+      account_wallets: %{read: :global, view_balance: :account, create: :account, update: :account},
+      end_user_wallets: %{read: :global, view_balance: :account, create: :account, update: :account},
+      account_transactions: %{read: :account, create: :account},
+      end_user_transactions: %{read: :account, create: :account},
+      account_transaction_requests: %{read: :account, create: :account},
+      end_user_transaction_requests: %{read: :account, create: :account},
+      account_transaction_consumptions: %{read: :account, create: :account, approve: :account},
+      end_user_transaction_consumptions: %{read: :account, create: :account, approve: :account},
+      account_exports: %{read: :account, create: :account},
+      admin_user_exports: :none,
+      configuration: :none
+    },
+    viewer: %{
+      account: %{read: :account},
+      categories: %{read: :global},
+      admin_users: %{read: :account},
+      end_users: %{read: :account},
+      access_keys: %{read: :account},
+      api_keys: %{read: :account},
+      tokens: %{read: :global},
+      mints: :none,
+      account_wallets: %{read: :global, view_balance: :account},
+      end_user_wallets: %{read: :global, view_balance: :account},
+      account_transactions: %{read: :account},
+      end_user_transactions: %{read: :account},
+      account_transaction_requests: %{read: :account},
+      end_user_transaction_requests: %{read: :account},
+      account_transaction_consumptions: %{read: :account},
+      end_user_transaction_consumptions: %{read: :account},
+      account_exports: %{read: :account},
+      admin_user_exports: :none,
+      configuration: :none
+    }
+  }
 
   schema "role" do
     external_id(prefix: "rol_")
@@ -45,6 +89,8 @@ defmodule EWalletDB.Role do
     soft_delete()
     activity_logging()
   end
+
+  def account_roles, do: @account_roles
 
   defp changeset(%Role{} = key, attrs) do
     key
