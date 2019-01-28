@@ -29,7 +29,7 @@ import ActivityLogPage from '../../omg-page-activity-log'
 import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
 const currentAccount = getCurrentAccountFromLocalStorage()
-const redirectUrl = currentAccount ? `${currentAccount.id}/dashboard` : '/login'
+const redirectUrl = currentAccount ? '/accounts' : '/login'
 // prettier-ignore
 
 const createRoute = () => (
