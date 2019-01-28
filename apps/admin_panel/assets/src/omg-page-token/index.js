@@ -117,8 +117,7 @@ class TokenDetailPage extends Component {
     return data
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/tokens/${data.id}`)
+    this.props.history.push(`/tokens/${data.id}`)
   }
   renderTokenDetailPage = ({ data: tokens, individualLoadingStatus, pagination, fetch }) => {
     const data = tokens.map(token => {

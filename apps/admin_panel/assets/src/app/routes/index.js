@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Redirect, Switch } from 'react-router-dom'
+import { BrowserRouter as Router, Redirect, Switch, Route } from 'react-router-dom'
 import React from 'react'
 
 import AuthenticatedRoute from './authenticatedRoute'
@@ -26,6 +26,7 @@ import ConfigurationPage from '../../omg-page-configuration'
 import AdminsPage from '../../omg-page-admins'
 import { getCurrentAccountFromLocalStorage } from '../../services/sessionService'
 import ActivityLogPage from '../../omg-page-activity-log'
+import NotFoundPage from '../../omg-page-404'
 const currentAccount = getCurrentAccountFromLocalStorage()
 const redirectUrl = currentAccount ? `${currentAccount.id}/dashboard` : '/login'
 // prettier-ignore
@@ -58,6 +59,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/requests' exact component={TransactionRequestPage} />
       <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
       <AuthenticatedRoute path='/activity' exact component={ActivityLogPage} />
+      <Route component={NotFoundPage} />
     </Switch>
   </Router>
 )
