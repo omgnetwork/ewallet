@@ -92,7 +92,7 @@ defmodule EWalletDB.ExchangePairTest do
       assert res == :error
 
       assert changeset.errors ==
-               [rate: {"must be greater than %{number}", [validation: :number, number: 0]}]
+               [rate: {"must be greater than %{number}", [validation: :number, kind: :greater_than, number: 0]}]
     end
 
     test "prevents setting exchange rate to a negative number" do
@@ -102,7 +102,7 @@ defmodule EWalletDB.ExchangePairTest do
       assert res == :error
 
       assert changeset.errors ==
-               [rate: {"must be greater than %{number}", [validation: :number, number: 0]}]
+               [rate: {"must be greater than %{number}", [validation: :number, kind: :greater_than, number: 0]}]
     end
   end
 

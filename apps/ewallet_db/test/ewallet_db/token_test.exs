@@ -55,7 +55,7 @@ defmodule EWalletDB.TokenTest do
       assert error.errors == [
                subunit_to_unit:
                  {"must be less than or equal to %{number}",
-                  [validation: :number, number: 1.0e18]}
+                  [validation: :number, kind: :less_than_or_equal_to, number: 1_000_000_000_000_000_000]}
              ]
     end
 
@@ -75,7 +75,7 @@ defmodule EWalletDB.TokenTest do
       assert error.errors == [
                subunit_to_unit:
                  {"must be less than or equal to %{number}",
-                  [validation: :number, number: 1.0e18]}
+                  [validation: :number, kind: :less_than_or_equal_to, number: 1_000_000_000_000_000_000]}
              ]
     end
   end

@@ -211,7 +211,7 @@ defmodule EWalletDB.ExportTest do
 
       assert changeset.errors == [
                completion:
-                 {"must be greater than or equal to %{number}", [validation: :number, number: 0]}
+                 {"must be greater than or equal to %{number}", [validation: :number, kind: :greater_than_or_equal_to, number: 0]}
              ]
     end
 
@@ -224,7 +224,7 @@ defmodule EWalletDB.ExportTest do
 
       assert changeset.errors == [
                completion:
-                 {"must be less than or equal to %{number}", [validation: :number, number: 100]}
+                 {"must be less than or equal to %{number}", [validation: :number, kind: :less_than_or_equal_to, number: 100]}
              ]
     end
 

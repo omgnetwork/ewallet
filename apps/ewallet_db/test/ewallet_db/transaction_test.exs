@@ -189,7 +189,7 @@ defmodule EWalletDB.TransactionTest do
       assert error.errors == [
                from_amount:
                  {"must be less than %{number}",
-                  [validation: :number, number: 100_000_000_000_000_000_000_000_000_000_000_000]}
+                  [validation: :number, kind: :less_than, number: 100_000_000_000_000_000_000_000_000_000_000_000]}
              ]
     end
 
@@ -204,7 +204,7 @@ defmodule EWalletDB.TransactionTest do
       assert error.errors == [
                to_amount:
                  {"must be less than %{number}",
-                  [validation: :number, number: 100_000_000_000_000_000_000_000_000_000_000_000]}
+                  [validation: :number, kind: :less_than, number: 100_000_000_000_000_000_000_000_000_000_000_000]}
              ]
     end
   end
