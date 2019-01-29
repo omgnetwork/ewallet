@@ -1,7 +1,7 @@
 all: clean build-prod
 
 RELEASE_VERSION != awk '/version:/ { gsub(/[^0-9a-z\.\-]+/, "", $$2); print $$2 }' < apps/ewallet/mix.exs
-IMAGE_NAME      ?= "omisego/ewallet:dev"
+IMAGE_NAME      ?= "omisego/ewallet:latest"
 IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:stable"
 IMAGE_BUILD_DIR ?= "/tmp/ewallet-docker"
 
