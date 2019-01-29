@@ -100,7 +100,7 @@ defmodule EWallet.UpdateEmailGateTest do
 
       assert res == :error
       assert changeset.valid? == false
-      assert changeset.errors == [email: {"has already been taken", []}]
+      assert changeset.errors == [email: {"has already been taken", [constraint: :unique, constraint_name: "user_email_index"]}]
     end
 
     test "returns :invalid_email_update_token error if the email does not match the token" do
