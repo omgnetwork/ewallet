@@ -63,8 +63,8 @@ defmodule LocalLedgerDB.Wallet do
   """
   def touch(addresses) do
     updated_at =
-      Ecto.DateTime.utc()
-      |> Ecto.DateTime.to_iso8601()
+      NaiveDateTime.utc_now()
+      |> NaiveDateTime.to_iso8601()
 
     Repo.update_all(
       from(b in Wallet, where: b.address in ^addresses),
