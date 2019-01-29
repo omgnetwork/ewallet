@@ -298,14 +298,14 @@ defmodule EWalletDB.TransactionConsumption do
     |> where([t], t.status == @pending)
     |> where([t], not is_nil(t.expiration_date))
     |> where([t], t.expiration_date <= ^now)
+    |> select([t], t)
     |> Repo.update_all(
       [
         set: [
           status: @expired,
           expired_at: NaiveDateTime.utc_now()
         ]
-      ],
-      returning: true
+      ]
     )
   end
 

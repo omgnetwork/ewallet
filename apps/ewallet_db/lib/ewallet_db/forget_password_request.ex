@@ -142,7 +142,8 @@ defmodule EWalletDB.ForgetPasswordRequest do
       |> where([f], f.enabled == true)
       |> where([f], not is_nil(f.expires_at))
       |> where([f], f.expires_at <= ^now)
-      |> Repo.update_all([set: [enabled: false]], returning: true)
+      |> select([f], f)
+      |> Repo.update_all(set: [enabled: false])
 
     {:ok, num_updated}
   end
