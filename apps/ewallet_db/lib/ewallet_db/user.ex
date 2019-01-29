@@ -360,7 +360,7 @@ defmodule EWalletDB.User do
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log(
       [],
-      Multi.run(Multi.new(), :wallet, fn %{record: record} ->
+      Multi.run(Multi.new(), :wallet, fn _repo, %{record: record} ->
         case User.admin?(record) do
           true -> {:ok, nil}
           false -> insert_wallet(record, Wallet.primary())

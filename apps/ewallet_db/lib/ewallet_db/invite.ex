@@ -135,7 +135,7 @@ defmodule EWalletDB.Invite do
     |> Repo.insert_record_with_activity_log(
       [],
       # Assign the invite to the user
-      Multi.run(Multi.new(), :user, fn %{record: record} ->
+      Multi.run(Multi.new(), :user, fn _repo, %{record: record} ->
         {:ok, _user} =
           user
           |> change(%{

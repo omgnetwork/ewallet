@@ -166,7 +166,7 @@ defmodule EWalletDB.Account do
     |> Repo.insert_record_with_activity_log(
       [],
       Multi.new()
-      |> Multi.run(:wallet, fn %{record: account} ->
+      |> Multi.run(:wallet, fn _repo, %{record: account} ->
         _ = insert_wallet(account, Wallet.primary())
         insert_wallet(account, Wallet.burn())
       end)

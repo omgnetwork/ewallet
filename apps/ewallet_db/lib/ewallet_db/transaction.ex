@@ -358,7 +358,7 @@ defmodule EWalletDB.Transaction do
       :insert,
       changeset,
       opts,
-      Multi.run(Multi.new(), :transaction_1, fn %{record: transaction} ->
+      Multi.run(Multi.new(), :transaction_1, fn _repo, %{record: transaction} ->
         case get(transaction.id, preload: [:from_wallet, :to_wallet, :from_token, :to_token]) do
           nil ->
             {:ok, get_by_idempotency_token(transaction.idempotency_token)}
