@@ -177,7 +177,7 @@ defmodule EWalletDB.ExchangePair do
     changeset = restore_changeset(exchange_pair, %{deleted_at: nil, originator: originator})
 
     case Repo.update_record_with_activity_log(changeset) do
-      {:error, %{errors: [deleted_at: {"has already been taken", []}]}} ->
+      {:error, %{errors: [deleted_at: {"has already been taken", _}]}} ->
         {:error, :exchange_pair_already_exists}
 
       result ->
