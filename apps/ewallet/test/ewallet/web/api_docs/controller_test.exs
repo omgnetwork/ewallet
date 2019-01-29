@@ -15,8 +15,9 @@
 defmodule EWallet.Web.APIDocs.ControllerTest do
   use ExUnit.Case, async: true
   use Plug.Test
+  alias EWallet.Web.V1.ErrorHandler
 
-  Application.put_env(:ewallet, __MODULE__.Endpoint, error_handler: EWallet.Web.V1.ErrorHandler)
+  Application.put_env(:ewallet, __MODULE__.Endpoint, error_handler: ErrorHandler)
 
   defmodule Endpoint do
     use Phoenix.Endpoint, otp_app: :ewallet

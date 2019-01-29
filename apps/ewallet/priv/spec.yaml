@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   version: 1.0.0
   title: Test documentation file
-  description: This is test documentation file.
+  description: This is a test documentation file.
 tags:
   - name: Test
     description: Test
