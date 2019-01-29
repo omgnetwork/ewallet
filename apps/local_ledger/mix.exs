@@ -35,7 +35,7 @@ defmodule LocalLedger.Mixfile do
       {:deferred_config, "~> 0.1.0"},
       {:ewallet_config, in_umbrella: true},
       {:local_ledger_db, in_umbrella: true},
-      {:quantum, ">= 2.2.6"},
+      {:quantum, ">= 2.3.4"},
       {:timex, "~> 3.0"},
     ]
   end

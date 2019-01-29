@@ -41,7 +41,7 @@ defmodule UrlDispatcher.Mixfile do
       {:ewallet_config, in_umbrella: true},
       {:plug, "~> 1.2"},
       {:plug_cowboy, "~> 1.0"},
-      {:quantum, "~> 2.2.6"},
+      {:quantum, "~> 2.3.4"},
       {:timex, "~> 3.0"}
     ]
   end

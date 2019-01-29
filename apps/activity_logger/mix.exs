@@ -41,7 +41,7 @@ defmodule ActivityLogger.MixProject do
     [
       {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
-      {:ecto, "~> 2.1.6"},
+      {:ecto_sql, "~> 3.0"},
       {:ex_machina, "~> 2.2", only: :test},
       {:poison, "~> 3.1"},
       {:postgrex, ">= 0.0.0"},

@@ -36,11 +36,11 @@ defmodule LocalLedgerDB.Mixfile do
     [
       {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
-      {:ecto, "~> 2.1.6"},
+      {:ecto_sql, "~> 3.0"},
       {:ewallet_config, in_umbrella: true},
       {:ex_machina, "~> 2.2", only: :test},
       {:poison, "~> 3.1"},
-      {:postgrex, ">= 0.0.0"},
+      {:postgrex, ">= 0.0.0"}
     ]
   end
 

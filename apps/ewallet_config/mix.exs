@@ -45,7 +45,7 @@ defmodule EWalletConfig.MixProject do
       {:bcrypt_elixir, "~> 1.0"},
       {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
-      {:ecto, "~> 2.1.6"},
+      {:ecto_sql, "~> 3.0"},
       {:plug, "~> 1.0"},
       {:poison, "~> 3.1"},
       {:postgrex, ">= 0.0.0"},

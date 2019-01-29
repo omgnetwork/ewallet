@@ -13,7 +13,10 @@
 # limitations under the License.
 
 defmodule ActivityLogger.Repo do
-  use Ecto.Repo, otp_app: :activity_logger
+  use Ecto.Repo,
+    otp_app: :activity_logger,
+    adapter: Ecto.Adapters.Postgres
+
   use ActivityLogger.ActivityRepo, repo: ActivityLogger.Repo
 
   # Workaround an issue where ecto.migrate task won't start the app
