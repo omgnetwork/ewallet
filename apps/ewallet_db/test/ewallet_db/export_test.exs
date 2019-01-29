@@ -211,7 +211,8 @@ defmodule EWalletDB.ExportTest do
 
       assert changeset.errors == [
                completion:
-                 {"must be greater than or equal to %{number}", [validation: :number, kind: :greater_than_or_equal_to, number: 0]}
+                 {"must be greater than or equal to %{number}",
+                  [validation: :number, kind: :greater_than_or_equal_to, number: 0]}
              ]
     end
 
@@ -224,7 +225,8 @@ defmodule EWalletDB.ExportTest do
 
       assert changeset.errors == [
                completion:
-                 {"must be less than or equal to %{number}", [validation: :number, kind: :less_than_or_equal_to, number: 100]}
+                 {"must be less than or equal to %{number}",
+                  [validation: :number, kind: :less_than_or_equal_to, number: 100]}
              ]
     end
 
@@ -274,7 +276,12 @@ defmodule EWalletDB.ExportTest do
 
       assert res == :error
       refute changeset.valid?
-      assert changeset.errors == [user: {"does not exist", [constraint: :assoc, constraint_name: "export_user_uuid_fkey"]}]
+
+      assert changeset.errors == [
+               user:
+                 {"does not exist",
+                  [constraint: :assoc, constraint_name: "export_user_uuid_fkey"]}
+             ]
     end
 
     test "returns error when the given `key_uuid` is not found", context do
@@ -287,7 +294,11 @@ defmodule EWalletDB.ExportTest do
 
       assert res == :error
       refute changeset.valid?
-      assert changeset.errors == [key: {"does not exist", [constraint: :assoc, constraint_name: "export_key_uuid_fkey"]}]
+
+      assert changeset.errors == [
+               key:
+                 {"does not exist", [constraint: :assoc, constraint_name: "export_key_uuid_fkey"]}
+             ]
     end
   end
 

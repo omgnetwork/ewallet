@@ -437,7 +437,9 @@ defmodule EWalletDB.SchemaCase do
           |> schema.insert
 
         assert result == :error
-        assert [{field, {"has already been taken", [constraint: unique, constraint_name: _]}}] = changeset.errors
+
+        assert [{field, {"has already been taken", [constraint: unique, constraint_name: _]}}] =
+                 changeset.errors
       end
     end
   end

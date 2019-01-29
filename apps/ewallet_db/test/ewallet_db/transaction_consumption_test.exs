@@ -178,7 +178,15 @@ defmodule EWalletDB.TransactionConsumptionTest do
         |> TransactionConsumption.insert()
 
       assert res == :error
-      assert changeset.errors == [correlation_id: {"has already been taken", [constraint: :unique, constraint_name: "transaction_consumption_correlation_id_index"]}]
+
+      assert changeset.errors == [
+               correlation_id:
+                 {"has already been taken",
+                  [
+                    constraint: :unique,
+                    constraint_name: "transaction_consumption_correlation_id_index"
+                  ]}
+             ]
     end
   end
 

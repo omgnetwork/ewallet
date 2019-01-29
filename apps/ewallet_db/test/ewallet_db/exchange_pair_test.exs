@@ -82,7 +82,15 @@ defmodule EWalletDB.ExchangePairTest do
       {res, changeset} = ExchangePair.insert(attrs)
 
       assert res == :error
-      assert changeset.errors == [from_token: {"has already been taken", [constraint: :unique, constraint_name: "exchange_pair_from_token_uuid_to_token_uuid_index"]}]
+
+      assert changeset.errors == [
+               from_token:
+                 {"has already been taken",
+                  [
+                    constraint: :unique,
+                    constraint_name: "exchange_pair_from_token_uuid_to_token_uuid_index"
+                  ]}
+             ]
     end
 
     test "prevents setting exchange rate to 0" do
@@ -92,7 +100,11 @@ defmodule EWalletDB.ExchangePairTest do
       assert res == :error
 
       assert changeset.errors ==
-               [rate: {"must be greater than %{number}", [validation: :number, kind: :greater_than, number: 0]}]
+               [
+                 rate:
+                   {"must be greater than %{number}",
+                    [validation: :number, kind: :greater_than, number: 0]}
+               ]
     end
 
     test "prevents setting exchange rate to a negative number" do
@@ -102,7 +114,11 @@ defmodule EWalletDB.ExchangePairTest do
       assert res == :error
 
       assert changeset.errors ==
-               [rate: {"must be greater than %{number}", [validation: :number, kind: :greater_than, number: 0]}]
+               [
+                 rate:
+                   {"must be greater than %{number}",
+                    [validation: :number, kind: :greater_than, number: 0]}
+               ]
     end
   end
 

@@ -60,7 +60,11 @@ defmodule LocalLedgerDB.TokenTest do
       |> Token.changeset(params)
       |> Repo.insert()
 
-    assert token.errors == [id: {"has already been taken", [constraint: :unique, constraint_name: "token_id_index"]}]
+    assert token.errors == [
+             id:
+               {"has already been taken",
+                [constraint: :unique, constraint_name: "token_id_index"]}
+           ]
   end
 
   test "allows creation of a token with metadata" do

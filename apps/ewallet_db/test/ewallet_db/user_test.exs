@@ -73,7 +73,12 @@ defmodule EWalletDB.UserTest do
       {result, changeset} = User.insert(params)
 
       assert result == :error
-      assert changeset.errors == [{:email, {"has already been taken", [constraint: :unique, constraint_name: "user_email_index"]}}]
+
+      assert changeset.errors == [
+               {:email,
+                {"has already been taken",
+                 [constraint: :unique, constraint_name: "user_email_index"]}}
+             ]
     end
 
     test "automatically creates a wallet when user is created" do
@@ -254,7 +259,12 @@ defmodule EWalletDB.UserTest do
 
       assert res == :error
       refute changeset.valid?
-      assert changeset.errors == [email: {"has already been taken", [constraint: :unique, constraint_name: "user_email_index"]}]
+
+      assert changeset.errors == [
+               email:
+                 {"has already been taken",
+                  [constraint: :unique, constraint_name: "user_email_index"]}
+             ]
     end
 
     test "prevents removal of the email" do

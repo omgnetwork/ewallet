@@ -70,7 +70,11 @@ defmodule LocalLedgerDB.WalletTest do
         |> Wallet.changeset(string_params_for(:wallet, address: inserted_wallet.address))
         |> Repo.insert()
 
-      assert wallet.errors == [address: {"has already been taken", [constraint: :unique, constraint_name: "wallet_address_index"]}]
+      assert wallet.errors == [
+               address:
+                 {"has already been taken",
+                  [constraint: :unique, constraint_name: "wallet_address_index"]}
+             ]
     end
 
     test "allows creation of a wallet with metadata" do
