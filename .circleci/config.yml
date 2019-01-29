@@ -381,16 +381,24 @@ jobs:
 workflows:
   test_build:
     jobs:
-      - build_test
+      - build_test:
+          filters: &all_branches
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
       - lint:
           requires:
             - build_test
+          filters: *all_branches
       - test:
           requires:
             - build_test
+          filters: *all_branches
       - dialyze:
           requires:
             - build_test
+          filters: *all_branches
 
       # Non-mainline branches only
       - report:
