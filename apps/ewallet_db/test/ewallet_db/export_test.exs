@@ -274,7 +274,7 @@ defmodule EWalletDB.ExportTest do
 
       assert res == :error
       refute changeset.valid?
-      assert changeset.errors == [user: {"does not exist", []}]
+      assert changeset.errors == [user: {"does not exist", [constraint: :assoc, constraint_name: "export_user_uuid_fkey"]}]
     end
 
     test "returns error when the given `key_uuid` is not found", context do
@@ -287,7 +287,7 @@ defmodule EWalletDB.ExportTest do
 
       assert res == :error
       refute changeset.valid?
-      assert changeset.errors == [key: {"does not exist", []}]
+      assert changeset.errors == [key: {"does not exist", [constraint: :assoc, constraint_name: "export_key_uuid_fkey"]}]
     end
   end
 

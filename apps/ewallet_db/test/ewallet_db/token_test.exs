@@ -64,7 +64,7 @@ defmodule EWalletDB.TokenTest do
 
       assert error.errors == [
                subunit_to_unit:
-                 {"must be greater than %{number}", [validation: :number, number: 0]}
+                 {"must be greater than %{number}", [validation: :number, kind: :greater_than, number: 0]}
              ]
     end
 
