@@ -583,21 +583,23 @@ defmodule EWalletDB.User do
       join:
         account_tree in fragment(
           ~s/
-            WITH RECURSIVE account_tree AS (
-              SELECT a.*, m.role_uuid, m.user_uuid
-              FROM account a
-              LEFT JOIN membership AS m ON m.account_uuid = a.uuid
-              WHERE a.id = ?
-            UNION
-              SELECT parent.*, m.role_uuid, m.user_uuid
-              FROM account parent
-              LEFT JOIN membership AS m ON m.account_uuid = parent.uuid
-              JOIN account_tree ON account_tree.parent_uuid = parent.uuid
+            (
+              WITH RECURSIVE account_tree AS (
+                SELECT a.*, m.role_uuid, m.user_uuid
+                FROM account a
+                LEFT JOIN membership AS m ON m.account_uuid = a.uuid
+                WHERE a.id = ?
+              UNION
+                SELECT parent.*, m.role_uuid, m.user_uuid
+                FROM account parent
+                LEFT JOIN membership AS m ON m.account_uuid = parent.uuid
+                JOIN account_tree ON account_tree.parent_uuid = parent.uuid
+              )
+              SELECT role_uuid FROM account_tree
+              JOIN "role" AS r ON r.uuid = role_uuid
+              JOIN "user" AS u ON u.uuid = user_uuid
+              WHERE u.id = ? LIMIT 1
             )
-            SELECT role_uuid FROM account_tree
-            JOIN "role" AS r ON r.uuid = role_uuid
-            JOIN "user" AS u ON u.uuid = user_uuid
-            WHERE u.id = ? LIMIT 1
           /,
           ^account_id,
           ^user_id
@@ -696,6 +698,7 @@ defmodule EWalletDB.User do
       join:
         child in fragment(
           """
+          (
             WITH RECURSIVE account_tree AS (
               SELECT account.*, 0 AS depth
               FROM account
@@ -705,6 +708,7 @@ defmodule EWalletDB.User do
               FROM account child
               JOIN account_tree ON account_tree.uuid = child.parent_uuid
             ) SELECT * FROM account_tree
+          )
           """,
           type(^account_uuids, {:array, UUID})
         ),

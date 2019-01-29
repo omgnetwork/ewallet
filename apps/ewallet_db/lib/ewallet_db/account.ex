@@ -390,17 +390,19 @@ defmodule EWalletDB.Account do
       join:
         account_tree in fragment(
           """
-          WITH RECURSIVE account_tree AS (
-            SELECT uuid, parent_uuid, 0 AS depth
-            FROM account a
-            WHERE a.uuid = ?
-          UNION
-            SELECT parent.uuid, parent.parent_uuid, account_tree.depth + 1 as depth
-            FROM account parent
-            JOIN account_tree ON account_tree.parent_uuid = parent.uuid
+          (
+            WITH RECURSIVE account_tree AS (
+              SELECT uuid, parent_uuid, 0 AS depth
+              FROM account a
+              WHERE a.uuid = ?
+            UNION
+              SELECT parent.uuid, parent.parent_uuid, account_tree.depth + 1 as depth
+              FROM account parent
+              JOIN account_tree ON account_tree.parent_uuid = parent.uuid
+            )
+            SELECT uuid, depth FROM account_tree
+            WHERE account_tree.uuid = ?
           )
-          SELECT uuid, depth FROM account_tree
-          WHERE account_tree.uuid = ?
           """,
           type(^account_uuid, UUID),
           type(^parent_uuid, UUID)
