@@ -146,7 +146,7 @@ defmodule LocalLedgerDB.EntryTest do
       entry = insert_entry(%{wallet_address: "123"})
 
       refute entry.valid?
-      assert entry.errors == [wallet_address: {"does not exist", [constraint: :foreign, constraint_name: "entry_wallet_address_fkey"]]}]
+      assert entry.errors == [wallet_address: {"does not exist", [constraint: :foreign, constraint_name: "entry_wallet_address_fkey"]}]
     end
 
     test "prevents creation of an entry without a transction" do
