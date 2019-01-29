@@ -95,7 +95,7 @@ defmodule Utils.Types.ExternalID do
 
       if field_name = Keyword.fetch!(opts, :field_name) do
         Schema.field(field_name, :string, [])
-        Module.put_attribute(__MODULE__, :ecto_autogenerate, {field_name, autogen_fn})
+        Module.put_attribute(__MODULE__, :ecto_autogenerate, {[field_name], autogen_fn})
       end
     end
   end

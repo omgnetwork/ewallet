@@ -109,7 +109,7 @@ defmodule Utils.Types.WalletAddress do
       autogen_fn = opts[:autogenerate] || {type, :autogenerate, [opts[:prefix]]}
 
       Schema.field(field_name, type, [])
-      Module.put_attribute(__MODULE__, :ecto_autogenerate, {field_name, autogen_fn})
+      Module.put_attribute(__MODULE__, :ecto_autogenerate, {[field_name], autogen_fn})
     end
   end
 
