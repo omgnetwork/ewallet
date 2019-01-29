@@ -310,9 +310,18 @@ jobs:
           command: |
             set -xe
 
+            _e2e_repo="https://github.com/omisego/e2e.git"
+            _e2e_branch="ewallet/$CIRCLE_BRANCH"
+
+            if [ "$(git ls-remote $_e2e_repo "$_e2e_branch")" == "" ]; then
+              _e2e_branch="master"
+            fi
+
             # Primary container cannot connect directly to the Docker-in-Docker instance.
             # We need to spawn another image to do so.
-            git clone https://github.com/omisego/e2e.git ~/e2e
+            git clone --depth 1 -b "$_e2e_branch" https://github.com/omisego/e2e.git ~/e2e
+            printf "\\033[0;34mRunning E2E from %s branch\\033[0;0m\\n" "$_e2e_branch"
+
             docker create -v /src --name srcs alpine:3.8 /bin/true
             docker cp ~/e2e srcs:/src
             docker cp .env srcs:/src/e2e/.env
@@ -353,8 +362,12 @@ jobs:
                 # - 1.0.0-pre.1
                 while true; do
                     case "$_ver" in
-                        *.* ) IMAGE_TAG="$_ver $IMAGE_TAG"; _ver="${_ver%.*}";;
-                        * )   break;;
+                        *.* )
+                            IMAGE_TAG="$_ver $IMAGE_TAG"
+                            _ver="${_ver%.*}"
+                            ;;
+                        * )
+                            break;;
                     esac
                 done
 
@@ -366,12 +379,26 @@ jobs:
                         IMAGE_TAG="stable $IMAGE_TAG"
                     fi
                 fi
-            elif [ "$CIRCLE_BRANCH" = "master" ]; then
-                IMAGE_TAG="dev"
-                IMAGE_TAG="dev-$(echo "$CIRCLE_SHA1" | head -c 8) $IMAGE_TAG"
+            else
+                _shortref="$(printf "%s" "$CIRCLE_SHA1" | head -c 8)"
+
+                case "$CIRCLE_BRANCH" in
+                    master )
+                        IMAGE_TAG="latest"
+                        IMAGE_TAG="$_shortref $IMAGE_TAG"
+                        ;;
+                    v* )
+                        _ver="${CIRCLE_BRANCH#*v}"
+                        IMAGE_TAG="$_ver-dev"
+                        IMAGE_TAG="$_shortref $IMAGE_TAG"
+                        ;;
+                    * )
+                        ;;
+                esac
             fi
 
             for tag in $IMAGE_TAG; do
+                printf "\\033[0;34mPublishing Docker image as %s\\033[0;0m\\n" "$IMAGE_TAG"
                 docker tag "$IMAGE_NAME" "$IMAGE_NAME:$tag"
                 docker push "$IMAGE_NAME:$tag"
             done
@@ -410,7 +437,7 @@ workflows:
               ignore:
                 - master
                 - /^v.*/
-                - /\-e2e$/
+                - /.*e2e$/
             tags:
               ignore: /^v.*/
 
@@ -424,7 +451,7 @@ workflows:
               only:
                 - master
                 - /^v.*/
-                - /\-e2e$/
+                - /.*e2e$/
             tags:
               only: /^v.*/
       - test_e2e:
