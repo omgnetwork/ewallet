@@ -15,11 +15,8 @@
 defmodule EWallet.Web.StartFromPaginatorTest do
   use EWallet.DBCase, async: true
   import Ecto.Query
-  alias EWallet.Web.Paginator
   alias EWallet.Web.StartAfterPaginator
-  alias EWalletConfig.Config
   alias EWalletDB.{Account, Repo}
-  alias ActivityLogger.System
 
   describe "EWallet.Web.StartAfterPaginator.paginate/3" do
     test "returns correct pagination data when query by given start_by and start_after" do

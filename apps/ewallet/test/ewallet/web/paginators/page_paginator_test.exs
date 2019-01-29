@@ -14,12 +14,9 @@
 
 defmodule EWallet.Web.PagePaginatorTest do
   use EWallet.DBCase, async: true
-  import Ecto.Query
   alias EWallet.Web.Paginator
   alias EWallet.Web.PagePaginator
-  alias EWalletConfig.Config
-  alias EWalletDB.{Account, Repo}
-  alias ActivityLogger.System
+  alias EWalletDB.Account
 
   describe "EWallet.Web.PagePaginator.paginate/3" do
     test "returns a EWallet.Web.Paginator with data and pagination attributes when query with page" do
