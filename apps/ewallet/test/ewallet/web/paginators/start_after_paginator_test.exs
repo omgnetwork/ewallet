@@ -130,7 +130,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       assert pagination.count == 1
     end
 
-    test "returns a paginator if given `start_after` exist and `start_by` is :inserted_at" do
+    test "returns pagination if given `start_after` exist and `start_by` is :inserted_at" do
       ensure_num_records(Account, 2)
 
       iats = from(a in Account, select: a.inserted_at, order_by: a.inserted_at)
@@ -198,6 +198,49 @@ defmodule EWallet.Web.StartFromPaginatorTest do
                is_last_page: true,
                count: total_records - 1,
                start_after: first_id,
+               start_by: "id"
+             }
+    end
+
+    test "returns records from the beginning if given start_after is nil" do
+      per_page = 10
+
+      # Generate 10 accounts
+      # Example: [%{id: "acc_1"}, %{id: "acc_2"}, ... , %{id: "acc_10"}]
+      ensure_num_records(Account, per_page)
+
+      # Fetch last `total_records` elements from db
+      # Example: [%{id: "acc_6"}, %{id: "acc_7"}, ... , %{id: "acc_10"}]
+      records_id = from(a in Account, select: a.id, order_by: a.id)
+
+      records_id =
+        records_id
+        |> Repo.all()
+
+      paginator =
+        StartAfterPaginator.paginate(
+          Account,
+          %{
+            "start_by" => :id,
+            "start_after" => {:ok, nil},
+            "per_page" => per_page
+          }
+        )
+
+      # Collect id-mapped paginator.data
+      actual_records_id =
+        paginator.data
+        |> Enum.map(fn %Account{id: id} -> id end)
+
+      assert actual_records_id == records_id
+
+      assert paginator.pagination == %{
+               per_page: per_page,
+               current_page: 1,
+               is_first_page: true,
+               is_last_page: true,
+               count: per_page,
+               start_after: nil,
                start_by: "id"
              }
     end
