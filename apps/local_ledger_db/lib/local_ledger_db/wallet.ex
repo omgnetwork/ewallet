@@ -23,6 +23,7 @@ defmodule LocalLedgerDB.Wallet do
   alias LocalLedgerDB.{Entry, Repo, Wallet}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "wallet" do
     field(:address, :string)

@@ -45,6 +45,7 @@ defmodule EWalletDB.ExchangePair do
   alias EWalletDB.{Repo, Token}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "exchange_pair" do
     external_id(prefix: "exg_")

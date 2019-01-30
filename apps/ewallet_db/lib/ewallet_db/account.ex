@@ -40,6 +40,7 @@ defmodule EWalletDB.Account do
   }
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   # The number of child levels allowed in the system.
   #   0 = no child levels allowed

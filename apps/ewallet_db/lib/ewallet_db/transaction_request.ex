@@ -42,6 +42,7 @@ defmodule EWalletDB.TransactionRequest do
   @types [@send, @receive]
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "transaction_request" do
     external_id(prefix: "txr_")

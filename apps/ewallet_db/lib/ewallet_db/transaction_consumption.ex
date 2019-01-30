@@ -45,6 +45,7 @@ defmodule EWalletDB.TransactionConsumption do
   @statuses [@pending, @approved, @rejected, @confirmed, @failed, @expired]
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "transaction_consumption" do
     external_id(prefix: "txc_")

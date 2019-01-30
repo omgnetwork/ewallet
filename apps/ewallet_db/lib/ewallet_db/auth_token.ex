@@ -26,6 +26,7 @@ defmodule EWalletDB.AuthToken do
   alias EWalletDB.{Account, AuthToken, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
   @key_length 32
 
   schema "auth_token" do

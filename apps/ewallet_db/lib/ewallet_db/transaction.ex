@@ -40,6 +40,7 @@ defmodule EWalletDB.Transaction do
   def external, do: @external
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "transaction" do
     external_id(prefix: "txn_")

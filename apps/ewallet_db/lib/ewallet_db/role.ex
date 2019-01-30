@@ -26,6 +26,7 @@ defmodule EWalletDB.Role do
   alias EWalletDB.{Membership, Repo, Role, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "role" do
     external_id(prefix: "rol_")

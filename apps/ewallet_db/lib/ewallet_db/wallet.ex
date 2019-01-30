@@ -42,6 +42,8 @@ defmodule EWalletDB.Wallet do
   def genesis_address, do: @genesis_address
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
+
   @cast_attrs [
     :address,
     :account_uuid,

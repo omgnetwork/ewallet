@@ -21,6 +21,7 @@ defmodule LocalLedgerDB.CachedBalance do
   alias LocalLedgerDB.{CachedBalance, Repo, Wallet}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "cached_balance" do
     field(:amounts, :map)

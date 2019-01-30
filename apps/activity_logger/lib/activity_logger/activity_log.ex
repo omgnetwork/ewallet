@@ -28,6 +28,7 @@ defmodule ActivityLogger.ActivityLog do
   }
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "activity_log" do
     external_id(prefix: "log_")

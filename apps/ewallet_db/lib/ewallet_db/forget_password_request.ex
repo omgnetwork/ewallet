@@ -25,6 +25,8 @@ defmodule EWalletDB.ForgetPasswordRequest do
   alias ActivityLogger.System
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
+
   @token_length 32
   @default_lifetime_minutes 10
 

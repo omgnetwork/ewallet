@@ -25,6 +25,7 @@ defmodule EWalletDB.AccountUser do
   alias EWalletDB.Repo
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "account_user" do
     belongs_to(

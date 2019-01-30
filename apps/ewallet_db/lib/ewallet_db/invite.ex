@@ -24,6 +24,8 @@ defmodule EWalletDB.Invite do
   alias EWalletDB.{Invite, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
+
   @token_length 32
   @allowed_user_attrs [:email]
 

@@ -25,6 +25,7 @@ defmodule EWalletDB.Mint do
   alias EWalletDB.{Account, Mint, Repo, Token, Transaction}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "mint" do
     external_id(prefix: "mnt_")

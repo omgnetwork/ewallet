@@ -39,6 +39,7 @@ defmodule EWalletDB.User do
   }
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "user" do
     external_id(prefix: "usr_")

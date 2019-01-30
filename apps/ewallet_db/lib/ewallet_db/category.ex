@@ -27,6 +27,7 @@ defmodule EWalletDB.Category do
   alias EWalletDB.{Account, Repo}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "category" do
     external_id(prefix: "cat_")
