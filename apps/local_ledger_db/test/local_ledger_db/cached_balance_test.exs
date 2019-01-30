@@ -60,12 +60,14 @@ defmodule LocalLedgerDB.CachedBalanceTest do
         CachedBalance.insert(%{
           wallet_address: wallet.address,
           amounts: %{"token" => 100},
+          cached_count: 3,
           computed_at: NaiveDateTime.utc_now()
         })
 
       assert res == :ok
       assert %CachedBalance{} = cached_balance
       assert cached_balance.computed_at != nil
+      assert cached_balance.cached_count == 3
     end
   end
 end

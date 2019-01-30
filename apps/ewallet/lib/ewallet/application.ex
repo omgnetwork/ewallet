@@ -28,6 +28,10 @@ defmodule EWallet.Application do
     settings = Application.get_env(:ewallet, :settings)
     Config.register_and_load(:ewallet, settings)
 
+    ActivityLogger.configure(%{
+      EWallet.ReleaseTasks.CLIUser => %{type: "cli_user", identifier: nil}
+    })
+
     # List all child processes to be supervised
     children = [
       worker(EWallet.Scheduler, [])

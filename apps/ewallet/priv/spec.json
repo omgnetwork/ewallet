@@ -1,0 +1,54 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Test documentation file",
+    "description": "This is test documentation file."
+  },
+  "tags": [
+    {
+      "name": "Test",
+      "description": "Test"
+    }
+  ],
+  "servers": [
+    {
+      "url": "/test"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "tags": [
+          "Test"
+        ],
+        "summary": "This is a test.",
+        "operationId": "test",
+        "responses": {
+          "200": {
+            "description": "Test response",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "A test object",
+                  "type": "object",
+                  "properties": {
+                    "property": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "property"
+                  ],
+                  "example": {
+                    "property": "A test property"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
