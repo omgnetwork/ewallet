@@ -26,13 +26,6 @@ const TableContainer = styled.div`
   table {
     width: 100%;
     text-align: left;
-
-    thead {
-      tr {
-        border-top: 1px solid ${props => props.theme.colors.S300};
-        border-bottom: 1px solid ${props => props.theme.colors.S300};
-      }
-    }
     * {
       vertical-align: middle;
     }
@@ -60,11 +53,6 @@ const TableContainer = styled.div`
       white-space: nowrap;
       padding: 8px 0;
       cursor: pointer;
-      :not(:last-child) {
-        ${ThContent} {
-          border-right: 1px solid ${props => props.theme.colors.S400};
-        }
-      }
     }
   }
 `

@@ -303,7 +303,6 @@ class AccountSettingPage extends Component {
           types={false}
         />
         <TabsManager
-          onClickTab={this.onClickTab}
           activeIndex={tabIndex[this.props.match.params.state]}
           tabs={[
             {

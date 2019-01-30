@@ -108,8 +108,7 @@ class WalletPage extends Component {
     )
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/wallets/${data.address}`)
+    this.props.history.push(`/wallets/${data.address}`)
   }
   rowRenderer (key, data, rows) {
     if (key === 'created_at') {

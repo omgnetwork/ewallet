@@ -6,7 +6,7 @@ import SearchGroup from './SearchGroup'
 const TopNavigationContainer = styled.div`
   padding: 20px 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: wrap;
   width: 100%;
   h2 {

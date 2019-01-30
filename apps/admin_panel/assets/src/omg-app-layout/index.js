@@ -34,7 +34,7 @@ const ContentContainer = styled.div`
   width: calc(100% - 220px);
   height: 100vh;
   overflow: auto;
-  padding-top: 50px;
+  padding-top: 25px;
 `
 const Content = styled.div`
   padding: 0 7%;
