@@ -168,7 +168,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         StartAfterPaginator.paginate(
           Account,
           %{
-            "start_by" => "id",
+            "start_by" => :id,
             "start_after" => first_id,
             "per_page" => per_page
           }
