@@ -144,7 +144,6 @@ defmodule EWalletDB.ExportTest do
       assert export.schema == "transaction"
       assert export.total_count == 10
       assert export.estimated_size == 1000
-      assert export.originator != nil
     end
   end
 

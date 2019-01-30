@@ -381,7 +381,7 @@ defmodule EWalletDB.TransactionRequest do
   def expire_if_max_consumption(request, originator) do
     consumptions = TransactionConsumption.all_active_for_request(request.uuid)
     request = update_consumptions_count(request, consumptions, originator)
-    request = %{request | originator: nil}
+    request = Map.delete(request, :originator)
 
     case max_consumptions_reached?(request, consumptions) do
       true -> expire(request, originator, "max_consumptions_reached")
