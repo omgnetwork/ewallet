@@ -41,7 +41,7 @@ defmodule EWallet.Web.StartAfterPaginator do
         allowed_fields,
         repo
       )
-      when is_atom(start_by) do
+      when start_by != nil and is_atom(start_by) do
     attrs = Map.put(attrs, "start_after", {:ok, nil})
     paginate_attrs(queryable, attrs, allowed_fields, repo)
   end
@@ -56,7 +56,7 @@ defmodule EWallet.Web.StartAfterPaginator do
         allowed_fields,
         repo
       )
-      when is_atom(start_by) do
+      when start_by != nil and is_atom(start_by) do
     case start_by in allowed_fields do
       true ->
         paginate(
@@ -79,9 +79,15 @@ defmodule EWallet.Web.StartAfterPaginator do
     end
   end
 
-  # Set default value to `start_by`
-  def paginate_attrs(queryable, attrs, allowed_fields, repo) do
+  # Resolve `start_by` by set default value or parse string
+  def paginate_attrs(queryable, %{"start_after" => _} = attrs, allowed_fields, repo) do
     attrs = get_start_by_attrs(attrs, allowed_fields)
+    paginate_attrs(queryable, attrs, allowed_fields, repo)
+  end
+
+  # Resolve `start_after` by set default value to nil.
+  def paginate_attrs(queryable, attrs, allowed_fields, repo) do
+    attrs = Map.put(attrs, "start_after", nil)
     paginate_attrs(queryable, attrs, allowed_fields, repo)
   end
 
@@ -94,7 +100,7 @@ defmodule EWallet.Web.StartAfterPaginator do
   # Returns :error if the record with `start_after` value is not found.
   def paginate(_, %{"start_after" => {:error}}, _), do: {:error, :unauthorized}
 
-  # Query and return `Paginator`
+  # Query and returns `Paginator`
   def paginate(
         queryable,
         %{
@@ -128,6 +134,7 @@ defmodule EWallet.Web.StartAfterPaginator do
     %Paginator{data: records, pagination: pagination}
   end
 
+  # Checking if the `start_after` value exist in the db.
   def paginate(
         queryable,
         %{

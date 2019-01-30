@@ -97,7 +97,7 @@ defmodule EWallet.Web.Paginator do
     StartAfterPaginator.paginate_attrs(queryable, attrs, allowed_fields, repo)
   end
 
-  # Default behavior (Delegate to PagePaginator)
+  # Default pagination behavior (Delegate to PagePaginator)
   def paginate_attrs(queryable, attrs, _, repo) do
     per_page = get_per_page(attrs)
     attrs = Map.put(attrs, "per_page", per_page)

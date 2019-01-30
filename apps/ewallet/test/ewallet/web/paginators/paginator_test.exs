@@ -152,29 +152,13 @@ defmodule EWallet.Web.PaginatorTest do
       assert {:error, :invalid_parameter, _} = result
     end
 
-    test "returrns :error if given both attrs.start_after and attrs.page" do
-      result = Paginator.paginate_attrs(Account, %{"page" => 1, "start_after" => "acc_1234"})
-
-      assert {:error, :invalid_parameter, _} = result
-    end
-
-    test "returns :error if given attrs.start_by is not a string" do
-      result = Paginator.paginate_attrs(Account, %{"start_by" => 1}, [:id])
-      assert {:error, :invalid_parameter, _} = result
-    end
-
-    test "returns :error if given attrs.start_after doesn't exist" do
-      result = Paginator.paginate_attrs(Account, %{"start_after" => "acc_nil"}, [:id])
-      assert {:error, :unauthorized} = result
-    end
-
-    test "returns :error if given attrs.start_by is not allowed" do
+    test "returns :error if given both attrs.start_after and attrs.page" do
       result =
-        Paginator.paginate_attrs(
-          Account,
-          %{"start_by" => "a", "start_after" => "1"},
-          [:id, :inserted_at]
-        )
+        Paginator.paginate_attrs(Account, %{
+          "page" => 1,
+          "per_page" => 10,
+          "start_after" => "acc_1234"
+        })
 
       assert {:error, :invalid_parameter, _} = result
     end
