@@ -14,7 +14,7 @@
 
 defmodule EWallet.Web.PagePaginator do
   @moduledoc """
-  The Paginator allows querying of records by page. It takes in a query, break the query down,
+  The PagePaginator allows querying of records by page. It takes in a query, break the query down,
   then selectively query only records that are within the given page's scope.
   """
   alias EWalletDB.Repo

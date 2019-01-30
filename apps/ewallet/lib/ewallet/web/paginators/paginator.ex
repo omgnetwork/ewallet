@@ -14,8 +14,9 @@
 
 defmodule EWallet.Web.Paginator do
   @moduledoc """
-  The Paginator allows querying of records by page. It takes in a query, break the query down,
-  then selectively query only records that are within the given page's scope.
+  The Paginator allows querying of records by `page` or `start_after`.
+  If `start_after` was specified, then delegate the parameters to `StartAfterPaginator`.
+  Otherwise delegate the parameters to `PagePaginator`.
   """
   import Ecto.Query
   alias EWalletDB.Repo

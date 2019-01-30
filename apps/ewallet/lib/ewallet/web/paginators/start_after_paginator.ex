@@ -14,8 +14,42 @@
 
 defmodule EWallet.Web.StartAfterPaginator do
   @moduledoc """
-  The Paginator allows querying of records by page. It takes in a query, break the query down,
-  then selectively query only records that are within the given page's scope.
+  The StartAfterPaginator allows querying of records by specified `start_after` and `start_by`.
+  They take in a query, break the query down,
+  then selectively query only records that are after the given `start_after`'s scope.
+
+  If the `start_after` is nil, then return records from the beginning.
+
+  For example:
+
+  ```
+  StartAfterPaginator.paginate_attrs(
+    Account,
+    %{"start_after" => "acc_3", "start_by" => "id", "per_page" => 10},
+    [:id]
+  )
+  ```
+
+  Let's say we have 10 accounts with ids:
+  ["acc_1", "acc_2", "acc_3", ... , "acc_10"]
+
+  The code above return a pagination with accounts:
+  ["acc_4", "acc_5", "acc_6", ... ,"acc_10"]
+
+  Note that an account with id "acc_3" is not included because the query range is exclusive.
+
+  However, query accounts from the beginning is possible by specifying `start_after` to nil:
+
+  ```
+  StartAfterPaginator.paginate_attrs(
+    Account,
+    %{"start_after" => nil, "start_by" => "id", "per_page" => 10},
+    [:id]
+  )
+  ```
+
+  Return accounts:
+  ["acc_1", "acc_2", "acc_3", ... ,"acc_10"]
   """
   import Ecto.Query
   alias EWalletDB.Repo
