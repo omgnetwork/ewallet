@@ -22,11 +22,12 @@ defmodule Mix.Tasks.Omg.Migrate.Encryption do
 
       mix omg.migrate.encryption
   """
-
+  use Mix.Task
   import Ecto.Query
-
   alias Ecto.Changeset
+  alias EWallet.CLI
 
+  @shortdoc "Migrate the encryption scheme to AES-GCM"
   @start_apps [:logger, :crypto, :ssl, :postgrex, :ecto, :cloak]
   @migration_spec [
     ewallet_db: [
@@ -52,8 +53,9 @@ defmodule Mix.Tasks.Omg.Migrate.Encryption do
   ]
 
   def run(_args) do
+    _ = CLI.configure_logger()
+
     Enum.each(@start_apps, &Application.ensure_all_started/1)
-    Logger.configure(level: :info)
 
     Enum.each(@migration_spec, fn {app_name, [repo, schemas]} ->
       {:ok, _} = Application.ensure_all_started(app_name)
