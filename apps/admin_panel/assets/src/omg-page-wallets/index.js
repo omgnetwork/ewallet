@@ -3,8 +3,7 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
-import ExportModal from '../omg-export-modal'
-import WalletsFetcher from '../omg-wallet/accountUsersWalletsFetcher'
+import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -63,7 +62,8 @@ class WalletPage extends Component {
     match: PropTypes.object,
     history: PropTypes.object,
     location: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    accountId: PropTypes.string
   }
   constructor (props) {
     super(props)
@@ -163,7 +163,8 @@ class WalletPage extends Component {
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
-          search: queryString.parse(this.props.location.search).search
+          search: queryString.parse(this.props.location.search).search,
+          accountId: this.props.accountId
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

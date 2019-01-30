@@ -53,7 +53,7 @@ class AccountTabsPage extends Component {
               title: (
                 <Link to={`/accounts/${this.props.match.params.accountId}/wallets`}>Wallets</Link>
               ),
-              content: <WalletPage />
+              content: <WalletPage accountId={this.props.match.params.accountId} />
             },
             {
               title: 'Requests',
