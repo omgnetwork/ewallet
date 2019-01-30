@@ -197,6 +197,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
           consumption
           |> Map.put(:transaction_request_id, request.id)
           |> Map.put(:transaction_request, request)
+          |> Map.put(:transaction_id, transaction.id)
+          |> Map.put(:transaction, transaction)
 
         {:ok, consumption}
 
