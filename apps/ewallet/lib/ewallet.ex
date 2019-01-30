@@ -43,4 +43,12 @@ defmodule EWallet do
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
   end
+
+  @doc """
+  Save the provided value in the ewallet application variable under the :websocket_endpoints key
+  """
+  def configure_socket_endpoints(value) when is_list(value) do
+    current = Application.get_env(:ewallet, :websocket_endpoints, [])
+    Application.put_env(:ewallet, :websocket_endpoints, current ++ value)
+  end
 end

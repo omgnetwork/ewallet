@@ -1,7 +1,5 @@
 use Mix.Config
 
-config :ewallet, websocket_endpoints: [EWalletAPI.V1.Endpoint, AdminAPI.V1.Endpoint]
-
 config :logger, level: :debug
 
 unless IEx.started?() do
