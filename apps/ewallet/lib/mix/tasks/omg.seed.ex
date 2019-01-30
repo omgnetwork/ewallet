@@ -23,7 +23,8 @@ defmodule Mix.Tasks.Omg.Seed do
       mix omg.seed
   """
   use Mix.Task
-  alias EWallet.Seeder.CLI
+  alias EWallet.CLI
+  alias EWallet.Seeder.CLI, as: SeederCLI
 
   @shortdoc "Create initial seed data"
   @start_apps [:logger, :crypto, :ssl, :postgrex, :ecto, :cloak]
@@ -33,14 +34,15 @@ defmodule Mix.Tasks.Omg.Seed do
   """
 
   def run(args) do
+    _ = CLI.configure_logger()
+
     spec = seed_spec(args)
     assume_yes = assume_yes?(args)
 
     Enum.each(@start_apps, &Application.ensure_all_started/1)
-    Logger.configure(level: :info)
 
     Enum.each(@repo_apps, &ensure_started/1)
-    CLI.run(spec, assume_yes)
+    SeederCLI.run(spec, assume_yes)
   end
 
   #
