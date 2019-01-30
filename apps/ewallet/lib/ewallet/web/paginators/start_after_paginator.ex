@@ -24,11 +24,6 @@ defmodule EWallet.Web.StartAfterPaginator do
   @doc """
   Paginate a query by attempting to extract `start_after`, `start_by` and `per_page`
   from the given map of attributes and returns a paginator.
-
-  Note that this function is made to allow an easy passing of user inputs
-  without the caller needing any knowledge of the pagination attributes
-  (so long as the attribute keys don't conflict). Therefore this function
-  expects attribute keys to be strings, not atoms.
   """
   @spec paginate_attrs(Ecto.Query.t() | Ecto.Queryable.t(), map(), Ecto.Repo.t()) ::
           %Paginator{} | {:error, :invalid_parameter, String.t()}
@@ -42,26 +37,26 @@ defmodule EWallet.Web.StartAfterPaginator do
 
   def paginate_attrs(
         queryable,
-        %{"start_after" => nil} = attrs,
+        %{"start_after" => nil, "start_by" => start_by} = attrs,
         allowed_fields,
         repo
-      ) do
-    start_after = {:ok, nil}
-    paginate_attrs(queryable, Map.put(attrs, "start_after", start_after), allowed_fields, repo)
+      )
+      when is_atom(start_by) do
+    attrs = Map.put(attrs, "start_after", {:ok, nil})
+    paginate_attrs(queryable, attrs, allowed_fields, repo)
   end
 
   def paginate_attrs(
         queryable,
         %{
-          "start_by" => start_by,
           "start_after" => start_after,
+          "start_by" => start_by,
           "per_page" => per_page
         },
         allowed_fields,
         repo
-      ) do
-    start_by = get_start_by(start_by)
-
+      )
+      when is_atom(start_by) do
     case start_by in allowed_fields do
       true ->
         paginate(
@@ -84,14 +79,10 @@ defmodule EWallet.Web.StartAfterPaginator do
     end
   end
 
-  def paginate_attrs(queryable, %{"start_after" => _, "per_page" => per_page} = attrs, [field | _], repo) do
-    # Set default value of `start_by` to the first element of allowed_fields
-    attrs =
-      attrs
-      |> Map.put("start_by", field)
-      |> Map.put("per_page", per_page)
-
-    paginate_attrs(queryable, attrs, [field], repo)
+  # Set default value to `start_by`
+  def paginate_attrs(queryable, attrs, allowed_fields, repo) do
+    attrs = get_start_by_attrs(attrs, allowed_fields)
+    paginate_attrs(queryable, attrs, allowed_fields, repo)
   end
 
   @doc """
@@ -100,6 +91,10 @@ defmodule EWallet.Web.StartAfterPaginator do
   """
   def paginate(queryable, attrs, repo \\ Repo)
 
+  # Returns :error if the record with `start_after` value is not found.
+  def paginate(_, %{"start_after" => {:error}}, _), do: {:error, :unauthorized}
+
+  # Query and return `Paginator`
   def paginate(
         queryable,
         %{
@@ -111,11 +106,11 @@ defmodule EWallet.Web.StartAfterPaginator do
       ) do
     {records, more_page} =
       queryable
-      |> get_query_start_after(%{"start_by" => start_by, "start_after" => start_after})
       # effect only when `sort_by` doesn't specify.
+      |> get_queryable_start_after(%{"start_after" => start_after, "start_by" => start_by})
       |> order_by([q], field(q, ^start_by))
       |> Paginator.fetch(
-        %{"start_after" => start_after, "page" => 1, "per_page" => per_page},
+        %{"page" => 0, "per_page" => per_page},
         repo
       )
 
@@ -133,8 +128,6 @@ defmodule EWallet.Web.StartAfterPaginator do
     %Paginator{data: records, pagination: pagination}
   end
 
-  def paginate(_, %{"start_after" => {:error}}, _), do: {:error, :unauthorized}
-
   def paginate(
         queryable,
         %{
@@ -145,11 +138,10 @@ defmodule EWallet.Web.StartAfterPaginator do
         repo
       ) do
     # Verify if the given `start_after` exist to prevent unexpected result.
-    target = Map.put(%{}, start_by, start_after)
-    exist = repo.get_by(queryable, target) != nil
+    condition = Map.put(%{}, start_by, start_after)
 
     start_after =
-      if exist do
+      if repo.get_by(queryable, condition) != nil do
         {:ok, start_after}
       else
         {:error}
@@ -166,14 +158,20 @@ defmodule EWallet.Web.StartAfterPaginator do
     )
   end
 
-  defp get_start_by(start_by) do
-    case start_by do
-      s when is_binary(s) -> String.to_atom(s)
-      _ -> start_by
+  defp get_start_by_attrs(attrs, [field | _allowed_fields]) do
+    case Map.get(attrs, "start_by") do
+      nil -> Map.put(attrs, "start_by", field)
+      start_by when is_binary(start_by) -> Map.put(attrs, "start_by", String.to_atom(start_by))
+      _ -> attrs
     end
   end
 
-  defp get_query_start_after(queryable, %{"start_after" => start_after, "start_by" => start_by}) do
+  # Query records from the beginning if `start_after` is null or empty,
+  # Otherwise querying after specified `start_after` by `start_by` field.
+  defp get_queryable_start_after(queryable, %{
+         "start_after" => start_after,
+         "start_by" => start_by
+       }) do
     case start_after do
       s when is_nil(s) or s === "" ->
         queryable
