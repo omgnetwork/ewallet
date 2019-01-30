@@ -25,6 +25,7 @@ defmodule LocalLedgerDB.CachedBalance do
   schema "cached_balance" do
     field(:amounts, :map)
     field(:computed_at, :naive_datetime)
+    field(:cached_count, :integer)
 
     belongs_to(
       :wallet,
@@ -42,8 +43,8 @@ defmodule LocalLedgerDB.CachedBalance do
   """
   def changeset(%CachedBalance{} = balance, attrs) do
     balance
-    |> cast(attrs, [:amounts, :wallet_address, :computed_at])
-    |> validate_required([:amounts, :wallet_address, :computed_at])
+    |> cast(attrs, [:amounts, :wallet_address, :cached_count, :computed_at])
+    |> validate_required([:amounts, :wallet_address, :cached_count, :computed_at])
     |> foreign_key_constraint(:wallet_address)
   end
 
