@@ -181,8 +181,13 @@ defmodule EWallet.Web.StartAfterPaginator do
     # Verify if the given `start_after` exist to prevent unexpected result.
     condition = Map.put(%{}, start_by, start_after)
 
+    # To ensure there's no another where condition e.g. `search_term`.
+    pure_queryable =
+      queryable
+      |> exclude(:where)
+
     start_after =
-      if repo.get_by(queryable, condition) != nil do
+      if repo.get_by(pure_queryable, condition) != nil do
         {:ok, start_after}
       else
         {:error}

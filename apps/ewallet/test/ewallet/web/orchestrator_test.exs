@@ -68,7 +68,7 @@ defmodule EWallet.Web.OrchestratorTest do
       assert params == [field_name: "status"]
     end
 
-    test "returns records when `sort_by` and `start_by` are presented" do
+    test "returns records when `sort_by` and `start_after` are presented" do
       total = 10
       total_records = 5
       ensure_num_records(Account, total)
@@ -101,6 +101,64 @@ defmodule EWallet.Web.OrchestratorTest do
 
       # Is it all has an id >= `first_record_id`?
       assert Enum.all?(data, fn record -> record.id >= first_record.id end)
+    end
+
+    test "returns records by `start_after` when `search_term` is specified with outrange value" do
+      total = 10
+      ensure_num_records(Account, total)
+
+      record_ids = from(a in Account, select: a.id, order_by: a.id)
+
+      [first_record_id | _] =
+        record_ids
+        |> Repo.all()
+
+      attrs = %{
+        "start_by" => "id",
+        "start_after" => first_record_id,
+        "search_term" => first_record_id
+      }
+
+      # Is it not error when used with sort_by?
+      assert %{data: data, pagination: _} = Orchestrator.query(Account, MockOverlay, attrs)
+
+      # Is it returns empty when use non-intersect where condition?
+      # i.e. search_term = `acc_1` and start_after = 'acc_1'
+      assert data == []
+
+      # Is it all has an id >= `first_record_id`?
+      assert Enum.all?(data, fn record -> record.id >= first_record_id end)
+    end
+
+    test "returns records by `search_term` when the given value is in `start_from`'s range'" do
+      total = 10
+      ensure_num_records(Account, total)
+
+      record_ids = from(a in Account, select: a.id, order_by: a.id)
+
+      [first_record_id | record_ids] =
+        record_ids
+        |> Repo.all()
+
+      [second_record_id | _] = record_ids
+
+      attrs = %{
+        "start_by" => "id",
+        "start_after" => first_record_id,
+        "search_term" => second_record_id
+      }
+
+      # Is it not error when used with sort_by?
+      assert %{data: data, pagination: _} = Orchestrator.query(Account, MockOverlay, attrs)
+
+      # Is it returns empty when use non-intersect where condition?
+      # i.e. search_term = `acc_1` and start_after = 'acc_1'
+      assert Enum.map(data, fn r -> r.id end) == [second_record_id]
+
+      assert length(data) === 1
+
+      # Is it all has an id >= `first_record_id`?
+      assert Enum.all?(data, fn record -> record.id >= first_record_id end)
     end
   end
 
