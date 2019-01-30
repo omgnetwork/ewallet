@@ -130,15 +130,25 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       assert pagination.count == 1
     end
 
-    test "returns :error if given `start_by` is not allowed" do
-      result =
+    test "returns a paginator if given `start_after` exist and `start_by` is :inserted_at" do
+      ensure_num_records(Account, 2)
+
+      iats = from(a in Account, select: a.inserted_at, order_by: a.inserted_at)
+
+      [iat | _] =
+        iats
+        |> Repo.all()
+
+      paginator =
         StartAfterPaginator.paginate_attrs(
           Account,
-          %{"start_by" => "a", "start_after" => "1", "per_page" => 10},
+          %{"start_after" => iat, "start_by" => "inserted_at", "per_page" => 5},
           [:id, :inserted_at]
         )
 
-      assert {:error, :invalid_parameter, _} = result
+      assert paginator.pagination.current_page == 1
+      assert paginator.pagination.per_page == 5
+      assert paginator.pagination.count == 1
     end
   end
 
