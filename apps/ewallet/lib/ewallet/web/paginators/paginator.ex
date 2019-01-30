@@ -22,7 +22,6 @@ defmodule EWallet.Web.Paginator do
   alias EWallet.Web.PagePaginator
   alias EWallet.Web.StartAfterPaginator
 
-  @default_page 1
   @default_per_page 10
   @default_max_per_page 100
 
@@ -53,47 +52,52 @@ defmodule EWallet.Web.Paginator do
     {:error, :invalid_parameter, "`page` cannot be used with `start_after`"}
   end
 
-  # Prevent non-negative, non-zero interger `per_page`
+  # Prevent non-negative, non-zero integer `per_page`
   def paginate_attrs(_, %{"per_page" => per_page}, _, _)
       when is_integer(per_page) and per_page < 1 do
     {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
 
   # Convert `per_page` type from string to integer.
-  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, allowed_fields, repo) when is_binary(per_page) do
+  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, allowed_fields, repo)
+      when is_binary(per_page) do
     case parse_string_param(attrs, "per_page", per_page) do
       {:error, code, description} -> {:error, code, description}
       attrs -> paginate_attrs(queryable, attrs, allowed_fields, repo)
     end
   end
 
-  # Convert `page` type from string to integer.
-  def paginate_attrs(queryable, %{"page" => page} = attrs, allowed_fields, repo) when is_binary(page) do
+  # Convert `page` type from string to integer
+  def paginate_attrs(queryable, %{"page" => page} = attrs, allowed_fields, repo)
+      when is_binary(page) do
     case parse_string_param(attrs, "page", page) do
       {:error, code, description} -> {:error, code, description}
       attrs -> paginate_attrs(queryable, attrs, allowed_fields, repo)
     end
   end
 
+  # Delegate `attrs` to the `PagePaginator`
   def paginate_attrs(queryable, %{"page" => _} = attrs, _, repo) do
     per_page = get_per_page(attrs)
     attrs = Map.put(attrs, "per_page", per_page)
     PagePaginator.paginate_attrs(queryable, attrs, repo)
   end
 
+  # Delegate `attrs` to the `StartAfterPaginator`
   def paginate_attrs(queryable, %{"start_after" => _} = attrs, allowed_fields, repo) do
     per_page = get_per_page(attrs)
     attrs = Map.put(attrs, "per_page", per_page)
     StartAfterPaginator.paginate_attrs(queryable, attrs, allowed_fields, repo)
   end
 
+  # Delegate `attrs` to the `StartAfterPaginator`
   def paginate_attrs(queryable, %{"start_by" => _} = attrs, allowed_fields, repo) do
     per_page = get_per_page(attrs)
     attrs = Map.put(attrs, "per_page", per_page)
     StartAfterPaginator.paginate_attrs(queryable, attrs, allowed_fields, repo)
   end
 
-  # Default behavior
+  # Default behavior (Delegate to PagePaginator)
   def paginate_attrs(queryable, attrs, _, repo) do
     per_page = get_per_page(attrs)
     attrs = Map.put(attrs, "per_page", per_page)
