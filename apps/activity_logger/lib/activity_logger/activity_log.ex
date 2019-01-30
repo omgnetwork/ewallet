@@ -158,21 +158,11 @@ defmodule ActivityLogger.ActivityLog do
     |> handle_insert(action)
   end
 
-  defp handle_insert(:no_changes, :insert), do: {:ok, nil}
-  defp handle_insert(:no_changes, :update), do: {:ok, nil}
-
-  defp handle_insert(attrs, _) do
-    %ActivityLog{}
-    |> changeset(attrs)
-    |> Repo.insert()
-  end
-
   defp build_attrs(action, changeset, record) do
     with {:ok, originator} <- get_originator(changeset, record),
          originator_type <- get_type(originator.__struct__),
          target_type <- get_type(record.__struct__),
          changes <- Map.delete(changeset.changes, :originator),
-         true <- action == :delete || changes != %{} || :no_changes,
          encrypted_changes <- changes[:encrypted_changes],
          changes <- Map.delete(changes, :encrypted_changes),
          encrypted_fields <- changes[:encrypted_fields],
@@ -181,7 +171,8 @@ defmodule ActivityLogger.ActivityLog do
          changes <- Map.delete(changes, :prevent_saving),
          changes <- format_changes(changes, encrypted_fields),
          changes <- remove_forbidden(changes, prevent_saving),
-         encrypted_changes <- remove_forbidden(encrypted_changes, prevent_saving) do
+         encrypted_changes <- remove_forbidden(encrypted_changes, prevent_saving),
+         true <- action == :delete || has_changes?(changes) || has_changes?(encrypted_changes) || :no_changes do
       %{
         action: Atom.to_string(action),
         target_type: target_type,
@@ -198,6 +189,18 @@ defmodule ActivityLogger.ActivityLog do
     else
       error -> error
     end
+  end
+
+  defp has_changes?(changes) when is_map(changes) and map_size(changes) > 0, do: true
+  defp has_changes?(_), do: false
+
+  defp handle_insert(:no_changes, :insert), do: {:ok, nil}
+  defp handle_insert(:no_changes, :update), do: {:ok, nil}
+
+  defp handle_insert(attrs, _) do
+    %ActivityLog{}
+    |> changeset(attrs)
+    |> Repo.insert()
   end
 
   defp remove_forbidden(changes, nil), do: changes
