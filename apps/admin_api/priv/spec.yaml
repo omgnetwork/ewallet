@@ -481,9 +481,9 @@ paths:
               allOf:
                 - &ref_16
                   properties:
-                    page:
-                      type: integer
-                      minimum: 1
+                    start_after: {}
+                    start_by:
+                      type: string
                     per_page:
                       type: integer
                       minimum: 1
@@ -513,7 +513,8 @@ paths:
                         - asc
                         - desc
                   example:
-                    page: 1
+                    start_after: null
+                    start_by: id
                     per_page: 10
                     match_all: []
                     match_any: []
@@ -550,9 +551,10 @@ paths:
                                     items:
                                       type: object
                                     properties:
+                                      start_after: {}
+                                      start_by:
+                                        type: string
                                       per_page:
-                                        type: integer
-                                      current_page:
                                         type: integer
                                       count:
                                         type: integer
@@ -561,8 +563,9 @@ paths:
                                       is_last_page:
                                         type: boolean
                                     required:
+                                      - start_after
+                                      - start_by
                                       - per_page
-                                      - current_page
                                       - count
                                       - is_first_page
                                       - is_last_page
@@ -577,8 +580,9 @@ paths:
                             object: list
                             data: null
                             pagination:
+                              start_after: null
+                              start_by: id
                               per_page: 10
-                              current_page: 1
                               count: 5
                               is_first_page: true
                               is_last_page: true
@@ -3666,10 +3670,13 @@ paths:
               properties:
                 address:
                   type: string
+                start_by:
+                  type: string
               required:
                 - address
               example:
                 address: kxhk519271652215
+                start_by: address
       responses:
         '200': *ref_42
         '500': *ref_2
