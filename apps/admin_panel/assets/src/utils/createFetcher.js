@@ -59,7 +59,7 @@ export const createFetcher = (entity, reducer, selectors) => {
           trailing: true
         })
       }
-      componentDidMount = () => {
+      componentDidMount () {
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
         this.fetch()
       }
@@ -70,7 +70,7 @@ export const createFetcher = (entity, reducer, selectors) => {
         }
       }
 
-      getQuery = () => {
+      getQuery () {
         return { page: 1, perPage: 10, ...this.props.query }
       }
       fetch = async () => {
