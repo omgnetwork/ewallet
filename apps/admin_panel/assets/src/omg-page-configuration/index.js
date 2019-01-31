@@ -237,8 +237,7 @@ class ConfigurationPage extends Component {
             awsRegion: _.get(result.data.data, 'aws_region.value'),
             awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value'),
             awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value'),
-            balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value'),
-            balanceCachingResetFrequency: _.get(result.data.data, 'balance_caching_reset_frequency.value')
+            balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value')
           },
           _.isNil
         )
@@ -378,19 +377,6 @@ class ConfigurationPage extends Component {
             value: option
           }))}
         />
-        {this.state.balanceCachingStrategy === 'since_last_cached' && (
-          <SubSettingContainer>
-            <div>
-              <ConfigRow
-                name={'Balance Caching Reset Frequency'}
-                description={configurations.balance_caching_reset_frequency.description}
-                value={this.state.balanceCachingResetFrequency}
-                placeholder={'ie. 10'}
-                onChange={this.onChangeInput('balanceCachingResetFrequency')}
-              />
-            </div>
-          </SubSettingContainer>
-        )}
       </Fragment>
     )
   }
