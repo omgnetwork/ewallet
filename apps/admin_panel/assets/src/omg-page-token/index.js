@@ -105,7 +105,7 @@ class TokenDetailPage extends Component {
   }
   rowRenderer (key, data, rows) {
     if (key === 'created') {
-      return moment(data).format('ddd, DD/MM/YYYY HH:mm:ss')
+      return moment(data).format()
     }
     if (key === 'token') {
       return (

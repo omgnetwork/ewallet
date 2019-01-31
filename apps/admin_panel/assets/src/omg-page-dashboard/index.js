@@ -111,11 +111,11 @@ export default withRouter(
           </DetailGroup>
           <DetailGroup>
             <b>Created Date:</b>{' '}
-            <span>{moment(currentAccount.created_at).format('DD/MM/YYYY HH:mm:ss')}</span>
+            <span>{moment(currentAccount.created_at).format()}</span>
           </DetailGroup>
           <DetailGroup>
             <b>Last Update:</b>{' '}
-            <span>{moment(currentAccount.updated_at).format('DD/MM/YYYY HH:mm:ss')}</span>
+            <span>{moment(currentAccount.updated_at).format()}</span>
           </DetailGroup>
         </SectionContainer>
       )
