@@ -104,10 +104,13 @@ defmodule EWallet.Web.StartAfterPaginator do
         )
 
       _ ->
-        available_fields = inspect(allowed_fields)
+        available_fields =
+          allowed_fields
+          |> Enum.map(&Atom.to_string/1)
+          |> Enum.join(", ")
 
         msg =
-          "start_by: `#{start_by}` is not allowed. The available fields are: #{available_fields}"
+          "start_by: `#{start_by}` is not allowed. The available fields are: [#{available_fields}]"
 
         {:error, :invalid_parameter, msg}
     end
