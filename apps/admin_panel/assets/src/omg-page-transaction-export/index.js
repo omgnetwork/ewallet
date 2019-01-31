@@ -325,7 +325,7 @@ class TransactionExportPage extends Component {
   }
   renderExportButton (fetch) {
     return (
-      <Manager>
+      <Manager key={'popjs-manager'}>
         <Reference>
           {({ ref, style }) => (
             <div ref={ref} style={{ ...style, display: 'inline-block', marginLeft: '10px' }}>
