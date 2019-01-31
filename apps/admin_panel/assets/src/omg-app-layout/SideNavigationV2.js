@@ -181,7 +181,6 @@ class SideNavigation extends PureComponent {
   }
 
   render () {
-    console.log(this.props.location.pathname.split('/')[1])
     return (
       <SideNavigationContainer className={this.props.className}>
         <NavigationItemsContainer>
