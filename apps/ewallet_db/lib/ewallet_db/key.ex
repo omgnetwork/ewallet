@@ -24,7 +24,7 @@ defmodule EWalletDB.Key do
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
-  alias EWalletDB.{Account, Key, Repo}
+  alias EWalletDB.{Account, Key, Membership, Role, Repo}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   # String length = ceil(key_bytes / 3 * 4)
@@ -38,12 +38,25 @@ defmodule EWalletDB.Key do
     field(:secret_key, :string, virtual: true)
     field(:secret_key_hash, :string)
 
-    belongs_to(
-      :account,
+    has_many(
+      :memberships,
+      Membership,
+      foreign_key: :user_uuid,
+      references: :uuid
+    )
+
+    many_to_many(
+      :roles,
+      Role,
+      join_through: Membership,
+      join_keys: [user_uuid: :uuid, role_uuid: :uuid]
+    )
+
+    many_to_many(
+      :accounts,
       Account,
-      foreign_key: :account_uuid,
-      references: :uuid,
-      type: UUID
+      join_through: Membership,
+      join_keys: [user_uuid: :uuid, account_uuid: :uuid]
     )
 
     field(:enabled, :boolean, default: true)
@@ -56,14 +69,13 @@ defmodule EWalletDB.Key do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:access_key, :secret_key, :account_uuid, :enabled],
-      required: [:access_key, :secret_key, :account_uuid],
+      cast: [:access_key, :secret_key, :enabled],
+      required: [:access_key, :secret_key],
       prevent_saving: [:secret_key]
     )
     |> unique_constraint(:access_key, name: :key_access_key_index)
     |> put_change(:secret_key_hash, Crypto.hash_secret(attrs[:secret_key]))
     |> put_change(:secret_key, Base.url_encode64(attrs[:secret_key], padding: false))
-    |> assoc_constraint(:account)
   end
 
   defp enable_changeset(%Key{} = key, attrs) do
@@ -162,7 +174,7 @@ defmodule EWalletDB.Key do
 
   @doc """
   Authenticates using the specified access and secret keys.
-  Returns the associated account if authenticated, false otherwise.
+  Returns the key if authenticated, false otherwise.
 
   Use this function instead of the usual get/2
   to avoid passing the access/secret key information around.
@@ -173,9 +185,7 @@ defmodule EWalletDB.Key do
     query =
       from(
         k in Key,
-        where: k.access_key == ^access and k.enabled == true,
-        join: a in assoc(k, :account),
-        preload: [account: a]
+        where: k.access_key == ^access and k.enabled == true
       )
 
     query

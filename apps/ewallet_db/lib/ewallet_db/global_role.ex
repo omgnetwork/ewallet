@@ -17,7 +17,7 @@ defmodule EWalletDB.GlobalRole do
   Fake Schema representing global roles.
   """
 
-  @global_roles %{
+  @global_role_permissions %{
     super_admin: :global,
     admin: %{
       accounts: %{read: :accounts, create: :none, update: :accounts},
@@ -64,5 +64,5 @@ defmodule EWalletDB.GlobalRole do
     none: :none
   }
 
-  def global_roles, do: @global_roles
+  def global_role_permissions, do: @global_role_permissions
 end

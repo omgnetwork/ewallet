@@ -248,7 +248,6 @@ defmodule EWalletDB.Factory do
       access_key: access_key,
       secret_key: Base.url_encode64(secret_key, padding: false),
       secret_key_hash: Crypto.hash_secret(secret_key),
-      account: insert(:account),
       enabled: true,
       deleted_at: nil,
       originator: %System{}

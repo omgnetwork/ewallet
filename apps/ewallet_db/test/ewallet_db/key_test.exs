@@ -197,31 +197,24 @@ defmodule EWalletDB.KeyTest do
 
   describe "authenticate/2" do
     test "returns an existing key if access and secret key match" do
-      account = insert(:account)
-
       :key
       |> params_for(%{
         access_key: "access123",
-        secret_key: "secret321",
-        account: account
+        secret_key: "secret321"
       })
       |> Key.insert()
 
       {res, key} = Key.authenticate("access123", Base.url_encode64("secret321"))
       assert res == :ok
       assert %Key{} = key
-      assert key.account.uuid == account.uuid
     end
 
     test "returns false if access key is disabled" do
-      account = insert(:account)
-
       {:ok, key} =
         :key
         |> params_for(%{
           access_key: "access123",
-          secret_key: "secret321",
-          account: account
+          secret_key: "secret321"
         })
         |> Key.insert()
 

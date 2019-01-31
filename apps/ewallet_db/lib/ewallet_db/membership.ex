@@ -18,10 +18,11 @@ defmodule EWalletDB.Membership do
   """
   use Ecto.Schema
   use ActivityLogger.ActivityLogging
+  import EWalletConfig.Validator
   import Ecto.Changeset
   import Ecto.Query, except: [update: 2]
   alias Ecto.UUID
-  alias EWalletDB.{Account, Membership, Repo, Role, User}
+  alias EWalletDB.{Account, Membership, Repo, Role, Key, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -30,6 +31,14 @@ defmodule EWalletDB.Membership do
       :user,
       User,
       foreign_key: :user_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :key,
+      Key,
+      foreign_key: :key_uuid,
       references: :uuid,
       type: UUID
     )
@@ -59,9 +68,12 @@ defmodule EWalletDB.Membership do
     |> cast_and_validate_required_for_activity_log(
       attrs,
       cast: [:user_uuid, :account_uuid, :role_uuid],
-      required: [:user_uuid, :account_uuid, :role_uuid]
+      required: [:account_uuid, :role_uuid]
     )
+    |> validate_required_exclusive([:key_uuid, :user_uuid])
+    |> unique_constraint(:key_uuid, name: :membership_key_uuid_account_uuid_index)
     |> unique_constraint(:user_uuid, name: :membership_user_id_account_id_index)
+    |> assoc_constraint(:key)
     |> assoc_constraint(:user)
     |> assoc_constraint(:account)
     |> assoc_constraint(:role)
@@ -89,26 +101,12 @@ defmodule EWalletDB.Membership do
     )
   end
 
+  def all_by_account(account, preload \\ []) do
+    from(m in Membership, where: m.account_uuid in ^account.uuid, preload: ^preload)
+  end
+
   def all_by_account_uuids(account_uuids, preload \\ []) do
     from(m in Membership, where: m.account_uuid in ^account_uuids, preload: ^preload)
-  end
-
-  def distinct_by_role(memberships) do
-    memberships
-    |> Enum.reduce(%{}, fn membership, map -> reduce_distinct(membership, map) end)
-    |> Enum.map(fn {_uuid, membership} -> membership end)
-  end
-
-  defp reduce_distinct(membership, map) do
-    case Map.get(map, membership.user_uuid) do
-      nil ->
-        Map.put(map, membership.user_uuid, membership)
-
-      existing_membership ->
-        if existing_membership.role.priority > membership.role.priority do
-          Map.put(map, membership.user_uuid, membership)
-        end
-    end
   end
 
   @doc """
