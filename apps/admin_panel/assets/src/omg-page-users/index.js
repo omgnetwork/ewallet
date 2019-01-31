@@ -60,7 +60,14 @@ class UsersPage extends Component {
     location: PropTypes.object,
     history: PropTypes.object,
     match: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    query: PropTypes.object,
+    fetcher: PropTypes.func
+  }
+
+  static defaultProps = {
+    query: {},
+    fetcher: UsersFetcher
   }
   constructor (props) {
     super(props)
@@ -146,16 +153,17 @@ class UsersPage extends Component {
   }
 
   render () {
+    const Fetcher = this.props.fetcher
     return (
-      <UsersFetcher
+      <Fetcher
         {...this.state}
         {...this.props}
         render={this.renderUserPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
-          accountId: this.props.match.params.accountId,
-          ...createSearchUsersQuery(queryString.parse(this.props.location.search).search)
+          ...createSearchUsersQuery(queryString.parse(this.props.location.search).search),
+          ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

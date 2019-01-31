@@ -64,3 +64,19 @@ export const getConsumptionsByAccountId = ({
       }),
     cacheKey
   })
+
+export const getUsersByAccountId = ({ accountId, page, perPage, cacheKey, matchAll, matchAny }) =>
+  createPaginationActionCreator({
+    actionName: 'USERS',
+    action: 'REQUEST',
+    service: () =>
+      accountService.getUsersByAccountId({
+        accountId,
+        perPage,
+        page,
+        sort: { by: 'created_at', dir: 'desc' },
+        matchAll,
+        matchAny
+      }),
+    cacheKey
+  })

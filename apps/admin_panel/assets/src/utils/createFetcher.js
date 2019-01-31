@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { withProps, compose } from 'recompose'
 import CONSTANT from '../constants'
-import TopBar from '../omg-app-layout/TopBar'
 export const createCacheKey = (props, entity) => JSON.stringify({ ...props.query, entity })
 export const createFetcher = (entity, reducer, selectors) => {
   const enhance = compose(

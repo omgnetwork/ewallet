@@ -14,6 +14,7 @@ import UserPage from '../omg-page-users'
 import AdminPage from '../omg-page-admins'
 import SettingPage from '../omg-page-account-setting'
 import { consumptionsAccountFetcher } from '../omg-consumption/consumptionsFetcher'
+import { getUsersByAccountId } from '../omg-users/usersFetcher'
 const AccountTabDetailPageContainer = styled.div`
   a {
     color: inherit;
@@ -151,7 +152,12 @@ class AccountTabsPage extends Component {
             },
             {
               title: <Link to={`/accounts/${this.props.match.params.accountId}/users`}>Users</Link>,
-              content: <UserPage />
+              content: (
+                <UserPage
+                  fetcher={getUsersByAccountId}
+                  accountId={this.props.match.params.accountId}
+                />
+              )
             },
             {
               title: (
