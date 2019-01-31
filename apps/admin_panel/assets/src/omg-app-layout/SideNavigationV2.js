@@ -181,6 +181,7 @@ class SideNavigation extends PureComponent {
   }
 
   render () {
+    console.log(this.props.location.pathname.split('/')[1])
     return (
       <SideNavigationContainer className={this.props.className}>
         <NavigationItemsContainer>
@@ -188,7 +189,7 @@ class SideNavigation extends PureComponent {
           {this.dataLink.map(link => {
             return (
               <Link to={link.to} key={link.to}>
-                <NavigationItem active={fuzzySearch(link.to, this.props.location.pathname)}>
+                <NavigationItem active={fuzzySearch(link.to, `/${this.props.location.pathname.split('/')[1]}`)}>
                   <Icon name={link.icon} /> <span>{link.text}</span>
                 </NavigationItem>{' '}
               </Link>
@@ -198,7 +199,7 @@ class SideNavigation extends PureComponent {
           {this.overviewLinks.map(link => {
             return (
               <Link to={link.to} key={link.to}>
-                <NavigationItem active={fuzzySearch(link.to, this.props.location.pathname)}>
+                <NavigationItem active={fuzzySearch(link.to, `/${this.props.location.pathname.split('/')[1]}`)}>
                   <Icon name={link.icon} /> <span>{link.text}</span>
                 </NavigationItem>{' '}
               </Link>
