@@ -45,18 +45,6 @@ defmodule UrlDispatcher.Plug do
     static_call(conn, opts)
   end
 
-  defp handle_request("/docs", conn), do: redirect(conn, to: "/docs/index.html")
-
-  defp handle_request("/docs" <> _, conn) do
-    opts =
-      Static.init(
-        at: "/docs",
-        from: Path.join(Application.get_env(:ewallet, :root), "public/docs")
-      )
-
-    static_call(conn, opts)
-  end
-
   defp handle_request(_, conn) do
     conn
     |> resp(404, "The url could not be resolved.")

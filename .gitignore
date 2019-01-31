@@ -15,7 +15,6 @@ erl_crash.dump
 # Public
 /apps/admin_api/public/uploads
 /private
-/public/docs
 /public/uploads
 !/public/uploads/test.txt
 
