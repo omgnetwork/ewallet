@@ -9,7 +9,7 @@ defmodule AdminAPI.Mixfile do
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.4",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
