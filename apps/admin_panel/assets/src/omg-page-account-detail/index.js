@@ -112,7 +112,6 @@ class AccountDetailPage extends Component {
       <ContentContainer>
         <ContentDetailContainer>
           {this.renderDetail(account)}
-          {this.renderWallets()}
         </ContentDetailContainer>
       </ContentContainer>
     )

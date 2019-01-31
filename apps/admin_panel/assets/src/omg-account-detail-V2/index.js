@@ -53,7 +53,24 @@ class AccountTabsPage extends Component {
               title: (
                 <Link to={`/accounts/${this.props.match.params.accountId}/wallets`}>Wallets</Link>
               ),
-              content: <WalletPage accountId={this.props.match.params.accountId} />
+              content: (
+                <WalletPage
+                  walletQuery={{
+                    matchAny: [
+                      {
+                        field: 'account.id',
+                        comparator: 'eq',
+                        value: this.props.match.params.accountId
+                      },
+                      {
+                        field: 'account.id',
+                        comparator: 'eq',
+                        value: null
+                      }
+                    ]
+                  }}
+                />
+              )
             },
             {
               title: 'Requests',

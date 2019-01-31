@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { withProps, compose } from 'recompose'
 import CONSTANT from '../constants'
+import TopBar from '../omg-app-layout/TopBar'
 export const createCacheKey = (props, entity) => JSON.stringify({ ...props.query, entity })
 export const createFetcher = (entity, reducer, selectors) => {
   const enhance = compose(
@@ -28,10 +29,13 @@ export const createFetcher = (entity, reducer, selectors) => {
         onFetchComplete: PropTypes.func,
         cacheKey: PropTypes.string,
         data: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
-        pagination: PropTypes.object
+        pagination: PropTypes.object,
+        shouldFetch: PropTypes.bool
+
       }
       static defaultProps = {
-        onFetchComplete: _.noop
+        onFetchComplete: _.noop,
+        shouldFetch: true
       }
 
       static getDerivedStateFromProps (props, state) {
@@ -70,6 +74,7 @@ export const createFetcher = (entity, reducer, selectors) => {
         return { page: 1, perPage: 10, ...this.props.query }
       }
       fetch = async () => {
+        if (!this.props.shouldFetch) return
         this.setState(oldState => ({
           loadingStatus:
             oldState.loadingStatus === CONSTANT.LOADING_STATUS.INITIATED

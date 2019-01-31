@@ -27,25 +27,25 @@ const WalletPageContainer = styled.div`
     width: 20%;
   }
   tr:hover {
-    i[name="Copy"] {
+    i[name='Copy'] {
       visibility: visible;
     }
   }
 `
 const TransferButton = styled(Button)`
-    padding-left: 40px;
-    padding-right: 40px;
+  padding-left: 40px;
+  padding-right: 40px;
 `
 const WalletAddressContainer = styled.div`
   white-space: nowrap;
   span {
     vertical-align: middle;
   }
-  i[name="Wallet"] {
+  i[name='Wallet'] {
     color: ${props => props.theme.colors.BL400};
     margin-right: 5px;
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     visibility: hidden;
     margin-left: 5px;
     color: ${props => props.theme.colors.S500};
@@ -63,8 +63,12 @@ class WalletPage extends Component {
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
-    accountId: PropTypes.string
+    walletQuery: PropTypes.object
   }
+  static defaultProps = {
+    walletQuery: {}
+  }
+
   constructor (props) {
     super(props)
     this.state = {
@@ -80,7 +84,8 @@ class WalletPage extends Component {
   renderTransferButton = () => {
     return (
       <TransferButton size='small' onClick={this.onClickTransfer} key={'transfer'}>
-        <Icon name='Transaction' /><span>Transfer</span>
+        <Icon name='Transaction' />
+        <span>Transfer</span>
       </TransferButton>
     )
   }
@@ -164,7 +169,7 @@ class WalletPage extends Component {
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
           search: queryString.parse(this.props.location.search).search,
-          accountId: this.props.accountId
+          ...this.props.walletQuery
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
