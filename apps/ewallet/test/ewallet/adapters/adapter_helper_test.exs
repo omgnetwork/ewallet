@@ -53,6 +53,7 @@ defmodule EWallet.AdapterHelperTest do
     %{
       export: export,
       query: query,
+      preloads: [],
       serializer: serializer,
       transactions: transactions,
       chunk_size: chunk_size
@@ -70,6 +71,7 @@ defmodule EWallet.AdapterHelperTest do
           path,
           context.export,
           context.query,
+          context.preloads,
           context.serializer,
           context.chunk_size
         )
@@ -89,6 +91,7 @@ defmodule EWallet.AdapterHelperTest do
         AdapterHelper.stream_to_chunk(
           context.export,
           context.query,
+          context.preloads,
           context.serializer,
           context.chunk_size
         )

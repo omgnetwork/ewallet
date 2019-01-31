@@ -24,10 +24,11 @@ defmodule EWallet.CSVExporter do
   alias EWalletDB.{Repo, Export}
   alias Utils.Helper.PidHelper
 
-  def start(export, schema, query, serializer) do
+  def start(export, schema, query, serializer, opts \\ []) do
     with count <- get_count(query),
          {:ok, record_estimated_size} <- get_size_estimate(query, serializer),
          estimated_size <- record_estimated_size * count,
+         preloads <- Keyword.get(opts, :preloads, []),
          {:ok, export} <- Export.init(export, schema, count, estimated_size, %Exporter{}),
          {:ok, pid} <-
            GenServer.start_link(
@@ -35,6 +36,7 @@ defmodule EWallet.CSVExporter do
              [
                export: export,
                query: query,
+               preloads: preloads,
                serializer: serializer
              ],
              name: {:global, export.uuid}
@@ -52,12 +54,13 @@ defmodule EWallet.CSVExporter do
     end
   end
 
-  def init(export: export, query: query, serializer: serializer) do
+  def init(opts) do
     {:ok,
      %{
-       query: query,
-       serializer: serializer,
-       export: export
+       query: Keyword.get(opts, :query),
+       preloads: Keyword.get(opts, :preloads),
+       serializer: Keyword.get(opts, :serializer),
+       export: Keyword.get(opts, :export)
      }}
   end
 

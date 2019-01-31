@@ -52,6 +52,7 @@ defmodule EWallet.Exporters.S3AdapterTest do
     %{
       export: export,
       query: query,
+      preloads: [],
       serializer: serializer,
       transactions: transactions,
       chunk_size: chunk_size
@@ -72,6 +73,7 @@ defmodule EWallet.Exporters.S3AdapterTest do
       args = %{
         export: context.export,
         query: context.query,
+        preloads: context.preloads,
         serializer: context.serializer
       }
 
