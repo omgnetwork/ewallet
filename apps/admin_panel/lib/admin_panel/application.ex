@@ -70,15 +70,4 @@ defmodule AdminPanel.Application do
     Endpoint.config_change(changed, removed)
     :ok
   end
-
-  # Returns a path to static distribution.
-  def dist_path do
-    case System.get_env("DIST_PATH") do
-      n when is_binary(n) and byte_size(n) > 0 ->
-        n
-
-      _ ->
-        Application.app_dir(:admin_panel, "priv/static")
-    end
-  end
 end

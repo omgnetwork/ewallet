@@ -4,7 +4,7 @@ use Mix.Config
 config :admin_panel,
   namespace: AdminPanel,
   ecto_repos: [],
-  dist_path: Path.expand("../priv/static/", __DIR__),
+  dist_path: {:apply, {EWallet.Helper, :static_dir, [:admin_panel]}},
   webpack_watch: {:system, "WEBPACK_WATCH", false}
 
 # Configures the endpoint

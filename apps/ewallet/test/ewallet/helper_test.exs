@@ -88,4 +88,41 @@ defmodule EWallet.HelperTest do
       refute Helper.string_to_boolean(false)
     end
   end
+
+  describe "static_dir/1" do
+    setup do
+      orig = System.get_env("SERVE_LOCAL_STATIC")
+
+      on_exit(fn ->
+        case orig do
+          n when is_binary(n) ->
+            System.put_env("SERVE_LOCAL_STATIC", n)
+
+          nil ->
+            System.delete_env("SERVE_LOCAL_STATIC")
+        end
+      end)
+
+      %{orig: orig}
+    end
+
+    test "returns path to app dir without serve local static" do
+      System.put_env("SERVE_LOCAL_STATIC", "yes")
+
+      assert Helper.static_dir(:url_dispatcher) ==
+               Application.app_dir(:url_dispatcher, "priv/static")
+
+      assert Helper.static_dir(:admin_panel) == Application.app_dir(:admin_panel, "priv/static")
+    end
+
+    test "returns path to app dir with serve local static" do
+      System.put_env("SERVE_LOCAL_STATIC", "no")
+
+      assert Helper.static_dir(:url_dispatcher) ==
+               Path.expand("../../../url_dispatcher/priv/static", __DIR__)
+
+      assert Helper.static_dir(:admin_panel) ==
+               Path.expand("../../../admin_panel/priv/static", __DIR__)
+    end
+  end
 end

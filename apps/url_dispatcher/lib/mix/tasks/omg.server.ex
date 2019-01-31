@@ -69,10 +69,7 @@ defmodule Mix.Tasks.Omg.Server do
   def run(args) do
     System.put_env("WEBPACK_WATCH", "true")
     System.put_env("SERVE_ENDPOINTS", "true")
-
-    # We need to override these in case someone insist on running
-    # mix omg.server in _and_ set env to prod instead of using Distillery.
-    System.put_env("DIST_PATH", Path.expand("../../../../admin_panel/priv/static/", __DIR__))
+    System.put_env("SERVE_LOCAL_STATIC", "true")
 
     run(args, [])
   end

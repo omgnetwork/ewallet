@@ -92,4 +92,22 @@ defmodule EWallet.Helper do
       Enum.member?(enumerable, element)
     end)
   end
+
+  @doc """
+  Returns a path to static distribution. If SERVE_LOCAL_STATIC
+  is true, it means that we want to serve directly from source tree
+  instead of from the _build directory, so we're returning a relative
+  path from a file.
+  """
+  def static_dir(app) do
+    serve_local_static = System.get_env("SERVE_LOCAL_STATIC")
+
+    case to_boolean(serve_local_static) do
+      true ->
+        Application.app_dir(app, "priv/static")
+
+      false ->
+        Path.expand("../../../#{app}/priv/static", __DIR__)
+    end
+  end
 end
