@@ -42,7 +42,11 @@ defmodule AdminAPI.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: AdminAPI.Supervisor]
 
-    :ok = :error_logger.add_report_handler(Sentry.Logger)
+    case Logger.add_backend(Sentry.LoggerBackend) do
+      {:ok, _} -> :ok
+      {:error, :already_present} -> :ok
+      error -> raise "Unable to add Sentry.LoggerBackend: #{inspect(error)}"
+    end
 
     Supervisor.start_link(children, opts)
   end

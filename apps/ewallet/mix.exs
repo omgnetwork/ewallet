@@ -54,7 +54,7 @@ defmodule EWallet.Mixfile do
       {:phoenix, "~> 1.3.0"},
       {:phoenix_html, "~> 2.11.0"},
       {:quantum, "~> 2.3.4"},
-      {:sentry, "~> 6.4"},
+      {:sentry, "~> 7.0"},
       {:timex, "~> 3.0"}
     ]
   end

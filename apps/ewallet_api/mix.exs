@@ -58,7 +58,7 @@ defmodule EWalletAPI.Mixfile do
       {:peerage, "~> 1.0.2"},
       {:phoenix, "~> 1.3.0"},
       {:plug_cowboy, "~> 1.0"},
-      {:sentry, "~> 6.4"},
+      {:sentry, "~> 7.0"}
     ]
   end
 
