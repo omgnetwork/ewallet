@@ -36,17 +36,14 @@ defmodule EWallet.TransactionConsumptionSchedulerTest do
       now = NaiveDateTime.utc_now()
 
       # t1 and t2 have expiration dates in the past
-      t1 =
-        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -60, :second))
+      t1 = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -60, :second))
 
       t2 =
         insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -600, :second))
 
-      t3 =
-        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 600, :second))
+      t3 = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 600, :second))
 
-      t4 =
-        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 160, :second))
+      t4 = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 160, :second))
 
       # They are still valid since we haven't made them expired yet
       assert TransactionConsumption.expired?(t1) == false

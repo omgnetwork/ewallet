@@ -30,7 +30,14 @@ defmodule EWallet.Exporters.GCSAdapter do
     chunk_size = args.export.estimated_size / 90
 
     {:ok, _file} =
-      AdapterHelper.stream_to_file(path, args.export, args.query, args.preloads, args.serializer, chunk_size)
+      AdapterHelper.stream_to_file(
+        path,
+        args.export,
+        args.query,
+        args.preloads,
+        args.serializer,
+        chunk_size
+      )
 
     case Uploaders.File.store(path) do
       {:ok, _filename} ->

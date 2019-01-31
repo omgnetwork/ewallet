@@ -36,7 +36,8 @@ defmodule EWallet.ExportGate do
     preloads = Keyword.get(opts, :preloads, [])
 
     with {:ok, export} <- insert_export(schema, attrs),
-         {:ok, _pid, export} <- CSVExporter.start(export, schema, query, serializer, preloads: preloads) do
+         {:ok, _pid, export} <-
+           CSVExporter.start(export, schema, query, serializer, preloads: preloads) do
       {:ok, export}
     else
       error -> error

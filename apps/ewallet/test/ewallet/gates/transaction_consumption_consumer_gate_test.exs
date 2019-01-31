@@ -1429,7 +1429,9 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert res == :error
 
       assert changeset.errors == [
-               amount: {"must be greater than %{number}", [validation: :number, kind: :greater_than, number: 0]}
+               amount:
+                 {"must be greater than %{number}",
+                  [validation: :number, kind: :greater_than, number: 0]}
              ]
     end
 

@@ -301,11 +301,9 @@ defmodule EWalletDB.TransactionConsumption do
     |> where([t], t.expiration_date <= ^now)
     |> select([t], t)
     |> Repo.update_all(
-      [
-        set: [
-          status: @expired,
-          expired_at: NaiveDateTime.utc_now()
-        ]
+      set: [
+        status: @expired,
+        expired_at: NaiveDateTime.utc_now()
       ]
     )
   end

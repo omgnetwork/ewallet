@@ -172,7 +172,9 @@ defmodule ActivityLogger.ActivityLog do
          changes <- format_changes(changes, encrypted_fields),
          changes <- remove_forbidden(changes, prevent_saving),
          encrypted_changes <- remove_forbidden(encrypted_changes, prevent_saving),
-         true <- action == :delete || has_changes?(changes) || has_changes?(encrypted_changes) || :no_changes do
+         true <-
+           action == :delete || has_changes?(changes) || has_changes?(encrypted_changes) ||
+             :no_changes do
       %{
         action: Atom.to_string(action),
         target_type: target_type,
