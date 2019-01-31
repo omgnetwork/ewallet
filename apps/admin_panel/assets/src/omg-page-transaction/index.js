@@ -226,7 +226,7 @@ class TransactionPage extends Component {
       )
     }
     if (key === 'created_at') {
-      return moment(data).format('DD/MM/YYYY hh:mm:ss')
+      return moment(data).format('DD/MM/YYYY HH:mm:ss')
     }
     return data
   }

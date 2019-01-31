@@ -145,7 +145,7 @@ class TransactionRequestPanel extends Component {
                   <InformationItem>
                     <b>Approved Date:</b>{' '}
                     <span>
-                      {moment(consumption.approved_at).format('ddd, DD/MM/YYYY hh:mm:ss')}
+                      {moment(consumption.approved_at).format('ddd, DD/MM/YYYY HH:mm:ss')}
                     </span>
                   </InformationItem>
                 )}
@@ -153,14 +153,14 @@ class TransactionRequestPanel extends Component {
                   <InformationItem>
                     <b>Rejected At:</b>{' '}
                     <span>
-                      {moment(consumption.rejected_at).format('ddd, DD/MM/YYYY hh:mm:ss')}
+                      {moment(consumption.rejected_at).format('ddd, DD/MM/YYYY HH:mm:ss')}
                     </span>
                   </InformationItem>
                 )}
                 {consumption.expired_at && (
                   <InformationItem>
                     <b>Expired Date:</b>{' '}
-                    <span>{moment(consumption.expired_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
+                    <span>{moment(consumption.expired_at).format('ddd, DD/MM/YYYY HH:mm:ss')}</span>
                   </InformationItem>
                 )}
                 {consumption.status === 'pending' && (

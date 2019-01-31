@@ -138,10 +138,10 @@ class AccountPage extends Component {
       )
     }
     if (key === 'created_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      return moment(data).format('ddd, DD/MM/YYYY HH:mm:ss')
     }
     if (key === 'updated_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      return moment(data).format('ddd, DD/MM/YYYY HH:mm:ss')
     }
     if (key === 'avatar') {
       return null

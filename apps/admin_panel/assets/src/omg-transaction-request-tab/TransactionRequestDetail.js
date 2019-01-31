@@ -127,7 +127,7 @@ export default class TransactionRequestDetail extends Component {
         </InformationItem>
         <InformationItem>
           <b>Expiry Date : </b>{' '}
-          {tq.expiration_date ? moment(tq.expiration_date).format('ddd, DD/MM/YYYY hh:mm:ss') : '-'}
+          {tq.expiration_date ? moment(tq.expiration_date).format('ddd, DD/MM/YYYY HH:mm:ss') : '-'}
         </InformationItem>
         <InformationItem>
           <b>Allow Amount Override : </b> {tq.allow_amount_override ? 'Yes' : 'No'}

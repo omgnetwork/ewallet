@@ -156,7 +156,7 @@ class TransactionRequestPanel extends Component {
                   </MarkContainer>
                   {transaction.status}
                 </span>{' '}
-                | <span>{moment(transaction.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
+                | <span>{moment(transaction.created_at).format('ddd, DD/MM/YYYY HH:mm:ss')}</span>
               </SubDetailTitle>
               {_.get(transaction, 'error_description') && (
                 <InformationItem style={{ color: '#FC7166' }}>

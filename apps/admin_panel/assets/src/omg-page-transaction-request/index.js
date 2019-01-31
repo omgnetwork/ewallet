@@ -128,10 +128,10 @@ class TransactionRequestsPage extends Component {
       return rows.user_id || rows.account.name || rows.account_id
     }
     if (key === 'created_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      return moment(data).format('ddd, DD/MM/YYYY HH:mm:ss')
     }
     if (key === 'updated_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      return moment(data).format('ddd, DD/MM/YYYY HH:mm:ss')
     }
     return data
   }
