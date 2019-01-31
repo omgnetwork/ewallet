@@ -10,6 +10,7 @@ import moment from 'moment'
 import queryString from 'query-string'
 import Copy from '../omg-copy'
 import { createSearchAdminsQuery } from '../omg-admins/searchField'
+
 const UserPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -59,7 +60,14 @@ class UsersPage extends Component {
     location: PropTypes.object,
     history: PropTypes.object,
     match: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    query: PropTypes.object,
+    fetcher: PropTypes.func,
+    navigation: PropTypes.object
+  }
+  static defaultProps = {
+    query: {},
+    fetcher: AdminsFetcher
   }
   constructor (props) {
     super(props)
@@ -126,7 +134,7 @@ class UsersPage extends Component {
             onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
-            navigation
+            navigation={this.props.navigation}
             pagination={false}
           />
         </SortableTableContainer>
@@ -135,14 +143,16 @@ class UsersPage extends Component {
   }
 
   render () {
+    const Fetcher = this.props.fetcher
     return (
-      <AdminsFetcher
+      <Fetcher
         {...this.state}
         {...this.props}
         render={this.renderAdminPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          ...createSearchAdminsQuery(queryString.parse(this.props.location.search).search)
+          ...createSearchAdminsQuery(queryString.parse(this.props.location.search).search),
+          ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
