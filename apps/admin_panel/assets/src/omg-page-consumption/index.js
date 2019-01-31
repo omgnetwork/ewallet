@@ -39,7 +39,7 @@ const ConsumptionPageContainer = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
@@ -51,7 +51,7 @@ const ConsumptionPageContainer = styled.div`
 `
 const SortableTableContainer = styled.div`
   position: relative;
-  i[name="Consumption"] {
+  i[name='Consumption'] {
     color: ${props => props.theme.colors.BL400};
   }
 `
@@ -65,7 +65,13 @@ class ConsumptionPage extends Component {
     match: PropTypes.object,
     history: PropTypes.object,
     location: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    query: PropTypes.object,
+    fetcher: PropTypes.node
+  }
+  static defaultProps = {
+    query: {},
+    fetcher: ConsumptionFetcher
   }
   constructor (props) {
     super(props)
@@ -132,7 +138,10 @@ class ConsumptionPage extends Component {
     return (
       <ConsumptionPageContainer>
         <TopNavigation title={'Transaction Consumptions'} buttons={[]} />
-        <SortableTableContainer innerRef={table => (this.table = table)} loadingStatus={individualLoadingStatus}>
+        <SortableTableContainer
+          innerRef={table => (this.table = table)}
+          loadingStatus={individualLoadingStatus}
+        >
           <SortableTable
             rows={consumptions}
             columns={this.columns}
@@ -156,15 +165,17 @@ class ConsumptionPage extends Component {
   }
 
   render () {
+    const Fetcher = this.props.fetcher
     return (
-      <ConsumptionFetcher
+      <Fetcher
         render={this.renderConsumptionPage}
         {...this.state}
         {...this.props}
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 65),
-          searchTerms: {id: queryString.parse(this.props.location.search).search}
+          searchTerms: { id: queryString.parse(this.props.location.search).search },
+          ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

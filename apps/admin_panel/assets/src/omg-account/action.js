@@ -37,3 +37,30 @@ export const getAccountById = id =>
     action: 'REQUEST',
     service: () => accountService.getAccountById(id)
   })
+
+export const getConsumptionsByAccountId = ({
+  page,
+  perPage,
+  search,
+  cacheKey,
+  searchTerms,
+  matchAll,
+  matchAny,
+  accountId
+}) =>
+  createPaginationActionCreator({
+    actionName: 'CONSUMPTIONS',
+    action: 'REQUEST',
+    service: () =>
+      accountService.getConsumptionsByAccountId({
+        accountId,
+        perPage,
+        page,
+        sort: { by: 'created_at', dir: 'desc' },
+        search,
+        searchTerms,
+        matchAll,
+        matchAny
+      }),
+    cacheKey
+  })

@@ -1,6 +1,6 @@
 import { authenticatedRequest } from './apiService'
 import uuid from 'uuid/v4'
-export function getAllTransactions ({ page, perPage, sort, search, searchTerms }) {
+export function getAllTransactions ({ page, perPage, sort, search, searchTerms, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/transaction.all',
     data: {
@@ -9,7 +9,9 @@ export function getAllTransactions ({ page, perPage, sort, search, searchTerms }
       sort_by: sort.by,
       sort_dir: sort.dir,
       search_term: search,
-      search_terms: searchTerms
+      search_terms: searchTerms,
+      match_all: matchAll,
+      match_any: matchAny
     }
   })
 }

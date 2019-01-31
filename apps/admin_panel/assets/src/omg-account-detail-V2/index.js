@@ -13,6 +13,7 @@ import TransactionPage from '../omg-page-transaction'
 import UserPage from '../omg-page-users'
 import AdminPage from '../omg-page-admins'
 import SettingPage from '../omg-page-account-setting'
+import { consumptionsAccountFetcher } from '../omg-consumption/consumptionsFetcher'
 const AccountTabDetailPageContainer = styled.div`
   a {
     color: inherit;
@@ -116,7 +117,12 @@ class AccountTabsPage extends Component {
                   Consumption
                 </Link>
               ),
-              content: <ConsumptionPage />
+              content: (
+                <ConsumptionPage
+                  fetcher={consumptionsAccountFetcher}
+                  accountId={this.props.match.params.accountId}
+                />
+              )
             },
             {
               title: (
@@ -124,7 +130,24 @@ class AccountTabsPage extends Component {
                   Transactions
                 </Link>
               ),
-              content: <TransactionPage />
+              content: (
+                <TransactionPage
+                  query={{
+                    matchAny: [
+                      {
+                        field: 'from_account.id',
+                        comparator: 'eq',
+                        value: this.props.match.params.accountId
+                      },
+                      {
+                        field: 'to_account.id',
+                        comparator: 'eq',
+                        value: this.props.match.params.accountId
+                      }
+                    ]
+                  }}
+                />
+              )
             },
             {
               title: <Link to={`/accounts/${this.props.match.params.accountId}/users`}>Users</Link>,
