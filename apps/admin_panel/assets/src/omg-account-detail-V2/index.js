@@ -91,7 +91,24 @@ class AccountTabsPage extends Component {
               title: (
                 <Link to={`/accounts/${this.props.match.params.accountId}/requests`}>Requests</Link>
               ),
-              content: <TransactionRequestPage />
+              content: (
+                <TransactionRequestPage
+                  query={{
+                    matchAny: [
+                      {
+                        field: 'account.id',
+                        comparator: 'eq',
+                        value: this.props.match.params.accountId
+                      },
+                      {
+                        field: 'account.id',
+                        comparator: 'eq',
+                        value: null
+                      }
+                    ]
+                  }}
+                />
+              )
             },
             {
               title: (
@@ -110,11 +127,7 @@ class AccountTabsPage extends Component {
               content: <TransactionPage />
             },
             {
-              title: (
-                <Link to={`/accounts/${this.props.match.params.accountId}/users`}>
-                  Users
-                </Link>
-              ),
+              title: <Link to={`/accounts/${this.props.match.params.accountId}/users`}>Users</Link>,
               content: <UserPage />
             },
             {

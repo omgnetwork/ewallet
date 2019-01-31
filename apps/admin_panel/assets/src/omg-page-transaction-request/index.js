@@ -60,7 +60,11 @@ class TransactionRequestsPage extends Component {
     match: PropTypes.object,
     history: PropTypes.object,
     location: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    query: PropTypes.object
+  }
+  static defaultProps = {
+    query: {}
   }
   constructor (props) {
     super(props)
@@ -184,7 +188,8 @@ class TransactionRequestsPage extends Component {
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 65),
-          search: queryString.parse(this.props.location.search).search
+          search: queryString.parse(this.props.location.search).search,
+          ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
