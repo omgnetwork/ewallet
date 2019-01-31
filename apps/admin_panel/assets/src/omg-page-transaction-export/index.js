@@ -236,7 +236,7 @@ class TransactionExportPage extends Component {
       case 'created_at':
         return (
           <TimestampContainer>
-            <span>{moment(row.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
+            <span>{moment(row.created_at).format()}</span>
             {row.status === 'completed' && (
               <Icon name='Download' onClick={this.onClickDownload(row)} />
             )}
@@ -271,7 +271,7 @@ class TransactionExportPage extends Component {
               <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
                 {moment(query.value).isValid()
-                    ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
+                    ? moment(query.value).format()
                     : query.value}{' '}
                   ]
                 </div>
@@ -286,7 +286,7 @@ class TransactionExportPage extends Component {
               <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
                 {moment(query.value).isValid()
-                    ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
+                    ? moment(query.value).format()
                     : query.value}{' '}
                   ]
                 </div>
@@ -325,7 +325,7 @@ class TransactionExportPage extends Component {
   }
   renderExportButton (fetch) {
     return (
-      <Manager>
+      <Manager key={'popjs-manager'}>
         <Reference>
           {({ ref, style }) => (
             <div ref={ref} style={{ ...style, display: 'inline-block', marginLeft: '10px' }}>
@@ -455,7 +455,7 @@ class DateTimeHotFix extends PureComponent {
           return (
             <Input
               {...props}
-              value={this.props.value && this.props.value.format('DD/MM/YYYY hh:mm:ss a')}
+              value={this.props.value && this.props.value.format()}
               onFocus={this.props.onFocus}
               normalPlaceholder={this.props.placeholder}
             />
