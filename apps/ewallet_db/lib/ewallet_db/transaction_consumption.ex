@@ -489,6 +489,8 @@ defmodule EWalletDB.TransactionConsumption do
       |> apply(fun, [consumption, data])
       |> Repo.update_record_with_activity_log()
 
-    consumption
+    # Since we might have updated `transaction_uuid`, we need to force preload
+    # `consumption.transaction` to prevent stale information being returned.
+    Repo.preload(consumption, :transaction, force: true)
   end
 end
