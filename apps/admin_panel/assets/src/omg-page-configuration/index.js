@@ -112,7 +112,6 @@ class ConfigurationPage extends Component {
         awsAccessKeyId: props.configurations.aws_access_key_id.value,
         awsSecretAccessKey: props.configurations.aws_secret_access_key.value,
         balanceCachingStrategy: props.configurations.balance_caching_strategy.value,
-        balanceCachingResetFrequency: props.configurations.balance_caching_reset_frequency.value,
         forgetPasswordRequestLifetime: props.configurations.forget_password_request_lifetime.value,
         fetched: true
       }
