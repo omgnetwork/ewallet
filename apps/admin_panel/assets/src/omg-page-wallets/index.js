@@ -113,7 +113,7 @@ class WalletPage extends Component {
   }
   rowRenderer (key, data, rows) {
     if (key === 'created_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      return moment(data).format()
     }
     if (key === 'identifier') {
       return (
