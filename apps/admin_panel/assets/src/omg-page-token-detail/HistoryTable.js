@@ -61,7 +61,7 @@ export default withRouter(
         return _.get(rows, 'transaction.to.address')
       }
       if (key === 'created_at') {
-        return moment(data).format('DD/MM/YYYY hh:mm:ss')
+        return moment(data).format()
       }
       if (key === 'created_by') {
         return _.get(rows, 'account.name')

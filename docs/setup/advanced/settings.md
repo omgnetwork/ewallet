@@ -38,10 +38,12 @@ The local ledger offers a caching mechanism for wallets in order to boost the ca
 
 - `balance_caching_strategy`: Specify if new cached wallets should be computed using a previous cache or by recalculating everything from scratch.
 
-Strategies available:
+  Strategies available:
+  - `since_beginning`: Recalculate the balance since the beginning of time.
+  - `since_last_cached`: Use the last cached balance, adds the transactions that happened since and saves the result in a new cached balance.
 
-- `since_beginning`: Recalculate the balance since the beginning of time.
-- `since_last_cached`: Use the last cached balance, adds the transactions that happened since and saves the result in a new cached balance.
+
+- `balance_caching_reset_frequency`: Specify that a cached balance needs to be recalculated at the n<sup>th</sup> time of usage. Setting this to 0 means that cached balances will never be re-calculated from the beginning. Applicable only when `since_last_cached` caching strategy is used.
 
 ## Emails
 
