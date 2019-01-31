@@ -61,7 +61,7 @@ defmodule EWalletDB.Transaction do
     field(:error_data, :map)
 
     field(:rate, :float)
-    field(:calculated_at, :naive_datetime)
+    field(:calculated_at, :naive_datetime_usec)
 
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})

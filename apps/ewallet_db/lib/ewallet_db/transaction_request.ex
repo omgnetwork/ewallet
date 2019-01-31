@@ -60,8 +60,8 @@ defmodule EWalletDB.TransactionRequest do
     field(:max_consumptions_per_user, :integer)
     # milliseconds
     field(:consumption_lifetime, :integer)
-    field(:expiration_date, :naive_datetime)
-    field(:expired_at, :naive_datetime)
+    field(:expiration_date, :naive_datetime_usec)
+    field(:expired_at, :naive_datetime_usec)
     field(:expiration_reason, :string)
     field(:allow_amount_override, :boolean, default: true)
     field(:metadata, :map, default: %{})

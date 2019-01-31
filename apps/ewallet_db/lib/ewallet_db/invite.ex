@@ -32,7 +32,7 @@ defmodule EWalletDB.Invite do
   schema "invite" do
     field(:token, :string)
     field(:success_url, :string)
-    field(:verified_at, :naive_datetime)
+    field(:verified_at, :naive_datetime_usec)
 
     belongs_to(
       :user,

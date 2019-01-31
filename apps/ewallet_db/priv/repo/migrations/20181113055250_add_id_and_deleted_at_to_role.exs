@@ -21,7 +21,7 @@ defmodule EWalletDB.Repo.Migrations.AddIdAndDeletedAtToRole do
   def up do
     alter table(:role) do
       add :id, :string
-      add :deleted_at, :naive_datetime
+      add :deleted_at, :naive_datetime_usec
     end
 
     create index(:role, [:id])

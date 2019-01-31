@@ -16,9 +16,9 @@ defmodule EWalletDB.SoftDelete do
   @moduledoc """
   Allows soft delete of Ecto records.
 
-  Requires a `:deleted_at` column with type `:naive_datetime` on the schema.
+  Requires a `:deleted_at` column with type `:naive_datetime_usec` on the schema.
 
-  The type `:naive_datetime` is used so that it aligns with `Ecto.Migration.timestamps/2`.
+  The type `:naive_datetime_usec` is used so that it aligns with `Ecto.Migration.timestamps/2`.
   See https://elixirforum.com/t/10129 and https://elixirforum.com/t/9910.
 
   # Usage
@@ -31,7 +31,7 @@ defmodule EWalletDB.SoftDelete do
 
     def change do
       alter table(:some_schema) do
-        add :deleted_at, :naive_datetime
+        add :deleted_at, :naive_datetime_usec
       end
 
       create index(:some_schema, [:deleted_at])
@@ -96,7 +96,7 @@ defmodule EWalletDB.SoftDelete do
   """
   defmacro soft_delete do
     quote do
-      field(:deleted_at, :naive_datetime)
+      field(:deleted_at, :naive_datetime_usec)
     end
   end
 

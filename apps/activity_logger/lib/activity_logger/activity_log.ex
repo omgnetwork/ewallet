@@ -47,7 +47,7 @@ defmodule ActivityLogger.ActivityLog do
 
     field(:metadata, :map, default: %{})
 
-    field(:inserted_at, :naive_datetime)
+    field(:inserted_at, :naive_datetime_usec)
   end
 
   defp changeset(changeset, attrs) do

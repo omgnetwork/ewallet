@@ -59,17 +59,17 @@ defmodule EWalletDB.TransactionConsumption do
 
     # State
     field(:status, :string, default: @pending)
-    field(:approved_at, :naive_datetime)
-    field(:rejected_at, :naive_datetime)
-    field(:confirmed_at, :naive_datetime)
-    field(:failed_at, :naive_datetime)
-    field(:expired_at, :naive_datetime)
-    field(:estimated_at, :naive_datetime)
+    field(:approved_at, :naive_datetime_usec)
+    field(:rejected_at, :naive_datetime_usec)
+    field(:confirmed_at, :naive_datetime_usec)
+    field(:failed_at, :naive_datetime_usec)
+    field(:expired_at, :naive_datetime_usec)
+    field(:estimated_at, :naive_datetime_usec)
 
     field(:error_code, :string)
     field(:error_description, :string)
 
-    field(:expiration_date, :naive_datetime)
+    field(:expiration_date, :naive_datetime_usec)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
 

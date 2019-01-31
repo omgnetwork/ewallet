@@ -42,8 +42,8 @@ defmodule EWalletDB.ForgetPasswordRequest do
       type: UUID
     )
 
-    field(:used_at, :naive_datetime)
-    field(:expires_at, :naive_datetime)
+    field(:used_at, :naive_datetime_usec)
+    field(:expires_at, :naive_datetime_usec)
 
     timestamps()
     activity_logging()

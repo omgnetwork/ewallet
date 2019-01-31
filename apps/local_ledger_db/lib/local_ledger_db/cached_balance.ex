@@ -25,7 +25,7 @@ defmodule LocalLedgerDB.CachedBalance do
 
   schema "cached_balance" do
     field(:amounts, :map)
-    field(:computed_at, :naive_datetime)
+    field(:computed_at, :naive_datetime_usec)
 
     belongs_to(
       :wallet,
