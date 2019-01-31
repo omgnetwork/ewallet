@@ -160,6 +160,10 @@ defmodule EWalletAPI.V1.TransactionController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   defp respond({:ok, transaction}, conn) do
     render(conn, :transaction, %{transaction: transaction})
   end
