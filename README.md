@@ -16,13 +16,13 @@ The quickest way to get OmiseGO eWallet Server running on macOS and Linux is to 
 2. Download OmiseGO eWallet Server's [docker-compose.yml](https://raw.githubusercontent.com/omisego/ewallet/master/docker-compose.yml):
 
     ```shell
-    curl -o -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-compose.yml
+    curl -O -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-compose.yml
     ```
 
 3. Create `docker-compose.override.yml` either [manually](https://docs.docker.com/compose/extends/) or use auto-configuration script:
 
     ```
-    curl -o -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-gen.sh
+    curl -O -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-gen.sh
     chmod +x docker-gen.sh
     ./docker-gen.sh > docker-compose.override.yml
     ```
@@ -41,6 +41,10 @@ For other platforms or for a more advanced setup, see also manual installation b
 
 -   [Bare metal installation](docs/setup/bare_metal.md)
 
+### Upgrade
+
+Upgrading to a newer version? See [Upgrading the eWallet Server](docs/setup/upgrading).
+
 ## Commands
 
 Docker image entrypoint is configured to recognize most commands that are used during normal operations. The way to invoke these commands depend on the installation method you choose.
@@ -54,7 +58,7 @@ Docker image entrypoint is configured to recognize most commands that are used d
 For example:
 
 -   `docker-compose run --rm ewallet initdb` (Docker-Compose)
--   `docker run -it --rm omisego/ewallet:dev initdb` (Docker)
+-   `docker run -it --rm omisego/ewallet:latest initdb` (Docker)
 
 These commands create the database if not already created, or upgrade them if necessary. This command is expected to be run every time you have upgraded the version of OmiseGO eWallet Suite.
 
@@ -63,7 +67,7 @@ These commands create the database if not already created, or upgrade them if ne
 For example:
 
 -   `docker-compose run --rm ewallet seed` (Docker-Compose)
--   `docker run -it --rm omisego/ewallet:dev seed` (Docker)
+-   `docker run -it --rm omisego/ewallet:latest seed` (Docker)
 
 These commands create the initial data in the database. If `seed` is run without arguments, the command will seed initial data for production environment. The `seed` command may be configured to seed with other kind of seed data:
 
@@ -75,7 +79,7 @@ These commands create the initial data in the database. If `seed` is run without
 For example:
 
 -   `docker-compose run --rm ewallet config <key> <value>` (Docker-Compose)
--   `docker run -it --rm omisego/ewallet:dev config <key> <value>` (Docker)
+-   `docker run -it --rm omisego/ewallet:latest config <key> <value>` (Docker)
 
 These commands will update the configuration key (see also [settings documentation](docs/setup/advanced/settings.md)) in the database. For some keys which require whitespace, such as `gcs_credentials`, you can prevent string splitting by putting them in a single or double-quote, e.g. `config gcs_credentials "gcs configuration"`.
 

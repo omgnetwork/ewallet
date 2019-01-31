@@ -4,7 +4,7 @@ defmodule EWallet.Mixfile do
   def project do
     [
       app: :ewallet,
-      version: "1.1.0-pre.0",
+      version: "1.1.0-pre.2",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
@@ -39,6 +39,7 @@ defmodule EWallet.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:activity_logger, in_umbrella: true},
       {:appsignal, "~> 1.9"},
       {:bamboo, "~> 0.8"},
       {:bamboo_smtp, "~> 1.4.0"},

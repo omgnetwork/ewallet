@@ -23,14 +23,15 @@ defmodule Mix.Tasks.Omg.Deps do
       mix omg.deps
   """
   use Mix.Task
+  alias EWallet.CLI
 
   @shortdoc "Retrieve dependencies for back-end and front-end apps in one go"
 
   def run(args) do
-    Mix.shell().info("Fetching backend depedencies...")
+    CLI.info("Fetching backend depedencies...")
     deps_backend(args)
 
-    Mix.shell().info("Fetching frontend depedencies...")
+    CLI.info("Fetching frontend depedencies...")
     deps_frontend()
   end
 
