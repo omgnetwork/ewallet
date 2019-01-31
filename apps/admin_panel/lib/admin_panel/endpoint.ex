@@ -23,7 +23,7 @@ defmodule AdminPanel.Endpoint do
     Plug.Static,
     at: "/admin",
     from: {:admin_panel, "priv/static"},
-    gzip: false
+    gzip: true
   )
 
   # Code reloading can be explicitly enabled under the

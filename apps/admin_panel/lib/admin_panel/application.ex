@@ -43,6 +43,9 @@ defmodule AdminPanel.Application do
           true ->
             _ = Logger.info("Enabling webpack watcher.")
 
+            # Webpack watcher is only for development, and rely on assets path
+            # being present (which doesn't in production); so this is using
+            # __DIR__ to make it expand to source path rather than compiled path.
             [
               worker(
                 Watcher,
@@ -66,5 +69,16 @@ defmodule AdminPanel.Application do
   def config_change(changed, _new, removed) do
     Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  # Returns a path to static distribution.
+  def dist_path do
+    case System.get_env("DIST_PATH") do
+      n when is_binary(n) and byte_size(n) > 0 ->
+        n
+
+      _ ->
+        Application.app_dir(:admin_panel, "priv/static")
+    end
   end
 end
