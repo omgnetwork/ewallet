@@ -4,7 +4,7 @@ use Mix.Config
 
 config :ewallet,
   ecto_repos: [],
-  version: "1.1.0-pre.0",
+  version: "1.1.0-pre.2",
   settings: [
     :base_url,
     :sender_email,
@@ -31,6 +31,7 @@ config :ewallet,
     "REDIRECT_URL_PREFIXES" => "redirect_url_prefixes",
     "ENABLE_STANDALONE" => "enable_standalone",
     "BALANCE_CACHING_STRATEGY" => "balance_caching_strategy",
+    "BALANCE_CACHING_RESET_FREQUENCY" => "balance_caching_reset_frequency",
     "REQUEST_MAX_PER_PAGE" => "max_per_page",
     "MIN_PASSWORD_LENGTH" => "min_password_length",
     "SENDER_EMAIL" => "sender_email",

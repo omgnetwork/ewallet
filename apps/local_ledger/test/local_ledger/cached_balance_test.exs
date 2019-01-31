@@ -18,9 +18,23 @@ defmodule LocalLedger.CachedBalanceTest do
   alias Ecto.Adapters.SQL.Sandbox
   alias LocalLedger.{CachedBalance}
   alias LocalLedgerDB.{Repo}
+  alias EWalletConfig.{Config, ConfigTestHelper}
+  alias ActivityLogger.System
 
   setup do
     :ok = Sandbox.checkout(Repo)
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
+    :ok = Sandbox.checkout(ActivityLogger.Repo)
+
+    config_pid = start_supervised!(EWalletConfig.Config)
+
+    ConfigTestHelper.restart_config_genserver(
+      self(),
+      config_pid,
+      EWalletConfig.Repo,
+      [:local_ledger],
+      %{}
+    )
 
     token_1 = insert(:token, id: "tok_OMG_1234")
     token_2 = insert(:token, id: "tok_BTC_5678")
@@ -62,7 +76,7 @@ defmodule LocalLedger.CachedBalanceTest do
       amount: 8_329
     )
 
-    %{token_1: token_1, token_2: token_2, wallet: wallet}
+    %{token_1: token_1, token_2: token_2, wallet: wallet, config_pid: config_pid}
   end
 
   describe "cache_all/0" do
@@ -102,8 +116,15 @@ defmodule LocalLedger.CachedBalanceTest do
 
     test "reuses the previous cached balance to calculate the new one when
           strategy = 'since_last_cached'",
-         %{token_1: token_1, wallet: wallet} do
-      Application.put_env(:local_ledger, :balance_caching_strategy, "since_last_cached")
+         %{token_1: token_1, wallet: wallet, config_pid: config_pid} do
+      Config.update(
+        %{
+          balance_caching_strategy: "since_last_cached",
+          balance_caching_reset_frequency: 0,
+          originator: %System{}
+        },
+        config_pid
+      )
 
       CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
@@ -118,8 +139,11 @@ defmodule LocalLedger.CachedBalanceTest do
       LocalLedgerDB.CachedBalance.insert(%{
         amounts: %{"tok_OMG_1234" => 3_000},
         wallet_address: wallet.address,
+        cached_count: 1,
         computed_at: NaiveDateTime.utc_now()
       })
+
+      assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 2
 
       # Total: +1_000 OMG
       insert_list(
@@ -138,11 +162,124 @@ defmodule LocalLedger.CachedBalanceTest do
              }
     end
 
+    test "increase the cached_count when calculating with strategy = 'since_last_cached'", %{
+      wallet: wallet,
+      config_pid: config_pid
+    } do
+      Config.update(
+        %{
+          balance_caching_strategy: "since_last_cached",
+          balance_caching_reset_frequency: 0,
+          originator: %System{}
+        },
+        config_pid
+      )
+
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 2
+    end
+
+    test "Ignore the reset frequency when set to `nil` with strategy = 'since_last_cached'", %{
+      wallet: wallet,
+      config_pid: config_pid
+    } do
+      Config.update(
+        %{
+          balance_caching_strategy: "since_last_cached",
+          balance_caching_reset_frequency: nil,
+          originator: %System{}
+        },
+        config_pid
+      )
+
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 2
+    end
+
+    test "cached_count is 1 when calculating with strategy = 'since_beginning'", %{wallet: wallet} do
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
+    end
+
+    test "cached_count is reset to 1 when reaching the reset frequency with strategy = 'since_last_cached'",
+         %{wallet: wallet, config_pid: config_pid} do
+      Config.update(
+        %{
+          balance_caching_strategy: "since_last_cached",
+          balance_caching_reset_frequency: 3,
+          originator: %System{}
+        },
+        config_pid
+      )
+
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 2
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
+    end
+
+    test "Recalculate from beginning when reaching the reset frequency with strategy = 'since_last_cached'",
+         %{token_1: token_1, wallet: wallet, config_pid: config_pid} do
+      Config.update(
+        %{
+          balance_caching_strategy: "since_last_cached",
+          balance_caching_reset_frequency: 3,
+          originator: %System{}
+        },
+        config_pid
+      )
+
+      CachedBalance.cache_all()
+
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
+               "tok_BTC_5678" => 85_563,
+               "tok_OMG_1234" => 58_953
+             }
+
+      # Manually insert a wrong amount
+      LocalLedgerDB.CachedBalance.insert(%{
+        amounts: %{"tok_BTC_5678" => 1_000, "tok_OMG_1234" => 3_000},
+        wallet_address: wallet.address,
+        cached_count: 1,
+        computed_at: NaiveDateTime.utc_now()
+      })
+
+      insert(
+        :credit,
+        token: token_1,
+        wallet: wallet,
+        amount: 1000
+      )
+
+      CachedBalance.cache_all()
+
+      # This is wrong because it's based on a wrongly calculated previous cached_balance
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
+               "tok_BTC_5678" => 1_000,
+               "tok_OMG_1234" => 4_000
+             }
+
+      # The reset_frequency is 3 so it will now calculate since the beginning
+      # and sync the correct value
+      CachedBalance.cache_all()
+
+      assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
+               "tok_BTC_5678" => 85_563,
+               "tok_OMG_1234" => 59_953
+             }
+    end
+
     test "reuses the previous cached balance to calculate the new one when
           strategy = 'since_beginning'",
          %{token_1: token_1, wallet: wallet} do
-      Application.put_env(:local_ledger, :balance_caching_strategy, "since_beginning")
-
       CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
 
@@ -155,6 +292,7 @@ defmodule LocalLedger.CachedBalanceTest do
       LocalLedgerDB.CachedBalance.insert(%{
         amounts: %{"tok_OMG_1234" => 3_000},
         wallet_address: wallet.address,
+        cached_count: 1,
         computed_at: NaiveDateTime.utc_now()
       })
 
@@ -178,9 +316,16 @@ defmodule LocalLedger.CachedBalanceTest do
 
     test "reuses the previous cached balance to calculate the new one if no strategy is given", %{
       token_1: token_1,
-      wallet: wallet
+      wallet: wallet,
+      config_pid: config_pid
     } do
-      Application.put_env(:local_ledger, :balance_caching_strategy, nil)
+      Config.update(
+        %{
+          balance_caching_strategy: nil,
+          originator: %System{}
+        },
+        config_pid
+      )
 
       CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
@@ -194,6 +339,7 @@ defmodule LocalLedger.CachedBalanceTest do
       LocalLedgerDB.CachedBalance.insert(%{
         amounts: %{"tok_OMG_1234" => 3_000},
         wallet_address: wallet.address,
+        cached_count: 1,
         computed_at: NaiveDateTime.utc_now()
       })
 
