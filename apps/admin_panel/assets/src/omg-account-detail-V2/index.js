@@ -7,6 +7,12 @@ import DetailPage from '../omg-page-account-detail'
 import WalletPage from '../omg-page-wallets'
 import styled from 'styled-components'
 import { Avatar } from '../omg-uikit'
+import TransactionRequestPage from '../omg-page-transaction-request'
+import ConsumptionPage from '../omg-page-consumption'
+import TransactionPage from '../omg-page-transaction'
+import UserPage from '../omg-page-users'
+import AdminPage from '../omg-page-admins'
+import SettingPage from '../omg-page-account-setting'
 const AccountTabDetailPageContainer = styled.div`
   a {
     color: inherit;
@@ -32,7 +38,16 @@ class AccountTabsPage extends Component {
     match: PropTypes.object
   }
   renderAccountTabPage = ({ account }) => {
-    const tabs = { detail: 0, wallets: 1, requests: 2 }
+    const tabs = {
+      detail: 0,
+      wallets: 1,
+      requests: 2,
+      consumptions: 3,
+      transactions: 4,
+      users: 5,
+      admins: 6,
+      setting: 7
+    }
     const activeIndex = tabs[this.props.match.params.tab]
     return account ? (
       <AccountTabDetailPageContainer>
@@ -73,28 +88,46 @@ class AccountTabsPage extends Component {
               )
             },
             {
-              title: 'Requests',
-              content: null
+              title: (
+                <Link to={`/accounts/${this.props.match.params.accountId}/requests`}>Requests</Link>
+              ),
+              content: <TransactionRequestPage />
             },
             {
-              title: 'Consumption',
-              content: null
+              title: (
+                <Link to={`/accounts/${this.props.match.params.accountId}/consumptions`}>
+                  Consumption
+                </Link>
+              ),
+              content: <ConsumptionPage />
             },
             {
-              title: 'Transactions',
-              content: null
+              title: (
+                <Link to={`/accounts/${this.props.match.params.accountId}/transactions`}>
+                  Transactions
+                </Link>
+              ),
+              content: <TransactionPage />
             },
             {
-              title: 'Users',
-              content: null
+              title: (
+                <Link to={`/accounts/${this.props.match.params.accountId}/users`}>
+                  Users
+                </Link>
+              ),
+              content: <UserPage />
             },
             {
-              title: 'Team',
-              content: null
+              title: (
+                <Link to={`/accounts/${this.props.match.params.accountId}/admins`}>Admins</Link>
+              ),
+              content: <AdminPage />
             },
             {
-              title: 'Setting',
-              content: null
+              title: (
+                <Link to={`/accounts/${this.props.match.params.accountId}/setting`}>Setting</Link>
+              ),
+              content: <SettingPage />
             }
           ]}
         />
