@@ -17,8 +17,10 @@ defmodule EWallet.AdapterHelperTest do
   import Ecto.Query
   import EWalletDB.Factory
   alias EWallet.AdapterHelper
+  alias EWallet.Helper
   alias EWallet.Web.V1.CSV.TransactionSerializer
   alias EWalletDB.{Export, Transaction}
+  alias Ecto.UUID
   alias Utils.Helper.PidHelper
 
   setup do
@@ -50,18 +52,34 @@ defmodule EWallet.AdapterHelperTest do
 
     query = from(t in Transaction, where: t.to_token_uuid == ^token.uuid)
 
+    # File things
+    root = Helper.static_dir(:url_dispatcher)
+    uuid = UUID.generate()
+    path = Path.join(["private", uuid])
+    path_abs = Path.join([root, path])
+
+    :ok = File.mkdir_p!(path_abs)
+
+    on_exit(fn ->
+      _ = File.rm_rf!(path_abs)
+    end)
+
     %{
       export: export,
       query: query,
       serializer: serializer,
       transactions: transactions,
-      chunk_size: chunk_size
+      chunk_size: chunk_size,
+      root: root,
+      uuid: uuid,
+      path: path,
+      path_abs: path_abs
     }
   end
 
   describe "stream_to_file/5" do
     test "streams the data to the given file path", context do
-      path = test_file_path("test-stream-to-file-#{:rand.uniform(999_999)}.txt")
+      path = Path.join(context.path_abs, "test-stream-to-file-#{:rand.uniform(999_999)}.txt")
 
       refute File.exists?(path)
 
@@ -77,9 +95,6 @@ defmodule EWallet.AdapterHelperTest do
       assert res == :ok
       assert result == :ok
       assert File.exists?(path)
-
-      # Clean up the created file after testing
-      :ok = File.rm(path)
     end
   end
 
