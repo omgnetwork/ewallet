@@ -343,7 +343,7 @@ class ConfigurationPage extends Component {
                 name={'AWS Access Key ID'}
                 description={configurations.aws_access_key_id.description}
                 value={this.state.awsAccessKeyId}
-                placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
+                placeholder={'ie. AKIAJA2ACZYRUYWQH7DZ'}
                 border={this.state.emailAdapter !== 'gcs'}
                 onChange={this.onChangeInput('awsAccessKeyId')}
               />
