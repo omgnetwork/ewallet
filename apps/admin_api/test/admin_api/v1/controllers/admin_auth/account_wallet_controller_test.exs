@@ -163,6 +163,15 @@ defmodule AdminAPI.V1.AdminAuth.AccountWalletControllerTest do
       assert Enum.member?(wallets, {account_3.id, "secondary_3"})
       assert Enum.member?(wallets, {account_3.id, "secondary_4"})
     end
+
+    test "returns :invalid_parameter error when id is not given" do
+      response = admin_user_request("/account.get_wallets_and_user_wallets", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
+    end
   end
 
   describe "/account.get_wallets" do
@@ -304,6 +313,15 @@ defmodule AdminAPI.V1.AdminAuth.AccountWalletControllerTest do
       assert Enum.member?(wallets, {account_2.id, "secondary_2"})
       assert Enum.member?(wallets, {account_3.id, "secondary_3"})
       assert Enum.member?(wallets, {account_3.id, "secondary_4"})
+    end
+
+    test "returns :invalid_parameter error when id is not given" do
+      response = admin_user_request("/account.get_wallets", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
     end
   end
 end

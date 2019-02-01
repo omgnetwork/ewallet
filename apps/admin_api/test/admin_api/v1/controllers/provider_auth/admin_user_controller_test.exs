@@ -157,6 +157,15 @@ defmodule AdminAPI.V1.ProviderAuth.AdminControllerTest do
       assert response["data"]["email"] == admin.email
     end
 
+    test "returns 'client:invalid_parameter' error when id is not given" do
+      response = provider_request("/account.get", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
+    end
+
     test "returns 'unauthorized' if the given ID is not an admin" do
       {:ok, user} = :user |> params_for() |> User.insert()
       response = provider_request("/admin.get", %{"id" => user.id})

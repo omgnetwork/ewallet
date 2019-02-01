@@ -156,6 +156,17 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       assert response["data"] == %{}
     end
 
+    test "returns :invalid_parameter error when auth_token is not given" do
+      response = admin_user_request("/user.logout", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `auth_token` is required."
+    end
+
     test "generates activity logs" do
       _user = insert(:user, %{provider_user_id: "1234"})
       admin_user_request("/user.login", %{provider_user_id: "1234"})

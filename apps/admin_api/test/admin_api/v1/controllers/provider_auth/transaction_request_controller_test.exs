@@ -426,6 +426,17 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
       assert response["data"]["id"] == transaction_request.id
     end
 
+    test "returns :invalid_parameter error when formatted_id is not given" do
+      response = admin_user_request("/transaction_request.get", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `formatted_id` is required."
+    end
+
     test "returns an error when the request ID is not found" do
       response =
         provider_request("/transaction_request.get", %{

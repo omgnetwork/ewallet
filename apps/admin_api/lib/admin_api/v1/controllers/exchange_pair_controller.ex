@@ -54,6 +54,8 @@ defmodule AdminAPI.V1.ExchangePairController do
     end
   end
 
+  def get(conn, _), do: handle_error(conn, :missing_id)
+
   @doc """
   Creates a new exchange pair.
   """
