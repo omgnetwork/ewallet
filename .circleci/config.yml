@@ -101,11 +101,6 @@ jobs:
             - v1-ewallet-{{ checksum "mix.lock" }}-
             - v1-ewallet-
       - run:
-          name: Recompile :erlex dependency to avoid the build error
-          command: |
-            set -xe
-            mix deps.compile erlex
-      - run:
           name: Building eWallet in test environment
           command: |
             set -xe
