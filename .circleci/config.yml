@@ -101,10 +101,10 @@ jobs:
             - v1-ewallet-{{ checksum "mix.lock" }}-
             - v1-ewallet-
       - run:
-          name: Temporarily cleaning all deps to support the changing Elixir 1.8 version
+          name: Recompile :erlex dependency to avoid the build error
           command: |
             set -xe
-            mix deps.clean --all
+            mix deps.compile erlex
       - run:
           name: Building eWallet in test environment
           command: |
