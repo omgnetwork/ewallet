@@ -21,8 +21,9 @@ defmodule EWalletDB.GlobalRole do
     super_admin: :global,
     admin: %{
       accounts: %{read: :accounts, create: :none, update: :accounts},
+      memberships: %{all: :accounts, get: :accounts, create: :accounts, update: :accounts},
       categories: %{read: :global, create: :none, update: :none},
-      admin_users: %{read: :accounts, create: :accounts, update: :accounts, disable: :accounts},
+      admin_users: %{read: :accounts, update: :accounts, disable: :accounts},
       end_users: %{read: :global, create: :accounts, update: :accounts, disable: :none},
       access_keys: %{read: :accounts, create: :accounts, update: :accounts, disable: :accounts},
       api_keys: %{read: :accounts, create: :accounts, update: :accounts, disable: :accounts},
@@ -61,8 +62,22 @@ defmodule EWalletDB.GlobalRole do
       admin_user_exports: %{read: :admin_user, create: :none},
       configuration: :none
     },
+    end_user: %{
+      end_users: %{read: :self, create: :self, update: :self},
+      tokens: %{read: :global, create: :none, update: :none},
+      account_wallets: %{read: :none, view_balance: :none, create: :none, update: :none},
+      end_user_wallets: %{read: :self, view_balance: :self, create: :none, update: :self},
+      end_user_transactions: %{read: :self, create: :self},
+      end_user_transaction_requests: %{all: :self, get: :global, create: :self},
+      end_user_transaction_consumptions: %{read: :self, create: :self, approve: :self},
+    },
     none: :none
   }
 
+  def super_admin, do: :super_admin
+  def admin, do: :admin
+  def end_user, do: :end_user
+  def none, do: :none
+  def global_roles, do: Map.keys(@global_role_permissions)
   def global_role_permissions, do: @global_role_permissions
 end

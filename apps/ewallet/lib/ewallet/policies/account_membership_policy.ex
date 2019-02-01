@@ -18,24 +18,25 @@ defmodule EWallet.AccountMembershipPolicy do
   """
   @behaviour Bodyguard.Policy
   alias EWallet.PolicyHelper
-  alias EWalletDB.Account
 
-  # access key have admin rights so we only check that the target is
-  # a descendant of the access key's account.
-  def authorize(_action, %{key: key}, account_id) do
-    Account.descendant?(key.account, account_id)
+  def authorize(:all, attrs, account_id) do
+    PolicyHelper.can?(attrs, action: :all, type: :memberships, target: account_id)
   end
 
-  def authorize(:get, %{admin_user: user}, account_id) do
-    PolicyHelper.viewer_authorize(user, account_id)
+  def authorize(:get, attrs, account_id) do
+    PolicyHelper.can?(attrs, action: :get, type: :memberships, target: account_id)
   end
 
-  def authorize(:create, %{admin_user: user}, account_id) do
-    PolicyHelper.admin_authorize(user, account_id)
+  def authorize(:create, attrs, account_id) do
+    PolicyHelper.can?(attrs, action: :create, type: :memberships, target: account_id)
   end
 
-  def authorize(:delete, %{admin_user: user}, account_id) do
-    PolicyHelper.admin_authorize(user, account_id)
+  def authorize(:update, attrs, account_id) do
+    PolicyHelper.can?(attrs, action: :update, type: :memberships, target: account_id)
+  end
+
+  def authorize(:delete, attrs, account_id) do
+    PolicyHelper.can?(attrs, action: :delete, type: :memberships, target: account_id)
   end
 
   def authorize(_, _, _), do: false

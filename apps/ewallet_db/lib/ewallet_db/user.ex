@@ -33,6 +33,7 @@ defmodule EWalletDB.User do
     Invite,
     Membership,
     Repo,
+    GlobalRole,
     Role,
     User,
     Wallet
@@ -44,6 +45,7 @@ defmodule EWalletDB.User do
     external_id(prefix: "usr_")
 
     field(:is_admin, :boolean, default: false)
+    field(:global_role, :string)
     field(:username, :string)
     field(:full_name, :string)
     field(:calling_name, :string)
@@ -86,6 +88,13 @@ defmodule EWalletDB.User do
       references: :uuid
     )
 
+    has_many(
+      :account_links,
+      AccountUser,
+      foreign_key: :user_uuid,
+      references: :uuid
+    )
+
     many_to_many(
       :roles,
       Role,
@@ -97,6 +106,13 @@ defmodule EWalletDB.User do
       :accounts,
       Account,
       join_through: Membership,
+      join_keys: [user_uuid: :uuid, account_uuid: :uuid]
+    )
+
+    many_to_many(
+      :linked_accounts,
+      Account,
+      join_through: AccountUser,
       join_keys: [user_uuid: :uuid, account_uuid: :uuid]
     )
 
@@ -132,6 +148,7 @@ defmodule EWalletDB.User do
       ]
     )
     |> validate_confirmation(:password, message: "does not match password")
+    |> validate_inclusion(:global_role, GlobalRole.global_roles())
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
@@ -285,6 +302,7 @@ defmodule EWalletDB.User do
   defp do_validate_provider_user(changeset, _attrs) do
     changeset
     |> validate_required([:username, :provider_user_id])
+    |> put_change(:global_role, Atom.to_string(GlobalRole.end_user()))
   end
 
   @doc """

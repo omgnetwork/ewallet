@@ -109,6 +109,20 @@ defmodule EWalletDB.Membership do
     from(m in Membership, where: m.account_uuid in ^account_uuids, preload: ^preload)
   end
 
+  def query_all_by_member_and_account_uuids(member, account_uuids, preload \\ [])
+
+  def query_all_by_member_and_account_uuids(%User{} = user, account_uuids, preload) do
+    Repo.all(
+      from(m in Membership, where: m.account_uuid in ^account_uuids and m.user_uuid == ^user.uuid, preload: ^preload)
+    )
+  end
+
+  def query_all_by_member_and_account_uuids(%Key{} = key, account_uuids, preload) do
+    Repo.all(
+      from(m in Membership, where: m.account_uuid in ^account_uuids and m.key_uuid == ^key.uuid, preload: ^preload)
+    )
+  end
+
   @doc """
   Assigns the user to the given account and role.
   """

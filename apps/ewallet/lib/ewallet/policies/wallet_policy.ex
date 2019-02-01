@@ -17,91 +17,26 @@ defmodule EWallet.WalletPolicy do
   The authorization policy for accounts.
   """
   @behaviour Bodyguard.Policy
-  alias EWallet.{AccountPolicy, PolicyHelper, UserPolicy}
-  alias EWalletDB.{Account, User, Wallet}
+  alias EWallet.PolicyHelper
 
-  def authorize(:all, params, %Account{} = account) do
-    AccountPolicy.authorize(:get, params, account.id)
+  def authorize(:all, attrs, nil) do
+    PolicyHelper.can?(attrs, action: :all, type: :wallets)
   end
 
-  def authorize(:all, params, %User{} = user) do
-    UserPolicy.authorize(:get, params, user)
+  def authorize(:get, attrs, wallet) do
+    PolicyHelper.can?(attrs, action: :read, target: wallet)
   end
 
-  def authorize(:all, _params, nil), do: true
-
-  def authorize(:join, %{admin_user: _} = params, wallet) do
-    authorize(:get, params, wallet)
+  def authorize(:get_balances, attrs, wallet) do
+    PolicyHelper.can?(attrs, action: :get_balances, target: wallet)
   end
 
-  def authorize(:join, %{key: _} = params, wallet) do
-    authorize(:get, params, wallet)
+  def authorize(:join, attrs, wallet) do
+    PolicyHelper.can?(attrs, action: :listen, target: wallet)
   end
 
-  def authorize(:join, %{end_user: end_user}, %Wallet{} = wallet) do
-    end_user
-    |> User.addresses()
-    |> Enum.member?(wallet.address)
-  end
-
-  # Anyone can create a wallet for a user
-  def authorize(:create, %{key: _key}, %{"user_id" => user_id}) when not is_nil(user_id) do
-    true
-  end
-
-  def authorize(:create, %{admin_user: _admin_user}, %{"user_id" => user_id})
-      when not is_nil(user_id) do
-    true
-  end
-
-  # Check with the passed attributes if the current accessor can
-  # create a wallet for the account
-  def authorize(:create, %{key: key}, %{"account_id" => account_id}) do
-    Account.descendant?(key.account, account_id)
-  end
-
-  def authorize(:create, %{admin_user: admin_user}, %{"account_id" => account_id}) do
-    PolicyHelper.admin_authorize(admin_user, account_id)
-  end
-
-  # For wallets owned by users
-  def authorize(:create_transaction, %{end_user: end_user}, %Wallet{user_uuid: uuid})
-      when not is_nil(uuid) do
-    end_user.uuid == uuid
-  end
-
-  def authorize(:create_transaction, _params, %Wallet{user_uuid: uuid}) when not is_nil(uuid) do
-    with %User{} = _wallet_user <- User.get_by(uuid: uuid) || {:error, :unauthorized} do
-      true
-    else
-      error -> error
-    end
-  end
-
-  def authorize(:create_transaction, params, %Wallet{account_uuid: uuid}) when not is_nil(uuid) do
-    with %Account{} = wallet_account <- Account.get_by(uuid: uuid) || {:error, :unauthorized} do
-      AccountPolicy.authorize(:admin, params, wallet_account.id)
-    else
-      error -> error
-    end
-  end
-
-  # For wallets owned by users
-  def authorize(_action, params, %Wallet{user_uuid: uuid}) when not is_nil(uuid) do
-    with %User{} = wallet_user <- User.get_by(uuid: uuid) || {:error, :unauthorized} do
-      UserPolicy.authorize(:admin, params, wallet_user)
-    else
-      error -> error
-    end
-  end
-
-  # For wallets owned by accounts
-  def authorize(_action, params, %Wallet{account_uuid: uuid} = _wallet) when not is_nil(uuid) do
-    with %Account{} = wallet_account <- Account.get_by(uuid: uuid) || {:error, :unauthorized} do
-      AccountPolicy.authorize(:admin, params, wallet_account.id)
-    else
-      error -> error
-    end
+  def authorize(:create, attrs, wallet) do
+    PolicyHelper.can?(attrs, action: :create, target: wallet)
   end
 
   def authorize(_, _, _), do: false

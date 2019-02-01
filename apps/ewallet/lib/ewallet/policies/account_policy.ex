@@ -18,32 +18,25 @@ defmodule EWallet.AccountPolicy do
   """
   @behaviour Bodyguard.Policy
   alias EWallet.PolicyHelper
-  alias EWalletDB.Account
 
-  # Allowed for any role, filtering is
-  # handled at the controller level to only return
-  # allowed records. Should this be handled here?
-  def authorize(:all, _params, nil), do: true
-
-  # access key have admin rights so we only check that the target is
-  # a descendant of the access key's account.
-  def authorize(_action, %{account: account}, account_id) do
-    Account.descendant?(account, account_id)
+  def authorize(:all, attrs, nil) do
+    PolicyHelper.can?(attrs, action: :all, type: :accounts)
   end
 
-  def authorize(action, %{key: key}, account_id) do
-    authorize(action, %{account: key.account}, account_id)
+  def authorize(:get, attrs, account_id) do
+    PolicyHelper.can?(attrs, action: :read, target: account_id)
   end
 
-  def authorize(:get, %{admin_user: user}, account_id) do
-    PolicyHelper.viewer_authorize(user, account_id)
+  def authorize(:join, attrs, account_id) do
+    PolicyHelper.can?(attrs, action: :listen, target: account_id)
   end
 
-  def authorize(:join, param, account_id), do: authorize(:get, param, account_id)
+  def authorize(:create, attrs, account_id) do
+    PolicyHelper.can?(attrs, action: :create, target: account_id)
+  end
 
-  # create/update/delete/join, or anything else.
-  def authorize(_, %{admin_user: user}, account_id) do
-    PolicyHelper.admin_authorize(user, account_id)
+  def authorize(:update, attrs, account_id) do
+    PolicyHelper.can?(attrs, action: :update, target: account_id)
   end
 
   def authorize(_, _, _), do: false

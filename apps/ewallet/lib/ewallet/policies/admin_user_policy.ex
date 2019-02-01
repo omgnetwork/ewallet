@@ -18,43 +18,30 @@ defmodule EWallet.AdminUserPolicy do
   """
   @behaviour Bodyguard.Policy
   alias EWallet.PolicyHelper
-  alias EWalletDB.{Account, Membership, User}
 
-  # Allowed for any role, filtering is
-  # handled at the controller level to only return
-  # allowed records. Should this be handled here?
-  def authorize(:all, _params, nil), do: true
-
-  # access key have admin rights so we only check that the target is
-  # a descendant of the access key's account.
-  def authorize(_action, %{key: key}, user) do
-    account_uuids = membership_account_uuids(user)
-    Account.descendant?(key.account, account_uuids)
+  def authorize(:all, attrs, nil) do
+    PolicyHelper.can?(attrs, action: :all, type: :admin_users)
   end
 
-  # compare current user descendant accounts
-  # with passed user ancestors accounts to find match
-
-  def authorize(:get, %{admin_user: admin_user}, user) do
-    account_uuids = membership_account_uuids(user)
-    PolicyHelper.viewer_authorize(admin_user, account_uuids)
+  def authorize(:get, attrs, admin_user) do
+    PolicyHelper.can?(attrs, action: :read, target: admin_user)
   end
 
-  def authorize(:enable_or_disable, %{admin_user: %{uuid: uuid}}, %User{uuid: uuid}) do
-    false
+  def authorize(:join, attrs, admin_user) do
+    PolicyHelper.can?(attrs, action: :listen, target: admin_user)
   end
 
-  # create/update/delete, or anything else.
-  def authorize(_action, %{admin_user: admin_user}, user) do
-    account_uuids = membership_account_uuids(user)
-    PolicyHelper.admin_authorize(admin_user, account_uuids)
+  def authorize(:create, attrs, admin_user) do
+    PolicyHelper.can?(attrs, action: :create, target: admin_user)
+  end
+
+  def authorize(:update, attrs, admin_user) do
+    PolicyHelper.can?(attrs, action: :update, target: admin_user)
+  end
+
+  def authorize(:enable_or_disable, attrs, admin_user) do
+    PolicyHelper.can?(attrs, action: :enable_or_disable, target: admin_user)
   end
 
   def authorize(_, _, _), do: false
-
-  defp membership_account_uuids(user) do
-    user
-    |> Membership.all_by_user()
-    |> Enum.map(fn membership -> membership.account_uuid end)
-  end
 end
