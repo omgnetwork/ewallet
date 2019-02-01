@@ -4,7 +4,7 @@ version: 2.1
 executors:
   builder:
     docker:
-      - image: omisegoimages/ewallet-builder:stable
+      - image: omisegoimages/ewallet-builder:dev-80264b0
     working_directory: ~/src
     environment:
       IMAGE_NAME: "omisego/ewallet"
