@@ -105,17 +105,16 @@ defmodule EWallet.AdapterHelperTest do
   end
 
   describe "local_dir/0" do
-    test "returns a string starting with the root dir" do
+    test "returns a string containing url_dispatcher path" do
       path = AdapterHelper.local_dir()
-      assert String.starts_with?(path, Application.get_env(:ewallet, :root))
+      assert String.match?(path, ~r/^.+\/url_dispatcher\/priv\/static\//)
     end
   end
 
   describe "build_local_path/1" do
     test "returns a string starting with the root dir and ends with the given file name" do
       path = AdapterHelper.build_local_path("local_file_name.txt")
-      assert String.starts_with?(path, Application.get_env(:ewallet, :root))
-      assert String.ends_with?(path, "local_file_name.txt")
+      assert String.match?(path, ~r/^.+\/url_dispatcher\/priv\/static\/.*\/local_file_name\.txt$/)
     end
   end
 

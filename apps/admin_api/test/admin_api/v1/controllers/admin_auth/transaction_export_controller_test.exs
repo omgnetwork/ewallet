@@ -18,6 +18,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
   alias Utils.Helper.PidHelper
   alias EWalletConfig.Config
   alias ActivityLogger.System
+  alias EWallet.Helper
 
   def setup do
     assert Application.get_env(:admin_api, :file_storage_adapter) == "local"
@@ -76,7 +77,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
 
       {:ok, _} =
         [
-          Application.get_env(:ewallet, :root),
+          Helper.static_dir(:url_dispatcher),
           Uploaders.File.storage_dir(nil, nil)
         ]
         |> Path.join()
