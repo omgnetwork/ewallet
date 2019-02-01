@@ -26,7 +26,6 @@ defmodule EWallet.Web.Paginator do
   @default_per_page 10
   @default_max_per_page 100
 
-  # TODO Change the pagination structure to support `start_after` and unsupport `page`.
   defstruct data: [],
             pagination: %{
               per_page: nil,
@@ -49,7 +48,6 @@ defmodule EWallet.Web.Paginator do
           %__MODULE__{} | {:error, :invalid_parameter, String.t()}
   def paginate_attrs(queryable, attrs, allowed_fields \\ [], repo \\ Repo)
 
-  # TODO Remove this function to unsupport `page`
   # Prevent `page` to be combined with `start_after`
   def paginate_attrs(_, %{"page" => _, "start_after" => _}, _, _) do
     {:error, :invalid_parameter, "`page` cannot be used with `start_after`"}
@@ -61,7 +59,6 @@ defmodule EWallet.Web.Paginator do
     {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
 
-  # TODO Remove this function to unsupport `page`
   # Convert `per_page` type from string to integer.
   def paginate_attrs(queryable, %{"per_page" => per_page} = attrs, allowed_fields, repo)
       when is_binary(per_page) do
@@ -71,7 +68,6 @@ defmodule EWallet.Web.Paginator do
     end
   end
 
-  # TODO Remove this function to unsupport `page`
   # Convert `page` type from string to integer
   def paginate_attrs(queryable, %{"page" => page} = attrs, allowed_fields, repo)
       when is_binary(page) do
@@ -81,7 +77,6 @@ defmodule EWallet.Web.Paginator do
     end
   end
 
-  # TODO Remove this function to unsupport `page`
   # Delegate `attrs` to the `PagePaginator`
   def paginate_attrs(queryable, %{"page" => _} = attrs, _, repo) do
     per_page = get_per_page(attrs)
@@ -108,7 +103,6 @@ defmodule EWallet.Web.Paginator do
     per_page = get_per_page(attrs)
     attrs = Map.put(attrs, "per_page", per_page)
 
-    # TODO `StartAfterPaginator` to use `start_after` as a default behavior.
     PagePaginator.paginate_attrs(queryable, attrs, repo)
   end
 
