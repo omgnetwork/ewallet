@@ -348,7 +348,7 @@ class ConfigurationPage extends Component {
                 onChange={this.onChangeInput('awsAccessKeyId')}
               />
               <ConfigRow
-                name={'AWS Access Key ID'}
+                name={'AWS Secret Key'}
                 description={configurations.aws_secret_access_key.description}
                 value={this.state.awsSecretAccessKey}
                 placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
