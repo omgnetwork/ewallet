@@ -17,6 +17,7 @@ defmodule EWalletConfig.Storage.LocalTest do
   alias ActivityLogger.System
   alias EWalletConfig.Config
   alias EWalletConfig.Storage.Local
+  alias EWallet.Helper
 
   @temp_test_file_dir "private/temp_test_files"
 
@@ -34,7 +35,7 @@ defmodule EWalletConfig.Storage.LocalTest do
 
   describe "get_path/2" do
     test "returns the path with the root dir prepended" do
-      root_dir = Application.get_env(:ewallet, :root)
+      root_dir = Helper.static_dir(:url_dispatcher)
       destination_dir = "some_dir/another_dir"
       file_name = "some_filename.txt"
 

@@ -21,6 +21,7 @@ defmodule EWallet.AdapterHelper do
   alias EWallet.Exporter
   alias EWalletDB.{Repo, Export, Uploaders}
   alias EWalletConfig.{FileStorageSupervisor, Storage.Local}
+  alias EWallet.Helper
 
   @rows_count 500
   @timeout_milliseconds 1 * 60 * 60 * 1000
@@ -80,7 +81,7 @@ defmodule EWallet.AdapterHelper do
 
   def local_dir do
     [
-      Application.get_env(:ewallet, :root),
+      Helper.static_dir(:url_dispatcher),
       Uploaders.File.storage_dir(nil, nil)
     ]
     |> Path.join()

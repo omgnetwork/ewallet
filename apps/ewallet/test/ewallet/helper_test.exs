@@ -110,19 +110,19 @@ defmodule EWallet.HelperTest do
       System.put_env("SERVE_LOCAL_STATIC", "yes")
 
       assert Helper.static_dir(:url_dispatcher) ==
-               Application.app_dir(:url_dispatcher, "priv/static")
+               Path.expand("../../../url_dispatcher/priv/static", __DIR__)
 
-      assert Helper.static_dir(:admin_panel) == Application.app_dir(:admin_panel, "priv/static")
+      assert Helper.static_dir(:admin_panel) ==
+               Path.expand("../../../admin_panel/priv/static", __DIR__)
     end
 
     test "returns path to app dir with serve local static" do
       System.put_env("SERVE_LOCAL_STATIC", "no")
 
       assert Helper.static_dir(:url_dispatcher) ==
-               Path.expand("../../../url_dispatcher/priv/static", __DIR__)
+               Application.app_dir(:url_dispatcher, "priv/static")
 
-      assert Helper.static_dir(:admin_panel) ==
-               Path.expand("../../../admin_panel/priv/static", __DIR__)
+      assert Helper.static_dir(:admin_panel) == Application.app_dir(:admin_panel, "priv/static")
     end
   end
 end

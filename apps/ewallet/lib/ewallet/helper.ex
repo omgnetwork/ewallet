@@ -104,10 +104,10 @@ defmodule EWallet.Helper do
 
     case to_boolean(serve_local_static) do
       true ->
-        Application.app_dir(app, "priv/static")
+        Path.expand("../../../#{app}/priv/static", __DIR__)
 
       false ->
-        Path.expand("../../../#{app}/priv/static", __DIR__)
+        Application.app_dir(app, "priv/static")
     end
   end
 end
