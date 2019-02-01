@@ -15,7 +15,7 @@
 defmodule UrlDispatcher.Plug do
   @moduledoc false
   import Plug.Conn, only: [resp: 3, halt: 1, put_status: 2]
-  import Phoenix.Controller, only: [json: 2, redirect: 2]
+  import Phoenix.Controller, only: [json: 2]
   alias Plug.Static
   alias EWallet.Helper
 
