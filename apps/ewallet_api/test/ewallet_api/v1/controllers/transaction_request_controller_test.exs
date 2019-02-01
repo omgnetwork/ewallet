@@ -341,7 +341,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     end
 
     test "returns :invalid_parameter error when id is not given" do
-      response = admin_user_request("/me.get_transaction_request", %{})
+      response = client_request("/me.get_transaction_request", %{})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
