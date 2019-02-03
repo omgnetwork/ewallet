@@ -15,13 +15,13 @@
 defmodule EWalletConfig.Storage.LocalTest do
   use EWalletConfig.SchemaCase
   alias ActivityLogger.System
-  alias EWallet.Helper
   alias EWalletConfig.Config
   alias EWalletConfig.Storage.Local
   alias Ecto.UUID
+  alias Utils.Helpers.PathResolver
 
   setup do
-    root = Helper.static_dir(:url_dispatcher)
+    root = PathResolver.static_dir(:url_dispatcher)
     uuid = UUID.generate()
     path = Path.join(["private", uuid])
     path_abs = Path.join([root, path])

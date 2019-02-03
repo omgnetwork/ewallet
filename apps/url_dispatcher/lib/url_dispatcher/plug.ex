@@ -17,7 +17,7 @@ defmodule UrlDispatcher.Plug do
   import Plug.Conn, only: [resp: 3, halt: 1, put_status: 2]
   import Phoenix.Controller, only: [json: 2]
   alias Plug.Static
-  alias EWallet.Helper
+  alias Utils.Helpers.PathResolver
 
   @public_folders ~w(uploads swagger)
 
@@ -36,7 +36,7 @@ defmodule UrlDispatcher.Plug do
   defp handle_request("/pages/client" <> _, conn), do: EWalletAPI.Endpoint.call(conn, [])
 
   defp handle_request("/public" <> _, conn) do
-    static_dir = Helper.static_dir(:url_dispatcher)
+    static_dir = PathResolver.static_dir(:url_dispatcher)
 
     opts =
       Static.init(

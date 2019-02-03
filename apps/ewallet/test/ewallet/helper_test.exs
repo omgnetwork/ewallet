@@ -28,37 +28,6 @@ defmodule EWallet.HelperTest do
     end
   end
 
-  describe "to_boolean/1" do
-    test "converts strings to boolean" do
-      assert Helper.to_boolean("yes")
-      assert Helper.to_boolean("Yes")
-      assert Helper.to_boolean("true")
-      assert Helper.to_boolean("True")
-      assert Helper.to_boolean("yup")
-      assert Helper.to_boolean("yo")
-      assert Helper.to_boolean("yawn")
-      assert Helper.to_boolean("1")
-      refute Helper.to_boolean("nope")
-      refute Helper.to_boolean("no")
-      refute Helper.to_boolean("false")
-      refute Helper.to_boolean("0")
-    end
-
-    test "converts boolean to boolean" do
-      assert Helper.to_boolean(true)
-      refute Helper.to_boolean(false)
-    end
-
-    test "converts integer to boolean" do
-      assert Helper.to_boolean(1)
-      assert Helper.to_boolean(2)
-      assert Helper.to_boolean(65_535)
-      assert Helper.to_boolean(99_999)
-      refute Helper.to_boolean(0)
-      refute Helper.to_boolean(-1)
-    end
-  end
-
   describe "members?/2" do
     test "returns true if all elements exist in the enumerable" do
       assert Helper.members?([1, 2, 3, 4, 5], [3, 4])
@@ -66,63 +35,6 @@ defmodule EWallet.HelperTest do
 
     test "returns false if not all elements exist in the enumerable" do
       refute Helper.members?([3, 4], [1, 2, 3, 4, 5])
-    end
-  end
-
-  describe "string_to_boolean/1" do
-    test "converts strings to boolean" do
-      assert Helper.string_to_boolean("yes")
-      assert Helper.string_to_boolean("Yes")
-      assert Helper.string_to_boolean("true")
-      assert Helper.string_to_boolean("True")
-      assert Helper.string_to_boolean("yup")
-      assert Helper.string_to_boolean("yo")
-      assert Helper.string_to_boolean("yawn")
-      assert Helper.string_to_boolean("1")
-      refute Helper.string_to_boolean("nope")
-      refute Helper.string_to_boolean("no")
-      refute Helper.string_to_boolean("false")
-      refute Helper.string_to_boolean("0")
-      refute Helper.string_to_boolean(1)
-      refute Helper.string_to_boolean(true)
-      refute Helper.string_to_boolean(false)
-    end
-  end
-
-  describe "static_dir/1" do
-    setup do
-      orig = System.get_env("SERVE_LOCAL_STATIC")
-
-      on_exit(fn ->
-        case orig do
-          n when is_binary(n) ->
-            System.put_env("SERVE_LOCAL_STATIC", n)
-
-          nil ->
-            System.delete_env("SERVE_LOCAL_STATIC")
-        end
-      end)
-
-      %{orig: orig}
-    end
-
-    test "returns path to app dir without serve local static" do
-      System.put_env("SERVE_LOCAL_STATIC", "yes")
-
-      assert Helper.static_dir(:url_dispatcher) ==
-               Path.expand("../../../url_dispatcher/priv/static", __DIR__)
-
-      assert Helper.static_dir(:admin_panel) ==
-               Path.expand("../../../admin_panel/priv/static", __DIR__)
-    end
-
-    test "returns path to app dir with serve local static" do
-      System.put_env("SERVE_LOCAL_STATIC", "no")
-
-      assert Helper.static_dir(:url_dispatcher) ==
-               Application.app_dir(:url_dispatcher, "priv/static")
-
-      assert Helper.static_dir(:admin_panel) == Application.app_dir(:admin_panel, "priv/static")
     end
   end
 end

@@ -17,11 +17,11 @@ defmodule EWallet.AdapterHelperTest do
   import Ecto.Query
   import EWalletDB.Factory
   alias EWallet.AdapterHelper
-  alias EWallet.Helper
   alias EWallet.Web.V1.CSV.TransactionSerializer
   alias EWalletDB.{Export, Transaction}
   alias Ecto.UUID
   alias Utils.Helper.PidHelper
+  alias Utils.Helpers.PathResolver
 
   setup do
     # Insert transactions with a newly inserted token to avoid side effects.
@@ -53,7 +53,7 @@ defmodule EWallet.AdapterHelperTest do
     query = from(t in Transaction, where: t.to_token_uuid == ^token.uuid)
 
     # File things
-    root = Helper.static_dir(:url_dispatcher)
+    root = PathResolver.static_dir(:url_dispatcher)
     uuid = UUID.generate()
     path = Path.join(["private", uuid])
     path_abs = Path.join([root, path])

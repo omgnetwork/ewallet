@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.ExportController do
   alias EWallet.{ExportGate, ExportPolicy}
   alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.ExportOverlay}
   alias EWalletDB.Export
-  alias EWallet.Helper
+  alias Utils.Helpers.PathResolver
 
   def all(conn, attrs) do
     storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
@@ -55,7 +55,7 @@ defmodule AdminAPI.V1.ExportController do
          :ok <- permit(:get, conn.assigns, export),
          true <- export.adapter == "local" || {:error, :export_not_local},
          true <- export.adapter == storage_adapter || {:error, :invalid_storage_adapter},
-         path <- Path.join(Helper.static_dir(:url_dispatcher), export.path),
+         path <- Path.join(PathResolver.static_dir(:url_dispatcher), export.path),
          true <- File.exists?(path) || {:error, :file_not_found} do
       send_download(
         conn,

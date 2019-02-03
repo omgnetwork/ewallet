@@ -14,11 +14,11 @@
 
 defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
   use AdminAPI.ConnCase
+  alias ActivityLogger.System
+  alias EWalletConfig.Config
   alias EWalletDB.Uploaders
   alias Utils.Helper.PidHelper
-  alias EWalletConfig.Config
-  alias ActivityLogger.System
-  alias EWallet.Helper
+  alias Utils.Helpers.PathResolver
 
   def setup do
     assert Application.get_env(:admin_api, :file_storage_adapter) == "local"
@@ -77,7 +77,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionExportControllerTest do
 
       {:ok, _} =
         [
-          Helper.static_dir(:url_dispatcher),
+          PathResolver.static_dir(:url_dispatcher),
           Uploaders.File.storage_dir(nil, nil)
         ]
         |> Path.join()

@@ -35,11 +35,6 @@ defmodule EWallet.Helper do
     ArgumentError -> atom_list
   end
 
-  def to_boolean(s) when is_boolean(s), do: s
-  def to_boolean(s) when is_binary(s), do: string_to_boolean(s)
-  def to_boolean(s) when is_integer(s) and s >= 1, do: true
-  def to_boolean(_), do: false
-
   def string_to_integer(string) do
     case Integer.parse(string, 10) do
       {amount, ""} ->
@@ -75,13 +70,6 @@ defmodule EWallet.Helper do
     end
   end
 
-  def string_to_boolean(<<"T", _::binary>>), do: true
-  def string_to_boolean(<<"Y", _::binary>>), do: true
-  def string_to_boolean(<<"t", _::binary>>), do: true
-  def string_to_boolean(<<"y", _::binary>>), do: true
-  def string_to_boolean(<<"1", _::binary>>), do: true
-  def string_to_boolean(_), do: false
-
   @doc """
   Checks if all `elements` exist within the `enumerable`.
 
@@ -91,23 +79,5 @@ defmodule EWallet.Helper do
     Enum.all?(elements, fn element ->
       Enum.member?(enumerable, element)
     end)
-  end
-
-  @doc """
-  Returns a path to static distribution. If SERVE_LOCAL_STATIC
-  is true, it means that we want to serve directly from source tree
-  instead of from the _build directory, so we're returning a relative
-  path from a file.
-  """
-  def static_dir(app) do
-    serve_local_static = System.get_env("SERVE_LOCAL_STATIC")
-
-    case to_boolean(serve_local_static) do
-      true ->
-        Path.expand("../../../#{app}/priv/static", __DIR__)
-
-      false ->
-        Application.app_dir(app, "priv/static")
-    end
   end
 end

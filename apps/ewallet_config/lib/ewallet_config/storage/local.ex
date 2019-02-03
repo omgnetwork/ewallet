@@ -21,11 +21,11 @@ defmodule EWalletConfig.Storage.Local do
   """
   alias Arc.Definition.Versioning
   alias EWalletConfig.Config
-  alias EWallet.Helper
+  alias Utils.Helpers.PathResolver
 
   def get_path(destination_dir, filename) do
     Path.join([
-      Helper.static_dir(:url_dispatcher),
+      PathResolver.static_dir(:url_dispatcher),
       destination_dir,
       filename
     ])
