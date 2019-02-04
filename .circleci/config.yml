@@ -192,7 +192,7 @@ jobs:
   test:
     executor: builder
     docker:
-      - image: omisegoimages/ewallet-builder:stable
+      - image: omisegoimages/ewallet-builder:dev-80264b0
       - image: postgres:9.6-alpine
     steps:
       - checkout
