@@ -115,10 +115,11 @@ defmodule AdminAPI.ConnCase do
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
-    config_pid = start_config_server()
+    # Insert account via `Account.insert/1` instead of the test
+    # factory to initialize wallets, etc.
+    {:ok, account} = :account |> params_for() |> Account.insert()
 
-    # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
-    {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
+    config_pid = start_config_server(account)
 
     # Insert necessary records for making authenticated calls.
     admin =
@@ -163,7 +164,7 @@ defmodule AdminAPI.ConnCase do
     %{config_pid: config_pid}
   end
 
-  def start_config_server do
+  def start_config_server(account) do
     config_pid = start_supervised!(EWalletConfig.Config)
 
     ConfigTestHelper.restart_config_genserver(
@@ -174,7 +175,8 @@ defmodule AdminAPI.ConnCase do
       %{
         "base_url" => "http://localhost:4000",
         "email_adapter" => "test",
-        "sender_email" => "admin@example.com"
+        "sender_email" => "admin@example.com",
+        "master_account" => account.uuid
       }
     )
 
