@@ -13,40 +13,20 @@
 # limitations under the License.
 
 defmodule EWalletConfig.BalanceCachingSettingsLoaderTest do
-  use EWalletConfig.SchemaCase, async: true
-  alias Crontab.CronExpression.Parser
+  use EWalletConfig.SchemaCase, async: false
+  import Crontab.CronExpression
   alias EWalletConfig.{ConfigTestHelper, BalanceCachingSettingsLoader}
+  alias Quantum.Job
 
   @mock_app :mock_balance_caching_app
-
-  #
-  # Mock modules to avoid unnecessary coupling with `LocalLedger`.
-  #
-
-  defmodule Config do
-    def read_scheduler_config do
-      [
-        cache_all_wallets: [
-          schedule: Application.get_env(:mock_balance_caching_app, :balance_caching_frequency),
-          task: {__MODULE__, :target_task, []},
-          run_strategy: {Quantum.RunStrategy.Random, :cluster}
-        ]
-      ]
-    end
-
-    def target_task, do: :noop
-  end
+  @job_name :cache_all_wallets
 
   defmodule Scheduler do
     @moduledoc false
     use Quantum.Scheduler, otp_app: :mock_balance_caching_app
   end
 
-  #
-  # Test implementations
-  #
-
-  setup do
+  setup_all do
     {:ok, _pid} = Scheduler.start_link()
     :ok
   end
@@ -54,7 +34,6 @@ defmodule EWalletConfig.BalanceCachingSettingsLoaderTest do
   defp init(opts) do
     Application.put_env(@mock_app, :settings, [:balance_caching_frequency])
     Application.put_env(@mock_app, :scheduler, Scheduler)
-    Application.put_env(@mock_app, :scheduler_config, Config)
 
     config_pid = start_supervised!(EWalletConfig.Config)
 
@@ -70,21 +49,51 @@ defmodule EWalletConfig.BalanceCachingSettingsLoaderTest do
   end
 
   describe "load/1" do
-    test "loads the caching frequency into the app env" do
-      schedule = "* 2 * * *"
-      refute Application.get_env(@mock_app, :balance_caching_frequency) == schedule
+    setup do
+      original_freq = Application.get_env(@mock_app, :balance_caching_frequency)
+      :ok = Application.put_env(@mock_app, :balance_caching_frequency, original_freq)
 
-      init(%{"balance_caching_frequency" => schedule})
-      assert Application.get_env(@mock_app, :balance_caching_frequency) == schedule
+      job =
+        Scheduler.new_job()
+        |> Job.set_name(@job_name)
+        |> Job.set_schedule(~e[* 0 * * *])
+        |> Job.set_task(fn -> :ok end)
+
+      :ok = Scheduler.add_job(job)
+
+      # Clean up all the side effects from each test.
+      on_exit(fn ->
+        :ok = Application.put_env(@mock_app, :balance_caching_frequency, original_freq)
+        :ok = Scheduler.deactivate_job(@job_name)
+        :ok = Scheduler.delete_job(@job_name)
+      end)
+
+      %{job: job}
     end
 
     test "replaces the scheduled job with the new frequency" do
-      schedule = "* 3 * * *"
-      assert Scheduler.find_job(:cache_all_wallets) == nil
+      refute Scheduler.find_job(@job_name).schedule == ~e[* 9 * * *]
+      {:ok, _} = init(%{"balance_caching_frequency" => "* 9 * * *"})
 
-      init(%{"balance_caching_frequency" => schedule})
+      assert Scheduler.find_job(@job_name).schedule == ~e[* 9 * * *]
+    end
 
-      assert Scheduler.find_job(:cache_all_wallets).schedule == Parser.parse!(schedule)
+    test "returns an error if the frequency is invalid" do
+      :ok = Application.delete_env(@mock_app, :balance_caching_frequency)
+
+      {res, error} = init(%{"balance_caching_frequency" => "invalid_cron"})
+
+      assert res == :error
+      assert error == "Can't parse invalid_cron as interval minute."
+    end
+
+    test "returns a :job_not_found error if the job does not already exist" do
+      :ok = Scheduler.delete_job(@job_name)
+
+      {res, error} = init(%{"balance_caching_frequency" => "* 9 * * *"})
+
+      assert res == :error
+      assert error == :job_not_found
     end
   end
 end

@@ -17,45 +17,49 @@ defmodule EWalletConfig.BalanceCachingSettingsLoader do
   Maps the DB settings to the configuration needed for balance caching mechanism.
   """
   require Logger
+  alias Crontab.CronExpression
   alias Crontab.CronExpression.Parser
+  alias Quantum.Job
 
   @job_name :cache_all_wallets
 
   @spec load(atom()) :: :ok | {:error, :scheduler_config_not_found}
   def load(app) do
-    config = Application.get_env(app, :scheduler_config)
     scheduler = Application.get_env(app, :scheduler)
+    frequency = Application.get_env(app, :balance_caching_frequency)
 
-    :ok = scheduler.delete_job(@job_name)
+    update_frequency(frequency, scheduler)
+  end
 
-    case config.read_scheduler_config() do
-      [] ->
-        {:error, :scheduler_config_not_found}
+  defp update_frequency(nil, _scheduler) do
+    {:error, :frequency_not_found}
+  end
 
-      config ->
-        scheduler
-        |> build_job(config)
-        |> schedule_job(scheduler)
+  defp update_frequency(frequency, scheduler) when is_binary(frequency) do
+    case Parser.parse(frequency) do
+      {:ok, cron_expression} -> update_frequency(cron_expression, scheduler)
+      {:error, _} = error -> error
     end
   end
 
-  defp build_job(scheduler, config) do
-    config
-    |> Keyword.get(@job_name)
-    |> Enum.reduce(scheduler.new_job(), fn
-      {:schedule, cron_string}, job ->
-        Map.put(job, :schedule, Parser.parse!(cron_string))
+  defp update_frequency(%CronExpression{} = expression, scheduler) do
+    case scheduler.find_job(@job_name) do
+      nil ->
+        {:error, :job_not_found}
 
-      {key, value}, job ->
-        Map.put(job, key, value)
-    end)
-    |> Map.put(:name, @job_name)
+      job ->
+        job
+        |> Job.set_schedule(expression)
+        |> reschedule(scheduler)
+    end
   end
 
-  defp schedule_job(job, scheduler) do
-    :ok = scheduler.deactivate_job(@job_name)
-    :ok = scheduler.delete_job(@job_name)
+  defp reschedule(job, scheduler) do
+    :ok = scheduler.deactivate_job(job.name)
+    :ok = scheduler.delete_job(job.name)
     :ok = scheduler.add_job(job)
-    :ok = scheduler.activate_job(@job_name)
+    :ok = scheduler.activate_job(job.name)
+
+    {:ok, job}
   end
 end

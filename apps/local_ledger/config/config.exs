@@ -7,8 +7,7 @@ config :local_ledger,
     :balance_caching_strategy,
     :balance_caching_frequency
   ],
-  scheduler: LocalLedger.Scheduler,
-  scheduler_config: LocalLedger.Config
+  scheduler: LocalLedger.Scheduler
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
