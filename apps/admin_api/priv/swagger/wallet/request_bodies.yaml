@@ -41,10 +41,13 @@ TransactionConsumptionAllForWalletBody:
         properties:
           address:
             type: string
+          start_by:
+            type: string
         required:
           - address
         example:
           address: kxhk519271652215
+          start_by: address
 
 WalletGetBody:
   description: The parameters to use for retrieving a wallet by its address
