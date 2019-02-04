@@ -121,6 +121,16 @@ config :ewallet_config,
       description:
         "The strategy to use for balance caching. It will either re-calculate from the beginning or from the last caching point."
     },
+    "balance_caching_frequency" => %{
+      key: "balance_caching_frequency",
+      # Daily at 2am: 0 2 * * *
+      # Every Friday at 5am: 0 5 * * 5
+      value: "0 2 * * *",
+      type: "string",
+      position: 301,
+      description:
+        "The frequency to compute the balance cache. Expecting a 5-field crontab format. For example, 0 2 * * * for a daily run at 2AM."
+    },
 
     # File Storage settings
     "file_storage_adapter" => %{
