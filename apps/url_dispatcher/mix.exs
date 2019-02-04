@@ -25,7 +25,7 @@ defmodule UrlDispatcher.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:appsignal, :logger, :cowboy, :plug, :admin_api, :admin_panel, :ewallet_api],
+      extra_applications: [:appsignal, :logger],
       mod: {UrlDispatcher.Application, []}
     ]
   end
