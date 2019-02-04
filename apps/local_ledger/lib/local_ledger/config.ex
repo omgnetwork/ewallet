@@ -18,7 +18,7 @@ defmodule LocalLedger.Config do
   """
 
   def read_scheduler_config do
-    case System.get_env("BALANCE_CACHING_FREQUENCY") do
+    case Application.get_env(:local_ledger, :balance_caching_frequency) do
       nil ->
         []
 

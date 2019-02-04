@@ -1,9 +1,11 @@
 use Mix.Config
 
 config :local_ledger,
+  namespace: LocalLedger,
   ecto_repos: [],
   settings: [
-    :balance_caching_strategy
+    :balance_caching_strategy,
+    :balance_caching_frequency
   ]
 
 # Import environment specific config. This must remain at the bottom
