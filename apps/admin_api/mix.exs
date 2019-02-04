@@ -53,6 +53,7 @@ defmodule AdminAPI.Mixfile do
       {:ewallet, in_umbrella: true},
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},
+      {:jason, "~> 1.1"},
       {:phoenix, "~> 1.3.0"},
       {:plug_cowboy, "~> 1.0"},
       {:sentry, "~> 7.0"}
