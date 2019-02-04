@@ -25,6 +25,7 @@ defmodule EWallet.ReleaseTasks.Seed do
     :postgrex,
     :ecto_sql,
     :telemetry,
+    :jason,
     :cloak,
     :ewallet,
     :ewallet_db,
