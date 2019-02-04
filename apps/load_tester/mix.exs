@@ -4,7 +4,7 @@ defmodule LoadTester.MixProject do
   def project do
     [
       app: :load_tester,
-      version: "1.1.0-pre.2",
+      version: "1.1.0-pre.3",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
