@@ -17,35 +17,22 @@ defmodule EWallet.TransactionRequestPolicy do
   The authorization policy for accounts.
   """
   @behaviour Bodyguard.Policy
-  alias EWallet.{WalletPolicy, AccountPolicy}
-  alias EWalletDB.{Wallet, Account}
+  alias EWallet.Permissions
 
-  def authorize(:all, _admin_user_or_key, nil), do: true
-
-  def authorize(:all, params, %Account{} = account) do
-    AccountPolicy.authorize(:get, params, account.id)
+  def authorize(:all, attrs, nil) do
+    Permissions.can?(attrs, %{action: :all, type: :transaction_requests})
   end
 
-  def authorize(:get, _params, _request) do
-    true
+  def authorize(:get, attrs, transaction_request) do
+    Permissions.can?(attrs, %{action: :get, target: transaction_request})
   end
 
-  def authorize(:join, %{admin_user: _} = params, request) do
-    authorize(:get, params, request)
+  def authorize(:join, attrs, transaction_request) do
+    Permissions.can?(attrs, %{action: :listen, target: transaction_request})
   end
 
-  def authorize(:join, %{key: _} = params, request) do
-    authorize(:get, params, request)
-  end
-
-  def authorize(:join, %{end_user: _} = params, request) do
-    WalletPolicy.authorize(:join, params, request.wallet)
-  end
-
-  # Check with the passed attributes if the current accessor can
-  # create a request for the account
-  def authorize(:create, params, %Wallet{} = wallet) do
-    WalletPolicy.authorize(:admin, params, wallet)
+  def authorize(:create, attrs, transaction_request) do
+    Permissions.can?(attrs, %{action: :create, target: transaction_request})
   end
 
   def authorize(_, _, _), do: false

@@ -17,26 +17,26 @@ defmodule EWallet.AccountMembershipPolicy do
   The authorization policy for accounts.
   """
   @behaviour Bodyguard.Policy
-  alias EWallet.PolicyHelper
+  alias EWallet.Permissions
 
   def authorize(:all, attrs, account_id) do
-    PolicyHelper.can?(attrs, action: :all, type: :memberships, target: account_id)
+    Permissions.can?(attrs, %{action: :all, type: :memberships, target: account_id})
   end
 
   def authorize(:get, attrs, account_id) do
-    PolicyHelper.can?(attrs, action: :get, type: :memberships, target: account_id)
+    Permissions.can?(attrs, %{action: :get, type: :memberships, target: account_id})
   end
 
   def authorize(:create, attrs, account_id) do
-    PolicyHelper.can?(attrs, action: :create, type: :memberships, target: account_id)
+    Permissions.can?(attrs, %{action: :create, type: :memberships, target: account_id})
   end
 
   def authorize(:update, attrs, account_id) do
-    PolicyHelper.can?(attrs, action: :update, type: :memberships, target: account_id)
+    Permissions.can?(attrs, %{action: :update, type: :memberships, target: account_id})
   end
 
   def authorize(:delete, attrs, account_id) do
-    PolicyHelper.can?(attrs, action: :delete, type: :memberships, target: account_id)
+    Permissions.can?(attrs, %{action: :delete, type: :memberships, target: account_id})
   end
 
   def authorize(_, _, _), do: false
