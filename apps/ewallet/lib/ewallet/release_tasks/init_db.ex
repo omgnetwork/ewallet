@@ -23,7 +23,7 @@ defmodule EWallet.ReleaseTasks.InitDB do
   alias Ecto.Migrator
   alias EWallet.CLI
 
-  @start_apps [:crypto, :ssl, :postgrex, :ecto]
+  @start_apps [:crypto, :ssl, :postgrex, :ecto_sql, :telemetry]
   @apps [:ewallet_config, :activity_logger, :ewallet_db, :local_ledger_db]
 
   def run do

@@ -21,7 +21,7 @@ defmodule EWallet.ReleaseTasks.Config do
   alias EWallet.CLI
   alias EWalletConfig.Config
 
-  @start_apps [:crypto, :ssl, :postgrex, :ecto, :cloak, :ewallet]
+  @start_apps [:crypto, :ssl, :postgrex, :ecto_sql, :telemetry, :cloak, :ewallet]
   @apps [:activity_logger, :ewallet_config]
 
   def run do
