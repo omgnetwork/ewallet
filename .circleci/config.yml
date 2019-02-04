@@ -96,10 +96,10 @@ jobs:
       - restore_cache:
           name: Restoring eWallet artifacts from cache
           keys:
-            - v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
-            - v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-
-            - v1-ewallet-{{ checksum "mix.lock" }}-
-            - v1-ewallet-
+            - v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
+            - v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-
+            - v2-ewallet-{{ checksum "mix.lock" }}-
+            - v2-ewallet-
       - run:
           name: Building eWallet in test environment
           command: |
@@ -116,7 +116,7 @@ jobs:
             make deps-assets
       - save_cache:
           name: Caching eWallet artifacts
-          key: v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
+          key: v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
           paths:
             - deps
             - _build/test
@@ -163,9 +163,9 @@ jobs:
       - restore_cache:
           name: Restoring runtime PLT from cache
           keys:
-            - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
-            - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-
-            - v1-ewallet-plt-
+            - v2-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
+            - v2-ewallet-plt-{{ checksum "~/var/elixir-version" }}-
+            - v2-ewallet-plt-
       - run:
           name: Checking dialyzer
           command: |
@@ -177,7 +177,7 @@ jobs:
             MIX_ENV: test
       - save_cache:
           name: Caching runtime PLT
-          key: v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
+          key: v2-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
           paths:
             - ~/var/dialyzer
           when: always
@@ -224,9 +224,9 @@ jobs:
       - restore_cache:
           name: Restoring eWallet production artifacts from cache
           keys:
-            - v1-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
-            - v1-ewallet-prod-{{ checksum "mix.exs" }}-
-            - v1-ewallet-prod-
+            - v2-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
+            - v2-ewallet-prod-{{ checksum "mix.exs" }}-
+            - v2-ewallet-prod-
       - run:
           name: Building eWallet in production environment
           command: |
@@ -243,7 +243,7 @@ jobs:
             docker save -o ~/caches/docker-layers.tar "$IMAGE_NAME"
       - save_cache:
           name: Caching eWallet production artifacts
-          key: v1-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
+          key: v2-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
           paths:
             - _build/prod/.mix
             - _build/prod/consolidated
