@@ -35,11 +35,6 @@ defmodule EWallet.Helper do
     ArgumentError -> atom_list
   end
 
-  def to_boolean(s) when is_boolean(s), do: s
-  def to_boolean(s) when is_binary(s), do: string_to_boolean(s)
-  def to_boolean(s) when is_integer(s) and s >= 1, do: true
-  def to_boolean(_), do: false
-
   def string_to_integer(string) do
     case Integer.parse(string, 10) do
       {amount, ""} ->
@@ -74,13 +69,6 @@ defmodule EWallet.Helper do
         amounts
     end
   end
-
-  def string_to_boolean(<<"T", _::binary>>), do: true
-  def string_to_boolean(<<"Y", _::binary>>), do: true
-  def string_to_boolean(<<"t", _::binary>>), do: true
-  def string_to_boolean(<<"y", _::binary>>), do: true
-  def string_to_boolean(<<"1", _::binary>>), do: true
-  def string_to_boolean(_), do: false
 
   @doc """
   Checks if all `elements` exist within the `enumerable`.

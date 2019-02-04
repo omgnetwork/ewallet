@@ -12,24 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.AssetNotFoundPlug do
+defmodule Utils.Helpers.Normalize do
   @moduledoc """
-  This plug checks if the current request is for an asset and returns 404 if
-  it was not found.
+  Module to normalize strings.
   """
-  import Plug.Conn
 
-  def init(opts), do: opts
+  def string_to_boolean(<<"T", _::binary>>), do: true
+  def string_to_boolean(<<"Y", _::binary>>), do: true
+  def string_to_boolean(<<"t", _::binary>>), do: true
+  def string_to_boolean(<<"y", _::binary>>), do: true
+  def string_to_boolean(<<"1", _::binary>>), do: true
+  def string_to_boolean(_), do: false
 
-  def call(conn, _opts) do
-    check_asset(conn, {conn.method, Enum.at(conn.path_info, 0)})
-  end
-
-  defp check_asset(conn, {"GET", "public"}) do
-    conn
-    |> send_resp(404, "")
-    |> halt()
-  end
-
-  defp check_asset(conn, _), do: conn
+  def to_boolean(s) when is_boolean(s), do: s
+  def to_boolean(s) when is_binary(s), do: string_to_boolean(s)
+  def to_boolean(s) when is_integer(s) and s >= 1, do: true
+  def to_boolean(_), do: false
 end

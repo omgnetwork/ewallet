@@ -16,9 +16,9 @@ defmodule UrlDispatcher.Application do
   @moduledoc false
   use Application
   require Logger
-  alias EWallet.Helper
   alias Phoenix.Endpoint.CowboyWebSocket
   alias Plug.Adapters.Cowboy
+  alias Utils.Helpers.Normalize
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
@@ -27,7 +27,7 @@ defmodule UrlDispatcher.Application do
     serve_endpoints = Application.get_env(:url_dispatcher, :serve_endpoints)
 
     children =
-      case Helper.to_boolean(serve_endpoints) do
+      case Normalize.to_boolean(serve_endpoints) do
         true ->
           dispatchers = []
           port = Application.get_env(:url_dispatcher, :port)
