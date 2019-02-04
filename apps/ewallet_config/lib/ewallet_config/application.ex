@@ -18,6 +18,7 @@ defmodule EWalletConfig.Application do
   @moduledoc false
 
   use Application
+  alias Appsignal.Ecto
 
   def start(_type, _args) do
     import Supervisor.Spec
@@ -30,7 +31,7 @@ defmodule EWalletConfig.Application do
     :telemetry.attach(
       "appsignal-ecto",
       [:ewallet_config, :repo, :query],
-      &Appsignal.Ecto.handle_event/4,
+      &Ecto.handle_event/4,
       nil
     )
 

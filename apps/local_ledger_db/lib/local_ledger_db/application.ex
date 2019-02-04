@@ -18,6 +18,7 @@ defmodule LocalLedgerDB.Application do
   @moduledoc false
 
   use Application
+  alias Appsignal.Ecto
 
   def start(_type, _args) do
     import Supervisor.Spec
@@ -26,7 +27,7 @@ defmodule LocalLedgerDB.Application do
     :telemetry.attach(
       "appsignal-ecto",
       [:local_ledger_db, :repo, :query],
-      &Appsignal.Ecto.handle_event/4,
+      &Ecto.handle_event/4,
       nil
     )
 

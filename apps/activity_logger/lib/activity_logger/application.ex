@@ -18,6 +18,7 @@ defmodule ActivityLogger.Application do
   @moduledoc false
 
   use Application
+  alias Appsignal.Ecto
 
   def start(_type, _args) do
     import Supervisor.Spec
@@ -26,7 +27,7 @@ defmodule ActivityLogger.Application do
     :telemetry.attach(
       "appsignal-ecto",
       [:activity_logger, :repo, :query],
-      &Appsignal.Ecto.handle_event/4,
+      &Ecto.handle_event/4,
       nil
     )
 
