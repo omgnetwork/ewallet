@@ -337,7 +337,7 @@ jobs:
                 --init \
                 --network net0 \
                 --volumes-from srcs \
-              omisegoimages/ewallet-builder:stable \
+              omisegoimages/ewallet-builder:dev-80264b0 \
               sh -c "cd /src/e2e && pipenv install && pipenv run robot tests"
       - notify_slack_failure
 
