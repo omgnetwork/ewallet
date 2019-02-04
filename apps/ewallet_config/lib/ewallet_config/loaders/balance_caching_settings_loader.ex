@@ -28,22 +28,31 @@ defmodule EWalletConfig.BalanceCachingSettingsLoader do
     scheduler = Application.get_env(app, :scheduler)
     frequency = Application.get_env(app, :balance_caching_frequency)
 
-    update_frequency(frequency, scheduler)
+    case alive?(scheduler) do
+      true -> update_frequency(scheduler, @job_name, frequency)
+      false -> {:error, :scheduler_not_running}
+    end
   end
 
-  defp update_frequency(nil, _scheduler) do
-    {:error, :frequency_not_found}
-  end
+  defp alive?(nil), do: false
 
-  defp update_frequency(frequency, scheduler) when is_binary(frequency) do
+  defp alive?(module) when is_atom(module), do: module |> GenServer.whereis() |> alive?()
+
+  defp alive?(pid) when is_pid(pid), do: Process.alive?(pid)
+
+  defp alive?(_), do: false
+
+  defp update_frequency(_, _, nil), do: {:error, :frequency_not_found}
+
+  defp update_frequency(scheduler, job_name, frequency) when is_binary(frequency) do
     case Parser.parse(frequency) do
-      {:ok, cron_expression} -> update_frequency(cron_expression, scheduler)
+      {:ok, cron_expression} -> update_frequency(scheduler, job_name, cron_expression)
       {:error, _} = error -> error
     end
   end
 
-  defp update_frequency(%CronExpression{} = expression, scheduler) do
-    case scheduler.find_job(@job_name) do
+  defp update_frequency(scheduler, job_name, %CronExpression{} = expression) do
+    case scheduler.find_job(job_name) do
       nil ->
         {:error, :job_not_found}
 
