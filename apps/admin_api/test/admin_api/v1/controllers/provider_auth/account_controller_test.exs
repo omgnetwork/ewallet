@@ -73,6 +73,15 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
       assert response["data"]["name"] == target.name
     end
 
+    test "returns :invalid_parameter error when id is not given" do
+      response = provider_request("/account.get", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
+    end
+
     # The user should not know any information about the account it doesn't have access to.
     # So even the account is not found, the user is unauthorized to know that.
     test "returns 'unauthorized' if the given ID is in correct format but not found" do
@@ -400,6 +409,15 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
 
       account = Account.get(account.id)
       assert account.avatar == nil
+    end
+
+    test "returns :invalid_parameter error when id is not given" do
+      response = admin_user_request("/account.upload_avatar", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
 
     test "returns 'unauthorized' if the given account ID was not found" do

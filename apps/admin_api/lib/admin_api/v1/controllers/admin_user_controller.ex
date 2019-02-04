@@ -50,6 +50,8 @@ defmodule AdminAPI.V1.AdminUserController do
     end
   end
 
+  def get(conn, _), do: handle_error(conn, :missing_id)
+
   @doc """
   Enable or disable a user.
   """
