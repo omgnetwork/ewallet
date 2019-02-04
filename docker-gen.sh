@@ -62,7 +62,7 @@ done
 
 if [ -z "$IMAGE_NAME" ]; then
    if [ $DEV_MODE = 1 ]; then
-       IMAGE_NAME="omisegoimages/ewallet-builder:dev-80264b0"
+       IMAGE_NAME="omisegoimages/ewallet-builder:stable"
    else
        IMAGE_NAME="omisego/ewallet:latest"
    fi
