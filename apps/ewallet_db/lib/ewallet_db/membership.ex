@@ -113,13 +113,21 @@ defmodule EWalletDB.Membership do
 
   def query_all_by_member_and_account_uuids(%User{} = user, account_uuids, preload) do
     Repo.all(
-      from(m in Membership, where: m.account_uuid in ^account_uuids and m.user_uuid == ^user.uuid, preload: ^preload)
+      from(
+        m in Membership,
+        where: m.account_uuid in ^account_uuids and m.user_uuid == ^user.uuid,
+        preload: ^preload
+      )
     )
   end
 
   def query_all_by_member_and_account_uuids(%Key{} = key, account_uuids, preload) do
     Repo.all(
-      from(m in Membership, where: m.account_uuid in ^account_uuids and m.key_uuid == ^key.uuid, preload: ^preload)
+      from(
+        m in Membership,
+        where: m.account_uuid in ^account_uuids and m.key_uuid == ^key.uuid,
+        preload: ^preload
+      )
     )
   end
 

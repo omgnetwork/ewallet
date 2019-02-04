@@ -165,6 +165,7 @@ defmodule EWalletDB.Factory do
         "last_name" => sequence("Doe")
       },
       encrypted_metadata: %{},
+      global_role: "end_user",
       originator: %System{}
     }
   end
@@ -200,8 +201,6 @@ defmodule EWalletDB.Factory do
     %Role{
       name: sequence("role"),
       display_name: "Role display name",
-      # Add a prefix temporarily so ExMachina.sequence/2 plays along nicely
-      priority: "priority" |> sequence() |> String.replace_leading("priority", ""),
       originator: %System{}
     }
   end

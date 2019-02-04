@@ -18,8 +18,8 @@ defmodule EWalletDB.GlobalRole do
   """
 
   @global_role_permissions %{
-    super_admin: :global,
-    admin: %{
+    "super_admin" => :global,
+    "admin" => %{
       accounts: %{read: :accounts, create: :none, update: :accounts},
       memberships: %{all: :accounts, get: :accounts, create: :accounts, update: :accounts},
       categories: %{read: :global, create: :none, update: :none},
@@ -29,8 +29,18 @@ defmodule EWalletDB.GlobalRole do
       api_keys: %{read: :accounts, create: :accounts, update: :accounts, disable: :accounts},
       tokens: %{read: :global, create: :none, update: :none},
       mints: %{read: :none, create: :none},
-      account_wallets: %{read: :global, view_balance: :accounts, create: :accounts, update: :accounts},
-      end_user_wallets: %{read: :global, view_balance: :accounts, create: :accounts, update: :accounts},
+      account_wallets: %{
+        read: :global,
+        view_balance: :accounts,
+        create: :accounts,
+        update: :accounts
+      },
+      end_user_wallets: %{
+        read: :global,
+        view_balance: :accounts,
+        create: :accounts,
+        update: :accounts
+      },
       account_transactions: %{read: :accounts, create: :accounts},
       end_user_transactions: %{read: :accounts, create: :accounts},
       account_transaction_requests: %{read: :accounts, create: :accounts},
@@ -41,7 +51,7 @@ defmodule EWalletDB.GlobalRole do
       admin_user_exports: %{read: :admin_user, create: :admin_user},
       configuration: :none
     },
-    viewer: %{
+    "viewer" => %{
       accounts: %{read: :accounts, create: :none, update: :none},
       categories: %{read: :global, create: :none, update: :none},
       admin_users: %{read: :accounts, create: :none, update: :none, disable: :none},
@@ -62,16 +72,16 @@ defmodule EWalletDB.GlobalRole do
       admin_user_exports: %{read: :admin_user, create: :none},
       configuration: :none
     },
-    end_user: %{
+    "end_user" => %{
       end_users: %{read: :self, create: :self, update: :self},
       tokens: %{read: :global, create: :none, update: :none},
       account_wallets: %{read: :none, view_balance: :none, create: :none, update: :none},
       end_user_wallets: %{read: :self, view_balance: :self, create: :none, update: :self},
       end_user_transactions: %{read: :self, create: :self},
-      end_user_transaction_requests: %{all: :self, get: :global, create: :self},
-      end_user_transaction_consumptions: %{read: :self, create: :self, approve: :self},
+      end_user_transaction_requests: %{all: :self, get: :global, create: :self, confirm: :self},
+      end_user_transaction_consumptions: %{read: :self, create: :self}
     },
-    none: :none
+    "none" => :none
   }
 
   def super_admin, do: :super_admin
