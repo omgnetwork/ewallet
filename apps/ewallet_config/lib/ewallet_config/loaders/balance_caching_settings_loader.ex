@@ -23,9 +23,8 @@ defmodule EWalletConfig.BalanceCachingSettingsLoader do
 
   @spec load(atom()) :: :ok | {:error, :scheduler_config_not_found}
   def load(app) do
-    namespace = Application.get_env(app, :namespace)
-    config = Module.concat(namespace, Config)
-    scheduler = Module.concat(namespace, Scheduler)
+    config = Application.get_env(app, :scheduler_config)
+    scheduler = Application.get_env(app, :scheduler)
 
     :ok = scheduler.delete_job(@job_name)
 

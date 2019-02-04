@@ -53,7 +53,8 @@ defmodule EWalletConfig.BalanceCachingSettingsLoaderTest do
 
   defp init(opts) do
     Application.put_env(@mock_app, :settings, [:balance_caching_frequency])
-    Application.put_env(@mock_app, :namespace, __MODULE__)
+    Application.put_env(@mock_app, :scheduler, Scheduler)
+    Application.put_env(@mock_app, :scheduler_config, Config)
 
     config_pid = start_supervised!(EWalletConfig.Config)
 
