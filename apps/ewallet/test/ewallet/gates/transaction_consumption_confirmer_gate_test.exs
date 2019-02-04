@@ -19,6 +19,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
   alias ActivityLogger.System
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
+  alias EWalletDB.Membership
 
   alias EWallet.{
     TestEndpoint,
@@ -69,10 +70,13 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     }
   end
 
-  describe "confirm/3 with Account" do
-    test "confirms the consumption if approved as account", meta do
+  describe "confirm/3 as user" do
+    test "confirms the consumption for an end user if approved as admin user", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
+
+      admin = insert(:admin)
+      {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
 
       transaction_request =
         insert(
@@ -108,7 +112,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           consumption.id,
           true,
           %{
-            account: meta.account
+            admin_user: admin
           },
           %System{}
         )
@@ -117,10 +121,13 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at != nil
     end
 
-    test "confirms the consumption if approved as account with rights", meta do
+    test "confirms the accoun tconsumption if approved as admin user with rights", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, account} = :account |> params_for() |> Account.insert()
       wallet = Account.get_primary_wallet(account)
+
+      admin = insert(:admin)
+      {:ok, _} = Membership.assign(admin, account, "admin", %System{})
 
       transaction_request =
         insert(
@@ -156,7 +163,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           consumption.id,
           true,
           %{
-            account: meta.account
+            admin_user: admin
           },
           %System{}
         )
@@ -165,9 +172,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at != nil
     end
 
-    test "fails to confirm the consumption if approved as account with no rights", meta do
+    test "fails to confirm the consumption if approved as admin user with no rights", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      {:ok, account} = :account |> params_for() |> Account.insert()
+      admin = insert(:admin)
 
       transaction_request =
         insert(
@@ -203,17 +210,23 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           consumption.id,
           true,
           %{
-            account: account
+            admin_user: admin
           },
           %System{}
         )
     end
 
-    test "confirms a user's consumption if created and approved as account", meta do
+    test "confirms a user's consumption if created and approved as admin user", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
-      {res, request} =
+      admin_1 = insert(:admin)
+      {:ok, _} = Membership.assign(admin_1, meta.account, "admin", %System{})
+
+      admin_2 = insert(:admin)
+      {:ok, _} = Membership.assign(admin_2, meta.account, "admin", %System{})
+
+      {:ok, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
           "token_id" => meta.token.id,
@@ -223,11 +236,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "provider_user_id" => meta.receiver.provider_user_id,
           "address" => meta.receiver_wallet.address,
           "require_confirmation" => true,
-          "creator" => %{account: meta.account},
+          "creator" => %{admin_user: admin_1},
           "originator" => %System{}
         })
-
-      assert res == :ok
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
@@ -252,7 +263,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           consumption.id,
           true,
           %{
-            account: meta.account
+            admin_user: admin_2
           },
           %System{}
         )
@@ -310,6 +321,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
+      admin = insert(:admin)
+      {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
+
       transaction_request =
         insert(
           :transaction_request,
@@ -347,7 +361,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           consumption.id,
           true,
           %{
-            account: meta.account
+            admin_user: admin
           },
           %System{}
         )
@@ -355,9 +369,11 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert res == {:error, :expired_transaction_request}
     end
 
-    test "rejects the consumption if not confirmed as account", meta do
+    test "rejects the consumption if not confirmed as admin user with rights", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
+      admin = insert(:admin)
+      {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
 
       transaction_request =
         insert(
@@ -393,7 +409,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           consumption.id,
           false,
           %{
-            account: meta.account
+            admin_user: admin
           },
           %System{}
         )
@@ -405,6 +421,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     test "allows only one confirmation with two confirms at the same time", meta do
       initialize_wallet(meta.sender_wallet, 1_000_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
+      admin = insert(:admin)
+      {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
 
       request =
         insert(
@@ -460,7 +478,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
                 c.id,
                 true,
                 %{
-                  account: meta.account
+                  admin_user: admin
                 },
                 %System{}
               )

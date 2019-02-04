@@ -60,10 +60,10 @@ defmodule EWallet.TransactionConsumptionValidator do
           {:ok, %TransactionConsumption{}}
           | {:error, atom()}
           | no_return()
-  def validate_before_confirmation(consumption, originator) do
+  def validate_before_confirmation(consumption, creator) do
     with {request, wallet} <- {consumption.transaction_request, consumption.wallet},
          request <- Repo.preload(request, [:wallet]),
-         :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :confirm, %{originator: originator}, consumption),
+         :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :confirm, creator, request),
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request, %System{}),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,

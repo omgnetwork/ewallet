@@ -22,7 +22,7 @@ defmodule EWallet.DBCase do
   alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
   alias EWallet.{MintGate, TransactionGate}
-  alias EWalletDB.{Account, Repo}
+  alias EWalletDB.{Account, Repo, Role}
   alias EWalletConfig.ConfigTestHelper
 
   @temp_test_file_dir "private/temp_test_files"
@@ -49,6 +49,7 @@ defmodule EWallet.DBCase do
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
+    :ok = Role.insert_default_roles(%System{})
     {:ok, account} = :account |> params_for() |> Account.insert()
 
     config_pid = start_supervised!(EWalletConfig.Config)
