@@ -1,3 +1,19 @@
+WalletAllBody:
+  description: The parameters to use for listing the wallets
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          start_by:
+            type: string
+        required:
+          - address
+        example:
+          start_by: address
+
 WalletAccountBody:
   description: The parameters to use for listing the wallets for an account
   required: true
@@ -41,13 +57,10 @@ TransactionConsumptionAllForWalletBody:
         properties:
           address:
             type: string
-          start_by:
-            type: string
         required:
           - address
         example:
           address: kxhk519271652215
-          start_by: address
 
 WalletGetBody:
   description: The parameters to use for retrieving a wallet by its address

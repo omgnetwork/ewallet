@@ -14818,7 +14818,7 @@
           }
         ],
         "requestBody": {
-          "description": "The parameters to use for listing an account's owned data",
+          "description": "The parameters to use for listing an account's owned wallets",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {
@@ -14909,6 +14909,9 @@
                   },
                   "owned": {
                     "type": "boolean"
+                  },
+                  "start_by": {
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -14917,7 +14920,8 @@
                 ],
                 "example": {
                   "id": "acc_01ca2p8jqans5aty5gj5etmjcf",
-                  "owned": true
+                  "owned": true,
+                  "start_by": "address"
                 }
               }
             }
@@ -15600,7 +15604,7 @@
           }
         ],
         "requestBody": {
-          "description": "The parameters to use for listing an account's owned data",
+          "description": "The parameters to use for listing an account's owned wallets",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {
@@ -15691,6 +15695,9 @@
                   },
                   "owned": {
                     "type": "boolean"
+                  },
+                  "start_by": {
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -15699,7 +15706,8 @@
                 ],
                 "example": {
                   "id": "acc_01ca2p8jqans5aty5gj5etmjcf",
-                  "owned": true
+                  "owned": true,
+                  "start_by": "address"
                 }
               }
             }
@@ -23160,7 +23168,7 @@
           }
         ],
         "requestBody": {
-          "description": "The parameters to use for retrieving a collection owned by user by its id or provider_user_id",
+          "description": "The parameters to use for retrieving wallets owned by user by its id or provider_user_id",
           "content": {
             "application/vnd.omisego.v1+json": {
               "schema": {
@@ -23249,6 +23257,9 @@
                     "properties": {
                       "id": {
                         "type": "string"
+                      },
+                      "start_by": {
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -23259,6 +23270,9 @@
                     "properties": {
                       "provider_user_id": {
                         "type": "string"
+                      },
+                      "start_by": {
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -23267,7 +23281,8 @@
                   }
                 ],
                 "example": {
-                  "id": "usr_01ce83q2zw7zk1dqr79t22zr1v"
+                  "id": "usr_01ce83q2zw7zk1dqr79t22zr1v",
+                  "start_by": "address"
                 }
               }
             }
@@ -25337,7 +25352,7 @@
           }
         ],
         "requestBody": {
-          "description": "The default parameters to use when querying a paginated resource",
+          "description": "The parameters to use for listing the wallets",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {
@@ -25421,7 +25436,18 @@
                       "sort_dir": "desc"
                     }
                   }
-                ]
+                ],
+                "properties": {
+                  "start_by": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "address"
+                ],
+                "example": {
+                  "start_by": "address"
+                }
               }
             }
           }
@@ -27443,17 +27469,13 @@
                 "properties": {
                   "address": {
                     "type": "string"
-                  },
-                  "start_by": {
-                    "type": "string"
                   }
                 },
                 "required": [
                   "address"
                 ],
                 "example": {
-                  "address": "kxhk519271652215",
-                  "start_by": "address"
+                  "address": "kxhk519271652215"
                 }
               }
             }
