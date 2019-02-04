@@ -30,7 +30,7 @@ defmodule EWallet.ReleaseTasks do
     case Application.ensure_all_started(app_name) do
       {:ok, _} ->
         repos = Application.get_env(app_name, :ecto_repos, [])
-        Enum.each(repos, & &1.start_link(pool_size: 1))
+        Enum.each(repos, & &1.start_link(pool_size: 2))
 
       _ ->
         nil

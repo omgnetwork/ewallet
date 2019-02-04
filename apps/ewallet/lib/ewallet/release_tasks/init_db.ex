@@ -37,7 +37,7 @@ defmodule EWallet.ReleaseTasks.InitDB do
     repos = Application.get_env(app_name, :ecto_repos, [])
 
     Enum.each(repos, &run_create_for/1)
-    Enum.each(repos, & &1.start_link(pool_size: 1))
+    Enum.each(repos, & &1.start_link(pool_size: 2))
     Enum.each(repos, &run_migrations_for/1)
   end
 
