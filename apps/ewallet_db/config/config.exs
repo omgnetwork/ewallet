@@ -1,7 +1,6 @@
 use Mix.Config
 
 config :ewallet_db,
-  namespace: EWalletDB,
   ecto_repos: [EWalletDB.Repo],
   env: Mix.env(),
   settings: [

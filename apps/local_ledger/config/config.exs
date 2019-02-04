@@ -1,7 +1,6 @@
 use Mix.Config
 
 config :local_ledger,
-  namespace: LocalLedger,
   ecto_repos: [],
   settings: [
     :balance_caching_strategy,

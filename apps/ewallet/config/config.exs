@@ -3,7 +3,6 @@
 use Mix.Config
 
 config :ewallet,
-  namespace: EWallet,
   ecto_repos: [],
   version: "1.1.0-pre.2",
   settings: [

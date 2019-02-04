@@ -1,7 +1,6 @@
 use Mix.Config
 
 config :ewallet_config,
-  namespace: EWalletConfig,
   ecto_repos: [EWalletConfig.Repo],
   settings_mappings: %{
     "email_adapter" => %{

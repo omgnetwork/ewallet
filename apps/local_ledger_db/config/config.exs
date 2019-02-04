@@ -3,7 +3,6 @@
 use Mix.Config
 
 config :local_ledger_db,
-  namespace: LocalLedgerDB,
   ecto_repos: [LocalLedgerDB.Repo]
 
 # Import environment specific config. This must remain at the bottom
