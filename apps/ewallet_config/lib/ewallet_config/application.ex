@@ -27,6 +27,13 @@ defmodule EWalletConfig.Application do
       EWalletConfig.StoredSetting => %{type: "setting", identifier: :id}
     })
 
+    :telemetry.attach(
+      "appsignal-ecto",
+      [:ewallet_config, :repo, :query],
+      &Appsignal.Ecto.handle_event/4,
+      nil
+    )
+
     # List all child processes to be supervised
     children = [
       supervisor(EWalletConfig.Repo, []),

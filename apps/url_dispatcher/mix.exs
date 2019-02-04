@@ -25,7 +25,7 @@ defmodule UrlDispatcher.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :cowboy, :plug, :admin_api, :admin_panel, :ewallet_api],
+      extra_applications: [:appsignal, :logger, :cowboy, :plug, :admin_api, :admin_panel, :ewallet_api],
       mod: {UrlDispatcher.Application, []}
     ]
   end
@@ -35,6 +35,7 @@ defmodule UrlDispatcher.Mixfile do
     [
       {:admin_api, in_umbrella: true},
       {:admin_panel, in_umbrella: true},
+      {:appsignal, "~> 1.9"},
       {:deferred_config, "~> 0.1.0"},
       {:ewallet, in_umbrella: true},
       {:ewallet_api, in_umbrella: true},

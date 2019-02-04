@@ -23,6 +23,13 @@ defmodule ActivityLogger.Application do
     import Supervisor.Spec
     DeferredConfig.populate(:activity_logger)
 
+    :telemetry.attach(
+      "appsignal-ecto",
+      [:activity_logger, :repo, :query],
+      &Appsignal.Ecto.handle_event/4,
+      nil
+    )
+
     children = [
       supervisor(ActivityLogger.Repo, []),
       supervisor(ActivityLogger.Vault, [])

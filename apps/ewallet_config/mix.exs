@@ -31,7 +31,7 @@ defmodule EWalletConfig.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:appsignal, :logger],
       mod: {EWalletConfig.Application, []},
     ]
   end
@@ -40,6 +40,7 @@ defmodule EWalletConfig.MixProject do
   defp deps do
     [
       {:activity_logger, in_umbrella: true},
+      {:appsignal, "~> 1.9"},
       {:arc, "~> 0.11.0"},
       {:arc_ecto, github: "omisego/arc_ecto"},
       {:bcrypt_elixir, "~> 1.0"},

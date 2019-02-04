@@ -32,6 +32,7 @@ defmodule EWalletAPI.Mixfile do
     [
       mod: {EWalletAPI.Application, []},
       extra_applications: [
+        :appsignal,
         :sentry,
         :logger,
         :runtime_tools,
@@ -49,6 +50,7 @@ defmodule EWalletAPI.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:appsignal, "~> 1.9"},
       {:bypass, "~> 1.0.0", only: [:test]},
       {:cors_plug, "~> 1.5"},
       {:deferred_config, "~> 0.1.0"},

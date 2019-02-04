@@ -28,7 +28,7 @@ defmodule EWallet.Mixfile do
   def application do
     [
       mod: {EWallet.Application, []},
-      extra_applications: [:sentry, :logger]
+      extra_applications: [:appsignal, :sentry, :logger]
     ]
   end
 

@@ -51,7 +51,12 @@ defmodule EWalletDB.Application do
       EWalletDB.Role => %{type: "role", identifier: :id}
     })
 
-    # Config.configure_file_storage()
+    :telemetry.attach(
+      "appsignal-ecto",
+      [:ewallet_db, :repo, :query],
+      &Appsignal.Ecto.handle_event/4,
+      nil
+    )
 
     # List all child processes to be supervised
     children = [

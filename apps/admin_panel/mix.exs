@@ -30,7 +30,7 @@ defmodule AdminPanel.Mixfile do
   def application do
     [
       mod: {AdminPanel.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:appsignal, :logger, :runtime_tools]
     ]
   end
 
@@ -43,6 +43,7 @@ defmodule AdminPanel.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:appsignal, "~> 1.9"},
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},
       {:phoenix, "~> 1.3.0"},

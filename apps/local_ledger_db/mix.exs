@@ -26,7 +26,7 @@ defmodule LocalLedgerDB.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :postgrex, :ecto],
+      extra_applications: [:appsignal, :logger, :postgrex, :ecto],
       mod: {LocalLedgerDB.Application, []}
     ]
   end
@@ -34,6 +34,7 @@ defmodule LocalLedgerDB.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:appsignal, "~> 1.9"},
       {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
       {:ecto_sql, "~> 3.0"},

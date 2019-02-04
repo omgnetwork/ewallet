@@ -30,7 +30,7 @@ defmodule EWalletDB.Mixfile do
   def application do
     [
       mod: {EWalletDB.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:appsignal, :logger, :runtime_tools]
     ]
   end
 
@@ -44,6 +44,7 @@ defmodule EWalletDB.Mixfile do
   defp deps do
     [
       {:activity_logger, in_umbrella: true},
+      {:appsignal, "~> 1.9"},
       {:arc, "~> 0.11.0"},
       {:arc_ecto, github: "omisego/arc_ecto"},
       {:bcrypt_elixir, "~> 1.0"},

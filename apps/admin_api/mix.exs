@@ -31,7 +31,7 @@ defmodule AdminAPI.Mixfile do
   def application do
     [
       mod: {AdminAPI.Application, []},
-      extra_applications: [:sentry, :logger, :runtime_tools, :appsignal]
+      extra_applications: [:appsignal, :sentry, :logger, :runtime_tools]
     ]
   end
 
