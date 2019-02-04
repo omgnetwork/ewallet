@@ -101,6 +101,10 @@ jobs:
             - v2-ewallet-{{ checksum "mix.lock" }}-
             - v2-ewallet-
       - run:
+          name: Print out current OTP/Elixir version
+          command: |
+            elixir --version
+      - run:
           name: Building eWallet in test environment
           command: |
             set -xe
