@@ -111,7 +111,7 @@ defmodule EWalletDB.Role do
     )
     |> validate_required([:name])
     |> validate_inclusion(:name, account_roles())
-    |> unique_constraint(:name)
+    |> unique_constraint(:name, name: "role_name_index")
   end
 
   @doc """

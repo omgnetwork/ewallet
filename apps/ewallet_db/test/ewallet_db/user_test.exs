@@ -16,7 +16,7 @@ defmodule EWalletDB.UserTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias Utils.Helpers.Crypto
-  alias EWalletDB.{Account, Invite, User, Repo}
+  alias EWalletDB.{Invite, User, Membership, Repo}
   alias ActivityLogger.{System, ActivityLog}
 
   describe "User factory" do
@@ -413,17 +413,19 @@ defmodule EWalletDB.UserTest do
       account1 = insert(:account)
       account2 = insert(:account)
       account3 = insert(:account)
-      role1 = insert(:role, %{name: "role_one"})
-      role2 = insert(:role, %{name: "role_two"})
 
-      insert(:membership, %{user: user, account: account1, role: role1})
-      insert(:membership, %{user: user, account: account2, role: role2})
-      insert(:membership, %{user: user, account: account3, role: role2})
+      role1 = insert(:role, %{name: "admin"})
+      role2 = insert(:role, %{name: "viewer"})
+
+      {:ok, _} = Membership.assign(user, account1, role1, %System{})
+      {:ok, _} = Membership.assign(user, account2, role2, %System{})
+      {:ok, _} = Membership.assign(user, account3, role2, %System{})
+
       roles = User.get_roles(user)
 
       assert Enum.count(roles) == 2
-      assert Enum.member?(roles, "role_one")
-      assert Enum.member?(roles, "role_two")
+      assert Enum.member?(roles, "admin")
+      assert Enum.member?(roles, "viewer")
     end
   end
 
@@ -481,40 +483,16 @@ defmodule EWalletDB.UserTest do
     end
   end
 
-  describe "master_admin?/1" do
-    test "returns true if the user has a membership on the top-level account" do
-      user = insert(:user)
-      master_account = Account.get_master_account()
-      role = insert(:role, %{name: "admin"})
-      _membership = insert(:membership, %{user: user, account: master_account, role: role})
-
-      assert User.master_admin?(user)
-    end
-
-    test "returns false if the user has a membership on the non-top-level account" do
-      user = insert(:user)
-      account = insert(:account)
-      _membership = insert(:membership, %{user: user, account: account})
-
-      refute User.master_admin?(user)
-    end
-
-    test "returns false if the user does not have a membership" do
-      user = insert(:user)
-      refute User.master_admin?(user)
-    end
-  end
-
   describe "get_accounts/1" do
     test "returns a list of user's accounts" do
       user = insert(:user)
       account_1 = insert(:account)
       account_2 = insert(:account)
       _account_3 = insert(:account)
-      role = insert(:role, %{name: "role_name"})
+      role = insert(:role, %{name: "viewer"})
 
-      insert(:membership, %{user: user, account: account_1, role: role})
-      insert(:membership, %{user: user, account: account_2, role: role})
+      {:ok, _} = Membership.assign(user, account_1, role, %System{})
+      {:ok, _} = Membership.assign(user, account_2, role, %System{})
 
       accounts = user |> User.get_accounts() |> Enum.map(fn account -> account.uuid end)
       assert length(accounts) == 2
