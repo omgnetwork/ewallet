@@ -188,7 +188,7 @@ jobs:
   test:
     executor: builder
     docker:
-      - image: omisegoimages/ewallet-builder:stable
+      - image: omisegoimages/ewallet-builder:v1.1
       - image: postgres:9.6-alpine
     steps:
       - checkout
@@ -333,7 +333,7 @@ jobs:
                 --init \
                 --network net0 \
                 --volumes-from srcs \
-              omisegoimages/ewallet-builder:stable \
+              omisegoimages/ewallet-builder:v1.1 \
               sh -c "cd /src/e2e && pipenv install && pipenv run robot tests"
       - notify_slack_failure
 
