@@ -40,6 +40,90 @@ class AccountTabsPage extends Component {
   static propTypes = {
     match: PropTypes.object
   }
+
+  renderDetailPage () {
+    return <DetailPage />
+  }
+  renderWalletPage () {
+    return (
+      <WalletPage
+        walletQuery={{
+          matchAny: [
+            {
+              field: 'account.id',
+              comparator: 'eq',
+              value: this.props.match.params.accountId
+            },
+            {
+              field: 'account.id',
+              comparator: 'eq',
+              value: null
+            }
+          ]
+        }}
+      />
+    )
+  }
+  renderTransactionRequestPage () {
+    return (
+      <TransactionRequestPage
+        query={{
+          matchAny: [
+            {
+              field: 'account.id',
+              comparator: 'eq',
+              value: this.props.match.params.accountId
+            },
+            {
+              field: 'account.id',
+              comparator: 'eq',
+              value: null
+            }
+          ]
+        }}
+      />
+    )
+  }
+  renderConsumptionPage () {
+    return (
+      <ConsumptionPage
+        fetcher={consumptionsAccountFetcher}
+        accountId={this.props.match.params.accountId}
+      />
+    )
+  }
+  renderTransactionPage () {
+    return (
+      <TransactionPage
+        query={{
+          matchAny: [
+            {
+              field: 'from_account.id',
+              comparator: 'eq',
+              value: this.props.match.params.accountId
+            },
+            {
+              field: 'to_account.id',
+              comparator: 'eq',
+              value: this.props.match.params.accountId
+            }
+          ]
+        }}
+      />
+    )
+  }
+  renderUserPage () {
+    return <UserPage fetcher={getUsersByAccountId} accountId={this.props.match.params.accountId} />
+  }
+  renderAdminPage () {
+    return (
+      <AdminPage
+        fetcher={adminsAccountFetcher}
+        accountId={this.props.match.params.accountId}
+        navigation={false}
+      />
+    )
+  }
   renderAccountTabPage = ({ account }) => {
     const tabs = {
       detail: 0,
@@ -65,53 +149,19 @@ class AccountTabsPage extends Component {
               title: (
                 <Link to={`/accounts/${this.props.match.params.accountId}/detail`}>Details</Link>
               ),
-              content: <DetailPage />
+              content: this.renderDetailPage()
             },
             {
               title: (
                 <Link to={`/accounts/${this.props.match.params.accountId}/wallets`}>Wallets</Link>
               ),
-              content: (
-                <WalletPage
-                  walletQuery={{
-                    matchAny: [
-                      {
-                        field: 'account.id',
-                        comparator: 'eq',
-                        value: this.props.match.params.accountId
-                      },
-                      {
-                        field: 'account.id',
-                        comparator: 'eq',
-                        value: null
-                      }
-                    ]
-                  }}
-                />
-              )
+              content: this.renderWalletPage()
             },
             {
               title: (
                 <Link to={`/accounts/${this.props.match.params.accountId}/requests`}>Requests</Link>
               ),
-              content: (
-                <TransactionRequestPage
-                  query={{
-                    matchAny: [
-                      {
-                        field: 'account.id',
-                        comparator: 'eq',
-                        value: this.props.match.params.accountId
-                      },
-                      {
-                        field: 'account.id',
-                        comparator: 'eq',
-                        value: null
-                      }
-                    ]
-                  }}
-                />
-              )
+              content: this.renderTransactionRequestPage()
             },
             {
               title: (
@@ -119,12 +169,7 @@ class AccountTabsPage extends Component {
                   Consumption
                 </Link>
               ),
-              content: (
-                <ConsumptionPage
-                  fetcher={consumptionsAccountFetcher}
-                  accountId={this.props.match.params.accountId}
-                />
-              )
+              content: this.renderConsumptionPage()
             },
             {
               title: (
@@ -132,45 +177,17 @@ class AccountTabsPage extends Component {
                   Transactions
                 </Link>
               ),
-              content: (
-                <TransactionPage
-                  query={{
-                    matchAny: [
-                      {
-                        field: 'from_account.id',
-                        comparator: 'eq',
-                        value: this.props.match.params.accountId
-                      },
-                      {
-                        field: 'to_account.id',
-                        comparator: 'eq',
-                        value: this.props.match.params.accountId
-                      }
-                    ]
-                  }}
-                />
-              )
+              content: this.renderTransactionPage()
             },
             {
               title: <Link to={`/accounts/${this.props.match.params.accountId}/users`}>Users</Link>,
-              content: (
-                <UserPage
-                  fetcher={getUsersByAccountId}
-                  accountId={this.props.match.params.accountId}
-                />
-              )
+              content: this.renderUserPage()
             },
             {
               title: (
                 <Link to={`/accounts/${this.props.match.params.accountId}/admins`}>Admins</Link>
               ),
-              content: (
-                <AdminPage
-                  fetcher={adminsAccountFetcher}
-                  accountId={this.props.match.params.accountId}
-                  navigation={false}
-                />
-              )
+              content: this.renderAdminPage()
             },
             {
               title: (
