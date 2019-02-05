@@ -55,30 +55,10 @@ const CurrentAccountContainer = styled.div`
 `
 const CurrentAccountName = styled.h4`
   flex: 1 1 auto;
-  margin-left: 15px;
   font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`
-const BigAvatar = styled(Avatar)`
-  text-align: center;
-  line-height: 36px;
-  background-color: ${props => props.theme.colors.B200};
-  color: white;
-  font-size: 14px;
-  width: 36px;
-  height: 36px;
-`
-const LoadingLogo = styled(Avatar)`
-  width: 36px;
-  height: 36px;
-  background-color: ${props => props.theme.colors.B200};
-  background-image: ${props =>
-    `linear-gradient(90deg, ${props.theme.colors.B200}, grey, ${props.theme.colors.B200})`};
-  background-size: 200px 100%;
-  background-repeat: no-repeat;
-  animation: ${progress} 1.5s ease-in-out infinite;
 `
 
 const MenuName = styled.div`
@@ -163,17 +143,7 @@ class SideNavigation extends PureComponent {
   renderCurrentUser = ({ currentUser, loadingStatus }) => {
     return (
       <CurrentAccountContainer>
-        {' '}
-        {loadingStatus === 'SUCCESS' ? (
-          <BigAvatar
-            image={_.get(currentUser, 'avatar.large')}
-            name={currentUser.email || currentUser.username}
-          />
-        ) : (
-          <LoadingLogo />
-        )}{' '}
         <CurrentAccountName>
-          {' '}
           {_.get(currentUser, 'email') || _.get(currentUser.username)}{' '}
         </CurrentAccountName>{' '}
       </CurrentAccountContainer>
@@ -188,7 +158,9 @@ class SideNavigation extends PureComponent {
           {this.dataLink.map(link => {
             return (
               <Link to={link.to} key={link.to}>
-                <NavigationItem active={fuzzySearch(link.to, `/${this.props.location.pathname.split('/')[1]}`)}>
+                <NavigationItem
+                  active={fuzzySearch(link.to, `/${this.props.location.pathname.split('/')[1]}`)}
+                >
                   <Icon name={link.icon} /> <span>{link.text}</span>
                 </NavigationItem>{' '}
               </Link>
@@ -198,7 +170,9 @@ class SideNavigation extends PureComponent {
           {this.overviewLinks.map(link => {
             return (
               <Link to={link.to} key={link.to}>
-                <NavigationItem active={fuzzySearch(link.to, `/${this.props.location.pathname.split('/')[1]}`)}>
+                <NavigationItem
+                  active={fuzzySearch(link.to, `/${this.props.location.pathname.split('/')[1]}`)}
+                >
                   <Icon name={link.icon} /> <span>{link.text}</span>
                 </NavigationItem>{' '}
               </Link>

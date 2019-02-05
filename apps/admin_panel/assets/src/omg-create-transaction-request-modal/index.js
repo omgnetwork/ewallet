@@ -160,7 +160,9 @@ class CreateTransactionRequest extends Component {
         amount: formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit')),
         tokenId: _.get(this.state, 'selectedToken.id'),
         address: this.state.address || _.get(this.props, 'primaryWallet.address'),
-        accountId: _.get(this.state, 'selectedWallet.account_id'),
+        accountId:
+          _.get(this.state, 'selectedWallet.account_id') ||
+          _.get(this.props, 'march.params.accountId'),
         expirationDate: this.state.expirationDate && moment(this.state.expirationDate).toISOString()
       })
       if (result.data) {
