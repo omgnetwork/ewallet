@@ -44,9 +44,10 @@ For other platforms or a more advanced setup, see alternative installation below
 
 -   [Bare metal installation](docs/setup/bare_metal.md)
 
-### Upgrade
+## Upgrade
 
-Upgrading to a newer version? See [Upgrading the eWallet Server](docs/setup/upgrading).
+- Upgrading from `v1.0`? See [Upgrading from v1.0.0 to v1.1.0](docs/setup/upgrading/v1.1.0.md).
+- Upgrading from other versions? See [Upgrading the eWallet Server](docs/setup/upgrading).
 
 ## Commands
 
