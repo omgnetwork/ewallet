@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import styled from 'styled-components'
 import moment from 'moment'
-import Link from '../omg-links'
+import { Link } from 'react-router-dom'
 const InformationItem = styled.div`
   color: ${props => props.theme.colors.B200};
   :not(:last-child) {
@@ -59,7 +59,9 @@ export default class TransactionRequestDetail extends Component {
         <InformationItem>
           <b>Account ID : </b>{' '}
           {_.get(tq, 'account.id') ? (
-            <Link to={`/accounts/${_.get(tq, 'account.id')}`}>{_.get(tq, 'account.id')}</Link>
+            <Link to={`/accounts/${_.get(tq, 'account.id')}/detail`}>
+              {_.get(tq, 'account.id')}
+            </Link>
           ) : (
             '-'
           )}
@@ -67,7 +69,10 @@ export default class TransactionRequestDetail extends Component {
         <InformationItem>
           <b>Account Name : </b>{' '}
           {_.get(tq, 'account.id') ? (
-            <Link to={`/accounts/${_.get(tq, 'account.id')}`}> {_.get(tq, 'account.name')} </Link>
+            <Link to={`/accounts/${_.get(tq, 'account.id')}/detail`}>
+              {' '}
+              {_.get(tq, 'account.name')}{' '}
+            </Link>
           ) : (
             '-'
           )}
@@ -75,7 +80,7 @@ export default class TransactionRequestDetail extends Component {
         <InformationItem>
           <b>Exchange Account Name: </b>{' '}
           {_.get(tq, 'exchange_account.id') ? (
-            <Link to={`/accounts/${_.get(tq, 'exchange_account.id')}`}>
+            <Link to={`/accounts/${_.get(tq, 'exchange_account.id')}/detail`}>
               {' '}
               {_.get(tq, 'exchange_account.name')}{' '}
             </Link>
@@ -86,7 +91,7 @@ export default class TransactionRequestDetail extends Component {
         <InformationItem>
           <b>Exchange Account ID: </b>{' '}
           {_.get(tq, 'exchange_account.id') ? (
-            <Link to={`/accounts/${_.get(tq, 'exchange_account.id')}`}>
+            <Link to={`/accounts/${_.get(tq, 'exchange_account.id')}/detail`}>
               {' '}
               {_.get(tq, 'exchange_account.id')}{' '}
             </Link>
