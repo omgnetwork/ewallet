@@ -127,10 +127,10 @@ class TokenDetailPage extends Component {
           <Link to={`${this.props.location.pathname}/history`}>view history</Link>
         </DetailGroup>
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(token.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Created Date:</b> <span>{moment(token.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(token.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Last Update:</b> <span>{moment(token.updated_at).format()}</span>
         </DetailGroup>
       </Section>
     )

@@ -12,24 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule LocalLedger.Config do
+defmodule Utils.Helpers.PathResolver do
   @moduledoc """
-  Provides a configuration function that are called during application startup.
+  Module to interact with paths.
   """
+  alias Utils.Helpers.Normalize
 
-  def read_scheduler_config do
-    case Application.get_env(:local_ledger, :balance_caching_frequency) do
-      nil ->
-        []
+  @doc """
+  Returns a path to static distribution. If SERVE_LOCAL_STATIC
+  is true, it means that we want to serve directly from source tree
+  instead of from the _build directory, so we're returning a relative
+  path from a file.
+  """
+  def static_dir(app) do
+    serve_local_static = System.get_env("SERVE_LOCAL_STATIC")
 
-      frequency ->
-        [
-          cache_all_wallets: [
-            schedule: frequency,
-            task: {LocalLedger.Balance, :cache_all, []},
-            run_strategy: {Quantum.RunStrategy.Random, :cluster}
-          ]
-        ]
+    case Normalize.to_boolean(serve_local_static) do
+      true ->
+        Path.expand("../../../#{app}/priv/static", __DIR__)
+
+      false ->
+        Application.app_dir(app, "priv/static")
     end
   end
 end

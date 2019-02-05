@@ -143,6 +143,8 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     end
   end
 
+  def get(conn, _), do: handle_error(conn, :missing_id)
+
   def consume(conn, %{"idempotency_token" => idempotency_token} = attrs)
       when idempotency_token != nil do
     with attrs <- Originator.set_in_attrs(attrs, conn.assigns),
