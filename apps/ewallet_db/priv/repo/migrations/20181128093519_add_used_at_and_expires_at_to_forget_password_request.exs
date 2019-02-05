@@ -19,8 +19,8 @@ defmodule EWalletDB.Repo.Migrations.AddUsedAtAndExpiresAtToForgetPasswordRequest
 
   def up do
     alter table(:forget_password_request) do
-      add :used_at, :naive_datetime
-      add :expires_at, :naive_datetime
+      add :used_at, :naive_datetime_usec
+      add :expires_at, :naive_datetime_usec
     end
 
     create index(:forget_password_request, [:enabled, :expires_at])

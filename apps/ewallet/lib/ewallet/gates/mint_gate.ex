@@ -104,7 +104,7 @@ defmodule EWallet.MintGate do
          %Account{} = account <- Account.get_master_account() do
       multi =
         Multi.new()
-        |> Multi.run(:mint, fn _ ->
+        |> Multi.run(:mint, fn _repo, _data ->
           Mint.insert(%{
             token_uuid: token.uuid,
             amount: amount,
@@ -113,7 +113,7 @@ defmodule EWallet.MintGate do
             originator: originator
           })
         end)
-        |> Multi.run(:transaction, fn %{mint: mint} ->
+        |> Multi.run(:transaction, fn _repo, %{mint: mint} ->
           GenesisGate.create(%{
             idempotency_token: idempotency_token,
             amount: amount,
@@ -123,7 +123,7 @@ defmodule EWallet.MintGate do
             originator: mint
           })
         end)
-        |> Multi.run(:mint_with_transaction, fn %{transaction: transaction, mint: mint} ->
+        |> Multi.run(:mint_with_transaction, fn _repo, %{transaction: transaction, mint: mint} ->
           Mint.update(mint, %{
             transaction_uuid: transaction.uuid,
             originator: transaction

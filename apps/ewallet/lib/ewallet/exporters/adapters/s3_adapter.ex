@@ -44,7 +44,7 @@ defmodule EWallet.Exporters.S3Adapter do
     Repo.transaction(
       fn ->
         args.export
-        |> AdapterHelper.stream_to_chunk(args.query, args.serializer, chunk_size)
+        |> AdapterHelper.stream_to_chunk(args.query, args.preloads, args.serializer, chunk_size)
         |> S3.upload(get_bucket(), args.path)
         |> ExAws.request()
         |> case do
@@ -61,7 +61,7 @@ defmodule EWallet.Exporters.S3Adapter do
   end
 
   defp direct_upload(args) do
-    {:ok, data} = to_full_csv(args.query, args.serializer)
+    {:ok, data} = to_full_csv(args.query, args.preloads, args.serializer)
 
     # direct upload
     %{
@@ -87,12 +87,14 @@ defmodule EWallet.Exporters.S3Adapter do
     Application.get_env(:ewallet, :aws_bucket)
   end
 
-  defp to_full_csv(query, serializer) do
+  defp to_full_csv(query, preloads, serializer) do
     Repo.transaction(fn ->
       query
       |> Repo.stream(max_rows: 500)
-      |> Stream.map(fn e ->
-        serializer.serialize(e)
+      |> Stream.map(fn record ->
+        record
+        |> Repo.preload(preloads)
+        |> serializer.serialize()
       end)
       |> CSV.encode(headers: serializer.columns)
       |> Enum.join("")

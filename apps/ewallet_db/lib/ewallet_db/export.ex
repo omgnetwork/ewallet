@@ -48,6 +48,7 @@ defmodule EWalletDB.Export do
   @formats ["csv"]
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "export" do
     external_id(prefix: "exp_")

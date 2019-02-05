@@ -42,6 +42,7 @@ defmodule EWalletDB.TransactionRequest do
   @types [@send, @receive]
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "transaction_request" do
     external_id(prefix: "txr_")
@@ -59,8 +60,8 @@ defmodule EWalletDB.TransactionRequest do
     field(:max_consumptions_per_user, :integer)
     # milliseconds
     field(:consumption_lifetime, :integer)
-    field(:expiration_date, :naive_datetime)
-    field(:expired_at, :naive_datetime)
+    field(:expiration_date, :naive_datetime_usec)
+    field(:expired_at, :naive_datetime_usec)
     field(:expiration_reason, :string)
     field(:allow_amount_override, :boolean, default: true)
     field(:metadata, :map, default: %{})
@@ -381,7 +382,7 @@ defmodule EWalletDB.TransactionRequest do
   def expire_if_max_consumption(request, originator) do
     consumptions = TransactionConsumption.all_active_for_request(request.uuid)
     request = update_consumptions_count(request, consumptions, originator)
-    request = %{request | originator: nil}
+    request = Map.delete(request, :originator)
 
     case max_consumptions_reached?(request, consumptions) do
       true -> expire(request, originator, "max_consumptions_reached")

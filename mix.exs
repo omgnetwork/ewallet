@@ -32,12 +32,12 @@ defmodule EWallet.Umbrella.Mixfile do
   # Run "mix help deps" for examples and options.
   defp deps do
     [
-      {:credo, "0.10.0", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:distillery, "~> 1.5", runtime: false},
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.19", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.8", only: :test, runtime: false},
-      {:junit_formatter, "~> 2.2", only: :test}
+      {:junit_formatter, "~> 3.0", only: :test}
     ]
   end
 

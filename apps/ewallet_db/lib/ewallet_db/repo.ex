@@ -13,7 +13,10 @@
 # limitations under the License.
 
 defmodule EWalletDB.Repo do
-  use Ecto.Repo, otp_app: :ewallet_db
+  use Ecto.Repo,
+    otp_app: :ewallet_db,
+    adapter: Ecto.Adapters.Postgres
+
   use ActivityLogger.ActivityRepo, repo: EWalletDB.Repo
 
   # Workaround an issue where ecto.migrate task won't start the app

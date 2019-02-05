@@ -24,7 +24,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       now = NaiveDateTime.utc_now()
 
       request =
-        insert(:transaction_request, expiration_date: NaiveDateTime.add(now, -60, :seconds))
+        insert(:transaction_request, expiration_date: NaiveDateTime.add(now, -60, :second))
 
       wallet = request.wallet
 
@@ -115,7 +115,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       request =
         insert(
           :transaction_request,
-          expiration_date: NaiveDateTime.add(now, -60, :seconds),
+          expiration_date: NaiveDateTime.add(now, -60, :second),
           account_uuid: nil,
           user_uuid: user.uuid,
           wallet: wallet
@@ -218,7 +218,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       consumption =
         :transaction_consumption
         |> insert(
-          expiration_date: NaiveDateTime.add(now, -60, :seconds),
+          expiration_date: NaiveDateTime.add(now, -60, :second),
           transaction_request_uuid: request.uuid
         )
         |> Repo.preload([:transaction_request])

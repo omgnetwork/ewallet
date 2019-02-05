@@ -23,10 +23,10 @@ defmodule EWallet.TransactionRequestSchedulerTest do
       now = NaiveDateTime.utc_now()
 
       # t1 and t2 have expiration dates in the past
-      t1 = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, -60, :seconds))
-      t2 = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, -600, :seconds))
-      t3 = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, 600, :seconds))
-      t4 = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, 160, :seconds))
+      t1 = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, -60, :second))
+      t2 = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, -600, :second))
+      t3 = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, 600, :second))
+      t4 = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, 160, :second))
 
       # They are still valid since we haven't made them expired yet
       assert TransactionRequest.expired?(t1) == false
@@ -51,7 +51,7 @@ defmodule EWallet.TransactionRequestSchedulerTest do
 
     test "sets the expiration reason" do
       now = NaiveDateTime.utc_now()
-      t = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, -60, :seconds))
+      t = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, -60, :second))
       TransactionRequestScheduler.expire_all()
       t = TransactionRequest.get(t.id)
 

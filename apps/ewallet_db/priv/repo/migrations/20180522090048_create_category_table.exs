@@ -22,7 +22,7 @@ defmodule EWalletDB.Repo.Migrations.CreateCategoryTable do
       add :name, :string, null: false
       add :description, :string
       timestamps()
-      add :deleted_at, :naive_datetime
+      add :deleted_at, :naive_datetime_usec
     end
 
     create unique_index(:category, [:name])

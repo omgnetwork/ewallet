@@ -25,6 +25,7 @@ defmodule ActivityLogger.TestDocument do
   alias ActivityLogger.TestDocument
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "test_document" do
     external_id(prefix: "tdc_")

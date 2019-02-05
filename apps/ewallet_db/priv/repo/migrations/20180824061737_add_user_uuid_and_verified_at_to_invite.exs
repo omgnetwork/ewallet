@@ -20,7 +20,7 @@ defmodule EWalletDB.Repo.Migrations.AddUserUuidAndVerifiedAtToInvite do
   def up do
     alter table(:invite) do
       add :user_uuid, references(:user, column: :uuid, type: :uuid)
-      add :verified_at, :naive_datetime
+      add :verified_at, :naive_datetime_usec
     end
 
     flush()

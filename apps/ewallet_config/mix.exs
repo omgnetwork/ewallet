@@ -4,12 +4,12 @@ defmodule EWalletConfig.MixProject do
   def project do
     [
       app: :ewallet_config,
-      version: "1.1.0-pre.2",
+      version: "1.2.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.6",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       test_coverage: [tool: ExCoveralls],
@@ -31,7 +31,7 @@ defmodule EWalletConfig.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:appsignal, :logger],
       mod: {EWalletConfig.Application, []},
     ]
   end
@@ -40,12 +40,13 @@ defmodule EWalletConfig.MixProject do
   defp deps do
     [
       {:activity_logger, in_umbrella: true},
+      {:appsignal, "~> 1.9"},
       {:arc, "~> 0.11.0"},
       {:arc_ecto, github: "omisego/arc_ecto"},
       {:bcrypt_elixir, "~> 1.0"},
       {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
-      {:ecto, "~> 2.1.6"},
+      {:ecto_sql, "~> 3.0"},
       {:plug, "~> 1.0"},
       {:poison, "~> 3.1"},
       {:postgrex, ">= 0.0.0"},

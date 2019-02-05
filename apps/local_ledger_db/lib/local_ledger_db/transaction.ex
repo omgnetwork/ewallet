@@ -22,6 +22,7 @@ defmodule LocalLedgerDB.Transaction do
   alias LocalLedgerDB.{Entry, Repo, Transaction}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "transaction" do
     field(:metadata, :map, default: %{})

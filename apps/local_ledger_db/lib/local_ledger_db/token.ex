@@ -23,6 +23,7 @@ defmodule LocalLedgerDB.Token do
   alias LocalLedgerDB.{Entry, Repo, Token}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "token" do
     field(:id, :string)

@@ -23,7 +23,7 @@ services:
       - intnet
 
   ewallet:
-    image: omisego/ewallet:latest
+    image: omisego/ewallet:stable
     restart: always
     networks:
       - intnet

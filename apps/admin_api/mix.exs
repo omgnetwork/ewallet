@@ -4,12 +4,12 @@ defmodule AdminAPI.Mixfile do
   def project do
     [
       app: :admin_api,
-      version: "1.1.0-pre.2",
+      version: "1.2.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.4",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
@@ -31,7 +31,7 @@ defmodule AdminAPI.Mixfile do
   def application do
     [
       mod: {AdminAPI.Application, []},
-      extra_applications: [:sentry, :logger, :runtime_tools, :appsignal]
+      extra_applications: [:appsignal, :sentry, :logger, :runtime_tools]
     ]
   end
 
@@ -53,9 +53,10 @@ defmodule AdminAPI.Mixfile do
       {:ewallet, in_umbrella: true},
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},
+      {:jason, "~> 1.1"},
       {:phoenix, "~> 1.3.0"},
       {:plug_cowboy, "~> 1.0"},
-      {:sentry, "~> 6.4"}
+      {:sentry, "~> 7.0"}
     ]
   end
 

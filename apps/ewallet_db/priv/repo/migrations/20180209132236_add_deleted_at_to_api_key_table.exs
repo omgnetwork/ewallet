@@ -17,7 +17,7 @@ defmodule EWalletDB.Repo.Migrations.AddDeletedAtToApiKeyTable do
 
   def change do
     alter table(:api_key) do
-      add :deleted_at, :naive_datetime
+      add :deleted_at, :naive_datetime_usec
     end
 
     create index(:api_key, [:deleted_at])
