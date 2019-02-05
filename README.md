@@ -14,16 +14,16 @@ The quickest way to get OmiseGO eWallet Server running on macOS and Linux is to 
 
 1. Install [Docker](https://docs.docker.com/install/) and [Docker-Compose](https://docs.docker.com/compose/install/)
 
-2. Download OmiseGO eWallet Server's [docker-compose.yml](https://raw.githubusercontent.com/omisego/ewallet/master/docker-compose.yml):
+2. Download OmiseGO eWallet Server's [docker-compose.yml](https://raw.githubusercontent.com/omisego/ewallet/v1.1/docker-compose.yml):
 
     ```shell
-    curl -O -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-compose.yml
+    curl -O -sSL https://raw.githubusercontent.com/omisego/ewallet/v1.1/docker-compose.yml
     ```
 
 3. Create `docker-compose.override.yml` either [manually](https://docs.docker.com/compose/extends/) or use auto-configuration script:
 
     ```
-    curl -O -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-gen.sh
+    curl -O -sSL https://raw.githubusercontent.com/omisego/ewallet/v1.1/docker-gen.sh
     chmod +x docker-gen.sh
     ./docker-gen.sh > docker-compose.override.yml
     ```
