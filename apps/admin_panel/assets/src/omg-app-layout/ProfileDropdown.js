@@ -9,11 +9,9 @@ import CurrentUserProvider from '../omg-user-current/currentUserProvider'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { logout } from '../omg-session/action'
+import PopperRenderer from '../omg-popper'
 const AvatarDropdownContainer = styled.div`
   position: relative;
-`
-const StyledAvatar = styled(Avatar)`
-  cursor: pointer;
 `
 const DropdownItem = styled.div`
   padding: 10px;
@@ -82,31 +80,39 @@ class ProfileAvatarDropdown extends Component {
     this.props.history.push('/login')
   }
 
-  renderAvatar = currentUser => {
+  renderCurrentUserName = currentUser => () => {
     return (
-      <StyledAvatar onClick={this.props.onClickButton} image={_.get(currentUser, 'avatar.small')} name={currentUser.name || currentUser.email} />
+      <div onClick={this.props.onClickButton}>
+        {currentUser.name || currentUser.email}
+        {this.props.open ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
+      </div>
     )
   }
   renderCurrentUserAvatar = ({ currentUser, loadingStatus }) => {
     return (
       <AvatarDropdownContainer>
-        {this.renderAvatar(currentUser)}
-        {this.props.open && (
-          <DropdownBoxStyled>
-            <div>
-              <DropdownItemName>{currentUser.name || currentUser.email}</DropdownItemName>
-              <DropdownItemEmail>{currentUser.email}</DropdownItemEmail>
-              <DropdownItemProfile onClick={this.onClickProfile}>
-                <Icon name='Profile' />
-                <span>Profile</span>
-              </DropdownItemProfile>
-              <DropdownItemLogout onClick={this.onClickLogout}>
-                <Icon name='Arrow-Left' />
-                <span>Logout</span>
-              </DropdownItemLogout>
-            </div>
-          </DropdownBoxStyled>
-        )}
+        <PopperRenderer
+          renderReference={this.renderCurrentUserName(currentUser)}
+          open={this.props.open}
+          renderPopper={() => {
+            return (
+              <DropdownBoxStyled>
+                <div>
+                  <DropdownItemName>{currentUser.name || currentUser.email}</DropdownItemName>
+                  <DropdownItemEmail>{currentUser.email}</DropdownItemEmail>
+                  <DropdownItemProfile onClick={this.onClickProfile}>
+                    <Icon name='Profile' />
+                    <span>Profile</span>
+                  </DropdownItemProfile>
+                  <DropdownItemLogout onClick={this.onClickLogout}>
+                    <Icon name='Arrow-Left' />
+                    <span>Logout</span>
+                  </DropdownItemLogout>
+                </div>
+              </DropdownBoxStyled>
+            )
+          }}
+        />
       </AvatarDropdownContainer>
     )
   }

@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react'
 import styled, { keyframes } from 'styled-components'
-import { Icon, Avatar } from '../omg-uikit'
+import { Icon, LoadingSkeleton, Dropdown } from '../omg-uikit'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
 import CurrentUserProvider from '../omg-user-current/currentUserProvider'
 import { fuzzySearch } from '../utils/search'
+import ProfileDropdown from './ProfileDropdown'
 const SideNavigationContainer = styled.div`
   background-color: #f0f2f5;
   height: 100%;
@@ -32,14 +33,6 @@ const NavigationItem = styled.div`
     background-color: ${props => props.theme.colors.S300};
   }
 `
-const progress = keyframes`
-0% {
-      background-position: -200px 0;
-  }
-  100% {
-      background-position: calc(200px + 100%) 0;
-  }
-`
 
 const NavigationItemsContainer = styled.div`
   margin-top: 20px;
@@ -52,13 +45,6 @@ const CurrentAccountContainer = styled.div`
   display: flex;
   align-items: center;
   padding: 0 35px;
-`
-const CurrentAccountName = styled.h4`
-  flex: 1 1 auto;
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 `
 
 const MenuName = styled.div`
@@ -143,9 +129,11 @@ class SideNavigation extends PureComponent {
   renderCurrentUser = ({ currentUser, loadingStatus }) => {
     return (
       <CurrentAccountContainer>
-        <CurrentAccountName>
-          {_.get(currentUser, 'email') || _.get(currentUser.username)}{' '}
-        </CurrentAccountName>{' '}
+        {loadingStatus === 'SUCCESS' ? (
+          <ProfileDropdown />
+        ) : (
+          <LoadingSkeleton height='18px' />
+        )}
       </CurrentAccountContainer>
     )
   }
@@ -154,7 +142,8 @@ class SideNavigation extends PureComponent {
     return (
       <SideNavigationContainer className={this.props.className}>
         <NavigationItemsContainer>
-          <CurrentUserProvider render={this.renderCurrentUser} /> <MenuName> MANAGE </MenuName>{' '}
+          <CurrentUserProvider render={this.renderCurrentUser} />
+          <MenuName> MANAGE </MenuName>
           {this.dataLink.map(link => {
             return (
               <Link to={link.to} key={link.to}>
@@ -162,11 +151,11 @@ class SideNavigation extends PureComponent {
                   active={fuzzySearch(link.to, `/${this.props.location.pathname.split('/')[1]}`)}
                 >
                   <Icon name={link.icon} /> <span>{link.text}</span>
-                </NavigationItem>{' '}
+                </NavigationItem>
               </Link>
             )
-          })}{' '}
-          <MenuName> OVERVIEW </MenuName>{' '}
+          })}
+          <MenuName> OVERVIEW </MenuName>
           {this.overviewLinks.map(link => {
             return (
               <Link to={link.to} key={link.to}>
@@ -174,13 +163,14 @@ class SideNavigation extends PureComponent {
                   active={fuzzySearch(link.to, `/${this.props.location.pathname.split('/')[1]}`)}
                 >
                   <Icon name={link.icon} /> <span>{link.text}</span>
-                </NavigationItem>{' '}
+                </NavigationItem>
               </Link>
             )
-          })}{' '}
-        </NavigationItemsContainer>{' '}
+          })}
+        </NavigationItemsContainer>
       </SideNavigationContainer>
     )
   }
 }
+
 export default withRouter(SideNavigation)

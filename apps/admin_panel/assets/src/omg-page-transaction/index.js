@@ -155,7 +155,7 @@ class TransactionPage extends Component {
   }
   onClickExport = e => {
     const accountId = this.props.match.params.accountId
-    this.props.history.push(`/${accountId}/transaction/export`)
+    this.props.history.push('/transaction/export')
   }
   renderCreateTransactionButton = () => {
     return (
