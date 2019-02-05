@@ -75,7 +75,7 @@
     "react-json-view": "^1.19.1",
     "react-loading": "^1.0.4",
     "react-modal": "^3.3.2",
-    "react-popper": "^1.3.2",
+    "react-popper": "^1.3.3",
     "react-redux": "^5.0.7",
     "react-redux-loading-bar": "^4.0.5",
     "react-router": "^4.2.0",

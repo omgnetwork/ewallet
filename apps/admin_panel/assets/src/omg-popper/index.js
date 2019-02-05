@@ -13,7 +13,7 @@ export default class PopperRenderer extends Component {
       <Manager>
         <Reference>
           {({ ref, style }) => (
-            <div ref={ref} style={style}>
+            <div ref={ref} style={{ ...style, zIndex: 1 }}>
               {this.props.renderReference()}
             </div>
           )}
@@ -21,17 +21,25 @@ export default class PopperRenderer extends Component {
         {this.props.open && (
           <Popper
             placement='bottom-end'
+            positionFixed
             modifiers={{
+              offset: {
+                enabled: true,
+                offset: 150
+              },
               preventOverflow: {
-                enabled: true
+                enabled: true,
+                boundariesElement: document.getElementById('app')
               }
             }}
           >
-            {({ ref, style, placement, arrowProps }) => (
-              <div ref={ref} style={{ ...style, zIndex: 1 }} data-placement={placement}>
-                {this.props.renderPopper()}
-              </div>
-            )}
+            {({ ref, style, placement, arrowProps, outOfBoundaries }) => {
+              return (
+                <div ref={ref} style={{ ...style, zIndex: 1 }} data-placement={placement}>
+                  {this.props.renderPopper()}
+                </div>
+              )
+            }}
           </Popper>
         )}
       </Manager>

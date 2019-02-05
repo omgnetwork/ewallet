@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import withDropdownState from '../omg-uikit/dropdown/withDropdownState'
 import { DropdownBox } from '../omg-uikit/dropdown'
-import { Avatar, Icon } from '../omg-uikit'
+import { Icon } from '../omg-uikit'
 import styled from 'styled-components'
 import { compose } from 'recompose'
 import CurrentUserProvider from '../omg-user-current/currentUserProvider'
@@ -12,6 +12,7 @@ import { logout } from '../omg-session/action'
 import PopperRenderer from '../omg-popper'
 const AvatarDropdownContainer = styled.div`
   position: relative;
+  cursor: pointer;
 `
 const DropdownItem = styled.div`
   padding: 10px;
@@ -73,7 +74,7 @@ class ProfileAvatarDropdown extends Component {
   onClickProfile = e => {
     const accountId = this.props.match.params.accountId
     this.props.closeDropdown()
-    this.props.history.push(`/${accountId}/user_setting`)
+    this.props.history.push('/user_setting')
   }
   onClickLogout = async e => {
     await this.props.logout()
@@ -83,7 +84,7 @@ class ProfileAvatarDropdown extends Component {
   renderCurrentUserName = currentUser => () => {
     return (
       <div onClick={this.props.onClickButton}>
-        {currentUser.name || currentUser.email}
+        {currentUser.name || currentUser.email}{' '}
         {this.props.open ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
       </div>
     )

@@ -36,7 +36,6 @@ const createRoute = () => (
   <Router basename='/admin/'>
     <Switch>
       <Redirect from='/' to={redirectUrl} exact />
-      <Redirect from='/:accountId/setting' to='/:accountId/setting/account' exact />
       <Redirect from='/accounts/:accountId' to='/accounts/:accountId/detail' exact />
       <LoginRoute path='/login' exact component={LoginForm} />
       <LoginRoute path='/forget-password' exact component={ForgetPasswordForm} />
@@ -61,7 +60,6 @@ const createRoute = () => (
       <AuthenticatedRoute path='/consumptions' exact component={ReqestConsumptionPage} />
       <AuthenticatedRoute path='/requests' exact component={TransactionRequestPage} />
       <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
-      <AuthenticatedRoute path='/activity' exact component={ActivityLogPage} />
       <AuthenticatedRoute path='/activity' exact component={ActivityLogPage} />
       <Route component={NotFoundPage} />
     </Switch>
