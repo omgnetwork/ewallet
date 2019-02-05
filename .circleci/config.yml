@@ -4,7 +4,7 @@ version: 2.1
 executors:
   builder:
     docker:
-      - image: omisegoimages/ewallet-builder:dev-80264b0
+      - image: omisegoimages/ewallet-builder:v1.2
     working_directory: ~/src
     environment:
       IMAGE_NAME: "omisego/ewallet"
@@ -192,7 +192,7 @@ jobs:
   test:
     executor: builder
     docker:
-      - image: omisegoimages/ewallet-builder:dev-80264b0
+      - image: omisegoimages/ewallet-builder:v1.2
       - image: postgres:9.6-alpine
     steps:
       - checkout
@@ -337,7 +337,7 @@ jobs:
                 --init \
                 --network net0 \
                 --volumes-from srcs \
-              omisegoimages/ewallet-builder:dev-80264b0 \
+              omisegoimages/ewallet-builder:v1.2 \
               sh -c "cd /src/e2e && pipenv install && pipenv run robot tests"
       - notify_slack_failure
 
