@@ -26,6 +26,8 @@ defmodule EWalletDB.APIKey do
   alias EWalletDB.{Account, APIKey, Repo, Wallet}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
+
   # String length = ceil(key_bytes / 3 * 4)
   @key_bytes 32
 

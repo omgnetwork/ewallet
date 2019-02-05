@@ -18,6 +18,7 @@ defmodule EWalletConfig.Application do
   @moduledoc false
 
   use Application
+  alias Appsignal.Ecto
 
   def start(_type, _args) do
     import Supervisor.Spec
@@ -26,6 +27,13 @@ defmodule EWalletConfig.Application do
     ActivityLogger.configure(%{
       EWalletConfig.StoredSetting => %{type: "setting", identifier: :id}
     })
+
+    :telemetry.attach(
+      "appsignal-ecto",
+      [:ewallet_config, :repo, :query],
+      &Ecto.handle_event/4,
+      nil
+    )
 
     # List all child processes to be supervised
     children = [

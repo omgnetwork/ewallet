@@ -45,6 +45,7 @@ defmodule EWalletDB.ExchangePair do
   alias EWalletDB.{Repo, Token}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "exchange_pair" do
     external_id(prefix: "exg_")
@@ -177,7 +178,7 @@ defmodule EWalletDB.ExchangePair do
     changeset = restore_changeset(exchange_pair, %{deleted_at: nil, originator: originator})
 
     case Repo.update_record_with_activity_log(changeset) do
-      {:error, %{errors: [deleted_at: {"has already been taken", []}]}} ->
+      {:error, %{errors: [deleted_at: {"has already been taken", _}]}} ->
         {:error, :exchange_pair_already_exists}
 
       result ->

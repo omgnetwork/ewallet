@@ -4,12 +4,12 @@ defmodule EWalletDB.Mixfile do
   def project do
     [
       app: :ewallet_db,
-      version: "1.1.0-pre.2",
+      version: "1.2.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.4",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env == :prod,
       test_coverage: [tool: ExCoveralls],
@@ -30,7 +30,7 @@ defmodule EWalletDB.Mixfile do
   def application do
     [
       mod: {EWalletDB.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:appsignal, :logger, :runtime_tools]
     ]
   end
 
@@ -44,12 +44,13 @@ defmodule EWalletDB.Mixfile do
   defp deps do
     [
       {:activity_logger, in_umbrella: true},
+      {:appsignal, "~> 1.9"},
       {:arc, "~> 0.11.0"},
       {:arc_ecto, github: "omisego/arc_ecto"},
       {:bcrypt_elixir, "~> 1.0"},
       {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
-      {:ecto, "~> 2.1.6"},
+      {:ecto_sql, "~> 3.0"},
       {:ewallet_config, in_umbrella: true},
       {:ex_machina, "~> 2.2", only: :test},
       {:plug, "~> 1.0"},

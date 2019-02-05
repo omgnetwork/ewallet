@@ -39,6 +39,7 @@ defmodule EWalletDB.User do
   }
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "user" do
     external_id(prefix: "usr_")
@@ -360,7 +361,7 @@ defmodule EWalletDB.User do
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log(
       [],
-      Multi.run(Multi.new(), :wallet, fn %{record: record} ->
+      Multi.run(Multi.new(), :wallet, fn _repo, %{record: record} ->
         case User.admin?(record) do
           true -> {:ok, nil}
           false -> insert_wallet(record, Wallet.primary())
@@ -583,21 +584,23 @@ defmodule EWalletDB.User do
       join:
         account_tree in fragment(
           ~s/
-            WITH RECURSIVE account_tree AS (
-              SELECT a.*, m.role_uuid, m.user_uuid
-              FROM account a
-              LEFT JOIN membership AS m ON m.account_uuid = a.uuid
-              WHERE a.id = ?
-            UNION
-              SELECT parent.*, m.role_uuid, m.user_uuid
-              FROM account parent
-              LEFT JOIN membership AS m ON m.account_uuid = parent.uuid
-              JOIN account_tree ON account_tree.parent_uuid = parent.uuid
+            (
+              WITH RECURSIVE account_tree AS (
+                SELECT a.*, m.role_uuid, m.user_uuid
+                FROM account a
+                LEFT JOIN membership AS m ON m.account_uuid = a.uuid
+                WHERE a.id = ?
+              UNION
+                SELECT parent.*, m.role_uuid, m.user_uuid
+                FROM account parent
+                LEFT JOIN membership AS m ON m.account_uuid = parent.uuid
+                JOIN account_tree ON account_tree.parent_uuid = parent.uuid
+              )
+              SELECT role_uuid FROM account_tree
+              JOIN "role" AS r ON r.uuid = role_uuid
+              JOIN "user" AS u ON u.uuid = user_uuid
+              WHERE u.id = ? LIMIT 1
             )
-            SELECT role_uuid FROM account_tree
-            JOIN "role" AS r ON r.uuid = role_uuid
-            JOIN "user" AS u ON u.uuid = user_uuid
-            WHERE u.id = ? LIMIT 1
           /,
           ^account_id,
           ^user_id
@@ -696,6 +699,7 @@ defmodule EWalletDB.User do
       join:
         child in fragment(
           """
+          (
             WITH RECURSIVE account_tree AS (
               SELECT account.*, 0 AS depth
               FROM account
@@ -705,6 +709,7 @@ defmodule EWalletDB.User do
               FROM account child
               JOIN account_tree ON account_tree.uuid = child.parent_uuid
             ) SELECT * FROM account_tree
+          )
           """,
           type(^account_uuids, {:array, UUID})
         ),

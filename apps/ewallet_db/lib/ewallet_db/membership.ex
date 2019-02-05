@@ -24,6 +24,7 @@ defmodule EWalletDB.Membership do
   alias EWalletDB.{Account, Membership, MembershipChecker, Repo, Role, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "membership" do
     belongs_to(

@@ -24,13 +24,15 @@ defmodule EWalletDB.Invite do
   alias EWalletDB.{Invite, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
+
   @token_length 32
   @allowed_user_attrs [:email]
 
   schema "invite" do
     field(:token, :string)
     field(:success_url, :string)
-    field(:verified_at, :naive_datetime)
+    field(:verified_at, :naive_datetime_usec)
 
     belongs_to(
       :user,
@@ -135,7 +137,7 @@ defmodule EWalletDB.Invite do
     |> Repo.insert_record_with_activity_log(
       [],
       # Assign the invite to the user
-      Multi.run(Multi.new(), :user, fn %{record: record} ->
+      Multi.run(Multi.new(), :user, fn _repo, %{record: record} ->
         {:ok, _user} =
           user
           |> change(%{

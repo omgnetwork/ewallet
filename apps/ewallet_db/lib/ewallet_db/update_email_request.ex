@@ -25,6 +25,8 @@ defmodule EWalletDB.UpdateEmailRequest do
   alias EWalletDB.{UpdateEmailRequest, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
+
   @token_length 32
 
   schema "update_email_request" do

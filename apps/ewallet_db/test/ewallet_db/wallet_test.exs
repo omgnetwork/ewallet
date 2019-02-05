@@ -129,7 +129,12 @@ defmodule EWalletDB.WalletTest do
       {res, changeset} = Account.insert_wallet(account, wallet.name)
 
       assert res == :error
-      assert changeset.errors == [unique_account_name: {"has already been taken", []}]
+
+      assert changeset.errors == [
+               unique_account_name:
+                 {"has already been taken",
+                  [constraint: :unique, constraint_name: "wallet_account_uuid_name_index"]}
+             ]
     end
 
     test "prevents creation of a wallet with the same name for the same user" do
@@ -138,7 +143,12 @@ defmodule EWalletDB.WalletTest do
       {res, changeset} = User.insert_wallet(user, wallet.name)
 
       assert res == :error
-      assert changeset.errors == [unique_user_name: {"has already been taken", []}]
+
+      assert changeset.errors == [
+               unique_user_name:
+                 {"has already been taken",
+                  [constraint: :unique, constraint_name: "wallet_user_uuid_name_index"]}
+             ]
     end
   end
 

@@ -23,6 +23,7 @@ defmodule ActivityLogger.TestUser do
   alias ActivityLogger.{TestDocument, Repo, TestUser}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "test_user" do
     external_id(prefix: "tus_")

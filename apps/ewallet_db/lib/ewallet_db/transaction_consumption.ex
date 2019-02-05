@@ -45,6 +45,7 @@ defmodule EWalletDB.TransactionConsumption do
   @statuses [@pending, @approved, @rejected, @confirmed, @failed, @expired]
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "transaction_consumption" do
     external_id(prefix: "txc_")
@@ -58,17 +59,17 @@ defmodule EWalletDB.TransactionConsumption do
 
     # State
     field(:status, :string, default: @pending)
-    field(:approved_at, :naive_datetime)
-    field(:rejected_at, :naive_datetime)
-    field(:confirmed_at, :naive_datetime)
-    field(:failed_at, :naive_datetime)
-    field(:expired_at, :naive_datetime)
-    field(:estimated_at, :naive_datetime)
+    field(:approved_at, :naive_datetime_usec)
+    field(:rejected_at, :naive_datetime_usec)
+    field(:confirmed_at, :naive_datetime_usec)
+    field(:failed_at, :naive_datetime_usec)
+    field(:expired_at, :naive_datetime_usec)
+    field(:estimated_at, :naive_datetime_usec)
 
     field(:error_code, :string)
     field(:error_description, :string)
 
-    field(:expiration_date, :naive_datetime)
+    field(:expiration_date, :naive_datetime_usec)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
 
@@ -298,14 +299,12 @@ defmodule EWalletDB.TransactionConsumption do
     |> where([t], t.status == @pending)
     |> where([t], not is_nil(t.expiration_date))
     |> where([t], t.expiration_date <= ^now)
+    |> select([t], t)
     |> Repo.update_all(
-      [
-        set: [
-          status: @expired,
-          expired_at: NaiveDateTime.utc_now()
-        ]
-      ],
-      returning: true
+      set: [
+        status: @expired,
+        expired_at: NaiveDateTime.utc_now()
+      ]
     )
   end
 
@@ -488,6 +487,8 @@ defmodule EWalletDB.TransactionConsumption do
       |> apply(fun, [consumption, data])
       |> Repo.update_record_with_activity_log()
 
-    consumption
+    # Since we might have updated `transaction_uuid`, we need to force preload
+    # `consumption.transaction` to prevent stale information being returned.
+    Repo.preload(consumption, :transaction, force: true)
   end
 end

@@ -4,12 +4,12 @@ defmodule LocalLedgerDB.Mixfile do
   def project do
     [
       app: :local_ledger_db,
-      version: "1.1.0-pre.2",
+      version: "1.2.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.5",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env == :prod,
       test_coverage: [tool: ExCoveralls],
@@ -26,7 +26,7 @@ defmodule LocalLedgerDB.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :postgrex, :ecto],
+      extra_applications: [:appsignal, :logger, :postgrex, :ecto],
       mod: {LocalLedgerDB.Application, []}
     ]
   end
@@ -34,13 +34,14 @@ defmodule LocalLedgerDB.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:appsignal, "~> 1.9"},
       {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
-      {:ecto, "~> 2.1.6"},
+      {:ecto_sql, "~> 3.0"},
       {:ewallet_config, in_umbrella: true},
       {:ex_machina, "~> 2.2", only: :test},
       {:poison, "~> 3.1"},
-      {:postgrex, ">= 0.0.0"},
+      {:postgrex, ">= 0.0.0"}
     ]
   end
 

@@ -30,6 +30,8 @@ defmodule LocalLedgerDB.Entry do
   }
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
+
   @credit "credit"
   @debit "debit"
   @types [@credit, @debit]

@@ -54,17 +54,14 @@ defmodule EWalletDB.TransactionConsumptionTest do
       now = NaiveDateTime.utc_now()
 
       # t1 and t2 have expiration dates in the past
-      t1 =
-        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -60, :seconds))
+      t1 = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -60, :second))
 
       t2 =
-        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -600, :seconds))
+        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -600, :second))
 
-      t3 =
-        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 600, :seconds))
+      t3 = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 600, :second))
 
-      t4 =
-        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 160, :seconds))
+      t4 = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 160, :second))
 
       # They are still valid since we haven't made them expired yet
       assert TransactionConsumption.expired?(t1) == false
@@ -89,7 +86,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
 
     test "sets the expired_at field" do
       now = NaiveDateTime.utc_now()
-      t = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -60, :seconds))
+      t = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -60, :second))
       TransactionConsumption.expire_all()
       t = TransactionConsumption.get(t.id)
 
@@ -178,7 +175,15 @@ defmodule EWalletDB.TransactionConsumptionTest do
         |> TransactionConsumption.insert()
 
       assert res == :error
-      assert changeset.errors == [correlation_id: {"has already been taken", []}]
+
+      assert changeset.errors == [
+               correlation_id:
+                 {"has already been taken",
+                  [
+                    constraint: :unique,
+                    constraint_name: "transaction_consumption_correlation_id_index"
+                  ]}
+             ]
     end
   end
 

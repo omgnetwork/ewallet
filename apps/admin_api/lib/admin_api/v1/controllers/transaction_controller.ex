@@ -19,7 +19,7 @@ defmodule AdminAPI.V1.TransactionController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
-  alias Ecto.Changeset
+  alias Ecto.{Changeset, Query}
   alias EWallet.{TransactionPolicy, TransactionGate, ExportGate, AdapterHelper}
 
   alias EWallet.Web.{
@@ -44,13 +44,20 @@ defmodule AdminAPI.V1.TransactionController do
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns, :originator),
          query <- Transaction.query_all_for_account_uuids_and_users(Transaction, account_uuids),
-         %Ecto.Query{} = query <- Orchestrator.build_query(query, TransactionOverlay, attrs) do
+         %Query{} = query <- Orchestrator.build_query(query, TransactionOverlay, attrs),
+         {preloads, query} <- extract_preloads(query) do
       query
-      |> ExportGate.export("transaction", TransactionSerializer, attrs)
+      |> ExportGate.export("transaction", TransactionSerializer, attrs, preloads: preloads)
       |> respond_single(conn)
     else
       error -> respond_single(error, conn)
     end
+  end
+
+  defp extract_preloads(query) do
+    preloads = Map.get(query, :preloads, [])
+    query = Map.put(query, :preloads, [])
+    {preloads, query}
   end
 
   @doc """

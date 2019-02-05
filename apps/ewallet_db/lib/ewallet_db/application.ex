@@ -19,6 +19,7 @@ defmodule EWalletDB.Application do
   Kebura's data store lives in this application.
   """
   use Application
+  alias Appsignal.Ecto
   alias EWalletConfig.Config
 
   def start(_type, _args) do
@@ -51,7 +52,12 @@ defmodule EWalletDB.Application do
       EWalletDB.Role => %{type: "role", identifier: :id}
     })
 
-    # Config.configure_file_storage()
+    :telemetry.attach(
+      "appsignal-ecto",
+      [:ewallet_db, :repo, :query],
+      &Ecto.handle_event/4,
+      nil
+    )
 
     # List all child processes to be supervised
     children = [

@@ -18,10 +18,18 @@ defmodule LocalLedgerDB.Application do
   @moduledoc false
 
   use Application
+  alias Appsignal.Ecto
 
   def start(_type, _args) do
     import Supervisor.Spec
     DeferredConfig.populate(:local_ledger_db)
+
+    :telemetry.attach(
+      "appsignal-ecto",
+      [:local_ledger_db, :repo, :query],
+      &Ecto.handle_event/4,
+      nil
+    )
 
     # List all child processes to be supervised
     children = [
