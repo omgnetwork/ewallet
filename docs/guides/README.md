@@ -1,6 +1,6 @@
 # Guides
 
-Take a deeper dive into the eWallet. Here are some resources to learn more about how the eWallet works.
+Take a deeper dive into the eWallet. Learn more about how to use the eWallet Server to its full potential.
 
 - [Usage](/docs/guides/usage.md): Start integrating your eWallet server to your application
 - [API Responsibilities](/docs/guides/api_responsibilities.md): Learn what responsibilities are taken care by the eWallet and what could be built on top of it.
