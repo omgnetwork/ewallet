@@ -54,6 +54,15 @@ const DropdownBoxStyled = DropdownBox.extend`
   text-align: left;
 `
 
+const CurrentUserName = styled.div`
+  font-weight: 600;
+  font-size: 16px;
+  i {
+    color: ${props => props.theme.colors.B100};
+    font-size: 14px;
+  }
+`
+
 const enhance = compose(
   withDropdownState,
   withRouter,
@@ -83,10 +92,10 @@ class ProfileAvatarDropdown extends Component {
 
   renderCurrentUserName = currentUser => () => {
     return (
-      <div onClick={this.props.onClickButton}>
+      <CurrentUserName onClick={this.props.onClickButton}>
         {currentUser.name || currentUser.email}{' '}
         {this.props.open ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
-      </div>
+      </CurrentUserName>
     )
   }
   renderCurrentUserAvatar = ({ currentUser, loadingStatus }) => {
@@ -98,18 +107,16 @@ class ProfileAvatarDropdown extends Component {
           renderPopper={() => {
             return (
               <DropdownBoxStyled>
-                <div>
-                  <DropdownItemName>{currentUser.name || currentUser.email}</DropdownItemName>
-                  <DropdownItemEmail>{currentUser.email}</DropdownItemEmail>
-                  <DropdownItemProfile onClick={this.onClickProfile}>
-                    <Icon name='Profile' />
-                    <span>Profile</span>
-                  </DropdownItemProfile>
-                  <DropdownItemLogout onClick={this.onClickLogout}>
-                    <Icon name='Arrow-Left' />
-                    <span>Logout</span>
-                  </DropdownItemLogout>
-                </div>
+                <DropdownItemName>{currentUser.name || currentUser.email}</DropdownItemName>
+                <DropdownItemEmail>{currentUser.email}</DropdownItemEmail>
+                <DropdownItemProfile onClick={this.onClickProfile}>
+                  <Icon name='Profile' />
+                  <span>Profile</span>
+                </DropdownItemProfile>
+                <DropdownItemLogout onClick={this.onClickLogout}>
+                  <Icon name='Arrow-Left' />
+                  <span>Logout</span>
+                </DropdownItemLogout>
               </DropdownBoxStyled>
             )
           }}

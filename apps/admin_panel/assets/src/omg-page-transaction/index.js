@@ -130,10 +130,12 @@ class TransactionPage extends Component {
     scrollTopContentContainer: PropTypes.func,
     history: PropTypes.object,
     match: PropTypes.object,
-    query: PropTypes.object
+    query: PropTypes.object,
+    transferButton: PropTypes.bool
   }
   static defaultProps = {
-    query: {}
+    query: {},
+    transferButton: false
   }
   state = {
     createTransactionModalOpen: false
@@ -154,7 +156,6 @@ class TransactionPage extends Component {
     })
   }
   onClickExport = e => {
-    const accountId = this.props.match.params.accountId
     this.props.history.push('/transaction/export')
   }
   renderCreateTransactionButton = () => {
@@ -240,7 +241,11 @@ class TransactionPage extends Component {
       <TransactionPageContainer>
         <TopNavigation
           title={'Transactions'}
-          buttons={[this.renderCreateTransactionButton(), this.renderExportButton()]}
+          buttons={
+            this.props.transferButton
+              ? [this.renderCreateTransactionButton(), this.renderExportButton()]
+              : null
+          }
         />
         <SortableTable
           rows={transactions}

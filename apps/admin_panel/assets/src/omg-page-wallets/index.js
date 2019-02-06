@@ -59,14 +59,15 @@ const SortableTableContainer = styled.div`
 `
 class WalletPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
-    walletQuery: PropTypes.object
+    walletQuery: PropTypes.object,
+    transferButton: PropTypes.bool
   }
   static defaultProps = {
-    walletQuery: {}
+    walletQuery: {},
+    transferButton: false
   }
 
   constructor (props) {
@@ -138,7 +139,10 @@ class WalletPage extends Component {
   renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination }) => {
     return (
       <WalletPageContainer>
-        <TopNavigation title={'Wallets'} buttons={[this.renderTransferButton()]} />
+        <TopNavigation
+          title={'Wallets'}
+          buttons={[this.props.transferButton && this.renderTransferButton()]}
+        />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(wallets)}

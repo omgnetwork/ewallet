@@ -34,7 +34,7 @@ const TransactionRequestsPageContainer = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
@@ -51,7 +51,7 @@ export const NameColumn = styled.div`
   > span {
     margin-left: 10px;
   }
-  i[name="Request"] {
+  i[name='Request'] {
     color: ${props => props.theme.colors.BL400};
   }
 `
@@ -61,10 +61,12 @@ class TransactionRequestsPage extends Component {
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
-    query: PropTypes.object
+    query: PropTypes.object,
+    createTransactionRequestButton: PropTypes.bool
   }
   static defaultProps = {
-    query: {}
+    query: {},
+    createTransactionRequestButton: false
   }
   constructor (props) {
     super(props)
@@ -151,7 +153,11 @@ class TransactionRequestsPage extends Component {
       <TransactionRequestsPageContainer>
         <TopNavigation
           title={'Transaction Requests'}
-          buttons={[this.renderCreateTransactionRequestButton()]}
+          buttons={
+            this.props.createTransactionRequestButton
+              ? [this.renderCreateTransactionRequestButton()]
+              : null
+          }
         />
         <SortableTableContainer
           innerRef={table => (this.table = table)}

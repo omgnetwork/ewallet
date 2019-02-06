@@ -47,6 +47,7 @@ class AccountTabsPage extends Component {
   renderWalletPage () {
     return (
       <WalletPage
+        transferButton
         walletQuery={{
           matchAny: [
             {
@@ -67,6 +68,7 @@ class AccountTabsPage extends Component {
   renderTransactionRequestPage () {
     return (
       <TransactionRequestPage
+        createTransactionRequestButton
         query={{
           matchAny: [
             {
@@ -95,6 +97,7 @@ class AccountTabsPage extends Component {
   renderTransactionPage () {
     return (
       <TransactionPage
+        transferButton
         query={{
           matchAny: [
             {
