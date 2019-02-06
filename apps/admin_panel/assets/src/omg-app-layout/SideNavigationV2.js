@@ -45,6 +45,7 @@ const CurrentAccountContainer = styled.div`
   display: flex;
   align-items: center;
   padding: 0 35px;
+  height: 30px;
 `
 
 const MenuName = styled.div`

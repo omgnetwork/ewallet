@@ -56,15 +56,15 @@ class WalletDropdown extends Component {
   renderWalletDropdown = () => {
     return (
       <DropdownBox>
-        <DropdownItem onClick={this.onClickFilterWallet('user')}>
-          <Icon name='Wallet' />
-          <span>Users Wallets</span>
-        </DropdownItem>
         <DropdownItem onClick={this.onClickFilterWallet('all')}>
           <Icon name='Wallet' /> <span>All Wallets</span>
         </DropdownItem>
         <DropdownItem onClick={this.onClickFilterWallet('account')}>
           <Icon name='Wallet' /> <span>Account Wallets</span>
+        </DropdownItem>
+        <DropdownItem onClick={this.onClickFilterWallet('user')}>
+          <Icon name='Wallet' />
+          <span>Users Wallets</span>
         </DropdownItem>
       </DropdownBox>
     )
