@@ -17,6 +17,7 @@ import { consumptionsAccountFetcher } from '../omg-consumption/consumptionsFetch
 import { getUsersByAccountId } from '../omg-users/usersFetcher'
 import adminsAccountFetcher from '../omg-member/MembersFetcher'
 import WalletDropdownChooser from './WalletDropdownChooser'
+import queryString from 'query-string'
 const AccountTabDetailPageContainer = styled.div`
   a {
     color: inherit;
@@ -40,7 +41,8 @@ const AccountName = styled.div`
 
 class AccountTabsPage extends Component {
   static propTypes = {
-    match: PropTypes.object
+    match: PropTypes.object,
+    location: PropTypes.object
   }
 
   state = {}
@@ -49,22 +51,41 @@ class AccountTabsPage extends Component {
     return <DetailPage />
   }
   renderWalletPage () {
+    const { walletType } = queryString.parse(this.props.location.search)
+    const userWalletQuery = [
+      {
+        field: 'account.id',
+        comparator: 'eq',
+        value: null
+      }
+    ]
+    const accountWalletQuery = [
+      {
+        field: 'account.id',
+        comparator: 'eq',
+        value: this.props.match.params.accountId
+      }
+    ]
+    const allWalletQuery = [...userWalletQuery, ...accountWalletQuery]
+    let query
+    switch (walletType) {
+      case 'all':
+        query = allWalletQuery
+        break
+      case 'user':
+        query = userWalletQuery
+        break
+      case 'account':
+        query = accountWalletQuery
+        break
+      default:
+        query = allWalletQuery
+    }
     return (
       <WalletPage
         transferButton
         walletQuery={{
-          matchAny: [
-            {
-              field: 'account.id',
-              comparator: 'eq',
-              value: this.props.match.params.accountId
-            },
-            {
-              field: 'account.id',
-              comparator: 'eq',
-              value: null
-            }
-          ]
+          matchAny: query
         }}
       />
     )

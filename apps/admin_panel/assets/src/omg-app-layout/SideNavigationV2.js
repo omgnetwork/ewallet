@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
-import styled, { keyframes } from 'styled-components'
-import { Icon, LoadingSkeleton, Dropdown } from '../omg-uikit'
+import styled from 'styled-components'
+import { Icon, LoadingSkeleton } from '../omg-uikit'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
