@@ -36,20 +36,27 @@ class WalletDropdown extends Component {
     history: PropTypes.object,
     match: PropTypes.object
   }
-  onClickFilterWallet = e => {
-    this.props.history.push(`/accounts/${this.props.match.params.accountId}/wallets/?all`)
+  onClickFilterWallet = type => e => {
+    this.props.history.push(
+      `/accounts/${this.props.match.params.accountId}/wallets/?walletType=${type}`
+    )
+  }
+  onClickCurrentWallet = e => {
+    this.props.history.push(
+      `/accounts/${this.props.match.params.accountId}/wallets/?walletType=all`
+    )
   }
   renderWalletDropdown = () => {
     return (
       <DropdownBox>
-        <DropdownItem onClick={this.onClickFilterWallet}>
+        <DropdownItem onClick={this.onClickFilterWallet('user')}>
           <Icon name='Wallet' />
           <span>Users Wallets</span>
         </DropdownItem>
-        <DropdownItem>
+        <DropdownItem onClick={this.onClickFilterWallet('all')}>
           <Icon name='Wallet' /> <span>All Wallets</span>
         </DropdownItem>
-        <DropdownItem>
+        <DropdownItem onClick={this.onClickFilterWallet('account')}>
           <Icon name='Wallet' /> <span>Account Wallets</span>
         </DropdownItem>
       </DropdownBox>
@@ -60,7 +67,7 @@ class WalletDropdown extends Component {
       <PopperRenderer
         renderReference={() => (
           <div>
-            All Wallets{' '}
+            <span onClick={this.onClickCurrentWallet}>All Wallets</span>{' '}
             {this.props.open ? (
               <Icon name='Chevron-Up' onClick={this.props.onClickButton} />
             ) : (
