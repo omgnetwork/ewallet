@@ -7,6 +7,7 @@ import { DropdownBox } from '../omg-uikit/dropdown'
 import styled from 'styled-components'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+import queryString from 'query-string'
 const DropdownItem = styled.div`
   padding: 7px 10px;
   padding-right: 20px;
@@ -34,16 +35,22 @@ class WalletDropdown extends Component {
     open: PropTypes.bool,
     onClickButton: PropTypes.func,
     history: PropTypes.object,
-    match: PropTypes.object
+    match: PropTypes.object,
+    location: PropTypes.object
   }
+  state = {}
   onClickFilterWallet = type => e => {
+    this.setState({ type })
     this.props.history.push(
       `/accounts/${this.props.match.params.accountId}/wallets/?walletType=${type}`
     )
   }
   onClickCurrentWallet = e => {
+    const { walletType } = queryString.parse(this.props.location.search)
     this.props.history.push(
-      `/accounts/${this.props.match.params.accountId}/wallets/?walletType=all`
+      `/accounts/${this.props.match.params.accountId}/wallets/?walletType=${this.state.type ||
+        walletType ||
+        'all'}`
     )
   }
   renderWalletDropdown = () => {
@@ -63,11 +70,19 @@ class WalletDropdown extends Component {
     )
   }
   render () {
+    const nameMap = {
+      all: 'All Wallets',
+      account: 'Account Wallets',
+      user: 'User Wallets'
+    }
+    const { walletType } = queryString.parse(this.props.location.search)
     return (
       <PopperRenderer
         renderReference={() => (
           <div>
-            <span onClick={this.onClickCurrentWallet}>All Wallets</span>{' '}
+            <span onClick={this.onClickCurrentWallet}>
+              {nameMap[this.state.type || walletType] || nameMap.all}
+            </span>{' '}
             {this.props.open ? (
               <Icon name='Chevron-Up' onClick={this.props.onClickButton} />
             ) : (
