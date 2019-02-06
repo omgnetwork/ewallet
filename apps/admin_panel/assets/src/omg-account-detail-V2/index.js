@@ -16,6 +16,7 @@ import SettingPage from '../omg-page-account-setting'
 import { consumptionsAccountFetcher } from '../omg-consumption/consumptionsFetcher'
 import { getUsersByAccountId } from '../omg-users/usersFetcher'
 import adminsAccountFetcher from '../omg-member/MembersFetcher'
+import WalletDropdownChooser from './WalletDropdownChooser'
 const AccountTabDetailPageContainer = styled.div`
   a {
     color: inherit;
@@ -36,10 +37,13 @@ const AccountName = styled.div`
   font-size: 24px;
   margin-top: -5px;
 `
+
 class AccountTabsPage extends Component {
   static propTypes = {
     match: PropTypes.object
   }
+
+  state = {}
 
   renderDetailPage () {
     return <DetailPage />
@@ -127,6 +131,7 @@ class AccountTabsPage extends Component {
       />
     )
   }
+
   renderAccountTabPage = ({ account }) => {
     const tabs = {
       detail: 0,
@@ -138,6 +143,7 @@ class AccountTabsPage extends Component {
       admins: 6,
       setting: 7
     }
+
     const activeIndex = tabs[this.props.match.params.tab]
     return account ? (
       <AccountTabDetailPageContainer>
@@ -155,9 +161,7 @@ class AccountTabsPage extends Component {
               content: this.renderDetailPage()
             },
             {
-              title: (
-                <Link to={`/accounts/${this.props.match.params.accountId}/wallets`}>Wallets</Link>
-              ),
+              title: <WalletDropdownChooser />,
               content: this.renderWalletPage()
             },
             {
@@ -209,8 +213,10 @@ class AccountTabsPage extends Component {
         render={this.renderAccountTabPage}
         accountId={this.props.match.params.accountId}
         {...this.props}
+        {...this.state}
       />
     )
   }
 }
+
 export default withRouter(AccountTabsPage)

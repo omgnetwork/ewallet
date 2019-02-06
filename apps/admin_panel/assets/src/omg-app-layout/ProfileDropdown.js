@@ -81,7 +81,6 @@ class ProfileAvatarDropdown extends Component {
     logout: PropTypes.func
   }
   onClickProfile = e => {
-    const accountId = this.props.match.params.accountId
     this.props.closeDropdown()
     this.props.history.push('/user_setting')
   }
