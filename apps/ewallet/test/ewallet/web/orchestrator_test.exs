@@ -68,7 +68,42 @@ defmodule EWallet.Web.OrchestratorTest do
       assert params == [field_name: "status"]
     end
 
-    test "returns records when `sort_by` and `start_after` are presented" do
+    test "returns records with the given `start_after` and `sort_by` is `desc`" do
+      total = 10
+      total_records = 5
+      ensure_num_records(Account, total)
+
+      records = from(a in Account, order_by: [desc: a.id])
+
+      [first_record | records] =
+        records
+        |> Repo.all()
+        |> Enum.take(-total_records)
+
+      attrs = %{
+        "start_by" => "id",
+        "start_after" => first_record.id,
+        "sort_by" => "id",
+        "sort_dir" => "desc"
+      }
+
+      # Is it not error when used with sort_by?
+      assert %{data: data, pagination: _} = Orchestrator.query(Account, MockOverlay, attrs)
+
+      # Is it name-descending sorted?
+      name_desc_records =
+        records
+        |> Enum.sort()
+        |> Enum.reverse()
+        |> Enum.map(fn record -> record.name end)
+
+      assert name_desc_records == Enum.map(data, fn record -> record.name end)
+
+      # Is it all has an id >= `first_record_id`?
+      assert Enum.all?(data, fn record -> record.id < first_record.id end)
+    end
+
+    test "returns records with the given `start_after` and `sort_by` is `asc`" do
       total = 10
       total_records = 5
       ensure_num_records(Account, total)
@@ -83,8 +118,8 @@ defmodule EWallet.Web.OrchestratorTest do
       attrs = %{
         "start_by" => "id",
         "start_after" => first_record.id,
-        "sort_by" => "name",
-        "sort_dir" => "desc"
+        "sort_by" => "id",
+        "sort_dir" => "asc"
       }
 
       # Is it not error when used with sort_by?
@@ -93,8 +128,6 @@ defmodule EWallet.Web.OrchestratorTest do
       # Is it name-descending sorted?
       name_desc_records =
         records
-        |> Enum.sort()
-        |> Enum.reverse()
         |> Enum.map(fn record -> record.name end)
 
       assert name_desc_records == Enum.map(data, fn record -> record.name end)
@@ -130,22 +163,20 @@ defmodule EWallet.Web.OrchestratorTest do
       assert Enum.all?(data, fn record -> record.id >= first_record_id end)
     end
 
-    test "returns records by `search_term` when the given value is in `start_from`'s range'" do
+    test "returns records by `search_term` when the given value `nil` start_after" do
       total = 10
       ensure_num_records(Account, total)
 
       record_ids = from(a in Account, select: a.id, order_by: a.id)
 
-      [first_record_id | record_ids] =
+      [first_record_id | _] =
         record_ids
         |> Repo.all()
 
-      [second_record_id | _] = record_ids
-
       attrs = %{
         "start_by" => "id",
-        "start_after" => first_record_id,
-        "search_term" => second_record_id
+        "start_after" => nil,
+        "search_term" => first_record_id
       }
 
       # Is it not error when used with sort_by?
@@ -153,7 +184,7 @@ defmodule EWallet.Web.OrchestratorTest do
 
       # Is it returns empty when use non-intersect where condition?
       # i.e. search_term = `acc_1` and start_after = 'acc_1'
-      assert Enum.map(data, fn r -> r.id end) == [second_record_id]
+      assert Enum.map(data, fn r -> r.id end) == [first_record_id]
 
       assert length(data) === 1
 

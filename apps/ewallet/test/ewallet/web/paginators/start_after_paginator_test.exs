@@ -152,6 +152,59 @@ defmodule EWallet.Web.StartFromPaginatorTest do
     end
   end
 
+  describe "EWallet.Web.StartAfterPaginator.get_query_offset/3" do
+    test "returns offset if given `start_by`, `start_after`" do
+      ensure_num_records(Account, 10)
+
+      records = from(a in Account, select: a, order_by: a.id)
+
+      [first | _] =
+        records
+        |> Repo.all()
+
+      offset =
+        StartAfterPaginator.get_query_offset(
+          Account,
+          %{"start_by" => "id", "start_after" => first.id},
+          Repo
+        )
+
+      assert offset == 1
+    end
+
+    test "returns offset if given `start_by`, `start_after`, `sort_by`" do
+      ensure_num_records(Account, 10)
+
+      records = from(a in Account, select: a, order_by: a.name)
+
+      [first | _] =
+        records
+        |> Repo.all()
+
+      offset =
+        StartAfterPaginator.get_query_offset(
+          Account,
+          %{"start_by" => "id", "start_after" => first.id, "sort_by" => "name"},
+          Repo
+        )
+
+      assert offset == 1
+    end
+
+    test "returns offset 0 if the given `start_after` is nil" do
+      ensure_num_records(Account, 10)
+
+      offset =
+        StartAfterPaginator.get_query_offset(
+          Account,
+          %{"start_after" => nil, "start_by" => "id"},
+          Repo
+        )
+
+      assert offset == 0
+    end
+  end
+
   describe "EWallet.Web.StartAfterPaginator.paginate/3" do
     test "returns pagination data when query if given both `start_by` and `start_after` exist" do
       per_page = 10
@@ -171,14 +224,14 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         # get last 5 records
         |> Enum.take(-total_records)
 
-      # Example: "acc_6"
+      # Example: ["acc_6" | ids]
       [first_id | ids] = records_id
 
       paginator =
         StartAfterPaginator.paginate(
           Account,
           %{
-            "start_by" => :id,
+            "start_by" => "id",
             "start_after" => first_id,
             "per_page" => per_page
           }
@@ -221,7 +274,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         StartAfterPaginator.paginate(
           Account,
           %{
-            "start_by" => :id,
+            "start_by" => "id",
             "start_after" => {:ok, nil},
             "per_page" => per_page
           }
@@ -253,7 +306,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       paginator =
         StartAfterPaginator.paginate(
           Account,
-          %{"start_by" => :id, "start_after" => "1", "per_page" => per_page}
+          %{"start_by" => "id", "start_after" => "1", "per_page" => per_page}
         )
 
       assert paginator === {:error, :unauthorized}

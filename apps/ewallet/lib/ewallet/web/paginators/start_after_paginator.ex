@@ -54,6 +54,7 @@ defmodule EWallet.Web.StartAfterPaginator do
   import Ecto.Query
   alias EWalletDB.Repo
   alias EWallet.Web.Paginator
+  alias Ecto.Adapters.SQL
 
   @doc """
   Paginate a query by attempting to extract `start_after`, `start_by` and `per_page`
@@ -75,7 +76,7 @@ defmodule EWallet.Web.StartAfterPaginator do
         allowed_fields,
         repo
       )
-      when start_by != nil and is_atom(start_by) do
+      when start_by != nil do
     attrs = Map.put(attrs, "start_after", {:ok, nil})
     paginate_attrs(queryable, attrs, allowed_fields, repo)
   end
@@ -83,23 +84,19 @@ defmodule EWallet.Web.StartAfterPaginator do
   def paginate_attrs(
         queryable,
         %{
-          "start_after" => start_after,
+          "start_after" => _,
           "start_by" => start_by,
-          "per_page" => per_page
-        },
+          "per_page" => _
+        } = attrs,
         allowed_fields,
         repo
       )
-      when start_by != nil and is_atom(start_by) do
-    case start_by in allowed_fields do
+      when start_by != nil do
+    case is_allowed_start_by(start_by, allowed_fields) do
       true ->
         paginate(
           queryable,
-          %{
-            "per_page" => per_page,
-            "start_by" => start_by,
-            "start_after" => start_after
-          },
+          attrs,
           repo
         )
 
@@ -117,7 +114,12 @@ defmodule EWallet.Web.StartAfterPaginator do
   end
 
   # Resolve `start_by` by set default value or parse string
-  def paginate_attrs(queryable, %{"start_after" => _} = attrs, allowed_fields, repo) do
+  def paginate_attrs(
+        queryable,
+        %{"start_after" => _} = attrs,
+        allowed_fields,
+        repo
+      ) do
     attrs = get_start_by_attrs(attrs, allowed_fields)
     paginate_attrs(queryable, attrs, allowed_fields, repo)
   end
@@ -126,6 +128,13 @@ defmodule EWallet.Web.StartAfterPaginator do
   def paginate_attrs(queryable, attrs, allowed_fields, repo) do
     attrs = Map.put(attrs, "start_after", nil)
     paginate_attrs(queryable, attrs, allowed_fields, repo)
+  end
+
+  defp get_start_by_attrs(attrs, [field | _allowed_fields]) do
+    case Map.get(attrs, "start_by") do
+      nil -> Map.put(attrs, "start_by", Atom.to_string(field))
+      _ -> attrs
+    end
   end
 
   @doc """
@@ -144,23 +153,21 @@ defmodule EWallet.Web.StartAfterPaginator do
           "start_by" => start_by,
           "start_after" => {:ok, start_after},
           "per_page" => per_page
-        },
+        } = attrs,
         repo
       ) do
+    attrs = Map.put(attrs, "start_after", start_after)
+
     {records, more_page} =
       queryable
-      # effect only when `sort_by` doesn't specify.
-      |> get_queryable_start_after(%{"start_after" => start_after, "start_by" => start_by})
-      |> order_by([q], field(q, ^start_by))
-      |> Paginator.fetch(
-        %{"page" => 0, "per_page" => per_page},
-        repo
-      )
+      |> get_queryable_start_after(attrs, repo)
+      |> get_queryable_order_by(attrs)
+      |> fetch(per_page, repo)
 
     pagination = %{
       current_page: 1,
       per_page: per_page,
-      start_by: Atom.to_string(start_by),
+      start_by: start_by,
       start_after: start_after,
       is_first_page: true,
       # It's the last page if there are no more records
@@ -177,14 +184,14 @@ defmodule EWallet.Web.StartAfterPaginator do
         %{
           "start_by" => start_by,
           "start_after" => start_after,
-          "per_page" => per_page
-        },
+          "per_page" => _
+        } = attrs,
         repo
       ) do
     # Verify if the given `start_after` exist to prevent unexpected result.
-    condition = Map.put(%{}, start_by, start_after)
+    condition =
+      build_start_after_condition(%{"start_by" => start_by, "start_after" => start_after})
 
-    # To ensure there's no another where condition e.g. `search_term`.
     pure_queryable =
       queryable
       |> exclude(:where)
@@ -196,38 +203,153 @@ defmodule EWallet.Web.StartAfterPaginator do
         {:error}
       end
 
+    attrs = Map.put(attrs, "start_after", start_after)
+
     paginate(
       queryable,
+      attrs,
+      repo
+    )
+  end
+
+  defp fetch(queryable, per_page, repo) do
+    limit = per_page + 1
+
+    records =
+      queryable
+      |> limit(^limit)
+      |> repo.all()
+
+    case Enum.count(records) do
+      n when n > per_page ->
+        {List.delete_at(records, -1), true}
+
+      _ ->
+        {records, false}
+    end
+  end
+
+  def is_allowed_start_by(start_by, allowed_fields) when is_atom(start_by) do
+    start_by in allowed_fields
+  end
+
+  def is_allowed_start_by(start_by, allowed_fields) do
+    start_by
+    |> String.to_atom()
+    |> is_allowed_start_by(allowed_fields)
+  end
+
+  def build_start_after_condition(%{"start_by" => start_by, "start_after" => start_after})
+      when is_atom(start_by) do
+    Map.put(%{}, start_by, start_after)
+  end
+
+  def build_start_after_condition(%{"start_by" => start_by, "start_after" => start_after}) do
+    build_start_after_condition(%{
+      "start_after" => start_after,
+      "start_by" => String.to_atom(start_by)
+    })
+  end
+
+  # Query records from the beginning if `start_after` is null or empty,
+  # Otherwise querying after specified `start_after` by `start_by` field.
+
+  defp get_queryable_start_after(
+         queryable,
+         %{
+           "start_after" => _,
+           "start_by" => _
+         } = attrs,
+         repo
+       ) do
+    offset = get_query_offset(queryable, attrs, repo)
+
+    queryable
+    |> offset(^offset)
+  end
+
+  def get_query_offset(_, %{"start_after" => nil}, _), do: 0
+
+  def get_query_offset(
+        %Ecto.Query{} = queryable,
+        %{
+          "start_after" => start_after,
+          "start_by" => start_by,
+          "sort_by" => sort_by,
+          "sort_dir" => sort_dir
+        },
+        repo
+      ) do
+    from = elem(queryable.from, 0)
+
+    output =
+      SQL.query!(
+        repo,
+        """
+          SELECT record.offset from (
+            SELECT
+            #{start_by},
+            ROW_NUMBER() OVER (ORDER BY #{sort_by} #{sort_dir}) AS offset
+            FROM #{from}
+          ) AS record
+          WHERE #{start_by} = '#{start_after}';
+        """,
+        []
+      )
+
+    [[offset]] = output.rows
+
+    offset
+  end
+
+  def get_query_offset(
+        %Ecto.Query{} = queryable,
+        %{"start_after" => start_after, "start_by" => start_by} = attrs,
+        repo
+      ) do
+    sort_dir = Map.get(attrs, "sort_dir", "asc")
+
+    get_query_offset(
+      queryable,
       %{
-        "start_by" => start_by,
         "start_after" => start_after,
-        "per_page" => per_page
+        "start_by" => start_by,
+        "sort_by" => start_by,
+        "sort_dir" => sort_dir
       },
       repo
     )
   end
 
-  defp get_start_by_attrs(attrs, [field | _allowed_fields]) do
-    case Map.get(attrs, "start_by") do
-      nil -> Map.put(attrs, "start_by", field)
-      start_by when is_binary(start_by) -> Map.put(attrs, "start_by", String.to_atom(start_by))
-      _ -> attrs
-    end
+  def get_query_offset(queryable, attrs, repo) do
+    get_query_offset(from(q in queryable), attrs, repo)
   end
 
-  # Query records from the beginning if `start_after` is null or empty,
-  # Otherwise querying after specified `start_after` by `start_by` field.
-  defp get_queryable_start_after(queryable, %{
-         "start_after" => start_after,
-         "start_by" => start_by
+  defp get_queryable_order_by(queryable, %{
+         "start_by" => _,
+         "sort_dir" => "desc",
+         "sort_by" => sort_by
        }) do
-    case start_after do
-      s when is_nil(s) or s === "" ->
-        queryable
+    sort_by = String.to_atom(sort_by)
 
-      _ ->
-        queryable
-        |> where([q], field(q, ^start_by) > ^start_after)
-    end
+    queryable
+    |> order_by(desc: ^sort_by)
+  end
+
+  defp get_queryable_order_by(queryable, %{
+         "start_by" => _,
+         "sort_by" => sort_by
+       }) do
+    order_by = String.to_atom(sort_by)
+
+    queryable
+    |> order_by(asc: ^order_by)
+  end
+
+  defp get_queryable_order_by(queryable, %{"start_by" => start_by}) do
+    order_by = String.to_atom(start_by)
+
+    queryable
+    |> order_by(asc: ^order_by)
   end
 end
