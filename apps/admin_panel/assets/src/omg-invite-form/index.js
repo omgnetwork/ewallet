@@ -89,14 +89,15 @@ class ForgetPasswordForm extends Component {
         } else {
           this.setState({
             submitStatus: 'FAILED',
-            submitErrorText: _.get(result, 'error.code', 'Invite Failed.')
+            submitErrorText:
+              _.get(result, 'error.code') || _.get(result, 'error.message') || 'Invite Failed.'
           })
         }
       }
     } catch (error) {
       this.setState({
         submitStatus: 'FAILED',
-        submitErrorText: 'Something went wrong.'
+        submitErrorText: _.get(error, 'message', 'Something went wrong.')
       })
     }
   }
