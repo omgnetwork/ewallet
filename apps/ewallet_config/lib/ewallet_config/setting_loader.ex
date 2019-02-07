@@ -29,8 +29,12 @@ defmodule EWalletConfig.SettingLoader do
 
     Enum.each(settings, fn key ->
       load_setting(app, key, stored_settings)
+    end)
 
-      # Do specific settings loader if defined.
+    # After loading all the settings, loop through one more time to apply
+    # specific settings loaders, if defined. This has to be a separate loop from above
+    # to make sure that loaders get latest values for all dependent settings.
+    Enum.each(settings, fn key ->
       case Map.fetch(@settings_to_loaders, key) do
         {:ok, loader_module} -> loader_module.load(app)
         _ -> :noop
