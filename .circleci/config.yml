@@ -350,6 +350,9 @@ jobs:
           name: Publishing Docker image
           command: |
             set -xe
+
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
             docker load -i ~/caches/docker-layers.tar
 
             IMAGE_TAG=""
