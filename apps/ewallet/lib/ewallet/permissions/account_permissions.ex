@@ -51,20 +51,17 @@ defmodule EWallet.AccountPermissions do
     check_account_role(Map.merge(attrs, %{type: PermissionsHelper.get_target_type(target)}))
   end
 
-  defp check_account_role(%{
-         actor: actor,
-         target: target
-       } = attrs) do
+  defp check_account_role(
+         %{
+           actor: actor,
+           target: target
+         } = attrs
+       ) do
     actor_account_uuids =
       actor |> PermissionsHelper.get_actor_accounts() |> PermissionsHelper.get_uuids()
 
     target_account_uuids =
       target |> PermissionsHelper.get_target_accounts() |> PermissionsHelper.get_uuids()
-
-    # IO.inspect(actor)
-    # IO.inspect(type)
-    # IO.inspect(action)
-    # IO.inspect(target)
 
     case Intersecter.intersect(actor_account_uuids, target_account_uuids) do
       [] ->
@@ -75,12 +72,16 @@ defmodule EWallet.AccountPermissions do
     end
   end
 
-  def handle_matched_accounts(%{
-    permissions: permissions,
-    actor: actor,
-    type: type,
-    action: action
-  }, actor, matched_account_uuids) do
+  def handle_matched_accounts(
+        %{
+          permissions: permissions,
+          actor: actor,
+          type: type,
+          action: action
+        },
+        actor,
+        matched_account_uuids
+      ) do
     memberships =
       Membership.query_all_by_member_and_account_uuids(actor, matched_account_uuids, [:role])
 

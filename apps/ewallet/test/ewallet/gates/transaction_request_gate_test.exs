@@ -16,7 +16,17 @@ defmodule EWallet.TransactionRequestGateTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.TransactionRequestGate
-  alias EWalletDB.{Account, AccountUser, Token, TransactionRequest, User, Wallet}
+
+  alias EWalletDB.{
+    Account,
+    AccountUser,
+    Token,
+    TransactionRequest,
+    User,
+    Wallet,
+    Membership
+  }
+
   alias ActivityLogger.System
 
   setup do
@@ -96,7 +106,10 @@ defmodule EWallet.TransactionRequestGateTest do
     end
 
     test "with valid account_id and a valid address", meta do
-      {res, request} =
+      admin = insert(:admin)
+      {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
+
+      {:ok, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
           "token_id" => meta.token.id,
@@ -104,11 +117,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "amount" => 1_000,
           "account_id" => meta.account.id,
           "address" => meta.account_wallet.address,
-          "creator" => %{account: meta.account},
+          "creator" => %{admin_user: admin},
           "originator" => %System{}
         })
 
-      assert res == :ok
       assert %TransactionRequest{} = request
       assert request.status == "valid"
     end
@@ -223,7 +235,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "correlation_id" => "123",
           "amount" => 1_000,
           "provider_user_id" => meta.user.provider_user_id,
-          "creator" => %{account: meta.account},
+          "creator" => %{end_user: meta.user},
           "originator" => %System{}
         })
 

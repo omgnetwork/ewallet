@@ -620,6 +620,14 @@ defmodule EWalletDB.User do
   @spec enabled?(String.t() | %User{}) :: boolean()
   def enabled?(user), do: user.enabled == true
 
+  @doc """
+  Checks if the user is an admin on the top-level account.
+  """
+  @spec master_admin?(%User{} | String.t()) :: boolean()
+  def master_admin?(user) do
+    User.get_role(user, Account.get_master_account()) == "admin"
+  end
+
   @spec get_all_accessible_account_uuids(%User{}) :: [String.t()] | no_return()
   def get_all_accessible_account_uuids(user) do
     user

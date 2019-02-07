@@ -64,7 +64,7 @@ defmodule EWallet.SchemaPermissions.TransactionRequestPermissions do
 
   def get_target_accounts(%TransactionRequest{account_uuid: uuid} = target)
       when not is_nil(uuid) do
-    get_account(target)
+    [get_account(target)]
   end
 
   def get_target_accounts(%TransactionRequest{user_uuid: uuid} = target) when not is_nil(uuid) do
