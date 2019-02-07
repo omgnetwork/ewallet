@@ -63,7 +63,7 @@ defmodule EWallet.GlobalPermissions do
        }) do
     case permissions[role][type][action] do
       :global ->
-        true
+        {true, true}
 
       :accounts ->
         # 1. Get all accounts where user have appropriate role
@@ -71,19 +71,24 @@ defmodule EWallet.GlobalPermissions do
         # 3. Check if we have any matches!
         target_accounts = PermissionsHelper.get_target_accounts(target)
 
-        actor
-        |> PermissionsHelper.get_actor_accounts()
-        |> Intersecter.intersect(target_accounts)
-        |> length()
-        |> Kernel.>(0)
+        can =
+          actor
+          |> PermissionsHelper.get_actor_accounts()
+          |> Intersecter.intersect(target_accounts)
+          |> length()
+          |> Kernel.>(0)
+
+        {can, permissions[role][:account_permissions]}
 
       :self ->
-        target
-        |> PermissionsHelper.get_owner_uuids()
-        |> Enum.member?(actor.uuid)
+        can =
+          target
+          |> PermissionsHelper.get_owner_uuids()
+          |> Enum.member?(actor.uuid)
 
+          {can, permissions[role][:account_permissions]}
       _ ->
-        false
+        {false, permissions[role][:account_permissions]}
     end
   end
 end

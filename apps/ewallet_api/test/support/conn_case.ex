@@ -93,6 +93,9 @@ defmodule EWalletAPI.ConnCase do
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
+    # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
+    {:ok, account} = :account |> params_for() |> Account.insert()
+
     config_pid = start_supervised!(EWalletConfig.Config)
 
     ConfigTestHelper.restart_config_genserver(
@@ -103,12 +106,10 @@ defmodule EWalletAPI.ConnCase do
       %{
         "enable_standalone" => true,
         "base_url" => "http://localhost:4000",
-        "email_adapter" => "test"
+        "email_adapter" => "test",
+        "master_account" => account.uuid
       }
     )
-
-    # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
-    {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
 
     # Insert user via `User.insert/1` to initialize wallets, etc.
     {:ok, user} =

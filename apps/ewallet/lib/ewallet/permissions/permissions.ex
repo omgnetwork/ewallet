@@ -23,8 +23,21 @@ defmodule EWallet.Permissions do
       nil ->
         false
 
+      # can?/2 returns a tuple containing {can?, account_permissions_check_allowed?}
       actor ->
-        GlobalPermissions.can?(actor, attrs) || AccountPermissions.can?(actor, attrs)
+        case GlobalPermissions.can?(actor, attrs) do
+          {true, _} ->
+            # The actor has global access so we don't check the account permissions.
+            true
+          {false, true} ->
+            # The actor does not have global access, but can check account permissions
+            # so we check them!
+            AccountPermissions.can?(actor, attrs)
+          {false, false} ->
+            # The actor does not have global access and is not allowed to check account permissions
+            # so we skip and return false
+            false
+        end
     end
   end
 end

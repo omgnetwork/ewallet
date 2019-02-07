@@ -24,7 +24,7 @@ defmodule EWalletAPI.V1.TransactionRequestChannelTest do
     test "can join the channel with authenticated user and owned request" do
       user = get_test_user()
       wallet = User.get_primary_wallet(user)
-      request = insert(:transaction_request, wallet: wallet)
+      request = insert(:transaction_request, user_uuid: user.uuid, wallet: wallet)
 
       request.id
       |> topic()

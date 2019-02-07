@@ -31,10 +31,6 @@ defmodule EWallet.UserPolicy do
     Permissions.can?(attrs, %{action: :listen, target: end_user})
   end
 
-  def authorize(:create, attrs, end_user) do
-    Permissions.can?(attrs, %{action: :create, target: end_user})
-  end
-
   def authorize(:verify_email, attrs, end_user) do
     Permissions.can?(attrs, %{action: :verify_email, target: end_user})
   end

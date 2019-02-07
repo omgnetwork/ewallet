@@ -18,6 +18,26 @@ defmodule EWallet.SchemaPermissions.WalletPermissions do
   """
   alias EWalletDB.Wallet
 
+  def get_owner_uuids(%Wallet{account_uuid: account_uuid})
+  when not is_nil(account_uuid) do
+    [account_uuid]
+  end
+
+  def get_owner_uuids(%Wallet{user_uuid: user_uuid})
+  when not is_nil(user_uuid) do
+    [user_uuid]
+  end
+
+  def get_target_type(%Wallet{account_uuid: account_uuid})
+  when not is_nil(account_uuid) do
+    :account_wallets
+  end
+
+  def get_target_type(%Wallet{user_uuid: user_uuid})
+  when not is_nil(user_uuid) do
+    :end_user_wallets
+  end
+
   def get_target_accounts(%Wallet{account_uuid: nil} = target) do
     get_target_accounts(target.user)
   end

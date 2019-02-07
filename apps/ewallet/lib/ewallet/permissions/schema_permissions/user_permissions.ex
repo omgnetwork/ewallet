@@ -19,6 +19,18 @@ defmodule EWallet.SchemaPermissions.UserPermissions do
   alias EWalletDB.User
   alias EWalletDB.Helpers.Preloader
 
+  def get_owner_uuids(%User{uuid: uuid}) do
+    [uuid]
+  end
+
+  def get_target_type(%User{is_admin: true}) do
+    :admin_users
+  end
+
+  def get_target_type(%User{is_admin: false}) do
+    :end_users
+  end
+
   def get_actor_accounts(%User{is_admin: true} = actor) do
     actor = Preloader.preload(actor, [:accounts])
     actor.accounts
