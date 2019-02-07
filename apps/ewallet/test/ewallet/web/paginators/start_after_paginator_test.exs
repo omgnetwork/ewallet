@@ -146,7 +146,6 @@ defmodule EWallet.Web.StartFromPaginatorTest do
           [:id, :inserted_at]
         )
 
-      assert paginator.pagination.current_page == 1
       assert paginator.pagination.per_page == 5
       assert paginator.pagination.count == 1
     end
@@ -246,8 +245,6 @@ defmodule EWallet.Web.StartFromPaginatorTest do
 
       assert paginator.pagination == %{
                per_page: per_page,
-               current_page: 1,
-               is_first_page: true,
                is_last_page: true,
                count: total_records - 1,
                start_after: first_id,
@@ -289,8 +286,6 @@ defmodule EWallet.Web.StartFromPaginatorTest do
 
       assert paginator.pagination == %{
                per_page: per_page,
-               current_page: 1,
-               is_first_page: true,
                is_last_page: true,
                count: per_page,
                start_after: nil,
