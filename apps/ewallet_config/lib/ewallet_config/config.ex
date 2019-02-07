@@ -107,8 +107,6 @@ defmodule EWalletConfig.Config do
   end
 
   defp reload_registered_apps(registered_apps) do
-    GenServer.call(EWalletConfig.FileStorageSupervisor, :stop_goth)
-
     Enum.each(registered_apps, fn {app, settings} ->
       SettingLoader.load_settings(app, settings)
     end)

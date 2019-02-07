@@ -65,6 +65,7 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
     Application.put_env(:arc, :bucket, gcs_bucket)
     Application.put_env(:goth, :json, gcs_credentials)
 
+    _ = GenServer.call(EWalletConfig.FileStorageSupervisor, :stop_goth)
     {:ok, _pid} = GenServer.call(EWalletConfig.FileStorageSupervisor, :start_goth)
   end
 
