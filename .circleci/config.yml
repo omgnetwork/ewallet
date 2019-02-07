@@ -371,11 +371,13 @@ jobs:
                     esac
                 done
 
-                # In case the commit is HEAD of master branch, also tag stable.
+                # In case the commit is HEAD of latest version branch, also tag stable.
                 if [ -n "$CIRCLE_REPOSITORY_URL" ] && [ -n "$CIRCLE_SHA1" ]; then
-                    _ref="refs/heads/master"
-                    _head="$(git ls-remote "$CIRCLE_REPOSITORY_URL" "$_ref" | awk '{ print $1 }')"
-                    if [ "$CIRCLE_SHA1" = "$_head" ]; then
+                    _stable_head="$(
+                        git ls-remote --heads "$CIRCLE_REPOSITORY_URL" "v*" |
+                        awk '/refs\/heads\/v[0-9]+\.[0-9]+$/ { LH=$1 } END { print LH }')"
+
+                    if [ "$CIRCLE_SHA1" = "$_stable_head" ]; then
                         IMAGE_TAG="stable $IMAGE_TAG"
                     fi
                 fi
@@ -398,7 +400,7 @@ jobs:
             fi
 
             for tag in $IMAGE_TAG; do
-                printf "\\033[0;34mPublishing Docker image as %s\\033[0;0m\\n" "$IMAGE_TAG"
+                printf "\\033[0;34mPublishing Docker image as %s\\033[0;0m\\n" "$tag"
                 docker tag "$IMAGE_NAME" "$IMAGE_NAME:$tag"
                 docker push "$IMAGE_NAME:$tag"
             done
