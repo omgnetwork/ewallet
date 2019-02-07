@@ -90,6 +90,9 @@ defmodule EWallet.TransactionRequestGateTest do
     end
 
     test "with valid account_id and no address", meta do
+      admin = insert(:admin)
+      {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
+
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -97,7 +100,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => meta.account.id,
-          "creator" => %{account: meta.account},
+          "creator" => %{admin_user: admin},
           "originator" => %System{}
         })
 
@@ -142,6 +145,8 @@ defmodule EWallet.TransactionRequestGateTest do
 
     test "with valid account_id, valid user and a valid address", meta do
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid, %System{})
+      admin = insert(:admin)
+      {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
 
       {res, request} =
         TransactionRequestGate.create(%{
@@ -152,7 +157,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "account_id" => meta.account.id,
           "provider_user_id" => meta.user.provider_user_id,
           "address" => meta.user_wallet.address,
-          "creator" => %{account: meta.account},
+          "creator" => %{admin_user: admin},
           "originator" => %System{}
         })
 
