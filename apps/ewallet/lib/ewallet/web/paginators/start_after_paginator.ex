@@ -282,7 +282,7 @@ defmodule EWallet.Web.StartAfterPaginator do
         },
         repo
       ) do
-    from = elem(queryable.from, 0)
+    from = elem(queryable.from.source, 0)
 
     output =
       SQL.query!(
