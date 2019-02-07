@@ -76,8 +76,8 @@ defmodule AdminAPI.V1.CategoryControllerTest do
       assert response["data"]["name"] == target.name
     end
 
-    test "returns :invalid_parameter error when id is not given" do
-      response = admin_user_request("/category.get", %{})
+    test_with_auths "returns :invalid_parameter error when id is not given" do
+      response = request("/category.get", %{})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
