@@ -156,8 +156,8 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       assert response["data"]["email"] == admin.email
     end
 
-    test "returns 'client:invalid_parameter' error when id is not given" do
-      response = admin_user_request("/account.get", %{})
+    test_with_auths "returns 'client:invalid_parameter' error when id is not given" do
+      response = request("/account.get", %{})
 
       refute response["success"]
       assert response["data"]["object"] == "error"

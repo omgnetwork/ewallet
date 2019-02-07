@@ -75,8 +75,8 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       assert response["data"]["id"] == target.id
     end
 
-    test "returns :invalid_parameter error when id is not given" do
-      response = admin_user_request("/exchange_pair.get", %{})
+    test_with_auths "returns :invalid_parameter error when id is not given" do
+      response = request("/exchange_pair.get", %{})
 
       refute response["success"]
       assert response["data"]["object"] == "error"

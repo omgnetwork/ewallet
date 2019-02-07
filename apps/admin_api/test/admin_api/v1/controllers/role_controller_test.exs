@@ -75,8 +75,8 @@ defmodule AdminAPI.V1.RoleControllerTest do
       assert response["data"]["name"] == target.name
     end
 
-    test "returns :invalid_parameter error when id is not given" do
-      response = provider_request("/role.get", %{})
+    test_with_auths "returns :invalid_parameter error when id is not given" do
+      response = request("/role.get", %{})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
