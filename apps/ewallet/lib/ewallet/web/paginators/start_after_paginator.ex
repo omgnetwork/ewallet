@@ -165,11 +165,9 @@ defmodule EWallet.Web.StartAfterPaginator do
       |> fetch(per_page, repo)
 
     pagination = %{
-      current_page: 1,
       per_page: per_page,
       start_by: start_by,
       start_after: start_after,
-      is_first_page: true,
       # It's the last page if there are no more records
       is_last_page: !more_page,
       count: length(records)
