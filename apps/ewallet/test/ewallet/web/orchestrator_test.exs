@@ -157,7 +157,7 @@ defmodule EWallet.Web.OrchestratorTest do
 
       # Is it matches all accounts except the first account?
       # i.e. search_term = `acc_` and start_after = 'acc_1'
-      assert Enum.map(data, fn(record) -> record.id end) == ids
+      assert Enum.map(data, fn record -> record.id end) == ids
     end
 
     test "returns records with the given `start_after` nil and `search_term` matched 1 record" do
