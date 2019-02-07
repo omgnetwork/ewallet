@@ -289,10 +289,8 @@ defmodule EWallet.Web.StartAfterPaginator do
         repo,
         """
           SELECT record.offset from (
-            SELECT
-            #{start_by},
-            ROW_NUMBER() OVER (ORDER BY #{sort_by} #{sort_dir}) AS offset
-            FROM #{from}
+            SELECT #{start_by}, ROW_NUMBER() OVER (ORDER BY #{sort_by} #{sort_dir}) AS offset
+            FROM \"#{from}\"
           ) AS record
           WHERE #{start_by} = '#{start_after}';
         """,
