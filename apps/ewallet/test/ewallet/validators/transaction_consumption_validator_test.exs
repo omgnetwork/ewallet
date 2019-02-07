@@ -16,7 +16,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.{TestEndpoint, TransactionConsumptionValidator}
-  alias EWalletDB.{Account, Repo, TransactionConsumption, TransactionRequest, User}
+  alias EWalletDB.{Account, Repo, TransactionConsumption, Membership, TransactionRequest, User}
   alias ActivityLogger.System
 
   describe "validate_before_consumption/3" do
@@ -96,11 +96,14 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
     test "returns unauthorized if the request is not owned by account" do
       {:ok, account} = :account |> params_for() |> Account.insert()
+      admin = insert(:admin)
+      {:ok, _} = Membership.assign(admin, account, "admin", %System{})
+
       consumption = :transaction_consumption |> insert() |> Repo.preload([:transaction_request])
 
       {status, res} =
         TransactionConsumptionValidator.validate_before_confirmation(consumption, %{
-          end_user: account
+          admin_user: admin
         })
 
       assert status == :error

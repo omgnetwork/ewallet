@@ -17,8 +17,8 @@ defmodule EWallet.Web.V1.MembershipSerializer do
   Serializes membership(s) into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
-  alias EWalletDB.User
+  alias EWallet.Web.V1.{AccountSerializer, UserSerializer, KeySerializer}
+  alias EWalletDB.{User, Key}
 
   def serialize(memberships) when is_list(memberships) do
     %{
@@ -30,12 +30,20 @@ defmodule EWallet.Web.V1.MembershipSerializer do
   def serialize(%NotLoaded{}), do: nil
 
   def serialize(membership) when is_map(membership) do
-    membership.user
-    |> UserSerializer.serialize()
+    (membership.user || membership.key)
+    |> serialize_member()
     |> Map.put(:account_role, membership.role.name)
     |> Map.put(:account, AccountSerializer.serialize(membership.account))
     |> Map.put(:status, User.get_status(membership.user))
   end
 
   def serialize(nil), do: nil
+
+  defp serialize_member(%User{} = user) do
+    UserSerializer.serialize(user)
+  end
+
+  defp serialize_member(%Key{} = key) do
+    KeySerializer.serialize(key)
+  end
 end

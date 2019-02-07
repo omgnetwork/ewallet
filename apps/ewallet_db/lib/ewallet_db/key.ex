@@ -51,14 +51,14 @@ defmodule EWalletDB.Key do
       :roles,
       Role,
       join_through: Membership,
-      join_keys: [user_uuid: :uuid, role_uuid: :uuid]
+      join_keys: [key_uuid: :uuid, role_uuid: :uuid]
     )
 
     many_to_many(
       :accounts,
       Account,
       join_through: Membership,
-      join_keys: [user_uuid: :uuid, account_uuid: :uuid]
+      join_keys: [key_uuid: :uuid, account_uuid: :uuid]
     )
 
     field(:enabled, :boolean, default: true)

@@ -38,7 +38,7 @@ defmodule EWallet.Web.V1.RoleSerializer do
       object: "role",
       id: role.id,
       name: role.name,
-      priority: role.priority,
+      priority: nil,
       display_name: role.display_name,
       created_at: DateFormatter.to_iso8601(role.inserted_at),
       updated_at: DateFormatter.to_iso8601(role.updated_at)

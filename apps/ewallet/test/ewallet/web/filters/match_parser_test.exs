@@ -16,7 +16,8 @@ defmodule EWallet.Web.MatchParserTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Web.{MatchParser, MatchAllQuery, MatchAnyQuery, Preloader}
-  alias EWalletDB.{Account, Repo, Transaction}
+  alias EWalletDB.{Account, Repo, Membership, Transaction}
+  alias ActivityLogger.System
 
   describe "build_query/3" do
     test "returns distinct records in a *-many filter" do
@@ -24,7 +25,8 @@ defmodule EWallet.Web.MatchParserTest do
       account_2 = insert(:account)
 
       token_1 = insert(:token, account: account_1)
-      key_1 = insert(:key, account: account_1)
+      key_1 = insert(:key)
+      {:ok, _} = Membership.assign(key_1, account_1, "admin", %System{})
 
       attrs = [
         %{

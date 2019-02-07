@@ -28,13 +28,11 @@ defmodule EWallet.Web.V1.AccountOverlay do
 
   def preload_assocs,
     do: [
-      :parent,
       :categories
     ]
 
   def default_preload_assocs,
     do: [
-      :parent,
       :categories
     ]
 
@@ -72,7 +70,6 @@ defmodule EWallet.Web.V1.AccountOverlay do
       inserted_at: nil,
       updated_at: nil,
       metadata: nil,
-      parent: self_filter_fields(),
       categories: CategoryOverlay.self_filter_fields(),
       wallets: WalletOverlay.self_filter_fields(),
       tokens: TokenOverlay.self_filter_fields(),

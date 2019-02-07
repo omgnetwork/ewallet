@@ -68,7 +68,7 @@ defmodule EWalletDB.Membership do
     membership
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:user_uuid, :account_uuid, :role_uuid],
+      cast: [:user_uuid, :key_uuid, :account_uuid, :role_uuid],
       required: [:account_uuid, :role_uuid]
     )
     |> validate_required_exclusive([:key_uuid, :user_uuid])
@@ -86,6 +86,15 @@ defmodule EWalletDB.Membership do
   def get_by_user_and_account(user, account) do
     Membership
     |> Repo.get_by(%{user_uuid: user.uuid, account_uuid: account.uuid})
+    |> Repo.preload([:role])
+  end
+
+  @doc """
+  Retrieves the membership for the given key and account.
+  """
+  def get_by_key_and_account(key, account) do
+    Membership
+    |> Repo.get_by(%{key_uuid: key.uuid, account_uuid: account.uuid})
     |> Repo.preload([:role])
   end
 
@@ -135,13 +144,13 @@ defmodule EWalletDB.Membership do
   @doc """
   Assigns the user to the given account and role.
   """
-  def assign(user, account, role_name, originator) when is_binary(role_name) do
+  def assign(user_or_key, account, role_name, originator) when is_binary(role_name) do
     case Role.get_by(name: role_name) do
       nil ->
         {:error, :role_not_found}
 
       role ->
-        assign(user, account, role, originator)
+        assign(user_or_key, account, role, originator)
     end
   end
 
@@ -151,6 +160,24 @@ defmodule EWalletDB.Membership do
         insert(%{
           account_uuid: account.uuid,
           user_uuid: user.uuid,
+          role_uuid: role.uuid,
+          originator: originator
+        })
+
+      existing ->
+        update(existing, %{
+          role_uuid: role.uuid,
+          originator: originator
+        })
+    end
+  end
+
+  def assign(%Key{} = key, %Account{} = account, %Role{} = role, originator) do
+    case get_by_key_and_account(key, account) do
+      nil ->
+        insert(%{
+          account_uuid: account.uuid,
+          key_uuid: key.uuid,
           role_uuid: role.uuid,
           originator: originator
         })

@@ -30,9 +30,9 @@ defmodule EWalletDB.Account do
     AccountUser,
     APIKey,
     Category,
-    Key,
     Membership,
     Repo,
+    Key,
     Token,
     User,
     Wallet
@@ -73,13 +73,6 @@ defmodule EWalletDB.Account do
     )
 
     has_many(
-      :keys,
-      Key,
-      foreign_key: :account_uuid,
-      references: :uuid
-    )
-
-    has_many(
       :api_keys,
       APIKey,
       foreign_key: :account_uuid,
@@ -91,6 +84,27 @@ defmodule EWalletDB.Account do
       Membership,
       foreign_key: :account_uuid,
       references: :uuid
+    )
+
+    many_to_many(
+      :admin_users,
+      User,
+      join_through: Membership,
+      join_keys: [account_uuid: :uuid, user_uuid: :uuid]
+    )
+
+    many_to_many(
+      :keys,
+      Key,
+      join_through: Membership,
+      join_keys: [account_uuid: :uuid, key_uuid: :uuid]
+    )
+
+    many_to_many(
+      :end_users,
+      User,
+      join_through: AccountUser,
+      join_keys: [account_uuid: :uuid, user_uuid: :uuid]
     )
 
     timestamps()
