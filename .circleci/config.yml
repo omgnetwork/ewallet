@@ -438,7 +438,7 @@ workflows:
             branches:
               ignore:
                 - master
-                - /^v.*/
+                - /^v[0-9]+\.[0-9]+/
                 - /.*e2e$/
             tags:
               ignore: /^v.*/
@@ -452,10 +452,10 @@ workflows:
             branches:
               only:
                 - master
-                - /^v.*/
+                - /^v[0-9]+\.[0-9]+/
                 - /.*e2e$/
             tags:
-              only: /^v.*/
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+/
       - test_e2e:
           requires:
             - build
