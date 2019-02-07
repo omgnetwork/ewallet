@@ -4,12 +4,12 @@ defmodule AdminPanel.Mixfile do
   def project do
     [
       app: :admin_panel,
-      version: "1.1.0-pre.2",
+      version: "1.2.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.4",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
@@ -30,7 +30,7 @@ defmodule AdminPanel.Mixfile do
   def application do
     [
       mod: {AdminPanel.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:appsignal, :logger, :runtime_tools]
     ]
   end
 
@@ -43,6 +43,7 @@ defmodule AdminPanel.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:appsignal, "~> 1.9"},
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},
       {:phoenix, "~> 1.3.0"},

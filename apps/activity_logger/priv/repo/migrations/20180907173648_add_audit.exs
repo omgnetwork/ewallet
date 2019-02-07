@@ -32,7 +32,7 @@ defmodule ActivityLogger.Repo.Migrations.AddAudit do
 
       add :metadata, :map
 
-      add :inserted_at, :naive_datetime
+      add :inserted_at, :naive_datetime_usec
     end
 
     create index(:audit, [:target_uuid, :target_type])

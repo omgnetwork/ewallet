@@ -4,12 +4,12 @@ defmodule EWallet.Mixfile do
   def project do
     [
       app: :ewallet,
-      version: "1.1.0-pre.2",
+      version: "1.2.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.5",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
@@ -28,7 +28,7 @@ defmodule EWallet.Mixfile do
   def application do
     [
       mod: {EWallet.Application, []},
-      extra_applications: [:sentry, :logger]
+      extra_applications: [:appsignal, :sentry, :logger]
     ]
   end
 
@@ -50,12 +50,13 @@ defmodule EWallet.Mixfile do
       {:deferred_config, "~> 0.1.0"},
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},
+      {:jason, "~> 1.1"},
       {:local_ledger, in_umbrella: true},
       {:local_ledger_db, in_umbrella: true},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_html, "~> 2.11.0"},
-      {:quantum, "~> 2.2.6"},
-      {:sentry, "~> 6.4"},
+      {:quantum, "~> 2.3.4"},
+      {:sentry, "~> 7.0"},
       {:timex, "~> 3.0"}
     ]
   end

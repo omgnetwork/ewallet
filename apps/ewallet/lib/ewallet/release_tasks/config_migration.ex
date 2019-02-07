@@ -23,7 +23,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   alias EWallet.Seeder.CLI, as: Seeder
   alias EWalletConfig.Setting
 
-  @start_apps [:logger, :postgrex, :ecto, :ewallet, :ewallet_db]
+  @start_apps [:logger, :postgrex, :ecto_sql, :telemetry, :ewallet, :ewallet_db]
   @apps [:activity_logger, :ewallet_config]
 
   def run_ask_confirm, do: run(ask_confirm: true)

@@ -4,7 +4,7 @@ version: 2.1
 executors:
   builder:
     docker:
-      - image: omisegoimages/ewallet-builder:stable
+      - image: omisegoimages/ewallet-builder:v1.2
     working_directory: ~/src
     environment:
       IMAGE_NAME: "omisego/ewallet"
@@ -96,10 +96,14 @@ jobs:
       - restore_cache:
           name: Restoring eWallet artifacts from cache
           keys:
-            - v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
-            - v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-
-            - v1-ewallet-{{ checksum "mix.lock" }}-
-            - v1-ewallet-
+            - v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
+            - v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-
+            - v2-ewallet-{{ checksum "mix.lock" }}-
+            - v2-ewallet-
+      - run:
+          name: Print out current OTP/Elixir version
+          command: |
+            elixir --version
       - run:
           name: Building eWallet in test environment
           command: |
@@ -116,7 +120,7 @@ jobs:
             make deps-assets
       - save_cache:
           name: Caching eWallet artifacts
-          key: v1-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
+          key: v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
           paths:
             - deps
             - _build/test
@@ -163,9 +167,9 @@ jobs:
       - restore_cache:
           name: Restoring runtime PLT from cache
           keys:
-            - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
-            - v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-
-            - v1-ewallet-plt-
+            - v2-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
+            - v2-ewallet-plt-{{ checksum "~/var/elixir-version" }}-
+            - v2-ewallet-plt-
       - run:
           name: Checking dialyzer
           command: |
@@ -177,7 +181,7 @@ jobs:
             MIX_ENV: test
       - save_cache:
           name: Caching runtime PLT
-          key: v1-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
+          key: v2-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
           paths:
             - ~/var/dialyzer
           when: always
@@ -188,7 +192,7 @@ jobs:
   test:
     executor: builder
     docker:
-      - image: omisegoimages/ewallet-builder:stable
+      - image: omisegoimages/ewallet-builder:v1.2
       - image: postgres:9.6-alpine
     steps:
       - checkout
@@ -224,9 +228,9 @@ jobs:
       - restore_cache:
           name: Restoring eWallet production artifacts from cache
           keys:
-            - v1-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
-            - v1-ewallet-prod-{{ checksum "mix.exs" }}-
-            - v1-ewallet-prod-
+            - v2-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
+            - v2-ewallet-prod-{{ checksum "mix.exs" }}-
+            - v2-ewallet-prod-
       - run:
           name: Building eWallet in production environment
           command: |
@@ -243,7 +247,7 @@ jobs:
             docker save -o ~/caches/docker-layers.tar "$IMAGE_NAME"
       - save_cache:
           name: Caching eWallet production artifacts
-          key: v1-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
+          key: v2-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
           paths:
             - _build/prod/.mix
             - _build/prod/consolidated
@@ -333,7 +337,7 @@ jobs:
                 --init \
                 --network net0 \
                 --volumes-from srcs \
-              omisegoimages/ewallet-builder:stable \
+              omisegoimages/ewallet-builder:v1.2 \
               sh -c "cd /src/e2e && pipenv install && pipenv run robot tests"
       - notify_slack_failure
 

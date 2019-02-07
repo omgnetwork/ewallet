@@ -21,9 +21,11 @@ services:
     restart: always
     networks:
       - intnet
+    ports:
+      - "8025:8025"
 
   ewallet:
-    image: omisego/ewallet:latest
+    image: omisego/ewallet:stable
     restart: always
     networks:
       - intnet
@@ -35,6 +37,8 @@ services:
       LOCAL_LEDGER_DATABASE_URL: "postgresql://postgres:passw0rd@postgres:5432/local_ledger"
       EWALLET_SECRET_KEY: "CHANGE_ME"
       LOCAL_LEDGER_SECRET_KEY: "CHANGE_ME"
+    ports:
+      - "4000:4000"
 
 networks:
   intnet:

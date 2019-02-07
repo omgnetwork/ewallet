@@ -119,7 +119,7 @@ class ActivityList extends Component {
       )
     }
     if (key === 'created_at') {
-      return moment(data).format('DD/MM hh:mm:ss')
+      return moment(data).format()
     }
     if (key === 'to') {
       return <div>{rows.user_id || _.get(rows, 'account.name')}</div>

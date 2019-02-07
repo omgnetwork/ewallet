@@ -21,15 +21,16 @@ defmodule EWallet.AdapterHelper do
   alias EWallet.Exporter
   alias EWalletDB.{Repo, Export, Uploaders}
   alias EWalletConfig.{FileStorageSupervisor, Storage.Local}
+  alias Utils.Helpers.PathResolver
 
   @rows_count 500
   @timeout_milliseconds 1 * 60 * 60 * 1000
 
-  def stream_to_file(path, export, query, serializer, chunk_size) do
+  def stream_to_file(path, export, query, preloads, serializer, chunk_size) do
     Repo.transaction(
       fn ->
         export
-        |> stream_to_chunk(query, serializer, chunk_size)
+        |> stream_to_chunk(query, preloads, serializer, chunk_size)
         |> Stream.into(File.stream!(path, [:write, :utf8]))
         |> Stream.run()
       end,
@@ -37,7 +38,7 @@ defmodule EWallet.AdapterHelper do
     )
   end
 
-  def stream_to_chunk(export, query, serializer, chunk_size) do
+  def stream_to_chunk(export, query, preloads, serializer, chunk_size) do
     chunk = fn line, {acc, count} ->
       if byte_size(acc) >= chunk_size do
         {:cont, {"#{acc}#{line}", count + 1}, {"", count + 1}}
@@ -52,7 +53,11 @@ defmodule EWallet.AdapterHelper do
 
     query
     |> Repo.stream(max_rows: @rows_count)
-    |> Stream.map(fn e -> serializer.serialize(e) end)
+    |> Stream.map(fn record ->
+      record
+      |> Repo.preload(preloads)
+      |> serializer.serialize()
+    end)
     |> CSV.encode(headers: serializer.columns)
     |> Stream.chunk_while({"", 0}, chunk, after_chunk)
     |> Stream.map(fn {chunk, count} ->
@@ -80,7 +85,7 @@ defmodule EWallet.AdapterHelper do
 
   def local_dir do
     [
-      Application.get_env(:ewallet, :root),
+      PathResolver.static_dir(:url_dispatcher),
       Uploaders.File.storage_dir(nil, nil)
     ]
     |> Path.join()

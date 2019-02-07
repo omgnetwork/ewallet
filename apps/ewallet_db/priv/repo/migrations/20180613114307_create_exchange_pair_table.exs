@@ -25,7 +25,7 @@ defmodule EWalletDB.Repo.Migrations.CreateExchangePairTable do
       add :rate, :float, null: false
 
       timestamps()
-      add :deleted_at, :naive_datetime
+      add :deleted_at, :naive_datetime_usec
     end
 
     create unique_index(:exchange_pair, [:id])

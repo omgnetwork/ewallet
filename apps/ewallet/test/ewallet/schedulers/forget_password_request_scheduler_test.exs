@@ -23,10 +23,10 @@ defmodule EWallet.ForgetPasswordRequestSchedulerTest do
       now = NaiveDateTime.utc_now()
 
       # f1 and f2 have expiration dates in the past
-      f1 = insert(:forget_password_request, expires_at: NaiveDateTime.add(now, -60, :seconds))
-      f2 = insert(:forget_password_request, expires_at: NaiveDateTime.add(now, -600, :seconds))
-      f3 = insert(:forget_password_request, expires_at: NaiveDateTime.add(now, 600, :seconds))
-      f4 = insert(:forget_password_request, expires_at: NaiveDateTime.add(now, 160, :seconds))
+      f1 = insert(:forget_password_request, expires_at: NaiveDateTime.add(now, -60, :second))
+      f2 = insert(:forget_password_request, expires_at: NaiveDateTime.add(now, -600, :second))
+      f3 = insert(:forget_password_request, expires_at: NaiveDateTime.add(now, 600, :second))
+      f4 = insert(:forget_password_request, expires_at: NaiveDateTime.add(now, 160, :second))
 
       # They are still valid since we haven't made them expired yet
       assert Repo.get(ForgetPasswordRequest, f1.uuid).enabled == true

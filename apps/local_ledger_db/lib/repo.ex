@@ -13,7 +13,9 @@
 # limitations under the License.
 
 defmodule LocalLedgerDB.Repo do
-  use Ecto.Repo, otp_app: :local_ledger_db
+  use Ecto.Repo,
+    otp_app: :local_ledger_db,
+    adapter: Ecto.Adapters.Postgres
 
   # Workaround an issue where ecto.migrate task won't start the app
   # thus DeferredConfig.populate is not getting called.

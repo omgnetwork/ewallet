@@ -248,7 +248,7 @@ defmodule ActivityLogger.ActivityLogTest do
       )
     end
 
-    test "Inserts encrypted_changes, but does not insert fields protected with `prevent_saving`",
+    test "inserts encrypted_changes, but does not insert fields protected with `prevent_saving`",
          meta do
       changeset =
         %TestDocument{}
@@ -274,6 +274,20 @@ defmodule ActivityLogger.ActivityLogTest do
           secret_data: meta.attrs.secret_data
         }
       )
+    end
+
+    test "does not insert an activity log when there are no changes", meta do
+      changeset =
+        %TestDocument{}
+        |> cast_and_validate_required_for_activity_log(
+          meta.attrs,
+          cast: []
+        )
+
+      {res, activity_log} = ActivityLog.insert(:insert, changeset, meta.record)
+
+      assert res == :ok
+      assert activity_log == nil
     end
   end
 
@@ -313,7 +327,7 @@ defmodule ActivityLogger.ActivityLogTest do
   describe "ActivityLog.update_record_with_activity_log/2" do
     test "does not insert an activity_log when updating a user with no changes" do
       admin = insert(:test_user)
-      {:ok, user} = :test_user |> params_for() |> TestUser.insert()
+      {:ok, user} = :test_user |> params_for(username: "John") |> TestUser.insert()
       params = params_for(:test_user, %{username: "John", originator: admin})
       {res, _record} = TestUser.update(user, params)
 

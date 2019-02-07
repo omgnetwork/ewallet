@@ -45,6 +45,7 @@ defmodule EWallet.Exporters.LocalAdapterTest do
     %{
       export: export,
       query: query,
+      preloads: [],
       serializer: serializer
     }
   end
@@ -60,6 +61,7 @@ defmodule EWallet.Exporters.LocalAdapterTest do
       args = %{
         export: context.export,
         query: context.query,
+        preloads: context.preloads,
         serializer: context.serializer
       }
 

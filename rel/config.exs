@@ -36,8 +36,8 @@ release :ewallet do
   ]
 
   set commands: [
-    "config": "rel/commands/config.sh",
-    "initdb": "rel/commands/initdb.sh",
-    "seed": "rel/commands/seed.sh",
+    config: "rel/commands/config.sh",
+    initdb: "rel/commands/initdb.sh",
+    seed: "rel/commands/seed.sh",
   ]
 end

@@ -2,7 +2,7 @@ all: clean build-prod
 
 RELEASE_VERSION != awk '/version:/ { gsub(/[^0-9a-z\.\-]+/, "", $$2); print $$2 }' < apps/ewallet/mix.exs
 IMAGE_NAME      ?= "omisego/ewallet:latest"
-IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:stable"
+IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:v1.2"
 IMAGE_BUILD_DIR ?= "/tmp/ewallet-docker"
 
 #
@@ -24,7 +24,7 @@ deps-assets:
 # Cleaning
 #
 
-clean: clean-ewallet clean-assets
+clean: clean-ewallet clean-assets clean-test-assets
 
 clean-ewallet:
 	rm -rf _build/
@@ -34,7 +34,14 @@ clean-assets:
 	rm -rf apps/admin_panel/assets/node_modules
 	rm -rf apps/admin_panel/priv/static
 
-.PHONY: clean clean-ewallet clean-assets
+clean-test-assets:
+	rm -rf private/
+	rm -rf public/
+	rm -rf _build/test/lib/url_dispatcher/priv/static/private/*
+	rm -rf _build/test/lib/url_dispatcher/priv/static/public/test-*
+	rm -rf _build/test/lib/url_dispatcher/priv/static/public/test/
+
+.PHONY: clean clean-ewallet clean-assets clean-test-assets
 
 #
 # Linting
@@ -80,7 +87,7 @@ build-test: deps-ewallet
 
 test: test-ewallet test-assets
 
-test-ewallet: build-test
+test-ewallet: clean-test-assets build-test
 	env MIX_ENV=test mix do ecto.create, ecto.migrate, test
 
 test-assets: build-assets

@@ -27,6 +27,7 @@ defmodule EWalletDB.Token do
   alias ExULID.ULID
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "token" do
     # tok_eur_01cbebcdjprhpbzp1pt7h0nzvt

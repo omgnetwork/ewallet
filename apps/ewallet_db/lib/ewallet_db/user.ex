@@ -40,6 +40,7 @@ defmodule EWalletDB.User do
   }
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "user" do
     external_id(prefix: "usr_")
@@ -378,7 +379,7 @@ defmodule EWalletDB.User do
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log(
       [],
-      Multi.run(Multi.new(), :wallet, fn %{record: record} ->
+      Multi.run(Multi.new(), :wallet, fn _repo, %{record: record} ->
         case User.admin?(record) do
           true -> {:ok, nil}
           false -> insert_wallet(record, Wallet.primary())

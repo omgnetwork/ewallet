@@ -40,6 +40,7 @@ defmodule EWalletDB.Transaction do
   def external, do: @external
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "transaction" do
     external_id(prefix: "txn_")
@@ -60,7 +61,7 @@ defmodule EWalletDB.Transaction do
     field(:error_data, :map)
 
     field(:rate, :float)
-    field(:calculated_at, :naive_datetime)
+    field(:calculated_at, :naive_datetime_usec)
 
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
@@ -358,7 +359,7 @@ defmodule EWalletDB.Transaction do
       :insert,
       changeset,
       opts,
-      Multi.run(Multi.new(), :transaction_1, fn %{record: transaction} ->
+      Multi.run(Multi.new(), :transaction_1, fn _repo, %{record: transaction} ->
         case get(transaction.id, preload: [:from_wallet, :to_wallet, :from_token, :to_token]) do
           nil ->
             {:ok, get_by_idempotency_token(transaction.idempotency_token)}

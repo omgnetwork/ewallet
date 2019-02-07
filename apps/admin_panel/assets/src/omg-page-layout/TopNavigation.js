@@ -47,7 +47,7 @@ const SecondaryActionsContainer = styled.div`
 export default class TopNavigation extends PureComponent {
   static propTypes = {
     buttons: PropTypes.array,
-    title: PropTypes.string,
+    title: PropTypes.node,
     secondaryAction: PropTypes.bool,
     normalPlaceholder: PropTypes.string
   }

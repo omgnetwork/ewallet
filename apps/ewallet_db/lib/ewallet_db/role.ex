@@ -80,6 +80,7 @@ defmodule EWalletDB.Role do
       configuration: :none
     }
   }
+  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "role" do
     external_id(prefix: "rol_")

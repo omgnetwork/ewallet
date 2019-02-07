@@ -25,6 +25,8 @@ defmodule EWalletConfig.StoredSetting do
   alias EWalletConfig.StoredSetting
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
+
   @types [
     "string",
     "integer",

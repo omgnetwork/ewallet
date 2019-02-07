@@ -19,9 +19,9 @@ defmodule EWalletDB.Repo.Migrations.RenameConsumptionTimestampColumns do
     rename table(:transaction_consumption), :finalized_at, to: :approved_at
 
     alter table(:transaction_consumption) do
-      add :confirmed_at, :naive_datetime
-      add :rejected_at, :naive_datetime
-      add :failed_at, :naive_datetime
+      add :confirmed_at, :naive_datetime_usec
+      add :rejected_at, :naive_datetime_usec
+      add :failed_at, :naive_datetime_usec
       remove :approved
     end
   end

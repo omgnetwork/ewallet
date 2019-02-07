@@ -4,12 +4,12 @@ defmodule LoadTester.MixProject do
   def project do
     [
       app: :load_tester,
-      version: "1.1.0-pre.2",
+      version: "1.2.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.6",
+      elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -18,7 +18,7 @@ defmodule LoadTester.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:appsignal, :logger],
       mod: {LoadTester.Application, []}
     ]
   end

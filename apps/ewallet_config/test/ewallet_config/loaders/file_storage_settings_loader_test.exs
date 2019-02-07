@@ -16,7 +16,7 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
   use EWalletConfig.SchemaCase, async: true
   alias EWalletConfig.{ConfigTestHelper, FileStorageSettingsLoader}
 
-  def init(opts) do
+  defp init(opts) do
     Application.put_env(:my_app, :settings, [
       :file_storage_adapter,
       :aws_bucket,
