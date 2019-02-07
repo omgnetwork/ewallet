@@ -5,7 +5,7 @@
 Some feature such as WebSockets require that Erlang nodes are connected. We support automatic clustering via DNS in `prod` environment using [Peerage](https://github.com/mrluc/peerage). To use automatic clustering, you must run the application in the following manner (in additional to standard configuration):
 
 ```
-$ env MIX_ENV=prod ODE_DNS=ewallet.default.svc.cluster.local \
+$ env MIX_ENV=prod NODE_DNS=ewallet.default.svc.cluster.local \
   elixir \
     --erl '-kernel inet_dist_listen_min 6900' \
     --erl '-kernel inet_dist_listen_max 6909' \
