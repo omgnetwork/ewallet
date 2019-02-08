@@ -2,7 +2,7 @@ all: clean build-prod
 
 RELEASE_VERSION != awk '/version:/ { gsub(/[^0-9a-z\.\-]+/, "", $$2); print $$2 }' < apps/ewallet/mix.exs
 IMAGE_NAME      ?= "omisego/ewallet:latest"
-IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:stable"
+IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:v1.1"
 IMAGE_BUILD_DIR ?= "/tmp/ewallet-docker"
 
 #
@@ -119,4 +119,7 @@ docker-build:
 
 docker: docker-prod docker-build
 
-.PHONY: docker docker-prod docker-build
+docker-push: docker
+	docker push $(IMAGE_NAME)
+
+.PHONY: docker docker-prod docker-build docker-push
