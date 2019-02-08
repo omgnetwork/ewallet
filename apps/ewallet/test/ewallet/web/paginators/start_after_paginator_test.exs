@@ -151,7 +151,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
     end
   end
 
-  describe "EWallet.Web.StartAfterPaginator.get_query_offset/3" do
+  describe "EWallet.Web.StartAfterPaginator.get_offset/3" do
     test "returns offset if given `start_by`, `start_after`" do
       ensure_num_records(Account, 10)
 
@@ -162,10 +162,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         |> Repo.all()
 
       offset =
-        StartAfterPaginator.get_query_offset(
+        StartAfterPaginator.get_offset(
           Account,
-          %{"start_by" => "id", "start_after" => first.id},
-          Repo
+          %{"start_by" => "id", "start_after" => first.id}
         )
 
       assert offset == 1
@@ -181,10 +180,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         |> Repo.all()
 
       offset =
-        StartAfterPaginator.get_query_offset(
+        StartAfterPaginator.get_offset(
           Account,
-          %{"start_by" => "id", "start_after" => first.id, "sort_by" => "name"},
-          Repo
+          %{"start_by" => "id", "start_after" => first.id, "sort_by" => "name"}
         )
 
       assert offset == 1
@@ -194,10 +192,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       ensure_num_records(Account, 10)
 
       offset =
-        StartAfterPaginator.get_query_offset(
+        StartAfterPaginator.get_offset(
           Account,
-          %{"start_after" => nil, "start_by" => "id"},
-          Repo
+          %{"start_after" => nil, "start_by" => "id"}
         )
 
       assert offset == 0

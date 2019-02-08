@@ -54,7 +54,6 @@ defmodule EWallet.Web.StartAfterPaginator do
   import Ecto.Query
   alias EWalletDB.Repo
   alias EWallet.Web.Paginator
-  alias Ecto.Adapters.SQL
 
   @doc """
   Paginate a query by attempting to extract `start_after`, `start_by` and `per_page`
@@ -164,7 +163,7 @@ defmodule EWallet.Web.StartAfterPaginator do
 
     {records, more_page} =
       queryable
-      |> get_queryable_start_after(attrs, repo)
+      |> get_queryable_start_after(attrs)
       |> get_queryable_order_by(attrs)
       |> fetch(per_page, repo)
 
@@ -255,75 +254,93 @@ defmodule EWallet.Web.StartAfterPaginator do
 
   # Query records from the beginning if `start_after` is null or empty,
   # Otherwise querying after specified `start_after` by `start_by` field.
-
   defp get_queryable_start_after(
          queryable,
          %{
            "start_after" => _,
            "start_by" => _
-         } = attrs,
-         repo
+         } = attrs
        ) do
-    offset = get_query_offset(queryable, attrs, repo)
-
-    IO.inspect(offset)
+    offset = get_offset(queryable, attrs)
 
     queryable
     |> offset(^offset)
   end
 
-  def get_query_offset(_, %{"start_after" => nil}, _), do: 0
+  def get_offset(_, %{"start_after" => nil}), do: 0
 
-  def get_query_offset(
+  def get_offset(
         %Ecto.Query{} = queryable,
         %{
           "start_after" => start_after,
           "start_by" => start_by,
           "sort_by" => sort_by,
           "sort_dir" => sort_dir
-        },
-        repo
+        }
       ) do
+    sort_by = String.to_atom(sort_by)
+    start_by = String.to_atom(start_by)
 
-    queryable_with_offset =
+    offset_queryable =
       queryable
-      |> exclude(:preload)
-      |> select([a], %{
-        id: a.id,
-        name: a.name,
-        offset: fragment("ROW_NUMBER() OVER (ORDER BY ? DESC)", ^sort_by)
+      |> get_offset_queryable(%{
+        "start_by" => start_by,
+        "sort_by" => sort_by,
+        "sort_dir" => sort_dir
       })
 
+    queryable = from(q in subquery(offset_queryable))
+
     [offset] =
-      from(a in subquery(queryable_with_offset))
-      |> select([a], a.offset)
-      |> where([a], a.id == ^start_after)
+      queryable
+      |> select([q], q.offset)
+      |> where([q], q.start_by == ^start_after)
       |> Repo.all()
 
     offset
   end
 
-  def get_query_offset(
+  def get_offset(
         %Ecto.Query{} = queryable,
-        %{"start_after" => start_after, "start_by" => start_by} = attrs,
-        repo
+        %{"start_after" => start_after, "start_by" => start_by} = attrs
       ) do
     sort_dir = Map.get(attrs, "sort_dir", "asc")
 
-    get_query_offset(
+    get_offset(
       queryable,
       %{
         "start_after" => start_after,
         "start_by" => start_by,
         "sort_by" => start_by,
         "sort_dir" => sort_dir
-      },
-      repo
+      }
     )
   end
 
-  def get_query_offset(queryable, attrs, repo) do
-    get_query_offset(from(q in queryable), attrs, repo)
+  def get_offset(queryable, attrs) do
+    get_offset(from(q in queryable), attrs)
+  end
+
+  defp get_offset_queryable(queryable, %{
+         "start_by" => start_by,
+         "sort_by" => sort_by,
+         "sort_dir" => "desc"
+       }) do
+    queryable
+    |> exclude(:preload)
+    |> select([a], %{
+      start_by: field(a, ^start_by),
+      offset: fragment("ROW_NUMBER() OVER (ORDER BY ? DESC)", field(a, ^sort_by))
+    })
+  end
+
+  defp get_offset_queryable(queryable, %{"start_by" => start_by, "sort_by" => sort_by}) do
+    queryable
+    |> exclude(:preload)
+    |> select([a], %{
+      start_by: field(a, ^start_by),
+      offset: fragment("ROW_NUMBER() OVER (ORDER BY ? ASC)", field(a, ^sort_by))
+    })
   end
 
   defp get_queryable_order_by(queryable, %{
