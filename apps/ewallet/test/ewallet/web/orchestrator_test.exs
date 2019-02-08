@@ -73,7 +73,7 @@ defmodule EWallet.Web.OrchestratorTest do
       total_records = 5
       ensure_num_records(Account, total)
 
-      records = from(a in Account, order_by: [desc: a.id])
+      records = from(a in Account, order_by: [desc: a.name])
 
       [first_record | records] =
         records
@@ -83,7 +83,7 @@ defmodule EWallet.Web.OrchestratorTest do
       attrs = %{
         "start_by" => "id",
         "start_after" => first_record.id,
-        "sort_by" => "id",
+        "sort_by" => "name",
         "sort_dir" => "desc"
       }
 

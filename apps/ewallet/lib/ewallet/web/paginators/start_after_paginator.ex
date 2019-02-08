@@ -266,6 +266,8 @@ defmodule EWallet.Web.StartAfterPaginator do
        ) do
     offset = get_query_offset(queryable, attrs, repo)
 
+    IO.inspect(offset)
+
     queryable
     |> offset(^offset)
   end
@@ -282,22 +284,21 @@ defmodule EWallet.Web.StartAfterPaginator do
         },
         repo
       ) do
-    from = elem(queryable.from.source, 0)
 
-    output =
-      SQL.query!(
-        repo,
-        """
-          SELECT record.offset from (
-            SELECT #{start_by}, ROW_NUMBER() OVER (ORDER BY #{sort_by} #{sort_dir}) AS offset
-            FROM \"#{from}\"
-          ) AS record
-          WHERE #{start_by} = '#{start_after}';
-        """,
-        []
-      )
+    queryable_with_offset =
+      queryable
+      |> exclude(:preload)
+      |> select([a], %{
+        id: a.id,
+        name: a.name,
+        offset: fragment("ROW_NUMBER() OVER (ORDER BY ? DESC)", ^sort_by)
+      })
 
-    [[offset]] = output.rows
+    [offset] =
+      from(a in subquery(queryable_with_offset))
+      |> select([a], a.offset)
+      |> where([a], a.id == ^start_after)
+      |> Repo.all()
 
     offset
   end
