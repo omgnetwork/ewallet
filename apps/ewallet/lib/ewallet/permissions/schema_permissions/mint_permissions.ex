@@ -12,28 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.MintPolicy do
+defmodule EWallet.SchemaPermissions.MintPermissions do
   @moduledoc """
-  The authorization policy for mints.
+  A policy helper containing the actual authorization.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.Permissions
+  alias EWalletDB.{Mint, Helpers.Preloader}
 
-  def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :mints})
+  def get_owner_uuids(%Mint{token: token}), do: [token.account_uuid]
+
+  def get_target_type(%Mint{}), do: :mints
+
+  def get_target_accounts(%Mint{token: token}) do
+    [Preloader.preload(token, [:account]).account]
   end
-
-  def authorize(:get, attrs, mint) do
-    Permissions.can?(attrs, %{action: :get, target: mint})
-  end
-
-  def authorize(:join, attrs, mint) do
-    Permissions.can?(attrs, %{action: :listen, target: mint})
-  end
-
-  def authorize(:create, attrs, mint) do
-    Permissions.can?(attrs, %{action: :create, target: mint})
-  end
-
-  def authorize(_, _, _), do: false
 end

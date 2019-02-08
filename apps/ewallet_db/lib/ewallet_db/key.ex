@@ -24,7 +24,15 @@ defmodule EWalletDB.Key do
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
-  alias EWalletDB.{Account, Key, Membership, Role, Repo}
+
+  alias EWalletDB.{
+    Account,
+    Key,
+    GlobalRole,
+    Membership,
+    Role,
+    Repo
+  }
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
@@ -39,6 +47,7 @@ defmodule EWalletDB.Key do
     field(:access_key, :string)
     field(:secret_key, :string, virtual: true)
     field(:secret_key_hash, :string)
+    field(:global_role, :string)
 
     has_many(
       :memberships,
@@ -71,10 +80,11 @@ defmodule EWalletDB.Key do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:access_key, :secret_key, :enabled],
+      cast: [:access_key, :secret_key, :enabled, :global_role],
       required: [:access_key, :secret_key],
       prevent_saving: [:secret_key]
     )
+    |> validate_inclusion(:global_role, GlobalRole.global_roles())
     |> unique_constraint(:access_key, name: :key_access_key_index)
     |> put_change(:secret_key_hash, Crypto.hash_secret(attrs[:secret_key]))
     |> put_change(:secret_key, Base.url_encode64(attrs[:secret_key], padding: false))

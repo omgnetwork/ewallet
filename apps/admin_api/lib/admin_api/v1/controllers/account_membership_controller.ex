@@ -15,11 +15,10 @@
 defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias Ecto.Query
   alias EWallet.InviteEmail
   alias EWallet.{AccountMembershipPolicy, EmailValidator}
   alias EWallet.Web.{Inviter, Orchestrator, Originator, UrlValidator, V1.MembershipOverlay}
-  alias EWalletDB.{Account, Membership, Repo, Role, User}
+  alias EWalletDB.{Account, Membership, Role, User}
 
   @doc """
   Lists the users that are assigned to the given account.
@@ -29,12 +28,9 @@ defmodule AdminAPI.V1.AccountMembershipController do
            Account.get(account_id, preload: [memberships: [:user, :role]]) ||
              {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, account.id),
-         ancestor_uuids <- Account.get_all_ancestors_uuids(account),
-         query <- Membership.all_by_account_uuids(ancestor_uuids),
          attrs <- transform_user_filter_attrs(attrs),
-         %Query{} = query <- Orchestrator.build_query(query, MembershipOverlay, attrs),
-         memberships <- Repo.all(query),
-         memberships <- Membership.distinct_by_role(memberships) do
+         query <- Membership.all_by_account(account),
+         memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
       render(conn, :memberships, %{memberships: memberships})
     else
       {:error, :not_allowed, field} ->

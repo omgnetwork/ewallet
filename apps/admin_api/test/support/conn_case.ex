@@ -34,7 +34,7 @@ defmodule AdminAPI.ConnCase do
   alias Ecto.UUID
   alias EWallet.{MintGate, TransactionGate}
   alias EWalletConfig.ConfigTestHelper
-  alias EWalletDB.{Account, Key, Repo, User}
+  alias EWalletDB.{Account, Membership, GlobalRole, Key, Repo, User}
   alias Utils.{Types.ExternalID, Helpers.Crypto, Helpers.DateFormatter}
   alias ActivityLogger.System
 
@@ -59,6 +59,7 @@ defmodule AdminAPI.ConnCase do
   @admin_id ExternalID.generate("usr_")
   @username "test_username"
   @password "test_password"
+  @super_admin_email "super_admin@example.com"
   @user_email "email@example.com"
   @provider_user_id "test_provider_user_id"
   @auth_token "test_auth_token"
@@ -87,6 +88,7 @@ defmodule AdminAPI.ConnCase do
       @api_key_id unquote(@api_key_id)
       @api_key unquote(@api_key)
 
+      @super_admin_id unquote(@super_admin_id)
       @admin_id unquote(@admin_id)
       @username unquote(@username)
       @password unquote(@password)
@@ -126,7 +128,8 @@ defmodule AdminAPI.ConnCase do
       insert(:admin, %{
         id: @admin_id,
         email: @user_email,
-        password_hash: Crypto.hash_password(@password)
+        password_hash: Crypto.hash_password(@password),
+        global_role: GlobalRole.super_admin()
       })
 
     # Insert user via `User.insert/1` to initialize wallets, etc.
@@ -145,17 +148,20 @@ defmodule AdminAPI.ConnCase do
 
     # Keys need to be inserted through `EWalletDB.Key.insert/1`
     # so that the secret key is hashed and usable by the tests.
-    :key
-    |> params_for(%{
-      account: account,
-      access_key: @access_key,
-      secret_key: @secret_key
-    })
-    |> Key.insert()
+    {:ok, key} =
+      :key
+      |> params_for(%{
+        access_key: @access_key,
+        secret_key: @secret_key,
+        global_role: GlobalRole.super_admin()
+      })
+      |> Key.insert()
 
     role = insert(:role, %{name: "admin"})
+
+    {:ok, _} = Membership.assign(admin, account, role, %System{})
+    {:ok, _} = Membership.assign(key, account, role, %System{})
     _api_key = insert(:api_key, %{id: @api_key_id, key: @api_key, owner_app: "admin_api"})
-    _membership = insert(:membership, %{user: admin, role: role, account: account})
 
     # Setup could return all the inserted credentials using ExUnit context
     # by returning {:ok, context_map}. But it would make the code

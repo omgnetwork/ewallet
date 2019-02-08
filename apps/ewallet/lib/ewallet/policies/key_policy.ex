@@ -17,25 +17,22 @@ defmodule EWallet.KeyPolicy do
   The authorization policy for keys.
   """
   @behaviour Bodyguard.Policy
-  alias EWalletDB.{Account, User}
+  alias EWallet.Permissions
 
-  def authorize(:all, _user_or_key, _key_id), do: true
-
-  def authorize(:create, %{key: key}, _key_id) do
-    Account.get_master_account().uuid == key.account.uuid
+  def authorize(:all, attrs, nil) do
+    Permissions.can?(attrs, %{action: :all, type: :keys})
   end
 
-  def authorize(:create, %{admin_user: user}, _key_id) do
-    User.master_admin?(user.id)
+  def authorize(:get, attrs, key) do
+    Permissions.can?(attrs, %{action: :get, target: key})
   end
 
-  # update /enable_or_disable / delete
-  def authorize(_action, %{key: key}, key_id) do
-    Account.get_master_account().uuid == key.account.uuid && key.id != key_id
+  def authorize(:join, attrs, key) do
+    Permissions.can?(attrs, %{action: :listen, target: key})
   end
 
-  def authorize(_action, %{admin_user: user}, _key_id) do
-    User.master_admin?(user.id)
+  def authorize(:create, attrs, key) do
+    Permissions.can?(attrs, %{action: :create, target: key})
   end
 
   def authorize(_, _, _), do: false

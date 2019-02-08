@@ -79,9 +79,21 @@ defmodule EWalletDB.GlobalRole do
       end_users: %{read: :self, listen: :self, update: :self},
       tokens: %{read: :global, create: :none, update: :none},
       account_wallets: %{read: :none, view_balance: :none, create: :none, update: :none},
-      end_user_wallets: %{read: :self, listen: :self, view_balance: :self, create: :self, update: :self},
+      end_user_wallets: %{
+        read: :self,
+        listen: :self,
+        view_balance: :self,
+        create: :self,
+        update: :self
+      },
       end_user_transactions: %{read: :self, create: :self},
-      end_user_transaction_requests: %{all: :self, get: :global, listen: :self, create: :self, confirm: :self},
+      end_user_transaction_requests: %{
+        all: :self,
+        get: :global,
+        listen: :self,
+        create: :self,
+        confirm: :self
+      },
       end_user_transaction_consumptions: %{read: :self, listen: :self, create: :self}
     },
     "none" => %{
@@ -89,10 +101,10 @@ defmodule EWalletDB.GlobalRole do
     }
   }
 
-  def super_admin, do: :super_admin
-  def admin, do: :admin
-  def end_user, do: :end_user
-  def none, do: :none
+  def super_admin, do: "super_admin"
+  def admin, do: "admin"
+  def end_user, do: "end_user"
+  def none, do: "none"
   def global_roles, do: Map.keys(@global_role_permissions)
   def global_role_permissions, do: @global_role_permissions
 end

@@ -52,10 +52,10 @@ defmodule AdminAPI.V1.MintController do
           "amount" => _
         } = attrs
       ) do
-    with :ok <- permit(:create, conn.assigns, token_id),
+    with %Token{} = token <- Token.get(token_id) || :unauthorized,
+         :ok <- permit(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}),
          originator <- Originator.extract(conn.assigns),
          attrs <- Map.put(attrs, "originator", originator),
-         %Token{} = token <- Token.get(token_id) || :token_not_found,
          {:ok, mint, _token} <- MintGate.mint_token(token, attrs),
          {:ok, mint} <- Orchestrator.one(mint, MintOverlay, attrs) do
       render(conn, :mint, %{mint: mint})

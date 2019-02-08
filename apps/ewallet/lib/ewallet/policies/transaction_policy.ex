@@ -20,23 +20,19 @@ defmodule EWallet.TransactionPolicy do
   alias EWallet.Permissions
 
   def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :transaction_requests})
+    Permissions.can?(attrs, %{action: :all, type: :transactions})
   end
 
-  def authorize(:get, attrs, transaction_request) do
-    Permissions.can?(attrs, %{action: :get, target: transaction_request})
+  def authorize(:get, attrs, transaction) do
+    Permissions.can?(attrs, %{action: :get, target: transaction})
   end
 
-  def authorize(:create, attrs, transaction_request) do
-    Permissions.can?(attrs, %{action: :create, target: transaction_request})
+  def authorize(:create, attrs, transaction) do
+    Permissions.can?(attrs, %{action: :create, target: transaction})
   end
 
-  def authorize(:consume, attrs, transaction_request) do
-    Permissions.can?(attrs, %{action: :consume, target: transaction_request})
-  end
-
-  def authorize(:export, attrs, transaction_request) do
-    Permissions.can?(attrs, %{action: :export, target: transaction_request})
+  def authorize(:export, attrs, transaction) do
+    Permissions.can?(attrs, %{action: :export, target: transaction})
   end
 
   def authorize(_, _, _), do: false

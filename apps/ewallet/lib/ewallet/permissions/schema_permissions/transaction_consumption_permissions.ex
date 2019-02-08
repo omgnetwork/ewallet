@@ -19,7 +19,7 @@ defmodule EWallet.SchemaPermissions.TransactionConsumptionPermissions do
   alias EWalletDB.TransactionConsumption
 
   def get_owner_uuids(%TransactionConsumption{user_uuid: user_uuid, account_uuid: account_uuid})
-  when not is_nil(user_uuid) and not is_nil(account_uuid) do
+      when not is_nil(user_uuid) and not is_nil(account_uuid) do
     [account_uuid, user_uuid]
   end
 
@@ -28,7 +28,7 @@ defmodule EWallet.SchemaPermissions.TransactionConsumptionPermissions do
   end
 
   def get_owner_uuids(%TransactionConsumption{account_uuid: account_uuid})
-    when not is_nil(account_uuid) do
+      when not is_nil(account_uuid) do
     [account_uuid]
   end
 

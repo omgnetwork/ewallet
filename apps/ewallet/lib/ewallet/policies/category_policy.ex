@@ -17,22 +17,22 @@ defmodule EWallet.CategoryPolicy do
   The authorization policy for categories.
   """
   @behaviour Bodyguard.Policy
-  alias EWalletDB.{Account, User}
+  alias EWallet.Permissions
 
-  # Any user can get a category
-  def authorize(:all, _user_or_key, _category_id), do: true
-  def authorize(:get, _user_or_key, _category_id), do: true
-
-  # Only keys belonging to master account can create a category
-  # create / update / delete
-  def authorize(_, %{key: key}, _category_id) do
-    Account.get_master_account().uuid == key.account.uuid
+  def authorize(:all, attrs, nil) do
+    Permissions.can?(attrs, %{action: :all, type: :categories})
   end
 
-  # Only users with an admin role on master account can create a category
-  # create / update / delete
-  def authorize(_, %{admin_user: user}, _category_id) do
-    User.master_admin?(user.id)
+  def authorize(:get, attrs, category) do
+    Permissions.can?(attrs, %{action: :get, target: category})
+  end
+
+  def authorize(:create, attrs, category) do
+    Permissions.can?(attrs, %{action: :create, target: category})
+  end
+
+  def authorize(:update, attrs, category) do
+    Permissions.can?(attrs, %{action: :update, target: category})
   end
 
   def authorize(_, _, _), do: false

@@ -17,24 +17,22 @@ defmodule EWallet.RolePolicy do
   The authorization policy for roles.
   """
   @behaviour Bodyguard.Policy
-  alias EWalletDB.{Account, User}
+  alias EWallet.Permissions
 
-  # Any authenticated key or admin user can retrieve the list of roles
-  def authorize(:all, %{key: _}, _role_id), do: true
-  def authorize(:all, %{admin_user: _}, _role_id), do: true
-
-  # Any authenticated key or admin user can get a role
-  def authorize(:get, %{key: _}, _role_id), do: true
-  def authorize(:get, %{admin_user: _}, _role_id), do: true
-
-  # Only keys belonging to master account can perform all operations
-  def authorize(_, %{key: key}, _role_id) do
-    Account.get_master_account().uuid == key.account.uuid
+  def authorize(:all, attrs, nil) do
+    Permissions.can?(attrs, %{action: :all, type: :roles})
   end
 
-  # Only users with an admin role on master account can perform all operations
-  def authorize(_, %{admin_user: user}, _role_id) do
-    User.master_admin?(user.id)
+  def authorize(:get, attrs, role) do
+    Permissions.can?(attrs, %{action: :get, target: role})
+  end
+
+  def authorize(:join, attrs, role) do
+    Permissions.can?(attrs, %{action: :listen, target: role})
+  end
+
+  def authorize(:create, attrs, role) do
+    Permissions.can?(attrs, %{action: :create, target: role})
   end
 
   def authorize(_, _, _), do: false

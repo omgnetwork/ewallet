@@ -17,13 +17,22 @@ defmodule EWallet.ExportPolicy do
   The authorization policy for accounts.
   """
   @behaviour Bodyguard.Policy
+  alias EWallet.Permissions
 
-  def authorize(:get, %{admin_user: admin_user}, export) do
-    export.user_uuid == admin_user.uuid
+  def authorize(:all, attrs, nil) do
+    Permissions.can?(attrs, %{action: :all, type: :exports})
   end
 
-  def authorize(:get, %{key: key}, export) do
-    export.key_uuid == key.uuid
+  def authorize(:get, attrs, export) do
+    Permissions.can?(attrs, %{action: :get, target: export})
+  end
+
+  def authorize(:join, attrs, export) do
+    Permissions.can?(attrs, %{action: :listen, target: export})
+  end
+
+  def authorize(:create, attrs, export) do
+    Permissions.can?(attrs, %{action: :create, target: export})
   end
 
   def authorize(_, _, _), do: false

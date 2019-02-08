@@ -17,21 +17,22 @@ defmodule EWallet.ExchangePairPolicy do
   The authorization policy for exchange pairs.
   """
   @behaviour Bodyguard.Policy
-  alias EWalletDB.{Account, User}
+  alias EWallet.Permissions
 
-  # Any user can get a category
-  def authorize(:get, _user_or_key, _exchange_pair_id), do: true
-
-  # Only keys belonging to master account can create a category
-  # create / update / delete
-  def authorize(_, %{key: key}, _exchange_pair_id) do
-    Account.get_master_account().uuid == key.account.uuid
+  def authorize(:all, attrs, nil) do
+    Permissions.can?(attrs, %{action: :all, type: :exchange_pairs})
   end
 
-  # Only users with an admin role on master account can create a category
-  # create / update / delete
-  def authorize(_, %{admin_user: user}, _exchange_pair_id) do
-    User.master_admin?(user.id)
+  def authorize(:get, attrs, exchange_pair) do
+    Permissions.can?(attrs, %{action: :get, target: exchange_pair})
+  end
+
+  def authorize(:join, attrs, exchange_pair) do
+    Permissions.can?(attrs, %{action: :listen, target: exchange_pair})
+  end
+
+  def authorize(:create, attrs, exchange_pair) do
+    Permissions.can?(attrs, %{action: :create, target: exchange_pair})
   end
 
   def authorize(_, _, _), do: false

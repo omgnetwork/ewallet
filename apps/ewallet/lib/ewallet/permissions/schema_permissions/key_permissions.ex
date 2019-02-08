@@ -16,9 +16,17 @@ defmodule EWallet.SchemaPermissions.KeyPermissions do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
-  alias EWalletDB.Key
+  alias EWalletDB.{Key, Helpers.Preloader}
 
-  def get_target_accounts(%Key{} = target) do
-    target.accounts
+  def get_owner_uuids(%Key{uuid: uuid}) do
+    [uuid]
+  end
+
+  def get_target_accounts(%Key{} = key) do
+    get_actor_accounts(key)
+  end
+
+  def get_actor_accounts(%Key{} = key) do
+    Preloader.preload(key, [:accounts]).accounts
   end
 end

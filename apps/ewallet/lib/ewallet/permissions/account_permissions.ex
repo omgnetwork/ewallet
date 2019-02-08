@@ -86,7 +86,9 @@ defmodule EWallet.AccountPermissions do
       Membership.query_all_by_member_and_account_uuids(actor, matched_account_uuids, [:role])
 
     Enum.any?(memberships, fn membership ->
-      case permissions[membership.role.name][type][action] do
+      permissions
+      |> PermissionsHelper.extract_permission([membership.role.name, type, action])
+      |> case do
         :global ->
           true
 

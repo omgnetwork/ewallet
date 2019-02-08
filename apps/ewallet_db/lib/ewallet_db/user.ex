@@ -138,7 +138,8 @@ defmodule EWalletDB.User do
         :password_confirmation,
         :metadata,
         :encrypted_metadata,
-        :invite_uuid
+        :invite_uuid,
+        :global_role
       ],
       encrypted: [
         :encrypted_metadata
@@ -303,7 +304,7 @@ defmodule EWalletDB.User do
   defp do_validate_provider_user(changeset, _attrs) do
     changeset
     |> validate_required([:username, :provider_user_id])
-    |> put_change(:global_role, Atom.to_string(GlobalRole.end_user()))
+    |> put_change(:global_role, GlobalRole.end_user())
   end
 
   @doc """
@@ -627,13 +628,6 @@ defmodule EWalletDB.User do
   @spec master_admin?(%User{} | String.t()) :: boolean()
   def master_admin?(user) do
     User.get_role(user, Account.get_master_account()) == "admin"
-  end
-
-  @spec get_all_accessible_account_uuids(%User{}) :: [String.t()] | no_return()
-  def get_all_accessible_account_uuids(user) do
-    user
-    |> Membership.all_by_user()
-    |> Enum.map(fn m -> Map.fetch!(m, :account_uuid) end)
   end
 
   @doc """

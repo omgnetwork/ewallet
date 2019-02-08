@@ -29,10 +29,12 @@ defmodule EWallet.Permissions do
           {true, _} ->
             # The actor has global access so we don't check the account permissions.
             true
+
           {false, true} ->
             # The actor does not have global access, but can check account permissions
             # so we check them!
             AccountPermissions.can?(actor, attrs)
+
           {false, false} ->
             # The actor does not have global access and is not allowed to check account permissions
             # so we skip and return false

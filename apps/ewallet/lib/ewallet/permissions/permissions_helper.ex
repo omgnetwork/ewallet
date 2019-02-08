@@ -23,7 +23,9 @@ defmodule EWallet.PermissionsHelper do
     TransactionRequestPermissions,
     TransactionConsumptionPermissions,
     UserPermissions,
-    WalletPermissions
+    WalletPermissions,
+    MintPermissions,
+    TokenPermissions
   }
 
   alias EWalletDB.{
@@ -33,7 +35,9 @@ defmodule EWallet.PermissionsHelper do
     Key,
     Wallet,
     TransactionRequest,
-    TransactionConsumption
+    TransactionConsumption,
+    Mint,
+    Token
   }
 
   @references %{
@@ -43,7 +47,9 @@ defmodule EWallet.PermissionsHelper do
     TransactionRequest => TransactionRequestPermissions,
     TransactionConsumption => TransactionConsumptionPermissions,
     User => UserPermissions,
-    Wallet => WalletPermissions
+    Wallet => WalletPermissions,
+    Mint => MintPermissions,
+    Token => TokenPermissions
   }
 
   # Cleans up dirty inputs into a unified actor representation.
@@ -73,6 +79,7 @@ defmodule EWallet.PermissionsHelper do
 
   # Gets all the accounts the actor (a key, an admin user or an end user)
   # has access to.
+  @spec get_actor_accounts(atom() | %{__struct__: any()}) :: any()
   def get_actor_accounts(record) do
     @references[record.__struct__].get_actor_accounts(record)
   end
@@ -80,5 +87,13 @@ defmodule EWallet.PermissionsHelper do
   # Loads all the accounts that have power over the given record.
   def get_target_accounts(record) do
     @references[record.__struct__].get_target_accounts(record)
+  end
+
+  def extract_permission(%{} = subset, [next_key | next_keys]) do
+    extract_permission(subset[next_key], next_keys)
+  end
+
+  def extract_permission(permission, _) do
+    permission
   end
 end

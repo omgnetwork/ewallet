@@ -24,22 +24,23 @@ defmodule EWallet.GlobalPermissions do
     check_permissions(
       Map.merge(attrs, %{
         actor: actor,
-        role: Map.get(actor, :global_role, GlobalRole.none()),
+        role: Map.get(actor, :global_role) || GlobalRole.none(),
         permissions: GlobalRole.global_role_permissions()
       })
     )
   end
 
-  defp check_permissions(%{role: nil}), do: false
-
-  defp check_permissions(%{role: "none"}), do: false
-
   defp check_permissions(%{permissions: permissions, role: role, action: :all, type: type}) do
-    case permissions[role][type][:all] do
-      :global -> true
-      :accounts -> true
-      :self -> true
-      _ -> false
+    account_permissions =
+      PermissionsHelper.extract_permission(permissions, [role, :account_permissions])
+
+    permissions
+    |> PermissionsHelper.extract_permission([role, type, :all])
+    |> case do
+      :global -> {true, account_permissions}
+      :accounts -> {true, account_permissions}
+      :self -> {true, account_permissions}
+      _ -> {false, account_permissions}
     end
   end
 
@@ -51,7 +52,7 @@ defmodule EWallet.GlobalPermissions do
     check_global_role(Map.merge(attrs, %{type: PermissionsHelper.get_target_type(target)}))
   end
 
-  defp check_permissions(_), do: false
+  defp check_permissions(_), do: {false, false}
 
   defp check_global_role(%{
          permissions: permissions,
@@ -61,7 +62,9 @@ defmodule EWallet.GlobalPermissions do
          action: action,
          target: target
        }) do
-    case permissions[role][type][action] do
+    permissions
+    |> PermissionsHelper.extract_permission([role, type, action])
+    |> case do
       :global ->
         {true, true}
 
@@ -86,7 +89,8 @@ defmodule EWallet.GlobalPermissions do
           |> PermissionsHelper.get_owner_uuids()
           |> Enum.member?(actor.uuid)
 
-          {can, permissions[role][:account_permissions]}
+        {can, permissions[role][:account_permissions]}
+
       _ ->
         {false, permissions[role][:account_permissions]}
     end
