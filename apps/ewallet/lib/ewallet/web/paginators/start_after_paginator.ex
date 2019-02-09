@@ -270,7 +270,7 @@ defmodule EWallet.Web.StartAfterPaginator do
   def get_offset(_, %{"start_after" => nil}), do: 0
 
   def get_offset(
-        %Ecto.Query{} = queryable,
+        queryable,
         %{
           "start_after" => start_after,
           "start_by" => start_by,
@@ -304,24 +304,21 @@ defmodule EWallet.Web.StartAfterPaginator do
   end
 
   def get_offset(
-        %Ecto.Query{} = queryable,
+        queryable,
         %{"start_after" => start_after, "start_by" => start_by} = attrs
       ) do
     sort_dir = Map.get(attrs, "sort_dir", "asc")
+    sort_by = Map.get(attrs, "sort_by", start_by)
 
     get_offset(
       queryable,
       %{
         "start_after" => start_after,
         "start_by" => start_by,
-        "sort_by" => start_by,
+        "sort_by" => sort_by,
         "sort_dir" => sort_dir
       }
     )
-  end
-
-  def get_offset(queryable, attrs) do
-    get_offset(from(q in queryable), attrs)
   end
 
   defp get_offset_queryable(queryable, %{
