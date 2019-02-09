@@ -283,6 +283,9 @@ defmodule EWallet.Web.StartAfterPaginator do
 
     offset_queryable =
       queryable
+      |> exclude(:preload)
+      |> exclude(:distinct)
+      |> exclude(:select)
       |> get_offset_queryable(%{
         "start_by" => start_by,
         "sort_by" => sort_by,
@@ -327,7 +330,6 @@ defmodule EWallet.Web.StartAfterPaginator do
          "sort_dir" => "desc"
        }) do
     queryable
-    |> exclude(:preload)
     |> select([a], %{
       start_by: field(a, ^start_by),
       offset: fragment("ROW_NUMBER() OVER (ORDER BY ? DESC)", field(a, ^sort_by))
@@ -336,7 +338,6 @@ defmodule EWallet.Web.StartAfterPaginator do
 
   defp get_offset_queryable(queryable, %{"start_by" => start_by, "sort_by" => sort_by}) do
     queryable
-    |> exclude(:preload)
     |> select([a], %{
       start_by: field(a, ^start_by),
       offset: fragment("ROW_NUMBER() OVER (ORDER BY ? ASC)", field(a, ^sort_by))
