@@ -356,10 +356,10 @@ defmodule EWallet.Web.StartAfterPaginator do
          "start_by" => _,
          "sort_by" => sort_by
        }) do
-    order_by = String.to_atom(sort_by)
+    sort_by = String.to_atom(sort_by)
 
     queryable
-    |> order_by(asc: ^order_by)
+    |> order_by(asc: ^sort_by)
   end
 
   defp get_queryable_order_by(queryable, %{"start_by" => start_by}) do
