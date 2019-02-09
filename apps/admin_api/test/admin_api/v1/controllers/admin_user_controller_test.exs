@@ -37,6 +37,32 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
+    test_with_auths "returns a list of admins according to start_from and start_by" do
+      account = insert(:account)
+      role = insert(:role, %{name: "some_role"})
+      admin1 = insert(:admin, %{email: "admin1@omise.co"})
+      admin2 = insert(:admin, %{email: "admin2@omise.co"})
+      admin3 = insert(:admin, %{email: "admin3@omise.co"})
+      _user = insert(:user, %{email: "user1@omise.co"})
+
+      insert(:membership, %{user: admin1, account: account, role: role})
+      insert(:membership, %{user: admin2, account: account, role: role})
+      insert(:membership, %{user: admin3, account: account, role: role})
+
+      attrs = %{
+        "start_after" => admin1.id,
+        "start_by" => "id",
+      }
+
+      response = request("/admin.all", attrs)
+      admins = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(admins) == 2
+      assert Enum.at(admins, 0)["email"] == "admin2@omise.co"
+      assert Enum.at(admins, 1)["email"] == "admin3@omise.co"
+    end
+
     test_with_auths "returns a list of admins according to search_term, sort_by and sort_direction" do
       account = insert(:account)
       role = insert(:role, %{name: "some_role"})
