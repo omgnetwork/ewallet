@@ -51,7 +51,7 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
 
       attrs = %{
         "start_after" => admin1.id,
-        "start_by" => "id",
+        "start_by" => "id"
       }
 
       response = request("/admin.all", attrs)
