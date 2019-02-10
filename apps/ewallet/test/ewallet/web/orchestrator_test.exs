@@ -284,7 +284,7 @@ defmodule EWallet.Web.OrchestratorTest do
         "sort_dir" => "desc"
       }
 
-      # Is it not error when used with search_term?
+      # Is it not error?
       assert %{data: data, pagination: _} = Orchestrator.query(Account, MockOverlay, attrs)
 
       # Are the accounts correct?
