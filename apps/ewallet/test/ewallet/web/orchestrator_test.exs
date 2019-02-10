@@ -28,8 +28,8 @@ defmodule EWallet.Web.OrchestratorTest do
     def default_preload_assocs, do: [:parent]
     def sort_fields, do: [:id, :name]
     def search_fields, do: [:id]
-    def self_filter_fields, do: [:id, :name, :description]
-    def filter_fields, do: [:id, :name, :description]
+    def self_filter_fields, do: [:id, :name, :description, :inserted_at]
+    def filter_fields, do: [:id, :name, :description, :inserted_at]
   end
 
   describe "query/3" do
@@ -68,21 +68,21 @@ defmodule EWallet.Web.OrchestratorTest do
       assert params == [field_name: "status"]
     end
 
-    test "returns records with the given `start_after` and `sort_by` is `desc`" do
+    test "returns records with the given `start_after`, `start_by` and `sort_by` is `desc`" do
       total = 10
       total_records = 5
       ensure_num_records(Account, total)
 
       records = from(a in Account, order_by: [desc: a.name])
 
-      [first_record | records] =
+      [record_1 | records] =
         records
         |> Repo.all()
         |> Enum.take(-total_records)
 
       attrs = %{
         "start_by" => "id",
-        "start_after" => first_record.id,
+        "start_after" => record_1.id,
         "sort_by" => "name",
         "sort_dir" => "desc"
       }
@@ -99,25 +99,25 @@ defmodule EWallet.Web.OrchestratorTest do
 
       assert name_desc_records == Enum.map(data, fn record -> record.name end)
 
-      # Is it all has an id >= `first_record_id`?
-      assert Enum.all?(data, fn record -> record.id < first_record.id end)
+      # Is it all has an id >= `record_1_id`?
+      assert Enum.all?(data, fn record -> record.id < record_1.id end)
     end
 
-    test "returns records with the given `start_after` and `sort_by` is `asc`" do
+    test "returns records with the given `start_after`, `start_by` and `sort_by` is `asc`" do
       total = 10
       total_records = 5
       ensure_num_records(Account, total)
 
       records = from(a in Account, order_by: a.id)
 
-      [first_record | records] =
+      [record_1 | records] =
         records
         |> Repo.all()
         |> Enum.take(-total_records)
 
       attrs = %{
         "start_by" => "id",
-        "start_after" => first_record.id,
+        "start_after" => record_1.id,
         "sort_by" => "id",
         "sort_dir" => "asc"
       }
@@ -132,27 +132,27 @@ defmodule EWallet.Web.OrchestratorTest do
 
       assert name_desc_records == Enum.map(data, fn record -> record.name end)
 
-      # Is it all has an id >= `first_record_id`?
-      assert Enum.all?(data, fn record -> record.id >= first_record.id end)
+      # Is it all has an id >= `record_1_id`?
+      assert Enum.all?(data, fn record -> record.id >= record_1.id end)
     end
 
-    test "returns records with the given `start_after` and `search_term` matched multiple records" do
+    test "returns records with the given `start_after`, `start_by` and `search_term` matched multiple records" do
       total = 10
       ensure_num_records(Account, total)
 
       record_ids = from(a in Account, select: a.id, order_by: a.id)
 
-      [first_record_id | ids] =
+      [record_1_id | ids] =
         record_ids
         |> Repo.all()
 
       attrs = %{
         "start_by" => "id",
-        "start_after" => first_record_id,
+        "start_after" => record_1_id,
         "search_term" => "acc_"
       }
 
-      # Is it not error when used with sort_by?
+      # Is it not error when used with search_term?
       assert %{data: data, pagination: _} = Orchestrator.query(Account, MockOverlay, attrs)
 
       # Is it matches all accounts except the first account?
@@ -160,20 +160,20 @@ defmodule EWallet.Web.OrchestratorTest do
       assert Enum.map(data, fn record -> record.id end) == ids
     end
 
-    test "returns records with the given `start_after` nil and `search_term` matched 1 record" do
+    test "returns records with the given `start_after` nil, `start_by` and `search_term` matched 1 record" do
       total = 10
       ensure_num_records(Account, total)
 
       record_ids = from(a in Account, select: a.id, order_by: a.id)
 
-      [first_record_id | _] =
+      [record_1_id | _] =
         record_ids
         |> Repo.all()
 
       attrs = %{
         "start_by" => "id",
         "start_after" => nil,
-        "search_term" => first_record_id
+        "search_term" => record_1_id
       }
 
       # Is it not error when used with sort_by?
@@ -181,10 +181,114 @@ defmodule EWallet.Web.OrchestratorTest do
 
       # Is it returns empty when use non-intersect where condition?
       # i.e. search_term = `acc_1` and start_after = 'acc_1'
-      assert Enum.map(data, fn r -> r.id end) == [first_record_id]
+      assert Enum.map(data, fn r -> r.id end) == [record_1_id]
 
       # Is it returns 1 record?
       assert length(data) === 1
+    end
+
+    test "returns records with the given `start_after`, `start_by` and `match_any` matched multiple records" do
+      total = 10
+      ensure_num_records(Account, total)
+
+      records = from(a in Account, select: %{id: a.id, name: a.name}, order_by: a.id)
+
+      record_1 = records |> Repo.all() |> Enum.at(0)
+
+      [record_6, record_7 | records] =
+        records
+        |> Repo.all()
+        |> Enum.take(-5)
+
+      attrs = %{
+        "start_by" => "id",
+        "start_after" => record_7.id,
+        "match_any" => [
+          %{
+            "field" => "name",
+            "comparator" => "gte",
+            "value" => record_6.name
+          },
+          %{
+            "field" => "name",
+            "comparator" => "eq",
+            "value" => record_1.name
+          }
+        ]
+      }
+
+      # Is it not error when used with match_any?
+      assert %{data: data, pagination: _} = Orchestrator.query(Account, MockOverlay, attrs)
+
+      # Are the records correct?
+      assert Enum.map(data, fn e -> e.id end) == Enum.map(records, fn e -> e.id end)
+    end
+
+    test "returns records with the given `start_after` nil, `start_by` and `match_any` matched 1 record" do
+      total = 10
+      ensure_num_records(Account, total)
+
+      records = from(a in Account, select: %{id: a.id, name: a.name}, order_by: a.id)
+
+      record_1 = records |> Repo.all() |> Enum.at(0)
+
+      attrs = %{
+        "start_by" => "id",
+        "start_after" => nil,
+        "match_any" => [
+          %{
+            "field" => "name",
+            "comparator" => "eq",
+            "value" => record_1.name
+          }
+        ]
+      }
+
+      # Is it not error when used with match_any?
+      assert %{data: data, pagination: _} = Orchestrator.query(Account, MockOverlay, attrs)
+
+      # Are the records correct?
+      assert Enum.map(data, fn e -> e.id end) == [record_1.id]
+    end
+
+    test "returns records with the given `start_after`, `start_by`, `match_any`, `sort_by` and `sort_dir`" do
+      total = 10
+      ensure_num_records(Account, total)
+
+      records =
+        from(
+          a in Account,
+          select: %{id: a.id, name: a.name, created_at: a.inserted_at},
+          order_by: [desc: a.inserted_at]
+        )
+
+      [_, record_2 | records] =
+        records
+        |> Repo.all()
+
+      [record_last] = Enum.take(records, -1)
+
+      records = Enum.filter(records, fn record -> record.id != record_last.id end)
+
+      attrs = %{
+        "start_by" => "id",
+        "start_after" => record_2.id,
+        "match_any" => [
+          %{
+            "field" => "inserted_at",
+            "comparator" => "gt",
+            "value" => record_last.created_at
+          }
+        ],
+        "sort_by" => "created_at",
+        "sort_dir" => "desc"
+      }
+
+      # Is it not error when used with search_term?
+      assert %{data: data, pagination: _} = Orchestrator.query(Account, MockOverlay, attrs)
+
+      # Are the accounts correct?
+      assert Enum.map(data, fn e -> e.id end) == Enum.map(records, fn e -> e.id end)
     end
   end
 
