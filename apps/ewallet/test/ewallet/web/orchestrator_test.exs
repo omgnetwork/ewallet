@@ -98,9 +98,6 @@ defmodule EWallet.Web.OrchestratorTest do
         |> Enum.map(fn record -> record.name end)
 
       assert name_desc_records == Enum.map(data, fn record -> record.name end)
-
-      # Is it all has an id >= `record_1_id`?
-      assert Enum.all?(data, fn record -> record.id < record_1.id end)
     end
 
     test "returns records with the given `start_after`, `start_by` and `sort_by` is `asc`" do
@@ -131,9 +128,6 @@ defmodule EWallet.Web.OrchestratorTest do
         |> Enum.map(fn record -> record.name end)
 
       assert name_desc_records == Enum.map(data, fn record -> record.name end)
-
-      # Is it all has an id >= `record_1_id`?
-      assert Enum.all?(data, fn record -> record.id >= record_1.id end)
     end
 
     test "returns records with the given `start_after`, `start_by` and `search_term` matched multiple records" do
