@@ -294,13 +294,13 @@ defmodule EWallet.Web.StartAfterPaginator do
 
     queryable = from(q in subquery(offset_queryable))
 
-    [offset] =
+    result =
       queryable
       |> select([q], q.offset)
       |> where([q], q.start_by == ^start_after)
       |> Repo.all()
 
-    offset
+    parse_get_offset(result)
   end
 
   def get_offset(
@@ -320,6 +320,10 @@ defmodule EWallet.Web.StartAfterPaginator do
       }
     )
   end
+
+  defp parse_get_offset([]), do: 0
+
+  defp parse_get_offset([offset]), do: offset
 
   defp get_offset_queryable(queryable, %{
          "start_by" => start_by,

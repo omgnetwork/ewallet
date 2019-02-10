@@ -199,6 +199,18 @@ defmodule EWallet.Web.StartFromPaginatorTest do
 
       assert offset == 0
     end
+
+    test "returns offset 0 if the given `start_after` is not found" do
+      ensure_num_records(Account, 10)
+
+      offset =
+        StartAfterPaginator.get_offset(
+          Account,
+          %{"start_after" => "404", "start_by" => "id"}
+        )
+
+      assert offset == 0
+    end
   end
 
   describe "EWallet.Web.StartAfterPaginator.paginate/3" do
