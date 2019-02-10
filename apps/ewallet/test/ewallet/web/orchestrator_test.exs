@@ -185,9 +185,7 @@ defmodule EWallet.Web.OrchestratorTest do
       total = 10
       ensure_num_records(Account, total)
 
-      records = from(a in Account, select: %{id: a.id, name: a.name}, order_by: a.id)
-
-      record_1 = records |> Repo.all() |> Enum.at(0)
+      records = from(a in Account, select: %{id: a.id}, order_by: a.id)
 
       [record_6, record_7 | records] =
         records
@@ -199,14 +197,9 @@ defmodule EWallet.Web.OrchestratorTest do
         "start_after" => record_7.id,
         "match_any" => [
           %{
-            "field" => "name",
+            "field" => "id",
             "comparator" => "gte",
-            "value" => record_6.name
-          },
-          %{
-            "field" => "name",
-            "comparator" => "eq",
-            "value" => record_1.name
+            "value" => record_6.id
           }
         ]
       }
