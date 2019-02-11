@@ -137,8 +137,7 @@ defmodule EWallet.Web.Paginator do
         _ -> 0
       end
 
-    queryable
-    |> offset(^offset)
+    offset(queryable, ^offset)
   end
 
   # Returns the per_page number or default, but never greater than the system's defined limit
