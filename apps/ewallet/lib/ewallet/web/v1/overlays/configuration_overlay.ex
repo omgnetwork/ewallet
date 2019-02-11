@@ -57,5 +57,9 @@ defmodule EWallet.Web.V1.ConfigurationOverlay do
     do: self_filter_fields()
 
   def pagination_fields,
-    do: [:id]
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end

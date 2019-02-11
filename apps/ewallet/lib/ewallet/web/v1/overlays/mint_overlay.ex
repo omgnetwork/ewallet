@@ -74,5 +74,9 @@ defmodule EWallet.Web.V1.MintOverlay do
     ]
 
   def pagination_fields,
-    do: [:id]
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end

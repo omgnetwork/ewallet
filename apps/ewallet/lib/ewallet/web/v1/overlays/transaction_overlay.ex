@@ -108,5 +108,9 @@ defmodule EWallet.Web.V1.TransactionOverlay do
     ]
 
   def pagination_fields,
-    do: [:id]
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end
