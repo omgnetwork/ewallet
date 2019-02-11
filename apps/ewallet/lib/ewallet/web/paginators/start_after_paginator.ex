@@ -31,10 +31,10 @@ defmodule EWallet.Web.StartAfterPaginator do
   ```
 
   Let's say we have 10 accounts with ids:
-  ["acc_1", "acc_2", "acc_3", ... , "acc_10"]
+  `["acc_1", "acc_2", "acc_3", ... , "acc_10"]`
 
   The code above return a pagination with accounts:
-  ["acc_4", "acc_5", "acc_6", ... ,"acc_10"]
+  `["acc_4", "acc_5", "acc_6", ... ,"acc_10"]`
 
   Note that an account with id "acc_3" is not included because the query range is exclusive.
 
@@ -49,7 +49,7 @@ defmodule EWallet.Web.StartAfterPaginator do
   ```
 
   Return accounts:
-  ["acc_1", "acc_2", "acc_3", ... ,"acc_10"]
+  `["acc_1", "acc_2", "acc_3", ... ,"acc_10"]`
   """
   import Ecto.Query
   alias EWalletDB.Repo
