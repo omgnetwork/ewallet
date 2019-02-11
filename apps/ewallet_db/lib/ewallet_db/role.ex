@@ -26,61 +26,85 @@ defmodule EWalletDB.Role do
   alias EWalletDB.{Membership, Repo, Role, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
+  @timestamps_opts [type: :naive_datetime_usec]
   @account_role_permissions %{
     "admin" => %{
-      account: %{read: :accounts, update: :accounts},
-      categories: %{read: :global},
-      admin_users: %{read: :accounts, create: :accounts, update: :accounts},
-      end_users: %{read: :accounts, create: :accounts, update: :accounts},
-      access_keys: %{read: :accounts, create: :accounts, update: :accounts, disable: :accounts},
-      api_keys: %{read: :accounts, create: :accounts, update: :accounts, disable: :accounts},
-      tokens: %{read: :global},
+      accounts: %{all: :accounts, get: :accounts, update: :accounts},
+      categories: %{all: :global, get: :global},
+      admin_users: %{all: :accounts, get: :accounts, create: :accounts, update: :accounts},
+      end_users: %{all: :accounts, get: :accounts, create: :accounts, update: :accounts},
+      access_keys: %{
+        all: :accounts,
+        get: :accounts,
+        create: :accounts,
+        update: :accounts,
+        disable: :accounts
+      },
+      api_keys: %{
+        all: :accounts,
+        get: :accounts,
+        create: :accounts,
+        update: :accounts,
+        disable: :accounts
+      },
+      tokens: %{all: :global, get: :global},
       mints: :none,
       account_wallets: %{
-        read: :global,
+        all: :global,
+        get: :global,
         view_balance: :accounts,
         create: :accounts,
         update: :accounts
       },
       end_user_wallets: %{
-        read: :global,
+        all: :global,
+        get: :global,
         view_balance: :accounts,
         create: :accounts,
         update: :accounts
       },
-      account_transactions: %{read: :accounts, create: :accounts},
-      end_user_transactions: %{read: :accounts, create: :accounts},
-      account_transaction_requests: %{read: :accounts, create: :accounts, confirm: :accounts},
-      end_user_transaction_requests: %{read: :accounts, create: :accounts, confirm: :accounts},
-      account_transaction_consumptions: %{read: :accounts, create: :accounts},
-      end_user_transaction_consumptions: %{read: :accounts, create: :accounts},
-      account_exports: %{read: :accounts, create: :accounts},
+      account_transactions: %{all: :accounts, get: :accounts, create: :accounts},
+      end_user_transactions: %{all: :accounts, get: :accounts, create: :accounts},
+      account_transaction_requests: %{
+        all: :accounts,
+        get: :accounts,
+        create: :accounts,
+        confirm: :accounts
+      },
+      end_user_transaction_requests: %{
+        all: :accounts,
+        get: :accounts,
+        create: :accounts,
+        confirm: :accounts
+      },
+      account_transaction_consumptions: %{all: :accounts, get: :accounts, create: :accounts},
+      end_user_transaction_consumptions: %{all: :accounts, get: :accounts, create: :accounts},
+      account_exports: %{all: :accounts, get: :accounts, create: :accounts},
       admin_user_exports: :none,
       configuration: :none
     },
     "viewer" => %{
-      account: %{read: :accounts},
-      categories: %{read: :global},
-      admin_users: %{read: :accounts},
-      end_users: %{read: :accounts},
-      access_keys: %{read: :accounts},
-      api_keys: %{read: :accounts},
-      tokens: %{read: :global},
+      account: %{all: :accounts, get: :accounts},
+      categories: %{all: :global, get: :global},
+      admin_users: %{all: :accounts, get: :accounts},
+      end_users: %{all: :accounts, get: :accounts},
+      access_keys: %{all: :accounts, get: :accounts},
+      api_keys: %{all: :accounts, get: :accounts},
+      tokens: %{all: :global, get: :global},
       mints: :none,
-      account_wallets: %{read: :global, view_balance: :accounts},
-      end_user_wallets: %{read: :global, view_balance: :accounts},
-      account_transactions: %{read: :accounts},
-      end_user_transactions: %{read: :accounts},
-      account_transaction_requests: %{read: :accounts},
-      end_user_transaction_requests: %{read: :accounts},
-      account_transaction_consumptions: %{read: :accounts},
-      end_user_transaction_consumptions: %{read: :accounts},
-      account_exports: %{read: :accounts},
+      account_wallets: %{all: :global, get: :global, view_balance: :accounts},
+      end_user_wallets: %{all: :global, get: :global, view_balance: :accounts},
+      account_transactions: %{all: :accounts, get: :accounts},
+      end_user_transactions: %{all: :accounts, get: :accounts},
+      account_transaction_requests: %{all: :accounts, get: :accounts},
+      end_user_transaction_requests: %{all: :accounts, get: :accounts},
+      account_transaction_consumptions: %{all: :accounts, get: :accounts},
+      end_user_transaction_consumptions: %{all: :accounts, get: :accounts},
+      account_exports: %{read: :accounts, get: :accounts},
       admin_user_exports: :none,
       configuration: :none
     }
   }
-  @timestamps_opts [type: :naive_datetime_usec]
 
   schema "role" do
     external_id(prefix: "rol_")

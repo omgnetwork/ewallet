@@ -59,7 +59,6 @@ defmodule AdminAPI.ConnCase do
   @admin_id ExternalID.generate("usr_")
   @username "test_username"
   @password "test_password"
-  @super_admin_email "super_admin@example.com"
   @user_email "email@example.com"
   @provider_user_id "test_provider_user_id"
   @auth_token "test_auth_token"
@@ -88,7 +87,6 @@ defmodule AdminAPI.ConnCase do
       @api_key_id unquote(@api_key_id)
       @api_key unquote(@api_key)
 
-      @super_admin_id unquote(@super_admin_id)
       @admin_id unquote(@admin_id)
       @username unquote(@username)
       @password unquote(@password)
@@ -128,8 +126,7 @@ defmodule AdminAPI.ConnCase do
       insert(:admin, %{
         id: @admin_id,
         email: @user_email,
-        password_hash: Crypto.hash_password(@password),
-        global_role: GlobalRole.super_admin()
+        password_hash: Crypto.hash_password(@password)
       })
 
     # Insert user via `User.insert/1` to initialize wallets, etc.
@@ -215,6 +212,20 @@ defmodule AdminAPI.ConnCase do
     schema
     |> last(:inserted_at)
     |> Repo.one()
+  end
+
+  @spec set_admin_as_super_admin() :: {:ok, EWalletDB.User.t()}
+  def set_admin_as_super_admin(admin_user \\ nil) do
+    {:ok, _} =
+      User.update(admin_user || get_test_admin(), %{
+        global_role: "super_admin",
+        originator: %System{}
+      })
+  end
+
+  @spec add_admin_to_account(%Account{}, %User{} | %Key{} :: {:ok, any()}
+  def add_admin_to_account(account, admin_user \\ nil) do
+    {:ok, _} = Membership.assign(admin_user || get_test_admin(), account, "admin", %System{})
   end
 
   def mint!(token, amount \\ 1_000_000, originator \\ %System{}) do
@@ -380,6 +391,8 @@ defmodule AdminAPI.ConnCase do
         opts = unquote(opts)
         field_name = Atom.to_string(field)
 
+        set_admin_as_super_admin()
+
         factory_attrs = Keyword.get(opts, :factory_attrs, %{})
 
         _ = insert(factory, Map.merge(%{field => "value_1"}, factory_attrs))
@@ -451,6 +464,8 @@ defmodule AdminAPI.ConnCase do
         field = unquote(field)
         opts = unquote(opts)
         field_name = Atom.to_string(field)
+
+        set_admin_as_super_admin()
 
         factory_attrs = Keyword.get(opts, :factory_attrs, %{})
 

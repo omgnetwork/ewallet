@@ -16,30 +16,51 @@ defmodule EWallet.Permissions do
   @moduledoc """
   The entry point module to the permissions logic.
   """
-  alias EWallet.{PermissionsHelper, GlobalPermissions, AccountPermissions}
+  alias EWallet.{Permission, PermissionsHelper, GlobalPermissions, AccountPermissions}
 
-  def can?(actor, attrs) do
+  @spec can(any(), map()) ::
+          {:error, %Permission{authorized: false}} | {:ok, %Permission{authorized: true}}
+  def can(actor, permission) do
     case PermissionsHelper.get_actor(actor) do
       nil ->
-        false
+        set_authorized(permission)
 
       # can?/2 returns a tuple containing {can?, account_permissions_check_allowed?}
       actor ->
-        case GlobalPermissions.can?(actor, attrs) do
-          {true, _} ->
+        case GlobalPermissions.can(%{permission | actor: actor}) do
+          %Permission{global_authorized: true} = permission ->
             # The actor has global access so we don't check the account permissions.
-            true
+            set_authorized(permission)
 
-          {false, true} ->
+          %Permission{global_authorized: false, check_account_permissions: true} = permission ->
             # The actor does not have global access, but can check account permissions
             # so we check them!
-            AccountPermissions.can?(actor, attrs)
+            permission
+            |> AccountPermissions.can()
+            |> set_authorized()
 
-          {false, false} ->
+          permission ->
             # The actor does not have global access and is not allowed to check account permissions
             # so we skip and return false
-            false
+            set_authorized(permission)
         end
     end
+  end
+
+  @spec build_all_query(EWallet.Permission.t()) :: any()
+  def build_all_query(%Permission{} = permission) do
+    PermissionsHelper.build_query_all(permission)
+  end
+
+  defp set_authorized(%{global_authorized: true} = permission) do
+    {:ok, %{permission | authorized: true}}
+  end
+
+  defp set_authorized(%{account_authorized: true} = permission) do
+    {:ok, %{permission | authorized: true}}
+  end
+
+  defp set_authorized(permission) do
+    {:error, %{permission | authorized: false}}
   end
 end

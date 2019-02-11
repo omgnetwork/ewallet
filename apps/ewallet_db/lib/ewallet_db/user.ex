@@ -193,7 +193,8 @@ defmodule EWalletDB.User do
         :calling_name,
         :metadata,
         :encrypted_metadata,
-        :invite_uuid
+        :invite_uuid,
+        :global_role
       ],
       encrypted: [
         :encrypted_metadata

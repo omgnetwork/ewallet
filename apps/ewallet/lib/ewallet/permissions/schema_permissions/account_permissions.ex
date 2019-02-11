@@ -16,8 +16,26 @@ defmodule EWallet.SchemaPermissions.AccountPermissions do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
+  alias EWallet.{PermissionsHelper, Permission}
   alias EWalletDB.Account
 
+  @spec build_query_all(EWallet.Permission.t()) :: any()
+  def build_query_all(%Permission{global_permission: :global}), do: Account
+
+  def build_query_all(%Permission{global_permission: :accounts} = permission) do
+    PermissionsHelper.get_query_actor_records(permission)
+  end
+
+  def build_query_all(%Permission{account_permission: :global}), do: Account
+
+  def build_query_all(%Permission{account_permission: :accounts} = permission) do
+    PermissionsHelper.get_query_actor_records(permission)
+  end
+
+  @spec get_target_type(EWalletDB.Account.t()) :: :accounts
+  def get_target_type(%Account{}), do: :accounts
+
+  @spec get_target_accounts(EWalletDB.Account.t()) :: [EWalletDB.Account.t(), ...]
   def get_target_accounts(%Account{} = target) do
     [target]
   end

@@ -15,7 +15,6 @@
 defmodule AdminAPI.V1.AccountController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.AccountHelper
   alias EWallet.{AccountPolicy, AdapterHelper}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.AccountOverlay}
   alias EWalletDB.Account
@@ -25,11 +24,9 @@ defmodule AdminAPI.V1.AccountController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil),
-         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
+    with {:ok, %{query: query}} <- permit(:all, conn.assigns, nil) do
       # Get all the accounts the current accessor has access to
-      Account
-      |> Account.where_in(account_uuids)
+      query
       |> Orchestrator.query(AccountOverlay, attrs)
       |> respond(conn)
     else
@@ -37,16 +34,11 @@ defmodule AdminAPI.V1.AccountController do
     end
   end
 
+  # DEPRECATED
   @spec descendants_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def descendants_for_account(conn, %{"id" => account_id} = attrs) do
-    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account.id),
-         descendant_uuids <- Account.get_all_descendants_uuids(account) do
-      # Get all users since everyone can access them
-      Account
-      |> Account.where_in(descendant_uuids)
-      |> Orchestrator.query(AccountOverlay, attrs)
-      |> respond(conn)
+  def descendants_for_account(conn, %{"id" => account_id} = _attrs) do
+    with %Account{} <- Account.get(account_id) || {:error, :unauthorized} do
+      respond(%Paginator{data: []}, conn)
     else
       error -> respond(error, conn)
     end
@@ -60,15 +52,15 @@ defmodule AdminAPI.V1.AccountController do
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id} = attrs) do
     with %Account{} = account <- Account.get_by(id: id) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, account.id),
+         {:ok, _} <- permit(:get, conn.assigns, account),
          {:ok, account} <- Orchestrator.one(account, AccountOverlay, attrs) do
       render(conn, :account, %{account: account})
     else
-      {:error, code} ->
-        handle_error(conn, code)
-
       nil ->
         handle_error(conn, :account_id_not_found)
+
+      error ->
+        respond(error, conn)
     end
   end
 
@@ -81,25 +73,14 @@ defmodule AdminAPI.V1.AccountController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    parent =
-      if attrs["parent_id"] do
-        Account.get_by(id: attrs["parent_id"])
-      else
-        Account.get_master_account()
-      end
-
-    with :ok <- permit(:create, conn.assigns, parent.id),
-         attrs <- Map.put(attrs, "parent_uuid", parent.uuid),
+    with {:ok, _} <- permit(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, account} <- Account.insert(attrs),
          {:ok, account} <- Orchestrator.one(account, AccountOverlay, attrs) do
       render(conn, :account, %{account: account})
     else
-      {:error, %{} = changeset} ->
-        handle_error(conn, :invalid_parameter, changeset)
-
-      {:error, code} ->
-        handle_error(conn, code)
+      error ->
+        respond(error, conn)
     end
   end
 
@@ -111,7 +92,7 @@ defmodule AdminAPI.V1.AccountController do
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => account_id} = attrs) do
     with %Account{} = original <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:update, conn.assigns, original.id),
+         {:ok, _} <- permit(:update, conn.assigns, original),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Account.update(original, attrs),
          {:ok, updated} <- Orchestrator.one(updated, AccountOverlay, attrs) do
@@ -133,7 +114,7 @@ defmodule AdminAPI.V1.AccountController do
   @spec upload_avatar(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
-         :ok <- permit(:update, conn.assigns, account.id),
+         {:ok, _} <- permit(:update, conn.assigns, account),
          :ok <- AdapterHelper.check_adapter_status(),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          %{} = saved <- Account.store_avatar(account, attrs),
@@ -143,14 +124,8 @@ defmodule AdminAPI.V1.AccountController do
       nil ->
         handle_error(conn, :invalid_parameter)
 
-      changeset when is_map(changeset) ->
-        handle_error(conn, :invalid_parameter, changeset)
-
-      {:error, changeset} when is_map(changeset) ->
-        handle_error(conn, :invalid_parameter, changeset)
-
-      {:error, code} ->
-        handle_error(conn, code)
+      error ->
+        respond(error, conn)
     end
   end
 
@@ -158,6 +133,18 @@ defmodule AdminAPI.V1.AccountController do
 
   defp respond(%Paginator{} = paginator, conn) do
     render(conn, :accounts, %{accounts: paginator})
+  end
+
+  defp respond({:error, %{authorized: false}}, conn) do
+    handle_error(conn, :unauthorized)
+  end
+
+  defp respond(changeset, conn) when is_map(changeset) do
+    handle_error(conn, :invalid_parameter, changeset)
+  end
+
+  defp respond({:error, changeset}, conn) when is_map(changeset) do
+    handle_error(conn, :invalid_parameter, changeset)
   end
 
   defp respond({:error, code}, conn) do
@@ -170,7 +157,7 @@ defmodule AdminAPI.V1.AccountController do
 
   @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, account_id) do
-    Bodyguard.permit(AccountPolicy, action, params, account_id)
+  defp permit(action, params, account) do
+    AccountPolicy.authorize(action, params, account)
   end
 end

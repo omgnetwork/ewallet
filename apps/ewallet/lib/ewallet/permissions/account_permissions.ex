@@ -20,42 +20,32 @@ defmodule EWallet.AccountPermissions do
   alias EWalletDB.{Membership, Role}
   alias Utils.Intersecter
 
-  def can?(actor, attrs) do
-    check_permissions(
-      Map.merge(attrs, %{
-        actor: actor,
-        permissions: Role.account_role_permissions()
-      })
-    )
+  def can(permission) do
+    check_permissions(permission, Role.account_role_permissions())
   end
 
-  defp check_permissions(%{action: _, type: _, target: _} = attrs) do
-    check_account_role(attrs)
-  end
-
-  defp check_permissions(%{actor: actor, permissions: permissions, action: :all, type: type}) do
+  defp check_permissions(%{actor: actor, action: :all} = permission, permissions) do
     uuids = actor |> PermissionsHelper.get_actor_accounts() |> PermissionsHelper.get_uuids()
-    memberships = Membership.query_all_by_member_and_account_uuids(actor, uuids)
+    memberships = Membership.query_all_by_member_and_account_uuids(actor, uuids, [:role])
 
-    Enum.any?(memberships, fn membership ->
-      case permissions[membership.role][type][:all] do
-        :global -> true
-        :accounts -> true
-        :self -> true
-        _ -> false
-      end
-    end)
+    find_sufficient_permission_in_memberships(permission, permissions, memberships)
   end
 
-  defp check_permissions(%{action: _, target: target} = attrs) do
-    check_account_role(Map.merge(attrs, %{type: PermissionsHelper.get_target_type(target)}))
+  defp check_permissions(%{action: _, target: target, type: nil} = permission, permissions) do
+    permission = %{permission | type: PermissionsHelper.get_target_type(target)}
+    check_account_role(permission, permissions)
+  end
+
+  defp check_permissions(%{action: _, type: _, target: _} = permission, permissions) do
+    check_account_role(permission, permissions)
   end
 
   defp check_account_role(
          %{
            actor: actor,
            target: target
-         } = attrs
+         } = permission,
+         permissions
        ) do
     actor_account_uuids =
       actor |> PermissionsHelper.get_actor_accounts() |> PermissionsHelper.get_uuids()
@@ -65,39 +55,49 @@ defmodule EWallet.AccountPermissions do
 
     case Intersecter.intersect(actor_account_uuids, target_account_uuids) do
       [] ->
-        false
+        %{permission | account_authorized: false}
 
       matched_account_uuids ->
-        handle_matched_accounts(attrs, actor, matched_account_uuids)
+        handle_matched_accounts(permission, permissions, matched_account_uuids)
     end
   end
 
   def handle_matched_accounts(
         %{
-          permissions: permissions,
-          actor: actor,
-          type: type,
-          action: action
-        },
-        actor,
+          actor: actor
+        } = permission,
+        permissions,
         matched_account_uuids
       ) do
     memberships =
       Membership.query_all_by_member_and_account_uuids(actor, matched_account_uuids, [:role])
 
-    Enum.any?(memberships, fn membership ->
-      permissions
-      |> PermissionsHelper.extract_permission([membership.role.name, type, action])
-      |> case do
-        :global ->
-          true
+    find_sufficient_permission_in_memberships(permission, permissions, memberships)
+  end
 
-        :accounts ->
-          true
+  defp find_sufficient_permission_in_memberships(
+         %{type: type, action: action} = permission,
+         permissions,
+         [membership | memberships]
+       ) do
+    permissions
+    |> PermissionsHelper.extract_permission([membership.role.name, type, action])
+    |> find_sufficient_permission(permission, permissions, memberships)
+  end
 
-        _ ->
-          false
-      end
-    end)
+  defp find_sufficient_permission(:global, permission, _, _) do
+    %{permission | account_authorized: true, account_permission: :global}
+  end
+
+  defp find_sufficient_permission(:accounts, permission, _, _) do
+    %{permission | account_authorized: true, account_permission: :accounts}
+  end
+
+  defp find_sufficient_permission(:self, permission, _, _) do
+    %{permission | account_authorized: true, account_permission: :self}
+  end
+
+  defp find_sufficient_permission(_, permission, permissions, memberships) do
+    find_sufficient_permission_in_memberships(permission, permissions, memberships)
   end
 end

@@ -21,72 +21,131 @@ defmodule EWalletDB.GlobalRole do
     "super_admin" => :global,
     "admin" => %{
       account_permissions: true,
-      accounts: %{read: :accounts, create: :none, update: :accounts},
+      accounts: %{all: :accounts, get: :accounts, create: :none, update: :accounts},
       memberships: %{all: :accounts, get: :accounts, create: :accounts, update: :accounts},
-      categories: %{read: :global, create: :none, update: :none},
-      admin_users: %{read: :accounts, update: :accounts, disable: :accounts},
-      end_users: %{read: :global, create: :accounts, update: :accounts, disable: :none},
-      access_keys: %{read: :accounts, create: :accounts, update: :accounts, disable: :accounts},
-      api_keys: %{read: :accounts, create: :accounts, update: :accounts, disable: :accounts},
-      tokens: %{read: :global, create: :none, update: :none},
-      mints: %{read: :none, create: :none},
+      categories: %{all: :global, get: :global, create: :none, update: :none},
+      admin_users: %{all: :accounts, get: :accounts, update: :accounts, disable: :accounts},
+      end_users: %{
+        all: :global,
+        get: :global,
+        create: :accounts,
+        update: :accounts,
+        disable: :none
+      },
+      access_keys: %{
+        all: :accounts,
+        get: :accounts,
+        create: :accounts,
+        update: :accounts,
+        disable: :accounts
+      },
+      api_keys: %{
+        all: :accounts,
+        get: :accounts,
+        create: :accounts,
+        update: :accounts,
+        disable: :accounts
+      },
+      tokens: %{all: :global, get: :global, create: :none, update: :none},
+      mints: %{all: :none, get: :none, create: :none},
       account_wallets: %{
-        read: :global,
+        all: :global,
+        get: :global,
         view_balance: :accounts,
         create: :accounts,
         update: :accounts
       },
       end_user_wallets: %{
-        read: :global,
+        all: :global,
+        get: :global,
         view_balance: :accounts,
         create: :accounts,
         update: :accounts
       },
-      account_transactions: %{read: :accounts, create: :accounts},
-      end_user_transactions: %{read: :accounts, create: :accounts},
-      account_transaction_requests: %{read: :accounts, create: :accounts},
-      end_user_transaction_requests: %{read: :accounts, create: :accounts},
-      account_transaction_consumptions: %{read: :accounts, create: :accounts, approve: :accounts},
-      end_user_transaction_consumptions: %{read: :accounts, create: :accounts, approve: :accounts},
-      account_exports: %{read: :accounts, create: :accounts},
-      admin_user_exports: %{read: :admin_user, create: :admin_user},
+      account_transactions: %{all: :accounts, get: :accounts, create: :accounts},
+      end_user_transactions: %{all: :accounts, get: :accounts, create: :accounts},
+      account_transaction_requests: %{all: :accounts, get: :accounts, create: :accounts},
+      end_user_transaction_requests: %{all: :accounts, get: :accounts, create: :accounts},
+      account_transaction_consumptions: %{
+        all: :accounts,
+        get: :accounts,
+        create: :accounts,
+        approve: :accounts
+      },
+      end_user_transaction_consumptions: %{
+        all: :accounts,
+        get: :accounts,
+        create: :accounts,
+        approve: :accounts
+      },
+      account_exports: %{all: :accounts, get: :accounts, create: :accounts},
+      admin_user_exports: %{all: :admin_user, get: :admin_user, create: :admin_user},
       configuration: :none
     },
     "viewer" => %{
       account_permissions: true,
-      accounts: %{read: :accounts, create: :none, update: :none},
-      categories: %{read: :global, create: :none, update: :none},
-      admin_users: %{read: :accounts, create: :none, update: :none, disable: :none},
-      end_users: %{read: :global, create: :none, update: :none, disable: :none},
-      access_keys: %{read: :accounts, create: :none, update: :none, disable: :none},
-      api_keys: %{read: :accounts, create: :none, update: :none, disable: :none},
-      tokens: %{read: :global, create: :none, update: :none},
-      mints: %{read: :none, create: :none},
-      account_wallets: %{read: :global, view_balance: :accounts, create: :none, update: :none},
-      end_user_wallets: %{read: :global, view_balance: :accounts, create: :none, update: :none},
-      account_transactions: %{read: :accounts, create: :none},
-      end_user_transactions: %{read: :accounts, create: :none},
-      account_transaction_requests: %{read: :accounts, create: :none},
-      end_user_transaction_requests: %{read: :accounts, create: :none},
-      account_transaction_consumptions: %{read: :accounts, create: :none, approve: :none},
-      end_user_transaction_consumptions: %{read: :accounts, create: :none, approve: :none},
-      account_exports: %{read: :accounts, create: :none},
-      admin_user_exports: %{read: :admin_user, create: :none},
+      accounts: %{all: :accounts, get: :accounts, create: :none, update: :none},
+      categories: %{all: :global, get: :global, create: :none, update: :none},
+      admin_users: %{all: :accounts, get: :accounts, create: :none, update: :none, disable: :none},
+      end_users: %{all: :global, get: :global, create: :none, update: :none, disable: :none},
+      access_keys: %{all: :accounts, get: :accounts, create: :none, update: :none, disable: :none},
+      api_keys: %{all: :accounts, get: :accounts, create: :none, update: :none, disable: :none},
+      tokens: %{all: :global, get: :global, create: :none, update: :none},
+      mints: %{all: :none, get: :none, create: :none},
+      account_wallets: %{
+        all: :global,
+        get: :global,
+        view_balance: :accounts,
+        create: :none,
+        update: :none
+      },
+      end_user_wallets: %{
+        all: :global,
+        get: :global,
+        view_balance: :accounts,
+        create: :none,
+        update: :none
+      },
+      account_transactions: %{all: :accounts, get: :accounts, create: :none},
+      end_user_transactions: %{all: :accounts, get: :accounts, create: :none},
+      account_transaction_requests: %{all: :accounts, get: :accounts, create: :none},
+      end_user_transaction_requests: %{all: :accounts, get: :accounts, create: :none},
+      account_transaction_consumptions: %{
+        all: :accounts,
+        get: :accounts,
+        create: :none,
+        approve: :none
+      },
+      end_user_transaction_consumptions: %{
+        all: :accounts,
+        get: :accounts,
+        create: :none,
+        approve: :none
+      },
+      account_exports: %{all: :accounts, get: :accounts, create: :none},
+      admin_user_exports: %{all: :admin_user, get: :admin_user, create: :none},
       configuration: :none
     },
     "end_user" => %{
       account_permissions: false,
-      end_users: %{read: :self, listen: :self, update: :self},
-      tokens: %{read: :global, create: :none, update: :none},
-      account_wallets: %{read: :none, view_balance: :none, create: :none, update: :none},
+      end_users: %{all: :self, get: :self, listen: :self, update: :self},
+      tokens: %{all: :global, get: :global, create: :none, update: :none},
+      account_wallets: %{
+        all: :none,
+        get: :none,
+        view_balance: :none,
+        create: :none,
+        update: :none
+      },
       end_user_wallets: %{
-        read: :self,
+        all: :self,
+        get: :self,
         listen: :self,
         view_balance: :self,
         create: :self,
         update: :self
       },
-      end_user_transactions: %{read: :self, create: :self},
+      end_user_transactions: %{all: :self, get: :self, create: :self},
       end_user_transaction_requests: %{
         all: :self,
         get: :global,
@@ -94,7 +153,7 @@ defmodule EWalletDB.GlobalRole do
         create: :self,
         confirm: :self
       },
-      end_user_transaction_consumptions: %{read: :self, listen: :self, create: :self}
+      end_user_transaction_consumptions: %{all: :self, get: :self, listen: :self, create: :self}
     },
     "none" => %{
       account_permissions: true

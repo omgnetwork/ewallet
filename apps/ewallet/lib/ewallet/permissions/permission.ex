@@ -12,26 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.SchemaPermissions.KeyPermissions do
+defmodule EWallet.Permission do
   @moduledoc """
-  A policy helper containing the actual authorization.
+  A module containing the Permission struct
   """
-  alias EWallet.Permission
-  alias EWalletDB.{Key, Helpers.Preloader}
 
-  def get_owner_uuids(%Key{uuid: uuid}) do
-    [uuid]
-  end
-
-  def get_query_actor_records(%Permission{type: :accounts, actor: actor}) do
-    Ecto.assoc(actor, :accounts)
-  end
-
-  def get_target_accounts(%Key{} = key) do
-    get_actor_accounts(key)
-  end
-
-  def get_actor_accounts(%Key{} = key) do
-    Preloader.preload(key, [:accounts]).accounts
-  end
+  defstruct [
+    :actor,
+    :global_role,
+    :schema,
+    :type,
+    :target,
+    :attrs,
+    :action,
+    :check_account_permissions,
+    :global_permission,
+    :account_permission,
+    :query,
+    authorized: false,
+    global_authorized: false,
+    account_authorized: false
+  ]
 end

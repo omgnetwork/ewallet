@@ -16,6 +16,7 @@ defmodule EWallet.SchemaPermissions.UserPermissions do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
+  alias EWallet.Permission
   alias EWalletDB.User
   alias EWalletDB.Helpers.Preloader
 
@@ -31,8 +32,16 @@ defmodule EWallet.SchemaPermissions.UserPermissions do
     :end_users
   end
 
+  def get_query_actor_records(%Permission{type: :accounts, actor: %User{is_admin: true} = actor}) do
+    Ecto.assoc(actor, :accounts)
+  end
+
+  def get_query_actor_records(%Permission{type: :accounts, actor: %User{is_admin: false} = actor}) do
+    Ecto.assoc(actor, :linked_accounts)
+  end
+
   def get_actor_accounts(%User{is_admin: true} = actor) do
-    actor = Preloader.preload(actor, [:accounts])
+    actor = Preloader.preload(actor, [:accounts, :memberships])
     actor.accounts
   end
 

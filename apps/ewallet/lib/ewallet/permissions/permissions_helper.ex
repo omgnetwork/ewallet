@@ -16,6 +16,8 @@ defmodule EWallet.PermissionsHelper do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
+  alias EWallet.Permission
+
   alias EWallet.SchemaPermissions.{
     AccountPermissions,
     CategoryPermissions,
@@ -60,6 +62,10 @@ defmodule EWallet.PermissionsHelper do
   def get_actor(%{originator: %{end_user: end_user}}), do: end_user
   def get_actor(_), do: nil
 
+  def build_query_all(%Permission{schema: schema} = permission) do
+    @references[schema].build_query_all(permission)
+  end
+
   def get_uuids(list) do
     Enum.map(list, fn account -> account.uuid end)
   end
@@ -70,11 +76,21 @@ defmodule EWallet.PermissionsHelper do
     @references[record.__struct__].get_owner_uuids(record)
   end
 
+  def authorize_with_attrs(%{schema: schema} = permission) do
+    @references[schema].authorize_with_attrs(permission)
+  end
+
   # Redefines the target type if the given record has subtypes.
   # like transaction_requests -> end_user_transaction_requests /
   # account_transaction_requests.
   def get_target_type(record) do
     @references[record.__struct__].get_target_type(record)
+  end
+
+  # Returns a query to get all the accounts the actor (a key, an admin user
+  # or an end user) has access to
+  def get_query_actor_records(%Permission{actor: actor} = permission) do
+    @references[actor.__struct__].get_query_actor_records(permission)
   end
 
   # Gets all the accounts the actor (a key, an admin user or an end user)

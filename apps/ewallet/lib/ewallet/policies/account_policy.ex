@@ -17,26 +17,33 @@ defmodule EWallet.AccountPolicy do
   The authorization policy for accounts.
   """
   @behaviour Bodyguard.Policy
-  alias EWallet.Permissions
+  alias EWallet.{Permissions, Permission}
+  alias EWalletDB.Account
 
   def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :accounts})
+    case Permissions.can(attrs, %Permission{action: :all, type: :accounts, schema: Account}) do
+      {:ok, permission} ->
+        {:ok, %{permission | query: Permissions.build_all_query(permission)}}
+
+      error ->
+        error
+    end
   end
 
-  def authorize(:get, attrs, account_id) do
-    Permissions.can?(attrs, %{action: :read, target: account_id})
+  def authorize(:get, attrs, account) do
+    Permissions.can(attrs, %Permission{action: :get, target: account})
   end
 
-  def authorize(:join, attrs, account_id) do
-    Permissions.can?(attrs, %{action: :listen, target: account_id})
+  def authorize(:listen, attrs, account) do
+    Permissions.can(attrs, %Permission{action: :listen, target: account})
   end
 
-  def authorize(:create, attrs, account_id) do
-    Permissions.can?(attrs, %{action: :create, target: account_id})
+  def authorize(:create, attrs, _account_attrs) do
+    Permissions.can(attrs, %Permission{action: :create, target: %Account{}})
   end
 
-  def authorize(:update, attrs, account_id) do
-    Permissions.can?(attrs, %{action: :update, target: account_id})
+  def authorize(:update, attrs, account) do
+    Permissions.can(attrs, %Permission{action: :update, target: account})
   end
 
   def authorize(_, _, _), do: false
