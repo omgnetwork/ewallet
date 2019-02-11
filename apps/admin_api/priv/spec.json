@@ -25442,9 +25442,6 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "address"
-                ],
                 "example": {
                   "start_by": "address"
                 }

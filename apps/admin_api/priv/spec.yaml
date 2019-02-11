@@ -3578,8 +3578,6 @@ paths:
               properties:
                 start_by:
                   type: string
-              required:
-                - address
               example:
                 start_by: address
       responses:
