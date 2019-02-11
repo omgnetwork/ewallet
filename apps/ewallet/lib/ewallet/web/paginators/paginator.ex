@@ -53,6 +53,11 @@ defmodule EWallet.Web.Paginator do
     {:error, :invalid_parameter, "`page` cannot be used with `start_after`"}
   end
 
+  # Prevent `page` to be combined with `start_by`
+  def paginate_attrs(_, %{"page" => _, "start_by" => _}, _, _) do
+    {:error, :invalid_parameter, "`page` cannot be used with `start_by`"}
+  end
+
   # Prevent non-negative, non-zero integer `per_page`
   def paginate_attrs(_, %{"per_page" => per_page}, _, _)
       when is_integer(per_page) and per_page < 1 do
@@ -116,7 +121,7 @@ defmodule EWallet.Web.Paginator do
 
     records =
       queryable
-      |> get_query_offset(%{"page" => page, "per_page" => per_page})
+      |> get_query_offset(page, per_page)
       |> limit(^limit)
       |> repo.all()
 
@@ -130,7 +135,7 @@ defmodule EWallet.Web.Paginator do
     end
   end
 
-  defp get_query_offset(queryable, %{"page" => page, "per_page" => per_page}) do
+  defp get_query_offset(queryable, page, per_page) do
     offset =
       case page do
         n when n > 0 -> (page - 1) * per_page
