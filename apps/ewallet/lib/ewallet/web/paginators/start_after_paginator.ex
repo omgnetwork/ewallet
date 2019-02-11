@@ -54,7 +54,6 @@ defmodule EWallet.Web.StartAfterPaginator do
   import Ecto.Query
   alias EWalletDB.Repo
   alias EWallet.Web.Paginator
-  alias EWallet.Web.Orchestrator
 
   @doc """
   Paginate a query by attempting to extract `start_after`, `start_by` and `per_page`
@@ -62,33 +61,66 @@ defmodule EWallet.Web.StartAfterPaginator do
   """
   @spec paginate_attrs(Ecto.Query.t() | Ecto.Queryable.t(), map(), Ecto.Repo.t()) ::
           %Paginator{} | {:error, :invalid_parameter, String.t()}
-  def paginate_attrs(queryable, attrs, allowed_fields \\ [], repo \\ Repo)
+  def paginate_attrs(
+        queryable,
+        attrs,
+        allowed_fields \\ [],
+        repo \\ Repo,
+        default_mapped_fields \\ %{}
+      )
 
   # Prevent non-string, non-atom `start_by`
-  def paginate_attrs(_, %{"start_by" => start_by}, _, _)
+  def paginate_attrs(_, %{"start_by" => start_by}, _, _, _)
       when not is_binary(start_by) and not is_atom(start_by) do
     {:error, :invalid_parameter, "`start_by` must be a string"}
   end
 
-  def paginate_attrs(queryable, %{"sort_by" => "created_at"} = attrs, allowed_fields, repo) do
-    sort_by = Map.get(Orchestrator.default_mapped_fields(), "created_at")
-    paginate_attrs(queryable, %{attrs | "sort_by" => sort_by}, allowed_fields, repo)
+  def paginate_attrs(
+        queryable,
+        %{"sort_by" => "created_at"} = attrs,
+        allowed_fields,
+        repo,
+        default_mapped_fields
+      ) do
+    sort_by = Map.get(default_mapped_fields, "created_at")
+
+    paginate_attrs(
+      queryable,
+      %{attrs | "sort_by" => sort_by},
+      allowed_fields,
+      repo,
+      default_mapped_fields
+    )
   end
 
-  def paginate_attrs(queryable, %{"start_by" => "created_at"} = attrs, allowed_fields, repo) do
-    start_by = Map.get(Orchestrator.default_mapped_fields(), "created_at")
-    paginate_attrs(queryable, %{attrs | "start_by" => start_by}, allowed_fields, repo)
+  def paginate_attrs(
+        queryable,
+        %{"start_by" => "created_at"} = attrs,
+        allowed_fields,
+        repo,
+        default_mapped_fields
+      ) do
+    start_by = Map.get(default_mapped_fields, "created_at")
+
+    paginate_attrs(
+      queryable,
+      %{attrs | "start_by" => start_by},
+      allowed_fields,
+      repo,
+      default_mapped_fields
+    )
   end
 
   def paginate_attrs(
         queryable,
         %{"start_after" => nil, "start_by" => start_by} = attrs,
         allowed_fields,
-        repo
+        repo,
+        default_mapped_fields
       )
       when start_by != nil do
     attrs = Map.put(attrs, "start_after", {:ok, nil})
-    paginate_attrs(queryable, attrs, allowed_fields, repo)
+    paginate_attrs(queryable, attrs, allowed_fields, repo, default_mapped_fields)
   end
 
   def paginate_attrs(
@@ -99,7 +131,8 @@ defmodule EWallet.Web.StartAfterPaginator do
           "per_page" => _
         } = attrs,
         allowed_fields,
-        repo
+        repo,
+        _
       )
       when start_by != nil do
     case is_allowed_start_by(start_by, allowed_fields) do
@@ -128,16 +161,17 @@ defmodule EWallet.Web.StartAfterPaginator do
         queryable,
         %{"start_after" => _} = attrs,
         allowed_fields,
-        repo
+        repo,
+        default_mapped_fields
       ) do
     attrs = get_start_by_attrs(attrs, allowed_fields)
-    paginate_attrs(queryable, attrs, allowed_fields, repo)
+    paginate_attrs(queryable, attrs, allowed_fields, repo, default_mapped_fields)
   end
 
   # Resolve `start_after` by set default value to nil.
-  def paginate_attrs(queryable, attrs, allowed_fields, repo) do
+  def paginate_attrs(queryable, attrs, allowed_fields, repo, default_mapped_fields) do
     attrs = Map.put(attrs, "start_after", nil)
-    paginate_attrs(queryable, attrs, allowed_fields, repo)
+    paginate_attrs(queryable, attrs, allowed_fields, repo, default_mapped_fields)
   end
 
   defp get_start_by_attrs(attrs, [field | _allowed_fields]) do

@@ -35,7 +35,14 @@ defmodule EWallet.Web.Orchestrator do
 
   def query(query, overlay, attrs \\ %{}, repo \\ Repo) do
     with %Ecto.Query{} = query <- build_query(query, overlay, attrs),
-         paginated <- Paginator.paginate_attrs(query, attrs, overlay.pagination_fields(), repo) do
+         paginated <-
+           Paginator.paginate_attrs(
+             query,
+             attrs,
+             overlay.pagination_fields(),
+             repo,
+             default_mapped_fields()
+           ) do
       paginated
     else
       {:error, :not_allowed, field} ->
@@ -104,7 +111,7 @@ defmodule EWallet.Web.Orchestrator do
     Preloader.to_query(query, overlay.default_preload_assocs())
   end
 
-  def default_mapped_fields do
+  defp default_mapped_fields do
     %{
       "created_at" => "inserted_at"
     }

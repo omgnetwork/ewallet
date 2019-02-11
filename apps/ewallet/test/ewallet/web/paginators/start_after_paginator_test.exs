@@ -19,6 +19,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
   alias EWallet.Web.Paginator
   alias EWalletDB.{Account, Repo}
 
+  @default_mapped_fields %{"created_at" => "inserted_at"}
   @default_allowed_fields [:id, :inserted_at, :updated_at]
 
   describe "EWallet.Web.Paginator.paginate_attrs/2" do
@@ -165,7 +166,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         StartAfterPaginator.paginate_attrs(
           Account,
           %{"start_after" => iat, "start_by" => "created_at", "per_page" => 5},
-          @default_allowed_fields
+          @default_allowed_fields,
+          Repo,
+          @default_mapped_fields
         )
 
       assert paginator.pagination.per_page == 5
