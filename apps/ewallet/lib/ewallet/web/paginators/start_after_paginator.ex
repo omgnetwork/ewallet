@@ -111,11 +111,7 @@ defmodule EWallet.Web.StartAfterPaginator do
 
     case is_allowed_start_by(start_by, allowed_fields) do
       true ->
-        paginate(
-          queryable,
-          attrs,
-          repo
-        )
+        paginate(queryable, attrs, repo)
 
       _ ->
         available_fields =
