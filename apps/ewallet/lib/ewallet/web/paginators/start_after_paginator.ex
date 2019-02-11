@@ -73,6 +73,10 @@ defmodule EWallet.Web.StartAfterPaginator do
     paginate_attrs(queryable, %{attrs | "sort_by" => "inserted_at"}, allowed_fields, repo)
   end
 
+  def paginate_attrs(queryable, %{"start_by" => "created_at"} = attrs, allowed_fields, repo) do
+    paginate_attrs(queryable, %{attrs | "start_by" => "inserted_at"}, allowed_fields, repo)
+  end
+
   def paginate_attrs(
         queryable,
         %{"start_after" => nil, "start_by" => start_by} = attrs,
