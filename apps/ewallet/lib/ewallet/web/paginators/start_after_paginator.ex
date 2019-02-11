@@ -200,9 +200,7 @@ defmodule EWallet.Web.StartAfterPaginator do
     condition =
       build_start_after_condition(%{"start_by" => start_by, "start_after" => start_after})
 
-    pure_queryable =
-      queryable
-      |> exclude(:where)
+    pure_queryable = exclude(queryable, :where)
 
     start_after =
       if repo.get_by(pure_queryable, condition) != nil do
