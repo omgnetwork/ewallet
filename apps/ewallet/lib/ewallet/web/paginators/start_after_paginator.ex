@@ -148,8 +148,8 @@ defmodule EWallet.Web.StartAfterPaginator do
   end
 
   @doc """
-  Paginate a query using the given `page` and `per_page` and returns a paginator.
-  If a query has `start_after`, then returns a paginator with all records after the specify `start_after`.
+  Paginate a query using the given `start_after` and `start_by`.
+  Returns a paginator with all records after the specify `start_after` record.
   """
   def paginate(queryable, attrs, repo \\ Repo)
 
