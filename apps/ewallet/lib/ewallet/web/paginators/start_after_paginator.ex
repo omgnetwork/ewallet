@@ -77,42 +77,6 @@ defmodule EWallet.Web.StartAfterPaginator do
 
   def paginate_attrs(
         queryable,
-        %{"sort_by" => "created_at"} = attrs,
-        allowed_fields,
-        repo,
-        default_mapped_fields
-      ) do
-    sort_by = Map.get(default_mapped_fields, "created_at")
-
-    paginate_attrs(
-      queryable,
-      %{attrs | "sort_by" => sort_by},
-      allowed_fields,
-      repo,
-      default_mapped_fields
-    )
-  end
-
-  def paginate_attrs(
-        queryable,
-        %{"start_by" => "created_at"} = attrs,
-        allowed_fields,
-        repo,
-        default_mapped_fields
-      ) do
-    start_by = Map.get(default_mapped_fields, "created_at")
-
-    paginate_attrs(
-      queryable,
-      %{attrs | "start_by" => start_by},
-      allowed_fields,
-      repo,
-      default_mapped_fields
-    )
-  end
-
-  def paginate_attrs(
-        queryable,
         %{"start_after" => nil, "start_by" => start_by} = attrs,
         allowed_fields,
         repo,
@@ -132,9 +96,19 @@ defmodule EWallet.Web.StartAfterPaginator do
         } = attrs,
         allowed_fields,
         repo,
-        _
+        default_mapped_fields
       )
       when start_by != nil do
+    sort_by = Map.get(attrs, "sort_by", start_by)
+
+    sort_by = map_field(sort_by, default_mapped_fields)
+    start_by = map_field(start_by, default_mapped_fields)
+
+    attrs =
+      attrs
+      |> Map.put("sort_by", sort_by)
+      |> Map.put("start_by", start_by)
+
     case is_allowed_start_by(start_by, allowed_fields) do
       true ->
         paginate(
@@ -172,6 +146,13 @@ defmodule EWallet.Web.StartAfterPaginator do
   def paginate_attrs(queryable, attrs, allowed_fields, repo, default_mapped_fields) do
     attrs = Map.put(attrs, "start_after", nil)
     paginate_attrs(queryable, attrs, allowed_fields, repo, default_mapped_fields)
+  end
+
+  defp map_field(original, mapping) do
+    case mapping[original] do
+      nil -> original
+      mapped -> mapped
+    end
   end
 
   defp get_start_by_attrs(attrs, [field | _allowed_fields]) do
