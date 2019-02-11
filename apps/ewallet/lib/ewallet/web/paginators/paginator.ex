@@ -143,9 +143,7 @@ defmodule EWallet.Web.Paginator do
 
   # Returns the per_page number or default, but never greater than the system's defined limit
   defp get_per_page(attrs) do
-    per_page =
-      attrs
-      |> Map.get("per_page", @default_per_page)
+    per_page = Map.get(attrs, "per_page", @default_per_page)
 
     max_per_page =
       case Application.get_env(:ewallet, :max_per_page) do
