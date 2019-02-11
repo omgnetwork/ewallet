@@ -19,6 +19,8 @@ defmodule EWallet.Web.StartFromPaginatorTest do
   alias EWallet.Web.Paginator
   alias EWalletDB.{Account, Repo}
 
+  @default_allowed_fields [:id, :inserted_at, :updated_at]
+
   describe "EWallet.Web.Paginator.paginate_attrs/2" do
     test "returns :error if given `start_by` is not either a string or an atom" do
       result =
@@ -143,7 +145,46 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         StartAfterPaginator.paginate_attrs(
           Account,
           %{"start_after" => iat, "start_by" => "inserted_at", "per_page" => 5},
-          [:id, :inserted_at]
+          @default_allowed_fields
+        )
+
+      assert paginator.pagination.per_page == 5
+      assert paginator.pagination.count == 1
+    end
+
+    test "returns pagination if given `start_after` exist and `start_by` is :created_at" do
+      ensure_num_records(Account, 2)
+
+      iats = from(a in Account, select: a.inserted_at, order_by: a.inserted_at)
+
+      [iat | _] =
+        iats
+        |> Repo.all()
+
+      paginator =
+        StartAfterPaginator.paginate_attrs(
+          Account,
+          %{"start_after" => iat, "start_by" => "created_at", "per_page" => 5},
+          @default_allowed_fields
+        )
+
+      assert paginator.pagination.per_page == 5
+    end
+
+    test "returns pagination if given `start_after` exist and `start_by` is :updated_at" do
+      ensure_num_records(Account, 2)
+
+      uats = from(a in Account, select: a.updated_at, order_by: a.updated_at)
+
+      [uat | _] =
+        uats
+        |> Repo.all()
+
+      paginator =
+        StartAfterPaginator.paginate_attrs(
+          Account,
+          %{"start_after" => uat, "start_by" => "updated_at", "per_page" => 5},
+          @default_allowed_fields
         )
 
       assert paginator.pagination.per_page == 5
