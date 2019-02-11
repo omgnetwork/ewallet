@@ -104,7 +104,7 @@ defmodule EWallet.Web.Orchestrator do
     Preloader.to_query(query, overlay.default_preload_assocs())
   end
 
-  defp default_mapped_fields do
+  def default_mapped_fields do
     %{
       "created_at" => "inserted_at"
     }

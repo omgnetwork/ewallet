@@ -54,6 +54,7 @@ defmodule EWallet.Web.StartAfterPaginator do
   import Ecto.Query
   alias EWalletDB.Repo
   alias EWallet.Web.Paginator
+  alias EWallet.Web.Orchestrator
 
   @doc """
   Paginate a query by attempting to extract `start_after`, `start_by` and `per_page`
@@ -70,11 +71,13 @@ defmodule EWallet.Web.StartAfterPaginator do
   end
 
   def paginate_attrs(queryable, %{"sort_by" => "created_at"} = attrs, allowed_fields, repo) do
-    paginate_attrs(queryable, %{attrs | "sort_by" => "inserted_at"}, allowed_fields, repo)
+    sort_by = Map.get(Orchestrator.default_mapped_fields(), "created_at")
+    paginate_attrs(queryable, %{attrs | "sort_by" => sort_by}, allowed_fields, repo)
   end
 
   def paginate_attrs(queryable, %{"start_by" => "created_at"} = attrs, allowed_fields, repo) do
-    paginate_attrs(queryable, %{attrs | "start_by" => "inserted_at"}, allowed_fields, repo)
+    start_by = Map.get(Orchestrator.default_mapped_fields(), "created_at")
+    paginate_attrs(queryable, %{attrs | "start_by" => start_by}, allowed_fields, repo)
   end
 
   def paginate_attrs(
