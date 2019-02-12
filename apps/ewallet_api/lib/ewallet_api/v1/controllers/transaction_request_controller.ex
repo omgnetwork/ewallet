@@ -35,7 +35,7 @@ defmodule EWalletAPI.V1.TransactionRequestController do
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"formatted_id" => formatted_id}) do
     with {:ok, request} <- TransactionRequestFetcher.get(formatted_id),
-         :ok <- permit(:get, conn.assigns, request) do
+         %{authorized: true} <- permit(:get, conn.assigns, request) do
       respond({:ok, request}, conn)
     else
       {:error, :transaction_request_not_found} ->
