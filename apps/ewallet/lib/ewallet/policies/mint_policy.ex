@@ -16,24 +16,14 @@ defmodule EWallet.MintPolicy do
   @moduledoc """
   The authorization policy for mints.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.Permissions
+  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWalletDB.Mint
 
-  def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :mints})
+  def authorize(:create, attrs, _attrs) do
+    Permissions.can(attrs, %Permission{action: :create, target: %Mint{}})
   end
 
-  def authorize(:get, attrs, mint) do
-    Permissions.can?(attrs, %{action: :get, target: mint})
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :mints, Mint, target)
   end
-
-  def authorize(:join, attrs, mint) do
-    Permissions.can?(attrs, %{action: :listen, target: mint})
-  end
-
-  def authorize(:create, attrs, mint) do
-    Permissions.can?(attrs, %{action: :create, target: mint})
-  end
-
-  def authorize(_, _, _), do: false
 end

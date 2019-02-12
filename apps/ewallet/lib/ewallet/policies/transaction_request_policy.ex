@@ -16,24 +16,16 @@ defmodule EWallet.TransactionRequestPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.Permissions
+  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWalletDB.TransactionRequest
 
-  def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :transaction_requests})
+  @spec authorize(any(), any(), any()) ::
+          {:error, EWallet.Permission.t()} | {:ok, EWallet.Permission.t()}
+  def authorize(:create, attrs, target) do
+    Permissions.can(attrs, %Permission{action: :create, target: target || %TransactionRequest{}})
   end
 
-  def authorize(:get, attrs, transaction_request) do
-    Permissions.can?(attrs, %{action: :get, target: transaction_request})
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :transaction_requests, TransactionRequest, target)
   end
-
-  def authorize(:join, attrs, transaction_request) do
-    Permissions.can?(attrs, %{action: :listen, target: transaction_request})
-  end
-
-  def authorize(:create, attrs, transaction_request) do
-    Permissions.can?(attrs, %{action: :create, target: transaction_request})
-  end
-
-  def authorize(_, _, _), do: false
 end

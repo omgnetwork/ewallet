@@ -16,34 +16,20 @@ defmodule EWallet.TransactionConsumptionPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.Permissions
+  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWalletDB.TransactionConsumption
 
-  # Don't use policy for all, instead return a scoped query
-  # that might not contain anything
-  def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :transaction_consumptions})
+  def authorize(:create, attrs, _attrs) do
+    Permissions.can(attrs, %Permission{action: :create, target: %TransactionConsumption{}})
   end
 
-  def authorize(:get, attrs, transaction_consumption) do
-    Permissions.can?(attrs, %{action: :get, target: transaction_consumption})
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(
+      action,
+      attrs,
+      :transaction_consumptions,
+      TransactionConsumption,
+      target
+    )
   end
-
-  def authorize(:join, attrs, transaction_consumption) do
-    Permissions.can?(attrs, %{action: :listen, target: transaction_consumption})
-  end
-
-  def authorize(:create, attrs, transaction_consumption) do
-    Permissions.can?(attrs, %{action: :create, target: transaction_consumption})
-  end
-
-  def authorize(:consume, attrs, transaction_consumption) do
-    Permissions.can?(attrs, %{action: :consume, target: transaction_consumption})
-  end
-
-  def authorize(:confirm, attrs, transaction_consumption) do
-    Permissions.can?(attrs, %{action: :confirm, target: transaction_consumption})
-  end
-
-  def authorize(_, _, _), do: false
 end

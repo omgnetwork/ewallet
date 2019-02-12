@@ -16,24 +16,14 @@ defmodule EWallet.APIKeyPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.Permissions
+  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWalletDB.APIKey
 
-  def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :api_keys})
+  def authorize(:create, attrs, _api_key_attrs) do
+    Permissions.can(attrs, %Permission{action: :create, target: %APIKey{}})
   end
 
-  def authorize(:get, attrs, api_key) do
-    Permissions.can?(attrs, %{action: :get, target: api_key})
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :api_keys, APIKey, target)
   end
-
-  def authorize(:create, attrs, api_key) do
-    Permissions.can?(attrs, %{action: :create, target: api_key})
-  end
-
-  def authorize(:update, attrs, api_key) do
-    Permissions.can?(attrs, %{action: :update, target: api_key})
-  end
-
-  def authorize(_, _, _), do: false
 end

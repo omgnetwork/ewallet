@@ -17,7 +17,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   Handles all validations for a transaction request, including amount and
   expiration.
   """
-  alias EWallet.{Helper, TokenFetcher, TransactionConsumptionPolicy}
+  alias EWallet.{Helper, TokenFetcher, TransactionRequestPolicy}
   alias EWallet.Web.V1.Event
   alias EWalletDB.{ExchangePair, Repo, Token, TransactionConsumption, TransactionRequest, Wallet}
   alias ActivityLogger.System
@@ -63,7 +63,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   def validate_before_confirmation(consumption, creator) do
     with {request, wallet} <- {consumption.transaction_request, consumption.wallet},
          request <- Repo.preload(request, [:wallet]),
-         :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :confirm, creator, request),
+         {:ok, _} <- TransactionRequestPolicy.authorize(:confirm, creator, request),
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request, %System{}),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,

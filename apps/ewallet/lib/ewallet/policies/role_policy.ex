@@ -20,19 +20,19 @@ defmodule EWallet.RolePolicy do
   alias EWallet.Permissions
 
   def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :roles})
+    Permissions.can(attrs, %{action: :all, type: :roles})
   end
 
   def authorize(:get, attrs, role) do
-    Permissions.can?(attrs, %{action: :get, target: role})
+    Permissions.can(attrs, %{action: :get, target: role})
   end
 
   def authorize(:join, attrs, role) do
-    Permissions.can?(attrs, %{action: :listen, target: role})
+    Permissions.can(attrs, %{action: :listen, target: role})
   end
 
   def authorize(:create, attrs, role) do
-    Permissions.can?(attrs, %{action: :create, target: role})
+    Permissions.can(attrs, %{action: :create, target: role})
   end
 
   def authorize(_, _, _), do: false

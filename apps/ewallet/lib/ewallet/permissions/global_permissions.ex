@@ -39,15 +39,15 @@ defmodule EWallet.GlobalPermissions do
     end
   end
 
-  defp check_permissions(%{action: _, type: _, target: _} = permission, permissions) do
-    check_global_role(permission, permissions)
-  end
-
-  defp check_permissions(%{action: _, target: target} = permission, permissions) do
+  defp check_permissions(%{action: _, type: nil, target: target} = permission, permissions) do
     check_global_role(
       %{permission | type: PermissionsHelper.get_target_type(target)},
       permissions
     )
+  end
+
+  defp check_permissions(%{action: _, type: _, target: _} = permission, permissions) do
+    check_global_role(permission, permissions)
   end
 
   defp check_permissions(permission, _) do

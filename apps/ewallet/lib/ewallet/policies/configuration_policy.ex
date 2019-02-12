@@ -16,20 +16,14 @@ defmodule EWallet.ConfigurationPolicy do
   @moduledoc """
   The authorization policy for configuration.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.Permissions
+  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWalletConfig.Setting
 
-  def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :configurations})
+  def authorize(:create, attrs, _attrs) do
+    Permissions.can(attrs, %Permission{action: :create, target: %Setting{}})
   end
 
-  def authorize(:get, attrs, configuration) do
-    Permissions.can?(attrs, %{action: :get, target: configuration})
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :settings, Setting, target)
   end
-
-  def authorize(:update, attrs, configuration) do
-    Permissions.can?(attrs, %{action: :update, target: configuration})
-  end
-
-  def authorize(_, _, _), do: false
 end

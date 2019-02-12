@@ -16,24 +16,14 @@ defmodule EWallet.CategoryPolicy do
   @moduledoc """
   The authorization policy for categories.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.Permissions
+  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWalletDB.Category
 
-  def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :categories})
+  def authorize(:create, attrs, _api_key_attrs) do
+    Permissions.can(attrs, %Permission{action: :create, target: %Category{}})
   end
 
-  def authorize(:get, attrs, category) do
-    Permissions.can?(attrs, %{action: :get, target: category})
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :categories, Category, target)
   end
-
-  def authorize(:create, attrs, category) do
-    Permissions.can?(attrs, %{action: :create, target: category})
-  end
-
-  def authorize(:update, attrs, category) do
-    Permissions.can?(attrs, %{action: :update, target: category})
-  end
-
-  def authorize(_, _, _), do: false
 end

@@ -16,24 +16,14 @@ defmodule EWallet.ExchangePairPolicy do
   @moduledoc """
   The authorization policy for exchange pairs.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.Permissions
+  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWalletDB.ExchangePair
 
-  def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :exchange_pairs})
+  def authorize(:create, attrs, _attrs) do
+    Permissions.can(attrs, %Permission{action: :create, target: %ExchangePair{}})
   end
 
-  def authorize(:get, attrs, exchange_pair) do
-    Permissions.can?(attrs, %{action: :get, target: exchange_pair})
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :exchange_pairs, ExchangePair, target)
   end
-
-  def authorize(:join, attrs, exchange_pair) do
-    Permissions.can?(attrs, %{action: :listen, target: exchange_pair})
-  end
-
-  def authorize(:create, attrs, exchange_pair) do
-    Permissions.can?(attrs, %{action: :create, target: exchange_pair})
-  end
-
-  def authorize(_, _, _), do: false
 end

@@ -12,15 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.ActivityLogPolicy do
+defmodule EWallet.PolicyHelper do
   @moduledoc """
-  The authorization policy for activity logs.
+  The authorization policy for mints.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.PolicyHelper
-  alias ActivityLogger.ActivityLog
+  alias EWallet.{Permissions, Permission}
 
-  def authorize(action, attrs, target) do
-    PolicyHelper.authorize(action, attrs, :activity_logs, ActivityLog, target)
+  def authorize(:all, attrs, type, schema, nil) do
+    case Permissions.can(attrs, %Permission{action: :all, type: type, schema: schema}) do
+      {:ok, permission} ->
+        {:ok, %{permission | query: Permissions.build_all_query(permission)}}
+
+      error ->
+        error
+    end
+  end
+
+  def authorize(action, attrs, _type, _schema, target) do
+    Permissions.can(attrs, %Permission{action: action, target: target})
   end
 end

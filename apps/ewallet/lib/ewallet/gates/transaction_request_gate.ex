@@ -180,7 +180,7 @@ defmodule EWallet.TransactionRequestGate do
            account_uuid: wallet.account_uuid,
            wallet_address: wallet.address
          },
-         :ok <- Bodyguard.permit(TransactionRequestPolicy, :create, creator, tmp_request),
+         {:ok, _} <- TransactionRequestPolicy.authorize(:create, creator, tmp_request),
          {:ok, token} <- TokenFetcher.fetch(%{"token_id" => token_id}),
          {:ok, amount} <- get_integer_or_string_amount(attrs["amount"]),
          {:ok, exchange_wallet} <- ExchangeAccountFetcher.fetch(attrs),

@@ -71,6 +71,10 @@ defmodule EWallet.SchemaPermissions.TransactionRequestPermissions do
     get_user_accounts(target)
   end
 
+  def get_target_accounts(_) do
+    false
+  end
+
   defp get_account(record) do
     Preloader.preload(record, :account).account
   end

@@ -91,7 +91,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
         })
 
       assert status == :error
-      assert res == :unauthorized
+      assert %{authorized: false} = res
     end
 
     test "returns unauthorized if the request is not owned by account" do
@@ -107,7 +107,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
         })
 
       assert status == :error
-      assert res == :unauthorized
+      assert %{authorized: false} = res
     end
 
     test "expires request if past expiration date" do

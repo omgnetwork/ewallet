@@ -16,32 +16,16 @@ defmodule EWallet.AdminUserPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.Permissions
+  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWalletDB.User
 
-  def authorize(:all, attrs, nil) do
-    Permissions.can?(attrs, %{action: :all, type: :admin_users})
+  @spec authorize(any(), any(), any()) ::
+          {:error, EWallet.Permission.t()} | {:ok, EWallet.Permission.t()}
+  def authorize(:create, attrs, _user_attrs) do
+    Permissions.can(attrs, %Permission{action: :create, target: %User{}})
   end
 
-  def authorize(:get, attrs, admin_user) do
-    Permissions.can?(attrs, %{action: :read, target: admin_user})
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :users, User, target)
   end
-
-  def authorize(:join, attrs, admin_user) do
-    Permissions.can?(attrs, %{action: :listen, target: admin_user})
-  end
-
-  def authorize(:create, attrs, admin_user) do
-    Permissions.can?(attrs, %{action: :create, target: admin_user})
-  end
-
-  def authorize(:update, attrs, admin_user) do
-    Permissions.can?(attrs, %{action: :update, target: admin_user})
-  end
-
-  def authorize(:enable_or_disable, attrs, admin_user) do
-    Permissions.can?(attrs, %{action: :enable_or_disable, target: admin_user})
-  end
-
-  def authorize(_, _, _), do: false
 end
