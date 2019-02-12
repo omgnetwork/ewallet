@@ -28,7 +28,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   @spec all(Plug.Conn.t(), map) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil),
+    with %{authorized: true} <- permit(:all, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
       TransactionRequest
       |> TransactionRequest.query_all_for_account_uuids_and_users(account_uuids)
@@ -41,7 +41,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account) do
+         %{authorized: true} <- permit(:all, conn.assigns, account) do
       TransactionRequest
       |> TransactionRequest.query_all_for_account_uuids_and_users([account.uuid])
       |> do_all(attrs, conn)
@@ -52,7 +52,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account),
+         %{authorized: true} <- permit(:all, conn.assigns, account),
          descendant_uuids <- Account.get_all_descendants_uuids(account) do
       TransactionRequest
       |> TransactionRequest.query_all_for_account_uuids_and_users(descendant_uuids)
@@ -76,7 +76,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @spec get(Plug.Conn.t(), map) :: Plug.Conn.t()
   def get(conn, %{"formatted_id" => formatted_id}) do
     with {:ok, request} <- TransactionRequestFetcher.get(formatted_id),
-         :ok <- permit(:get, conn.assigns, request) do
+         %{authorized: true} <- permit(:get, conn.assigns, request) do
       respond({:ok, request}, conn)
     else
       {:error, :transaction_request_not_found} ->

@@ -24,7 +24,7 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil),
+    with %{authorized: true} <- permit(:all, conn.assigns, nil),
          %Paginator{} = paginator <- Orchestrator.query(Category, CategoryOverlay, attrs) do
       render(conn, :categories, %{categories: paginator})
     else
@@ -41,7 +41,7 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:get, conn.assigns, id),
+    with %{authorized: true} <- permit(:get, conn.assigns, id),
          %Category{} = category <- Category.get_by(id: id),
          {:ok, category} <- Orchestrator.one(category, CategoryOverlay, attrs) do
       render(conn, :category, %{category: category})
@@ -61,7 +61,7 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, nil),
+    with %{authorized: true} <- permit(:create, conn.assigns, nil),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, category} <- Category.insert(attrs),
          {:ok, category} <- Orchestrator.one(category, CategoryOverlay, attrs) do
@@ -80,7 +80,7 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:update, conn.assigns, id),
+    with %{authorized: true} <- permit(:update, conn.assigns, id),
          %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Category.update(original, attrs),
@@ -102,7 +102,7 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:delete, conn.assigns, id),
+    with %{authorized: true} <- permit(:delete, conn.assigns, id),
          %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
          originator <- Originator.extract(conn.assigns),
          {:ok, deleted} <- Category.delete(category, originator),

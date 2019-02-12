@@ -106,7 +106,7 @@ defmodule AdminAPI.V1.SelfController do
           "token" => token
         }
       ) do
-    with :ok <- permit(:verify_email, conn.assigns),
+    with %{authorized: true} <- permit(:verify_email, conn.assigns),
          {:ok, user} <- UpdateEmailGate.verify(email, token) do
       respond_single(user, conn)
     else

@@ -27,7 +27,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec all(Plug.Conn.t(), map() | nil) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil) do
+    with %{authorized: true} <- permit(:all, conn.assigns, nil) do
       Token
       |> Orchestrator.query(TokenOverlay, attrs)
       |> respond_multiple(conn)
@@ -42,7 +42,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
-    with :ok <- permit(:get, conn.assigns, id) do
+    with %{authorized: true} <- permit(:get, conn.assigns, id) do
       id
       |> Token.get()
       |> respond_single(conn)
@@ -59,7 +59,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec stats(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def stats(conn, %{"id" => id}) do
-    with :ok <- permit(:get, conn.assigns, id),
+    with %{authorized: true} <- permit(:get, conn.assigns, id),
          %Token{} = token <- Token.get(id) || :token_not_found do
       stats = %{
         token: token,
@@ -83,7 +83,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, nil) do
+    with %{authorized: true} <- permit(:create, conn.assigns, nil) do
       do_create(conn, attrs)
     else
       {:error, code} ->
@@ -137,7 +137,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:update, conn.assigns, id),
+    with %{authorized: true} <- permit(:update, conn.assigns, id),
          %Token{} = token <- Token.get(id) || :token_not_found,
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Token.update(token, attrs) do
@@ -157,7 +157,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:enable_or_disable, conn.assigns, id),
+    with %{authorized: true} <- permit(:enable_or_disable, conn.assigns, id),
          %Token{} = token <- Token.get(id) || :token_not_found,
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Token.enable_or_disable(token, attrs) do

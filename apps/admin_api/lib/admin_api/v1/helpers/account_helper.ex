@@ -40,10 +40,10 @@ defmodule AdminAPI.V1.AccountHelper do
 
   @spec get_accessible_account_uuids(%{admin_user: %User{}} | %{key: %Key{}}) :: [String.t()]
   def get_accessible_account_uuids(%{admin_user: admin_user}) do
-    User.get_all_accessible_account_uuids(admin_user)
+    Preloader.preload(admin_user, [:accounts]).accounts
   end
 
   def get_accessible_account_uuids(%{key: key}) do
-    Key.get_all_accessible_account_uuids(key)
+    Preloader.preload(key, [:accounts]).accounts
   end
 end

@@ -29,7 +29,7 @@ defmodule AdminAPI.V1.MintController do
   """
   @spec all_for_token(Conn.t(), map() | nil) :: Conn.t()
   def all_for_token(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:all, conn.assigns, nil),
+    with %{authorized: true} <- permit(:all, conn.assigns, nil),
          %Token{} = token <- Token.get(id) || :token_not_found,
          mints <- Mint.query_by_token(token),
          %Paginator{} = paged_mints <- Orchestrator.query(mints, MintOverlay, attrs) do
@@ -53,7 +53,8 @@ defmodule AdminAPI.V1.MintController do
         } = attrs
       ) do
     with %Token{} = token <- Token.get(token_id) || :unauthorized,
-         :ok <- permit(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}),
+         %{authorized: true} <-
+           permit(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}),
          originator <- Originator.extract(conn.assigns),
          attrs <- Map.put(attrs, "originator", originator),
          {:ok, mint, _token} <- MintGate.mint_token(token, attrs),

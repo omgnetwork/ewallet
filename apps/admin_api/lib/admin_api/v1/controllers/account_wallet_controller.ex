@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.AccountWalletController do
 
   defp do_all(%{"id" => id} = attrs, type, conn) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account) do
+         %{authorized: true} <- permit(:all, conn.assigns, account) do
       account
       |> prepare_account_uuids(attrs["owned"])
       |> load_wallets(type)

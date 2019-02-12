@@ -24,7 +24,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil),
+    with %{authorized: true} <- permit(:all, conn.assigns, nil),
          %Paginator{} = paginator <- Orchestrator.query(ExchangePair, ExchangePairOverlay, attrs) do
       render(conn, :exchange_pairs, %{exchange_pairs: paginator})
     else
@@ -41,7 +41,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
-    with :ok <- permit(:get, conn.assigns, id),
+    with %{authorized: true} <- permit(:get, conn.assigns, id),
          %ExchangePair{} = pair <- ExchangePair.get_by(id: id),
          {:ok, pair} <- Orchestrator.one(pair, ExchangePairOverlay) do
       render(conn, :exchange_pair, %{exchange_pair: pair})
@@ -61,7 +61,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, nil),
+    with %{authorized: true} <- permit(:create, conn.assigns, nil),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, pairs} <- ExchangePairGate.insert(attrs),
          {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay) do
@@ -80,7 +80,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:update, conn.assigns, id),
+    with %{authorized: true} <- permit(:update, conn.assigns, id),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, pairs} <- ExchangePairGate.update(id, attrs),
          {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay) do
@@ -101,7 +101,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:delete, conn.assigns, id),
+    with %{authorized: true} <- permit(:delete, conn.assigns, id),
          originator <- Originator.extract(conn.assigns),
          {:ok, deleted_pairs} <- ExchangePairGate.delete(id, attrs, originator),
          {:ok, deleted_pairs} <- Orchestrator.all(deleted_pairs, ExchangePairOverlay) do

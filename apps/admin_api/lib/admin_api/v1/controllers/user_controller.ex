@@ -26,7 +26,7 @@ defmodule AdminAPI.V1.UserController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil) do
+    with %{authorized: true} <- permit(:all, conn.assigns, nil) do
       # Get all users since everyone can access them
       User
       |> UserQuery.where_end_user()
@@ -39,7 +39,7 @@ defmodule AdminAPI.V1.UserController do
   @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account) do
+         %{authorized: true} <- permit(:all, conn.assigns, account) do
       User
       |> UserQuery.where_end_user()
       |> Account.query_all_users([account.uuid])
@@ -51,7 +51,7 @@ defmodule AdminAPI.V1.UserController do
 
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account),
+         %{authorized: true} <- permit(:all, conn.assigns, account),
          descendant_uuids <- Account.get_all_descendants_uuids(account) do
       User
       |> UserQuery.where_end_user()
@@ -77,7 +77,7 @@ defmodule AdminAPI.V1.UserController do
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, user) do
+         %{authorized: true} <- permit(:get, conn.assigns, user) do
       respond_single(user, conn)
     else
       error -> respond_single(error, conn)
@@ -87,7 +87,7 @@ defmodule AdminAPI.V1.UserController do
   def get(conn, %{"provider_user_id" => id})
       when is_binary(id) and byte_size(id) > 0 do
     with %User{} = user <- User.get_by_provider_user_id(id) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, user) do
+         %{authorized: true} <- permit(:get, conn.assigns, user) do
       respond_single(user, conn)
     else
       error -> respond_single(error, conn)
@@ -104,7 +104,7 @@ defmodule AdminAPI.V1.UserController do
   # that's how users and accounts are linked together).
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, nil),
+    with %{authorized: true} <- permit(:create, conn.assigns, nil),
          originator <- Originator.extract(conn.assigns),
          attrs <- Map.put(attrs, "originator", originator),
          {:ok, user} <- User.insert(attrs),
@@ -131,7 +131,7 @@ defmodule AdminAPI.V1.UserController do
       )
       when is_binary(id) and byte_size(id) > 0 do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
-         :ok <- permit(:update, conn.assigns, user),
+         %{authorized: true} <- permit(:update, conn.assigns, user),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns) do
       user
       |> User.update(attrs)
@@ -150,7 +150,7 @@ defmodule AdminAPI.V1.UserController do
       )
       when is_binary(id) and byte_size(id) > 0 do
     with %User{} = user <- User.get_by_provider_user_id(id) || {:error, :unauthorized},
-         :ok <- permit(:update, conn.assigns, user),
+         %{authorized: true} <- permit(:update, conn.assigns, user),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns) do
       user
       |> User.update(attrs)
@@ -168,7 +168,7 @@ defmodule AdminAPI.V1.UserController do
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, attrs) do
     with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
-         :ok <- permit(:enable_or_disable, conn.assigns, user),
+         %{authorized: true} <- permit(:enable_or_disable, conn.assigns, user),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- User.enable_or_disable(user, attrs),
          :ok <- AuthToken.expire_for_user(updated) do

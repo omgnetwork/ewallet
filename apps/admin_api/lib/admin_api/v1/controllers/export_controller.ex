@@ -35,7 +35,7 @@ defmodule AdminAPI.V1.ExportController do
     storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
 
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, export),
+         %{authorized: true} <- permit(:get, conn.assigns, export),
          true <- export.adapter == storage_adapter || {:error, :invalid_storage_adapter},
          {:ok, url} <- ExportGate.generate_url(export),
          export <- Map.put(export, :url, url),
@@ -52,7 +52,7 @@ defmodule AdminAPI.V1.ExportController do
     storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
 
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, export),
+         %{authorized: true} <- permit(:get, conn.assigns, export),
          true <- export.adapter == "local" || {:error, :export_not_local},
          true <- export.adapter == storage_adapter || {:error, :invalid_storage_adapter},
          path <- Path.join(PathResolver.static_dir(:url_dispatcher), export.path),

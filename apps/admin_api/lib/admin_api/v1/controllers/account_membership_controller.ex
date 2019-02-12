@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.InviteEmail
-  alias EWallet.{AccountMembershipPolicy, EmailValidator}
+  alias EWallet.{AccountMembershipPolicy, EmailValidator, Permission}
   alias EWallet.Web.{Inviter, Orchestrator, Originator, UrlValidator, V1.MembershipOverlay}
   alias EWalletDB.{Account, Membership, Role, User}
 
@@ -27,7 +27,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
     with %Account{} = account <-
            Account.get(account_id, preload: [memberships: [:user, :role]]) ||
              {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, account.id),
+         %{authorized: true} <- permit(:get, conn.assigns, account),
          attrs <- transform_user_filter_attrs(attrs),
          query <- Membership.all_by_account(account),
          memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
@@ -81,7 +81,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   """
   def assign_user(conn, attrs) do
     with %Account{} = account <- Account.get(attrs["account_id"]) || {:error, :unauthorized},
-         :ok <- permit(:create, conn.assigns, account.id),
+         %{authorized: true} <- permit(:create, conn.assigns, account),
          {:ok, user_or_email} <- get_user_or_email(attrs),
          %Role{} = role <-
            Role.get_by(name: attrs["role_name"]) || {:error, :role_name_not_found},
@@ -178,7 +178,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
         "account_id" => account_id
       }) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:delete, conn.assigns, account.id),
+         %{authorized: true} <- permit(:delete, conn.assigns, account),
          %User{} = user <- User.get(user_id) || {:error, :user_id_not_found},
          originator <- Originator.extract(conn.assigns),
          {:ok, _} <- Membership.unassign(user, account, originator) do
@@ -190,9 +190,9 @@ defmodule AdminAPI.V1.AccountMembershipController do
 
   def unassign_user(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  @spec permit(:all | :create | :get | :update | :delete, map(), String.t()) ::
-          :ok | {:error, any()} | no_return()
-  defp permit(action, params, account_id) do
-    Bodyguard.permit(AccountMembershipPolicy, action, params, account_id)
+  @spec permit(:all | :create | :get | :update | :delete, map(), map()) ::
+          {:ok, %Permission{}} | {:error, %Permission{}} | no_return()
+  defp permit(action, params, account_or_membership) do
+    AccountMembershipPolicy.authorize(action, params, account_or_membership)
   end
 end

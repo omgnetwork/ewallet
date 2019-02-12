@@ -26,7 +26,7 @@ defmodule AdminAPI.V1.AdminUserController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil),
+    with %{authorized: true} <- permit(:all, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
       account_uuids
       |> UserQuery.where_has_membership_in_accounts(User)
@@ -43,7 +43,7 @@ defmodule AdminAPI.V1.AdminUserController do
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => user_id}) do
     with %User{} = user <- User.get(user_id) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, user) do
+         %{authorized: true} <- permit(:get, conn.assigns, user) do
       respond_single(user, conn)
     else
       {:error, error} -> handle_error(conn, error)
@@ -58,7 +58,7 @@ defmodule AdminAPI.V1.AdminUserController do
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, attrs) do
     with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
-         :ok <- permit(:enable_or_disable, conn.assigns, user),
+         %{authorized: true} <- permit(:enable_or_disable, conn.assigns, user),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- User.enable_or_disable(user, attrs),
          :ok <- AuthToken.expire_for_user(updated) do

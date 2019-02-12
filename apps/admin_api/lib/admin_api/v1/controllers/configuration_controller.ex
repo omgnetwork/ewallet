@@ -30,7 +30,7 @@ defmodule AdminAPI.V1.ConfigurationController do
   end
 
   def update(conn, attrs) do
-    with :ok <- permit(:update, conn.assigns),
+    with %{authorized: true} <- permit(:update, conn.assigns),
          attrs <- put_originator(conn, attrs),
          {:ok, settings} <- Config.update(attrs) do
       render(conn, :settings_with_errors, %{settings: settings})

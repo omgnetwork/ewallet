@@ -43,7 +43,7 @@ defmodule AdminAPI.V1.AdminAuthController do
   def switch_account(conn, %{"account_id" => account_id} = attrs) do
     with {:ok, _current_user} <- permit(:get, conn.assigns),
          %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit_account(:get, conn.assigns, account.id),
+         %{authorized: true} <- permit_account(:get, conn.assigns, account.id),
          token <- conn.private.auth_auth_token,
          %AuthToken{} = token <-
            AuthToken.get_by_token(token, :admin_api) || {:error, :auth_token_not_found},

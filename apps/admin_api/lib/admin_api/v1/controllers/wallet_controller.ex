@@ -29,7 +29,7 @@ defmodule AdminAPI.V1.WalletController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil),
+    with %{authorized: true} <- permit(:all, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
       Wallet
       |> Wallet.query_all_for_account_uuids_and_user(account_uuids)
@@ -43,7 +43,7 @@ defmodule AdminAPI.V1.WalletController do
   @spec all_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_user(conn, %{"id" => id} = attrs) do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, user) do
+         %{authorized: true} <- permit(:all, conn.assigns, user) do
       user
       |> Wallet.all_for()
       |> do_all(attrs, conn)
@@ -56,7 +56,7 @@ defmodule AdminAPI.V1.WalletController do
   def all_for_user(conn, %{"provider_user_id" => provider_user_id} = attrs) do
     with %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, user) do
+         %{authorized: true} <- permit(:all, conn.assigns, user) do
       user
       |> Wallet.all_for()
       |> do_all(attrs, conn)
@@ -78,7 +78,7 @@ defmodule AdminAPI.V1.WalletController do
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, wallet),
+         %{authorized: true} <- permit(:get, conn.assigns, wallet),
          {:ok, wallet} <- BalanceLoader.add_balances(wallet) do
       respond_single(wallet, conn, attrs)
     else
@@ -90,7 +90,7 @@ defmodule AdminAPI.V1.WalletController do
 
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, attrs),
+    with %{authorized: true} <- permit(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns) do
       attrs
       |> UUIDFetcher.replace_external_ids()
@@ -108,7 +108,7 @@ defmodule AdminAPI.V1.WalletController do
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
-         :ok <- permit(:enable_or_disable, conn.assigns, wallet),
+         %{authorized: true} <- permit(:enable_or_disable, conn.assigns, wallet),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Wallet.enable_or_disable(wallet, attrs),
          {:ok, updated} <- BalanceLoader.add_balances(updated) do
