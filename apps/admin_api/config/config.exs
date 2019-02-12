@@ -11,7 +11,14 @@ config :admin_api,
   ecto_repos: [],
   settings: [
     :sender_email,
-    :file_storage_adapter
+    :file_storage_adapter,
+    :aws_access_key_id,
+    :aws_secret_access_key,
+    :aws_region,
+    :aws_bucket,
+    :file_storage_adapter,
+    :gcs_bucket,
+    :gcs_credentials
   ]
 
 # Configs for the endpoint
