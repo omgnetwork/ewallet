@@ -21,6 +21,7 @@ print_usage() {
     printf "     -p passwd  Specify a PostgreSQL password.\\n"
     printf "     -k key1    Specify an eWallet secret key.\\n"
     printf "     -K key2    Specify a local ledger secret key.\\n"
+    printf "     -E key2    Specify an external ledger secret key.\\n"
     printf "     -f env     Specify an env file.\\n"
     printf "\\n"
 }
@@ -40,6 +41,7 @@ POSTGRES_PASSWORD=""
 EXTERNAL_NETWORK=""
 EWALLET_SECRET_KEY=""
 LOCAL_LEDGER_SECRET_KEY=""
+EXTERNAL_LEDGER_SECRET_KEY=""
 DEV_MODE=0
 
 while true; do
@@ -49,6 +51,7 @@ while true; do
         -p ) POSTGRES_PASSWORD=$2;       shift; shift;;
         -k ) EWALLET_SECRET_KEY=$2;      shift; shift;;
         -K ) LOCAL_LEDGER_SECRET_KEY=$2; shift; shift;;
+        -E ) EXTERNAL_LEDGER_SECRET_KEY=$2; shift; shift;;
         -f ) ENV_FILE=$2;                shift; shift;;
         -d ) DEV_MODE=1;  shift;;
         -h ) print_usage; exit 2;;
@@ -58,6 +61,7 @@ done
 
 [ -z "$EWALLET_SECRET_KEY" ]      && EWALLET_SECRET_KEY=$(openssl rand -base64 32)
 [ -z "$LOCAL_LEDGER_SECRET_KEY" ] && LOCAL_LEDGER_SECRET_KEY=$(openssl rand -base64 32)
+[ -z "$EXTERNAL_LEDGER_SECRET_KEY" ] && EXTERNAL_LEDGER_SECRET_KEY=$(openssl rand -base64 32)
 [ -z "$POSTGRES_PASSWORD" ]       && POSTGRES_PASSWORD=$(openssl rand -base64 24 | tr '+/' '-_')
 
 if [ -z "$IMAGE_NAME" ]; then
@@ -80,8 +84,10 @@ YML_SERVICES="
     environment:
       DATABASE_URL: postgresql://postgres:$POSTGRES_PASSWORD@postgres:5432/ewallet
       LOCAL_LEDGER_DATABASE_URL: postgresql://postgres:$POSTGRES_PASSWORD@postgres:5432/local_ledger
+      EXTERNAL_LEDGER_DATABASE_URL: postgresql://postgres:$POSTGRES_PASSWORD@postgres:5432/external_ledger
       EWALLET_SECRET_KEY: $EWALLET_SECRET_KEY
       LOCAL_LEDGER_SECRET_KEY: $LOCAL_LEDGER_SECRET_KEY\
+      EXTERNAL_LEDGER_SECRET_KEY: $EXTERNAL_LEDGER_SECRET_KEY\
 " # EOF
 
 if [ -n "$ENV_FILE" ]; then
