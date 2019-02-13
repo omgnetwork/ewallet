@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule BlockchainLedgerDB.Repo do
+defmodule ExternalLedger.Repo do
   use Ecto.Repo,
-    otp_app: :blockchain_ledger_db,
+    otp_app: :external_ledger,
     adapter: Ecto.Adapters.Postgres
 
   # Workaround an issue where ecto.migrate task won't start the app

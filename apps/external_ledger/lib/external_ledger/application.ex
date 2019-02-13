@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule BlockchainLedgerDB.Application do
+defmodule ExternalLedger.Application do
   @moduledoc """
-  The BlockchainLedgerDB data store.
+  The ExternalLedger data store.
   """
   use Application
   alias Appsignal.Ecto
@@ -22,28 +22,28 @@ defmodule BlockchainLedgerDB.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec
-    DeferredConfig.populate(:blockchain_ledger_db)
+    DeferredConfig.populate(:external_ledger)
 
-    settings = Application.get_env(:blockchain_ledger_db, :settings)
-    Config.register_and_load(:blockchain_ledger_db, settings)
+    settings = Application.get_env(:external_ledger, :settings)
+    Config.register_and_load(:external_ledger, settings)
 
     ActivityLogger.configure(%{
-      BlockchainLedgerDB.Wallet => %{type: "ethereum_wallet", identifier: :id}
+      ExternalLedger.Wallet => %{type: "external_ledger_wallet", identifier: :id}
     })
 
     :telemetry.attach(
       "appsignal-ecto",
-      [:blockchain_ledger_db, :repo, :query],
+      [:external_ledger, :repo, :query],
       &Ecto.handle_event/4,
       nil
     )
 
     children = [
-      supervisor(BlockchainLedgerDB.Repo, []),
-      supervisor(BlockchainLedgerDB.Vault, [])
+      supervisor(ExternalLedger.Repo, []),
+      supervisor(ExternalLedger.Vault, [])
     ]
 
-    opts = [strategy: :one_for_one, name: BlockchainLedgerDB.Supervisor]
+    opts = [strategy: :one_for_one, name: ExternalLedger.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
