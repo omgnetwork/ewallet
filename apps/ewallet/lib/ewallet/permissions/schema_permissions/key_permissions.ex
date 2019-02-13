@@ -27,6 +27,10 @@ defmodule EWallet.SchemaPermissions.KeyPermissions do
     Ecto.assoc(actor, :accounts)
   end
 
+  def get_query_actor_records(%Permission{type: :memberships, actor: actor}) do
+    Ecto.assoc(actor, :memberships)
+  end
+
   def get_target_accounts(%Key{} = key) do
     get_actor_accounts(key)
   end

@@ -16,41 +16,47 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
   alias Utils.Helpers.DateFormatter
-  alias EWalletDB.{Account, User, Membership, Repo}
+  alias EWalletDB.{Role, User, Membership, Repo}
+  alias ActivityLogger.System
 
   @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
 
   describe "/account.get_members" do
     test_with_auths "returns a list of users with role and status" do
-      master = Account.get_master_account()
-      admin = get_test_admin()
+      set_admin_as_super_admin()
       account = insert(:account)
-      {:ok, user} = :user |> params_for() |> User.insert()
-      role = insert(:role)
-      _ = insert(:membership, %{account: account, user: user, role: role})
+
+      {:ok, user_1} = :user |> params_for() |> User.insert()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+
+      admin_role = Role.get_by(name: "admin")
+      viewer_role = insert(:role, name: "viewer")
+
+      {:ok, _} = Membership.assign(user_1, account, admin_role, %System{})
+      {:ok, _} = Membership.assign(user_2, account, viewer_role, %System{})
 
       response = request("/account.get_members", %{id: account.id})
 
       assert response["success"] == true
-      # created user + admin user = 2
+      # created two users for the given account
       assert length(response["data"]["data"]) == 2
 
       assert Enum.member?(response["data"]["data"], %{
                "object" => "user",
-               "id" => user.id,
-               "socket_topic" => "user:#{user.id}",
-               "username" => user.username,
-               "full_name" => user.full_name,
-               "calling_name" => user.calling_name,
-               "provider_user_id" => user.provider_user_id,
-               "email" => user.email,
-               "metadata" => user.metadata,
+               "id" => user_1.id,
+               "socket_topic" => "user:#{user_1.id}",
+               "username" => user_1.username,
+               "full_name" => user_1.full_name,
+               "calling_name" => user_1.calling_name,
+               "provider_user_id" => user_1.provider_user_id,
+               "email" => user_1.email,
+               "metadata" => user_1.metadata,
                "encrypted_metadata" => %{},
-               "created_at" => DateFormatter.to_iso8601(user.inserted_at),
-               "updated_at" => DateFormatter.to_iso8601(user.updated_at),
-               "account_role" => role.name,
-               "status" => to_string(User.get_status(user)),
-               "enabled" => user.enabled,
+               "created_at" => DateFormatter.to_iso8601(user_1.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(user_1.updated_at),
+               "account_role" => "admin",
+               "status" => to_string(User.get_status(user_1)),
+               "enabled" => user_1.enabled,
                "avatar" => %{
                  "original" => nil,
                  "large" => nil,
@@ -68,7 +74,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
                  "metadata" => %{},
                  "name" => account.name,
                  "object" => "account",
-                 "parent_id" => account.parent.id,
+                 "parent_id" => nil,
                  "socket_topic" => "account:#{account.id}",
                  "created_at" => DateFormatter.to_iso8601(account.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(account.updated_at)
@@ -77,20 +83,20 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
       assert Enum.member?(response["data"]["data"], %{
                "object" => "user",
-               "id" => admin.id,
-               "socket_topic" => "user:#{admin.id}",
-               "username" => admin.username,
-               "full_name" => admin.full_name,
-               "calling_name" => admin.calling_name,
-               "provider_user_id" => admin.provider_user_id,
-               "email" => admin.email,
-               "metadata" => admin.metadata,
+               "id" => user_2.id,
+               "socket_topic" => "user:#{user_2.id}",
+               "username" => user_2.username,
+               "full_name" => user_2.full_name,
+               "calling_name" => user_2.calling_name,
+               "provider_user_id" => user_2.provider_user_id,
+               "email" => user_2.email,
+               "metadata" => user_2.metadata,
                "encrypted_metadata" => %{},
-               "created_at" => DateFormatter.to_iso8601(admin.inserted_at),
-               "updated_at" => DateFormatter.to_iso8601(admin.updated_at),
-               "account_role" => "admin",
-               "status" => to_string(User.get_status(admin)),
-               "enabled" => admin.enabled,
+               "created_at" => DateFormatter.to_iso8601(user_2.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(user_2.updated_at),
+               "account_role" => "viewer",
+               "status" => to_string(User.get_status(user_2)),
+               "enabled" => user_2.enabled,
                "avatar" => %{
                  "original" => nil,
                  "large" => nil,
@@ -101,80 +107,19 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
                  "avatar" => %{"large" => nil, "original" => nil, "small" => nil, "thumb" => nil},
                  "categories" => %{"data" => [], "object" => "list"},
                  "category_ids" => [],
-                 "description" => master.description,
+                 "description" => account.description,
                  "encrypted_metadata" => %{},
-                 "id" => master.id,
-                 "master" => true,
+                 "id" => account.id,
+                 "master" => false,
                  "metadata" => %{},
-                 "name" => master.name,
+                 "name" => account.name,
                  "object" => "account",
                  "parent_id" => nil,
-                 "socket_topic" => "account:#{master.id}",
-                 "created_at" => DateFormatter.to_iso8601(master.inserted_at),
-                 "updated_at" => DateFormatter.to_iso8601(master.updated_at)
+                 "socket_topic" => "account:#{account.id}",
+                 "created_at" => DateFormatter.to_iso8601(account.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(account.updated_at)
                }
              })
-    end
-
-    test_with_auths "returns the upper admins only if the account has no members" do
-      admin = get_test_admin()
-      master = Account.get_master_account()
-      account = insert(:account)
-
-      assert request("/account.get_members", %{id: account.id}) ==
-               %{
-                 "version" => "1",
-                 "success" => true,
-                 "data" => %{
-                   "object" => "list",
-                   "data" => [
-                     %{
-                       "object" => "user",
-                       "id" => admin.id,
-                       "socket_topic" => "user:#{admin.id}",
-                       "username" => admin.username,
-                       "full_name" => admin.full_name,
-                       "calling_name" => admin.calling_name,
-                       "provider_user_id" => admin.provider_user_id,
-                       "email" => admin.email,
-                       "metadata" => admin.metadata,
-                       "encrypted_metadata" => %{},
-                       "created_at" => DateFormatter.to_iso8601(admin.inserted_at),
-                       "updated_at" => DateFormatter.to_iso8601(admin.updated_at),
-                       "account_role" => "admin",
-                       "status" => to_string(User.get_status(admin)),
-                       "enabled" => admin.enabled,
-                       "avatar" => %{
-                         "original" => nil,
-                         "large" => nil,
-                         "small" => nil,
-                         "thumb" => nil
-                       },
-                       "account" => %{
-                         "avatar" => %{
-                           "large" => nil,
-                           "original" => nil,
-                           "small" => nil,
-                           "thumb" => nil
-                         },
-                         "categories" => %{"data" => [], "object" => "list"},
-                         "category_ids" => [],
-                         "description" => master.description,
-                         "encrypted_metadata" => %{},
-                         "id" => master.id,
-                         "master" => true,
-                         "metadata" => %{},
-                         "name" => master.name,
-                         "object" => "account",
-                         "parent_id" => nil,
-                         "socket_topic" => "account:#{master.id}",
-                         "created_at" => DateFormatter.to_iso8601(master.inserted_at),
-                         "updated_at" => DateFormatter.to_iso8601(master.updated_at)
-                       }
-                     }
-                   ]
-                 }
-               }
     end
 
     test_with_auths "returns unauthorized error if account id could not be found" do
@@ -210,16 +155,17 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_any filtering on the user fields" do
+      set_admin_as_super_admin()
       admin_1 = insert(:admin, username: "value_1")
       admin_2 = insert(:admin, username: "value_2")
       admin_3 = insert(:admin, username: "value_3")
       admin_4 = insert(:admin, username: "value_4")
       account = insert(:account)
 
-      _ = insert(:membership, %{user: admin_1, account: account})
-      _ = insert(:membership, %{user: admin_2, account: account})
-      _ = insert(:membership, %{user: admin_3, account: account})
-      _ = insert(:membership, %{user: admin_4, account: account})
+      {:ok, _} = Membership.assign(admin_1, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_2, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_3, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_4, account, "admin", %System{})
 
       attrs = %{
         "id" => account.id,
@@ -255,16 +201,17 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_any filtering on the membership fields" do
+      set_admin_as_super_admin()
       admin_1 = insert(:admin, username: "value_1")
       admin_2 = insert(:admin, username: "value_2")
       admin_3 = insert(:admin, username: "value_3")
       account = insert(:account)
-      role_1 = insert(:role)
-      role_2 = insert(:role)
+      role_1 = Role.get_by(name: "admin")
+      role_2 = insert(:role, name: "viewer")
 
-      _ = insert(:membership, %{user: admin_1, account: account, role: role_1})
-      _ = insert(:membership, %{user: admin_2, account: account, role: role_2})
-      _ = insert(:membership, %{user: admin_3, account: account, role: role_2})
+      {:ok, _} = Membership.assign(admin_1, account, role_1, %System{})
+      {:ok, _} = Membership.assign(admin_2, account, role_2, %System{})
+      {:ok, _} = Membership.assign(admin_3, account, role_1, %System{})
 
       attrs = %{
         "id" => account.id,
@@ -299,16 +246,18 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     # This is a variation of `ConnCase.test_supports_match_all/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_all filtering on user fields" do
+      set_admin_as_super_admin()
+
       admin_1 = insert(:admin, %{username: "this_should_almost_match"})
       admin_2 = insert(:admin, %{username: "this_should_match"})
       admin_3 = insert(:admin, %{username: "should_not_match"})
       admin_4 = insert(:admin, %{username: "also_should_not_match"})
       account = insert(:account)
 
-      _ = insert(:membership, %{user: admin_1, account: account})
-      _ = insert(:membership, %{user: admin_2, account: account})
-      _ = insert(:membership, %{user: admin_3, account: account})
-      _ = insert(:membership, %{user: admin_4, account: account})
+      {:ok, _} = Membership.assign(admin_1, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_2, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_3, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_4, account, "admin", %System{})
 
       attrs = %{
         "id" => account.id,
@@ -343,16 +292,17 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_all filtering on membership fields" do
+      set_admin_as_super_admin()
       admin_1 = insert(:admin)
       admin_2 = insert(:admin)
       admin_3 = insert(:admin)
       account = insert(:account)
-      role_1 = insert(:role)
-      role_2 = insert(:role)
+      role_1 = Role.get_by(name: "admin")
+      role_2 = insert(:role, name: "viewer")
 
-      _ = insert(:membership, %{user: admin_1, account: account, role: role_1})
-      _ = insert(:membership, %{user: admin_2, account: account, role: role_1})
-      _ = insert(:membership, %{user: admin_3, account: account, role: role_2})
+      {:ok, _} = Membership.assign(admin_1, account, role_1, %System{})
+      {:ok, _} = Membership.assign(admin_2, account, role_1, %System{})
+      {:ok, _} = Membership.assign(admin_3, account, role_2, %System{})
 
       attrs = %{
         "id" => account.id,
@@ -386,13 +336,14 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
   describe "/account.assign_user" do
     test_with_auths "returns empty success if assigned with user_id successfully" do
+      set_admin_as_super_admin()
       {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
         request("/account.assign_user", %{
           user_id: user.id,
           account_id: insert(:account).id,
-          role_name: insert(:role).name,
+          role_name: Role.get_by(name: "admin").name,
           redirect_url: @redirect_url
         })
 
@@ -401,11 +352,13 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns empty success if assigned with email successfully" do
+      set_admin_as_super_admin()
+
       response =
         request("/account.assign_user", %{
           email: insert(:admin).email,
           account_id: insert(:account).id,
-          role_name: insert(:role).name,
+          role_name: Role.get_by(name: "admin").name,
           redirect_url: @redirect_url
         })
 
@@ -414,9 +367,12 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns empty success if the user has a pending confirmation" do
+      set_admin_as_super_admin()
       email = "user_pending_confirmation@example.com"
+      admin = get_test_admin()
       account = insert(:account)
-      role = insert(:role)
+      role = Role.get_by(name: "admin")
+      {:ok, _} = Membership.assign(admin, account, role, %System{})
 
       response =
         request("/account.assign_user", %{
@@ -445,11 +401,13 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns an error if the email format is invalid" do
+      set_admin_as_super_admin()
+
       response =
         request("/account.assign_user", %{
           email: "invalid_format",
           account_id: insert(:account).id,
-          role_name: insert(:role).name,
+          role_name: Role.get_by(name: "admin").name,
           redirect_url: @redirect_url
         })
 
@@ -460,11 +418,13 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns an error if the email is nil" do
+      set_admin_as_super_admin()
+
       response =
         request("/account.assign_user", %{
           email: nil,
           account_id: insert(:account).id,
-          role_name: insert(:role).name,
+          role_name: Role.get_by(name: "admin").name,
           redirect_url: @redirect_url
         })
 
@@ -475,13 +435,14 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns client:invalid_parameter error if the redirect_url is not allowed" do
+      set_admin_as_super_admin()
       redirect_url = "http://unknown-url.com/invite?email={email}&token={token}"
 
       response =
         request("/account.assign_user", %{
           email: "wrong.redirect.url@example.com",
           account_id: insert(:account).id,
-          role_name: insert(:role).name,
+          role_name: Role.get_by(name: "admin").name,
           redirect_url: redirect_url
         })
 
@@ -493,11 +454,13 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns an error if the given user id does not exist" do
+      set_admin_as_super_admin()
+
       response =
         request("/account.assign_user", %{
           user_id: UUID.generate(),
           account_id: insert(:account).id,
-          role_name: insert(:role).name,
+          role_name: Role.get_by(name: "admin").name,
           redirect_url: @redirect_url
         })
 
@@ -510,13 +473,14 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns an error if the given account id does not exist" do
+      set_admin_as_super_admin()
       {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
         request("/account.assign_user", %{
           user_id: user.id,
           account_id: "acc_12345678901234567890123456",
-          role_name: insert(:role).name,
+          role_name: Role.get_by(name: "admin").name,
           redirect_url: @redirect_url
         })
 
@@ -529,6 +493,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns an error if the given role does not exist" do
+      set_admin_as_super_admin()
       {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
@@ -566,9 +531,11 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test "generates an activity log for an admin request" do
+      set_admin_as_super_admin()
+
       {:ok, user} = :user |> params_for() |> User.insert()
       account = insert(:account)
-      role = insert(:role)
+      role = Role.get_by(name: "admin")
       timestamp = DateTime.utc_now()
 
       response =
@@ -590,7 +557,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     test "generates an activity log for a provider request" do
       {:ok, user} = :user |> params_for() |> User.insert()
       account = insert(:account)
-      role = insert(:role)
+      role = Role.get_by(name: "admin")
       timestamp = DateTime.utc_now()
 
       response =
@@ -613,8 +580,9 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
   describe "/account.unassign_user" do
     test_with_auths "returns empty success if unassigned successfully" do
       account = insert(:account)
+      add_admin_to_account(account)
       {:ok, user} = :user |> params_for() |> User.insert()
-      _membership = insert(:membership, %{account: account, user: user})
+      {:ok, _} = Membership.assign(user, account, "admin", %System{})
 
       response =
         request("/account.unassign_user", %{
@@ -638,13 +606,12 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "membership:not_found"
-
-      assert response["data"]["description"] ==
-               "The user is not assigned to the provided account."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "returns an error if the given user id does not exist" do
+      set_admin_as_super_admin()
+
       response =
         request("/account.unassign_user", %{
           user_id: UUID.generate(),
@@ -653,10 +620,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "returns an error if the given account id does not exist" do
@@ -691,9 +655,11 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test "generates an activity log for an admin request" do
+      set_admin_as_super_admin()
+
       account = insert(:account)
       {:ok, user} = :user |> params_for() |> User.insert()
-      membership = insert(:membership, %{account: account, user: user})
+      {:ok, membership} = Membership.assign(user, account, "admin", %System{})
 
       timestamp = DateTime.utc_now()
 
@@ -713,7 +679,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     test "generates an activity log for a provider request" do
       account = insert(:account)
       {:ok, user} = :user |> params_for() |> User.insert()
-      membership = insert(:membership, %{account: account, user: user})
+      {:ok, membership} = Membership.assign(user, account, "admin", %System{})
 
       timestamp = DateTime.utc_now()
 

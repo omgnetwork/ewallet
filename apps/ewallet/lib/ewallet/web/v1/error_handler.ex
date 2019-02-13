@@ -412,20 +412,6 @@ defmodule EWallet.Web.V1.ErrorHandler do
         }
   def errors, do: @errors
 
-  # ---- WITH PERMISSION STRUCT ----
-  Permission
-  @spec build_error(Permission.t() | atom(), map() | Ecto.Changeset.t() | String.t(), map() | nil) ::
-          map()
-  def build_error(%Permission{authorized: false} = permission, %Changeset{} = changeset, supported_errors) do
-    run_if_valid_error(:unauthorized, supported_errors, fn error ->
-      build(
-        code: error.code,
-        desc: stringify_errors(changeset, error.description),
-        msgs: error_fields(changeset)
-      )
-    end)
-  end
-
   # ---- WITH CHANGESET ----
   @doc """
   Handles response of invalid parameter error with error details provided.
@@ -488,6 +474,15 @@ defmodule EWallet.Web.V1.ErrorHandler do
   def build_error(code, data, supported_errors) when is_map(data) or is_list(data) do
     run_if_valid_error(code, supported_errors, fn error ->
       build(code: error.code, desc: build_template(data, error.template))
+    end)
+  end
+
+  # ---- WITH PERMISSION STRUCT ----
+  @spec build_error(Permission.t() | atom(), map() | Ecto.Changeset.t() | String.t(), map() | nil) ::
+          map()
+  def build_error(%Permission{authorized: false}, supported_errors) do
+    run_if_valid_error(:unauthorized, supported_errors, fn error ->
+      build(code: error.code, desc: error.description)
     end)
   end
 

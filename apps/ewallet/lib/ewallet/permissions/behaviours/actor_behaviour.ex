@@ -12,16 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.AccountMembershipPolicy do
+defmodule EWallet.Behaviour.ActorBehaviour do
   @moduledoc """
-  The authorization policy for accounts.
+  A behavior defining the needed functions for a schema permissions module.
   """
-  alias EWallet.{PolicyHelper, Permissions, Permission}
-  alias EWalletDB.Membership
+  alias EWallet.Permission
+  alias EWalletDB.Account
+  alias Ecto.Query
 
-  @spec authorize(any(), any(), any()) ::
-          {:error, EWallet.Permission.t()} | {:ok, EWallet.Permission.t()}
-  def authorize(action, attrs, target) do
-    PolicyHelper.authorize(action, attrs, :memberships, Membership, target)
-  end
+  @callback get_query_actor_records(Permission.t()) :: Query.t()
+  @callback get_actor_accounts(any()) :: [Account.t()]
 end

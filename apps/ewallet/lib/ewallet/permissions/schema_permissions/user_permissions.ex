@@ -40,6 +40,10 @@ defmodule EWallet.SchemaPermissions.UserPermissions do
     Ecto.assoc(actor, :linked_accounts)
   end
 
+  def get_query_actor_records(%Permission{type: :memberships, actor: actor}) do
+    Ecto.assoc(actor, :memberships)
+  end
+
   def get_actor_accounts(%User{is_admin: true} = actor) do
     actor = Preloader.preload(actor, [:accounts, :memberships])
     actor.accounts

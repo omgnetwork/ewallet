@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.InviteEmail
-  alias EWallet.{AccountMembershipPolicy, EmailValidator, Permission}
+  alias EWallet.{AccountMembershipPolicy, AccountPolicy, EmailValidator, Permission}
   alias EWallet.Web.{Inviter, Orchestrator, Originator, UrlValidator, V1.MembershipOverlay}
   alias EWalletDB.{Account, Membership, Role, User}
 
@@ -27,9 +27,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
     with %Account{} = account <-
            Account.get(account_id, preload: [memberships: [:user, :role]]) ||
              {:error, :unauthorized},
-         %{authorized: true} <- permit(:get, conn.assigns, account),
+         {:ok, _} <- permit(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
          attrs <- transform_user_filter_attrs(attrs),
-         query <- Membership.all_by_account(account),
+         query <- Membership.all_by_account(account, query),
          memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
       render(conn, :memberships, %{memberships: memberships})
     else
@@ -81,7 +82,8 @@ defmodule AdminAPI.V1.AccountMembershipController do
   """
   def assign_user(conn, attrs) do
     with %Account{} = account <- Account.get(attrs["account_id"]) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:create, conn.assigns, account),
+         {:ok, _} <-
+           permit(:create, conn.assigns, %Membership{account: account, account_uuid: account.uuid}),
          {:ok, user_or_email} <- get_user_or_email(attrs),
          %Role{} = role <-
            Role.get_by(name: attrs["role_name"]) || {:error, :role_name_not_found},
@@ -95,6 +97,9 @@ defmodule AdminAPI.V1.AccountMembershipController do
 
       {:error, code} when is_atom(code) ->
         handle_error(conn, code)
+
+      {:error, %Permission{} = permission} ->
+        handle_error(conn, permission)
 
       # Matches a different error format returned by Membership.assign_user/2
       {:error, changeset} ->
@@ -176,14 +181,17 @@ defmodule AdminAPI.V1.AccountMembershipController do
   def unassign_user(conn, %{
         "user_id" => user_id,
         "account_id" => account_id
-      }) do
-    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:delete, conn.assigns, account),
-         %User{} = user <- User.get(user_id) || {:error, :user_id_not_found},
+      })
+      when not is_nil(account_id) and not is_nil(user_id) do
+    with %Account{} = account <- Account.get(account_id),
+         %User{} = user <- User.get(user_id),
+         %Membership{} = membership <- Membership.get_by_user_and_account(user, account),
+         {:ok, _} <- permit(:delete, conn.assigns, membership),
          originator <- Originator.extract(conn.assigns),
          {:ok, _} <- Membership.unassign(user, account, originator) do
       render(conn, :empty, %{success: true})
     else
+      nil -> handle_error(conn, :unauthorized)
       {:error, error} -> handle_error(conn, error)
     end
   end
@@ -192,7 +200,11 @@ defmodule AdminAPI.V1.AccountMembershipController do
 
   @spec permit(:all | :create | :get | :update | :delete, map(), map()) ::
           {:ok, %Permission{}} | {:error, %Permission{}} | no_return()
-  defp permit(action, params, account_or_membership) do
-    AccountMembershipPolicy.authorize(action, params, account_or_membership)
+  defp permit(action, params, %Account{} = account) do
+    AccountPolicy.authorize(action, params, account)
+  end
+
+  defp permit(action, params, membership) do
+    AccountMembershipPolicy.authorize(action, params, membership)
   end
 end

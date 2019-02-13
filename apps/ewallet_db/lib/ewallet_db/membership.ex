@@ -111,8 +111,11 @@ defmodule EWalletDB.Membership do
     )
   end
 
-  def all_by_account(account, preload \\ []) do
-    from(m in Membership, where: m.account_uuid in ^account.uuid, preload: ^preload)
+  @spec all_by_account(EWalletDB.Account.t(), any(), any()) :: Ecto.Query.t()
+  def all_by_account(%Account{} = account, query \\ Membership, preload \\ []) do
+    query
+    |> where([m], m.account_uuid == ^account.uuid)
+    |> preload([m], ^preload)
   end
 
   def all_by_account_uuids(account_uuids, preload \\ []) do

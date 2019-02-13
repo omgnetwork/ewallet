@@ -22,7 +22,7 @@ defmodule EWalletDB.GlobalRole do
     "admin" => %{
       account_permissions: true,
       accounts: %{all: :accounts, get: :accounts, create: :none, update: :accounts},
-      memberships: %{all: :accounts, get: :accounts, create: :accounts, update: :accounts},
+      memberships: %{all: :accounts, get: :accounts, create: :accounts, delete: :accounts},
       categories: %{all: :global, get: :global, create: :none, update: :none},
       admin_users: %{all: :accounts, get: :accounts, update: :accounts, disable: :accounts},
       end_users: %{
@@ -86,6 +86,7 @@ defmodule EWalletDB.GlobalRole do
       account_permissions: true,
       accounts: %{all: :accounts, get: :accounts, create: :none, update: :none},
       categories: %{all: :global, get: :global, create: :none, update: :none},
+      memberships: %{all: :accounts, get: :accounts, create: :none, update: :none},
       admin_users: %{all: :accounts, get: :accounts, create: :none, update: :none, disable: :none},
       end_users: %{all: :global, get: :global, create: :none, update: :none, disable: :none},
       access_keys: %{all: :accounts, get: :accounts, create: :none, update: :none, disable: :none},

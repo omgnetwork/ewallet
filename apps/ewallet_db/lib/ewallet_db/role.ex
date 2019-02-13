@@ -31,6 +31,7 @@ defmodule EWalletDB.Role do
     "admin" => %{
       accounts: %{all: :accounts, get: :accounts, update: :accounts},
       categories: %{all: :global, get: :global},
+      memberships: %{all: :accounts, get: :accounts, create: :accounts, delete: :accounts},
       admin_users: %{all: :accounts, get: :accounts, create: :accounts, update: :accounts},
       end_users: %{all: :accounts, get: :accounts, create: :accounts, update: :accounts},
       access_keys: %{
@@ -86,6 +87,7 @@ defmodule EWalletDB.Role do
     "viewer" => %{
       account: %{all: :accounts, get: :accounts},
       categories: %{all: :global, get: :global},
+      memberships: %{all: :accounts, get: :accounts},
       admin_users: %{all: :accounts, get: :accounts},
       end_users: %{all: :accounts, get: :accounts},
       access_keys: %{all: :accounts, get: :accounts},

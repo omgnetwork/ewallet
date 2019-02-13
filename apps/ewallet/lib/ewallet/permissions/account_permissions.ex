@@ -85,6 +85,10 @@ defmodule EWallet.AccountPermissions do
     |> find_sufficient_permission(permission, permissions, memberships)
   end
 
+  defp find_sufficient_permission_in_memberships(permission, _, _) do
+    permission
+  end
+
   defp find_sufficient_permission(:global, permission, _, _) do
     %{permission | account_authorized: true, account_permission: :global}
   end
