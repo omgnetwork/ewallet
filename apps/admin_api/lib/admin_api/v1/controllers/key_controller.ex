@@ -51,7 +51,7 @@ defmodule AdminAPI.V1.KeyController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with %{authorized: true} <- permit(:create, conn.assigns, nil),
+    with %{authorized: true} <- permit(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns, :originator),
          {:ok, key} <- Key.insert(attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
@@ -70,8 +70,8 @@ defmodule AdminAPI.V1.KeyController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:update, conn.assigns, id),
-         %Key{} = key <- Key.get(id) || {:error, :key_not_found},
+    with %Key{} = key <- Key.get(id) || {:error, :key_not_found},
+         %{authorized: true} <- permit(:update, conn.assigns, key),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, key} <- Key.enable_or_disable(key, attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
@@ -94,8 +94,8 @@ defmodule AdminAPI.V1.KeyController do
   """
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, %{"id" => id, "enabled" => _} = attrs) do
-    with %{authorized: true} <- permit(:enable_or_disable, conn.assigns, id),
-         %Key{} = key <- Key.get(id) || {:error, :key_not_found},
+    with %Key{} = key <- Key.get(id) || {:error, :key_not_found},
+         %{authorized: true} <- permit(:enable_or_disable, conn.assigns, key),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, key} <- Key.enable_or_disable(key, attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
@@ -118,8 +118,8 @@ defmodule AdminAPI.V1.KeyController do
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"access_key" => access_key}) do
-    with %{authorized: true} <- permit(:delete, conn.assigns, nil) do
-      key = Key.get_by(access_key: access_key)
+    with %Key{} = key <- Key.get_by(access_key: access_key) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:delete, conn.assigns, key) do
       do_delete(conn, key)
     else
       {:error, code} ->
@@ -128,8 +128,8 @@ defmodule AdminAPI.V1.KeyController do
   end
 
   def delete(conn, %{"id" => id}) do
-    with %{authorized: true} <- permit(:delete, conn.assigns, nil) do
-      key = Key.get(id)
+    with %Key{} = key <- Key.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:delete, conn.assigns, key) do
       do_delete(conn, key)
     else
       {:error, code} ->

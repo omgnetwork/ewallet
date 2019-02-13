@@ -27,7 +27,6 @@ defmodule AdminAPI.V1.UserController do
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
     with %{authorized: true} <- permit(:all, conn.assigns, nil) do
-      # Get all users since everyone can access them
       User
       |> UserQuery.where_end_user()
       |> do_all(attrs, conn)
@@ -39,7 +38,7 @@ defmodule AdminAPI.V1.UserController do
   @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:all, conn.assigns, account) do
+         %{authorized: true} <- permit(:get, conn.assigns, account) do
       User
       |> UserQuery.where_end_user()
       |> Account.query_all_users([account.uuid])
@@ -51,7 +50,7 @@ defmodule AdminAPI.V1.UserController do
 
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:all, conn.assigns, account),
+         %{authorized: true} <- permit(:get, conn.assigns, account),
          descendant_uuids <- Account.get_all_descendants_uuids(account) do
       User
       |> UserQuery.where_end_user()
@@ -104,7 +103,7 @@ defmodule AdminAPI.V1.UserController do
   # that's how users and accounts are linked together).
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with %{authorized: true} <- permit(:create, conn.assigns, nil),
+    with %{authorized: true} <- permit(:create, conn.assigns, attrs),
          originator <- Originator.extract(conn.assigns),
          attrs <- Map.put(attrs, "originator", originator),
          {:ok, user} <- User.insert(attrs),

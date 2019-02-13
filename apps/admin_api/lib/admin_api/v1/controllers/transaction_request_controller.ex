@@ -41,7 +41,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:all, conn.assigns, account) do
+         %{authorized: true} <- permit(:get, conn.assigns, account) do
       TransactionRequest
       |> TransactionRequest.query_all_for_account_uuids_and_users([account.uuid])
       |> do_all(attrs, conn)
@@ -52,7 +52,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:all, conn.assigns, account),
+         %{authorized: true} <- permit(:get, conn.assigns, account),
          descendant_uuids <- Account.get_all_descendants_uuids(account) do
       TransactionRequest
       |> TransactionRequest.query_all_for_account_uuids_and_users(descendant_uuids)
@@ -75,7 +75,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   @spec get(Plug.Conn.t(), map) :: Plug.Conn.t()
   def get(conn, %{"formatted_id" => formatted_id}) do
-    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id),
+    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id) || {:error, :unauthorized},
          %{authorized: true} <- permit(:get, conn.assigns, request) do
       respond({:ok, request}, conn)
     else
@@ -97,11 +97,16 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    attrs
-    |> Map.put("originator", Originator.extract(conn.assigns))
-    |> Map.put("creator", conn.assigns)
-    |> TransactionRequestGate.create()
-    |> respond(conn)
+    with %{authorized: true} <- permit(:create, conn.assigns, attrs) do
+      attrs
+      |> Map.put("originator", Originator.extract(conn.assigns))
+      |> Map.put("creator", conn.assigns)
+      |> TransactionRequestGate.create()
+      |> respond(conn)
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+    end
   end
 
   # Respond with a list of transaction requests

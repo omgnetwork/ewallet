@@ -48,7 +48,7 @@ defmodule AdminAPI.V1.APIKeyController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with %{authorized: true} <- permit(:create, conn.assigns, nil),
+    with %{authorized: true} <- permit(:create, conn.assigns, attrs),
          # Admin API doesn't use API Keys anymore. Defaulting to "ewallet_api".
          {:ok, api_key} <-
            APIKey.insert(%{
@@ -68,8 +68,8 @@ defmodule AdminAPI.V1.APIKeyController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:update, conn.assigns, id),
-         %APIKey{} = api_key <- APIKey.get(id) || {:error, :api_key_not_found},
+    with %APIKey{} = api_key <- APIKey.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:update, conn.assigns, api_key),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, api_key} <- APIKey.update(api_key, attrs),
          {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
@@ -92,8 +92,8 @@ defmodule AdminAPI.V1.APIKeyController do
   """
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, %{"id" => id, "enabled" => _} = attrs) do
-    with %{authorized: true} <- permit(:enable_or_disable, conn.assigns, id),
-         %APIKey{} = api_key <- APIKey.get(id) || {:error, :api_key_not_found},
+    with %APIKey{} = api_key <- APIKey.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:enable_or_disable, conn.assigns, api_key),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, api_key} <- APIKey.enable_or_disable(api_key, attrs),
          {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
@@ -116,9 +116,9 @@ defmodule AdminAPI.V1.APIKeyController do
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id}) do
-    with %{authorized: true} <- permit(:delete, conn.assigns, id),
-         %APIKey{} = key <- APIKey.get(id) do
-      do_delete(conn, key)
+    with %APIKey{} = api_key <- APIKey.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:delete, conn.assigns, api_key) do
+      do_delete(conn, api_key)
     else
       {:error, code} ->
         handle_error(conn, code)
@@ -147,7 +147,7 @@ defmodule AdminAPI.V1.APIKeyController do
           map(),
           String.t() | nil
         ) :: :ok | {:error, any()} | no_return()
-  defp permit(action, params, api_key_id) do
-    APIKeyPolicy.authorize(action, params, api_key_id)
+  defp permit(action, params, api_key) do
+    APIKeyPolicy.authorize(action, params, api_key)
   end
 end

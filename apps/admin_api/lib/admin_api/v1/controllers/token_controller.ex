@@ -42,10 +42,9 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
-    with %{authorized: true} <- permit(:get, conn.assigns, id) do
-      id
-      |> Token.get()
-      |> respond_single(conn)
+    with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:get, conn.assigns, token) do
+      respond_single(token, conn)
     else
       {:error, code} ->
         handle_error(conn, code)
@@ -59,8 +58,8 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec stats(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def stats(conn, %{"id" => id}) do
-    with %{authorized: true} <- permit(:get, conn.assigns, id),
-         %Token{} = token <- Token.get(id) || :token_not_found do
+    with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:stats, conn.assigns, token) do
       stats = %{
         token: token,
         total_supply: Mint.total_supply_for_token(token)
@@ -83,7 +82,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with %{authorized: true} <- permit(:create, conn.assigns, nil) do
+    with %{authorized: true} <- permit(:create, conn.assigns, attrs) do
       do_create(conn, attrs)
     else
       {:error, code} ->
@@ -92,15 +91,23 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   defp do_create(conn, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0 do
-    attrs
-    |> Map.put("account_uuid", Account.get_master_account().uuid)
-    |> Originator.set_in_attrs(conn.assigns)
-    |> Token.insert()
-    |> MintGate.mint_token(%{
-      "amount" => amount,
-      "originator" => Originator.extract(conn.assigns)
-    })
-    |> respond_single(conn)
+    with attrs <- Map.put(attrs, "account_uuid", Account.get_master_account().uuid),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, token} <- Token.insert(attrs),
+         %{authorized: true} <-
+            permit(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}) || token do
+      token
+      |> MintGate.mint_token(%{
+        "amount" => amount,
+        "originator" => Originator.extract(conn.assigns)
+      })
+      |> respond_single(conn)
+    else
+      %Token{} = token ->
+        respond_single(token, conn)
+      {:error, code} ->
+        handle_error(conn, code)
+    end
   end
 
   defp do_create(conn, %{"amount" => amount} = attrs) when is_binary(amount) do
@@ -137,8 +144,8 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:update, conn.assigns, id),
-         %Token{} = token <- Token.get(id) || :token_not_found,
+    with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:update, conn.assigns, token),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Token.update(token, attrs) do
       respond_single(updated, conn)
@@ -157,8 +164,8 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:enable_or_disable, conn.assigns, id),
-         %Token{} = token <- Token.get(id) || :token_not_found,
+    with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:enable_or_disable, conn.assigns, token),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Token.enable_or_disable(token, attrs) do
       respond_single(updated, conn)
@@ -206,7 +213,7 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   @spec permit(:all | :create | :get | :update, map(), String.t() | nil) :: any()
-  defp permit(action, params, token_id) do
-    TokenPolicy.authorize(action, params, token_id)
+  defp permit(action, params, token) do
+    TokenPolicy.authorize(action, params, token)
   end
 end

@@ -41,8 +41,8 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:get, conn.assigns, id),
-         %Category{} = category <- Category.get_by(id: id),
+    with %Category{} = category <- Category.get_by(id: id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:get, conn.assigns, category),
          {:ok, category} <- Orchestrator.one(category, CategoryOverlay, attrs) do
       render(conn, :category, %{category: category})
     else
@@ -61,7 +61,7 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with %{authorized: true} <- permit(:create, conn.assigns, nil),
+    with %{authorized: true} <- permit(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, category} <- Category.insert(attrs),
          {:ok, category} <- Orchestrator.one(category, CategoryOverlay, attrs) do
@@ -80,8 +80,8 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:update, conn.assigns, id),
-         %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
+    with %Category{} = original <- Category.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:update, conn.assigns, original),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Category.update(original, attrs),
          {:ok, updated} <- Orchestrator.one(updated, CategoryOverlay, attrs) do
@@ -102,8 +102,8 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:delete, conn.assigns, id),
-         %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
+    with %Category{} = category <- Category.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:delete, conn.assigns, category),
          originator <- Originator.extract(conn.assigns),
          {:ok, deleted} <- Category.delete(category, originator),
          {:ok, deleted} <- Orchestrator.one(deleted, CategoryOverlay, attrs) do
@@ -121,7 +121,7 @@ defmodule AdminAPI.V1.CategoryController do
 
   @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, account_id) do
-    CategoryPolicy.authorize(action, params, account_id)
+  defp permit(action, params, category) do
+    CategoryPolicy.authorize(action, params, category)
   end
 end

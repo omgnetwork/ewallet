@@ -116,7 +116,7 @@ defmodule AdminAPI.V1.TransactionController do
   @spec all_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_user(conn, %{"user_id" => user_id} = attrs) do
     with %User{} = user <- User.get(user_id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:all, conn.assigns, user) do
+         %{authorized: true} <- permit(:get, conn.assigns, user) do
       user
       |> Transaction.all_for_user()
       |> query_records_and_respond(attrs, conn)
@@ -129,7 +129,7 @@ defmodule AdminAPI.V1.TransactionController do
   def all_for_user(conn, %{"provider_user_id" => provider_user_id} = attrs) do
     with %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:all, conn.assigns, user) do
+         %{authorized: true} <- permit(:get, conn.assigns, user) do
       user
       |> Transaction.all_for_user()
       |> query_records_and_respond(attrs, conn)
@@ -146,10 +146,10 @@ defmodule AdminAPI.V1.TransactionController do
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:get, conn.assigns, id) do
-      Transaction
+    with %Transaction{} = transaction <- Repo.get_by(id: id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:get, conn.assigns, transaction) do
+      transaction
       |> Orchestrator.preload_to_query(TransactionOverlay, attrs)
-      |> Repo.get_by(id: id)
       |> respond_single(conn)
     else
       {:error, error} -> handle_error(conn, error)

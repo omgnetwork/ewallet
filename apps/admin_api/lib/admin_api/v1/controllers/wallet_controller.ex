@@ -43,7 +43,7 @@ defmodule AdminAPI.V1.WalletController do
   @spec all_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_user(conn, %{"id" => id} = attrs) do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:all, conn.assigns, user) do
+         %{authorized: true} <- permit(:get, conn.assigns, user) do
       user
       |> Wallet.all_for()
       |> do_all(attrs, conn)
@@ -56,7 +56,7 @@ defmodule AdminAPI.V1.WalletController do
   def all_for_user(conn, %{"provider_user_id" => provider_user_id} = attrs) do
     with %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:all, conn.assigns, user) do
+         %{authorized: true} <- permit(:get, conn.assigns, user) do
       user
       |> Wallet.all_for()
       |> do_all(attrs, conn)

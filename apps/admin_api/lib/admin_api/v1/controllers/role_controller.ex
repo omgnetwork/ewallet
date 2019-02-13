@@ -41,8 +41,8 @@ defmodule AdminAPI.V1.RoleController do
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:get, conn.assigns, id),
-         %Role{} = role <- Role.get_by(id: id),
+    with %Role{} = role <- Role.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:get, conn.assigns, role),
          {:ok, role} <- Orchestrator.one(role, RoleOverlay, attrs) do
       render(conn, :role, %{role: role})
     else
@@ -61,7 +61,7 @@ defmodule AdminAPI.V1.RoleController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with %{authorized: true} <- permit(:create, conn.assigns, nil),
+    with %{authorized: true} <- permit(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, role} <- Role.insert(attrs),
          {:ok, role} <- Orchestrator.one(role, RoleOverlay, attrs) do
@@ -80,8 +80,8 @@ defmodule AdminAPI.V1.RoleController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:update, conn.assigns, id),
-         %Role{} = original <- Role.get(id) || {:error, :role_id_not_found},
+    with %Role{} = original <- Role.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:update, conn.assigns, original),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Role.update(original, attrs),
          {:ok, updated} <- Orchestrator.one(updated, RoleOverlay, attrs) do
@@ -102,8 +102,8 @@ defmodule AdminAPI.V1.RoleController do
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:delete, conn.assigns, id),
-         %Role{} = role <- Role.get(id) || {:error, :role_id_not_found},
+    with %Role{} = role <- Role.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:delete, conn.assigns, role),
          originator <- Originator.extract(conn.assigns),
          {:ok, deleted} <- Role.delete(role, originator),
          {:ok, deleted} <- Orchestrator.one(deleted, RoleOverlay, attrs) do
@@ -121,7 +121,7 @@ defmodule AdminAPI.V1.RoleController do
 
   @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, role_id) do
-    RolePolicy.authorize(action, params, role_id)
+  defp permit(action, params, role) do
+    RolePolicy.authorize(action, params, role)
   end
 end

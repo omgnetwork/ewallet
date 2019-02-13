@@ -24,7 +24,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with {:ok, %{query: query}} <- permit(:all, conn.assigns, nil) do
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil) do
       # Get all the accounts the current accessor has access to
       query
       |> Orchestrator.query(AccountOverlay, attrs)
@@ -52,7 +52,7 @@ defmodule AdminAPI.V1.AccountController do
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id} = attrs) do
     with %Account{} = account <- Account.get_by(id: id) || {:error, :unauthorized},
-         {:ok, _} <- permit(:get, conn.assigns, account),
+         {:ok, _} <- authorize(:get, conn.assigns, account),
          {:ok, account} <- Orchestrator.one(account, AccountOverlay, attrs) do
       render(conn, :account, %{account: account})
     else
@@ -73,7 +73,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with {:ok, _} <- permit(:create, conn.assigns, attrs),
+    with {:ok, _} <- authorize(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, account} <- Account.insert(attrs),
          {:ok, account} <- Orchestrator.one(account, AccountOverlay, attrs) do
@@ -92,7 +92,7 @@ defmodule AdminAPI.V1.AccountController do
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => account_id} = attrs) do
     with %Account{} = original <- Account.get(account_id) || {:error, :unauthorized},
-         {:ok, _} <- permit(:update, conn.assigns, original),
+         {:ok, _} <- authorize(:update, conn.assigns, original),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Account.update(original, attrs),
          {:ok, updated} <- Orchestrator.one(updated, AccountOverlay, attrs) do
@@ -114,7 +114,7 @@ defmodule AdminAPI.V1.AccountController do
   @spec upload_avatar(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
-         {:ok, _} <- permit(:update, conn.assigns, account),
+         {:ok, _} <- authorize(:update, conn.assigns, account),
          :ok <- AdapterHelper.check_adapter_status(),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          %{} = saved <- Account.store_avatar(account, attrs),
@@ -155,9 +155,9 @@ defmodule AdminAPI.V1.AccountController do
     handle_error(conn, code, description)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
+  @spec authorize(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, account) do
+  defp authorize(action, params, account) do
     AccountPolicy.authorize(action, params, account)
   end
 end

@@ -18,7 +18,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   """
   import Ecto.Changeset, only: [traverse_errors: 2]
   alias Ecto.Changeset
-  alias EWallet.AmountFormatter
+  alias EWallet.{Permission, AmountFormatter}
   alias EWallet.Web.V1.ErrorSerializer
   alias EWalletDB.Token
   alias Sentry.Event
@@ -411,6 +411,20 @@ defmodule EWallet.Web.V1.ErrorHandler do
           }
         }
   def errors, do: @errors
+
+  # ---- WITH PERMISSION STRUCT ----
+  Permission
+  @spec build_error(Permission.t() | atom(), map() | Ecto.Changeset.t() | String.t(), map() | nil) ::
+          map()
+  def build_error(%Permission{authorized: false} = permission, %Changeset{} = changeset, supported_errors) do
+    run_if_valid_error(:unauthorized, supported_errors, fn error ->
+      build(
+        code: error.code,
+        desc: stringify_errors(changeset, error.description),
+        msgs: error_fields(changeset)
+      )
+    end)
+  end
 
   # ---- WITH CHANGESET ----
   @doc """

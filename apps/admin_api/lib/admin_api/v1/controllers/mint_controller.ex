@@ -29,8 +29,8 @@ defmodule AdminAPI.V1.MintController do
   """
   @spec all_for_token(Conn.t(), map() | nil) :: Conn.t()
   def all_for_token(conn, %{"id" => id} = attrs) do
-    with %{authorized: true} <- permit(:all, conn.assigns, nil),
-         %Token{} = token <- Token.get(id) || :token_not_found,
+    with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
+         %{authorized: true} <- permit(:all, conn.assigns, token),
          mints <- Mint.query_by_token(token),
          %Paginator{} = paged_mints <- Orchestrator.query(mints, MintOverlay, attrs) do
       render(conn, :mints, %{mints: paged_mints})
@@ -85,7 +85,7 @@ defmodule AdminAPI.V1.MintController do
 
   @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, account_id) do
-    MintPolicy.authorize(action, params, account_id)
+  defp permit(action, params, mint) do
+    MintPolicy.authorize(action, params, mint)
   end
 end

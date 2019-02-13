@@ -73,7 +73,7 @@ defmodule AdminAPI.V1.AccountWalletController do
   end
 
   @spec permit(:all, map(), %Account{}) :: :ok | {:error, any()} | no_return()
-  defp permit(action, params, data) do
-    WalletPolicy.authorize(action, params, data)
+  defp permit(action, params, account) do
+    WalletPolicy.authorize(action, params, account)
   end
 end

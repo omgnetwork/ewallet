@@ -21,12 +21,16 @@ defmodule AdminAPI.V1.ConfigurationController do
   alias EWallet.ConfigurationPolicy
 
   def all(conn, attrs) do
-    settings =
-      Config.query_settings()
-      |> Orchestrator.build_query(ConfigurationOverlay, attrs)
-      |> Repo.all()
+    with %{authorized: true} <- permit(:all, conn.assigns) do
+      settings =
+        Config.query_settings()
+        |> Orchestrator.build_query(ConfigurationOverlay, attrs)
+        |> Repo.all()
 
-    render(conn, :settings, %{settings: settings})
+      render(conn, :settings, %{settings: settings})
+    else
+      {:error, code} -> handle_error(conn, code)
+    end
   end
 
   def update(conn, attrs) do
