@@ -246,6 +246,6 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
           | nil
         ) :: :ok | {:error, any()} | no_return()
   defp permit(action, params, data) do
-    Bodyguard.permit(TransactionConsumptionPolicy, action, params, data)
+    TransactionConsumptionPolicy.authorize(action, params, data)
   end
 end

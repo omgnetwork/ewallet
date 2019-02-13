@@ -30,7 +30,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannel do
       ) do
     with %TransactionConsumption{} = consumption <-
            TransactionConsumption.get(consumption_id, preload: [:account, :wallet]),
-         :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :join, auth, consumption) do
+          {:ok, _} <- TransactionConsumptionPolicy.authorize(:listen, auth, consumption) do
       {:ok, socket}
     else
       _ -> {:error, :forbidden_channel}

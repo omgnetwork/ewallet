@@ -207,6 +207,6 @@ defmodule AdminAPI.V1.TokenController do
 
   @spec permit(:all | :create | :get | :update, map(), String.t() | nil) :: any()
   defp permit(action, params, token_id) do
-    Bodyguard.permit(TokenPolicy, action, params, token_id)
+    TokenPolicy.authorize(action, params, token_id)
   end
 end

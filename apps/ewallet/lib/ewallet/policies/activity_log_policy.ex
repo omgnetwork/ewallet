@@ -16,7 +16,6 @@ defmodule EWallet.ActivityLogPolicy do
   @moduledoc """
   The authorization policy for activity logs.
   """
-  @behaviour Bodyguard.Policy
   alias EWallet.PolicyHelper
   alias ActivityLogger.ActivityLog
 

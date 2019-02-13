@@ -86,6 +86,6 @@ defmodule AdminAPI.V1.MintController do
   @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, account_id) do
-    Bodyguard.permit(MintPolicy, action, params, account_id)
+    MintPolicy.authorize(action, params, account_id)
   end
 end

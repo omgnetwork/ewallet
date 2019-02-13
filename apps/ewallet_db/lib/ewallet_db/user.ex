@@ -640,6 +640,17 @@ defmodule EWalletDB.User do
   end
 
   @doc """
+  Returns a random account from the user.
+  """
+  @spec get_account(%User{}) :: [%Account{}]
+  def get_account(user) do
+    user
+    |> Ecto.assoc(:accounts)
+    |> limit(1)
+    |> Repo.one()
+  end
+
+  @doc """
   Enables or disables a user.
   """
   def enable_or_disable(user, attrs) do

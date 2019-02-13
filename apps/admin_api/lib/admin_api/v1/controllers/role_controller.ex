@@ -122,6 +122,6 @@ defmodule AdminAPI.V1.RoleController do
   @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, role_id) do
-    Bodyguard.permit(RolePolicy, action, params, role_id)
+    RolePolicy.authorize(action, params, role_id)
   end
 end

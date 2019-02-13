@@ -16,7 +16,6 @@ defmodule EWallet.RolePolicy do
   @moduledoc """
   The authorization policy for roles.
   """
-  @behaviour Bodyguard.Policy
   alias EWallet.Permissions
 
   def authorize(:all, attrs, nil) do

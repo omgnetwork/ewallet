@@ -93,6 +93,6 @@ defmodule AdminAPI.V1.AdminUserController do
   @spec permit(:all | :create | :get | :update, map(), %User{} | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, user) do
-    Bodyguard.permit(AdminUserPolicy, action, params, user)
+    AdminUserPolicy.authorize(action, params, user)
   end
 end

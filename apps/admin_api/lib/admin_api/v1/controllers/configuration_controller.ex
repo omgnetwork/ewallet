@@ -59,6 +59,6 @@ defmodule AdminAPI.V1.ConfigurationController do
 
   @spec permit(:get | :update, map()) :: any()
   defp permit(action, params) do
-    Bodyguard.permit(ConfigurationPolicy, action, params, nil)
+    ConfigurationPolicy.authorize(action, params, nil)
   end
 end

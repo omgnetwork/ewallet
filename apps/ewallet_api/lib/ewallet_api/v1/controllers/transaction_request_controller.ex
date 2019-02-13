@@ -69,6 +69,6 @@ defmodule EWalletAPI.V1.TransactionRequestController do
   @spec permit(:all | :create | :get | :update, map(), %EWalletDB.TransactionRequest{}) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, request) do
-    Bodyguard.permit(TransactionRequestPolicy, action, params, request)
+    TransactionRequestPolicy.authorize(action, params, request)
   end
 end

@@ -148,6 +148,6 @@ defmodule AdminAPI.V1.APIKeyController do
           String.t() | nil
         ) :: :ok | {:error, any()} | no_return()
   defp permit(action, params, api_key_id) do
-    Bodyguard.permit(APIKeyPolicy, action, params, api_key_id)
+    APIKeyPolicy.authorize(action, params, api_key_id)
   end
 end

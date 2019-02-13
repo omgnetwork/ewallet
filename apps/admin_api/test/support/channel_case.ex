@@ -32,8 +32,9 @@ defmodule AdminAPI.ChannelCase do
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias EWalletConfig.ConfigTestHelper
-  alias EWalletDB.{Key, Account, User}
+  alias EWalletDB.{Key, Account, Membership, User, GlobalRole}
   alias Utils.{Types.ExternalID, Helpers.Crypto}
+  alias ActivityLogger.System
 
   # Attributes for provider calls
   @access_key "test_access_key"
@@ -97,7 +98,7 @@ defmodule AdminAPI.ChannelCase do
       }
     )
 
-    {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
+    {:ok, account} = :account |> params_for() |> Account.insert()
 
     admin =
       insert(:admin, %{
@@ -106,16 +107,19 @@ defmodule AdminAPI.ChannelCase do
         password_hash: Crypto.hash_password(@password)
       })
 
-    role = insert(:role, %{name: "admin"})
-    _membership = insert(:membership, %{user: admin, role: role, account: account})
 
-    :key
-    |> params_for(%{
-      account: account,
-      access_key: @access_key,
-      secret_key: @secret_key
-    })
-    |> Key.insert()
+    {:ok, key} =
+      :key
+      |> params_for(%{
+        access_key: @access_key,
+        secret_key: @secret_key,
+        global_role: GlobalRole.super_admin()
+      })
+      |> Key.insert()
+
+    role = insert(:role, %{name: "admin"})
+    {:ok, _} = Membership.assign(admin, account, role, %System{})
+    {:ok, _} = Membership.assign(key, account, role, %System{})
 
     %{config_pid: config_pid}
   end
@@ -126,7 +130,7 @@ defmodule AdminAPI.ChannelCase do
 
   def key_auth_socket(access_key \\ @access_key) do
     socket("test", %{
-      auth: %{authenticated: true, key: Key.get_by(%{access_key: access_key}, preload: :account)}
+      auth: %{authenticated: true, key: Key.get_by(%{access_key: access_key})}
     })
   end
 

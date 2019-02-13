@@ -82,6 +82,6 @@ defmodule AdminAPI.V1.ExportController do
   @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, export) do
-    Bodyguard.permit(ExportPolicy, action, params, export)
+    ExportPolicy.authorize(action, params, export)
   end
 end

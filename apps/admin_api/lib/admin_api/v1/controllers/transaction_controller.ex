@@ -229,6 +229,6 @@ defmodule AdminAPI.V1.TransactionController do
           String.t() | %Account{} | %User{} | map() | nil
         ) :: :ok | {:error, any()} | no_return()
   defp permit(action, params, data) do
-    Bodyguard.permit(TransactionPolicy, action, params, data)
+    TransactionPolicy.authorize(action, params, data)
   end
 end

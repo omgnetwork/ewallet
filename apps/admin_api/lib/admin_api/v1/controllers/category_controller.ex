@@ -122,6 +122,6 @@ defmodule AdminAPI.V1.CategoryController do
   @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, account_id) do
-    Bodyguard.permit(CategoryPolicy, action, params, account_id)
+    CategoryPolicy.authorize(action, params, account_id)
   end
 end

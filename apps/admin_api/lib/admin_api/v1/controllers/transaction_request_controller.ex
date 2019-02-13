@@ -131,6 +131,6 @@ defmodule AdminAPI.V1.TransactionRequestController do
           String.t() | %Account{} | %TransactionRequest{} | nil
         ) :: :ok | {:error, any()} | no_return()
   defp permit(action, params, request) do
-    Bodyguard.permit(TransactionRequestPolicy, action, params, request)
+    TransactionRequestPolicy.authorize(action, params, request)
   end
 end

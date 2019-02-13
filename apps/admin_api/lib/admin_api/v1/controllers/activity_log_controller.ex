@@ -41,6 +41,6 @@ defmodule AdminAPI.V1.ActivityLogController do
 
   @spec permit(:all, map()) :: :ok | {:error, any()} | no_return()
   defp permit(action, params) do
-    Bodyguard.permit(ActivityLogPolicy, action, params, nil)
+    ActivityLogPolicy.authorize(action, params, nil)
   end
 end

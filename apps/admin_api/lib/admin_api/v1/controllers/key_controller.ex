@@ -158,7 +158,7 @@ defmodule AdminAPI.V1.KeyController do
           map(),
           String.t() | nil
         ) :: :ok | {:error, any()} | no_return()
-  defp permit(action, params, key_id) do
-    Bodyguard.permit(KeyPolicy, action, params, key_id)
+  defp permit(action, params, key) do
+    KeyPolicy.authorize(action, params, key)
   end
 end

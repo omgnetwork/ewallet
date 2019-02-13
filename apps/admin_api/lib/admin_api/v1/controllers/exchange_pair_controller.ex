@@ -119,7 +119,7 @@ defmodule AdminAPI.V1.ExchangePairController do
 
   @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, exchange_pair_id) do
-    Bodyguard.permit(ExchangePairPolicy, action, params, exchange_pair_id)
+  defp permit(action, params, exchange_pair) do
+    ExchangePairPolicy.authorize(action, params, exchange_pair)
   end
 end

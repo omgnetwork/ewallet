@@ -148,6 +148,6 @@ defmodule AdminAPI.V1.WalletController do
   @spec permit(:all | :create | :get | :update, map(), %Account{} | %User{} | %Wallet{} | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, data) do
-    Bodyguard.permit(WalletPolicy, action, params, data)
+    WalletPolicy.authorize(action, params, data)
   end
 end
