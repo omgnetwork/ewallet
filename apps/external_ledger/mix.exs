@@ -1,9 +1,9 @@
-defmodule BlockchainLedgerDB.Mixfile do
+defmodule ExternalLedger.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app: :blockchain_ledger_db,
+      app: :external_ledger,
       version: "1.2.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -29,7 +29,7 @@ defmodule BlockchainLedgerDB.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {BlockchainLedgerDB.Application, []},
+      mod: {ExternalLedger.Application, []},
       extra_applications: [:appsignal, :logger, :runtime_tools]
     ]
   end
@@ -51,6 +51,7 @@ defmodule BlockchainLedgerDB.Mixfile do
       {:ecto_sql, "~> 3.0"},
       {:ewallet_config, in_umbrella: true},
       {:ex_machina, "~> 2.2", only: :test},
+      {:jason, "~> 1.1"},
       {:postgrex, ">= 0.0.0"},
     ]
   end

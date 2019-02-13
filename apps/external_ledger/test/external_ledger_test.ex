@@ -1,10 +1,10 @@
-# Copyright 2017-2019 OmiseGO
+# Copyright 2017-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,12 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule BlockchainLedgerDB do
-  @moduledoc """
-  BlockchainLedgerDB keeps the contexts that define your domain
-  and business logic.
-
-  Contexts are also responsible for managing your data, regardless
-  if it comes from the database, an external API or others.
-  """
+defmodule ExternalLedgerTest do
+  use ExUnit.Case
+  doctest ExternalLedger
 end

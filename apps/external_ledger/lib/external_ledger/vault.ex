@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule BlockchainLedgerDB.Vault do
+defmodule ExternalLedger.Vault do
   @moduledoc false
-  use Cloak.Vault, otp_app: :blockchain_ledger_db
+  use Cloak.Vault, otp_app: :external_ledger
 
   @impl GenServer
   def init(config) do
