@@ -56,8 +56,8 @@ defmodule ExternalLedger.Wallet do
     wallet
     |> cast(attrs, [:address, :adapter, :type, :public_key, :encrypted_private_key, :metadata, :encrypted_metadata])
     |> validate_required([:address, :adapter, :type, :metadata, :encrypted_metadata])
-    |> validate_format(:adapter, ~r/#{@ethereum}|#{@omg_network}_.*/)
-    |> validate_format(:type, ~r/#{@hot}|#{@cold}_.*/)
+    |> validate_inclusion(:adapter, [@ethereum, @omg_network])
+    |> validate_inclusion(:type, [@hot, @cold])
     |> unique_constraint(:address)
   end
 
