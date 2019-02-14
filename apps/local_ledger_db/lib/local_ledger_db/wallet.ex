@@ -22,6 +22,8 @@ defmodule LocalLedgerDB.Wallet do
   alias LocalLedger.{EctoBatchStream}
   alias LocalLedgerDB.{Entry, Repo, Wallet}
 
+  @behaviour Utils.Ledgers.WalletSchema
+
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
 
@@ -114,7 +116,15 @@ defmodule LocalLedgerDB.Wallet do
   Retrieve a wallet using the specified address.
   """
   def get(address) do
-    Repo.get_by(Wallet, address: address)
+    get_by(address: address)
+  end
+
+  @doc """
+  Retrieve a wallet using one or more fields.
+  """
+  @spec get_by(map()) :: %__MODULE__{} | nil
+  def get_by(attrs) do
+    Repo.get_by(__MODULE__, attrs)
   end
 
   @doc """
