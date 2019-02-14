@@ -41,6 +41,7 @@ defmodule ExternalLedger.Wallet do
   schema "wallet" do
     field(:address, :string)
     field(:adapter, :string)
+    field(:primary, :boolean, default: false)
     field(:type, :string)
     field(:public_key, :string)
     field(:encrypted_private_key, ExternalLedger.Encrypted.String)
@@ -56,8 +57,8 @@ defmodule ExternalLedger.Wallet do
   @spec changeset(%__MODULE__{}, map()) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = wallet, attrs) do
     wallet
-    |> cast(attrs, [:address, :adapter, :type, :public_key, :encrypted_private_key, :metadata, :encrypted_metadata])
-    |> validate_required([:address, :adapter, :type, :metadata, :encrypted_metadata])
+    |> cast(attrs, [:address, :adapter, :primary, :type, :public_key, :encrypted_private_key, :metadata, :encrypted_metadata])
+    |> validate_required([:address, :adapter, :primary, :type, :public_key, :metadata, :encrypted_metadata])
     |> validate_inclusion(:adapter, [@ethereum, @omg_network])
     |> validate_inclusion(:type, [@hot, @cold])
     |> unique_constraint(:address)
