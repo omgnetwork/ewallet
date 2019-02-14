@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ExternalLedger.Schemas.WalletTest do
+defmodule ExternalLedgerDB.WalletTest do
   use ExUnit.Case, async: true
-  import ExternalLedger.Factory
+  import ExternalLedgerDB.Factory
   alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
-  alias ExternalLedger.{Repo, Wallet}
+  alias ExternalLedgerDB.{Repo, Wallet}
 
   setup do
     :ok = Sandbox.checkout(Repo)
@@ -111,15 +111,16 @@ defmodule ExternalLedger.Schemas.WalletTest do
         |> Wallet.insert()
 
       assert res == :error
+
       assert changeset.errors == [
-        address: {"can't be blank", [validation: :required]},
-        adapter: {"can't be blank", [validation: :required]},
-        primary: {"can't be blank", [validation: :required]},
-        type: {"can't be blank", [validation: :required]},
-        public_key: {"can't be blank", [validation: :required]},
-        metadata: {"can't be blank", [validation: :required]},
-        encrypted_metadata: {"can't be blank", [validation: :required]}
-      ]
+               address: {"can't be blank", [validation: :required]},
+               adapter: {"can't be blank", [validation: :required]},
+               primary: {"can't be blank", [validation: :required]},
+               type: {"can't be blank", [validation: :required]},
+               public_key: {"can't be blank", [validation: :required]},
+               metadata: {"can't be blank", [validation: :required]},
+               encrypted_metadata: {"can't be blank", [validation: :required]}
+             ]
     end
   end
 
@@ -344,10 +345,11 @@ defmodule ExternalLedger.Schemas.WalletTest do
         |> Enum.map(fn w -> w.address end)
         |> Wallet.touch()
 
-      _ = Enum.each(wallets, fn wallet ->
-        touched = Wallet.get(wallet.address)
-        assert NaiveDateTime.compare(touched.updated_at, wallet.updated_at) == :gt
-      end)
+      _ =
+        Enum.each(wallets, fn wallet ->
+          touched = Wallet.get(wallet.address)
+          assert NaiveDateTime.compare(touched.updated_at, wallet.updated_at) == :gt
+        end)
     end
   end
 

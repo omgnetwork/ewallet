@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,8 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ExternalLedger.Encrypted.Map do
-  @moduledoc false
+defmodule ExternalLedgerDB.Factory do
+  @moduledoc """
+  Factories used for testing.
+  """
+  use ExMachina.Ecto, repo: ExternalLedgerDB.Repo
+  alias ExternalLedgerDB.Wallet
 
-  use Cloak.Fields.Map, vault: ExternalLedger.Vault
+  def wallet_factory do
+    %Wallet{
+      address: sequence("address"),
+      adapter: Wallet.ethereum(),
+      type: Wallet.hot(),
+      public_key: sequence("public_key_")
+    }
+  end
 end

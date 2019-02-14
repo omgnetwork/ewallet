@@ -1,9 +1,9 @@
-defmodule ExternalLedger.Mixfile do
+defmodule ExternalLedgerDB.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app: :external_ledger,
+      app: :external_ledger_db,
       version: "1.2.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -29,7 +29,7 @@ defmodule ExternalLedger.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {ExternalLedger.Application, []},
+      mod: {ExternalLedgerDB.Application, []},
       extra_applications: [:appsignal, :logger, :runtime_tools]
     ]
   end

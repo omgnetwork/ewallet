@@ -1,4 +1,4 @@
-defmodule ExternalLedger.Repo.Migrations.CreateWalletTable do
+defmodule ExternalLedgerDB.Repo.Migrations.CreateWalletTable do
   use Ecto.Migration
 
   def change do

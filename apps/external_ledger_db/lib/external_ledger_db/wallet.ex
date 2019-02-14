@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ExternalLedger.Schemas.Wallet do
+defmodule ExternalLedgerDB.Wallet do
   @moduledoc """
   Ecto Schema representing external ledger wallets. A wallet is made up of
   a unique address and the ID associated with it.
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias ExternalLedger.Repo
+  alias ExternalLedgerDB.Repo
 
   @behaviour Utils.Ledgers.WalletSchema
 
@@ -44,9 +44,9 @@ defmodule ExternalLedger.Schemas.Wallet do
     field(:primary, :boolean, default: false)
     field(:type, :string)
     field(:public_key, :string)
-    field(:encrypted_private_key, ExternalLedger.Encrypted.String)
+    field(:encrypted_private_key, ExternalLedgerDB.Encrypted.String)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, ExternalLedger.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, ExternalLedgerDB.Encrypted.Map, default: %{})
 
     timestamps()
   end
@@ -57,8 +57,25 @@ defmodule ExternalLedger.Schemas.Wallet do
   @spec changeset(%__MODULE__{}, map()) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = wallet, attrs) do
     wallet
-    |> cast(attrs, [:address, :adapter, :primary, :type, :public_key, :encrypted_private_key, :metadata, :encrypted_metadata])
-    |> validate_required([:address, :adapter, :primary, :type, :public_key, :metadata, :encrypted_metadata])
+    |> cast(attrs, [
+      :address,
+      :adapter,
+      :primary,
+      :type,
+      :public_key,
+      :encrypted_private_key,
+      :metadata,
+      :encrypted_metadata
+    ])
+    |> validate_required([
+      :address,
+      :adapter,
+      :primary,
+      :type,
+      :public_key,
+      :metadata,
+      :encrypted_metadata
+    ])
     |> validate_inclusion(:adapter, [@ethereum, @omg_network])
     |> validate_inclusion(:type, [@hot, @cold])
     |> unique_constraint(:address)

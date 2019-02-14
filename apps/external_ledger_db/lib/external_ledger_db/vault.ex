@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ExternalLedger.Vault do
+defmodule ExternalLedgerDB.Vault do
   @moduledoc false
-  use Cloak.Vault, otp_app: :external_ledger
+  use Cloak.Vault, otp_app: :external_ledger_db
 
   @impl GenServer
   def init(config) do
@@ -40,7 +40,7 @@ defmodule ExternalLedger.Vault do
   end
 
   defp secret_key(:prod) do
-    "LOCAL_LEDGER_SECRET_KEY"
+    "EXTERNAL_LEDGER_SECRET_KEY"
     |> System.get_env()
     |> Base.decode64!()
   end
