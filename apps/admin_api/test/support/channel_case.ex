@@ -107,7 +107,6 @@ defmodule AdminAPI.ChannelCase do
         password_hash: Crypto.hash_password(@password)
       })
 
-
     {:ok, key} =
       :key
       |> params_for(%{

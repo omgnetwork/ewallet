@@ -594,9 +594,9 @@ defmodule AdminAPI.ConnCase do
         unquote(admin_func_name)(meta)
       end
 
-      test provider_test_name, meta do
-        unquote(provider_func_name)(meta)
-      end
+      # test provider_test_name, meta do
+      #   unquote(provider_func_name)(meta)
+      # end
     end
   end
 

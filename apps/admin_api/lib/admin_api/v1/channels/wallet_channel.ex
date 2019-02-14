@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.WalletChannel do
 
   def join("address:" <> address, _params, %{assigns: %{auth: auth}} = socket) do
     with %Wallet{} = wallet <- Wallet.get(address),
-      {:ok, _} <- WalletPolicy.authorize(:listen, auth, wallet) do
+         {:ok, _} <- WalletPolicy.authorize(:listen, auth, wallet) do
       {:ok, socket}
     else
       _ -> {:error, :forbidden_channel}

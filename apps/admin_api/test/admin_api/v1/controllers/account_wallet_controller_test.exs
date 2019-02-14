@@ -14,13 +14,19 @@
 
 defmodule AdminAPI.V1.AccountWalletControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Account, User}
+  alias EWalletDB.{Membership, Account, User}
+  alias ActivityLogger.System
 
   describe "/account.get_wallets_and_user_wallets" do
     test_with_auths "returns a list of wallets and pagination data for the specified account" do
+      # set_admin_as_super_admin()
+      admin = get_test_admin()
       account = Account.get_master_account()
       {:ok, account_1} = :account |> params_for() |> Account.insert()
       {:ok, account_2} = :account |> params_for() |> Account.insert()
+
+      {:ok, _} = Membership.assign(admin, account_1, "admin", %System{})
+      {:ok, _} = Membership.assign(admin, account_2, "admin", %System{})
 
       response = request("/account.get_wallets_and_user_wallets", %{"id" => account.id})
 

@@ -12,30 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.SchemaPermissions.KeyPermissions do
+defmodule EWallet.Bouncer.TokenTarget do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
-  alias EWallet.Permission
-  alias EWalletDB.{Key, Helpers.Preloader}
+  @behaviour EWallet.Bouncer.TargetBehaviour
+  alias EWalletDB.Token
 
-  def get_owner_uuids(%Key{uuid: uuid}) do
-    [uuid]
-  end
+  def get_owner_uuids(%Token{account_uuid: uuid}), do: [uuid]
 
-  def get_query_actor_records(%Permission{type: :accounts, actor: actor}) do
-    Ecto.assoc(actor, :accounts)
-  end
+  def get_target_type(%Token{}), do: :tokens
 
-  def get_query_actor_records(%Permission{type: :memberships, actor: actor}) do
-    Ecto.assoc(actor, :memberships)
-  end
-
-  def get_target_accounts(%Key{} = key) do
-    get_actor_accounts(key)
-  end
-
-  def get_actor_accounts(%Key{} = key) do
-    Preloader.preload(key, [:accounts]).accounts
-  end
+  def get_target_accounts(%Token{account_uuid: uuid}), do: [uuid]
 end

@@ -17,9 +17,11 @@ defmodule EWalletDB.GlobalRole do
   Fake Schema representing global roles.
   """
 
+  # global admin -
+
   @global_role_permissions %{
-    "super_admin" => :global,
-    "admin" => %{
+    # "super_admin" => :global,
+    "super_admin" => %{
       account_permissions: true,
       accounts: %{all: :accounts, get: :accounts, create: :none, update: :accounts},
       memberships: %{all: :accounts, get: :accounts, create: :accounts, delete: :accounts},

@@ -12,14 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.WalletPolicy do
+defmodule EWallet.Bouncer.MintTarget do
   @moduledoc """
-  The authorization policy for accounts.
+  A policy helper containing the actual authorization.
   """
-  alias EWallet.{PolicyHelper, Permissions, Permission}
-  alias EWalletDB.Wallet
+  @behaviour EWallet.Bouncer.TargetBehaviour
+  alias EWalletDB.{Mint, Helpers.Preloader}
 
-  def authorize(action, attrs, target) do
-    PolicyHelper.authorize(action, attrs, :wallets, Wallet, target)
+  def get_owner_uuids(%Mint{token: token}), do: [token.account_uuid]
+
+  def get_target_type(%Mint{}), do: :mints
+
+  def get_target_accounts(%Mint{token: token}) do
+    [Preloader.preload(token, [:account]).account]
   end
 end

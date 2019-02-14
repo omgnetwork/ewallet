@@ -12,25 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Permission do
+defmodule EWallet.Bouncer.ActorBehaviour do
   @moduledoc """
-  A module containing the Permission struct
+  A behavior defining the needed functions for a schema permissions module.
   """
+  alias EWallet.Permission
+  alias EWalletDB.Account
+  alias Ecto.Query
 
-  defstruct [
-    :actor,
-    :global_role,
-    :schema,
-    :type,
-    :target,
-    :attrs,
-    :action,
-    :check_account_permissions,
-    :global_permission,
-    :account_permission,
-    :query,
-    authorized: false,
-    global_authorized: false,
-    account_authorized: false
-  ]
+  # Load the appropriate scope depending on the given permissions.
+  @callback get_query_actor_records(Permission.t()) :: Query.t()
+
+  # Get all the accounts that the current actor has power over.
+  @callback get_actor_accounts(any()) :: [Account.t()]
 end

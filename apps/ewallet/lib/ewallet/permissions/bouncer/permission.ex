@@ -12,14 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.WalletPolicy do
+defmodule EWallet.Bouncer.Permission do
   @moduledoc """
-  The authorization policy for accounts.
+  A module containing the Permission struct
   """
-  alias EWallet.{PolicyHelper, Permissions, Permission}
-  alias EWalletDB.Wallet
 
-  def authorize(action, attrs, target) do
-    PolicyHelper.authorize(action, attrs, :wallets, Wallet, target)
-  end
+  defstruct [
+    :actor,
+    :global_role,
+    :schema,
+    :types,
+    :target,
+    :attrs,
+    :action,
+    :check_account_permissions,
+    :global_abilities,
+    :account_abilities,
+    :query,
+    authorized: false,
+    global_authorized: false,
+    account_authorized: false
+  ]
 end

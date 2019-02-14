@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.SchemaPermissions.WalletPermissions do
+defmodule EWallet.Bouncer.WalletTarget do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
+  @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.Wallet
 
   def get_owner_uuids(%Wallet{account_uuid: account_uuid})
@@ -26,6 +27,10 @@ defmodule EWallet.SchemaPermissions.WalletPermissions do
   def get_owner_uuids(%Wallet{user_uuid: user_uuid})
       when not is_nil(user_uuid) do
     [user_uuid]
+  end
+
+  def get_target_type(:all) do
+    [:account_wallets, :end_user_wallets]
   end
 
   def get_target_type(%Wallet{account_uuid: account_uuid})

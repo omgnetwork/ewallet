@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.SchemaPermissions.AccountPermissions do
+defmodule EWallet.Bouncer.AccountScope do
   @moduledoc """
-  A policy helper containing the actual authorization.
+
   """
-  alias EWallet.{PermissionsHelper, Permission}
-  alias EWalletDB.Account
+  @behaviour EWallet.Bouncer.ScopeBehaviour
 
   @spec build_query_all(EWallet.Permission.t()) :: any()
   def build_query_all(%Permission{global_permission: :global}), do: Account
@@ -32,11 +31,4 @@ defmodule EWallet.SchemaPermissions.AccountPermissions do
     PermissionsHelper.get_query_actor_records(permission)
   end
 
-  @spec get_target_type(EWalletDB.Account.t()) :: :accounts
-  def get_target_type(%Account{}), do: :accounts
-
-  @spec get_target_accounts(EWalletDB.Account.t()) :: [EWalletDB.Account.t(), ...]
-  def get_target_accounts(%Account{} = target) do
-    [target]
-  end
 end

@@ -12,15 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.SchemaPermissions.TokenPermissions do
+defmodule EWallet.Bouncer.AccountTarget do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
-  alias EWalletDB.Token
+  @behaviour EWallet.Bouncer.TargetBehaviour
+  alias EWalletDB.Account
 
-  def get_owner_uuids(%Token{account_uuid: uuid}), do: [uuid]
+  @spec get_target_type(EWalletDB.Account.t()) :: :accounts
+  def get_target_type(%Account{}), do: :accounts
 
-  def get_target_type(%Token{}), do: :tokens
-
-  def get_target_accounts(%Token{account_uuid: uuid}), do: [uuid]
+  @spec get_target_accounts(EWalletDB.Account.t()) :: [EWalletDB.Account.t(), ...]
+  def get_target_accounts(%Account{} = target) do
+    [target]
+  end
 end

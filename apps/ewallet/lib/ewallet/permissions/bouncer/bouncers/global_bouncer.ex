@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.GlobalPermissions do
+defmodule EWallet.Bouncer.GlobalBouncer do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
-  alias EWallet.{PermissionsHelper, Permission}
+  alias EWallet.Bouncer.{Dispatcher, Helper, Permission}
   alias EWalletDB.GlobalRole
   alias Utils.Intersecter
 
@@ -26,22 +26,24 @@ defmodule EWallet.GlobalPermissions do
     |> check_permissions(GlobalRole.global_role_permissions())
   end
 
-  defp check_permissions(%{global_role: role, action: :all, type: type} = permission, permissions) do
+  defp check_permissions(%{global_role: role, action: :all, schema: schema} = permission, permissions) do
+    types = Dispatcher.get_target_type(schema, :all)
     permission = set_check_account_permissions(permission, permissions)
 
-    permissions
-    |> PermissionsHelper.extract_permission([role, type, :all])
-    |> case do
-      :global -> %{permission | global_authorized: true, global_permission: :global}
-      :accounts -> %{permission | global_authorized: true, global_permission: :accounts}
-      :self -> %{permission | global_authorized: true, global_permission: :self}
-      p -> %{permission | global_authorized: false, global_permission: p}
-    end
+    abilities =
+      Enum.into(types, %{}, fn type ->
+        {type, Helper.extract_permission(permissions, [role, types, :all]) || :none}
+      end)
+
+    permission = %{permission | global_abilities: abilities}
+    %{permission | global_authorized: Enum.any?(abilities, fn {_, ability} ->
+      Enum.member?([:global, :accounts, :self], ability)
+    end)}
   end
 
   defp check_permissions(%{action: _, type: nil, target: target} = permission, permissions) do
     check_global_role(
-      %{permission | type: PermissionsHelper.get_target_type(target)},
+      %{permission | type: Dispatcher.get_target_type(target)},
       permissions
     )
   end
@@ -54,7 +56,7 @@ defmodule EWallet.GlobalPermissions do
     %{
       permission
       | global_authorized: false,
-        global_permission: nil,
+        global_abilities: nil,
         check_account_permissions: false
     }
   end
@@ -70,20 +72,20 @@ defmodule EWallet.GlobalPermissions do
          permissions
        ) do
     permissions
-    |> PermissionsHelper.extract_permission([role, type, action])
+    |> Helper.extract_permission([role, type, action])
     |> case do
       :global ->
-        %{permission | global_authorized: true, global_permission: :global}
+        %{permission | global_authorized: true, global_abilities: %{type => :global}}
 
       :accounts ->
         # 1. Get all accounts where user have appropriate role
         # 2. Get all accounts that have rights on the target
         # 3. Check if we have any matches!
-        target_accounts = PermissionsHelper.get_target_accounts(target)
+        target_accounts = Helper.get_target_accounts(target)
 
         can =
           actor
-          |> PermissionsHelper.get_actor_accounts()
+          |> Dispatcher.get_actor_accounts()
           |> Intersecter.intersect(target_accounts)
           |> length()
           |> Kernel.>(0)
@@ -91,20 +93,20 @@ defmodule EWallet.GlobalPermissions do
         %{
           permission
           | global_authorized: can,
-            global_permission: :accounts,
+            global_abilities: %{type => :accounts},
             check_account_permissions: permissions[role][:account_permissions]
         }
 
       :self ->
         can =
           target
-          |> PermissionsHelper.get_owner_uuids()
+          |> Dispatcher.get_owner_uuids()
           |> Enum.member?(actor.uuid)
 
         %{
           permission
           | global_authorized: can,
-            global_permission: :self,
+            global_abilities: %{type => :self},
             check_account_permissions: permissions[role][:account_permissions]
         }
 
@@ -112,14 +114,14 @@ defmodule EWallet.GlobalPermissions do
         %{
           permission
           | global_authorized: false,
-            global_permission: p,
+            global_abilities: %{type => p},
             check_account_permissions: permissions[role][:account_permissions]
         }
     end
   end
 
   defp set_check_account_permissions(%Permission{global_role: role} = permission, permissions) do
-    ap = PermissionsHelper.extract_permission(permissions, [role, :account_permissions])
+    ap = Helper.extract_permission(permissions, [role, :account_permissions])
     %{permission | check_account_permissions: ap}
   end
 end

@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.SchemaPermissions.TransactionRequestPermissions do
+defmodule EWallet.Bouncer.TransactionRequestTarget do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
+  @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWallet.SchemaPermissions.UserPermissions
   alias EWalletDB.{Wallet, TransactionRequest}
   alias EWalletDB.Helpers.Preloader

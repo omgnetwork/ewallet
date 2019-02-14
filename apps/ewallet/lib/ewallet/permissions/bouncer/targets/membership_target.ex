@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.SchemaPermissions.MembershipPermissions do
+defmodule EWallet.Bouncer.MembershipTarget do
   @moduledoc """
   A policy helper containing the helper methods for the membership permissions checks.
   """
-  @behaviour EWallet.Behaviour.EntityBehaviour
+  @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWallet.{Permission, PermissionsHelper}
   alias EWalletDB.{Membership, Helpers.Preloader}
 

@@ -12,17 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.SchemaPermissions.MintPermissions do
+defmodule EWallet.Bouncer.KeyActor do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
-  alias EWalletDB.{Mint, Helpers.Preloader}
+  @behaviour EWallet.Bouncer.ActorBehaviour
+  alias EWallet.Bouncer.Permission
+  alias EWalletDB.{Key, Helpers.Preloader}
 
-  def get_owner_uuids(%Mint{token: token}), do: [token.account_uuid]
+  def get_query_actor_records(%Permission{type: :accounts, actor: actor}) do
+    Ecto.assoc(actor, :accounts)
+  end
 
-  def get_target_type(%Mint{}), do: :mints
+  def get_query_actor_records(%Permission{type: :memberships, actor: actor}) do
+    Ecto.assoc(actor, :memberships)
+  end
 
-  def get_target_accounts(%Mint{token: token}) do
-    [Preloader.preload(token, [:account]).account]
+  def get_actor_accounts(%Key{} = key) do
+    Preloader.preload(key, [:accounts]).accounts
   end
 end

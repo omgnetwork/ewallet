@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.SchemaPermissions.TransactionConsumptionPermissions do
+defmodule EWallet.Bouncer.TransactionConsumptionTarget do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
+  @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.TransactionConsumption
 
   def get_owner_uuids(%TransactionConsumption{user_uuid: user_uuid, account_uuid: account_uuid})

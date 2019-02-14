@@ -12,16 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Behaviour.EntityBehaviour do
+defmodule EWallet.Bouncer.EntityBehaviour do
   @moduledoc """
   A behavior defining the needed functions for a schema permissions module.
   """
-  alias EWallet.Permission
   alias EWalletDB.Account
-  alias Ecto.Query
 
-  @callback build_query_all(%Permission{}) :: Query.t()
+  # Gets all the uuids owning the given target.
   @callback get_owner_uuids(any()) :: [any()]
+
+  # Gets the appropriate type or subtypes for the target.
   @callback get_target_type(any()) :: atom()
+
+  # Gets all the accounts that have power over the target.
   @callback get_target_accounts(any()) :: [Account.t()]
 end

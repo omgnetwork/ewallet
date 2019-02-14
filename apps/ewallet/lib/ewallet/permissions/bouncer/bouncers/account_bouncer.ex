@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.AccountPermissions do
+defmodule EWallet.Bouncer.AccountBouncer do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
-  alias EWallet.PermissionsHelper
+  alias EWallet.{Dispatcher, Helper}
   alias EWalletDB.{Membership, Role}
   alias Utils.Intersecter
 
@@ -24,15 +24,16 @@ defmodule EWallet.AccountPermissions do
     check_permissions(permission, Role.account_role_permissions())
   end
 
-  defp check_permissions(%{actor: actor, action: :all} = permission, permissions) do
-    uuids = actor |> PermissionsHelper.get_actor_accounts() |> PermissionsHelper.get_uuids()
+  defp check_permissions(%{actor: actor, action: :all, schema: schema} = permission, permissions) do
+    types = Dispatcher.get_target_type(schema, :all)
+    uuids = actor |> Dispatcher.get_actor_accounts() |> Helper.get_uuids()
     memberships = Membership.query_all_by_member_and_account_uuids(actor, uuids, [:role])
 
-    find_sufficient_permission_in_memberships(permission, permissions, memberships)
+    find_sufficient_permission_in_memberships(permission, permissions, memberships, types)
   end
 
   defp check_permissions(%{action: _, target: target, type: nil} = permission, permissions) do
-    permission = %{permission | type: PermissionsHelper.get_target_type(target)}
+    permission = %{permission | type: Dispatcher.get_target_type(target)}
     check_account_role(permission, permissions)
   end
 
@@ -48,10 +49,10 @@ defmodule EWallet.AccountPermissions do
          permissions
        ) do
     actor_account_uuids =
-      actor |> PermissionsHelper.get_actor_accounts() |> PermissionsHelper.get_uuids()
+      actor |> Dispatcher.get_actor_accounts() |> Helper.get_uuids()
 
     target_account_uuids =
-      target |> PermissionsHelper.get_target_accounts() |> PermissionsHelper.get_uuids()
+      target |> Dispatcher.get_target_accounts() |> Helper.get_uuids()
 
     case Intersecter.intersect(actor_account_uuids, target_account_uuids) do
       [] ->
@@ -76,32 +77,44 @@ defmodule EWallet.AccountPermissions do
   end
 
   defp find_sufficient_permission_in_memberships(
-         %{type: type, action: action} = permission,
+         %{action: action} = permission,
          permissions,
-         [membership | memberships]
+         [membership | memberships],
+         types
        ) do
-    permissions
-    |> PermissionsHelper.extract_permission([membership.role.name, type, action])
-    |> find_sufficient_permission(permission, permissions, memberships)
+    permission
+    |> update_abilities(membership.role.name, types, permissions)
+    |> find_sufficient_permission_in_memberships(permissions, memberships)
   end
 
   defp find_sufficient_permission_in_memberships(permission, _, _) do
     permission
   end
 
-  defp find_sufficient_permission(:global, permission, _, _) do
-    %{permission | account_authorized: true, account_permission: :global}
+  defp update_abilities(permission, role, types, action) do
+    Enum.reduce(types, permission, fn type ->
+      new_ability = Helper.extract_permission(permissions, [role, type, action]) || :none
+
+      case get_best_ability(permission.account_abilities[type], new_ability) do
+        {:changed, ability} ->
+          abilities = Map.put(permission.account_abilities, type, ability)
+          %{permission | account_abilities: abilities}
+        {:identical, _} ->
+          permission
+      end
+    end)
   end
 
-  defp find_sufficient_permission(:accounts, permission, _, _) do
-    %{permission | account_authorized: true, account_permission: :accounts}
-  end
+  defp get_best_ability(old, nil), do: {:identical, old}
+  defp get_best_ability(nil, new), do: {:changed, new}
+  defp get_best_ability(nil, nil), do: {:identical, nil}
 
-  defp find_sufficient_permission(:self, permission, _, _) do
-    %{permission | account_authorized: true, account_permission: :self}
-  end
+  defp get_best_ability(:global, :accounts), do: {:identical, :global}
+  defp get_best_ability(:global, :self), do: {:identical, global}
 
-  defp find_sufficient_permission(_, permission, permissions, memberships) do
-    find_sufficient_permission_in_memberships(permission, permissions, memberships)
-  end
+  defp get_best_ability(:accounts, :global), do: {:changed, :global}
+  defp get_best_ability(:accounts, :self), do: {:identical, :accounts}
+
+  defp get_best_ability(:self, :global), do: {:changed, :global}
+  defp get_best_ability(:self, :accounts), do: {:changed, :accounts}
 end

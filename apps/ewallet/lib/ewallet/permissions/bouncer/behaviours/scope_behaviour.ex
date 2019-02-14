@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.SchemaPermissions.CategoryPermissions do
+defmodule EWallet.Bouncer.ScopeBehaviour do
   @moduledoc """
-  A policy helper containing the actual authorization.
+  A behavior defining the needed functions for a schema permissions module.
   """
-  alias EWalletDB.Category
+  alias EWallet.Permission
+  alias Ecto.Query
 
-  def get_target_accounts(%Category{} = target) do
-    target.accounts
-  end
+  @callback scoped_query(%Permission{}) :: Query.t()
 end

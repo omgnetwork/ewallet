@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Behaviour.ActorBehaviour do
+defmodule EWallet.Bouncer.CategoryTarget do
   @moduledoc """
-  A behavior defining the needed functions for a schema permissions module.
+  A policy helper containing the actual authorization.
   """
-  alias EWallet.Permission
-  alias EWalletDB.Account
-  alias Ecto.Query
+  @behaviour EWallet.Bouncer.TargetBehaviour
+  alias EWalletDB.Category
 
-  @callback get_query_actor_records(Permission.t()) :: Query.t()
-  @callback get_actor_accounts(any()) :: [Account.t()]
+  def get_target_accounts(%Category{} = target) do
+    target.accounts
+  end
 end

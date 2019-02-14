@@ -95,7 +95,7 @@ defmodule AdminAPI.V1.TokenController do
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, token} <- Token.insert(attrs),
          %{authorized: true} <-
-            permit(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}) || token do
+           permit(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}) || token do
       token
       |> MintGate.mint_token(%{
         "amount" => amount,
@@ -105,6 +105,7 @@ defmodule AdminAPI.V1.TokenController do
     else
       %Token{} = token ->
         respond_single(token, conn)
+
       {:error, code} ->
         handle_error(conn, code)
     end
