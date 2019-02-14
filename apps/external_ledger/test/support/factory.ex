@@ -23,7 +23,8 @@ defmodule ExternalLedger.Factory do
     %Wallet{
       address: sequence("address"),
       adapter: Wallet.ethereum(),
-      type: Wallet.hot()
+      type: Wallet.hot(),
+      public_key: sequence("public_key_")
     }
   end
 end

@@ -97,16 +97,29 @@ defmodule ExternalLedger.WalletTest do
       assert wallet.metadata == %{e_id: "123"}
     end
 
-    test "returns an error when passing invalid arguments" do
-      assert Repo.all(Wallet) == []
-
+    test "returns errors when missing required fields" do
       {res, changeset} =
-        :wallet
-        |> params_for(address: nil)
+        %{
+          address: nil,
+          adapter: nil,
+          primary: nil,
+          type: nil,
+          public_key: nil,
+          metadata: nil,
+          encrypted_metadata: nil
+        }
         |> Wallet.insert()
 
       assert res == :error
-      assert changeset.errors == [address: {"can't be blank", [validation: :required]}]
+      assert changeset.errors == [
+        address: {"can't be blank", [validation: :required]},
+        adapter: {"can't be blank", [validation: :required]},
+        primary: {"can't be blank", [validation: :required]},
+        type: {"can't be blank", [validation: :required]},
+        public_key: {"can't be blank", [validation: :required]},
+        metadata: {"can't be blank", [validation: :required]},
+        encrypted_metadata: {"can't be blank", [validation: :required]}
+      ]
     end
   end
 

@@ -7,7 +7,8 @@ defmodule ExternalLedger.Repo.Migrations.CreateWalletTable do
       add :address, :string, null: false
       add :adapter, :string, null: false
       add :type, :string, null: false
-      add :public_key, :string
+      add :primary, :boolean, default: false
+      add :public_key, :string, null: false
       add :encrypted_private_key, :binary
       add :metadata, :map, null: false, default: "{}"
       add :encrypted_metadata, :binary
@@ -15,8 +16,10 @@ defmodule ExternalLedger.Repo.Migrations.CreateWalletTable do
     end
 
     create unique_index(:wallet, [:address])
-    create index(:wallet, [:type])
     create index(:wallet, [:adapter])
+    create index(:wallet, [:type])
+    create index(:wallet, [:primary])
+    create index(:wallet, [:public_key])
     create index(:wallet, [:metadata], using: "gin")
   end
 end
