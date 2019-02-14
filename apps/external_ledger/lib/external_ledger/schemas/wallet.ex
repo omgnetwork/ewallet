@@ -21,6 +21,8 @@ defmodule ExternalLedger.Wallet do
   import Ecto.{Changeset, Query}
   alias ExternalLedger.Repo
 
+  @behaviour Utils.Ledgers.WalletSchema
+
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
 
@@ -139,6 +141,7 @@ defmodule ExternalLedger.Wallet do
   Use a FOR UPDATE lock on the wallet records for which the current wallets
   will be calculated.
   """
+  @spec lock(String.t() | [String.t()]) :: [%__MODULE__{}]
   def lock(addresses) do
     addresses = List.wrap(addresses)
 
