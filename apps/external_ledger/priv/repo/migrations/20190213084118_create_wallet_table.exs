@@ -8,7 +8,7 @@ defmodule ExternalLedger.Repo.Migrations.CreateWalletTable do
       add :adapter, :string, null: false
       add :type, :string, null: false
       add :public_key, :string
-      add :encrypted_private_key, :string
+      add :encrypted_private_key, :binary
       add :metadata, :map, null: false, default: "{}"
       add :encrypted_metadata, :binary
       timestamps()

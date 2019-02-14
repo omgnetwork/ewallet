@@ -17,6 +17,7 @@ defmodule ExternalLedger.WalletTest do
   import ExternalLedger.Factory
   alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
+  alias Ecto.UUID
   alias ExternalLedger.{Repo, Wallet}
 
   setup do
@@ -40,9 +41,18 @@ defmodule ExternalLedger.WalletTest do
     end
 
     test "saves the encrypted metadata" do
-      :wallet |> build(%{metadata: %{e_id: "123"}}) |> Repo.insert()
+      :wallet |> build() |> Repo.insert()
 
       {:ok, results} = SQL.query(Repo, "SELECT encrypted_metadata FROM wallet", [])
+
+      row = Enum.at(results.rows, 0)
+      assert <<1, 10, "AES.GCM.V1", _::binary>> = Enum.at(row, 0)
+    end
+
+    test "saves the encrypted private key" do
+      :wallet |> build(encrypted_private_key: "the_private_key") |> Repo.insert()
+
+      {:ok, results} = SQL.query(Repo, "SELECT encrypted_private_key FROM wallet", [])
 
       row = Enum.at(results.rows, 0)
       assert <<1, 10, "AES.GCM.V1", _::binary>> = Enum.at(row, 0)
@@ -86,30 +96,118 @@ defmodule ExternalLedger.WalletTest do
       assert res == :ok
       assert wallet.metadata == %{e_id: "123"}
     end
+
+    test "returns an error when passing invalid arguments" do
+      assert Repo.all(Wallet) == []
+
+      {res, changeset} =
+        :wallet
+        |> params_for(address: nil)
+        |> Wallet.insert()
+
+      assert res == :error
+      assert changeset.errors == [address: {"can't be blank", [validation: :required]}]
+    end
   end
 
-  describe "touch/1" do
-    test "touches a wallet" do
-      wallet = insert(:wallet)
+  describe "validations for `adapter`" do
+    test "accepts 'ethereum'" do
+      params = string_params_for(:wallet, adapter: Wallet.ethereum())
+      {res, wallet} = Wallet.insert(params)
 
-      _ = Wallet.touch(wallet.address)
-
-      touched = Wallet.get(wallet.address)
-      assert NaiveDateTime.compare(touched.updated_at, wallet.updated_at) == :gt
+      assert res == :ok
+      assert wallet.adapter == Wallet.ethereum()
     end
 
-    test "touches multiple wallets" do
-      wallets = insert_list(3, :wallet)
+    test "accepts 'omg_network'" do
+      params = string_params_for(:wallet, adapter: Wallet.omg_network())
+      {res, wallet} = Wallet.insert(params)
 
-      {3, _} =
-        wallets
-        |> Enum.map(fn w -> w.address end)
-        |> Wallet.touch()
+      assert res == :ok
+      assert wallet.adapter == Wallet.omg_network()
+    end
 
-      _ = Enum.each(wallets, fn wallet ->
-        touched = Wallet.get(wallet.address)
-        assert NaiveDateTime.compare(touched.updated_at, wallet.updated_at) == :gt
-      end)
+    test "rejects value other than 'ethereum' or 'omg_network'" do
+      params = string_params_for(:wallet, adapter: "bitcoin")
+      {res, changeset} = Wallet.insert(params)
+
+      assert res == :error
+      assert changeset.errors == [adapter: {"is invalid", [validation: :inclusion]}]
+    end
+  end
+
+  describe "validations for `type`" do
+    test "accepts 'hot'" do
+      params = string_params_for(:wallet, type: Wallet.hot())
+      {res, wallet} = Wallet.insert(params)
+
+      assert res == :ok
+      assert wallet.type == Wallet.hot()
+    end
+
+    test "accepts 'cold'" do
+      params = string_params_for(:wallet, type: Wallet.cold())
+      {res, wallet} = Wallet.insert(params)
+
+      assert res == :ok
+      assert wallet.type == Wallet.cold()
+    end
+
+    test "rejects value other than 'hot' or 'cold'" do
+      params = string_params_for(:wallet, type: "warm")
+      {res, changeset} = Wallet.insert(params)
+
+      assert res == :error
+      assert changeset.errors == [type: {"is invalid", [validation: :inclusion]}]
+    end
+  end
+
+  describe "all/1" do
+    test "retrieves all wallets matching the given addresses" do
+      wallet_1 = insert(:wallet, address: "address_1")
+      _wallet_2 = insert(:wallet, address: "address_2")
+      wallet_3 = insert(:wallet, address: "address_3")
+      _wallet_4 = insert(:wallet, address: "address_4")
+
+      wallets = Wallet.all([wallet_1.address, wallet_3.address])
+      uuids = Enum.map(wallets, fn w -> w.uuid end)
+
+      assert length(wallets) == 2
+      assert Enum.member?(uuids, wallet_1.uuid)
+      assert Enum.member?(uuids, wallet_3.uuid)
+    end
+  end
+
+  describe "get/1" do
+    test "returns the existing wallet by address" do
+      {_, inserted} =
+        :wallet
+        |> build(%{address: "456"})
+        |> Repo.insert()
+
+      wallet = Wallet.get("456")
+      assert wallet.uuid == inserted.uuid
+    end
+
+    test "returns nil if wallet does not exist" do
+      wallet = Wallet.get("456")
+      assert wallet == nil
+    end
+  end
+
+  describe "get_by/1" do
+    test "returns the existing wallet by various fields" do
+      [_, inserted, _] = insert_list(3, :wallet)
+
+      assert Wallet.get_by(uuid: inserted.uuid).uuid == inserted.uuid
+      assert Wallet.get_by(address: inserted.address).uuid == inserted.uuid
+    end
+
+    test "returns nil if the value cannot be found" do
+      [_, _, _] = insert_list(3, :wallet)
+
+      assert Wallet.get_by(uuid: UUID.generate()) == nil
+      assert Wallet.get_by(address: "not_valid") == nil
     end
   end
 
@@ -177,51 +275,21 @@ defmodule ExternalLedger.WalletTest do
     end
   end
 
-  describe "all/1" do
-    test "retrieves all wallets matching the given addresses" do
-      wallet_1 = insert(:wallet, address: "address_1")
-      _wallet_2 = insert(:wallet, address: "address_2")
-      wallet_3 = insert(:wallet, address: "address_3")
-      _wallet_4 = insert(:wallet, address: "address_4")
-
-      wallets = Wallet.all([wallet_1.address, wallet_3.address])
-      uuids = Enum.map(wallets, fn w -> w.uuid end)
-
-      assert length(wallets) == 2
-      assert Enum.member?(uuids, wallet_1.uuid)
-      assert Enum.member?(uuids, wallet_3.uuid)
-    end
-  end
-
-  describe "get/1" do
-    test "returns the existing wallet" do
-      inserted_wallet = insert(:wallet, address: "456")
-
-      wallet = Wallet.get("456")
-      assert wallet.uuid == inserted_wallet.uuid
-    end
-
-    test "returns nil if wallet does not exist" do
-      wallet = Wallet.get("456")
-      assert wallet == nil
-    end
-  end
-
   describe "insert/1" do
-    test "inserts a wallet if it does not existing" do
+    test "inserts a wallet if it does not exist" do
       params = string_params_for(:wallet)
       {:ok, wallet} = Wallet.insert(params)
 
       assert Repo.get_by(Wallet, address: params["address"]).uuid == wallet.uuid
     end
 
-    test "returns the existing wallet without error if already existing" do
-      assert Repo.all(Wallet) == []
-
+    test "returns the existing wallet without error if already exists" do
       {:ok, inserted_wallet} =
         :wallet
         |> string_params_for()
         |> Wallet.insert()
+
+      assert Repo.get_by(Wallet, address: inserted_wallet.address)
 
       {res, wallet} =
         :wallet
@@ -242,6 +310,31 @@ defmodule ExternalLedger.WalletTest do
 
       assert res == :error
       assert changeset.errors == [address: {"can't be blank", [validation: :required]}]
+    end
+  end
+
+  describe "touch/1" do
+    test "touches a wallet" do
+      wallet = insert(:wallet)
+
+      _ = Wallet.touch(wallet.address)
+
+      touched = Wallet.get(wallet.address)
+      assert NaiveDateTime.compare(touched.updated_at, wallet.updated_at) == :gt
+    end
+
+    test "touches multiple wallets" do
+      wallets = insert_list(3, :wallet)
+
+      {3, _} =
+        wallets
+        |> Enum.map(fn w -> w.address end)
+        |> Wallet.touch()
+
+      _ = Enum.each(wallets, fn wallet ->
+        touched = Wallet.get(wallet.address)
+        assert NaiveDateTime.compare(touched.updated_at, wallet.updated_at) == :gt
+      end)
     end
   end
 

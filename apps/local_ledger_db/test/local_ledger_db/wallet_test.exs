@@ -15,6 +15,7 @@
 defmodule LocalLedgerDB.WalletTest do
   use ExUnit.Case, async: true
   import LocalLedgerDB.Factory
+  alias Ecto.UUID
   alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
   alias LocalLedgerDB.{Repo, Wallet}
@@ -202,6 +203,22 @@ defmodule LocalLedgerDB.WalletTest do
     test "returns nil if wallet does not exist" do
       wallet = Wallet.get("456")
       assert wallet == nil
+    end
+  end
+
+  describe "get_by/1" do
+    test "returns the existing wallet by various fields" do
+      [_, inserted, _] = insert_list(3, :wallet)
+
+      assert Wallet.get_by(uuid: inserted.uuid).uuid == inserted.uuid
+      assert Wallet.get_by(address: inserted.address).uuid == inserted.uuid
+    end
+
+    test "returns nil if the value cannot be found" do
+      [_, _, _] = insert_list(3, :wallet)
+
+      assert Wallet.get_by(uuid: UUID.generate()) == nil
+      assert Wallet.get_by(address: "not_valid") == nil
     end
   end
 
