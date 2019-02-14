@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ExternalLedger.Wallet do
+defmodule ExternalLedger.Schemas.Wallet do
   @moduledoc """
   Ecto Schema representing external ledger wallets. A wallet is made up of
   a unique address and the ID associated with it.
