@@ -204,7 +204,8 @@ jobs:
             make test-ewallet
           environment:
             DATABASE_URL: postgresql://postgres:@localhost:5432/ewallet
-            LOCAL_LEDGER_DATABASE_URL: postgresql://postgres:@localhost:5432/ledger
+            LOCAL_LEDGER_DATABASE_URL: postgresql://postgres:@localhost:5432/local_ledger
+            EXTERNAL_LEDGER_DATABASE_URL: postgresql://postgres:@localhost:5432/external_ledger
             USE_JUNIT: 1
             MIX_ENV: test
       - run:
