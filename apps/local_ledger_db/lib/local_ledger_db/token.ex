@@ -22,6 +22,8 @@ defmodule LocalLedgerDB.Token do
   alias Ecto.UUID
   alias LocalLedgerDB.{Entry, Repo, Token}
 
+  @behaviour Utils.Ledgers.TokenSchema
+
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
 
@@ -43,6 +45,7 @@ defmodule LocalLedgerDB.Token do
   @doc """
   Validate the token attributes.
   """
+  @spec changeset(%__MODULE__{} | Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
   def changeset(%Token{} = token, attrs) do
     token
     |> cast(attrs, [:id, :metadata, :encrypted_metadata])
@@ -54,6 +57,7 @@ defmodule LocalLedgerDB.Token do
   Retrieve a token from the database using the specified id
   or insert a new one before returning it.
   """
+  @spec get_or_insert(map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def get_or_insert(%{"id" => id} = attrs) do
     case get(id) do
       nil ->
@@ -67,7 +71,7 @@ defmodule LocalLedgerDB.Token do
   @doc """
   Retrieve a token using the specified id.
   """
-  @spec get(String.t()) :: Ecto.Schema.t() | nil | no_return()
+  @spec get(String.t()) :: %__MODULE__{} | nil | no_return()
   def get(id) do
     Repo.get_by(Token, id: id)
   end
@@ -78,7 +82,7 @@ defmodule LocalLedgerDB.Token do
   query is made to get the current database record, be it the one inserted right
   before or one inserted by another concurrent process.
   """
-  @spec insert(map()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
+  @spec insert(map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def insert(%{"id" => id} = attrs) do
     changeset = Token.changeset(%Token{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :id]

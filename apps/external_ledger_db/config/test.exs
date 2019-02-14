@@ -7,3 +7,7 @@ config :external_ledger_db, ExternalLedgerDB.Repo,
   migration_timestamps: [type: :naive_datetime_usec],
   queue_target: 5_000,
   queue_interval: 10_000
+
+config :ethereumex,
+  url: {:system, "ETHEREUM_NODE_URL", "http://localhost:8545"},
+  http_options: [timeout: 8000, recv_timeout: 5000]

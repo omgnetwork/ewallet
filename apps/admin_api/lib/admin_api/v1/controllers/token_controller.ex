@@ -21,6 +21,7 @@ defmodule AdminAPI.V1.TokenController do
   alias EWallet.{Helper, MintGate, TokenPolicy}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
   alias EWalletDB.{Account, Mint, Token}
+  alias ExternalLedgerDB.TemporaryAdapter
 
   @doc """
   Retrieves a list of tokens.
@@ -130,6 +131,40 @@ defmodule AdminAPI.V1.TokenController do
       amount ->
         handle_error(conn, :invalid_parameter, "Invalid amount provided: '#{amount}'.")
     end
+  end
+
+  @doc """
+  Import an existing token from an external ledger.
+
+  It takes a `contract_address` and `adapter` attribute, attempts to lookup the token
+  via the given adapter, then creates a token in the `ExternalLedgerDB` app with the
+  information retrieved from the adapter.
+  """
+  @spec import_token(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def import_token(conn, %{"contract_address" => _, "adapter" => _} = attrs) do
+    with contract_address <- attrs["contract_address"],
+         true <- TemporaryAdapter.valid_adapter?(attrs["adapter"]) || :invalid_adapter,
+         adapter <- attrs["adapter"],
+         {:ok, contract} <- TemporaryAdapter.fetch_contract(contract_address, adapter) do
+      contract
+
+      # Insert EWalletDB.Token
+      # Insert ExternalLedgerDB.Token
+      # Return the formatted EWalletDB.Token
+    else
+      :invalid_adapter ->
+        {:error, :invalid_parameter, "Invalid parameter provided. `adapter` is invalid."}
+
+      error -> error
+    end
+  end
+
+  def import_token(conn, _) do
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `contract_address` and `adapter` are required."
+    )
   end
 
   @doc """

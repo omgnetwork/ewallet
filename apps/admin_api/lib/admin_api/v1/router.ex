@@ -52,6 +52,7 @@ defmodule AdminAPI.V1.Router do
     post("/token.all", TokenController, :all)
     post("/token.get", TokenController, :get)
     post("/token.create", TokenController, :create)
+    post("/token.import", TokenController, :import_token)
     post("/token.update", TokenController, :update)
     post("/token.enable_or_disable", TokenController, :enable_or_disable)
     post("/token.stats", TokenController, :stats)

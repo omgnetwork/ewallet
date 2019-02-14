@@ -51,8 +51,11 @@ defmodule ExternalLedgerDB.Mixfile do
       {:ecto_sql, "~> 3.0"},
       {:ewallet_config, in_umbrella: true},
       {:ex_machina, "~> 2.2", only: :test},
+      {:ex_ulid, github: "omisego/ex_ulid"},
       {:jason, "~> 1.1"},
       {:postgrex, ">= 0.0.0"},
+      {:ethereumex, "~> 0.5.2"},
+      {:abi, "~> 0.1.8"},
     ]
   end
 
