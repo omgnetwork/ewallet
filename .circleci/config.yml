@@ -355,6 +355,9 @@ jobs:
           name: Publishing Docker image
           command: |
             set -xe
+
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
             docker load -i ~/caches/docker-layers.tar
 
             IMAGE_TAG=""
@@ -376,11 +379,13 @@ jobs:
                     esac
                 done
 
-                # In case the commit is HEAD of master branch, also tag stable.
+                # In case the commit is HEAD of latest version branch, also tag stable.
                 if [ -n "$CIRCLE_REPOSITORY_URL" ] && [ -n "$CIRCLE_SHA1" ]; then
-                    _ref="refs/heads/master"
-                    _head="$(git ls-remote "$CIRCLE_REPOSITORY_URL" "$_ref" | awk '{ print $1 }')"
-                    if [ "$CIRCLE_SHA1" = "$_head" ]; then
+                    _stable_head="$(
+                        git ls-remote --heads "$CIRCLE_REPOSITORY_URL" "v*" |
+                        awk '/refs\/heads\/v[0-9]+\.[0-9]+$/ { LH=$1 } END { print LH }')"
+
+                    if [ "$CIRCLE_SHA1" = "$_stable_head" ]; then
                         IMAGE_TAG="stable $IMAGE_TAG"
                     fi
                 fi
@@ -403,7 +408,7 @@ jobs:
             fi
 
             for tag in $IMAGE_TAG; do
-                printf "\\033[0;34mPublishing Docker image as %s\\033[0;0m\\n" "$IMAGE_TAG"
+                printf "\\033[0;34mPublishing Docker image as %s\\033[0;0m\\n" "$tag"
                 docker tag "$IMAGE_NAME" "$IMAGE_NAME:$tag"
                 docker push "$IMAGE_NAME:$tag"
             done
@@ -441,7 +446,7 @@ workflows:
             branches:
               ignore:
                 - master
-                - /^v.*/
+                - /^v[0-9]+\.[0-9]+/
                 - /.*e2e$/
             tags:
               ignore: /^v.*/
@@ -455,10 +460,10 @@ workflows:
             branches:
               only:
                 - master
-                - /^v.*/
+                - /^v[0-9]+\.[0-9]+/
                 - /.*e2e$/
             tags:
-              only: /^v.*/
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+/
       - test_e2e:
           requires:
             - build

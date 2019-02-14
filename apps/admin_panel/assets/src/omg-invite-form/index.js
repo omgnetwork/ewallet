@@ -37,7 +37,13 @@ const Error = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
 
-const enhance = compose(withRouter, connect(null, { createUser }))
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { createUser }
+  )
+)
 class ForgetPasswordForm extends Component {
   static propTypes = {
     location: PropTypes.object.isRequired,
@@ -59,29 +65,40 @@ class ForgetPasswordForm extends Component {
   }
   onSubmit = async e => {
     e.preventDefault()
-    const { email, token } = queryString.parse(this.props.location.search)
-    const newPasswordError = !this.validatePassword(this.state.newPassword)
-    const reEnteredNewPasswordError = !this.validateReEnteredNewPassword(
-      this.state.newPassword,
-      this.state.reEnteredNewPassword
-    )
-    this.setState({
-      newPasswordError,
-      reEnteredNewPasswordError,
-      submitStatus: !newPasswordError && !reEnteredNewPasswordError ? 'SUBMITTED' : null
-    })
-    if (!newPasswordError && !reEnteredNewPasswordError) {
-      const result = await this.props.createUser({
-        email,
-        resetToken: token,
-        password: this.state.newPassword,
-        passwordConfirmation: this.state.reEnteredNewPassword
+    try {
+      const { email, token } = queryString.parse(this.props.location.search)
+      const newPasswordError = !this.validatePassword(this.state.newPassword)
+      const reEnteredNewPasswordError = !this.validateReEnteredNewPassword(
+        this.state.newPassword,
+        this.state.reEnteredNewPassword
+      )
+      this.setState({
+        newPasswordError,
+        reEnteredNewPasswordError,
+        submitStatus: !newPasswordError && !reEnteredNewPasswordError ? 'SUBMITTED' : null
       })
-      if (result.data.success) {
-        this.setState({ submitStatus: 'SUCCESS' })
-      } else {
-        this.setState({ submitStatus: 'FAILED', submitErrorText: result.data.data.code })
+      if (!newPasswordError && !reEnteredNewPasswordError) {
+        const result = await this.props.createUser({
+          email,
+          resetToken: token,
+          password: this.state.newPassword,
+          passwordConfirmation: this.state.reEnteredNewPassword
+        })
+        if (result.data) {
+          this.setState({ submitStatus: 'SUCCESS' })
+        } else {
+          this.setState({
+            submitStatus: 'FAILED',
+            submitErrorText:
+              _.get(result, 'error.code') || _.get(result, 'error.message') || 'Invite Failed.'
+          })
+        }
       }
+    } catch (error) {
+      this.setState({
+        submitStatus: 'FAILED',
+        submitErrorText: _.get(error, 'message', 'Something went wrong.')
+      })
     }
   }
   onNewPasswordInputChange = e => {

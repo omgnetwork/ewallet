@@ -6,7 +6,7 @@ s6-setuidgid ewallet
 
 ## NODE_HOST
 ##
-## Used in clustering; combine with NODE_NAME, this is used for identifying
+## Used in clustering; combine with an app name, this is used for identifying
 ## and connecting each nodes. By default use the container hostname.
 ##
 backtick -n default_host { s6-hostname }
@@ -29,14 +29,6 @@ backtick -n default_cookie {
 importas -iu default_cookie default_cookie
 importas -D $default_cookie ERLANG_COOKIE ERLANG_COOKIE
 s6-env ERLANG_COOKIE=$ERLANG_COOKIE
-
-## NODE_NAME
-##
-## Used in clustering; NODE_NAME along with NODE_HOST are used for identifying
-## and connecting each nodes. By default use "ewallet".
-##
-importas -D ewallet NODE_NAME NODE_NAME
-s6-env NODE_NAME=$NODE_NAME
 
 ## NODE_DNS
 ##
