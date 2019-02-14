@@ -1,10 +1,10 @@
-# Copyright 2018-2019 OmiseGO Pte Ltd
+# Copyright 2017-2019 OmiseGO
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,19 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ExternalLedger.Factory do
-  @moduledoc """
-  Factories used for testing.
-  """
-  use ExMachina.Ecto, repo: ExternalLedger.Repo
-  alias ExternalLedger.Wallet
-
-  def wallet_factory do
-    %Wallet{
-      address: sequence("address"),
-      adapter: Wallet.ethereum(),
-      type: Wallet.hot(),
-      public_key: sequence("public_key_")
-    }
-  end
+defmodule ExternalLedgerDB do
+  @moduledoc false
 end

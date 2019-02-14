@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ExternalLedger.Encrypted.String do
+defmodule ExternalLedgerDB.Encrypted.String do
   @moduledoc false
-  use Cloak.Fields.Binary, vault: ExternalLedger.Vault
+  use Cloak.Fields.Binary, vault: ExternalLedgerDB.Vault
 end

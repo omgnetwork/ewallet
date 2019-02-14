@@ -1,4 +1,4 @@
-# Copyright 2019 OmiseGO Pte Ltd
+# Copyright 2017-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ExternalLedger.Application do
+defmodule ExternalLedgerDB.Application do
   @moduledoc """
-  The ExternalLedger data store.
+  The ExternalLedgerDB data store.
   """
   use Application
   alias Appsignal.Ecto
@@ -22,28 +22,28 @@ defmodule ExternalLedger.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec
-    DeferredConfig.populate(:external_ledger)
+    DeferredConfig.populate(:external_ledger_db)
 
-    settings = Application.get_env(:external_ledger, :settings)
-    Config.register_and_load(:external_ledger, settings)
+    settings = Application.get_env(:external_ledger_db, :settings)
+    Config.register_and_load(:external_ledger_db, settings)
 
     ActivityLogger.configure(%{
-      ExternalLedger.Wallet => %{type: "external_ledger_wallet", identifier: :id}
+      ExternalLedgerDB.Wallet => %{type: "external_ledger_wallet", identifier: :id}
     })
 
     :telemetry.attach(
       "appsignal-ecto",
-      [:external_ledger, :repo, :query],
+      [:external_ledger_db, :repo, :query],
       &Ecto.handle_event/4,
       nil
     )
 
     children = [
-      supervisor(ExternalLedger.Repo, []),
-      supervisor(ExternalLedger.Vault, [])
+      supervisor(ExternalLedgerDB.Repo, []),
+      supervisor(ExternalLedgerDB.Vault, [])
     ]
 
-    opts = [strategy: :one_for_one, name: ExternalLedger.Supervisor]
+    opts = [strategy: :one_for_one, name: ExternalLedgerDB.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

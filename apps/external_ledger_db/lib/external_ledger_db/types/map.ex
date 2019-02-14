@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ExternalLedgerTest do
-  use ExUnit.Case
-  doctest ExternalLedger
+defmodule ExternalLedgerDB.Encrypted.Map do
+  @moduledoc false
+
+  use Cloak.Fields.Map, vault: ExternalLedgerDB.Vault
 end
