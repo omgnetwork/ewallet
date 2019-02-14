@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ExternalLedger.WalletTest do
+defmodule ExternalLedger.Schemas.WalletTest do
   use ExUnit.Case, async: true
   import ExternalLedger.Factory
   alias Ecto.Adapters.SQL
