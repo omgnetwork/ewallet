@@ -19,6 +19,12 @@ defmodule EWallet.Bouncer.CategoryTarget do
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.Category
 
+  def get_owner_uuids(_) do
+    []
+  end
+
+  def get_target_type(%Category{}), do: :categories
+
   def get_target_accounts(%Category{} = target) do
     target.accounts
   end

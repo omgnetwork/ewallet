@@ -18,85 +18,85 @@ defmodule EWallet.Bouncer.WalletScope do
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
-  alias EWallet.Bouncer.{Permission, Dispatcher}
-  alias EWalletDB.Wallet
+  alias EWallet.Bouncer.{Helper, Permission}
+  alias EWalletDB.{Wallet, AccountUser, User}
 
   def scoped_query(%Permission{actor: actor, global_abilities: global_abilities, account_abilities: account_abilities}) do
     do_scoped_query(actor, global_abilities) || do_scoped_query(actor, account_abilities)
   end
 
   # Global + ?
-  defp do_scoped_query(actor, %{account_wallets: :global, end_user_wallets: :global}) do
+  defp do_scoped_query(_actor, %{account_wallets: :global, end_user_wallets: :global}) do
     Wallet
   end
 
   defp do_scoped_query(actor, %{account_wallets: :global, end_user_wallets: :accounts}) do
     actor
-    |> Wallet.prepare_query_with_membership_for()
-    |> join(:inner, [w, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
-    |> join(:inner, [w, m, au], u in User, on: au.user_uuid == u.uuid)
-    |> where([w, m, au, u], w.user_uuid == u.uuid or is_nil(w.user_uuid))
-    |> select([w, m, au, u], w)
+    |> Helper.prepare_query_with_membership_for(Wallet)
+    |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
+    |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
+    |> where([g, m, au, u], g.user_uuid == u.uuid or is_nil(g.user_uuid))
+    |> select([g, m, au, u], g)
   end
 
   defp do_scoped_query(actor, %{account_wallets: :global, end_user_wallets: :self}) do
-    where(Wallet, [w], w.user_uuid == ^actor.uuid or is_nil(w.user_uuid))
+    where(Wallet, [g], g.user_uuid == ^actor.uuid or is_nil(g.user_uuid))
   end
 
-  defp do_scoped_query(actor, %{account_wallets: :global, end_user_wallets: _}) do
-    where(Wallet, [w], is_nil(w.user_uuid))
+  defp do_scoped_query(_actor, %{account_wallets: :global, end_user_wallets: _}) do
+    where(Wallet, [g], is_nil(g.user_uuid))
   end
 
   # Accounts + ?
   defp do_scoped_query(actor, %{account_wallets: :accounts, end_user_wallets: :global}) do
     actor
-    |> Wallet.prepare_query_with_membership_for()
-    |> where([w, m], w.account_uuid == m.account_uuid or is_nil(w.account_uuid))
-    |> select([w, m], w)
+    |> Helper.prepare_query_with_membership_for(Wallet)
+    |> where([g, m], g.account_uuid == m.account_uuid or is_nil(g.account_uuid))
+    |> select([g, m], g)
   end
 
   defp do_scoped_query(actor, %{account_wallets: :accounts, end_user_wallets: :accounts}) do
     actor
-    |> Wallet.prepare_query_with_membership_for()
-    |> join(:inner, [w, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
-    |> join(:inner, [w, m, au], u in User, on: au.user_uuid == u.uuid)
-    |> where([w, m, au, u], w.user_uuid == u.uuid or w.account_uuid == m.account_uuid)
-    |> select([w, m, au, u], w)
+    |> Helper.prepare_query_with_membership_for(Wallet)
+    |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
+    |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
+    |> where([g, m, au, u], g.user_uuid == u.uuid or g.account_uuid == m.account_uuid)
+    |> select([g, m, au, u], g)
   end
 
   defp do_scoped_query(actor, %{account_wallets: :accounts, end_user_wallets: :self}) do
     actor
-    |> Wallet.prepare_query_with_membership_for()
-    |> where([w, m], w.account_uuid == m.account_uuid or w.user_uuid == ^actor.uuid)
-    |> select([w, m], w)
+    |> Helper.prepare_query_with_membership_for(Wallet)
+    |> where([g, m], g.account_uuid == m.account_uuid or g.user_uuid == ^actor.uuid)
+    |> select([g, m], g)
   end
 
   defp do_scoped_query(actor, %{account_wallets: :accounts, end_user_wallets: _}) do
     actor
-    |> Wallet.prepare_query_with_membership_for()
-    |> where([w, m], w.account_uuid == m.account_uuid)
-    |> select([w, m], w)
+    |> Helper.prepare_query_with_membership_for(Wallet)
+    |> where([g, m], g.account_uuid == m.account_uuid)
+    |> select([g, m], g)
   end
 
   # whatever + ?
-  defp do_scoped_query(actor, %{account_wallets: _, end_user_wallets: :global}) do
-    where(Wallet, [w], is_nil(w.account_uuid))
+  defp do_scoped_query(_actor, %{account_wallets: _, end_user_wallets: :global}) do
+    where(Wallet, [g], is_nil(g.account_uuid))
   end
 
   defp do_scoped_query(actor, %{account_wallets: _, end_user_wallets: :accounts}) do
     actor
-    |> Wallet.prepare_query_with_membership_for()
-    |> join(:inner, [w, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
-    |> join(:inner, [w, m, au], u in User, on: au.user_uuid == u.uuid)
-    |> where([w, m, au, u], w.user_uuid == u.uuid)
-    |> select([w, m, au, u], w)
+    |> Helper.prepare_query_with_membership_for(Wallet)
+    |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
+    |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
+    |> where([g, m, au, u], g.user_uuid == u.uuid)
+    |> select([g, m, au, u], g)
   end
 
   defp do_scoped_query(actor, %{account_wallets: _, end_user_wallets: :self}) do
-    where(Wallet, [w], w.user_uuid == ^actor.uuid)
+    where(Wallet, [g], g.user_uuid == ^actor.uuid)
   end
 
-  defp do_scoped_query(actor, a) do
+  defp do_scoped_query(_actor, _a) do
     nil
   end
 end

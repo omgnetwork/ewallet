@@ -16,6 +16,8 @@ defmodule EWallet.Bouncer.Helper do
   @moduledoc """
   Helper functions for Bouncer.
   """
+  import Ecto.Query
+  alias EWalletDB.{User, Key, Membership, AccountUser}
 
   # Cleans up dirty inputs into a unified actor representation.
   # Either a key, an admin user or an end user
@@ -35,5 +37,17 @@ defmodule EWallet.Bouncer.Helper do
 
   def extract_permission(permission, _) do
     permission
+  end
+
+  def prepare_query_with_membership_for(%User{is_admin: true} = user, query) do
+    join(query, :inner, [g], m in Membership, on: m.user_uuid == ^user.uuid)
+  end
+
+  def prepare_query_with_membership_for(%User{is_admin: false} = user, query) do
+    join(query, :inner, [g], m in AccountUser, on: m.user_uuid == ^user.uuid)
+  end
+
+  def prepare_query_with_membership_for(%Key{} = key, query) do
+    join(query, :inner, [g], m in Membership, on: m.key_uuid == ^key.uuid)
   end
 end

@@ -17,16 +17,7 @@ defmodule EWallet.Bouncer.KeyActor do
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.ActorBehaviour
-  alias EWallet.Bouncer.Permission
   alias EWalletDB.{Key, Helpers.Preloader}
-
-  def get_query_actor_records(%Permission{type: :accounts, actor: actor}) do
-    Ecto.assoc(actor, :accounts)
-  end
-
-  def get_query_actor_records(%Permission{type: :memberships, actor: actor}) do
-    Ecto.assoc(actor, :memberships)
-  end
 
   def get_actor_accounts(%Key{} = key) do
     Preloader.preload(key, [:accounts]).accounts

@@ -23,7 +23,7 @@ defmodule EWalletDB.Wallet do
   import EWalletDB.Validator
   alias Ecto.UUID
   alias Utils.Types.WalletAddress
-  alias EWalletDB.{Account, Repo, Key, AccountUser, Membership, User, Wallet}
+  alias EWalletDB.{Account, Repo, User, Wallet}
   alias ExULID.ULID
   alias ActivityLogger.System
 
@@ -151,26 +151,6 @@ defmodule EWalletDB.Wallet do
   end
 
   def all_for(_), do: nil
-
-  def prepare_query_with_membership_for(%User{} = user) do
-    Wallet
-    |> join(:inner, [w], m in Membership, on: m.user_uuid == ^user.uuid)
-    |> do_query_all_for()
-  end
-
-  def prepare_query_with_membership_for(%Key{} = key) do
-    Wallet
-    |> join(:inner, [w], m in Membership, on: m.key_uuid == ^key.uuid)
-    |> do_query_all_for()
-  end
-
-  defp do_query_all_for(query) do
-    query
-    |> join(:inner, [w, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
-    |> join(:inner, [w, m, au], u in User, on: au.user_uuid == u.uuid)
-    |> where([w, m, au, u], w.user_uuid == u.uuid or w.account_uuid == m.account_uuid)
-    |> select([w, m, au, u], w)
-  end
 
   @spec query_all_for_account_uuids_and_user(Ecto.Queryable.t(), [String.t()]) ::
           Ecto.Queryable.t()

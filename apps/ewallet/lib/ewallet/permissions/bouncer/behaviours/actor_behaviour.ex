@@ -16,12 +16,7 @@ defmodule EWallet.Bouncer.ActorBehaviour do
   @moduledoc """
   A behavior defining the needed functions for a schema permissions module.
   """
-  alias EWallet.Bouncer.Permission
   alias EWalletDB.Account
-  alias Ecto.Query
-
-  # Load the appropriate scope depending on the given permissions.
-  @callback get_query_actor_records(Permission.t()) :: Query.t()
 
   # Get all the accounts that the current actor has power over.
   @callback get_actor_accounts(any()) :: [Account.t()]

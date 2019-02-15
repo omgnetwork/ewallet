@@ -17,20 +17,13 @@ defmodule EWallet.Bouncer.KeyTarget do
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
-  alias EWallet.Bouncer.Permission
   alias EWalletDB.{Key, Helpers.Preloader}
 
   def get_owner_uuids(%Key{uuid: uuid}) do
     [uuid]
   end
 
-  def get_query_actor_records(%Permission{type: :accounts, actor: actor}) do
-    Ecto.assoc(actor, :accounts)
-  end
-
-  def get_query_actor_records(%Permission{type: :memberships, actor: actor}) do
-    Ecto.assoc(actor, :memberships)
-  end
+  def get_target_type(%Key{}), do: :keys
 
   def get_target_accounts(%Key{} = key) do
     get_actor_accounts(key)

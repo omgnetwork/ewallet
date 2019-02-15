@@ -81,7 +81,7 @@ defmodule EWallet.Bouncer.GlobalBouncer do
         # 1. Get all accounts where user have appropriate role
         # 2. Get all accounts that have rights on the target
         # 3. Check if we have any matches!
-        target_accounts = Helper.get_target_accounts(target)
+        target_accounts = Dispatcher.get_target_accounts(target)
 
         can =
           actor

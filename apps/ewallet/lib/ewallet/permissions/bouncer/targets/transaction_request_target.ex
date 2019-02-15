@@ -17,7 +17,7 @@ defmodule EWallet.Bouncer.TransactionRequestTarget do
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
-  alias EWallet.SchemaPermissions.UserPermissions
+  alias EWallet.Bouncer.UserTarget
   alias EWalletDB.{Wallet, TransactionRequest}
   alias EWalletDB.Helpers.Preloader
 
@@ -87,6 +87,6 @@ defmodule EWallet.Bouncer.TransactionRequestTarget do
   defp get_user_accounts(record) do
     record
     |> get_user()
-    |> UserPermissions.get_target_accounts()
+    |> UserTarget.get_target_accounts()
   end
 end

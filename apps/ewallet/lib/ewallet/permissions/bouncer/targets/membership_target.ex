@@ -17,26 +17,13 @@ defmodule EWallet.Bouncer.MembershipTarget do
   A policy helper containing the helper methods for the membership permissions checks.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
-  alias EWallet.Bouncer.{Helper, Permission, Dispatcher}
   alias EWalletDB.{Membership, Helpers.Preloader}
 
-  def build_query_all(%Permission{global_abilities: :global}), do: Membership
-
-  def build_query_all(%Permission{global_abilities: :accounts} = permission) do
-    Helper.get_query_actor_records(permission)
-  end
-
-  def build_query_all(%Permission{account_abilities: :global}), do: Membership
-
-  def build_query_all(%Permission{account_abilities: :accounts} = permission) do
-    Helper.get_query_actor_records(permission)
-  end
-
-  def get_owner_uuids(%Membership{account_uuid: account_uuid, user_uuid: user_uuid}) do
+  def get_owner_uuids(%Membership{account_uuid: account_uuid, user_uuid: user_uuid}) when not is_nil(user_uuid) do
     [account_uuid, user_uuid]
   end
 
-  def get_owner_uuids(%Membership{account_uuid: account_uuid, key_uuid: key_uuid}) do
+  def get_owner_uuids(%Membership{account_uuid: account_uuid, key_uuid: key_uuid}) when not is_nil(key_uuid)  do
     [account_uuid, key_uuid]
   end
 

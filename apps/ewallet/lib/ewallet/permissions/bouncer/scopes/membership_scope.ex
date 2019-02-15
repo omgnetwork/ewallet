@@ -12,27 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Bouncer.AccountScope do
+defmodule EWallet.Bouncer.MembershipScope do
   @moduledoc """
 
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
-  alias EWallet.Bouncer.{Helper, Permission}
+  alias EWallet.Bouncer.Permission
+  alias EWalletDB.{User, Key}
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
   def scoped_query(%Permission{actor: actor, global_abilities: global_abilities, account_abilities: account_abilities}) do
     do_scoped_query(actor, global_abilities) || do_scoped_query(actor, account_abilities)
   end
 
-  defp do_scoped_query(_actor, %{accounts: :global}) do
-    Account
+  defp do_scoped_query(_actor, %{memberships: :global}) do
+    Membership
   end
 
-  defp do_scoped_query(actor, %{accounts: :accounts}) do
-    actor
-    |> Helper.prepare_query_with_membership_for(Account)
-    |> select([g, m], g)
+  defp do_scoped_query(%User{is_admin: true} = user, %{memberships: :accounts}) do
+    where(Membership, [m], m.user_uuid == ^user.uuid)
+  end
+
+  defp do_scoped_query(%Key{} = key, %{memberships: :accounts}) do
+    where(Membership, [m], m.key_uuid == ^key.uuid)
   end
 
   defp do_scoped_query(_, _) do
