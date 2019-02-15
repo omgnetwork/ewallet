@@ -16,22 +16,23 @@ defmodule EWallet.RolePolicy do
   @moduledoc """
   The authorization policy for roles.
   """
-  alias EWallet.Permissions
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
 
   def authorize(:all, attrs, nil) do
-    Permissions.can(attrs, %{action: :all, type: :roles})
+    Bouncer.bounce(attrs, %{action: :all, type: :roles})
   end
 
   def authorize(:get, attrs, role) do
-    Permissions.can(attrs, %{action: :get, target: role})
+    Bouncer.bounce(attrs, %{action: :get, target: role})
   end
 
   def authorize(:join, attrs, role) do
-    Permissions.can(attrs, %{action: :listen, target: role})
+    Bouncer.bounce(attrs, %{action: :listen, target: role})
   end
 
   def authorize(:create, attrs, role) do
-    Permissions.can(attrs, %{action: :create, target: role})
+    Bouncer.bounce(attrs, %{action: :create, target: role})
   end
 
   def authorize(_, _, _), do: false

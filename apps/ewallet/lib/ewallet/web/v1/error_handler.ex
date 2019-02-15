@@ -18,7 +18,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   """
   import Ecto.Changeset, only: [traverse_errors: 2]
   alias Ecto.Changeset
-  alias EWallet.{Permission, AmountFormatter}
+  alias EWallet.{Bouncer.Permission, AmountFormatter}
   alias EWallet.Web.V1.ErrorSerializer
   alias EWalletDB.Token
   alias Sentry.Event

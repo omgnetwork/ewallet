@@ -16,11 +16,12 @@ defmodule EWallet.CategoryPolicy do
   @moduledoc """
   The authorization policy for categories.
   """
-  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
   alias EWalletDB.Category
 
   def authorize(:create, attrs, _api_key_attrs) do
-    Permissions.can(attrs, %Permission{action: :create, target: %Category{}})
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %Category{}})
   end
 
   def authorize(action, attrs, target) do

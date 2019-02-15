@@ -16,11 +16,12 @@ defmodule EWallet.ExportPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
   alias EWalletDB.Export
 
   def authorize(:create, attrs, _attrs) do
-    Permissions.can(attrs, %Permission{action: :create, target: %Export{}})
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %Export{}})
   end
 
   def authorize(action, attrs, target) do

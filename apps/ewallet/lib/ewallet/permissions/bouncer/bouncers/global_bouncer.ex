@@ -20,7 +20,7 @@ defmodule EWallet.Bouncer.GlobalBouncer do
   alias EWalletDB.GlobalRole
   alias Utils.Intersecter
 
-  def can(permission) do
+  def bounce(permission) do
     permission
     |> Map.put(:global_role, permission.actor.global_role || GlobalRole.none())
     |> check_permissions(GlobalRole.global_role_permissions())
@@ -28,7 +28,7 @@ defmodule EWallet.Bouncer.GlobalBouncer do
 
   defp check_permissions(%{global_role: role, action: :all, schema: schema} = permission, permissions) do
     types = Dispatcher.get_target_type(schema, :all)
-    permission = set_check_account_permissions(permission, permissions)
+    permission = set_check_account_abilities(permission, permissions)
 
     abilities =
       Enum.into(types, %{}, fn type ->
@@ -57,7 +57,7 @@ defmodule EWallet.Bouncer.GlobalBouncer do
       permission
       | global_authorized: false,
         global_abilities: nil,
-        check_account_permissions: false
+        check_account_abilities: false
     }
   end
 
@@ -94,7 +94,7 @@ defmodule EWallet.Bouncer.GlobalBouncer do
           permission
           | global_authorized: can,
             global_abilities: %{type => :accounts},
-            check_account_permissions: permissions[role][:account_permissions]
+            check_account_abilities: permissions[role][:account_abilities]
         }
 
       :self ->
@@ -107,7 +107,7 @@ defmodule EWallet.Bouncer.GlobalBouncer do
           permission
           | global_authorized: can,
             global_abilities: %{type => :self},
-            check_account_permissions: permissions[role][:account_permissions]
+            check_account_abilities: permissions[role][:account_abilities]
         }
 
       p ->
@@ -115,13 +115,13 @@ defmodule EWallet.Bouncer.GlobalBouncer do
           permission
           | global_authorized: false,
             global_abilities: %{type => p},
-            check_account_permissions: permissions[role][:account_permissions]
+            check_account_abilities: permissions[role][:account_abilities]
         }
     end
   end
 
-  defp set_check_account_permissions(%Permission{global_role: role} = permission, permissions) do
-    ap = Helper.extract_permission(permissions, [role, :account_permissions])
-    %{permission | check_account_permissions: ap}
+  defp set_check_account_abilities(%Permission{global_role: role} = permission, permissions) do
+    ap = Helper.extract_permission(permissions, [role, :account_abilities])
+    %{permission | check_account_abilities: ap}
   end
 end

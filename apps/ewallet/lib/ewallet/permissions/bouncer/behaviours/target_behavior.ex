@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Bouncer.EntityBehaviour do
+defmodule EWallet.Bouncer.TargetBehaviour do
   @moduledoc """
   A behavior defining the needed functions for a schema permissions module.
   """

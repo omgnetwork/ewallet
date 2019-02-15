@@ -16,7 +16,7 @@ defmodule EWallet.Bouncer.ActorBehaviour do
   @moduledoc """
   A behavior defining the needed functions for a schema permissions module.
   """
-  alias EWallet.Permission
+  alias EWallet.Bouncer.Permission
   alias EWalletDB.Account
   alias Ecto.Query
 

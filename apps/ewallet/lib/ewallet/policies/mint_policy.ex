@@ -16,11 +16,12 @@ defmodule EWallet.MintPolicy do
   @moduledoc """
   The authorization policy for mints.
   """
-  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
   alias EWalletDB.Mint
 
   def authorize(:create, attrs, _attrs) do
-    Permissions.can(attrs, %Permission{action: :create, target: %Mint{}})
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %Mint{}})
   end
 
   def authorize(action, attrs, target) do

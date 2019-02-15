@@ -16,11 +16,12 @@ defmodule EWallet.TransactionPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
   alias EWalletDB.Transaction
 
   def authorize(:create, attrs, _attrs) do
-    Permissions.can(attrs, %Permission{action: :create, target: %Transaction{}})
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %Transaction{}})
   end
 
   def authorize(action, attrs, target) do

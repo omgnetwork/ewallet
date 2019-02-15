@@ -16,11 +16,12 @@ defmodule EWallet.AccountMembershipPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
   alias EWalletDB.Membership
 
   @spec authorize(any(), any(), any()) ::
-          {:error, EWallet.Permission.t()} | {:ok, EWallet.Permission.t()}
+          {:error, EWallet.Bouncer.Permission.t()} | {:ok, EWallet.Bouncer.Permission.t()}
   def authorize(action, attrs, target) do
     PolicyHelper.authorize(action, attrs, :memberships, Membership, target)
   end

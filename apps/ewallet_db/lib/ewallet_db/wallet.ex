@@ -152,13 +152,13 @@ defmodule EWalletDB.Wallet do
 
   def all_for(_), do: nil
 
-  def query_all_for(%User{} = user) do
+  def prepare_query_with_membership_for(%User{} = user) do
     Wallet
     |> join(:inner, [w], m in Membership, on: m.user_uuid == ^user.uuid)
     |> do_query_all_for()
   end
 
-  def query_all_for(%Key{} = key) do
+  def prepare_query_with_membership_for(%Key{} = key) do
     Wallet
     |> join(:inner, [w], m in Membership, on: m.key_uuid == ^key.uuid)
     |> do_query_all_for()

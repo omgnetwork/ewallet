@@ -16,11 +16,12 @@ defmodule EWallet.ConfigurationPolicy do
   @moduledoc """
   The authorization policy for configuration.
   """
-  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
   alias EWalletConfig.Setting
 
   def authorize(:create, attrs, _attrs) do
-    Permissions.can(attrs, %Permission{action: :create, target: %Setting{}})
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %Setting{}})
   end
 
   def authorize(action, attrs, target) do

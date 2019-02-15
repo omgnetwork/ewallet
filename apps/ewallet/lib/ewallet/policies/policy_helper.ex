@@ -16,10 +16,10 @@ defmodule EWallet.PolicyHelper do
   @moduledoc """
   The authorization policy for mints.
   """
-  alias EWallet.{Permissions, Permission}
+  alias EWallet.{Bouncer, Bouncer.Permission}
 
   def authorize(:all, attrs, type, schema, nil) do
-    case Permissions.can(attrs, %Permission{action: :all, type: type, schema: schema}) do
+    case Bouncer.bounce(attrs, %Permission{action: :all, type: type, schema: schema}) do
       {:ok, permission} ->
         {:ok, %{permission | query: Permissions.build_all_query(permission)}}
 
@@ -29,6 +29,6 @@ defmodule EWallet.PolicyHelper do
   end
 
   def authorize(action, attrs, _type, _schema, target) do
-    Permissions.can(attrs, %Permission{action: action, target: target})
+    Bouncer.bounce(attrs, %Permission{action: action, target: target})
   end
 end

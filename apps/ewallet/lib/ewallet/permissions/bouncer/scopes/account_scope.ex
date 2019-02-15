@@ -17,18 +17,19 @@ defmodule EWallet.Bouncer.AccountScope do
 
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
+  alias EWallet.Bouncer.{Helper, Permission}
 
-  @spec build_query_all(EWallet.Permission.t()) :: any()
-  def build_query_all(%Permission{global_permission: :global}), do: Account
+  @spec build_query_all(EWallet.Bouncer.Permission.t()) :: any()
+  def build_query_all(%Permission{global_abilities: :global}), do: Account
 
-  def build_query_all(%Permission{global_permission: :accounts} = permission) do
-    PermissionsHelper.get_query_actor_records(permission)
+  def build_query_all(%Permission{global_abilities: :accounts} = permission) do
+    Helper.get_query_actor_records(permission)
   end
 
-  def build_query_all(%Permission{account_permission: :global}), do: Account
+  def build_query_all(%Permission{account_abilities: :global}), do: Account
 
-  def build_query_all(%Permission{account_permission: :accounts} = permission) do
-    PermissionsHelper.get_query_actor_records(permission)
+  def build_query_all(%Permission{account_abilities: :accounts} = permission) do
+    Helper.get_query_actor_records(permission)
   end
 
 end

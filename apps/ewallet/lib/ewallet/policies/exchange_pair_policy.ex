@@ -16,11 +16,12 @@ defmodule EWallet.ExchangePairPolicy do
   @moduledoc """
   The authorization policy for exchange pairs.
   """
-  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
   alias EWalletDB.ExchangePair
 
   def authorize(:create, attrs, _attrs) do
-    Permissions.can(attrs, %Permission{action: :create, target: %ExchangePair{}})
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %ExchangePair{}})
   end
 
   def authorize(action, attrs, target) do

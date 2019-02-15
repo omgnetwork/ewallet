@@ -18,7 +18,7 @@ defmodule EWallet.Bouncer.UserTarget do
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
   import Ecto.Query
-  alias EWallet.Permission
+  alias EWallet.Bouncer.Permission
   alias EWalletDB.{Membership, User, Wallet, AccountUser}
   alias EWalletDB.Helpers.Preloader
 
@@ -50,7 +50,7 @@ defmodule EWallet.Bouncer.UserTarget do
     nil
   end
 
-  def get_query_actor_records(%Permission{global_permission: :accounts, type: :wallets, actor: %User{is_admin: true} = actor}) do
+  def get_query_actor_records(%Permission{global_abilities: :accounts, type: :wallets, actor: %User{is_admin: true} = actor}) do
     # wallets owned by users that are linked with accounts that the current user has membership with
     from(
       w in Wallet,

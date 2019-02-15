@@ -22,7 +22,7 @@ defmodule EWalletDB.GlobalRole do
   @global_role_permissions %{
     # "super_admin" => :global,
     "super_admin" => %{
-      account_permissions: true,
+      account_abilities: true,
       accounts: %{all: :accounts, get: :accounts, create: :none, update: :accounts},
       memberships: %{all: :accounts, get: :accounts, create: :accounts, delete: :accounts},
       categories: %{all: :global, get: :global, create: :none, update: :none},
@@ -85,7 +85,7 @@ defmodule EWalletDB.GlobalRole do
       configuration: :none
     },
     "viewer" => %{
-      account_permissions: true,
+      account_abilities: true,
       accounts: %{all: :accounts, get: :accounts, create: :none, update: :none},
       categories: %{all: :global, get: :global, create: :none, update: :none},
       memberships: %{all: :accounts, get: :accounts, create: :none, update: :none},
@@ -130,7 +130,7 @@ defmodule EWalletDB.GlobalRole do
       configuration: :none
     },
     "end_user" => %{
-      account_permissions: false,
+      account_abilities: false,
       end_users: %{all: :self, get: :self, listen: :self, update: :self},
       tokens: %{all: :global, get: :global, create: :none, update: :none},
       account_wallets: %{
@@ -159,7 +159,7 @@ defmodule EWalletDB.GlobalRole do
       end_user_transaction_consumptions: %{all: :self, get: :self, listen: :self, create: :self}
     },
     "none" => %{
-      account_permissions: true
+      account_abilities: true
     }
   }
 

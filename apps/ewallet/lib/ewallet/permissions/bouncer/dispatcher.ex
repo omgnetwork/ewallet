@@ -16,19 +16,19 @@ defmodule EWallet.Bouncer.Dispatcher do
   @moduledoc """
   A permissions dispatcher calling the appropriate actors/targets.
   """
-  alias EWallet.Permission
+  alias EWallet.Bouncer.Permission
 
-  alias EWallet.SchemaPermissions.{
-    AccountPermissions,
-    CategoryPermissions,
-    KeyPermissions,
-    TransactionRequestPermissions,
-    MembershipPermissions,
-    TransactionConsumptionPermissions,
-    UserPermissions,
-    WalletPermissions,
-    MintPermissions,
-    TokenPermissions
+  alias EWallet.Bouncer.{
+    AccountTarget,
+    CategoryTarget,
+    KeyTarget,
+    TransactionRequestTarget,
+    MembershipTarget,
+    TransactionConsumptionTarget,
+    UserTarget,
+    WalletTarget,
+    MintTarget,
+    TokenTarget
   }
 
   alias EWalletDB.{
@@ -45,16 +45,16 @@ defmodule EWallet.Bouncer.Dispatcher do
   }
 
   @references %{
-    Account => AccountPermissions,
-    Category => CategoryPermissions,
-    Key => KeyPermissions,
-    Membership => MembershipPermissions,
-    TransactionRequest => TransactionRequestPermissions,
-    TransactionConsumption => TransactionConsumptionPermissions,
-    User => UserPermissions,
-    Wallet => WalletPermissions,
-    Mint => MintPermissions,
-    Token => TokenPermissions
+    Account => AccountTarget,
+    Category => CategoryTarget,
+    Key => KeyTarget,
+    Membership => MembershipTarget,
+    TransactionRequest => TransactionRequestTarget,
+    TransactionConsumption => TransactionConsumptionTarget,
+    User => UserTarget,
+    Wallet => WalletTarget,
+    Mint => MintTarget,
+    Token => TokenTarget
   }
 
   def scoped_query(%Permission{schema: schema} = permission) do

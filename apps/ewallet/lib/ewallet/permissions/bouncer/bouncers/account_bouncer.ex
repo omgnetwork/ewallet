@@ -16,11 +16,11 @@ defmodule EWallet.Bouncer.AccountBouncer do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
-  alias EWallet.{Dispatcher, Helper}
+  alias EWallet.Bouncer.{Dispatcher, Helper}
   alias EWalletDB.{Membership, Role}
   alias Utils.Intersecter
 
-  def can(permission) do
+  def bounce(permission) do
     check_permissions(permission, Role.account_role_permissions())
   end
 
@@ -77,7 +77,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
   end
 
   defp find_sufficient_permission_in_memberships(
-         %{action: action} = permission,
+         permission,
          permissions,
          [membership | memberships],
          types
@@ -91,7 +91,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
     permission
   end
 
-  defp update_abilities(permission, role, types, action) do
+  defp update_abilities(%{action: action} = permission, role, types, permissions) do
     Enum.reduce(types, permission, fn type ->
       new_ability = Helper.extract_permission(permissions, [role, type, action]) || :none
 
@@ -105,16 +105,17 @@ defmodule EWallet.Bouncer.AccountBouncer do
     end)
   end
 
-  defp get_best_ability(old, nil), do: {:identical, old}
-  defp get_best_ability(nil, new), do: {:changed, new}
   defp get_best_ability(nil, nil), do: {:identical, nil}
 
   defp get_best_ability(:global, :accounts), do: {:identical, :global}
-  defp get_best_ability(:global, :self), do: {:identical, global}
+  defp get_best_ability(:global, :self), do: {:identical, :global}
 
   defp get_best_ability(:accounts, :global), do: {:changed, :global}
   defp get_best_ability(:accounts, :self), do: {:identical, :accounts}
 
   defp get_best_ability(:self, :global), do: {:changed, :global}
   defp get_best_ability(:self, :accounts), do: {:changed, :accounts}
+
+  defp get_best_ability(old, nil), do: {:identical, old}
+  defp get_best_ability(nil, new), do: {:changed, new}
 end

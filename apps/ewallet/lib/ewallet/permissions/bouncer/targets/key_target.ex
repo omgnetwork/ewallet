@@ -17,7 +17,7 @@ defmodule EWallet.Bouncer.KeyTarget do
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
-  alias EWallet.Permission
+  alias EWallet.Bouncer.Permission
   alias EWalletDB.{Key, Helpers.Preloader}
 
   def get_owner_uuids(%Key{uuid: uuid}) do
