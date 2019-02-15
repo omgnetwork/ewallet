@@ -19,11 +19,13 @@ defmodule EWallet.Bouncer.MembershipTarget do
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.{Membership, Helpers.Preloader}
 
-  def get_owner_uuids(%Membership{account_uuid: account_uuid, user_uuid: user_uuid}) when not is_nil(user_uuid) do
+  def get_owner_uuids(%Membership{account_uuid: account_uuid, user_uuid: user_uuid})
+      when not is_nil(user_uuid) do
     [account_uuid, user_uuid]
   end
 
-  def get_owner_uuids(%Membership{account_uuid: account_uuid, key_uuid: key_uuid}) when not is_nil(key_uuid)  do
+  def get_owner_uuids(%Membership{account_uuid: account_uuid, key_uuid: key_uuid})
+      when not is_nil(key_uuid) do
     [account_uuid, key_uuid]
   end
 

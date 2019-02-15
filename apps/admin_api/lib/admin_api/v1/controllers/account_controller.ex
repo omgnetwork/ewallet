@@ -24,8 +24,8 @@ defmodule AdminAPI.V1.AccountController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil) do
-      # Get all the accounts the current accessor has access to
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
       query
       |> Orchestrator.query(AccountOverlay, attrs)
       |> respond(conn)

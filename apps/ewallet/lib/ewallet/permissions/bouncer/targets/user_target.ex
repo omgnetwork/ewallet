@@ -42,7 +42,10 @@ defmodule EWallet.Bouncer.UserTarget do
     Ecto.assoc(actor, :linked_accounts)
   end
 
-  def get_query_actor_records(%Permission{type: :memberships, actor: %User{is_admin: true} = actor}) do
+  def get_query_actor_records(%Permission{
+        type: :memberships,
+        actor: %User{is_admin: true} = actor
+      }) do
     Ecto.assoc(actor, :memberships)
   end
 
@@ -50,7 +53,11 @@ defmodule EWallet.Bouncer.UserTarget do
     nil
   end
 
-  def get_query_actor_records(%Permission{global_abilities: :accounts, type: :wallets, actor: %User{is_admin: true} = actor}) do
+  def get_query_actor_records(%Permission{
+        global_abilities: :accounts,
+        type: :wallets,
+        actor: %User{is_admin: true} = actor
+      }) do
     # wallets owned by users that are linked with accounts that the current user has membership with
     from(
       w in Wallet,

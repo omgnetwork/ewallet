@@ -50,13 +50,6 @@ defmodule EWalletDB.Role do
       },
       tokens: %{all: :global, get: :global},
       mints: :none,
-      wallets: %{
-        all: :global,
-        get: :global,
-        view_balance: :accounts,
-        create: :accounts,
-        update: :accounts
-      },
       account_wallets: %{
         all: :global,
         get: :global,

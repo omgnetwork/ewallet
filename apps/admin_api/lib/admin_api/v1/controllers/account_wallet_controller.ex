@@ -33,8 +33,8 @@ defmodule AdminAPI.V1.AccountWalletController do
 
   defp do_all(%{"id" => id} = attrs, type, conn) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
-         {:ok, _} <- permit(:get, conn.assigns, account),
-         {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+         {:ok, p} <- permit(:get, conn.assigns, account),
+         {:ok, %{query: query} = p} <- permit(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
       query
       |> load_wallets(account, type)
@@ -44,6 +44,7 @@ defmodule AdminAPI.V1.AccountWalletController do
     else
       {:error, error} ->
         handle_error(conn, error)
+
       error ->
         handle_error(conn, error)
     end

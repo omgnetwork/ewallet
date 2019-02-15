@@ -14,19 +14,16 @@
 
 defmodule AdminAPI.V1.AccountWalletControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Membership, Account, User}
-  alias ActivityLogger.System
+  alias EWalletDB.{Account, User}
 
   describe "/account.get_wallets_and_user_wallets" do
     test_with_auths "returns a list of wallets and pagination data for the specified account" do
-      # set_admin_as_super_admin()
-      admin = get_test_admin()
-      account = Account.get_master_account()
-      {:ok, account_1} = :account |> params_for() |> Account.insert()
-      {:ok, account_2} = :account |> params_for() |> Account.insert()
+      set_admin_as_super_admin()
+      user_1 = get_test_user()
 
-      {:ok, _} = Membership.assign(admin, account_1, "admin", %System{})
-      {:ok, _} = Membership.assign(admin, account_2, "admin", %System{})
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      {:ok, _} = :account |> params_for() |> Account.insert()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
 
       response = request("/account.get_wallets_and_user_wallets", %{"id" => account.id})
 
@@ -36,20 +33,18 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
       assert is_list(response["data"]["data"])
 
       wallets = response["data"]["data"]
-      # 6 account wallets + 1 user wallet
-      assert length(wallets) == 7
+      # 2 account wallets + 2 user wallet
+      assert length(wallets) == 4
 
       wallets =
         Enum.map(wallets, fn wallet ->
-          {wallet["account_id"], wallet["identifier"]}
+          {wallet["account_id"] || wallet["user_id"], wallet["identifier"]}
         end)
 
       assert Enum.member?(wallets, {account.id, "primary"})
       assert Enum.member?(wallets, {account.id, "burn"})
-      assert Enum.member?(wallets, {account_1.id, "primary"})
-      assert Enum.member?(wallets, {account_1.id, "burn"})
-      assert Enum.member?(wallets, {account_2.id, "primary"})
-      assert Enum.member?(wallets, {account_2.id, "burn"})
+      assert Enum.member?(wallets, {user_1.id, "primary"})
+      assert Enum.member?(wallets, {user_2.id, "primary"})
 
       # Asserts pagination data
       pagination = response["data"]["pagination"]
@@ -60,12 +55,13 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
     end
 
     test_with_auths "returns a list of wallets according to sort_by and sort_direction" do
+      set_admin_as_super_admin()
       user = get_test_user()
       user_wallet = User.get_primary_wallet(user)
 
       account_1 = insert(:account)
       account_2 = insert(:account)
-      account_3 = insert(:account, parent: account_2)
+      account_3 = insert(:account)
 
       _account_1_wallet_1 =
         insert(:wallet, %{
@@ -74,7 +70,7 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
           identifier: "secondary_1"
         })
 
-      account_2_wallet_1 =
+      _account_2_wallet_1 =
         insert(:wallet, %{
           account: account_2,
           address: "aaaa333333333333",
@@ -96,7 +92,7 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
         })
 
       attrs = %{
-        "id" => account_2.id,
+        "id" => account_3.id,
         # Search is case-insensitive
         "sort_by" => "address",
         "sort_dir" => "desc"
@@ -106,13 +102,12 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
       wallets = response["data"]["data"]
 
       assert response["success"]
-      # account 2's wallet + one user's wallet + 2 wallets from account 3
-      assert Enum.count(wallets) == 4
+      # account 3's wallet + 1 user wallet
+      assert Enum.count(wallets) == 3
 
       ordered_addresses =
         [
           user_wallet.address,
-          account_2_wallet_1.address,
           account_3_wallet_1.address,
           account_3_wallet_2.address
         ]
@@ -126,10 +121,10 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
 
       wallets =
         Enum.map(wallets, fn wallet ->
-          {wallet["account_id"], wallet["identifier"]}
+          {wallet["account_id"] || wallet["user_id"], wallet["identifier"]}
         end)
 
-      assert Enum.member?(wallets, {account_2.id, "secondary_2"})
+      assert Enum.member?(wallets, {user.id, "primary"})
       assert Enum.member?(wallets, {account_3.id, "secondary_3"})
       assert Enum.member?(wallets, {account_3.id, "secondary_4"})
     end
@@ -146,9 +141,8 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
 
   describe "/account.get_wallets" do
     test_with_auths "returns a list of wallets and pagination data for the specified account" do
+      set_admin_as_super_admin()
       account = Account.get_master_account()
-      {:ok, account_1} = :account |> params_for() |> Account.insert()
-      {:ok, account_2} = :account |> params_for() |> Account.insert()
 
       response = request("/account.get_wallets", %{"id" => account.id})
 
@@ -158,7 +152,8 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
       assert is_list(response["data"]["data"])
 
       wallets = response["data"]["data"]
-      assert length(wallets) == 6
+      # Master Account's 2 wallets
+      assert length(wallets) == 2
 
       wallets =
         Enum.map(wallets, fn wallet ->
@@ -167,10 +162,6 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
 
       assert Enum.member?(wallets, {account.id, "primary"})
       assert Enum.member?(wallets, {account.id, "burn"})
-      assert Enum.member?(wallets, {account_1.id, "primary"})
-      assert Enum.member?(wallets, {account_1.id, "burn"})
-      assert Enum.member?(wallets, {account_2.id, "primary"})
-      assert Enum.member?(wallets, {account_2.id, "burn"})
 
       # Asserts pagination data
       pagination = response["data"]["pagination"]
@@ -216,9 +207,11 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
     end
 
     test_with_auths "returns a list of wallets according to sort_by and sort_direction" do
+      set_admin_as_super_admin()
+
       account_1 = insert(:account)
       account_2 = insert(:account)
-      account_3 = insert(:account, parent: account_2)
+      account_3 = insert(:account)
 
       _account_1_wallet_1 =
         insert(:wallet, %{
@@ -227,7 +220,7 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
           identifier: "secondary_1"
         })
 
-      account_2_wallet_1 =
+      _account_2_wallet_1 =
         insert(:wallet, %{
           account: account_2,
           address: "aaaa333333333333",
@@ -249,7 +242,7 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
         })
 
       attrs = %{
-        "id" => account_2.id,
+        "id" => account_3.id,
         # Search is case-insensitive
         "sort_by" => "address",
         "sort_dir" => "desc"
@@ -259,12 +252,11 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
       wallets = response["data"]["data"]
 
       assert response["success"]
-      # account 2's wallet + 2 wallets from account 3
-      assert Enum.count(wallets) == 3
+      # 2 wallets from account 3
+      assert Enum.count(wallets) == 2
 
       ordered_addresses =
         [
-          account_2_wallet_1.address,
           account_3_wallet_1.address,
           account_3_wallet_2.address
         ]
@@ -273,14 +265,12 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
 
       assert Enum.at(wallets, 0)["address"] == Enum.at(ordered_addresses, 0)
       assert Enum.at(wallets, 1)["address"] == Enum.at(ordered_addresses, 1)
-      assert Enum.at(wallets, 2)["address"] == Enum.at(ordered_addresses, 2)
 
       wallets =
         Enum.map(wallets, fn wallet ->
           {wallet["account_id"], wallet["identifier"]}
         end)
 
-      assert Enum.member?(wallets, {account_2.id, "secondary_2"})
       assert Enum.member?(wallets, {account_3.id, "secondary_3"})
       assert Enum.member?(wallets, {account_3.id, "secondary_4"})
     end

@@ -26,19 +26,43 @@ defmodule EWallet.Bouncer.GlobalBouncer do
     |> check_permissions(GlobalRole.global_role_permissions())
   end
 
-  defp check_permissions(%{global_role: role, action: :all, schema: schema} = permission, permissions) do
-    types = Dispatcher.get_target_type(schema, :all)
-    permission = set_check_account_abilities(permission, permissions)
+  defp check_permissions(
+         %{global_role: role, action: :all, schema: schema} = permission,
+         permissions
+       ) do
+    types = Dispatcher.get_target_types(schema)
+    permission = set_check_account_permissions(permission, permissions)
 
     abilities =
       Enum.into(types, %{}, fn type ->
         {type, Helper.extract_permission(permissions, [role, types, :all]) || :none}
       end)
 
-    permission = %{permission | global_abilities: abilities}
-    %{permission | global_authorized: Enum.any?(abilities, fn {_, ability} ->
-      Enum.member?([:global, :accounts, :self], ability)
-    end)}
+    account_permissions = check_account_permissions(permissions, role)
+
+    permission = %{
+      permission
+      | global_abilities: abilities,
+        check_account_permissions: account_permissions
+    }
+
+    %{
+      permission
+      | global_authorized:
+          Enum.any?(abilities, fn {_, ability} ->
+            Enum.member?([:global, :accounts, :self], ability)
+          end)
+    }
+  end
+
+  defp check_account_permissions(permissions, role) do
+    case is_map(permissions[role]) do
+      true ->
+        permissions[role][:account_permissions]
+
+      false ->
+        false
+    end
   end
 
   defp check_permissions(%{action: _, type: nil, target: target} = permission, permissions) do
@@ -57,7 +81,7 @@ defmodule EWallet.Bouncer.GlobalBouncer do
       permission
       | global_authorized: false,
         global_abilities: nil,
-        check_account_abilities: false
+        check_account_permissions: false
     }
   end
 
@@ -94,7 +118,7 @@ defmodule EWallet.Bouncer.GlobalBouncer do
           permission
           | global_authorized: can,
             global_abilities: %{type => :accounts},
-            check_account_abilities: permissions[role][:account_abilities]
+            check_account_permissions: permissions[role][:account_permissions]
         }
 
       :self ->
@@ -107,21 +131,21 @@ defmodule EWallet.Bouncer.GlobalBouncer do
           permission
           | global_authorized: can,
             global_abilities: %{type => :self},
-            check_account_abilities: permissions[role][:account_abilities]
+            check_account_permissions: permissions[role][:account_permissions]
         }
 
-      p ->
+      _ ->
         %{
           permission
           | global_authorized: false,
-            global_abilities: %{type => p},
-            check_account_abilities: permissions[role][:account_abilities]
+            global_abilities: %{type => :none},
+            check_account_permissions: permissions[GlobalRole.none()][:account_permissions]
         }
     end
   end
 
-  defp set_check_account_abilities(%Permission{global_role: role} = permission, permissions) do
+  defp set_check_account_permissions(%Permission{global_role: role} = permission, permissions) do
     ap = Helper.extract_permission(permissions, [role, :account_abilities])
-    %{permission | check_account_abilities: ap}
+    %{permission | check_account_permissions: ap}
   end
 end

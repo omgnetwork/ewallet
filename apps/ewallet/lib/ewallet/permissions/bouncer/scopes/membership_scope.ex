@@ -22,7 +22,11 @@ defmodule EWallet.Bouncer.MembershipScope do
   alias EWalletDB.{User, Key}
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
-  def scoped_query(%Permission{actor: actor, global_abilities: global_abilities, account_abilities: account_abilities}) do
+  def scoped_query(%Permission{
+        actor: actor,
+        global_abilities: global_abilities,
+        account_abilities: account_abilities
+      }) do
     do_scoped_query(actor, global_abilities) || do_scoped_query(actor, account_abilities)
   end
 

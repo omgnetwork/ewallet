@@ -19,9 +19,14 @@ defmodule EWallet.Bouncer.AccountScope do
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.{Helper, Permission}
+  alias EWalletDB.Account
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
-  def scoped_query(%Permission{actor: actor, global_abilities: global_abilities, account_abilities: account_abilities}) do
+  def scoped_query(%Permission{
+        actor: actor,
+        global_abilities: global_abilities,
+        account_abilities: account_abilities
+      }) do
     do_scoped_query(actor, global_abilities) || do_scoped_query(actor, account_abilities)
   end
 
@@ -32,6 +37,7 @@ defmodule EWallet.Bouncer.AccountScope do
   defp do_scoped_query(actor, %{accounts: :accounts}) do
     actor
     |> Helper.prepare_query_with_membership_for(Account)
+    |> where([g, m], g.uuid == m.account_uuid)
     |> select([g, m], g)
   end
 

@@ -29,8 +29,8 @@ defmodule EWallet.Bouncer.Dispatcher do
     WalletTarget,
     MintTarget,
     TokenTarget,
-
-    WalletScope
+    WalletScope,
+    AccountScope
   }
 
   alias EWalletDB.{
@@ -89,8 +89,8 @@ defmodule EWallet.Bouncer.Dispatcher do
   # Redefines the target type if the given record has subtypes.
   # like transaction_requests -> end_user_transaction_requests /
   # account_transaction_requests.
-  def get_target_type(schema, action) do
-    @target_references[schema].get_target_type(action)
+  def get_target_types(schema) do
+    @target_references[schema].get_target_types()
   end
 
   def get_target_type(record) do

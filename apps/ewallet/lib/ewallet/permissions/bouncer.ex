@@ -31,12 +31,13 @@ defmodule EWallet.Bouncer do
             # The actor has global access so we don't check the account permissions.
             set_authorized(permission)
 
-          %Permission{global_authorized: false, check_account_abilities: true} = permission ->
+          %Permission{global_authorized: false, check_account_permissions: true} = permission ->
             # The actor does not have global access, but can check account permissions
             # so we check them!
             permission
             |> AccountBouncer.bounce()
             |> set_authorized()
+
           permission ->
             # The actor does not have global access and is not allowed to check account permissions
             # so we skip and return false

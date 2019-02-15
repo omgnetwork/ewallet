@@ -21,7 +21,11 @@ defmodule EWallet.Bouncer.WalletScope do
   alias EWallet.Bouncer.{Helper, Permission}
   alias EWalletDB.{Wallet, AccountUser, User}
 
-  def scoped_query(%Permission{actor: actor, global_abilities: global_abilities, account_abilities: account_abilities}) do
+  def scoped_query(%Permission{
+        actor: actor,
+        global_abilities: global_abilities,
+        account_abilities: account_abilities
+      }) do
     do_scoped_query(actor, global_abilities) || do_scoped_query(actor, account_abilities)
   end
 

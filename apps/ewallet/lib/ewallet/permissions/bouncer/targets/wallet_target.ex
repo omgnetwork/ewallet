@@ -29,7 +29,7 @@ defmodule EWallet.Bouncer.WalletTarget do
     [user_uuid]
   end
 
-  def get_target_type(:all) do
+  def get_target_types do
     [:account_wallets, :end_user_wallets]
   end
 

@@ -25,7 +25,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
   end
 
   defp check_permissions(%{actor: actor, action: :all, schema: schema} = permission, permissions) do
-    types = Dispatcher.get_target_type(schema, :all)
+    types = Dispatcher.get_target_types(schema)
     uuids = actor |> Dispatcher.get_actor_accounts() |> Helper.get_uuids()
     memberships = Membership.query_all_by_member_and_account_uuids(actor, uuids, [:role])
 
@@ -44,36 +44,25 @@ defmodule EWallet.Bouncer.AccountBouncer do
   defp check_account_role(
          %{
            actor: actor,
+           type: type,
            target: target
          } = permission,
          permissions
        ) do
-    actor_account_uuids =
-      actor |> Dispatcher.get_actor_accounts() |> Helper.get_uuids()
+    actor_account_uuids = actor |> Dispatcher.get_actor_accounts() |> Helper.get_uuids()
 
-    target_account_uuids =
-      target |> Dispatcher.get_target_accounts() |> Helper.get_uuids()
+    target_account_uuids = target |> Dispatcher.get_target_accounts() |> Helper.get_uuids()
 
     case Intersecter.intersect(actor_account_uuids, target_account_uuids) do
       [] ->
         %{permission | account_authorized: false}
 
       matched_account_uuids ->
-        handle_matched_accounts(permission, permissions, matched_account_uuids)
-    end
-  end
+        memberships =
+          Membership.query_all_by_member_and_account_uuids(actor, matched_account_uuids, [:role])
 
-  def handle_matched_accounts(
-        %{
-          actor: actor,
-          type: type
-        } = permission,
-        permissions,
-        matched_account_uuids
-      ) do
-    memberships =
-      Membership.query_all_by_member_and_account_uuids(actor, matched_account_uuids, [:role])
-    find_sufficient_permission_in_memberships(permission, permissions, memberships, [type])
+        find_sufficient_permission_in_memberships(permission, permissions, memberships, [type])
+    end
   end
 
   defp find_sufficient_permission_in_memberships(
@@ -120,6 +109,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
         {:changed, ability} ->
           abilities = Map.put(permission.account_abilities, type, ability)
           %{permission | account_abilities: abilities}
+
         {:identical, _} ->
           permission
       end

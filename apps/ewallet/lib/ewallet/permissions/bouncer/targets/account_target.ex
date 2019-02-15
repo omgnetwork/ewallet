@@ -27,10 +27,12 @@ defmodule EWallet.Bouncer.AccountTarget do
     end)
   end
 
-  @spec get_target_type(EWalletDB.Account.t()) :: :accounts
+  def get_target_types do
+    [:accounts]
+  end
+
   def get_target_type(%Account{}), do: :accounts
 
-  @spec get_target_accounts(EWalletDB.Account.t()) :: [EWalletDB.Account.t(), ...]
   def get_target_accounts(%Account{} = target) do
     [target]
   end
