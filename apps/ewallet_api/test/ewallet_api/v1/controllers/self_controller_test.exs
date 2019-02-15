@@ -100,6 +100,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                          "amount" => 150_000 * btc.subunit_to_unit,
                          "token" => %{
                            "name" => btc.name,
+                           "ledger" => "local",
                            "object" => "token",
                            "subunit_to_unit" => btc.subunit_to_unit,
                            "symbol" => btc.symbol,
@@ -116,6 +117,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                          "amount" => 12_000 * omg.subunit_to_unit,
                          "token" => %{
                            "name" => omg.name,
+                           "ledger" => "local",
                            "object" => "token",
                            "subunit_to_unit" => omg.subunit_to_unit,
                            "symbol" => omg.symbol,
