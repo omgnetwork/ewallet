@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule Utils.Unit do
+defmodule Utils.Helpers.Unit do
   @moduledoc """
   Module to perform unit conversions.
   """

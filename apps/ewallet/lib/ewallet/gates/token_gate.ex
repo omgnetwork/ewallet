@@ -17,10 +17,54 @@ defmodule EWallet.TokenGate do
   Handles tokens.
   """
   alias ExternalLedgerDB.TemporaryAdapter
-  alias EWalletDB.Token
+  alias EWallet.{Helper, MintGate}
+  alias EWalletDB.{Account, Token}
   alias ExternalLedgerDB.Token, as: LedgerToken
-  alias Utils.Unit
+  alias Utils.Helpers.Unit
 
+  @doc """
+  Creates a new token.
+  """
+  @spec create(map()) :: {:ok, %Token{}} | {:error, Error.Changeset.t()}
+  def create(%{"amount" => amount} = attrs) when is_binary(amount) do
+    case Helper.string_to_integer(amount) do
+      {:ok, amount} -> attrs |> Map.put("amount", amount) |> create()
+      error -> error
+    end
+  end
+
+  def create(attrs) do
+    {:ok, token} =
+      attrs
+      |> Map.put("ledger", LocalLedgerDB.identifier())
+      |> Map.put("account_uuid", Account.get_master_account().uuid)
+      |> Token.insert()
+
+    case mint_after_create(token, attrs) do
+      {:ok, _} -> {:ok, token}
+      error -> error
+    end
+  end
+
+  defp mint_after_create(token, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0 do
+    MintGate.mint_token(token, %{
+      "amount" => amount,
+      "originator" => attrs["originator"]
+    })
+  end
+
+  defp mint_after_create(_, %{"amount" => amount}) do
+    {:error, :invalid_parameter, "Invalid amount provided: '#{amount}'."}
+  end
+
+  defp mint_after_create(_, _) do
+    {:ok, nil}
+  end
+
+  @doc """
+  Imports a token.
+  """
+  @spec import(map()) :: {:ok, %Token{}} | {:error, Error.Changeset.t()}
   def import(attrs) do
     with {:ok, parsed} <- parse_import_attrs(attrs),
          {:symbol, nil} <- {:symbol, Token.get_by(symbol: parsed.symbol)},
@@ -58,6 +102,7 @@ defmodule EWallet.TokenGate do
          originator <- attrs["originator"],
          account_uuid <- attrs["account_uuid"] do
       {:ok, %{
+        ledger: ExternalLedgerDB.identifier(),
         contract_address: contract_address,
         adapter: adapter,
         name: name,

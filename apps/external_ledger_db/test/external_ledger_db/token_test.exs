@@ -17,6 +17,7 @@ defmodule ExternalLedgerDB.TokenTest do
   import ExternalLedgerDB.Factory
   alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
+  alias Ecto.UUID
   alias ExternalLedgerDB.{Repo, Token}
 
   setup do
@@ -129,14 +130,14 @@ defmodule ExternalLedgerDB.TokenTest do
       [_, inserted, _] = insert_list(3, :token)
 
       assert Token.get_by(uuid: inserted.uuid).uuid == inserted.uuid
-      assert Wallet.get_by(address: inserted.address).uuid == inserted.uuid
+      assert Token.get_by(id: inserted.id).uuid == inserted.uuid
     end
 
     test "returns nil if the value cannot be found" do
       [_, _, _] = insert_list(3, :token)
 
       assert Token.get_by(uuid: UUID.generate()) == nil
-      assert Token.get_by(address: "not_valid") == nil
+      assert Token.get_by(id: "tok_0000") == nil
     end
   end
 

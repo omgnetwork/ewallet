@@ -33,6 +33,8 @@ defmodule EWalletDB.Token do
     # tok_eur_01cbebcdjprhpbzp1pt7h0nzvt
     field(:id, :string)
 
+    field(:ledger, :string)
+
     # "eur"
     field(:symbol, :string)
     # "EUR"
@@ -79,6 +81,7 @@ defmodule EWalletDB.Token do
     |> cast_and_validate_required_for_activity_log(
       attrs,
       cast: [
+        :ledger,
         :symbol,
         :iso_code,
         :name,
@@ -96,6 +99,7 @@ defmodule EWalletDB.Token do
         :encrypted_metadata
       ],
       required: [
+        :ledger,
         :symbol,
         :name,
         :subunit_to_unit,
@@ -108,6 +112,7 @@ defmodule EWalletDB.Token do
       greater_than: 0,
       less_than_or_equal_to: 1_000_000_000_000_000_000
     )
+    |> validate_immutable(:ledger)
     |> validate_immutable(:symbol)
     |> unique_constraint(:symbol)
     |> unique_constraint(:iso_code)

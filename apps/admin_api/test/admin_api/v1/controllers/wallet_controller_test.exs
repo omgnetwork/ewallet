@@ -169,6 +169,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
                          "token" => %{
                            "name" => btc.name,
                            "object" => "token",
+                           "ledger" => "local",
                            "subunit_to_unit" => btc.subunit_to_unit,
                            "symbol" => btc.symbol,
                            "id" => btc.id,
@@ -185,6 +186,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
                          "token" => %{
                            "name" => omg.name,
                            "object" => "token",
+                           "ledger" => "local",
                            "subunit_to_unit" => omg.subunit_to_unit,
                            "symbol" => omg.symbol,
                            "id" => omg.id,

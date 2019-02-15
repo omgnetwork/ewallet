@@ -38,8 +38,6 @@ defmodule Utils.Helpers.UnitTest do
       assert Unit.decimals_to_subunit(16) == 10_000_000_000_000_000
       assert Unit.decimals_to_subunit(17) == 100_000_000_000_000_000
       assert Unit.decimals_to_subunit(18) == 1_000_000_000_000_000_000
-
-      assert Unit.decimals_to_subunit(32) == 100_000_000_000_000_000_000_000_000_000_000
     end
   end
 end

@@ -18,10 +18,9 @@ defmodule AdminAPI.V1.TokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{Helper, MintGate, TokenGate, TokenPolicy}
+  alias EWallet.{TokenGate, TokenPolicy}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
-  alias EWalletDB.{Account, Mint, Token}
-  alias ExternalLedgerDB.TemporaryAdapter
+  alias EWalletDB.{Mint, Token}
 
   @doc """
   Retrieves a list of tokens.
@@ -84,52 +83,16 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, nil) do
-      do_create(conn, attrs)
+    with :ok <- permit(:create, conn.assigns, nil),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, token} <- TokenGate.create(attrs) do
+      respond_single(token, conn)
     else
       {:error, code} ->
         handle_error(conn, code)
-    end
-  end
 
-  defp do_create(conn, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0 do
-    attrs
-    |> Map.put("account_uuid", Account.get_master_account().uuid)
-    |> Originator.set_in_attrs(conn.assigns)
-    |> Token.insert()
-    |> MintGate.mint_token(%{
-      "amount" => amount,
-      "originator" => Originator.extract(conn.assigns)
-    })
-    |> respond_single(conn)
-  end
-
-  defp do_create(conn, %{"amount" => amount} = attrs) when is_binary(amount) do
-    case Helper.string_to_integer(amount) do
-      {:ok, amount} ->
-        attrs =
-          attrs
-          |> Map.put("amount", amount)
-          |> Originator.set_in_attrs(conn.assigns)
-
-        create(conn, attrs)
-
-      {:error, code, description} ->
-        handle_error(conn, code, description)
-    end
-  end
-
-  defp do_create(conn, attrs) do
-    case attrs["amount"] do
-      nil ->
-        attrs
-        |> Map.put("account_uuid", Account.get_master_account().uuid)
-        |> Originator.set_in_attrs(conn.assigns)
-        |> Token.insert()
-        |> respond_single(conn)
-
-      amount ->
-        handle_error(conn, :invalid_parameter, "Invalid amount provided: '#{amount}'.")
+      error ->
+        handle_error(conn, error)
     end
   end
 
@@ -140,19 +103,22 @@ defmodule AdminAPI.V1.TokenController do
   via the given adapter, then creates a token in the `ExternalLedgerDB` app with the
   information retrieved from the adapter.
   """
-  @spec import_token(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  @spec import(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def import(conn, %{"contract_address" => _, "adapter" => _} = attrs) do
     with :ok <- permit(:import, conn.assigns, nil),
-         attrs <- Map.put(attrs, "account_uuid", Account.get_master_account().uuid),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, token} <- TokenGate.import(attrs) do
       respond_single(token, conn)
     else
-      error -> error
+      {:error, code} ->
+        handle_error(conn, code)
+
+      error ->
+        handle_error(conn, error)
     end
   end
 
-  def import_token(conn, _) do
+  def import(conn, _) do
     handle_error(
       conn,
       :invalid_parameter,

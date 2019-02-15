@@ -28,6 +28,7 @@ defmodule AdminAPI.V1.TokenViewTest do
         data: %{
           object: "token",
           id: token.id,
+          ledger: token.ledger,
           symbol: token.symbol,
           name: token.name,
           metadata: %{},
@@ -65,6 +66,7 @@ defmodule AdminAPI.V1.TokenViewTest do
             %{
               object: "token",
               id: token1.id,
+              ledger: token1.ledger,
               symbol: token1.symbol,
               name: token1.name,
               metadata: %{},
@@ -77,6 +79,7 @@ defmodule AdminAPI.V1.TokenViewTest do
             %{
               object: "token",
               id: token2.id,
+              ledger: token2.ledger,
               symbol: token2.symbol,
               name: token2.name,
               metadata: %{},

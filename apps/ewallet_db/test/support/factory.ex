@@ -116,6 +116,7 @@ defmodule EWalletDB.Factory do
 
     %Token{
       id: "tok_" <> symbol <> "_" <> ULID.generate(),
+      ledger: "local",
       symbol: symbol,
       iso_code: sequence("JON"),
       name: sequence("John Currency"),

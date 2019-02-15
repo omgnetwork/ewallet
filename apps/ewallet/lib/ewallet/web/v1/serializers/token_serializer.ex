@@ -34,6 +34,7 @@ defmodule EWallet.Web.V1.TokenSerializer do
     %{
       object: "token",
       id: token.id,
+      ledger: token.ledger,
       symbol: token.symbol,
       name: token.name,
       subunit_to_unit: token.subunit_to_unit,

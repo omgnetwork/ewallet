@@ -14,6 +14,7 @@
 
 defmodule AdminAPI.V1.TokenControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWallet.GethSimulator
   alias EWallet.Web.V1.TokenSerializer
   alias EWalletDB.{Mint, Repo, Token, Wallet, Transaction}
   alias ActivityLogger.System
@@ -511,6 +512,23 @@ defmodule AdminAPI.V1.TokenControllerTest do
       timestamp
       |> get_all_activity_logs_since()
       |> assert_create_minting_logs(get_test_key(), token: token, mint: mint)
+    end
+  end
+
+  describe "/token.import" do
+    test_with_auths "imports the token with the given data" do
+      GethSimulator.start()
+
+      response =
+        request("/token.import", %{
+          contract_address: "0x12345678",
+          adapter: "ethereum"
+        })
+
+      assert response["success"]
+      assert response["data"]["object"] == "token"
+      assert response["data"]["ledger"] == ExternalLedgerDB.identifier()
+      assert Token.get(response["data"]["id"])
     end
   end
 

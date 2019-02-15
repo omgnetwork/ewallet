@@ -14,4 +14,12 @@
 
 defmodule ExternalLedgerDB do
   @moduledoc false
+
+  @doc """
+  Returns the global identifier for ExternalLedgerDB.
+
+  This value is used by higher-level code to keep track that data tagged with
+  this identifier comes from this ExternalLedgerDB.
+  """
+  def identifier, do: "external"
 end

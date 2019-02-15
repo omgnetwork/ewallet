@@ -105,6 +105,7 @@ defmodule AdminAPI.ConnCase do
 
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
+    :ok = Sandbox.checkout(ExternalLedgerDB.Repo)
     :ok = Sandbox.checkout(EWalletConfig.Repo)
     :ok = Sandbox.checkout(ActivityLogger.Repo)
 
@@ -112,6 +113,7 @@ defmodule AdminAPI.ConnCase do
       Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
       Sandbox.mode(EWalletDB.Repo, {:shared, self()})
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+      Sandbox.mode(ExternalLedgerDB.Repo, {:shared, self()})
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 

@@ -25,6 +25,7 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
       name: "OmiseGO",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 OMG
+      ledger: "local",
       account_name: "master_account",
       originator: %Seeder{}
     },
@@ -33,6 +34,7 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
       name: "Kyber",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000,  # 1,000,000 KNC
+      ledger: "local",
       account_name: "master_account",
       originator: %Seeder{}
     },
@@ -41,6 +43,7 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
       name: "Bitcoin",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 BTC
+      ledger: "local",
       account_name: "master_account",
       originator: %Seeder{}
     },
@@ -49,6 +52,7 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
       name: "One EM",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 OEM
+      ledger: "local",
       account_name: "master_account",
       originator: %Seeder{}
     },
@@ -57,6 +61,7 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
       name: "Ether",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 ETH
+      ledger: "local",
       account_name: "master_account",
       originator: %Seeder{}
     },
