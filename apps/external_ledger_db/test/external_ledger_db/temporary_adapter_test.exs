@@ -15,9 +15,12 @@
 defmodule ExternalLedgerDB.TemporaryAdapterTest do
   use ExUnit.Case, async: true
   alias ExternalLedgerDB.TemporaryAdapter
+  alias EWallet.GethSimulator
 
   describe "fetch_token/2" do
     test "returns token data" do
+      GethSimulator.start()
+
       {res, token} =
         TemporaryAdapter.fetch_token("0x546a574ed633786b6a42f909753c1f7f6f37993a", "ethereum")
 
