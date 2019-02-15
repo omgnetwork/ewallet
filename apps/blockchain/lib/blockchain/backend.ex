@@ -97,6 +97,24 @@ defmodule Blockchain.Backend do
     {module, func, args}
   end
 
+  @spec find_backend(backend(), state()) :: resp({:ok, mfa()} | {:started, pid()})
+
+  defp find_backend({backend, _id} = backend_spec, {handlers, registry}) do
+    case handlers do
+      %{^backend => mfa} ->
+        case registry do
+          %{^backend_spec => pid} ->
+            {:started, pid}
+
+          _ ->
+            {:ok, mfa}
+        end
+
+      _ ->
+        {:error, :no_handler}
+    end
+  end
+
   @spec ensure_backend_started(atom() | backend(), state()) :: resp({:ok, server(), state()})
 
   defp ensure_backend_started(backend, state) when is_atom(backend) do
@@ -104,31 +122,28 @@ defmodule Blockchain.Backend do
   end
 
   defp ensure_backend_started({backend, _id} = backend_spec, {handlers, registry} = state) do
-    case handlers do
-      %{^backend => {mod, func, args}} ->
-        case registry do
-          %{^backend_spec => pid} ->
-            {:ok, pid, state}
+    case find_backend(backend_spec, state) do
+      {:started, pid} ->
+        {:ok, pid, state}
 
-          _ ->
-            retval =
-              DynamicSupervisor.start_child(Blockchain.DynamicSupervisor, %{
-                id: backend_name(backend_spec),
-                start: {mod, func, args}
-              })
+      {:ok, mfa} ->
+        retval =
+          DynamicSupervisor.start_child(Blockchain.DynamicSupervisor, %{
+            id: backend_name(backend_spec),
+            start: mfa
+          })
 
-            case retval do
-              {:ok, pid} ->
-                {:ok, pid, {handlers, Map.put(registry, backend_spec, pid)}}
+        case retval do
+          {:ok, pid} ->
+            {:ok, pid, {handlers, Map.put(registry, backend_spec, pid)}}
 
-              error ->
-                :ok = Logger.error("Failed to start backend for #{backend}: #{inspect(error)}")
-                {:error, :start_failed}
-            end
+          error ->
+            :ok = Logger.error("Failed to start backend for #{backend}: #{inspect(error)}")
+            {:error, :start_failed}
         end
 
-      _ ->
-        {:error, :no_handler}
+      {:error, error_code} ->
+        {:error, error_code}
     end
   end
 

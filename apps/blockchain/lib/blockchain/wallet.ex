@@ -15,6 +15,8 @@
 defmodule Blockchain.Wallet do
   @moduledoc false
 
+  alias Blockchain.Backend
+
   @typep address :: Blockchain.address()
   @typep resp(ret) :: ret | {:error, atom()}
 
@@ -28,6 +30,6 @@ defmodule Blockchain.Wallet do
   """
   @spec generate_wallet(atom()) :: resp({:ok, address()})
   def generate_wallet(backend) do
-    Blockchain.Backend.call(backend, :generate_wallet)
+    Backend.call(backend, :generate_wallet)
   end
 end
