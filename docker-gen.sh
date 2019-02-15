@@ -93,6 +93,7 @@ fi
 
 if [ $DEV_MODE = 1 ]; then
     YML_SERVICES="$YML_SERVICES
+      MIX_ENV: dev
     user: root
     volumes:
       - .:/app

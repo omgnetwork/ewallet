@@ -76,10 +76,14 @@ build-prod: deps-ewallet build-assets
 	env MIX_ENV=prod mix phx.digest
 	env MIX_ENV=prod mix release
 
+build-dev: deps-ewallet build-assets
+	env MIX_ENV=dev mix compile
+	env MIX_ENV=dev mix release dev
+
 build-test: deps-ewallet
 	env MIX_ENV=test mix compile
 
-.PHONY: build-assets build-prod build-test
+.PHONY: build-assets build-prod build-dev build-test
 
 #
 # Testing

@@ -55,4 +55,10 @@ config :ewallet,
     "AWS_SECRET_ACCESS_KEY" => "aws_secret_access_key"
   }
 
+config :blockchain,
+       Blockchain.Backend,
+       backends: [
+         {:eth, BlockchainEth.Worker}
+       ]
+
 import_config "#{Mix.env()}.exs"
