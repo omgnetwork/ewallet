@@ -13,6 +13,9 @@
 # limitations under the License.
 
 defmodule EWallet.GethSimulator do
+  @moduledoc """
+  Simulates a geth node that responds to JSON-RPC request.
+  """
   alias ABI.TypeEncoder
   alias Plug.Conn
 
@@ -25,7 +28,7 @@ defmodule EWallet.GethSimulator do
     bypass = Bypass.open(port: 8545)
 
     Bypass.stub(bypass, "POST", "/", fn conn ->
-      {:ok, body, conn} = Plug.Conn.read_body(conn)
+      {:ok, body, conn} = Conn.read_body(conn)
       {:ok, body} = Jason.decode(body)
 
       result =

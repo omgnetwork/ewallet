@@ -32,7 +32,7 @@ defmodule ExternalLedgerDB.TemporaryAdapter.Token do
     {:ok, contract_data}
   end
 
-  defp get_net_version() do
+  defp get_net_version do
     {:ok, net_version} = HttpClient.net_version()
 
     net_version
