@@ -34,16 +34,18 @@ defmodule EWallet.TokenGate do
   end
 
   def create(attrs) do
-    {:ok, token} =
-      attrs
-      |> Map.put("ledger", LocalLedgerDB.identifier())
-      |> Map.put("account_uuid", Account.get_master_account().uuid)
-      |> Token.insert()
-
-    case mint_after_create(token, attrs) do
-      {:ok, _mint, _token} = result -> result
+    attrs
+    |> Map.put("ledger", LocalLedgerDB.identifier())
+    |> Map.put("account_uuid", Account.get_master_account().uuid)
+    |> Token.insert()
+    |> case do
+      {:ok, token} -> mint_after_create(token, attrs)
       error -> error
     end
+  end
+
+  defp mint_after_create(token, %{"amount" => nil}) do
+    {:ok, nil, token}
   end
 
   defp mint_after_create(token, %{"amount" => amount} = attrs)
@@ -54,12 +56,12 @@ defmodule EWallet.TokenGate do
     })
   end
 
-  defp mint_after_create(_, %{"amount" => amount}) do
+  defp mint_after_create(_token, %{"amount" => amount}) do
     {:error, :invalid_parameter, "Invalid amount provided: '#{amount}'."}
   end
 
-  defp mint_after_create(_, _) do
-    {:ok, nil}
+  defp mint_after_create(token, _) do
+    {:ok, nil, token}
   end
 
   @doc """
@@ -102,7 +104,7 @@ defmodule EWallet.TokenGate do
          subunit_to_unit <-
            attrs["subunit_to_unit"] || Unit.decimals_to_subunit(contract_data.decimals),
          originator <- attrs["originator"],
-         account_uuid <- attrs["account_uuid"] do
+         account_uuid <- attrs["account_uuid"] || Account.get_master_account().uuid do
       {:ok,
        %{
          ledger: ExternalLedgerDB.identifier(),

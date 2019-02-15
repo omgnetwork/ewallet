@@ -85,11 +85,14 @@ defmodule AdminAPI.V1.TokenController do
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, token} <- TokenGate.create(attrs) do
-      respond_single(token, conn)
+         {:ok, _, _} = ok_result <- TokenGate.create(attrs) do
+      respond_single(ok_result, conn)
     else
       {:error, code} ->
         handle_error(conn, code)
+
+      {:error, code, description} ->
+        handle_error(conn, code, description)
 
       error ->
         handle_error(conn, error)

@@ -291,6 +291,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
         target: target,
         changes: %{
           "name" => target.name,
+          "ledger" => target.ledger,
           "account_uuid" => target.account.uuid,
           "description" => target.description,
           "id" => target.id,
@@ -364,6 +365,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
         target: token,
         changes: %{
           "name" => token.name,
+          "ledger" => token.ledger,
           "account_uuid" => token.account.uuid,
           "description" => token.description,
           "id" => token.id,
