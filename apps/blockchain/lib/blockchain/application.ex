@@ -27,8 +27,14 @@ defmodule Blockchain.Application do
       |> Application.get_env(Blockchain.Backend)
       |> Keyword.get(:backends)
 
+    backend_opts = [
+      backends: backends,
+      named: true,
+      supervisor: DynamicSupervisor
+    ]
+
     children = [
-      worker(Blockchain.Backend, [[backends: backends]]),
+      worker(Blockchain.Backend, [backend_opts]),
       {DynamicSupervisor, name: Blockchain.DynamicSupervisor, strategy: :one_for_one}
     ]
 

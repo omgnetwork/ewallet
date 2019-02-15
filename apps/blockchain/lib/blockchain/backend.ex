@@ -17,10 +17,11 @@ defmodule Blockchain.Backend do
 
   @typep server :: GenServer.server()
   @typep from :: GenServer.from()
-  @typep state :: {map(), map()}
+  @typep state :: {atom(), map(), map()}
 
   @typep backend :: Blockchain.backend()
   @typep call :: Blockchain.call()
+  @typep mfargs :: {module(), atom(), [term()]}
 
   @typep resp(ret) :: ret | {:error, atom()}
   @typep reply(ret) :: {:reply, resp(ret), state()}
@@ -39,26 +40,37 @@ defmodule Blockchain.Backend do
   def start_link(opts \\ []) do
     :ok = Logger.info("Running Blockchain Backend supervisor.")
 
+    {supervisor, opts} = Keyword.pop(opts, :supervisor)
     {backends, opts} = Keyword.pop(opts, :backends, [])
-    opts = Keyword.merge(opts, name: __MODULE__)
+    {named, opts} = Keyword.pop(opts, :named, false)
 
-    GenServer.start_link(__MODULE__, backends, opts)
+    opts =
+      case named do
+        true ->
+          Keyword.merge(opts, name: __MODULE__)
+
+        false ->
+          opts
+      end
+
+    GenServer.start_link(__MODULE__, {supervisor, backends}, opts)
   end
 
   @doc """
   Initialize the registry.
   """
-  @spec init(list()) :: {:ok, state()}
+  @spec init({atom(), list()}) :: {:ok, state()}
 
-  def init(backends) do
+  def init({supervisor, backends}) do
     registry = %{}
 
     handlers =
       Enum.into(backends, %{}, fn {backend, mod} ->
+        :ok = Logger.debug("Registered #{backend} as blockchain backend.")
         {backend, normalize_backend_mod(mod)}
       end)
 
-    {:ok, {handlers, registry}}
+    {:ok, {supervisor, handlers, registry}}
   end
 
   @doc """
@@ -87,7 +99,7 @@ defmodule Blockchain.Backend do
     end
   end
 
-  @spec normalize_backend_mod(module() | mfa()) :: mfa()
+  @spec normalize_backend_mod(module() | mfargs()) :: mfargs()
 
   defp normalize_backend_mod(module) when is_atom(module) do
     {module, :start_link, []}
@@ -97,17 +109,17 @@ defmodule Blockchain.Backend do
     {module, func, args}
   end
 
-  @spec find_backend(backend(), state()) :: resp({:ok, mfa()} | {:started, pid()})
+  @spec find_backend(backend(), state()) :: resp({:ok, pid()} | {:not_started, mfargs()})
 
-  defp find_backend({backend, _id} = backend_spec, {handlers, registry}) do
+  defp find_backend({backend, _id} = backend_spec, {_, handlers, registry}) do
     case handlers do
-      %{^backend => mfa} ->
+      %{^backend => mfargs} ->
         case registry do
           %{^backend_spec => pid} ->
-            {:started, pid}
+            {:ok, pid}
 
           _ ->
-            {:ok, mfa}
+            {:not_started, mfargs}
         end
 
       _ ->
@@ -121,21 +133,21 @@ defmodule Blockchain.Backend do
     ensure_backend_started({backend, nil}, state)
   end
 
-  defp ensure_backend_started({backend, _id} = backend_spec, {handlers, registry} = state) do
+  defp ensure_backend_started({backend, _id} = backend_spec, {supervisor, h, registry} = state) do
     case find_backend(backend_spec, state) do
-      {:started, pid} ->
+      {:ok, pid} ->
         {:ok, pid, state}
 
-      {:ok, mfa} ->
+      {:not_started, mfargs} ->
         retval =
-          DynamicSupervisor.start_child(Blockchain.DynamicSupervisor, %{
+          DynamicSupervisor.start_child(supervisor, %{
             id: backend_name(backend_spec),
-            start: mfa
+            start: mfargs
           })
 
         case retval do
           {:ok, pid} ->
-            {:ok, pid, {handlers, Map.put(registry, backend_spec, pid)}}
+            {:ok, pid, {supervisor, h, Map.put(registry, backend_spec, pid)}}
 
           error ->
             :ok = Logger.error("Failed to start backend for #{backend}: #{inspect(error)}")
