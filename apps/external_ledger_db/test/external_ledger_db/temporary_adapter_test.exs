@@ -12,11 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ExternalLedgerDB.TokenTest do
+defmodule ExternalLedgerDB.TemporaryAdapterTest do
   use ExUnit.Case, async: true
   alias ExternalLedgerDB.TemporaryAdapter
 
-  describe "fetch_contract/2" do
-    TemporaryAdapter.fetch_contract("0x546a574ed633786b6a42f909753c1f7f6f37993a", "ethereum")
+  describe "fetch_token/2" do
+    test "returns token data" do
+      {res, token} =
+        TemporaryAdapter.fetch_token("0x546a574ed633786b6a42f909753c1f7f6f37993a", "ethereum")
+
+      assert res == :ok
+      assert Map.has_key?(token, :contract_address)
+      assert Map.has_key?(token, :symbol)
+      assert Map.has_key?(token, :name)
+      assert Map.has_key?(token, :net_version)
+      assert Map.has_key?(token, :total_supply)
+      assert Map.has_key?(token, :decimals)
+    end
   end
 end

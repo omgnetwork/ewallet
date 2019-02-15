@@ -16,38 +16,17 @@ defmodule ExternalLedgerDB.TemporaryAdapter do
   @moduledoc """
   The TempoarayAdapter to be replaced by #693.
   """
-  alias ABI.TypeDecoder
-  alias Ethereumex.HttpClient
+  alias ExternalLedgerDB.TemporaryAdapter.Token
 
   @ethereum "ethereum"
   @omg_network "omg_network"
   @adapters [@ethereum, @omg_network]
 
+  def adapters, do: @adapters
+
   def valid_adapter?(adapter) do
     adapter in @adapters
   end
 
-  def fetch_contract(contract_address, _adapter) do
-    abi_encoded_data =
-      "totalSupply()"
-      |> ABI.encode([])
-      |> Base.encode16(case: :lower)
-
-    {:ok, total_supply_bytes} =
-      %{
-        data: "0x" <> abi_encoded_data,
-        to: contract_address
-      }
-      |> HttpClient.eth_call()
-      |> String.slice(2..-1)
-      |> Base.decode16!(case: :lower)
-      |> TypeDecoder.decode_raw([{:uint, 256}])
-      |> List.first
-
-    contract_data = %{
-      total_supply: total_supply
-    }
-
-    {:ok, contract_data}
-  end
+  defdelegate fetch_token(contract_address, adapter), to: Token, as: :fetch
 end

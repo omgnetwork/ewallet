@@ -23,6 +23,7 @@ defmodule ExternalLedgerDB.Application do
   def start(_type, _args) do
     import Supervisor.Spec
     DeferredConfig.populate(:external_ledger_db)
+    DeferredConfig.populate(:ethereumex)
 
     settings = Application.get_env(:external_ledger_db, :settings)
     Config.register_and_load(:external_ledger_db, settings)
