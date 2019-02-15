@@ -18,7 +18,7 @@ defmodule Blockchain.BackendTest do
   alias Ecto.UUID
 
   defmodule DumbBackend do
-    def start_link(), do: GenServer.start_link(__MODULE__, :ok, [])
+    def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
     def init(:ok), do: {:ok, nil}
     def stop(pid), do: GenServer.stop(pid)
 
@@ -33,7 +33,7 @@ defmodule Blockchain.BackendTest do
 
     Code.eval_string("""
       defmodule MockBackend do
-        def start_link(), do: GenServer.start_link(__MODULE__, :ok, [])
+        def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
         def init(:ok), do: {:ok, nil}
         def stop(pid), do: GenServer.stop(pid)
 

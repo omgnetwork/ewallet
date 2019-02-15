@@ -28,8 +28,16 @@ defmodule Blockchain.Wallet do
   Returns a tuple of `{:ok, {backend, wallet_id, public_key}}` in case of
   a successful wallet generation otherwise returns `{:error, error_code}`.
   """
+  @spec generate_wallet(atom(), pid() | nil) :: resp({:ok, address()})
   @spec generate_wallet(atom()) :: resp({:ok, address()})
-  def generate_wallet(backend) do
-    Backend.call(backend, :generate_wallet)
+
+  def generate_wallet(backend, pid \\ nil) do
+    case pid do
+      nil ->
+        Backend.call(backend, :generate_wallet)
+
+      p when is_pid(p) ->
+        Backend.call(backend, :generate_wallet, p)
+    end
   end
 end

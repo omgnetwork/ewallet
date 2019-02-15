@@ -18,7 +18,7 @@ defmodule Blockchain.WalletTest do
   alias Ecto.UUID
 
   defmodule DumbBackend do
-    def start_link(), do: GenServer.start_link(__MODULE__, :ok, [])
+    def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
     def init(:ok), do: {:ok, nil}
     def stop(pid), do: GenServer.stop(pid)
 
@@ -28,8 +28,17 @@ defmodule Blockchain.WalletTest do
   end
 
   setup do
+    supervisor = String.to_atom("#{UUID.generate()}")
+
+    {:ok, _} =
+      DynamicSupervisor.start_link(
+        name: supervisor,
+        strategy: :one_for_one
+      )
+
     {:ok, pid} =
       Backend.start_link(
+        supervisor: supervisor,
         backends: [
           {:dumb, DumbBackend}
         ]
@@ -40,12 +49,15 @@ defmodule Blockchain.WalletTest do
 
   describe "generate_wallet/1" do
     test "generates a wallet with the given backend spec", state do
-      assert {:ok, "wallet_id", "public_key"} == Wallet.generate_wallet(:dumb)
-      assert {:ok, "wallet_id", "public_key"} == Wallet.generate_wallet({:dumb, "foo"})
+      resp1 = Wallet.generate_wallet(:dumb, state[:pid])
+      assert {:ok, "wallet_id", "public_key"} == resp1
+
+      resp2 = Wallet.generate_wallet({:dumb, "foo"}, state[:pid])
+      assert {:ok, "wallet_id", "public_key"} == resp2
     end
 
     test "returns an error if no such backend is registered", state do
-      assert {:error, :no_handler} == Wallet.generate_wallet(:blah)
+      assert {:error, :no_handler} == Wallet.generate_wallet(:blah, state[:pid])
     end
   end
 end

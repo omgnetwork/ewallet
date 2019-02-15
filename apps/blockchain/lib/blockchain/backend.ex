@@ -66,7 +66,6 @@ defmodule Blockchain.Backend do
 
     handlers =
       Enum.into(backends, %{}, fn {backend, mod} ->
-        :ok = Logger.debug("Registered #{backend} as blockchain backend.")
         {backend, normalize_backend_mod(mod)}
       end)
 
