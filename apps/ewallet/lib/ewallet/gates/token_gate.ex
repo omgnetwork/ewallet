@@ -41,7 +41,7 @@ defmodule EWallet.TokenGate do
       |> Token.insert()
 
     case mint_after_create(token, attrs) do
-      {:ok, _} -> {:ok, token}
+      {:ok, _mint, _token} = result -> result
       error -> error
     end
   end
