@@ -46,7 +46,8 @@ defmodule EWallet.TokenGate do
     end
   end
 
-  defp mint_after_create(token, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0 do
+  defp mint_after_create(token, %{"amount" => amount} = attrs)
+       when is_number(amount) and amount > 0 do
     MintGate.mint_token(token, %{
       "amount" => amount,
       "originator" => attrs["originator"]
@@ -80,14 +81,14 @@ defmodule EWallet.TokenGate do
          "A token with the symbol '#{token.symbol}' already exists."}
 
       {:name, token} ->
-        {:error, :token_already_exists,
-         "A token with the name '#{token.name}' already exists."}
+        {:error, :token_already_exists, "A token with the name '#{token.name}' already exists."}
 
       %LedgerToken{} = token ->
         {:error, :token_already_exists,
          "A token with the contract address '#{token.contract_address}' already exists."}
 
-      error -> error
+      error ->
+        error
     end
   end
 
@@ -98,19 +99,21 @@ defmodule EWallet.TokenGate do
          {:ok, contract_data} <- TemporaryAdapter.fetch_token(contract_address, adapter),
          name <- attrs["name"] || contract_data.name,
          symbol <- attrs["symbol"] || contract_data.symbol,
-         subunit_to_unit <- attrs["subunit_to_unit"] || Unit.decimals_to_subunit(contract_data.decimals),
+         subunit_to_unit <-
+           attrs["subunit_to_unit"] || Unit.decimals_to_subunit(contract_data.decimals),
          originator <- attrs["originator"],
          account_uuid <- attrs["account_uuid"] do
-      {:ok, %{
-        ledger: ExternalLedgerDB.identifier(),
-        contract_address: contract_address,
-        adapter: adapter,
-        name: name,
-        symbol: symbol,
-        subunit_to_unit: subunit_to_unit,
-        originator: originator,
-        account_uuid: account_uuid
-      }}
+      {:ok,
+       %{
+         ledger: ExternalLedgerDB.identifier(),
+         contract_address: contract_address,
+         adapter: adapter,
+         name: name,
+         symbol: symbol,
+         subunit_to_unit: subunit_to_unit,
+         originator: originator,
+         account_uuid: account_uuid
+       }}
     else
       :invalid_adapter ->
         {:error, :invalid_parameter,
