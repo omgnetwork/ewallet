@@ -28,7 +28,9 @@ defmodule EWallet.Bouncer.Dispatcher do
     UserTarget,
     WalletTarget,
     MintTarget,
-    TokenTarget
+    TokenTarget,
+
+    WalletScope
   }
 
   alias EWalletDB.{
@@ -44,7 +46,20 @@ defmodule EWallet.Bouncer.Dispatcher do
     Token
   }
 
-  @references %{
+  @scope_references %{
+    Account => AccountScope,
+    Category => CategoryScope,
+    Key => KeyScope,
+    Membership => MembershipScope,
+    TransactionRequest => TransactionRequestScope,
+    TransactionConsumption => TransactionConsumptionScope,
+    User => UserScope,
+    Wallet => WalletScope,
+    Mint => MintScope,
+    Token => TokenScope
+  }
+
+  @target_references %{
     Account => AccountTarget,
     Category => CategoryTarget,
     Key => KeyTarget,
@@ -58,45 +73,45 @@ defmodule EWallet.Bouncer.Dispatcher do
   }
 
   def scoped_query(%Permission{schema: schema} = permission) do
-    @references[schema].scoped_query(permission)
+    @scope_references[schema].scoped_query(permission)
   end
 
   # Gets all the owner uuids of the given record.
   # Could be user and/or account uuids.
   def get_owner_uuids(record) do
-    @references[record.__struct__].get_owner_uuids(record)
+    @target_references[record.__struct__].get_owner_uuids(record)
   end
 
   def authorize_with_attrs(%{schema: schema} = permission) do
-    @references[schema].authorize_with_attrs(permission)
+    @target_references[schema].authorize_with_attrs(permission)
   end
 
   # Redefines the target type if the given record has subtypes.
   # like transaction_requests -> end_user_transaction_requests /
   # account_transaction_requests.
   def get_target_type(schema, action) do
-    @references[schema].get_target_type(action)
+    @target_references[schema].get_target_type(action)
   end
 
   def get_target_type(record) do
-    @references[record.__struct__].get_target_type(record)
+    @target_references[record.__struct__].get_target_type(record)
   end
 
   # Returns a query to get all the accounts the actor (a key, an admin user
   # or an end user) has access to
   def get_query_actor_records(%Permission{actor: actor} = permission) do
-    @references[actor.__struct__].get_query_actor_records(permission)
+    @target_references[actor.__struct__].get_query_actor_records(permission)
   end
 
   # Gets all the accounts the actor (a key, an admin user or an end user)
   # has access to.
   @spec get_actor_accounts(atom() | %{__struct__: any()}) :: any()
   def get_actor_accounts(record) do
-    @references[record.__struct__].get_actor_accounts(record)
+    @target_references[record.__struct__].get_actor_accounts(record)
   end
 
   # Loads all the accounts that have power over the given record.
   def get_target_accounts(record) do
-    @references[record.__struct__].get_target_accounts(record)
+    @target_references[record.__struct__].get_target_accounts(record)
   end
 end

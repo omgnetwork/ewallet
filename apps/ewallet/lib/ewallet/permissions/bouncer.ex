@@ -37,7 +37,6 @@ defmodule EWallet.Bouncer do
             permission
             |> AccountBouncer.bounce()
             |> set_authorized()
-
           permission ->
             # The actor does not have global access and is not allowed to check account permissions
             # so we skip and return false

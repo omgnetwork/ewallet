@@ -21,7 +21,7 @@ defmodule EWallet.PolicyHelper do
   def authorize(:all, attrs, type, schema, nil) do
     case Bouncer.bounce(attrs, %Permission{action: :all, type: type, schema: schema}) do
       {:ok, permission} ->
-        {:ok, %{permission | query: Permissions.build_all_query(permission)}}
+        {:ok, %{permission | query: Bouncer.scoped_query(permission)}}
 
       error ->
         error

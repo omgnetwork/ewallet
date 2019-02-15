@@ -19,21 +19,18 @@ defmodule EWallet.Bouncer.WalletScope do
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.{Permission, Dispatcher}
+  alias EWalletDB.Wallet
 
-  # defmacro macro_unless(clause, do: expression) do
-  #   quote do
-  #     if(!unquote(clause), do: unquote(expression))
-  #   end
-  # end
-
-  # Global permissions
+  def scoped_query(%Permission{actor: actor, global_abilities: global_abilities, account_abilities: account_abilities}) do
+    do_scoped_query(actor, global_abilities) || do_scoped_query(actor, account_abilities)
+  end
 
   # Global + ?
-  def scoped_query(%Permission{global_abilities: %{account_wallets: :global, user_wallets: :global}}) do
+  defp do_scoped_query(actor, %{account_wallets: :global, end_user_wallets: :global}) do
     Wallet
   end
 
-  def scoped_query(%Permission{actor: actor, global_abilities: %{account_wallets: :global, user_wallets: :accounts}}) do
+  defp do_scoped_query(actor, %{account_wallets: :global, end_user_wallets: :accounts}) do
     actor
     |> Wallet.prepare_query_with_membership_for()
     |> join(:inner, [w, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
@@ -42,23 +39,23 @@ defmodule EWallet.Bouncer.WalletScope do
     |> select([w, m, au, u], w)
   end
 
-  def scoped_query(%Permission{actor: actor, global_abilities: %{account_wallets: :global, user_wallets: :self}}) do
+  defp do_scoped_query(actor, %{account_wallets: :global, end_user_wallets: :self}) do
     where(Wallet, [w], w.user_uuid == ^actor.uuid or is_nil(w.user_uuid))
   end
 
-  def scoped_query(%Permission{global_abilities: %{account_wallets: :global, user_wallets: _}}) do
+  defp do_scoped_query(actor, %{account_wallets: :global, end_user_wallets: _}) do
     where(Wallet, [w], is_nil(w.user_uuid))
   end
 
   # Accounts + ?
-  def scoped_query(%Permission{actor: actor, global_abilities: %{account_wallets: :accounts, user_wallets: :global}}) do
+  defp do_scoped_query(actor, %{account_wallets: :accounts, end_user_wallets: :global}) do
     actor
     |> Wallet.prepare_query_with_membership_for()
     |> where([w, m], w.account_uuid == m.account_uuid or is_nil(w.account_uuid))
     |> select([w, m], w)
   end
 
-  def scoped_query(%Permission{actor: actor, global_abilities: %{account_wallets: :accounts, user_wallets: :accounts}}) do
+  defp do_scoped_query(actor, %{account_wallets: :accounts, end_user_wallets: :accounts}) do
     actor
     |> Wallet.prepare_query_with_membership_for()
     |> join(:inner, [w, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
@@ -67,14 +64,14 @@ defmodule EWallet.Bouncer.WalletScope do
     |> select([w, m, au, u], w)
   end
 
-  def scoped_query(%Permission{actor: actor, global_abilities: %{account_wallets: :accounts, user_wallets: :self}}) do
+  defp do_scoped_query(actor, %{account_wallets: :accounts, end_user_wallets: :self}) do
     actor
     |> Wallet.prepare_query_with_membership_for()
     |> where([w, m], w.account_uuid == m.account_uuid or w.user_uuid == ^actor.uuid)
     |> select([w, m], w)
   end
 
-  def scoped_query(%Permission{actor: actor, global_abilities: %{account_wallets: :accounts, user_wallets: _}}) do
+  defp do_scoped_query(actor, %{account_wallets: :accounts, end_user_wallets: _}) do
     actor
     |> Wallet.prepare_query_with_membership_for()
     |> where([w, m], w.account_uuid == m.account_uuid)
@@ -82,11 +79,11 @@ defmodule EWallet.Bouncer.WalletScope do
   end
 
   # whatever + ?
-  def scoped_query(%Permission{global_abilities: %{account_wallets: _, user_wallets: :global}}) do
+  defp do_scoped_query(actor, %{account_wallets: _, end_user_wallets: :global}) do
     where(Wallet, [w], is_nil(w.account_uuid))
   end
 
-  def scoped_query(%Permission{actor: actor, global_abilities: %{account_wallets: _, user_wallets: :accounts}}) do
+  defp do_scoped_query(actor, %{account_wallets: _, end_user_wallets: :accounts}) do
     actor
     |> Wallet.prepare_query_with_membership_for()
     |> join(:inner, [w, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
@@ -95,11 +92,11 @@ defmodule EWallet.Bouncer.WalletScope do
     |> select([w, m, au, u], w)
   end
 
-  def scoped_query(%Permission{actor: actor, global_abilities: %{account_wallets: _, user_wallets: :self}}) do
+  defp do_scoped_query(actor, %{account_wallets: _, end_user_wallets: :self}) do
     where(Wallet, [w], w.user_uuid == ^actor.uuid)
   end
 
-  def scoped_query(_) do
-    Ecto.Query
+  defp do_scoped_query(actor, a) do
+    nil
   end
 end

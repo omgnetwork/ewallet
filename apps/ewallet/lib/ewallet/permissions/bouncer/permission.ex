@@ -27,11 +27,11 @@ defmodule EWallet.Bouncer.Permission do
     :attrs,
     :action,
     :check_account_abilities,
-    :global_abilities,
-    :account_abilities,
     :query,
     authorized: false,
     global_authorized: false,
-    account_authorized: false
+    global_abilities: %{},
+    account_authorized: false,
+    account_abilities: %{}
   ]
 end

@@ -65,15 +65,15 @@ defmodule EWallet.Bouncer.AccountBouncer do
 
   def handle_matched_accounts(
         %{
-          actor: actor
+          actor: actor,
+          type: type
         } = permission,
         permissions,
         matched_account_uuids
       ) do
     memberships =
       Membership.query_all_by_member_and_account_uuids(actor, matched_account_uuids, [:role])
-
-    find_sufficient_permission_in_memberships(permission, permissions, memberships)
+    find_sufficient_permission_in_memberships(permission, permissions, memberships, [type])
   end
 
   defp find_sufficient_permission_in_memberships(
@@ -84,15 +84,36 @@ defmodule EWallet.Bouncer.AccountBouncer do
        ) do
     permission
     |> update_abilities(membership.role.name, types, permissions)
-    |> find_sufficient_permission_in_memberships(permissions, memberships)
+    |> find_sufficient_permission_in_memberships(permissions, memberships, types)
   end
 
-  defp find_sufficient_permission_in_memberships(permission, _, _) do
+  defp find_sufficient_permission_in_memberships(
+         permission,
+         permissions,
+         [membership | []],
+         types
+       ) do
     permission
+    |> update_abilities(membership.role.name, types, permissions)
+    |> set_account_authorized()
+  end
+
+  defp find_sufficient_permission_in_memberships(permission, _, _, _) do
+    set_account_authorized(permission)
+  end
+
+  defp set_account_authorized(permission) do
+    %{permission | account_authorized: account_authorized?(permission)}
+  end
+
+  defp account_authorized?(%{account_abilities: account_abilities}) do
+    Enum.any?(account_abilities, fn {type, ability} ->
+      Enum.member?([:global, :accounts, :self], ability)
+    end)
   end
 
   defp update_abilities(%{action: action} = permission, role, types, permissions) do
-    Enum.reduce(types, permission, fn type ->
+    Enum.reduce(types, permission, fn type, permission ->
       new_ability = Helper.extract_permission(permissions, [role, type, action]) || :none
 
       case get_best_ability(permission.account_abilities[type], new_ability) do
@@ -106,6 +127,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
   end
 
   defp get_best_ability(nil, nil), do: {:identical, nil}
+  defp get_best_ability(old, new) when old == new, do: {:identical, old}
 
   defp get_best_ability(:global, :accounts), do: {:identical, :global}
   defp get_best_ability(:global, :self), do: {:identical, :global}

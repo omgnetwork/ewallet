@@ -59,41 +59,6 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test_with_auths "returns a list of wallets and pagination data for the specified account with owned = true" do
-      account = Account.get_master_account()
-      {:ok, _account_1} = :account |> params_for() |> Account.insert()
-      {:ok, _account_2} = :account |> params_for() |> Account.insert()
-
-      response =
-        request("/account.get_wallets_and_user_wallets", %{
-          "id" => account.id,
-          "owned" => true
-        })
-
-      # Asserts return data
-      assert response["success"]
-      assert response["data"]["object"] == "list"
-      assert is_list(response["data"]["data"])
-
-      wallets = response["data"]["data"]
-      assert length(wallets) == 3
-
-      wallets =
-        Enum.map(wallets, fn wallet ->
-          {wallet["account_id"], wallet["identifier"]}
-        end)
-
-      assert Enum.member?(wallets, {account.id, "primary"})
-      assert Enum.member?(wallets, {account.id, "burn"})
-
-      # Asserts pagination data
-      pagination = response["data"]["pagination"]
-      assert is_integer(pagination["per_page"])
-      assert is_integer(pagination["current_page"])
-      assert is_boolean(pagination["is_last_page"])
-      assert is_boolean(pagination["is_first_page"])
-    end
-
     test_with_auths "returns a list of wallets according to sort_by and sort_direction" do
       user = get_test_user()
       user_wallet = User.get_primary_wallet(user)
