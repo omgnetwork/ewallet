@@ -76,6 +76,14 @@ defmodule ExternalLedgerDB.Token do
   end
 
   @doc """
+  Retrieve a token using one or more fields.
+  """
+  @spec get_by(map()) :: %__MODULE__{} | nil
+  def get_by(attrs) do
+    Repo.get_by(__MODULE__, attrs)
+  end
+
+  @doc """
   Retrieve a token from the database using the specified id
   or insert a new one before returning it.
   """

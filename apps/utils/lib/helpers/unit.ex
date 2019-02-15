@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2017-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{:ok, _} = Application.ensure_all_started(:ex_machina)
-{:ok, _} = Application.ensure_all_started(:bypass)
+defmodule Utils.Unit do
+  @moduledoc """
+  Module to perform unit conversions.
+  """
 
-ExUnit.start()
-Ecto.Adapters.SQL.Sandbox.mode(EWalletConfig.Repo, :manual)
-Ecto.Adapters.SQL.Sandbox.mode(EWalletDB.Repo, :manual)
-Ecto.Adapters.SQL.Sandbox.mode(LocalLedgerDB.Repo, :manual)
-Ecto.Adapters.SQL.Sandbox.mode(ExternalLedgerDB.Repo, :manual)
-Ecto.Adapters.SQL.Sandbox.mode(ActivityLogger.Repo, :manual)
+  @doc """
+  Converts a number of decimal points to subunit value,
+  useful for preparing `subunit_to_unit` values.
+  """
+  def decimals_to_subunit(decimals), do: :math.pow(10, decimals)
+end

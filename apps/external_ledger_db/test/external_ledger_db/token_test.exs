@@ -124,6 +124,22 @@ defmodule ExternalLedgerDB.TokenTest do
     end
   end
 
+  describe "get_by/1" do
+    test "returns the existing token by various fields" do
+      [_, inserted, _] = insert_list(3, :token)
+
+      assert Token.get_by(uuid: inserted.uuid).uuid == inserted.uuid
+      assert Wallet.get_by(address: inserted.address).uuid == inserted.uuid
+    end
+
+    test "returns nil if the value cannot be found" do
+      [_, _, _] = insert_list(3, :token)
+
+      assert Token.get_by(uuid: UUID.generate()) == nil
+      assert Token.get_by(address: "not_valid") == nil
+    end
+  end
+
   describe "get_or_insert/1" do
     test "inserts the token when it does not exist yet" do
       id = "123"

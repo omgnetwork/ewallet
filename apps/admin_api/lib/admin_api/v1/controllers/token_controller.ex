@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{Helper, MintGate, TokenPolicy}
+  alias EWallet.{Helper, MintGate, TokenGate, TokenPolicy}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
   alias EWalletDB.{Account, Mint, Token}
   alias ExternalLedgerDB.TemporaryAdapter
@@ -141,20 +141,13 @@ defmodule AdminAPI.V1.TokenController do
   information retrieved from the adapter.
   """
   @spec import_token(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def import_token(conn, %{"contract_address" => _, "adapter" => _} = attrs) do
-    with contract_address <- attrs["contract_address"],
-         true <- TemporaryAdapter.valid_adapter?(attrs["adapter"]) || :invalid_adapter,
-         adapter <- attrs["adapter"],
-         {:ok, contract} <- TemporaryAdapter.fetch_contract(contract_address, adapter) do
-      contract
-
-      # Insert EWalletDB.Token
-      # Insert ExternalLedgerDB.Token
-      # Return the formatted EWalletDB.Token
+  def import(conn, %{"contract_address" => _, "adapter" => _} = attrs) do
+    with :ok <- permit(:import, conn.assigns, nil),
+         attrs <- Map.put(attrs, "account_uuid", Account.get_master_account().uuid),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, token} <- TokenGate.import(attrs) do
+      respond_single(token, conn)
     else
-      :invalid_adapter ->
-        {:error, :invalid_parameter, "Invalid parameter provided. `adapter` is invalid."}
-
       error -> error
     end
   end

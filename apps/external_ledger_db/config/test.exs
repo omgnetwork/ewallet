@@ -9,5 +9,5 @@ config :external_ledger_db, ExternalLedgerDB.Repo,
   queue_interval: 10_000
 
 config :ethereumex,
-  url: {:system, "ETHEREUM_NODE_URL", "http://localhost:8545"},
+  url: "http://localhost:8545",
   http_options: [timeout: 8000, recv_timeout: 5000]
