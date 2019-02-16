@@ -288,7 +288,7 @@ defmodule AdminAPI.V1.UserControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided.",
+          "description" => "Invalid parameter provided. 'provider_user_id' is required.",
           "messages" => nil
         }
       }
@@ -305,7 +305,7 @@ defmodule AdminAPI.V1.UserControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided.",
+          "description" => "Invalid parameter provided. 'provider_user_id' cannot be nil.",
           "messages" => nil
         }
       }
@@ -600,7 +600,7 @@ defmodule AdminAPI.V1.UserControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. 'user_id' is required."
     end
 
     test_with_auths "returns an error if user for provider_user_id is not found" do
@@ -629,7 +629,7 @@ defmodule AdminAPI.V1.UserControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. 'username' is required."
     end
 
     defp assert_update_logs(logs, originator, target) do
