@@ -287,6 +287,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
       refute response["success"]
       assert response["data"]["code"] == "auth_token:not_found"
+      assert response["data"]["description"] == "Authorization token not found. Credentials are invalid."
     end
 
     test "gets access_key:unauthorized back when requesting with a provider key" do
