@@ -272,6 +272,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `email` cannot be nil."
     end
 
     test "returns an error if the email is not supplied" do
@@ -282,6 +283,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `email` is required."
     end
 
     test "returns an error if the redirect_url is not supplied" do
@@ -292,6 +294,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `redirect_url` is required."
     end
 
     test "gets access_key:unauthorized back when requesting with a provider key" do
@@ -428,7 +431,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. `email` is required."
     end
 
     test "returns an invalid parameter error when the token is not given" do
@@ -443,7 +446,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. Authorization token is required."
     end
 
     test "generates an activity log" do
@@ -550,6 +553,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. File is corrupt or invalid."
     end
 
     test "returns an error when 'avatar' is not sent" do
@@ -557,6 +561,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. Avatar is required."
     end
 
     test "removes the avatar from a user" do
