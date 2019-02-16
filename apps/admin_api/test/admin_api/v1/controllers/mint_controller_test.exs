@@ -178,7 +178,7 @@ defmodule AdminAPI.V1.MintControllerTest do
 
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. Amount cannot be nil."
     end
 
     test_with_auths "fails to mint a non existing token" do
