@@ -583,7 +583,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided.",
+                 "description" => "Invalid parameter provided. Header must be specified.",
                  "messages" => nil,
                  "object" => "error"
                }
