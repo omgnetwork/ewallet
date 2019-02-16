@@ -331,6 +331,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `name` is required."
     end
 
     defp assert_create_logs(logs, originator: originator, target: target, parent: parent) do
@@ -456,7 +457,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
     end
 
     test_with_auths "returns a 'unauthorized' error if id is invalid" do
@@ -606,6 +607,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. File is invalid or corrupt."
     end
 
     test_with_auths "returns an error when 'avatar' is not sent" do
@@ -619,6 +621,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. Avatar not sent."
     end
 
     test_with_auths "removes the avatar from an account" do
@@ -705,7 +708,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
     end
 
     test_with_auths "returns 'unauthorized' if the given account ID was not found" do
