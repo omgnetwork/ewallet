@@ -124,6 +124,7 @@ defmodule AdminAPI.V1.RoleControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `name` is required."
     end
 
     defp assert_create_logs(logs, originator, target) do
@@ -197,6 +198,7 @@ defmodule AdminAPI.V1.RoleControllerTest do
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
     end
 
     test_with_auths "returns an 'unauthorized' error if id is invalid" do
