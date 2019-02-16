@@ -244,7 +244,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
                "data" => %{
                  "object" => "error",
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided.",
+                 "description" => "Invalid parameter provided. Can't get wallet with nil address.",
                  "messages" => nil
                }
              }
@@ -281,7 +281,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. 'id' is required."
     end
   end
 
