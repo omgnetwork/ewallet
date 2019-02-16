@@ -177,12 +177,14 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
       response = unauthenticated_request("/admin.login", %{email: nil, password: @password})
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `email` is required."
     end
 
     test "returns :invalid_parameter if password is missing" do
       response = unauthenticated_request("/admin.login", %{email: @user_email, password: nil})
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `password` is required."
     end
 
     test "returns :invalid_parameter if both email and password are missing" do
@@ -190,6 +192,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
       refute response["success"]
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `email` and 'password' are required."
     end
 
     test "generates an activity log" do
@@ -269,6 +272,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `account_id` is required."
     end
 
     test "returns :auth_token_not_found if user credentials are invalid" do

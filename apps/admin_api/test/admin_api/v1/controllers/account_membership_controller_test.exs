@@ -201,7 +201,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
                  "data" => %{
                    "object" => "error",
                    "code" => "client:invalid_parameter",
-                   "description" => "Invalid parameter provided.",
+                   "description" => "Invalid parameter provided. 'id' is required.",
                    "messages" => nil
                  }
                }
