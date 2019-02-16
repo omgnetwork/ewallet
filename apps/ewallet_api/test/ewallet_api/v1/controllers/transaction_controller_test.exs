@@ -529,7 +529,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided.",
+                 "description" => "Invalid parameter provided. Parameter(s) are missing.",
                  "messages" => nil,
                  "object" => "error"
                }
