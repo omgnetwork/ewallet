@@ -92,7 +92,7 @@ defmodule AdminAPI.V1.UpdateEmailControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. 'email' cannot be nil."
     end
 
     test "returns client:invalid_parameter error if the email is not supplied" do
@@ -103,7 +103,7 @@ defmodule AdminAPI.V1.UpdateEmailControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. `email` is required."
     end
 
     test "returns client:invalid_parameter error if the redirect_url is not supplied" do
@@ -114,7 +114,7 @@ defmodule AdminAPI.V1.UpdateEmailControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. `redirect_url` is required."
     end
 
     test "returns user:email_already_exists error if there is already a user with the associated email" do
@@ -265,7 +265,7 @@ defmodule AdminAPI.V1.UpdateEmailControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. `email` is required."
     end
 
     test "returns an invalid parameter error when the token is not given" do
@@ -280,7 +280,7 @@ defmodule AdminAPI.V1.UpdateEmailControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "Invalid parameter provided. Authorization token is required."
     end
 
     test "generates activity logs" do
