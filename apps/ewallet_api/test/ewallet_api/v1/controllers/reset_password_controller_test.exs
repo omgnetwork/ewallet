@@ -67,6 +67,8 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. 'email' cannot be nil."
+      
     end
 
     test "returns a success without a new request, when the given email is not found" do
@@ -97,6 +99,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. 'email' is required."
       assert request == nil
     end
 
@@ -115,6 +118,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. 'redirect_url' is required."
       assert request == nil
     end
 
@@ -250,6 +254,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. 'email' is required."
       assert ForgetPasswordRequest |> Repo.all() |> length() == 1
     end
 
