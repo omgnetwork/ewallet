@@ -10,7 +10,6 @@ import ProfileDropdown from './ProfileDropdown'
 const SideNavigationContainer = styled.div`
   background-color: #f0f2f5;
   height: 100%;
-  padding: 25px 0;
   overflow: auto;
 `
 const NavigationItem = styled.div`

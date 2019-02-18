@@ -27,7 +27,7 @@ import { getCurrentAccountFromLocalStorage } from '../../services/sessionService
 import ActivityLogPage from '../../omg-page-activity-log'
 import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
-import AccountTabPage from '../../omg-account-detail-V2'
+import AccountDetailSubPage from '../../omg-account-detail-V2/AccountDetailSubPage'
 const currentAccount = getCurrentAccountFromLocalStorage()
 const redirectUrl = currentAccount ? '/accounts' : '/login'
 // prettier-ignore
@@ -49,19 +49,27 @@ const createRoute = () => (
       <AuthenticatedRoute path='/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute path='/transaction/export' exact component={TransactionExportPage} />
       <AuthenticatedRoute path='/api' exact component={ApiKeyPage} />
-      <AuthenticatedRoute path='/:accountId/setting/:state' exact component={AccountSettingPage} />
       <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />
-      <AuthenticatedRoute path='/users' exact component={UserPage} />
-      <AuthenticatedRoute path='/admins' exact component={AdminsPage} />
-      <AuthenticatedRoute path='/admins/:adminId' exact component={AdminDetailPage} />
-      <AuthenticatedRoute path='/accounts/:accountId/:tab' exact component={AccountTabPage} />
-      <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
+
+      {/* SUB ACCOUNT PAGES */}
+      <AuthenticatedRoute path='/accounts/:accountId/detail' exact component={AccountDetailSubPage} />
+      {/* <AuthenticatedRoute path='/accounts/:accountId/:tab' exact component={AccountTabPage} /> */}
+      <AuthenticatedRoute path='/:accountId/setting/:state' exact component={AccountSettingPage} />
       <AuthenticatedRoute path='/accounts/:accountId/wallets/:walletId' exact component={WalletDetailPage} />
+
+      <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
+
+      {/* OVERVIEW */}
       <AuthenticatedRoute path='/users/:userId' exact component={UserDetailPage} />
       <AuthenticatedRoute path='/consumptions' exact component={ReqestConsumptionPage} />
       <AuthenticatedRoute path='/requests' exact component={TransactionRequestPage} />
       <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
       <AuthenticatedRoute path='/activity' exact component={ActivityLogPage} />
+      <AuthenticatedRoute path='/users' exact component={UserPage} />
+      <AuthenticatedRoute path='/admins' exact component={AdminsPage} />
+      <AuthenticatedRoute path='/admins/:adminId' exact component={AdminDetailPage} />
+
+      {/* 404 PAGE */}
       <Route component={NotFoundPage} />
     </Switch>
   </Router>

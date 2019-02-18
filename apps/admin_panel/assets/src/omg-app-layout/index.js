@@ -1,15 +1,7 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
 import SideNavigation from './SideNavigationV2'
-import TopBar from './TopBar'
 import PropTypes from 'prop-types'
-import AccountSelectorMenu from './AccountSelectorMenu'
-import withClickOutsideEnhancer from '../enhancer/clickOutside'
-import { compose } from 'recompose'
-import AccountsFetcher from '../omg-account/accountsFetcher'
-import { connect } from 'react-redux'
-import { withRouter } from 'react-router-dom'
-import { switchAccount } from '../omg-account-current/action'
 import Alert from '../omg-alert'
 import LoadingBar from 'react-redux-loading-bar'
 import TransactionRequestPanel from '../omg-transaction-request-tab'
@@ -34,7 +26,6 @@ const ContentContainer = styled.div`
   width: calc(100% - 220px);
   height: 100vh;
   overflow: auto;
-  padding-top: 25px;
 `
 const Content = styled.div`
   padding: 0 7%;
