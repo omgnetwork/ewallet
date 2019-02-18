@@ -103,6 +103,7 @@ class ProfileAvatarDropdown extends Component {
         <PopperRenderer
           renderReference={this.renderCurrentUserName(currentUser)}
           open={this.props.open}
+          offset={150}
           renderPopper={() => {
             return (
               <DropdownBoxStyled>

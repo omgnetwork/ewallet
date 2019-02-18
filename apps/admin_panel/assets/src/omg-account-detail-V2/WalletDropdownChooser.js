@@ -78,6 +78,12 @@ class WalletDropdown extends Component {
     const { walletType } = queryString.parse(this.props.location.search)
     return (
       <PopperRenderer
+        offset='50px, -25px'
+        modifiers={{
+          flip: {
+            enabled: false
+          }
+        }}
         renderReference={() => (
           <div>
             <span onClick={this.onClickCurrentWallet}>

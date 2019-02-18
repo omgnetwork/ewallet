@@ -4,13 +4,14 @@ import { NavLink, withRouter } from 'react-router-dom'
 import { Avatar } from '../omg-uikit'
 import { useAccount } from '../omg-account/accountProvider'
 import styled from 'styled-components'
+import WalletDropdownChooser from './WalletDropdownChooser'
 const LinksContainer = styled.div`
   display: flex;
   margin-bottom: -1.5px;
   > a {
     display: block;
     padding: 0 10px;
-    > div {
+    > div:first-child {
       border-bottom: 2px solid transparent;
       padding: 30px 0;
     }
@@ -50,7 +51,7 @@ function AccountNavigationBar (props) {
           to={`/accounts/${props.match.params.accountId}/wallets`}
           activeClassName='navlink-active'
         >
-          <div>Wallets</div>
+          <WalletDropdownChooser />
         </NavLink>
         <NavLink
           to={`/accounts/${props.match.params.accountId}/transactions`}

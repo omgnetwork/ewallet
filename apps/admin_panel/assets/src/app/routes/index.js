@@ -28,6 +28,7 @@ import ActivityLogPage from '../../omg-page-activity-log'
 import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
 import AccountDetailSubPage from '../../omg-account-detail-V2/AccountDetailSubPage'
+import AccountWalletSubPage from '../../omg-account-detail-V2/AccountWalletSubPage'
 const currentAccount = getCurrentAccountFromLocalStorage()
 const redirectUrl = currentAccount ? '/accounts' : '/login'
 // prettier-ignore
@@ -53,11 +54,11 @@ const createRoute = () => (
 
       {/* SUB ACCOUNT PAGES */}
       <AuthenticatedRoute path='/accounts/:accountId/detail' exact component={AccountDetailSubPage} />
-      {/* <AuthenticatedRoute path='/accounts/:accountId/:tab' exact component={AccountTabPage} /> */}
-      <AuthenticatedRoute path='/:accountId/setting/:state' exact component={AccountSettingPage} />
+      <AuthenticatedRoute path='/accounts/:accountId/wallets' exact component={AccountWalletSubPage} />
       <AuthenticatedRoute path='/accounts/:accountId/wallets/:walletId' exact component={WalletDetailPage} />
 
-      <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
+      {/* SETTING */}
+      <AuthenticatedRoute path='/:accountId/setting/:state' exact component={AccountSettingPage} />
 
       {/* OVERVIEW */}
       <AuthenticatedRoute path='/users/:userId' exact component={UserDetailPage} />
@@ -68,6 +69,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/users' exact component={UserPage} />
       <AuthenticatedRoute path='/admins' exact component={AdminsPage} />
       <AuthenticatedRoute path='/admins/:adminId' exact component={AdminDetailPage} />
+      <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
 
       {/* 404 PAGE */}
       <Route component={NotFoundPage} />

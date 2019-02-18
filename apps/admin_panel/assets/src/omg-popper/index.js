@@ -5,7 +5,12 @@ export default class PopperRenderer extends Component {
   static propTypes = {
     renderReference: PropTypes.func,
     renderPopper: PropTypes.func,
-    open: PropTypes.bool
+    open: PropTypes.bool,
+    offset: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    modifiers: PropTypes.object
+  }
+  static defaultProps = {
+    offset: 0
   }
 
   render () {
@@ -25,12 +30,13 @@ export default class PopperRenderer extends Component {
             modifiers={{
               offset: {
                 enabled: true,
-                offset: 150
+                offset: this.props.offset
               },
               preventOverflow: {
                 enabled: true,
                 boundariesElement: document.getElementById('app')
-              }
+              },
+              ...this.props.modifiers
             }}
           >
             {({ ref, style, placement, arrowProps, outOfBoundaries }) => {
