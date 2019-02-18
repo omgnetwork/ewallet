@@ -44,7 +44,6 @@ defmodule ExternalLedgerDB.Wallet do
     field(:primary, :boolean, default: false)
     field(:type, :string)
     field(:public_key, :string)
-    field(:encrypted_private_key, ExternalLedgerDB.Encrypted.String)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, ExternalLedgerDB.Encrypted.Map, default: %{})
 
@@ -63,7 +62,6 @@ defmodule ExternalLedgerDB.Wallet do
       :primary,
       :type,
       :public_key,
-      :encrypted_private_key,
       :metadata,
       :encrypted_metadata
     ])
