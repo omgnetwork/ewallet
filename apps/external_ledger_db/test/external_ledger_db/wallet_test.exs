@@ -48,15 +48,6 @@ defmodule ExternalLedgerDB.WalletTest do
       row = Enum.at(results.rows, 0)
       assert <<1, 10, "AES.GCM.V1", _::binary>> = Enum.at(row, 0)
     end
-
-    test "saves the encrypted private key" do
-      :wallet |> build(encrypted_private_key: "the_private_key") |> Repo.insert()
-
-      {:ok, results} = SQL.query(Repo, "SELECT encrypted_private_key FROM wallet", [])
-
-      row = Enum.at(results.rows, 0)
-      assert <<1, 10, "AES.GCM.V1", _::binary>> = Enum.at(row, 0)
-    end
   end
 
   describe "validations" do
