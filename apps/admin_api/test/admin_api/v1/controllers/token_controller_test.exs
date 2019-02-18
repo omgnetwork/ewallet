@@ -187,7 +187,6 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided. More than 18 decimals."
     end
 
     test_with_auths "inserts a new token with no minting if amount is nil" do

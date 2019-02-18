@@ -52,7 +52,7 @@ defmodule AdminAPI.V1.TokenController do
     end
   end
 
-  def get(conn, _), do: handle_error(conn, :invalid_parameter)
+  def get(conn, _), do: handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
 
   @doc """
   Retrieves stats for a specific token.
