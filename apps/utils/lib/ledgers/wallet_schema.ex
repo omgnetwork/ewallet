@@ -23,5 +23,4 @@ defmodule Utils.Ledgers.WalletSchema do
   @callback get_or_insert(map()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   @callback insert(map()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   @callback touch([String.t()]) :: {integer(), nil | [term()]}
-  @callback lock([String.t()]) :: [Ecto.Schema.t()]
 end
