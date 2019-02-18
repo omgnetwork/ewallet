@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
-import { Button, Icon, Input } from '../omg-uikit'
+import { Button, Icon, Input, LoadingSkeleton } from '../omg-uikit'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -67,6 +67,13 @@ const PrefixContainer = styled.div`
     display: block;
     margin-top: 5px;
     color: ${props => (props.active ? props.theme.colors.BL400 : props.theme.colors.S500)};
+  }
+`
+
+const LoadingSkeletonContainer = styled.div`
+  margin-top: 50px;
+  > div {
+    margin-bottom: 20px;
   }
 `
 
@@ -238,7 +245,10 @@ class ConfigurationPage extends Component {
             awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value'),
             awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value'),
             balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value'),
-            balanceCachingResetFrequency: _.get(result.data.data, 'balance_caching_reset_frequency.value')
+            balanceCachingResetFrequency: _.get(
+              result.data.data,
+              'balance_caching_reset_frequency.value'
+            )
           },
           _.isNil
         )
@@ -542,13 +552,25 @@ class ConfigurationPage extends Component {
           secondaryAction={false}
           types={false}
         />
-        {!_.isEmpty(this.props.configurations) && (
+        {!_.isEmpty(this.props.configurations) ? (
           <form>
             {this.renderGlobalSetting(this.props.configurations)}
             {this.renderEmailSetting(this.props.configurations)}
             {this.renderFileStorageAdpter(this.props.configurations)}
             {this.renderCacheSetting(this.props.configurations)}
           </form>
+        ) : (
+          <LoadingSkeletonContainer>
+            <LoadingSkeleton width={'150px'} />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+          </LoadingSkeletonContainer>
         )}
       </ConfigurationPageContainer>
     )
