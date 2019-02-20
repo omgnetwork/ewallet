@@ -24,6 +24,13 @@ defmodule EWallet.GethSimulator do
   @symbol "0x" <> ("symbol()" |> ABI.encode([]) |> Base.encode16(case: :lower))
   @decimals "0x" <> ("decimals()" |> ABI.encode([]) |> Base.encode16(case: :lower))
 
+  @token_data %{
+    total_supply: 140_245_398_000_000_000_000_000_000,
+    name: "OmiseGO Mock Token by GethSimulator",
+    symbol: "OMGMOCK",
+    decimals: 18
+  }
+
   def start do
     bypass = Bypass.open(port: 8545)
 
@@ -48,12 +55,14 @@ defmodule EWallet.GethSimulator do
     end)
   end
 
+  def token_data, do: @token_data
+
   def eth_call(body) do
     case List.first(body["params"])["data"] do
-      @total_supply -> encode(140_245_398_000_000_000_000_000_000)
-      @name -> encode("OmiseGO Mock Token by GethSimulator")
-      @symbol -> encode("OMG")
-      @decimals -> encode(18)
+      @total_supply -> encode(@token_data.total_supply)
+      @name -> encode(@token_data.name)
+      @symbol -> encode(@token_data.symbol)
+      @decimals -> encode(@token_data.decimals)
     end
   end
 

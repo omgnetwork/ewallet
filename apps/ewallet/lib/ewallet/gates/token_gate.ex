@@ -101,10 +101,7 @@ defmodule EWallet.TokenGate do
          {:ok, contract_data} <- TemporaryAdapter.fetch_token(contract_address, adapter),
          name <- attrs["name"] || contract_data.name,
          symbol <- attrs["symbol"] || contract_data.symbol,
-         subunit_to_unit <-
-           attrs["subunit_to_unit"] || Unit.decimals_to_subunit(contract_data.decimals),
-         originator <- attrs["originator"],
-         account_uuid <- attrs["account_uuid"] || Account.get_master_account().uuid do
+         subunit_to_unit <- attrs["subunit_to_unit"] || Unit.decimals_to_subunit(contract_data.decimals) do
       {:ok,
        %{
          ledger: ExternalLedgerDB.identifier(),
@@ -113,8 +110,8 @@ defmodule EWallet.TokenGate do
          name: name,
          symbol: symbol,
          subunit_to_unit: subunit_to_unit,
-         originator: originator,
-         account_uuid: account_uuid
+         originator: attrs["originator"],
+         account_uuid: Account.get_master_account().uuid
        }}
     else
       :invalid_adapter ->
