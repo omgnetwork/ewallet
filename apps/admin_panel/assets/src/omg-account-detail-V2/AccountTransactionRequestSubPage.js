@@ -1,24 +1,24 @@
 import AccountLayout from './AccountLayout'
-import TransactionsPage from '../omg-page-transaction'
+import TransactionRequestPage from '../omg-page-transaction-request'
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
-function AccountTransactionSubPage (props) {
+function AccountTransactionRequestSubPage (props) {
   return (
-    <TransactionsPage
-      transferButton
+    <TransactionRequestPage
+      createTransactionRequestButton
       query={{
         matchAny: [
           {
-            field: 'from_account.id',
+            field: 'account.id',
             comparator: 'eq',
             value: props.match.params.accountId
           },
           {
-            field: 'to_account.id',
+            field: 'account.id',
             comparator: 'eq',
-            value: props.match.params.accountId
+            value: null
           }
         ]
       }}
@@ -26,8 +26,8 @@ function AccountTransactionSubPage (props) {
   )
 }
 
-AccountTransactionSubPage.propTypes = {
+AccountTransactionRequestSubPage.propTypes = {
   match: PropTypes.object
 }
 
-export default withRouter(AccountTransactionSubPage)
+export default withRouter(AccountTransactionRequestSubPage)

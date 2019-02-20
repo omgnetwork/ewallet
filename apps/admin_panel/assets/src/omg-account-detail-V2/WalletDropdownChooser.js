@@ -35,8 +35,7 @@ const NavLinkContainer = styled.div`
 `
 
 const enhance = compose(
-  withDropdownState,
-  withRouter
+  withDropdownState
 )
 class WalletDropdown extends Component {
   static propTypes = {

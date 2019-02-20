@@ -36,14 +36,12 @@ function AccountWalletSubPage (props) {
     }
   }
   return (
-    <AccountLayout>
-      <WalletsPage
-        transferButton
-        walletQuery={{
-          matchAny: getQuery()
-        }}
-      />
-    </AccountLayout>
+    <WalletsPage
+      transferButton
+      walletQuery={{
+        matchAny: getQuery()
+      }}
+    />
   )
 }
 

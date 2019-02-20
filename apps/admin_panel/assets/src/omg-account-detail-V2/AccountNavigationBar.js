@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { NavLink, withRouter } from 'react-router-dom'
 import { Avatar } from '../omg-uikit'
@@ -39,8 +39,13 @@ const AccountNavigationBarContainer = styled.div`
 // REACT HOOK EXPERIMENT
 function AccountNavigationBar (props) {
   const { account, loadingStatus } = useAccount(props.match.params.accountId)
+  const [ab, setAb] = useState(0)
+  function kuy (e) {
+    console.log(ab)
+    setAb(ab + 1)
+  }
   return (
-    <AccountNavigationBarContainer>
+    <AccountNavigationBarContainer onClick={e => kuy(e)}>
       <div>{loadingStatus === 'SUCCESS' && <Avatar name={account.name} />}</div>
       <LinksContainer>
         <NavLink
@@ -49,7 +54,7 @@ function AccountNavigationBar (props) {
         >
           <div className='account-link-text'>Details</div>
         </NavLink>
-        <WalletDropdownChooser />
+        <WalletDropdownChooser {...props} />
         <NavLink
           to={`/accounts/${props.match.params.accountId}/transactions`}
           activeClassName='navlink-active'

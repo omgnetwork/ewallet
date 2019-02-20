@@ -7,9 +7,7 @@ import { getUsersByAccountId } from '../omg-users/usersFetcher'
 
 function AccountTransactionSubPage (props) {
   return (
-    <AccountLayout>
-      <UserPage fetcher={getUsersByAccountId} accountId={props.match.params.accountId} />
-    </AccountLayout>
+    <UserPage fetcher={getUsersByAccountId} accountId={props.match.params.accountId} />
   )
 }
 

@@ -35,6 +35,7 @@ class AppLayout extends Component {
     children: PropTypes.node,
     location: PropTypes.object
   }
+
   scrollTopContentContainer = () => {
     this.contentContainer.scrollTo(0, 0)
   }
