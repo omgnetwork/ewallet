@@ -43,7 +43,10 @@ defmodule ExternalLedgerDB.Wallet do
     field(:adapter, :string)
     field(:primary, :boolean, default: false)
     field(:type, :string)
+
+    # Hex-encoded public key
     field(:public_key, :string)
+
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, ExternalLedgerDB.Encrypted.Map, default: %{})
 
