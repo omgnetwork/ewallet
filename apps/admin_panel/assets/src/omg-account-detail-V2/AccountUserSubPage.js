@@ -1,4 +1,3 @@
-import AccountLayout from './AccountLayout'
 import UserPage from '../omg-page-users'
 import React from 'react'
 import { withRouter } from 'react-router-dom'

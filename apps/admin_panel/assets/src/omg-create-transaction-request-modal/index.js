@@ -7,7 +7,7 @@ import { createTransactionRequest } from '../omg-transaction-request/action'
 import { connect } from 'react-redux'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import WalletsFetcher from '../omg-wallet/walletsFetcher'
-import { selectPrimaryWalletCurrentAccount } from '../omg-wallet/selector'
+import { selectPrimaryWalletByAccountId } from '../omg-wallet/selector'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import { formatAmount } from '../utils/formatter'
@@ -125,7 +125,9 @@ const CollapsableContent = styled.div`
 const enhance = compose(
   withRouter,
   connect(
-    state => ({ primaryWallet: selectPrimaryWalletCurrentAccount(state) }),
+    state => ({
+      primaryWallet: selectPrimaryWalletByAccountId(state)(this.props.match.params.accountId)
+    }),
     { createTransactionRequest }
   )
 )

@@ -1,5 +1,5 @@
 import AccountNavgiationBar from './AccountNavigationBar'
-import React from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Route, withRouter } from 'react-router-dom'
 import AccountWalletSubPage from './AccountWalletSubPage'
@@ -12,13 +12,8 @@ import AccountSettingSubPage from './AccountSettingSubPage'
 import AccountAdminSubPage from './AccountAdminSubPage'
 import { connect } from 'react-redux'
 
-class AccountLayout extends React.Component {
-  static propTypes = {
-    prop: PropTypes
-  }
-
+class AccountLayout extends Component {
   render () {
-    console.log('kuy')
     return (
       <div>
         <AccountNavgiationBar />
@@ -53,7 +48,7 @@ AccountLayout.propTypes = {
 
 export default withRouter(
   connect(
-    null,
+    state => console.log(state),
     {}
   )(AccountLayout)
 )

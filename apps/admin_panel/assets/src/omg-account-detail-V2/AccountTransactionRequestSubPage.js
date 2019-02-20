@@ -1,4 +1,3 @@
-import AccountLayout from './AccountLayout'
 import TransactionRequestPage from '../omg-page-transaction-request'
 import React from 'react'
 import { withRouter } from 'react-router-dom'

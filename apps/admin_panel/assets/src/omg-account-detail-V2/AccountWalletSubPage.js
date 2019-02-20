@@ -1,4 +1,3 @@
-import AccountLayout from './AccountLayout'
 import WalletsPage from '../omg-page-wallets'
 import React from 'react'
 import queryString from 'query-string'

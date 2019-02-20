@@ -2,7 +2,6 @@ import { combineReducers } from 'redux'
 import appReducer from '../app/reducer'
 import sessionReducer from '../omg-session/reducer'
 import { accountsReducer } from '../omg-account/reducer'
-import { currentAccountReducer } from '../omg-account-current/reducer'
 import { currentUserReducer } from '../omg-user-current/reducer'
 import { inviteListReducer } from '../omg-member/reducer'
 import { apiKeysReducer } from '../omg-api-keys/reducer'
@@ -30,7 +29,6 @@ export default combineReducers({
   session: sessionReducer,
   accounts: accountsReducer,
   accessKeys: accessKeysReducer,
-  currentAccount: currentAccountReducer,
   consumptions: consumptionsReducer,
   currentUser: currentUserReducer,
   inviteList: inviteListReducer,
