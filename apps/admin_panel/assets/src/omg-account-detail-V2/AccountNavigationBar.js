@@ -8,17 +8,19 @@ import WalletDropdownChooser from './WalletDropdownChooser'
 const LinksContainer = styled.div`
   display: flex;
   margin-bottom: -1.5px;
-  > a {
+  a {
     display: block;
     padding: 0 10px;
-    > div:first-child {
+    color: ${props => props.theme.colors.S500};
+    div.account-link-text {
       border-bottom: 2px solid transparent;
       padding: 30px 0;
     }
   }
-  .navlink-active {
-    > div {
-      border-bottom: 2px solid ${props => props.theme.colors.B100};
+  a.navlink-active {
+    color: ${props => props.theme.colors.B400};
+    div.account-link-text {
+      border-bottom: 2px solid ${props => props.theme.colors.S500};
     }
   }
 `
@@ -45,49 +47,50 @@ function AccountNavigationBar (props) {
           to={`/accounts/${props.match.params.accountId}/detail`}
           activeClassName='navlink-active'
         >
-          <div>Details</div>
+          <div className='account-link-text'>Details</div>
         </NavLink>
-        <NavLink
-          to={`/accounts/${props.match.params.accountId}/wallets`}
-          activeClassName='navlink-active'
-        >
-          <WalletDropdownChooser />
-        </NavLink>
+        <WalletDropdownChooser />
         <NavLink
           to={`/accounts/${props.match.params.accountId}/transactions`}
           activeClassName='navlink-active'
+          className='account-link'
         >
-          <div>Transactions</div>
+          <div className='account-link-text'>Transactions</div>
         </NavLink>
         <NavLink
           to={`/accounts/${props.match.params.accountId}/requests`}
           activeClassName='navlink-active'
+          className='account-link'
         >
-          <div>Requests</div>
+          <div className='account-link-text'>Requests</div>
         </NavLink>
         <NavLink
           to={`/accounts/${props.match.params.accountId}/consumptions`}
           activeClassName='navlink-active'
+          className='account-link'
         >
-          <div>Consumptions</div>
+          <div className='account-link-text'>Consumptions</div>
         </NavLink>
         <NavLink
           to={`/accounts/${props.match.params.accountId}/users`}
           activeClassName='navlink-active'
+          className='account-link'
         >
-          <div>Users</div>
+          <div className='account-link-text'>Users</div>
         </NavLink>
         <NavLink
           to={`/accounts/${props.match.params.accountId}/admins`}
           activeClassName='navlink-active'
+          className='account-link'
         >
-          <div>Admins</div>
+          <div className='account-link-text'>Admins</div>
         </NavLink>
         <NavLink
           to={`/accounts/${props.match.params.accountId}/setting`}
           activeClassName='navlink-active'
+          className='account-link'
         >
-          <div>Setting</div>
+          <div className='account-link-text'>Setting</div>
         </NavLink>
       </LinksContainer>
     </AccountNavigationBarContainer>
@@ -96,7 +99,8 @@ function AccountNavigationBar (props) {
 
 AccountNavigationBar.propTypes = {
   match: PropTypes.object,
-  location: PropTypes.object
+  location: PropTypes.object,
+  history: PropTypes.object
 }
 
 export default withRouter(AccountNavigationBar)

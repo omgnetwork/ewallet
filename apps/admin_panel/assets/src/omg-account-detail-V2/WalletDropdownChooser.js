@@ -6,7 +6,7 @@ import { Icon } from '../omg-uikit'
 import { DropdownBox } from '../omg-uikit/dropdown'
 import styled from 'styled-components'
 import { compose } from 'recompose'
-import { withRouter } from 'react-router-dom'
+import { withRouter, NavLink } from 'react-router-dom'
 import queryString from 'query-string'
 const DropdownItem = styled.div`
   padding: 7px 10px;
@@ -25,10 +25,18 @@ const DropdownItem = styled.div`
     margin-right: 5px;
   }
 `
+const NavLinkContainer = styled.div`
+  .account-link-text {
+    display: inline-block;
+    i {
+      margin-left: 5px;
+    }
+  }
+`
 
 const enhance = compose(
-  withRouter,
-  withDropdownState
+  withDropdownState,
+  withRouter
 )
 class WalletDropdown extends Component {
   static propTypes = {
@@ -69,6 +77,10 @@ class WalletDropdown extends Component {
       </DropdownBox>
     )
   }
+  onClickNavLink = e => {
+    // if clicking chevron, ignore the default
+    if (e.target.nodeName === 'I') e.preventDefault()
+  }
   render () {
     const nameMap = {
       all: 'All Wallets',
@@ -85,16 +97,22 @@ class WalletDropdown extends Component {
           }
         }}
         renderReference={() => (
-          <div>
-            <span onClick={this.onClickCurrentWallet}>
-              {nameMap[this.state.type || walletType] || nameMap.all}
-            </span>{' '}
-            {this.props.open ? (
-              <Icon name='Chevron-Up' onClick={this.props.onClickButton} />
-            ) : (
-              <Icon name='Chevron-Down' onClick={this.props.onClickButton} />
-            )}
-          </div>
+          <NavLinkContainer>
+            <NavLink
+              to={`/accounts/${this.props.match.params.accountId}/wallets`}
+              activeClassName='navlink-active'
+              onClick={this.onClickNavLink}
+            >
+              <div className='account-link-text'>
+                {nameMap[this.state.type || walletType] || nameMap.all}
+                {this.props.open ? (
+                  <Icon name='Chevron-Up' onClick={this.props.onClickButton} />
+                ) : (
+                  <Icon name='Chevron-Down' onClick={this.props.onClickButton} />
+                )}
+              </div>
+            </NavLink>
+          </NavLinkContainer>
         )}
         open={this.props.open}
         renderPopper={this.renderWalletDropdown}
