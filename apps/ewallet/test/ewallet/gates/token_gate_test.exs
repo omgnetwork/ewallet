@@ -71,6 +71,7 @@ defmodule EWallet.TokenGateTest do
 
     test "mints the token if amount is given as string" do
       amount = 1_000_000_000
+
       attrs = %{
         "symbol" => "OMG",
         "name" => "OmiseGO",
@@ -99,7 +100,11 @@ defmodule EWallet.TokenGateTest do
 
       assert res == :error
       assert error == :invalid_parameter
-      assert description == "Invalid parameter provided. String number is not a valid number: '#{attrs["amount"]}'."
+
+      assert description ==
+               "Invalid parameter provided. String number is not a valid number: '#{
+                 attrs["amount"]
+               }'."
     end
 
     test "returns error if the mint amount is zero" do
@@ -151,7 +156,9 @@ defmodule EWallet.TokenGateTest do
       assert %Token{} = token
       assert token.name == GethSimulator.token_data().name
       assert token.symbol == GethSimulator.token_data().symbol
-      assert token.subunit_to_unit == Unit.decimals_to_subunit(GethSimulator.token_data().decimals)
+
+      assert token.subunit_to_unit ==
+               Unit.decimals_to_subunit(GethSimulator.token_data().decimals)
     end
 
     test "imports the token with the overridden data" do
@@ -214,7 +221,9 @@ defmodule EWallet.TokenGateTest do
 
       assert res == :error
       assert code == :invalid_parameter
-      assert description == "Invalid parameter provided. `adapter` must be one of [\"ethereum\", \"omg_network\"]."
+
+      assert description ==
+               "Invalid parameter provided. `adapter` must be one of [\"ethereum\", \"omg_network\"]."
     end
 
     test "returns error if the adapter is invalid" do
@@ -232,7 +241,9 @@ defmodule EWallet.TokenGateTest do
 
       assert res == :error
       assert code == :invalid_parameter
-      assert description == "Invalid parameter provided. `adapter` must be one of [\"ethereum\", \"omg_network\"]."
+
+      assert description ==
+               "Invalid parameter provided. `adapter` must be one of [\"ethereum\", \"omg_network\"]."
     end
 
     test "returns error if the token name already exists" do
