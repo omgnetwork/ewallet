@@ -532,6 +532,46 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert response["data"]["ledger"] == ExternalLedgerDB.identifier()
       assert Token.get(response["data"]["id"])
     end
+
+    test_with_auths "returns error if `contract_address` is not provided" do
+      GethSimulator.start()
+
+      response =
+        request("/token.import", %{
+          # contract_address: "0x12345678",
+          adapter: "ethereum"
+        })
+
+      refute response["success"]
+
+      assert response["data"] == %{
+               "object" => "error",
+               "code" => "client:invalid_parameter",
+               "description" =>
+                 "Invalid parameter provided. `contract_address` and `adapter` are required.",
+               "messages" => nil
+             }
+    end
+
+    test_with_auths "returns error if `adapter` is not provided" do
+      GethSimulator.start()
+
+      response =
+        request("/token.import", %{
+          contract_address: "0x12345678"
+          # adapter: "ethereum"
+        })
+
+      refute response["success"]
+
+      assert response["data"] == %{
+               "object" => "error",
+               "code" => "client:invalid_parameter",
+               "description" =>
+                 "Invalid parameter provided. `contract_address` and `adapter` are required.",
+               "messages" => nil
+             }
+    end
   end
 
   describe "/token.update" do
