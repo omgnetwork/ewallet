@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { NavLink, withRouter } from 'react-router-dom'
 import { Avatar } from '../omg-uikit'
-import { useAccount } from '../omg-account/accountProvider'
+import AccountProvider from '../omg-account/accountProvider'
 import styled from 'styled-components'
 import WalletDropdownChooser from './WalletDropdownChooser'
 import { connect } from 'react-redux'
@@ -39,61 +39,60 @@ const AccountNavigationBarContainer = styled.div`
   }
 `
 
-const enhance = compose(
-  withRouter,
-  connect()
-)
-// REACT HOOK EXPERIMENT
+const enhance = compose(withRouter)
+
 function AccountNavigationBar (props) {
-  const { account, loadingStatus } = useAccount(props.match.params.accountId)
+  const accountId = props.match.params.accountId
   return (
     <AccountNavigationBarContainer>
-      <div>{loadingStatus === 'SUCCESS' && <Avatar name={account.name} />}</div>
+      <AccountProvider
+        accountId={accountId}
+        render={({ account }) => {
+          return <div>{account && <Avatar name={account.name} />}</div>
+        }}
+      />
       <LinksContainer>
-        <NavLink
-          to={`/accounts/${props.match.params.accountId}/detail`}
-          activeClassName='navlink-active'
-        >
+        <NavLink to={`/accounts/${accountId}/detail`} activeClassName='navlink-active'>
           <div className='account-link-text'>Details</div>
         </NavLink>
         <WalletDropdownChooser {...props} />
         <NavLink
-          to={`/accounts/${props.match.params.accountId}/transactions`}
+          to={`/accounts/${accountId}/transactions`}
           activeClassName='navlink-active'
           className='account-link'
         >
           <div className='account-link-text'>Transactions</div>
         </NavLink>
         <NavLink
-          to={`/accounts/${props.match.params.accountId}/requests`}
+          to={`/accounts/${accountId}/requests`}
           activeClassName='navlink-active'
           className='account-link'
         >
           <div className='account-link-text'>Requests</div>
         </NavLink>
         <NavLink
-          to={`/accounts/${props.match.params.accountId}/consumptions`}
+          to={`/accounts/${accountId}/consumptions`}
           activeClassName='navlink-active'
           className='account-link'
         >
           <div className='account-link-text'>Consumptions</div>
         </NavLink>
         <NavLink
-          to={`/accounts/${props.match.params.accountId}/users`}
+          to={`/accounts/${accountId}/users`}
           activeClassName='navlink-active'
           className='account-link'
         >
           <div className='account-link-text'>Users</div>
         </NavLink>
         <NavLink
-          to={`/accounts/${props.match.params.accountId}/admins`}
+          to={`/accounts/${accountId}/admins`}
           activeClassName='navlink-active'
           className='account-link'
         >
           <div className='account-link-text'>Admins</div>
         </NavLink>
         <NavLink
-          to={`/accounts/${props.match.params.accountId}/setting`}
+          to={`/accounts/${accountId}/setting`}
           activeClassName='navlink-active'
           className='account-link'
         >
