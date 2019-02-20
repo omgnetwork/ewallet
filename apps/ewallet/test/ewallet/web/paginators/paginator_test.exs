@@ -76,27 +76,31 @@ defmodule EWallet.Web.PaginatorTest do
 
     test "returns :error if given attrs.page is a negative integer" do
       result = Paginator.paginate_attrs(Account, %{"page" => -1})
-      assert {:error, :invalid_parameter, _} = result
+      assert {:error, :invalid_parameter, "`page` must be non-negative integer"} = result
     end
 
     test "returns :error if given attrs.page is an invalid integer string" do
       result = Paginator.paginate_attrs(Account, %{"page" => "page what?"})
-      assert {:error, :invalid_parameter, _} = result
+      assert {:error, :invalid_parameter, "`page` must be non-negative integer"} = result
     end
 
     test "returns :error if given attrs.per_page is a negative integer" do
       result = Paginator.paginate_attrs(Account, %{"per_page" => -1})
-      assert {:error, :invalid_parameter, _} = result
+
+      assert {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"} =
+               result
     end
 
     test "returns :error if given attrs.per_page is zero" do
       result = Paginator.paginate_attrs(Account, %{"per_page" => 0})
-      assert {:error, :invalid_parameter, _} = result
+
+      assert {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"} =
+               result
     end
 
     test "returns :error if given attrs.per_page is a string" do
       result = Paginator.paginate_attrs(Account, %{"per_page" => "per page what?"})
-      assert {:error, :invalid_parameter, _} = result
+      assert {:error, :invalid_parameter, "`per_page` must be non-negative integer"} = result
     end
 
     test "returns :error if given both attrs.start_after and attrs.page" do
@@ -107,7 +111,7 @@ defmodule EWallet.Web.PaginatorTest do
           "start_after" => "acc_1234"
         })
 
-      assert {:error, :invalid_parameter, _} = result
+      assert {:error, :invalid_parameter, "`page` cannot be used with `start_after`"} = result
     end
   end
 
