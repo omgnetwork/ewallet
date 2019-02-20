@@ -284,6 +284,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
           Account,
           %{
             "start_by" => "id",
+            "sort_by" => "id",
             "start_after" => first_id,
             "per_page" => per_page
           }
@@ -325,6 +326,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
           Account,
           %{
             "start_by" => "id",
+            "sort_by" => "id",
             "start_after" => {:ok, nil},
             "per_page" => per_page
           }
@@ -354,7 +356,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       paginator =
         StartAfterPaginator.paginate(
           Account,
-          %{"start_by" => "id", "start_after" => "1", "per_page" => per_page}
+          %{"start_by" => "id", "start_after" => "1", "sort_by" => "id", "per_page" => per_page}
         )
 
       assert paginator === {:error, :unauthorized}

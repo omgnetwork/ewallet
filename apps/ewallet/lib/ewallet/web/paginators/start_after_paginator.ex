@@ -289,10 +289,7 @@ defmodule EWallet.Web.StartAfterPaginator do
     parse_get_offset(result)
   end
 
-  def get_offset(
-        queryable,
-        %{"start_after" => start_after, "start_by" => start_by} = attrs
-      ) do
+  def get_offset(queryable, %{"start_after" => start_after, "start_by" => start_by} = attrs) do
     sort_dir = Map.get(attrs, "sort_dir", "asc")
     sort_by = Map.get(attrs, "sort_by", start_by)
 
@@ -331,31 +328,17 @@ defmodule EWallet.Web.StartAfterPaginator do
     })
   end
 
-  defp get_queryable_order_by(queryable, %{
-         "start_by" => _,
-         "sort_dir" => "desc",
-         "sort_by" => sort_by
-       }) do
+  defp get_queryable_order_by(queryable, %{"sort_dir" => "desc", "sort_by" => sort_by}) do
     sort_by = String.to_atom(sort_by)
 
     queryable
     |> order_by(desc: ^sort_by)
   end
 
-  defp get_queryable_order_by(queryable, %{
-         "start_by" => _,
-         "sort_by" => sort_by
-       }) do
+  defp get_queryable_order_by(queryable, %{"sort_by" => sort_by}) do
     sort_by = String.to_atom(sort_by)
 
     queryable
     |> order_by(asc: ^sort_by)
-  end
-
-  defp get_queryable_order_by(queryable, %{"start_by" => start_by}) do
-    order_by = String.to_atom(start_by)
-
-    queryable
-    |> order_by(asc: ^order_by)
   end
 end
