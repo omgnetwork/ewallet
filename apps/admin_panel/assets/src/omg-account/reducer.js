@@ -9,10 +9,10 @@ export const accountsReducer = createReducer(
     'ACCOUNT/CREATE/SUCCESS': (state, { data }) => {
       return { ...state, ...{ [data.id]: data } }
     },
-    'ACCOUNT/REQUEST/SUCCESS': (state, { data }) => {
+    'ACCOUNT/UPDATE/SUCCESS': (state, { data }) => {
       return { ...state, ...{ [data.id]: data } }
     },
-    'CURRENT_ACCOUNT/UPDATE/SUCCESS': (state, { data }) => {
+    'ACCOUNT/REQUEST/SUCCESS': (state, { data }) => {
       return { ...state, ...{ [data.id]: data } }
     }
   }

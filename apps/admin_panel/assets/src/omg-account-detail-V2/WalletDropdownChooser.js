@@ -77,7 +77,7 @@ class WalletDropdown extends Component {
     )
   }
   onClickNavLink = e => {
-    // if clicking chevron, ignore the default
+    // if clicking chevron, ignore the default clicking event from a tag
     if (e.target.nodeName === 'I') e.preventDefault()
   }
   render () {

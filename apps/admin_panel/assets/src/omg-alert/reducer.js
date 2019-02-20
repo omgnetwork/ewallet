@@ -49,7 +49,7 @@ export const alertsReducer = createReducer([], {
   'TOKEN/MINT/SUCCESS': state => {
     return [...state, createAlertState('Minted token successfully.', 'success')]
   },
-  'CURRENT_ACCOUNT/UPDATE/SUCCESS': state => {
+  'ACCOUNT/UPDATE/SUCCESS': state => {
     return [...state, createAlertState('Updated account successfully.', 'success')]
   },
   'INVITE/REQUEST/SUCCESS': state => {
@@ -101,9 +101,6 @@ export const alertsReducer = createReducer([], {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
   'ACCESS_KEY/CREATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'CURRENT_ACCOUNT/UPDATE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
   'INVITE/REQUEST/FAILED': (state, { error }) => {

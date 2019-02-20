@@ -3,11 +3,8 @@ import styled from 'styled-components'
 import { Input, Button, Icon } from '../omg-uikit'
 import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { getCurrentAccount, updateCurrentAccount } from '../omg-account-current/action'
-import {
-  selectCurrentAccountLoadingStatus,
-  selectCurrentAccount
-} from '../omg-account-current/selector'
+import { getAccountById, updateAccount } from '../omg-account/action'
+import { selectGetAccountById } from '../omg-account/selector'
 import { withRouter } from 'react-router-dom'
 import InviteModal from '../omg-invite-modal'
 import { connect } from 'react-redux'
@@ -69,19 +66,18 @@ export const NameColumn = styled.div`
 const enhance = compose(
   withRouter,
   connect(
-    state => ({
-      loadingStatus: selectCurrentAccountLoadingStatus(state),
-      currentAccount: selectCurrentAccount(state)
+    (state, props) => ({
+      currentAccount: selectGetAccountById(state)(props.match.params.accountId)
     }),
-    { updateCurrentAccount, getCurrentAccount }
+    { getAccountById, updateAccount }
   )
 )
 
 class AccountSettingPage extends Component {
   static propTypes = {
     match: PropTypes.object,
-    updateCurrentAccount: PropTypes.func.isRequired,
-    loadingStatus: PropTypes.string,
+    getAccountById: PropTypes.func.isRequired,
+    updateAccount: PropTypes.func,
     currentAccount: PropTypes.object,
     location: PropTypes.object
   }
@@ -100,14 +96,14 @@ class AccountSettingPage extends Component {
     this.setInitialAccountState()
   }
   async setInitialAccountState () {
-    if (this.props.loadingStatus === 'SUCCESS') {
+    if (this.props.currentAccount) {
       this.setState({
         name: this.props.currentAccount.name,
         description: this.props.currentAccount.description,
         avatar: this.props.currentAccount.avatar.original
       })
     } else {
-      const result = await this.props.getCurrentAccount(this.props.match.params.accountId)
+      const result = await this.props.getAccountById(this.props.match.params.accountId)
       if (result.data) {
         this.setState({
           name: result.data.name,
@@ -136,7 +132,7 @@ class AccountSettingPage extends Component {
     e.preventDefault()
     this.setState({ submitStatus: 'SUBMITTING' })
     try {
-      const result = await this.props.updateCurrentAccount({
+      const result = await this.props.updateAccount({
         accountId: this.props.match.params.accountId,
         name: this.state.name,
         description: this.state.description,
@@ -190,7 +186,7 @@ class AccountSettingPage extends Component {
   renderAccountSettingTab () {
     return (
       <ProfileSection>
-        {this.props.loadingStatus === 'SUCCESS' && (
+        {this.props.currentAccount && (
           <form onSubmit={this.onClickUpdateAccount} noValidate>
             <Avatar
               onChangeImage={this.onChangeImage}

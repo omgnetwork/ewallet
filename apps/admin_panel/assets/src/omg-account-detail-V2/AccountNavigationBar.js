@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { NavLink, withRouter } from 'react-router-dom'
 import { Avatar } from '../omg-uikit'
 import { useAccount } from '../omg-account/accountProvider'
 import styled from 'styled-components'
 import WalletDropdownChooser from './WalletDropdownChooser'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
 const LinksContainer = styled.div`
   display: flex;
   margin-bottom: -1.5px;
@@ -36,16 +38,16 @@ const AccountNavigationBarContainer = styled.div`
     flex: 0 0 auto;
   }
 `
+
+const enhance = compose(
+  withRouter,
+  connect()
+)
 // REACT HOOK EXPERIMENT
 function AccountNavigationBar (props) {
   const { account, loadingStatus } = useAccount(props.match.params.accountId)
-  const [ab, setAb] = useState(0)
-  function kuy (e) {
-    console.log(ab)
-    setAb(ab + 1)
-  }
   return (
-    <AccountNavigationBarContainer onClick={e => kuy(e)}>
+    <AccountNavigationBarContainer>
       <div>{loadingStatus === 'SUCCESS' && <Avatar name={account.name} />}</div>
       <LinksContainer>
         <NavLink
@@ -103,9 +105,7 @@ function AccountNavigationBar (props) {
 }
 
 AccountNavigationBar.propTypes = {
-  match: PropTypes.object,
-  location: PropTypes.object,
-  history: PropTypes.object
+  match: PropTypes.object
 }
 
-export default withRouter(AccountNavigationBar)
+export default enhance(AccountNavigationBar)
