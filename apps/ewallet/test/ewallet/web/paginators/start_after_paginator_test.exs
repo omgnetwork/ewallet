@@ -24,52 +24,43 @@ defmodule EWallet.Web.StartFromPaginatorTest do
 
   describe "EWallet.Web.Paginator.paginate_attrs/2" do
     test "returns :error if given `start_by` is not either a string or an atom" do
-      result =
-        StartAfterPaginator.paginate_attrs(Account, %{"per_page" => 10, "start_by" => 1}, [:id])
+      attrs = %{"per_page" => 10, "start_by" => 1}
 
-      assert {:error, :invalid_parameter, _} = result
+      result = StartAfterPaginator.paginate_attrs(Account, attrs, [:id])
+
+      assert {:error, :invalid_parameter, "`start_by` must be a string"} = result
     end
 
     test "returns :error if given `start_by` is not valid and missing `start_after` field" do
-      result =
-        StartAfterPaginator.paginate_attrs(Account, %{"per_page" => 10, "start_by" => "name"}, [
-          :id
-        ])
+      attrs = %{"per_page" => 10, "start_by" => "name"}
 
-      assert {:error, :invalid_parameter, _} = result
+      result = StartAfterPaginator.paginate_attrs(Account, attrs, [:id])
+
+      assert {:error, :invalid_parameter,
+              "start_by: `name` is not allowed. The available fields are: [id]"} = result
     end
 
     test "returns :error if given `start_by` is not valid and `start_after` is nil" do
-      result =
-        StartAfterPaginator.paginate_attrs(
-          Account,
-          %{"per_page" => 10, "start_by" => "name", "start_after" => nil},
-          [
-            :id
-          ]
-        )
+      attrs = %{"per_page" => 10, "start_by" => "name", "start_after" => nil}
 
-      assert {:error, :invalid_parameter, _} = result
+      result = StartAfterPaginator.paginate_attrs(Account, attrs, [:id])
+
+      assert {:error, :invalid_parameter,
+              "start_by: `name` is not allowed. The available fields are: [id]"} = result
     end
 
     test "returns :error if given `start_after` doesn't exist and `start_by` is valid" do
-      result =
-        StartAfterPaginator.paginate_attrs(
-          Account,
-          %{"start_after" => "acc_not_exist", "start_by" => "id", "per_page" => 10},
-          [:id]
-        )
+      attrs = %{"start_after" => "acc_not_exist", "start_by" => "id", "per_page" => 10}
+
+      result = StartAfterPaginator.paginate_attrs(Account, attrs, [:id])
 
       assert {:error, :unauthorized} = result
     end
 
     test "returns pagination if given `start_after` is nil and `start_by` is valid" do
-      result =
-        StartAfterPaginator.paginate_attrs(
-          Account,
-          %{"start_after" => nil, "start_by" => "id", "per_page" => 10},
-          [:id]
-        )
+      attrs = %{"start_after" => nil, "start_by" => "id", "per_page" => 10}
+
+      result = StartAfterPaginator.paginate_attrs(Account, attrs, [:id])
 
       %Paginator{data: _, pagination: pagination} = result
       assert pagination.start_after == nil
@@ -78,12 +69,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
     end
 
     test "returns pagination if given `start_after` is nil and `start_by` is nil" do
-      result =
-        StartAfterPaginator.paginate_attrs(
-          Account,
-          %{"start_after" => nil, "start_by" => nil, "per_page" => 10},
-          [:id]
-        )
+      attrs = %{"start_after" => nil, "start_by" => nil, "per_page" => 10}
+
+      result = StartAfterPaginator.paginate_attrs(Account, attrs, [:id])
 
       %Paginator{data: _, pagination: pagination} = result
       assert pagination.start_after == nil
@@ -98,12 +86,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
 
       [record_id | _] = Repo.all(record_id)
 
-      result =
-        StartAfterPaginator.paginate_attrs(
-          Account,
-          %{"start_after" => record_id, "start_by" => "id", "per_page" => 10},
-          [:id]
-        )
+      attrs = %{"start_after" => record_id, "start_by" => "id", "per_page" => 10}
+
+      result = StartAfterPaginator.paginate_attrs(Account, attrs, [:id])
 
       %Paginator{data: _, pagination: pagination} = result
       assert pagination.start_after == record_id
@@ -119,12 +104,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
 
       [record_id | _] = Repo.all(record_id)
 
-      result =
-        StartAfterPaginator.paginate_attrs(
-          Account,
-          %{"start_after" => record_id, "start_by" => nil, "per_page" => 10},
-          [:id]
-        )
+      attrs = %{"start_after" => record_id, "start_by" => nil, "per_page" => 10}
+
+      result = StartAfterPaginator.paginate_attrs(Account, attrs, [:id])
 
       %Paginator{data: _, pagination: pagination} = result
       assert pagination.start_after == record_id
@@ -142,12 +124,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         iats
         |> Repo.all()
 
-      paginator =
-        StartAfterPaginator.paginate_attrs(
-          Account,
-          %{"start_after" => iat, "start_by" => "inserted_at", "per_page" => 5},
-          @default_allowed_fields
-        )
+      attrs = %{"start_after" => iat, "start_by" => "inserted_at", "per_page" => 5}
+
+      paginator = StartAfterPaginator.paginate_attrs(Account, attrs, @default_allowed_fields)
 
       assert paginator.pagination.per_page == 5
       assert paginator.pagination.count == 1
@@ -162,10 +141,12 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         iats
         |> Repo.all()
 
+      attrs = %{"start_after" => iat, "start_by" => "created_at", "per_page" => 5}
+
       paginator =
         StartAfterPaginator.paginate_attrs(
           Account,
-          %{"start_after" => iat, "start_by" => "created_at", "per_page" => 5},
+          attrs,
           @default_allowed_fields,
           Repo,
           @default_mapped_fields
@@ -183,12 +164,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         uats
         |> Repo.all()
 
-      paginator =
-        StartAfterPaginator.paginate_attrs(
-          Account,
-          %{"start_after" => uat, "start_by" => "updated_at", "per_page" => 5},
-          @default_allowed_fields
-        )
+      attrs = %{"start_after" => uat, "start_by" => "updated_at", "per_page" => 5}
+
+      paginator = StartAfterPaginator.paginate_attrs(Account, attrs, @default_allowed_fields)
 
       assert paginator.pagination.per_page == 5
       assert paginator.pagination.count == 1
@@ -205,11 +183,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         records
         |> Repo.all()
 
-      offset =
-        StartAfterPaginator.get_offset(
-          Account,
-          %{"start_by" => "id", "start_after" => first.id}
-        )
+      attrs = %{"start_by" => "id", "start_after" => first.id}
+
+      offset = StartAfterPaginator.get_offset(Account, attrs)
 
       assert offset == 1
     end
@@ -223,11 +199,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         records
         |> Repo.all()
 
-      offset =
-        StartAfterPaginator.get_offset(
-          Account,
-          %{"start_by" => "id", "start_after" => first.id, "sort_by" => "name"}
-        )
+      attrs = %{"start_by" => "id", "start_after" => first.id, "sort_by" => "name"}
+
+      offset = StartAfterPaginator.get_offset(Account, attrs)
 
       assert offset == 1
     end
@@ -236,10 +210,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       ensure_num_records(Account, 10)
 
       offset =
-        StartAfterPaginator.get_offset(
-          Account,
-          %{"start_after" => nil, "start_by" => "id"}
-        )
+        StartAfterPaginator.get_offset(Account, %{"start_after" => nil, "start_by" => "id"})
 
       assert offset == 0
     end
@@ -247,11 +218,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
     test "returns offset 0 if the given `start_after` is not found" do
       ensure_num_records(Account, 10)
 
-      offset =
-        StartAfterPaginator.get_offset(
-          Account,
-          %{"start_after" => "404", "start_by" => "id"}
-        )
+      attrs = %{"start_after" => "404", "start_by" => "id"}
+
+      offset = StartAfterPaginator.get_offset(Account, attrs)
 
       assert offset == 0
     end
@@ -279,16 +248,14 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       # Example: ["acc_6" | ids]
       [first_id | ids] = records_id
 
-      paginator =
-        StartAfterPaginator.paginate(
-          Account,
-          %{
-            "start_by" => "id",
-            "sort_by" => "id",
-            "start_after" => first_id,
-            "per_page" => per_page
-          }
-        )
+      attrs = %{
+        "start_by" => "id",
+        "sort_by" => "id",
+        "start_after" => first_id,
+        "per_page" => per_page
+      }
+
+      paginator = StartAfterPaginator.paginate(Account, attrs)
 
       # Collect id-mapped paginator.data
       actual_records_id =
@@ -321,16 +288,14 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         records_id
         |> Repo.all()
 
-      paginator =
-        StartAfterPaginator.paginate(
-          Account,
-          %{
-            "start_by" => "id",
-            "sort_by" => "id",
-            "start_after" => {:ok, nil},
-            "per_page" => per_page
-          }
-        )
+      attrs = %{
+        "start_by" => "id",
+        "sort_by" => "id",
+        "start_after" => {:ok, nil},
+        "per_page" => per_page
+      }
+
+      paginator = StartAfterPaginator.paginate(Account, attrs)
 
       # Collect id-mapped paginator.data
       actual_records_id =
@@ -353,11 +318,14 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       per_page = 10
       ensure_num_records(Account, total)
 
-      paginator =
-        StartAfterPaginator.paginate(
-          Account,
-          %{"start_by" => "id", "start_after" => "1", "sort_by" => "id", "per_page" => per_page}
-        )
+      attrs = %{
+        "start_by" => "id",
+        "start_after" => "1",
+        "sort_by" => "id",
+        "per_page" => per_page
+      }
+
+      paginator = StartAfterPaginator.paginate(Account, attrs)
 
       assert paginator === {:error, :unauthorized}
     end
