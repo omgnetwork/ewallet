@@ -77,32 +77,15 @@ defmodule EWallet.Web.StartAfterPaginator do
 
   def paginate_attrs(
         queryable,
-        %{"start_after" => nil, "start_by" => start_by} = attrs,
+        attrs,
         allowed_fields,
         repo,
         default_mapped_fields
-      )
-      when start_by != nil do
-    attrs = Map.put(attrs, "start_after", {:ok, nil})
-    paginate_attrs(queryable, attrs, allowed_fields, repo, default_mapped_fields)
-  end
+      ) do
+    default_field = Atom.to_string(hd(allowed_fields))
 
-  def paginate_attrs(
-        queryable,
-        %{
-          "start_after" => _,
-          "start_by" => start_by,
-          "per_page" => _
-        } = attrs,
-        allowed_fields,
-        repo,
-        default_mapped_fields
-      )
-      when start_by != nil do
-    sort_by = Map.get(attrs, "sort_by", start_by)
-
-    sort_by = map_field(sort_by, default_mapped_fields)
-    start_by = map_field(start_by, default_mapped_fields)
+    sort_by = map_attr(attrs, "sort_by", default_field, default_mapped_fields)
+    start_by = map_attr(attrs, "start_by", default_field, default_mapped_fields)
 
     attrs =
       attrs
@@ -126,35 +109,23 @@ defmodule EWallet.Web.StartAfterPaginator do
     end
   end
 
-  # Resolve `start_by` by set default value or parse string
-  def paginate_attrs(
-        queryable,
-        %{"start_after" => _} = attrs,
-        allowed_fields,
-        repo,
-        default_mapped_fields
-      ) do
-    attrs = get_start_by_attrs(attrs, allowed_fields)
-    paginate_attrs(queryable, attrs, allowed_fields, repo, default_mapped_fields)
+  def map_attr(attrs, key, default, mapping) do
+    attrs[key]
+    |> map_default(default)
+    |> map_field(mapping)
   end
 
-  # Resolve `start_after` by set default value to nil.
-  def paginate_attrs(queryable, attrs, allowed_fields, repo, default_mapped_fields) do
-    attrs = Map.put(attrs, "start_after", nil)
-    paginate_attrs(queryable, attrs, allowed_fields, repo, default_mapped_fields)
+  defp map_default(original, default) do
+    case original do
+      nil -> default
+      any -> any
+    end
   end
 
   defp map_field(original, mapping) do
     case mapping[original] do
       nil -> original
       mapped -> mapped
-    end
-  end
-
-  defp get_start_by_attrs(attrs, [field | _allowed_fields]) do
-    case Map.get(attrs, "start_by") do
-      nil -> Map.put(attrs, "start_by", Atom.to_string(field))
-      _ -> attrs
     end
   end
 
@@ -165,7 +136,7 @@ defmodule EWallet.Web.StartAfterPaginator do
   def paginate(queryable, attrs, repo \\ Repo)
 
   # Returns :error if the record with `start_after` value is not found.
-  def paginate(_, %{"start_after" => {:error}}, _), do: {:error, :unauthorized}
+  def paginate(_, %{"start_after" => :error}, _), do: {:error, :unauthorized}
 
   # Query and returns `Paginator`
   def paginate(
@@ -214,19 +185,18 @@ defmodule EWallet.Web.StartAfterPaginator do
     pure_queryable = exclude(queryable, :where)
 
     start_after =
-      if repo.get_by(pure_queryable, condition) != nil do
-        {:ok, start_after}
-      else
-        {:error}
+      cond do
+        start_after == nil ->
+          {:ok, nil}
+
+        repo.get_by(pure_queryable, condition) != nil ->
+          {:ok, start_after}
+
+        true ->
+          :error
       end
 
-    attrs = Map.put(attrs, "start_after", start_after)
-
-    paginate(
-      queryable,
-      attrs,
-      repo
-    )
+    paginate(queryable, %{attrs | "start_after" => start_after}, repo)
   end
 
   defp fetch(queryable, per_page, repo) do
