@@ -382,7 +382,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       assert sort_by == "inserted_at"
 
       # Assert default value exists in the `@default_mapped_fields`
-      start_by = StartAfterPaginator.map_attr(attrs, "start_by", "created_at", @default_mapped_fields)
+      start_by =
+        StartAfterPaginator.map_attr(attrs, "start_by", "created_at", @default_mapped_fields)
+
       assert start_by == "inserted_at"
     end
 
