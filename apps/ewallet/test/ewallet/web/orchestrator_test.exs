@@ -93,9 +93,9 @@ defmodule EWallet.Web.OrchestratorTest do
       # Is it name-descending sorted?
       name_desc_records =
         records
+        |> Enum.map(fn record -> record.name end)
         |> Enum.sort()
         |> Enum.reverse()
-        |> Enum.map(fn record -> record.name end)
 
       assert name_desc_records == Enum.map(data, fn record -> record.name end)
     end
