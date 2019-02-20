@@ -360,4 +360,37 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       assert paginator === {:error, :unauthorized}
     end
   end
+
+  describe "EWallet.Web.StartAfterPaginator.map_fields/2" do
+    test "returns default field when the value is nil" do
+      attrs = %{"sort_by" => nil}
+
+      # Assert nil value
+      sort_by = StartAfterPaginator.map_attr(attrs, "sort_by", "id", @default_mapped_fields)
+      assert sort_by == "id"
+
+      # Assert non-existing value
+      start_by = StartAfterPaginator.map_attr(attrs, "start_by", "id", @default_mapped_fields)
+      assert start_by == "id"
+    end
+
+    test "returns mapped field when the value exists the mapping" do
+      attrs = %{"sort_by" => "created_at", "start_by" => nil}
+
+      # Assert original value exists in the `@default_mapped_fields`
+      sort_by = StartAfterPaginator.map_attr(attrs, "sort_by", "id", @default_mapped_fields)
+      assert sort_by == "inserted_at"
+
+      # Assert default value exists in the `@default_mapped_fields`
+      start_by = StartAfterPaginator.map_attr(attrs, "start_by", "created_at", @default_mapped_fields)
+      assert start_by == "inserted_at"
+    end
+
+    test "returns original value when the value is non-nil and non-exist in the mapping" do
+      attrs = %{"sort_by" => "id"}
+
+      sort_by = StartAfterPaginator.map_attr(attrs, "sort_by", "name", @default_mapped_fields)
+      assert sort_by == "id"
+    end
+  end
 end
