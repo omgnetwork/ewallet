@@ -129,37 +129,18 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       assert response["success"] == true
       data = response["data"]["data"]
 
-      assert data["max_per_page"] == %{
-               "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
-               "messages" => %{"value" => ["invalid_type_for_value"]},
-               "object" => "error"
-             }
+      error = %{
+        "code" => "client:invalid_parameter",
+        "description" =>
+          "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
+        "messages" => %{"value" => ["invalid_type_for_value"]},
+        "object" => "error"
+      }
 
-      assert data["min_password_length"] == %{
-               "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
-               "messages" => %{"value" => ["invalid_type_for_value"]},
-               "object" => "error"
-             }
-
-      assert data["forget_password_request_lifetime"] == %{
-               "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
-               "messages" => %{"value" => ["invalid_type_for_value"]},
-               "object" => "error"
-             }
-
-      assert data["balance_caching_reset_frequency"] == %{
-               "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
-               "messages" => %{"value" => ["invalid_type_for_value"]},
-               "object" => "error"
-             }
+      assert data["max_per_page"] == error
+      assert data["min_password_length"] == error
+      assert data["forget_password_request_lifetime"] == error
+      assert data["balance_caching_reset_frequency"] == error
     end
 
     test_with_auths "updates negative integer for all unsigned_integer settings", context do
@@ -175,37 +156,18 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       assert response["success"] == true
       data = response["data"]["data"]
 
-      assert data["max_per_page"] == %{
-               "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
-               "messages" => %{"value" => ["invalid_type_for_value"]},
-               "object" => "error"
-             }
+      error = %{
+        "code" => "client:invalid_parameter",
+        "description" =>
+          "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
+        "messages" => %{"value" => ["invalid_type_for_value"]},
+        "object" => "error"
+      }
 
-      assert data["min_password_length"] == %{
-               "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
-               "messages" => %{"value" => ["invalid_type_for_value"]},
-               "object" => "error"
-             }
-
-      assert data["forget_password_request_lifetime"] == %{
-               "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
-               "messages" => %{"value" => ["invalid_type_for_value"]},
-               "object" => "error"
-             }
-
-      assert data["balance_caching_reset_frequency"] == %{
-               "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
-               "messages" => %{"value" => ["invalid_type_for_value"]},
-               "object" => "error"
-             }
+      assert data["max_per_page"] == error
+      assert data["min_password_length"] == error
+      assert data["forget_password_request_lifetime"] == error
+      assert data["balance_caching_reset_frequency"] == error
     end
 
     test_with_auths "reloads app env", context do
