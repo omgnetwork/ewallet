@@ -33,7 +33,13 @@ defmodule EWalletDB.Role do
       categories: %{all: :global, get: :global},
       memberships: %{all: :accounts, get: :accounts, create: :accounts, delete: :accounts},
       admin_users: %{all: :accounts, get: :accounts, create: :accounts, update: :accounts},
-      end_users: %{all: :accounts, get: :accounts, create: :accounts, update: :accounts},
+      end_users: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts,
+        update: :accounts
+      },
       access_keys: %{
         all: :accounts,
         get: :accounts,
@@ -53,6 +59,7 @@ defmodule EWalletDB.Role do
       account_wallets: %{
         all: :global,
         get: :global,
+        listen: :accounts,
         view_balance: :accounts,
         create: :accounts,
         update: :accounts
@@ -60,26 +67,49 @@ defmodule EWalletDB.Role do
       end_user_wallets: %{
         all: :global,
         get: :global,
+        listen: :accounts,
         view_balance: :accounts,
         create: :accounts,
         update: :accounts
       },
-      account_transactions: %{all: :accounts, get: :accounts, create: :accounts},
-      end_user_transactions: %{all: :accounts, get: :accounts, create: :accounts},
+      account_transactions: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts
+      },
+      end_user_transactions: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts
+      },
       account_transaction_requests: %{
         all: :accounts,
         get: :accounts,
+        listen: :accounts,
         create: :accounts,
         confirm: :accounts
       },
       end_user_transaction_requests: %{
         all: :accounts,
         get: :accounts,
+        listen: :accounts,
         create: :accounts,
         confirm: :accounts
       },
-      account_transaction_consumptions: %{all: :accounts, get: :accounts, create: :accounts},
-      end_user_transaction_consumptions: %{all: :accounts, get: :accounts, create: :accounts},
+      account_transaction_consumptions: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts
+      },
+      end_user_transaction_consumptions: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts
+      },
       account_exports: %{all: :accounts, get: :accounts, create: :accounts},
       admin_user_exports: :none,
       configuration: :none
@@ -89,19 +119,19 @@ defmodule EWalletDB.Role do
       categories: %{all: :global, get: :global},
       memberships: %{all: :accounts, get: :accounts},
       admin_users: %{all: :accounts, get: :accounts},
-      end_users: %{all: :accounts, get: :accounts},
+      end_users: %{all: :accounts, get: :accounts, listen: :accounts},
       access_keys: %{all: :accounts, get: :accounts},
       api_keys: %{all: :accounts, get: :accounts},
       tokens: %{all: :global, get: :global},
       mints: :none,
-      account_wallets: %{all: :global, get: :global, view_balance: :accounts},
-      end_user_wallets: %{all: :global, get: :global, view_balance: :accounts},
-      account_transactions: %{all: :accounts, get: :accounts},
-      end_user_transactions: %{all: :accounts, get: :accounts},
-      account_transaction_requests: %{all: :accounts, get: :accounts},
-      end_user_transaction_requests: %{all: :accounts, get: :accounts},
-      account_transaction_consumptions: %{all: :accounts, get: :accounts},
-      end_user_transaction_consumptions: %{all: :accounts, get: :accounts},
+      account_wallets: %{all: :global, get: :global, listen: :accounts, view_balance: :accounts},
+      end_user_wallets: %{all: :global, get: :global, listen: :accounts, view_balance: :accounts},
+      account_transactions: %{all: :accounts, get: :accounts, listen: :accounts},
+      end_user_transactions: %{all: :accounts, get: :accounts, listen: :accounts},
+      account_transaction_requests: %{all: :accounts, get: :accounts, listen: :accounts},
+      end_user_transaction_requests: %{all: :accounts, get: :accounts, listen: :accounts},
+      account_transaction_consumptions: %{all: :accounts, get: :accounts, listen: :accounts},
+      end_user_transaction_consumptions: %{all: :accounts, get: :accounts, listen: :accounts},
       account_exports: %{read: :accounts, get: :accounts},
       admin_user_exports: :none,
       configuration: :none

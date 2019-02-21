@@ -84,6 +84,8 @@ defmodule AdminAPI.ChannelCase do
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
+    {:ok, account} = :account |> params_for() |> Account.insert()
+
     config_pid = start_supervised!(EWalletConfig.Config)
 
     ConfigTestHelper.restart_config_genserver(
@@ -94,17 +96,17 @@ defmodule AdminAPI.ChannelCase do
       %{
         "base_url" => "http://localhost:4000",
         "email_adapter" => "test",
-        "sender_email" => "admin@example.com"
+        "sender_email" => "admin@example.com",
+        "master_account" => account.uuid
       }
     )
-
-    {:ok, account} = :account |> params_for() |> Account.insert()
 
     admin =
       insert(:admin, %{
         id: @admin_id,
         email: @user_email,
-        password_hash: Crypto.hash_password(@password)
+        password_hash: Crypto.hash_password(@password),
+        global_role: GlobalRole.super_admin()
       })
 
     {:ok, key} =
