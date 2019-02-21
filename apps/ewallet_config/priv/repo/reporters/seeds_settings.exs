@@ -41,4 +41,5 @@ defmodule EWalletDB.Repo.Reporters.SeedsSettingsReporter do
   defp inspect_value(%{value: value, type: "string"}), do: ~s("#{value}")
   defp inspect_value(%{value: value, type: "boolean"}), do: value
   defp inspect_value(%{value: value, type: "integer"}), do: value
+  defp inspect_value(%{value: value, type: "unsigned_integer"}), do: value
 end
