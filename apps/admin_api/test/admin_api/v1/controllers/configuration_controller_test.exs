@@ -109,7 +109,8 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
 
       assert data["max_per_page"] == %{
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
+               "description" =>
+                 "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
                "messages" => %{"value" => ["invalid_type_for_value"]},
                "object" => "error"
              }
