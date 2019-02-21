@@ -36,7 +36,6 @@ defmodule Blockchain.Backend do
   Starts Blockchain.Backend.
   """
   @spec start_link(keyword()) :: GenServer.on_start()
-
   def start_link(opts \\ []) do
     :ok = Logger.info("Running Blockchain Backend supervisor.")
 
@@ -60,7 +59,6 @@ defmodule Blockchain.Backend do
   Initialize the registry.
   """
   @spec init({atom(), list()}) :: {:ok, state()}
-
   def init({supervisor, backends}) do
     registry = %{}
 
@@ -75,9 +73,7 @@ defmodule Blockchain.Backend do
   @doc """
   Stops Blockchain.Backend.
   """
-
   @spec stop(server()) :: :ok
-
   def stop(pid \\ __MODULE__) do
     :ok = Logger.info("Stopping Blockchain Backend supervisor")
     GenServer.stop(pid)
@@ -87,7 +83,6 @@ defmodule Blockchain.Backend do
   ##
 
   @spec backend_name(backend()) :: atom()
-
   defp backend_name({backend, wallet_id}) do
     case wallet_id do
       nil ->
@@ -99,7 +94,6 @@ defmodule Blockchain.Backend do
   end
 
   @spec normalize_backend_mod(module() | mfargs()) :: mfargs()
-
   defp normalize_backend_mod(module) when is_atom(module) do
     {module, :start_link, []}
   end
@@ -109,7 +103,6 @@ defmodule Blockchain.Backend do
   end
 
   @spec find_backend(backend(), state()) :: resp({:ok, pid()} | {:not_started, mfargs()})
-
   defp find_backend({backend, _id} = backend_spec, {_, handlers, registry}) do
     case handlers do
       %{^backend => mfargs} ->
@@ -127,7 +120,6 @@ defmodule Blockchain.Backend do
   end
 
   @spec ensure_backend_started(atom() | backend(), state()) :: resp({:ok, server(), state()})
-
   defp ensure_backend_started(backend, state) when is_atom(backend) do
     ensure_backend_started({backend, nil}, state)
   end
@@ -164,9 +156,7 @@ defmodule Blockchain.Backend do
   @doc """
   Handles the start_backend call from the client API start_backend/2.
   """
-
   @spec handle_call({:start_backend, backend()}, from(), state()) :: reply(:ok)
-
   def handle_call({:start_backend, backend_spec}, _from, state) do
     case ensure_backend_started(backend_spec, state) do
       {:ok, _pid, state1} ->
@@ -180,9 +170,7 @@ defmodule Blockchain.Backend do
   @doc """
   Handles the call call from the client API call/4.
   """
-
   @spec handle_call({:call, backend(), call()}, from(), state()) :: reply({:ok, any()})
-
   def handle_call({:call, backend_spec, func_spec}, _from, state) do
     case ensure_backend_started(backend_spec, state) do
       {:ok, pid, state1} ->
@@ -207,10 +195,8 @@ defmodule Blockchain.Backend do
   Returns `:ok` if the pair of backend and wallet_id exists or
   `{:error, error_code}` in case of failure.
   """
-
   @spec start_backend(atom() | backend()) :: resp(:ok)
   @spec start_backend(atom() | backend(), server()) :: resp(:ok)
-
   def start_backend(backend_spec, pid \\ __MODULE__)
 
   def start_backend(backend_spec, pid) do
@@ -223,10 +209,8 @@ defmodule Blockchain.Backend do
   Returns `{:ok, response}` if the request was successful or
   `{:error, error_code}` in case of failure.
   """
-
   @spec call(atom() | backend(), call()) :: resp({:ok, any()})
   @spec call(atom() | backend(), call(), server()) :: resp({:ok, any()})
-
   def call(backend_spec, func_spec, pid \\ __MODULE__)
 
   def call(backend_spec, func_spec, pid) do

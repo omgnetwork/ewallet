@@ -30,7 +30,6 @@ defmodule Blockchain.Wallet do
   """
   @spec generate_wallet(atom(), pid() | nil) :: resp({:ok, address()})
   @spec generate_wallet(atom()) :: resp({:ok, address()})
-
   def generate_wallet(backend, pid \\ nil) do
     case pid do
       nil ->
