@@ -34,6 +34,10 @@ defmodule EWallet.Bouncer.TransactionConsumptionTarget do
   end
 
   # account transaction consumptions
+  def get_target_types() do
+    [:account_transaction_consumptions, :end_user_transaction_consumptions]
+  end
+
   def get_target_type(%TransactionConsumption{user_uuid: nil}) do
     :account_transaction_consumptions
   end

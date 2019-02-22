@@ -33,6 +33,7 @@ defmodule EWallet.Bouncer.Dispatcher do
     TokenTarget,
     ActivityLogTarget,
     TransactionScope,
+    TransactionConsumptionScope,
     WalletScope,
     AccountScope,
     ActivityLogScope

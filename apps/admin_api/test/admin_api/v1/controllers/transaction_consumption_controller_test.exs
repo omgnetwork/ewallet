@@ -593,6 +593,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           }
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 1
 
       assert Enum.map(response["data"]["data"], fn t ->
