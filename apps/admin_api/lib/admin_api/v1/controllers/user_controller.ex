@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.UserController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias Ecto.Changeset
-  alias EWallet.{UserPolicy, UserFetcher}
+  alias EWallet.{AdminUserPolicy, UserFetcher}
   alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.UserOverlay}
   alias EWalletDB.{Account, AccountUser, User, UserQuery, AuthToken}
 
@@ -26,22 +26,10 @@ defmodule AdminAPI.V1.UserController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with %{authorized: true} <- permit(:all, conn.assigns, nil) do
-      User
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
+      query
       |> UserQuery.where_end_user()
-      |> do_all(attrs, conn)
-    else
-      error -> respond_single(error, conn)
-    end
-  end
-
-  @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
-    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:get, conn.assigns, account) do
-      User
-      |> UserQuery.where_end_user()
-      |> Account.query_all_users([account.uuid])
       |> do_all(attrs, conn)
     else
       error -> respond_single(error, conn)
@@ -50,11 +38,9 @@ defmodule AdminAPI.V1.UserController do
 
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:get, conn.assigns, account),
-         descendant_uuids <- Account.get_all_descendants_uuids(account) do
-      User
-      |> UserQuery.where_end_user()
-      |> Account.query_all_users(descendant_uuids)
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil) do
+      query
+      |> Account.query_all_users([account.uuid])
       |> do_all(attrs, conn)
     else
       error -> respond_single(error, conn)
@@ -76,7 +62,7 @@ defmodule AdminAPI.V1.UserController do
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:get, conn.assigns, user) do
+         {:ok, _} <- authorize(:get, conn.assigns, user) do
       respond_single(user, conn)
     else
       error -> respond_single(error, conn)
@@ -86,7 +72,7 @@ defmodule AdminAPI.V1.UserController do
   def get(conn, %{"provider_user_id" => id})
       when is_binary(id) and byte_size(id) > 0 do
     with %User{} = user <- User.get_by_provider_user_id(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:get, conn.assigns, user) do
+         {:ok, _} <- authorize(:get, conn.assigns, user) do
       respond_single(user, conn)
     else
       error -> respond_single(error, conn)
@@ -103,12 +89,18 @@ defmodule AdminAPI.V1.UserController do
   # that's how users and accounts are linked together).
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with %{authorized: true} <- permit(:create, conn.assigns, attrs),
+    with {:ok, _} <- authorize(:create, conn.assigns, attrs),
          originator <- Originator.extract(conn.assigns),
          attrs <- Map.put(attrs, "originator", originator),
-         {:ok, user} <- User.insert(attrs),
-         %Account{} = account <- AccountHelper.get_current_account(conn),
-         {:ok, _account_user} <- AccountUser.link(account.uuid, user.uuid, originator) do
+         {:ok, user} <- User.insert(attrs) do
+      case Account.get(attrs["account_id"]) do
+        nil ->
+          :noop
+
+        account ->
+          {:ok, _account_user} = AccountUser.link(account.uuid, user.uuid, originator)
+      end
+
       respond_single(user, conn)
     else
       error -> respond_single(error, conn)
@@ -130,7 +122,7 @@ defmodule AdminAPI.V1.UserController do
       )
       when is_binary(id) and byte_size(id) > 0 do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:update, conn.assigns, user),
+         {:ok, _} <- authorize(:update, conn.assigns, user),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns) do
       user
       |> User.update(attrs)
@@ -149,7 +141,7 @@ defmodule AdminAPI.V1.UserController do
       )
       when is_binary(id) and byte_size(id) > 0 do
     with %User{} = user <- User.get_by_provider_user_id(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:update, conn.assigns, user),
+         {:ok, _} <- authorize(:update, conn.assigns, user),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns) do
       user
       |> User.update(attrs)
@@ -167,7 +159,7 @@ defmodule AdminAPI.V1.UserController do
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, attrs) do
     with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
-         %{authorized: true} <- permit(:enable_or_disable, conn.assigns, user),
+         {:ok, _} <- authorize(:enable_or_disable, conn.assigns, user),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- User.enable_or_disable(user, attrs),
          :ok <- AuthToken.expire_for_user(updated) do
@@ -213,9 +205,7 @@ defmodule AdminAPI.V1.UserController do
     handle_error(conn, code)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), %Account{} | %User{} | nil) ::
-          :ok | {:error, any()} | no_return()
-  defp permit(action, params, user) do
-    UserPolicy.authorize(action, params, user)
+  defp authorize(action, params, user) do
+    AdminUserPolicy.authorize(action, params, user)
   end
 end

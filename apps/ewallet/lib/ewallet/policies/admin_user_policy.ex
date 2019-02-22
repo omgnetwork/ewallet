@@ -23,7 +23,7 @@ defmodule EWallet.AdminUserPolicy do
   @spec authorize(any(), any(), any()) ::
           {:error, EWallet.Bouncer.Permission.t()} | {:ok, EWallet.Bouncer.Permission.t()}
   def authorize(:create, attrs, _user_attrs) do
-    Bouncer.bounce(attrs, %Permission{action: :create, target: %User{}})
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %User{is_admin: true}})
   end
 
   def authorize(action, attrs, target) do

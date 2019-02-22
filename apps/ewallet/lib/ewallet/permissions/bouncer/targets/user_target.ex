@@ -26,6 +26,10 @@ defmodule EWallet.Bouncer.UserTarget do
     [uuid]
   end
 
+  def get_target_types() do
+    [:admin_users, :end_users]
+  end
+
   def get_target_type(%User{is_admin: true}) do
     :admin_users
   end

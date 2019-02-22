@@ -15,7 +15,7 @@
 defmodule AdminAPI.V1.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Utils.Helpers.DateFormatter
-  alias EWalletDB.{Account, AccountUser, User, AuthToken, Role, Membership, Repo}
+  alias EWalletDB.{Account, AccountUser, User, AuthToken, Repo}
   alias ActivityLogger.System
 
   @owner_app :some_app
@@ -96,7 +96,7 @@ defmodule AdminAPI.V1.UserControllerTest do
 
       account_1 = insert(:account)
       account_2 = insert(:account)
-      account_3 = insert(:account, parent: account_2)
+      account_3 = insert(:account)
 
       {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid, %System{})
 
@@ -128,7 +128,7 @@ defmodule AdminAPI.V1.UserControllerTest do
 
       account_1 = insert(:account)
       account_2 = insert(:account)
-      account_3 = insert(:account, parent: account_2)
+      account_3 = insert(:account)
 
       {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid, %System{})
 
@@ -146,10 +146,11 @@ defmodule AdminAPI.V1.UserControllerTest do
       users = response["data"]["data"]
 
       assert response["success"]
-      assert Enum.count(users) == 3
+      assert Enum.count(users) == 2
+      refute Enum.any?(users, fn user -> user["username"] == "user_1" end)
       assert Enum.any?(users, fn user -> user["username"] == "user_2" end)
       assert Enum.any?(users, fn user -> user["username"] == "user_3" end)
-      assert Enum.any?(users, fn user -> user["username"] == "user_4" end)
+      refute Enum.any?(users, fn user -> user["username"] == "user_4" end)
     end
 
     test_with_auths "returns a list of users according to search_term, sort_by and sort_direction" do
@@ -160,7 +161,7 @@ defmodule AdminAPI.V1.UserControllerTest do
 
       account_1 = insert(:account)
       account_2 = insert(:account)
-      account_3 = insert(:account, parent: account_2)
+      account_3 = insert(:account)
 
       {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid, %System{})
 
@@ -375,7 +376,8 @@ defmodule AdminAPI.V1.UserControllerTest do
           "calling_name" => target.calling_name,
           "full_name" => target.full_name,
           "provider_user_id" => target.provider_user_id,
-          "username" => target.username
+          "username" => target.username,
+          "global_role" => "end_user"
         },
         encrypted_changes: %{
           "encrypted_metadata" => target.encrypted_metadata
@@ -397,6 +399,8 @@ defmodule AdminAPI.V1.UserControllerTest do
     end
 
     test "generates an activity log for an admin request" do
+      account = Account.get_master_account()
+
       request_data =
         params_for(
           :user,
@@ -405,7 +409,7 @@ defmodule AdminAPI.V1.UserControllerTest do
         )
 
       timestamp = DateTime.utc_now()
-
+      request_data = Map.put(request_data, :account_id, account.id)
       response = admin_user_request("/user.create", request_data)
 
       assert response["success"] == true
@@ -418,6 +422,8 @@ defmodule AdminAPI.V1.UserControllerTest do
     end
 
     test "generates an activity log for a provider request" do
+      account = Account.get_master_account()
+
       request_data =
         params_for(
           :user,
@@ -426,7 +432,7 @@ defmodule AdminAPI.V1.UserControllerTest do
         )
 
       timestamp = DateTime.utc_now()
-
+      request_data = Map.put(request_data, :account_id, account.id)
       response = provider_request("/user.create", request_data)
 
       assert response["success"] == true
@@ -753,35 +759,6 @@ defmodule AdminAPI.V1.UserControllerTest do
       assert response["success"] == true
       assert response["data"]["enabled"] == false
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
-    end
-
-    test_with_auths "can't disable a user in an account above the current one" do
-      master = Account.get_master_account()
-      role = Role.get_by(name: "admin")
-
-      admin = get_test_admin()
-      {:ok, _m} = Membership.unassign(admin, master, %System{})
-
-      user = insert(:user, %{enabled: true})
-      {:ok, _} = AccountUser.link(master.uuid, user.uuid, %System{})
-
-      sub_acc = insert(:account, parent: master, name: "Account 1")
-      {:ok, _m} = Membership.assign(admin, sub_acc, role, %System{})
-      key = insert(:key, %{account: sub_acc})
-
-      response =
-        request(
-          "/user.enable_or_disable",
-          %{
-            id: user.id,
-            enabled: false
-          },
-          access_key: key.access_key,
-          secret_key: key.secret_key
-        )
-
-      assert response["success"] == false
-      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "disable a user that doesn't exist raises an error" do
