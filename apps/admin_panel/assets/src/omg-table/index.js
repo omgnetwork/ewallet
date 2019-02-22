@@ -33,7 +33,7 @@ const TableContainer = styled.div`
       background-color: ${props => props.theme.colors.S100};
     }
     tbody td {
-      border-bottom: 1px solid ${props => props.theme.colors.S200};
+      border-bottom: 1px solid ${props => props.theme.colors.S100};
     }
     tr {
       padding: 20px 0;
