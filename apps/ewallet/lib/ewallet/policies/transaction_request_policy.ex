@@ -23,7 +23,7 @@ defmodule EWallet.TransactionRequestPolicy do
   @spec authorize(any(), any(), any()) ::
           {:error, EWallet.Bouncer.Permission.t()} | {:ok, EWallet.Bouncer.Permission.t()}
   def authorize(:create, attrs, target) do
-    Bouncer.bounce(attrs, %Permission{action: :create, target: target || %TransactionRequest{}})
+    Bouncer.bounce(attrs, %Permission{action: :create, target: target})
   end
 
   def authorize(action, attrs, target) do

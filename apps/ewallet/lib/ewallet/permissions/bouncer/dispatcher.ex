@@ -35,6 +35,7 @@ defmodule EWallet.Bouncer.Dispatcher do
     ExchangePairTarget,
     TransactionScope,
     TransactionConsumptionScope,
+    TransactionRequestScope,
     WalletScope,
     AccountScope,
     ActivityLogScope,

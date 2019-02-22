@@ -40,9 +40,9 @@ defmodule EWallet.TransactionRequestGate do
           "address" => address
         } = attrs
       ) do
-    with %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          %User{} = user <-
-           User.get_by_provider_user_id(provider_user_id) || {:error, :provider_user_id_not_found},
+           User.get_by_provider_user_id(provider_user_id) || {:error, :unauthorized},
          {:ok, wallet} <- WalletFetcher.get(user, address),
          wallet <- Map.put(wallet, :account_uuid, account.uuid),
          {:ok, transaction_request} <- create(wallet, attrs) do
@@ -59,8 +59,8 @@ defmodule EWallet.TransactionRequestGate do
           "address" => address
         } = attrs
       ) do
-    with %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
-         %User{} = user <- User.get(user_id) || {:error, :provider_user_id_not_found},
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         %User{} = user <- User.get(user_id) || {:error, :unauthorized},
          {:ok, wallet} <- WalletFetcher.get(user, address),
          wallet <- Map.put(wallet, :account_uuid, account.uuid),
          {:ok, transaction_request} <- create(wallet, attrs) do
@@ -76,7 +76,7 @@ defmodule EWallet.TransactionRequestGate do
           "address" => address
         } = attrs
       ) do
-    with %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          {:ok, wallet} <- WalletFetcher.get(account, address),
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
@@ -99,7 +99,7 @@ defmodule EWallet.TransactionRequestGate do
         } = attrs
       ) do
     with %User{} = user <-
-           User.get_by_provider_user_id(provider_user_id) || {:error, :provider_user_id_not_found},
+           User.get_by_provider_user_id(provider_user_id) || {:error, :unauthorized},
          {:ok, wallet} <- WalletFetcher.get(user, address),
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
@@ -115,7 +115,7 @@ defmodule EWallet.TransactionRequestGate do
           "address" => address
         } = attrs
       ) do
-    with %User{} = user <- User.get(user_id) || {:error, :provider_user_id_not_found},
+    with %User{} = user <- User.get(user_id) || {:error, :unauthorized},
          {:ok, wallet} <- WalletFetcher.get(user, address),
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
@@ -187,8 +187,14 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- insert(token, wallet, exchange_wallet, amount, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
-      error when is_atom(error) -> {:error, error}
-      error -> error
+      error when is_atom(error) ->
+        {:error, error}
+
+      {:error, :token_not_found} ->
+        {:error, :unauthorized}
+
+      error ->
+        error
     end
   end
 
