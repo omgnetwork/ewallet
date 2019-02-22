@@ -18,14 +18,16 @@ defmodule AdminAPI.V1.ExchangePairController do
   alias EWallet.{ExchangePairGate, ExchangePairPolicy}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.ExchangePairOverlay}
   alias EWalletDB.ExchangePair
+  alias Ecto.Changeset
 
   @doc """
   Retrieves a list of exchange pairs.
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with %{authorized: true} <- permit(:all, conn.assigns, nil),
-         %Paginator{} = paginator <- Orchestrator.query(ExchangePair, ExchangePairOverlay, attrs) do
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized},
+         %Paginator{} = paginator <- Orchestrator.query(query, ExchangePairOverlay, attrs) do
       render(conn, :exchange_pairs, %{exchange_pairs: paginator})
     else
       {:error, code, description} ->
@@ -42,7 +44,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
     with %ExchangePair{} = pair <- ExchangePair.get_by(id: id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:get, conn.assigns, pair),
+         {:ok, _} <- authorize(:get, conn.assigns, pair),
          {:ok, pair} <- Orchestrator.one(pair, ExchangePairOverlay) do
       render(conn, :exchange_pair, %{exchange_pair: pair})
     else
@@ -61,7 +63,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with %{authorized: true} <- permit(:create, conn.assigns, attrs),
+    with {:ok, _} <- authorize(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, pairs} <- ExchangePairGate.insert(attrs),
          {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay) do
@@ -81,7 +83,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
     with %ExchangePair{} = pair <- ExchangePair.get_by(id: id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:update, conn.assigns, pair),
+         {:ok, _} <- authorize(:update, conn.assigns, pair),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, pairs} <- ExchangePairGate.update(id, attrs),
          {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay) do
@@ -103,13 +105,13 @@ defmodule AdminAPI.V1.ExchangePairController do
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id} = attrs) do
     with %ExchangePair{} = pair <- ExchangePair.get_by(id: id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:delete, conn.assigns, pair),
+         {:ok, _} <- authorize(:delete, conn.assigns, pair),
          originator <- Originator.extract(conn.assigns),
          {:ok, deleted_pairs} <- ExchangePairGate.delete(id, attrs, originator),
          {:ok, deleted_pairs} <- Orchestrator.all(deleted_pairs, ExchangePairOverlay) do
       render(conn, :exchange_pairs, %{exchange_pairs: deleted_pairs})
     else
-      {:error, %{} = changeset} ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->
@@ -119,9 +121,9 @@ defmodule AdminAPI.V1.ExchangePairController do
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
+  @spec authorize(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, exchange_pair) do
+  defp authorize(action, params, exchange_pair) do
     ExchangePairPolicy.authorize(action, params, exchange_pair)
   end
 end

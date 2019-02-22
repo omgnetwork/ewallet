@@ -19,7 +19,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScope do
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.{Helper, Permission}
-  alias EWalletDB.TransactionConsumption
+  alias EWalletDB.{TransactionConsumption, AccountUser, User}
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
   def scoped_query(%Permission{

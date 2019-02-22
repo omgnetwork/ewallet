@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Bouncer.CategoryTarget do
+defmodule EWallet.Bouncer.ExchangePairTarget do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
-  alias EWalletDB.Category
+  alias EWalletDB.ExchangePair
 
   def get_owner_uuids(_) do
     []
   end
 
-  def get_target_types(), do: [:categories]
+  def get_target_types(), do: [:exchange_pairs]
 
-  def get_target_type(%Category{}), do: :categories
+  def get_target_type(%ExchangePair{}), do: :exchange_pairs
 
-  def get_target_accounts(%Category{} = target) do
-    target.accounts
-  end
+  def get_target_accounts(%ExchangePair{}), do: []
 end

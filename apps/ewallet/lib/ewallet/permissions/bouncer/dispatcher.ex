@@ -32,11 +32,13 @@ defmodule EWallet.Bouncer.Dispatcher do
     MintTarget,
     TokenTarget,
     ActivityLogTarget,
+    ExchangePairTarget,
     TransactionScope,
     TransactionConsumptionScope,
     WalletScope,
     AccountScope,
-    ActivityLogScope
+    ActivityLogScope,
+    ExchangePairScope
   }
 
   alias EWalletDB.{
@@ -51,7 +53,8 @@ defmodule EWallet.Bouncer.Dispatcher do
     TransactionRequest,
     TransactionConsumption,
     Mint,
-    Token
+    Token,
+    ExchangePair
   }
 
   alias ActivityLogger.ActivityLog
@@ -60,6 +63,7 @@ defmodule EWallet.Bouncer.Dispatcher do
     Account => AccountScope,
     ActivityLog => ActivityLogScope,
     Category => CategoryScope,
+    ExchangePair => ExchangePairScope,
     Key => KeyScope,
     Membership => MembershipScope,
     Transaction => TransactionScope,
@@ -76,6 +80,7 @@ defmodule EWallet.Bouncer.Dispatcher do
     Category => CategoryTarget,
     Key => KeyTarget,
     Membership => MembershipTarget,
+    ExchangePair => ExchangePairTarget,
     Transaction => TransactionTarget,
     TransactionRequest => TransactionRequestTarget,
     TransactionConsumption => TransactionConsumptionTarget,
