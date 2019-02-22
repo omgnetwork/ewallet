@@ -22,7 +22,8 @@ const WalletPageContainer = styled.div`
     width: 40%;
   }
   td:nth-child(3),
-  td:nth-child(4) {
+  td:nth-child(4),
+  td:nth-child(5) {
     width: 20%;
   }
   tbody td:first-child {
@@ -93,8 +94,8 @@ class WalletPage extends Component {
   }
   getColumns = wallets => {
     return [
-      { key: 'icon', title: null },
-      { key: 'identifier', title: 'TYPE', sort: true },
+      { key: 'icon', title: 'TYPE' },
+      { key: 'identifier', title: '', sort: true },
       { key: 'address', title: 'ADDRESS', sort: true },
       { key: 'owner', title: 'OWNER TYPE', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true }
