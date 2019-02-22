@@ -19,18 +19,28 @@ const TransactionPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  td:nth-child(2) {
+  td:nth-child(3) {
     white-space: nowrap;
     > div {
       overflow: hidden;
       text-overflow: ellipsis;
     }
   }
-  td:nth-child(1) {
-    width: 30%;
+  td:nth-child(2) {
+    width: 40%;
   }
-  td:nth-child(3) {
+  td:nth-child(6) {
     width: 20%;
+  }
+  th:nth-child(1) {
+    /* HACKING FOR TD MAKING TD FITS */
+    > div {
+      width: 0;
+    }
+  }
+  td:nth-child(1) {
+    padding-right: 0;
+    border-bottom: none;
   }
   table {
     td {
@@ -38,7 +48,7 @@ const TransactionPageContainer = styled.div`
     }
   }
   tr:hover {
-    td:nth-child(1) {
+    td:nth-child(2) {
       i {
         visibility: visible;
       }
@@ -59,9 +69,11 @@ const TransactionIdContainer = styled.div`
   span {
     vertical-align: middle;
   }
-  i {
-    color: ${props => props.theme.colors.BL400};
-    margin-right: 5px;
+  i[name='Transaction'] {
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
   }
 `
 const StatusContainer = styled.div`
@@ -110,7 +122,8 @@ const ExportButton = styled(Button)`
 `
 
 const columns = [
-  { key: 'id', title: 'TRANSACTION ID' },
+  { key: 'icon', title: 'TRANSACTION ID' },
+  { key: 'id', title: '' },
   { key: 'toFrom', title: 'FROM/TO' },
   {
     key: 'fromToToken',
@@ -182,7 +195,14 @@ class TransactionPage extends Component {
     if (key === 'id') {
       return (
         <TransactionIdContainer>
-          <Icon name='Transaction' /> <span>{data}</span> <Copy data={data} />
+          <span>{data}</span> <Copy data={data} />
+        </TransactionIdContainer>
+      )
+    }
+    if (key === 'icon') {
+      return (
+        <TransactionIdContainer>
+          <Icon name='Transaction' />
         </TransactionIdContainer>
       )
     }
