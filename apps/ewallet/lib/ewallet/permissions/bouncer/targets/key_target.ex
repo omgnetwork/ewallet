@@ -23,6 +23,8 @@ defmodule EWallet.Bouncer.KeyTarget do
     [uuid]
   end
 
+  def get_target_types(), do: [:keys]
+
   def get_target_type(%Key{}), do: :keys
 
   def get_target_accounts(%Key{} = key) do

@@ -19,16 +19,16 @@ defmodule AdminAPI.V1.KeyController do
   alias EWallet.KeyPolicy
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.KeyOverlay}
   alias EWalletDB.Key
+  alias Ecto.Changeset
 
   @doc """
   Retrieves a list of keys.
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with %{authorized: true} <- permit(:all, conn.assigns, nil),
-         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
-      Key
-      |> Key.query_all_for_account_uuids(account_uuids)
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
+      query
       |> Orchestrator.query(KeyOverlay, attrs)
       |> respond_multiple(conn)
     else
@@ -51,17 +51,17 @@ defmodule AdminAPI.V1.KeyController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with %{authorized: true} <- permit(:create, conn.assigns, attrs),
+    with {:ok, _} <- authorize(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns, :originator),
          {:ok, key} <- Key.insert(attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
       render(conn, :key, %{key: key})
     else
+      {:error, %Changeset{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+
       {:error, code} ->
         handle_error(conn, code)
-
-      {:error, changeset} ->
-        handle_error(conn, :invalid_parameter, changeset)
     end
   end
 
@@ -70,8 +70,8 @@ defmodule AdminAPI.V1.KeyController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with %Key{} = key <- Key.get(id) || {:error, :key_not_found},
-         %{authorized: true} <- permit(:update, conn.assigns, key),
+    with %Key{} = key <- Key.get(id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:update, conn.assigns, key),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, key} <- Key.enable_or_disable(key, attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
@@ -94,8 +94,8 @@ defmodule AdminAPI.V1.KeyController do
   """
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, %{"id" => id, "enabled" => _} = attrs) do
-    with %Key{} = key <- Key.get(id) || {:error, :key_not_found},
-         %{authorized: true} <- permit(:enable_or_disable, conn.assigns, key),
+    with %Key{} = key <- Key.get(id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:enable_or_disable, conn.assigns, key),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, key} <- Key.enable_or_disable(key, attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
@@ -119,7 +119,7 @@ defmodule AdminAPI.V1.KeyController do
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"access_key" => access_key}) do
     with %Key{} = key <- Key.get_by(access_key: access_key) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:delete, conn.assigns, key) do
+         {:ok, _} <- authorize(:delete, conn.assigns, key) do
       do_delete(conn, key)
     else
       {:error, code} ->
@@ -129,7 +129,7 @@ defmodule AdminAPI.V1.KeyController do
 
   def delete(conn, %{"id" => id}) do
     with %Key{} = key <- Key.get(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:delete, conn.assigns, key) do
+         {:ok, _} <- authorize(:delete, conn.assigns, key) do
       do_delete(conn, key)
     else
       {:error, code} ->
@@ -153,12 +153,12 @@ defmodule AdminAPI.V1.KeyController do
 
   defp do_delete(conn, nil), do: handle_error(conn, :key_not_found)
 
-  @spec permit(
+  @spec authorize(
           :all | :create | :get | :update | :enable_or_disable | :delete,
           map(),
           String.t() | nil
         ) :: :ok | {:error, any()} | no_return()
-  defp permit(action, params, key) do
+  defp authorize(action, params, key) do
     KeyPolicy.authorize(action, params, key)
   end
 end

@@ -18,13 +18,13 @@ defmodule EWallet.KeyPolicy do
   """
   alias EWallet.PolicyHelper
   alias EWallet.{Bouncer, Bouncer.Permission}
-  alias EWalletDB.Export
+  alias EWalletDB.Key
 
   def authorize(:create, attrs, _attrs) do
-    Bouncer.bounce(attrs, %Permission{action: :create, target: %Export{}})
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %Key{}})
   end
 
   def authorize(action, attrs, target) do
-    PolicyHelper.authorize(action, attrs, :exports, Export, target)
+    PolicyHelper.authorize(action, attrs, :keys, Key, target)
   end
 end

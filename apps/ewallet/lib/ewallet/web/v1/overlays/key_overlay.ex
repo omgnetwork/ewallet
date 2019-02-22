@@ -21,14 +21,10 @@ defmodule EWallet.Web.V1.KeyOverlay do
   alias EWallet.Web.V1.AccountOverlay
 
   def preload_assocs,
-    do: [
-      :account
-    ]
+    do: []
 
   def default_preload_assocs,
-    do: [
-      :account
-    ]
+    do: []
 
   def search_fields,
     do: [

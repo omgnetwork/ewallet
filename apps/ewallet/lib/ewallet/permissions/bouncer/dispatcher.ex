@@ -39,7 +39,8 @@ defmodule EWallet.Bouncer.Dispatcher do
     WalletScope,
     AccountScope,
     ActivityLogScope,
-    ExchangePairScope
+    ExchangePairScope,
+    KeyScope
   }
 
   alias EWalletDB.{
@@ -73,7 +74,8 @@ defmodule EWallet.Bouncer.Dispatcher do
     User => UserScope,
     Wallet => WalletScope,
     Mint => MintScope,
-    Token => TokenScope
+    Token => TokenScope,
+    Key => KeyScope
   }
 
   @target_references %{
