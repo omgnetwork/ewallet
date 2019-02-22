@@ -12,6 +12,7 @@ const TopNavigationContainer = styled.div`
   h2 {
     display: inline-block;
     margin-right: 25px;
+    font-size: 24px;
   }
   > {
     vertical-align: middle;
