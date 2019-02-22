@@ -23,16 +23,28 @@ const TransactionRequestsPageContainer = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(2),
-  td:nth-child(7) {
+  td:nth-child(3),
+  td:nth-child(8) {
     text-transform: capitalize;
   }
   tr:hover {
-    td:nth-child(1) {
+    td:nth-child(2) {
       i {
         visibility: visible;
       }
     }
+  }
+  td:nth-child(2){
+    width: 40%;
+  }
+  th:first-child{
+    >div {
+      width: 0;
+    }
+  }
+  td:first-child{
+    padding-right:0;
+    border-bottom: none;
   }
   i[name='Copy'] {
     margin-left: 5px;
@@ -52,7 +64,10 @@ export const NameColumn = styled.div`
     margin-left: 10px;
   }
   i[name='Request'] {
-    color: ${props => props.theme.colors.BL400};
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
   }
 `
 class TransactionRequestsPage extends Component {
@@ -76,7 +91,8 @@ class TransactionRequestsPage extends Component {
       exportModalOpen: false
     }
     this.columns = [
-      { key: 'id', title: 'REQUEST ID', sort: true },
+      { key: 'icon', title: 'REQUEST ID' },
+      { key: 'id', title: '', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
       { key: 'amount', title: 'AMOUNT', sort: true },
       { key: 'created_by', title: 'CREATED BY' },
@@ -111,10 +127,13 @@ class TransactionRequestsPage extends Component {
     if (key === 'require_confirmation') {
       return data ? 'Yes' : 'No'
     }
+    if (key === 'icon') {
+      return <NameColumn><Icon name='Request' /></NameColumn>
+    }
     if (key === 'id') {
       return (
         <NameColumn>
-          <Icon name='Request' /> <span>{data}</span> <Copy data={data} />
+          <span>{data}</span> <Copy data={data} />
         </NameColumn>
       )
     }

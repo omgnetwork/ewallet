@@ -52,7 +52,10 @@ const ConsumptionPageContainer = styled.div`
 const SortableTableContainer = styled.div`
   position: relative;
   i[name='Consumption'] {
-    color: ${props => props.theme.colors.BL400};
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
   }
 `
 export const NameColumn = styled.div`
@@ -75,11 +78,6 @@ class ConsumptionPage extends Component {
   }
   constructor (props) {
     super(props)
-    this.state = {
-      createAccountModalOpen: false,
-      exportModalOpen: false,
-      loadMoreTime: 1
-    }
     this.columns = [
       { key: 'id', title: 'REQUEST ID', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
@@ -154,12 +152,6 @@ class ConsumptionPage extends Component {
             activeIndexKey={activeIndexKey}
           />
         </SortableTableContainer>
-        <CreateAccountModal
-          open={this.state.createAccountModalOpen}
-          onRequestClose={this.onRequestCloseCreateAccount}
-          onCreateAccount={fetch}
-        />
-        <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </ConsumptionPageContainer>
     )
   }

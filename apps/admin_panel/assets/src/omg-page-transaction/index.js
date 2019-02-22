@@ -58,6 +58,7 @@ const TransactionPageContainer = styled.div`
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
+    
     color: ${props => props.theme.colors.S500};
     :hover {
       color: ${props => props.theme.colors.B300};
@@ -73,6 +74,7 @@ const TransactionIdContainer = styled.div`
     color: ${props => props.theme.colors.B100};
     padding: 8px;
     border-radius: 6px;
+    
     border: 1px solid ${props => props.theme.colors.S400};
   }
 `
@@ -109,7 +111,6 @@ export const MarkContainer = styled.div`
   text-align: center;
   line-height: 18px;
   margin-right: 5px;
-  }
 `
 const TransferButton = styled(Button)`
   padding-left: 40px;
