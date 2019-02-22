@@ -32,8 +32,10 @@ const TableContainer = styled.div`
     tbody tr:hover {
       background-color: ${props => props.theme.colors.S100};
     }
-    tr {
+    tbody td {
       border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
+    tr {
       padding: 20px 0;
       cursor: pointer;
     }
