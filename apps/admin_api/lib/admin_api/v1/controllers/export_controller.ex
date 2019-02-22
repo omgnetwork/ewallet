@@ -21,12 +21,13 @@ defmodule AdminAPI.V1.ExportController do
   alias Utils.Helpers.PathResolver
 
   def all(conn, attrs) do
-    with %{authorized: true} <- permit(:all, conn.assigns, nil) do
+    with {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
       storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
 
       conn.assigns
       |> Originator.extract()
-      |> Export.all_for(storage_adapter)
+      |> Export.all_for(storage_adapter, query)
       |> Orchestrator.query(ExportOverlay, attrs)
       |> render_exports(conn)
     else
@@ -39,7 +40,7 @@ defmodule AdminAPI.V1.ExportController do
     storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
 
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:get, conn.assigns, export),
+         {:ok, _} <- permit(:get, conn.assigns, export),
          true <- export.adapter == storage_adapter || {:error, :invalid_storage_adapter},
          {:ok, url} <- ExportGate.generate_url(export),
          export <- Map.put(export, :url, url),
@@ -56,7 +57,7 @@ defmodule AdminAPI.V1.ExportController do
     storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
 
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:download, conn.assigns, export),
+         {:ok, _} <- permit(:download, conn.assigns, export),
          true <- export.adapter == "local" || {:error, :export_not_local},
          true <- export.adapter == storage_adapter || {:error, :invalid_storage_adapter},
          path <- Path.join(PathResolver.static_dir(:url_dispatcher), export.path),

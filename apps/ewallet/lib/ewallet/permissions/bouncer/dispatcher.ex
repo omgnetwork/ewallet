@@ -27,6 +27,7 @@ defmodule EWallet.Bouncer.Dispatcher do
     MembershipTarget,
     TransactionConsumptionTarget,
     UserTarget,
+    ExportTarget,
     WalletTarget,
     MintTarget,
     TokenTarget,
@@ -41,6 +42,7 @@ defmodule EWallet.Bouncer.Dispatcher do
     Account,
     User,
     Category,
+    Export,
     Key,
     Membership,
     Wallet,
@@ -78,6 +80,7 @@ defmodule EWallet.Bouncer.Dispatcher do
     TransactionConsumption => TransactionConsumptionTarget,
     User => UserTarget,
     Wallet => WalletTarget,
+    Export => ExportTarget,
     Mint => MintTarget,
     Token => TokenTarget,
     ActivityLog => ActivityLogTarget
