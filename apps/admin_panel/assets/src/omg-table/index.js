@@ -26,9 +26,6 @@ const TableContainer = styled.div`
   table {
     width: 100%;
     text-align: left;
-    * {
-      vertical-align: middle;
-    }
     tbody tr:hover {
       background-color: ${props => props.theme.colors.S100};
     }
@@ -36,7 +33,6 @@ const TableContainer = styled.div`
       border-bottom: 1px solid ${props => props.theme.colors.S100};
     }
     tr {
-      padding: 20px 0;
       cursor: pointer;
     }
     td {

@@ -26,21 +26,25 @@ const TransactionPageContainer = styled.div`
       text-overflow: ellipsis;
     }
   }
-  td:nth-child(2) {
+  td:nth-child(1) {
     width: 40%;
   }
   td:nth-child(6) {
     width: 20%;
   }
-  th:nth-child(1) {
-    /* HACKING FOR TD MAKING TD FITS */
-    > div {
-      width: 0;
-    }
-  }
   td:nth-child(1) {
     padding-right: 0;
     border-bottom: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S100};
+    }
   }
   table {
     td {
@@ -48,7 +52,7 @@ const TransactionPageContainer = styled.div`
     }
   }
   tr:hover {
-    td:nth-child(2) {
+    td:nth-child(1) {
       i {
         visibility: visible;
       }
@@ -58,7 +62,6 @@ const TransactionPageContainer = styled.div`
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
-    
     color: ${props => props.theme.colors.S500};
     :hover {
       color: ${props => props.theme.colors.B300};
@@ -74,8 +77,8 @@ const TransactionIdContainer = styled.div`
     color: ${props => props.theme.colors.B100};
     padding: 8px;
     border-radius: 6px;
-    
     border: 1px solid ${props => props.theme.colors.S400};
+    margin-right: 5px;
   }
 `
 const StatusContainer = styled.div`
@@ -123,7 +126,6 @@ const ExportButton = styled(Button)`
 `
 
 const columns = [
-  { key: 'icon', title: 'TRANSACTION ID' },
   { key: 'id', title: '' },
   { key: 'toFrom', title: 'FROM/TO' },
   {
@@ -196,17 +198,12 @@ class TransactionPage extends Component {
     if (key === 'id') {
       return (
         <TransactionIdContainer>
+          <Icon name='Transaction' />
           <span>{data}</span> <Copy data={data} />
         </TransactionIdContainer>
       )
     }
-    if (key === 'icon') {
-      return (
-        <TransactionIdContainer>
-          <Icon name='Transaction' />
-        </TransactionIdContainer>
-      )
-    }
+
     if (key === 'status') {
       return (
         <StatusContainer>

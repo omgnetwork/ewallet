@@ -21,6 +21,17 @@ const UserPageContainer = styled.div`
   }
   td:first-child {
     width: 40%;
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S100};
+    }
   }
   tr:hover {
     td:nth-child(1) {
@@ -38,6 +49,13 @@ const UserPageContainer = styled.div`
       color: ${props => props.theme.colors.B300};
     }
   }
+  i[name='Profile'] {
+    margin-right: 5px;
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
+  }
 `
 const SortableTableContainer = styled.div`
   position: relative;
@@ -49,13 +67,6 @@ const UserIdContainer = styled.div`
   white-space: nowrap;
   span {
     vertical-align: middle;
-  }
-  i {
-    margin-right: 5px;
-    color: ${props => props.theme.colors.B100};
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid ${props => props.theme.colors.S400};
   }
 `
 class UsersPage extends Component {

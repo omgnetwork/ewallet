@@ -23,13 +23,26 @@ const ConsumptionPageContainer = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(3) {
+  td:first-child{
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S100};
+    }
+  }
+  td:nth-child(2) {
     width: 150px;
     max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  td:nth-child(6) {
+  td:nth-child(5) {
     text-transform: capitalize;
   }
   tr:hover {

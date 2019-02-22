@@ -18,16 +18,26 @@ const WalletPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  td:nth-child(2) {
+  td:nth-child(1) {
     width: 40%;
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S100};
+    }
   }
+  td:nth-child(2),
   td:nth-child(3),
-  td:nth-child(4),
-  td:nth-child(5) {
+  td:nth-child(4) {
     width: 20%;
   }
   tbody td:first-child {
-    padding-right: 0;
     border-bottom: none;
   }
 `
@@ -44,8 +54,8 @@ const WalletAddressContainer = styled.div`
     color: ${props => props.theme.colors.B100};
     padding: 8px;
     border-radius: 6px;
-    margin-top: 6px;
     border: 1px solid ${props => props.theme.colors.S400};
+    margin-right: 5px;
   }
   i[name='Copy'] {
     visibility: hidden;
@@ -94,7 +104,6 @@ class WalletPage extends Component {
   }
   getColumns = wallets => {
     return [
-      { key: 'icon', title: 'TYPE' },
       { key: 'identifier', title: '', sort: true },
       { key: 'address', title: 'ADDRESS', sort: true },
       { key: 'owner', title: 'OWNER TYPE', sort: true },
@@ -120,20 +129,13 @@ class WalletPage extends Component {
     this.props.history.push(`/wallets/${data.address}`)
   }
   rowRenderer (key, data, rows) {
-    if (key === 'icon') {
-      return (
-        <WalletAddressContainer>
-          <Icon name='Wallet' />
-        </WalletAddressContainer>
-      )
-    }
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
     }
     if (key === 'identifier') {
       return (
         <WalletAddressContainer>
-          <span>{data}</span>
+          <Icon name='Wallet' /> <span>{data}</span>
         </WalletAddressContainer>
       )
     }
