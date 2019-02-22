@@ -24,12 +24,12 @@ defmodule EWallet.Bouncer.AccountBouncer do
     check_permissions(permission, Role.account_role_permissions())
   end
 
-  defp check_permissions(%{actor: actor, action: :all, schema: schema} = permission, permissions) do
-    types = Dispatcher.get_target_types(schema)
-    uuids = actor |> Dispatcher.get_actor_accounts() |> Helper.get_uuids()
-    memberships = Membership.query_all_by_member_and_account_uuids(actor, uuids, [:role])
+  defp check_permissions(%{action: :export} = permission, permissions) do
+    check_scope_permissions(permission, permissions)
+  end
 
-    find_sufficient_permission_in_memberships(permission, permissions, memberships, types)
+  defp check_permissions(%{action: :all} = permission, permissions) do
+    check_scope_permissions(permission, permissions)
   end
 
   defp check_permissions(%{action: _, target: target, type: nil} = permission, permissions) do
@@ -39,6 +39,17 @@ defmodule EWallet.Bouncer.AccountBouncer do
 
   defp check_permissions(%{action: _, type: _, target: _} = permission, permissions) do
     check_account_role(permission, permissions)
+  end
+
+  defp check_scope_permissions(
+         %{actor: actor, action: action, schema: schema} = permission,
+         permissions
+       ) do
+    types = Dispatcher.get_target_types(schema)
+    uuids = actor |> Dispatcher.get_actor_accounts() |> Helper.get_uuids()
+    memberships = Membership.query_all_by_member_and_account_uuids(actor, uuids, [:role])
+
+    find_sufficient_permission_in_memberships(permission, permissions, memberships, types)
   end
 
   defp check_account_role(

@@ -205,7 +205,6 @@ defmodule EWalletDB.GlobalRole do
         all: :self,
         get: :global,
         listen: :self,
-        listen: :self,
         create: :self,
         confirm: :self
       },

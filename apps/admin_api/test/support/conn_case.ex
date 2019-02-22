@@ -126,7 +126,8 @@ defmodule AdminAPI.ConnCase do
       insert(:admin, %{
         id: @admin_id,
         email: @user_email,
-        password_hash: Crypto.hash_password(@password)
+        password_hash: Crypto.hash_password(@password),
+        global_role: GlobalRole.super_admin()
       })
 
     # Insert user via `User.insert/1` to initialize wallets, etc.

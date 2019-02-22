@@ -22,6 +22,7 @@ defmodule EWallet.Bouncer.Dispatcher do
     AccountTarget,
     CategoryTarget,
     KeyTarget,
+    TransactionTarget,
     TransactionRequestTarget,
     MembershipTarget,
     TransactionConsumptionTarget,
@@ -29,8 +30,11 @@ defmodule EWallet.Bouncer.Dispatcher do
     WalletTarget,
     MintTarget,
     TokenTarget,
+    ActivityLogTarget,
+    TransactionScope,
     WalletScope,
-    AccountScope
+    AccountScope,
+    ActivityLogScope
   }
 
   alias EWalletDB.{
@@ -40,17 +44,22 @@ defmodule EWallet.Bouncer.Dispatcher do
     Key,
     Membership,
     Wallet,
+    Transaction,
     TransactionRequest,
     TransactionConsumption,
     Mint,
     Token
   }
 
+  alias ActivityLogger.ActivityLog
+
   @scope_references %{
     Account => AccountScope,
+    ActivityLog => ActivityLogScope,
     Category => CategoryScope,
     Key => KeyScope,
     Membership => MembershipScope,
+    Transaction => TransactionScope,
     TransactionRequest => TransactionRequestScope,
     TransactionConsumption => TransactionConsumptionScope,
     User => UserScope,
@@ -64,12 +73,14 @@ defmodule EWallet.Bouncer.Dispatcher do
     Category => CategoryTarget,
     Key => KeyTarget,
     Membership => MembershipTarget,
+    Transaction => TransactionTarget,
     TransactionRequest => TransactionRequestTarget,
     TransactionConsumption => TransactionConsumptionTarget,
     User => UserTarget,
     Wallet => WalletTarget,
     Mint => MintTarget,
-    Token => TokenTarget
+    Token => TokenTarget,
+    ActivityLog => ActivityLogTarget
   }
 
   def scoped_query(%Permission{schema: schema} = permission) do

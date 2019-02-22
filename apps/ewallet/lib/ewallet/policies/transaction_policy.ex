@@ -16,12 +16,23 @@ defmodule EWallet.TransactionPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  alias EWallet.PolicyHelper
+  alias EWallet.{PolicyHelper, TransactionSourceFetcher}
   alias EWallet.{Bouncer, Bouncer.Permission}
   alias EWalletDB.Transaction
 
-  def authorize(:create, attrs, _attrs) do
-    Bouncer.bounce(attrs, %Permission{action: :create, target: %Transaction{}})
+  def authorize(:create, attrs, tx_attrs) do
+    with {:ok, from} <- TransactionSourceFetcher.fetch_from(tx_attrs) do
+      Bouncer.bounce(attrs, %Permission{
+        action: :create,
+        target: %Transaction{
+          from: from[:from_wallet_address],
+          from_account_uuid: from[:from_account_uuid],
+          from_user_uuid: from[:from_user_uuid]
+        }
+      })
+    else
+      _ -> {:error, :unauthorized}
+    end
   end
 
   def authorize(action, attrs, target) do

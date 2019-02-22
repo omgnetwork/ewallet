@@ -18,7 +18,19 @@ defmodule EWallet.PolicyHelper do
   """
   alias EWallet.{Bouncer, Bouncer.Permission}
 
+  def authorize(:export, attrs, type, schema, nil) do
+    authorize_scope(:export, attrs, type, schema)
+  end
+
   def authorize(:all, attrs, type, schema, nil) do
+    authorize_scope(:all, attrs, type, schema)
+  end
+
+  def authorize(action, attrs, _type, _schema, target) do
+    Bouncer.bounce(attrs, %Permission{action: action, target: target})
+  end
+
+  defp authorize_scope(action, attrs, type, schema) do
     case Bouncer.bounce(attrs, %Permission{action: :all, type: type, schema: schema}) do
       {:ok, permission} ->
         {:ok, %{permission | query: Bouncer.scoped_query(permission)}}
@@ -26,9 +38,5 @@ defmodule EWallet.PolicyHelper do
       error ->
         error
     end
-  end
-
-  def authorize(action, attrs, _type, _schema, target) do
-    Bouncer.bounce(attrs, %Permission{action: action, target: target})
   end
 end

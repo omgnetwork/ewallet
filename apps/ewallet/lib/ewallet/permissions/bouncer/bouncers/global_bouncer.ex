@@ -26,43 +26,12 @@ defmodule EWallet.Bouncer.GlobalBouncer do
     |> check_permissions(GlobalRole.global_role_permissions())
   end
 
-  defp check_permissions(
-         %{global_role: role, action: :all, schema: schema} = permission,
-         permissions
-       ) do
-    types = Dispatcher.get_target_types(schema)
-    permission = set_check_account_permissions(permission, permissions)
-
-    abilities =
-      Enum.into(types, %{}, fn type ->
-        {type, Helper.extract_permission(permissions, [role, types, :all]) || :none}
-      end)
-
-    account_permissions = check_account_permissions(permissions, role)
-
-    permission = %{
-      permission
-      | global_abilities: abilities,
-        check_account_permissions: account_permissions
-    }
-
-    %{
-      permission
-      | global_authorized:
-          Enum.any?(abilities, fn {_, ability} ->
-            Enum.member?([:global, :accounts, :self], ability)
-          end)
-    }
+  defp check_permissions(%{action: :all} = permission, permissions) do
+    check_scope_permissions(permission, permissions)
   end
 
-  defp check_account_permissions(permissions, role) do
-    case is_map(permissions[role]) do
-      true ->
-        permissions[role][:account_permissions]
-
-      false ->
-        false
-    end
+  defp check_permissions(%{action: :export} = permission, permissions) do
+    check_scope_permissions(permission, permissions)
   end
 
   defp check_permissions(%{action: _, type: nil, target: target} = permission, permissions) do
@@ -82,6 +51,45 @@ defmodule EWallet.Bouncer.GlobalBouncer do
       | global_authorized: false,
         global_abilities: nil,
         check_account_permissions: false
+    }
+  end
+
+  defp check_account_permissions(permissions, role) do
+    case is_map(permissions[role]) do
+      true ->
+        permissions[role][:account_permissions]
+
+      false ->
+        false
+    end
+  end
+
+  defp check_scope_permissions(
+         %{global_role: role, action: action, schema: schema} = permission,
+         permissions
+       ) do
+    types = Dispatcher.get_target_types(schema)
+    permission = set_check_account_permissions(permission, permissions)
+
+    abilities =
+      Enum.into(types, %{}, fn type ->
+        {type, Helper.extract_permission(permissions, [role, types, action]) || :none}
+      end)
+
+    account_permissions = check_account_permissions(permissions, role)
+
+    permission = %{
+      permission
+      | global_abilities: abilities,
+        check_account_permissions: account_permissions
+    }
+
+    %{
+      permission
+      | global_authorized:
+          Enum.any?(abilities, fn {_, ability} ->
+            Enum.member?([:global, :accounts, :self], ability)
+          end)
     }
   end
 

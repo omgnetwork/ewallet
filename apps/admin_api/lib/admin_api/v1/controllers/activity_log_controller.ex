@@ -17,15 +17,15 @@ defmodule AdminAPI.V1.ActivityLogController do
   import AdminAPI.V1.ErrorHandler
   alias EWallet.{ActivityLogPolicy, ActivityLogGate}
   alias EWallet.Web.{Orchestrator, Paginator, V1.ActivityLogOverlay, V1.ModuleMapper}
-  alias ActivityLogger.ActivityLog
 
   @doc """
   Retrieves a list of activity logs.
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with %{authorized: true} <- permit(:all, conn.assigns),
-         %Paginator{} = paginator <- Orchestrator.query(ActivityLog, ActivityLogOverlay, attrs),
+    with {:ok, %{query: query}} <- permit(:all, conn.assigns),
+         true <- !is_nil(query) || {:error, :unauthorized},
+         %Paginator{} = paginator <- Orchestrator.query(query, ActivityLogOverlay, attrs),
          activity_logs <-
            ActivityLogGate.load_originator_and_target(paginator.data, ModuleMapper),
          %Paginator{} = paginator <- Map.put(paginator, :data, activity_logs) do
