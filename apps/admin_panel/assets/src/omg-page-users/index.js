@@ -52,7 +52,10 @@ const UserIdContainer = styled.div`
   }
   i {
     margin-right: 5px;
-    color: ${props => props.theme.colors.BL400};
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
   }
 `
 class UsersPage extends Component {
