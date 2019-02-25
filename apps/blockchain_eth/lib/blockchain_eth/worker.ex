@@ -85,8 +85,8 @@ defmodule BlockchainEth.Worker do
   Returns a tuple of `{:ok, wallet_id, public_key}` in case of a successful
   wallet generation otherwise returns `{:error, error_code}`.
   """
-  @spec generate_wallet(server()) :: resp({:ok, atom(), String.t()})
-  @spec generate_wallet() :: resp({:ok, atom(), String.t()})
+  @spec generate_wallet(server()) :: resp({:ok, Strong.t(), String.t()})
+  @spec generate_wallet() :: resp({:ok, String.t(), String.t()})
   def generate_wallet(pid \\ __MODULE__) do
     GenServer.call(pid, :generate_wallet)
   end
