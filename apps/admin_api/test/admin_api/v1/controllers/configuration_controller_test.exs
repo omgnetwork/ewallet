@@ -116,7 +116,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
              }
     end
 
-    test_with_auths "updates nil for all unsigned_integer settings", context do
+    test_with_auths "returns errors when updating unsigned_integer settings with nil", context do
       response =
         request("/configuration.update", %{
           max_per_page: nil,
@@ -143,7 +143,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       assert data["balance_caching_reset_frequency"] == error
     end
 
-    test_with_auths "updates negative integer for all unsigned_integer settings", context do
+    test_with_auths "returns errors when updating unsigned_integer settings with negative integers", context do
       response =
         request("/configuration.update", %{
           max_per_page: -1,
