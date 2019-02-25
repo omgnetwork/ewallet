@@ -100,7 +100,7 @@ defmodule Blockchain.Backend do
     {module, func, args}
   end
 
-  @spec ensure_backend_started(atom() | backend(), state()) :: resp({:ok, server(), state()})
+  @spec ensure_backend_started(atom() | backend(), state()) :: resp({:ok, server()})
   defp ensure_backend_started(backend, state) when is_atom(backend) do
     ensure_backend_started({backend, nil}, state)
   end
