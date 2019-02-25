@@ -65,7 +65,13 @@ defmodule Blockchain.BackendTest do
       :code.delete(MockBackend)
     end)
 
-    %{pid: pid, mock_id: mock_id, mock_key: mock_key, mock_backend: MockBackend}
+    %{
+      pid: pid,
+      mock_id: mock_id,
+      mock_key: mock_key,
+      mock_backend: MockBackend,
+      supervisor: supervisor
+    }
   end
 
   describe "call/3" do
@@ -86,9 +92,8 @@ defmodule Blockchain.BackendTest do
       {:ok, _, _} = Backend.call({:mock, "wallet"}, :generate_wallet, state[:pid])
       {:ok, _, _} = Backend.call(:dumb, :generate_wallet, state[:pid])
 
-      {_, _, registry} = :sys.get_state(state[:pid])
-
-      assert map_size(registry) == 0
+      childrens = DynamicSupervisor.which_children(state[:supervisor])
+      assert childrens == []
     end
 
     test "returns an error if no such backend is registered", state do
