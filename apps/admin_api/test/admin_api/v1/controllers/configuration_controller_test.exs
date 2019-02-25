@@ -143,7 +143,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       assert data["balance_caching_reset_frequency"] == error
     end
 
-    test_with_auths "returns errors when updating unsigned_integer settings with negative integers", context do
+    test_with_auths "returns errors when updating unsigned_integer settings with -1", context do
       response =
         request("/configuration.update", %{
           max_per_page: -1,
