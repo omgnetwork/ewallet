@@ -40,6 +40,7 @@ defmodule EWallet.Bouncer.Dispatcher do
     AccountScope,
     ActivityLogScope,
     ExchangePairScope,
+    CategoryScope,
     KeyScope,
     UserScope
   }

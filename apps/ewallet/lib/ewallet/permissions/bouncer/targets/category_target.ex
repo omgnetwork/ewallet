@@ -17,7 +17,7 @@ defmodule EWallet.Bouncer.CategoryTarget do
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
-  alias EWalletDB.Category
+  alias EWalletDB.{Category, Helpers.Preloader}
 
   def get_owner_uuids(_) do
     []
@@ -27,7 +27,10 @@ defmodule EWallet.Bouncer.CategoryTarget do
 
   def get_target_type(%Category{}), do: :categories
 
-  def get_target_accounts(%Category{} = target) do
-    target.accounts
+  # WARNING: This will work only with the hardcoded roles that were originaly defined.
+  # If the roles are changed, especially if a role other than super_admin gains access to
+  # category creation with an `accounts` scope, this will fail.
+  def get_target_accounts(%Category{} = category) do
+    Preloader.preload(category, [:accounts]).accounts
   end
 end
