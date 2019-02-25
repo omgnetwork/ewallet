@@ -68,38 +68,6 @@ defmodule Blockchain.BackendTest do
     %{pid: pid, mock_id: mock_id, mock_key: mock_key, mock_backend: MockBackend}
   end
 
-  describe "start_backend/1" do
-    test "starts the backend", state do
-      assert :ok == Backend.start_backend(:mock, state[:pid])
-      assert :ok == Backend.start_backend(:dumb, state[:pid])
-      assert :ok == Backend.start_backend({:mock, "foobar"}, state[:pid])
-      assert :ok == Backend.start_backend({:dumb, "wallet"}, state[:pid])
-    end
-
-    test "do not start backend if one is already running", state do
-      :ok = Backend.start_backend(:mock, state[:pid])
-      :ok = Backend.start_backend(:mock, state[:pid])
-      :ok = Backend.start_backend({:mock, "foobar"}, state[:pid])
-      :ok = Backend.start_backend({:mock, "wallet"}, state[:pid])
-      :ok = Backend.start_backend({:mock, "wallet"}, state[:pid])
-      :ok = Backend.start_backend(:dumb, state[:pid])
-      :ok = Backend.start_backend(:mock, state[:pid])
-      :ok = Backend.start_backend(:dumb, state[:pid])
-
-      {_, _, registry} = :sys.get_state(state[:pid])
-
-      assert map_size(registry) == 4
-      assert Map.has_key?(registry, {:mock, nil})
-      assert Map.has_key?(registry, {:mock, "foobar"})
-      assert Map.has_key?(registry, {:mock, "wallet"})
-      assert Map.has_key?(registry, {:dumb, nil})
-    end
-
-    test "returns an error if no such backend is registered", state do
-      assert {:error, :no_handler} == Backend.start_backend(:foo, state[:pid])
-    end
-  end
-
   describe "call/3" do
     test "delegates call to the backend", state do
       mock_resp = Backend.call(:mock, :generate_wallet, state[:pid])
@@ -111,7 +79,7 @@ defmodule Blockchain.BackendTest do
       assert {:ok, "wallet_id", "public_key"} == dumb_resp2
     end
 
-    test "do not start backend if one is already running", state do
+    test "shutdowns the worker once finished handling tasks", state do
       {:ok, _, _} = Backend.call(:mock, :generate_wallet, state[:pid])
       {:ok, _, _} = Backend.call(:dumb, :generate_wallet, state[:pid])
       {:ok, _, _} = Backend.call({:dumb, "wallet"}, :generate_wallet, state[:pid])
@@ -120,11 +88,7 @@ defmodule Blockchain.BackendTest do
 
       {_, _, registry} = :sys.get_state(state[:pid])
 
-      assert map_size(registry) == 4
-      assert Map.has_key?(registry, {:mock, nil})
-      assert Map.has_key?(registry, {:dumb, nil})
-      assert Map.has_key?(registry, {:dumb, "wallet"})
-      assert Map.has_key?(registry, {:mock, "wallet"})
+      assert map_size(registry) == 0
     end
 
     test "returns an error if no such backend is registered", state do

@@ -30,7 +30,7 @@ defmodule Blockchain.Application do
     backend_opts = [
       backends: backends,
       named: true,
-      supervisor: DynamicSupervisor
+      supervisor: Blockchain.DynamicSupervisor
     ]
 
     children = [

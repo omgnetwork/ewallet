@@ -17,7 +17,7 @@ defmodule Blockchain.Backend do
 
   @typep server :: GenServer.server()
   @typep from :: GenServer.from()
-  @typep state :: {atom(), map(), map()}
+  @typep state :: {atom(), map()}
 
   @typep backend :: Blockchain.backend()
   @typep call :: Blockchain.call()
@@ -60,14 +60,12 @@ defmodule Blockchain.Backend do
   """
   @spec init({atom(), list()}) :: {:ok, state()}
   def init({supervisor, backends}) do
-    registry = %{}
-
     handlers =
       Enum.into(backends, %{}, fn {backend, mod} ->
         {backend, normalize_backend_mod(mod)}
       end)
 
-    {:ok, {supervisor, handlers, registry}}
+    {:ok, {supervisor, handlers}}
   end
 
   @doc """
@@ -102,16 +100,28 @@ defmodule Blockchain.Backend do
     {module, func, args}
   end
 
-  @spec find_backend(backend(), state()) :: resp({:ok, pid()} | {:not_started, mfargs()})
-  defp find_backend({backend, _id} = backend_spec, {_, handlers, registry}) do
+  @spec ensure_backend_started(atom() | backend(), state()) :: resp({:ok, server(), state()})
+  defp ensure_backend_started(backend, state) when is_atom(backend) do
+    ensure_backend_started({backend, nil}, state)
+  end
+
+  defp ensure_backend_started({backend, _id} = backend_spec, {supervisor, handlers}) do
     case handlers do
       %{^backend => mfargs} ->
-        case registry do
-          %{^backend_spec => pid} ->
+        retval =
+          DynamicSupervisor.start_child(supervisor, %{
+            id: backend_name(backend_spec),
+            start: mfargs,
+            restart: :temporary
+          })
+
+        case retval do
+          {:ok, pid} ->
             {:ok, pid}
 
-          _ ->
-            {:not_started, mfargs}
+          error ->
+            :ok = Logger.error("Failed to start backend for #{backend}: #{inspect(error)}")
+            {:error, :start_failed}
         end
 
       _ ->
@@ -119,53 +129,8 @@ defmodule Blockchain.Backend do
     end
   end
 
-  @spec ensure_backend_started(atom() | backend(), state()) :: resp({:ok, server(), state()})
-  defp ensure_backend_started(backend, state) when is_atom(backend) do
-    ensure_backend_started({backend, nil}, state)
-  end
-
-  defp ensure_backend_started({backend, _id} = backend_spec, {supervisor, h, registry} = state) do
-    case find_backend(backend_spec, state) do
-      {:ok, pid} ->
-        {:ok, pid, state}
-
-      {:not_started, mfargs} ->
-        retval =
-          DynamicSupervisor.start_child(supervisor, %{
-            id: backend_name(backend_spec),
-            start: mfargs
-          })
-
-        case retval do
-          {:ok, pid} ->
-            {:ok, pid, {supervisor, h, Map.put(registry, backend_spec, pid)}}
-
-          error ->
-            :ok = Logger.error("Failed to start backend for #{backend}: #{inspect(error)}")
-            {:error, :start_failed}
-        end
-
-      {:error, error_code} ->
-        {:error, error_code}
-    end
-  end
-
   ## Callbacks
   ##
-
-  @doc """
-  Handles the start_backend call from the client API start_backend/2.
-  """
-  @spec handle_call({:start_backend, backend()}, from(), state()) :: reply(:ok)
-  def handle_call({:start_backend, backend_spec}, _from, state) do
-    case ensure_backend_started(backend_spec, state) do
-      {:ok, _pid, state1} ->
-        {:reply, :ok, state1}
-
-      error ->
-        {:reply, error, state}
-    end
-  end
 
   @doc """
   Handles the call call from the client API call/4.
@@ -173,8 +138,12 @@ defmodule Blockchain.Backend do
   @spec handle_call({:call, backend(), call()}, from(), state()) :: reply({:ok, any()})
   def handle_call({:call, backend_spec, func_spec}, _from, state) do
     case ensure_backend_started(backend_spec, state) do
-      {:ok, pid, state1} ->
-        {:reply, {:ok, GenServer.call(pid, func_spec)}, state1}
+      {:ok, pid} ->
+        try do
+          {:reply, {:ok, GenServer.call(pid, func_spec)}, state}
+        after
+          GenServer.stop(pid)
+        end
 
       error ->
         {:reply, error, state}
@@ -183,25 +152,6 @@ defmodule Blockchain.Backend do
 
   ## Client API
   ##
-
-  @doc """
-  Ensure the backend process for the given tuple `{backend, wallet_id}`
-  has been successfully started. In most cases, one backend process is
-  started per each `{backend, wallet_id}` tuple.
-
-  If only `backend_id` is given, a generic backend process for operations
-  such as key generation and key verifying will be started.
-
-  Returns `:ok` if the pair of backend and wallet_id exists or
-  `{:error, error_code}` in case of failure.
-  """
-  @spec start_backend(atom() | backend()) :: resp(:ok)
-  @spec start_backend(atom() | backend(), server()) :: resp(:ok)
-  def start_backend(backend_spec, pid \\ __MODULE__)
-
-  def start_backend(backend_spec, pid) do
-    GenServer.call(pid, {:start_backend, backend_spec})
-  end
 
   @doc """
   Pass a tuple of `{function, arglist}` to the appropriate backend.
