@@ -26,8 +26,10 @@ defmodule BlockchainEth.WorkerTest do
       {:ok, wallet_id, public_key} = Worker.generate_wallet(state[:pid])
 
       assert is_binary(wallet_id)
+      assert byte_size(wallet_id) == 66
+
       assert is_binary(public_key)
-      assert byte_size(public_key) == 65
+      assert byte_size(public_key) == 130
     end
   end
 end
