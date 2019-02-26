@@ -34,9 +34,15 @@ function AccountWalletSubPage (props) {
         return allWalletQuery
     }
   }
+  const onClickRow = (data, index) => e => {
+    props.history.push(
+      `/accounts/${props.match.params.accountId}/wallets/${data.address}`
+    )
+  }
   return (
     <WalletsPage
       transferButton
+      onClickRow={onClickRow}
       walletQuery={{
         matchAny: getQuery()
       }}
@@ -46,7 +52,8 @@ function AccountWalletSubPage (props) {
 
 AccountWalletSubPage.propTypes = {
   location: PropTypes.object,
-  match: PropTypes.object
+  match: PropTypes.object,
+  onClickRow: PropTypes.func
 }
 
 export default withRouter(AccountWalletSubPage)

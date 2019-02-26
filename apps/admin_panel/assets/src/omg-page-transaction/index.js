@@ -126,7 +126,7 @@ const ExportButton = styled(Button)`
 `
 
 const columns = [
-  { key: 'id', title: '' },
+  { key: 'id', title: 'TRANSACTION ID' },
   { key: 'toFrom', title: 'FROM/TO' },
   {
     key: 'fromToToken',

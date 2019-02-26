@@ -75,7 +75,8 @@ class WalletPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
     walletQuery: PropTypes.object,
-    transferButton: PropTypes.bool
+    transferButton: PropTypes.bool,
+    onClickRow: PropTypes.func
   }
   static defaultProps = {
     walletQuery: {},
@@ -104,7 +105,7 @@ class WalletPage extends Component {
   }
   getColumns = wallets => {
     return [
-      { key: 'identifier', title: '', sort: true },
+      { key: 'identifier', title: 'TYPE', sort: true },
       { key: 'address', title: 'ADDRESS', sort: true },
       { key: 'owner', title: 'OWNER TYPE', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true }
@@ -161,7 +162,7 @@ class WalletPage extends Component {
             columns={this.getColumns(wallets)}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
-            onClickRow={this.onClickRow}
+            onClickRow={this.props.onClickRow || this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation

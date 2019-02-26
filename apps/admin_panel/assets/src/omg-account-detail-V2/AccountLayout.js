@@ -10,7 +10,7 @@ import AccountDetailSubPage from './AccountDetailSubPage'
 import AccountConsumptionSubPage from './AccountConsumptionSubPage'
 import AccountSettingSubPage from './AccountSettingSubPage'
 import AccountAdminSubPage from './AccountAdminSubPage'
-
+import WalletDetailPage from '../omg-page-wallet-detail'
 class AccountLayout extends Component {
   render () {
     return (
@@ -18,6 +18,11 @@ class AccountLayout extends Component {
         <AccountNavgiationBar />
         <Route path='/accounts/:accountId/detail' exact render={() => <AccountDetailSubPage />} />
         <Route path='/accounts/:accountId/wallets' exact render={() => <AccountWalletSubPage />} />
+        <Route
+          path='/accounts/:accountId/wallets/:walletAddress'
+          exact
+          render={() => <WalletDetailPage />}
+        />
         <Route path='/accounts/:accountId/users' exact render={() => <AccountUserSubPage />} />
         <Route path='/accounts/:accountId/admins' exact render={() => <AccountAdminSubPage />} />
         <Route path='/accounts/:accountId/setting' exact render={() => <AccountSettingSubPage />} />

@@ -101,7 +101,7 @@ class UsersPage extends Component {
   }
   getColumns = () => {
     return [
-      { key: 'id', title: 'ID', sort: true },
+      { key: 'id', title: 'ADMIN ID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'updated_at', title: 'LAST UPDATED', sort: true }

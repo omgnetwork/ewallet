@@ -23,13 +23,15 @@ const TokenDetailPageContainer = styled.div`
   td:first-child {
     width: 50%;
   }
-  td:nth-child(2),
-  td:nth-child(3) {
+  td:nth-child(3),
+  td:nth-child(4) {
     width: 25%;
   }
 `
 const columns = [
+
   { key: 'token', title: 'TOKEN NAME', sort: true },
+  { key: 'id', title: 'TOKEN ID', sort: true },
   { key: 'symbol', title: 'SYMBOL', sort: true },
   { key: 'created', title: 'CREATED DATE', sort: true }
 ]

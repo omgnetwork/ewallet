@@ -92,7 +92,7 @@ class ConsumptionPage extends Component {
   constructor (props) {
     super(props)
     this.columns = [
-      { key: 'id', title: 'REQUEST ID', sort: true },
+      { key: 'id', title: 'CONSUMPTION ID', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
       { key: 'estimated_consumption_amount', title: 'AMOUNT', sort: true },
       { key: 'created_by', title: 'CONSUMER' },
