@@ -59,7 +59,7 @@ defmodule EWallet.Web.StartAfterPaginator do
   Paginate a query by attempting to extract `start_after`, `start_by` and `per_page`
   from the given map of attributes and returns a paginator.
   """
-  @spec paginate_attrs(Ecto.Query.t() | Ecto.Queryable.t(), map(), map(), Ecto.Repo.t(), map()) ::
+  @spec paginate_attrs(Ecto.Query.t() | Ecto.Queryable.t(), map(), [], Ecto.Repo.t(), map()) ::
           %Paginator{} | {:error, :invalid_parameter, String.t()}
   def paginate_attrs(
         queryable,
@@ -87,13 +87,13 @@ defmodule EWallet.Web.StartAfterPaginator do
     sort_by = map_attr(attrs, "sort_by", default_field, default_mapped_fields)
     start_by = map_attr(attrs, "start_by", default_field, default_mapped_fields)
 
-    attrs =
-      attrs
-      |> Map.put("sort_by", sort_by)
-      |> Map.put("start_by", start_by)
-
     case is_allowed_start_by(start_by, allowed_fields) do
       true ->
+        attrs =
+          attrs
+          |> Map.put("sort_by", sort_by)
+          |> Map.put("start_by", start_by)
+
         paginate(queryable, attrs, repo)
 
       _ ->
@@ -135,9 +135,6 @@ defmodule EWallet.Web.StartAfterPaginator do
   """
   def paginate(queryable, attrs, repo \\ Repo)
 
-  # Returns :error if the record with `start_after` value is not found.
-  def paginate(_, %{"start_after" => :error}, _), do: {:error, :unauthorized}
-
   # Query and returns `Paginator`
   def paginate(
         queryable,
@@ -168,6 +165,9 @@ defmodule EWallet.Web.StartAfterPaginator do
     %Paginator{data: records, pagination: pagination}
   end
 
+  def paginate(queryable, %{"start_after" => nil} = attrs, repo),
+    do: paginate(queryable, %{attrs | "start_after" => {:ok, nil}}, repo)
+
   # Checking if the `start_after` value exist in the db.
   def paginate(
         queryable,
@@ -184,19 +184,22 @@ defmodule EWallet.Web.StartAfterPaginator do
 
     pure_queryable = exclude(queryable, :where)
 
-    start_after =
-      cond do
-        start_after == nil ->
-          {:ok, nil}
-
-        repo.get_by(pure_queryable, condition) != nil ->
-          {:ok, start_after}
-
-        true ->
-          :error
+    try do
+      case repo.get_by(pure_queryable, condition) do
+        # Returns error if the record with `start_after` value is not found.
+        nil -> {:error, :unauthorized}
+        # Record with `start_after` value is found, query the result.
+        _ -> paginate(queryable, %{attrs | "start_after" => {:ok, start_after}}, repo)
       end
+    rescue
+      _ in Ecto.Query.CastError ->
+        msg =
+          ""
+          |> Kernel.<>("Invalid `start_after` or `start_by` provided. ")
+          |> Kernel.<>("Given `#{start_after}` cannot be casted to given `#{start_by}`.")
 
-    paginate(queryable, %{attrs | "start_after" => start_after}, repo)
+        {:error, :invalid_parameter, msg}
+    end
   end
 
   defp fetch(queryable, per_page, repo) do

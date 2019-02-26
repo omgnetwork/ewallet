@@ -260,6 +260,28 @@ defmodule EWallet.Web.StartFromPaginatorTest do
              }
     end
 
+    test "returns :error if the `start_after` cannot be casted to `start_by`" do
+      total = 10
+      per_page = 10
+      ensure_num_records(Account, total)
+
+      attrs = %{
+        "start_by" => "inserted_at",
+        "start_after" => "acc_1",
+        "sort_by" => "id",
+        "per_page" => per_page
+      }
+
+      paginator = StartAfterPaginator.paginate(Account, attrs)
+
+      msg =
+        ""
+        |> Kernel.<>("Invalid `start_after` or `start_by` provided. ")
+        |> Kernel.<>("Given `acc_1` cannot be casted to given `inserted_at`.")
+
+      assert paginator === {:error, :invalid_parameter, msg}
+    end
+
     test "returns :error if start_after doesn't exist" do
       total = 10
       per_page = 10
