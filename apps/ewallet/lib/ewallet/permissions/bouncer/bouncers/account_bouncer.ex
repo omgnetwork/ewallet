@@ -20,8 +20,8 @@ defmodule EWallet.Bouncer.AccountBouncer do
   alias EWalletDB.{Membership, Role}
   alias Utils.Intersecter
 
-  def bounce(permission) do
-    check_permissions(permission, Role.account_role_permissions())
+  def bounce(permission, config) do
+    check_permissions(permission, config.account_permissions)
   end
 
   defp check_permissions(%{action: :export} = permission, permissions) do
@@ -43,13 +43,13 @@ defmodule EWallet.Bouncer.AccountBouncer do
 
   defp check_scope_permissions(
          %{actor: actor, action: action, schema: schema} = permission,
-         permissions
+         config
        ) do
     types = Dispatcher.get_target_types(schema)
     uuids = actor |> Dispatcher.get_actor_accounts() |> Helper.get_uuids()
     memberships = Membership.query_all_by_member_and_account_uuids(actor, uuids, [:role])
 
-    find_sufficient_permission_in_memberships(permission, permissions, memberships, types)
+    find_sufficient_permission_in_memberships(permission, config, memberships, types)
   end
 
   defp check_account_role(
@@ -58,7 +58,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
            type: type,
            target: target
          } = permission,
-         permissions
+         config
        ) do
     actor_account_uuids = actor |> Dispatcher.get_actor_accounts() |> Helper.get_uuids()
 
@@ -72,7 +72,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
         memberships =
           Membership.query_all_by_member_and_account_uuids(actor, matched_account_uuids, [:role])
 
-        find_sufficient_permission_in_memberships(permission, permissions, memberships, [type])
+        find_sufficient_permission_in_memberships(permission, config, memberships, [type])
     end
   end
 
