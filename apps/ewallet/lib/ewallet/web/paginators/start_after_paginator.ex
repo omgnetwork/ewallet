@@ -256,14 +256,14 @@ defmodule EWallet.Web.StartAfterPaginator do
   defp get_offset(_, %{"start_after" => nil}), do: 0
 
   defp get_offset(
-        queryable,
-        %{
-          "start_after" => start_after,
-          "start_by" => start_by,
-          "sort_by" => sort_by,
-          "sort_dir" => sort_dir
-        }
-      ) do
+         queryable,
+         %{
+           "start_after" => start_after,
+           "start_by" => start_by,
+           "sort_by" => sort_by,
+           "sort_dir" => sort_dir
+         }
+       ) do
     sort_by = String.to_atom(sort_by)
     start_by = String.to_atom(start_by)
 
