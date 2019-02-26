@@ -6,7 +6,11 @@ import { withRouter } from 'react-router-dom'
 export default withRouter(
   class AccountAdminSubPage extends Component {
     static propTypes = {
-      match: PropTypes.object
+      match: PropTypes.object,
+      history: PropTypes.object
+    }
+    onClickRow = (data, index) => e => {
+      this.props.history.push(`/accounts/${this.props.match.params.accountId}/users/${data.id}`)
     }
 
     render () {
@@ -15,6 +19,7 @@ export default withRouter(
           fetcher={adminsAccountFetcher}
           accountId={this.props.match.params.accountId}
           navigation={false}
+          onClickRow={this.onClickRow}
         />
       )
     }

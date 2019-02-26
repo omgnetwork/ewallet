@@ -1,15 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import AdminProvider from '../omg-admins/adminProvider'
 import { compose } from 'recompose'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
-import { LoadingSkeleton } from '../omg-uikit'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
@@ -32,12 +30,6 @@ const ContentContainer = styled.div`
   display: inline-block;
   width: 100%;
 `
-const LoadingContainer = styled.div`
-  div {
-    margin-bottom: 1em;
-  }
-`
-
 const enhance = compose(
   withTheme,
   withRouter
@@ -64,39 +56,6 @@ class TokenDetailPage extends Component {
         <DetailGroup>
           <b>Last Update:</b> <span>{moment(admin.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
-      </Section>
-    )
-  }
-  renderWallet = wallet => {
-    const accountId = this.props.match.params.accountId
-    return (
-      <Section title='BALANCE'>
-        {wallet ? (
-          <div>
-            <DetailGroup>
-              <b>Wallet Address:</b>{' '}
-              <Link to={`/${accountId}/wallets/${wallet.address}`}>{wallet.address}</Link> ({' '}
-              <span>{wallet.name}</span> )
-            </DetailGroup>
-            {wallet.balances.map(balance => {
-              return (
-                <DetailGroup key={balance.token.id}>
-                  <b>{balance.token.name}</b>
-                  <span>
-                    {formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}
-                  </span>{' '}
-                  <span>{balance.token.symbol}</span>
-                </DetailGroup>
-              )
-            })}
-          </div>
-        ) : (
-          <LoadingContainer>
-            <LoadingSkeleton />
-            <LoadingSkeleton />
-            <LoadingSkeleton />
-          </LoadingContainer>
-        )}
       </Section>
     )
   }

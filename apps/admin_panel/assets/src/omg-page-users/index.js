@@ -67,7 +67,8 @@ class UsersPage extends Component {
     match: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
     query: PropTypes.object,
-    fetcher: PropTypes.func
+    fetcher: PropTypes.func,
+    onClickRow: PropTypes.func
   }
 
   static defaultProps = {
@@ -145,7 +146,7 @@ class UsersPage extends Component {
             columns={this.getColumns(users)}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
-            onClickRow={this.onClickRow}
+            onClickRow={this.props.onClickRow || this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation

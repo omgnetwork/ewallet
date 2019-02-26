@@ -77,7 +77,8 @@ class UsersPage extends Component {
     scrollTopContentContainer: PropTypes.func,
     query: PropTypes.object,
     fetcher: PropTypes.func,
-    navigation: PropTypes.object
+    navigation: PropTypes.object,
+    onClickRow: PropTypes.func
   }
   static defaultProps = {
     query: {},
@@ -101,7 +102,7 @@ class UsersPage extends Component {
   }
   getColumns = () => {
     return [
-      { key: 'id', title: 'ADMIN ID', sort: true },
+      { key: 'id', title: 'ADMIN xID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'updated_at', title: 'LAST UPDATED', sort: true }
@@ -144,7 +145,7 @@ class UsersPage extends Component {
             columns={this.getColumns(admins)}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
-            onClickRow={this.onClickRow}
+            onClickRow={this.props.onClickRow || this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation={this.props.navigation}
