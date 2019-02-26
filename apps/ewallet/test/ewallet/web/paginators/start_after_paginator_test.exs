@@ -22,7 +22,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
   @default_mapped_fields %{"created_at" => "inserted_at"}
   @default_allowed_fields [:id, :inserted_at, :updated_at]
 
-  describe "EWallet.Web.Paginator.paginate_attrs/2" do
+  describe "EWallet.Web.StartAfterPaginator.paginate_attrs/5" do
     test "returns :error if given `start_by` is not either a string or an atom" do
       attrs = %{"per_page" => 10, "start_by" => 1}
 
@@ -173,59 +173,6 @@ defmodule EWallet.Web.StartFromPaginatorTest do
     end
   end
 
-  describe "EWallet.Web.StartAfterPaginator.get_offset/3" do
-    test "returns offset if given `start_by`, `start_after`" do
-      ensure_num_records(Account, 10)
-
-      records = from(a in Account, select: a, order_by: a.id)
-
-      [first | _] =
-        records
-        |> Repo.all()
-
-      attrs = %{"start_by" => "id", "start_after" => first.id}
-
-      offset = StartAfterPaginator.get_offset(Account, attrs)
-
-      assert offset == 1
-    end
-
-    test "returns offset if given `start_by`, `start_after`, `sort_by`" do
-      ensure_num_records(Account, 10)
-
-      records = from(a in Account, select: a, order_by: a.name)
-
-      [first | _] =
-        records
-        |> Repo.all()
-
-      attrs = %{"start_by" => "id", "start_after" => first.id, "sort_by" => "name"}
-
-      offset = StartAfterPaginator.get_offset(Account, attrs)
-
-      assert offset == 1
-    end
-
-    test "returns offset 0 if the given `start_after` is nil" do
-      ensure_num_records(Account, 10)
-
-      offset =
-        StartAfterPaginator.get_offset(Account, %{"start_after" => nil, "start_by" => "id"})
-
-      assert offset == 0
-    end
-
-    test "returns offset 0 if the given `start_after` is not found" do
-      ensure_num_records(Account, 10)
-
-      attrs = %{"start_after" => "404", "start_by" => "id"}
-
-      offset = StartAfterPaginator.get_offset(Account, attrs)
-
-      assert offset == 0
-    end
-  end
-
   describe "EWallet.Web.StartAfterPaginator.paginate/3" do
     test "returns pagination data when query if given both `start_by` and `start_after` exist" do
       per_page = 10
@@ -273,7 +220,7 @@ defmodule EWallet.Web.StartFromPaginatorTest do
              }
     end
 
-    test "returns records from the beginning if given start_after is nil" do
+    test "returns pagination data from the beginning if given start_after is nil" do
       per_page = 10
 
       # Generate 10 accounts
@@ -328,6 +275,28 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       paginator = StartAfterPaginator.paginate(Account, attrs)
 
       assert paginator === {:error, :unauthorized}
+    end
+
+    test "returns pagination data beginning with the 4th record when given `start_after` to 3th record's id" do
+      ensure_num_records(Account, 10)
+
+      records = from(a in Account, select: a, order_by: a.id)
+
+      [_, _, start_after_record, expected_head_record | _] = Repo.all(records)
+
+      attrs = %{
+        "start_by" => "id",
+        "start_after" => start_after_record.id,
+        "per_page" => 5,
+        "sort_by" => "id",
+        "sort_dir" => "asc"
+      }
+
+      %{data: data} = StartAfterPaginator.paginate(Account, attrs)
+
+      [head_record | _] = data
+
+      assert head_record.id == expected_head_record.id
     end
   end
 

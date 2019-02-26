@@ -59,7 +59,7 @@ defmodule EWallet.Web.StartAfterPaginator do
   Paginate a query by attempting to extract `start_after`, `start_by` and `per_page`
   from the given map of attributes and returns a paginator.
   """
-  @spec paginate_attrs(Ecto.Query.t() | Ecto.Queryable.t(), map(), Ecto.Repo.t()) ::
+  @spec paginate_attrs(Ecto.Query.t() | Ecto.Queryable.t(), map(), map(), Ecto.Repo.t(), map()) ::
           %Paginator{} | {:error, :invalid_parameter, String.t()}
   def paginate_attrs(
         queryable,
@@ -253,9 +253,9 @@ defmodule EWallet.Web.StartAfterPaginator do
     |> offset(^offset)
   end
 
-  def get_offset(_, %{"start_after" => nil}), do: 0
+  defp get_offset(_, %{"start_after" => nil}), do: 0
 
-  def get_offset(
+  defp get_offset(
         queryable,
         %{
           "start_after" => start_after,
@@ -289,7 +289,7 @@ defmodule EWallet.Web.StartAfterPaginator do
     parse_get_offset(result)
   end
 
-  def get_offset(queryable, %{"start_after" => start_after, "start_by" => start_by} = attrs) do
+  defp get_offset(queryable, %{"start_after" => start_after, "start_by" => start_by} = attrs) do
     sort_dir = Map.get(attrs, "sort_dir", "asc")
     sort_by = Map.get(attrs, "sort_by", start_by)
 
