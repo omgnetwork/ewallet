@@ -1,7 +1,7 @@
 import AccountNavgiationBar from './AccountNavigationBar'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Route } from 'react-router-dom'
+import { Route, withRouter } from 'react-router-dom'
 import AccountWalletSubPage from './AccountWalletSubPage'
 import AccountUserSubPage from './AccountUserSubPage'
 import AccountTransactionSubPage from './AccountTransactionSubPage'
@@ -11,11 +11,32 @@ import AccountConsumptionSubPage from './AccountConsumptionSubPage'
 import AccountSettingSubPage from './AccountSettingSubPage'
 import AccountAdminSubPage from './AccountAdminSubPage'
 import WalletDetailPage from '../omg-page-wallet-detail'
+import { selectGetAccountById } from '../omg-account/selector'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
+import styled from 'styled-components'
+
+const BreadContainer = styled.div`
+  padding: 20px 0 0 0;
+  color: ${props => props.theme.colors.B100};
+`
+const enhance = compose(
+  withRouter,
+  connect(
+    (state, props) => {
+      return { account: selectGetAccountById(state)(props.match.params.accountId) }
+    },
+    null
+  )
+)
 class AccountLayout extends Component {
   render () {
     return (
       <div>
         <AccountNavgiationBar />
+        <BreadContainer>
+          Accounts > {_.get(this.props.account, 'name', '...')} > {this.props.match.params.type} {this.props.match.params.id && `> ${this.props.match.params.id}`}
+        </BreadContainer>
         <Route path='/accounts/:accountId/detail' exact render={() => <AccountDetailSubPage />} />
         <Route path='/accounts/:accountId/wallets' exact render={() => <AccountWalletSubPage />} />
         <Route
@@ -47,7 +68,8 @@ class AccountLayout extends Component {
 }
 
 AccountLayout.propTypes = {
-  match: PropTypes.object
+  match: PropTypes.object,
+  account: PropTypes.object
 }
 
-export default AccountLayout
+export default enhance(AccountLayout)

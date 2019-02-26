@@ -23,15 +23,6 @@ const UserPageContainer = styled.div`
     width: 40%;
     border: none;
     position: relative;
-    :before {
-      content: '';
-      position: absolute;
-      right: 0;
-      bottom: -1px;
-      height: 1px;
-      width: calc(100% - 50px);
-      border-bottom: 1px solid ${props => props.theme.colors.S100};
-    }
   }
   tr:hover {
     td:nth-child(1) {
@@ -61,7 +52,7 @@ const UserIdContainer = styled.div`
   span {
     vertical-align: middle;
   }
-  i {
+  i[name='Profile'] {
     margin-right: 5px;
     color: ${props => props.theme.colors.B100};
     padding: 8px;
