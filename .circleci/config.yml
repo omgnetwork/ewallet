@@ -149,8 +149,6 @@ jobs:
           command: |
             set -xe
             make check-credo
-          environment:
-            MIX_ENV: test
       - notify_slack_failure
 
   dialyze:
@@ -177,8 +175,6 @@ jobs:
             export PLT_CORE_PATH=$HOME/var/dialyzer
             mkdir -p $PLT_CORE_PATH
             make check-dialyzer
-          environment:
-            MIX_ENV: test
       - save_cache:
           name: Caching runtime PLT
           key: v2-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
@@ -205,8 +201,6 @@ jobs:
           environment:
             DATABASE_URL: postgresql://postgres:@localhost:5432/ewallet
             LOCAL_LEDGER_DATABASE_URL: postgresql://postgres:@localhost:5432/ledger
-            USE_JUNIT: 1
-            MIX_ENV: test
       - run:
           name: Running eWallet assets tests
           command: |
