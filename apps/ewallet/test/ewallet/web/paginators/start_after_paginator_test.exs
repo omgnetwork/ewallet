@@ -227,8 +227,6 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       # Example: [%{id: "acc_1"}, %{id: "acc_2"}, ... , %{id: "acc_10"}]
       ensure_num_records(Account, per_page)
 
-      # Fetch last `total_records` elements from db
-      # Example: [%{id: "acc_6"}, %{id: "acc_7"}, ... , %{id: "acc_10"}]
       records_id = from(a in Account, select: a.id, order_by: a.id)
 
       records_id =
