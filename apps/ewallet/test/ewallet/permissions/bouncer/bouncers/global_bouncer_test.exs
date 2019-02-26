@@ -38,7 +38,6 @@ defmodule EWallet.GlobalBouncerTest do
     }
   end
 
-  describe "bounce/1 with action = all" do
     # action = all
     # action = export
     # action = other
@@ -51,10 +50,12 @@ defmodule EWallet.GlobalBouncerTest do
     #   allowed
     #   not allowed
     # other
+    # check permission
+    # check scope
 
+  describe "bounce/1 with action = all" do
     test "with global permission (authorized)" do
-      # check permission
-      # check scope
+
       actor = %{global_role: "super_admin"}
       permission = %Permission{actor: actor, action: :all, type: :bike, schema: Bike}
 
