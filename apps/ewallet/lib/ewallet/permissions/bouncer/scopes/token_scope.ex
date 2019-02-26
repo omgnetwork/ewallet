@@ -12,18 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Bouncer.TokenTarget do
+defmodule EWallet.Bouncer.TokenScope do
   @moduledoc """
-  A policy helper containing the actual authorization.
+
   """
-  @behaviour EWallet.Bouncer.TargetBehaviour
+  @behaviour EWallet.Bouncer.ScopeBehaviour
+  import Ecto.Query
+  alias EWallet.Bouncer.{Helper, Permission}
   alias EWalletDB.Token
 
-  def get_owner_uuids(%Token{account_uuid: uuid}), do: [uuid]
+  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
+  def scoped_query(%Permission{
+        actor: actor,
+        global_abilities: global_abilities,
+        account_abilities: account_abilities
+      }) do
+    do_scoped_query(actor, global_abilities) || do_scoped_query(actor, account_abilities)
+  end
 
-  def get_target_types(), do: [:tokens]
+  defp do_scoped_query(_actor, %{tokens: :global}) do
+    Token
+  end
 
-  def get_target_type(%Token{}), do: :tokens
-
-  def get_target_accounts(%Token{account_uuid: uuid}), do: [uuid]
+  defp do_scoped_query(_, _) do
+    nil
+  end
 end
