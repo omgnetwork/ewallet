@@ -16,126 +16,51 @@ defmodule EWallet.Bouncer.Dispatcher do
   @moduledoc """
   A permissions dispatcher calling the appropriate actors/targets.
   """
-  alias EWallet.Bouncer.Permission
+  alias EWallet.Bouncer.{Permission, DispatchConfig}
 
-  alias EWallet.Bouncer.{
-    AccountTarget,
-    CategoryTarget,
-    KeyTarget,
-    TransactionTarget,
-    TransactionRequestTarget,
-    MembershipTarget,
-    TransactionConsumptionTarget,
-    UserTarget,
-    ExportTarget,
-    WalletTarget,
-    MintTarget,
-    TokenTarget,
-    ActivityLogTarget,
-    ExchangePairTarget,
-    TransactionScope,
-    TransactionConsumptionScope,
-    TransactionRequestScope,
-    WalletScope,
-    AccountScope,
-    ActivityLogScope,
-    ExchangePairScope,
-    KeyScope,
-    UserScope
-  }
-
-  alias EWalletDB.{
-    Account,
-    User,
-    Category,
-    Export,
-    Key,
-    Membership,
-    Wallet,
-    Transaction,
-    TransactionRequest,
-    TransactionConsumption,
-    Mint,
-    Token,
-    ExchangePair
-  }
-
-  alias ActivityLogger.ActivityLog
-
-  @scope_references %{
-    Account => AccountScope,
-    ActivityLog => ActivityLogScope,
-    Category => CategoryScope,
-    ExchangePair => ExchangePairScope,
-    Key => KeyScope,
-    Membership => MembershipScope,
-    Transaction => TransactionScope,
-    TransactionRequest => TransactionRequestScope,
-    TransactionConsumption => TransactionConsumptionScope,
-    User => UserScope,
-    Wallet => WalletScope,
-    Mint => MintScope,
-    Token => TokenScope,
-    Key => KeyScope
-  }
-
-  @target_references %{
-    Account => AccountTarget,
-    Category => CategoryTarget,
-    Key => KeyTarget,
-    Membership => MembershipTarget,
-    ExchangePair => ExchangePairTarget,
-    Transaction => TransactionTarget,
-    TransactionRequest => TransactionRequestTarget,
-    TransactionConsumption => TransactionConsumptionTarget,
-    User => UserTarget,
-    Wallet => WalletTarget,
-    Export => ExportTarget,
-    Mint => MintTarget,
-    Token => TokenTarget,
-    ActivityLog => ActivityLogTarget
-  }
-
-  def scoped_query(%Permission{schema: schema} = permission) do
-    @scope_references[schema].scoped_query(permission)
+  def scoped_query(%Permission{schema: schema} = permission, dispatch_config \\ DispatchConfig) do
+    dispatch_config.scope_references[schema].scoped_query(permission)
   end
 
   # Gets all the owner uuids of the given record.
   # Could be user and/or account uuids.
-  def get_owner_uuids(record) do
-    @target_references[record.__struct__].get_owner_uuids(record)
+  def get_owner_uuids(record, dispatch_config \\ DispatchConfig) do
+    dispatch_config.target_references[record.__struct__].get_owner_uuids(record)
   end
 
-  def authorize_with_attrs(%{schema: schema} = permission) do
-    @target_references[schema].authorize_with_attrs(permission)
+  def authorize_with_attrs(%{schema: schema} = permission, dispatch_config \\ DispatchConfig) do
+    dispatch_config.target_references[schema].authorize_with_attrs(permission)
   end
 
   # Redefines the target type if the given record has subtypes.
   # like transaction_requests -> end_user_transaction_requests /
   # account_transaction_requests.
-  def get_target_types(schema) do
-    @target_references[schema].get_target_types()
+  def get_target_types(schema, dispatch_config \\ DispatchConfig) do
+    IO.inspect(schema)
+    IO.inspect(dispatch_config)
+    IO.inspect(dispatch_config.target_references)
+
+    dispatch_config.target_references[schema].get_target_types()
   end
 
-  def get_target_type(record) do
-    @target_references[record.__struct__].get_target_type(record)
+  def get_target_type(record, dispatch_config \\ DispatchConfig) do
+    dispatch_config.target_references[record.__struct__].get_target_type(record)
   end
 
   # Returns a query to get all the accounts the actor (a key, an admin user
   # or an end user) has access to
-  def get_query_actor_records(%Permission{actor: actor} = permission) do
-    @target_references[actor.__struct__].get_query_actor_records(permission)
+  def get_query_actor_records(%Permission{actor: actor} = permission, dispatch_config \\ DispatchConfig) do
+    dispatch_config.target_references[actor.__struct__].get_query_actor_records(permission)
   end
 
   # Gets all the accounts the actor (a key, an admin user or an end user)
   # has access to.
-  @spec get_actor_accounts(atom() | %{__struct__: any()}) :: any()
-  def get_actor_accounts(record) do
-    @target_references[record.__struct__].get_actor_accounts(record)
+  def get_actor_accounts(record, dispatch_config \\ DispatchConfig) do
+    dispatch_config.target_references[record.__struct__].get_actor_accounts(record)
   end
 
   # Loads all the accounts that have power over the given record.
-  def get_target_accounts(record) do
-    @target_references[record.__struct__].get_target_accounts(record)
+  def get_target_accounts(record, dispatch_config \\ DispatchConfig) do
+    dispatch_config.target_references[record.__struct__].get_target_accounts(record)
   end
 end

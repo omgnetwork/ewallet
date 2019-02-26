@@ -20,29 +20,29 @@ defmodule EWallet.Bouncer.GlobalBouncer do
   alias EWalletDB.GlobalRole
   alias Utils.Intersecter
 
-  def bounce(permission) do
+  def bounce(permission, config) do
     permission
     |> Map.put(:global_role, permission.actor.global_role || GlobalRole.none())
-    |> check_permissions(GlobalRole.global_role_permissions())
+    |> check_permissions(config)
   end
 
-  defp check_permissions(%{action: :all} = permission, permissions) do
-    check_scope_permissions(permission, permissions)
+  defp check_permissions(%{action: :all} = permission, config) do
+    check_scope_permissions(permission, config)
   end
 
-  defp check_permissions(%{action: :export} = permission, permissions) do
-    check_scope_permissions(permission, permissions)
+  defp check_permissions(%{action: :export} = permission, config) do
+    check_scope_permissions(permission, config)
   end
 
-  defp check_permissions(%{action: _, type: nil, target: target} = permission, permissions) do
+  defp check_permissions(%{action: _, type: nil, target: target} = permission, config) do
     check_global_role(
       %{permission | type: Dispatcher.get_target_type(target)},
-      permissions
+      config
     )
   end
 
-  defp check_permissions(%{action: _, type: _, target: _} = permission, permissions) do
-    check_global_role(permission, permissions)
+  defp check_permissions(%{action: _, type: _, target: _} = permission, config) do
+    check_global_role(permission, config)
   end
 
   defp check_permissions(permission, _) do
@@ -54,29 +54,19 @@ defmodule EWallet.Bouncer.GlobalBouncer do
     }
   end
 
-  defp check_account_permissions(permissions, role) do
-    case is_map(permissions[role]) do
-      true ->
-        permissions[role][:account_permissions]
-
-      false ->
-        false
-    end
-  end
-
   defp check_scope_permissions(
          %{global_role: role, action: action, schema: schema} = permission,
-         permissions
+         config
        ) do
-    types = Dispatcher.get_target_types(schema)
-    permission = set_check_account_permissions(permission, permissions)
+    types = Dispatcher.get_target_types(schema, config.dispatch_config)
+    permission = set_check_account_permissions(permission, config.global_permissions)
 
     abilities =
       Enum.into(types, %{}, fn type ->
-        {type, Helper.extract_permission(permissions, [role, types, action]) || :none}
+        {type, Helper.extract_permission(config.global_permissions, [role, types, action]) || :none}
       end)
 
-    account_permissions = check_account_permissions(permissions, role)
+    account_permissions = check_account_permissions(config.global_permissions, role)
 
     permission = %{
       permission
@@ -101,23 +91,20 @@ defmodule EWallet.Bouncer.GlobalBouncer do
            action: action,
            target: target
          } = permission,
-         permissions
+         config
        ) do
-    permissions
+    config.global_permissions
     |> Helper.extract_permission([role, type, action])
     |> case do
       :global ->
         %{permission | global_authorized: true, global_abilities: %{type => :global}}
 
       :accounts ->
-        # 1. Get all accounts where user have appropriate role
-        # 2. Get all accounts that have rights on the target
-        # 3. Check if we have any matches!
-        target_accounts = Dispatcher.get_target_accounts(target)
+        target_accounts = Dispatcher.get_target_accounts(target, config.dispatch_config)
 
         can =
           actor
-          |> Dispatcher.get_actor_accounts()
+          |> Dispatcher.get_actor_accounts(config.dispatch_config)
           |> Intersecter.intersect(target_accounts)
           |> length()
           |> Kernel.>(0)
@@ -126,20 +113,20 @@ defmodule EWallet.Bouncer.GlobalBouncer do
           permission
           | global_authorized: can,
             global_abilities: %{type => :accounts},
-            check_account_permissions: permissions[role][:account_permissions]
+            check_account_permissions: config.global_permissions[role][:account_permissions]
         }
 
       :self ->
         can =
           target
-          |> Dispatcher.get_owner_uuids()
+          |> Dispatcher.get_owner_uuids(config.dispatch_config)
           |> Enum.member?(actor.uuid)
 
         %{
           permission
           | global_authorized: can,
             global_abilities: %{type => :self},
-            check_account_permissions: permissions[role][:account_permissions]
+            check_account_permissions: config.global_permissions[role][:account_permissions]
         }
 
       _ ->
@@ -147,8 +134,18 @@ defmodule EWallet.Bouncer.GlobalBouncer do
           permission
           | global_authorized: false,
             global_abilities: %{type => :none},
-            check_account_permissions: permissions[GlobalRole.none()][:account_permissions]
+            check_account_permissions: config.global_permissions[GlobalRole.none()][:account_permissions]
         }
+    end
+  end
+
+    defp check_account_permissions(permissions, role) do
+    case is_map(permissions[role]) do
+      true ->
+        permissions[role][:account_permissions]
+
+      false ->
+        false
     end
   end
 

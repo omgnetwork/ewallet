@@ -16,17 +16,19 @@ defmodule EWallet.Bouncer do
   @moduledoc """
   The entry point module to the permissions logic.
   """
-  alias EWallet.Bouncer.{Helper, Permission, Dispatcher, GlobalBouncer, AccountBouncer}
+  alias EWallet.Bouncer.{Helper, Permission, DispatchConfig, GlobalBouncer, AccountBouncer}
 
   @spec bounce(any(), map()) ::
           {:error, %Permission{authorized: false}} | {:ok, %Permission{authorized: true}}
-  def bounce(actor, permission) do
+  def bounce(actor, permission, config \\ %{}) do
+    config = prepare_config(config)
+
     case Helper.get_actor(actor) do
       nil ->
         set_authorized(permission)
 
       actor ->
-        case GlobalBouncer.bounce(%{permission | actor: actor}) do
+        case GlobalBouncer.bounce(%{permission | actor: actor}, config) do
           %Permission{global_authorized: true} = permission ->
             # The actor has global access so we don't check the account permissions.
             set_authorized(permission)
@@ -35,7 +37,7 @@ defmodule EWallet.Bouncer do
             # The actor does not have global access, but can check account permissions
             # so we check them!
             permission
-            |> AccountBouncer.bounce()
+            |> AccountBouncer.bounce(config)
             |> set_authorized()
 
           permission ->
@@ -49,6 +51,13 @@ defmodule EWallet.Bouncer do
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
   def scoped_query(%Permission{} = permission) do
     Dispatcher.scoped_query(permission)
+  end
+
+  defp prepare_config(config) do
+    config
+    |> Map.put_new(:dispatch_config, DispatchConfig)
+    |> Map.put_new(:global_permissions, GlobalRole.global_role_permissions())
+    |> Map.put_new(:account_permissions, Role.account_role_permissions())
   end
 
   defp set_authorized(%{global_authorized: true} = permission) do
