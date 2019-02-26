@@ -39,7 +39,9 @@ defmodule EWallet.Bouncer.DispatchConfig do
     ActivityLogScope,
     ExchangePairScope,
     KeyScope,
-    UserScope
+    UserScope,
+    CategoryScope,
+    TokenScope
   }
 
   alias EWalletDB.{

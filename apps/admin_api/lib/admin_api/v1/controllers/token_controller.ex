@@ -21,13 +21,15 @@ defmodule AdminAPI.V1.TokenController do
   alias EWallet.{Helper, MintGate, TokenPolicy}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
   alias EWalletDB.{Account, Mint, Token}
+  alias Ecto.Changeset
 
   @doc """
   Retrieves a list of tokens.
   """
   @spec all(Plug.Conn.t(), map() | nil) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with %{authorized: true} <- permit(:all, conn.assigns, nil) do
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+          true <- !is_nil(query) || {:error, :unauthorized} do
       Token
       |> Orchestrator.query(TokenOverlay, attrs)
       |> respond_multiple(conn)
@@ -43,7 +45,7 @@ defmodule AdminAPI.V1.TokenController do
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
     with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:get, conn.assigns, token) do
+         {:ok, _} <- authorize(:get, conn.assigns, token) do
       respond_single(token, conn)
     else
       {:error, code} ->
@@ -59,7 +61,7 @@ defmodule AdminAPI.V1.TokenController do
   @spec stats(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def stats(conn, %{"id" => id}) do
     with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:stats, conn.assigns, token) do
+         {:ok, _} <- authorize(:stats, conn.assigns, token) do
       stats = %{
         token: token,
         total_supply: Mint.total_supply_for_token(token)
@@ -82,7 +84,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with %{authorized: true} <- permit(:create, conn.assigns, attrs) do
+    with {:ok, _} <- authorize(:create, conn.assigns, attrs) do
       do_create(conn, attrs)
     else
       {:error, code} ->
@@ -94,8 +96,7 @@ defmodule AdminAPI.V1.TokenController do
     with attrs <- Map.put(attrs, "account_uuid", Account.get_master_account().uuid),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, token} <- Token.insert(attrs),
-         %{authorized: true} <-
-           permit(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}) || token do
+         {:ok, _} <- authorize(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}) || token do
       token
       |> MintGate.mint_token(%{
         "amount" => amount,
@@ -146,7 +147,7 @@ defmodule AdminAPI.V1.TokenController do
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
     with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:update, conn.assigns, token),
+         {:ok, _} <- authorize(:update, conn.assigns, token),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Token.update(token, attrs) do
       respond_single(updated, conn)
@@ -166,7 +167,7 @@ defmodule AdminAPI.V1.TokenController do
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, %{"id" => id} = attrs) do
     with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:enable_or_disable, conn.assigns, token),
+         {:ok, _} <- authorize(:enable_or_disable, conn.assigns, token),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Token.enable_or_disable(token, attrs) do
       respond_single(updated, conn)
@@ -189,8 +190,12 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   # Respond with a single token
-  defp respond_single({:error, changeset}, conn) do
+  defp respond_single({:error, %Changeset{} = changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
+  end
+
+  defp respond_single({:error, code}, conn) do
+    handle_error(conn, code)
   end
 
   defp respond_single({:ok, _mint, token}, conn) do
@@ -213,8 +218,8 @@ defmodule AdminAPI.V1.TokenController do
     handle_error(conn, error_code)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) :: any()
-  defp permit(action, params, token) do
+  @spec authorize(:all | :create | :get | :update, map(), String.t() | nil) :: any()
+  defp authorize(action, params, token) do
     TokenPolicy.authorize(action, params, token)
   end
 end

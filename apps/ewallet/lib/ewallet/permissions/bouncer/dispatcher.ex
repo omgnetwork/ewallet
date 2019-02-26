@@ -36,10 +36,6 @@ defmodule EWallet.Bouncer.Dispatcher do
   # like transaction_requests -> end_user_transaction_requests /
   # account_transaction_requests.
   def get_target_types(schema, dispatch_config \\ DispatchConfig) do
-    IO.inspect(schema)
-    IO.inspect(dispatch_config)
-    IO.inspect(dispatch_config.target_references)
-
     dispatch_config.target_references[schema].get_target_types()
   end
 

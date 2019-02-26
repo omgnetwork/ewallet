@@ -224,6 +224,15 @@ defmodule AdminAPI.ConnCase do
       })
   end
 
+  @spec set_admin_as_none() :: {:ok, EWalletDB.User.t()}
+  def set_admin_as_none(admin_user \\ nil) do
+    {:ok, _} =
+      User.update(admin_user || get_test_admin(), %{
+        global_role: "none",
+        originator: %System{}
+      })
+  end
+
   @spec add_admin_to_account(%Account{}, %User{} | %Key{}) :: {:ok, any()}
   def add_admin_to_account(account, admin_user \\ nil) do
     {:ok, _} = Membership.assign(admin_user || get_test_admin(), account, "admin", %System{})
