@@ -14,12 +14,24 @@
 
 defmodule EWallet.WalletPolicy do
   @moduledoc """
-  The authorization policy for accounts.
+  The authorization policy for wallets.
   """
-  alias EWallet.{PolicyHelper, Permissions, Permission}
+  alias EWallet.{PolicyHelper, Bouncer, Bouncer.Permission}
   alias EWalletDB.Wallet
 
-  def authorize(action, attrs, target) do
-    PolicyHelper.authorize(action, attrs, :wallets, Wallet, target)
+  def authorize(:create, actor, %{"account_uuid" => account_uuid}) when not is_nil(account_uuid) do
+    Bouncer.bounce(actor, %Permission{action: :create, target: %Wallet{account_uuid: account_uuid}})
+  end
+
+  def authorize(:create, actor, %{"user_uuid" => user_uuid}) when not is_nil(user_uuid)  do
+    Bouncer.bounce(actor, %Permission{action: :create, target: %Wallet{user_uuid: user_uuid}})
+  end
+
+  def authorize(:create, _actor, _wallet_attrs) do
+    {:error, :unauthorized}
+  end
+
+  def authorize(action, actor, target) do
+    PolicyHelper.authorize(action, actor, :wallets, Wallet, target)
   end
 end
