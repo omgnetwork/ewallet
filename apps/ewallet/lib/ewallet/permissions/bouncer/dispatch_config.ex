@@ -32,6 +32,7 @@ defmodule EWallet.Bouncer.DispatchConfig do
     ActivityLogTarget,
     ExchangePairTarget,
     ConfigurationTarget,
+    APIKeyTarget,
     UserActor,
     TransactionScope,
     TransactionConsumptionScope,
@@ -45,7 +46,8 @@ defmodule EWallet.Bouncer.DispatchConfig do
     CategoryScope,
     TokenScope,
     ConfigurationScope,
-    ExportScope
+    ExportScope,
+    APIKeyScope
   }
 
   alias EWalletDB.{
@@ -61,7 +63,8 @@ defmodule EWallet.Bouncer.DispatchConfig do
     TransactionConsumption,
     Mint,
     Token,
-    ExchangePair
+    ExchangePair,
+    APIKey
   }
 
   alias EWalletConfig.Setting
@@ -83,7 +86,8 @@ defmodule EWallet.Bouncer.DispatchConfig do
     Mint => MintScope,
     Token => TokenScope,
     Setting => ConfigurationScope,
-    Export => ExportScope
+    Export => ExportScope,
+    APIKey => APIKeyScope
   }
 
   @actor_references %{
@@ -106,7 +110,8 @@ defmodule EWallet.Bouncer.DispatchConfig do
     Mint => MintTarget,
     Token => TokenTarget,
     ActivityLog => ActivityLogTarget,
-    Setting => ConfigurationTarget
+    Setting => ConfigurationTarget,
+    APIKey => APIKeyTarget
   }
 
   def scope_references, do: @scope_references
