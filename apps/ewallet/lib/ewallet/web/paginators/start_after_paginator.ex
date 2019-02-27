@@ -199,6 +199,12 @@ defmodule EWallet.Web.StartAfterPaginator do
           |> Kernel.<>("Given `#{start_after}` cannot be casted to given `#{start_by}`.")
 
         {:error, :invalid_parameter, msg}
+
+      _ ->
+        # This event should not happen.
+        # We will need to handle more if we encounter this error.
+        {:error, :unknown_error, "An unknown error occured on the database."}
+
     end
   end
 
