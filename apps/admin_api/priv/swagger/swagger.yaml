@@ -41,8 +41,6 @@ info:
 tags:
   - name: AdminSession
     description: Resources related to admin session tokens.
-  - name: Role
-    description: Resources related to roles.
   - name: Admin
     description: Resources related to admin users.
   - name: UserSession
@@ -73,6 +71,8 @@ tags:
     description: Resources related to API access.
   - name: Export
     description: Resources related to exports.
+  - name: Role
+    description: Resources related to roles.
 
 servers:
   - url: /api/admin
@@ -98,18 +98,6 @@ paths:
     $ref: 'admin_session/paths.yaml#/me.logout'
   /auth_token.switch_account:
     $ref: 'admin_session/paths.yaml#/auth_token.switch_account'
-
-  # ROLE
-  /role.all:
-    $ref: 'role/paths.yaml#/role.all'
-  /role.get:
-    $ref: 'role/paths.yaml#/role.get'
-  /role.create:
-    $ref: 'role/paths.yaml#/role.create'
-  /role.update:
-    $ref: 'role/paths.yaml#/role.update'
-  /role.delete:
-    $ref: 'role/paths.yaml#/role.delete'
 
   # USER SESSION
   /user.login:
@@ -326,3 +314,15 @@ paths:
   # ACTIVITY LOG
   /activity_log.all:
     $ref: 'activity_log/paths.yaml#/activity_log.all'
+
+  # ROLE
+  /role.all:
+    $ref: 'role/paths.yaml#/role.all'
+  /role.get:
+    $ref: 'role/paths.yaml#/role.get'
+  /role.create:
+    $ref: 'role/paths.yaml#/role.create'
+  /role.update:
+    $ref: 'role/paths.yaml#/role.update'
+  /role.delete:
+    $ref: 'role/paths.yaml#/role.delete'
