@@ -12,23 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.ConfigurationPolicy do
+defmodule EWallet.Bouncer.ConfigurationTarget do
   @moduledoc """
-  The authorization policy for configuration.
+  A policy helper containing the actual authorization.
   """
-  alias EWallet.PolicyHelper
-  alias EWallet.{Bouncer, Bouncer.Permission}
+  @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletConfig.Setting
 
-  def authorize(:create, actor, _attrs) do
-    Bouncer.bounce(actor, %Permission{action: :create, target: %Setting{}})
+  def get_owner_uuids(_) do
+    []
   end
 
-  def authorize(:update, actor, _attrs) do
-    Bouncer.bounce(actor, %Permission{action: :create, target: %Setting{}})
-  end
+  def get_target_types(), do: [:configuration]
 
-  def authorize(action, actor, target) do
-    PolicyHelper.authorize(action, actor, :settings, Setting, target)
-  end
+  def get_target_type(%Setting{}), do: :configuration
+
+  def get_target_accounts(%Setting{}), do: []
 end

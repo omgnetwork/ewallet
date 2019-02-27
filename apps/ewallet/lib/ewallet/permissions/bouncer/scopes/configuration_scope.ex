@@ -12,23 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.ConfigurationPolicy do
+defmodule EWallet.Bouncer.ConfigurationScope do
   @moduledoc """
-  The authorization policy for configuration.
+
   """
-  alias EWallet.PolicyHelper
-  alias EWallet.{Bouncer, Bouncer.Permission}
-  alias EWalletConfig.Setting
+  @behaviour EWallet.Bouncer.ScopeBehaviour
+  import Ecto.Query
+  alias EWallet.Bouncer.{Helper, Permission}
+  alias EWalletConfig.StoredSetting
 
-  def authorize(:create, actor, _attrs) do
-    Bouncer.bounce(actor, %Permission{action: :create, target: %Setting{}})
+  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
+  def scoped_query(%Permission{
+        actor: actor,
+        global_abilities: global_abilities,
+        account_abilities: account_abilities
+      }) do
+    do_scoped_query(actor, global_abilities) || do_scoped_query(actor, account_abilities)
   end
 
-  def authorize(:update, actor, _attrs) do
-    Bouncer.bounce(actor, %Permission{action: :create, target: %Setting{}})
+  defp do_scoped_query(_actor, %{configuration: :global}) do
+    StoredSetting
   end
 
-  def authorize(action, actor, target) do
-    PolicyHelper.authorize(action, actor, :settings, Setting, target)
+  defp do_scoped_query(_, _) do
+    nil
   end
 end
