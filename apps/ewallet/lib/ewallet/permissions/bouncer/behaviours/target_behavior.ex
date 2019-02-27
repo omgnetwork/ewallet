@@ -23,7 +23,7 @@ defmodule EWallet.Bouncer.TargetBehaviour do
 
   # Gets the appropriate type or subtypes for the target.
   @callback get_target_types() :: [atom()]
-  @callback get_target_type() :: atom()
+  @callback get_target_type(any()) :: atom()
 
   # Gets all the accounts that have power over the target.
   @callback get_target_accounts(any(), map()) :: [Account.t()]

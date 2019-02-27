@@ -157,7 +157,7 @@ defmodule AdminAPI.V1.AccountController do
 
   @spec authorize(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp authorize(action, params, account) do
-    AccountPolicy.authorize(action, params, account)
+  defp authorize(action, actor, account) do
+    AccountPolicy.authorize(action, actor, account)
   end
 end

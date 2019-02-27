@@ -21,6 +21,7 @@ defmodule EWallet.Bouncer.TransactionRequestTarget do
   alias EWalletDB.{Wallet, TransactionRequest}
   alias EWalletDB.Helpers.Preloader
 
+  @spec get_owner_uuids(TransactionRequest.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(%TransactionRequest{user_uuid: user_uuid, account_uuid: account_uuid})
       when not is_nil(user_uuid) and not is_nil(account_uuid) do
     [account_uuid, user_uuid]
@@ -35,11 +36,13 @@ defmodule EWallet.Bouncer.TransactionRequestTarget do
     [account_uuid]
   end
 
+  @spec get_target_types() :: [atom()]
   def get_target_types() do
     [:account_transaction_requests, :end_user_transaction_requests]
   end
 
   # account transaction consumptions
+  @spec get_target_type(TransactionRequest.t()) :: :account_transaction_requests | :end_user_transaction_requests
   def get_target_type(%TransactionRequest{wallet: %Wallet{account_uuid: uuid} = wallet})
       when not is_nil(wallet) and not is_nil(uuid) do
     :account_transaction_requests
@@ -59,6 +62,7 @@ defmodule EWallet.Bouncer.TransactionRequestTarget do
     :end_user_transaction_requests
   end
 
+  @spec get_target_accounts(TransactionRequest.t(), any()) :: [Account.t()]
   def get_target_accounts(
         %TransactionRequest{account_uuid: account_uuid, user_uuid: user_uuid} = target,
         dispatch_config
@@ -78,7 +82,7 @@ defmodule EWallet.Bouncer.TransactionRequestTarget do
     get_user_accounts(target, dispatch_config)
   end
 
-  def get_target_accounts(_) do
+  def get_target_accounts(_, _dispatch_config) do
     false
   end
 

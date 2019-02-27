@@ -20,6 +20,7 @@ defmodule EWallet.Bouncer.WalletTarget do
   alias EWallet.Bouncer.Dispatcher
   alias EWalletDB.{Wallet, Helpers.Preloader}
 
+  @spec get_owner_uuids(Wallet.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(%Wallet{account_uuid: account_uuid})
       when not is_nil(account_uuid) do
     [account_uuid]
@@ -30,15 +31,18 @@ defmodule EWallet.Bouncer.WalletTarget do
     [user_uuid]
   end
 
+  @spec get_target_types() :: [atom()]
   def get_target_types do
     [:account_wallets, :end_user_wallets]
   end
 
+  @spec get_target_type(Wallet.t()) :: :account_wallets | :end_user_wallets
   def get_target_type(%Wallet{account_uuid: account_uuid})
       when not is_nil(account_uuid) do
     :account_wallets
   end
 
+  @spec get_target_accounts(Wallet.t(), any()) :: [Account.t()]
   def get_target_type(%Wallet{user_uuid: user_uuid})
       when not is_nil(user_uuid) do
     :end_user_wallets

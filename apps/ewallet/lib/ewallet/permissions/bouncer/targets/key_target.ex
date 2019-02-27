@@ -19,18 +19,22 @@ defmodule EWallet.Bouncer.KeyTarget do
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.{Key, Helpers.Preloader}
 
+  @spec get_owner_uuids(Key.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(%Key{uuid: uuid}) do
     [uuid]
   end
 
+  @spec get_target_types() :: [:keys]
   def get_target_types(), do: [:keys]
 
-  def get_target_type(%Key{}), do: :keys
+  def get_target_type(_), do: :keys
 
-  def get_target_accounts(%Key{} = key) do
+  @spec get_target_type(Key.t()) :: :keys
+  def get_target_accounts(%Key{} = key, _dispatch_config) do
     get_actor_accounts(key)
   end
 
+  @spec get_target_accounts(Key.t(), any()) :: [Account.t()]
   def get_actor_accounts(%Key{} = key) do
     Preloader.preload(key, [:accounts]).accounts
   end

@@ -19,15 +19,19 @@ defmodule EWallet.Bouncer.APIKeyTarget do
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.{APIKey, Helpers.Preloader}
 
+  @spec get_owner_uuids(APIKey.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(%APIKey{account_uuid: uuid}) do
     [uuid]
   end
 
+  @spec get_target_types() :: [:api_keys]
   def get_target_types(), do: [:api_keys]
 
-  def get_target_type(%APIKey{}), do: :api_keys
+  @spec get_target_type(APIKey.t()) :: :api_keys
+  def get_target_type(_), do: :api_keys
 
-  def get_target_accounts(%APIKey{} = key, _) do
+  @spec get_target_accounts(APIKey.t(), any()) :: [Account.t()]
+  def get_target_accounts(%APIKey{} = key, _dispatch_config) do
     [Preloader.preload(key, [:account]).account]
   end
 end

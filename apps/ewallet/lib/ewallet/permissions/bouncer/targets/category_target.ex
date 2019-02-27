@@ -19,18 +19,22 @@ defmodule EWallet.Bouncer.CategoryTarget do
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.{Category, Helpers.Preloader}
 
+  @spec get_owner_uuids(Category.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(_) do
     []
   end
 
+  @spec get_target_types() :: [:categories]
   def get_target_types(), do: [:categories]
 
-  def get_target_type(%Category{}), do: :categories
+  @spec get_target_type(Category.t()) :: :categories
+  def get_target_type(_), do: :categories
 
   # WARNING: This will work only with the hardcoded roles that were originaly defined.
   # If the roles are changed, especially if a role other than super_admin gains access to
   # category creation with an `accounts` scope, this will fail.
-  def get_target_accounts(%Category{} = category) do
+  @spec get_target_accounts(Category.t(), any()) :: [Account.t()]
+  def get_target_accounts(%Category{} = category, _dispatch_config) do
     Preloader.preload(category, [:accounts]).accounts
   end
 end

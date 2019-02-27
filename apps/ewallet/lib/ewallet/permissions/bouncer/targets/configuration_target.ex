@@ -19,13 +19,17 @@ defmodule EWallet.Bouncer.ConfigurationTarget do
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletConfig.Setting
 
+  @spec get_owner_uuids(Setting.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(_) do
     []
   end
 
+  @spec get_target_types() :: [:configuration]
   def get_target_types(), do: [:configuration]
 
-  def get_target_type(%Setting{}), do: :configuration
+  @spec get_target_type(Setting.t()) :: :configuration
+  def get_target_type(_), do: :configuration
 
-  def get_target_accounts(%Setting{}, _), do: []
+  @spec get_target_accounts(Setting.t(), any()) :: [Account.t()]
+  def get_target_accounts(%Setting{}, _dispatch_config), do: []
 end

@@ -19,13 +19,17 @@ defmodule EWallet.Bouncer.ExchangePairTarget do
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.ExchangePair
 
+  @spec get_owner_uuids(ExchangePair.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(_) do
     []
   end
 
+  @spec get_target_types() :: [:exchange_pairs]
   def get_target_types(), do: [:exchange_pairs]
 
-  def get_target_type(%ExchangePair{}), do: :exchange_pairs
+  @spec get_target_type(ExchangePair.t()) :: :exchange_pairs
+  def get_target_type(_), do: :exchange_pairs
 
-  def get_target_accounts(%ExchangePair{}), do: []
+  @spec get_target_accounts(ExchangePair.t(), any()) :: [Account.t()]
+  def get_target_accounts(%ExchangePair{}, _dispatch_config), do: []
 end

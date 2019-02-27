@@ -19,6 +19,7 @@ defmodule EWallet.Bouncer.MembershipTarget do
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.{Membership, Helpers.Preloader}
 
+  @spec get_owner_uuids(Membership.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(%Membership{account_uuid: account_uuid, user_uuid: user_uuid})
       when not is_nil(user_uuid) do
     [account_uuid, user_uuid]
@@ -29,11 +30,14 @@ defmodule EWallet.Bouncer.MembershipTarget do
     [account_uuid, key_uuid]
   end
 
-  def get_target_type(%Membership{}) do
-    :memberships
-  end
+  @spec get_target_types() :: [:memberships]
+  def get_target_types(), do: [:memberships]
 
-  def get_target_accounts(%Membership{} = membership) do
+  @spec get_target_type(Membership.t()) :: :memberships
+  def get_target_type(_), do: :memberships
+
+  @spec get_target_accounts(Membership.t(), any()) :: [Account.t()]
+  def get_target_accounts(%Membership{} = membership, _dispatch_config) do
     [Preloader.preload(membership, [:account]).account]
   end
 end

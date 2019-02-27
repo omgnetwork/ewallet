@@ -27,9 +27,9 @@ defmodule EWallet.Bouncer.ActivityLogTarget do
   @spec get_target_types() :: [:activity_logs]
   def get_target_types, do: [:activity_logs]
 
-  @spec get_target_type() :: :activity_logs
-  def get_target_type(), do: :activity_logs
+  @spec get_target_type(ActivityLog.t()) :: :activity_logs
+  def get_target_type(_), do: :activity_logs
 
   @spec get_target_accounts(ActivityLog.t(), any()) :: []
-  def get_target_accounts(_activity_log, _), do: []
+  def get_target_accounts(_activity_log, _dispatch_config), do: []
 end

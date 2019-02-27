@@ -19,6 +19,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionTarget do
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.TransactionConsumption
 
+  @spec get_owner_uuids(TransactionConsumption.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(%TransactionConsumption{user_uuid: user_uuid, account_uuid: account_uuid})
       when not is_nil(user_uuid) and not is_nil(account_uuid) do
     [account_uuid, user_uuid]
@@ -34,10 +35,12 @@ defmodule EWallet.Bouncer.TransactionConsumptionTarget do
   end
 
   # account transaction consumptions
+  @spec get_target_types() :: [atom()]
   def get_target_types() do
     [:account_transaction_consumptions, :end_user_transaction_consumptions]
   end
 
+  @spec get_target_type(TransactionConsumption.t()) :: :account_transaction_consumptions | :end_user_transaction_consumptions
   def get_target_type(%TransactionConsumption{user_uuid: nil}) do
     :account_transaction_consumptions
   end
@@ -48,13 +51,14 @@ defmodule EWallet.Bouncer.TransactionConsumptionTarget do
   end
 
   # account transaction consumptions
-  def get_target_accounts(%TransactionConsumption{user_uuid: nil} = target) do
+  @spec get_target_accounts(TransactionConsumption.t(), any()) :: [Account.t()]
+  def get_target_accounts(%TransactionConsumption{user_uuid: nil} = target, _dispatch_config) do
     [target.account]
   end
 
   # account transaction consumptions
-  def get_target_accounts(%TransactionConsumption{user_uuid: user_uuid} = target)
+  def get_target_accounts(%TransactionConsumption{user_uuid: user_uuid} = target, dispatch_config)
       when not is_nil(user_uuid) do
-    get_target_accounts(target.user)
+    get_target_accounts(target.user, dispatch_config)
   end
 end

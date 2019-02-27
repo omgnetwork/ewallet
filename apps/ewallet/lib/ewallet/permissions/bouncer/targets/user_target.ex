@@ -22,14 +22,17 @@ defmodule EWallet.Bouncer.UserTarget do
   alias EWalletDB.{Membership, User, Wallet, AccountUser}
   alias EWalletDB.Helpers.Preloader
 
+  @spec get_owner_uuids(User.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(%User{uuid: uuid}) do
     [uuid]
   end
 
+  @spec get_target_types() :: [atom()]
   def get_target_types() do
     [:admin_users, :end_users]
   end
 
+  @spec get_target_type(User.t()) :: :admin_users | :end_users
   def get_target_type(%User{is_admin: true}) do
     :admin_users
   end
@@ -38,11 +41,12 @@ defmodule EWallet.Bouncer.UserTarget do
     :end_users
   end
 
-  def get_target_accounts(%User{is_admin: true} = target, _) do
+  @spec get_target_accounts(User.t(), any()) :: [Account.t()]
+  def get_target_accounts(%User{is_admin: true} = target, _dispatch_config) do
     target.accounts
   end
 
-  def get_target_accounts(%User{is_admin: false} = target, _) do
+  def get_target_accounts(%User{is_admin: false} = target, _dispatch_config) do
     target = Preloader.preload(target, [:linked_accounts])
     target.linked_accounts
   end

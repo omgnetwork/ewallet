@@ -20,16 +20,20 @@ defmodule EWallet.Bouncer.ExportTarget do
   alias EWallet.Bouncer.{UserTarget}
   alias EWalletDB.{User, Export}
 
+  @spec get_owner_uuids(Export.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(%Export{user_uuid: user_uuid, key_uuid: key_uuid}) do
     [user_uuid || key_uuid]
   end
 
+  @spec get_target_types() :: [:exports]
   def get_target_types do
     [:exports]
   end
 
-  def get_target_type(%Export{}), do: :exports
+  @spec get_target_type(Export.t()) :: :exports
+  def get_target_type(_), do: :exports
 
+  @spec get_target_accounts(Export.t(), any()) :: [Account.t()]
   def get_target_accounts(%Export{user_uuid: user_uuid}, dispatch_config)
       when not is_nil(user_uuid) do
     [uuid: user_uuid]
