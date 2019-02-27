@@ -30,7 +30,7 @@ defmodule AdminAPI.V1.TokenController do
   def all(conn, attrs) do
     with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
-      Token
+      query
       |> Orchestrator.query(TokenOverlay, attrs)
       |> respond_multiple(conn)
     else
