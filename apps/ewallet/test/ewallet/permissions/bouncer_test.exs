@@ -13,6 +13,117 @@
 # limitations under the License.
 
 defmodule EWallet.BouncerTest do
-  use ExUnit.Case, async: true
-  alias EWallet.Helper
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
+  alias EWallet.Bouncer
+  alias EWallet.Bouncer.{Permission, DispatchConfig}
+  alias EWalletDB.{Membership, Wallet}
+  alias ActivityLogger.System
+
+  def global_permissions do
+    %{
+      "super_admin" => :global,
+      "end_user" => %{
+        account_permissions: false
+      },
+      "none_with_no_account_permissions" => %{
+        account_permissions: false
+      },
+      "none" => %{
+        account_permissions: true
+      }
+    }
+  end
+
+  def account_permissions do
+    %{
+      "admin" => %{
+        account_wallets: %{
+          all: :accounts
+        }
+      }
+    }
+  end
+
+  describe "bounce/3" do
+    test "returns a global authorized permission" do
+      actor = insert(:admin, global_role: "super_admin")
+      permission = %Permission{action: :all, type: :wallets, schema: Wallet}
+
+      {:ok, permission} =
+        Bouncer.bounce(%{admin_user: actor}, permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: global_permissions(),
+          account_permissions: account_permissions()
+        })
+
+      assert permission.authorized == true
+      assert permission.global_authorized == true
+      assert permission.global_role == "super_admin"
+      assert permission.global_abilities == %{account_wallets: :global, end_user_wallets: :global}
+      assert permission.account_authorized == false
+      assert permission.account_abilities == %{}
+    end
+
+    test "returns an account authorized permission" do
+      actor = insert(:admin, global_role: nil)
+      account = insert(:account)
+      {:ok, _} = Membership.assign(actor, account, "admin", %System{})
+      permission = %Permission{action: :all, type: :wallets, schema: Wallet}
+
+      {:ok, permission} =
+        Bouncer.bounce(%{admin_user: actor}, permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: global_permissions(),
+          account_permissions: account_permissions()
+        })
+
+      assert permission.authorized == true
+      assert permission.global_authorized == false
+      assert permission.global_role == "none"
+      assert permission.global_abilities == %{account_wallets: :none, end_user_wallets: :none}
+      assert permission.account_authorized == true
+
+      assert permission.account_abilities == %{
+               account_wallets: :accounts,
+               end_user_wallets: :none
+             }
+    end
+
+    test "skips the accounts permission if not allowed" do
+      actor = insert(:admin, global_role: "none_with_no_account_permissions")
+      account = insert(:account)
+      {:ok, _} = Membership.assign(actor, account, "admin", %System{})
+      permission = %Permission{action: :all, type: :wallets, schema: Wallet}
+
+      {:error, permission} =
+        Bouncer.bounce(%{admin_user: actor}, permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: global_permissions(),
+          account_permissions: account_permissions()
+        })
+
+      assert permission.authorized == false
+      assert permission.check_account_permissions == false
+      assert permission.global_authorized == false
+      assert permission.global_role == "none_with_no_account_permissions"
+      assert permission.global_abilities == %{account_wallets: :none, end_user_wallets: :none}
+      assert permission.account_authorized == false
+      assert permission.account_abilities == %{}
+    end
+  end
+
+  describe "scoped_query/1" do
+    test "returns a scoped query" do
+      permission = %Permission{
+        authorized: true,
+        global_abilities: %{account_wallets: :global, end_user_wallets: :global},
+        action: :all,
+        type: :wallets,
+        schema: Wallet
+      }
+
+      assert Bouncer.scoped_query(permission) == Wallet
+    end
+  end
 end

@@ -56,9 +56,11 @@ defmodule EWallet.Bouncer do
   end
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
-  def scoped_query(%Permission{} = permission) do
+  def scoped_query(%Permission{authorized: true} = permission) do
     Dispatcher.scoped_query(permission)
   end
+
+  def scoped_query(_), do: nil
 
   defp prepare_config(config) do
     config
