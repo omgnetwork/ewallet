@@ -111,8 +111,7 @@ defmodule EWalletDB.GlobalRole do
         create: :accounts,
         approve: :accounts
       },
-      account_exports: %{all: :accounts, get: :accounts, create: :accounts},
-      admin_user_exports: %{all: :admin_user, get: :admin_user, create: :admin_user},
+      exports: %{all: :self, get: :self, create: :global},
       configuration: :none
     },
     "viewer" => %{
@@ -177,8 +176,7 @@ defmodule EWalletDB.GlobalRole do
         create: :none,
         approve: :none
       },
-      account_exports: %{all: :accounts, get: :accounts, create: :none},
-      admin_user_exports: %{all: :admin_user, get: :admin_user, create: :none},
+      exports: %{all: :self, get: :self, create: :none},
       configuration: :none
     },
     "end_user" => %{

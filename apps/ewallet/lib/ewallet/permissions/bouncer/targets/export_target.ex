@@ -36,4 +36,6 @@ defmodule EWallet.Bouncer.ExportTarget do
     |> User.get_by()
     |> UserTarget.get_target_accounts(dispatch_config)
   end
+
+  def get_target_accounts(%Export{}, _dispatch_config), do: []
 end
