@@ -27,5 +27,5 @@ defmodule EWallet.Bouncer.ConfigurationTarget do
 
   def get_target_type(%Setting{}), do: :configuration
 
-  def get_target_accounts(%Setting{}), do: []
+  def get_target_accounts(%Setting{}, _), do: []
 end

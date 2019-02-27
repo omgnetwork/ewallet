@@ -296,5 +296,587 @@ defmodule EWallet.GlobalBouncerTest do
       assert res.global_role == "admin"
       assert res.global_abilities == %{end_user_wallets: :accounts}
     end
+
+    test "with accounts permission and account wallet (authorized)" do
+      actor = insert(:admin, global_role: "admin")
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+      {:ok, _} = Membership.assign(actor, account, "viewer", %System{})
+
+      permission = %Permission{actor: actor, action: :get, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "admin"
+      assert res.global_abilities == %{account_wallets: :accounts}
+    end
+
+    test "with accounts permission and account wallet (unauthorized)" do
+      actor = insert(:admin, global_role: "admin")
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :get, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "admin"
+      assert res.global_abilities == %{account_wallets: :accounts}
+    end
+
+    test "with self permission and end user wallet (authorized)" do
+      {:ok, actor} = :user |> params_for(global_role: "end_user") |> User.insert()
+      wallet = User.get_primary_wallet(actor)
+
+      permission = %Permission{actor: actor, action: :get, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "end_user"
+      assert res.global_abilities == %{end_user_wallets: :self}
+    end
+
+    test "with self permission and account wallet (unauthorized)" do
+      {:ok, actor} = :user |> params_for(global_role: "end_user") |> User.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :get, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "end_user"
+      assert res.global_abilities == %{account_wallets: :none}
+    end
+
+    test "with none global role and end user wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: "none") |> User.insert()
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      permission = %Permission{actor: actor, action: :get, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{end_user_wallets: :none}
+    end
+
+    test "with none global role and account wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: "none") |> User.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :get, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{account_wallets: :none}
+    end
+
+    test "with nil global role and end user wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: nil) |> User.insert()
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      permission = %Permission{actor: actor, action: :get, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{end_user_wallets: :none}
+    end
+
+    test "with nil global role and account wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: nil) |> User.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :get, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{account_wallets: :none}
+    end
+  end
+
+  describe "bounce/1 with action = create" do
+    test "with global permission and end user wallet (authorized)" do
+      actor = insert(:admin, global_role: "super_admin")
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+      permission = %Permission{actor: actor, action: :create, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "super_admin"
+      assert res.global_abilities == %{end_user_wallets: :global}
+    end
+
+    test "with global permission and account wallet (authorized)" do
+      actor = insert(:admin, global_role: "super_admin")
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+      permission = %Permission{actor: actor, action: :create, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "super_admin"
+      assert res.global_abilities == %{account_wallets: :global}
+    end
+
+    test "with accounts permission and end user wallet (authorized)" do
+      actor = insert(:admin, global_role: "admin")
+      account = insert(:account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
+      {:ok, _} = Membership.assign(actor, account, "viewer", %System{})
+
+      permission = %Permission{actor: actor, action: :get, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "admin"
+      assert res.global_abilities == %{end_user_wallets: :accounts}
+    end
+
+    test "with accounts permission and end user wallet (unauthorized)" do
+      actor = insert(:admin, global_role: "admin")
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      permission = %Permission{actor: actor, action: :create, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "admin"
+      assert res.global_abilities == %{end_user_wallets: :accounts}
+    end
+
+    test "with accounts permission and account wallet (authorized)" do
+      actor = insert(:admin, global_role: "admin")
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+      {:ok, _} = Membership.assign(actor, account, "viewer", %System{})
+
+      permission = %Permission{actor: actor, action: :create, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "admin"
+      assert res.global_abilities == %{account_wallets: :accounts}
+    end
+
+    test "with accounts permission and account wallet (unauthorized)" do
+      actor = insert(:admin, global_role: "admin")
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :create, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "admin"
+      assert res.global_abilities == %{account_wallets: :accounts}
+    end
+
+    test "with self permission and end user wallet (authorized)" do
+      {:ok, actor} = :user |> params_for(global_role: "end_user") |> User.insert()
+      wallet = User.get_primary_wallet(actor)
+
+      permission = %Permission{actor: actor, action: :create, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "end_user"
+      assert res.global_abilities == %{end_user_wallets: :self}
+    end
+
+    test "with self permission and account wallet (unauthorized)" do
+      {:ok, actor} = :user |> params_for(global_role: "end_user") |> User.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :create, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "end_user"
+      assert res.global_abilities == %{account_wallets: :none}
+    end
+
+    test "with none global role and end user wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: "none") |> User.insert()
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      permission = %Permission{actor: actor, action: :create, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{end_user_wallets: :none}
+    end
+
+    test "with none global role and account wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: "none") |> User.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :create, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{account_wallets: :none}
+    end
+
+    test "with nil global role and end user wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: nil) |> User.insert()
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      permission = %Permission{actor: actor, action: :create, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{end_user_wallets: :none}
+    end
+
+    test "with nil global role and account wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: nil) |> User.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :create, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{account_wallets: :none}
+    end
+  end
+
+  describe "bounce/1 with action = update" do
+    test "with global permission and end user wallet (authorized)" do
+      actor = insert(:admin, global_role: "super_admin")
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+      permission = %Permission{actor: actor, action: :update, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "super_admin"
+      assert res.global_abilities == %{end_user_wallets: :global}
+    end
+
+    test "with global permission and account wallet (authorized)" do
+      actor = insert(:admin, global_role: "super_admin")
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+      permission = %Permission{actor: actor, action: :update, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "super_admin"
+      assert res.global_abilities == %{account_wallets: :global}
+    end
+
+    test "with accounts permission and end user wallet (authorized)" do
+      actor = insert(:admin, global_role: "admin")
+      account = insert(:account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
+      {:ok, _} = Membership.assign(actor, account, "viewer", %System{})
+
+      permission = %Permission{actor: actor, action: :get, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "admin"
+      assert res.global_abilities == %{end_user_wallets: :accounts}
+    end
+
+    test "with accounts permission and end user wallet (unauthorized)" do
+      actor = insert(:admin, global_role: "admin")
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      permission = %Permission{actor: actor, action: :update, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "admin"
+      assert res.global_abilities == %{end_user_wallets: :accounts}
+    end
+
+    test "with accounts permission and account wallet (authorized)" do
+      actor = insert(:admin, global_role: "admin")
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+      {:ok, _} = Membership.assign(actor, account, "viewer", %System{})
+
+      permission = %Permission{actor: actor, action: :update, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "admin"
+      assert res.global_abilities == %{account_wallets: :accounts}
+    end
+
+    test "with accounts permission and account wallet (unauthorized)" do
+      actor = insert(:admin, global_role: "admin")
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :update, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "admin"
+      assert res.global_abilities == %{account_wallets: :accounts}
+    end
+
+    test "with self permission and end user wallet (authorized)" do
+      {:ok, actor} = :user |> params_for(global_role: "end_user") |> User.insert()
+      wallet = User.get_primary_wallet(actor)
+
+      permission = %Permission{actor: actor, action: :update, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == true
+      assert res.global_role == "end_user"
+      assert res.global_abilities == %{end_user_wallets: :self}
+    end
+
+    test "with self permission and account wallet (unauthorized)" do
+      {:ok, actor} = :user |> params_for(global_role: "end_user") |> User.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :update, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "end_user"
+      assert res.global_abilities == %{account_wallets: :none}
+    end
+
+    test "with none global role and end user wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: "none") |> User.insert()
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      permission = %Permission{actor: actor, action: :update, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{end_user_wallets: :none}
+    end
+
+    test "with none global role and account wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: "none") |> User.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :update, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{account_wallets: :none}
+    end
+
+    test "with nil global role and end user wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: nil) |> User.insert()
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      permission = %Permission{actor: actor, action: :update, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{end_user_wallets: :none}
+    end
+
+    test "with nil global role and account wallet (unauthorized)" do
+      {:ok, actor} = :admin |> params_for(global_role: nil) |> User.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      permission = %Permission{actor: actor, action: :update, target: wallet}
+
+      res =
+        GlobalBouncer.bounce(permission, %{
+          dispatch_config: DispatchConfig,
+          global_permissions: permissions()
+        })
+
+      assert res.global_authorized == false
+      assert res.global_role == "none"
+      assert res.global_abilities == %{account_wallets: :none}
+    end
   end
 end

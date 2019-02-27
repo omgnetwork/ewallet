@@ -22,7 +22,7 @@ defmodule AdminAPI.V1.ConfigurationController do
 
   def all(conn, attrs) do
     with {:ok, %{query: query}} <- authorize(:all, conn.assigns),
-          true <- !is_nil(query) || {:error, :unauthorized} do
+         true <- !is_nil(query) || {:error, :unauthorized} do
       settings =
         Config.query_settings()
         |> Orchestrator.build_query(ConfigurationOverlay, attrs)
