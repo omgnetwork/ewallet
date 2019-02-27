@@ -12,26 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Bouncer.AccountTargetTest do
+defmodule EWallet.Bouncer.MembershipScopeTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Bouncer.KeyActor
   alias EWalletDB.Membership
   alias ActivityLogger.System
 
-  describe "get_owner_uuids/1" do
-
-  end
-
-  describe "get_target_types/0" do
-
-  end
-
-  describe "get_target_type/1" do
-
-  end
-
-  describe "get_target_accounts/2" do
+  describe "scope_query/1" do
 
   end
 end

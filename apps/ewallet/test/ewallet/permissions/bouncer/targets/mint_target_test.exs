@@ -12,28 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Bouncer.AccountTarget do
-  @moduledoc """
-  A policy helper containing the actual authorization.
-  """
-  @behaviour EWallet.Bouncer.TargetBehaviour
-  alias EWalletDB.{Account, Helpers.Preloader}
+defmodule EWallet.Bouncer.MintTargetTest do
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
+  alias EWallet.Bouncer.KeyActor
+  alias EWalletDB.Membership
+  alias ActivityLogger.System
 
-  def get_owner_uuids(account) do
-    memberships = Preloader.preload(account, [:memberships]).memberships
+  describe "get_owner_uuids/1" do
 
-    Enum.map(memberships, fn membership ->
-      membership.user_uuid || membership.account_uuid
-    end)
   end
 
-  def get_target_types do
-    [:accounts]
+  describe "get_target_types/0" do
+
   end
 
-  def get_target_type(%Account{}), do: :accounts
+  describe "get_target_type/1" do
 
-  def get_target_accounts(%Account{} = target, _) do
-    [target]
+  end
+
+  describe "get_target_accounts/2" do
+
   end
 end
