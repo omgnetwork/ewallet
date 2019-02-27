@@ -17,7 +17,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
   A policy helper containing the actual authorization.
   """
   alias EWallet.Bouncer.{Dispatcher, Helper}
-  alias EWalletDB.{Membership, Role}
+  alias EWalletDB.Membership
   alias Utils.Intersecter
 
   def bounce(permission, config) do
