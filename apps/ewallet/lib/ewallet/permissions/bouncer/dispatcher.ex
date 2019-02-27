@@ -28,10 +28,6 @@ defmodule EWallet.Bouncer.Dispatcher do
     dispatch_config.target_references[record.__struct__].get_owner_uuids(record)
   end
 
-  def authorize_with_attrs(%{schema: schema} = permission, dispatch_config \\ DispatchConfig) do
-    dispatch_config.target_references[schema].authorize_with_attrs(permission)
-  end
-
   # Redefines the target type if the given record has subtypes.
   # like transaction_requests -> end_user_transaction_requests /
   # account_transaction_requests.

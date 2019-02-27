@@ -50,21 +50,6 @@ defmodule EWallet.GlobalBouncerTest do
     }
   end
 
-  # action = all
-  # action = export
-  # action = other
-
-  # :global permission
-  # :account permission
-  #   allowed
-  #   not allowed
-  # :self
-  #   allowed
-  #   not allowed
-  # other
-  # check permission
-  # check scope
-
   describe "bounce/1 with action = all" do
     test "with global permission (authorized)" do
       actor = insert(:admin, global_role: "super_admin")
