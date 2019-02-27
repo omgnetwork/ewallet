@@ -38,21 +38,21 @@ config :ewallet_config,
     "max_per_page" => %{
       key: "max_per_page",
       value: 100,
-      type: "integer",
+      type: "unsigned_integer",
       position: 103,
       description: "The maximum number of records that can be returned for a list."
     },
     "min_password_length" => %{
       key: "min_password_length",
       value: 8,
-      type: "integer",
+      type: "unsigned_integer",
       position: 104,
       description: "The minimum length for passwords."
     },
     "forget_password_request_lifetime" => %{
       key: "forget_password_request_lifetime",
       value: 10,
-      type: "integer",
+      type: "unsigned_integer",
       position: 105,
       description: "The duration (in minutes) that a forget password request will be valid for."
     },
@@ -136,7 +136,7 @@ config :ewallet_config,
     "balance_caching_reset_frequency" => %{
       key: "balance_caching_reset_frequency",
       value: 10,
-      type: "integer",
+      type: "unsigned_integer",
       position: 301,
       parent: "balance_caching_strategy",
       parent_value: "since_last_cached",

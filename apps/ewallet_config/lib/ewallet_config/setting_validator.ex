@@ -79,6 +79,10 @@ defmodule EWalletConfig.SettingValidator do
   # Setting's type-value validator
   #
 
+  defp valid_setting_type?(nil, "integer"), do: false
+
+  defp valid_setting_type?(nil, "unsigned_integer"), do: false
+
   defp valid_setting_type?(nil, _), do: true
 
   defp valid_setting_type?(value, "string") when is_binary(value), do: true
