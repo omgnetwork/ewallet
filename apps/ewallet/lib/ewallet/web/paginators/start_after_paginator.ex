@@ -52,6 +52,7 @@ defmodule EWallet.Web.StartAfterPaginator do
   `["acc_1", "acc_2", "acc_3", ... ,"acc_10"]`
   """
   import Ecto.Query
+  require Logger
   alias EWalletDB.Repo
   alias EWallet.Web.Paginator
 
@@ -200,9 +201,10 @@ defmodule EWallet.Web.StartAfterPaginator do
 
         {:error, :invalid_parameter, msg}
 
-      _ ->
+      error ->
         # This event should not happen.
         # We will need to handle more if we encounter this error.
+        Logger.error("An unknown error occurred during pagination. Error: #{inspect(error)}")
         {:error, :unknown_error, "An unknown error occured on the database."}
     end
   end
