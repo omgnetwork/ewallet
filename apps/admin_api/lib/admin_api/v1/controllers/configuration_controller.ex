@@ -24,7 +24,7 @@ defmodule AdminAPI.V1.ConfigurationController do
     with {:ok, %{query: query}} <- authorize(:all, conn.assigns),
          true <- !is_nil(query) || {:error, :unauthorized} do
       settings =
-        Config.query_settings()
+        query
         |> Orchestrator.build_query(ConfigurationOverlay, attrs)
         |> Repo.all()
 

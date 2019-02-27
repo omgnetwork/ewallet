@@ -17,9 +17,9 @@ defmodule EWallet.Bouncer.ConfigurationScope do
 
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
-  import Ecto.Query
-  alias EWallet.Bouncer.{Helper, Permission}
-  alias EWalletConfig.StoredSetting
+  alias EWallet.Bouncer.Permission
+  alias EWalletConfig.Config
+
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
   def scoped_query(%Permission{
@@ -31,7 +31,7 @@ defmodule EWallet.Bouncer.ConfigurationScope do
   end
 
   defp do_scoped_query(_actor, %{configuration: :global}) do
-    StoredSetting
+    Config.query_settings()
   end
 
   defp do_scoped_query(_, _) do
