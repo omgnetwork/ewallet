@@ -32,9 +32,7 @@ defmodule EWallet.Bouncer.DispatchConfig do
     ActivityLogTarget,
     ExchangePairTarget,
     ConfigurationTarget,
-
     UserActor,
-
     TransactionScope,
     TransactionConsumptionScope,
     TransactionRequestScope,
