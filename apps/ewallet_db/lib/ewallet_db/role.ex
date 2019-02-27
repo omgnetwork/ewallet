@@ -110,8 +110,7 @@ defmodule EWalletDB.Role do
         listen: :accounts,
         create: :accounts
       },
-      account_exports: %{all: :accounts, get: :accounts, create: :accounts},
-      admin_user_exports: :none,
+      exports: :none,
       configuration: :none
     },
     "viewer" => %{
@@ -132,8 +131,7 @@ defmodule EWalletDB.Role do
       end_user_transaction_requests: %{all: :accounts, get: :accounts, listen: :accounts},
       account_transaction_consumptions: %{all: :accounts, get: :accounts, listen: :accounts},
       end_user_transaction_consumptions: %{all: :accounts, get: :accounts, listen: :accounts},
-      account_exports: %{read: :accounts, get: :accounts},
-      admin_user_exports: :none,
+      exports: :none,
       configuration: :none
     }
   }

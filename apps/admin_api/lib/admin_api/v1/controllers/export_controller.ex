@@ -21,7 +21,7 @@ defmodule AdminAPI.V1.ExportController do
   alias Utils.Helpers.PathResolver
 
   def all(conn, attrs) do
-    with {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
       storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
 
@@ -40,7 +40,7 @@ defmodule AdminAPI.V1.ExportController do
     storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
 
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
-         {:ok, _} <- permit(:get, conn.assigns, export),
+         {:ok, _} <- authorize(:get, conn.assigns, export),
          true <- export.adapter == storage_adapter || {:error, :invalid_storage_adapter},
          {:ok, url} <- ExportGate.generate_url(export),
          export <- Map.put(export, :url, url),
@@ -57,7 +57,7 @@ defmodule AdminAPI.V1.ExportController do
     storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
 
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
-         {:ok, _} <- permit(:download, conn.assigns, export),
+         {:ok, _} <- authorize(:download, conn.assigns, export),
          true <- export.adapter == "local" || {:error, :export_not_local},
          true <- export.adapter == storage_adapter || {:error, :invalid_storage_adapter},
          path <- Path.join(PathResolver.static_dir(:url_dispatcher), export.path),
@@ -84,9 +84,9 @@ defmodule AdminAPI.V1.ExportController do
     handle_error(conn, code, description)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
+  @spec authorize(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, export) do
-    ExportPolicy.authorize(action, params, export)
+  defp authorize(action, actor, export) do
+    ExportPolicy.authorize(action, actor, export)
   end
 end

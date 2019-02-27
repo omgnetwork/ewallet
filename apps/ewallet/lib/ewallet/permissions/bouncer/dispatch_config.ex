@@ -44,7 +44,8 @@ defmodule EWallet.Bouncer.DispatchConfig do
     UserScope,
     CategoryScope,
     TokenScope,
-    ConfigurationScope
+    ConfigurationScope,
+    ExportScope
   }
 
   alias EWalletDB.{
@@ -81,7 +82,8 @@ defmodule EWallet.Bouncer.DispatchConfig do
     Wallet => WalletScope,
     Mint => MintScope,
     Token => TokenScope,
-    Setting => ConfigurationScope
+    Setting => ConfigurationScope,
+    Export => ExportScope
   }
 
   @actor_references %{
