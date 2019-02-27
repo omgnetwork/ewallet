@@ -20,18 +20,14 @@ defmodule EWallet.Bouncer.TransactionTargetTest do
   alias ActivityLogger.System
 
   describe "get_owner_uuids/1" do
-
   end
 
   describe "get_target_types/0" do
-
   end
 
   describe "get_target_type/1" do
-
   end
 
   describe "get_target_accounts/2" do
-
   end
 end

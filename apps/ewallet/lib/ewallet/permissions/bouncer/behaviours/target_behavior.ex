@@ -19,10 +19,11 @@ defmodule EWallet.Bouncer.TargetBehaviour do
   alias EWalletDB.Account
 
   # Gets all the uuids owning the given target.
-  @callback get_owner_uuids(any()) :: [any()]
+  @callback get_owner_uuids(any()) :: [Ecto.UUID.t()]
 
   # Gets the appropriate type or subtypes for the target.
-  @callback get_target_type(any()) :: atom()
+  @callback get_target_types() :: [atom()]
+  @callback get_target_type() :: atom()
 
   # Gets all the accounts that have power over the target.
   @callback get_target_accounts(any(), map()) :: [Account.t()]

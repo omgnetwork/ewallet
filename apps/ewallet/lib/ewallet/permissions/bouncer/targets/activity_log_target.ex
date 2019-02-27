@@ -14,22 +14,22 @@
 
 defmodule EWallet.Bouncer.ActivityLogTarget do
   @moduledoc """
-  A policy helper containing the actual authorization.
+  The target handler for activity logs.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias ActivityLogger.ActivityLog
 
+  @spec get_owner_uuids(ActivityLog.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(activity_log) do
-    activity_log.originator_uuid
+    [activity_log.originator_uuid]
   end
 
-  def get_target_types do
-    [:activity_logs]
-  end
+  @spec get_target_types() :: [:activity_logs]
+  def get_target_types, do: [:activity_logs]
 
-  def get_target_type(%ActivityLog{}), do: :activity_logs
+  @spec get_target_type() :: :activity_logs
+  def get_target_type(), do: :activity_logs
 
-  def get_target_accounts(%ActivityLog{} = _activity_log) do
-    []
-  end
+  @spec get_target_accounts(ActivityLog.t(), any()) :: []
+  def get_target_accounts(_activity_log, _), do: []
 end

@@ -15,23 +15,32 @@
 defmodule EWallet.Bouncer.ActivityLogTargetTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
-  alias EWallet.Bouncer.KeyActor
-  alias EWalletDB.Membership
-  alias ActivityLogger.System
+  alias EWallet.Bouncer.{ActivityLogTarget, DispatchConfig}
 
   describe "get_owner_uuids/1" do
-
+    test "returns the list of UUIDs owning the activity log" do
+      activity_log = insert(:activity_log)
+      res = ActivityLogTarget.get_owner_uuids(activity_log)
+      assert res == [activity_log.originator_uuid]
+    end
   end
 
   describe "get_target_types/0" do
-
+    test "returns a list of types" do
+      assert ActivityLogTarget.get_target_types() == [:activity_logs]
+    end
   end
 
   describe "get_target_type/1" do
-
+    test "returns the type of the given account" do
+      assert ActivityLogTarget.get_target_type() == :activity_logs
+    end
   end
 
   describe "get_target_accounts/2" do
-
+    test "returns the list of accounts having rights on the current account" do
+      activity_log = insert(:activity_log)
+      assert ActivityLogTarget.get_target_accounts(activity_log, DispatchConfig) == []
+    end
   end
 end

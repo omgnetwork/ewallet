@@ -20,6 +20,5 @@ defmodule EWallet.Bouncer.ExportScopeTest do
   alias ActivityLogger.System
 
   describe "scope_query/1" do
-
   end
 end

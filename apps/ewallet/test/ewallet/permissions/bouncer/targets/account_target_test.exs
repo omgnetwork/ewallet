@@ -15,23 +15,52 @@
 defmodule EWallet.Bouncer.AccountTargetTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
-  alias EWallet.Bouncer.KeyActor
-  alias EWalletDB.Membership
+  alias EWallet.Bouncer.{AccountTarget, DispatchConfig}
+  alias EWalletDB.{AccountUser, Membership}
   alias ActivityLogger.System
 
   describe "get_owner_uuids/1" do
+    test "returns the list of UUIDs owning the account" do
+      account = :account |> params_for() |> Account.insert()
 
+      account = insert(:account)
+      admin_1 = insert(:admin)
+      admin_2 = insert(:admin)
+      key_1 = insert(:key)
+      key_2 = insert(:key)
+      user = insert(:user)
+
+      {:ok, _} = Membership.assign(admin_1, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_2, account, "viewer", %System{})
+      {:ok, _} = Membership.assign(key_1, account, "admin", %System{})
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
+
+      uuids = AccountTarget.get_owner_uuids(account)
+
+      assert Enum.member?(uuids, admin_1.uuid)
+      assert Enum.member?(uuids, admin_2.uuid)
+      assert Enum.member?(uuids, key_1.uuid)
+      refute Enum.member?(uuids, key_2.uuid)
+      refute Enum.member?(uuids, user.uuid)
+    end
   end
 
   describe "get_target_types/0" do
-
+    test "returns a list of types" do
+      assert AccountTarget.get_target_types() == [:accounts]
+    end
   end
 
   describe "get_target_type/1" do
-
+    test "returns the type of the given account" do
+      assert AccountTarget.get_target_type() == :accounts
+    end
   end
 
   describe "get_target_accounts/2" do
-
+    test "returns the list of accounts having rights on the current account" do
+      account = insert(:account)
+      assert AccountTarget.get_target_accounts(account, DispatchConfig) == [account]
+    end
   end
 end

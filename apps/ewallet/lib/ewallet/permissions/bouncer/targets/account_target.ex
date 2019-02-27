@@ -14,25 +14,27 @@
 
 defmodule EWallet.Bouncer.AccountTarget do
   @moduledoc """
-  A policy helper containing the actual authorization.
+  The target handler for accounts.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.{Account, Helpers.Preloader}
 
+  @spec get_owner_uuids(Account.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(account) do
     memberships = Preloader.preload(account, [:memberships]).memberships
 
     Enum.map(memberships, fn membership ->
-      membership.user_uuid || membership.account_uuid
+      membership.user_uuid || membership.key_uuid
     end)
   end
 
-  def get_target_types do
-    [:accounts]
-  end
+  @spec get_target_types() :: [:accounts]
+  def get_target_types, do: [:accounts]
 
-  def get_target_type(%Account{}), do: :accounts
+  @spec get_target_type() :: :accounts
+  def get_target_type, do: :accounts
 
+  @spec get_target_accounts(Account.t(), any()) :: [Account.t()]
   def get_target_accounts(%Account{} = target, _) do
     [target]
   end
