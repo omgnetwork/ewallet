@@ -678,7 +678,6 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
       refute response["success"]
       assert response["data"]["code"] == "unauthorized"
-
     end
 
     defp assert_enable_logs(logs, originator, target) do

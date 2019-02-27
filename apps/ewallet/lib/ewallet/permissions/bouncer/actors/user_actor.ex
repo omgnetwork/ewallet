@@ -17,8 +17,48 @@ defmodule EWallet.Bouncer.UserActor do
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.ActorBehaviour
-  alias EWalletDB.User
+  import Ecto.Query
+  alias EWallet.Bouncer.Permission
+  alias EWalletDB.{AccountUser, Membership, Wallet, User}
   alias EWalletDB.Helpers.Preloader
+
+  def get_query_actor_records(%Permission{type: :accounts, actor: %User{is_admin: true} = actor}) do
+    Ecto.assoc(actor, :accounts)
+  end
+
+  def get_query_actor_records(%Permission{type: :accounts, actor: %User{is_admin: false} = actor}) do
+    Ecto.assoc(actor, :linked_accounts)
+  end
+
+  def get_query_actor_records(%Permission{
+        type: :memberships,
+        actor: %User{is_admin: true} = actor
+      }) do
+    Ecto.assoc(actor, :memberships)
+  end
+
+  def get_query_actor_records(%Permission{type: :memberships, actor: %User{is_admin: false}}) do
+    nil
+  end
+
+  def get_query_actor_records(%Permission{
+        global_abilities: :accounts,
+        type: :wallets,
+        actor: %User{is_admin: true} = actor
+      }) do
+    # wallets owned by users that are linked with accounts that the current user has membership with
+    from(
+      w in Wallet,
+      join: m in Membership,
+      on: m.user_uuid == ^actor.uuid,
+      join: au in AccountUser,
+      on: m.account_uuid == au.account_uuid,
+      join: u in User,
+      on: au.user_uuid == u.uuid,
+      where: w.user_uuid == u.uuid or w.account_uuid == m.account_uuid,
+      select: w
+    )
+  end
 
   def get_actor_accounts(%User{is_admin: true} = actor) do
     actor = Preloader.preload(actor, [:accounts, :memberships])

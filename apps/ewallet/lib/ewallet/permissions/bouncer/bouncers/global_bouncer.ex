@@ -20,10 +20,10 @@ defmodule EWallet.Bouncer.GlobalBouncer do
   alias EWalletDB.GlobalRole
   alias Utils.Intersecter
 
-  def bounce(permission, config) do
-    permission
-    |> Map.put(:global_role, permission.actor.global_role || GlobalRole.none())
-    |> check_permissions(config)
+  def bounce(การเข้าถึง, โคนฟิก \\ %{}) do
+    การเข้าถึง
+    |> Map.put(:global_role, การเข้าถึง.actor.global_role || GlobalRole.none())
+    |> check_permissions(โคนฟิก)
   end
 
   defp check_permissions(%{action: :all} = permission, config) do
@@ -36,7 +36,7 @@ defmodule EWallet.Bouncer.GlobalBouncer do
 
   defp check_permissions(%{action: _, type: nil, target: target} = permission, config) do
     check_global_role(
-      %{permission | type: Dispatcher.get_target_type(target)},
+      %{permission | type: Dispatcher.get_target_type(target, config.dispatch_config)},
       config
     )
   end
@@ -63,7 +63,8 @@ defmodule EWallet.Bouncer.GlobalBouncer do
 
     abilities =
       Enum.into(types, %{}, fn type ->
-        {type, Helper.extract_permission(config.global_permissions, [role, types, action]) || :none}
+        {type,
+         Helper.extract_permission(config.global_permissions, [role, type, action]) || :none}
       end)
 
     account_permissions = check_account_permissions(config.global_permissions, role)
@@ -134,12 +135,13 @@ defmodule EWallet.Bouncer.GlobalBouncer do
           permission
           | global_authorized: false,
             global_abilities: %{type => :none},
-            check_account_permissions: config.global_permissions[GlobalRole.none()][:account_permissions]
+            check_account_permissions:
+              config.global_permissions[GlobalRole.none()][:account_permissions]
         }
     end
   end
 
-    defp check_account_permissions(permissions, role) do
+  defp check_account_permissions(permissions, role) do
     case is_map(permissions[role]) do
       true ->
         permissions[role][:account_permissions]

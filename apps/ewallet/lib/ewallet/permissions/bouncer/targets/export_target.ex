@@ -30,9 +30,10 @@ defmodule EWallet.Bouncer.ExportTarget do
 
   def get_target_type(%Export{}), do: :exports
 
-  def get_target_accounts(%Export{user_uuid: user_uuid}) when not is_nil(user_uuid) do
+  def get_target_accounts(%Export{user_uuid: user_uuid}, dispatch_config)
+      when not is_nil(user_uuid) do
     [uuid: user_uuid]
     |> User.get_by()
-    |> UserTarget.get_target_accounts()
+    |> UserTarget.get_target_accounts(dispatch_config)
   end
 end

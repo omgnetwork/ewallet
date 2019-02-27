@@ -15,5 +15,4 @@
 defmodule EWallet.HelperTest do
   use ExUnit.Case, async: true
   alias EWallet.Helper
-
 end

@@ -29,7 +29,7 @@ defmodule AdminAPI.V1.TokenController do
   @spec all(Plug.Conn.t(), map() | nil) :: Plug.Conn.t()
   def all(conn, attrs) do
     with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
-          true <- !is_nil(query) || {:error, :unauthorized} do
+         true <- !is_nil(query) || {:error, :unauthorized} do
       Token
       |> Orchestrator.query(TokenOverlay, attrs)
       |> respond_multiple(conn)
@@ -96,7 +96,8 @@ defmodule AdminAPI.V1.TokenController do
     with attrs <- Map.put(attrs, "account_uuid", Account.get_master_account().uuid),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, token} <- Token.insert(attrs),
-         {:ok, _} <- authorize(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}) || token do
+         {:ok, _} <-
+           authorize(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}) || token do
       token
       |> MintGate.mint_token(%{
         "amount" => amount,

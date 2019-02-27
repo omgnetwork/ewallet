@@ -17,7 +17,7 @@ defmodule EWallet.Bouncer.TransactionRequestTarget do
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
-  alias EWallet.Bouncer.UserTarget
+  alias EWallet.Bouncer.Dispatcher
   alias EWalletDB.{Wallet, TransactionRequest}
   alias EWalletDB.Helpers.Preloader
 
@@ -60,20 +60,22 @@ defmodule EWallet.Bouncer.TransactionRequestTarget do
   end
 
   def get_target_accounts(
-        %TransactionRequest{account_uuid: account_uuid, user_uuid: user_uuid} = target
+        %TransactionRequest{account_uuid: account_uuid, user_uuid: user_uuid} = target,
+        dispatch_config
       )
       when not is_nil(account_uuid) and not is_nil(user_uuid) do
     target = Preloader.preload(target, [:user, :account])
-    [get_account(target) | get_user_accounts(target)]
+    [get_account(target) | get_user_accounts(target, dispatch_config)]
   end
 
-  def get_target_accounts(%TransactionRequest{account_uuid: uuid} = target)
+  def get_target_accounts(%TransactionRequest{account_uuid: uuid} = target, _dispatch_config)
       when not is_nil(uuid) do
     [get_account(target)]
   end
 
-  def get_target_accounts(%TransactionRequest{user_uuid: uuid} = target) when not is_nil(uuid) do
-    get_user_accounts(target)
+  def get_target_accounts(%TransactionRequest{user_uuid: uuid} = target, dispatch_config)
+      when not is_nil(uuid) do
+    get_user_accounts(target, dispatch_config)
   end
 
   def get_target_accounts(_) do
@@ -88,9 +90,9 @@ defmodule EWallet.Bouncer.TransactionRequestTarget do
     Preloader.preload(record, :user).user
   end
 
-  defp get_user_accounts(record) do
+  defp get_user_accounts(record, dispatch_config) do
     record
     |> get_user()
-    |> UserTarget.get_target_accounts()
+    |> Dispatcher.get_target_accounts(dispatch_config)
   end
 end

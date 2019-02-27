@@ -15,5 +15,4 @@
 defmodule EWallet.AccountBouncerTest do
   use ExUnit.Case, async: true
   alias EWallet.Helper
-
 end

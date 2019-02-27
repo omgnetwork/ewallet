@@ -18,7 +18,7 @@ defmodule EWallet.Bouncer.TransactionTarget do
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
   import Ecto.Query
-  alias EWallet.Bouncer.{UserTarget, AccountTarget, WalletTarget}
+  alias EWallet.Bouncer.Dispatcher
   alias EWalletDB.{Account, AccountUser, User, Wallet, Transaction}
 
   @spec get_owner_uuids(EWalletDB.Transaction.t()) :: [...]
@@ -33,12 +33,18 @@ defmodule EWallet.Bouncer.TransactionTarget do
   def get_target_types(), do: [:account_transactions, :end_user_transactions]
   def get_target_type(%Transaction{}), do: :transactions
 
-  def get_target_accounts(%Transaction{from_account_uuid: from_uuid, to_account_uuid: to_uuid})
+  def get_target_accounts(
+        %Transaction{from_account_uuid: from_uuid, to_account_uuid: to_uuid},
+        _dispatch_config
+      )
       when not is_nil(from_uuid) and not is_nil(to_uuid) do
     Account.where_in(Account, [from_uuid, to_uuid])
   end
 
-  def get_target_accounts(%Transaction{from_account_uuid: from_uuid, to_user_uuid: to_uuid})
+  def get_target_accounts(
+        %Transaction{from_account_uuid: from_uuid, to_user_uuid: to_uuid},
+        _dispatch_config
+      )
       when not is_nil(from_uuid) and not is_nil(to_uuid) do
     Account
     |> join(:inner, [a], au in AccountUser, on: a.account_uuid == au.account_uuid)
@@ -46,7 +52,10 @@ defmodule EWallet.Bouncer.TransactionTarget do
     |> select([a, au, u], a)
   end
 
-  def get_target_accounts(%Transaction{from_user_uuid: from_uuid, to_account_uuid: to_uuid})
+  def get_target_accounts(
+        %Transaction{from_user_uuid: from_uuid, to_account_uuid: to_uuid},
+        _dispatch_config
+      )
       when not is_nil(from_uuid) and not is_nil(to_uuid) do
     Account
     |> join(:inner, [a], au in AccountUser, on: a.account_uuid == au.account_uuid)
@@ -54,7 +63,10 @@ defmodule EWallet.Bouncer.TransactionTarget do
     |> select([a, au, u], a)
   end
 
-  def get_target_accounts(%Transaction{from_user_uuid: from_uuid, to_user_uuid: to_uuid})
+  def get_target_accounts(
+        %Transaction{from_user_uuid: from_uuid, to_user_uuid: to_uuid},
+        _dispatch_config
+      )
       when not is_nil(from_uuid) and not is_nil(to_uuid) do
     Account
     |> join(:inner, [a], au in AccountUser, on: a.account_uuid == au.account_uuid)
@@ -62,24 +74,30 @@ defmodule EWallet.Bouncer.TransactionTarget do
     |> select([a, au, u], a)
   end
 
-  def get_target_accounts(%Transaction{uuid: uuid, from: from})
+  def get_target_accounts(%Transaction{uuid: uuid, from: from}, dispatch_config)
       when is_nil(uuid) and not is_nil(from) do
     from
     |> Wallet.get()
-    |> WalletTarget.get_target_accounts()
+    |> Dispatcher.get_target_accounts(dispatch_config)
   end
 
-  def get_target_accounts(%Transaction{uuid: uuid, from_account_uuid: from_account_uuid})
+  def get_target_accounts(
+        %Transaction{uuid: uuid, from_account_uuid: from_account_uuid},
+        dispatch_config
+      )
       when is_nil(uuid) and not is_nil(from_account_uuid) do
     [uuid: from_account_uuid]
     |> Account.get_by()
-    |> AccountTarget.get_target_accounts()
+    |> Dispatcher.get_target_accounts(dispatch_config)
   end
 
-  def get_target_accounts(%Transaction{uuid: uuid, from_user_uuid: from_user_uuid})
+  def get_target_accounts(
+        %Transaction{uuid: uuid, from_user_uuid: from_user_uuid},
+        dispatch_config
+      )
       when is_nil(uuid) and not is_nil(from_user_uuid) do
     [uuid: from_user_uuid]
     |> User.get_by()
-    |> UserTarget.get_target_accounts()
+    |> Dispatcher.get_target_accounts(dispatch_config)
   end
 end

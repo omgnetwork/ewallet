@@ -31,6 +31,7 @@ defmodule EWallet.Bouncer.DispatchConfig do
     TokenTarget,
     ActivityLogTarget,
     ExchangePairTarget,
+    UserActor,
     TransactionScope,
     TransactionConsumptionScope,
     TransactionRequestScope,
@@ -75,7 +76,12 @@ defmodule EWallet.Bouncer.DispatchConfig do
     User => UserScope,
     Wallet => WalletScope,
     Mint => MintScope,
-    Token => TokenScope,
+    Token => TokenScope
+  }
+
+  @actor_references %{
+    User => UserActor,
+    Key => KeyActor
   }
 
   @target_references %{
@@ -96,5 +102,6 @@ defmodule EWallet.Bouncer.DispatchConfig do
   }
 
   def scope_references, do: @scope_references
+  def actor_references, do: @actor_references
   def target_references, do: @target_references
 end

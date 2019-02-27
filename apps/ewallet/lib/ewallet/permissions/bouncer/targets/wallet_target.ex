@@ -17,7 +17,8 @@ defmodule EWallet.Bouncer.WalletTarget do
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
-  alias EWalletDB.Wallet
+  alias EWallet.Bouncer.Dispatcher
+  alias EWalletDB.{Wallet, Helpers.Preloader}
 
   def get_owner_uuids(%Wallet{account_uuid: account_uuid})
       when not is_nil(account_uuid) do
@@ -43,12 +44,14 @@ defmodule EWallet.Bouncer.WalletTarget do
     :end_user_wallets
   end
 
-  def get_target_accounts(%Wallet{account_uuid: nil} = target) do
-    get_target_accounts(target.user)
+  def get_target_accounts(%Wallet{account_uuid: nil} = target, dispatch_config) do
+    user = Preloader.preload(target, [:user]).user
+    Dispatcher.get_target_accounts(user, dispatch_config)
   end
 
   # account wallets
-  def get_target_accounts(%Wallet{user_uuid: nil} = target) do
-    [target.account]
+  def get_target_accounts(%Wallet{user_uuid: nil} = target, _dispatch_config) do
+    account = Preloader.preload(target, [:account]).account
+    [account]
   end
 end

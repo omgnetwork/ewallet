@@ -16,11 +16,17 @@ defmodule EWallet.Bouncer do
   @moduledoc """
   The entry point module to the permissions logic.
   """
-  alias EWallet.Bouncer.{Helper, Permission, DispatchConfig, Dispatcher, GlobalBouncer, AccountBouncer}
+  alias EWallet.Bouncer.{
+    Helper,
+    Permission,
+    DispatchConfig,
+    Dispatcher,
+    GlobalBouncer,
+    AccountBouncer
+  }
+
   alias EWalletDB.{GlobalRole, Role}
 
-  @spec bounce(any(), map()) ::
-          {:error, %Permission{authorized: false}} | {:ok, %Permission{authorized: true}}
   def bounce(actor, permission, config \\ %{}) do
     config = prepare_config(config)
 

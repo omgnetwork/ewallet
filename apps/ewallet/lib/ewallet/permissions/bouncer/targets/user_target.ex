@@ -38,63 +38,11 @@ defmodule EWallet.Bouncer.UserTarget do
     :end_users
   end
 
-  def get_query_actor_records(%Permission{type: :accounts, actor: %User{is_admin: true} = actor}) do
-    Ecto.assoc(actor, :accounts)
-  end
-
-  def get_query_actor_records(%Permission{type: :accounts, actor: %User{is_admin: false} = actor}) do
-    Ecto.assoc(actor, :linked_accounts)
-  end
-
-  def get_query_actor_records(%Permission{
-        type: :memberships,
-        actor: %User{is_admin: true} = actor
-      }) do
-    Ecto.assoc(actor, :memberships)
-  end
-
-  def get_query_actor_records(%Permission{type: :memberships, actor: %User{is_admin: false}}) do
-    nil
-  end
-
-  def get_query_actor_records(%Permission{
-        global_abilities: :accounts,
-        type: :wallets,
-        actor: %User{is_admin: true} = actor
-      }) do
-    # wallets owned by users that are linked with accounts that the current user has membership with
-    from(
-      w in Wallet,
-      join: m in Membership,
-      on: m.user_uuid == ^actor.uuid,
-      join: au in AccountUser,
-      on: m.account_uuid == au.account_uuid,
-      join: u in User,
-      on: au.user_uuid == u.uuid,
-      where: w.user_uuid == u.uuid or w.account_uuid == m.account_uuid,
-      select: w
-    )
-  end
-
-  # def get_query_actor_records(%Permission{type: :wallets, actor: %User{is_admin: false} = actor}) do
-  #   nil
-  # end
-
-  def get_actor_accounts(%User{is_admin: true} = actor) do
-    actor = Preloader.preload(actor, [:accounts, :memberships])
-    actor.accounts
-  end
-
-  def get_actor_accounts(%User{is_admin: false} = actor) do
-    actor = Preloader.preload(actor, [:linked_accounts])
-    actor.linked_accounts
-  end
-
-  def get_target_accounts(%User{is_admin: true} = target) do
+  def get_target_accounts(%User{is_admin: true} = target, _) do
     target.accounts
   end
 
-  def get_target_accounts(%User{is_admin: false} = target) do
+  def get_target_accounts(%User{is_admin: false} = target, _) do
     target = Preloader.preload(target, [:linked_accounts])
     target.linked_accounts
   end

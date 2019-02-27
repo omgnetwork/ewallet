@@ -45,18 +45,24 @@ defmodule EWallet.Bouncer.Dispatcher do
 
   # Returns a query to get all the accounts the actor (a key, an admin user
   # or an end user) has access to
-  def get_query_actor_records(%Permission{actor: actor} = permission, dispatch_config \\ DispatchConfig) do
-    dispatch_config.target_references[actor.__struct__].get_query_actor_records(permission)
+  def get_query_actor_records(
+        %Permission{actor: actor} = permission,
+        dispatch_config \\ DispatchConfig
+      ) do
+    dispatch_config.actor_references[actor.__struct__].get_query_actor_records(permission)
   end
 
   # Gets all the accounts the actor (a key, an admin user or an end user)
   # has access to.
   def get_actor_accounts(record, dispatch_config \\ DispatchConfig) do
-    dispatch_config.target_references[record.__struct__].get_actor_accounts(record)
+    dispatch_config.actor_references[record.__struct__].get_actor_accounts(record)
   end
 
   # Loads all the accounts that have power over the given record.
   def get_target_accounts(record, dispatch_config \\ DispatchConfig) do
-    dispatch_config.target_references[record.__struct__].get_target_accounts(record)
+    dispatch_config.target_references[record.__struct__].get_target_accounts(
+      record,
+      dispatch_config
+    )
   end
 end
