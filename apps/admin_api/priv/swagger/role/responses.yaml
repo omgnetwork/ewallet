@@ -1,12 +1,6 @@
-RoleResponse:
-  description: Returns a single role
+UnauthorizedResponse:
+  description: Returns unauthorized error
   content:
     application/vnd.omisego.v1+json:
       schema:
-        $ref: 'response_schemas.yaml#/RoleResponseSchema'
-RolesResponse:
-  description: Returns a list of roles
-  content:
-    application/vnd.omisego.v1+json:
-      schema:
-        $ref: 'response_schemas.yaml#/RolesResponseSchema'
+        $ref: 'response_schemas.yaml#/UnauthorizedResponseSchema'
