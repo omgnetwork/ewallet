@@ -14,14 +14,14 @@
 
 defmodule EWallet.Bouncer.KeyScope do
   @moduledoc """
-
+  Permission scoping module for keys.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.{Helper, Permission}
-  alias EWalletDB.{Key, SoftDelete}
+  alias EWalletDB.{Key, Membership, SoftDelete}
 
-  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
+  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: nil | Ecto.Query.t()
   def scoped_query(%Permission{
         actor: actor,
         global_abilities: global_abilities,
@@ -37,9 +37,13 @@ defmodule EWallet.Bouncer.KeyScope do
   defp do_scoped_query(actor, %{keys: :accounts}) do
     actor
     |> Helper.prepare_query_with_membership_for(Key)
-    |> where([g, m], g.uuid == m.key_uuid)
+    |> join(:inner, [g, actor_m], key_m in Membership,
+      on: actor_m.account_uuid == key_m.account_uuid
+    )
+    |> where([g, actor_m, key_m], g.uuid == key_m.key_uuid)
     |> SoftDelete.exclude_deleted()
-    |> select([g, m], g)
+    |> distinct(true)
+    |> select([g, actor_m, key_m], g)
   end
 
   defp do_scoped_query(_, _) do
