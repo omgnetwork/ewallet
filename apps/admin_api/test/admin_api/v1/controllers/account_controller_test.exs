@@ -36,7 +36,6 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test_with_auths "returns a list of accounts according to search_term, sort_by and sort_direction" do
-
       insert(:account, %{name: "Matched 2"})
       insert(:account, %{name: "Matched 3"})
       insert(:account, %{name: "Matched 1"})
@@ -85,6 +84,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       response =
         request("/account.all", %{}, access_key: key.access_key, secret_key: key.secret_key)
+
       accounts = response["data"]["data"]
 
       assert response["success"]

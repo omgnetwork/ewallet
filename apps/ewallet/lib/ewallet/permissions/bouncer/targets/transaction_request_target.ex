@@ -42,7 +42,8 @@ defmodule EWallet.Bouncer.TransactionRequestTarget do
   end
 
   # account transaction consumptions
-  @spec get_target_type(TransactionRequest.t()) :: :account_transaction_requests | :end_user_transaction_requests
+  @spec get_target_type(TransactionRequest.t()) ::
+          :account_transaction_requests | :end_user_transaction_requests
   def get_target_type(%TransactionRequest{wallet: %Wallet{account_uuid: uuid} = wallet})
       when not is_nil(wallet) and not is_nil(uuid) do
     :account_transaction_requests
