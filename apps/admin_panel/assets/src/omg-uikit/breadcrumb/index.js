@@ -1,9 +1,14 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import Icon from '../icon'
 const BreadcrumbContainer = styled.div`
   position: relative;
   color: ${props => props.theme.colors.B100};
+  i {
+    padding: 0 5px;
+    font-size: inherit;
+  }
 `
 export default class Breadcrumb extends Component {
   static propTypes = {
@@ -16,7 +21,7 @@ export default class Breadcrumb extends Component {
       <BreadcrumbContainer>
         {items.reduce((prev, curr, index) => {
           prev.push(curr)
-          if (index < items.length - 1) prev.push(' > ')
+          if (index < items.length - 1) prev.push(<Icon name='Chevron-Right' />)
           return prev
         }, [])}
       </BreadcrumbContainer>
