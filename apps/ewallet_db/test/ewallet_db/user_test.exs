@@ -305,6 +305,33 @@ defmodule EWalletDB.UserTest do
     end
   end
 
+  describe "get_admin/1" do
+    test "returns the existing admin" do
+      {_, inserted_user} =
+        :user
+        |> build(%{id: "usr_01caj9wth0vyestkmh7873qb9f", is_admin: true})
+        |> Repo.insert()
+
+      user = User.get_admin("usr_01caj9wth0vyestkmh7873qb9f")
+      assert user.uuid == inserted_user.uuid
+    end
+
+    test "returns nil if user is not an admin" do
+      {_, inserted_user} =
+        :user
+        |> build(%{id: "usr_01caj9wth0vyestkmh7873qb9f", is_admin: false})
+        |> Repo.insert()
+
+      user = User.get_admin("usr_12345678901234567890123456")
+      assert user == nil
+    end
+
+    test "returns nil if user does not exist" do
+      user = User.get_admin("usr_12345678901234567890123456")
+      assert user == nil
+    end
+  end
+
   describe "get_by_provider_user_id/1" do
     test "returns the existing user from the provider_user_id" do
       {_, inserted_user} =

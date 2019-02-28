@@ -336,6 +336,21 @@ defmodule EWalletDB.User do
   def get(_, _), do: nil
 
   @doc """
+  Retrieves a specific admin.
+  """
+  @spec get_admin(String.t()) :: %User{} | nil
+  @spec get_admin(String.t(), Ecto.Queryable.t()) :: %User{} | nil
+  def get_admin(id, queryable \\ User)
+
+  def get_admin(id, queryable) when is_external_id(id) do
+    queryable
+    |> Repo.get_by(id: id, is_admin: true)
+    |> Repo.preload(:wallets)
+  end
+
+  def get_admin(_, _), do: nil
+
+  @doc """
   Retrieves a specific user from its provider_user_id.
   """
   @spec get_by_provider_user_id(String.t() | nil) :: %User{} | nil
