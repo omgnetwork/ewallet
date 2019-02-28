@@ -17,7 +17,7 @@ import AccountActivitySubPage from './AccountActivitySubPage'
 import { selectGetAccountById } from '../omg-account/selector'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { Icon, Breadcrumb } from '../omg-uikit'
+import { Breadcrumb } from '../omg-uikit'
 import styled from 'styled-components'
 
 const BreadContainer = styled.div`
@@ -44,6 +44,7 @@ class AccountLayout extends Component {
             items={[
               'Account',
               _.get(this.props.account, 'name', '...'),
+              _.upperFirst(this.props.match.params.type),
               this.props.match.params.id
             ]}
           />

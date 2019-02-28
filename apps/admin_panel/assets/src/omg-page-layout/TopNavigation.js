@@ -9,6 +9,7 @@ const TopNavigationContainer = styled.div`
   align-items: center;
   flex-wrap: wrap;
   width: 100%;
+  height: 80px;
   h2 {
     display: inline-block;
     margin-right: 25px;
