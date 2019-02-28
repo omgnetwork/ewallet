@@ -17,7 +17,6 @@ defmodule EWallet.Bouncer.ScopeBehaviour do
   A behavior defining the needed functions for a schema permissions module.
   """
   alias EWallet.Bouncer.Permission
-  alias Ecto.Query
 
-  @callback scoped_query(%Permission{}) :: Query.t()
+  @callback scoped_query(%Permission{}) :: any()
 end

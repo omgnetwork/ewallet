@@ -123,10 +123,10 @@ defmodule EWalletDB.Membership do
   end
 
   @spec query_all_by_member_and_account_uuids(
-          %{__struct__: EWalletDB.Key | EWalletDB.User, uuid: any()},
+          Key.t() | User.t(),
           [UUID.t()],
           Keyword.t()
-        ) :: any()
+        ) :: [Membership.t()]
   def query_all_by_member_and_account_uuids(member, account_uuids, preload \\ [])
 
   def query_all_by_member_and_account_uuids(%User{} = user, account_uuids, preload) do

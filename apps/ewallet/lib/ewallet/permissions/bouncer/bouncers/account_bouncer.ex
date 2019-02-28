@@ -42,7 +42,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
   end
 
   defp check_scope_permissions(
-         %{actor: actor, action: action, schema: schema} = permission,
+         %{actor: actor, action: _, schema: schema} = permission,
          config
        ) do
     types = Dispatcher.get_target_types(schema)
