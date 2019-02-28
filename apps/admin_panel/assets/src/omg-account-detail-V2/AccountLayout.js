@@ -13,6 +13,7 @@ import AccountAdminSubPage from './AccountAdminSubPage'
 import WalletDetailPage from '../omg-page-wallet-detail'
 import UserDetailPage from '../omg-page-user-detail'
 import AdminDetailPage from '../omg-page-admin-detail'
+import AccountActivitySubPage from './AccountActivitySubPage'
 import { selectGetAccountById } from '../omg-account/selector'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
@@ -72,6 +73,7 @@ class AccountLayout extends Component {
           exact
           render={() => <AccountTransactionRequestSubPage />}
         />
+        <Route path='/accounts/:accountId/activity' exact render={() => <AccountActivitySubPage />} />
       </div>
     )
   }

@@ -37,6 +37,7 @@ const TableContainer = styled.div`
     }
     td {
       opacity: ${props => (props.loading && props.loadingEffect ? 0.6 : 1)};
+      transition: 0.1s;
       padding: 10px;
       vertical-align: middle;
       color: ${props => props.theme.colors.B200};

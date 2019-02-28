@@ -68,6 +68,7 @@ class AccountPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     history: PropTypes.object,
+    query: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
   }
@@ -258,6 +259,9 @@ class AccountPage extends Component {
 
   render () {
     const search = queryString.parse(this.props.location.search).search
+    const query =
+      typeof this.props.query === 'function' ? this.props.query(search) : this.props.query
+    console.log(query)
     return (
       <ActivityLogFetcher
         render={this.renderActivityPage}
@@ -265,7 +269,8 @@ class AccountPage extends Component {
         {...this.props}
         query={{
           page: Number(queryString.parse(this.props.location.search).page),
-          ...createSearchActivityLogQuery(search)
+          ...createSearchActivityLogQuery(search),
+          ...query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

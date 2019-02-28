@@ -14,12 +14,12 @@ export default withRouter(
           {
             field: 'originator_identifier',
             comparator: 'contains',
-            value: this.props.match.params.walletAddress
+            value: this.props.match.params.accountId
           },
           {
             field: 'target_identifier',
             comparator: 'contains',
-            value: this.props.match.params.walletAddress
+            value: this.props.match.params.accountId
           }
         ],
         matchAll: [

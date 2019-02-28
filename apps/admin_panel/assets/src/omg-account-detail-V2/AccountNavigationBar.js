@@ -45,7 +45,7 @@ const AccountNavigationBarContainer = styled.div`
 const AccountNameContainer = styled.div`
   display: flex;
   align-items: center;
-  >div:first-child {
+  > div:first-child {
     margin-right: 10px;
   }
 `
@@ -116,6 +116,13 @@ function AccountNavigationBar (props) {
           className='account-link'
         >
           <div className='account-link-text'>Setting</div>
+        </NavLink>
+        <NavLink
+          to={`/accounts/${accountId}/activity`}
+          activeClassName='navlink-active'
+          className='account-link'
+        >
+          <div className='account-link-text'>Activities</div>
         </NavLink>
       </LinksContainer>
     </AccountNavigationBarContainer>
