@@ -17,6 +17,7 @@ import AccountActivitySubPage from './AccountActivitySubPage'
 import { selectGetAccountById } from '../omg-account/selector'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
+import { Icon, Breadcrumb } from '../omg-uikit'
 import styled from 'styled-components'
 
 const BreadContainer = styled.div`
@@ -39,8 +40,13 @@ class AccountLayout extends Component {
       <div>
         <AccountNavgiationBar />
         <BreadContainer>
-          Accounts > {_.get(this.props.account, 'name', '...')} > {this.props.match.params.type}{' '}
-          {this.props.match.params.id && `> ${this.props.match.params.id}`}
+          <Breadcrumb
+            items={[
+              'Account',
+              _.get(this.props.account, 'name', '...'),
+              this.props.match.params.id
+            ]}
+          />
         </BreadContainer>
         <Route path='/accounts/:accountId/detail' exact render={() => <AccountDetailSubPage />} />
         <Route path='/accounts/:accountId/wallets' exact render={() => <AccountWalletSubPage />} />
@@ -73,7 +79,11 @@ class AccountLayout extends Component {
           exact
           render={() => <AccountTransactionRequestSubPage />}
         />
-        <Route path='/accounts/:accountId/activity' exact render={() => <AccountActivitySubPage />} />
+        <Route
+          path='/accounts/:accountId/activity'
+          exact
+          render={() => <AccountActivitySubPage />}
+        />
       </div>
     )
   }

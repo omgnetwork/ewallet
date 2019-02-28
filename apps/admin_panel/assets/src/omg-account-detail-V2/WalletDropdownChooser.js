@@ -6,7 +6,7 @@ import { Icon } from '../omg-uikit'
 import { DropdownBox } from '../omg-uikit/dropdown'
 import styled from 'styled-components'
 import { compose } from 'recompose'
-import { withRouter, NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import queryString from 'query-string'
 const DropdownItem = styled.div`
   padding: 7px 10px;
@@ -63,9 +63,6 @@ class WalletDropdown extends Component {
   renderWalletDropdown = () => {
     return (
       <DropdownBox>
-        <DropdownItem onClick={this.onClickFilterWallet('all')}>
-          <Icon name='Wallet' /> <span>All Wallets</span>
-        </DropdownItem>
         <DropdownItem onClick={this.onClickFilterWallet('account')}>
           <Icon name='Wallet' /> <span>Account Wallets</span>
         </DropdownItem>
@@ -82,7 +79,6 @@ class WalletDropdown extends Component {
   }
   render () {
     const nameMap = {
-      all: 'All Wallets',
       account: 'Account Wallets',
       user: 'User Wallets'
     }
@@ -103,7 +99,7 @@ class WalletDropdown extends Component {
               onClick={this.onClickNavLink}
             >
               <div className='account-link-text'>
-                {nameMap[this.state.type || walletType] || nameMap.all}
+                {nameMap[this.state.type || walletType] || nameMap.account}
                 {this.props.open ? (
                   <Icon name='Chevron-Up' onClick={this.props.onClickButton} />
                 ) : (

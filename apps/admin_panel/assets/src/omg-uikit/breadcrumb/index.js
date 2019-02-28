@@ -11,11 +11,12 @@ export default class Breadcrumb extends Component {
   }
 
   render () {
+    const items = this.props.items.filter(x => x)
     return (
       <BreadcrumbContainer>
-        {this.props.items.reduce((prev, curr, index) => {
+        {items.reduce((prev, curr, index) => {
           prev.push(curr)
-          if (index < this.props.items.length - 1) prev.push(' > ')
+          if (index < items.length - 1) prev.push(' > ')
           return prev
         }, [])}
       </BreadcrumbContainer>
