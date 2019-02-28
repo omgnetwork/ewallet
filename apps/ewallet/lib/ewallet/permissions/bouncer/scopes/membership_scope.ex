@@ -14,14 +14,15 @@
 
 defmodule EWallet.Bouncer.MembershipScope do
   @moduledoc """
-
+  Permission scoping module for memberships.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.Permission
-  alias EWalletDB.{User, Key}
+  alias EWalletDB.{Membership, User, Key}
 
-  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
+  @spec scoped_query(EWallet.Bouncer.Permission.t()) ::
+          EWalletDB.Membership | nil | Ecto.Query.t()
   def scoped_query(%Permission{
         actor: actor,
         global_abilities: global_abilities,

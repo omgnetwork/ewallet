@@ -40,7 +40,8 @@ defmodule EWallet.Bouncer.TransactionConsumptionTarget do
     [:account_transaction_consumptions, :end_user_transaction_consumptions]
   end
 
-  @spec get_target_type(TransactionConsumption.t()) :: :account_transaction_consumptions | :end_user_transaction_consumptions
+  @spec get_target_type(TransactionConsumption.t()) ::
+          :account_transaction_consumptions | :end_user_transaction_consumptions
   def get_target_type(%TransactionConsumption{user_uuid: nil}) do
     :account_transaction_consumptions
   end

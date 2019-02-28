@@ -14,14 +14,13 @@
 
 defmodule EWallet.Bouncer.CategoryScope do
   @moduledoc """
-
+  Permission scoping module for categories.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
-  import Ecto.Query
-  alias EWallet.Bouncer.{Helper, Permission}
+  alias EWallet.Bouncer.Permission
   alias EWalletDB.{Category, SoftDelete}
 
-  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
+  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: nil | Ecto.Query.t()
   def scoped_query(%Permission{
         actor: actor,
         global_abilities: global_abilities,

@@ -75,7 +75,7 @@ defmodule EWallet.Bouncer.ActivityLogScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities:  %{activity_logs: :global}
+        account_abilities: %{activity_logs: :global}
       }
 
       assert ActivityLogScope.scoped_query(permission) == ActivityLog
@@ -87,7 +87,7 @@ defmodule EWallet.Bouncer.ActivityLogScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities:  %{activity_logs: :accounts}
+        account_abilities: %{activity_logs: :accounts}
       }
 
       assert ActivityLogScope.scoped_query(permission) == nil
@@ -99,7 +99,7 @@ defmodule EWallet.Bouncer.ActivityLogScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities:  %{activity_logs: :self}
+        account_abilities: %{activity_logs: :self}
       }
 
       assert ActivityLogScope.scoped_query(permission) == nil
@@ -111,7 +111,7 @@ defmodule EWallet.Bouncer.ActivityLogScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities:  %{activity_logs: :none}
+        account_abilities: %{activity_logs: :none}
       }
 
       assert ActivityLogScope.scoped_query(permission) == nil

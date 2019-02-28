@@ -14,14 +14,14 @@
 
 defmodule EWallet.Bouncer.ExportScope do
   @moduledoc """
-
+  Permission scoping module for exports.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.Permission
   alias EWalletDB.{Export, User, Key}
 
-  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
+  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: EWalletDB.Export | nil | Ecto.Query.t()
   def scoped_query(%Permission{
         actor: actor,
         global_abilities: global_abilities,

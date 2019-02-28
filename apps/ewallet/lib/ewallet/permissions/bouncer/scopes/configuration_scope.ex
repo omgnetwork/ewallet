@@ -14,12 +14,11 @@
 
 defmodule EWallet.Bouncer.ConfigurationScope do
   @moduledoc """
-
+  Permission scoping module for settings.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   alias EWallet.Bouncer.Permission
   alias EWalletConfig.Config
-
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
   def scoped_query(%Permission{

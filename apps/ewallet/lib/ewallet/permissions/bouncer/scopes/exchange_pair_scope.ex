@@ -14,14 +14,12 @@
 
 defmodule EWallet.Bouncer.ExchangePairScope do
   @moduledoc """
-
+  Permission scoping module for exchange pairs.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
-  import Ecto.Query
-  alias EWallet.Bouncer.{Helper, Permission}
-  alias EWalletDB.ExchangePair
+  alias EWallet.Bouncer.Permission
+  alias EWalletDB.{ExchangePair, SoftDelete}
 
-  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
   def scoped_query(%Permission{
         actor: actor,
         global_abilities: global_abilities,
@@ -31,7 +29,7 @@ defmodule EWallet.Bouncer.ExchangePairScope do
   end
 
   defp do_scoped_query(_actor, %{exchange_pairs: :global}) do
-    ExchangePair
+    SoftDelete.exclude_deleted(ExchangePair)
   end
 
   defp do_scoped_query(_, _) do

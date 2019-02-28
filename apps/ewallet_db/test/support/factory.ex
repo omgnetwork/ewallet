@@ -75,7 +75,9 @@ defmodule EWalletDB.Factory do
       total_count: 100,
       adapter: "local",
       params: %{"sort_by" => "created_at", "sort_dir" => "desc"},
-      originator: %System{}
+      originator: %System{},
+      user: nil,
+      key: nil
     }
   end
 
@@ -208,7 +210,7 @@ defmodule EWalletDB.Factory do
   def membership_factory do
     %Membership{
       user: insert(:user),
-      role: insert(:role),
+      role: Role.get_by(name: "admin"),
       account: insert(:account),
       originator: %System{}
     }
