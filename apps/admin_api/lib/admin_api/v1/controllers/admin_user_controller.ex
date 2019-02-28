@@ -26,10 +26,9 @@ defmodule AdminAPI.V1.AdminUserController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with %{authorized: true} <- permit(:all, conn.assigns, nil),
-         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
-      account_uuids
-      |> UserQuery.where_has_membership_in_accounts(User)
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
+      query
       |> Orchestrator.query(UserOverlay, attrs)
       |> respond_multiple(conn)
     else
@@ -42,8 +41,8 @@ defmodule AdminAPI.V1.AdminUserController do
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => user_id}) do
-    with %User{} = user <- User.get(user_id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:get, conn.assigns, user) do
+    with %User{} = user <- User.get_admin(user_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, user) do
       respond_single(user, conn)
     else
       {:error, error} -> handle_error(conn, error)
@@ -58,7 +57,7 @@ defmodule AdminAPI.V1.AdminUserController do
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, attrs) do
     with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
-         %{authorized: true} <- permit(:enable_or_disable, conn.assigns, user),
+         {:ok, _} <- authorize(:enable_or_disable, conn.assigns, user),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- User.enable_or_disable(user, attrs),
          :ok <- AuthToken.expire_for_user(updated) do
@@ -90,9 +89,9 @@ defmodule AdminAPI.V1.AdminUserController do
     render(conn, UserView, :user, %{user: user})
   end
 
-  @spec permit(:all | :create | :get | :update, map(), %User{} | nil) ::
+  @spec authorize(:all | :create | :get | :update, map(), %User{} | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, user) do
-    AdminUserPolicy.authorize(action, params, user)
+  defp authorize(action, actor, user) do
+    AdminUserPolicy.authorize(action, actor, user)
   end
 end
