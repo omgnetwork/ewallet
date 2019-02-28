@@ -20,7 +20,6 @@ defmodule EWallet.Bouncer.ConfigurationScope do
   alias EWallet.Bouncer.Permission
   alias EWalletConfig.Config
 
-
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
   def scoped_query(%Permission{
         actor: actor,

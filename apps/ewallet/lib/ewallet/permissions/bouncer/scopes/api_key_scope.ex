@@ -14,15 +14,14 @@
 
 defmodule EWallet.Bouncer.APIKeyScope do
   @moduledoc """
-
+  Permission scoping module for API keys.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.{Helper, Permission}
   alias EWalletDB.{APIKey, SoftDelete}
 
-
-  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
+  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: nil | Ecto.Query.t()
   def scoped_query(%Permission{
         actor: actor,
         global_abilities: global_abilities,
