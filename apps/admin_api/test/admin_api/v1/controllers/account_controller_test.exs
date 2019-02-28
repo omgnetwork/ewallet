@@ -36,7 +36,6 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test_with_auths "returns a list of accounts according to search_term, sort_by and sort_direction" do
-      set_admin_as_super_admin()
 
       insert(:account, %{name: "Matched 2"})
       insert(:account, %{name: "Matched 3"})
@@ -64,10 +63,11 @@ defmodule AdminAPI.V1.AccountControllerTest do
     test_supports_match_all("/account.all", :account, :name)
 
     test_with_auths "returns a list of accounts that the current user can access" do
+      set_admin_as_none()
       master = Account.get_master_account()
-      user = get_test_admin()
+      admin = get_test_admin()
       key = insert(:key)
-      {:ok, _m} = Membership.unassign(user, master, %System{})
+      {:ok, _m} = Membership.unassign(admin, master, %System{})
 
       _acc_1 = insert(:account, name: "Account 1")
       acc_2 = insert(:account, name: "Account 2")
@@ -75,9 +75,9 @@ defmodule AdminAPI.V1.AccountControllerTest do
       acc_4 = insert(:account, name: "Account 4")
       _acc_5 = insert(:account, name: "Account 5")
 
-      add_admin_to_account(acc_2, user)
-      add_admin_to_account(acc_3, user)
-      add_admin_to_account(acc_4, user)
+      add_admin_to_account(acc_2, admin)
+      add_admin_to_account(acc_3, admin)
+      add_admin_to_account(acc_4, admin)
 
       add_admin_to_account(acc_2, key)
       add_admin_to_account(acc_3, key)
@@ -85,7 +85,6 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       response =
         request("/account.all", %{}, access_key: key.access_key, secret_key: key.secret_key)
-
       accounts = response["data"]["data"]
 
       assert response["success"]
@@ -96,9 +95,10 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test_with_auths "returns only one account if the user only has one membership" do
+      set_admin_as_none()
       master = Account.get_master_account()
-      user = get_test_admin()
-      {:ok, _m} = Membership.unassign(user, master, %System{})
+      admin = get_test_admin()
+      {:ok, _m} = Membership.unassign(admin, master, %System{})
 
       _acc_1 = insert(:account, name: "Account 1")
       _acc_2 = insert(:account, name: "Account 2")
@@ -108,7 +108,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       key = insert(:key)
 
-      add_admin_to_account(acc_5, user)
+      add_admin_to_account(acc_5, admin)
       add_admin_to_account(acc_5, key)
 
       response =
@@ -181,9 +181,10 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test_with_auths "returns unauthorized if the user doesn't have access" do
+      set_admin_as_none()
       master = Account.get_master_account()
-      user = get_test_admin()
-      {:ok, _m} = Membership.unassign(user, master, %System{})
+      admin = get_test_admin()
+      {:ok, _m} = Membership.unassign(admin, master, %System{})
       accounts = insert_list(3, :account)
       key_account = Enum.at(accounts, 0)
       # Pick the 2nd inserted account
@@ -229,8 +230,6 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
   describe "/account.create" do
     test_with_auths "creates a new account and returns it" do
-      set_admin_as_super_admin()
-
       attrs = %{
         name: "A new account",
         metadata: %{something: "interesting"},
@@ -248,8 +247,6 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test_with_auths "returns an error if account name is not provided" do
-      set_admin_as_super_admin()
-
       attrs = %{name: ""}
 
       response = request("/account.create", attrs)
@@ -296,7 +293,6 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
     test "generates an activity log for an admin request" do
       user = get_test_admin()
-      set_admin_as_super_admin()
 
       attrs = %{
         name: "A new account",
