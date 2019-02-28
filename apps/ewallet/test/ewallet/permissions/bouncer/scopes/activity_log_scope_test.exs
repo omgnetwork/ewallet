@@ -15,10 +15,106 @@
 defmodule EWallet.Bouncer.ActivityLogScopeTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
-  alias EWallet.Bouncer.KeyActor
-  alias EWalletDB.Membership
-  alias ActivityLogger.System
+  alias EWallet.Bouncer.{ActivityLogScope, Permission}
+  alias ActivityLogger.ActivityLog
 
-  describe "scope_query/1" do
+  describe "scope_query/1 with global abilities" do
+    test "returns ActivityLog as queryable when 'global' ability" do
+      actor = insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{activity_logs: :global},
+        account_abilities: %{}
+      }
+
+      assert ActivityLogScope.scoped_query(permission) == ActivityLog
+    end
+
+    test "returns all activity_logs the actor has access to when 'accounts' ability" do
+      actor = insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{activity_logs: :accounts},
+        account_abilities: %{}
+      }
+
+      assert ActivityLogScope.scoped_query(permission) == nil
+    end
+
+    test "returns ActivityLog as queryable when 'self' ability" do
+      actor = insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{activity_logs: :self},
+        account_abilities: %{}
+      }
+
+      assert ActivityLogScope.scoped_query(permission) == nil
+    end
+
+    test "returns nil as queryable when 'none' ability" do
+      actor = insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{activity_logs: :none},
+        account_abilities: %{}
+      }
+
+      assert ActivityLogScope.scoped_query(permission) == nil
+    end
+  end
+
+  describe "scope_query/1 with account abilities" do
+    test "returns ActivityLog as queryable when 'global' ability" do
+      actor = insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{},
+        account_abilities:  %{activity_logs: :global}
+      }
+
+      assert ActivityLogScope.scoped_query(permission) == ActivityLog
+    end
+
+    test "returns all activity_logs the actor has access to when 'accounts' ability" do
+      actor = insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{},
+        account_abilities:  %{activity_logs: :accounts}
+      }
+
+      assert ActivityLogScope.scoped_query(permission) == nil
+    end
+
+    test "returns ActivityLog as queryable when 'self' ability" do
+      actor = insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{},
+        account_abilities:  %{activity_logs: :self}
+      }
+
+      assert ActivityLogScope.scoped_query(permission) == nil
+    end
+
+    test "returns nil as queryable when 'none' ability" do
+      actor = insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{},
+        account_abilities:  %{activity_logs: :none}
+      }
+
+      assert ActivityLogScope.scoped_query(permission) == nil
+    end
   end
 end
