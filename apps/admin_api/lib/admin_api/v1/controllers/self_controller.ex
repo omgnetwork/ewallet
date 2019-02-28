@@ -217,7 +217,7 @@ defmodule AdminAPI.V1.SelfController do
           map(),
           String.t() | nil
         ) ::
-          :ok | {:error, any()} | no_return()
+          {:ok, any()} | {:error, any()}
   # verify_email action can be done unauthenticated
   defp authorize(:verify_email, _actor, _target), do: {:ok, nil}
 

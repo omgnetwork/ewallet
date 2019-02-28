@@ -22,7 +22,14 @@ defmodule EWallet.AccountMembershipPolicy do
 
   @spec authorize(any(), any(), any()) ::
           {:error, EWallet.Bouncer.Permission.t()} | {:ok, EWallet.Bouncer.Permission.t()}
-  def authorize(action, attrs, target) do
-    PolicyHelper.authorize(action, attrs, :memberships, Membership, target)
+  def authorize(:create, actor, %Membership{account: account, account_uuid: account_uuid}) do
+    Bouncer.bounce(actor, %Permission{
+      action: :create,
+      target: %Membership{account: account, account_uuid: account_uuid}
+    })
+  end
+
+  def authorize(action, actor, target) do
+    PolicyHelper.authorize(action, actor, :memberships, Membership, target)
   end
 end

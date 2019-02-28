@@ -27,8 +27,8 @@ defmodule AdminAPI.V1.AccountMembershipController do
     with %Account{} = account <-
            Account.get(account_id, preload: [memberships: [:user, :role]]) ||
              {:error, :unauthorized},
-         {:ok, _} <- permit(:get, conn.assigns, account),
-         {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          attrs <- transform_user_filter_attrs(attrs),
          query <- Membership.all_by_account(account, query),
          memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
@@ -83,7 +83,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
   def assign_user(conn, attrs) do
     with %Account{} = account <- Account.get(attrs["account_id"]) || {:error, :unauthorized},
          {:ok, _} <-
-           permit(:create, conn.assigns, %Membership{account: account, account_uuid: account.uuid}),
+           authorize(:create, conn.assigns, %Membership{
+             account: account,
+             account_uuid: account.uuid
+           }),
          {:ok, user_or_email} <- get_user_or_email(attrs),
          %Role{} = role <-
            Role.get_by(name: attrs["role_name"]) || {:error, :role_name_not_found},
@@ -186,7 +189,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
     with %Account{} = account <- Account.get(account_id),
          %User{} = user <- User.get(user_id),
          %Membership{} = membership <- Membership.get_by_user_and_account(user, account),
-         {:ok, _} <- permit(:delete, conn.assigns, membership),
+         {:ok, _} <- authorize(:delete, conn.assigns, membership),
          originator <- Originator.extract(conn.assigns),
          {:ok, _} <- Membership.unassign(user, account, originator) do
       render(conn, :empty, %{success: true})
@@ -198,13 +201,13 @@ defmodule AdminAPI.V1.AccountMembershipController do
 
   def unassign_user(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  @spec permit(:all | :create | :get | :update | :delete, map(), map()) ::
+  @spec authorize(:all | :create | :get | :update | :delete, map(), map()) ::
           {:ok, %Permission{}} | {:error, %Permission{}} | no_return()
-  defp permit(action, params, %Account{} = account) do
-    AccountPolicy.authorize(action, params, account)
+  defp authorize(action, actor, %Account{} = account) do
+    AccountPolicy.authorize(action, actor, account)
   end
 
-  defp permit(action, params, membership) do
-    AccountMembershipPolicy.authorize(action, params, membership)
+  defp authorize(action, actor, membership) do
+    AccountMembershipPolicy.authorize(action, actor, membership)
   end
 end

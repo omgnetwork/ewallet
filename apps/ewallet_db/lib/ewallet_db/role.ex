@@ -41,7 +41,9 @@ defmodule EWalletDB.Role do
         update_email: :self,
         upload_avatar: :self,
         get_account: :self,
-        get_accounts: :self
+        get_accounts: :self,
+        switch_account: :self,
+        logout: :self
       },
       end_users: %{
         all: :accounts,

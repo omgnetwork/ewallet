@@ -1,0 +1,6 @@
+UnauthorizedResponse:
+  description: Returns unauthorized error
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/UnauthorizedResponseSchema'

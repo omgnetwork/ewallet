@@ -48,7 +48,8 @@ defmodule EWallet.Bouncer.DispatchConfig do
     ConfigurationScope,
     ExportScope,
     APIKeyScope,
-    MintScope
+    MintScope,
+    MembershipScope
   }
 
   alias EWalletDB.{
