@@ -14,14 +14,14 @@
 
 defmodule EWallet.Bouncer.AccountScope do
   @moduledoc """
-
+  Permission scoping module for accounts.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.{Helper, Permission}
   alias EWalletDB.Account
 
-  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()
+  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: EWalletDB.Account | nil | Ecto.Query.t()
   def scoped_query(%Permission{
         actor: actor,
         global_abilities: global_abilities,

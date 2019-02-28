@@ -14,13 +14,13 @@
 
 defmodule EWallet.Bouncer.ActivityLogScope do
   @moduledoc """
-
+  Permission scoping module for activity logs.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   alias EWallet.Bouncer.Permission
   alias ActivityLogger.ActivityLog
 
-  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: ActivityLog.t()
+  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: ActivityLogger.ActivityLog | nil
   def scoped_query(%Permission{
         actor: actor,
         global_abilities: global_abilities,
