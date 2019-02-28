@@ -14,7 +14,7 @@
 
 defmodule EWallet.Bouncer.ConfigurationScope do
   @moduledoc """
-
+  Permission scoping module for settings.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   alias EWallet.Bouncer.Permission

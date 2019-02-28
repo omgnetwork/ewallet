@@ -14,11 +14,112 @@
 
 defmodule EWallet.Bouncer.ConfigurationScopeTest do
   use EWallet.DBCase, async: true
-  import EWalletDB.Factory
-  alias EWallet.Bouncer.KeyActor
-  alias EWalletDB.Membership
-  alias ActivityLogger.System
+  alias EWallet.Bouncer.{ConfigurationScope, Permission}
+  alias EWalletConfig.{Config, Repo}
 
-  describe "scope_query/1" do
+  describe "scope_query/1 with global abilities" do
+    test "returns Configuration queryable when 'global' ability" do
+      actor = EWalletDB.Factory.insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{configuration: :global},
+        account_abilities: %{}
+      }
+
+      query = ConfigurationScope.scoped_query(permission)
+      stored_setting_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+
+      assert length(stored_setting_uuids) == length(Config.settings())
+    end
+
+    test "returns all activity_logs the actor has access to when 'accounts' ability" do
+      actor = EWalletDB.Factory.insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{configuration: :accounts},
+        account_abilities: %{}
+      }
+
+      assert ConfigurationScope.scoped_query(permission) == nil
+    end
+
+    test "returns Configuration as queryable when 'self' ability" do
+      actor = EWalletDB.Factory.insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{configuration: :self},
+        account_abilities: %{}
+      }
+
+      assert ConfigurationScope.scoped_query(permission) == nil
+    end
+
+    test "returns nil as queryable when 'none' ability" do
+      actor = EWalletDB.Factory.insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{configuration: :none},
+        account_abilities: %{}
+      }
+
+      assert ConfigurationScope.scoped_query(permission) == nil
+    end
+  end
+
+  describe "scope_query/1 with accounts abilities" do
+    test "returns Configuration queryable when 'global' ability" do
+      actor = EWalletDB.Factory.insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{},
+        account_abilities: %{configuration: :global}
+      }
+
+      query = ConfigurationScope.scoped_query(permission)
+      stored_setting_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+
+      assert length(stored_setting_uuids) == length(Config.settings())
+    end
+
+    test "returns all activity_logs the actor has access to when 'accounts' ability" do
+      actor = EWalletDB.Factory.insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{},
+        account_abilities: %{configuration: :accounts}
+      }
+
+      assert ConfigurationScope.scoped_query(permission) == nil
+    end
+
+    test "returns Configuration as queryable when 'self' ability" do
+      actor = EWalletDB.Factory.insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{},
+        account_abilities: %{configuration: :self}
+      }
+
+      assert ConfigurationScope.scoped_query(permission) == nil
+    end
+
+    test "returns nil as queryable when 'none' ability" do
+      actor = EWalletDB.Factory.insert(:admin)
+
+      permission = %Permission{
+        actor: actor,
+        global_abilities: %{},
+        account_abilities: %{configuration: :none}
+      }
+
+      assert ConfigurationScope.scoped_query(permission) == nil
+    end
   end
 end
