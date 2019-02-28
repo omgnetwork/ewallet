@@ -30,8 +30,9 @@ defmodule AdminAPI.V1.MintController do
   @spec all_for_token(Conn.t(), map() | nil) :: Conn.t()
   def all_for_token(conn, %{"id" => id} = attrs) do
     with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
-         %{authorized: true} <- permit(:all, conn.assigns, token),
-         mints <- Mint.query_by_token(token),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized},
+         mints <- Mint.query_by_token(token, query),
          %Paginator{} = paged_mints <- Orchestrator.query(mints, MintOverlay, attrs) do
       render(conn, :mints, %{mints: paged_mints})
     else
@@ -53,8 +54,8 @@ defmodule AdminAPI.V1.MintController do
         } = attrs
       ) do
     with %Token{} = token <- Token.get(token_id) || :unauthorized,
-         %{authorized: true} <-
-           permit(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}),
+         {:ok, _} <-
+           authorize(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}),
          originator <- Originator.extract(conn.assigns),
          attrs <- Map.put(attrs, "originator", originator),
          {:ok, mint, _token} <- MintGate.mint_token(token, attrs),
@@ -83,9 +84,9 @@ defmodule AdminAPI.V1.MintController do
     handle_error(conn, error)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
+  @spec authorize(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, mint) do
-    MintPolicy.authorize(action, params, mint)
+  defp authorize(action, actor, mint) do
+    MintPolicy.authorize(action, actor, mint)
   end
 end
