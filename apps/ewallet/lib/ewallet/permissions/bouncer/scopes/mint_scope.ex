@@ -14,7 +14,7 @@
 
 defmodule EWallet.Bouncer.MintScope do
   @moduledoc """
-
+  Permission scoping module for mints.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   alias EWallet.Bouncer.Permission
