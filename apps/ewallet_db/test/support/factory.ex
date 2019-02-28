@@ -210,7 +210,7 @@ defmodule EWalletDB.Factory do
   def membership_factory do
     %Membership{
       user: insert(:user),
-      role: insert(:role),
+      role: Role.get_by(name: "admin"),
       account: insert(:account),
       originator: %System{}
     }
