@@ -44,7 +44,7 @@ defmodule EWallet.Bouncer.CategoryScopeTest do
       refute Enum.member?(category_uuids, category_3.uuid)
     end
 
-    test "returns all activity_logs the actor has access to when 'accounts' ability" do
+    test "returns all categories the actor has access to when 'accounts' ability" do
       actor = insert(:admin)
 
       permission = %Permission{
@@ -106,7 +106,7 @@ defmodule EWallet.Bouncer.CategoryScopeTest do
       refute Enum.member?(category_uuids, category_3.uuid)
     end
 
-    test "returns all activity_logs the actor has access to when 'accounts' ability" do
+    test "returns all categories the actor has access to when 'accounts' ability" do
       actor = insert(:admin)
 
       permission = %Permission{
