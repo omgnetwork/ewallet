@@ -43,7 +43,7 @@ defmodule EWallet.Bouncer.UserTarget do
 
   @spec get_target_accounts(User.t(), any()) :: [Account.t()]
   def get_target_accounts(%User{is_admin: true} = target, _dispatch_config) do
-    target.accounts
+    Preloader.preload(target, [:accounts]).accounts
   end
 
   def get_target_accounts(%User{is_admin: false} = target, _dispatch_config) do

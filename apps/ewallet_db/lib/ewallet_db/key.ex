@@ -248,6 +248,6 @@ defmodule EWalletDB.Key do
   """
   @spec get_all_accessible_account_uuids(%Key{}) :: [String.t()]
   def get_all_accessible_account_uuids(key) do
-    [key.account]
+    [key.account.uuid]
   end
 end
