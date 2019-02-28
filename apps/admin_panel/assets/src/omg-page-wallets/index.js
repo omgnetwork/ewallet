@@ -80,7 +80,8 @@ class WalletPage extends Component {
   }
   static defaultProps = {
     walletQuery: {},
-    transferButton: false
+    transferButton: false,
+    fetcher: WalletsFetcher
   }
 
   constructor (props) {
@@ -177,8 +178,9 @@ class WalletPage extends Component {
   }
 
   render () {
+    const Fetcher = this.props.fetcher
     return (
-      <WalletsFetcher
+      <Fetcher
         {...this.state}
         {...this.props}
         render={this.renderWalletPage}

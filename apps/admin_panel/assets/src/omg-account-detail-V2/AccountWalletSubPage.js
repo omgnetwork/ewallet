@@ -3,7 +3,7 @@ import React from 'react'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
-
+import walletFetcher from '../omg-wallet/walletsFetcher'
 function AccountWalletSubPage (props) {
   function getQuery () {
     const { walletType } = queryString.parse(props.location.search)
@@ -21,27 +21,24 @@ function AccountWalletSubPage (props) {
         value: props.match.params.accountId
       }
     ]
-    const allWalletQuery = [...userWalletQuery, ...accountWalletQuery]
 
     switch (walletType) {
-      case 'all':
-        return allWalletQuery
       case 'user':
         return userWalletQuery
       case 'account':
         return accountWalletQuery
       default:
-        return allWalletQuery
+        return accountWalletQuery
     }
   }
   const onClickRow = (data, index) => e => {
-    props.history.push(
-      `/accounts/${props.match.params.accountId}/wallets/${data.address}`
-    )
+    props.history.push(`/accounts/${props.match.params.accountId}/wallets/${data.address}`)
   }
   return (
     <WalletsPage
       transferButton
+      accountId={props.match.params.accountId}
+      fetcher={walletFetcher}
       onClickRow={onClickRow}
       walletQuery={{
         matchAny: getQuery()

@@ -48,7 +48,15 @@ function AccountNavigationBar (props) {
       <AccountProvider
         accountId={accountId}
         render={({ account }) => {
-          return <div>{account && <Avatar name={account.name} />}</div>
+          return (
+            <div>
+              {account && (
+                <div>
+                  <Avatar name={account.name} size={32} /> <h4>{account.email || account.name}</h4>
+                </div>
+              )}
+            </div>
+          )
         }}
       />
       <LinksContainer>
