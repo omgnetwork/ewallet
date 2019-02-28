@@ -29,7 +29,7 @@ defmodule AdminAPI.V1.SelfController do
   """
   def get(conn, _attrs) do
     with %User{} = user <- conn.assigns[:admin_user] || {:error, :unauthorized},
-        {:ok, _} <- authorize(:get, conn.assigns, user) do
+         {:ok, _} <- authorize(:get, conn.assigns, user) do
       respond_single(user, conn)
     else
       error ->
@@ -205,13 +205,23 @@ defmodule AdminAPI.V1.SelfController do
     handle_error(conn, :user_id_not_found)
   end
 
-
-  @spec authorize(:get | :update | :update_password | :update_email | :verify_email | :upload_avatar | :get_account | :get_accounts, map(), String.t() | nil) ::
+  @spec authorize(
+          :get
+          | :update
+          | :update_password
+          | :update_email
+          | :verify_email
+          | :upload_avatar
+          | :get_account
+          | :get_accounts,
+          map(),
+          String.t() | nil
+        ) ::
           :ok | {:error, any()} | no_return()
   # verify_email action can be done unauthenticated
   defp authorize(:verify_email, _actor, _target), do: {:ok, nil}
 
-  defp authorize(action,  %{admin_user: admin_user} = actor, target) do
+  defp authorize(action, %{admin_user: admin_user} = actor, target) do
     AdminUserPolicy.authorize(action, actor, target)
   end
 

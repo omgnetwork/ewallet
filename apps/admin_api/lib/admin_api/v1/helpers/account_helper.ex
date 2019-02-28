@@ -40,7 +40,6 @@ defmodule AdminAPI.V1.AccountHelper do
 
   @spec get_accessible_account_uuids(%{admin_user: %User{}} | %{key: %Key{}}) :: [String.t()]
   def get_accessible_account_uuids(%{admin_user: admin_user}) do
-
     Preloader.preload(admin_user, [:accounts]).accounts
     |> Enum.map(fn account -> account.uuid end)
   end
