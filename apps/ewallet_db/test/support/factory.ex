@@ -75,7 +75,9 @@ defmodule EWalletDB.Factory do
       total_count: 100,
       adapter: "local",
       params: %{"sort_by" => "created_at", "sort_dir" => "desc"},
-      originator: %System{}
+      originator: %System{},
+      user: nil,
+      key: nil
     }
   end
 
