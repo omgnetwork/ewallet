@@ -38,6 +38,13 @@ const AccountNavigationBarContainer = styled.div`
     flex: 0 0 auto;
   }
 `
+const AccountNameContainer = styled.div`
+  display: flex;
+  align-items: center;
+  >div:first-child {
+    margin-right: 10px;
+  }
+`
 
 const enhance = compose(withRouter)
 
@@ -51,9 +58,9 @@ function AccountNavigationBar (props) {
           return (
             <div>
               {account && (
-                <div>
+                <AccountNameContainer>
                   <Avatar name={account.name} size={32} /> <h4>{account.email || account.name}</h4>
-                </div>
+                </AccountNameContainer>
               )}
             </div>
           )
