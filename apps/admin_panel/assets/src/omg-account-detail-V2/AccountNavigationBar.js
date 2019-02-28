@@ -31,6 +31,10 @@ const AccountNavigationBarContainer = styled.div`
   justify-content: flex-end;
   align-items: center;
   border-bottom: 1px solid ${props => props.theme.colors.S300};
+  margin-left: -8%;
+  margin-right: -8%;
+  padding-right: 8%;
+  padding-left: 8%;
   > div {
     flex: 1 1 auto;
   }
