@@ -138,7 +138,7 @@ class WalletDetaillPage extends Component {
   renderWalletDetailContainer = wallet => {
     const accountId = this.props.match.params.accountId
     return (
-      <DetailLayout backPath={`/${accountId}/wallets`}>
+      <div>
         <ContentContainer>
           {this.renderTopBar(wallet)}
           <ContentDetailContainer>
@@ -151,7 +151,7 @@ class WalletDetaillPage extends Component {
           onRequestClose={this.onRequestClose}
           open={this.state.createTransactionModalOpen}
         />
-      </DetailLayout>
+      </div>
     )
   }
   renderErrorPage (error) {

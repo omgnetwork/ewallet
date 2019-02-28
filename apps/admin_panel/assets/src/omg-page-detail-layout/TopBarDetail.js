@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Breadcrumb } from '../omg-uikit'
 const TopBarAction = styled.div`
   flex: 0 1 auto;
   margin-left: auto;
@@ -18,6 +17,9 @@ const TopBarAction = styled.div`
 `
 const TopBarTitle = styled.div`
   flex: 1 1 auto;
+  h3 {
+    margin-top: 20px;
+  }
 `
 const TopBar = styled.div`
   display: flex;
@@ -33,8 +35,7 @@ export default class TopBarDetail extends Component {
     return (
       <TopBar>
         <TopBarTitle>
-          <h1>{this.props.title}</h1>
-          <Breadcrumb items={this.props.breadcrumbItems} />
+          <h3>{this.props.title}</h3>
         </TopBarTitle>
         <TopBarAction>
           {this.props.buttons}

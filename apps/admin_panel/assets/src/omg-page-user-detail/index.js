@@ -104,17 +104,14 @@ class TokenDetailPage extends Component {
     )
   }
   renderUserDetailContainer = (user, wallet) => {
-    const accountId = this.props.match.params.accountId
     return (
-      <DetailLayout backPath={'/users'}>
-        <ContentContainer>
-          {this.renderTopBar(user)}
-          <ContentDetailContainer>
-            <DetailContainer>{this.renderDetail(user)}</DetailContainer>
-            {wallet && <DetailContainer>{this.renderWallet(wallet)}</DetailContainer>}
-          </ContentDetailContainer>
-        </ContentContainer>
-      </DetailLayout>
+      <ContentContainer>
+        {this.renderTopBar(user)}
+        <ContentDetailContainer>
+          <DetailContainer>{this.renderDetail(user)}</DetailContainer>
+          {wallet && <DetailContainer>{this.renderWallet(wallet)}</DetailContainer>}
+        </ContentDetailContainer>
+      </ContentContainer>
     )
   }
 
