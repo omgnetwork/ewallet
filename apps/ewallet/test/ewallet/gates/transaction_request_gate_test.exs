@@ -169,7 +169,8 @@ defmodule EWallet.TransactionRequestGateTest do
       assert request.wallet_address == meta.user_wallet.address
     end
 
-    test "receives an 'unauthorized' error when account_id and user are valid and address is invalid", meta do
+    test "receives an 'unauthorized' error when account_id and user are valid and address is invalid",
+         meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -185,7 +186,8 @@ defmodule EWallet.TransactionRequestGateTest do
       assert res == {:error, :unauthorized}
     end
 
-    test "receives an 'unauthorized' error when account_id is valid and an address that does not belong to the account", meta do
+    test "receives an 'unauthorized' error when account_id is valid and an address that does not belong to the account",
+         meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -216,7 +218,8 @@ defmodule EWallet.TransactionRequestGateTest do
       assert res == {:error, :unauthorized}
     end
 
-    test "receives an 'unauthorized' error when provider_user_id is invalid and no address", meta do
+    test "receives an 'unauthorized' error when provider_user_id is invalid and no address",
+         meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -265,7 +268,8 @@ defmodule EWallet.TransactionRequestGateTest do
       assert %TransactionRequest{} = request
     end
 
-    test "receives an 'unauthorized' error when provider_user_id is valid and address is invalid", meta do
+    test "receives an 'unauthorized' error when provider_user_id is valid and address is invalid",
+         meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -280,7 +284,8 @@ defmodule EWallet.TransactionRequestGateTest do
       assert res == {:error, :unauthorized}
     end
 
-    test "receives an 'unauthorized' error when provider_user_id is valid and an address that does not belong to the user", meta do
+    test "receives an 'unauthorized' error when provider_user_id is valid and an address that does not belong to the user",
+         meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",

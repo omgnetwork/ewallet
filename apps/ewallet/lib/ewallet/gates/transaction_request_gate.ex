@@ -259,7 +259,7 @@ defmodule EWallet.TransactionRequestGate do
 
       {:error, :wallet_not_found} ->
         {:error, :unauthorized}
-        
+
       {:error, :user_wallet_not_found} ->
         {:error, :unauthorized}
 
