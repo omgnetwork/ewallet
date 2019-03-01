@@ -20,7 +20,6 @@ defmodule EWalletDB.Helpers.PreloaderTest do
   alias EWalletDB.{Account, Membership, Role, User, Repo}
 
   setup do
-    _role = insert(:role, name: "admin")
     membership = insert(:membership)
     membership = Repo.get(Membership, membership.uuid)
 

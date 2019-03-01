@@ -32,11 +32,11 @@ defmodule AdminAPI.V1.RoleViewTest do
     end
 
     test "renders roles.json with correct response structure" do
-      role1 = insert(:role)
-      role2 = insert(:role)
+      role_1 = insert(:role, name: "role_1")
+      role_2 = insert(:role, name: "role_2")
 
       paginator = %Paginator{
-        data: [role1, role2],
+        data: [role_1, role_2],
         pagination: %{
           per_page: 10,
           current_page: 1,
