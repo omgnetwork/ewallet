@@ -90,6 +90,15 @@ defmodule EWalletDB.Key do
     |> put_change(:secret_key, Base.url_encode64(attrs[:secret_key], padding: false))
   end
 
+  defp update_changeset(%Key{} = key, attrs) do
+    cast_and_validate_required_for_activity_log(
+      key,
+      attrs,
+      cast: [:global_role],
+      required: [:global_role]
+    )
+  end
+
   defp enable_changeset(%Key{} = key, attrs) do
     cast_and_validate_required_for_activity_log(
       key,
@@ -155,6 +164,16 @@ defmodule EWalletDB.Key do
     %Key{}
     |> insert_changeset(attrs)
     |> Repo.insert_record_with_activity_log()
+  end
+
+  @doc """
+  Updates a key with the provided attributes.
+  """
+  @spec update(%Key{}, map()) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
+  def update(%Key{} = key, attrs) do
+    key
+    |> update_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
   end
 
   defp get_master_account_uuid do

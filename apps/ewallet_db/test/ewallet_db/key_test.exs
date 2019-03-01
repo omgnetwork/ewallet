@@ -79,6 +79,15 @@ defmodule EWalletDB.KeyTest do
     end
   end
 
+  describe "update/2" do
+    test "Updates a key with a new global_role" do
+      key = insert(:key)
+      assert key.global_role == nil
+      {:ok, updated_key} = Key.update(key, %{global_role: "a_role", originator: %System{}})
+      assert updated_key.global_role == "a_role"
+    end
+  end
+
   describe "insert/1" do
     test_insert_generate_uuid(Key, :uuid)
     test_insert_generate_external_id(Key, :id, "key_")

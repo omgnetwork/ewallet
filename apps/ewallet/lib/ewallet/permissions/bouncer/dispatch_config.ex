@@ -34,6 +34,7 @@ defmodule EWallet.Bouncer.DispatchConfig do
     ConfigurationTarget,
     APIKeyTarget,
     UserActor,
+    KeyActor,
     TransactionScope,
     TransactionConsumptionScope,
     TransactionRequestScope,
