@@ -16,7 +16,7 @@ defmodule EWallet.Bouncer.AccountTargetTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Bouncer.{AccountTarget, DispatchConfig}
-  alias EWalletDB.{AccountUser, Membership}
+  alias EWalletDB.{Account, AccountUser, Membership}
   alias ActivityLogger.System
 
   describe "get_owner_uuids/1" do
@@ -53,7 +53,7 @@ defmodule EWallet.Bouncer.AccountTargetTest do
 
   describe "get_target_type/1" do
     test "returns the type of the given account" do
-      assert AccountTarget.get_target_type() == :accounts
+      assert AccountTarget.get_target_type(Account) == :accounts
     end
   end
 
