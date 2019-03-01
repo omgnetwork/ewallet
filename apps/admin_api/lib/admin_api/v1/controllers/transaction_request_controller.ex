@@ -15,7 +15,6 @@
 defmodule AdminAPI.V1.TransactionRequestController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.AccountHelper
   alias EWallet.TransactionRequestPolicy
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TransactionRequestOverlay}
 

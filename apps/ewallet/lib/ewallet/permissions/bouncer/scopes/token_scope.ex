@@ -17,8 +17,7 @@ defmodule EWallet.Bouncer.TokenScope do
 
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
-  import Ecto.Query
-  alias EWallet.Bouncer.{Helper, Permission}
+  alias EWallet.Bouncer.Permission
   alias EWalletDB.Token
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: any()

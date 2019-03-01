@@ -18,7 +18,6 @@ defmodule AdminAPI.V1.TransactionController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.AccountHelper
   alias Ecto.{Changeset, Query}
   alias EWallet.{TransactionPolicy, TransactionGate, ExportGate, AdapterHelper}
 
@@ -32,7 +31,7 @@ defmodule AdminAPI.V1.TransactionController do
     V1.CSV.TransactionSerializer
   }
 
-  alias EWalletDB.{Account, Repo, Transaction, User, Export}
+  alias EWalletDB.{Account, Transaction, User, Export}
 
   @doc """
   Creates an export transactions.

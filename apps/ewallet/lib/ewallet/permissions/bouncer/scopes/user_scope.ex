@@ -19,7 +19,7 @@ defmodule EWallet.Bouncer.UserScope do
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.{Helper, Permission}
-  alias EWalletDB.{Wallet, AccountUser, User}
+  alias EWalletDB.{AccountUser, User}
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: EWalletDB.Wallet | nil | Ecto.Query.t()
   def scoped_query(%Permission{

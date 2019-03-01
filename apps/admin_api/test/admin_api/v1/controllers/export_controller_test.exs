@@ -14,8 +14,6 @@
 
 defmodule AdminAPI.V1.ExportControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias ActivityLogger.System
-  alias EWalletDB.Membership
 
   describe "/export.all" do
     test_with_auths "returns a list of exports and pagination data" do

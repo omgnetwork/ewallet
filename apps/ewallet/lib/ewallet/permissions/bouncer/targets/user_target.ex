@@ -17,9 +17,7 @@ defmodule EWallet.Bouncer.UserTarget do
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
-  import Ecto.Query
-  alias EWallet.Bouncer.Permission
-  alias EWalletDB.{Membership, User, Wallet, AccountUser}
+  alias EWalletDB.User
   alias EWalletDB.Helpers.Preloader
 
   @spec get_owner_uuids(User.t()) :: [Ecto.UUID.t()]

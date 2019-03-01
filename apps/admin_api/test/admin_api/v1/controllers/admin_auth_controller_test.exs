@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
   alias ActivityLogger.System
-  alias EWalletDB.{Account, AuthToken, Membership, Repo, Role, User}
+  alias EWalletDB.{AuthToken, Membership, Repo, User}
 
   describe "/admin.login" do
     test "responds with a new auth token if the given email and password are valid" do

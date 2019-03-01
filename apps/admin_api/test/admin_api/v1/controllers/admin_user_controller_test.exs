@@ -15,7 +15,7 @@
 defmodule AdminAPI.V1.AdminUserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
-  alias EWalletDB.{User, Account, AuthToken, Role, Membership}
+  alias EWalletDB.{User, Account, AuthToken, Membership}
   alias ActivityLogger.System
 
   @owner_app :some_app

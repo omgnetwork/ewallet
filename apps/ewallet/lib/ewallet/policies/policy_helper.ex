@@ -30,7 +30,7 @@ defmodule EWallet.PolicyHelper do
     Bouncer.bounce(attrs, %Permission{action: action, target: target})
   end
 
-  defp authorize_scope(action, attrs, type, schema) do
+  defp authorize_scope(_action, attrs, type, schema) do
     case Bouncer.bounce(attrs, %Permission{action: :all, type: type, schema: schema}) do
       {:ok, permission} ->
         {:ok, %{permission | query: Bouncer.scoped_query(permission)}}

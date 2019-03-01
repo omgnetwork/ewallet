@@ -70,7 +70,7 @@ defmodule AdminAPI.V1.AdminAuthController do
     AccountPolicy.authorize(action, actor, account)
   end
 
-  defp authorize(action, %{admin_user: admin_user} = actor, target) do
+  defp authorize(action, %{admin_user: _admin_user} = actor, target) do
     AdminUserPolicy.authorize(action, actor, target)
   end
 

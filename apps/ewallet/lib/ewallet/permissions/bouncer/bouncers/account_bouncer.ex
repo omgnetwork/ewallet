@@ -107,7 +107,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
   end
 
   defp account_authorized?(%{account_abilities: account_abilities}) do
-    Enum.any?(account_abilities, fn {type, ability} ->
+    Enum.any?(account_abilities, fn {_type, ability} ->
       Enum.member?([:global, :accounts, :self], ability)
     end)
   end

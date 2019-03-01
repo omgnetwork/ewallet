@@ -164,7 +164,7 @@ defmodule AdminAPI.V1.SelfController do
   """
   def get_accounts(conn, attrs) do
     with %User{} = user <- conn.assigns[:admin_user] || {:error, :unauthorized},
-         {:ok, p} <- authorize(:get_accounts, conn.assigns, user),
+         {:ok, _} <- authorize(:get_accounts, conn.assigns, user),
          account_uuids <- AccountHelper.get_accessible_account_uuids(%{admin_user: user}) do
       accounts =
         Account
@@ -221,7 +221,7 @@ defmodule AdminAPI.V1.SelfController do
   # verify_email action can be done unauthenticated
   defp authorize(:verify_email, _actor, _target), do: {:ok, nil}
 
-  defp authorize(action, %{admin_user: admin_user} = actor, target) do
+  defp authorize(action, %{admin_user: _admin_user} = actor, target) do
     AdminUserPolicy.authorize(action, actor, target)
   end
 
