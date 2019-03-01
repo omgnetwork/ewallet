@@ -89,7 +89,7 @@ defmodule AdminAPI.V1.CategoryController do
          {:ok, updated} <- Orchestrator.one(updated, CategoryOverlay, attrs) do
       render(conn, :category, %{category: updated})
     else
-      {:error, %{} = changeset} ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->
