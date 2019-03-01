@@ -14,14 +14,13 @@
 
 defmodule EWallet.Bouncer.TransactionRequestScope do
   @moduledoc """
-
+  Permission scoping module for transaction requests.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.{Helper, Permission}
   alias EWalletDB.{TransactionRequest, AccountUser, User}
 
-  @spec scoped_query(EWallet.Bouncer.Permission.t()) :: Ecto.Queryable.t()
   def scoped_query(%Permission{
         actor: actor,
         global_abilities: global_abilities,
@@ -72,6 +71,7 @@ defmodule EWallet.Bouncer.TransactionRequestScope do
     actor
     |> Helper.prepare_query_with_membership_for(TransactionRequest)
     |> where([g, m], g.account_uuid == m.account_uuid or not is_nil(g.user_uuid))
+    |> distinct(true)
     |> select([g, m], g)
   end
 
@@ -81,10 +81,10 @@ defmodule EWallet.Bouncer.TransactionRequestScope do
        }) do
     actor
     |> Helper.prepare_query_with_membership_for(TransactionRequest)
-    |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
-    |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
-    |> where([g, m, au, u], g.user_uuid == u.uuid or g.account_uuid == m.account_uuid)
-    |> select([g, m, au, u], g)
+    |> join(:left, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
+    |> where([g, m, au], g.user_uuid == au.user_uuid or g.account_uuid == m.account_uuid)
+    |> distinct(true)
+    |> select([g, m, au], g)
   end
 
   defp do_scoped_query(actor, %{
@@ -94,6 +94,7 @@ defmodule EWallet.Bouncer.TransactionRequestScope do
     actor
     |> Helper.prepare_query_with_membership_for(TransactionRequest)
     |> where([g, m], g.account_uuid == m.account_uuid or g.user_uuid == ^actor.uuid)
+    |> distinct(true)
     |> select([g, m], g)
   end
 
@@ -112,7 +113,7 @@ defmodule EWallet.Bouncer.TransactionRequestScope do
          account_transaction_requests: _,
          end_user_transaction_requests: :global
        }) do
-    where(Wallet, [g], not is_nil(g.user_uuid))
+    where(TransactionRequest, [g], not is_nil(g.user_uuid))
   end
 
   defp do_scoped_query(actor, %{
@@ -124,6 +125,7 @@ defmodule EWallet.Bouncer.TransactionRequestScope do
     |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
     |> where([g, m, au, u], g.user_uuid == u.uuid)
+    |> distinct(true)
     |> select([g, m, au, u], g)
   end
 

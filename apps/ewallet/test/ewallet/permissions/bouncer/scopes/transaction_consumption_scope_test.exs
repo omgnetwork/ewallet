@@ -476,6 +476,9 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       consumption_10 =
         insert(:transaction_consumption, user_uuid: end_user_3.uuid, account_uuid: nil)
 
+      consumption_11 =
+        insert(:transaction_consumption, user_uuid: end_user_1.uuid, account_uuid: account_1.uuid)
+
       permission = %Permission{
         actor: actor,
         global_abilities: %{
@@ -498,7 +501,8 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert Enum.member?(consumption_uuids, consumption_8.uuid)
       assert Enum.member?(consumption_uuids, consumption_9.uuid)
       refute Enum.member?(consumption_uuids, consumption_10.uuid)
-      assert length(consumption_uuids) == 7
+      assert Enum.member?(consumption_uuids, consumption_11.uuid)
+      assert length(consumption_uuids) == 8
     end
 
     test "returns all accounts the actor (user) has access to when 'accounts / self' ability" do

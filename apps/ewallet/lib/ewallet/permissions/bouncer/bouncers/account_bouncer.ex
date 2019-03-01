@@ -77,11 +77,11 @@ defmodule EWallet.Bouncer.AccountBouncer do
   end
 
   defp find_sufficient_permission_in_memberships(
-    permission,
-    permissions,
-    [membership | memberships],
-    types
-  ) do
+         permission,
+         permissions,
+         [membership | memberships],
+         types
+       ) do
     permission
     |> update_abilities(membership.role.name, types, permissions)
     |> find_sufficient_permission_in_memberships(permissions, memberships, types)
