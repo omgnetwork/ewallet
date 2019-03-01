@@ -46,7 +46,7 @@ defmodule EWallet.TransactionRequestGateTest do
   end
 
   describe "create/1 with account_id" do
-    test "with nil account_id and no address", meta do
+    test "receives an 'unauthorized' error when account_id is nil and no address", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -57,10 +57,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :account_id_not_found}
+      assert res == {:error, :unauthorized}
     end
 
-    test "with invalid account_id and no address", meta do
+    test "receives an 'unauthorized' error when account_id is invalid and no address", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -71,10 +71,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :account_id_not_found}
+      assert res == {:error, :unauthorized}
     end
 
-    test "with valid account_id and nil address", meta do
+    test "receives an 'unauthorized' error when account_id is valid and address is nil", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -86,10 +86,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :account_id_not_found}
+      assert res == {:error, :unauthorized}
     end
 
-    test "with valid account_id and no address", meta do
+    test "succeed when account_id is valid and no address", meta do
       admin = insert(:admin)
       {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
 
@@ -108,7 +108,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert %TransactionRequest{} = request
     end
 
-    test "with valid account_id and a valid address", meta do
+    test "succeed when account_id and address are valid", meta do
       admin = insert(:admin)
       {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
 
@@ -128,7 +128,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert request.status == "valid"
     end
 
-    test "with valid account_id and an invalid address", meta do
+    test "receives an 'unauthorized' error when account_id is valid address is invalid", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -140,10 +140,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :account_wallet_not_found}
+      assert res == {:error, :unauthorized}
     end
 
-    test "with valid account_id, valid user and a valid address", meta do
+    test "succeed when account_id, user and address are valid", meta do
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid, %System{})
       admin = insert(:admin)
       {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
@@ -169,7 +169,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert request.wallet_address == meta.user_wallet.address
     end
 
-    test "with valid account_id, valid user and an invalid address", meta do
+    test "receives an 'unauthorized' error when account_id and user are valid and address is invalid", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -182,10 +182,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :user_wallet_mismatch}
+      assert res == {:error, :unauthorized}
     end
 
-    test "with valid account_id and an address that does not belong to the account", meta do
+    test "receives an 'unauthorized' error when account_id is valid and an address that does not belong to the account", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -197,12 +197,12 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :account_wallet_mismatch}
+      assert res == {:error, :unauthorized}
     end
   end
 
   describe "create/1 with provider_user_id" do
-    test "with nil provider_user_id and no address", meta do
+    test "receives an 'unauthorized' error when provider_user_id is nil and no address", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -213,10 +213,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :provider_user_id_not_found}
+      assert res == {:error, :unauthorized}
     end
 
-    test "with invalid provider_user_id and no address", meta do
+    test "receives an 'unauthorized' error when provider_user_id is invalid and no address", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -227,10 +227,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :provider_user_id_not_found}
+      assert res == {:error, :unauthorized}
     end
 
-    test "with valid provider_user_id and no address", meta do
+    test "succeed when provider_user_id is valid and no address", meta do
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid, %System{})
 
       {res, request} =
@@ -248,7 +248,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert %TransactionRequest{} = request
     end
 
-    test "with valid provider_user_id and a valid address", meta do
+    test "succeed when provider_user_id and address are valid", meta do
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -265,7 +265,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert %TransactionRequest{} = request
     end
 
-    test "with valid provider_user_id and an invalid address", meta do
+    test "receives an 'unauthorized' error when provider_user_id is valid and address is invalid", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -277,10 +277,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :user_wallet_not_found}
+      assert res == {:error, :unauthorized}
     end
 
-    test "with valid provider_user_id and an address that does not belong to the user", meta do
+    test "receives an 'unauthorized' error when provider_user_id is valid and an address that does not belong to the user", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -292,12 +292,12 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :user_wallet_mismatch}
+      assert res == {:error, :unauthorized}
     end
   end
 
   describe "create/1 with address" do
-    test "with nil address", meta do
+    test "receives an 'unauthorized' error when address is nil", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -308,10 +308,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :wallet_not_found}
+      assert res == {:error, :unauthorized}
     end
 
-    test "with a valid address", meta do
+    test "succeed when address is valid", meta do
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -327,7 +327,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert %TransactionRequest{} = request
     end
 
-    test "with an invalid address", meta do
+    test "receives an 'unauthorized' error when address is invalid", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -339,12 +339,12 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :wallet_not_found}
+      assert res == {:error, :unauthorized}
     end
   end
 
   describe "create/1 with invalid parameters" do
-    test "with invalid parameters", meta do
+    test "receives an 'invalid_parameter' error parameters are invalid", meta do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -397,7 +397,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert changeset.errors == [type: {"is invalid", [validation: :inclusion]}]
     end
 
-    test "receives a 'user_wallet_not_found' error when the address is invalid", meta do
+    test "receives a 'unauthorized' error when the address is invalid", meta do
       {:error, error} =
         TransactionRequestGate.create(meta.user, %{
           "type" => "receive",
@@ -408,10 +408,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert error == :user_wallet_not_found
+      assert error == :unauthorized
     end
 
-    test "receives an 'user_wallet_mismatch' error when the address does not belong to the user",
+    test "receives an 'unauthorized' error when the address does not belong to the user",
          meta do
       wallet = insert(:wallet)
 
@@ -425,10 +425,10 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert error == :user_wallet_mismatch
+      assert error == :unauthorized
     end
 
-    test "receives an 'token_not_found' error when the token ID is not found", meta do
+    test "receives an 'unauthorized' error when the token ID is not found", meta do
       res =
         TransactionRequestGate.create(meta.user, %{
           "type" => "receive",
@@ -439,7 +439,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :token_not_found}
+      assert res == {:error, :unauthorized}
     end
   end
 
@@ -575,7 +575,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert error == :invalid_parameter
     end
 
-    test "receives an 'token_not_found' error when the token ID is not found", meta do
+    test "receives an 'unauthorized' error when the token ID is not found", meta do
       res =
         TransactionRequestGate.create(meta.user_wallet, %{
           "type" => "receive",
@@ -586,7 +586,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "originator" => %System{}
         })
 
-      assert res == {:error, :token_not_found}
+      assert res == {:error, :unauthorized}
     end
   end
 

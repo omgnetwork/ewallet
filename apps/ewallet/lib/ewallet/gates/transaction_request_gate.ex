@@ -48,6 +48,8 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
+      {:error, _error} ->
+        {:error, :unauthorized}
       error -> error
     end
   end
@@ -66,6 +68,8 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
+      {:error, _error} ->
+        {:error, :unauthorized}
       error -> error
     end
   end
@@ -81,8 +85,11 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
+      {:error, _error} ->
+        {:error, :unauthorized}
       error when is_atom(error) -> {:error, error}
-      error -> error
+      error ->
+        error
     end
   end
 
@@ -104,6 +111,8 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
+      {:error, _error} ->
+        {:error, :unauthorized}
       error when is_atom(error) -> {:error, error}
       error -> error
     end
@@ -120,6 +129,8 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
+      {:error, _error} ->
+        {:error, :unauthorized}
       error when is_atom(error) -> {:error, error}
       error -> error
     end
@@ -146,6 +157,8 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
+      {:error, _error} ->
+        {:error, :unauthorized}
       error when is_atom(error) -> {:error, error}
       error -> error
     end
@@ -162,6 +175,8 @@ defmodule EWallet.TransactionRequestGate do
          attrs <- Map.put(attrs, "creator", %{end_user: user}) do
       create(wallet, attrs)
     else
+      {:error, _error} ->
+        {:error, :unauthorized}
       error -> error
     end
   end
