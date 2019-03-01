@@ -59,6 +59,9 @@ defmodule AdminAPI.V1.APIKeyController do
          {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
       render(conn, :api_key, %{api_key: api_key})
     else
+      {:error, %Changeset{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+
       {:error, code} ->
         handle_error(conn, code)
     end
@@ -76,11 +79,11 @@ defmodule AdminAPI.V1.APIKeyController do
          {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
       render(conn, :api_key, %{api_key: api_key})
     else
-      {:error, code} when is_atom(code) ->
-        handle_error(conn, code)
-
       {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
+
+      {:error, code} ->
+        handle_error(conn, code)
     end
   end
 
@@ -100,11 +103,11 @@ defmodule AdminAPI.V1.APIKeyController do
          {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
       render(conn, :api_key, %{api_key: api_key})
     else
-      {:error, code} when is_atom(code) ->
-        handle_error(conn, code)
-
       {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
+
+      {:error, code} ->
+        handle_error(conn, code)
     end
   end
 

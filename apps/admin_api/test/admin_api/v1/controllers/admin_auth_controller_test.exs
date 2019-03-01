@@ -37,7 +37,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "account" => nil,
           "master_admin" => nil,
           "role" => nil,
-          "global_role" => "super_admin"
+          "global_role" => auth_token.user.global_role
         }
       }
 
@@ -68,7 +68,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "account" => nil,
           "master_admin" => nil,
           "role" => nil,
-          "global_role" => "super_admin"
+          "global_role" => auth_token.user.global_role
         }
       }
 
@@ -100,7 +100,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "account" => nil,
           "master_admin" => nil,
           "role" => nil,
-          "global_role" => "none"
+          "global_role" => auth_token.user.global_role
         }
       }
 

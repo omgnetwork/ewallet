@@ -23,7 +23,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
   describe "/account.get_members" do
     test_with_auths "returns a list of users with role and status" do
-      set_admin_as_super_admin()
       account = insert(:account)
 
       {:ok, user_1} = :user |> params_for() |> User.insert()
@@ -155,7 +154,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_any filtering on the user fields" do
-      set_admin_as_super_admin()
       admin_1 = insert(:admin, username: "value_1")
       admin_2 = insert(:admin, username: "value_2")
       admin_3 = insert(:admin, username: "value_3")
@@ -201,7 +199,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_any filtering on the membership fields" do
-      set_admin_as_super_admin()
       admin_1 = insert(:admin, username: "value_1")
       admin_2 = insert(:admin, username: "value_2")
       admin_3 = insert(:admin, username: "value_3")
@@ -246,8 +243,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     # This is a variation of `ConnCase.test_supports_match_all/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_all filtering on user fields" do
-      set_admin_as_super_admin()
-
       admin_1 = insert(:admin, %{username: "this_should_almost_match"})
       admin_2 = insert(:admin, %{username: "this_should_match"})
       admin_3 = insert(:admin, %{username: "should_not_match"})
@@ -292,7 +287,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_all filtering on membership fields" do
-      set_admin_as_super_admin()
       admin_1 = insert(:admin)
       admin_2 = insert(:admin)
       admin_3 = insert(:admin)
@@ -336,7 +330,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
   describe "/account.assign_user" do
     test_with_auths "returns empty success if assigned with user_id successfully" do
-      set_admin_as_super_admin()
       {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
@@ -352,8 +345,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns empty success if assigned with email successfully" do
-      set_admin_as_super_admin()
-
       response =
         request("/account.assign_user", %{
           email: insert(:admin).email,
@@ -367,7 +358,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns empty success if the user has a pending confirmation" do
-      set_admin_as_super_admin()
       email = "user_pending_confirmation@example.com"
       admin = get_test_admin()
       account = insert(:account)
@@ -401,8 +391,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns an error if the email format is invalid" do
-      set_admin_as_super_admin()
-
       response =
         request("/account.assign_user", %{
           email: "invalid_format",
@@ -418,8 +406,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns an error if the email is nil" do
-      set_admin_as_super_admin()
-
       response =
         request("/account.assign_user", %{
           email: nil,
@@ -435,7 +421,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns client:invalid_parameter error if the redirect_url is not allowed" do
-      set_admin_as_super_admin()
       redirect_url = "http://unknown-url.com/invite?email={email}&token={token}"
 
       response =
@@ -454,8 +439,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns an error if the given user id does not exist" do
-      set_admin_as_super_admin()
-
       response =
         request("/account.assign_user", %{
           user_id: UUID.generate(),
@@ -473,7 +456,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns an error if the given account id does not exist" do
-      set_admin_as_super_admin()
       {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
@@ -493,7 +475,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns an error if the given role does not exist" do
-      set_admin_as_super_admin()
       {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
@@ -531,8 +512,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test "generates an activity log for an admin request" do
-      set_admin_as_super_admin()
-
       {:ok, user} = :user |> params_for() |> User.insert()
       account = insert(:account)
       role = Role.get_by(name: "admin")
@@ -610,8 +589,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns an error if the given user id does not exist" do
-      set_admin_as_super_admin()
-
       response =
         request("/account.unassign_user", %{
           user_id: UUID.generate(),
@@ -655,8 +632,6 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test "generates an activity log for an admin request" do
-      set_admin_as_super_admin()
-
       account = insert(:account)
       {:ok, user} = :user |> params_for() |> User.insert()
       {:ok, membership} = Membership.assign(user, account, "admin", %System{})
