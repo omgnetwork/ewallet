@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.UserSerializer
   alias ActivityLogger.System
-  alias EWalletDB.{AuthToken, Membership, Repo, User}
+  alias EWalletDB.{AuthToken, Membership, Repo, Role, User}
 
   describe "/admin.login" do
     test "responds with a new auth token if the given email and password are valid" do
@@ -35,9 +35,9 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "user" => auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
           "account_id" => nil,
           "account" => nil,
-          "master_admin" => true,
+          "master_admin" => nil,
           "role" => nil,
-          "global_role" => "super_admin"
+          "global_role" => auth_token.user.global_role
         }
       }
 
@@ -66,9 +66,9 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "user" => auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
           "account_id" => nil,
           "account" => nil,
-          "master_admin" => false,
+          "master_admin" => nil,
           "role" => nil,
-          "global_role" => "super_admin"
+          "global_role" => auth_token.user.global_role
         }
       }
 
@@ -98,9 +98,9 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "user" => auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
           "account_id" => nil,
           "account" => nil,
-          "master_admin" => false,
+          "master_admin" => nil,
           "role" => nil,
-          "global_role" => "none"
+          "global_role" => auth_token.user.global_role
         }
       }
 

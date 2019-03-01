@@ -101,9 +101,9 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       assert response["success"]
 
       records = response["data"]["data"]
+      assert Enum.count(records) == 2
       assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
       assert Enum.any?(records, fn r -> r["id"] == admin_4.id end)
-      assert Enum.count(records) == 2
     end
 
     # This is a variation of `ConnCase.test_supports_match_all/5` that inserts
@@ -141,8 +141,8 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       assert response["success"]
 
       records = response["data"]["data"]
-      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
       assert Enum.count(records) == 1
+      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
     end
   end
 

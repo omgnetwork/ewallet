@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{Helper, MintGate, TokenPolicy}
+  alias EWallet.{Helper, MintGate, TokenPolicy, MintPolicy}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
   alias EWalletDB.{Account, Mint, Token}
   alias Ecto.Changeset
@@ -84,7 +84,9 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with {:ok, _} <- authorize(:create, conn.assigns, attrs) do
+    with attrs <- Map.put(attrs, "account_uuid", Account.get_master_account().uuid),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, _} <- authorize(:create, conn.assigns, attrs) do
       do_create(conn, attrs)
     else
       {:error, code} ->
@@ -93,9 +95,7 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   defp do_create(conn, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0 do
-    with attrs <- Map.put(attrs, "account_uuid", Account.get_master_account().uuid),
-         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, token} <- Token.insert(attrs),
+    with {:ok, token} <- Token.insert(attrs),
          {:ok, _} <-
            authorize(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}) || token do
       token
@@ -219,8 +219,13 @@ defmodule AdminAPI.V1.TokenController do
     handle_error(conn, error_code)
   end
 
+  @spec authorize(:create, map(), String.t() | nil) :: any()
+  defp authorize(:create = action, actor, %Mint{} = mint) do
+    MintPolicy.authorize(action, actor, mint)
+  end
+
   @spec authorize(:all | :create | :get | :update, map(), String.t() | nil) :: any()
-  defp authorize(action, params, token) do
-    TokenPolicy.authorize(action, params, token)
+  defp authorize(action, actor, token_attrs) do
+    TokenPolicy.authorize(action, actor, token_attrs)
   end
 end

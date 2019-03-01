@@ -317,7 +317,7 @@ defmodule EWalletDB.UserTest do
     end
 
     test "returns nil if user is not an admin" do
-      {_, inserted_user} =
+      {_, _inserted_user} =
         :user
         |> build(%{id: "usr_01caj9wth0vyestkmh7873qb9f", is_admin: false})
         |> Repo.insert()

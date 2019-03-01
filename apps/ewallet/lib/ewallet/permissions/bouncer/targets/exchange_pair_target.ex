@@ -25,7 +25,7 @@ defmodule EWallet.Bouncer.ExchangePairTarget do
   end
 
   @spec get_target_types() :: [:exchange_pairs]
-  def get_target_types(), do: [:exchange_pairs]
+  def get_target_types, do: [:exchange_pairs]
 
   @spec get_target_type(ExchangePair.t()) :: :exchange_pairs
   def get_target_type(_), do: :exchange_pairs

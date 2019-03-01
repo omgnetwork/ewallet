@@ -140,6 +140,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           expired: true
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["expired"] == true
       assert response["data"]["enabled"] == false
@@ -155,6 +156,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           expired: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["expired"] == false
       assert response["data"]["enabled"] == true
@@ -255,6 +257,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["enabled"] == false
     end
@@ -269,6 +272,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["enabled"] == false
 
@@ -278,6 +282,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["enabled"] == false
     end
@@ -292,6 +297,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           enabled: true
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["enabled"] == true
     end
@@ -352,11 +358,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
       api_key = insert(:api_key)
       response = request("/api_key.delete", %{id: api_key.id})
 
-      assert response == %{
-               "version" => "1",
-               "success" => true,
-               "data" => %{}
-             }
+      assert response["success"]
     end
 
     test_with_auths "responds with 'unauthorized' if the provided id is not found" do

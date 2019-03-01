@@ -478,7 +478,11 @@ defmodule EWallet.Web.V1.ErrorHandler do
   end
 
   # ---- WITH PERMISSION STRUCT ----
-  @spec build_error(Permission.t() | atom(), map() | Ecto.Changeset.t() | String.t(), map() | nil) ::
+  @spec build_error(
+          Permission.t() | atom(),
+          map() | Ecto.Changeset.t() | String.t(),
+          map() | nil
+        ) ::
           map()
   def build_error(%Permission{authorized: false}, supported_errors) do
     run_if_valid_error(:unauthorized, supported_errors, fn error ->

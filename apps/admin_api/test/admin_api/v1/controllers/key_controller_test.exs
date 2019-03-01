@@ -24,6 +24,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
 
       response = request("/access_key.all")
 
+      assert response["success"]
       assert Enum.all?(response["data"]["data"], fn key -> key["object"] == "key" end)
       assert Enum.all?(response["data"]["data"], fn key -> key["secret_key"] == nil end)
 
@@ -44,8 +45,9 @@ defmodule AdminAPI.V1.KeyControllerTest do
       {:ok, _} = Key.delete(key2, originator)
 
       response = request("/access_key.all")
-      keys = response["data"]["data"]
 
+      assert response["success"]
+      keys = response["data"]["data"]
       assert Enum.count(keys) == 2
       assert Enum.any?(keys, fn a -> a["id"] == key1.id end)
       refute Enum.any?(keys, fn a -> a["id"] == key2.id end)
@@ -148,6 +150,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           expired: true
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == true
       assert response["data"]["enabled"] == false
@@ -163,6 +166,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           expired: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == false
       assert response["data"]["enabled"] == true
@@ -181,6 +185,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           secret_key_hash: "new_secret_key_hash"
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == true
       assert response["data"]["enabled"] == false
@@ -254,6 +259,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["enabled"] == false
     end
@@ -268,6 +274,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["enabled"] == false
 
@@ -277,6 +284,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["enabled"] == false
     end
@@ -291,6 +299,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           enabled: true
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["enabled"] == true
     end

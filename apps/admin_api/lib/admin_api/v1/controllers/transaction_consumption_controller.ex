@@ -25,14 +25,15 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     UserFetcher,
     Web.V1.Event
   }
+  alias Ecto.Changeset
 
   alias EWalletDB.{Account, TransactionConsumption, TransactionRequest, User, Wallet}
 
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
-         user_uuids <- Account.get_all_users([account.uuid]) |> Enum.map(fn u -> u.uuid end) do
+         user_uuids <- [account.uuid] |> Account.get_all_users() |> Enum.map(fn u -> u.uuid end) do
       [account.uuid]
       |> TransactionConsumption.query_all_for_account_and_user_uuids(user_uuids, query)
       |> do_all(attrs, conn)
@@ -43,9 +44,9 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
-         user_uuids <- Account.get_all_users([account.uuid]) |> Enum.map(fn u -> u.uuid end) do
+         user_uuids <- [account.uuid] |> Account.get_all_users() |> Enum.map(fn u -> u.uuid end) do
       [account.uuid]
       |> TransactionConsumption.query_all_for_account_and_user_uuids(user_uuids, query)
       |> do_all(attrs, conn)
@@ -60,7 +61,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   def all_for_user(conn, attrs) do
     with {:ok, %User{} = user} <- UserFetcher.fetch(attrs) || {:error, :unauthorized},
-         {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
       :user_uuid
       |> TransactionConsumption.query_all_for(user.uuid, query)
@@ -84,7 +85,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
       ) do
     with %TransactionRequest{} = transaction_request <-
            TransactionRequest.get(formatted_transaction_request_id) || {:error, :unauthorized},
-         {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
       :transaction_request_uuid
       |> TransactionConsumption.query_all_for(transaction_request.uuid, query)
@@ -104,7 +105,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   def all_for_wallet(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
-         {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
       :wallet_address
       |> TransactionConsumption.query_all_for(wallet.address)
@@ -119,7 +120,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all(conn, attrs) do
-    with {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
       do_all(query, attrs, conn)
     else
@@ -135,7 +136,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   def get(conn, %{"id" => id} = attrs) do
     with {:ok, consumption} <- TransactionConsumptionFetcher.get(id),
-         {:ok, _} <- permit(:get, conn.assigns, consumption) do
+         {:ok, _} <- authorize(:get, conn.assigns, consumption) do
       consumption
       |> Orchestrator.one(TransactionConsumptionOverlay, attrs)
       |> respond(conn, false)
@@ -206,7 +207,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(conn, code, description)
   end
 
-  defp respond({:error, changeset}, conn, _dispatch?) do
+  defp respond({:error, %Changeset{} = changeset}, conn, _dispatch?) do
     handle_error(conn, :invalid_parameter, changeset)
   end
 
@@ -236,7 +237,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     end
   end
 
-  @spec permit(
+  @spec authorize(
           :all | :create | :get | :update,
           map(),
           String.t()
@@ -247,7 +248,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
           | %Wallet{}
           | nil
         ) :: :ok | {:error, any()} | no_return()
-  defp permit(action, params, data) do
-    TransactionConsumptionPolicy.authorize(action, params, data)
+  defp authorize(action, actor, data) do
+    TransactionConsumptionPolicy.authorize(action, actor, data)
   end
 end

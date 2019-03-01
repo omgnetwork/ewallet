@@ -18,7 +18,6 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
 
   describe "/account.get_wallets_and_user_wallets" do
     test_with_auths "returns a list of wallets and pagination data for the specified account" do
-      set_admin_as_super_admin()
       user_1 = get_test_user()
 
       {:ok, account} = :account |> params_for() |> Account.insert()
@@ -55,7 +54,6 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
     end
 
     test_with_auths "returns a list of wallets according to sort_by and sort_direction" do
-      set_admin_as_super_admin()
       user = get_test_user()
       user_wallet = User.get_primary_wallet(user)
 
@@ -141,7 +139,6 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
 
   describe "/account.get_wallets" do
     test_with_auths "returns a list of wallets and pagination data for the specified account" do
-      set_admin_as_super_admin()
       account = Account.get_master_account()
 
       response = request("/account.get_wallets", %{"id" => account.id})
@@ -207,8 +204,6 @@ defmodule AdminAPI.V1.AccountWalletControllerTest do
     end
 
     test_with_auths "returns a list of wallets according to sort_by and sort_direction" do
-      set_admin_as_super_admin()
-
       account_1 = insert(:account)
       account_2 = insert(:account)
       account_3 = insert(:account)

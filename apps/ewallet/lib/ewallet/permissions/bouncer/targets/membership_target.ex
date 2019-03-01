@@ -31,7 +31,7 @@ defmodule EWallet.Bouncer.MembershipTarget do
   end
 
   @spec get_target_types() :: [:memberships]
-  def get_target_types(), do: [:memberships]
+  def get_target_types, do: [:memberships]
 
   @spec get_target_type(Membership.t()) :: :memberships
   def get_target_type(_), do: :memberships

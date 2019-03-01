@@ -63,7 +63,7 @@ defmodule EWalletDB.ExportTest do
         |> Export.insert()
       end)
 
-      exports = user |> Export.all_for("local") |> Repo.all()
+      exports = user |> Export.all_for("local", Export) |> Repo.all()
 
       assert Enum.all?(exports, fn e -> e.user_uuid == user.uuid end)
     end
@@ -87,7 +87,7 @@ defmodule EWalletDB.ExportTest do
         |> Export.insert()
       end)
 
-      exports = key |> Export.all_for("local") |> Repo.all()
+      exports = key |> Export.all_for("local", Export) |> Repo.all()
 
       assert Enum.all?(exports, fn e -> e.key_uuid == key.uuid end)
     end

@@ -16,10 +16,11 @@ defmodule EWallet.Bouncer.ConfigurationScopeTest do
   use EWallet.DBCase, async: true
   alias EWallet.Bouncer.{ConfigurationScope, Permission}
   alias EWalletConfig.{Config, Repo}
+  alias EWalletDB.Factory
 
   describe "scope_query/1 with global abilities" do
     test "returns Configuration queryable when 'global' ability" do
-      actor = EWalletDB.Factory.insert(:admin)
+      actor = Factory.insert(:admin)
 
       permission = %Permission{
         actor: actor,
@@ -34,7 +35,7 @@ defmodule EWallet.Bouncer.ConfigurationScopeTest do
     end
 
     test "returns all activity_logs the actor has access to when 'accounts' ability" do
-      actor = EWalletDB.Factory.insert(:admin)
+      actor = Factory.insert(:admin)
 
       permission = %Permission{
         actor: actor,
@@ -46,7 +47,7 @@ defmodule EWallet.Bouncer.ConfigurationScopeTest do
     end
 
     test "returns Configuration as queryable when 'self' ability" do
-      actor = EWalletDB.Factory.insert(:admin)
+      actor = Factory.insert(:admin)
 
       permission = %Permission{
         actor: actor,
@@ -58,7 +59,7 @@ defmodule EWallet.Bouncer.ConfigurationScopeTest do
     end
 
     test "returns nil as queryable when 'none' ability" do
-      actor = EWalletDB.Factory.insert(:admin)
+      actor = Factory.insert(:admin)
 
       permission = %Permission{
         actor: actor,
@@ -72,7 +73,7 @@ defmodule EWallet.Bouncer.ConfigurationScopeTest do
 
   describe "scope_query/1 with accounts abilities" do
     test "returns Configuration queryable when 'global' ability" do
-      actor = EWalletDB.Factory.insert(:admin)
+      actor = Factory.insert(:admin)
 
       permission = %Permission{
         actor: actor,
@@ -87,7 +88,7 @@ defmodule EWallet.Bouncer.ConfigurationScopeTest do
     end
 
     test "returns all activity_logs the actor has access to when 'accounts' ability" do
-      actor = EWalletDB.Factory.insert(:admin)
+      actor = Factory.insert(:admin)
 
       permission = %Permission{
         actor: actor,
@@ -99,7 +100,7 @@ defmodule EWallet.Bouncer.ConfigurationScopeTest do
     end
 
     test "returns Configuration as queryable when 'self' ability" do
-      actor = EWalletDB.Factory.insert(:admin)
+      actor = Factory.insert(:admin)
 
       permission = %Permission{
         actor: actor,
@@ -111,7 +112,7 @@ defmodule EWallet.Bouncer.ConfigurationScopeTest do
     end
 
     test "returns nil as queryable when 'none' ability" do
-      actor = EWalletDB.Factory.insert(:admin)
+      actor = Factory.insert(:admin)
 
       permission = %Permission{
         actor: actor,

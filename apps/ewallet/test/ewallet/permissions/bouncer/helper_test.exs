@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.HelperTest do
+defmodule EWallet.Bouncer.HelperTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Bouncer.Helper

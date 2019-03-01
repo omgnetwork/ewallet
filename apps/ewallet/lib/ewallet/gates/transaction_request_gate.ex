@@ -48,9 +48,7 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
-      {:error, _error} ->
-        {:error, :unauthorized}
-      error -> error
+      error -> handle_create_error(error)
     end
   end
 
@@ -68,9 +66,7 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
-      {:error, _error} ->
-        {:error, :unauthorized}
-      error -> error
+      error -> handle_create_error(error)
     end
   end
 
@@ -85,11 +81,7 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
-      {:error, _error} ->
-        {:error, :unauthorized}
-      error when is_atom(error) -> {:error, error}
-      error ->
-        error
+      error -> handle_create_error(error)
     end
   end
 
@@ -111,10 +103,7 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
-      {:error, _error} ->
-        {:error, :unauthorized}
-      error when is_atom(error) -> {:error, error}
-      error -> error
+      error -> handle_create_error(error)
     end
   end
 
@@ -129,10 +118,7 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
-      {:error, _error} ->
-        {:error, :unauthorized}
-      error when is_atom(error) -> {:error, error}
-      error -> error
+      error -> handle_create_error(error)
     end
   end
 
@@ -157,10 +143,7 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
-      {:error, _error} ->
-        {:error, :unauthorized}
-      error when is_atom(error) -> {:error, error}
-      error -> error
+      error -> handle_create_error(error)
     end
   end
 
@@ -175,9 +158,7 @@ defmodule EWallet.TransactionRequestGate do
          attrs <- Map.put(attrs, "creator", %{end_user: user}) do
       create(wallet, attrs)
     else
-      {:error, _error} ->
-        {:error, :unauthorized}
-      error -> error
+      error -> handle_create_error(error)
     end
   end
 
@@ -202,14 +183,7 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, transaction_request} <- insert(token, wallet, exchange_wallet, amount, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
-      error when is_atom(error) ->
-        {:error, error}
-
-      {:error, :token_not_found} ->
-        {:error, :unauthorized}
-
-      error ->
-        error
+      error -> handle_create_error(error)
     end
   end
 
@@ -268,4 +242,32 @@ defmodule EWallet.TransactionRequestGate do
   end
 
   defp get_integer_or_string_amount(amount), do: {:ok, amount}
+
+  defp handle_create_error(error) do
+    case error do
+      error when is_atom(error) ->
+        {:error, error}
+
+      {:error, :token_not_found} ->
+        {:error, :unauthorized}
+
+      {:error, :account_wallet_not_found} ->
+        {:error, :unauthorized}
+
+      {:error, :account_wallet_mismatch} ->
+        {:error, :unauthorized}
+
+      {:error, :wallet_not_found} ->
+        {:error, :unauthorized}
+
+      {:error, :user_wallet_not_found} ->
+        {:error, :unauthorized}
+
+      {:error, :user_wallet_mismatch} ->
+        {:error, :unauthorized}
+
+      error ->
+        error
+    end
+  end
 end

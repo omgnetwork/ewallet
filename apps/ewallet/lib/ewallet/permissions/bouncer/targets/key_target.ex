@@ -25,7 +25,7 @@ defmodule EWallet.Bouncer.KeyTarget do
   end
 
   @spec get_target_types() :: [:keys]
-  def get_target_types(), do: [:keys]
+  def get_target_types, do: [:keys]
 
   def get_target_type(_), do: :keys
 

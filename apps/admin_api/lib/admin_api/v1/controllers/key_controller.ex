@@ -76,11 +76,11 @@ defmodule AdminAPI.V1.KeyController do
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
       render(conn, :key, %{key: key})
     else
-      {:error, code} when is_atom(code) ->
-        handle_error(conn, code)
-
-      {:error, changeset} ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
+
+      {:error, code} ->
+        handle_error(conn, code)
     end
   end
 
@@ -100,11 +100,11 @@ defmodule AdminAPI.V1.KeyController do
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
       render(conn, :key, %{key: key})
     else
-      {:error, code} when is_atom(code) ->
-        handle_error(conn, code)
-
-      {:error, changeset} ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
+
+      {:error, code} ->
+        handle_error(conn, code)
     end
   end
 
@@ -145,7 +145,7 @@ defmodule AdminAPI.V1.KeyController do
       {:ok, _key} ->
         render(conn, :empty_response)
 
-      {:error, changeset} ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
     end
   end

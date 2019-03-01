@@ -53,14 +53,6 @@ defmodule EWallet.DispatcherTest do
     end
   end
 
-  describe "get_query_actor_records/2" do
-    test "calls the appropriate actor module" do
-      permission = %Permission{type: :accounts, actor: insert(:admin)}
-      res = Dispatcher.get_query_actor_records(permission, DispatchConfig)
-      assert res != nil
-    end
-  end
-
   describe "get_actor_accounts/2" do
     test "calls the appropriate actor module" do
       user = insert(:admin)

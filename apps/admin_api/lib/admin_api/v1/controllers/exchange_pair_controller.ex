@@ -69,7 +69,7 @@ defmodule AdminAPI.V1.ExchangePairController do
          {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay) do
       render(conn, :exchange_pairs, %{exchange_pairs: pairs})
     else
-      {:error, %{} = changeset} ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->
@@ -89,7 +89,7 @@ defmodule AdminAPI.V1.ExchangePairController do
          {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay) do
       render(conn, :exchange_pairs, %{exchange_pairs: pairs})
     else
-      {:error, %{} = changeset} ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->

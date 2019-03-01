@@ -32,9 +32,7 @@ defmodule EWallet.Bouncer.WalletTarget do
   end
 
   @spec get_target_types() :: [atom()]
-  def get_target_types do
-    [:account_wallets, :end_user_wallets]
-  end
+  def get_target_types, do: [:account_wallets, :end_user_wallets]
 
   @spec get_target_type(Wallet.t()) :: :account_wallets | :end_user_wallets
   def get_target_type(%Wallet{account_uuid: account_uuid})

@@ -20,8 +20,8 @@ defmodule EWallet.MintPolicy do
   alias EWallet.{Bouncer, Bouncer.Permission}
   alias EWalletDB.Mint
 
-  def authorize(:create, attrs, _attrs) do
-    Bouncer.bounce(attrs, %Permission{action: :create, target: %Mint{}})
+  def authorize(:create, attrs, mint_attrs) do
+    Bouncer.bounce(attrs, %Permission{action: :create, target: mint_attrs})
   end
 
   def authorize(action, attrs, target) do

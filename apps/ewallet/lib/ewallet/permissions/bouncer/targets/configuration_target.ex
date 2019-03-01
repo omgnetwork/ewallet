@@ -25,7 +25,7 @@ defmodule EWallet.Bouncer.ConfigurationTarget do
   end
 
   @spec get_target_types() :: [:configuration]
-  def get_target_types(), do: [:configuration]
+  def get_target_types, do: [:configuration]
 
   @spec get_target_type(Setting.t()) :: :configuration
   def get_target_type(_), do: :configuration

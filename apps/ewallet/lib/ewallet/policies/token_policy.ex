@@ -20,8 +20,8 @@ defmodule EWallet.TokenPolicy do
   alias EWallet.{Bouncer, Bouncer.Permission}
   alias EWalletDB.Token
 
-  def authorize(:create, attrs, _attrs) do
-    Bouncer.bounce(attrs, %Permission{action: :create, target: %Token{}})
+  def authorize(:create, attrs, %{"account_uuid" => account_uuid}) do
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %Token{account_uuid: account_uuid}})
   end
 
   def authorize(action, attrs, target) do

@@ -16,7 +16,7 @@ defmodule EWallet.Bouncer.UserActorTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Bouncer.UserActor
-  alias EWalletDB.Membership
+  alias EWalletDB.{Membership, AccountUser}
   alias ActivityLogger.System
 
   describe "get_actor_accounts/1 with admin user as actor" do

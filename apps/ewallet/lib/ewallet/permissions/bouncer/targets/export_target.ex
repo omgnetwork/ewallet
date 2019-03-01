@@ -26,9 +26,7 @@ defmodule EWallet.Bouncer.ExportTarget do
   end
 
   @spec get_target_types() :: [:exports]
-  def get_target_types do
-    [:exports]
-  end
+  def get_target_types, do: [:exports]
 
   @spec get_target_type(Export.t()) :: :exports
   def get_target_type(_), do: :exports

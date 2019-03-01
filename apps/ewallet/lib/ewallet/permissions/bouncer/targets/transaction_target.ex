@@ -31,7 +31,7 @@ defmodule EWallet.Bouncer.TransactionTarget do
   end
 
   @spec get_target_types() :: [atom()]
-  def get_target_types(), do: [:account_transactions, :end_user_transactions]
+  def get_target_types, do: [:account_transactions, :end_user_transactions]
 
   @spec get_target_type(Transaction.t()) :: :transactions
   def get_target_type(_), do: :transactions

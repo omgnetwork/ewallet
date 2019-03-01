@@ -18,10 +18,13 @@ defmodule EWallet.APIKeyPolicy do
   """
   alias EWallet.PolicyHelper
   alias EWallet.{Bouncer, Bouncer.Permission}
-  alias EWalletDB.APIKey
+  alias EWalletDB.{Account, APIKey}
 
   def authorize(:create, attrs, _api_key_attrs) do
-    Bouncer.bounce(attrs, %Permission{action: :create, target: %APIKey{}})
+    Bouncer.bounce(attrs, %Permission{
+      action: :create,
+      target: %APIKey{account: Account.get_master_account()}
+    })
   end
 
   def authorize(action, attrs, target) do
