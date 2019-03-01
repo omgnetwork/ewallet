@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.TokenTarget do
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.Token
+  alias EWalletDB.Helpers.Preloader
 
   @spec get_owner_uuids(Token.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(%Token{account_uuid: uuid}), do: [uuid]
@@ -29,5 +30,7 @@ defmodule EWallet.Bouncer.TokenTarget do
   def get_target_type(_), do: :tokens
 
   @spec get_target_accounts(Token.t(), any()) :: [Account.t()]
-  def get_target_accounts(%Token{account_uuid: uuid}, _dispatch_config), do: [uuid]
+  def get_target_accounts(token, _dispatch_config) do
+    [Preloader.preload(token, [:account]).account]
+  end
 end

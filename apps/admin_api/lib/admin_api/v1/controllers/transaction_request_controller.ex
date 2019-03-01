@@ -27,7 +27,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   @spec all(Plug.Conn.t(), map) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
       do_all(query, attrs, conn)
     else
@@ -38,7 +38,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         {:ok, %{query: query}} <- permit(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- authorize(:get, conn.assigns, account),
          true <- !is_nil(query) || {:error, :unauthorized},
          user_uuids <- [account.uuid] |> Account.get_all_users() |> Enum.map(fn u -> u.uuid end) do
       [account.uuid]
@@ -63,7 +63,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @spec get(Plug.Conn.t(), map) :: Plug.Conn.t()
   def get(conn, %{"formatted_id" => formatted_id}) do
     with {:ok, request} <- TransactionRequestFetcher.get(formatted_id) || {:error, :unauthorized},
-         {:ok, _} <- permit(:get, conn.assigns, request) do
+         {:ok, _} <- authorize(:get, conn.assigns, request) do
       respond({:ok, request}, conn)
     else
       {:error, :transaction_request_not_found} ->
@@ -112,12 +112,12 @@ defmodule AdminAPI.V1.TransactionRequestController do
     })
   end
 
-  @spec permit(
+  @spec authorize(
           :all | :create | :get | :update,
           map(),
           String.t() | %Account{} | %TransactionRequest{} | nil
         ) :: :ok | {:error, any()} | no_return()
-  defp permit(action, params, request) do
+  defp authorize(action, params, request) do
     TransactionRequestPolicy.authorize(action, params, request)
   end
 end
