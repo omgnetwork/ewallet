@@ -208,10 +208,12 @@ defmodule EWalletDB.Factory do
   end
 
   def membership_factory do
-    role = case Role.get_by(name: "admin") do
-      nil -> insert(:role, name: "admin")
-      role -> role
-    end
+    role =
+      case Role.get_by(name: "admin") do
+        nil -> insert(:role, name: "admin")
+        role -> role
+      end
+
     %Membership{
       user: insert(:user),
       role: role,

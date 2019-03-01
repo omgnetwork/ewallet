@@ -36,7 +36,6 @@ defmodule AdminAPI.V1.AccountHelperTest do
       _ = insert(:membership, user: admin, account: context.account_2)
       _ = insert(:membership, user: admin, account: context.account_3)
 
-
       conn = %Conn{
         assigns: %{admin_user: admin}
       }
