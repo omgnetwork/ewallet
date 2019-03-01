@@ -57,6 +57,7 @@ defmodule AdminAPI.V1.Router do
     post("/token.stats", TokenController, :stats)
     post("/token.get_mints", MintController, :all_for_token)
     post("/token.mint", MintController, :mint)
+    post("/token.upload_avatar", TokenController, :upload_avatar)
 
     # Transaction endpoints
     post("/transaction.all", TransactionController, :all)

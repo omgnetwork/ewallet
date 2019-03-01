@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{Helper, MintGate, TokenPolicy, MintPolicy}
+  alias EWallet.{Helper, MintGate, TokenPolicy, MintPolicy, AdapterHelper}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
   alias EWalletDB.{Account, Mint, Token}
   alias Ecto.Changeset
@@ -180,6 +180,35 @@ defmodule AdminAPI.V1.TokenController do
 
   def enable_or_disable(conn, _),
     do: handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
+
+  @doc """
+  Uploads an image as avatar for a specific token.
+  """
+  @spec upload_avatar(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
+    with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
+         :ok <- permit(:update, conn.assigns, token.id),
+         :ok <- AdapterHelper.check_adapter_status(),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         %{} = saved <- Token.store_avatar(token, attrs),
+         {:ok, saved} <- Orchestrator.one(saved, TokenOverlay, attrs) do
+      render(conn, :token, %{token: saved})
+    else
+      nil ->
+        handle_error(conn, :invalid_parameter)
+
+      changeset when is_map(changeset) ->
+        handle_error(conn, :invalid_parameter, changeset)
+
+      {:error, changeset} when is_map(changeset) ->
+        handle_error(conn, :invalid_parameter, changeset)
+
+      {:error, code} ->
+        handle_error(conn, code)
+    end
+  end
+
+  def upload_avatar(conn, _), do: handle_error(conn, :invalid_parameter)
 
   # Respond with a list of tokens
   defp respond_multiple(%Paginator{} = paged_tokens, conn) do

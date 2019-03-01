@@ -21,6 +21,7 @@ defmodule EWallet.Web.V1.TokenSerializer do
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWalletDB.Token
   alias Utils.Helpers.DateFormatter
+  alias EWalletDB.Uploaders.Avatar
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -40,6 +41,7 @@ defmodule EWallet.Web.V1.TokenSerializer do
       metadata: token.metadata || %{},
       encrypted_metadata: token.encrypted_metadata || %{},
       enabled: token.enabled,
+      avatar: Avatar.urls({token.avatar, token}),
       created_at: DateFormatter.to_iso8601(token.inserted_at),
       updated_at: DateFormatter.to_iso8601(token.updated_at)
     }
