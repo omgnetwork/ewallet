@@ -21,6 +21,8 @@ defmodule EWallet.Bouncer.TransactionRequestScope do
   alias EWallet.Bouncer.{Helper, Permission}
   alias EWalletDB.{TransactionRequest, AccountUser, User}
 
+  @spec scoped_query(EWallet.Bouncer.Permission.t()) ::
+          EWalletDB.TransactionRequest | nil | Ecto.Query.t()
   def scoped_query(%Permission{
         actor: actor,
         global_abilities: global_abilities,

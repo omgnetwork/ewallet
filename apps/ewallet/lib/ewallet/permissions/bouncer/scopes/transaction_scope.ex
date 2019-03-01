@@ -14,7 +14,7 @@
 
 defmodule EWallet.Bouncer.TransactionScope do
   @moduledoc """
-
+  Permission scoping module for transactions.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
@@ -46,6 +46,7 @@ defmodule EWallet.Bouncer.TransactionScope do
         is_nil(g.from_user_uuid) or
         is_nil(g.to_user_uuid)
     )
+    |> distinct(true)
     |> select([g, m, au, u], g)
   end
 
@@ -75,22 +76,23 @@ defmodule EWallet.Bouncer.TransactionScope do
         is_nil(g.from_account_uuid) or
         is_nil(g.to_account_uuid)
     )
+    |> distinct(true)
     |> select([g, m], g)
   end
 
   defp do_scoped_query(actor, %{account_transactions: :accounts, end_user_transactions: :accounts}) do
     actor
-    |> Helper.prepare_query_with_membership_for(Transaciton)
-    |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
-    |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
+    |> Helper.prepare_query_with_membership_for(Transaction)
+    |> join(:left, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> where(
-      [g, m, au, u],
-      g.from_user_uuid == u.uuid or
-        g.to_user_uuid == u.uuid or
+      [g, m, au],
+      g.from_user_uuid == au.user_uuid or
+        g.to_user_uuid == au.user_uuid or
         g.from_account_uuid == m.account_uuid or
         g.to_account_uuid == m.account_uuid
     )
-    |> select([g, m, au, u], g)
+    |> distinct(true)
+    |> select([g, m, au], g)
   end
 
   defp do_scoped_query(actor, %{account_transactions: :accounts, end_user_transactions: :self}) do
@@ -103,6 +105,7 @@ defmodule EWallet.Bouncer.TransactionScope do
         g.from_user_uuid == ^actor.uuid or
         g.to_user_uuid == ^actor.uuid
     )
+    |> distinct(true)
     |> select([g, m], g)
   end
 
@@ -110,20 +113,24 @@ defmodule EWallet.Bouncer.TransactionScope do
     actor
     |> Helper.prepare_query_with_membership_for(Transaction)
     |> where([g, m], g.from_account_uuid == m.account_uuid or g.to_account_uuid == m.account_uuid)
+    |> distinct(true)
     |> select([g, m], g)
   end
 
   defp do_scoped_query(_actor, %{account_transactions: _, end_user_transactions: :global}) do
-    where(Transaction, [g], is_nil(g.from_account_uuid) and is_nil(g.to_account_uuid))
+    where(Transaction, [g], is_nil(g.from_account_uuid) or is_nil(g.to_account_uuid))
   end
 
   defp do_scoped_query(actor, %{account_transactions: _, end_user_transactions: :accounts}) do
     actor
     |> Helper.prepare_query_with_membership_for(Transaction)
     |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
-    |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
-    |> where([g, m, au, u], g.from_user_uuid == u.uuid or g.to_user_uuid == u.uuid)
-    |> select([g, m, au, u], g)
+    |> where(
+      [g, m, au],
+      g.from_user_uuid == au.user_uuid or g.to_user_uuid == au.user_uuid
+    )
+    |> distinct(true)
+    |> select([g, m, au], g)
   end
 
   defp do_scoped_query(actor, %{account_transactions: _, end_user_transactions: :self}) do
