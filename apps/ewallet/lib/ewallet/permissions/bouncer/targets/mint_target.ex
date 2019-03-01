@@ -23,7 +23,7 @@ defmodule EWallet.Bouncer.MintTarget do
   def get_owner_uuids(%Mint{token: token}), do: [token.account_uuid]
 
   @spec get_target_types() :: [:mints]
-  def get_target_types(), do: [:mints]
+  def get_target_types, do: [:mints]
 
   @spec get_target_type(Mint.t()) :: :mints
   def get_target_type(_), do: :mints

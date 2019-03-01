@@ -14,7 +14,7 @@
 
 defmodule EWallet.Bouncer.TransactionScope do
   @moduledoc """
-
+  Permission scoping module for transactions.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query

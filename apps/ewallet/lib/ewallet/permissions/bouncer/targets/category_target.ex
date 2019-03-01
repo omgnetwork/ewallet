@@ -25,7 +25,7 @@ defmodule EWallet.Bouncer.CategoryTarget do
   end
 
   @spec get_target_types() :: [:categories]
-  def get_target_types(), do: [:categories]
+  def get_target_types, do: [:categories]
 
   @spec get_target_type(Category.t()) :: :categories
   def get_target_type(_), do: :categories

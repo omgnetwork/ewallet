@@ -26,9 +26,7 @@ defmodule EWallet.Bouncer.UserTarget do
   end
 
   @spec get_target_types() :: [atom()]
-  def get_target_types() do
-    [:admin_users, :end_users]
-  end
+  def get_target_types, do: [:admin_users, :end_users]
 
   @spec get_target_type(User.t()) :: :admin_users | :end_users
   def get_target_type(%User{is_admin: true}) do

@@ -23,7 +23,7 @@ defmodule EWallet.Bouncer.TokenTarget do
   def get_owner_uuids(%Token{account_uuid: uuid}), do: [uuid]
 
   @spec get_target_types() :: [:tokens]
-  def get_target_types(), do: [:tokens]
+  def get_target_types, do: [:tokens]
 
   @spec get_target_type(Token.t()) :: :tokens
   def get_target_type(_), do: :tokens

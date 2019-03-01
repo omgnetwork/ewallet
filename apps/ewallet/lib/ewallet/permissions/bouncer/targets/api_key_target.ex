@@ -25,7 +25,7 @@ defmodule EWallet.Bouncer.APIKeyTarget do
   end
 
   @spec get_target_types() :: [:api_keys]
-  def get_target_types(), do: [:api_keys]
+  def get_target_types, do: [:api_keys]
 
   @spec get_target_type(APIKey.t()) :: :api_keys
   def get_target_type(_), do: :api_keys

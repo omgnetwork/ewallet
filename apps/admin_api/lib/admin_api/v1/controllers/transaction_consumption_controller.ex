@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
-         user_uuids <- Account.get_all_users([account.uuid]) |> Enum.map(fn u -> u.uuid end) do
+         user_uuids <- [account.uuid] |> Account.get_all_users() |> Enum.map(fn u -> u.uuid end) do
       [account.uuid]
       |> TransactionConsumption.query_all_for_account_and_user_uuids(user_uuids, query)
       |> do_all(attrs, conn)
@@ -45,7 +45,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
-         user_uuids <- Account.get_all_users([account.uuid]) |> Enum.map(fn u -> u.uuid end) do
+         user_uuids <- [account.uuid] |> Account.get_all_users() |> Enum.map(fn u -> u.uuid end) do
       [account.uuid]
       |> TransactionConsumption.query_all_for_account_and_user_uuids(user_uuids, query)
       |> do_all(attrs, conn)

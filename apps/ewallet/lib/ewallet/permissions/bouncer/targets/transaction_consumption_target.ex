@@ -36,7 +36,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionTarget do
 
   # account transaction consumptions
   @spec get_target_types() :: [atom()]
-  def get_target_types() do
+  def get_target_types do
     [:account_transaction_consumptions, :end_user_transaction_consumptions]
   end
 
