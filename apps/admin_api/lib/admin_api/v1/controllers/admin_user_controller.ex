@@ -15,11 +15,10 @@
 defmodule AdminAPI.V1.AdminUserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.AccountHelper
   alias AdminAPI.V1.UserView
   alias EWallet.{AdminUserPolicy, UserFetcher}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.UserOverlay}
-  alias EWalletDB.{User, UserQuery, AuthToken}
+  alias EWalletDB.{User, AuthToken}
 
   @doc """
   Retrieves a list of admins that the current user/key has access to.

@@ -21,7 +21,6 @@ defmodule AdminAPI.V1.AccountWalletController do
   alias EWallet.{AccountPolicy, WalletPolicy}
   alias EWallet.Web.{Orchestrator, BalanceLoader, Paginator, V1.WalletOverlay}
   alias EWalletDB.{Account, Wallet}
-  alias Ecto.Query
 
   def all_for_account_and_users(conn, attrs) do
     do_all(attrs, :accounts_and_users, conn)
@@ -33,8 +32,8 @@ defmodule AdminAPI.V1.AccountWalletController do
 
   defp do_all(%{"id" => id} = attrs, type, conn) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
-         {:ok, p} <- permit(:get, conn.assigns, account),
-         {:ok, %{query: query} = p} <- permit(:all, conn.assigns, nil),
+         {:ok, _} <- permit(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
       query
       |> load_wallets(account, type)

@@ -233,6 +233,15 @@ defmodule AdminAPI.ConnCase do
       })
   end
 
+  @spec set_key_role_to_none() :: {:ok, EWalletDB.Key.t()}
+  def set_key_role_to_none(key \\ nil) do
+    {:ok, _} =
+      Key.update(key || get_test_key(), %{
+        global_role: "none",
+        originator: %System{}
+      })
+  end
+
   @spec add_admin_to_account(%Account{}, %User{} | %Key{}) :: {:ok, any()}
   def add_admin_to_account(account, admin_user \\ nil) do
     {:ok, _} = Membership.assign(admin_user || get_test_admin(), account, "admin", %System{})
@@ -604,9 +613,9 @@ defmodule AdminAPI.ConnCase do
         unquote(admin_func_name)(meta)
       end
 
-      # test provider_test_name, meta do
-      #   unquote(provider_func_name)(meta)
-      # end
+      test provider_test_name, meta do
+        unquote(provider_func_name)(meta)
+      end
     end
   end
 

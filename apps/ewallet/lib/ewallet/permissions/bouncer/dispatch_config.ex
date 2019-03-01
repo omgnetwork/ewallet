@@ -34,6 +34,7 @@ defmodule EWallet.Bouncer.DispatchConfig do
     ConfigurationTarget,
     APIKeyTarget,
     UserActor,
+    KeyActor,
     TransactionScope,
     TransactionConsumptionScope,
     TransactionRequestScope,
@@ -48,7 +49,8 @@ defmodule EWallet.Bouncer.DispatchConfig do
     ConfigurationScope,
     ExportScope,
     APIKeyScope,
-    MintScope
+    MintScope,
+    MembershipScope
   }
 
   alias EWalletDB.{

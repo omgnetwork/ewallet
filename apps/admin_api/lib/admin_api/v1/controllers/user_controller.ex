@@ -15,7 +15,6 @@
 defmodule AdminAPI.V1.UserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.AccountHelper
   alias Ecto.Changeset
   alias EWallet.{AdminUserPolicy, UserFetcher}
   alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.UserOverlay}

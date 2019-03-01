@@ -32,7 +32,19 @@ defmodule EWalletDB.GlobalRole do
       },
       memberships: %{all: :accounts, get: :accounts, create: :accounts, delete: :accounts},
       categories: %{all: :global, get: :global, create: :none, update: :none},
-      admin_users: %{all: :accounts, get: :accounts, update: :accounts, disable: :accounts},
+      admin_users: %{
+        all: :accounts,
+        get: :accounts,
+        update: :accounts,
+        disable: :accounts,
+        update_password: :self,
+        update_email: :self,
+        upload_avatar: :self,
+        get_account: :self,
+        get_accounts: :self,
+        switch_account: :self,
+        logout: :self
+      },
       end_users: %{
         all: :global,
         get: :global,

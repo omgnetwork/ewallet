@@ -33,11 +33,11 @@ defmodule AdminAPI.V1.SelfControllerTest do
       assert response["data"]["email"] == "email@example.com"
     end
 
-    test "gets access_key:unauthorized back when requesting with a provider key" do
+    test "gets unauthorized back when requesting with a provider key" do
       response = provider_request("/me.get")
 
       refute response["success"]
-      assert response["data"]["code"] == "access_key:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 
@@ -84,7 +84,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
                "Invalid parameter provided. `metadata` is invalid."
     end
 
-    test "gets access_key:unauthorized back when requesting with a provider key" do
+    test "gets unauthorized back when requesting with a provider key" do
       response =
         provider_request("/me.update", %{
           email: "test_1337@example.com",
@@ -93,7 +93,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
         })
 
       refute response["success"]
-      assert response["data"]["code"] == "access_key:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "generates an activity log" do
@@ -217,7 +217,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       )
     end
 
-    test "gets access_key:unauthorized back when requesting with a provider key" do
+    test "gets unauthorized back when requesting with a provider key" do
       response =
         provider_request("/me.update_password", %{
           old_password: @password,
@@ -226,7 +226,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
         })
 
       refute response["success"]
-      assert response["data"]["code"] == "access_key:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 
@@ -294,7 +294,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
     end
 
-    test "gets access_key:unauthorized back when requesting with a provider key" do
+    test "gets unauthorized back when requesting with a provider key" do
       response =
         provider_request("/me.update_email", %{
           "email" => "test.email.update.provider.unauthorized@example.com",
@@ -302,7 +302,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
         })
 
       refute response["success"]
-      assert response["data"]["code"] == "access_key:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "generates an activity log" do
@@ -478,12 +478,9 @@ defmodule AdminAPI.V1.SelfControllerTest do
   end
 
   describe "/me.upload_avatar" do
-    test "uploads an avatar for the specified user" do
-      account = insert(:account)
-      role = insert(:role, %{name: "some_role"})
+    test "uploads an avatar for the current user" do
       admin = get_test_admin()
       uuid = admin.id
-      _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response =
         admin_user_request("/me.upload_avatar", %{
@@ -511,11 +508,6 @@ defmodule AdminAPI.V1.SelfControllerTest do
     end
 
     test "fails to upload avatar with GCS adapter and an invalid configuration", context do
-      account = insert(:account)
-      role = insert(:role, %{name: "some_role"})
-      admin = get_test_admin()
-      _membership = insert(:membership, %{user: admin, account: account, role: role})
-
       {:ok, _} =
         Config.update(
           %{
@@ -559,12 +551,9 @@ defmodule AdminAPI.V1.SelfControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
     end
 
-    test "removes the avatar from a user" do
-      account = insert(:account)
-      role = insert(:role, %{name: "some_role"})
+    test "removes the avatar from the current user" do
       admin = get_test_admin()
       uuid = admin.id
-      _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response =
         admin_user_request("/me.upload_avatar", %{
@@ -588,11 +577,8 @@ defmodule AdminAPI.V1.SelfControllerTest do
       assert admin.avatar == nil
     end
 
-    test "removes the avatar from a user with empty string" do
-      account = insert(:account)
-      role = insert(:role, %{name: "some_role"})
+    test "removes the avatar from the current user with empty string" do
       admin = get_test_admin()
-      _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response =
         admin_user_request("/me.upload_avatar", %{
@@ -615,11 +601,8 @@ defmodule AdminAPI.V1.SelfControllerTest do
       assert admin.avatar == nil
     end
 
-    test "removes the avatar from a user with 'null' string" do
-      account = insert(:account)
-      role = insert(:role, %{name: "some_role"})
+    test "removes the avatar from the current user with 'null' string" do
       admin = get_test_admin()
-      _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response =
         admin_user_request("/me.upload_avatar", %{
@@ -675,12 +658,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       )
     end
 
-    test "gets access_key:unauthorized back when requesting with a provider key" do
-      account = insert(:account)
-      role = insert(:role, %{name: "some_role"})
-      admin = get_test_admin()
-      _membership = insert(:membership, %{user: admin, account: account, role: role})
-
+    test "gets unauthorized back when requesting with a provider key" do
       response =
         provider_request("/me.upload_avatar", %{
           "avatar" => %Plug.Upload{
@@ -690,7 +668,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
         })
 
       refute response["success"]
-      assert response["data"]["code"] == "access_key:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 
@@ -746,80 +724,45 @@ defmodule AdminAPI.V1.SelfControllerTest do
                }
     end
 
-    test "gets access_key:unauthorized back when requesting with a provider key" do
+    test "gets unauthorized back when requesting with a provider key" do
       response = provider_request("/me.get_account")
 
       refute response["success"]
-      assert response["data"]["code"] == "access_key:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 
   describe "/me.get_accounts" do
-    test "responds with a list of accounts" do
-      user = get_test_admin()
-      parent = insert(:account)
-      account = insert(:account, %{parent: parent})
+    test "responds with a list of accounts the current user belongs to" do
+      admin = get_test_admin()
+
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+      account_3 = insert(:account)
+      _account = insert(:account)
 
       # Clear all memberships for this user then add just one for precision
-      Repo.delete_all(from(m in Membership, where: m.user_uuid == ^user.uuid))
-      Membership.assign(user, account, "admin", %System{})
+      Repo.delete_all(from(m in Membership, where: m.user_uuid == ^admin.uuid))
 
-      assert admin_user_request("/me.get_accounts") ==
-               %{
-                 "version" => "1",
-                 "success" => true,
-                 "data" => %{
-                   "object" => "list",
-                   "data" => [
-                     %{
-                       "object" => "account",
-                       "id" => account.id,
-                       "socket_topic" => "account:#{account.id}",
-                       "parent_id" => Assoc.get(account, [:parent, :id]),
-                       "name" => account.name,
-                       "description" => account.description,
-                       "master" => Account.master?(account),
-                       "category_ids" => [],
-                       "categories" => %{
-                         "object" => "list",
-                         "data" => []
-                       },
-                       "metadata" => %{},
-                       "encrypted_metadata" => %{},
-                       "avatar" => %{
-                         "original" => nil,
-                         "large" => nil,
-                         "small" => nil,
-                         "thumb" => nil
-                       },
-                       "created_at" => DateFormatter.to_iso8601(account.inserted_at),
-                       "updated_at" => DateFormatter.to_iso8601(account.updated_at)
-                     }
-                   ],
-                   "pagination" => %{
-                     "current_page" => 1,
-                     "per_page" => 10,
-                     "is_first_page" => true,
-                     "is_last_page" => true,
-                     "count" => 1
-                   }
-                 }
-               }
+      {:ok, _} = Membership.assign(admin, account_1, "admin", %System{})
+      {:ok, _} = Membership.assign(admin, account_2, "admin", %System{})
+      {:ok, _} = Membership.assign(admin, account_3, "admin", %System{})
+
+      response = admin_user_request("/me.get_accounts")
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 3
+      assert Enum.at(accounts, 0)["id"] == account_1.id
+      assert Enum.at(accounts, 1)["id"] == account_2.id
+      assert Enum.at(accounts, 2)["id"] == account_3.id
     end
 
-    test "gets access_key:unauthorized back when requesting with a provider key" do
-      user = get_test_admin()
-      parent = insert(:account)
-      account = insert(:account, %{parent: parent})
-
-      # Clear all memberships for this user then add just one for precision
-      Repo.delete_all(from(m in Membership, where: m.user_uuid == ^user.uuid))
-      Membership.assign(user, account, "admin", %System{})
-
+    test "gets unauthorized back when requesting with a provider key" do
       response = provider_request("/me.get_accounts")
 
       refute response["success"]
-      assert response["data"]["code"] == "access_key:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 end

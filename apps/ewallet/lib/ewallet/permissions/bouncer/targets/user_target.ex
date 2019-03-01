@@ -17,9 +17,7 @@ defmodule EWallet.Bouncer.UserTarget do
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
-  import Ecto.Query
-  alias EWallet.Bouncer.Permission
-  alias EWalletDB.{Membership, User, Wallet, AccountUser}
+  alias EWalletDB.User
   alias EWalletDB.Helpers.Preloader
 
   @spec get_owner_uuids(User.t()) :: [Ecto.UUID.t()]
@@ -43,7 +41,7 @@ defmodule EWallet.Bouncer.UserTarget do
 
   @spec get_target_accounts(User.t(), any()) :: [Account.t()]
   def get_target_accounts(%User{is_admin: true} = target, _dispatch_config) do
-    target.accounts
+    Preloader.preload(target, [:accounts]).accounts
   end
 
   def get_target_accounts(%User{is_admin: false} = target, _dispatch_config) do

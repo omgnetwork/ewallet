@@ -15,7 +15,6 @@
 defmodule AdminAPI.V1.KeyController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.AccountHelper
   alias EWallet.KeyPolicy
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.KeyOverlay}
   alias EWalletDB.Key

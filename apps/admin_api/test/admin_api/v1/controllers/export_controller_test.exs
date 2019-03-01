@@ -14,8 +14,6 @@
 
 defmodule AdminAPI.V1.ExportControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias ActivityLogger.System
-  alias EWalletDB.Membership
 
   describe "/export.all" do
     test_with_auths "returns a list of exports and pagination data" do
@@ -130,9 +128,7 @@ defmodule AdminAPI.V1.ExportControllerTest do
 
     test_with_auths "returns 'unauthorized' if the export is not owned" do
       set_admin_as_none()
-      admin = get_test_admin()
-      account = insert(:account)
-      {:ok, _} = Membership.assign(admin, account, "admin", %System{})
+      set_key_role_to_none()
 
       export = insert(:export)
       response = request("/export.get", %{"id" => export.id})
