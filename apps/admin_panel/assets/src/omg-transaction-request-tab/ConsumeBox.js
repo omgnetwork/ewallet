@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import WalletsFetcher from '../omg-wallet/walletsFetcher'
+import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import QR from './QrCode'
 import { formatAmount, formatReceiveAmountToTotal } from '../utils/formatter'
