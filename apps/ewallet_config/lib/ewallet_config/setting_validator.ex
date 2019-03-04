@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -78,6 +78,10 @@ defmodule EWalletConfig.SettingValidator do
   #
   # Setting's type-value validator
   #
+
+  defp valid_setting_type?(nil, "integer"), do: false
+
+  defp valid_setting_type?(nil, "unsigned_integer"), do: false
 
   defp valid_setting_type?(nil, _), do: true
 
