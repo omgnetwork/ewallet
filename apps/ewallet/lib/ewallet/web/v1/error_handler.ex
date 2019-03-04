@@ -33,6 +33,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       template:
         "Invalid parameter provided. The queried field is not allowed. Given: '%{field_name}'."
     },
+    missing_id: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. `id` is required."
+    },
     missing_master_account: %{
       code: "account:missing_master_account",
       description: "Unable to find the master account."

@@ -177,6 +177,17 @@ defmodule AdminAPI.V1.UserAuthControllerTest do
       assert response["data"] == %{}
     end
 
+    test_with_auths "returns :invalid_parameter error when auth_token is not given" do
+      response = request("/user.logout", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `auth_token` is required."
+    end
+
     defp assert_logout_logs(logs, originator, target) do
       assert Enum.count(logs) == 1
 

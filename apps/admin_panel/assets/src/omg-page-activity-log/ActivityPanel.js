@@ -151,7 +151,7 @@ class TransactionRequestPanel extends Component {
               </h4>
               <SubDetailTitle>
                 <span>{activity.id}</span>|<span>{activity.action}</span>|
-                <span>{moment(activity.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
+                <span>{moment(activity.created_at).format()}</span>
               </SubDetailTitle>
               <div>
                 <InformationItem>
@@ -204,7 +204,7 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Timestamp</b>
                   <span className='colon'> : </span>
-                  <span>{moment(activity.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
+                  <span>{moment(activity.created_at).format()}</span>
                 </InformationItem>
               </div>
               <ChangesContainer>

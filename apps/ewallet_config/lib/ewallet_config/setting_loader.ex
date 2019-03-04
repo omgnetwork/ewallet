@@ -17,7 +17,12 @@ defmodule EWalletConfig.SettingLoader do
   Load the settings from the database into the application envs.
   """
   require Logger
-  alias EWalletConfig.{Setting, FileStorageSettingsLoader}
+  alias EWalletConfig.{Setting, BalanceCachingSettingsLoader, FileStorageSettingsLoader}
+
+  @settings_to_loaders %{
+    balance_caching_frequency: BalanceCachingSettingsLoader,
+    file_storage_adapter: FileStorageSettingsLoader
+  }
 
   def load_settings(app, settings) when is_atom(app) and is_list(settings) do
     stored_settings = Setting.all() |> Enum.into(%{}, fn s -> {s.key, s} end)
@@ -26,9 +31,15 @@ defmodule EWalletConfig.SettingLoader do
       load_setting(app, key, stored_settings)
     end)
 
-    if Enum.member?(settings, :file_storage_adapter) do
-      FileStorageSettingsLoader.load(app)
-    end
+    # After loading all the settings, loop through one more time to apply
+    # specific settings loaders, if defined. This has to be a separate loop from above
+    # to make sure that loaders get latest values for all dependent settings.
+    Enum.each(settings, fn key ->
+      case Map.fetch(@settings_to_loaders, key) do
+        {:ok, loader_module} -> loader_module.load(app)
+        _ -> :noop
+      end
+    end)
   end
 
   def load_settings(_, _, _), do: nil

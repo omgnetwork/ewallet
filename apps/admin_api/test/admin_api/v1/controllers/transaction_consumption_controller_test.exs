@@ -770,6 +770,15 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert response["data"]["id"] == transaction_consumption.id
     end
 
+    test_with_auths "returns :invalid_parameter error when id is not given" do
+      response = request("/transaction_consumption.get", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
+    end
+
     test_with_auths "returns an error when the consumption ID is not found" do
       response =
         request("/transaction_consumption.get", %{

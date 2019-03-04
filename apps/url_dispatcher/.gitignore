@@ -1,20 +1,40 @@
-# The directory Mix will write compiled artifacts to.
-/_build/
+# App artifacts
+/_build
+/db
+/deps
+/*.ez
 
-# If you run "mix test --cover", coverage assets end up here.
-/cover/
+# Ignore most files in `/priv/static` except few.
+#
+# Note that gitignore applies to the whole hierachy so we need
+# to enable each directory and its content separately.
+# For more information, see gitignore(5)
+/priv/static/*
 
-# The directory Mix downloads your dependencies sources to.
-/deps/
+# Ignore everything in `/priv/static/private` except .gitkeep.
+!/priv/static/private
+/priv/static/private/*
+!/priv/static/private/.gitkeep
 
-# Where 3rd-party dependencies like ExDoc output generated docs.
-/doc/
+# Ignore everything in `/priv/static/public` except .gitkeep.
+!/priv/static/public
+/priv/static/public/*
+!/priv/static/public/.gitkeep
 
-# Ignore .fetch files in case you like to edit your project deps locally.
-/.fetch
+# ...and non-digested swagger.
+!/priv/static/public/swagger
+/priv/static/public/swagger/*
+!/priv/static/public/swagger/favicon-16x16.png
+!/priv/static/public/swagger/favicon-32x32.png
+!/priv/static/public/swagger/swagger-ui-bundle.js
+!/priv/static/public/swagger/swagger-ui-standalone-preset.js
+!/priv/static/public/swagger/swagger-ui.css
+!/priv/static/public/swagger/swagger-ui.js
 
-# If the VM crashes, it generates a dump, let's ignore it too.
+# ...and uploads.
+!/priv/static/public/uploads
+/priv/static/public/uploads/*
+!/priv/static/public/uploads/test.txt
+
+# Generated on crash by the VM
 erl_crash.dump
-
-# Also ignore archive artifacts (built via "mix archive.build").
-*.ez

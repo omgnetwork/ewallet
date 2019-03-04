@@ -17,8 +17,8 @@ defmodule AdminPanel.Application do
   use Application
   require Logger
   alias AdminPanel.Endpoint
-  alias EWallet.Helper
   alias Phoenix.Endpoint.Watcher
+  alias Utils.Helpers.Normalize
   import Supervisor.Spec
 
   # See https://hexdocs.pm/elixir/Application.html
@@ -39,10 +39,13 @@ defmodule AdminPanel.Application do
 
     children =
       children ++
-        case Helper.to_boolean(webpack_watch) do
+        case Normalize.to_boolean(webpack_watch) do
           true ->
             _ = Logger.info("Enabling webpack watcher.")
 
+            # Webpack watcher is only for development, and rely on assets path
+            # being present (which doesn't in production); so this is using
+            # __DIR__ to make it expand to source path rather than compiled path.
             [
               worker(
                 Watcher,

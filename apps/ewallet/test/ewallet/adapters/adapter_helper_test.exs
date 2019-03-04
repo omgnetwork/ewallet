@@ -19,7 +19,9 @@ defmodule EWallet.AdapterHelperTest do
   alias EWallet.AdapterHelper
   alias EWallet.Web.V1.CSV.TransactionSerializer
   alias EWalletDB.{Export, Transaction}
+  alias Ecto.UUID
   alias Utils.Helper.PidHelper
+  alias Utils.Helpers.PathResolver
 
   setup do
     # Insert transactions with a newly inserted token to avoid side effects.
@@ -50,19 +52,35 @@ defmodule EWallet.AdapterHelperTest do
 
     query = from(t in Transaction, where: t.to_token_uuid == ^token.uuid)
 
+    # File things
+    root = PathResolver.static_dir(:url_dispatcher)
+    uuid = UUID.generate()
+    path = Path.join(["private", uuid])
+    path_abs = Path.join([root, path])
+
+    :ok = File.mkdir_p!(path_abs)
+
+    on_exit(fn ->
+      _ = File.rm_rf!(path_abs)
+    end)
+
     %{
       export: export,
       query: query,
       preloads: [],
       serializer: serializer,
       transactions: transactions,
-      chunk_size: chunk_size
+      chunk_size: chunk_size,
+      root: root,
+      uuid: uuid,
+      path: path,
+      path_abs: path_abs
     }
   end
 
   describe "stream_to_file/5" do
     test "streams the data to the given file path", context do
-      path = test_file_path("test-stream-to-file-#{:rand.uniform(999_999)}.txt")
+      path = Path.join(context.path_abs, "test-stream-to-file-#{:rand.uniform(999_999)}.txt")
 
       refute File.exists?(path)
 
@@ -79,9 +97,6 @@ defmodule EWallet.AdapterHelperTest do
       assert res == :ok
       assert result == :ok
       assert File.exists?(path)
-
-      # Clean up the created file after testing
-      :ok = File.rm(path)
     end
   end
 
@@ -108,17 +123,16 @@ defmodule EWallet.AdapterHelperTest do
   end
 
   describe "local_dir/0" do
-    test "returns a string starting with the root dir" do
+    test "returns a string containing url_dispatcher path" do
       path = AdapterHelper.local_dir()
-      assert String.starts_with?(path, Application.get_env(:ewallet, :root))
+      assert String.match?(path, ~r/^.+\/url_dispatcher\/priv\/static\//)
     end
   end
 
   describe "build_local_path/1" do
     test "returns a string starting with the root dir and ends with the given file name" do
       path = AdapterHelper.build_local_path("local_file_name.txt")
-      assert String.starts_with?(path, Application.get_env(:ewallet, :root))
-      assert String.ends_with?(path, "local_file_name.txt")
+      assert String.match?(path, ~r/^.+\/url_dispatcher\/priv\/static\/.*\/local_file_name\.txt$/)
     end
   end
 

@@ -43,6 +43,8 @@ defmodule EWallet.Mixfile do
       {:appsignal, "~> 1.9"},
       {:bamboo, "~> 0.8"},
       {:bamboo_smtp, "~> 1.4.0"},
+      {:blockchain, in_umbrella: true},
+      {:blockchain_eth, in_umbrella: true},
       {:bodyguard, "~> 2.2"},
       {:bypass, "~> 1.0.0", only: [:test]},
       {:csv, "~> 2.0.0"},
