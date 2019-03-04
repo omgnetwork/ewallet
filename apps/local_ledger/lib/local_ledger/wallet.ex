@@ -38,6 +38,13 @@ defmodule LocalLedger.Wallet do
     end
   end
 
+  def all_balances(address, token_ids) do
+    case Wallet.get(address) do
+      nil -> {:ok, %{}}
+      wallet -> CachedBalance.all(wallet, token_ids)
+    end
+  end
+
   @doc """
   Calculate and returns the current balance for the specified token
   associated with the given address or addresses.

@@ -39,6 +39,11 @@ defmodule LocalLedger.CachedBalance do
     {:ok, get_balances(wallet_or_wallets)}
   end
 
+  @spec all(%Wallet{} | [%Wallet{}]) :: {:ok, map()}
+  def all(wallet_or_wallets, token_ids) do
+    {:ok, get_balances(wallet_or_wallets, token_ids)}
+  end
+
   @doc """
   Get the balance for the specified token (token_id) and
   the given wallet.
@@ -64,6 +69,13 @@ defmodule LocalLedger.CachedBalance do
 
   defp get_balances(wallet), do: get_balances([wallet])
 
+  defp get_balances(wallet, token_ids) do
+    [wallet]
+    |> Enum.map(fn wallet -> wallet.address end)
+    |> CachedBalance.all()
+    |> calculate_all_amounts([wallet], token_ids)
+  end
+
   defp calculate_all_amounts(computed_balances, wallets) do
     computed_balances =
       Enum.into(computed_balances, %{}, fn balance ->
@@ -75,12 +87,35 @@ defmodule LocalLedger.CachedBalance do
     end)
   end
 
+  defp calculate_all_amounts(computed_balances, wallets, token_ids) do
+    computed_balances =
+      Enum.into(computed_balances, %{}, fn balance ->
+        {balance.wallet_address, balance}
+      end)
+
+    Enum.into(wallets, %{}, fn wallet ->
+      {wallet.address, calculate_amounts(computed_balances[wallet.address], wallet, token_ids)}
+    end)
+  end
+
   defp calculate_amounts(nil, wallet), do: calculate_from_beginning_and_insert(wallet)
+
+  defp calculate_amounts(nil, wallet, token_ids),
+    do: calculate_from_beginning_and_insert(wallet, token_ids)
 
   defp calculate_amounts(computed_balance, wallet) do
     wallet.address
     |> Entry.calculate_all_balances(%{
       since: computed_balance.computed_at
+    })
+    |> add_amounts(computed_balance.amounts)
+  end
+
+  defp calculate_amounts(computed_balance, wallet, token_ids) do
+    wallet.address
+    |> Entry.calculate_all_balances(%{
+      since: computed_balance.computed_at,
+      token_id: token_ids
     })
     |> add_amounts(computed_balance.amounts)
   end
@@ -135,6 +170,14 @@ defmodule LocalLedger.CachedBalance do
 
     wallet.address
     |> Entry.calculate_all_balances(%{upto: computed_at})
+    |> insert(wallet, computed_at, 1)
+  end
+
+  defp calculate_from_beginning_and_insert(wallet, token_ids) do
+    computed_at = NaiveDateTime.utc_now()
+
+    wallet.address
+    |> Entry.calculate_all_balances(%{upto: computed_at, token_id: token_ids})
     |> insert(wallet, computed_at, 1)
   end
 

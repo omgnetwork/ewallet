@@ -12,19 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Web.V1.ResponseSerializer do
-  @moduledoc """
-  Serializes data into V1 response format.
-  """
+defmodule AdminAPI.V1.BalanceView do
+  use AdminAPI, :view
+  alias EWallet.Web.V1.{ResponseSerializer, BalanceSerializer}
+  alias EWallet.Web.{Paginator}
 
-  @doc """
-  Renders the given `data` into a V1 response format as JSON.
-  """
-  def serialize(data, success: success) do
-    %{
-      version: "1",
-      success: success,
-      data: data
-    }
+  def render("balances.json", %{data: data, pagination: pagination}) do
+    %Paginator{pagination: pagination, data: data}
+    |> BalanceSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
   end
 end
