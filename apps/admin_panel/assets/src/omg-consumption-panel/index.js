@@ -3,13 +3,12 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import ConsumptionProvider from '../omg-consumption/consumptionProvider'
 import { Icon, Button } from '../omg-uikit'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
 import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
 import { compose } from 'recompose'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import Link from '../omg-links'
 import moment from 'moment'
 import TransactionRequestDetail from '../omg-transaction-request-tab/TransactionRequestDetail'
 const PanelContainer = styled.div`
@@ -91,6 +90,7 @@ class TransactionRequestPanel extends Component {
     })
   }
   render = () => {
+    console.log(this.props)
     return (
       <ConsumptionProvider
         consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
@@ -114,11 +114,26 @@ class TransactionRequestPanel extends Component {
                   <b>Type:</b> <span>{tq.type}</span>
                 </InformationItem>
                 <InformationItem>
-                  <b>Requester Address:</b> <Link to={`/wallets/${tq.address}`}>{tq.address}</Link>
+                  <b>Requester Address:</b>{' '}
+                  <Link
+                    to={{
+                      pathname: `/accounts/${tq.account_id}/wallets/${tq.address}`,
+                      search: this.props.location.search
+                    }}
+                  >
+                    {tq.address}
+                  </Link>
                 </InformationItem>
                 <InformationItem>
                   <b>Consumer Address:</b>{' '}
-                  <Link to={`/wallets/${consumption.address}`}>{consumption.address}</Link>
+                  <Link
+                    to={{
+                      pathname: `/accounts/${tq.account_id}/wallets/${consumption.address}`,
+                      search: this.props.location.search
+                    }}
+                  >
+                    {consumption.address}
+                  </Link>
                 </InformationItem>
                 <InformationItem>
                   <b>Token:</b> <span>{_.get(consumption, 'token.name')}</span>

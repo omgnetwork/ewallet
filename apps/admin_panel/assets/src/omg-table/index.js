@@ -26,26 +26,18 @@ const TableContainer = styled.div`
   table {
     width: 100%;
     text-align: left;
-
-    thead {
-      tr {
-        border-top: 1px solid ${props => props.theme.colors.S300};
-        border-bottom: 1px solid ${props => props.theme.colors.S300};
-      }
-    }
-    * {
-      vertical-align: middle;
-    }
     tbody tr:hover {
       background-color: ${props => props.theme.colors.S100};
     }
+    tbody td {
+      border-bottom: 1px solid ${props => props.theme.colors.S100};
+    }
     tr {
-      border-bottom: 1px solid ${props => props.theme.colors.S200};
-      padding: 20px 0;
       cursor: pointer;
     }
     td {
       opacity: ${props => (props.loading && props.loadingEffect ? 0.6 : 1)};
+      transition: 0.1s;
       padding: 10px;
       vertical-align: middle;
       color: ${props => props.theme.colors.B200};
@@ -60,11 +52,6 @@ const TableContainer = styled.div`
       white-space: nowrap;
       padding: 8px 0;
       cursor: pointer;
-      :not(:last-child) {
-        ${ThContent} {
-          border-right: 1px solid ${props => props.theme.colors.S400};
-        }
-      }
     }
   }
 `

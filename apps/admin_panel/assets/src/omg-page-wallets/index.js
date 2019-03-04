@@ -3,8 +3,7 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
-import ExportModal from '../omg-export-modal'
-import WalletsFetcher from '../omg-wallet/accountUsersWalletsFetcher'
+import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -19,34 +18,46 @@ const WalletPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  td:first-child {
+  td:nth-child(1) {
     width: 40%;
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S100};
+    }
   }
   td:nth-child(2),
   td:nth-child(3),
   td:nth-child(4) {
     width: 20%;
   }
-  tr:hover {
-    i[name="Copy"] {
-      visibility: visible;
-    }
+  tbody td:first-child {
+    border-bottom: none;
   }
 `
 const TransferButton = styled(Button)`
-    padding-left: 40px;
-    padding-right: 40px;
+  padding-left: 40px;
+  padding-right: 40px;
 `
 const WalletAddressContainer = styled.div`
   white-space: nowrap;
   span {
     vertical-align: middle;
   }
-  i[name="Wallet"] {
-    color: ${props => props.theme.colors.BL400};
+  i[name='Wallet'] {
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
     margin-right: 5px;
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     visibility: hidden;
     margin-left: 5px;
     color: ${props => props.theme.colors.S500};
@@ -60,11 +71,19 @@ const SortableTableContainer = styled.div`
 `
 class WalletPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
     history: PropTypes.object,
     location: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    walletQuery: PropTypes.object,
+    transferButton: PropTypes.bool,
+    onClickRow: PropTypes.func
   }
+  static defaultProps = {
+    walletQuery: {},
+    transferButton: false,
+    fetcher: WalletsFetcher
+  }
+
   constructor (props) {
     super(props)
     this.state = {
@@ -80,7 +99,8 @@ class WalletPage extends Component {
   renderTransferButton = () => {
     return (
       <TransferButton size='small' onClick={this.onClickTransfer} key={'transfer'}>
-        <Icon name='Transaction' /><span>Transfer</span>
+        <Icon name='Transaction' />
+        <span>Transfer</span>
       </TransferButton>
     )
   }
@@ -108,8 +128,7 @@ class WalletPage extends Component {
     )
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/wallets/${data.address}`)
+    this.props.history.push(`/wallets/${data.address}`)
   }
   rowRenderer (key, data, rows) {
     if (key === 'created_at') {
@@ -134,14 +153,17 @@ class WalletPage extends Component {
   renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination }) => {
     return (
       <WalletPageContainer>
-        <TopNavigation title={'Wallets'} buttons={[this.renderTransferButton()]} />
+        <TopNavigation
+          title={'Wallets'}
+          buttons={[this.props.transferButton && this.renderTransferButton()]}
+        />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(wallets)}
             columns={this.getColumns(wallets)}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
-            onClickRow={this.onClickRow}
+            onClickRow={this.props.onClickRow || this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation
@@ -156,16 +178,17 @@ class WalletPage extends Component {
   }
 
   render () {
+    const Fetcher = this.props.fetcher
     return (
-      <WalletsFetcher
+      <Fetcher
         {...this.state}
         {...this.props}
-        accountId={this.props.match.params.accountId}
         render={this.renderWalletPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
-          search: queryString.parse(this.props.location.search).search
+          search: queryString.parse(this.props.location.search).search,
+          ...this.props.walletQuery
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

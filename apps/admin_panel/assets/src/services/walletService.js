@@ -1,9 +1,10 @@
 import { authenticatedRequest } from './apiService'
 
-export function getWallets ({ perPage, sort, matchAll, matchAny }) {
+export function getWallets ({ perPage, page, sort, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/wallet.all',
     data: {
+      page,
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,

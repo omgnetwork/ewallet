@@ -3,13 +3,12 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TransactionProvider from '../omg-transaction/transactionProvider'
 import { Icon } from '../omg-uikit'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { compose } from 'recompose'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
 import { MarkContainer } from '../omg-page-transaction'
-import Link from '../omg-links'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
@@ -80,17 +79,19 @@ class TransactionRequestPanel extends Component {
     })
   }
   renderTransactionInfo = (transaction, title) => {
+    console.log(transaction)
     const address = _.get(transaction, 'address')
     const accountName = _.get(transaction, 'account.name')
     const accountId = _.get(transaction, 'account.id')
     const userId = _.get(transaction, 'user.id')
     const tokenId = _.get(transaction, 'token.id')
+
     return (
       <TransactionInfoContainer>
         <h5>{title}</h5>
         <InformationItem>
           <b>Wallet Address : </b>
-          <Link to={`wallets/${address}`}>{address}</Link>
+          <Link to={`/wallets/${address}`}>{address}</Link>
         </InformationItem>
         {_.get(transaction, 'account') && (
           <InformationItem>
@@ -125,8 +126,7 @@ class TransactionRequestPanel extends Component {
       <TransactionInfoContainer>
         <h5>{'Exchange'}</h5>
         <InformationItem>
-          <b>Rate : </b>
-          1 {_.get(exchange, 'exchange_pair.from_token.symbol')} :{' '}
+          <b>Rate : </b>1 {_.get(exchange, 'exchange_pair.from_token.symbol')} :{' '}
           {_.get(exchange, 'exchange_pair.rate')} {_.get(exchange, 'exchange_pair.to_token.symbol')}
         </InformationItem>
         <InformationItem>

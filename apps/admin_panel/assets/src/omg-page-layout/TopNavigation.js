@@ -6,12 +6,14 @@ import SearchGroup from './SearchGroup'
 const TopNavigationContainer = styled.div`
   padding: 20px 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: wrap;
   width: 100%;
+  height: 80px;
   h2 {
     display: inline-block;
     margin-right: 25px;
+    font-size: 24px;
   }
   > {
     vertical-align: middle;
@@ -47,7 +49,7 @@ const SecondaryActionsContainer = styled.div`
 export default class TopNavigation extends PureComponent {
   static propTypes = {
     buttons: PropTypes.array,
-    title: PropTypes.node,
+    title: PropTypes.string,
     secondaryAction: PropTypes.bool,
     normalPlaceholder: PropTypes.string
   }

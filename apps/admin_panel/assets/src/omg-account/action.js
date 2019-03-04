@@ -37,3 +37,67 @@ export const getAccountById = id =>
     action: 'REQUEST',
     service: () => accountService.getAccountById(id)
   })
+
+export const getConsumptionsByAccountId = ({
+  page,
+  perPage,
+  search,
+  cacheKey,
+  searchTerms,
+  matchAll,
+  matchAny,
+  accountId
+}) =>
+  createPaginationActionCreator({
+    actionName: 'CONSUMPTIONS',
+    action: 'REQUEST',
+    service: () =>
+      accountService.getConsumptionsByAccountId({
+        accountId,
+        perPage,
+        page,
+        sort: { by: 'created_at', dir: 'desc' },
+        search,
+        searchTerms,
+        matchAll,
+        matchAny
+      }),
+    cacheKey
+  })
+
+export const getUsersByAccountId = ({ accountId, page, perPage, cacheKey, matchAll, matchAny }) =>
+  createPaginationActionCreator({
+    actionName: 'USERS',
+    action: 'REQUEST',
+    service: () =>
+      accountService.getUsersByAccountId({
+        accountId,
+        perPage,
+        page,
+        sort: { by: 'created_at', dir: 'desc' },
+        matchAll,
+        matchAny
+      }),
+    cacheKey
+  })
+
+export const updateAccount = ({ accountId, name, description, avatar }) =>
+  createActionCreator({
+    actionName: 'ACCOUNT',
+    action: 'UPDATE',
+    service: async dispatch => {
+      const updatedAccount = await accountService.updateAccountInfo({
+        id: accountId,
+        name,
+        description
+      })
+      if (updatedAccount.data.success && avatar) {
+        const result = await accountService.uploadAccountAvatar({
+          accountId,
+          avatar
+        })
+        return result
+      }
+      return updatedAccount
+    }
+  })

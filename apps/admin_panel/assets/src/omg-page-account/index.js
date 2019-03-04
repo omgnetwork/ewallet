@@ -37,7 +37,7 @@ const AccountPageContainer = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
@@ -119,8 +119,7 @@ class AccountPage extends Component {
     })
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/accounts/${data.id}`)
+    this.props.history.push(`/accounts/${data.id}`)
   }
   rowRenderer (key, data, rows) {
     if (key === 'name') {

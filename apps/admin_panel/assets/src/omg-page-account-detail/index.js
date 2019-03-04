@@ -70,7 +70,7 @@ class AccountDetailPage extends Component {
     return (
       <Section title='WALLETS'>
         <WalletsFetcherByAccountId
-          query={{ accountId: this.props.match.params.viewAccountId }}
+          query={{ accountId }}
           render={({ data }) => {
             return data.map(wallet => {
               return (
@@ -81,20 +81,22 @@ class AccountDetailPage extends Component {
                   </DetailGroup>
                   {!!wallet.balances.filter(b => b.amount).length && (
                     <TokensContainer>
-                      {wallet.balances.filter(b => b.amount).map(balance => {
-                        return (
-                          <DetailGroup key={balance.token.id}>
-                            <b>{balance.token.name}</b>
-                            <span>
-                              {formatReceiveAmountToTotal(
-                                balance.amount,
-                                balance.token.subunit_to_unit
-                              )}
-                            </span>{' '}
-                            <span>{balance.token.symbol}</span>
-                          </DetailGroup>
-                        )
-                      })}
+                      {wallet.balances
+                        .filter(b => b.amount)
+                        .map(balance => {
+                          return (
+                            <DetailGroup key={balance.token.id}>
+                              <b>{balance.token.name}</b>
+                              <span>
+                                {formatReceiveAmountToTotal(
+                                  balance.amount,
+                                  balance.token.subunit_to_unit
+                                )}
+                              </span>{' '}
+                              <span>{balance.token.symbol}</span>
+                            </DetailGroup>
+                          )
+                        })}
                     </TokensContainer>
                   )}
                 </WalletCointainter>
@@ -106,17 +108,12 @@ class AccountDetailPage extends Component {
     )
   }
   renderAccountDetailContainer = account => {
-    const accountId = this.props.match.params.accountId
     return (
-      <DetailLayout backPath={`/${accountId}/accounts`}>
-        <ContentContainer>
-          {this.renderTopBar(account)}
-          <ContentDetailContainer>
-            {this.renderDetail(account)}
-            {this.renderWallets()}
-          </ContentDetailContainer>
-        </ContentContainer>
-      </DetailLayout>
+      <ContentContainer>
+        <ContentDetailContainer>
+          {this.renderDetail(account)}
+        </ContentDetailContainer>
+      </ContentContainer>
     )
   }
 
@@ -131,7 +128,7 @@ class AccountDetailPage extends Component {
     return (
       <AccountProvider
         render={this.renderAccountDetailPage}
-        accountId={this.props.match.params.viewAccountId}
+        accountId={this.props.match.params.accountId}
       />
     )
   }

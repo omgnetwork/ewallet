@@ -19,7 +19,7 @@ const TransactionPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  td:nth-child(2) {
+  td:nth-child(3) {
     white-space: nowrap;
     > div {
       overflow: hidden;
@@ -27,10 +27,24 @@ const TransactionPageContainer = styled.div`
     }
   }
   td:nth-child(1) {
-    width: 30%;
+    width: 40%;
   }
-  td:nth-child(3) {
+  td:nth-child(6) {
     width: 20%;
+  }
+  td:nth-child(1) {
+    padding-right: 0;
+    border-bottom: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S100};
+    }
   }
   table {
     td {
@@ -59,8 +73,11 @@ const TransactionIdContainer = styled.div`
   span {
     vertical-align: middle;
   }
-  i {
-    color: ${props => props.theme.colors.BL400};
+  i[name='Transaction'] {
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
     margin-right: 5px;
   }
 `
@@ -97,7 +114,6 @@ export const MarkContainer = styled.div`
   text-align: center;
   line-height: 18px;
   margin-right: 5px;
-  }
 `
 const TransferButton = styled(Button)`
   padding-left: 40px;
@@ -129,7 +145,13 @@ class TransactionPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
     history: PropTypes.object,
-    match: PropTypes.object
+    match: PropTypes.object,
+    query: PropTypes.object,
+    transferButton: PropTypes.bool
+  }
+  static defaultProps = {
+    query: {},
+    transferButton: false
   }
   state = {
     createTransactionModalOpen: false
@@ -150,8 +172,7 @@ class TransactionPage extends Component {
     })
   }
   onClickExport = e => {
-    const accountId = this.props.match.params.accountId
-    this.props.history.push(`/${accountId}/transaction/export`)
+    this.props.history.push('/transaction/export')
   }
   renderCreateTransactionButton = () => {
     return (
@@ -177,10 +198,12 @@ class TransactionPage extends Component {
     if (key === 'id') {
       return (
         <TransactionIdContainer>
-          <Icon name='Transaction' /> <span>{data}</span> <Copy data={data} />
+          <Icon name='Transaction' />
+          <span>{data}</span> <Copy data={data} />
         </TransactionIdContainer>
       )
     }
+
     if (key === 'status') {
       return (
         <StatusContainer>
@@ -236,7 +259,11 @@ class TransactionPage extends Component {
       <TransactionPageContainer>
         <TopNavigation
           title={'Transactions'}
-          buttons={[this.renderCreateTransactionButton(), this.renderExportButton()]}
+          buttons={
+            this.props.transferButton
+              ? [this.renderCreateTransactionButton(), this.renderExportButton()]
+              : null
+          }
         />
         <SortableTable
           rows={transactions}
@@ -267,7 +294,8 @@ class TransactionPage extends Component {
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
-          search: queryString.parse(this.props.location.search).search
+          search: queryString.parse(this.props.location.search).search,
+          ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
