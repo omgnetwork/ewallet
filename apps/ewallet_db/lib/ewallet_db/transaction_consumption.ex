@@ -360,7 +360,7 @@ defmodule EWalletDB.TransactionConsumption do
         query \\ TransactionConsumption
       ) do
     from(
-      t in TransactionConsumption,
+      t in query,
       where: t.account_uuid in ^account_uuids or t.user_uuid in ^user_uuids
     )
   end

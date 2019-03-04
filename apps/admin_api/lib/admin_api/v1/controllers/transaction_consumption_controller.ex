@@ -25,6 +25,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     UserFetcher,
     Web.V1.Event
   }
+
   alias Ecto.Changeset
 
   alias EWalletDB.{Account, TransactionConsumption, TransactionRequest, User, Wallet}
