@@ -56,7 +56,7 @@ export default withRouter(
             <b>Amount :</b> {amount}
           </InformationItem>
           <InformationItem>
-            <b>Requester Address : </b>{' '}
+            <b>Requester Address : </b>
             <Link
               to={{
                 pathname: `/accounts/${tq.account_id}/wallets/${tq.address}`,
@@ -67,9 +67,14 @@ export default withRouter(
             </Link>
           </InformationItem>
           <InformationItem>
-            <b>Account ID : </b>{' '}
+            <b>Account ID : </b>
             {_.get(tq, 'account.id') ? (
-              <Link to={`/accounts/${_.get(tq, 'account.id')}/detail`}>
+              <Link
+                to={{
+                  pathname: `/accounts/${tq.account.id}/detail`,
+                  search: this.props.location.search
+                }}
+              >
                 {_.get(tq, 'account.id')}
               </Link>
             ) : (
@@ -77,9 +82,14 @@ export default withRouter(
             )}
           </InformationItem>
           <InformationItem>
-            <b>Account Name : </b>{' '}
+            <b>Account Name : </b>
             {_.get(tq, 'account.id') ? (
-              <Link to={`/accounts/${_.get(tq, 'account.id')}/detail`}>
+              <Link
+                to={{
+                  pathname: `/accounts/${tq.account.id}/detail`,
+                  search: this.props.location.search
+                }}
+              >
                 {' '}
                 {_.get(tq, 'account.name')}{' '}
               </Link>
@@ -88,29 +98,37 @@ export default withRouter(
             )}
           </InformationItem>
           <InformationItem>
-            <b>Exchange Account Name: </b>{' '}
+            <b>Exchange Account Name : </b>
             {_.get(tq, 'exchange_account.id') ? (
-              <Link to={`/accounts/${_.get(tq, 'exchange_account.id')}/detail`}>
-                {' '}
-                {_.get(tq, 'exchange_account.name')}{' '}
+              <Link
+                to={{
+                  pathname: `/accounts/${tq.exchange_account.id}/detail`,
+                  search: this.props.location.search
+                }}
+              >
+                {_.get(tq, 'exchange_account.name')}
               </Link>
             ) : (
               '-'
             )}
           </InformationItem>
           <InformationItem>
-            <b>Exchange Account ID: </b>{' '}
+            <b>Exchange Account ID : </b>
             {_.get(tq, 'exchange_account.id') ? (
-              <Link to={`/accounts/${_.get(tq, 'exchange_account.id')}/detail`}>
-                {' '}
-                {_.get(tq, 'exchange_account.id')}{' '}
+              <Link
+                to={{
+                  pathname: `/accounts/${tq.exchange_account.id}/detail`,
+                  search: this.props.location.search
+                }}
+              >
+                {tq.exchange_account.id}
               </Link>
             ) : (
               '-'
             )}
           </InformationItem>
           <InformationItem>
-            <b>Exchange Wallet Address</b>{' '}
+            <b>Exchange Wallet Address : </b>
             {_.get(tq, 'exchange_wallet') ? (
               <Link
                 to={{
@@ -121,17 +139,16 @@ export default withRouter(
                   search: this.props.location.search
                 }}
               >
-                {' '}
-                {_.get(tq, 'exchange_wallet.address')}{' '}
+                {tq.exchange_wallet.address}
               </Link>
             ) : (
               '-'
             )}
           </InformationItem>
           <InformationItem>
-            <b>User ID : </b>{' '}
+            <b>User ID : </b>
             {_.get(tq, 'user.id') ? (
-              <Link to={`/users/${_.get(tq, 'user.id')}`}>{_.get(tq, 'user.id')}</Link>
+              <Link to={`/users/${_.get(tq, 'user.id')}`}>{tq.user.id}</Link>
             ) : (
               '-'
             )}
