@@ -212,6 +212,10 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(conn, :invalid_parameter, changeset)
   end
 
+  defp respond({:error, error}, conn, _dispatch?) do
+    handle_error(conn, error)
+  end
+
   defp respond({:error, consumption, code, description}, conn, true) do
     dispatch_confirm_event(consumption)
     handle_error(conn, code, description)

@@ -19,7 +19,7 @@ defmodule EWallet.Bouncer.TransactionTarget do
   @behaviour EWallet.Bouncer.TargetBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.Dispatcher
-  alias EWalletDB.{Account, AccountUser, User, Wallet, Transaction}
+  alias EWalletDB.{Account, AccountUser, User, Wallet, Transaction, Repo}
 
   @spec get_owner_uuids(Transaction.t()) :: [Ecto.UUID.t()]
   def get_owner_uuids(%Transaction{from_account_uuid: uuid}) when not is_nil(uuid) do
@@ -51,9 +51,10 @@ defmodule EWallet.Bouncer.TransactionTarget do
       )
       when not is_nil(from_uuid) and not is_nil(to_uuid) do
     Account
-    |> join(:inner, [a], au in AccountUser, on: a.account_uuid == au.account_uuid)
+    |> join(:inner, [a], au in AccountUser, on: a.uuid == au.account_uuid)
     |> where([a, au, u], au.user_uuid == ^to_uuid or a.account_uuid == ^from_uuid)
     |> select([a, au, u], a)
+    |> Repo.all()
   end
 
   def get_target_accounts(
@@ -62,9 +63,10 @@ defmodule EWallet.Bouncer.TransactionTarget do
       )
       when not is_nil(from_uuid) and not is_nil(to_uuid) do
     Account
-    |> join(:inner, [a], au in AccountUser, on: a.account_uuid == au.account_uuid)
+    |> join(:inner, [a], au in AccountUser, on: a.uuid == au.account_uuid)
     |> where([a, au, u], au.user_uuid == ^from_uuid or a.account_uuid == ^to_uuid)
     |> select([a, au, u], a)
+    |> Repo.all()
   end
 
   def get_target_accounts(
@@ -73,9 +75,10 @@ defmodule EWallet.Bouncer.TransactionTarget do
       )
       when not is_nil(from_uuid) and not is_nil(to_uuid) do
     Account
-    |> join(:inner, [a], au in AccountUser, on: a.account_uuid == au.account_uuid)
+    |> join(:inner, [a], au in AccountUser, on: a.uuid == au.account_uuid)
     |> where([a, au, u], au.user_uuid == ^from_uuid or au.user_uuid == ^to_uuid)
     |> select([a, au, u], a)
+    |> Repo.all()
   end
 
   def get_target_accounts(%Transaction{uuid: uuid, from: from}, dispatch_config)
