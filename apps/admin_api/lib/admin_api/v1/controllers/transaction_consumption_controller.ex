@@ -25,6 +25,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     UserFetcher,
     Web.V1.Event
   }
+
   alias Ecto.Changeset
 
   alias EWalletDB.{Account, TransactionConsumption, TransactionRequest, User, Wallet}
@@ -209,6 +210,10 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   defp respond({:error, %Changeset{} = changeset}, conn, _dispatch?) do
     handle_error(conn, :invalid_parameter, changeset)
+  end
+
+  defp respond({:error, error}, conn, _dispatch?) do
+    handle_error(conn, error)
   end
 
   defp respond({:error, consumption, code, description}, conn, true) do
