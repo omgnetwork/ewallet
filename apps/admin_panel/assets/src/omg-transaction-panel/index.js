@@ -67,7 +67,7 @@ class TransactionRequestPanel extends Component {
     match: PropTypes.object
   }
 
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {}
   }
@@ -79,7 +79,6 @@ class TransactionRequestPanel extends Component {
     })
   }
   renderTransactionInfo = (transaction, title) => {
-    console.log(transaction)
     const address = _.get(transaction, 'address')
     const accountName = _.get(transaction, 'account.name')
     const accountId = _.get(transaction, 'account.id')
@@ -91,23 +90,31 @@ class TransactionRequestPanel extends Component {
         <h5>{title}</h5>
         <InformationItem>
           <b>Wallet Address : </b>
-          <Link to={`/wallets/${address}`}>{address}</Link>
+          <Link to={{ pathname: `/wallets/${address}`, search: this.props.location.search }}>
+            {address}
+          </Link>
         </InformationItem>
         {_.get(transaction, 'account') && (
           <InformationItem>
             <b>Account : </b>
-            <Link to={`accounts/${accountId}`}>{accountName}</Link>
+            <Link to={{ pathname: `/accounts/${accountId}/detail`, search: this.props.location.search }}>
+              {accountName}
+            </Link>
           </InformationItem>
         )}
         {_.get(transaction, 'user') && (
           <InformationItem>
             <b>User : </b>
-            <Link to={`users/${userId}`}>{userId}</Link>
+            <Link to={{ pathname: `/users/${userId}`, search: this.props.location.search }}>
+              {userId}
+            </Link>
           </InformationItem>
         )}
         <InformationItem>
           <b>Token : </b>
-          <Link to={`tokens/${tokenId}`}>{_.get(transaction, 'token.name')}</Link>
+          <Link to={{ pathname: `/tokens/${tokenId}`, search: this.props.location.search }}>
+            {_.get(transaction, 'token.name')}
+          </Link>
         </InformationItem>
         <InformationItem>
           <b>Amount : </b>
@@ -131,7 +138,14 @@ class TransactionRequestPanel extends Component {
         </InformationItem>
         <InformationItem>
           <b>Exchange wallet address : </b>
-          <Link to={`wallets/${exchangeWalletAddress}`}>{exchangeWalletAddress}</Link>
+          <Link
+            to={{
+              pathname: `/wallets/${exchangeWalletAddress}`,
+              search: this.props.location.search
+            }}
+          >
+            {exchangeWalletAddress}
+          </Link>
         </InformationItem>
       </TransactionInfoContainer>
     )
@@ -143,15 +157,15 @@ class TransactionRequestPanel extends Component {
         render={({ transaction }) => {
           return (
             <PanelContainer>
-              <Icon name='Close' onClick={this.onClickClose} />
+              <Icon name="Close" onClick={this.onClickClose} />
               <h4>Transaction {transaction.id}</h4>
               <SubDetailTitle>
                 <span>
                   <MarkContainer status={transaction.status}>
                     {transaction.status === 'failed' ? (
-                      <Icon name='Close' />
+                      <Icon name="Close" />
                     ) : (
-                      <Icon name='Checked' />
+                      <Icon name="Checked" />
                     )}
                   </MarkContainer>
                   {transaction.status}
