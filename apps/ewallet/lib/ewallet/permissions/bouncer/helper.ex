@@ -39,15 +39,17 @@ defmodule EWallet.Bouncer.Helper do
     permission
   end
 
-  def prepare_query_with_membership_for(%User{is_admin: true} = user, query) do
-    join(query, :inner, [g], m in Membership, on: m.user_uuid == ^user.uuid)
+  def prepare_query_with_membership_for(actor, query, type \\ :inner)
+
+  def prepare_query_with_membership_for(%User{is_admin: true} = user, query, type) do
+    join(query, type, [g], m in Membership, on: m.user_uuid == ^user.uuid)
   end
 
-  def prepare_query_with_membership_for(%User{is_admin: false} = user, query) do
-    join(query, :inner, [g], m in AccountUser, on: m.user_uuid == ^user.uuid)
+  def prepare_query_with_membership_for(%User{is_admin: false} = user, query, type) do
+    join(query, type, [g], m in AccountUser, on: m.user_uuid == ^user.uuid)
   end
 
-  def prepare_query_with_membership_for(%Key{} = key, query) do
-    join(query, :inner, [g], m in Membership, on: m.key_uuid == ^key.uuid)
+  def prepare_query_with_membership_for(%Key{} = key, query, type) do
+    join(query, type, [g], m in Membership, on: m.key_uuid == ^key.uuid)
   end
 end
