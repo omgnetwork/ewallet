@@ -11,7 +11,6 @@ import AccountPage from '../../omg-page-account'
 import TokenPage from '../../omg-page-token'
 import TransactionPage from '../../omg-page-transaction'
 import WalletPage from '../../omg-page-wallets'
-import AccountSettingPage from '../../omg-page-account-setting'
 import UserSettingPage from '../../omg-page-user-setting'
 import ApiKeyPage from '../../omg-page-api'
 import UserPage from '../../omg-page-users'
@@ -53,6 +52,8 @@ const createRoute = () => (
       <AuthenticatedRoute path='/api' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
 
+      <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />
+
       {/* SUB ACCOUNT PAGES */}
       <AuthenticatedRoute path='/accounts/:accountId/:type/:id' component={AccountLayout} />
       <AuthenticatedRoute path='/accounts/:accountId/:type' component={AccountLayout} />
@@ -68,6 +69,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
 
       {/* 404 PAGE */}
+      <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <Route component={NotFoundPage} />
     </Switch>
   </Router>

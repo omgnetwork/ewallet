@@ -20,8 +20,8 @@ export default class Breadcrumb extends Component {
     return (
       <BreadcrumbContainer>
         {items.reduce((prev, curr, index) => {
-          prev.push(curr)
-          if (index < items.length - 1) prev.push(<Icon name='Chevron-Right' />)
+          prev.push(<span key={index}>{curr}</span>)
+          if (index < items.length - 1) prev.push(<Icon name='Chevron-Right' key={`${index}-chevron`} />)
           return prev
         }, [])}
       </BreadcrumbContainer>

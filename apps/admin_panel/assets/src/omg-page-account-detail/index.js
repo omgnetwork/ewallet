@@ -74,7 +74,7 @@ class AccountDetailPage extends Component {
           render={({ data }) => {
             return data.map(wallet => {
               return (
-                <WalletCointainter>
+                <WalletCointainter key={wallet.address}>
                   <DetailGroup>
                     <b>{wallet.name} Wallet</b>
                     <Link to={`/${accountId}/wallets/${wallet.address}`}>{wallet.address}</Link>

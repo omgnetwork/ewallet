@@ -118,6 +118,7 @@ class SocketConnector {
     }, this.params.reconnectInterval)
   }
   connect () {
+    console.log('Connecting to', this.url)
     return new Promise((resolve, reject) => {
       const urlWithAuths = appendParams(this.url, this.params)
       this.socket = new this.WebSocket(urlWithAuths)
@@ -166,7 +167,9 @@ class SocketConnector {
       this.queue.push(payload)
       try {
         if (!this.socket) {
-          console.log(`attempt to join channel : ${channel} when socket is not initialized, added to queue.`)
+          console.log(
+            `attempt to join channel : ${channel} when socket is not initialized, added to queue.`
+          )
         } else {
           this.send(payload)
         }

@@ -14,6 +14,7 @@ import queryString from 'query-string'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
 import WalletSelect from '../omg-wallet-select'
 import TokenSelect from '../omg-token-select'
+import { createSearchAddressQuery } from '../omg-wallet/searchField'
 import { createSearchTokenQuery } from '../omg-token/searchField'
 const ConsumeActionContainer = styled.form`
   display: flex;
@@ -105,7 +106,7 @@ class ConsumeBox extends Component {
     location: PropTypes.object
   }
 
-  static getDerivedStateFromProps (props, state) {
+  static getDerivedStateFromProps(props, state) {
     const transactionRequestId = queryString.parse(props.location.search)['show-request-tab']
     const transactionRequest = props.selectTransactionRequestById(transactionRequestId)
     if (!_.isEmpty(transactionRequest) && state.transactionRequestId !== transactionRequestId) {
@@ -278,7 +279,7 @@ class ConsumeBox extends Component {
     }
   }
 
-  render () {
+  render() {
     const valid = this.props.transactionRequest.status === 'valid'
     const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
     const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
@@ -297,7 +298,7 @@ class ConsumeBox extends Component {
         </QrContainer>
         <InputsContainer>
           <WalletsFetcher
-            query={{ search: this.state.consumeAddress }}
+            query={createSearchAddressQuery(this.state.consumeAddress)}
             accountId={this.props.match.params.accountId}
             owned={false}
             render={({ data }) => {
@@ -306,7 +307,7 @@ class ConsumeBox extends Component {
                   <InputLabel disabled={!valid}>Wallet</InputLabel>
                   <Select
                     disabled={!valid}
-                    normalPlaceholder='acc_0x000000000000000'
+                    normalPlaceholder="acc_0x000000000000000"
                     onSelectItem={this.onSelectWalletAddressSelect}
                     value={this.state.consumeAddress}
                     onChange={this.onChangeWalletInput}
@@ -331,10 +332,10 @@ class ConsumeBox extends Component {
                     <InputLabel disabled={!valid}>Amount</InputLabel>
                     <AmountInput
                       override={this.props.transactionRequest.allow_amount_override}
-                      normalPlaceholder='1000'
+                      normalPlaceholder="1000"
                       onChange={this.onChangeAmount}
                       value={this.state.amount}
-                      type='amount'
+                      type="amount"
                       disabled={!valid}
                     />
                   </InputLabelContainer>
@@ -345,7 +346,7 @@ class ConsumeBox extends Component {
                     </InputLabel>
                     <Select
                       disabled={!valid}
-                      normalPlaceholder='ETH'
+                      normalPlaceholder="ETH"
                       onSelectItem={this.onSelectTokenSelect}
                       onChange={this.onChangeSearchToken}
                       value={this.state.searchTokenValue}
@@ -363,7 +364,7 @@ class ConsumeBox extends Component {
           {_.get(this.state, 'selectedToken.id') !== _.get(transactionRequest, 'token.id') &&
             this.state.rate && (
               <WalletsFetcher
-                query={{ search: this.state.exchangeAddress }}
+                query={createSearchAddressQuery(this.state.exchangeAddress)}
                 accountId={this.props.match.params.accountId}
                 owned={false}
                 render={({ data }) => {
@@ -372,7 +373,7 @@ class ConsumeBox extends Component {
                       <InputLabel>Exhange Wallet</InputLabel>
                       <ExchangeSelect
                         disablePointer={_.get(transactionRequest, 'exchange_wallet.address', null)}
-                        normalPlaceholder='acc_0x000000000000000'
+                        normalPlaceholder="acc_0x000000000000000"
                         onSelectItem={this.onSelectExchangeWalletAddressSelect}
                         value={this.state.exchangeAddress}
                         onChange={this.onChangeWalletExchange}
