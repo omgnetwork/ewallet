@@ -90,7 +90,6 @@ class TransactionRequestPanel extends Component {
     })
   }
   render = () => {
-    console.log(this.props)
     return (
       <ConsumptionProvider
         consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}

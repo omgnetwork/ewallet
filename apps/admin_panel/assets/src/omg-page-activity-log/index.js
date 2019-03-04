@@ -261,7 +261,6 @@ class AccountPage extends Component {
     const search = queryString.parse(this.props.location.search).search
     const query =
       typeof this.props.query === 'function' ? this.props.query(search) : this.props.query
-    console.log(query)
     return (
       <ActivityLogFetcher
         render={this.renderActivityPage}
