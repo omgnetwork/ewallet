@@ -60,10 +60,6 @@ defmodule EWalletConfig.MixProject do
       {:ex_aws_s3, "~> 2.0"},
       {:hackney, "~> 1.6"},
       {:sweet_xml, "~> 0.6"},
-
-      # Quantum scheduler dependencies
-      {:quantum, ">= 2.2.6"},
-      {:timex, "~> 3.0"},
     ]
   end
 

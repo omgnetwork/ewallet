@@ -1,15 +1,9 @@
 all: clean build-prod
 
 RELEASE_VERSION != awk '/version:/ { gsub(/[^0-9a-z\.\-]+/, "", $$2); print $$2 }' < apps/ewallet/mix.exs
-
 IMAGE_NAME      ?= "omisego/ewallet:latest"
 IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:v1.2"
 IMAGE_BUILD_DIR ?= "/tmp/ewallet-docker"
-
-ASSETS          ?= cd apps/admin_panel/assets &&
-ENV_DEV         ?= env MIX_ENV=dev
-ENV_TEST        ?= env MIX_ENV=test
-ENV_PROD        ?= env MIX_ENV=prod
 
 #
 # Setting-up
@@ -21,7 +15,8 @@ deps-ewallet:
 	mix deps.get
 
 deps-assets:
-	$(ASSETS) yarn install
+	cd apps/admin_panel/assets && \
+		yarn install
 
 .PHONY: deps deps-ewallet deps-assets
 
@@ -29,7 +24,7 @@ deps-assets:
 # Cleaning
 #
 
-clean: clean-ewallet clean-assets clean-test-assets
+clean: clean-ewallet clean-assets
 
 clean-ewallet:
 	rm -rf _build/
@@ -39,14 +34,7 @@ clean-assets:
 	rm -rf apps/admin_panel/assets/node_modules
 	rm -rf apps/admin_panel/priv/static
 
-clean-test-assets:
-	rm -rf private/
-	rm -rf public/
-	rm -rf _build/test/lib/url_dispatcher/priv/static/private/*
-	rm -rf _build/test/lib/url_dispatcher/priv/static/public/test-*
-	rm -rf _build/test/lib/url_dispatcher/priv/static/public/test/
-
-.PHONY: clean clean-ewallet clean-assets clean-test-assets
+.PHONY: clean clean-ewallet clean-assets
 
 #
 # Linting
@@ -56,13 +44,13 @@ format:
 	mix format
 
 check-format:
-	mix format --check-formatted 2>&1
+	mix format --check-formatted
 
 check-credo:
-	$(ENV_TEST) mix credo 2>&1
+	mix credo
 
 check-dialyzer:
-	$(ENV_TEST) mix dialyzer --halt-exit-status 2>&1
+	mix dialyzer --halt-exit-status
 
 .PHONY: format check-format check-credo
 
@@ -71,23 +59,20 @@ check-dialyzer:
 #
 
 build-assets: deps-assets
-	$(ASSETS) yarn build
+	cd apps/admin_panel/assets && \
+		yarn build
 
 # If we call mix phx.digest without mix compile, mix release will silently fail
 # for some reason. Always make sure to run mix compile first.
 build-prod: deps-ewallet build-assets
-	$(ENV_PROD) mix compile
-	$(ENV_PROD) mix phx.digest
-	$(ENV_PROD) mix release
-
-build-dev: deps-ewallet build-assets
-	$(ENV_DEV) mix compile
-	$(ENV_DEV) mix release dev
+	env MIX_ENV=prod mix compile
+	env MIX_ENV=prod mix phx.digest
+	env MIX_ENV=prod mix release
 
 build-test: deps-ewallet
-	$(ENV_TEST) mix compile
+	env MIX_ENV=test mix compile
 
-.PHONY: build-assets build-prod build-dev build-test
+.PHONY: build-assets build-prod build-test
 
 #
 # Testing
@@ -95,13 +80,12 @@ build-test: deps-ewallet
 
 test: test-ewallet test-assets
 
-test-ewallet: clean-test-assets build-test
-	$(ENV_TEST) mix ecto.create
-	$(ENV_TEST) mix ecto.migrate
-	$(ENV_TEST) mix test
+test-ewallet: build-test
+	env MIX_ENV=test mix do ecto.create, ecto.migrate, test
 
 test-assets: build-assets
-	$(ASSETS) yarn test
+	cd apps/admin_panel/assets && \
+		yarn test
 
 .PHONY: test test-ewallet test-assets
 
@@ -128,7 +112,4 @@ docker-build:
 
 docker: docker-prod docker-build
 
-docker-push: docker
-	docker push $(IMAGE_NAME)
-
-.PHONY: docker docker-prod docker-build docker-push
+.PHONY: docker docker-prod docker-build

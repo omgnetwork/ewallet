@@ -10,6 +10,7 @@ use Mix.Config
 import_config "../apps/*/config/config.exs"
 
 config :ewallet,
+  root: {:apply, {File, :cwd!, []}},
   env: Mix.env()
 
 # Configures Elixir's Logger

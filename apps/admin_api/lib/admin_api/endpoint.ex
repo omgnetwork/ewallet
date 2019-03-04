@@ -17,6 +17,17 @@ defmodule AdminAPI.Endpoint do
   use Appsignal.Phoenix
   use Sentry.Phoenix.Endpoint
 
+  plug(
+    Plug.Static,
+    at: "/public/",
+    from: Path.join(File.cwd!(), "../../public/"),
+    only: ~w(uploads)
+  )
+
+  plug(AdminAPI.AssetNotFoundPlug)
+
+  # Code reloading can be explicitly enabled under the
+  # :code_reloader configuration of your endpoint.
   if code_reloading? do
     plug(Phoenix.CodeReloader)
   end

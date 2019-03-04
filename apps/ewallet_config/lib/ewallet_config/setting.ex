@@ -162,7 +162,7 @@ defmodule EWalletConfig.Setting do
     end
   end
 
-  defp all_defaults_inserted?(list) do
+  def all_defaults_inserted?(list) do
     Enum.all?(list, fn res ->
       case res do
         {:ok, _} -> true

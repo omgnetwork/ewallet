@@ -64,7 +64,7 @@ if [ -z "$IMAGE_NAME" ]; then
    if [ $DEV_MODE = 1 ]; then
        IMAGE_NAME="omisegoimages/ewallet-builder:v1.2"
    else
-       IMAGE_NAME="omisego/ewallet:stable"
+       IMAGE_NAME="omisego/ewallet:v1.1-dev"
    fi
 fi
 
@@ -93,7 +93,6 @@ fi
 
 if [ $DEV_MODE = 1 ]; then
     YML_SERVICES="$YML_SERVICES
-      MIX_ENV: dev
     user: root
     volumes:
       - .:/app

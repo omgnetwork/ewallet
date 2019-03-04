@@ -87,14 +87,6 @@ defmodule AdminAPI.V1.TransactionRequestController do
     end
   end
 
-  def get(conn, _),
-    do:
-      handle_error(
-        conn,
-        :invalid_parameter,
-        "Invalid parameter provided. `formatted_id` is required."
-      )
-
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     attrs

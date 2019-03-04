@@ -16,9 +16,9 @@ defmodule UrlDispatcher.Application do
   @moduledoc false
   use Application
   require Logger
+  alias EWallet.Helper
   alias Phoenix.Endpoint.CowboyWebSocket
   alias Plug.Adapters.Cowboy
-  alias Utils.Helpers.Normalize
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
@@ -27,7 +27,7 @@ defmodule UrlDispatcher.Application do
     serve_endpoints = Application.get_env(:url_dispatcher, :serve_endpoints)
 
     children =
-      case Normalize.to_boolean(serve_endpoints) do
+      case Helper.to_boolean(serve_endpoints) do
         true ->
           dispatchers = []
           port = Application.get_env(:url_dispatcher, :port)
@@ -54,7 +54,8 @@ defmodule UrlDispatcher.Application do
               )
 
           # This is a catch-all route and must always come last. UrlDispatcher
-          # is responsible for all non-WebSockets requests.
+          # is responsible for all non-WebSockets requests, except the AdminPanel
+          # which is handled inside AdminPanel.Application.
           dispatchers =
             dispatchers ++
               [

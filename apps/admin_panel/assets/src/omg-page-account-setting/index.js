@@ -166,7 +166,7 @@ class AccountSettingPage extends Component {
   }
   rowRenderer = (key, data, rows) => {
     if (key === 'updated_at') {
-      return moment(data).format()
+      return moment(data).format('DD/MM/YYYY hh:mm:ss')
     }
     if (key === 'username') {
       return data || '-'

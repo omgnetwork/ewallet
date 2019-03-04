@@ -18,8 +18,8 @@ defmodule EWallet.CLI do
   """
   import IO
   import IO.ANSI
+  alias EWallet.Helper
   alias IO.ANSI.Docs
-  alias Utils.Helpers.Normalize
 
   @yes_params ["-y", "--yes", "--assume_yes"]
 
@@ -57,13 +57,13 @@ defmodule EWallet.CLI do
   # Returns the given fallback if the input is an empty string.
   defp confirmed?("", fallback), do: fallback
 
-  defp confirmed?(input, _), do: Normalize.to_boolean(input)
+  defp confirmed?(input, _), do: Helper.to_boolean(input)
 
   @spec configure_logger() :: :ok
   def configure_logger do
     "DEBUG"
     |> System.get_env()
-    |> Normalize.to_boolean()
+    |> Helper.to_boolean()
     |> case do
       true -> Logger.configure(level: :debug)
       false -> Logger.configure(level: :warn)

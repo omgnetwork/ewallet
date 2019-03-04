@@ -217,7 +217,7 @@ class ApiKeyPage extends Component {
           </KeyContainer>
         )
       case 'created_at':
-        return moment(data).format()
+        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
       default:
         return data
     }
@@ -245,7 +245,7 @@ class ApiKeyPage extends Component {
           </KeyContainer>
         )
       case 'created_at':
-        return moment(data).format()
+        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
       default:
         return data
     }

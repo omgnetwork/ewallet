@@ -61,10 +61,10 @@ class TokenDetailPage extends Component {
           <b>Provider Id:</b> <span>{user.provider_user_id || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(user.created_at).format()}</span>
+          <b>Created Date:</b> <span>{moment(user.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(user.updated_at).format()}</span>
+          <b>Last Update:</b> <span>{moment(user.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
       </Section>
     )

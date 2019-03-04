@@ -340,17 +340,6 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
       assert response["data"]["id"] == transaction_request.id
     end
 
-    test "returns :invalid_parameter error when id is not given" do
-      response = client_request("/me.get_transaction_request", %{})
-
-      refute response["success"]
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-
-      assert response["data"]["description"] ==
-               "Invalid parameter provided. `formatted_id` is required."
-    end
-
     test "returns an error when the request ID is not found" do
       response =
         client_request("/me.get_transaction_request", %{

@@ -50,7 +50,7 @@ RUN set -xe \
 ARG release_version
 
 ADD _build/prod/rel/ewallet/releases/${release_version}/ewallet.tar.gz /app
-RUN chown -R "${uid}:${gid}" /app
+RUN chown -R ewallet:ewallet /app
 WORKDIR /app
 
 # eWallet app is using PORT environment variable to determine which port to run

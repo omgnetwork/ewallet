@@ -117,15 +117,6 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert Enum.count(accounts) == 1
       assert Enum.at(accounts, 0)["name"] == "Account 5"
     end
-
-    test_with_auths "returns :invalid_parameter error when id is not given" do
-      response = request("/account.get", %{})
-
-      refute response["success"]
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
-    end
   end
 
   describe "/account.get_descendants" do
@@ -697,15 +688,6 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["success"]
       account = Account.get(attrs.id)
       assert account.avatar == nil
-    end
-
-    test_with_auths "returns :invalid_parameter error when id is not given" do
-      response = request("/account.upload_avatar", %{})
-
-      refute response["success"]
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
     end
 
     test_with_auths "returns 'unauthorized' if the given account ID was not found" do

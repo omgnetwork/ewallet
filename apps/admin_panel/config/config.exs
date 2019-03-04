@@ -4,7 +4,7 @@ use Mix.Config
 config :admin_panel,
   namespace: AdminPanel,
   ecto_repos: [],
-  dist_path: {:apply, {Utils.Helpers.PathResolver, :static_dir, [:admin_panel]}},
+  dist_path: Path.expand("../priv/static/", __DIR__),
   webpack_watch: {:system, "WEBPACK_WATCH", false}
 
 # Configures the endpoint

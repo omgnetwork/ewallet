@@ -46,14 +46,6 @@ defmodule EWalletAPI.V1.TransactionRequestController do
     end
   end
 
-  def get(conn, _) do
-    handle_error(
-      conn,
-      :invalid_parameter,
-      "Invalid parameter provided. `formatted_id` is required."
-    )
-  end
-
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
 
   defp respond({:error, changeset}, conn) do

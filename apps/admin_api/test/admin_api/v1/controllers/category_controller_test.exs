@@ -76,15 +76,6 @@ defmodule AdminAPI.V1.CategoryControllerTest do
       assert response["data"]["name"] == target.name
     end
 
-    test_with_auths "returns :invalid_parameter error when id is not given" do
-      response = request("/category.get", %{})
-
-      refute response["success"]
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
-    end
-
     test_with_auths "returns 'category:id_not_found' if the given ID was not found" do
       response = request("/category.get", %{"id" => "cat_12345678901234567890123456"})
 

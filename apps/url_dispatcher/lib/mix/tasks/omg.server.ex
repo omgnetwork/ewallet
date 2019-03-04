@@ -69,8 +69,6 @@ defmodule Mix.Tasks.Omg.Server do
   def run(args) do
     System.put_env("WEBPACK_WATCH", "true")
     System.put_env("SERVE_ENDPOINTS", "true")
-    System.put_env("SERVE_LOCAL_STATIC", "true")
-
     run(args, [])
   end
 

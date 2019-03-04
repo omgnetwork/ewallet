@@ -72,8 +72,6 @@ defmodule AdminAPI.V1.AccountController do
     end
   end
 
-  def get(conn, _), do: handle_error(conn, :missing_id)
-
   @doc """
   Creates a new account.
 

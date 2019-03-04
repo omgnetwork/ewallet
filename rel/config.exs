@@ -22,12 +22,10 @@ release :ewallet do
   set version: current_version(:ewallet)
   set vm_args: "rel/vm.args"
   set applications: [
-    :blockchain_eth,
     :runtime_tools,
     activity_logger: :permanent,
     admin_api: :permanent,
     admin_panel: :permanent,
-    blockchain: :permanent,
     ewallet: :permanent,
     ewallet_api: :permanent,
     ewallet_config: :permanent,

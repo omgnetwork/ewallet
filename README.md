@@ -4,7 +4,6 @@
 
 [![](https://img.shields.io/circleci/project/github/omisego/ewallet/master.svg)](https://circleci.com/gh/omisego/ewallet/tree/master)
 [![](https://img.shields.io/gitter/room/omisego/ewallet.svg)](https://gitter.im/omisego/ewallet)
-[![](https://badge.waffle.io/omisego/ewallet.svg?columns=Cycle%20To%20Do,In%20Progress,Review,Done)](https://waffle.io/omisego/ewallet)
 
 **OmiseGO eWallet Server** is a server application in OmiseGO eWallet Suite that allows a provider (businesses or individuals) to setup and run their own digital wallet services through a local ledger, and to a decentralized blockchain exchange in the future to form a federated network on the OMG network allowing exchange of any currency into any other in a transparent way.
 
@@ -20,7 +19,7 @@ The quickest way to get OmiseGO eWallet Server running on macOS and Linux is to 
     curl -O -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-compose.yml
     ```
 
-3. Create `docker-compose.override.yml` either [manually](https://docs.docker.com/compose/extends/) or use this auto-configuration script:
+3. Create `docker-compose.override.yml` either [manually](https://docs.docker.com/compose/extends/) or use auto-configuration script:
 
     ```
     curl -O -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-gen.sh
@@ -36,18 +35,15 @@ The quickest way to get OmiseGO eWallet Server running on macOS and Linux is to 
     docker-compose up -d
     ```
 
-Encountered a problem during the installation? See the [Setup Troubleshooting Guide](docs/setup/troubleshooting.md).
-
-For other platforms or a more advanced setup, see alternative installation below.
+For other platforms or for a more advanced setup, see also manual installation below.
 
 ### Alternative installation
 
 -   [Bare metal installation](docs/setup/bare_metal.md)
 
-## Upgrade
+### Upgrade
 
-- Upgrading from `v1.0`? See [Upgrading from v1.0.0 to v1.1.0](docs/setup/upgrading/v1.1.0.md).
-- Upgrading from other versions? See [Upgrading the eWallet Server](docs/setup/upgrading).
+Upgrading to a newer version? See [Upgrading the eWallet Server](docs/setup/upgrading).
 
 ## Commands
 
@@ -89,7 +85,13 @@ These commands will update the configuration key (see also [settings documentati
 
 ## Documentation
 
-All documentations can found in the [docs](docs/) directory. It is recommended to take a look at the documentation of the OmiseGO eWallet Server you are running.
+### Setup documentation
+
+The documentation that covers configurations and design philosophy can be found in the [docs](docs/) directory of this repository. You are recommended to take a look at a documentation of respective version of OmiseGO eWallet Server you are running.
+
+-   [latest](https://github.com/omisego/ewallet/tree/master/docs)
+-   [v1.1](https://github.com/omisego/ewallet/tree/v1.1/docs)
+-   [v1.0](https://github.com/omisego/ewallet/tree/v1.0/docs)
 
 ### API documentation
 

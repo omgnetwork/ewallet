@@ -45,8 +45,6 @@ defmodule AdminAPI.V1.AccountWalletController do
     end
   end
 
-  defp do_all(_, _, conn), do: handle_error(conn, :missing_id)
-
   defp prepare_account_uuids(account, true = _owned) do
     [account.uuid]
   end

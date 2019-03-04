@@ -17,39 +17,24 @@ defmodule EWalletConfig.Storage.LocalTest do
   alias ActivityLogger.System
   alias EWalletConfig.Config
   alias EWalletConfig.Storage.Local
-  alias Ecto.UUID
-  alias Utils.Helpers.PathResolver
+
+  @temp_test_file_dir "private/temp_test_files"
+
+  defmodule MockDefinition do
+    use Arc.Definition
+    def storage_dir(_, _), do: "private/temp_test_files/"
+  end
 
   setup do
-    root = PathResolver.static_dir(:url_dispatcher)
-    uuid = UUID.generate()
-    path = Path.join(["private", uuid])
-    path_abs = Path.join([root, path])
+    # Create the directory to store the temporary test files
+    :ok = File.mkdir_p!(test_file_path())
 
-    :ok = File.mkdir_p!(path_abs)
-
-    Code.eval_string("""
-      defmodule MockDefinition do
-        use Arc.Definition
-        def storage_dir(_, _) do
-          #{Macro.to_string(path)}
-        end
-      end
-    """)
-
-    on_exit(fn ->
-      :code.purge(MockDefinition)
-      :code.delete(MockDefinition)
-
-      _ = File.rm_rf!(path_abs)
-    end)
-
-    %{root: root, uuid: uuid, path: path, path_abs: path_abs, mockdef: MockDefinition}
+    :ok
   end
 
   describe "get_path/2" do
-    test "returns the path with the root dir prepended", context do
-      root_dir = context.root
+    test "returns the path with the root dir prepended" do
+      root_dir = Application.get_env(:ewallet, :root)
       destination_dir = "some_dir/another_dir"
       file_name = "some_filename.txt"
 
@@ -60,7 +45,7 @@ defmodule EWalletConfig.Storage.LocalTest do
   end
 
   describe "put/3" do
-    test "save to file from binary data and returns the file name", context do
+    test "save to file from binary data and returns the file name" do
       # Prepare the data
       binary = "some_data_to_save"
 
@@ -70,16 +55,23 @@ defmodule EWalletConfig.Storage.LocalTest do
       }
 
       # Invoke & assert
-      {res, file_name} = Local.put(context.mockdef, "v1", {file, nil})
+      {res, file_name} = Local.put(MockDefinition, "v1", {file, nil})
       assert res == :ok
       assert file_name == file.file_name
+
+      # Clean up the file after testing
+      :ok =
+        nil
+        |> MockDefinition.storage_dir(nil)
+        |> Local.get_path(file.file_name)
+        |> File.rm()
     end
 
-    test "save to file from a path and returns the file name", context do
+    test "save to file from a path and returns the file name" do
       # Prepare the data
       source_path =
         nil
-        |> context.mockdef.storage_dir(nil)
+        |> MockDefinition.storage_dir(nil)
         |> Local.get_path("test-source-#{:rand.uniform(999_999)}.txt")
 
       file = %Arc.File{
@@ -91,9 +83,18 @@ defmodule EWalletConfig.Storage.LocalTest do
       :ok = File.write(source_path, "some_content_to_copy")
 
       # Invoke & assert
-      {res, file_name} = Local.put(context.mockdef, "v1", {file, nil})
+      {res, file_name} = Local.put(MockDefinition, "v1", {file, nil})
       assert res == :ok
       assert file_name == file.file_name
+
+      # Clean up the file after testing
+      :ok = File.rm(source_path)
+
+      :ok =
+        nil
+        |> MockDefinition.storage_dir(nil)
+        |> Local.get_path(file.file_name)
+        |> File.rm()
     end
   end
 
@@ -115,31 +116,34 @@ defmodule EWalletConfig.Storage.LocalTest do
     test "returns a url for the given file", context do
       file = %Arc.File{file_name: "test-#{:rand.uniform(999_999)}.txt"}
 
-      # Need to append / to the context.uuid otherwise URI.merge will treat
-      # it as file and never gets included in the final URL.
       expected =
         context.base_url
-        |> URI.merge(context.mockdef.storage_dir(nil, nil))
-        |> URI.merge("#{context.uuid}/")
+        |> URI.merge(MockDefinition.storage_dir(nil, nil))
         |> URI.merge(file.file_name)
         |> URI.to_string()
 
-      assert Local.url(context.mockdef, "v1", {file, nil}) == expected
+      assert Local.url(MockDefinition, "v1", {file, nil}) == expected
     end
   end
 
   describe "delete/3" do
-    test "deletes the given file", context do
+    test "deletes the given file" do
       file = %Arc.File{
         file_name: "test-#{:rand.uniform(999_999)}.txt",
         binary: "this file should be deleted soon"
       }
 
       # Create the file to be deleted
-      {:ok, _} = Local.put(context.mockdef, "v1", {file, nil})
+      {:ok, _} = Local.put(MockDefinition, "v1", {file, nil})
 
       # Invoke & assert
-      assert Local.delete(context.mockdef, "v1", {file, nil}) == :ok
+      assert Local.delete(MockDefinition, "v1", {file, nil}) == :ok
     end
+  end
+
+  defp test_file_path do
+    "../../"
+    |> Path.absname()
+    |> Path.join(@temp_test_file_dir)
   end
 end

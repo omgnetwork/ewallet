@@ -148,9 +148,8 @@ defmodule AdminAPI.V1.TokenController do
     end
   end
 
-  def update(conn, _) do
-    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
-  end
+  def update(conn, _),
+    do: handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
 
   @doc """
   Enable or disable a token.

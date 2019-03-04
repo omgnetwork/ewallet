@@ -12,11 +12,17 @@ docker-compose.override.yml
 # Erlang
 erl_crash.dump
 
+# Public
+/apps/admin_api/public/uploads
+/private
+/public/docs
+/public/uploads
+!/public/uploads/test.txt
+
 # Dev
 .DS_Store
 .elixir_ls
 Thumbs.db
-*.log
 
 # Load Tester results
 /results/

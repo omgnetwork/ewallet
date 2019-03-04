@@ -1,4 +1,4 @@
-# Copyright 2019 OmiseGO Pte Ltd
+# Copyright 2018 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,24 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule BlockchainEth.WorkerTest do
-  use ExUnit.Case
-  alias BlockchainEth.Worker
+defmodule AdminAPI.AssetNotFoundPlug do
+  @moduledoc """
+  This plug checks if the current request is for an asset and returns 404 if
+  it was not found.
+  """
+  import Plug.Conn
 
-  setup do
-    {:ok, pid} = Worker.start_link()
-    %{pid: pid}
+  def init(opts), do: opts
+
+  def call(conn, _opts) do
+    check_asset(conn, {conn.method, Enum.at(conn.path_info, 0)})
   end
 
-  describe "generate_wallet/0" do
-    test "generates a ECDH keypair and wallet id", state do
-      {:ok, wallet_id, public_key} = Worker.generate_wallet(state[:pid])
-
-      assert is_binary(wallet_id)
-      assert byte_size(wallet_id) == 66
-
-      assert is_binary(public_key)
-      assert byte_size(public_key) == 130
-    end
+  defp check_asset(conn, {"GET", "public"}) do
+    conn
+    |> send_resp(404, "")
+    |> halt()
   end
+
+  defp check_asset(conn, _), do: conn
 end

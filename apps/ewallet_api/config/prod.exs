@@ -8,7 +8,7 @@ config :ewallet_api, EWalletAPI.V1.Endpoint,
 config :peerage,
   via: Peerage.Via.Dns,
   dns_name: {:system, "NODE_DNS", "localhost"},
-  app_name: "ewallet"
+  app_name: {:system, "NODE_NAME", "ewallet"}
 
 # For production, we often load configuration from external
 # sources, such as your system environment. For this reason,

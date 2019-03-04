@@ -120,7 +120,7 @@ class UsersPage extends Component {
   }
   rowRenderer (key, data, rows) {
     if (key === 'created_at' || key === 'updated_at') {
-      return moment(data).format()
+      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
     }
     if (key === 'id') {
       return (

@@ -51,12 +51,4 @@ defmodule AdminAPI.V1.UserAuthController do
 
     render(conn, :empty_response, %{})
   end
-
-  def logout(conn, _),
-    do:
-      handle_error(
-        conn,
-        :invalid_parameter,
-        "Invalid parameter provided. `auth_token` is required."
-      )
 end

@@ -15,9 +15,8 @@
 defmodule UrlDispatcher.Plug do
   @moduledoc false
   import Plug.Conn, only: [resp: 3, halt: 1, put_status: 2]
-  import Phoenix.Controller, only: [json: 2]
+  import Phoenix.Controller, only: [json: 2, redirect: 2]
   alias Plug.Static
-  alias Utils.Helpers.PathResolver
 
   @public_folders ~w(uploads swagger)
 
@@ -36,13 +35,23 @@ defmodule UrlDispatcher.Plug do
   defp handle_request("/pages/client" <> _, conn), do: EWalletAPI.Endpoint.call(conn, [])
 
   defp handle_request("/public" <> _, conn) do
-    static_dir = PathResolver.static_dir(:url_dispatcher)
-
     opts =
       Static.init(
         at: "/public",
-        from: Path.join(static_dir, "public"),
+        from: Path.join(Application.get_env(:ewallet, :root), "public"),
         only: @public_folders
+      )
+
+    static_call(conn, opts)
+  end
+
+  defp handle_request("/docs", conn), do: redirect(conn, to: "/docs/index.html")
+
+  defp handle_request("/docs" <> _, conn) do
+    opts =
+      Static.init(
+        at: "/docs",
+        from: Path.join(Application.get_env(:ewallet, :root), "public/docs")
       )
 
     static_call(conn, opts)
