@@ -42,7 +42,6 @@ defmodule EWalletDB.Role do
         upload_avatar: :self,
         get_account: :self,
         get_accounts: :self,
-        switch_account: :self,
         logout: :self
       },
       end_users: %{
@@ -129,7 +128,13 @@ defmodule EWalletDB.Role do
       account: %{all: :accounts, get: :accounts},
       categories: %{all: :global, get: :global},
       memberships: %{all: :accounts, get: :accounts},
-      admin_users: %{all: :accounts, get: :accounts},
+      admin_users: %{
+        all: :accounts,
+        get: :accounts,
+        get_account: :self,
+        get_accounts: :self,
+        logout: :self
+      },
       end_users: %{all: :accounts, get: :accounts, listen: :accounts},
       access_keys: %{all: :accounts, get: :accounts},
       api_keys: %{all: :accounts, get: :accounts},

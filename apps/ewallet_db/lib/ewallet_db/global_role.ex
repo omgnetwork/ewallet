@@ -42,7 +42,6 @@ defmodule EWalletDB.GlobalRole do
         upload_avatar: :self,
         get_account: :self,
         get_accounts: :self,
-        switch_account: :self,
         logout: :self
       },
       end_users: %{
@@ -131,7 +130,16 @@ defmodule EWalletDB.GlobalRole do
       accounts: %{all: :accounts, get: :accounts, create: :none, update: :none},
       categories: %{all: :global, get: :global, create: :none, update: :none},
       memberships: %{all: :accounts, get: :accounts, create: :none, update: :none},
-      admin_users: %{all: :accounts, get: :accounts, create: :none, update: :none, disable: :none},
+      admin_users: %{
+        all: :accounts,
+        get: :accounts,
+        create: :none,
+        update: :none,
+        disable: :none,
+        get_account: :self,
+        get_accounts: :self,
+        logout: :self
+      },
       end_users: %{
         all: :global,
         get: :global,
@@ -227,6 +235,7 @@ defmodule EWalletDB.GlobalRole do
 
   def super_admin, do: "super_admin"
   def admin, do: "admin"
+  def viewer, do: "viewer"
   def end_user, do: "end_user"
   def none, do: "none"
   def global_roles, do: Map.keys(@global_role_permissions)
