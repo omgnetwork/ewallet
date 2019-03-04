@@ -168,7 +168,7 @@ export default withRouter(
           <InformationItem>
             <b>Expiry Date : </b>{' '}
             {tq.expiration_date
-              ? moment(tq.expiration_date).format('ddd, DD/MM/YYYY hh:mm:ss')
+              ? moment(tq.expiration_date).format()
               : '-'}
           </InformationItem>
           <InformationItem>

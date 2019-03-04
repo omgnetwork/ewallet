@@ -51,10 +51,10 @@ class TokenDetailPage extends Component {
           <b>Email:</b> <span>{admin.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(admin.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Created Date:</b> <span>{moment(admin.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(admin.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Last Update:</b> <span>{moment(admin.updated_at).format()}</span>
         </DetailGroup>
       </Section>
     )

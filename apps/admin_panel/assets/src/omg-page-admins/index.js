@@ -119,9 +119,9 @@ class UsersPage extends Component {
   rowRenderer (key, data, rows) {
     switch (key) {
       case 'created_at':
-        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+        return moment(data).format()
       case 'updated_at':
-        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+        return moment(data).format()
       case 'id':
         return (
           <UserIdContainer>

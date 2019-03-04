@@ -236,7 +236,7 @@ class TransactionExportPage extends Component {
       case 'created_at':
         return (
           <TimestampContainer>
-            <span>{moment(row.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
+            <span>{moment(row.created_at).format()}</span>
             {row.status === 'completed' && (
               <Icon name='Download' onClick={this.onClickDownload(row)} />
             )}
@@ -271,7 +271,7 @@ class TransactionExportPage extends Component {
               <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
                 {moment(query.value).isValid()
-                    ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
+                    ? moment(query.value).format()
                     : query.value}{' '}
                   ]
                 </div>
@@ -286,7 +286,7 @@ class TransactionExportPage extends Component {
               <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
                 {moment(query.value).isValid()
-                    ? moment(query.value).format('DD/MM/YYYY hh:mm:ss')
+                    ? moment(query.value).format()
                     : query.value}{' '}
                   ]
                 </div>

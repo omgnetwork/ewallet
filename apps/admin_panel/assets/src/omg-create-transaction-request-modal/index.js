@@ -366,7 +366,7 @@ class CreateTransactionRequest extends Component {
                   normalPlaceholder='Expiry date'
                   value={
                     this.state.expirationDate &&
-                    this.state.expirationDate.format('DD/MM/YYYY hh:mm:ss')
+                    this.state.expirationDate.format()
                   }
                   onFocus={this.onDateTimeFocus}
                 />

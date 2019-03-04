@@ -164,7 +164,7 @@ class AccountPage extends Component {
           </span>
         )
       case 'created_at':
-        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+        return moment(data).format()
       case 'avatar':
         return null
       case 'action':
