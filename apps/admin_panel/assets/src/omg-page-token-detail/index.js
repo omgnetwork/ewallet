@@ -8,7 +8,6 @@ import { compose } from 'recompose'
 import { Button } from '../omg-uikit'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
-import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import MintTokenModal from '../omg-mint-token-modal'
 import ExchangeRateModal from '../omg-exchange-rate-modal'
@@ -84,14 +83,14 @@ class TokenDetailPage extends Component {
         breadcrumbItems={['Token', `${token.name} (${token.symbol})`]}
         buttons={[
           <Button
-            size='small'
-            styleType='secondary'
+            size="small"
+            styleType="secondary"
             onClick={this.onClickCreateExchangeRate}
-            key='rate'
+            key="rate"
           >
             <span>Create Exchange Pair</span>
           </Button>,
-          <Button size='small' onClick={this.onClickMintTopen} key='mint'>
+          <Button size="small" onClick={this.onClickMintTopen} key="mint">
             <span>Mint Token</span>
           </Button>
         ]}
@@ -100,7 +99,7 @@ class TokenDetailPage extends Component {
   }
   renderDetail = token => {
     return (
-      <Section title='DETAILS'>
+      <Section title="DETAILS">
         <DetailGroup>
           <b>ID:</b> <span>{token.id}</span> <Copy data={token.id} />
         </DetailGroup>
@@ -141,7 +140,7 @@ class TokenDetailPage extends Component {
       <TokenProvider
         render={({ token }) => {
           return token ? (
-            <DetailLayout>
+            <div>
               <ContentContainer>
                 {this.renderTopBar(token)}
                 <ContentDetailContainer>
@@ -168,7 +167,7 @@ class TokenDetailPage extends Component {
                 open={this.state.exchangeRateModalOpen}
                 fromTokenId={token.id}
               />
-            </DetailLayout>
+            </div>
           ) : null
         }}
         tokenId={this.props.match.params.viewTokenId}
@@ -200,7 +199,7 @@ class TokenDetailPage extends Component {
     )
   }
 
-  render () {
+  render() {
     return <TokenDetailContainer>{this.renderTokenDetail()}</TokenDetailContainer>
   }
 }
