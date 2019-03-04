@@ -15,19 +15,32 @@
 defmodule EWallet.Bouncer.ExchangePairTargetTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
-  alias EWallet.Bouncer.KeyActor
-  alias EWalletDB.Membership
-  alias ActivityLogger.System
+  alias EWallet.Bouncer.{ExchangePairTarget, DispatchConfig}
 
   describe "get_owner_uuids/1" do
+    test "returns the list of UUIDs owning the exchange pair" do
+      exchange_pair = insert(:exchange_pair)
+      res = ExchangePairTarget.get_owner_uuids(exchange_pair)
+      assert res == []
+    end
   end
 
   describe "get_target_types/0" do
+    test "returns a list of types" do
+      assert ExchangePairTarget.get_target_types() == [:exchange_pairs]
+    end
   end
 
   describe "get_target_type/1" do
+    test "returns the type of the given exchange pair" do
+      assert ExchangePairTarget.get_target_type(ExchangePair) == :exchange_pairs
+    end
   end
 
   describe "get_target_accounts/2" do
+    test "returns the list of accounts having rights on the exchange pair" do
+      exchange_pair = insert(:exchange_pair)
+      assert ExchangePairTarget.get_target_accounts(exchange_pair, DispatchConfig) == []
+    end
   end
 end

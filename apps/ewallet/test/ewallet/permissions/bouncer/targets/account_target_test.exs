@@ -21,8 +21,6 @@ defmodule EWallet.Bouncer.AccountTargetTest do
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the account" do
-      account = :account |> params_for() |> Account.insert()
-
       account = insert(:account)
       admin_1 = insert(:admin)
       admin_2 = insert(:admin)
@@ -60,7 +58,10 @@ defmodule EWallet.Bouncer.AccountTargetTest do
   describe "get_target_accounts/2" do
     test "returns the list of accounts having rights on the current account" do
       account = insert(:account)
-      assert AccountTarget.get_target_accounts(account, DispatchConfig) == [account]
+      
+      target_accounts_uuids = account |> AccountTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+
+      assert Enum.member?(target_accounts_uuids, account.uuid)
     end
   end
 end

@@ -14,20 +14,36 @@
 
 defmodule EWallet.Bouncer.ConfigurationTargetTest do
   use EWallet.DBCase, async: true
-  import EWalletDB.Factory
-  alias EWallet.Bouncer.KeyActor
-  alias EWalletDB.Membership
-  alias ActivityLogger.System
+  import EWalletConfig.Factory
+  alias EWallet.Bouncer.{ConfigurationTarget, DispatchConfig}
+  alias EWalletConfig.Setting
 
   describe "get_owner_uuids/1" do
+    test "returns the list of UUIDs owning the configuration" do
+      stored_setting = insert(:stored_setting)
+      setting = Setting.build(stored_setting)
+      res = ConfigurationTarget.get_owner_uuids(setting)
+      assert res == []
+    end
   end
 
   describe "get_target_types/0" do
+    test "returns a list of types" do
+      assert ConfigurationTarget.get_target_types() == [:configuration]
+    end
   end
 
   describe "get_target_type/1" do
+    test "returns the type of the given configuration" do
+      assert ConfigurationTarget.get_target_type(Setting) == :configuration
+    end
   end
 
   describe "get_target_accounts/2" do
+    test "returns the list of accounts having rights on the configuration" do
+      stored_setting = insert(:stored_setting)
+      setting = Setting.build(stored_setting)
+      assert ConfigurationTarget.get_target_accounts(setting, DispatchConfig) == []
+    end
   end
 end
