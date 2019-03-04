@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   import AdminAPI.V1.ErrorHandler
   alias EWallet.TransactionRequestPolicy
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TransactionRequestOverlay}
+  alias Ecto.Changeset
 
   alias EWallet.{
     TransactionRequestFetcher,
@@ -102,8 +103,12 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
 
-  defp respond({:error, changeset}, conn) do
+  defp respond({:error, %Changeset{} = changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
+  end
+
+  defp respond({:error, error}, conn) do
+    handle_error(conn, error)
   end
 
   defp respond({:ok, request}, conn) do

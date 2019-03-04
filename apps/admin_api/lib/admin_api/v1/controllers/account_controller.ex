@@ -18,6 +18,7 @@ defmodule AdminAPI.V1.AccountController do
   alias EWallet.{AccountPolicy, AdapterHelper}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.AccountOverlay}
   alias EWalletDB.Account
+  alias Ecto.Changeset
 
   @doc """
   Retrieves a list of accounts based on current account for users.
@@ -98,7 +99,7 @@ defmodule AdminAPI.V1.AccountController do
          {:ok, updated} <- Orchestrator.one(updated, AccountOverlay, attrs) do
       render(conn, :account, %{account: updated})
     else
-      {:error, %{} = changeset} ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->
