@@ -192,8 +192,8 @@ defmodule AdminAPI.V1.SelfController do
     handle_error(conn, :invalid_parameter, changeset)
   end
 
-  defp respond_single({:error, error_code}, conn) when is_atom(error_code) do
-    handle_error(conn, error_code)
+  defp respond_single({:error, error}, conn) do
+    handle_error(conn, error)
   end
 
   defp respond_single(error_code, conn) when is_atom(error_code) do
