@@ -42,7 +42,7 @@ class AccountLayout extends Component {
         <BreadContainer>
           <Breadcrumb
             items={[
-              'Account',
+              'Accounts',
               _.get(this.props.account, 'name', '...'),
               _.upperFirst(this.props.match.params.type),
               this.props.match.params.id

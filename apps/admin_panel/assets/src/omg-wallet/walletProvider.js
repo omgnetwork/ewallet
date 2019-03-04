@@ -19,12 +19,12 @@ class WalletProvider extends Component {
   componentWillReceiveProps = nextProps => {
     if (nextProps.walletAddress !== this.props.walletAddress) {
       this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT })
-      this.fetch()
+      this.fetch(nextProps.walletAddress)
     }
   }
-  fetch = async () => {
-    if (this.props.walletAddress) {
-      const result = await this.props.getWalletById(this.props.walletAddress)
+  fetch = async walletAddress => {
+    if (this.props.walletAddress || walletAddress) {
+      const result = await this.props.getWalletById(walletAddress || this.props.walletAddress)
       if (result.data) {
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS, result })
       } else {

@@ -90,6 +90,7 @@ class TransactionRequestPanel extends Component {
     })
   }
   render = () => {
+    console.log(this.props)
     return (
       <ConsumptionProvider
         consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
@@ -113,11 +114,26 @@ class TransactionRequestPanel extends Component {
                   <b>Type:</b> <span>{tq.type}</span>
                 </InformationItem>
                 <InformationItem>
-                  <b>Requester Address:</b> <Link to={`/wallets/${tq.address}`}>{tq.address}</Link>
+                  <b>Requester Address:</b>{' '}
+                  <Link
+                    to={{
+                      pathname: `/accounts/${tq.account_id}/wallets/${tq.address}`,
+                      search: this.props.location.search
+                    }}
+                  >
+                    {tq.address}
+                  </Link>
                 </InformationItem>
                 <InformationItem>
                   <b>Consumer Address:</b>{' '}
-                  <Link to={`/wallets/${consumption.address}`}>{consumption.address}</Link>
+                  <Link
+                    to={{
+                      pathname: `/accounts/${tq.account_id}/wallets/${consumption.address}`,
+                      search: this.props.location.search
+                    }}
+                  >
+                    {consumption.address}
+                  </Link>
                 </InformationItem>
                 <InformationItem>
                   <b>Token:</b> <span>{_.get(consumption, 'token.name')}</span>

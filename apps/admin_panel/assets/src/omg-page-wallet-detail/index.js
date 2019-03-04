@@ -72,7 +72,6 @@ class WalletDetaillPage extends Component {
     return (
       <TopBar
         title={wallet.name}
-        breadcrumbItems={['Wallet', `${wallet.address}`]}
         buttons={[
           <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
             <Icon name='Transaction' />
@@ -136,7 +135,6 @@ class WalletDetaillPage extends Component {
     )
   }
   renderWalletDetailContainer = wallet => {
-    const accountId = this.props.match.params.accountId
     return (
       <div>
         <ContentContainer>
@@ -167,7 +165,7 @@ class WalletDetaillPage extends Component {
   renderWalletDetailPage = ({ wallet, loadingStatus, result }) => {
     return (
       <WalletDetailContainer>
-        {(loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS || wallet) &&
+        {wallet &&
           this.renderWalletDetailContainer(wallet)}
         {loadingStatus === CONSTANT.LOADING_STATUS.FAILED && this.renderErrorPage(result.error)}
       </WalletDetailContainer>
@@ -179,6 +177,7 @@ class WalletDetaillPage extends Component {
         render={this.renderWalletDetailPage}
         walletAddress={this.props.match.params.walletAddress}
         {...this.state}
+        {...this.props}
       />
     )
   }
