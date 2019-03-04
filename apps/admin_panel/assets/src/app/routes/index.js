@@ -41,6 +41,8 @@ const createRoute = () => (
       <LoginRoute path='/forget-password' exact component={ForgetPasswordForm} />
       <LoginRoute path='/create-new-password' exact component={CreateNewPasswordForm} />
       <LoginRoute path='/invite' exact component={InviteForm} />
+
+      {/* MANAGE */}
       <AuthenticatedRoute path='/accounts' exact component={AccountPage} />
       <AuthenticatedRoute path='/tokens' exact component={TokenPage} />
       <AuthenticatedRoute path='/tokens/:viewTokenId/:state' exact component={TokenDetailPage} />
@@ -49,20 +51,16 @@ const createRoute = () => (
       <AuthenticatedRoute path='/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute path='/transaction/export' exact component={TransactionExportPage} />
       <AuthenticatedRoute path='/api' exact component={ApiKeyPage} />
-      <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />
+      <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
 
       {/* SUB ACCOUNT PAGES */}
       <AuthenticatedRoute path='/accounts/:accountId/:type/:id' component={AccountLayout} />
       <AuthenticatedRoute path='/accounts/:accountId/:type' component={AccountLayout} />
 
-      {/* SETTING */}
-      <AuthenticatedRoute path='/:accountId/setting/:state' exact component={AccountSettingPage} />
-
       {/* OVERVIEW */}
       <AuthenticatedRoute path='/users/:userId' exact component={UserDetailPage} />
       <AuthenticatedRoute path='/consumptions' exact component={ReqestConsumptionPage} />
       <AuthenticatedRoute path='/requests' exact component={TransactionRequestPage} />
-      <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
       <AuthenticatedRoute path='/activity' exact component={ActivityLogPage} />
       <AuthenticatedRoute path='/users' exact component={UserPage} />
       <AuthenticatedRoute path='/admins' exact component={AdminsPage} />

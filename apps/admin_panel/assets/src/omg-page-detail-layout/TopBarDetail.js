@@ -17,12 +17,11 @@ const TopBarAction = styled.div`
 `
 const TopBarTitle = styled.div`
   flex: 1 1 auto;
-  h3 {
-    margin-top: 20px;
-  }
 `
 const TopBar = styled.div`
   display: flex;
+  align-items: center;
+  height: 70px;
 `
 export default class TopBarDetail extends Component {
   static propTypes = {
