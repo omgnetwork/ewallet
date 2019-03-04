@@ -18,7 +18,6 @@ defmodule AdminAPI.V1.AuthTokenSerializer do
   """
   alias EWallet.Web.V1.UserSerializer
   alias Utils.Helpers.Assoc
-  alias EWalletDB.User
 
   def serialize(auth_token) do
     %{
