@@ -6,7 +6,6 @@ import UserProvider from '../omg-users/userProvider'
 import { compose } from 'recompose'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
-import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import { LoadingSkeleton } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
@@ -71,7 +70,6 @@ class TokenDetailPage extends Component {
     )
   }
   renderWallet = wallet => {
-    const accountId = this.props.match.params.accountId
     return (
       <Section title='BALANCE'>
         {wallet ? (
