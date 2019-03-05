@@ -43,7 +43,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert Enum.member?(consumption_uuids, consumption_3.uuid)
     end
 
-    test "returns all accounts the actor (user) has access to when 'global / accounts' ability" do
+    test "returns all consumptions the actor (user) has access to when 'global / accounts' ability" do
       actor = insert(:admin)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -107,7 +107,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert length(consumption_uuids) == 7
     end
 
-    test "returns all accounts the actor (key) has access to when 'global / accounts' ability" do
+    test "returns all consumptions the actor (key) has access to when 'global / accounts' ability" do
       actor = insert(:key)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -171,7 +171,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert length(consumption_uuids) == 7
     end
 
-    test "returns all accounts the actor (user) has access to when 'global / self' ability" do
+    test "returns all consumptions the actor (user) has access to when 'global / self' ability" do
       actor = insert(:admin)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -234,7 +234,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert length(consumption_uuids) == 6
     end
 
-    test "returns all accounts the actor (key) has access to when 'global / self' ability" do
+    test "returns all consumptions the actor (key) has access to when 'global / self' ability" do
       actor = insert(:key)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -298,7 +298,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert length(consumption_uuids) == 5
     end
 
-    test "returns all accounts the actor (user) has access to when 'global / none' ability" do
+    test "returns all consumptions the actor (user) has access to when 'global / none' ability" do
       actor = insert(:admin)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -363,7 +363,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
   end
 
   describe "scope_query/1 with global abilities (account: accounts / end_user:*)" do
-    test "returns all accounts the actor (user) has access to when 'accounts / global' ability" do
+    test "returns all consumptions the actor (user) has access to when 'accounts / global' ability" do
       actor = insert(:admin)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -427,7 +427,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert length(consumption_uuids) == 6
     end
 
-    test "returns all accounts the actor (user) has access to when 'accounts / accounts' ability" do
+    test "returns all consumptions the actor (user) has access to when 'accounts / accounts' ability" do
       actor = insert(:admin)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -505,7 +505,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert length(consumption_uuids) == 8
     end
 
-    test "returns all accounts the actor (user) has access to when 'accounts / self' ability" do
+    test "returns all consumptions the actor (user) has access to when 'accounts / self' ability" do
       actor = insert(:admin)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -579,7 +579,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert length(consumption_uuids) == 5
     end
 
-    test "returns all accounts the actor (user) has access to when 'accounts / none' ability" do
+    test "returns all consumptions the actor (user) has access to when 'accounts / none' ability" do
       actor = insert(:admin)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -655,7 +655,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
   end
 
   describe "scope_query/1 with global abilities (account: none / end_user:*)" do
-    test "returns all accounts the actor (user) has access to when 'none / global' ability" do
+    test "returns all consumptions the actor (user) has access to when 'none / global' ability" do
       actor = insert(:admin)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -719,7 +719,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert length(consumption_uuids) == 3
     end
 
-    test "returns all accounts the actor (user) has access to when 'none / accounts' ability" do
+    test "returns all consumptions the actor (user) has access to when 'none / accounts' ability" do
       actor = insert(:admin)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -793,7 +793,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert length(consumption_uuids) == 3
     end
 
-    test "returns all accounts the actor (user) has access to when 'none / self' ability" do
+    test "returns all consumptions the actor (user) has access to when 'none / self' ability" do
       actor = insert(:admin)
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -867,7 +867,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       assert length(consumption_uuids) == 1
     end
 
-    test "returns all accounts the actor (user) has access to when 'none / none' ability" do
+    test "returns all consumptions the actor (user) has access to when 'none / none' ability" do
       actor = insert(:admin)
       account_1 = insert(:account)
       account_2 = insert(:account)

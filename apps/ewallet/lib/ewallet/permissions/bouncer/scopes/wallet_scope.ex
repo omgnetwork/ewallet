@@ -40,6 +40,7 @@ defmodule EWallet.Bouncer.WalletScope do
     |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
     |> where([g, m, au, u], g.user_uuid == u.uuid or is_nil(g.user_uuid))
+    |> distinct(true)
     |> select([g, m, au, u], g)
   end
 
@@ -56,15 +57,17 @@ defmodule EWallet.Bouncer.WalletScope do
     actor
     |> Helper.prepare_query_with_membership_for(Wallet)
     |> where([g, m], g.account_uuid == m.account_uuid or is_nil(g.account_uuid))
+    |> distinct(true)
     |> select([g, m], g)
   end
 
   defp do_scoped_query(actor, %{account_wallets: :accounts, end_user_wallets: :accounts}) do
     actor
     |> Helper.prepare_query_with_membership_for(Wallet)
-    |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
-    |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
+    |> join(:left, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
+    |> join(:left, [g, m, au], u in User, on: au.user_uuid == u.uuid)
     |> where([g, m, au, u], g.user_uuid == u.uuid or g.account_uuid == m.account_uuid)
+    |> distinct(true)
     |> select([g, m, au, u], g)
   end
 
@@ -72,6 +75,7 @@ defmodule EWallet.Bouncer.WalletScope do
     actor
     |> Helper.prepare_query_with_membership_for(Wallet)
     |> where([g, m], g.account_uuid == m.account_uuid or g.user_uuid == ^actor.uuid)
+    |> distinct(true)
     |> select([g, m], g)
   end
 
