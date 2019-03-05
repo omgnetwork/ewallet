@@ -11,6 +11,9 @@ ENV_DEV         ?= env MIX_ENV=dev
 ENV_TEST        ?= env MIX_ENV=test
 ENV_PROD        ?= env MIX_ENV=prod
 
+LANG            := en_US.UTF-8
+LC_ALL          := en_US.UTF-8
+
 #
 # Setting-up
 #
