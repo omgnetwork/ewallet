@@ -329,7 +329,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       assert sort_by == :id
 
       # Assert non-existing value
-      start_by = StartAfterPaginator.map_atom_attr(attrs, "start_by", "id", @default_mapped_fields)
+      start_by =
+        StartAfterPaginator.map_atom_attr(attrs, "start_by", "id", @default_mapped_fields)
+
       assert start_by == :id
     end
 
@@ -350,7 +352,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
     test "returns original value when the value is non-nil and non-exist in the mapping" do
       attrs = %{"sort_by" => "id"}
 
-      sort_by = StartAfterPaginator.map_atom_attr(attrs, "sort_by", "name", @default_mapped_fields)
+      sort_by =
+        StartAfterPaginator.map_atom_attr(attrs, "sort_by", "name", @default_mapped_fields)
+
       assert sort_by == :id
     end
   end
