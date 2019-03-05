@@ -104,6 +104,8 @@ class UsersPage extends Component {
     return [
       { key: 'id', title: 'ADMIN ID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
+      { key: 'status', title: 'STATUS', sort: true },
+      { key: 'account_role', title: 'ROLE' },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'updated_at', title: 'LAST UPDATED', sort: true }
     ]
@@ -131,7 +133,7 @@ class UsersPage extends Component {
       case 'email':
         return data || '-'
       default:
-        data
+        return data
     }
   }
 

@@ -83,7 +83,7 @@ class ConsumptionPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
     query: PropTypes.object,
-    fetcher: PropTypes.node
+    fetcher: PropTypes.func
   }
   static defaultProps = {
     query: {},

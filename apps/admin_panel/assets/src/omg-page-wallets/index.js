@@ -76,7 +76,8 @@ class WalletPage extends Component {
     scrollTopContentContainer: PropTypes.func,
     walletQuery: PropTypes.object,
     transferButton: PropTypes.bool,
-    onClickRow: PropTypes.func
+    onClickRow: PropTypes.func,
+    fetcher: PropTypes.func
   }
   static defaultProps = {
     walletQuery: {},

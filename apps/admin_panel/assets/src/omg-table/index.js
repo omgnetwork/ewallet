@@ -89,7 +89,8 @@ class SortableTable extends PureComponent {
   }
   static defaultProps = {
     pageEntity: 'page',
-    loadingEffect: true
+    loadingEffect: true,
+    navigation: false
   }
 
   constructor (props) {
