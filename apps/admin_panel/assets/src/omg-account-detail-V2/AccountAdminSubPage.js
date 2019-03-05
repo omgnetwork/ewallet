@@ -10,7 +10,7 @@ export default withRouter(
       history: PropTypes.object
     }
     onClickRow = (data, index) => e => {
-      this.props.history.push(`/accounts/${this.props.match.params.accountId}/users/${data.id}`)
+      this.props.history.push(`/accounts/${this.props.match.params.accountId}/admins/${data.id}`)
     }
 
     render () {
@@ -20,6 +20,12 @@ export default withRouter(
           accountId={this.props.match.params.accountId}
           navigation={false}
           onClickRow={this.onClickRow}
+          columns={[
+            { key: 'id', title: 'ADMIN ID', sort: true },
+            { key: 'email', title: 'EMAIL', sort: true },
+            { key: 'account_role', title: 'ROLE', sort: true },
+            { key: 'status', title: 'STATUS', sort: true }
+          ]}
         />
       )
     }

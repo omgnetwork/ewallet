@@ -78,11 +78,18 @@ class UsersPage extends Component {
     query: PropTypes.object,
     fetcher: PropTypes.func,
     navigation: PropTypes.object,
-    onClickRow: PropTypes.func
+    onClickRow: PropTypes.func,
+    columns: PropTypes.object
   }
   static defaultProps = {
     query: {},
-    fetcher: AdminsFetcher
+    fetcher: AdminsFetcher,
+    columns: [
+      { key: 'id', title: 'ADMIN ID', sort: true },
+      { key: 'email', title: 'EMAIL', sort: true },
+      { key: 'created_at', title: 'CREATED DATE', sort: true },
+      { key: 'updated_at', title: 'LAST UPDATED', sort: true }
+    ]
   }
   constructor (props) {
     super(props)
@@ -99,16 +106,6 @@ class UsersPage extends Component {
         <Icon name='Plus' /> <span>Create Account</span>
       </Button>
     )
-  }
-  getColumns = () => {
-    return [
-      { key: 'id', title: 'ADMIN ID', sort: true },
-      { key: 'email', title: 'EMAIL', sort: true },
-      { key: 'status', title: 'STATUS', sort: true },
-      { key: 'account_role', title: 'ROLE' },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'updated_at', title: 'LAST UPDATED', sort: true }
-    ]
   }
   getRow = admins => {
     return admins.map(d => {
@@ -144,7 +141,7 @@ class UsersPage extends Component {
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(admins)}
-            columns={this.getColumns(admins)}
+            columns={this.props.columns}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
             onClickRow={this.props.onClickRow || this.onClickRow}

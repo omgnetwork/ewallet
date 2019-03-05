@@ -61,14 +61,12 @@ class TokenDetailPage extends Component {
   }
   renderUserDetailContainer = admin => {
     return (
-      <DetailLayout backPath={'/users'}>
-        <ContentContainer>
-          {this.renderTopBar(admin)}
-          <ContentDetailContainer>
-            <DetailContainer>{this.renderDetail(admin)}</DetailContainer>
-          </ContentDetailContainer>
-        </ContentContainer>
-      </DetailLayout>
+      <ContentContainer>
+        {this.renderTopBar(admin)}
+        <ContentDetailContainer>
+          <DetailContainer>{this.renderDetail(admin)}</DetailContainer>
+        </ContentDetailContainer>
+      </ContentContainer>
     )
   }
 
