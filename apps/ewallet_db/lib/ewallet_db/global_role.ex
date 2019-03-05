@@ -226,6 +226,9 @@ defmodule EWalletDB.GlobalRole do
         create: :self,
         confirm: :self
       },
+      account_transaction_requests: %{
+        get: :global
+      },
       end_user_transaction_consumptions: %{all: :self, get: :self, listen: :self, create: :self}
     },
     "none" => %{
