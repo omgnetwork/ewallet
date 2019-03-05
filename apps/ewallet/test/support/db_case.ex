@@ -58,7 +58,7 @@ defmodule EWallet.DBCase do
         "enable_standalone" => false,
         "base_url" => "http://localhost:4000",
         "email_adapter" => "test",
-        "master_account" => account.uuid
+        "master_account" => account.id
       }
     )
 

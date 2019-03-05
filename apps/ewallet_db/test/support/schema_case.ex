@@ -77,7 +77,7 @@ defmodule EWalletDB.SchemaCase do
       EWalletConfig.Repo,
       [:ewallet_db],
       %{
-        "master_account" => account.uuid
+        "master_account" => account.id
       }
     )
 

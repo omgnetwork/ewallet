@@ -97,7 +97,7 @@ defmodule AdminAPI.ChannelCase do
         "base_url" => "http://localhost:4000",
         "email_adapter" => "test",
         "sender_email" => "admin@example.com",
-        "master_account" => account.uuid
+        "master_account" => account.id
       }
     )
 

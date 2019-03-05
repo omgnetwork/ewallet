@@ -51,7 +51,10 @@ defmodule EWallet.Web.InviterTest do
 
       {:ok, invite} = Preloader.preload_one(invite, :user)
       accounts = User.get_all_linked_accounts(invite.user.uuid)
-      assert Enum.any?(accounts, fn account -> Account.master?(account) end)
+
+      assert Enum.any?(accounts, fn account ->
+               Account.get_master_account().uuid == account.uuid
+             end)
     end
 
     test "resends the verification email if the user has not verified their email" do
