@@ -85,8 +85,8 @@ defmodule EWallet.Web.StartAfterPaginator do
       ) do
     default_field = Atom.to_string(hd(allowed_fields))
 
-    sort_by = map_attr(attrs, "sort_by", default_field, default_mapped_fields)
-    start_by = map_attr(attrs, "start_by", default_field, default_mapped_fields)
+    sort_by = map_atom_attr(attrs, "sort_by", default_field, default_mapped_fields)
+    start_by = map_atom_attr(attrs, "start_by", default_field, default_mapped_fields)
 
     case is_allowed_start_by(start_by, allowed_fields) do
       true ->
@@ -103,6 +103,8 @@ defmodule EWallet.Web.StartAfterPaginator do
           |> Enum.map(&Atom.to_string/1)
           |> Enum.join(", ")
 
+        start_by = Atom.to_string(start_by)
+
         msg =
           "start_by: `#{start_by}` is not allowed. The available fields are: [#{available_fields}]"
 
@@ -110,10 +112,11 @@ defmodule EWallet.Web.StartAfterPaginator do
     end
   end
 
-  def map_attr(attrs, key, default, mapping) do
+  def map_atom_attr(attrs, key, default, mapping) do
     attrs[key]
     |> map_default(default)
     |> map_field(mapping)
+    |> map_atom(default)
   end
 
   defp map_default(original, default) do
@@ -128,6 +131,12 @@ defmodule EWallet.Web.StartAfterPaginator do
       nil -> original
       mapped -> mapped
     end
+  end
+
+  defp map_atom(original, default) do
+    String.to_existing_atom(original)
+  rescue
+    ArgumentError -> default
   end
 
   @doc """
@@ -156,7 +165,7 @@ defmodule EWallet.Web.StartAfterPaginator do
 
     pagination = %{
       per_page: per_page,
-      start_by: start_by,
+      start_by: Atom.to_string(start_by),
       start_after: start_after,
       # It's the last page if there are no more records
       is_last_page: !more_page,
@@ -226,26 +235,12 @@ defmodule EWallet.Web.StartAfterPaginator do
     end
   end
 
-  def is_allowed_start_by(start_by, allowed_fields) when is_atom(start_by) do
+  def is_allowed_start_by(start_by, allowed_fields) do
     start_by in allowed_fields
   end
 
-  def is_allowed_start_by(start_by, allowed_fields) do
-    start_by
-    |> String.to_atom()
-    |> is_allowed_start_by(allowed_fields)
-  end
-
-  def build_start_after_condition(%{"start_by" => start_by, "start_after" => start_after})
-      when is_atom(start_by) do
-    Map.put(%{}, start_by, start_after)
-  end
-
   def build_start_after_condition(%{"start_by" => start_by, "start_after" => start_after}) do
-    build_start_after_condition(%{
-      "start_after" => start_after,
-      "start_by" => String.to_atom(start_by)
-    })
+    Map.put(%{}, start_by, start_after)
   end
 
   # Query records from the beginning if `start_after` is null or empty,
@@ -274,9 +269,6 @@ defmodule EWallet.Web.StartAfterPaginator do
            "sort_dir" => sort_dir
          }
        ) do
-    sort_by = String.to_atom(sort_by)
-    start_by = String.to_atom(start_by)
-
     offset_queryable =
       queryable
       |> exclude(:preload)
@@ -339,16 +331,10 @@ defmodule EWallet.Web.StartAfterPaginator do
   end
 
   defp get_queryable_order_by(queryable, %{"sort_dir" => "desc", "sort_by" => sort_by}) do
-    sort_by = String.to_atom(sort_by)
-
-    queryable
-    |> order_by(desc: ^sort_by)
+    order_by(queryable, desc: ^sort_by)
   end
 
   defp get_queryable_order_by(queryable, %{"sort_by" => sort_by}) do
-    sort_by = String.to_atom(sort_by)
-
-    queryable
-    |> order_by(asc: ^sort_by)
+    order_by(queryable, asc: ^sort_by)
   end
 end

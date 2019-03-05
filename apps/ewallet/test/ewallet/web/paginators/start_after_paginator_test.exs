@@ -196,8 +196,8 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       [first_id | ids] = records_id
 
       attrs = %{
-        "start_by" => "id",
-        "sort_by" => "id",
+        "start_by" => :id,
+        "sort_by" => :id,
         "start_after" => first_id,
         "per_page" => per_page
       }
@@ -234,8 +234,8 @@ defmodule EWallet.Web.StartFromPaginatorTest do
         |> Repo.all()
 
       attrs = %{
-        "start_by" => "id",
-        "sort_by" => "id",
+        "start_by" => :id,
+        "sort_by" => :id,
         "start_after" => {:ok, nil},
         "per_page" => per_page
       }
@@ -264,9 +264,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       ensure_num_records(Account, total)
 
       attrs = %{
-        "start_by" => "inserted_at",
+        "start_by" => :inserted_at,
         "start_after" => "acc_1",
-        "sort_by" => "id",
+        "sort_by" => :id,
         "per_page" => per_page
       }
 
@@ -286,9 +286,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       ensure_num_records(Account, total)
 
       attrs = %{
-        "start_by" => "id",
+        "start_by" => :id,
         "start_after" => "1",
-        "sort_by" => "id",
+        "sort_by" => :id,
         "per_page" => per_page
       }
 
@@ -305,10 +305,10 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       [_, _, start_after_record, expected_head_record | _] = Repo.all(records)
 
       attrs = %{
-        "start_by" => "id",
+        "start_by" => :id,
         "start_after" => start_after_record.id,
         "per_page" => 5,
-        "sort_by" => "id",
+        "sort_by" => :id,
         "sort_dir" => "asc"
       }
 
@@ -325,33 +325,33 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       attrs = %{"sort_by" => nil}
 
       # Assert nil value
-      sort_by = StartAfterPaginator.map_attr(attrs, "sort_by", "id", @default_mapped_fields)
-      assert sort_by == "id"
+      sort_by = StartAfterPaginator.map_atom_attr(attrs, "sort_by", "id", @default_mapped_fields)
+      assert sort_by == :id
 
       # Assert non-existing value
-      start_by = StartAfterPaginator.map_attr(attrs, "start_by", "id", @default_mapped_fields)
-      assert start_by == "id"
+      start_by = StartAfterPaginator.map_atom_attr(attrs, "start_by", "id", @default_mapped_fields)
+      assert start_by == :id
     end
 
     test "returns mapped field when the value exists the mapping" do
       attrs = %{"sort_by" => "created_at", "start_by" => nil}
 
       # Assert original value exists in the `@default_mapped_fields`
-      sort_by = StartAfterPaginator.map_attr(attrs, "sort_by", "id", @default_mapped_fields)
-      assert sort_by == "inserted_at"
+      sort_by = StartAfterPaginator.map_atom_attr(attrs, "sort_by", "id", @default_mapped_fields)
+      assert sort_by == :inserted_at
 
       # Assert default value exists in the `@default_mapped_fields`
       start_by =
-        StartAfterPaginator.map_attr(attrs, "start_by", "created_at", @default_mapped_fields)
+        StartAfterPaginator.map_atom_attr(attrs, "start_by", "created_at", @default_mapped_fields)
 
-      assert start_by == "inserted_at"
+      assert start_by == :inserted_at
     end
 
     test "returns original value when the value is non-nil and non-exist in the mapping" do
       attrs = %{"sort_by" => "id"}
 
-      sort_by = StartAfterPaginator.map_attr(attrs, "sort_by", "name", @default_mapped_fields)
-      assert sort_by == "id"
+      sort_by = StartAfterPaginator.map_atom_attr(attrs, "sort_by", "name", @default_mapped_fields)
+      assert sort_by == :id
     end
   end
 end
