@@ -102,14 +102,11 @@ class WalletDetaillPage extends Component {
         {wallet.user && (
           <DetailGroup>
             <b>User:</b>{' '}
-            <Link to={`/users/${wallet.user.id}`}>
-              {_.get(wallet, 'user.id', '-')}
-            </Link>
+            <Link to={`/users/${wallet.user.id}`}>{_.get(wallet, 'user.id', '-')}</Link>
           </DetailGroup>
         )}
         <DetailGroup>
-          <b>Created Date:</b>{' '}
-          <span>{moment(wallet.created_at).format()}</span>
+          <b>Created Date:</b> <span>{moment(wallet.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Last Update:</b> <span>{moment(wallet.updated_at).format()}</span>
@@ -165,9 +162,9 @@ class WalletDetaillPage extends Component {
   renderWalletDetailPage = ({ wallet, loadingStatus, result }) => {
     return (
       <WalletDetailContainer>
-        {wallet &&
-          this.renderWalletDetailContainer(wallet)}
-        {loadingStatus === CONSTANT.LOADING_STATUS.FAILED && this.renderErrorPage(result.error)}
+        {wallet
+          ? this.renderWalletDetailContainer(wallet)
+          : loadingStatus === CONSTANT.LOADING_STATUS.FAILED && this.renderErrorPage(result.error)}
       </WalletDetailContainer>
     )
   }
