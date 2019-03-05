@@ -602,9 +602,9 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves the user's role on the given account.
   """
-  @spec get_role(String.t(), String.t()) :: String.t() | nil
+  @spec get_role(String.t(), %Account{}) :: String.t() | nil
   def get_role(user, account) do
-    case Membership.get_by_user_and_account(user, account) do
+    case Membership.get_by_member_and_account(user, account) do
       nil ->
         nil
 

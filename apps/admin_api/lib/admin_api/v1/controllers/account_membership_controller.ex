@@ -188,7 +188,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
       when not is_nil(account_id) and not is_nil(user_id) do
     with %Account{} = account <- Account.get(account_id),
          %User{} = user <- User.get(user_id),
-         %Membership{} = membership <- Membership.get_by_user_and_account(user, account),
+         %Membership{} = membership <- Membership.get_by_member_and_account(user, account),
          {:ok, _} <- authorize(:delete, conn.assigns, membership),
          originator <- Originator.extract(conn.assigns),
          {:ok, _} <- Membership.unassign(user, account, originator) do

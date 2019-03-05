@@ -28,8 +28,8 @@ defmodule EWallet.ReleaseTasks.Seed do
     :jason,
     :cloak,
     :ewallet,
-    :ewallet_db,
     :ewallet_config,
+    :ewallet_db,
     :activity_logger
   ]
   @std_spec [{:ewallet_config, :seeds_settings}, {:ewallet_db, :seeds}]

@@ -14,7 +14,7 @@
 
 defmodule EWalletDB.Repo.Seeds.MembershipSeed do
   alias EWallet.Web.Preloader
-  alias EWalletDB.{Account, Membership, Role, User}
+  alias EWalletDB.{Account, Membership, Role, Key, User}
   alias EWalletDB.Seeder
 
   def seed do
@@ -26,42 +26,75 @@ defmodule EWalletDB.Repo.Seeds.MembershipSeed do
 
   def run(writer, args) do
     admin_email = args[:admin_email]
+    seeded_ewallet_key_access = args[:seeded_ewallet_key_access]
 
     user = User.get_by_email(admin_email)
+    key = Key.get_by(access_key: seeded_ewallet_key_access)
     account = Account.get_master_account()
     role = Role.get_by(name: "admin")
 
-    case Membership.get_by_user_and_account(user, account) do
-      nil ->
-        case Membership.assign(user, account, role, %Seeder{}) do
-          {:ok, membership} ->
-            {:ok, membership} = Preloader.preload_one(membership, [:user, :account, :role])
+    add_membership_for(user, account, role, writer)
+    add_membership_for(key, account, role, writer)
+  end
 
-            writer.success("""
-              Email        : #{membership.user.email}
-              Account Name : #{membership.account.name}
-              Account ID   : #{membership.account.id}
-              Role         : #{membership.role.name}
-            """)
+  def add_membership_for(actor, account, role, writer) do
+    case Membership.get_by_member_and_account(actor, account) do
+      nil ->
+        case Membership.assign(actor, account, role, %Seeder{}) do
+          {:ok, membership} ->
+            {:ok, membership} = Preloader.preload_one(membership, [:user, :key, :account, :role])
+
+            print_success(actor, membership, writer)
 
           {:error, changeset} ->
-            writer.error("  Admin Panel user #{admin_email} could not be assigned:")
-            writer.print_errors(changeset)
+            print_error(actor, writer, changeset)
 
           _ ->
-            writer.error("  Admin Panel user #{admin_email} could not be assigned:")
-            writer.error("  Unknown error.")
+            print_error(actor, writer, "  Unknown error.")
         end
 
       %Membership{} = membership ->
-        {:ok, membership} = Preloader.preload_one(membership, [:user, :account, :role])
+        {:ok, membership} = Preloader.preload_one(membership, [:user, :key, :account, :role])
 
-        writer.warn("""
-          Email        : #{membership.user.email}
-          Account Name : #{membership.account.name}
-          Account ID   : #{membership.account.id}
-          Role         : #{membership.role.name}
-        """)
+        print_success(actor, membership, writer)
     end
+  end
+
+  defp print_success(%User{}, membership, writer) do
+    writer.success("""
+      Email        : #{membership.user.email}
+      Account Name : #{membership.account.name}
+      Account ID   : #{membership.account.id}
+      Role         : #{membership.role.name}
+    """)
+  end
+
+  defp print_success(%Key{}, membership, writer) do
+    writer.success("""
+      Email        : #{membership.key.access_key}
+      Account Name : #{membership.account.name}
+      Account ID   : #{membership.account.id}
+      Role         : #{membership.role.name}
+    """)
+  end
+
+  def print_error(%User{} = user, writer, %{} = changeset) do
+    writer.error("  Admin Panel user #{user.admin_email} could not be assigned:")
+    writer.print_errors(changeset)
+  end
+
+  def print_error(%Key{} = key, writer, %{} = changeset) do
+    writer.error("  Admin Panel user #{key.access_key} could not be assigned:")
+    writer.print_errors(changeset)
+  end
+
+  def print_error(%User{} = user, writer, description) do
+    writer.error("  Admin Panel user #{user.admin_email} could not be assigned:")
+    writer.error(description)
+  end
+
+  def print_error(%Key{} = key, writer, description) do
+    writer.error("  Admin Panel user #{key.access_key} could not be assigned:")
+    writer.error(description)
   end
 end

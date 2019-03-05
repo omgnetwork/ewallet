@@ -277,15 +277,9 @@ defmodule EWalletDB.Account do
   """
   @spec get_master_account(keyword()) :: %Account{} | nil
   def get_master_account(opts \\ []) do
-    uuid = Application.get_env(:ewallet_db, :master_account)
-
-    case UUID.cast(uuid) do
-      {:ok, uuid} ->
-        get_by([uuid: uuid], opts)
-
-      _ ->
-        nil
-    end
+    :ewallet_db
+    |> Application.get_env(:master_account)
+    |> get(opts)
   end
 
   @doc """
