@@ -19,7 +19,7 @@ defmodule EWallet.Bouncer.UserScope do
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
   alias EWallet.Bouncer.{Helper, Permission}
-  alias EWalletDB.{AccountUser, User}
+  alias EWalletDB.{AccountUser, Membership, User}
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: EWalletDB.User | nil | Ecto.Query.t()
   def scoped_query(%Permission{
@@ -41,6 +41,7 @@ defmodule EWallet.Bouncer.UserScope do
     |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
     |> where([g, m, au, u], g.uuid == u.uuid or g.is_admin == true)
+    |> distinct(true)
     |> select([g, m, au, u], g)
   end
 
@@ -56,31 +57,38 @@ defmodule EWallet.Bouncer.UserScope do
   defp do_scoped_query(actor, %{admin_users: :accounts, end_users: :global}) do
     actor
     |> Helper.prepare_query_with_membership_for(User)
-    |> where([g, m], g.uuid == m.user_uuid or g.is_admin == false)
-    |> select([g, m], g)
+    |> join(:inner, [g, m], ma in Membership, on: m.account_uuid == ma.account_uuid)
+    |> where([g, m, ma], g.uuid == ma.user_uuid or g.is_admin == false)
+    |> distinct(true)
+    |> select([g, m, ma], g)
   end
 
   defp do_scoped_query(actor, %{admin_users: :accounts, end_users: :accounts}) do
     actor
     |> Helper.prepare_query_with_membership_for(User)
-    |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
-    |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
-    |> where([g, m, au, u], g.uuid == u.uuid or g.uuid == m.user_uuid)
-    |> select([g, m, au, u], g)
+    |> join(:inner, [g, m], ma in Membership, on: m.account_uuid == ma.account_uuid)
+    |> join(:inner, [g, m, ma], au in AccountUser, on: m.account_uuid == au.account_uuid)
+    |> where([g, m, ma, au], g.uuid == au.user_uuid or g.uuid == ma.user_uuid)
+    |> distinct(true)
+    |> select([g, m, ma, au], g)
   end
 
   defp do_scoped_query(actor, %{admin_users: :accounts, end_users: :self}) do
     actor
     |> Helper.prepare_query_with_membership_for(User)
-    |> where([g, m], g.uuid == m.user_uuid or g.uuid == ^actor.uuid)
-    |> select([g, m], g)
+    |> join(:inner, [g, m], ma in Membership, on: m.account_uuid == ma.account_uuid)
+    |> where([g, m, ma], g.uuid == ma.user_uuid or g.uuid == ^actor.uuid)
+    |> distinct(true)
+    |> select([g, m, ma], g)
   end
 
   defp do_scoped_query(actor, %{admin_users: :accounts, end_users: _}) do
     actor
     |> Helper.prepare_query_with_membership_for(User)
-    |> where([g, m], g.uuid == m.user_uuid)
-    |> select([g, m], g)
+    |> join(:inner, [g, m], ma in Membership, on: m.account_uuid == ma.account_uuid)
+    |> where([g, m, ma], g.uuid == ma.user_uuid)
+    |> distinct(true)
+    |> select([g, m, ma], g)
   end
 
   # whatever + ?

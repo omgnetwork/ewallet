@@ -38,6 +38,7 @@ defmodule EWalletDB.Wallet do
   def burn, do: @burn
   def primary, do: @primary
   def secondary, do: @secondary
+  def secondary(id), do: "#{@secondary}_#{id}"
 
   def genesis_address, do: @genesis_address
 
