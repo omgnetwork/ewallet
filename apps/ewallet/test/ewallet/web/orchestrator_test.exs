@@ -183,7 +183,7 @@ defmodule EWallet.Web.OrchestratorTest do
         "match_any" => [
           %{
             "field" => "id",
-            "comparator" => "gte",
+            "comparator" => "gt",
             "value" => account1.id
           }
         ]
