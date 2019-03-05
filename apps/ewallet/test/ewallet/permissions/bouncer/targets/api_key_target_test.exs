@@ -43,7 +43,10 @@ defmodule EWallet.Bouncer.APIKeyTargetTest do
       account = insert(:account)
       api_key = insert(:api_key, account: account)
 
-      target_accounts_uuids = api_key |> APIKeyTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+      target_accounts_uuids =
+        api_key
+        |> APIKeyTarget.get_target_accounts(DispatchConfig)
+        |> Enum.map(fn a -> a.uuid end)
 
       assert Enum.member?(target_accounts_uuids, account.uuid)
     end

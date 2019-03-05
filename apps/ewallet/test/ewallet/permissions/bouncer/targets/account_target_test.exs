@@ -58,8 +58,11 @@ defmodule EWallet.Bouncer.AccountTargetTest do
   describe "get_target_accounts/2" do
     test "returns the list of accounts having rights on the current account" do
       account = insert(:account)
-      
-      target_accounts_uuids = account |> AccountTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+
+      target_accounts_uuids =
+        account
+        |> AccountTarget.get_target_accounts(DispatchConfig)
+        |> Enum.map(fn a -> a.uuid end)
 
       assert Enum.member?(target_accounts_uuids, account.uuid)
     end

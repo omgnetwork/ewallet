@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionTarget do
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
   alias EWalletDB.TransactionConsumption
+  alias EWalletDB.Helpers.Preloader
   alias EWallet.Bouncer.Dispatcher
 
   @spec get_owner_uuids(TransactionConsumption.t()) :: [Ecto.UUID.t()]
@@ -58,9 +59,10 @@ defmodule EWallet.Bouncer.TransactionConsumptionTarget do
     [target.account]
   end
 
-  # account transaction consumptions
+  # user transaction consumptions
   def get_target_accounts(%TransactionConsumption{user_uuid: user_uuid} = target, dispatch_config)
       when not is_nil(user_uuid) do
-    Dispatcher.get_target_accounts(target.user, dispatch_config)
+    user = Preloader.preload(target, user: :account_links).user
+    Dispatcher.get_target_accounts(user, dispatch_config)
   end
 end

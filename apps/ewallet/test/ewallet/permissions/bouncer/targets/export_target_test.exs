@@ -62,7 +62,8 @@ defmodule EWallet.Bouncer.ExportTargetTest do
 
       export = insert(:export, user: admin_1)
 
-      target_accounts_uuids = export |> ExportTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+      target_accounts_uuids =
+        export |> ExportTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
 
       assert Enum.member?(target_accounts_uuids, account_1.uuid)
       assert Enum.member?(target_accounts_uuids, account_2.uuid)

@@ -44,7 +44,8 @@ defmodule EWallet.Bouncer.KeyTargetTest do
       _ = insert(:account)
       key = insert(:key, accounts: [account_1, account_2])
 
-      target_accounts_uuids = key |> KeyTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+      target_accounts_uuids =
+        key |> KeyTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
 
       assert Enum.member?(target_accounts_uuids, account_1.uuid)
       assert Enum.member?(target_accounts_uuids, account_2.uuid)

@@ -53,7 +53,10 @@ defmodule EWallet.Bouncer.MembershipTargetTest do
       _ = insert(:account)
       membership = insert(:membership, account: account)
 
-      target_accounts_uuids = membership |> MembershipTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+      target_accounts_uuids =
+        membership
+        |> MembershipTarget.get_target_accounts(DispatchConfig)
+        |> Enum.map(fn a -> a.uuid end)
 
       assert Enum.member?(target_accounts_uuids, account.uuid)
     end
