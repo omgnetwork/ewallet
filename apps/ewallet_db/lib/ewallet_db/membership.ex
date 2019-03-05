@@ -81,18 +81,17 @@ defmodule EWalletDB.Membership do
   end
 
   @doc """
-  Retrieves the membership for the given user and account.
+  Retrieves the membership for the given key or user and account.
   """
-  def get_by_user_and_account(user, account) do
+  def get_by_member_and_account(nil, _), do: nil
+
+  def get_by_member_and_account(%User{} = user, account) do
     Membership
     |> Repo.get_by(%{user_uuid: user.uuid, account_uuid: account.uuid})
     |> Repo.preload([:role])
   end
 
-  @doc """
-  Retrieves the membership for the given key and account.
-  """
-  def get_by_key_and_account(key, account) do
+  def get_by_member_and_account(%Key{} = key, account) do
     Membership
     |> Repo.get_by(%{key_uuid: key.uuid, account_uuid: account.uuid})
     |> Repo.preload([:role])
@@ -159,7 +158,7 @@ defmodule EWalletDB.Membership do
   end
 
   def assign(%User{} = user, %Account{} = account, %Role{} = role, originator) do
-    case get_by_user_and_account(user, account) do
+    case get_by_member_and_account(user, account) do
       nil ->
         insert(%{
           account_uuid: account.uuid,
@@ -177,7 +176,7 @@ defmodule EWalletDB.Membership do
   end
 
   def assign(%Key{} = key, %Account{} = account, %Role{} = role, originator) do
-    case get_by_key_and_account(key, account) do
+    case get_by_member_and_account(key, account) do
       nil ->
         insert(%{
           account_uuid: account.uuid,
@@ -198,7 +197,7 @@ defmodule EWalletDB.Membership do
   Unassigns the user from the given account.
   """
   def unassign(%User{} = user, %Account{} = account, originator) do
-    case get_by_user_and_account(user, account) do
+    case get_by_member_and_account(user, account) do
       nil ->
         {:error, :membership_not_found}
 

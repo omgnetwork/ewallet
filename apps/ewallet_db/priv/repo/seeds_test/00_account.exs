@@ -16,6 +16,7 @@
 defmodule EWalletDB.Repo.Seeds.AccountSeed do
   alias EWalletDB.Account
   alias EWalletDB.Seeder
+  alias EWalletConfig.Config
 
   @seed_data %{
     name: "master_account",
@@ -32,10 +33,12 @@ defmodule EWalletDB.Repo.Seeds.AccountSeed do
   end
 
   def run(writer, _args) do
-    case Account.get_master_account() do
+    case get_master_account() do
       nil ->
         case Account.insert(@seed_data) do
           {:ok, account} ->
+            :ok = set_master_account(account)
+
             writer.success("""
               Name : #{account.name}
               ID   : #{account.id}
@@ -48,10 +51,33 @@ defmodule EWalletDB.Repo.Seeds.AccountSeed do
             writer.error("  Unknown error.")
         end
       %Account{} = account ->
+        :ok = set_master_account(account)
+
         writer.warn("""
           Name : #{account.name}
           ID   : #{account.id}
         """)
+    end
+  end
+
+  defp get_master_account() do
+    case {Account.get_master_account(), Account.get_by(name: @seed_data[:name])} do
+      {nil, nil} ->
+        nil
+      {nil, named_account} ->
+        named_account
+      {setting_account, _} ->
+        setting_account
+    end
+  end
+
+  defp set_master_account(account) do
+    case Account.get_master_account() do
+      nil ->
+        {:ok, [master_account: {:ok, _}]} = Config.update(%{master_account: account.id, originator: %Seeder{}})
+        :ok
+      _master_account ->
+        :ok
     end
   end
 end

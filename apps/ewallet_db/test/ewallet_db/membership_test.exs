@@ -38,10 +38,20 @@ defmodule EWalletDB.MembershipTest do
     {membership, user, account, role}
   end
 
-  describe "Membership.get_by_user_and_account/2" do
+  describe "Membership.get_by_member_and_account/2" do
     test "returns a list of memberships associated with the given user and account" do
       {membership, user, account, _} = prepare_membership()
-      result = Membership.get_by_user_and_account(user, account)
+      result = Membership.get_by_member_and_account(user, account)
+
+      assert result.uuid == membership.uuid
+    end
+
+    test "returns a list of memberships associated with the given key and account" do
+      key = insert(:key)
+      account = insert(:account)
+      role = insert(:role, %{name: "some_role"})
+      membership = insert(:membership, %{key: key, account: account, role: role})
+      result = Membership.get_by_member_and_account(key, account)
 
       assert result.uuid == membership.uuid
     end

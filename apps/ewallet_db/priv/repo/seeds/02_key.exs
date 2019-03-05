@@ -13,8 +13,7 @@
 # limitations under the License.
 
 defmodule EWalletDB.Repo.Seeds.KeySeed do
-  alias EWallet.Web.Preloader
-  alias EWalletDB.{Account, Key}
+  alias EWalletDB.Key
   alias EWalletDB.Seeder
 
   def seed do
@@ -25,15 +24,9 @@ defmodule EWalletDB.Repo.Seeds.KeySeed do
   end
 
   def run(writer, args) do
-    account = Account.get_by(name: "master_account")
-
-    case Key.insert(%{account_uuid: account.uuid, originator: %Seeder{}}) do
+    case Key.insert(%{originator: %Seeder{}}) do
       {:ok, key} ->
-        {:ok, key} = Preloader.preload_one(key, :account)
-
         writer.success("""
-          Account Name : #{key.account.name}
-          Account ID   : #{key.account.id}
           Access key   : #{key.access_key}
           Secret key   : #{key.secret_key}
         """)
@@ -45,11 +38,11 @@ defmodule EWalletDB.Repo.Seeds.KeySeed do
           ]
 
       {:error, changeset} ->
-        writer.error("  Access/Secret for #{account.name} could not be inserted:")
+        writer.error("  Access/Secret for could not be inserted:")
         writer.print_errors(changeset)
 
       _ ->
-        writer.error("  Access/Secret for #{account.name} could not be inserted:")
+        writer.error("  Access/Secret for could not be inserted:")
         writer.error("  Unknown error.")
     end
   end
