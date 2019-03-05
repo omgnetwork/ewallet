@@ -194,28 +194,37 @@ defmodule EWallet.Web.StartAfterPaginator do
 
     pure_queryable = exclude(queryable, :where)
 
-    try do
-      case repo.get_by(pure_queryable, condition) do
-        # Returns error if the record with `start_after` value is not found.
-        nil -> {:error, :unauthorized}
-        # Record with `start_after` value is found, query the result.
-        _ -> paginate(queryable, %{attrs | "start_after" => {:ok, start_after}}, repo)
+    record =
+      try do
+        repo.get_by(pure_queryable, condition)
+      rescue
+        Ecto.Query.CastError -> build_error(:start_after_cast_error, start_after, start_by)
+        error -> build_error(:unknown_db_error, error)
       end
-    rescue
-      _ in Ecto.Query.CastError ->
-        msg =
-          ""
-          |> Kernel.<>("Invalid `start_after` or `start_by` provided. ")
-          |> Kernel.<>("Given `#{start_after}` cannot be casted to given `#{start_by}`.")
 
-        {:error, :invalid_parameter, msg}
-
-      error ->
-        # This event should not happen.
-        # We will need to handle more if we encounter this error.
-        Logger.error("An unknown error occurred during pagination. Error: #{inspect(error)}")
-        {:error, :unknown_error, "An unknown error occured on the database."}
+    case record do
+      {:error, _, _} -> record
+      # Returns error if the record with `start_after` value is not found.
+      nil -> {:error, :unauthorized}
+      # Record with `start_after` value is found, query the result.
+      _ -> paginate(queryable, %{attrs | "start_after" => {:ok, start_after}}, repo)
     end
+  end
+
+  defp build_error(:start_after_cast_error, start_after, start_by) do
+    msg =
+      ""
+      |> Kernel.<>("Invalid `start_after` or `start_by` provided. ")
+      |> Kernel.<>("Given `#{start_after}` cannot be casted to given `#{start_by}`.")
+
+    {:error, :invalid_parameter, msg}
+  end
+
+  defp build_error(:unknown_db_error, error) do
+    # This event should not happen.
+    # We will need to handle more if we encounter this error.
+    Logger.error("An unknown error occurred during pagination. Error: #{inspect(error)}")
+    {:error, :unknown_error, "An unknown error occured on the database."}
   end
 
   defp fetch(queryable, per_page, repo) do
