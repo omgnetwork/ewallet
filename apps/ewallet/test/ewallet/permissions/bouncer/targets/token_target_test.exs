@@ -15,19 +15,38 @@
 defmodule EWallet.Bouncer.TokenTargetTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
-  alias EWallet.Bouncer.KeyActor
-  alias EWalletDB.Membership
-  alias ActivityLogger.System
+  alias EWallet.Bouncer.{TokenTarget, DispatchConfig}
 
   describe "get_owner_uuids/1" do
+    test "returns the list of UUIDs owning the token" do
+      account = insert(:account)
+      token = insert(:token, account: account)
+      res = TokenTarget.get_owner_uuids(token)
+      assert res == [account.uuid]
+    end
   end
 
   describe "get_target_types/0" do
+    test "returns a list of types" do
+      assert TokenTarget.get_target_types() == [:tokens]
+    end
   end
 
   describe "get_target_type/1" do
+    test "returns the type of the given token" do
+      assert TokenTarget.get_target_type(Token) == :tokens
+    end
   end
 
   describe "get_target_accounts/2" do
+    test "returns the list of accounts having rights on the token" do
+      account = insert(:account)
+      token = insert(:token, account: account)
+
+      target_accounts_uuids =
+        token |> TokenTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+
+      assert Enum.member?(target_accounts_uuids, account.uuid)
+    end
   end
 end

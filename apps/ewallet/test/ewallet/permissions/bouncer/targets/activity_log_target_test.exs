@@ -33,13 +33,13 @@ defmodule EWallet.Bouncer.ActivityLogTargetTest do
   end
 
   describe "get_target_type/1" do
-    test "returns the type of the given account" do
+    test "returns the type of the given api key" do
       assert ActivityLogTarget.get_target_type(ActivityLog) == :activity_logs
     end
   end
 
   describe "get_target_accounts/2" do
-    test "returns the list of accounts having rights on the current account" do
+    test "returns the list of accounts having rights on the activity log" do
       activity_log = insert(:activity_log)
       assert ActivityLogTarget.get_target_accounts(activity_log, DispatchConfig) == []
     end

@@ -33,8 +33,15 @@ defmodule EWallet.Bouncer.TransactionTarget do
   @spec get_target_types() :: [atom()]
   def get_target_types, do: [:account_transactions, :end_user_transactions]
 
-  @spec get_target_type(Transaction.t()) :: :transactions
-  def get_target_type(_), do: :transactions
+  # Returnin account_transactions type only for transaction made from and to an account.
+  # This might cause issues if permissions change in the future.
+  @spec get_target_type(Transaction.t()) :: :account_transactions | :end_user_transactions
+  def get_target_type(%Transaction{from_account_uuid: from_uuid, to_account_uuid: to_uuid})
+      when not is_nil(from_uuid) and not is_nil(to_uuid) do
+    :account_transactions
+  end
+
+  def get_target_type(_), do: :end_user_transactions
 
   @spec get_target_accounts(Transaction.t(), any()) :: [Account.t()]
   def get_target_accounts(
@@ -42,7 +49,10 @@ defmodule EWallet.Bouncer.TransactionTarget do
         _dispatch_config
       )
       when not is_nil(from_uuid) and not is_nil(to_uuid) do
-    Account.where_in(Account, [from_uuid, to_uuid])
+    Account
+    |> Account.where_in([from_uuid, to_uuid])
+    |> distinct(true)
+    |> Repo.all()
   end
 
   def get_target_accounts(
@@ -51,9 +61,10 @@ defmodule EWallet.Bouncer.TransactionTarget do
       )
       when not is_nil(from_uuid) and not is_nil(to_uuid) do
     Account
-    |> join(:inner, [a], au in AccountUser, on: a.uuid == au.account_uuid)
-    |> where([a, au, u], au.user_uuid == ^to_uuid or a.account_uuid == ^from_uuid)
+    |> join(:left, [a], au in AccountUser, on: a.uuid == au.account_uuid)
+    |> where([a, au, u], au.user_uuid == ^to_uuid or a.uuid == ^from_uuid)
     |> select([a, au, u], a)
+    |> distinct(true)
     |> Repo.all()
   end
 
@@ -63,9 +74,10 @@ defmodule EWallet.Bouncer.TransactionTarget do
       )
       when not is_nil(from_uuid) and not is_nil(to_uuid) do
     Account
-    |> join(:inner, [a], au in AccountUser, on: a.uuid == au.account_uuid)
-    |> where([a, au, u], au.user_uuid == ^from_uuid or a.account_uuid == ^to_uuid)
+    |> join(:left, [a], au in AccountUser, on: a.uuid == au.account_uuid)
+    |> where([a, au, u], au.user_uuid == ^from_uuid or a.uuid == ^to_uuid)
     |> select([a, au, u], a)
+    |> distinct(true)
     |> Repo.all()
   end
 
@@ -78,6 +90,7 @@ defmodule EWallet.Bouncer.TransactionTarget do
     |> join(:inner, [a], au in AccountUser, on: a.uuid == au.account_uuid)
     |> where([a, au, u], au.user_uuid == ^from_uuid or au.user_uuid == ^to_uuid)
     |> select([a, au, u], a)
+    |> distinct(true)
     |> Repo.all()
   end
 

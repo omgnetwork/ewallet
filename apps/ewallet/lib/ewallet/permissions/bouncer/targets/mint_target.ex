@@ -20,7 +20,9 @@ defmodule EWallet.Bouncer.MintTarget do
   alias EWalletDB.{Mint, Helpers.Preloader}
 
   @spec get_owner_uuids(Mint.t()) :: [Ecto.UUID.t()]
-  def get_owner_uuids(%Mint{token: token}), do: [token.account_uuid]
+  def get_owner_uuids(%Mint{} = mint) do
+    [Preloader.preload(mint, [:token]).token.account_uuid]
+  end
 
   @spec get_target_types() :: [:mints]
   def get_target_types, do: [:mints]
@@ -29,7 +31,7 @@ defmodule EWallet.Bouncer.MintTarget do
   def get_target_type(_), do: :mints
 
   @spec get_target_accounts(Mint.t(), any()) :: [Account.t()]
-  def get_target_accounts(%Mint{token: token}, _dispatch_config) do
-    [Preloader.preload(token, [:account]).account]
+  def get_target_accounts(%Mint{} = mint, _dispatch_config) do
+    [Preloader.preload(mint, token: [:account]).token.account]
   end
 end
