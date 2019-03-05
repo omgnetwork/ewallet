@@ -25,6 +25,11 @@ commands:
       - run:
           name: Notify Slack on failure
           command: |
+            if [ -z "$SLACK_WEBHOOK" ]; then
+              printf "\\033[0;33mSkipping Slack notification (SLACK_WEBHOOK missing)\\033[0;0m\\n"
+              exit 0
+            fi
+
             GH_URL="https://github.com/omisego/ewallet/tree/${CIRCLE_BRANCH}"
             CIRCLE_URL="https://circleci.com/gh/omisego/ewallet/${CIRCLE_BUILD_NUM}"
             WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
@@ -60,6 +65,11 @@ commands:
       - run:
           name: Notify Slack
           command: |
+            if [ -z "$SLACK_WEBHOOK" ]; then
+              printf "\\033[0;33mSkipping Slack notification (SLACK_WEBHOOK missing)\\033[0;0m\\n"
+              exit 0
+            fi
+
             GH_URL="https://github.com/omisego/ewallet/tree/${CIRCLE_BRANCH}"
             CIRCLE_URL="https://circleci.com/gh/omisego/ewallet/${CIRCLE_BUILD_NUM}"
             WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
@@ -268,6 +278,11 @@ jobs:
       - run:
           name: Prepare E2E environments
           command: |
+            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
+              printf "\\033[0;33mSkipping E2E (running in fork))\\033[0;0m\\n"
+              exit 0
+            fi
+
             set -xe
 
             cat \<<EOF > .env
@@ -297,6 +312,11 @@ jobs:
       - run:
           name: Configure E2E secret
           command: |
+            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
+              printf "\\033[0;33mSkipping E2E (running in fork))\\033[0;0m\\n"
+              exit 0
+            fi
+
             docker-compose run --rm ewallet sh \<<EOF >/dev/null 2>&1
               bin/ewallet config aws_bucket "$AWS_BUCKET"
               bin/ewallet config aws_region "$AWS_REGION"
@@ -311,6 +331,11 @@ jobs:
       - run:
           name: Run E2E tests
           command: |
+            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
+              printf "\\033[0;33mSkipping E2E (running in fork))\\033[0;0m\\n"
+              exit 0
+            fi
+
             set -xe
 
             _e2e_repo="https://github.com/omisego/e2e.git"
@@ -342,10 +367,20 @@ jobs:
       - run:
           name: Log into Docker Hub
           command: |
+            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
+              printf "\\033[0;33mSkipping publish (running in fork))\\033[0;0m\\n"
+              exit 0
+            fi
+
             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
       - run:
           name: Publish Docker image
           command: |
+            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
+              printf "\\033[0;33mSkipping publish (running in fork))\\033[0;0m\\n"
+              exit 0
+            fi
+
             set -xe
 
             mkdir -p ~/.ssh
