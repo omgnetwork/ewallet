@@ -101,3 +101,8 @@ export const updateAccount = ({ accountId, name, description, avatar }) =>
       return updatedAccount
     }
   })
+
+export const subscribeToWebsocketByAccountId = accountid => (dispatch, getState, { socket }) => {
+  socket.joinChannel(`account:${accountid}`)
+  return dispatch({ type: 'SOCKET/ACCOUNT/SUBSCRIBE', accountid })
+}

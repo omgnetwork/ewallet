@@ -55,8 +55,8 @@ const createRoute = () => (
       <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />
 
       {/* SUB ACCOUNT PAGES */}
-      <AuthenticatedRoute path='/accounts/:accountId/:type/:id' component={AccountLayout} />
       <AuthenticatedRoute path='/accounts/:accountId/:type' component={AccountLayout} />
+      <AuthenticatedRoute path='/accounts/:accountId/:type/:id' component={AccountLayout} />
 
       {/* OVERVIEW */}
       <AuthenticatedRoute path='/users/:userId' exact component={UserDetailPage} />

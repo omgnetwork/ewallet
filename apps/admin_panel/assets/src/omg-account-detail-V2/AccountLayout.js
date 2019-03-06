@@ -18,6 +18,7 @@ import { selectGetAccountById } from '../omg-account/selector'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { Breadcrumb } from '../omg-uikit'
+import { subscribeToWebsocketByAccountId } from '../omg-account/action'
 import styled from 'styled-components'
 
 const BreadContainer = styled.div`
@@ -31,10 +32,19 @@ const enhance = compose(
     (state, props) => {
       return { account: selectGetAccountById(state)(props.match.params.accountId) }
     },
-    null
+    { subscribeToWebsocketByAccountId }
   )
 )
 class AccountLayout extends Component {
+  static propTypes = {
+    account: PropTypes.object,
+    subscribeToWebsocketByAccountId: PropTypes.func
+  }
+
+  componentDidMount = () => {
+    this.props.subscribeToWebsocketByAccountId(this.props.match.params.accountId)
+  }
+
   render () {
     return (
       <div>
@@ -59,7 +69,11 @@ class AccountLayout extends Component {
         <Route path='/accounts/:accountId/users' exact render={() => <AccountUserSubPage />} />
         <Route path='/accounts/:accountId/users/:userId' exact render={() => <UserDetailPage />} />
         <Route path='/accounts/:accountId/admins' exact render={() => <AccountAdminSubPage />} />
-        <Route path='/accounts/:accountId/admins/:adminId' exact render={() => <UserDetailPage />} />
+        <Route
+          path='/accounts/:accountId/admins/:adminId'
+          exact
+          render={() => <UserDetailPage />}
+        />
         <Route
           path='/accounts/:accountId/admins/:adminId'
           exact

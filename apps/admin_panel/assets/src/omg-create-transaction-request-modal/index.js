@@ -125,8 +125,8 @@ const CollapsableContent = styled.div`
 const enhance = compose(
   withRouter,
   connect(
-    state => ({
-      primaryWallet: selectPrimaryWalletByAccountId(state)(this.props.match.params.accountId)
+    (state, props) => ({
+      primaryWallet: selectPrimaryWalletByAccountId(state)(props.match.params.accountId)
     }),
     { createTransactionRequest }
   )
@@ -213,24 +213,24 @@ class CreateTransactionRequest extends Component {
   onBlurExpirationInput = e => {
     this.setState({ expirationModalOpen: false })
   }
-  renderRequestType () {
+  renderRequestType() {
     return (
       <InputLabelContainer>
         <InputLabel>Request Type</InputLabel>
         <StyledRadioButton
           onClick={this.onRadioChange('type')(true)}
-          label='Send'
+          label="Send"
           checked={this.state.type}
         />
         <StyledRadioButton
           onClick={this.onRadioChange('type')(false)}
-          label='Receive'
+          label="Receive"
           checked={!this.state.type}
         />
       </InputLabelContainer>
     )
   }
-  renderTokenSelect () {
+  renderTokenSelect() {
     return (
       <InputLabelContainer>
         <InputLabel>Token</InputLabel>
@@ -239,7 +239,7 @@ class CreateTransactionRequest extends Component {
           render={({ individualLoadingStatus, data }) => {
             return (
               <StyledSelect
-                normalPlaceholder='tk-0x00000000'
+                normalPlaceholder="tk-0x00000000"
                 value={this.state.searchTokenValue}
                 onSelectItem={this.onSelectTokenSelect}
                 onChange={this.onChangeSearchToken}
@@ -255,22 +255,22 @@ class CreateTransactionRequest extends Component {
       </InputLabelContainer>
     )
   }
-  renderTokenAmount () {
+  renderTokenAmount() {
     return (
       <InputLabelContainer>
         <InputLabel>
           Amount {this.state.allowAmountOverride && <span>( Optional )</span>}
         </InputLabel>
         <StyledInput
-          normalPlaceholder='1000'
+          normalPlaceholder="1000"
           value={this.state.amount}
-          type='amount'
+          type="amount"
           onChange={this.onChange('amount')}
         />
       </InputLabelContainer>
     )
   }
-  renderAdvanceSettingContent () {
+  renderAdvanceSettingContent() {
     return (
       <CollapsableContent>
         <RadioSectionContainer>
@@ -278,12 +278,12 @@ class CreateTransactionRequest extends Component {
             <InputLabel>Require Confirmation</InputLabel>
             <StyledRadioButton
               onClick={this.onRadioChange('requireConfirmation')(false)}
-              label='No'
+              label="No"
               checked={!this.state.requireConfirmation}
             />
             <StyledRadioButton
               onClick={this.onRadioChange('requireConfirmation')(true)}
-              label='Yes'
+              label="Yes"
               checked={this.state.requireConfirmation}
             />
           </InputLabelContainer>
@@ -291,12 +291,12 @@ class CreateTransactionRequest extends Component {
             <InputLabel>Allow Amount Overide</InputLabel>
             <StyledRadioButton
               onClick={this.onRadioChange('allowAmountOverride')(false)}
-              label='No'
+              label="No"
               checked={!this.state.allowAmountOverride}
             />
             <StyledRadioButton
               onClick={this.onRadioChange('allowAmountOverride')(true)}
-              label='Yes'
+              label="Yes"
               checked={this.state.allowAmountOverride}
             />
           </InputLabelContainer>
@@ -312,7 +312,7 @@ class CreateTransactionRequest extends Component {
             render={({ data }) => {
               return (
                 <StyledSelect
-                  normalPlaceholder='0x00000000'
+                  normalPlaceholder="0x00000000"
                   value={this.state.address}
                   onSelectItem={this.onSelectWallet}
                   onChange={this.onChange('address')}
@@ -333,7 +333,7 @@ class CreateTransactionRequest extends Component {
             Correlation Id <span>( Optional )</span>
           </InputLabel>
           <StyledInput
-            normalPlaceholder='0x00000000'
+            normalPlaceholder="0x00000000"
             value={this.state.correlationId}
             onChange={this.onChange('correlationId')}
           />
@@ -343,8 +343,8 @@ class CreateTransactionRequest extends Component {
             MaxConsumptions <span>( Optional )</span>
           </InputLabel>
           <StyledInput
-            normalPlaceholder='0'
-            type='number'
+            normalPlaceholder="0"
+            type="number"
             step={1}
             value={this.state.maxConsumption}
             onChange={this.onChange('maxConsumption')}
@@ -355,7 +355,7 @@ class CreateTransactionRequest extends Component {
             Expiration Date <span>( Optional )</span>
           </InputLabel>
           <DateTime
-            ref='picker'
+            ref="picker"
             closeOnSelect
             onChange={this.onDateTimeChange}
             isValidDate={current => current.isAfter(DateTime.moment().subtract(1, 'day'))}
@@ -363,11 +363,8 @@ class CreateTransactionRequest extends Component {
               return (
                 <StyledInput
                   {...props}
-                  normalPlaceholder='Expiry date'
-                  value={
-                    this.state.expirationDate &&
-                    this.state.expirationDate.format()
-                  }
+                  normalPlaceholder="Expiry date"
+                  value={this.state.expirationDate && this.state.expirationDate.format()}
                   onFocus={this.onDateTimeFocus}
                 />
               )
@@ -379,8 +376,8 @@ class CreateTransactionRequest extends Component {
             Consumption Lifetime <span>( Optional )</span>
           </InputLabel>
           <StyledInput
-            normalPlaceholder='Lifetime of consumption is ms'
-            type='number'
+            normalPlaceholder="Lifetime of consumption is ms"
+            type="number"
             value={this.state.consumptionLifetime}
             onChange={this.onChange('consumptionLifetime')}
           />
@@ -390,8 +387,8 @@ class CreateTransactionRequest extends Component {
             Max Consumption Per User <span>( Optional )</span>
           </InputLabel>
           <StyledInput
-            normalPlaceholder='1'
-            type='number'
+            normalPlaceholder="1"
+            type="number"
             value={this.state.maxConsumptionPerUser}
             onChange={this.onChange('maxConsumptionPerUser')}
           />
@@ -407,7 +404,7 @@ class CreateTransactionRequest extends Component {
             render={({ data }) => {
               return (
                 <StyledSelect
-                  normalPlaceholder='0x00000000'
+                  normalPlaceholder="0x00000000"
                   value={this.state.exchangeAddress}
                   onSelectItem={this.onSelectExchangeWallet}
                   onChange={this.onChange('exchangeAddress')}
@@ -429,7 +426,7 @@ class CreateTransactionRequest extends Component {
             Metadata <span>( Optional )</span>
           </InputLabel>
           <StyledInput
-            normalPlaceholder='Token name'
+            normalPlaceholder="Token name"
             value={this.state.metadata}
             onChange={this.onChange('metadata')}
           />
@@ -439,7 +436,7 @@ class CreateTransactionRequest extends Component {
             Encrypted Metadata <span>( Optional )</span>
           </InputLabel>
           <StyledInput
-            normalPlaceholder='meta data'
+            normalPlaceholder="meta data"
             value={this.state.encryptedMetadata}
             onChange={this.onChange('encryptedMetadata')}
           />
@@ -447,35 +444,35 @@ class CreateTransactionRequest extends Component {
       </CollapsableContent>
     )
   }
-  renderAdvanceOption () {
+  renderAdvanceOption() {
     return (
       <Collapsable>
         <CollapsableHeader onClick={this.onClickAdvanceSetting}>
           <span>Advanced setting (Optional)</span>{' '}
           {this.state.advanceSettingOpen ? (
-            <Icon name='Chevron-Up' />
+            <Icon name="Chevron-Up" />
           ) : (
-            <Icon name='Chevron-Down' />
+            <Icon name="Chevron-Down" />
           )}
         </CollapsableHeader>
         {this.state.advanceSettingOpen && this.renderAdvanceSettingContent()}
       </Collapsable>
     )
   }
-  renderSubmitButton () {
+  renderSubmitButton() {
     return (
       <ButtonContainer>
-        <Button size='small' type='submit' loading={this.state.submitting}>
+        <Button size="small" type="submit" loading={this.state.submitting}>
           Create Request
         </Button>
       </ButtonContainer>
     )
   }
 
-  render () {
+  render() {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
-        <Icon name='Close' onClick={this.props.onRequestClose} />
+        <Icon name="Close" onClick={this.props.onRequestClose} />
         <InnerContainer>
           <h4>Create Transaction Request</h4>
           {this.renderRequestType()}
@@ -497,13 +494,13 @@ export default class CreateTransactionRequestModal extends Component {
     onRequestClose: PropTypes.func,
     onCreateTransactionRequest: PropTypes.func
   }
-  render () {
+  render() {
     return (
       <Modal
         isOpen={this.props.open}
         onRequestClose={this.props.onRequestClose}
-        contentLabel='create account modal'
-        overlayClassName='dummy'
+        contentLabel="create account modal"
+        overlayClassName="dummy"
       >
         <EnhancedCreateTransactionRequest
           onRequestClose={this.props.onRequestClose}
