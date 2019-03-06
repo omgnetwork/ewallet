@@ -19,7 +19,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   alias EWallet.{
     InviteEmail,
     AccountMembershipPolicy,
-    EndUserPolicy,
+    AdminUserPolicy,
     AccountPolicy,
     EmailValidator,
     Bouncer.Permission
@@ -219,7 +219,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   end
 
   defp authorize(action, actor, %User{} = user) do
-    EndUserPolicy.authorize(action, actor, user)
+    AdminUserPolicy.authorize(action, actor, user)
   end
 
   defp authorize(action, actor, membership) do
