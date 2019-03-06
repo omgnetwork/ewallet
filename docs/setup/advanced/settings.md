@@ -6,6 +6,8 @@ Settings allow you to configure system-wide behavior of the eWallet server. All 
 
 Below are the general settings needed for the eWallet to run.
 
+- `master_account`: The ID of the master account.
+
 - `base_url`: The base to use when building URLs.
 
 ## Incoming Requests

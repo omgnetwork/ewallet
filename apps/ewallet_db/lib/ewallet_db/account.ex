@@ -269,7 +269,7 @@ defmodule EWalletDB.Account do
   """
   @spec master?(%Account{}) :: boolean()
   def master?(account) do
-    Application.get_env(:ewallet_db, :master_account) == account.uuid
+    Application.get_env(:ewallet_db, :master_account) == account.id
   end
 
   @doc """
