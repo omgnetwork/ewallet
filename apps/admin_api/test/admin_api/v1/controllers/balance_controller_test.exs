@@ -14,41 +14,131 @@
 
 defmodule AdminAPI.V1.BalanceControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias Utils.Helpers.DateFormatter
-  alias EWallet.Web.V1.UserSerializer
-  alias EWalletDB.{Account, AccountUser, Repo, Token, User, Wallet}
-  alias ActivityLogger.System
+  alias EWalletDB.{Account, Token, User}
 
   describe "/wallet.all_balances" do
-    test_with_auths "returns a list of balances and pagination data" do
-      account = Account.get_master_account()
-      master_wallet = Account.get_primary_wallet(account)
+    test_with_auths "returns a list of balances and pagination data when given an existing wallet address" do
+      user_wallet = prepare_user_wallet()
 
-      {:ok, user} = :user |> params_for() |> User.insert()
-      user_wallet = User.get_primary_wallet(user)
-
-      {:ok, btc} = :token |> params_for() |> Token.insert()
-      {:ok, omg} = :token |> params_for() |> Token.insert()
-
-      mint!(btc)
-      mint!(omg)
-
-      transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
-      transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
+      [omg, btc, _abc] = prepare_balances(user_wallet, [100, 200, 300])
 
       attrs = %{
-        "sort_by" => "id",
-        "sort_dir" => "desc",
-        "per_page" => 1,
+        "sort_by" => "inserted_at",
+        "sort_dir" => "asc",
+        "per_page" => 2,
         "start_after" => nil,
+        "start_by" => "id",
+        "address" => user_wallet.address
+      }
+
+      response = request("/wallet.all_balances", attrs)
+      token_ids = map_tokens_field(response, "id")
+
+      assert response["success"] == true
+      assert response["data"]["pagination"]["count"] == 2
+      assert token_ids == [omg.id, btc.id]
+    end
+
+    test_with_auths "returns a list of balances and pagination data after given 'token_id'" do
+      user_wallet = prepare_user_wallet()
+
+      [omg, btc, _abc] = prepare_balances(user_wallet, [100, 200, 300])
+
+      attrs = %{
+        "sort_by" => "inserted_at",
+        "sort_dir" => "asc",
+        "per_page" => 1,
+        "start_after" => omg.id,
+        "start_by" => "id",
+        "address" => user_wallet.address
+      }
+
+      response = request("/wallet.all_balances", attrs)
+      token_ids = map_tokens_field(response, "id")
+
+      assert response["success"] == true
+      assert token_ids == [btc.id]
+    end
+
+    test_with_auths "returns a list of balances with correct amount" do
+      user_wallet = prepare_user_wallet()
+
+      [omg, btc, eth] = prepare_balances(user_wallet, [100, 200, 300])
+
+      attrs = %{
+        "sort_by" => "inserted_at",
+        "sort_dir" => "asc",
+        "per_page" => 3,
+        "start_after" => nil,
+        "start_by" => "id",
         "address" => user_wallet.address
       }
 
       response = request("/wallet.all_balances", attrs)
 
+      amounts = map_balances_field(response, "amount")
+      token_ids = map_tokens_field(response, "id")
+      [omg_subunit, btc_subunit, eth_subunit] = map_tokens_field(response, "subunit_to_unit")
+
       assert response["success"] == true
-      assert response["data"]["pagination"]["count"] == 1
-      assert [%{"amount" => 1_200_000}] = response["data"]["data"]
+      assert token_ids == [omg.id, btc.id, eth.id]
+      assert amounts == [100 * omg_subunit, 200 * btc_subunit, 300 * eth_subunit]
     end
+
+    test_with_auths "returns :error when given non-existing wallet address" do
+      user_wallet = prepare_user_wallet()
+
+      prepare_balances(user_wallet, [100, 200, 300])
+
+      attrs = %{
+        "sort_by" => "inserted_at",
+        "sort_dir" => "asc",
+        "start_after" => nil,
+        "start_by" => "id",
+        "address" => "qwertyuiop"
+      }
+
+      response = request("/wallet.all_balances", attrs)
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
+      assert response["data"]["description"] == "You are not allowed to perform the requested operation."
+    end
+  end
+
+  # number of created tokens == number of given amounts
+  defp prepare_balances(user_wallet, amounts) do
+    account = Account.get_master_account()
+    master_wallet = Account.get_primary_wallet(account)
+
+    Enum.reduce(amounts, [], fn amount, acc ->
+      [do_prepare_balances(master_wallet, user_wallet, amount) | acc]
+    end)
+    |> Enum.reverse()
+  end
+
+  defp do_prepare_balances(master_wallet, user_wallet, amount) do
+    # Create and mint token
+    {:ok, token} = :token |> params_for() |> Token.insert()
+
+    mint!(token)
+
+    # Transfer balance from master_wallet to user_wallet by given amount
+    transfer!(master_wallet.address, user_wallet.address, token, amount * token.subunit_to_unit)
+
+    token
+  end
+
+  defp prepare_user_wallet() do
+    {:ok, user} = :user |> params_for() |> User.insert()
+    User.get_primary_wallet(user)
+  end
+
+  defp map_tokens_field(response, field) do
+    Enum.map(response["data"]["data"], fn balance -> balance["token"][field] end)
+  end
+
+  defp map_balances_field(response, field) do
+    Enum.map(response["data"]["data"], fn balance -> balance[field] end)
   end
 end
