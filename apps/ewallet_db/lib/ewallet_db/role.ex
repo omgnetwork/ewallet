@@ -50,8 +50,8 @@ defmodule EWalletDB.Role do
         listen: :accounts,
         create: :accounts,
         update: :accounts,
-        login: :none,
-        logout: :none
+        login: :accounts,
+        logout: :accounts
       },
       access_keys: %{
         all: :accounts,

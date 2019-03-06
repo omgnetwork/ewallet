@@ -51,8 +51,8 @@ defmodule EWalletDB.GlobalRole do
         create: :accounts,
         update: :accounts,
         disable: :none,
-        login: :none,
-        logout: :none
+        login: :accounts,
+        logout: :accounts
       },
       access_keys: %{
         all: :accounts,
