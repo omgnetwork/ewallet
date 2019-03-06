@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -629,8 +629,8 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
       assert response["data"]["id"] == transaction_request.id
     end
 
-    test "returns :invalid_parameter error when formatted_id is not given" do
-      response = admin_user_request("/transaction_request.get", %{})
+    test_with_auths "returns :invalid_parameter error when formatted_id is not given" do
+      response = request("/transaction_request.get", %{})
 
       refute response["success"]
       assert response["data"]["object"] == "error"

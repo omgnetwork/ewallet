@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,4 +41,5 @@ defmodule EWalletDB.Repo.Reporters.SeedsSettingsReporter do
   defp inspect_value(%{value: value, type: "string"}), do: ~s("#{value}")
   defp inspect_value(%{value: value, type: "boolean"}), do: value
   defp inspect_value(%{value: value, type: "integer"}), do: value
+  defp inspect_value(%{value: value, type: "unsigned_integer"}), do: value
 end

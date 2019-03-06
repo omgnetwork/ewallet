@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -159,8 +159,8 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       assert response["data"]["email"] == admin.email
     end
 
-    test "returns 'client:invalid_parameter' error when id is not given" do
-      response = admin_user_request("/account.get", %{})
+    test_with_auths "returns 'client:invalid_parameter' error when id is not given" do
+      response = request("/account.get", %{})
 
       refute response["success"]
       assert response["data"]["object"] == "error"

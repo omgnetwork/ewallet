@@ -119,4 +119,7 @@ docker-build:
 
 docker: docker-prod docker-build
 
-.PHONY: docker docker-prod docker-build
+docker-push: docker
+	docker push $(IMAGE_NAME)
+
+.PHONY: docker docker-prod docker-build docker-push

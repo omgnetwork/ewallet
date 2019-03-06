@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,8 +76,8 @@ defmodule AdminAPI.V1.CategoryControllerTest do
       assert response["data"]["name"] == target.name
     end
 
-    test "returns :invalid_parameter error when id is not given" do
-      response = admin_user_request("/category.get", %{})
+    test_with_auths "returns :invalid_parameter error when id is not given" do
+      response = request("/category.get", %{})
 
       refute response["success"]
       assert response["data"]["object"] == "error"

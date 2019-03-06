@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -121,8 +121,8 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert Enum.at(accounts, 0)["name"] == "Account 5"
     end
 
-    test "returns :invalid_parameter error when id is not given" do
-      response = admin_user_request("/account.get", %{})
+    test_with_auths "returns :invalid_parameter error when id is not given" do
+      response = request("/account.get", %{})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -635,8 +635,8 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert account.avatar == nil
     end
 
-    test "returns :invalid_parameter error when id is not given" do
-      response = admin_user_request("/account.upload_avatar", %{})
+    test_with_auths "returns :invalid_parameter error when id is not given" do
+      response = request("/account.upload_avatar", %{})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
