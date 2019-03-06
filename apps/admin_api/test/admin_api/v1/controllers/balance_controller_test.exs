@@ -102,7 +102,9 @@ defmodule AdminAPI.V1.BalanceControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "unauthorized"
-      assert response["data"]["description"] == "You are not allowed to perform the requested operation."
+
+      assert response["data"]["description"] ==
+               "You are not allowed to perform the requested operation."
     end
   end
 
@@ -111,7 +113,8 @@ defmodule AdminAPI.V1.BalanceControllerTest do
     account = Account.get_master_account()
     master_wallet = Account.get_primary_wallet(account)
 
-    Enum.reduce(amounts, [], fn amount, acc ->
+    amounts
+    |> Enum.reduce([], fn amount, acc ->
       [do_prepare_balances(master_wallet, user_wallet, amount) | acc]
     end)
     |> Enum.reverse()
@@ -129,7 +132,7 @@ defmodule AdminAPI.V1.BalanceControllerTest do
     token
   end
 
-  defp prepare_user_wallet() do
+  defp prepare_user_wallet do
     {:ok, user} = :user |> params_for() |> User.insert()
     User.get_primary_wallet(user)
   end
