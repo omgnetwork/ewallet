@@ -157,7 +157,7 @@ defmodule AdminAPI.V1.KeyController do
           map(),
           String.t() | nil
         ) :: :ok | {:error, any()} | no_return()
-  defp authorize(action, params, key) do
-    KeyPolicy.authorize(action, params, key)
+  defp authorize(action, actor, key) do
+    KeyPolicy.authorize(action, actor, key)
   end
 end

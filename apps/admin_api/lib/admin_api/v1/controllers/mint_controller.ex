@@ -19,7 +19,7 @@ defmodule AdminAPI.V1.MintController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias Ecto.Changeset
-  alias EWallet.{MintGate, MintPolicy}
+  alias EWallet.{MintGate, MintPolicy, TokenPolicy}
   alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.MintOverlay}
   alias EWalletDB.{Mint, Token}
   alias Plug.Conn
@@ -30,6 +30,7 @@ defmodule AdminAPI.V1.MintController do
   @spec all_for_token(Conn.t(), map() | nil) :: Conn.t()
   def all_for_token(conn, %{"id" => id} = attrs) do
     with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, token),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
          mints <- Mint.query_by_token(token, query),
@@ -54,6 +55,7 @@ defmodule AdminAPI.V1.MintController do
         } = attrs
       ) do
     with %Token{} = token <- Token.get(token_id) || :unauthorized,
+         {:ok, _} <- authorize(:get, conn.assigns, token),
          {:ok, _} <-
            authorize(:create, conn.assigns, %Mint{token_uuid: token.uuid, token: token}),
          originator <- Originator.extract(conn.assigns),
@@ -86,6 +88,10 @@ defmodule AdminAPI.V1.MintController do
 
   @spec authorize(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
+  defp authorize(action, actor, %Token{} = token) do
+    TokenPolicy.authorize(action, actor, token)
+  end
+
   defp authorize(action, actor, mint) do
     MintPolicy.authorize(action, actor, mint)
   end

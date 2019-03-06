@@ -49,7 +49,9 @@ defmodule EWalletDB.Role do
         get: :accounts,
         listen: :accounts,
         create: :accounts,
-        update: :accounts
+        update: :accounts,
+        login: :accounts,
+        logout: :accounts
       },
       access_keys: %{
         all: :accounts,

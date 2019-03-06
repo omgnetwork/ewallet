@@ -38,7 +38,8 @@ defmodule AdminAPI.V1.AccountController do
   # DEPRECATED
   @spec descendants_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def descendants_for_account(conn, %{"id" => account_id} = _attrs) do
-    with %Account{} <- Account.get(account_id) || {:error, :unauthorized} do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, account) do
       respond(%Paginator{data: []}, conn)
     else
       error -> respond(error, conn)

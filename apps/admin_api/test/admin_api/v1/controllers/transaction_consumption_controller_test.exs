@@ -359,7 +359,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
              }
     end
 
-    test_with_auths "returns :id_not_found when id is not valid" do
+    test_with_auths "returns an 'unauthorized' error when id is not valid" do
       response =
         request("/user.get_transaction_consumptions", %{
           "id" => "fake",
@@ -367,19 +367,11 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_dir" => "asc"
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "messages" => nil,
-                 "object" => "error",
-                 "code" => "user:id_not_found",
-                 "description" => "There is no user corresponding to the provided id."
-               }
-             }
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test_with_auths "returns :provider_user_id_not_found when provider_user_id is not valid" do
+    test_with_auths "returns :unauthorized when provider_user_id is not valid" do
       response =
         request("/user.get_transaction_consumptions", %{
           "provider_user_id" => "fake",
@@ -387,17 +379,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_dir" => "asc"
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "messages" => nil,
-                 "object" => "error",
-                 "code" => "user:provider_user_id_not_found",
-                 "description" =>
-                   "There is no user corresponding to the provided provider_user_id."
-               }
-             }
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "returns all the transaction_consumptions for a user when given an id",

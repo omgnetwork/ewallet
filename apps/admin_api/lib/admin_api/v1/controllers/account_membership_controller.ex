@@ -15,8 +15,16 @@
 defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.InviteEmail
-  alias EWallet.{AccountMembershipPolicy, AccountPolicy, EmailValidator, Bouncer.Permission}
+
+  alias EWallet.{
+    InviteEmail,
+    AccountMembershipPolicy,
+    AdminUserPolicy,
+    AccountPolicy,
+    EmailValidator,
+    Bouncer.Permission
+  }
+
   alias EWallet.Web.{Inviter, Orchestrator, Originator, UrlValidator, V1.MembershipOverlay}
   alias EWalletDB.{Account, Membership, Role, User}
 
@@ -82,6 +90,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   """
   def assign_user(conn, attrs) do
     with %Account{} = account <- Account.get(attrs["account_id"]) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, account),
          {:ok, _} <-
            authorize(:create, conn.assigns, %Membership{
              account: account,
@@ -117,7 +126,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   #
   # Returns:
   # - `%User{}` if user_id is provided and found.
-  # - `:user_id_not_found` if `user_id` is provided but not found.
+  # - `:unauthorized` if `user_id` is provided but not found.
   # - `%User{}` if email is provided and found.
   # - `string` email if email provided but not found.
   #
@@ -126,7 +135,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   defp get_user_or_email(%{"user_id" => user_id}) do
     case User.get(user_id) do
       %User{} = user -> {:ok, user}
-      _ -> {:error, :user_id_not_found}
+      _ -> {:error, :unauthorized}
     end
   end
 
@@ -186,8 +195,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
         "account_id" => account_id
       })
       when not is_nil(account_id) and not is_nil(user_id) do
-    with %Account{} = account <- Account.get(account_id),
-         %User{} = user <- User.get(user_id),
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         %User{} = user <- User.get(user_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, user),
          %Membership{} = membership <- Membership.get_by_member_and_account(user, account),
          {:ok, _} <- authorize(:delete, conn.assigns, membership),
          originator <- Originator.extract(conn.assigns),
@@ -205,6 +216,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
           {:ok, %Permission{}} | {:error, %Permission{}} | no_return()
   defp authorize(action, actor, %Account{} = account) do
     AccountPolicy.authorize(action, actor, account)
+  end
+
+  defp authorize(action, actor, %User{} = user) do
+    AdminUserPolicy.authorize(action, actor, user)
   end
 
   defp authorize(action, actor, membership) do

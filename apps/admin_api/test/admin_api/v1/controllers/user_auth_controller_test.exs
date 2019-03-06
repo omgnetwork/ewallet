@@ -43,38 +43,18 @@ defmodule AdminAPI.V1.UserAuthControllerTest do
       assert response["data"]["user"]["provider_user_id"] == user.provider_user_id
     end
 
-    test_with_auths "returns an error if provider_user_id does not match a user" do
+    test_with_auths "returns an 'unauthorized' error if provider_user_id does not match a user" do
       response = request("/user.login", %{provider_user_id: "not_a_user"})
 
-      expected = %{
-        "version" => @expected_version,
-        "success" => false,
-        "data" => %{
-          "object" => "error",
-          "code" => "user:provider_user_id_not_found",
-          "description" => "There is no user corresponding to the provided provider_user_id.",
-          "messages" => nil
-        }
-      }
-
-      assert response == expected
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test_with_auths "returns :invalid_parameter if provider_user_id is nil" do
+    test_with_auths "returns 'client:invalid_parameter' if provider_user_id is nil" do
       response = request("/user.login", %{provider_user_id: nil})
 
-      expected = %{
-        "version" => @expected_version,
-        "success" => false,
-        "data" => %{
-          "object" => "error",
-          "code" => "user:provider_user_id_not_found",
-          "description" => "There is no user corresponding to the provided provider_user_id.",
-          "messages" => nil
-        }
-      }
-
-      assert response == expected
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
     end
 
     test_with_auths "returns :invalid_parameter if provider_user_id is not provided" do

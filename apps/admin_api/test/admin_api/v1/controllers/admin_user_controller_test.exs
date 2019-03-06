@@ -219,7 +219,7 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
     end
 
-    test_with_auths "disable an admin that doesn't exist raises an error" do
+    test_with_auths "disable an admin that doesn't exist raises an 'unauthorized' error" do
       response =
         request("/admin.enable_or_disable", %{
           id: "invalid_id",
@@ -227,10 +227,7 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
         })
 
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "disable an admin with missing params raises an error" do

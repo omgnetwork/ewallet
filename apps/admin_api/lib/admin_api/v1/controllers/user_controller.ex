@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.UserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias Ecto.Changeset
-  alias EWallet.{AdminUserPolicy, UserFetcher}
+  alias EWallet.{AccountPolicy, AdminUserPolicy, UserFetcher}
   alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.UserOverlay}
   alias EWalletDB.{Account, AccountUser, User, UserQuery, AuthToken}
 
@@ -37,7 +37,9 @@ defmodule AdminAPI.V1.UserController do
 
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil) do
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
       query
       |> Account.query_all_users([account.uuid])
       |> do_all(attrs, conn)
@@ -202,6 +204,10 @@ defmodule AdminAPI.V1.UserController do
 
   defp respond_single({:error, code}, conn) do
     handle_error(conn, code)
+  end
+
+  defp authorize(action, params, %Account{} = account) do
+    AccountPolicy.authorize(action, params, account)
   end
 
   defp authorize(action, params, user) do

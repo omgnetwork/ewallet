@@ -24,6 +24,7 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       metadata: %{},
       account_name: "master_account",
       is_admin: true,
+      global_role: "super_admin",
       originator: %Seeder{}
     },
     %{
