@@ -32,8 +32,8 @@ defmodule AdminAPI.V1.AccountWalletController do
 
   defp do_all(%{"id" => id} = attrs, type, conn) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
-         {:ok, _} <- permit(:get, conn.assigns, account),
-         {:ok, %{query: query}} <- permit(:all, conn.assigns, nil),
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
       query
       |> load_wallets(account, type)
@@ -68,12 +68,12 @@ defmodule AdminAPI.V1.AccountWalletController do
     handle_error(conn, code, description)
   end
 
-  @spec permit(:all, map(), %Account{}) :: :ok | {:error, any()} | no_return()
-  defp permit(action, params, %Account{} = account) do
-    AccountPolicy.authorize(action, params, account)
+  @spec authorize(:all, map(), any()) :: :ok | {:error, any()} | no_return()
+  defp authorize(action, actor, %Account{} = account) do
+    AccountPolicy.authorize(action, actor, account)
   end
 
-  defp permit(action, params, wallet) do
-    WalletPolicy.authorize(action, params, wallet)
+  defp authorize(action, actor, wallet) do
+    WalletPolicy.authorize(action, actor, wallet)
   end
 end

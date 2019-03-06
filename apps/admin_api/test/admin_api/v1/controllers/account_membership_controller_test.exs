@@ -399,7 +399,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           redirect_url: @redirect_url
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:invalid_email"
       assert response["data"]["description"] == "The format of the provided email is invalid."
@@ -414,7 +414,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           redirect_url: @redirect_url
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:invalid_email"
       assert response["data"]["description"] == "The format of the provided email is invalid."
@@ -431,14 +431,14 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           redirect_url: redirect_url
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
                "The given `redirect_url` is not allowed. Got: '#{redirect_url}'."
     end
 
-    test_with_auths "returns an error if the given user id does not exist" do
+    test_with_auths "returns an 'unauthorized' error if the given user id does not exist" do
       response =
         request("/account.assign_user", %{
           user_id: UUID.generate(),
@@ -447,12 +447,9 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           redirect_url: @redirect_url
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "returns an error if the given account id does not exist" do
@@ -466,7 +463,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           redirect_url: @redirect_url
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "unauthorized"
 
@@ -485,7 +482,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           redirect_url: @redirect_url
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "role:name_not_found"
 
@@ -583,7 +580,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           account_id: account.id
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "unauthorized"
     end
@@ -595,7 +592,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           account_id: insert(:account).id
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "unauthorized"
     end
@@ -609,7 +606,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           account_id: "acc_12345678901234567890123456"
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "unauthorized"
 

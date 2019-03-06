@@ -18,20 +18,28 @@ defmodule AdminAPI.V1.TransactionCalculationController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{Exchange, Helper}
+  alias EWallet.{TokenPolicy, Exchange, Helper}
   alias EWalletDB.Token
 
   @doc """
   Calculates transaction amounts.
   """
   def calculate(conn, attrs) do
-    from_token = Token.get(attrs["from_token_id"])
-    to_token = Token.get(attrs["to_token_id"])
-
-    case do_calculate(attrs["from_amount"], from_token, attrs["to_amount"], to_token) do
-      {:ok, calculation} ->
-        render(conn, :calculation, %{calculation: calculation})
-
+    with :ok <-
+           check_parameters(
+             attrs["from_amount"],
+             attrs["from_token_id"],
+             attrs["to_amount"],
+             attrs["to_token_id"]
+           ),
+         %Token{} = from_token <- Token.get(attrs["from_token_id"]) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, from_token),
+         %Token{} = to_token <- Token.get(attrs["to_token_id"]) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, to_token),
+         {:ok, calculation} <-
+           do_calculate(attrs["from_amount"], from_token, attrs["to_amount"], to_token) do
+      render(conn, :calculation, %{calculation: calculation})
+    else
       {:error, code} ->
         handle_error(conn, code)
 
@@ -40,23 +48,25 @@ defmodule AdminAPI.V1.TransactionCalculationController do
     end
   end
 
-  defp do_calculate(from_amount, from_token_id, to_amount, to_token_id)
+  defp check_parameters(from_amount, from_token_id, to_amount, to_token_id)
 
-  defp do_calculate(nil, _, nil, _) do
+  defp check_parameters(nil, _, nil, _) do
     {:error, :invalid_parameter, "either `from_amount` or `to_amount` is required"}
   end
 
-  defp do_calculate(_, nil, _, nil) do
+  defp check_parameters(_, nil, _, nil) do
     {:error, :invalid_parameter, "both `from_token_id` and `to_token_id` are required"}
   end
 
-  defp do_calculate(_, nil, _, _) do
+  defp check_parameters(_, nil, _, _) do
     {:error, :invalid_parameter, "`from_token_id` is required"}
   end
 
-  defp do_calculate(_, _, _, nil) do
+  defp check_parameters(_, _, _, nil) do
     {:error, :invalid_parameter, "`to_token_id` is required"}
   end
+
+  defp check_parameters(_, _, _, _), do: :ok
 
   defp do_calculate(from_amount, from_token, to_amount, to_token) when is_binary(from_amount) do
     handle_string_amount(from_amount, fn from_amount ->
@@ -87,5 +97,10 @@ defmodule AdminAPI.V1.TransactionCalculationController do
       {:ok, amount} -> fun.(amount)
       error -> error
     end
+  end
+
+  @spec authorize(:get, map(), String.t() | nil) :: any()
+  defp authorize(action, actor, token) do
+    TokenPolicy.authorize(action, actor, token)
   end
 end

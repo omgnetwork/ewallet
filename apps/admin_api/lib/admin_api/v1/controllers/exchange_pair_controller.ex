@@ -123,7 +123,7 @@ defmodule AdminAPI.V1.ExchangePairController do
 
   @spec authorize(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp authorize(action, params, exchange_pair) do
-    ExchangePairPolicy.authorize(action, params, exchange_pair)
+  defp authorize(action, actor, exchange_pair) do
+    ExchangePairPolicy.authorize(action, actor, exchange_pair)
   end
 end

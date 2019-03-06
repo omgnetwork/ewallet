@@ -15,7 +15,7 @@
 defmodule AdminAPI.V1.TransactionRequestController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.TransactionRequestPolicy
+  alias EWallet.{TransactionRequestPolicy, AccountPolicy}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TransactionRequestOverlay}
   alias Ecto.Changeset
 
@@ -39,7 +39,8 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         {:ok, %{query: query}} <- authorize(:get, conn.assigns, account),
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
          user_uuids <- [account.uuid] |> Account.get_all_users() |> Enum.map(fn u -> u.uuid end) do
       [account.uuid]
@@ -122,7 +123,11 @@ defmodule AdminAPI.V1.TransactionRequestController do
           map(),
           String.t() | %Account{} | %TransactionRequest{} | nil
         ) :: :ok | {:error, any()} | no_return()
-  defp authorize(action, params, request) do
-    TransactionRequestPolicy.authorize(action, params, request)
+  defp authorize(action, actor, %Account{} = account) do
+    AccountPolicy.authorize(action, actor, account)
+  end
+
+  defp authorize(action, actor, request) do
+    TransactionRequestPolicy.authorize(action, actor, request)
   end
 end

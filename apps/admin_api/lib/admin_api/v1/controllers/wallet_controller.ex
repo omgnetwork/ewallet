@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.WalletController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{UUIDFetcher, WalletPolicy}
+  alias EWallet.{UUIDFetcher, EndUserPolicy, WalletPolicy}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, BalanceLoader, V1.WalletOverlay}
   alias EWalletDB.{Account, User, Wallet}
 
@@ -40,9 +40,11 @@ defmodule AdminAPI.V1.WalletController do
   @spec all_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_user(conn, %{"id" => id} = attrs) do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
-         {:ok, _} <- authorize(:get, conn.assigns, user) do
+         {:ok, _} <- authorize(:get, conn.assigns, user),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
       user
-      |> Wallet.all_for()
+      |> Wallet.all_for(query)
       |> do_all(attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)
@@ -53,9 +55,11 @@ defmodule AdminAPI.V1.WalletController do
   def all_for_user(conn, %{"provider_user_id" => provider_user_id} = attrs) do
     with %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || {:error, :unauthorized},
-         {:ok, _} <- authorize(:get, conn.assigns, user) do
+         {:ok, _} <- authorize(:get, conn.assigns, user),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
       user
-      |> Wallet.all_for()
+      |> Wallet.all_for(query)
       |> do_all(attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)
@@ -144,6 +148,10 @@ defmodule AdminAPI.V1.WalletController do
 
   @spec authorize(:all | :create | :get | :update, map(), %Account{} | %User{} | %Wallet{} | nil) ::
           :ok | {:error, any()} | no_return()
+  defp authorize(action, actor, %User{} = user) do
+    EndUserPolicy.authorize(action, actor, user)
+  end
+
   defp authorize(action, actor, data) do
     WalletPolicy.authorize(action, actor, data)
   end
