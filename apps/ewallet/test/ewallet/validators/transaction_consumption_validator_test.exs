@@ -16,8 +16,22 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.{TestEndpoint, TransactionConsumptionValidator}
-  alias EWalletDB.{Account, Repo, TransactionConsumption, Membership, TransactionRequest, User}
+
+  alias EWalletDB.{
+    Account,
+    Repo,
+    TransactionConsumption,
+    Membership,
+    TransactionRequest,
+    GlobalRole,
+    User
+  }
+
   alias ActivityLogger.System
+
+  def creator do
+    insert(:admin, global_role: GlobalRole.super_admin())
+  end
 
   describe "validate_before_consumption/3" do
     test "expires a transaction request if past expiration date" do
@@ -29,7 +43,9 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       wallet = request.wallet
 
       {:error, error} =
-        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{})
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{
+          "creator" => creator()
+        })
 
       assert error == :expired_transaction_request
     end
@@ -39,7 +55,9 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       wallet = request.wallet
 
       {:error, error} =
-        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{})
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{
+          "creator" => creator()
+        })
 
       assert error == :expired_transaction_request
     end
@@ -50,7 +68,8 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       {:error, error} =
         TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{
-          "amount" => 100
+          "amount" => 100,
+          "creator" => creator()
         })
 
       assert error == :unauthorized_amount_override
@@ -61,7 +80,9 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       wallet = request.wallet
 
       {:ok, request, token, amount} =
-        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{})
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{
+          "creator" => creator()
+        })
 
       assert request.status == "valid"
       assert token.uuid == request.token_uuid

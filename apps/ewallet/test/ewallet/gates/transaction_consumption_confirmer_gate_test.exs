@@ -28,7 +28,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     TransactionRequestGate
   }
 
-  alias EWalletDB.{Account, AccountUser, TransactionConsumption, TransactionRequest, User}
+  alias EWalletDB.{
+    Account,
+    AccountUser,
+    TransactionConsumption,
+    TransactionRequest,
+    GlobalRole,
+    User
+  }
 
   setup do
     {:ok, pid} = TestEndpoint.start_link()
@@ -75,7 +82,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
-      admin = insert(:admin)
+      admin = insert(:admin, global_role: GlobalRole.super_admin())
       {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
 
       transaction_request =
@@ -99,6 +106,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: admin},
           "originator" => %System{}
         })
 
@@ -126,7 +134,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       {:ok, account} = :account |> params_for() |> Account.insert()
       wallet = Account.get_primary_wallet(account)
 
-      admin = insert(:admin)
+      admin = insert(:admin, global_role: GlobalRole.super_admin())
       {:ok, _} = Membership.assign(admin, account, "admin", %System{})
 
       transaction_request =
@@ -150,6 +158,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: admin},
           "originator" => %System{}
         })
 
@@ -197,6 +206,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: insert(:admin, global_role: GlobalRole.super_admin())},
           "originator" => %System{}
         })
 
@@ -220,10 +230,10 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
-      admin_1 = insert(:admin)
+      admin_1 = insert(:admin, global_role: GlobalRole.super_admin())
       {:ok, _} = Membership.assign(admin_1, meta.account, "admin", %System{})
 
-      admin_2 = insert(:admin)
+      admin_2 = insert(:admin, global_role: GlobalRole.super_admin())
       {:ok, _} = Membership.assign(admin_2, meta.account, "admin", %System{})
 
       {:ok, request} =
@@ -250,6 +260,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: insert(:admin, global_role: GlobalRole.super_admin())},
           "originator" => %System{}
         })
 
@@ -296,6 +307,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: insert(:admin, global_role: GlobalRole.super_admin())},
           "originator" => %System{}
         })
 
@@ -321,7 +333,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
-      admin = insert(:admin)
+      admin = insert(:admin, global_role: GlobalRole.super_admin())
       {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
 
       transaction_request =
@@ -345,6 +357,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: admin},
           "originator" => %System{}
         })
 
@@ -372,7 +385,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     test "rejects the consumption if not confirmed as admin user with rights", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
-      admin = insert(:admin)
+      admin = insert(:admin, global_role: GlobalRole.super_admin())
       {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
 
       transaction_request =
@@ -396,6 +409,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: admin},
           "originator" => %System{}
         })
 
@@ -421,7 +435,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     test "allows only one confirmation with two confirms at the same time", meta do
       initialize_wallet(meta.sender_wallet, 1_000_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
-      admin = insert(:admin)
+      admin = insert(:admin, global_role: GlobalRole.super_admin())
       {:ok, _} = Membership.assign(admin, meta.account, "admin", %System{})
 
       request =
@@ -446,6 +460,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: admin},
           "originator" => %System{}
         }
       end
@@ -524,6 +539,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: insert(:admin, global_role: GlobalRole.super_admin())},
           "originator" => %System{}
         })
 
@@ -575,6 +591,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: insert(:admin, global_role: GlobalRole.super_admin())},
           "originator" => %System{}
         })
 
@@ -620,6 +637,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: insert(:admin, global_role: GlobalRole.super_admin())},
           "originator" => %System{}
         })
 
@@ -665,6 +683,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_wallet.address,
+          "creator" => %{admin_user: insert(:admin, global_role: GlobalRole.super_admin())},
           "originator" => %System{}
         })
 

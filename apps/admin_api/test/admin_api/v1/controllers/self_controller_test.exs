@@ -753,9 +753,10 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
       assert response["success"]
       assert Enum.count(accounts) == 3
-      assert Enum.at(accounts, 0)["id"] == account_1.id
-      assert Enum.at(accounts, 1)["id"] == account_2.id
-      assert Enum.at(accounts, 2)["id"] == account_3.id
+      ids = Enum.map(accounts, fn account -> account["id"] end)
+      assert Enum.member?(ids, account_1.id)
+      assert Enum.member?(ids, account_2.id)
+      assert Enum.member?(ids, account_3.id)
     end
 
     test "gets unauthorized back when requesting with a provider key" do

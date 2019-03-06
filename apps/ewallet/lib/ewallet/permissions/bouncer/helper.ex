@@ -25,6 +25,8 @@ defmodule EWallet.Bouncer.Helper do
   def get_actor(%{end_user: end_user}), do: end_user
   def get_actor(%{key: key}), do: key
   def get_actor(%{originator: %{end_user: end_user}}), do: end_user
+  def get_actor(%User{} = user), do: user
+  def get_actor(%Key{} = key), do: key
   def get_actor(_), do: nil
 
   def get_uuids(list) do

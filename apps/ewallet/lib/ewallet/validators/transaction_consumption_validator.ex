@@ -17,7 +17,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   Handles all validations for a transaction request, including amount and
   expiration.
   """
-  alias EWallet.{Helper, TokenFetcher, TransactionRequestPolicy}
+  alias EWallet.{Helper, TokenFetcher, TransactionRequestPolicy, TransactionConsumptionPolicy}
   alias EWallet.Web.V1.Event
   alias EWalletDB.{ExchangePair, Repo, Token, TransactionConsumption, TransactionRequest, Wallet}
   alias ActivityLogger.System
@@ -30,9 +30,19 @@ defmodule EWallet.TransactionConsumptionValidator do
         ) ::
           {:ok, %TransactionRequest{}, %Token{}, integer() | nil}
           | {:error, atom()}
-  def validate_before_consumption(request, wallet, attrs, wallet_exchange \\ nil) do
+  def validate_before_consumption(
+        request,
+        wallet,
+        %{"creator" => creator} = attrs,
+        wallet_exchange \\ nil
+      ) do
     with amount <- attrs["amount"],
          token_id <- attrs["token_id"],
+         {:ok, _} <-
+           TransactionConsumptionPolicy.authorize(:create, creator, %TransactionConsumption{
+             user_uuid: wallet.user_uuid,
+             account_uuid: wallet.account_uuid
+           }),
          true <- wallet.enabled || {:error, :wallet_is_disabled},
          :ok <- validate_only_one_exchange_address_in_pair(request, wallet_exchange),
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request, %System{}),
@@ -47,6 +57,9 @@ defmodule EWallet.TransactionConsumptionValidator do
 
       error when is_atom(error) ->
         {:error, error}
+
+      {:error, %{}} ->
+        {:error, :unauthorized}
 
       error ->
         error

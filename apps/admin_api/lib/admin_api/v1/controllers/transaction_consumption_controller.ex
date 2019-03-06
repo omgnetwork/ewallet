@@ -152,6 +152,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   def consume(conn, %{"idempotency_token" => idempotency_token} = attrs)
       when idempotency_token != nil do
     with attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         attrs <- Map.put(attrs, "creator", conn.assigns),
          {:ok, consumption} <- TransactionConsumptionConsumerGate.consume(attrs) do
       consumption
       |> Orchestrator.one(TransactionConsumptionOverlay, attrs)

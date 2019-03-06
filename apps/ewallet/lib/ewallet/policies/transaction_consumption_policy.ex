@@ -20,8 +20,14 @@ defmodule EWallet.TransactionConsumptionPolicy do
   alias EWallet.{Bouncer, Bouncer.Permission}
   alias EWalletDB.TransactionConsumption
 
-  def authorize(:create, attrs, _attrs) do
-    Bouncer.bounce(attrs, %Permission{action: :create, target: %TransactionConsumption{}})
+  def authorize(:create, attrs, attrs) do
+    Bouncer.bounce(attrs, %Permission{
+      action: :create,
+      target: %TransactionConsumption{
+        account_uuid: attrs[:account_uuid],
+        user_uuid: attrs[:user_uuid]
+      }
+    })
   end
 
   def authorize(action, attrs, target) do
