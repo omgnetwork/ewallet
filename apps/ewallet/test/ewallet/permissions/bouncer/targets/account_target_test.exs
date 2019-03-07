@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.AccountTargetTest do
   alias EWallet.Bouncer.{AccountTarget, DispatchConfig}
   alias EWalletDB.{Account, AccountUser, Membership}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the account" do
@@ -62,7 +63,7 @@ defmodule EWallet.Bouncer.AccountTargetTest do
       target_accounts_uuids =
         account
         |> AccountTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert Enum.member?(target_accounts_uuids, account.uuid)
     end

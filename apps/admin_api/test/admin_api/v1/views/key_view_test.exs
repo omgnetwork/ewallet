@@ -20,7 +20,7 @@ defmodule AdminAPI.V1.KeyViewTest do
 
   describe "render/2" do
     test "renders key.json with correct response format" do
-      key = :key |> insert()
+      key = insert(:key)
 
       expected = %{
         version: @expected_version,

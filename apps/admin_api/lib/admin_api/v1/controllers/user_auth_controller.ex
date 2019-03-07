@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.UserAuthController do
   Generates a new authentication token for the provider_user_id or id and returns it.
   """
   def login(conn, attrs) do
-    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
+    with {:ok, user} <- UserFetcher.fetch(attrs),
          true <- User.enabled?(user) || {:error, :user_disabled},
          {:ok, _} <- authorize(:login, conn.assigns, user),
          originator <- Originator.extract(conn.assigns),

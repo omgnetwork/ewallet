@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.CategoryScopeTest do
   alias EWallet.Bouncer.{CategoryScope, Permission}
   alias EWalletDB.{Repo, Category}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities" do
     test "returns Category as queryable when 'global' ability" do
@@ -36,7 +37,7 @@ defmodule EWallet.Bouncer.CategoryScopeTest do
       }
 
       query = CategoryScope.scoped_query(permission)
-      category_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      category_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(category_uuids) == 2
       assert Enum.member?(category_uuids, category_1.uuid)
@@ -98,7 +99,7 @@ defmodule EWallet.Bouncer.CategoryScopeTest do
       }
 
       query = CategoryScope.scoped_query(permission)
-      category_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      category_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(category_uuids) == 2
       assert Enum.member?(category_uuids, category_1.uuid)

@@ -17,10 +17,13 @@ defmodule AdminAPI.V1.AccountHelper do
   Simple helper module to access accounts from controllers.
   """
   alias EWalletDB.{Key, User, Helpers.Preloader}
+  alias Utils.Helpers.UUID
 
   @spec get_accessible_account_uuids(%{admin_user: %User{}} | %{key: %Key{}}) :: [String.t()]
   def get_accessible_account_uuids(%{admin_user: admin_user}) do
-    Preloader.preload(admin_user, [:accounts]).accounts
-    |> Enum.map(fn account -> account.uuid end)
+    admin_user
+    |> Preloader.preload([:accounts])
+    |> Map.get(:accounts)
+    |> UUID.get_uuids()
   end
 end

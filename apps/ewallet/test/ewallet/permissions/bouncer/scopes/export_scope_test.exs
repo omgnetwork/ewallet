@@ -17,6 +17,7 @@ defmodule EWallet.Bouncer.ExportScopeTest do
   import EWalletDB.Factory
   alias EWallet.Bouncer.{Permission, ExportScope}
   alias EWalletDB.{Export, Repo}
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities" do
     test "returns Export as queryable when 'global' ability" do
@@ -61,7 +62,7 @@ defmodule EWallet.Bouncer.ExportScopeTest do
       }
 
       query = ExportScope.scoped_query(permission)
-      export_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      export_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(export_uuids) == 2
       assert Enum.member?(export_uuids, export_1.uuid)
@@ -102,7 +103,7 @@ defmodule EWallet.Bouncer.ExportScopeTest do
       }
 
       query = ExportScope.scoped_query(permission)
-      export_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      export_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(export_uuids) == 2
       assert Enum.member?(export_uuids, export_1.uuid)

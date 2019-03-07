@@ -19,6 +19,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
   alias EWallet.Bouncer.{Dispatcher, Helper}
   alias EWalletDB.Membership
   alias Utils.Intersecter
+  alias Utils.Helpers.UUID
 
   def bounce(permission, config) do
     check_permissions(permission, config.account_permissions)
@@ -46,7 +47,7 @@ defmodule EWallet.Bouncer.AccountBouncer do
          config
        ) do
     types = Dispatcher.get_target_types(schema)
-    uuids = actor |> Dispatcher.get_actor_accounts() |> Helper.get_uuids()
+    uuids = actor |> Dispatcher.get_actor_accounts() |> UUID.get_uuids()
     memberships = Membership.query_all_by_member_and_account_uuids(actor, uuids, [:role])
 
     find_sufficient_permission_in_memberships(permission, config, memberships, types)
@@ -60,9 +61,9 @@ defmodule EWallet.Bouncer.AccountBouncer do
          } = permission,
          config
        ) do
-    actor_account_uuids = actor |> Dispatcher.get_actor_accounts() |> Helper.get_uuids()
+    actor_account_uuids = actor |> Dispatcher.get_actor_accounts() |> UUID.get_uuids()
 
-    target_account_uuids = target |> Dispatcher.get_target_accounts() |> Helper.get_uuids()
+    target_account_uuids = target |> Dispatcher.get_target_accounts() |> UUID.get_uuids()
 
     case Intersecter.intersect(actor_account_uuids, target_account_uuids) do
       [] ->

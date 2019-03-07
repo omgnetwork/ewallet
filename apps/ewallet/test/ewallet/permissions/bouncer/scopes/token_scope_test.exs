@@ -17,6 +17,7 @@ defmodule EWallet.Bouncer.TokenScopeTest do
   import EWalletDB.Factory
   alias EWallet.Bouncer.{TokenScope, Permission}
   alias EWalletDB.Repo
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities" do
     test "returns Token as queryable when 'global' ability" do
@@ -33,7 +34,7 @@ defmodule EWallet.Bouncer.TokenScopeTest do
       }
 
       query = TokenScope.scoped_query(permission)
-      token_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      token_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(token_uuids) == 3
       assert Enum.member?(token_uuids, token_1.uuid)
@@ -96,7 +97,7 @@ defmodule EWallet.Bouncer.TokenScopeTest do
       }
 
       query = TokenScope.scoped_query(permission)
-      token_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      token_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(token_uuids) == 3
       assert Enum.member?(token_uuids, token_1.uuid)

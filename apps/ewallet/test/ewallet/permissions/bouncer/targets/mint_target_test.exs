@@ -16,6 +16,7 @@ defmodule EWallet.Bouncer.MintTargetTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Bouncer.{MintTarget, DispatchConfig}
+  alias Utils.Helpers.UUID
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the mint" do
@@ -46,7 +47,7 @@ defmodule EWallet.Bouncer.MintTargetTest do
       mint = insert(:mint, token_uuid: token.uuid)
 
       target_accounts_uuids =
-        mint |> MintTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+        mint |> MintTarget.get_target_accounts(DispatchConfig) |> UUID.get_uuids()
 
       assert Enum.member?(target_accounts_uuids, account.uuid)
     end

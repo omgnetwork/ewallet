@@ -38,7 +38,7 @@ defmodule EWallet.Bouncer do
         case GlobalBouncer.bounce(%{permission | actor: actor}, config) do
           %Permission{global_authorized: true} = permission ->
             # The actor has global access so we don't check the account permissions.
-            set_authorized(permission)
+            {:ok, %{permission | authorized: true}}
 
           %Permission{global_authorized: false, check_account_permissions: true} = permission ->
             # The actor does not have global access, but can check account permissions
@@ -50,7 +50,7 @@ defmodule EWallet.Bouncer do
           permission ->
             # The actor does not have global access and is not allowed to check account permissions
             # so we skip and return false
-            set_authorized(permission)
+            {:error, %{permission | authorized: false}}
         end
     end
   end
@@ -67,10 +67,6 @@ defmodule EWallet.Bouncer do
     |> Map.put_new(:dispatch_config, DispatchConfig)
     |> Map.put_new(:global_permissions, GlobalRole.global_role_permissions())
     |> Map.put_new(:account_permissions, Role.account_role_permissions())
-  end
-
-  defp set_authorized(%{global_authorized: true} = permission) do
-    {:ok, %{permission | authorized: true}}
   end
 
   defp set_authorized(%{account_authorized: true} = permission) do

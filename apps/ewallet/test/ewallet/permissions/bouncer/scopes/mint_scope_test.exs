@@ -17,6 +17,7 @@ defmodule EWallet.Bouncer.MintScopeTest do
   import EWalletDB.Factory
   alias EWallet.Bouncer.{MintScope, Permission}
   alias EWalletDB.Repo
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities" do
     test "returns Mint as queryable when 'global' ability" do
@@ -33,7 +34,7 @@ defmodule EWallet.Bouncer.MintScopeTest do
       }
 
       query = MintScope.scoped_query(permission)
-      mint_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      mint_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(mint_uuids) == 3
       assert Enum.member?(mint_uuids, mint_1.uuid)
@@ -96,7 +97,7 @@ defmodule EWallet.Bouncer.MintScopeTest do
       }
 
       query = MintScope.scoped_query(permission)
-      mint_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      mint_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(mint_uuids) == 3
       assert Enum.member?(mint_uuids, mint_1.uuid)
