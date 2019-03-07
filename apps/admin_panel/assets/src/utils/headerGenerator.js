@@ -16,7 +16,7 @@ export default function createHeaders ({
   auth,
   headerOption,
   accessToken = localStorage.get(CONSTANT.AUTHENTICATION_TOKEN),
-  currentAccountId = localStorage.get(CONSTANT.CURRENT_ACCOUNT_ID_KEY)
+  currentAccountId
 }) {
   return {
     Accept: 'application/vnd.omisego.v1+json',

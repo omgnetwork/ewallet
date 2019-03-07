@@ -2,15 +2,15 @@ import { authenticatedRequest, unAuthenticatedRequest } from './apiService'
 import localStorage from '../utils/localStorage'
 import CONSTANT from '../constants'
 
-export function getCurrentAccountFromLocalStorage () {
-  return localStorage.get(CONSTANT.CURRENT_ACCOUNT_ID)
+export function getRecentAccountFromLocalStorage () {
+  return localStorage.get(CONSTANT.RECENT_ACCOUNT)
 }
 
 export function getAccessToken () {
   return localStorage.get(CONSTANT.AUTHENTICATION_TOKEN)
 }
-export function setCurrentAccount (data) {
-  return localStorage.set(CONSTANT.CURRENT_ACCOUNT_ID, data)
+export function setRecentAccount (data) {
+  return localStorage.set(CONSTANT.RECENT_ACCOUNT, data)
 }
 
 export function setAccessToken (data) {
@@ -19,7 +19,7 @@ export function setAccessToken (data) {
 
 export function removeAccessDataFromLocalStorage () {
   localStorage.set(CONSTANT.AUTHENTICATION_TOKEN, null)
-  localStorage.set(CONSTANT.CURRENT_ACCOUNT_ID, null)
+  localStorage.set(CONSTANT.RECENT_ACCOUNT, null)
 }
 
 export function login ({ email, password }) {
@@ -43,7 +43,12 @@ export function resetPassword ({ email, redirectUrl }) {
   })
 }
 
-export function updatePasswordWithResetToken ({ resetToken, password, passwordConfirmation, email }) {
+export function updatePasswordWithResetToken ({
+  resetToken,
+  password,
+  passwordConfirmation,
+  email
+}) {
   return unAuthenticatedRequest({
     path: '/admin.update_password',
     data: {

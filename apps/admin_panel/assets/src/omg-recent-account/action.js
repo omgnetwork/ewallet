@@ -1,3 +1,6 @@
-export const visitAccount = accountId => dispatch => {
-  return dispatch({ type: 'ACCOUNT/VISIT', accountId })
+import { setRecentAccount } from '../services/sessionService'
+export const visitAccount = accountId => (dispatch, getState) => {
+  const currentUser = getState().currentUser
+  dispatch({ type: 'ACCOUNT/VISIT', accountId })
+  setRecentAccount({ [currentUser.id]: getState().recentAccounts })
 }
