@@ -8,15 +8,23 @@ executors:
     working_directory: ~/src
     environment:
       IMAGE_NAME: "omisego/ewallet"
+
   builder_pg:
     docker:
       - image: omisegoimages/ewallet-builder:v1.2
       - image: postgres:9.6-alpine
     working_directory: ~/src
+
+  deploy:
+    docker:
+      - image: omisegoimages/ewallet-deploy:stable
+    working_directory: ~/src
+
   metal:
     machine: true
     environment:
       IMAGE_NAME: "omisego/ewallet"
+
 
 commands:
   notify_slack_failure:
@@ -94,6 +102,32 @@ commands:
                       \"short\": true \
                     } \
                   ] \
+                } \
+              ] \
+            }" ${SLACK_WEBHOOK}
+
+  notify_slack_deploy:
+    description: "Notify Slack Deploy"
+    steps:
+      - run:
+          name: Notify Slack
+          command: |
+            if [ -z "$SLACK_WEBHOOK" ]; then
+              printf "\\033[0;33mSkipping Slack notification (SLACK_WEBHOOK missing)\\033[0;0m\\n"
+              exit 0
+            fi
+
+            TAG="$(printf "%s" "$CIRCLE_SHA1" | head -c 8)"
+            MESSAGE="ewallet.staging.omisego.io has been deployed with omisego/ewallet:${TAG}"
+            RICH_MESSAGE="*ewallet.staging.omisego.io* has been deployed with *omisego/ewallet:${TAG}*"
+
+            curl -X POST -H 'Content-Type: application/json' --data "{ \
+              \"attachments\": [ \
+                { \
+                  \"fallback\": \"${MESSAGE}\", \
+                  \"text\": \":rocket: ${RICH_MESSAGE}\", \
+                  \"mrkdwn\": true, \
+                  \"color\": \"#5f31d9\" \
                 } \
               ] \
             }" ${SLACK_WEBHOOK}
@@ -279,7 +313,7 @@ jobs:
           name: Prepare E2E environments
           command: |
             if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping E2E (running in fork))\\033[0;0m\\n"
+              printf "\\033[0;33mSkipping E2E (running in fork)\\033[0;0m\\n"
               exit 0
             fi
 
@@ -313,7 +347,7 @@ jobs:
           name: Configure E2E secret
           command: |
             if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping E2E (running in fork))\\033[0;0m\\n"
+              printf "\\033[0;33mSkipping E2E (running in fork)\\033[0;0m\\n"
               exit 0
             fi
 
@@ -332,7 +366,7 @@ jobs:
           name: Run E2E tests
           command: |
             if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping E2E (running in fork))\\033[0;0m\\n"
+              printf "\\033[0;33mSkipping E2E (running in fork)\\033[0;0m\\n"
               exit 0
             fi
 
@@ -368,7 +402,7 @@ jobs:
           name: Log into Docker Hub
           command: |
             if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping publish (running in fork))\\033[0;0m\\n"
+              printf "\\033[0;33mSkipping publish (running in fork)\\033[0;0m\\n"
               exit 0
             fi
 
@@ -377,7 +411,7 @@ jobs:
           name: Publish Docker image
           command: |
             if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping publish (running in fork))\\033[0;0m\\n"
+              printf "\\033[0;33mSkipping publish (running in fork)\\033[0;0m\\n"
               exit 0
             fi
 
@@ -439,7 +473,99 @@ jobs:
                 docker tag "$IMAGE_NAME" "$IMAGE_NAME:$tag"
                 docker push "$IMAGE_NAME:$tag"
             done
+      - notify_slack_failure
       - notify_slack
+
+  deploy:
+    executor: deploy
+    steps:
+      - run:
+          name: Configure deploy secrets
+          command: |
+            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
+              printf "\\033[0;33mSkipping deploy (running in fork)\\033[0;0m\\n"
+              exit 0
+            fi
+
+            GPGFILE=$(mktemp)
+            trap 'rm -f $GPGFILE' 0 1 2 3 6 14 15
+            echo "$CIRCLE_GPG_KEY" | base64 -d | gunzip > "$GPGFILE"
+            gpg --import "$GPGFILE"
+            printf "EB58C5A1AB6B04BEA2A6CFFFD93811C7530F9C72:6:\\n" | gpg --import-ownertrust
+
+            GCPFILE=$(mktemp)
+            trap 'rm -f $GCPFILE' 0 1 2 3 6 14 15
+            echo "$GCP_KEY_FILE" | base64 -d > "$GCPFILE"
+
+            gcloud auth activate-service-account --key-file="$GCPFILE"
+            gcloud config set project "$GCP_ACCOUNT_ID"
+            gcloud config set compute/region "$GCP_REGION"
+            gcloud config set compute/zone "$GCP_ZONE"
+            gcloud container clusters get-credentials --region="$GCP_REGION" "$GCP_CLUSTER_ID"
+      - run:
+          name: Clone deploy repository
+          command: |
+            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
+              printf "\\033[0;33mSkipping deploy (running in fork)\\033[0;0m\\n"
+              exit 0
+            fi
+
+            set -xe
+
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+            git init ~/deploy
+            cd ~/deploy || exit 1
+            git remote add origin "git@github.com:omisego/deploy.git"
+            git config core.sparsecheckout true
+
+            cat \<<EOF >> ~/deploy/.git/info/sparse-checkout
+            .gitmodules
+            kapitan/components/*
+            kapitan/inventory/classes/*
+            kapitan/inventory/targets/demo-staging.yml
+            kapitan/secrets/default/*
+            kapitan/secrets/demo-staging/*
+            kapitan/share/*
+            vendor/github.com/omisego/*
+            vendor/github.com/ksonnet/*
+            EOF
+
+            git pull --depth 1 origin master
+            git submodule update --init vendor/github.com/omisego/charts
+            git submodule update --init vendor/github.com/ksonnet/ksonnet-lib
+            git submodule update --init vendor/github.com/deepmind/kapitan
+      - run:
+          name: Deploy to staging
+          command: |
+            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
+              printf "\\033[0;33mSkipping deploy (running in fork)\\033[0;0m\\n"
+              exit 0
+            fi
+
+            set -xe
+
+            cd ~/deploy || exit 1
+            helm init --client-only
+            helm dependency update vendor/github.com/omisego/charts/ewallet
+
+            cd ~/deploy/kapitan || exit 1
+
+            TARGET="inventory/targets/demo-staging.yml"
+            NEW_TAG="$(printf "%s" "$CIRCLE_SHA1" | head -c 8)" awk '
+              m = match($0, "^([\ ]+tag:[\ ]+)") {
+              print substr($0, RSTART, RLENGTH-1) " \"" ENVIRON["NEW_TAG"] "\""
+            } ! m { print }' < "$TARGET" > "$TARGET.tmp"
+            mv "$TARGET.tmp" "$TARGET"
+
+            kapitan compile -J ./ \
+              ../vendor/github.com/ksonnet/ksonnet-lib \
+              ../vendor/github.com/deepmind/kapitan/kapitan/lib
+
+            sh compiled/demo-staging/ewallet/apply.sh
+      - notify_slack_failure
+      - notify_slack_deploy
 
 
 workflows:
@@ -499,3 +625,12 @@ workflows:
           requires:
             - test_e2e
           filters: *mainline_branches
+
+      # Master branch only
+      - deploy:
+          requires:
+            - publish
+          filters:
+            branches:
+              only:
+                - master
