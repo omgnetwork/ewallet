@@ -4,10 +4,8 @@ export const login = ({ email, password, rememberMe }) => createActionCreator({a
   action: 'LOGIN',
   service: async () => {
     const sessionResult = await sessionService.login({ email, password })
-    const account = sessionService.getCurrentAccountFromLocalStorage()
     if (sessionResult.data.success) {
       sessionService.setAccessToken(sessionResult.data.data)
-      if (!account) sessionService.setCurrentAccount(sessionResult.data.data.account)
     }
     return sessionResult
   }

@@ -16,6 +16,11 @@ const CopyTextContainer = styled.div`
 const createAlertState = (text, type) => {
   return { id: uuid(), text, type }
 }
+
+const errorStateHandler = (state, { error }) => {
+  return [...state, createAlertState(`${error.description || error}`, 'error')]
+}
+
 export const alertsReducer = createReducer([], {
   'ALERTS/CLEAR': (state, { id }) => {
     return state.filter(alert => alert.id !== id)
@@ -76,36 +81,6 @@ export const alertsReducer = createReducer([], {
     }
     return state
   },
-  'PASSWORD/UPDATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'CURRENT_USER/UPDATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'CONSUMPTION/APPROVE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'CONSUMPTION/REJECT/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'ACCOUNT/CREATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'CATEGORY/CREATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'API_KEY/UPDATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'API_KEY/CREATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'ACCESS_KEY/CREATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'INVITE/REQUEST/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
   'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, { data }) => {
     if (data.status === 'confirmed' && data.transaction_request.require_confirmation) {
       return [
@@ -149,20 +124,25 @@ export const alertsReducer = createReducer([], {
     return state
   },
   'CONFIGURATIONS/UPDATE/SUCCESS': (state, { data }) => {
-    return [...state, createAlertState('Updated configurations successfully, reloading application..', 'success')]
-  },
-  'CONFIGURATIONS/UPDATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
+    return [
+      ...state,
+      createAlertState('Updated configurations successfully, reloading application..', 'success')
+    ]
   },
   'TRANSACTIONS/EXPORT/SUCCESS': (state, { error }) => {
-    return [...state, createAlertState(
-      <div>
-       Export transactions successfully
-      </div>,
-      'success'
-    )]
+    return [...state, createAlertState(<div>Export transactions successfully</div>, 'success')]
   },
-  'TRANSACTIONS/EXPORT/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  }
+  'CONFIGURATIONS/UPDATE/FAILED': errorStateHandler,
+  'TRANSACTIONS/EXPORT/FAILED': errorStateHandler,
+  'PASSWORD/UPDATE/FAILED': errorStateHandler,
+  'CURRENT_USER/UPDATE/FAILED': errorStateHandler,
+  'CONSUMPTION/APPROVE/FAILED': errorStateHandler,
+  'CONSUMPTION/REJECT/FAILED': errorStateHandler,
+  'ACCOUNT/CREATE/FAILED': errorStateHandler,
+  'CATEGORY/CREATE/FAILED': errorStateHandler,
+  'API_KEY/UPDATE/FAILED': errorStateHandler,
+  'API_KEY/CREATE/FAILED': errorStateHandler,
+  'ACCESS_KEY/CREATE/FAILED': errorStateHandler,
+  'CONFIGURATIONS/REQUEST/FAILED': errorStateHandler,
+  'INVITE/REQUEST/FAILED': errorStateHandler
 })

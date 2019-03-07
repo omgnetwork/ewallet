@@ -21,7 +21,7 @@ const TopBarTitle = styled.div`
 const TopBar = styled.div`
   display: flex;
   align-items: center;
-  height: 70px;
+  height: 80px;
 `
 export default class TopBarDetail extends Component {
   static propTypes = {

@@ -17,7 +17,7 @@ const NavigationItem = styled.div`
   white-space: nowrap;
   text-align: left;
   font-size: 14px;
-  background-color: ${props => (props.active ? props.theme.colors.S300 : 'transparent')};
+  color: ${props => (props.active ? props.theme.colors.BL400 : 'inherit')};
   transition: 0.1s background-color;
   span {
     vertical-align: middle;
@@ -29,7 +29,7 @@ const NavigationItem = styled.div`
     font-weight: 400;
   }
   :hover {
-    background-color: ${props => props.theme.colors.S300};
+    color: ${props => props.theme.colors.BL400};
   }
 `
 

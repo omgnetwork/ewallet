@@ -28,13 +28,12 @@ import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
 import AccountLayout from '../../omg-account-detail-V2/AccountLayout'
 const currentAccount = getCurrentAccountFromLocalStorage()
-const redirectUrl = currentAccount ? '/accounts' : '/login'
 // prettier-ignore
 
 const createRoute = () => (
   <Router basename='/admin/'>
     <Switch>
-      <Redirect from='/' to={redirectUrl} exact />
+      <Redirect from='/' to={'/accounts'} exact />
       <Redirect from='/accounts/:accountId' to='/accounts/:accountId/detail' exact />
       <LoginRoute path='/login' exact component={LoginForm} />
       <LoginRoute path='/forget-password' exact component={ForgetPasswordForm} />
