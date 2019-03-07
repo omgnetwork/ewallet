@@ -22,4 +22,8 @@ defmodule Utils.Helpers.UUID do
   def valid?(uuid) do
     String.match?(uuid, @regex)
   end
+
+  def get_uuids(list) do
+    Enum.map(list, fn record -> record.uuid end)
+  end
 end

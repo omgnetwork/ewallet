@@ -12,19 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Bouncer.UserActor do
-  @moduledoc """
-  A policy helper containing the actual authorization.
-  """
-  @behaviour EWallet.Bouncer.ActorBehaviour
-  alias EWalletDB.User
-  alias EWalletDB.Helpers.Preloader
+defmodule Utils.Helpers.UUIDTest do
+  use ExUnit.Case, async: true
+  alias Utils.Helpers.UUID
 
-  def get_actor_accounts(%User{is_admin: true} = actor) do
-    Preloader.preload(actor, [:accounts, :memberships]).accounts
-  end
+  describe "get_uuids/1" do
+    test "maps a list of records to a list of uuids" do
+      record_1 = %{uuid: "00000000-0000-0000-0000-000000000000"}
+      record_2 = %{uuid: "00000000-0000-0000-0000-000000000001"}
+      record_3 = %{uuid: "00000000-0000-0000-0000-000000000002"}
+      res = UUID.get_uuids([record_1, record_2, record_3])
 
-  def get_actor_accounts(%User{is_admin: false} = actor) do
-    Preloader.preload(actor, [:linked_accounts]).linked_accounts
+      assert res == [record_1.uuid, record_2.uuid, record_3.uuid]
+    end
   end
 end

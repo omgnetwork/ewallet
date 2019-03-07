@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.WalletTargetTest do
   alias EWalletDB.AccountUser
   alias EWallet.Bouncer.{WalletTarget, DispatchConfig}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the account's wallet" do
@@ -62,7 +63,7 @@ defmodule EWallet.Bouncer.WalletTargetTest do
       account_unlinked = insert(:account)
 
       target_accounts_uuids =
-        wallet |> WalletTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+        wallet |> WalletTarget.get_target_accounts(DispatchConfig) |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 1
       assert Enum.member?(target_accounts_uuids, account.uuid)
@@ -80,7 +81,7 @@ defmodule EWallet.Bouncer.WalletTargetTest do
       wallet = insert(:wallet, user: user, account: nil)
 
       target_accounts_uuids =
-        wallet |> WalletTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+        wallet |> WalletTarget.get_target_accounts(DispatchConfig) |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 2
       assert Enum.member?(target_accounts_uuids, account_1.uuid)

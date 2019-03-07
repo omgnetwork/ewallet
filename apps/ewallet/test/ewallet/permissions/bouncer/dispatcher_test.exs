@@ -17,6 +17,7 @@ defmodule EWallet.DispatcherTest do
   import EWalletDB.Factory
   alias EWallet.Bouncer.{Permission, Dispatcher, DispatchConfig}
   alias EWalletDB.{Account, Wallet}
+  alias Utils.Helpers.UUID
 
   describe "scoped_query/2" do
     test "calls the appropriate scope module" do
@@ -67,7 +68,7 @@ defmodule EWallet.DispatcherTest do
       wallet = Account.get_primary_wallet(account)
 
       accounts = Dispatcher.get_target_accounts(wallet, DispatchConfig)
-      assert Enum.map(accounts, fn a -> a.uuid end) == [account.uuid]
+      assert UUID.get_uuids(accounts) == [account.uuid]
     end
   end
 end

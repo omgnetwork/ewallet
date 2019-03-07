@@ -44,7 +44,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScope do
          end_user_transaction_consumptions: :accounts
        }) do
     actor
-    |> Helper.prepare_query_with_membership_for(TransactionConsumption)
+    |> Helper.query_with_membership_for(TransactionConsumption)
     |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
     |> where([g, m, au, u], g.user_uuid == u.uuid or is_nil(g.user_uuid))
@@ -72,7 +72,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScope do
          end_user_transaction_consumptions: :global
        }) do
     actor
-    |> Helper.prepare_query_with_membership_for(TransactionConsumption)
+    |> Helper.query_with_membership_for(TransactionConsumption)
     |> where([g, m], g.account_uuid == m.account_uuid or is_nil(g.account_uuid))
     |> distinct(true)
     |> select([g, m], g)
@@ -83,7 +83,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScope do
          end_user_transaction_consumptions: :accounts
        }) do
     actor
-    |> Helper.prepare_query_with_membership_for(TransactionConsumption)
+    |> Helper.query_with_membership_for(TransactionConsumption)
     |> join(:left, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> where([g, m, au], g.user_uuid == au.user_uuid or g.account_uuid == m.account_uuid)
     |> distinct(true)
@@ -95,7 +95,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScope do
          end_user_transaction_consumptions: :self
        }) do
     actor
-    |> Helper.prepare_query_with_membership_for(TransactionConsumption)
+    |> Helper.query_with_membership_for(TransactionConsumption)
     |> where([g, m], g.account_uuid == m.account_uuid or g.user_uuid == ^actor.uuid)
     |> distinct(true)
     |> select([g, m], g)
@@ -106,7 +106,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScope do
          end_user_transaction_consumptions: _
        }) do
     actor
-    |> Helper.prepare_query_with_membership_for(TransactionConsumption)
+    |> Helper.query_with_membership_for(TransactionConsumption)
     |> where([g, m], g.account_uuid == m.account_uuid)
     |> distinct(true)
     |> select([g, m], g)
@@ -125,7 +125,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScope do
          end_user_transaction_consumptions: :accounts
        }) do
     actor
-    |> Helper.prepare_query_with_membership_for(TransactionConsumption)
+    |> Helper.query_with_membership_for(TransactionConsumption)
     |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
     |> where([g, m, au, u], g.user_uuid == u.uuid)

@@ -16,6 +16,7 @@ defmodule EWallet.Bouncer.APIKeyTargetTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Bouncer.{APIKeyTarget, DispatchConfig}
+  alias Utils.Helpers.UUID
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the api key" do
@@ -46,7 +47,7 @@ defmodule EWallet.Bouncer.APIKeyTargetTest do
       target_accounts_uuids =
         api_key
         |> APIKeyTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert Enum.member?(target_accounts_uuids, account.uuid)
     end

@@ -55,7 +55,7 @@ defmodule AdminAPI.V1.AdminUserController do
   """
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, attrs) do
-    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
+    with {:ok, user} <- UserFetcher.fetch(attrs),
          {:ok, _} <- authorize(:enable_or_disable, conn.assigns, user),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- User.enable_or_disable(user, attrs),

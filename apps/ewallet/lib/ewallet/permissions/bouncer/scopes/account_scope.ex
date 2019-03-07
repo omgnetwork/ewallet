@@ -36,7 +36,7 @@ defmodule EWallet.Bouncer.AccountScope do
 
   defp do_scoped_query(actor, %{accounts: :accounts}) do
     actor
-    |> Helper.prepare_query_with_membership_for(Account)
+    |> Helper.query_with_membership_for(Account)
     |> where([g, m], g.uuid == m.account_uuid)
     |> select([g, m], g)
   end

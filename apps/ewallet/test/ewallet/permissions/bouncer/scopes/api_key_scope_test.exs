@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
   alias EWallet.Bouncer.{Permission, APIKeyScope}
   alias EWalletDB.{APIKey, Membership, Repo}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities" do
     test "returns APIKey as queryable when 'global' ability" do
@@ -36,7 +37,7 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
       }
 
       query = APIKeyScope.scoped_query(permission)
-      api_key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(api_key_uuids) == 2
       assert Enum.member?(api_key_uuids, api_key_1.uuid)
@@ -68,7 +69,7 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
       }
 
       query = APIKeyScope.scoped_query(permission)
-      api_key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(api_key_uuids) == 2
       assert Enum.member?(api_key_uuids, api_key_1.uuid)
@@ -104,7 +105,7 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
       }
 
       query = APIKeyScope.scoped_query(permission)
-      api_key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(api_key_uuids) == 2
       assert Enum.member?(api_key_uuids, api_key_1.uuid)
@@ -178,7 +179,7 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
       }
 
       query = APIKeyScope.scoped_query(permission)
-      api_key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(api_key_uuids) == 2
       assert Enum.member?(api_key_uuids, api_key_1.uuid)
@@ -210,7 +211,7 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
       }
 
       query = APIKeyScope.scoped_query(permission)
-      api_key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(api_key_uuids) == 2
       assert Enum.member?(api_key_uuids, api_key_1.uuid)
@@ -246,7 +247,7 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
       }
 
       query = APIKeyScope.scoped_query(permission)
-      api_key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(api_key_uuids) == 2
       assert Enum.member?(api_key_uuids, api_key_1.uuid)

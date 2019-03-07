@@ -36,7 +36,7 @@ defmodule EWallet.Bouncer.APIKeyScope do
 
   defp do_scoped_query(actor, %{api_keys: :accounts}) do
     actor
-    |> Helper.prepare_query_with_membership_for(APIKey)
+    |> Helper.query_with_membership_for(APIKey)
     |> where([g, m], g.account_uuid == m.account_uuid)
     |> SoftDelete.exclude_deleted()
     |> select([g, m], g)

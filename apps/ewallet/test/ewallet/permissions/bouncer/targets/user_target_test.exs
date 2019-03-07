@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.UserTargetTest do
   alias EWalletDB.{Membership, AccountUser}
   alias EWallet.Bouncer.{UserTarget, DispatchConfig}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the user" do
@@ -55,7 +56,7 @@ defmodule EWallet.Bouncer.UserTargetTest do
       Membership.assign(user, account_2, "viewer", %System{})
 
       target_accounts_uuids =
-        user |> UserTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+        user |> UserTarget.get_target_accounts(DispatchConfig) |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 2
       assert Enum.member?(target_accounts_uuids, account_1.uuid)
@@ -72,7 +73,7 @@ defmodule EWallet.Bouncer.UserTargetTest do
       {:ok, _} = AccountUser.link(account_2.uuid, user.uuid, %System{})
 
       target_accounts_uuids =
-        user |> UserTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+        user |> UserTarget.get_target_accounts(DispatchConfig) |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 2
       assert Enum.member?(target_accounts_uuids, account_1.uuid)
