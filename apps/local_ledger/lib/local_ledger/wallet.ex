@@ -31,17 +31,10 @@ defmodule LocalLedger.Wallet do
     end
   end
 
-  def all_balances(address) do
+  def all_balances(address, attrs \\ %{}) do
     case Wallet.get(address) do
       nil -> {:ok, %{}}
-      wallet -> CachedBalance.all(wallet)
-    end
-  end
-
-  def all_balances(address, token_ids) do
-    case Wallet.get(address) do
-      nil -> {:ok, %{}}
-      wallet -> CachedBalance.all(wallet, token_ids)
+      wallet -> CachedBalance.all(wallet, attrs)
     end
   end
 

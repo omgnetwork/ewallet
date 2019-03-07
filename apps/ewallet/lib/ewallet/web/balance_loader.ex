@@ -20,7 +20,6 @@ defmodule EWallet.Web.BalanceLoader do
   alias EWallet.BalanceFetcher
   alias EWalletDB.Wallet
 
-  @spec add_balances(any()) :: any()
   def add_balances(%Paginator{} = paged_wallets) do
     {:ok, wallets} = BalanceFetcher.all(%{"wallets" => paged_wallets.data})
     %{paged_wallets | data: wallets}
@@ -30,9 +29,6 @@ defmodule EWallet.Web.BalanceLoader do
     BalanceFetcher.all(%{"wallet" => wallet})
   end
 
-  @spec add_balances(EWalletDB.Wallet.t(), any()) ::
-          {:error, :provider_user_id_not_found | :user_id_not_found | :wallet_not_found}
-          | {:ok, EWalletDB.Wallet.t()}
   def add_balances(%Wallet{} = wallet, tokens) do
     BalanceFetcher.all(%{"wallet" => wallet, "tokens" => tokens})
   end

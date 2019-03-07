@@ -16,16 +16,13 @@ defmodule AdminAPI.V1.BalanceController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.WalletPolicy
-  alias Ecto.Changeset
-  alias EWalletDB.{Account, User, Wallet, Token}
+  alias EWalletDB.{Wallet, Token}
 
   alias EWallet.Web.{
     Orchestrator,
-    Originator,
     Paginator,
     BalanceLoader,
-    V1.TokenOverlay,
-    V1.WalletOverlay
+    V1.TokenOverlay
   }
 
   @doc """
@@ -36,27 +33,18 @@ defmodule AdminAPI.V1.BalanceController do
          :ok <- permit(:get, conn.assigns, wallet),
          %Paginator{data: tokens, pagination: pagination} <- load_tokens(attrs),
          {:ok, data} <- BalanceLoader.add_balances(wallet, tokens) do
-      respond_multiple(%Paginator{pagination: pagination, data: data}, conn)
+      render(conn, :balances, %Paginator{pagination: pagination, data: data})
     else
       {:error, error} -> handle_error(conn, error)
     end
   end
 
+  def all_for_wallet(conn, _) do
+    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
+  end
+
   defp load_tokens(attrs) do
     Orchestrator.query(Token, TokenOverlay, attrs)
-  end
-
-  # Respond with a list of tokens
-  defp respond_multiple(%Paginator{} = paged_tokens, conn) do
-    render(conn, :balances, paged_tokens)
-  end
-
-  defp respond_multiple({:error, code, description}, conn) do
-    handle_error(conn, code, description)
-  end
-
-  defp respond_multiple({:error, code}, conn) do
-    handle_error(conn, code)
   end
 
   defp permit(action, params, data) do

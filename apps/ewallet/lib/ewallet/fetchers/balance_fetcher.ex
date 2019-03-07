@@ -17,7 +17,6 @@ defmodule EWallet.BalanceFetcher do
   Handles the retrieval and formatting of balances from the local ledger.
   """
   alias EWalletDB.{Token, User, Wallet}
-  alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
 
   @spec all(map()) :: {:ok, %EWalletDB.Wallet{}} | {:error, atom()}
 
@@ -59,8 +58,12 @@ defmodule EWallet.BalanceFetcher do
     {:ok, query_and_add_balances(wallets)}
   end
 
+  @doc """
+  Prepare the list of balances for specified tokens and turn them into a suitable format for
+  EWalletAPI using only a wallet.
+  """
   def all(%{"wallet" => wallet, "tokens" => tokens}) do
-    {:ok, query_and_add_balances(wallet, tokens)}
+    {:ok, query_and_add_balances(wallet, %{"tokens" => tokens})}
   end
 
   @doc """
@@ -99,25 +102,25 @@ defmodule EWallet.BalanceFetcher do
     {:ok, wallet}
   end
 
-  defp query_and_add_balances(wallets) when is_list(wallets) do
+  defp query_and_add_balances(wallet_or_wallets, attrs \\ %{})
+
+  defp query_and_add_balances(wallets, attrs) when is_list(wallets) do
     wallets
     |> Enum.map(fn wallet -> wallet.address end)
     |> LocalLedger.Wallet.all_balances()
     |> process_response(wallets, :all)
   end
 
-  defp query_and_add_balances(wallet) do
+  defp query_and_add_balances(wallet, %{"tokens" => tokens} = attrs) do
+    wallet.address
+    |> LocalLedger.Wallet.all_balances(attrs)
+    |> process_response(wallet, tokens)
+  end
+
+  defp query_and_add_balances(wallet, attrs) do
     wallet.address
     |> LocalLedger.Wallet.all_balances()
     |> process_response(wallet, :all)
-  end
-
-  defp query_and_add_balances(wallet, tokens) do
-    token_ids = Enum.map(tokens, fn token -> token.id end)
-
-    wallet.address
-    |> LocalLedger.Wallet.all_balances(token_ids)
-    |> process_response(wallet, tokens)
   end
 
   defp process_response({:ok, data}, wallets, _type) when is_list(wallets) do
