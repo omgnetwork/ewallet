@@ -1,10 +1,8 @@
-import { Component, useState, useEffect } from 'react'
+import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { selectGetAccountById } from './selector'
 import { getAccountById } from './action'
-import { store } from '../store'
-import CONSTANT from '../constants'
 class AccountsProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
