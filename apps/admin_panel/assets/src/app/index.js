@@ -15,6 +15,9 @@ class App extends Component {
   static propTypes = {
     store: PropTypes.object.isRequired
   }
+  componentDidCatch () {
+    return 'Something very bad happened, please contact admin.'
+  }
   render () {
     return (
       <Provider store={this.props.store}>
