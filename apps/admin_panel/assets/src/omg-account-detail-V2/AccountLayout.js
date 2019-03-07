@@ -1,7 +1,7 @@
 import AccountNavgiationBar from './AccountNavigationBar'
-import React, { Component, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { Route, withRouter } from 'react-router-dom'
+import { Route, withRouter, Link } from 'react-router-dom'
 import AccountWalletSubPage from './AccountWalletSubPage'
 import AccountUserSubPage from './AccountUserSubPage'
 import AccountTransactionSubPage from './AccountTransactionSubPage'
@@ -37,10 +37,11 @@ const enhance = compose(
   )
 )
 function AccountLayout (props) {
-  const accountId = props.match.params.accountId
+  const { accountId, type, id } = props.match.params
+
   useEffect(() => {
     props.visitAccount(accountId)
-    props.subscribeToWebsocketByAccountId(props.match.params.accountId)
+    props.subscribeToWebsocketByAccountId(accountId)
   }, [accountId])
 
   return (
@@ -49,10 +50,10 @@ function AccountLayout (props) {
       <BreadContainer>
         <Breadcrumb
           items={[
-            'Accounts',
-            _.get(props.account, 'name', '...'),
-            _.upperFirst(props.match.params.type),
-            props.match.params.id
+            <Link to={'/accounts/'}>Accounts</Link>,
+            <Link to={`/accounts/${accountId}/detail`}>{_.get(props.account, 'name', '...')}</Link>,
+            <Link to={`/accounts/${accountId}/${type}`}>{_.upperFirst(type)}</Link>,
+            id ? <Link to={`/accounts/${accountId}/${type}/${id}`}>{id}</Link> : null
           ]}
         />
       </BreadContainer>
@@ -66,7 +67,6 @@ function AccountLayout (props) {
       <Route path='/accounts/:accountId/users' exact render={() => <AccountUserSubPage />} />
       <Route path='/accounts/:accountId/users/:userId' exact render={() => <UserDetailPage />} />
       <Route path='/accounts/:accountId/admins' exact render={() => <AccountAdminSubPage />} />
-      <Route path='/accounts/:accountId/admins/:adminId' exact render={() => <UserDetailPage />} />
       <Route path='/accounts/:accountId/admins/:adminId' exact render={() => <AdminDetailPage />} />
       <Route path='/accounts/:accountId/setting' exact render={() => <AccountSettingSubPage />} />
       <Route
@@ -91,7 +91,8 @@ function AccountLayout (props) {
 
 AccountLayout.propTypes = {
   match: PropTypes.object,
-  account: PropTypes.object
+  account: PropTypes.object,
+  subscribeToWebsocketByAccountId: PropTypes.func
 }
 
 export default enhance(AccountLayout)

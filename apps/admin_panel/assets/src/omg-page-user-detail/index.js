@@ -11,14 +11,12 @@ import { LoadingSkeleton } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
 const UserDetailContainer = styled.div`
-  padding-bottom: 20px;
   b {
     width: 150px;
     display: inline-block;
   }
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 40px;
   display: flex;
 `
 const DetailContainer = styled.div`

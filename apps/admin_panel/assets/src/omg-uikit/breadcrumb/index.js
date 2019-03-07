@@ -9,6 +9,9 @@ const BreadcrumbContainer = styled.div`
     padding: 0 5px;
     font-size: inherit;
   }
+  a {
+    color: inherit;
+  }
 `
 export default class Breadcrumb extends Component {
   static propTypes = {

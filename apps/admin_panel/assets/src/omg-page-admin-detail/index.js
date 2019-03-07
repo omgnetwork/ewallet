@@ -6,7 +6,6 @@ import AdminProvider from '../omg-admins/adminProvider'
 import { compose } from 'recompose'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
-import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import Copy from '../omg-copy'
 const UserDetailContainer = styled.div`
@@ -17,7 +16,6 @@ const UserDetailContainer = styled.div`
   }
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 40px;
   display: flex;
 `
 const DetailContainer = styled.div`
