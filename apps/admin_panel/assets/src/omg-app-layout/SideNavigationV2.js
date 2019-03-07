@@ -10,6 +10,7 @@ import ProfileDropdown from './ProfileDropdown'
 import { selectRecentAccounts } from '../omg-recent-account/selector'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
+import FlipMove from 'react-flip-move'
 const SideNavigationContainer = styled.div`
   background-color: #f0f2f5;
   height: 100%;
@@ -150,17 +151,21 @@ class SideNavigation extends PureComponent {
   }
 
   renderRecentAccounts () {
-    return this.props.recentAccounts.length
-      ? this.props.recentAccounts.map(account => {
-        return (
-            <Link to={`/accounts/${account.id}/detail`}>
-              <RecentAccountItem active={this.props.match.params.accountId === account.id}>
-                <RecentAccount className='recent-account'>{account.name}</RecentAccount>
-              </RecentAccountItem>
-            </Link>
+    return this.props.recentAccounts.length ? (
+      <FlipMove>
+        {this.props.recentAccounts.map(account => {
+          return (
+            <div key={account.id}>
+              <Link to={`/accounts/${account.id}/detail`}>
+                <RecentAccountItem active={this.props.match.params.accountId === account.id}>
+                  <RecentAccount className='recent-account'>{account.name}</RecentAccount>
+                </RecentAccountItem>
+              </Link>
+            </div>
           )
-      })
-      : null
+        })}
+      </FlipMove>
+    ) : null
   }
   renderOverview () {
     const firstSubPath = this.props.location.pathname.split('/')[1]
