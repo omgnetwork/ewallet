@@ -5,7 +5,7 @@ export const recentAccountsReducer = createReducer([], {
     if (!_.includes(state, accountId)) {
       return [accountId, ...state].slice(0, 5)
     } else {
-      return [accountId, ...state.filter(_accountId => _accountId !== accountId)]
+      return state
     }
   }
 })

@@ -11,7 +11,7 @@ import queryString from 'query-string'
 import Copy from '../omg-copy'
 import { createSearchAdminsQuery } from '../omg-admins/searchField'
 
-const UserPageContainer = styled.div`
+const AdminPageContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -79,7 +79,7 @@ class UsersPage extends Component {
     fetcher: PropTypes.func,
     navigation: PropTypes.object,
     onClickRow: PropTypes.func,
-    columns: PropTypes.object
+    columns: PropTypes.array
   }
   static defaultProps = {
     query: {},
@@ -136,7 +136,7 @@ class UsersPage extends Component {
 
   renderAdminPage = ({ data: admins, individualLoadingStatus, pagination }) => {
     return (
-      <UserPageContainer>
+      <AdminPageContainer>
         <TopNavigation title={'Admins'} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
@@ -151,7 +151,7 @@ class UsersPage extends Component {
             pagination={false}
           />
         </SortableTableContainer>
-      </UserPageContainer>
+      </AdminPageContainer>
     )
   }
 
