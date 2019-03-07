@@ -7,7 +7,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
-import Link from '../omg-links'
+import { Link } from 'react-router-dom'
 import { createSearchActivityLogQuery } from './searchField'
 import { Icon } from '../omg-uikit'
 const AccountPageContainer = styled.div`
