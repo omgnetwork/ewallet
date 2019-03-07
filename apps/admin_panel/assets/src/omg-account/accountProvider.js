@@ -12,9 +12,17 @@ class AccountsProvider extends Component {
     account: PropTypes.object,
     getAccountById: PropTypes.func
   }
-  componentDidMount = () => {
+
+  componentDidMount () {
     this.props.getAccountById(this.props.accountId)
   }
+
+  componentWillReceiveProps = nextProps => {
+    if (nextProps.accountId !== this.props.accountId) {
+      this.props.getAccountById(nextProps.accountId)
+    }
+  }
+
   render () {
     return this.props.render({ account: this.props.account })
   }
@@ -27,24 +35,3 @@ export default connect(
   },
   { getAccountById }
 )(AccountsProvider)
-
-// HOOK EXPERIMENTING
-export function useAccount (accountId) {
-  const defaultAccount = selectGetAccountById(store.getState())(accountId)
-  const [account, setAccount] = useState(defaultAccount)
-  const [loadingStatus, setLoadingStatus] = useState(
-    _.isEmpty(defaultAccount) ? CONSTANT.LOADING_STATUS.DEFAULT : CONSTANT.LOADING_STATUS.SUCCESS
-  )
-  function handleLoadingStatusChange (result) {
-    setAccount(result.data)
-    setLoadingStatus(result.data ? CONSTANT.LOADING_STATUS.SUCCESS : CONSTANT.LOADING_STATUS.FAILED)
-  }
-
-  useEffect(() => {
-    if (loadingStatus !== CONSTANT.LOADING_STATUS.SUCCESS) {
-      getAccountById(accountId)(store.dispatch).then(handleLoadingStatusChange)
-    }
-  }, [accountId])
-
-  return { account, loadingStatus }
-}

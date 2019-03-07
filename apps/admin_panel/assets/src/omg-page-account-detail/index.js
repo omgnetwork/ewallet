@@ -110,9 +110,7 @@ class AccountDetailPage extends Component {
   renderAccountDetailContainer = account => {
     return (
       <ContentContainer>
-        <ContentDetailContainer>
-          {this.renderDetail(account)}
-        </ContentDetailContainer>
+        <ContentDetailContainer>{this.renderDetail(account)}</ContentDetailContainer>
       </ContentContainer>
     )
   }
@@ -127,6 +125,7 @@ class AccountDetailPage extends Component {
   render () {
     return (
       <AccountProvider
+        {...this.props}
         render={this.renderAccountDetailPage}
         accountId={this.props.match.params.accountId}
       />
