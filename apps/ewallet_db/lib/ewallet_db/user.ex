@@ -33,6 +33,7 @@ defmodule EWalletDB.User do
     Invite,
     Membership,
     Repo,
+    GlobalRole,
     Role,
     User,
     Wallet
@@ -45,6 +46,7 @@ defmodule EWalletDB.User do
     external_id(prefix: "usr_")
 
     field(:is_admin, :boolean, default: false)
+    field(:global_role, :string)
     field(:username, :string)
     field(:full_name, :string)
     field(:calling_name, :string)
@@ -87,6 +89,13 @@ defmodule EWalletDB.User do
       references: :uuid
     )
 
+    has_many(
+      :account_links,
+      AccountUser,
+      foreign_key: :user_uuid,
+      references: :uuid
+    )
+
     many_to_many(
       :roles,
       Role,
@@ -98,6 +107,13 @@ defmodule EWalletDB.User do
       :accounts,
       Account,
       join_through: Membership,
+      join_keys: [user_uuid: :uuid, account_uuid: :uuid]
+    )
+
+    many_to_many(
+      :linked_accounts,
+      Account,
+      join_through: AccountUser,
       join_keys: [user_uuid: :uuid, account_uuid: :uuid]
     )
 
@@ -122,7 +138,8 @@ defmodule EWalletDB.User do
         :password_confirmation,
         :metadata,
         :encrypted_metadata,
-        :invite_uuid
+        :invite_uuid,
+        :global_role
       ],
       encrypted: [
         :encrypted_metadata
@@ -133,6 +150,7 @@ defmodule EWalletDB.User do
       ]
     )
     |> validate_confirmation(:password, message: "does not match password")
+    |> validate_inclusion(:global_role, GlobalRole.global_roles())
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
@@ -175,7 +193,8 @@ defmodule EWalletDB.User do
         :calling_name,
         :metadata,
         :encrypted_metadata,
-        :invite_uuid
+        :invite_uuid,
+        :global_role
       ],
       encrypted: [
         :encrypted_metadata
@@ -286,6 +305,7 @@ defmodule EWalletDB.User do
   defp do_validate_provider_user(changeset, _attrs) do
     changeset
     |> validate_required([:username, :provider_user_id])
+    |> put_change(:global_role, GlobalRole.end_user())
   end
 
   @doc """
@@ -314,6 +334,21 @@ defmodule EWalletDB.User do
   end
 
   def get(_, _), do: nil
+
+  @doc """
+  Retrieves a specific admin.
+  """
+  @spec get_admin(String.t()) :: %User{} | nil
+  @spec get_admin(String.t(), Ecto.Queryable.t()) :: %User{} | nil
+  def get_admin(id, queryable \\ User)
+
+  def get_admin(id, queryable) when is_external_id(id) do
+    queryable
+    |> Repo.get_by(id: id, is_admin: true)
+    |> Repo.preload(:wallets)
+  end
+
+  def get_admin(_, _), do: nil
 
   @doc """
   Retrieves a specific user from its provider_user_id.
@@ -566,48 +601,16 @@ defmodule EWalletDB.User do
 
   @doc """
   Retrieves the user's role on the given account.
-
-  If the user does not have a membership on the given account, it inherits
-  the role from the closest parent account that has one.
   """
-  @spec get_role(String.t(), String.t()) :: String.t() | nil
-  def get_role(user_id, account_id) do
-    user_id
-    |> query_role(account_id)
-    |> Repo.one()
-  end
+  @spec get_role(String.t(), %Account{}) :: String.t() | nil
+  def get_role(user, account) do
+    case Membership.get_by_member_and_account(user, account) do
+      nil ->
+        nil
 
-  defp query_role(user_id, account_id) do
-    # Traverses up the account tree to find the user's role in the closest parent.
-    from(
-      r in Role,
-      join:
-        account_tree in fragment(
-          ~s/
-            (
-              WITH RECURSIVE account_tree AS (
-                SELECT a.*, m.role_uuid, m.user_uuid
-                FROM account a
-                LEFT JOIN membership AS m ON m.account_uuid = a.uuid
-                WHERE a.id = ?
-              UNION
-                SELECT parent.*, m.role_uuid, m.user_uuid
-                FROM account parent
-                LEFT JOIN membership AS m ON m.account_uuid = parent.uuid
-                JOIN account_tree ON account_tree.parent_uuid = parent.uuid
-              )
-              SELECT role_uuid FROM account_tree
-              JOIN "role" AS r ON r.uuid = role_uuid
-              JOIN "user" AS u ON u.uuid = user_uuid
-              WHERE u.id = ? LIMIT 1
-            )
-          /,
-          ^account_id,
-          ^user_id
-        ),
-      on: r.uuid == account_tree.role_uuid,
-      select: r.name
-    )
+      membership ->
+        membership.role.name
+    end
   end
 
   @doc """
@@ -636,86 +639,22 @@ defmodule EWalletDB.User do
   def enabled?(user), do: user.enabled == true
 
   @doc """
-  Checks if the user is an admin on the top-level account.
-  """
-  @spec master_admin?(%User{} | String.t()) :: boolean()
-  def master_admin?(%User{id: user_id}) do
-    master_admin?(user_id)
-  end
-
-  def master_admin?(user_id) do
-    User.get_role(user_id, Account.get_master_account().id) == "admin"
-  end
-
-  @doc """
-  Retrieves the upper-most account that the given user has membership in.
-  """
-  @spec get_account(%User{}) :: %Account{} | nil
-  def get_account(user) do
-    query =
-      from(
-        [q, child] in query_accounts(user),
-        order_by: [asc: child.depth, desc: child.inserted_at],
-        limit: 1
-      )
-
-    Repo.one(query)
-  end
-
-  @spec get_all_accessible_account_uuids(%User{}) :: [String.t()] | no_return()
-  def get_all_accessible_account_uuids(user) do
-    user
-    |> get_membership_account_uuids()
-    |> Account.get_all_descendants_uuids()
-  end
-
-  @doc """
-  Retrieves the list of accounts that the given user has membership, including their child accounts.
+  Retrieves the list of accounts that the given user has membership.
   """
   @spec get_accounts(%User{}) :: [%Account{}]
   def get_accounts(user) do
-    user
-    |> query_accounts()
-    |> Repo.all()
-  end
-
-  @spec get_membership_account_uuids(%User{}) :: [String.t()] | no_return()
-  def get_membership_account_uuids(user) do
-    user
-    |> Membership.all_by_user()
-    |> Enum.map(fn m -> Map.fetch!(m, :account_uuid) end)
+    Repo.preload(user, [:accounts]).accounts
   end
 
   @doc """
-  Query the list of accounts that the given user has membership, including their child accounts.
+  Returns a random account from the user.
   """
-  @spec query_accounts(%User{}) :: Ecto.Queryable.t()
-  def query_accounts(user) do
-    account_uuids = get_membership_account_uuids(user)
-
-    # Traverses down the account tree
-    from(
-      a in Account,
-      join:
-        child in fragment(
-          """
-          (
-            WITH RECURSIVE account_tree AS (
-              SELECT account.*, 0 AS depth
-              FROM account
-              WHERE account.uuid = ANY(?)
-            UNION
-              SELECT child.*, account_tree.depth + 1 as depth
-              FROM account child
-              JOIN account_tree ON account_tree.uuid = child.parent_uuid
-            ) SELECT * FROM account_tree
-          )
-          """,
-          type(^account_uuids, {:array, UUID})
-        ),
-      on: a.uuid == child.uuid,
-      select: %{a | relative_depth: child.depth}
-    )
+  @spec get_account(%User{}) :: [%Account{}]
+  def get_account(user) do
+    user
+    |> Ecto.assoc(:accounts)
+    |> limit(1)
+    |> Repo.one()
   end
 
   @doc """

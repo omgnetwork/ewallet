@@ -15,11 +15,18 @@
 defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias Ecto.Query
-  alias EWallet.InviteEmail
-  alias EWallet.{AccountMembershipPolicy, EmailValidator}
+
+  alias EWallet.{
+    InviteEmail,
+    AccountMembershipPolicy,
+    AdminUserPolicy,
+    AccountPolicy,
+    EmailValidator,
+    Bouncer.Permission
+  }
+
   alias EWallet.Web.{Inviter, Orchestrator, Originator, UrlValidator, V1.MembershipOverlay}
-  alias EWalletDB.{Account, Membership, Repo, Role, User}
+  alias EWalletDB.{Account, Membership, Role, User}
 
   @doc """
   Lists the users that are assigned to the given account.
@@ -28,13 +35,11 @@ defmodule AdminAPI.V1.AccountMembershipController do
     with %Account{} = account <-
            Account.get(account_id, preload: [memberships: [:user, :role]]) ||
              {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, account.id),
-         ancestor_uuids <- Account.get_all_ancestors_uuids(account),
-         query <- Membership.all_by_account_uuids(ancestor_uuids),
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          attrs <- transform_user_filter_attrs(attrs),
-         %Query{} = query <- Orchestrator.build_query(query, MembershipOverlay, attrs),
-         memberships <- Repo.all(query),
-         memberships <- Membership.distinct_by_role(memberships) do
+         query <- Membership.all_by_account(account, query),
+         memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
       render(conn, :memberships, %{memberships: memberships})
     else
       {:error, :not_allowed, field} ->
@@ -85,7 +90,12 @@ defmodule AdminAPI.V1.AccountMembershipController do
   """
   def assign_user(conn, attrs) do
     with %Account{} = account <- Account.get(attrs["account_id"]) || {:error, :unauthorized},
-         :ok <- permit(:create, conn.assigns, account.id),
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         {:ok, _} <-
+           authorize(:create, conn.assigns, %Membership{
+             account: account,
+             account_uuid: account.uuid
+           }),
          {:ok, user_or_email} <- get_user_or_email(attrs),
          %Role{} = role <-
            Role.get_by(name: attrs["role_name"]) || {:error, :role_name_not_found},
@@ -100,6 +110,9 @@ defmodule AdminAPI.V1.AccountMembershipController do
       {:error, code} when is_atom(code) ->
         handle_error(conn, code)
 
+      {:error, %Permission{} = permission} ->
+        handle_error(conn, permission)
+
       # Matches a different error format returned by Membership.assign_user/2
       {:error, changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
@@ -113,7 +126,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   #
   # Returns:
   # - `%User{}` if user_id is provided and found.
-  # - `:user_id_not_found` if `user_id` is provided but not found.
+  # - `:unauthorized` if `user_id` is provided but not found.
   # - `%User{}` if email is provided and found.
   # - `string` email if email provided but not found.
   #
@@ -122,7 +135,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   defp get_user_or_email(%{"user_id" => user_id}) do
     case User.get(user_id) do
       %User{} = user -> {:ok, user}
-      _ -> {:error, :user_id_not_found}
+      _ -> {:error, :unauthorized}
     end
   end
 
@@ -180,23 +193,36 @@ defmodule AdminAPI.V1.AccountMembershipController do
   def unassign_user(conn, %{
         "user_id" => user_id,
         "account_id" => account_id
-      }) do
+      })
+      when not is_nil(account_id) and not is_nil(user_id) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:delete, conn.assigns, account.id),
-         %User{} = user <- User.get(user_id) || {:error, :user_id_not_found},
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         %User{} = user <- User.get(user_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, user),
+         %Membership{} = membership <- Membership.get_by_member_and_account(user, account),
+         {:ok, _} <- authorize(:delete, conn.assigns, membership),
          originator <- Originator.extract(conn.assigns),
          {:ok, _} <- Membership.unassign(user, account, originator) do
       render(conn, :empty, %{success: true})
     else
+      nil -> handle_error(conn, :unauthorized)
       {:error, error} -> handle_error(conn, error)
     end
   end
 
   def unassign_user(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  @spec permit(:all | :create | :get | :update | :delete, map(), String.t()) ::
-          :ok | {:error, any()} | no_return()
-  defp permit(action, params, account_id) do
-    Bodyguard.permit(AccountMembershipPolicy, action, params, account_id)
+  @spec authorize(:all | :create | :get | :update | :delete, map(), map()) ::
+          {:ok, %Permission{}} | {:error, %Permission{}} | no_return()
+  defp authorize(action, actor, %Account{} = account) do
+    AccountPolicy.authorize(action, actor, account)
+  end
+
+  defp authorize(action, actor, %User{} = user) do
+    AdminUserPolicy.authorize(action, actor, user)
+  end
+
+  defp authorize(action, actor, membership) do
+    AccountMembershipPolicy.authorize(action, actor, membership)
   end
 end

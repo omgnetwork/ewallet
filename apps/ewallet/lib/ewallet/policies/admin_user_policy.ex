@@ -16,45 +16,21 @@ defmodule EWallet.AdminUserPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  @behaviour Bodyguard.Policy
   alias EWallet.PolicyHelper
-  alias EWalletDB.{Account, Membership, User}
+  alias EWallet.{Bouncer, Bouncer.Permission}
+  alias EWalletDB.User
 
-  # Allowed for any role, filtering is
-  # handled at the controller level to only return
-  # allowed records. Should this be handled here?
-  def authorize(:all, _params, nil), do: true
-
-  # access key have admin rights so we only check that the target is
-  # a descendant of the access key's account.
-  def authorize(_action, %{key: key}, user) do
-    account_uuids = membership_account_uuids(user)
-    Account.descendant?(key.account, account_uuids)
-  end
-
-  # compare current user descendant accounts
-  # with passed user ancestors accounts to find match
-
-  def authorize(:get, %{admin_user: admin_user}, user) do
-    account_uuids = membership_account_uuids(user)
-    PolicyHelper.viewer_authorize(admin_user, account_uuids)
+  @spec authorize(any(), any(), any()) ::
+          {:error, EWallet.Bouncer.Permission.t()} | {:ok, EWallet.Bouncer.Permission.t()}
+  def authorize(:create, actor, _user_attrs) do
+    Bouncer.bounce(actor, %Permission{action: :create, target: %User{is_admin: true}})
   end
 
   def authorize(:enable_or_disable, %{admin_user: %{uuid: uuid}}, %User{uuid: uuid}) do
-    false
+    {:error, :unauthorized}
   end
 
-  # create/update/delete, or anything else.
-  def authorize(_action, %{admin_user: admin_user}, user) do
-    account_uuids = membership_account_uuids(user)
-    PolicyHelper.admin_authorize(admin_user, account_uuids)
-  end
-
-  def authorize(_, _, _), do: false
-
-  defp membership_account_uuids(user) do
-    user
-    |> Membership.all_by_user()
-    |> Enum.map(fn membership -> membership.account_uuid end)
+  def authorize(action, actor, target) do
+    PolicyHelper.authorize(action, actor, :users, User, target)
   end
 end

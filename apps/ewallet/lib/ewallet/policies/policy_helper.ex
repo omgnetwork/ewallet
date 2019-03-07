@@ -14,53 +14,29 @@
 
 defmodule EWallet.PolicyHelper do
   @moduledoc """
-  A policy helper containing the actual authorization.
+  The authorization policy for mints.
   """
-  alias Utils.Intersecter
-  alias EWalletDB.{Account, Membership, Role}
+  alias EWallet.{Bouncer, Bouncer.Permission}
 
-  def admin_authorize(user, account_id_or_uuids) do
-    # admin is required to create
-    role = Role.get_by(name: "admin")
-
-    user
-    |> Membership.all_by_user_and_role(role)
-    |> authorize(account_id_or_uuids)
+  def authorize(:export, attrs, type, schema, nil) do
+    authorize_scope(:export, attrs, type, schema)
   end
 
-  def viewer_authorize(user, account_id_or_uuids) do
-    # We don't care about the role here since both admin and viewer
-    # are able to get accounts. We only care about getting a membership.
-
-    user
-    |> Membership.all_by_user()
-    |> authorize(account_id_or_uuids)
+  def authorize(:all, attrs, type, schema, nil) do
+    authorize_scope(:all, attrs, type, schema)
   end
 
-  defp authorize(memberships, account_uuids) when is_list(account_uuids) do
-    with ancestors <- Account.get_all_ancestors(account_uuids),
-         ancestors_uuids <- Enum.map(ancestors, fn ancestor -> ancestor.uuid end),
-         membership_accounts_uuids <-
-           Enum.map(memberships, fn membership -> membership.account_uuid end) do
-      case Intersecter.intersect(ancestors_uuids, membership_accounts_uuids) do
-        [] -> false
-        _ -> true
-      end
-    end
+  def authorize(action, attrs, _type, _schema, target) do
+    Bouncer.bounce(attrs, %Permission{action: action, target: target})
   end
 
-  defp authorize(memberships, account_id_or_uuid) do
-    with %Account{} = account <-
-           Account.get(account_id_or_uuid) || Account.get_by(uuid: account_id_or_uuid) ||
-             {:error, :unauthorized},
-         ancestors <- Account.get_all_ancestors(account),
-         ancestors_uuids <- Enum.map(ancestors, fn ancestor -> ancestor.uuid end),
-         membership_accounts_uuids <-
-           Enum.map(memberships, fn membership -> membership.account_uuid end) do
-      case Intersecter.intersect(ancestors_uuids, membership_accounts_uuids) do
-        [] -> false
-        _ -> true
-      end
+  defp authorize_scope(_action, attrs, type, schema) do
+    case Bouncer.bounce(attrs, %Permission{action: :all, type: type, schema: schema}) do
+      {:ok, permission} ->
+        {:ok, %{permission | query: Bouncer.scoped_query(permission)}}
+
+      error ->
+        error
     end
   end
 end

@@ -21,16 +21,21 @@ defmodule AdminAPI.V1.ConfigurationController do
   alias EWallet.ConfigurationPolicy
 
   def all(conn, attrs) do
-    settings =
-      Config.query_settings()
-      |> Orchestrator.build_query(ConfigurationOverlay, attrs)
-      |> Repo.all()
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns),
+         true <- !is_nil(query) || {:error, :unauthorized} do
+      settings =
+        query
+        |> Orchestrator.build_query(ConfigurationOverlay, attrs)
+        |> Repo.all()
 
-    render(conn, :settings, %{settings: settings})
+      render(conn, :settings, %{settings: settings})
+    else
+      {:error, code} -> handle_error(conn, code)
+    end
   end
 
   def update(conn, attrs) do
-    with :ok <- permit(:update, conn.assigns),
+    with {:ok, _} <- authorize(:update, conn.assigns),
          attrs <- put_originator(conn, attrs),
          {:ok, settings} <- Config.update(attrs) do
       render(conn, :settings_with_errors, %{settings: settings})
@@ -57,8 +62,8 @@ defmodule AdminAPI.V1.ConfigurationController do
     Map.put(attrs, :originator, Originator.extract(conn.assigns))
   end
 
-  @spec permit(:get | :update, map()) :: any()
-  defp permit(action, params) do
-    Bodyguard.permit(ConfigurationPolicy, action, params, nil)
+  @spec authorize(:get | :update, map()) :: any()
+  defp authorize(action, actor) do
+    ConfigurationPolicy.authorize(action, actor, nil)
   end
 end

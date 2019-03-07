@@ -1,0 +1,16 @@
+UnauthorizedResponseSchema:
+  description: Unauthorized
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/ErrorSchema'
+    example:
+      success: false
+      data:
+        object: error
+        code: unauthorized
+        description: You are not allowed to perform the requested operation.
+        messages: {}

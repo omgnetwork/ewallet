@@ -16,9 +16,8 @@ defmodule AdminAPI.V1.AuthTokenSerializer do
   @moduledoc """
   Serializes authentication token data into V1 response format.
   """
-  alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
+  alias EWallet.Web.V1.UserSerializer
   alias Utils.Helpers.Assoc
-  alias EWalletDB.User
 
   def serialize(auth_token) do
     %{
@@ -26,10 +25,11 @@ defmodule AdminAPI.V1.AuthTokenSerializer do
       authentication_token: auth_token.token,
       user_id: Assoc.get(auth_token, [:user, :id]),
       user: UserSerializer.serialize(auth_token.user),
-      account_id: Assoc.get(auth_token, [:account, :id]),
-      account: AccountSerializer.serialize(auth_token.account),
-      master_admin: User.master_admin?(auth_token.user),
-      role: User.get_role(auth_token.user.id, auth_token.account.id)
+      account_id: nil,
+      account: nil,
+      master_admin: nil,
+      role: nil,
+      global_role: Assoc.get(auth_token, [:user, :global_role])
     }
   end
 end

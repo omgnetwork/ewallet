@@ -138,7 +138,7 @@ defmodule AdminAPI.V1.UpdateEmailControllerTest do
         })
 
       assert response["success"] == false
-      assert response["data"]["code"] == "access_key:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "generates activity logs" do

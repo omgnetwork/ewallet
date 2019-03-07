@@ -16,19 +16,15 @@ defmodule EWallet.TokenPolicy do
   @moduledoc """
   The authorization policy for tokens.
   """
-  @behaviour Bodyguard.Policy
-  alias EWalletDB.{Account, User}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
+  alias EWalletDB.Token
 
-  def authorize(:all, _user_or_key, _category_id), do: true
-  def authorize(:get, _user_or_key, _category_id), do: true
-
-  def authorize(_, %{key: key}, _category_id) do
-    Account.get_master_account().uuid == key.account.uuid
+  def authorize(:create, attrs, %{"account_uuid" => account_uuid}) do
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %Token{account_uuid: account_uuid}})
   end
 
-  def authorize(_, %{admin_user: user}, _category_id) do
-    User.master_admin?(user.id)
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :tokens, Token, target)
   end
-
-  def authorize(_, _, _), do: false
 end

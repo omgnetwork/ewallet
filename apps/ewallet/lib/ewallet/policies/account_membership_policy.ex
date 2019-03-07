@@ -16,27 +16,20 @@ defmodule EWallet.AccountMembershipPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  @behaviour Bodyguard.Policy
   alias EWallet.PolicyHelper
-  alias EWalletDB.Account
+  alias EWallet.{Bouncer, Bouncer.Permission}
+  alias EWalletDB.Membership
 
-  # access key have admin rights so we only check that the target is
-  # a descendant of the access key's account.
-  def authorize(_action, %{key: key}, account_id) do
-    Account.descendant?(key.account, account_id)
+  @spec authorize(any(), any(), any()) ::
+          {:error, EWallet.Bouncer.Permission.t()} | {:ok, EWallet.Bouncer.Permission.t()}
+  def authorize(:create, actor, %Membership{account: account, account_uuid: account_uuid}) do
+    Bouncer.bounce(actor, %Permission{
+      action: :create,
+      target: %Membership{account: account, account_uuid: account_uuid}
+    })
   end
 
-  def authorize(:get, %{admin_user: user}, account_id) do
-    PolicyHelper.viewer_authorize(user, account_id)
+  def authorize(action, actor, target) do
+    PolicyHelper.authorize(action, actor, :memberships, Membership, target)
   end
-
-  def authorize(:create, %{admin_user: user}, account_id) do
-    PolicyHelper.admin_authorize(user, account_id)
-  end
-
-  def authorize(:delete, %{admin_user: user}, account_id) do
-    PolicyHelper.admin_authorize(user, account_id)
-  end
-
-  def authorize(_, _, _), do: false
 end

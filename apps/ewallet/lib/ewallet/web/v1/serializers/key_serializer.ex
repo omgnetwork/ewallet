@@ -32,7 +32,7 @@ defmodule EWallet.Web.V1.KeySerializer do
       id: key.id,
       access_key: key.access_key,
       secret_key: key.secret_key,
-      account_id: key.account.id,
+      account_id: nil,
       enabled: key.enabled,
       created_at: DateFormatter.to_iso8601(key.inserted_at),
       updated_at: DateFormatter.to_iso8601(key.updated_at),

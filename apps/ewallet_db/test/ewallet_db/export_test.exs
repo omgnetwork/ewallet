@@ -63,7 +63,7 @@ defmodule EWalletDB.ExportTest do
         |> Export.insert()
       end)
 
-      exports = user |> Export.all_for("local") |> Repo.all()
+      exports = user |> Export.all_for("local", Export) |> Repo.all()
 
       assert Enum.all?(exports, fn e -> e.user_uuid == user.uuid end)
     end
@@ -87,7 +87,7 @@ defmodule EWalletDB.ExportTest do
         |> Export.insert()
       end)
 
-      exports = key |> Export.all_for("local") |> Repo.all()
+      exports = key |> Export.all_for("local", Export) |> Repo.all()
 
       assert Enum.all?(exports, fn e -> e.key_uuid == key.uuid end)
     end
@@ -140,7 +140,7 @@ defmodule EWalletDB.ExportTest do
       assert String.starts_with?(export.path, "private/uploads/test/exports/transaction-")
       assert String.ends_with?(export.path, ".csv")
       assert String.ends_with?(export.filename, ".csv")
-      assert export.adapter == nil
+      assert export.adapter == "local"
       assert export.schema == "transaction"
       assert export.total_count == 10
       assert export.estimated_size == 1000

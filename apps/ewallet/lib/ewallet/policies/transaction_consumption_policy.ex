@@ -16,67 +16,27 @@ defmodule EWallet.TransactionConsumptionPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.{AccountPolicy, PolicyHelper, TransactionRequestPolicy, UserPolicy, WalletPolicy}
-  alias EWalletDB.{Account, TransactionConsumption, TransactionRequest, User, Wallet}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
+  alias EWalletDB.TransactionConsumption
 
-  def authorize(:all, params, %Account{} = account) do
-    AccountPolicy.authorize(:get, params, account.id)
+  def authorize(:create, attrs, attrs) do
+    Bouncer.bounce(attrs, %Permission{
+      action: :create,
+      target: %TransactionConsumption{
+        account_uuid: attrs[:account_uuid],
+        user_uuid: attrs[:user_uuid]
+      }
+    })
   end
 
-  def authorize(:all, params, %User{} = user) do
-    UserPolicy.authorize(:get, params, user)
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(
+      action,
+      attrs,
+      :transaction_consumptions,
+      TransactionConsumption,
+      target
+    )
   end
-
-  def authorize(:all, params, %TransactionRequest{} = transaction_request) do
-    TransactionRequestPolicy.authorize(:get, params, transaction_request)
-  end
-
-  def authorize(:all, params, %Wallet{} = wallet) do
-    WalletPolicy.authorize(:get, params, wallet)
-  end
-
-  def authorize(:all, _admin_user_or_key, nil), do: true
-
-  # If the account_uuid is nil, the transaction belongs to a user and can be
-  # seen by any admin.
-  def authorize(:get, _key_or_user, %TransactionConsumption{account_uuid: nil}) do
-    true
-  end
-
-  def authorize(:get, %{key: key}, consumption) do
-    Account.descendant?(key.account, consumption.account.id)
-  end
-
-  def authorize(:get, %{admin_user: user}, consumption) do
-    PolicyHelper.viewer_authorize(user, consumption.account.id)
-  end
-
-  def authorize(:join, %{admin_user: _} = params, consumption) do
-    authorize(:get, params, consumption)
-  end
-
-  def authorize(:join, %{key: _} = params, consumption) do
-    authorize(:get, params, consumption)
-  end
-
-  def authorize(:join, %{end_user: _} = params, consumption) do
-    WalletPolicy.authorize(:join, params, consumption.wallet)
-  end
-
-  def authorize(:consume, params, %TransactionConsumption{} = consumption) do
-    WalletPolicy.authorize(:admin, params, consumption.wallet)
-  end
-
-  # To confirm a request, we need to have admin rights on the
-  # wallet of the request, except for user-only request/consumption
-  def authorize(:confirm, %{end_user: end_user}, %TransactionRequest{} = request) do
-    end_user.uuid == request.wallet.user_uuid
-  end
-
-  def authorize(:confirm, params, %TransactionRequest{} = request) do
-    WalletPolicy.authorize(:admin, params, request.wallet)
-  end
-
-  def authorize(_, _, _), do: false
 end

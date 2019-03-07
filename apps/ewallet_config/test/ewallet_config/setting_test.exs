@@ -570,7 +570,7 @@ defmodule EWalletConfig.SettingTest do
       assert length(settings) == Enum.count(default_settings)
 
       first_setting = Enum.at(settings, 0)
-      assert first_setting.key == "base_url"
+      assert first_setting.key == "master_account"
     end
 
     test "insert all defaults with overrides" do

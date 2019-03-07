@@ -23,7 +23,14 @@ defmodule EWalletDB.RoleTest do
   end
 
   describe "all/1" do
-    test_schema_all_returns_all_records(Role, 10)
+    test "all/0 returns records" do
+      assert Enum.empty?(Role.all())
+
+      insert(:role, name: "admin")
+      insert(:role, name: "viewer")
+
+      assert length(Role.all()) == 2
+    end
   end
 
   describe "get/2" do
@@ -39,17 +46,17 @@ defmodule EWalletDB.RoleTest do
   end
 
   describe "insert/1" do
-    test_insert_ok(Role, :name, "test_role_name")
+    test_insert_ok(Role, :name, "admin")
     test_insert_generate_uuid(Role, :uuid)
     test_insert_generate_external_id(Role, :id, "rol_")
     test_insert_generate_timestamps(Role)
 
     test_insert_prevent_blank(Role, :name)
-    test_insert_prevent_duplicate(Role, :name)
+    test_insert_prevent_duplicate(Role, :name, "admin")
   end
 
   describe "update/1" do
-    test_update_field_ok(Role, :name)
+    test_update_field_ok(Role, :name, "admin", "viewer")
     test_update_field_ok(Role, :display_name)
   end
 

@@ -15,7 +15,7 @@
 defmodule AdminAPI.V1.UserAuthController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.UserFetcher
+  alias EWallet.{EndUserPolicy, UserFetcher}
   alias EWallet.Web.{Orchestrator, Originator, V1.AuthTokenOverlay}
   alias EWalletDB.{AuthToken, User}
 
@@ -25,6 +25,7 @@ defmodule AdminAPI.V1.UserAuthController do
   def login(conn, attrs) do
     with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
          true <- User.enabled?(user) || {:error, :user_disabled},
+         {:ok, _} <- authorize(:login, conn.assigns, user),
          originator <- Originator.extract(conn.assigns),
          {:ok, token} = AuthToken.generate(user, :ewallet_api, originator),
          {:ok, token} = Orchestrator.one(token, AuthTokenOverlay, attrs) do
@@ -46,10 +47,16 @@ defmodule AdminAPI.V1.UserAuthController do
   Invalidates the authentication token used in this request.
   """
   def logout(conn, %{"auth_token" => auth_token}) do
-    originator = Originator.extract(conn.assigns)
-    AuthToken.expire(auth_token, :ewallet_api, originator)
-
-    render(conn, :empty_response, %{})
+    with %User{} = user <-
+           AuthToken.authenticate(auth_token, :ewallet_api) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:logout, conn.assigns, user),
+         originator = Originator.extract(conn.assigns),
+         AuthToken.expire(auth_token, :ewallet_api, originator) do
+      render(conn, :empty_response, %{})
+    else
+      {:error, error} ->
+        handle_error(conn, error)
+    end
   end
 
   def logout(conn, _),
@@ -59,4 +66,13 @@ defmodule AdminAPI.V1.UserAuthController do
         :invalid_parameter,
         "Invalid parameter provided. `auth_token` is required."
       )
+
+  @spec authorize(
+          :login | :logout,
+          map(),
+          %User{} | nil
+        ) :: :ok | {:error, any()} | no_return()
+  defp authorize(action, actor, user) do
+    EndUserPolicy.authorize(action, actor, user)
+  end
 end

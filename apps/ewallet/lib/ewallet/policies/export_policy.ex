@@ -16,15 +16,15 @@ defmodule EWallet.ExportPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  @behaviour Bodyguard.Policy
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
+  alias EWalletDB.Export
 
-  def authorize(:get, %{admin_user: admin_user}, export) do
-    export.user_uuid == admin_user.uuid
+  def authorize(:create, attrs, _attrs) do
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %Export{}})
   end
 
-  def authorize(:get, %{key: key}, export) do
-    export.key_uuid == key.uuid
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :exports, Export, target)
   end
-
-  def authorize(_, _, _), do: false
 end

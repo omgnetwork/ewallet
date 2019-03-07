@@ -75,7 +75,9 @@ defmodule EWalletDB.Factory do
       total_count: 100,
       adapter: "local",
       params: %{"sort_by" => "created_at", "sort_dir" => "desc"},
-      originator: %System{}
+      originator: %System{},
+      user: nil,
+      key: nil
     }
   end
 
@@ -165,6 +167,7 @@ defmodule EWalletDB.Factory do
         "last_name" => sequence("Doe")
       },
       encrypted_metadata: %{},
+      global_role: "end_user",
       originator: %System{}
     }
   end
@@ -198,18 +201,22 @@ defmodule EWalletDB.Factory do
 
   def role_factory do
     %Role{
-      name: sequence("role"),
+      name: "admin",
       display_name: "Role display name",
-      # Add a prefix temporarily so ExMachina.sequence/2 plays along nicely
-      priority: "priority" |> sequence() |> String.replace_leading("priority", ""),
       originator: %System{}
     }
   end
 
   def membership_factory do
+    role =
+      case Role.get_by(name: "admin") do
+        nil -> insert(:role, name: "admin")
+        role -> role
+      end
+
     %Membership{
       user: insert(:user),
-      role: insert(:role),
+      role: role,
       account: insert(:account),
       originator: %System{}
     }
@@ -228,7 +235,6 @@ defmodule EWalletDB.Factory do
     %Account{
       name: sequence("account"),
       description: sequence("description for account"),
-      parent: Account.get_master_account(),
       originator: %System{}
     }
   end
@@ -249,7 +255,6 @@ defmodule EWalletDB.Factory do
       access_key: access_key,
       secret_key: Base.url_encode64(secret_key, padding: false),
       secret_key_hash: Crypto.hash_secret(secret_key),
-      account: insert(:account),
       enabled: true,
       deleted_at: nil,
       originator: %System{}

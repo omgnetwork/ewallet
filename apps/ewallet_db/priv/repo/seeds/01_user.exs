@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWalletDB.Repo.Seeds.UserSeed do
-  alias EWalletDB.{Account, AccountUser, User}
+  alias EWalletDB.{Account, User}
   alias Utils.Helpers.Crypto
   alias EWalletDB.Seeder
 
@@ -49,8 +49,6 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       nil ->
         case User.insert(data) do
           {:ok, user} ->
-            {:ok, _} = AccountUser.link(data.account_uuid, user.uuid, %Seeder{})
-
             writer.success("""
               ID       : #{user.id}
               Email    : #{user.email}

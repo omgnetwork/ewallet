@@ -12,6 +12,14 @@ config :ewallet_config,
   },
   default_settings: %{
     # Global Settings
+    "master_account" => %{
+      key: "master_account",
+      value: "",
+      type: "string",
+      position: 000,
+      description:
+        "The master account of this eWallet, which will be used as the default account when needed."
+    },
     "base_url" => %{
       key: "base_url",
       value: "",

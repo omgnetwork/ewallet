@@ -14,7 +14,7 @@
 
 defmodule EWalletDB.Repo.Seeds.MembershipSampleSeed do
   alias EWallet.Web.Preloader
-  alias EWalletDB.{Account, Membership, Role, User}
+  alias EWalletDB.{Account, Membership, Role, Key, User}
   alias EWalletDB.Seeder
 
   @seed_data [
@@ -32,48 +32,92 @@ defmodule EWalletDB.Repo.Seeds.MembershipSampleSeed do
     ]
   end
 
-  def run(writer, _args) do
+  def run(writer, args) do
     Enum.each(@seed_data, fn data ->
-      run_with(writer, data)
+      run_for_user(writer, data)
     end)
+
+    run_for_key(writer, %{
+      access_key: args[:seeded_ewallet_key_access],
+      role_name: "admin",
+      account_name: "master_account"
+    })
   end
 
-  defp run_with(writer, data) do
+  def run_for_key(writer, data) do
+    account = Account.get_by(name: data.account_name)
+    key = Key.get_by(access_key: data.access_key)
+    role = Role.get_by(name: data.role_name)
+
+    add_membership_for(key, account, role, writer)
+  end
+
+  def run_for_user(writer, data) do
     account = Account.get_by(name: data.account_name)
     user = User.get_by(email: data.email)
     role = Role.get_by(name: data.role_name)
 
-    case Membership.get_by_user_and_account(user, account) do
-      nil ->
-        case Membership.assign(user, account, role, %Seeder{}) do
-          {:ok, membership} ->
-            {:ok, membership} = Preloader.preload_one(membership, [:user, :account, :role])
+    add_membership_for(user, account, role, writer)
+  end
 
-            writer.success("""
-              Email        : #{membership.user.email}
-              Account Name : #{membership.account.name}
-              Account ID   : #{membership.account.id}
-              Role         : #{membership.role.name}
-            """)
+  def add_membership_for(actor, account, role, writer) do
+    case Membership.get_by_member_and_account(actor, account) do
+      nil ->
+        case Membership.assign(actor, account, role, %Seeder{}) do
+          {:ok, membership} ->
+            {:ok, membership} = Preloader.preload_one(membership, [:user, :key, :account, :role])
+
+            print_success(actor, membership, writer)
 
           {:error, changeset} ->
-            writer.error("  Admin Panel user #{data.email} could not be assigned:")
-            writer.print_errors(changeset)
+            print_error(actor, writer, changeset)
 
           _ ->
-            writer.error("  Admin Panel user #{data.email} could not be assigned:")
-            writer.error("  Unknown error.")
+            print_error(actor, writer, "  Unknown error.")
         end
 
       %Membership{} = membership ->
-        {:ok, membership} = Preloader.preload_one(membership, [:user, :account, :role])
+        {:ok, membership} = Preloader.preload_one(membership, [:user, :key, :account, :role])
 
-        writer.warn("""
-          Email        : #{membership.user.email}
-          Account Name : #{membership.account.name}
-          Account ID   : #{membership.account.id}
-          Role         : #{membership.role.name}
-        """)
+        print_success(actor, membership, writer)
     end
+  end
+
+  defp print_success(%User{}, membership, writer) do
+    writer.success("""
+      Email        : #{membership.user.email}
+      Account Name : #{membership.account.name}
+      Account ID   : #{membership.account.id}
+      Role         : #{membership.role.name}
+    """)
+  end
+
+  defp print_success(%Key{}, membership, writer) do
+    writer.success("""
+      Email        : #{membership.key.access_key}
+      Account Name : #{membership.account.name}
+      Account ID   : #{membership.account.id}
+      Role         : #{membership.role.name}
+    """)
+  end
+
+  def print_error(%User{} = user, writer, %{} = changeset) do
+    writer.error("  Admin Panel user #{user.admin_email} could not be assigned:")
+    writer.print_errors(changeset)
+  end
+
+  def print_error(%Key{} = key, writer, %{} = changeset) do
+    writer.error("  Admin Panel user #{key.access_key} could not be assigned:")
+    writer.print_errors(changeset)
+  end
+
+  def print_error(%User{} = user, writer, description) do
+    writer.error("  Admin Panel user #{user.admin_email} could not be assigned:")
+    writer.error(description)
+  end
+
+  def print_error(%Key{} = key, writer, description) do
+    writer.error("  Admin Panel user #{key.access_key} could not be assigned:")
+    writer.error(description)
   end
 end

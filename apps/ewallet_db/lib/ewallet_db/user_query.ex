@@ -54,7 +54,7 @@ defmodule EWalletDB.UserQuery do
       :inner,
       [u],
       m in Membership,
-      u.uuid == m.user_uuid and m.account_uuid in ^account_uuids
+      on: u.uuid == m.user_uuid and m.account_uuid in ^account_uuids
     )
     |> distinct(true)
     |> select([c], c)

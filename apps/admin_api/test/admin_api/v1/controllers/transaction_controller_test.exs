@@ -496,7 +496,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
   end
 
   describe "/transaction.get" do
-    test_with_auths "returns an transaction by the given transaction's ID" do
+    test_with_auths "returns a transaction by the given transaction's ID" do
       transactions = insert_list(3, :transaction)
       # Pick the 2nd inserted transaction
       target = Enum.at(transactions, 1)
@@ -507,15 +507,12 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert response["data"]["id"] == target.id
     end
 
-    test_with_auths "returns 'transaction:id_not_found' if the given ID was not found" do
+    test_with_auths "returns 'unauthorized' if the given ID was not found" do
       response = request("/transaction.get", %{"id" => "tfr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "transaction:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no transaction corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "returns 'transaction:id_not_found' if the given ID format is invalid" do
@@ -523,10 +520,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "transaction:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no transaction corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 

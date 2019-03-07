@@ -90,15 +90,12 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert response["data"]["id"] == target.id
     end
 
-    test_with_auths "returns 'token:id_not_found' if the given ID was not found" do
+    test_with_auths "returns 'unauthorized' if the given ID was not found" do
       response = request("/token.get", %{"id" => "wrong_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "token:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no token corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "returns 'client:invalid_parameter' if id was not provided" do
@@ -126,19 +123,16 @@ defmodule AdminAPI.V1.TokenControllerTest do
              }
     end
 
-    test_with_auths "return token_not_found for non existing tokens" do
+    test_with_auths "return 'unauthorized' for non existing tokens" do
       token = insert(:token)
       _mints = insert_list(3, :mint, token_uuid: token.uuid)
       response = request("/token.stats", %{"id" => "fale"})
 
       assert response["success"] == false
 
-      assert response["data"] == %{
-               "object" => "error",
-               "code" => "token:id_not_found",
-               "description" => "There is no token corresponding to the provided id.",
-               "messages" => nil
-             }
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "returns the stats for a token that hasn't been minted" do
@@ -207,7 +201,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert mint == nil
     end
 
-    test_with_auths "fails a new token with no minting if amount is 0" do
+    test_with_auths "fails to create a new token with no minting if amount is 0" do
       response =
         request("/token.create", %{
           symbol: "BTC",
@@ -220,6 +214,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       mint = Mint |> Repo.all() |> Enum.at(0)
       assert mint == nil
       assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
     end
 
     test_with_auths "mints the given amount of tokens" do
@@ -563,17 +558,14 @@ defmodule AdminAPI.V1.TokenControllerTest do
              }
     end
 
-    test_with_auths "Raises token_not_found error if the token can't be found" do
+    test_with_auths "Raises 'unauthorized' error if the token can't be found" do
       response = request("/token.update", %{id: "fake", name: "Bitcoin"})
 
       refute response["success"]
 
-      assert response["data"] == %{
-               "object" => "error",
-               "code" => "token:id_not_found",
-               "description" => "There is no token corresponding to the provided id.",
-               "messages" => nil
-             }
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     defp assert_update_logs(logs, originator, target) do
@@ -661,7 +653,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
           enabled: nil
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
@@ -685,13 +677,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response = request("/token.enable_or_disable", %{id: "fake", enabled: false})
 
       refute response["success"]
-
-      assert response["data"] == %{
-               "object" => "error",
-               "code" => "token:id_not_found",
-               "description" => "There is no token corresponding to the provided id.",
-               "messages" => nil
-             }
+      assert response["data"]["code"] == "unauthorized"
     end
 
     defp assert_enable_logs(logs, originator, target) do

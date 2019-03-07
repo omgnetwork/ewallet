@@ -32,8 +32,9 @@ defmodule AdminAPI.ChannelCase do
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias EWalletConfig.ConfigTestHelper
-  alias EWalletDB.{Key, Account, User}
+  alias EWalletDB.{Key, Account, Membership, User, GlobalRole}
   alias Utils.{Types.ExternalID, Helpers.Crypto}
+  alias ActivityLogger.System
 
   # Attributes for provider calls
   @access_key "test_access_key"
@@ -83,6 +84,8 @@ defmodule AdminAPI.ChannelCase do
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
+    {:ok, account} = :account |> params_for() |> Account.insert()
+
     config_pid = start_supervised!(EWalletConfig.Config)
 
     ConfigTestHelper.restart_config_genserver(
@@ -93,29 +96,31 @@ defmodule AdminAPI.ChannelCase do
       %{
         "base_url" => "http://localhost:4000",
         "email_adapter" => "test",
-        "sender_email" => "admin@example.com"
+        "sender_email" => "admin@example.com",
+        "master_account" => account.id
       }
     )
-
-    {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
 
     admin =
       insert(:admin, %{
         id: @admin_id,
         email: @user_email,
-        password_hash: Crypto.hash_password(@password)
+        password_hash: Crypto.hash_password(@password),
+        global_role: GlobalRole.super_admin()
       })
 
-    role = insert(:role, %{name: "admin"})
-    _membership = insert(:membership, %{user: admin, role: role, account: account})
+    {:ok, key} =
+      :key
+      |> params_for(%{
+        access_key: @access_key,
+        secret_key: @secret_key,
+        global_role: GlobalRole.super_admin()
+      })
+      |> Key.insert()
 
-    :key
-    |> params_for(%{
-      account: account,
-      access_key: @access_key,
-      secret_key: @secret_key
-    })
-    |> Key.insert()
+    role = insert(:role, %{name: "admin"})
+    {:ok, _} = Membership.assign(admin, account, role, %System{})
+    {:ok, _} = Membership.assign(key, account, role, %System{})
 
     %{config_pid: config_pid}
   end
@@ -126,7 +131,7 @@ defmodule AdminAPI.ChannelCase do
 
   def key_auth_socket(access_key \\ @access_key) do
     socket("test", %{
-      auth: %{authenticated: true, key: Key.get_by(%{access_key: access_key}, preload: :account)}
+      auth: %{authenticated: true, key: Key.get_by(%{access_key: access_key})}
     })
   end
 
