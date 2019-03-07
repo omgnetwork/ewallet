@@ -22,7 +22,6 @@ const TokenDetailContainer = styled.div`
   padding-bottom: 20px;
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 40px;
   display: flex;
   width: 100%;
 `
@@ -83,14 +82,14 @@ class TokenDetailPage extends Component {
         breadcrumbItems={['Token', `${token.name} (${token.symbol})`]}
         buttons={[
           <Button
-            size="small"
-            styleType="secondary"
+            size='small'
+            styleType='secondary'
             onClick={this.onClickCreateExchangeRate}
-            key="rate"
+            key='rate'
           >
             <span>Create Exchange Pair</span>
           </Button>,
-          <Button size="small" onClick={this.onClickMintTopen} key="mint">
+          <Button size='small' onClick={this.onClickMintTopen} key='mint'>
             <span>Mint Token</span>
           </Button>
         ]}
@@ -99,7 +98,7 @@ class TokenDetailPage extends Component {
   }
   renderDetail = token => {
     return (
-      <Section title="DETAILS">
+      <Section title='DETAILS'>
         <DetailGroup>
           <b>ID:</b> <span>{token.id}</span> <Copy data={token.id} />
         </DetailGroup>
@@ -199,7 +198,7 @@ class TokenDetailPage extends Component {
     )
   }
 
-  render() {
+  render () {
     return <TokenDetailContainer>{this.renderTokenDetail()}</TokenDetailContainer>
   }
 }
