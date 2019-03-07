@@ -2,6 +2,9 @@ import createReducer from '../reducer/createReducer'
 import _ from 'lodash'
 export const recentAccountsReducer = createReducer([], {
   'ACCOUNT/VISIT': (state, { accountId }) => {
-    return [accountId, ...state]
+    if (!_.includes(state, accountId)) {
+      return [accountId, ...state].slice(0, 5)
+    }
+    return state
   }
 })

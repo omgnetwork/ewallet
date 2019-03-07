@@ -27,7 +27,6 @@ import ActivityLogPage from '../../omg-page-activity-log'
 import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
 import AccountLayout from '../../omg-account-detail-V2/AccountLayout'
-const currentAccount = getCurrentAccountFromLocalStorage()
 // prettier-ignore
 
 const createRoute = () => (

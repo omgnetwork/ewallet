@@ -118,7 +118,6 @@ class SocketConnector {
     }, this.params.reconnectInterval)
   }
   connect () {
-    console.log('Connecting to', this.url)
     return new Promise((resolve, reject) => {
       const urlWithAuths = appendParams(this.url, this.params)
       this.socket = new this.WebSocket(urlWithAuths)

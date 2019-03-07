@@ -7,6 +7,9 @@ import PropTypes from 'prop-types'
 import CurrentUserProvider from '../omg-user-current/currentUserProvider'
 import { fuzzySearch } from '../utils/search'
 import ProfileDropdown from './ProfileDropdown'
+import { selectRecentAccounts } from '../omg-recent-account/selector'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
 const SideNavigationContainer = styled.div`
   background-color: #f0f2f5;
   height: 100%;
@@ -58,13 +61,23 @@ const MenuName = styled.div`
 const RecentAccount = styled.div`
   margin-left: 32px;
 `
+
+const enhance = compose(
+  withRouter,
+  connect(
+    state => ({ recentAccounts: selectRecentAccounts(state) }),
+    null
+  )
+)
+
 class SideNavigation extends PureComponent {
   static propTypes = {
     location: PropTypes.object,
     className: PropTypes.string,
-    onClickSwitchAccount: PropTypes.func,
-    switchAccount: PropTypes.bool,
-    match: PropTypes.object
+    recentAccounts: PropTypes.array
+  }
+  static defaultProps = {
+    recentAccounts: []
   }
   constructor (props) {
     super(props)
@@ -127,11 +140,7 @@ class SideNavigation extends PureComponent {
   renderCurrentUser = ({ currentUser, loadingStatus }) => {
     return (
       <CurrentAccountContainer>
-        {loadingStatus === 'SUCCESS' ? (
-          <ProfileDropdown />
-        ) : (
-          <LoadingSkeleton height='18px' />
-        )}
+        {loadingStatus === 'SUCCESS' ? <ProfileDropdown /> : <LoadingSkeleton height='18px' />}
       </CurrentAccountContainer>
     )
   }
@@ -149,13 +158,23 @@ class SideNavigation extends PureComponent {
               <Icon name='Merchant' /> <span>{'Accounts'}</span>
             </NavigationItem>
           </Link>
-          <Link to={'/accounts'}>
-            <NavigationItem
-              active={fuzzySearch('/accounts', `/${this.props.location.pathname.split('/')[1]}`)}
-            >
-              <RecentAccount className='recent-account'>{'Master acc'}</RecentAccount>
-            </NavigationItem>
-          </Link>
+          {/* RECENT ACCOUNTS */}
+          {this.props.recentAccounts.length &&
+            this.props.recentAccounts.map(account => {
+              console.log(account)
+              return (
+                <Link to={'/accounts'}>
+                  <NavigationItem
+                    active={fuzzySearch(
+                      '/accounts',
+                      `/${this.props.location.pathname.split('/')[2]}`
+                    )}
+                  >
+                    <RecentAccount className='recent-account'>{account.name}</RecentAccount>
+                  </NavigationItem>
+                </Link>
+              )
+            })}
           {this.dataLink.map(link => {
             return (
               <Link to={link.to} key={link.to}>
@@ -185,4 +204,4 @@ class SideNavigation extends PureComponent {
   }
 }
 
-export default withRouter(SideNavigation)
+export default enhance(SideNavigation)
