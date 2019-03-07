@@ -15,8 +15,9 @@ export function configureStore (initialState = {}, injectedThunk = {}) {
   )
 }
 const socket = new SocketConnector(WEBSOCKET_URL)
-const currentUser = getAccessToken().user
-const recentAccounts = getRecentAccountFromLocalStorage()[currentUser.id]
+const currentUser = getAccessToken() ? getAccessToken().user : {}
+const recentAccountsByUserId = getRecentAccountFromLocalStorage()
+const recentAccounts = recentAccountsByUserId ? recentAccountsByUserId[currentUser.id] : []
 
 export const store = configureStore({ currentUser, recentAccounts }, { socket })
 

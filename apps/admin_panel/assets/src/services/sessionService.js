@@ -30,6 +30,7 @@ export function login ({ email, password }) {
 }
 
 export function logout () {
+  removeAccessDataFromLocalStorage()
   return authenticatedRequest({
     path: '/me.logout',
     data: {}
