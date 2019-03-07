@@ -55,6 +55,9 @@ const MenuName = styled.div`
   font-weight: 600;
   letter-spacing: 1px;
 `
+const RecentAccount = styled.div`
+  margin-left: 32px;
+`
 class SideNavigation extends PureComponent {
   static propTypes = {
     location: PropTypes.object,
@@ -66,11 +69,6 @@ class SideNavigation extends PureComponent {
   constructor (props) {
     super(props)
     this.dataLink = [
-      {
-        icon: 'Merchant',
-        to: '/accounts',
-        text: 'Accounts'
-      },
       {
         icon: 'Token',
         to: '/tokens',
@@ -144,6 +142,20 @@ class SideNavigation extends PureComponent {
         <NavigationItemsContainer>
           <CurrentUserProvider render={this.renderCurrentUser} />
           <MenuName> MANAGE </MenuName>
+          <Link to={'/accounts'}>
+            <NavigationItem
+              active={fuzzySearch('/accounts', `/${this.props.location.pathname.split('/')[1]}`)}
+            >
+              <Icon name='Merchant' /> <span>{'Accounts'}</span>
+            </NavigationItem>
+          </Link>
+          <Link to={'/accounts'}>
+            <NavigationItem
+              active={fuzzySearch('/accounts', `/${this.props.location.pathname.split('/')[1]}`)}
+            >
+              <RecentAccount className='recent-account'>{'Master acc'}</RecentAccount>
+            </NavigationItem>
+          </Link>
           {this.dataLink.map(link => {
             return (
               <Link to={link.to} key={link.to}>

@@ -22,6 +22,7 @@ import { activitiesReducer } from '../omg-activity-log/reducer'
 import { loadingStatusReducer } from '../omg-loading-status/reducer'
 import { exportsReducer } from '../omg-export/reducer'
 import { adminsReducer } from '../omg-admins/reducer'
+import { recentAccountsReducer } from '../omg-recent-account/reducer'
 export default combineReducers({
   app: appReducer,
   admins: adminsReducer,
@@ -46,5 +47,6 @@ export default combineReducers({
   configurations: configurationReducer,
   activities: activitiesReducer,
   exports: exportsReducer,
-  loadingStatus: loadingStatusReducer
+  loadingStatus: loadingStatusReducer,
+  recentAccounts: recentAccountsReducer
 })
