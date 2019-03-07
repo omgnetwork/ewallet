@@ -35,6 +35,9 @@ const NavigationItem = styled.div`
     color: ${props => props.theme.colors.BL400};
   }
 `
+const RecentAccountItem = styled(NavigationItem)`
+  color: ${props => (props.active ? props.theme.colors.BL400 : props.theme.colors.S500)};
+`
 
 const NavigationItemsContainer = styled.div`
   margin-top: 20px;
@@ -74,7 +77,8 @@ class SideNavigation extends PureComponent {
   static propTypes = {
     location: PropTypes.object,
     className: PropTypes.string,
-    recentAccounts: PropTypes.array
+    recentAccounts: PropTypes.array,
+    match: PropTypes.object
   }
   static defaultProps = {
     recentAccounts: []
@@ -145,7 +149,35 @@ class SideNavigation extends PureComponent {
     )
   }
 
+  renderRecentAccounts () {
+    return this.props.recentAccounts.length
+      ? this.props.recentAccounts.map(account => {
+        return (
+            <Link to={`/accounts/${account.id}/detail`}>
+              <RecentAccountItem active={this.props.match.params.accountId === account.id}>
+                <RecentAccount className='recent-account'>{account.name}</RecentAccount>
+              </RecentAccountItem>
+            </Link>
+          )
+      })
+      : null
+  }
+  renderOverview () {
+    const firstSubPath = this.props.location.pathname.split('/')[1]
+    return this.overviewLinks.map(link => {
+      return (
+        <Link to={link.to} key={link.to}>
+          <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
+            <Icon name={link.icon} /> <span>{link.text}</span>
+          </NavigationItem>
+        </Link>
+      )
+    })
+  }
+
   render () {
+    const firstSubPath = this.props.location.pathname.split('/')[1]
+    const matchedAccountId = this.props.match.params.accountId
     return (
       <SideNavigationContainer className={this.props.className}>
         <NavigationItemsContainer>
@@ -153,51 +185,23 @@ class SideNavigation extends PureComponent {
           <MenuName> MANAGE </MenuName>
           <Link to={'/accounts'}>
             <NavigationItem
-              active={fuzzySearch('/accounts', `/${this.props.location.pathname.split('/')[1]}`)}
+              active={!matchedAccountId && fuzzySearch('/accounts', `/${firstSubPath}`)}
             >
               <Icon name='Merchant' /> <span>{'Accounts'}</span>
             </NavigationItem>
           </Link>
-          {/* RECENT ACCOUNTS */}
-          {this.props.recentAccounts.length &&
-            this.props.recentAccounts.map(account => {
-              console.log(account)
-              return (
-                <Link to={'/accounts'}>
-                  <NavigationItem
-                    active={fuzzySearch(
-                      '/accounts',
-                      `/${this.props.location.pathname.split('/')[2]}`
-                    )}
-                  >
-                    <RecentAccount className='recent-account'>{account.name}</RecentAccount>
-                  </NavigationItem>
-                </Link>
-              )
-            })}
+          {this.renderRecentAccounts()}
           {this.dataLink.map(link => {
             return (
               <Link to={link.to} key={link.to}>
-                <NavigationItem
-                  active={fuzzySearch(link.to, `/${this.props.location.pathname.split('/')[1]}`)}
-                >
+                <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
                   <Icon name={link.icon} /> <span>{link.text}</span>
                 </NavigationItem>
               </Link>
             )
           })}
           <MenuName> OVERVIEW </MenuName>
-          {this.overviewLinks.map(link => {
-            return (
-              <Link to={link.to} key={link.to}>
-                <NavigationItem
-                  active={fuzzySearch(link.to, `/${this.props.location.pathname.split('/')[1]}`)}
-                >
-                  <Icon name={link.icon} /> <span>{link.text}</span>
-                </NavigationItem>
-              </Link>
-            )
-          })}
+          {this.renderOverview()}
         </NavigationItemsContainer>
       </SideNavigationContainer>
     )
