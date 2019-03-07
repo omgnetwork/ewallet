@@ -5,7 +5,6 @@ import { Avatar } from '../omg-uikit'
 import AccountProvider from '../omg-account/accountProvider'
 import styled from 'styled-components'
 import WalletDropdownChooser from './WalletDropdownChooser'
-import { connect } from 'react-redux'
 import { compose } from 'recompose'
 const LinksContainer = styled.div`
   display: flex;
@@ -24,6 +23,11 @@ const LinksContainer = styled.div`
     div.account-link-text {
       border-bottom: 2px solid ${props => props.theme.colors.S500};
     }
+  }
+  @media screen and (max-width: 1200px) {
+    width: calc(100% - 200px);
+    overflow: auto;
+    white-space: nowrap;
   }
 `
 const AccountNavigationBarContainer = styled.div`

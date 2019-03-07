@@ -18,6 +18,9 @@ const TopNavigationContainer = styled.div`
   > {
     vertical-align: middle;
   }
+  @media screen and (max-width: 800px) {
+    height: auto;
+  }
 `
 const LeftNavigationContainer = styled.div`
   flex: 1 1 auto;

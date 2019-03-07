@@ -153,9 +153,9 @@ class SideNavigation extends PureComponent {
   renderRecentAccounts () {
     return this.props.recentAccounts.length ? (
       <FlipMove>
-        {this.props.recentAccounts.map(account => {
+        {this.props.recentAccounts.map((account, i) => {
           return (
-            <div key={account.id}>
+            <div key={account.id || i}>
               <Link to={`/accounts/${account.id}/detail`}>
                 <RecentAccountItem active={this.props.match.params.accountId === account.id}>
                   <RecentAccount className='recent-account'>{account.name}</RecentAccount>
