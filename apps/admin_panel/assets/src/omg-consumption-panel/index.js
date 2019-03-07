@@ -89,10 +89,11 @@ class TransactionRequestPanel extends Component {
       search: queryString.stringify(searchObject)
     })
   }
-  render = () => {
+  render () {
+    const searchObject = queryString.parse(this.props.location.search)
     return (
       <ConsumptionProvider
-        consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
+        consumptionId={searchObject['show-consumption-tab']}
         render={({ consumption }) => {
           const tq = consumption.transaction_request || {}
           return (
@@ -106,7 +107,16 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Request:</b>{' '}
                   <span>
-                    <Link to={{ search: `show-request-tab=${tq.id}` }}>{tq.id}</Link>
+                    <Link
+                      to={{
+                        search: queryString.stringify({
+                          page: searchObject.page,
+                          'show-request-tab': tq.id
+                        })
+                      }}
+                    >
+                      {tq.id}
+                    </Link>
                   </span>
                 </InformationItem>
                 <InformationItem>
@@ -157,24 +167,17 @@ class TransactionRequestPanel extends Component {
                 )}
                 {consumption.approved_at && (
                   <InformationItem>
-                    <b>Approved Date:</b>{' '}
-                    <span>
-                      {moment(consumption.approved_at).format()}
-                    </span>
+                    <b>Approved Date:</b> <span>{moment(consumption.approved_at).format()}</span>
                   </InformationItem>
                 )}
                 {consumption.rejected_at && (
                   <InformationItem>
-                    <b>Rejected At:</b>{' '}
-                    <span>
-                      {moment(consumption.rejected_at).format()}
-                    </span>
+                    <b>Rejected At:</b> <span>{moment(consumption.rejected_at).format()}</span>
                   </InformationItem>
                 )}
                 {consumption.expired_at && (
                   <InformationItem>
-                    <b>Expired Date:</b>{' '}
-                    <span>{moment(consumption.expired_at).format()}</span>
+                    <b>Expired Date:</b> <span>{moment(consumption.expired_at).format()}</span>
                   </InformationItem>
                 )}
                 {consumption.status === 'pending' && (
