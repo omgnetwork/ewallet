@@ -395,4 +395,167 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       assert res == :max_consumptions_per_user_reached
     end
   end
+
+  describe "validate_max_consumptions_per_interval/2" do
+    test "returns the wallet if validate_max_consumptions_per_interval is not set" do
+      request = insert(:transaction_request)
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_max_consumptions_per_interval(request)
+
+      assert status == :ok
+      assert res == nil
+    end
+
+    test "returns the wallet if the current number of active consumptions is lower
+          than the validate_max_consumptions_per_interval" do
+      request =
+        insert(:transaction_request,
+          max_consumptions_per_interval: 1,
+          consumption_interval_duration: 3_600_000
+        )
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_max_consumptions_per_interval(request)
+
+      assert status == :ok
+      assert res == nil
+    end
+
+    test "returns max_consumptions_per_interval_reached when it has been reached" do
+      request =
+        insert(:transaction_request,
+          max_consumptions_per_interval: 1,
+          consumption_interval_duration: 3_600_000
+        )
+
+      _ =
+        insert(:transaction_consumption,
+          status: "confirmed",
+          transaction_request_uuid: request.uuid
+        )
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_max_consumptions_per_interval(request)
+
+      assert status == :error
+      assert res == :max_consumptions_per_interval_reached
+    end
+
+    test "returns the wallet if a consumption was made in a previous interval" do
+      request =
+        insert(:transaction_request,
+          max_consumptions_per_interval: 1,
+          consumption_interval_duration: 500
+        )
+
+      _ =
+        insert(:transaction_consumption,
+          status: "confirmed",
+          transaction_request_uuid: request.uuid
+        )
+
+      :timer.sleep(501)
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_max_consumptions_per_interval(request)
+
+      assert status == :ok
+      assert res == nil
+    end
+  end
+
+  describe "validate_max_consumptions_per_interval_per_user/2" do
+    test "returns the wallet if validate_max_consumptions_per_interval_per_user is not set" do
+      request = insert(:transaction_request)
+      wallet = insert(:wallet)
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_max_consumptions_per_interval_per_user(
+          request,
+          wallet
+        )
+
+      assert status == :ok
+      assert res == wallet
+    end
+
+    test "returns the wallet if the current number of active consumptions is lower
+          than the validate_max_consumptions_per_interval_per_user" do
+      request =
+        insert(:transaction_request,
+          max_consumptions_per_interval_per_user: 1,
+          consumption_interval_duration: 3_600_000
+        )
+
+      wallet = insert(:wallet)
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_max_consumptions_per_interval_per_user(
+          request,
+          wallet
+        )
+
+      assert status == :ok
+      assert res == wallet
+    end
+
+    test "returns max_consumptions_per_interval_per_user_reached when it has been reached" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      request =
+        insert(:transaction_request,
+          max_consumptions_per_interval_per_user: 1,
+          consumption_interval_duration: 3_600_000
+        )
+
+      _ =
+        insert(:transaction_consumption,
+          status: "confirmed",
+          user_uuid: user.uuid,
+          wallet_address: wallet.address,
+          transaction_request_uuid: request.uuid
+        )
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_max_consumptions_per_interval_per_user(
+          request,
+          wallet
+        )
+
+      assert status == :error
+      assert res == :max_consumptions_per_interval_per_user_reached
+    end
+
+    test "returns the wallet when a consumption was made in a previous interval" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      request =
+        insert(:transaction_request,
+          max_consumptions_per_interval_per_user: 1,
+          consumption_interval_duration: 500
+        )
+
+      _ =
+        insert(:transaction_consumption,
+          status: "confirmed",
+          user_uuid: user.uuid,
+          wallet_address: wallet.address,
+          transaction_request_uuid: request.uuid
+        )
+
+      :timer.sleep(501)
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_max_consumptions_per_interval_per_user(
+          request,
+          wallet
+        )
+
+      assert status == :ok
+      assert res == wallet
+    end
+  end
 end

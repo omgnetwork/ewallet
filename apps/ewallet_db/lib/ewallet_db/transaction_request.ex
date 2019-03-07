@@ -58,6 +58,10 @@ defmodule EWalletDB.TransactionRequest do
     # nil -> unlimited
     field(:max_consumptions, :integer)
     field(:max_consumptions_per_user, :integer)
+    field(:max_consumptions_per_interval, :integer)
+    field(:max_consumptions_per_interval_per_user, :integer)
+    # milliseconds
+    field(:consumption_interval_duration, :integer)
     # milliseconds
     field(:consumption_lifetime, :integer)
     field(:expiration_date, :naive_datetime_usec)
@@ -141,6 +145,9 @@ defmodule EWalletDB.TransactionRequest do
         :require_confirmation,
         :max_consumptions,
         :max_consumptions_per_user,
+        :max_consumptions_per_interval,
+        :max_consumptions_per_interval_per_user,
+        :consumption_interval_duration,
         :consumption_lifetime,
         :expiration_date,
         :metadata,

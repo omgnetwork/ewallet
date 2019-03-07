@@ -49,6 +49,8 @@ defmodule EWallet.TransactionConsumptionValidator do
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
          {:ok, amount} <- validate_amount(request, amount),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
+         {:ok, nil} <- validate_max_consumptions_per_interval(request),
+         {:ok, _wallet} <- validate_max_consumptions_per_interval_per_user(request, wallet),
          {:ok, token} <- get_and_validate_token(request, token_id) do
       {:ok, request, token, amount}
     else
@@ -79,6 +81,8 @@ defmodule EWallet.TransactionConsumptionValidator do
          {:ok, _} <- TransactionRequestPolicy.authorize(:confirm, creator, request),
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request, %System{}),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
+         {:ok, nil} <- validate_max_consumptions_per_interval(request),
+         {:ok, _wallet} <- validate_max_consumptions_per_interval_per_user(request, wallet),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
          {:ok, consumption} =
            TransactionConsumption.expire_if_past_expiration_date(consumption, %System{}) do
@@ -205,8 +209,6 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
-  @spec validate_max_consumptions_per_user(%TransactionRequest{}, %Wallet{}) ::
-          {:ok, %Wallet{}} | {:error, :max_consumptions_per_user_reached}
   def validate_max_consumptions_per_user(request, wallet) do
     with max <- request.max_consumptions_per_user,
          # max has a value
@@ -217,6 +219,39 @@ defmodule EWallet.TransactionConsumptionValidator do
            TransactionConsumption.all_active_for_user(wallet.user_uuid, request.uuid),
          false <- length(current_consumptions) < max do
       {:error, :max_consumptions_per_user_reached}
+    else
+      _ -> {:ok, wallet}
+    end
+  end
+
+  def validate_max_consumptions_per_interval(request) do
+    with max <- request.max_consumptions_per_interval,
+         duration <- request.consumption_interval_duration,
+         {false, false} <- {is_nil(max), is_nil(duration)},
+         last_interval_end <- NaiveDateTime.add(NaiveDateTime.utc_now(), -duration, :millisecond),
+         last_consumptions <-
+           TransactionConsumption.get_last_confirmed_consumptions(request.uuid, last_interval_end),
+         false <- length(last_consumptions) < max do
+      {:error, :max_consumptions_per_interval_reached}
+    else
+      _ -> {:ok, nil}
+    end
+  end
+
+  def validate_max_consumptions_per_interval_per_user(request, wallet) do
+    with max <- request.max_consumptions_per_interval_per_user,
+         duration <- request.consumption_interval_duration,
+         {false, false} <- {is_nil(max), is_nil(duration)},
+         false <- is_nil(wallet.user_uuid),
+         last_interval_end <- NaiveDateTime.add(NaiveDateTime.utc_now(), -duration, :millisecond),
+         last_consumptions <-
+           TransactionConsumption.get_last_confirmed_consumptions_for_user(
+             request.uuid,
+             wallet.user_uuid,
+             last_interval_end
+           ),
+         false <- length(last_consumptions) < max do
+      {:error, :max_consumptions_per_interval_per_user_reached}
     else
       _ -> {:ok, wallet}
     end

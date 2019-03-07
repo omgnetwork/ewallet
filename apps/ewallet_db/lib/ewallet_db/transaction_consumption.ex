@@ -366,6 +366,33 @@ defmodule EWalletDB.TransactionConsumption do
   end
 
   @doc """
+  Get latest confirmed transaction consumptions.
+  """
+  def get_last_confirmed_consumptions(nil, _), do: []
+
+  def get_last_confirmed_consumptions(request_uuid, datetime) do
+    TransactionConsumption
+    |> where([t], t.status == @confirmed)
+    |> where([t], t.transaction_request_uuid == ^request_uuid)
+    |> where([t], t.inserted_at >= ^datetime)
+    |> Repo.all()
+  end
+
+  @doc """
+  Get latest confirmed transaction consumptions for a user.
+  """
+  def get_last_confirmed_consumptions_for_user(nil, _, _), do: []
+
+  def get_last_confirmed_consumptions_for_user(request_uuid, user_uuid, datetime) do
+    TransactionConsumption
+    |> where([t], t.status == @confirmed)
+    |> where([t], t.user_uuid == ^user_uuid)
+    |> where([t], t.transaction_request_uuid == ^request_uuid)
+    |> where([t], t.inserted_at >= ^datetime)
+    |> Repo.all()
+  end
+
+  @doc """
   Get all confirmed transaction consumptions.
   """
   @spec all_active_for_request(String.t()) :: [%TransactionConsumption{}]
