@@ -1519,3 +1519,27 @@ paths:
       responses:
         '200': *ref_14
         '500': *ref_1
+  /me.cancel_transaction_consumption:
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Cancel a pending consumption.
+      operationId: reject_transaction_consumption
+      security:
+        - ClientAuth: []
+      requestBody:
+        description: Cancel an owned pending consumption using the specified ID.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: txn_01cbfg5m2ee06kzm8tbysfmmw5
+      responses:
+        '200': *ref_14
+        '500': *ref_1

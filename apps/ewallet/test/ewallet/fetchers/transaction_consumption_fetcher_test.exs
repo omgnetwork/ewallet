@@ -86,14 +86,14 @@ defmodule EWallet.TransactionConsumptionFetcherTest do
       assert %TransactionConsumption{} = consumption
     end
 
-    test "returns nil when given nil" do
+    test "returns an 'invalid_parameter' error when given nil" do
       assert TransactionConsumptionFetcher.get(nil) ==
-               {:error, :transaction_consumption_not_found}
+               {:error, :invalid_parameter}
     end
 
-    test "returns nil when given invalid UUID" do
+    test "returns an 'unauthorized' when given invalid UUID" do
       assert TransactionConsumptionFetcher.get("123") ==
-               {:error, :transaction_consumption_not_found}
+               {:error, :unauthorized}
     end
   end
 end

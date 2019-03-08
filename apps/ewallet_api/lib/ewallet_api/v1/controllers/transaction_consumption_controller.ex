@@ -20,6 +20,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   alias EWallet.{
     TransactionConsumptionConfirmerGate,
     TransactionConsumptionConsumerGate,
+    TransactionConsumptionFetcher,
+    TransactionConsumptionPolicy,
     Web.V1.Event
   }
 
@@ -45,6 +47,27 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   end
 
   def consume_for_user(conn, _) do
+    handle_error(conn, :invalid_parameter)
+  end
+
+  def cancel_for_user(conn, %{"id" => id} = attrs) do
+    with {:ok, consumption} <- TransactionConsumptionFetcher.get(id),
+         {:ok, _} <- TransactionConsumptionPolicy.authorize(:cancel, conn.assigns, consumption),
+         true <-
+           TransactionConsumption.cancellable?(consumption) ||
+             {:error, :uncancellable_transaction_consumption},
+         %TransactionConsumption{} = consumption <-
+           TransactionConsumption.cancel(consumption, Originator.extract(conn.assigns)) do
+      consumption
+      |> Orchestrator.one(TransactionConsumptionOverlay, attrs)
+      |> respond(conn, true)
+    else
+      error ->
+        respond(error, conn, true)
+    end
+  end
+
+  def cancel_for_user(conn, _) do
     handle_error(conn, :invalid_parameter)
   end
 

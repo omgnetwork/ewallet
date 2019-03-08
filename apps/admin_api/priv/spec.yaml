@@ -4362,6 +4362,32 @@ paths:
       responses:
         '200': *ref_52
         '500': *ref_2
+  /transaction_consumption.cancel:
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Cancel a pending consumption.
+      description: This is a server call only.
+      operationId: transaction_consumption_cancel
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: Cancel an owned pending consumption using the specified ID.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: txn_01cbfg5m2ee06kzm8tbysfmmw5
+      responses:
+        '200': *ref_52
+        '500': *ref_2
   /access_key.all:
     post:
       tags:
