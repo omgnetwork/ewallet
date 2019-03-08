@@ -80,4 +80,11 @@ defmodule EWallet.Web.V1.AccountOverlay do
       api_keys: APIKeyOverlay.self_filter_fields(),
       memberships: MembershipOverlay.self_filter_fields()
     ]
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end

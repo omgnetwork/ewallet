@@ -72,6 +72,10 @@ defmodule AdminAPI.V1.AccountWalletController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   @spec permit(:all, map(), %Account{}) :: :ok | {:error, any()} | no_return()
   defp permit(action, params, data) do
     Bodyguard.permit(WalletPolicy, action, params, data)

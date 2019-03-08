@@ -65,4 +65,11 @@ defmodule EWallet.Web.V1.ActivityLogOverlay do
       :originator_type,
       :inserted_at
     ]
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end

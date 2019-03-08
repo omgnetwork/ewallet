@@ -131,6 +131,10 @@ defmodule AdminAPI.V1.WalletController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   # Respond with a single wallet
   defp respond_single({:error, changeset}, conn, _attrs) do
     handle_error(conn, :invalid_parameter, changeset)

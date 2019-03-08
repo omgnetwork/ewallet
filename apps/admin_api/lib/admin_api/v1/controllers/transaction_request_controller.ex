@@ -113,6 +113,10 @@ defmodule AdminAPI.V1.TransactionRequestController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
 
   defp respond({:error, changeset}, conn) do
