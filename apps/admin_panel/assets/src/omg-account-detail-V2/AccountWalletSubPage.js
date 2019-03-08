@@ -3,7 +3,7 @@ import React from 'react'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import walletFetcher from '../omg-wallet/walletsFetcher'
+import walletFetcher from '../omg-wallet/accountUsersWalletsFetcher'
 function AccountWalletSubPage (props) {
   function getQuery () {
     const { walletType } = queryString.parse(props.location.search)
