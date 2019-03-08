@@ -16,7 +16,7 @@ defmodule EWalletDB.Application do
   @moduledoc """
   The EWalletDB Data Store
 
-  Kebura's data store lives in this application.
+  The eWallet's data store lives in this application.
   """
   use Application
   alias Appsignal.Ecto
