@@ -491,7 +491,7 @@ jobs:
             trap 'rm -f $GPGFILE' 0 1 2 3 6 14 15
             echo "$CIRCLE_GPG_KEY" | base64 -d | gunzip > "$GPGFILE"
             gpg --import "$GPGFILE"
-            printf "$GPG_OWNERTRUST\\n" | gpg --import-ownertrust
+            printf "$CIRCLE_GPG_OWNERTRUST\\n" | gpg --import-ownertrust
 
             GCPFILE=$(mktemp)
             trap 'rm -f $GCPFILE' 0 1 2 3 6 14 15
