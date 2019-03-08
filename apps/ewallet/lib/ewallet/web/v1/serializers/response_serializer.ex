@@ -22,8 +22,8 @@ defmodule EWallet.Web.V1.ResponseSerializer do
   """
   def serialize(data, success: success) do
     %{
-      version: "1",
       success: success,
+      version: "1",
       data: data
     }
   end

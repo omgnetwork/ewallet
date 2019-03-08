@@ -18,22 +18,22 @@ defmodule EWallet.Web.V1.BalanceSerializer do
   """
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.{TokenSerializer, PaginatorSerializer}
-  alias EWallet.Web.{Paginator, BalanceLoader}
+  alias EWallet.Web.{Paginator}
 
   # Both the given wallet and `%NotLoaded{}` are maps
   # so we need to pattern-match `%NotLoaded{}` first.
   def serialize(%NotLoaded{}), do: nil
 
-  def serialize(%{amount: amount, token: token}) do
-    %{
-      amount: amount,
-      token: TokenSerializer.serialize(token),
-      object: "balance"
-    }
-  end
-
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
+  end
+
+  def serialize(%{amount: amount, token: token}) do
+    %{
+      object: "balance",
+      token: TokenSerializer.serialize(token),
+      amount: amount
+    }
   end
 
   def serialize(nil), do: nil
