@@ -60,7 +60,7 @@ CreateTransactionRequestBody:
           max_consumptions_per_interval_per_user:
             type: integer
             default: null
-            description: The maximum number of times the request can be consumed by a specific in the "consumption_interval_duration".
+            description: The maximum number of times the request can be consumed by a specific user in the "consumption_interval_duration".
           consumption_lifetime:
             type: integer
             default: null

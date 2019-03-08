@@ -209,6 +209,8 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
+  @spec validate_max_consumptions_per_user(%TransactionRequest{}, %Wallet{}) ::
+          {:error, :max_consumptions_per_user_reached} | {:ok, any()}
   def validate_max_consumptions_per_user(request, wallet) do
     with max <- request.max_consumptions_per_user,
          # max has a value
@@ -224,6 +226,8 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
+  @spec validate_max_consumptions_per_interval(%TransactionRequest{}) ::
+          {:error, :max_consumptions_per_interval_reached} | {:ok, nil}
   def validate_max_consumptions_per_interval(request) do
     with max <- request.max_consumptions_per_interval,
          duration <- request.consumption_interval_duration,
@@ -238,6 +242,8 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
+  @spec validate_max_consumptions_per_interval_per_user(%TransactionRequest{}, %Wallet{}) ::
+          {:error, :max_consumptions_per_interval_per_user_reached} | {:ok, nil}
   def validate_max_consumptions_per_interval_per_user(request, wallet) do
     with max <- request.max_consumptions_per_interval_per_user,
          duration <- request.consumption_interval_duration,

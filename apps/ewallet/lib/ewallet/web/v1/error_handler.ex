@@ -224,6 +224,16 @@ defmodule EWallet.Web.V1.ErrorHandler do
       description:
         "The specified transaction request has reached the allowed amount of consumptions."
     },
+    max_consumptions_per_interval: %{
+      code: "transaction_request:max_consumptions_per_interval",
+      description:
+        "The specified transaction request has reached the allowed amount of consumptions for its interval timeframe."
+    },
+    max_consumptions_per_interval_per_user_reached: %{
+      code: "transaction_request:max_consumptions_per_interval_per_user_reached",
+      description:
+        "The specified transaction request has reached the allowed amount of consumptions for its interval timeframe."
+    },
     max_consumptions_per_user_reached: %{
       code: "transaction_request:max_consumptions_per_user_reached",
       description:

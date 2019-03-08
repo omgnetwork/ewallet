@@ -165,6 +165,7 @@ defmodule EWalletDB.TransactionRequest do
       encrypted: [:encrypted_metadata]
     )
     |> validate_amount_if_disallow_override()
+    |> validate_interval_fields()
     |> validate_number(:amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_inclusion(:type, @types)
     |> validate_inclusion(:status, @statuses)
@@ -202,6 +203,30 @@ defmodule EWalletDB.TransactionRequest do
       cast: [:updated_at],
       required: [:updated_at]
     )
+  end
+
+  defp validate_interval_fields(changeset) do
+    case Changeset.get_field(changeset, :consumption_interval_duration) do
+      nil ->
+        if Changeset.get_field(changeset, :max_consumptions_per_interval) != nil do
+          Changeset.add_error(
+            changeset,
+            :max_consumptions_per_interval,
+            "can't be set when consumption_interval_duration is nil."
+          )
+        end
+
+        if Changeset.get_field(changeset, :max_consumptions_per_interval_per_user) != nil do
+          Changeset.add_error(
+            changeset,
+            :max_consumptions_per_interval_per_user,
+            "can't be set when consumption_interval_duration is nil."
+          )
+        end
+
+      _ ->
+        changeset
+    end
   end
 
   defp validate_amount_if_disallow_override(changeset) do

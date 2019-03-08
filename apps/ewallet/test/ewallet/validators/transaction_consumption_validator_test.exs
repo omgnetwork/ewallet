@@ -397,7 +397,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
   end
 
   describe "validate_max_consumptions_per_interval/2" do
-    test "returns the wallet if validate_max_consumptions_per_interval is not set" do
+    test "returns the wallet if max_consumptions_per_interval is not set" do
       request = insert(:transaction_request)
 
       {status, res} =
@@ -408,7 +408,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
 
     test "returns the wallet if the current number of active consumptions is lower
-          than the validate_max_consumptions_per_interval" do
+          than the max_consumptions_per_interval" do
       request =
         insert(:transaction_request,
           max_consumptions_per_interval: 1,
@@ -466,7 +466,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
   end
 
   describe "validate_max_consumptions_per_interval_per_user/2" do
-    test "returns the wallet if validate_max_consumptions_per_interval_per_user is not set" do
+    test "returns the wallet if max_consumptions_per_interval_per_user is not set" do
       request = insert(:transaction_request)
       wallet = insert(:wallet)
 
@@ -481,7 +481,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
 
     test "returns the wallet if the current number of active consumptions is lower
-          than the validate_max_consumptions_per_interval_per_user" do
+          than the max_consumptions_per_interval_per_user" do
       request =
         insert(:transaction_request,
           max_consumptions_per_interval_per_user: 1,

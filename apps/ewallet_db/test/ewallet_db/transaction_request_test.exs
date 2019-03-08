@@ -163,6 +163,31 @@ defmodule EWalletDB.TransactionRequestTest do
                {:amount, {"needs to be set if amount override is not allowed.", []}}
              ]
     end
+
+    test "prevents creation with 'consumption_interval_duration=nil' and max_consumptions_per_interval != nil" do
+      {:error, changeset} =
+        :transaction_request
+        |> params_for(consumption_interval_duration: nil, max_consumptions_per_interval: 1)
+        |> TransactionRequest.insert()
+
+      assert changeset.errors == [
+               {:amount, {"needs to be set if amount override is not allowed.", []}}
+             ]
+    end
+
+    test "prevents creation with 'consumption_interval_duration=nil' and max_consumptions_per_interval_per_user != nil" do
+      {:error, changeset} =
+        :transaction_request
+        |> params_for(
+          consumption_interval_duration: nil,
+          max_consumptions_per_interval_per_user: 1
+        )
+        |> TransactionRequest.insert()
+
+      assert changeset.errors == [
+               {:amount, {"needs to be set if amount override is not allowed.", []}}
+             ]
+    end
   end
 
   describe "valid?/1" do
