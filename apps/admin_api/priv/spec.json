@@ -19,10 +19,6 @@
       "description": "Resources related to admin session tokens."
     },
     {
-      "name": "Role",
-      "description": "Resources related to roles."
-    },
-    {
       "name": "Admin",
       "description": "Resources related to admin users."
     },
@@ -81,6 +77,10 @@
     {
       "name": "Export",
       "description": "Resources related to exports."
+    },
+    {
+      "name": "Role",
+      "description": "Resources related to roles."
     }
   ],
   "servers": [
@@ -775,41 +775,21 @@
         "tags": [
           "AdminSession"
         ],
-        "summary": "Switch the current account associated with the auth token.",
+        "summary": "Switch the current account associated with the auth token. (deprecated)",
         "operationId": "switch_account",
+        "deprecated": true,
         "security": [
           {
             "AdminAuth": []
           }
         ],
-        "requestBody": {
-          "description": "The parameters to use for switching the current account",
-          "required": true,
-          "content": {
-            "application/vnd.omisego.v1+json": {
-              "schema": {
-                "properties": {
-                  "account_id": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "account_id"
-                ],
-                "example": {
-                  "accound_id": "the_account_id"
-                }
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
-            "description": "Authentication token response",
+            "description": "Returns unauthorized error",
             "content": {
               "application/vnd.omisego.v1+json": {
                 "schema": {
-                  "description": "The response schema for an authentication token",
+                  "description": "Unauthorized",
                   "allOf": [
                     {
                       "description": "The response schema for a successful operation",
@@ -841,404 +821,7 @@
                       "properties": {
                         "data": {
                           "type": "object",
-                          "description": "The object schema for an authentication token",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "authentication_token": {
-                              "type": "string"
-                            },
-                            "user_id": {
-                              "type": "string"
-                            },
-                            "user": {
-                              "type": "object",
-                              "description": "The object schema for a user",
-                              "properties": {
-                                "object": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "username": {
-                                  "type": "string"
-                                },
-                                "full_name": {
-                                  "type": "string"
-                                },
-                                "calling_name": {
-                                  "type": "string"
-                                },
-                                "provider_user_id": {
-                                  "type": "string"
-                                },
-                                "email": {
-                                  "type": "string",
-                                  "format": "email"
-                                },
-                                "enabled": {
-                                  "type": "boolean"
-                                },
-                                "metadata": {
-                                  "type": "object"
-                                },
-                                "encrypted_metadata": {
-                                  "type": "object"
-                                },
-                                "avatar": {
-                                  "type": "object"
-                                },
-                                "created_at": {
-                                  "type": "string",
-                                  "format": "date-time"
-                                },
-                                "updated_at": {
-                                  "type": "string",
-                                  "format": "date-time"
-                                }
-                              },
-                              "required": [
-                                "object",
-                                "id",
-                                "created_at",
-                                "updated_at"
-                              ]
-                            },
-                            "account_id": {
-                              "type": "string"
-                            },
-                            "master_admin": {
-                              "type": "boolean"
-                            },
-                            "account": {
-                              "type": "object",
-                              "description": "The object schema for an account",
-                              "properties": {
-                                "object": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "parent_id": {
-                                  "type": "string"
-                                },
-                                "name": {
-                                  "type": "string"
-                                },
-                                "description": {
-                                  "type": "string"
-                                },
-                                "master": {
-                                  "type": "boolean"
-                                },
-                                "avatar": {
-                                  "type": "object"
-                                },
-                                "category_ids": {
-                                  "type": "array",
-                                  "items": {
-                                    "type": "string"
-                                  }
-                                },
-                                "categories": {
-                                  "type": "object",
-                                  "allOf": [
-                                    {
-                                      "description": "The object schema for an unpaginated list",
-                                      "type": "object",
-                                      "properties": {
-                                        "object": {
-                                          "type": "string"
-                                        },
-                                        "data": {
-                                          "type": "array",
-                                          "items": {
-                                            "type": "object"
-                                          }
-                                        }
-                                      },
-                                      "required": [
-                                        "object",
-                                        "data"
-                                      ],
-                                      "example": {
-                                        "object": "list",
-                                        "data": []
-                                      }
-                                    },
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "data": {
-                                          "type": "array",
-                                          "items": {
-                                            "description": "The object schema for a category",
-                                            "type": "object",
-                                            "properties": {
-                                              "object": {
-                                                "type": "string"
-                                              },
-                                              "id": {
-                                                "type": "string"
-                                              },
-                                              "name": {
-                                                "type": "string"
-                                              },
-                                              "description": {
-                                                "type": "string"
-                                              },
-                                              "account_ids": {
-                                                "type": "array",
-                                                "items": {
-                                                  "type": "string"
-                                                }
-                                              },
-                                              "accounts": {
-                                                "type": "object",
-                                                "allOf": [
-                                                  {
-                                                    "description": "The object schema for an unpaginated list",
-                                                    "type": "object",
-                                                    "properties": {
-                                                      "object": {
-                                                        "type": "string"
-                                                      },
-                                                      "data": {
-                                                        "type": "array",
-                                                        "items": {
-                                                          "type": "object"
-                                                        }
-                                                      }
-                                                    },
-                                                    "required": [
-                                                      "object",
-                                                      "data"
-                                                    ],
-                                                    "example": {
-                                                      "object": "list",
-                                                      "data": []
-                                                    }
-                                                  },
-                                                  {
-                                                    "type": "object",
-                                                    "properties": {
-                                                      "data": {
-                                                        "type": "array",
-                                                        "items": {
-                                                          "description": "The object schema for an account",
-                                                          "type": "object",
-                                                          "properties": {
-                                                            "object": {
-                                                              "type": "string"
-                                                            },
-                                                            "id": {
-                                                              "type": "string"
-                                                            },
-                                                            "parent_id": {
-                                                              "type": "string"
-                                                            },
-                                                            "name": {
-                                                              "type": "string"
-                                                            },
-                                                            "description": {
-                                                              "type": "string"
-                                                            },
-                                                            "master": {
-                                                              "type": "boolean"
-                                                            },
-                                                            "avatar": {
-                                                              "type": "object"
-                                                            },
-                                                            "metadata": {
-                                                              "type": "object"
-                                                            },
-                                                            "encrypted_metadata": {
-                                                              "type": "object"
-                                                            },
-                                                            "created_at": {
-                                                              "type": "string",
-                                                              "format": "date-time"
-                                                            },
-                                                            "updated_at": {
-                                                              "type": "string",
-                                                              "format": "date-time"
-                                                            }
-                                                          },
-                                                          "required": [
-                                                            "object",
-                                                            "id",
-                                                            "parent_id",
-                                                            "name",
-                                                            "master",
-                                                            "avatar",
-                                                            "created_at",
-                                                            "updated_at"
-                                                          ]
-                                                        }
-                                                      }
-                                                    }
-                                                  }
-                                                ]
-                                              },
-                                              "created_at": {
-                                                "type": "string",
-                                                "format": "date-time"
-                                              },
-                                              "updated_at": {
-                                                "type": "string",
-                                                "format": "date-time"
-                                              }
-                                            },
-                                            "required": [
-                                              "object",
-                                              "id",
-                                              "name",
-                                              "description",
-                                              "account_ids",
-                                              "accounts",
-                                              "created_at",
-                                              "updated_at"
-                                            ]
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
-                                },
-                                "metadata": {
-                                  "type": "object"
-                                },
-                                "encrypted_metadata": {
-                                  "type": "object"
-                                },
-                                "created_at": {
-                                  "type": "string",
-                                  "format": "date-time"
-                                },
-                                "updated_at": {
-                                  "type": "string",
-                                  "format": "date-time"
-                                }
-                              },
-                              "required": [
-                                "object",
-                                "id",
-                                "parent_id",
-                                "name",
-                                "master",
-                                "avatar",
-                                "category_ids",
-                                "categories",
-                                "created_at",
-                                "updated_at"
-                              ]
-                            },
-                            "role": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "authentication_token",
-                            "user_id",
-                            "user",
-                            "account_id",
-                            "account",
-                            "master_admin",
-                            "role"
-                          ]
-                        }
-                      },
-                      "example": {
-                        "data": {
-                          "object": "authentication_token",
-                          "authentication_token": "azJRj09l7jvR8KhTqUs3",
-                          "user_id": "usr_01cc02x0v98qcctvycfx4vsk8x",
-                          "user": {
-                            "object": "user",
-                            "id": "usr_01cc02x0v98qcctvycfx4vsk8x",
-                            "provider_user_id": "wijf-fbancomw-dqwjudb",
-                            "username": "johndoe",
-                            "full_name": "John Doe",
-                            "calling_name": "John",
-                            "email": "johndoe@omise.co",
-                            "metadata": {
-                              "first_name": "John",
-                              "last_name": "Doe"
-                            },
-                            "encrypted_metadata": {
-                              "something": "secret"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          },
-                          "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
-                          "account": {
-                            "object": "account",
-                            "id": "acc_01ca2p8jqans5aty5gj5etmjcf",
-                            "parent_id": "acc_01ca26pkge49aabzd6k6mshn0y",
-                            "name": "Account Name",
-                            "description": "The account description",
-                            "master": true,
-                            "metadata": {},
-                            "encrypted_metadata": {},
-                            "avatar": {
-                              "original": "file_url"
-                            },
-                            "created_at": "2018-01-01T00:00:00Z",
-                            "updated_at": "2018-01-01T10:00:00Z"
-                          },
-                          "master_admin": true,
-                          "role": "admin"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Returns an internal server error",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for an error",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
                           "description": "The object schema for an error",
-                          "type": "object",
                           "properties": {
                             "object": {
                               "type": "string"
@@ -1269,1665 +852,13 @@
                           }
                         }
                       },
-                      "required": [
-                        "data"
-                      ],
                       "example": {
                         "success": false,
                         "data": {
                           "object": "error",
-                          "code": "server:internal_server_error",
-                          "description": "Something went wrong on the server",
-                          "messages": {
-                            "error_key": "error_reason"
-                          }
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/role.all": {
-      "post": {
-        "tags": [
-          "Role"
-        ],
-        "summary": "Get the list of roles",
-        "operationId": "role_all",
-        "security": [
-          {
-            "ProviderAuth": []
-          },
-          {
-            "AdminAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "The default parameters to use when querying a paginated resource",
-          "required": true,
-          "content": {
-            "application/vnd.omisego.v1+json": {
-              "schema": {
-                "allOf": [
-                  {
-                    "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
-                      },
-                      "per_page": {
-                        "type": "integer",
-                        "minimum": 1
-                      },
-                      "search_term": {
-                        "type": "string"
-                      },
-                      "match_all": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "field": {
-                              "type": "string"
-                            },
-                            "comparator": {
-                              "type": "string"
-                            },
-                            "value": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "comparator",
-                            "value"
-                          ]
-                        }
-                      },
-                      "match_any": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "field": {
-                              "type": "string"
-                            },
-                            "comparator": {
-                              "type": "string"
-                            },
-                            "value": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "comparator",
-                            "value"
-                          ]
-                        }
-                      },
-                      "sort_by": {
-                        "type": "string"
-                      },
-                      "sort_dir": {
-                        "type": "string",
-                        "enum": [
-                          "asc",
-                          "desc"
-                        ]
-                      }
-                    },
-                    "example": {
-                      "page": 1,
-                      "per_page": 10,
-                      "match_all": [],
-                      "match_any": [],
-                      "sort_by": "created_at",
-                      "sort_dir": "desc"
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns a list of roles",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for a list of roles",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "allOf": [
-                        {
-                          "description": "The response schema for a successful operation",
-                          "type": "object",
-                          "properties": {
-                            "version": {
-                              "type": "string"
-                            },
-                            "success": {
-                              "type": "boolean"
-                            },
-                            "data": {
-                              "type": "object"
-                            }
-                          },
-                          "required": [
-                            "version",
-                            "success",
-                            "data"
-                          ],
-                          "example": {
-                            "version": "1",
-                            "success": true,
-                            "data": {}
-                          }
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "data": {
-                              "type": "object",
-                              "allOf": [
-                                {
-                                  "description": "The object schema for a paginated list",
-                                  "type": "object",
-                                  "properties": {
-                                    "object": {
-                                      "type": "string"
-                                    },
-                                    "data": {
-                                      "type": "array",
-                                      "items": {
-                                        "type": "object"
-                                      }
-                                    },
-                                    "pagination": {
-                                      "type": "object",
-                                      "items": {
-                                        "type": "object"
-                                      },
-                                      "properties": {
-                                        "per_page": {
-                                          "type": "integer"
-                                        },
-                                        "current_page": {
-                                          "type": "integer"
-                                        },
-                                        "count": {
-                                          "type": "integer"
-                                        },
-                                        "is_first_page": {
-                                          "type": "boolean"
-                                        },
-                                        "is_last_page": {
-                                          "type": "boolean"
-                                        }
-                                      },
-                                      "required": [
-                                        "per_page",
-                                        "current_page",
-                                        "count",
-                                        "is_first_page",
-                                        "is_last_page"
-                                      ]
-                                    }
-                                  },
-                                  "required": [
-                                    "object",
-                                    "data",
-                                    "pagination"
-                                  ]
-                                }
-                              ]
-                            }
-                          },
-                          "required": [
-                            "data"
-                          ],
-                          "example": {
-                            "data": {
-                              "object": "list",
-                              "data": null,
-                              "pagination": {
-                                "per_page": 10,
-                                "current_page": 1,
-                                "count": 5,
-                                "is_first_page": true,
-                                "is_last_page": true
-                              }
-                            }
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "type": "object",
-                          "allOf": [
-                            {
-                              "type": "object",
-                              "properties": {
-                                "data": {
-                                  "type": "array",
-                                  "items": {
-                                    "description": "The object schema for a role",
-                                    "type": "object",
-                                    "properties": {
-                                      "object": {
-                                        "type": "string"
-                                      },
-                                      "id": {
-                                        "type": "string"
-                                      },
-                                      "name": {
-                                        "type": "string"
-                                      },
-                                      "display_name": {
-                                        "type": "string"
-                                      },
-                                      "user_ids": {
-                                        "type": "array",
-                                        "items": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "users": {
-                                        "type": "object",
-                                        "allOf": [
-                                          {
-                                            "description": "The object schema for an unpaginated list",
-                                            "type": "object",
-                                            "properties": {
-                                              "object": {
-                                                "type": "string"
-                                              },
-                                              "data": {
-                                                "type": "array",
-                                                "items": {
-                                                  "type": "object"
-                                                }
-                                              }
-                                            },
-                                            "required": [
-                                              "object",
-                                              "data"
-                                            ],
-                                            "example": {
-                                              "object": "list",
-                                              "data": []
-                                            }
-                                          },
-                                          {
-                                            "type": "object",
-                                            "properties": {
-                                              "data": {
-                                                "type": "array",
-                                                "items": {
-                                                  "description": "The object schema for a user",
-                                                  "type": "object",
-                                                  "properties": {
-                                                    "object": {
-                                                      "type": "string"
-                                                    },
-                                                    "id": {
-                                                      "type": "string"
-                                                    },
-                                                    "username": {
-                                                      "type": "string"
-                                                    },
-                                                    "full_name": {
-                                                      "type": "string"
-                                                    },
-                                                    "calling_name": {
-                                                      "type": "string"
-                                                    },
-                                                    "provider_user_id": {
-                                                      "type": "string"
-                                                    },
-                                                    "email": {
-                                                      "type": "string",
-                                                      "format": "email"
-                                                    },
-                                                    "enabled": {
-                                                      "type": "boolean"
-                                                    },
-                                                    "metadata": {
-                                                      "type": "object"
-                                                    },
-                                                    "encrypted_metadata": {
-                                                      "type": "object"
-                                                    },
-                                                    "avatar": {
-                                                      "type": "object"
-                                                    },
-                                                    "created_at": {
-                                                      "type": "string",
-                                                      "format": "date-time"
-                                                    },
-                                                    "updated_at": {
-                                                      "type": "string",
-                                                      "format": "date-time"
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "object",
-                                                    "id",
-                                                    "created_at",
-                                                    "updated_at"
-                                                  ]
-                                                }
-                                              }
-                                            }
-                                          }
-                                        ]
-                                      },
-                                      "created_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                      },
-                                      "updated_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                      }
-                                    },
-                                    "required": [
-                                      "object",
-                                      "id",
-                                      "name",
-                                      "display_name",
-                                      "user_ids",
-                                      "created_at",
-                                      "updated_at"
-                                    ]
-                                  }
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      "example": {
-                        "data": {
-                          "object": "list",
-                          "data": [
-                            {
-                              "object": "role",
-                              "id": "rol_01cw625zm2xmny5ee3mwt9j8ky",
-                              "name": "Role Name",
-                              "display_name": "The role's display name",
-                              "created_at": "2018-01-01T00:00:00Z",
-                              "updated_at": "2018-01-01T10:00:00Z"
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Returns an internal server error",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for an error",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "description": "The object schema for an error",
-                          "type": "object",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "code": {
-                              "type": "string"
-                            },
-                            "description": {
-                              "type": "string"
-                            },
-                            "messages": {
-                              "type": "object"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "code",
-                            "description",
-                            "messages"
-                          ],
-                          "example": {
-                            "object": "error",
-                            "code": "server:internal_server_error",
-                            "description": "Something went wrong on the server",
-                            "messages": {
-                              "error_key": "error_reason"
-                            }
-                          }
-                        }
-                      },
-                      "required": [
-                        "data"
-                      ],
-                      "example": {
-                        "success": false,
-                        "data": {
-                          "object": "error",
-                          "code": "server:internal_server_error",
-                          "description": "Something went wrong on the server",
-                          "messages": {
-                            "error_key": "error_reason"
-                          }
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/role.get": {
-      "post": {
-        "tags": [
-          "Role"
-        ],
-        "summary": "Get a specific role",
-        "operationId": "role_get",
-        "security": [
-          {
-            "ProviderAuth": []
-          },
-          {
-            "AdminAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "The parameters to use for retrieving a specific role",
-          "required": true,
-          "content": {
-            "application/vnd.omisego.v1+json": {
-              "schema": {
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id"
-                ],
-                "example": {
-                  "id": "rol_01cw625zm2xmny5ee3mwt9j8ky"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns a single role",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for a role",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "type": "object",
-                          "description": "The object schema for a role",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "id": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "display_name": {
-                              "type": "string"
-                            },
-                            "user_ids": {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
-                            },
-                            "users": {
-                              "type": "object",
-                              "allOf": [
-                                {
-                                  "description": "The object schema for an unpaginated list",
-                                  "type": "object",
-                                  "properties": {
-                                    "object": {
-                                      "type": "string"
-                                    },
-                                    "data": {
-                                      "type": "array",
-                                      "items": {
-                                        "type": "object"
-                                      }
-                                    }
-                                  },
-                                  "required": [
-                                    "object",
-                                    "data"
-                                  ],
-                                  "example": {
-                                    "object": "list",
-                                    "data": []
-                                  }
-                                },
-                                {
-                                  "type": "object",
-                                  "properties": {
-                                    "data": {
-                                      "type": "array",
-                                      "items": {
-                                        "description": "The object schema for a user",
-                                        "type": "object",
-                                        "properties": {
-                                          "object": {
-                                            "type": "string"
-                                          },
-                                          "id": {
-                                            "type": "string"
-                                          },
-                                          "username": {
-                                            "type": "string"
-                                          },
-                                          "full_name": {
-                                            "type": "string"
-                                          },
-                                          "calling_name": {
-                                            "type": "string"
-                                          },
-                                          "provider_user_id": {
-                                            "type": "string"
-                                          },
-                                          "email": {
-                                            "type": "string",
-                                            "format": "email"
-                                          },
-                                          "enabled": {
-                                            "type": "boolean"
-                                          },
-                                          "metadata": {
-                                            "type": "object"
-                                          },
-                                          "encrypted_metadata": {
-                                            "type": "object"
-                                          },
-                                          "avatar": {
-                                            "type": "object"
-                                          },
-                                          "created_at": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                          },
-                                          "updated_at": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                          }
-                                        },
-                                        "required": [
-                                          "object",
-                                          "id",
-                                          "created_at",
-                                          "updated_at"
-                                        ]
-                                      }
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            "created_at": {
-                              "type": "string",
-                              "format": "date-time"
-                            },
-                            "updated_at": {
-                              "type": "string",
-                              "format": "date-time"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "id",
-                            "name",
-                            "display_name",
-                            "user_ids",
-                            "created_at",
-                            "updated_at"
-                          ]
-                        }
-                      },
-                      "example": {
-                        "data": {
-                          "object": "role",
-                          "id": "rol_01cw625zm2xmny5ee3mwt9j8ky",
-                          "name": "role_name",
-                          "display_name": "The role's display name",
-                          "created_at": "2018-01-01T00:00:00Z",
-                          "updated_at": "2018-01-01T10:00:00Z"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Returns an internal server error",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for an error",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "description": "The object schema for an error",
-                          "type": "object",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "code": {
-                              "type": "string"
-                            },
-                            "description": {
-                              "type": "string"
-                            },
-                            "messages": {
-                              "type": "object"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "code",
-                            "description",
-                            "messages"
-                          ],
-                          "example": {
-                            "object": "error",
-                            "code": "server:internal_server_error",
-                            "description": "Something went wrong on the server",
-                            "messages": {
-                              "error_key": "error_reason"
-                            }
-                          }
-                        }
-                      },
-                      "required": [
-                        "data"
-                      ],
-                      "example": {
-                        "success": false,
-                        "data": {
-                          "object": "error",
-                          "code": "server:internal_server_error",
-                          "description": "Something went wrong on the server",
-                          "messages": {
-                            "error_key": "error_reason"
-                          }
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/role.create": {
-      "post": {
-        "tags": [
-          "Role"
-        ],
-        "summary": "Create a new role",
-        "operationId": "role_create",
-        "security": [
-          {
-            "ProviderAuth": []
-          },
-          {
-            "AdminAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "The parameters to use for creating a new role.",
-          "required": true,
-          "content": {
-            "application/vnd.omisego.v1+json": {
-              "schema": {
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "display_name": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "name",
-                  "display_name"
-                ],
-                "example": {
-                  "name": "role_name",
-                  "display_name": "The role's display name"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns a single role",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for a role",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "type": "object",
-                          "description": "The object schema for a role",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "id": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "display_name": {
-                              "type": "string"
-                            },
-                            "user_ids": {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
-                            },
-                            "users": {
-                              "type": "object",
-                              "allOf": [
-                                {
-                                  "description": "The object schema for an unpaginated list",
-                                  "type": "object",
-                                  "properties": {
-                                    "object": {
-                                      "type": "string"
-                                    },
-                                    "data": {
-                                      "type": "array",
-                                      "items": {
-                                        "type": "object"
-                                      }
-                                    }
-                                  },
-                                  "required": [
-                                    "object",
-                                    "data"
-                                  ],
-                                  "example": {
-                                    "object": "list",
-                                    "data": []
-                                  }
-                                },
-                                {
-                                  "type": "object",
-                                  "properties": {
-                                    "data": {
-                                      "type": "array",
-                                      "items": {
-                                        "description": "The object schema for a user",
-                                        "type": "object",
-                                        "properties": {
-                                          "object": {
-                                            "type": "string"
-                                          },
-                                          "id": {
-                                            "type": "string"
-                                          },
-                                          "username": {
-                                            "type": "string"
-                                          },
-                                          "full_name": {
-                                            "type": "string"
-                                          },
-                                          "calling_name": {
-                                            "type": "string"
-                                          },
-                                          "provider_user_id": {
-                                            "type": "string"
-                                          },
-                                          "email": {
-                                            "type": "string",
-                                            "format": "email"
-                                          },
-                                          "enabled": {
-                                            "type": "boolean"
-                                          },
-                                          "metadata": {
-                                            "type": "object"
-                                          },
-                                          "encrypted_metadata": {
-                                            "type": "object"
-                                          },
-                                          "avatar": {
-                                            "type": "object"
-                                          },
-                                          "created_at": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                          },
-                                          "updated_at": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                          }
-                                        },
-                                        "required": [
-                                          "object",
-                                          "id",
-                                          "created_at",
-                                          "updated_at"
-                                        ]
-                                      }
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            "created_at": {
-                              "type": "string",
-                              "format": "date-time"
-                            },
-                            "updated_at": {
-                              "type": "string",
-                              "format": "date-time"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "id",
-                            "name",
-                            "display_name",
-                            "user_ids",
-                            "created_at",
-                            "updated_at"
-                          ]
-                        }
-                      },
-                      "example": {
-                        "data": {
-                          "object": "role",
-                          "id": "rol_01cw625zm2xmny5ee3mwt9j8ky",
-                          "name": "role_name",
-                          "display_name": "The role's display name",
-                          "created_at": "2018-01-01T00:00:00Z",
-                          "updated_at": "2018-01-01T10:00:00Z"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Returns an internal server error",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for an error",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "description": "The object schema for an error",
-                          "type": "object",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "code": {
-                              "type": "string"
-                            },
-                            "description": {
-                              "type": "string"
-                            },
-                            "messages": {
-                              "type": "object"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "code",
-                            "description",
-                            "messages"
-                          ],
-                          "example": {
-                            "object": "error",
-                            "code": "server:internal_server_error",
-                            "description": "Something went wrong on the server",
-                            "messages": {
-                              "error_key": "error_reason"
-                            }
-                          }
-                        }
-                      },
-                      "required": [
-                        "data"
-                      ],
-                      "example": {
-                        "success": false,
-                        "data": {
-                          "object": "error",
-                          "code": "server:internal_server_error",
-                          "description": "Something went wrong on the server",
-                          "messages": {
-                            "error_key": "error_reason"
-                          }
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/role.update": {
-      "post": {
-        "tags": [
-          "Role"
-        ],
-        "summary": "Update an existing role",
-        "operationId": "role_update",
-        "security": [
-          {
-            "ProviderAuth": []
-          },
-          {
-            "AdminAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "The parameters to use for updating a role. Only the provided fields are updated.",
-          "required": true,
-          "content": {
-            "application/vnd.omisego.v1+json": {
-              "schema": {
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "display_name": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id"
-                ],
-                "example": {
-                  "id": "rol_01cw625zm2xmny5ee3mwt9j8ky",
-                  "name": "Name to Update",
-                  "display_name": "New role's display name"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns a single role",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for a role",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "type": "object",
-                          "description": "The object schema for a role",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "id": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "display_name": {
-                              "type": "string"
-                            },
-                            "user_ids": {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
-                            },
-                            "users": {
-                              "type": "object",
-                              "allOf": [
-                                {
-                                  "description": "The object schema for an unpaginated list",
-                                  "type": "object",
-                                  "properties": {
-                                    "object": {
-                                      "type": "string"
-                                    },
-                                    "data": {
-                                      "type": "array",
-                                      "items": {
-                                        "type": "object"
-                                      }
-                                    }
-                                  },
-                                  "required": [
-                                    "object",
-                                    "data"
-                                  ],
-                                  "example": {
-                                    "object": "list",
-                                    "data": []
-                                  }
-                                },
-                                {
-                                  "type": "object",
-                                  "properties": {
-                                    "data": {
-                                      "type": "array",
-                                      "items": {
-                                        "description": "The object schema for a user",
-                                        "type": "object",
-                                        "properties": {
-                                          "object": {
-                                            "type": "string"
-                                          },
-                                          "id": {
-                                            "type": "string"
-                                          },
-                                          "username": {
-                                            "type": "string"
-                                          },
-                                          "full_name": {
-                                            "type": "string"
-                                          },
-                                          "calling_name": {
-                                            "type": "string"
-                                          },
-                                          "provider_user_id": {
-                                            "type": "string"
-                                          },
-                                          "email": {
-                                            "type": "string",
-                                            "format": "email"
-                                          },
-                                          "enabled": {
-                                            "type": "boolean"
-                                          },
-                                          "metadata": {
-                                            "type": "object"
-                                          },
-                                          "encrypted_metadata": {
-                                            "type": "object"
-                                          },
-                                          "avatar": {
-                                            "type": "object"
-                                          },
-                                          "created_at": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                          },
-                                          "updated_at": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                          }
-                                        },
-                                        "required": [
-                                          "object",
-                                          "id",
-                                          "created_at",
-                                          "updated_at"
-                                        ]
-                                      }
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            "created_at": {
-                              "type": "string",
-                              "format": "date-time"
-                            },
-                            "updated_at": {
-                              "type": "string",
-                              "format": "date-time"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "id",
-                            "name",
-                            "display_name",
-                            "user_ids",
-                            "created_at",
-                            "updated_at"
-                          ]
-                        }
-                      },
-                      "example": {
-                        "data": {
-                          "object": "role",
-                          "id": "rol_01cw625zm2xmny5ee3mwt9j8ky",
-                          "name": "role_name",
-                          "display_name": "The role's display name",
-                          "created_at": "2018-01-01T00:00:00Z",
-                          "updated_at": "2018-01-01T10:00:00Z"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Returns an internal server error",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for an error",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "description": "The object schema for an error",
-                          "type": "object",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "code": {
-                              "type": "string"
-                            },
-                            "description": {
-                              "type": "string"
-                            },
-                            "messages": {
-                              "type": "object"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "code",
-                            "description",
-                            "messages"
-                          ],
-                          "example": {
-                            "object": "error",
-                            "code": "server:internal_server_error",
-                            "description": "Something went wrong on the server",
-                            "messages": {
-                              "error_key": "error_reason"
-                            }
-                          }
-                        }
-                      },
-                      "required": [
-                        "data"
-                      ],
-                      "example": {
-                        "success": false,
-                        "data": {
-                          "object": "error",
-                          "code": "server:internal_server_error",
-                          "description": "Something went wrong on the server",
-                          "messages": {
-                            "error_key": "error_reason"
-                          }
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/role.delete": {
-      "post": {
-        "tags": [
-          "Role"
-        ],
-        "summary": "Delete a role by its id",
-        "operationId": "role_delete",
-        "security": [
-          {
-            "ProviderAuth": []
-          },
-          {
-            "AdminAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "The parameters to use for deleting an role.",
-          "required": true,
-          "content": {
-            "application/vnd.omisego.v1+json": {
-              "schema": {
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id"
-                ],
-                "example": {
-                  "id": "rol_01cw625zm2xmny5ee3mwt9j8ky"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns a single role",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for a role",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "type": "object",
-                          "description": "The object schema for a role",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "id": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "display_name": {
-                              "type": "string"
-                            },
-                            "user_ids": {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
-                            },
-                            "users": {
-                              "type": "object",
-                              "allOf": [
-                                {
-                                  "description": "The object schema for an unpaginated list",
-                                  "type": "object",
-                                  "properties": {
-                                    "object": {
-                                      "type": "string"
-                                    },
-                                    "data": {
-                                      "type": "array",
-                                      "items": {
-                                        "type": "object"
-                                      }
-                                    }
-                                  },
-                                  "required": [
-                                    "object",
-                                    "data"
-                                  ],
-                                  "example": {
-                                    "object": "list",
-                                    "data": []
-                                  }
-                                },
-                                {
-                                  "type": "object",
-                                  "properties": {
-                                    "data": {
-                                      "type": "array",
-                                      "items": {
-                                        "description": "The object schema for a user",
-                                        "type": "object",
-                                        "properties": {
-                                          "object": {
-                                            "type": "string"
-                                          },
-                                          "id": {
-                                            "type": "string"
-                                          },
-                                          "username": {
-                                            "type": "string"
-                                          },
-                                          "full_name": {
-                                            "type": "string"
-                                          },
-                                          "calling_name": {
-                                            "type": "string"
-                                          },
-                                          "provider_user_id": {
-                                            "type": "string"
-                                          },
-                                          "email": {
-                                            "type": "string",
-                                            "format": "email"
-                                          },
-                                          "enabled": {
-                                            "type": "boolean"
-                                          },
-                                          "metadata": {
-                                            "type": "object"
-                                          },
-                                          "encrypted_metadata": {
-                                            "type": "object"
-                                          },
-                                          "avatar": {
-                                            "type": "object"
-                                          },
-                                          "created_at": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                          },
-                                          "updated_at": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                          }
-                                        },
-                                        "required": [
-                                          "object",
-                                          "id",
-                                          "created_at",
-                                          "updated_at"
-                                        ]
-                                      }
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            "created_at": {
-                              "type": "string",
-                              "format": "date-time"
-                            },
-                            "updated_at": {
-                              "type": "string",
-                              "format": "date-time"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "id",
-                            "name",
-                            "display_name",
-                            "user_ids",
-                            "created_at",
-                            "updated_at"
-                          ]
-                        }
-                      },
-                      "example": {
-                        "data": {
-                          "object": "role",
-                          "id": "rol_01cw625zm2xmny5ee3mwt9j8ky",
-                          "name": "role_name",
-                          "display_name": "The role's display name",
-                          "created_at": "2018-01-01T00:00:00Z",
-                          "updated_at": "2018-01-01T10:00:00Z"
+                          "code": "unauthorized",
+                          "description": "You are not allowed to perform the requested operation.",
+                          "messages": {}
                         }
                       }
                     }
@@ -38290,6 +36221,961 @@
                               "target_encrypted_changes": {}
                             }
                           ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role.all": {
+      "post": {
+        "tags": [
+          "Role"
+        ],
+        "summary": "Get the list of roles (deprecated)",
+        "operationId": "role_all",
+        "deprecated": true,
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns unauthorized error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a role",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for an error",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "unauthorized",
+                          "description": "You are not allowed to perform the requested operation.",
+                          "messages": {}
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role.get": {
+      "post": {
+        "tags": [
+          "Role"
+        ],
+        "summary": "Get a specific role (deprecated)",
+        "operationId": "role_get",
+        "deprecated": true,
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns unauthorized error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a role",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for an error",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "unauthorized",
+                          "description": "You are not allowed to perform the requested operation.",
+                          "messages": {}
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role.create": {
+      "post": {
+        "tags": [
+          "Role"
+        ],
+        "summary": "Create a new role (deprecated)",
+        "operationId": "role_create",
+        "deprecated": true,
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns unauthorized error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a role",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for an error",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "unauthorized",
+                          "description": "You are not allowed to perform the requested operation.",
+                          "messages": {}
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role.update": {
+      "post": {
+        "tags": [
+          "Role"
+        ],
+        "summary": "Update an existing role (deprecated)",
+        "operationId": "role_update",
+        "deprecated": true,
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns unauthorized error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a role",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for an error",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "unauthorized",
+                          "description": "You are not allowed to perform the requested operation.",
+                          "messages": {}
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/role.delete": {
+      "post": {
+        "tags": [
+          "Role"
+        ],
+        "summary": "Delete a role by its id (deprecated)",
+        "operationId": "role_delete",
+        "deprecated": true,
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns unauthorized error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a role",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for an error",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "unauthorized",
+                          "description": "You are not allowed to perform the requested operation.",
+                          "messages": {}
                         }
                       }
                     }
