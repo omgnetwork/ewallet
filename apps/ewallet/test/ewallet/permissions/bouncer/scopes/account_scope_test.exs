@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.AccountScopeTest do
   alias EWallet.Bouncer.{Permission, AccountScope}
   alias EWalletDB.{Account, Membership, Repo}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities" do
     test "returns Account as queryable when 'global' ability" do
@@ -49,7 +50,7 @@ defmodule EWallet.Bouncer.AccountScopeTest do
       }
 
       query = AccountScope.scoped_query(permission)
-      account_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      account_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(account_uuids, account_1.uuid)
       assert Enum.member?(account_uuids, account_2.uuid)
@@ -73,7 +74,7 @@ defmodule EWallet.Bouncer.AccountScopeTest do
       }
 
       query = AccountScope.scoped_query(permission)
-      account_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      account_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(account_uuids, account_1.uuid)
       assert Enum.member?(account_uuids, account_2.uuid)
@@ -149,7 +150,7 @@ defmodule EWallet.Bouncer.AccountScopeTest do
       }
 
       query = AccountScope.scoped_query(permission)
-      account_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      account_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(account_uuids, account_1.uuid)
       assert Enum.member?(account_uuids, account_2.uuid)
@@ -173,7 +174,7 @@ defmodule EWallet.Bouncer.AccountScopeTest do
       }
 
       query = AccountScope.scoped_query(permission)
-      account_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      account_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(account_uuids, account_1.uuid)
       assert Enum.member?(account_uuids, account_2.uuid)

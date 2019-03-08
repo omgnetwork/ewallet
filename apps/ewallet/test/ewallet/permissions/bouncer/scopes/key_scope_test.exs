@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
   alias EWallet.Bouncer.{Permission, KeyScope}
   alias EWalletDB.{Key, Membership, Repo}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities" do
     test "returns Key as queryable when 'global' ability" do
@@ -33,7 +34,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
       }
 
       query = KeyScope.scoped_query(permission)
-      key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(key_uuids, key_1.uuid)
       assert Enum.member?(key_uuids, key_2.uuid)
@@ -69,7 +70,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
       }
 
       query = KeyScope.scoped_query(permission)
-      key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(key_uuids, key_1.uuid)
       assert Enum.member?(key_uuids, key_2.uuid)
@@ -107,7 +108,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
       }
 
       query = KeyScope.scoped_query(permission)
-      key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(key_uuids, actor.uuid)
       assert Enum.member?(key_uuids, key_1.uuid)
@@ -180,7 +181,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
       }
 
       query = KeyScope.scoped_query(permission)
-      key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(key_uuids, key_1.uuid)
       assert Enum.member?(key_uuids, key_2.uuid)
@@ -216,7 +217,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
       }
 
       query = KeyScope.scoped_query(permission)
-      key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(key_uuids, key_1.uuid)
       assert Enum.member?(key_uuids, key_2.uuid)
@@ -254,7 +255,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
       }
 
       query = KeyScope.scoped_query(permission)
-      key_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      key_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(key_uuids, actor.uuid)
       assert Enum.member?(key_uuids, key_1.uuid)

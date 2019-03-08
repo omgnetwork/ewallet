@@ -36,7 +36,7 @@ defmodule EWallet.Bouncer.TransactionScope do
 
   defp do_scoped_query(actor, %{account_transactions: :global, end_user_transactions: :accounts}) do
     actor
-    |> Helper.prepare_query_with_membership_for(Transaction)
+    |> Helper.query_with_membership_for(Transaction)
     |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
     |> where(
@@ -68,7 +68,7 @@ defmodule EWallet.Bouncer.TransactionScope do
   # Accounts + ?
   defp do_scoped_query(actor, %{account_transactions: :accounts, end_user_transactions: :global}) do
     actor
-    |> Helper.prepare_query_with_membership_for(Transaction)
+    |> Helper.query_with_membership_for(Transaction)
     |> where(
       [g, m],
       g.from_account_uuid == m.account_uuid or
@@ -82,7 +82,7 @@ defmodule EWallet.Bouncer.TransactionScope do
 
   defp do_scoped_query(actor, %{account_transactions: :accounts, end_user_transactions: :accounts}) do
     actor
-    |> Helper.prepare_query_with_membership_for(Transaction)
+    |> Helper.query_with_membership_for(Transaction)
     |> join(:left, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> where(
       [g, m, au],
@@ -97,7 +97,7 @@ defmodule EWallet.Bouncer.TransactionScope do
 
   defp do_scoped_query(actor, %{account_transactions: :accounts, end_user_transactions: :self}) do
     actor
-    |> Helper.prepare_query_with_membership_for(Transaction)
+    |> Helper.query_with_membership_for(Transaction)
     |> where(
       [g, m],
       g.from_account_uuid == m.account_uuid or
@@ -111,7 +111,7 @@ defmodule EWallet.Bouncer.TransactionScope do
 
   defp do_scoped_query(actor, %{account_transactions: :accounts, end_user_transactions: _}) do
     actor
-    |> Helper.prepare_query_with_membership_for(Transaction)
+    |> Helper.query_with_membership_for(Transaction)
     |> where([g, m], g.from_account_uuid == m.account_uuid or g.to_account_uuid == m.account_uuid)
     |> distinct(true)
     |> select([g, m], g)
@@ -123,7 +123,7 @@ defmodule EWallet.Bouncer.TransactionScope do
 
   defp do_scoped_query(actor, %{account_transactions: _, end_user_transactions: :accounts}) do
     actor
-    |> Helper.prepare_query_with_membership_for(Transaction)
+    |> Helper.query_with_membership_for(Transaction)
     |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> where(
       [g, m, au],

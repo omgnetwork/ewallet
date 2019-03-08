@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
   alias EWallet.Bouncer.{Permission, TransactionScope}
   alias EWalletDB.{AccountUser, Membership, Repo}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities (account: global / end_user:*)" do
     test "returns Transaction as queryable when 'global / global' ability" do
@@ -36,7 +37,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
       }
 
       query = TransactionScope.scoped_query(permission)
-      transaction_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      transaction_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(transaction_uuids, transaction_1.uuid)
       assert Enum.member?(transaction_uuids, transaction_2.uuid)
@@ -146,7 +147,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
       }
 
       query = TransactionScope.scoped_query(permission)
-      transaction_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      transaction_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(transaction_uuids, transaction_1.uuid)
       assert Enum.member?(transaction_uuids, transaction_2.uuid)
@@ -263,7 +264,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
       }
 
       query = TransactionScope.scoped_query(permission)
-      transaction_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      transaction_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(transaction_uuids, transaction_1.uuid)
       assert Enum.member?(transaction_uuids, transaction_2.uuid)
@@ -380,7 +381,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
       }
 
       query = TransactionScope.scoped_query(permission)
-      transaction_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      transaction_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(transaction_uuids, transaction_1.uuid)
       assert Enum.member?(transaction_uuids, transaction_2.uuid)
@@ -499,7 +500,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
       }
 
       query = TransactionScope.scoped_query(permission)
-      transaction_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      transaction_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(transaction_uuids, transaction_1.uuid)
       assert Enum.member?(transaction_uuids, transaction_2.uuid)
@@ -616,7 +617,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
       }
 
       query = TransactionScope.scoped_query(permission)
-      transaction_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      transaction_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(transaction_uuids, transaction_1.uuid)
       assert Enum.member?(transaction_uuids, transaction_2.uuid)
@@ -733,7 +734,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
       }
 
       query = TransactionScope.scoped_query(permission)
-      transaction_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      transaction_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(transaction_uuids, transaction_1.uuid)
       assert Enum.member?(transaction_uuids, transaction_2.uuid)
@@ -850,7 +851,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
       }
 
       query = TransactionScope.scoped_query(permission)
-      transaction_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      transaction_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(transaction_uuids, transaction_1.uuid)
       assert Enum.member?(transaction_uuids, transaction_2.uuid)
@@ -969,7 +970,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
       }
 
       query = TransactionScope.scoped_query(permission)
-      transaction_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      transaction_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(transaction_uuids, transaction_1.uuid)
       refute Enum.member?(transaction_uuids, transaction_2.uuid)
@@ -1086,7 +1087,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
       }
 
       query = TransactionScope.scoped_query(permission)
-      transaction_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      transaction_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(transaction_uuids, transaction_1.uuid)
       refute Enum.member?(transaction_uuids, transaction_2.uuid)
@@ -1203,7 +1204,7 @@ defmodule EWallet.Bouncer.TransactionScopeTest do
       }
 
       query = TransactionScope.scoped_query(permission)
-      transaction_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      transaction_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       refute Enum.member?(transaction_uuids, transaction_1.uuid)
       refute Enum.member?(transaction_uuids, transaction_2.uuid)

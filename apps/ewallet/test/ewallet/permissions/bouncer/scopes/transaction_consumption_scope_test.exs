@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
   alias EWallet.Bouncer.{Permission, TransactionConsumptionScope}
   alias EWalletDB.{AccountUser, Membership, Repo}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities (account: global / end_user:*)" do
     test "returns TransactionConsumption as queryable when 'global / global' ability" do
@@ -36,7 +37,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(consumption_uuids, consumption_1.uuid)
       assert Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -94,7 +95,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(consumption_uuids, consumption_1.uuid)
       assert Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -158,7 +159,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(consumption_uuids, consumption_1.uuid)
       assert Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -221,7 +222,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(consumption_uuids, consumption_1.uuid)
       assert Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -285,7 +286,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(consumption_uuids, consumption_1.uuid)
       assert Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -348,7 +349,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(consumption_uuids, consumption_1.uuid)
       assert Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -414,7 +415,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(consumption_uuids, consumption_1.uuid)
       assert Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -489,7 +490,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(consumption_uuids, consumption_1.uuid)
       assert Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -564,7 +565,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(consumption_uuids, consumption_1.uuid)
       assert Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -638,7 +639,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(consumption_uuids, consumption_1.uuid)
       assert Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -706,7 +707,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       refute Enum.member?(consumption_uuids, consumption_1.uuid)
       refute Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -778,7 +779,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       refute Enum.member?(consumption_uuids, consumption_1.uuid)
       refute Enum.member?(consumption_uuids, consumption_2.uuid)
@@ -852,7 +853,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionScopeTest do
       }
 
       query = TransactionConsumptionScope.scoped_query(permission)
-      consumption_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      consumption_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       refute Enum.member?(consumption_uuids, consumption_1.uuid)
       refute Enum.member?(consumption_uuids, consumption_2.uuid)

@@ -34,6 +34,8 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     Web.V1.Event
   }
 
+  alias Utils.Helpers.UUID
+
   alias Ecto.Changeset
 
   alias EWalletDB.{Account, TransactionConsumption, TransactionRequest, User, Wallet}
@@ -43,7 +45,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
          {:ok, _} <- authorize(:get, conn.assigns, account),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
-         user_uuids <- [account.uuid] |> Account.get_all_users() |> Enum.map(fn u -> u.uuid end) do
+         user_uuids <- [account.uuid] |> Account.get_all_users() |> UUID.get_uuids() do
       [account.uuid]
       |> TransactionConsumption.query_all_for_account_and_user_uuids(user_uuids, query)
       |> do_all(attrs, conn)
@@ -57,7 +59,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
          {:ok, _} <- authorize(:get, conn.assigns, account),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
-         user_uuids <- [account.uuid] |> Account.get_all_users() |> Enum.map(fn u -> u.uuid end) do
+         user_uuids <- [account.uuid] |> Account.get_all_users() |> UUID.get_uuids() do
       [account.uuid]
       |> TransactionConsumption.query_all_for_account_and_user_uuids(user_uuids, query)
       |> do_all(attrs, conn)
@@ -71,7 +73,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all_for_user(conn, attrs) do
-    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs) || {:error, :unauthorized},
+    with {:ok, user} <- UserFetcher.fetch(attrs),
          {:ok, _} <- authorize(:get, conn.assigns, user),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do

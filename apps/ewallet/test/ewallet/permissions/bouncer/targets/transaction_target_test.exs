@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.TransactionTargetTest do
   alias EWalletDB.{Transaction, AccountUser}
   alias EWallet.Bouncer.{TransactionTarget, DispatchConfig}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the transaction when originated from a user" do
@@ -82,7 +83,7 @@ defmodule EWallet.Bouncer.TransactionTargetTest do
       target_accounts_uuids =
         transaction
         |> TransactionTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 2
       assert Enum.member?(target_accounts_uuids, account_from.uuid)
@@ -107,7 +108,7 @@ defmodule EWallet.Bouncer.TransactionTargetTest do
       target_accounts_uuids =
         transaction
         |> TransactionTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 3
       assert Enum.member?(target_accounts_uuids, account_from.uuid)
@@ -133,7 +134,7 @@ defmodule EWallet.Bouncer.TransactionTargetTest do
       target_accounts_uuids =
         transaction
         |> TransactionTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 3
       assert Enum.member?(target_accounts_uuids, account_to.uuid)
@@ -165,7 +166,7 @@ defmodule EWallet.Bouncer.TransactionTargetTest do
       target_accounts_uuids =
         transaction
         |> TransactionTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 4
       assert Enum.member?(target_accounts_uuids, account_user_from_1.uuid)
@@ -190,7 +191,7 @@ defmodule EWallet.Bouncer.TransactionTargetTest do
       target_accounts_uuids =
         transaction
         |> TransactionTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 2
       assert Enum.member?(target_accounts_uuids, account_user_1.uuid)
@@ -208,7 +209,7 @@ defmodule EWallet.Bouncer.TransactionTargetTest do
       target_accounts_uuids =
         transaction
         |> TransactionTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 1
       assert Enum.member?(target_accounts_uuids, account.uuid)
@@ -224,7 +225,7 @@ defmodule EWallet.Bouncer.TransactionTargetTest do
       target_accounts_uuids =
         transaction
         |> TransactionTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 1
       assert Enum.member?(target_accounts_uuids, account.uuid)
@@ -245,7 +246,7 @@ defmodule EWallet.Bouncer.TransactionTargetTest do
       target_accounts_uuids =
         transaction
         |> TransactionTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert length(target_accounts_uuids) == 2
       assert Enum.member?(target_accounts_uuids, account_user_1.uuid)

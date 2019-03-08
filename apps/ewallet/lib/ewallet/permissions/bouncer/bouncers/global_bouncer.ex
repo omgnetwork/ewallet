@@ -20,10 +20,10 @@ defmodule EWallet.Bouncer.GlobalBouncer do
   alias EWalletDB.GlobalRole
   alias Utils.Intersecter
 
-  def bounce(การเข้าถึง, โคนฟิก \\ %{}) do
-    การเข้าถึง
-    |> Map.put(:global_role, การเข้าถึง.actor.global_role || GlobalRole.none())
-    |> check_permissions(โคนฟิก)
+  def bounce(permission, config \\ %{}) do
+    permission
+    |> Map.put(:global_role, permission.actor.global_role || GlobalRole.none())
+    |> check_permissions(config)
   end
 
   defp check_permissions(%{action: :all} = permission, config) do

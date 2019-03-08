@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.ExportTargetTest do
   alias EWalletDB.Membership
   alias EWallet.Bouncer.{ExportTarget, DispatchConfig}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the admin created export" do
@@ -63,7 +64,7 @@ defmodule EWallet.Bouncer.ExportTargetTest do
       export = insert(:export, user: admin_1)
 
       target_accounts_uuids =
-        export |> ExportTarget.get_target_accounts(DispatchConfig) |> Enum.map(fn a -> a.uuid end)
+        export |> ExportTarget.get_target_accounts(DispatchConfig) |> UUID.get_uuids()
 
       assert Enum.member?(target_accounts_uuids, account_1.uuid)
       assert Enum.member?(target_accounts_uuids, account_2.uuid)

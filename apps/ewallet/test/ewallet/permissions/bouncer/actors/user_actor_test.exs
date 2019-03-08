@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.UserActorTest do
   alias EWallet.Bouncer.UserActor
   alias EWalletDB.{Membership, AccountUser}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "get_actor_accounts/1 with admin user as actor" do
     test "gets all the accounts in which the user has memberships" do
@@ -31,7 +32,7 @@ defmodule EWallet.Bouncer.UserActorTest do
       account_uuids =
         admin
         |> UserActor.get_actor_accounts()
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert Enum.member?(account_uuids, account_1.uuid)
       assert Enum.member?(account_uuids, account_2.uuid)
@@ -50,7 +51,7 @@ defmodule EWallet.Bouncer.UserActorTest do
       account_uuids =
         user
         |> UserActor.get_actor_accounts()
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert Enum.member?(account_uuids, account_1.uuid)
       assert Enum.member?(account_uuids, account_2.uuid)

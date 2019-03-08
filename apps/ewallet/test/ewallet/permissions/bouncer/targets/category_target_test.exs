@@ -16,6 +16,7 @@ defmodule EWallet.Bouncer.CategoryTargetTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Bouncer.{CategoryTarget, DispatchConfig}
+  alias Utils.Helpers.UUID
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the category" do
@@ -47,7 +48,7 @@ defmodule EWallet.Bouncer.CategoryTargetTest do
       target_accounts_uuids =
         category
         |> CategoryTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert Enum.member?(target_accounts_uuids, account_1.uuid)
       assert Enum.member?(target_accounts_uuids, account_2.uuid)

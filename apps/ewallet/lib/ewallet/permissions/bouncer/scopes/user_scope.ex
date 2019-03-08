@@ -37,7 +37,7 @@ defmodule EWallet.Bouncer.UserScope do
 
   defp do_scoped_query(actor, %{admin_users: :global, end_users: :accounts}) do
     actor
-    |> Helper.prepare_query_with_membership_for(User)
+    |> Helper.query_with_membership_for(User)
     |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> join(:inner, [g, m, au], u in User, on: au.user_uuid == u.uuid)
     |> where([g, m, au, u], g.uuid == u.uuid or g.is_admin == true)
@@ -56,7 +56,7 @@ defmodule EWallet.Bouncer.UserScope do
   # Accounts + ?
   defp do_scoped_query(actor, %{admin_users: :accounts, end_users: :global}) do
     actor
-    |> Helper.prepare_query_with_membership_for(User)
+    |> Helper.query_with_membership_for(User)
     |> join(:inner, [g, m], ma in Membership, on: m.account_uuid == ma.account_uuid)
     |> where([g, m, ma], g.uuid == ma.user_uuid or g.is_admin == false)
     |> distinct(true)
@@ -65,7 +65,7 @@ defmodule EWallet.Bouncer.UserScope do
 
   defp do_scoped_query(actor, %{admin_users: :accounts, end_users: :accounts}) do
     actor
-    |> Helper.prepare_query_with_membership_for(User)
+    |> Helper.query_with_membership_for(User)
     |> join(:inner, [g, m], ma in Membership, on: m.account_uuid == ma.account_uuid)
     |> join(:inner, [g, m, ma], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> where([g, m, ma, au], g.uuid == au.user_uuid or g.uuid == ma.user_uuid)
@@ -75,7 +75,7 @@ defmodule EWallet.Bouncer.UserScope do
 
   defp do_scoped_query(actor, %{admin_users: :accounts, end_users: :self}) do
     actor
-    |> Helper.prepare_query_with_membership_for(User)
+    |> Helper.query_with_membership_for(User)
     |> join(:inner, [g, m], ma in Membership, on: m.account_uuid == ma.account_uuid)
     |> where([g, m, ma], g.uuid == ma.user_uuid or g.uuid == ^actor.uuid)
     |> distinct(true)
@@ -84,7 +84,7 @@ defmodule EWallet.Bouncer.UserScope do
 
   defp do_scoped_query(actor, %{admin_users: :accounts, end_users: _}) do
     actor
-    |> Helper.prepare_query_with_membership_for(User)
+    |> Helper.query_with_membership_for(User)
     |> join(:inner, [g, m], ma in Membership, on: m.account_uuid == ma.account_uuid)
     |> where([g, m, ma], g.uuid == ma.user_uuid)
     |> distinct(true)
@@ -98,7 +98,7 @@ defmodule EWallet.Bouncer.UserScope do
 
   defp do_scoped_query(actor, %{admin_users: _, end_users: :accounts}) do
     actor
-    |> Helper.prepare_query_with_membership_for(User)
+    |> Helper.query_with_membership_for(User)
     |> join(:inner, [g, m], au in AccountUser, on: m.account_uuid == au.account_uuid)
     |> where([g, m, au], g.uuid == au.user_uuid)
     |> select([g, m, au], g)

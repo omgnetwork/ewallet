@@ -29,10 +29,6 @@ defmodule EWallet.Bouncer.Helper do
   def get_actor(%Key{} = key), do: key
   def get_actor(_), do: nil
 
-  def get_uuids(list) do
-    Enum.map(list, fn account -> account.uuid end)
-  end
-
   def extract_permission(%{} = subset, [next_key | next_keys]) do
     extract_permission(subset[next_key], next_keys)
   end
@@ -41,17 +37,17 @@ defmodule EWallet.Bouncer.Helper do
     permission
   end
 
-  def prepare_query_with_membership_for(actor, query, type \\ :inner)
+  def query_with_membership_for(actor, query, type \\ :inner)
 
-  def prepare_query_with_membership_for(%User{is_admin: true} = user, query, type) do
+  def query_with_membership_for(%User{is_admin: true} = user, query, type) do
     join(query, type, [g], m in Membership, on: m.user_uuid == ^user.uuid)
   end
 
-  def prepare_query_with_membership_for(%User{is_admin: false} = user, query, type) do
+  def query_with_membership_for(%User{is_admin: false} = user, query, type) do
     join(query, type, [g], m in AccountUser, on: m.user_uuid == ^user.uuid)
   end
 
-  def prepare_query_with_membership_for(%Key{} = key, query, type) do
+  def query_with_membership_for(%Key{} = key, query, type) do
     join(query, type, [g], m in Membership, on: m.key_uuid == ^key.uuid)
   end
 end

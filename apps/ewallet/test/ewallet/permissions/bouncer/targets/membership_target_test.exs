@@ -16,6 +16,7 @@ defmodule EWallet.Bouncer.MembershipTargetTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Bouncer.{MembershipTarget, DispatchConfig}
+  alias Utils.Helpers.UUID
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the user's membership" do
@@ -56,7 +57,7 @@ defmodule EWallet.Bouncer.MembershipTargetTest do
       target_accounts_uuids =
         membership
         |> MembershipTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert Enum.member?(target_accounts_uuids, account.uuid)
     end
