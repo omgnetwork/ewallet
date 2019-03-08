@@ -31,7 +31,7 @@ defmodule AdminAPI.V1.BalanceController do
   def all_for_wallet(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, wallet),
-         %Paginator{data: tokens, pagination: pagination} <- load_tokens(attrs),
+         %Paginator{data: tokens, pagination: pagination} <- all_tokens(attrs),
          {:ok, data} <- BalanceLoader.add_balances(wallet, tokens) do
       render(conn, :balances, %Paginator{pagination: pagination, data: data})
     else
@@ -43,7 +43,7 @@ defmodule AdminAPI.V1.BalanceController do
     handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
   end
 
-  defp load_tokens(attrs) do
+  defp all_tokens(attrs) do
     Orchestrator.query(Token, TokenOverlay, attrs)
   end
 
