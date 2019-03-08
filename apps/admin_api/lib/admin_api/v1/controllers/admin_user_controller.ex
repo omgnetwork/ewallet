@@ -28,6 +28,7 @@ defmodule AdminAPI.V1.AdminUserController do
     with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
       query
+      |> User.query_admin_users()
       |> Orchestrator.query(UserOverlay, attrs)
       |> respond_multiple(conn)
     else
