@@ -13,6 +13,9 @@
 # limitations under the License.
 
 defmodule AdminAPI.V1.BalanceController do
+  @moduledoc """
+  The controller to serve paginated balances for specified wallet.
+  """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.WalletPolicy
@@ -26,7 +29,7 @@ defmodule AdminAPI.V1.BalanceController do
   }
 
   @doc """
-  Retrieves a list of balances based on current wallet.
+  Retrieves a paginated list of balances by given wallet address.
   """
   def all_for_wallet(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
