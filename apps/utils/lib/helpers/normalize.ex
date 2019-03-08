@@ -28,4 +28,9 @@ defmodule Utils.Helpers.Normalize do
   def to_boolean(s) when is_binary(s), do: string_to_boolean(s)
   def to_boolean(s) when is_integer(s) and s >= 1, do: true
   def to_boolean(_), do: false
+
+  def to_integer(<<_::binary>> = s), do: :erlang.binary_to_integer(s)
+  def to_integer([_ | _] = s), do: :erlang.list_to_integer(s)
+  def to_integer(s) when is_integer(s), do: s
+  def to_integer(s) when is_float(s), do: :erlang.round(s)
 end

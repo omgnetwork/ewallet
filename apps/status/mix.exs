@@ -34,6 +34,6 @@ defmodule Status.Mixfile do
     ]
   end
 
-  defp deps, do: []
+  defp deps, do: [{:utils, in_umbrella: true}]
   defp aliases, do: []
 end

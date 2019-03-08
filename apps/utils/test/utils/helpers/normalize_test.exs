@@ -66,4 +66,55 @@ defmodule Utils.Helpers.NormalizeTest do
       refute Normalize.to_boolean(-1)
     end
   end
+
+  describe "to_integer/1" do
+    test "keeps integers as integers" do
+      assert 1 == Normalize.to_integer(1)
+      assert 2 == Normalize.to_integer(2)
+      assert 65_535 == Normalize.to_integer(65_535)
+      assert 99_999 == Normalize.to_integer(99_999)
+      assert 0 == Normalize.to_integer(0)
+      assert -1 == Normalize.to_integer(-1)
+    end
+
+    test "converts binaries to integer" do
+      assert 1 == Normalize.to_integer(<<"1">>)
+      assert 2 == Normalize.to_integer(<<"2">>)
+      assert 65_535 == Normalize.to_integer(<<"65535">>)
+      assert 99_999 == Normalize.to_integer(<<"99999">>)
+      assert 999_991 == Normalize.to_integer(<<"99999", "1">>)
+      assert 0 == Normalize.to_integer(<<"0">>)
+      assert -1 == Normalize.to_integer(<<"-1">>)
+    end
+
+    test "converts lists to integer" do
+      assert 1 == Normalize.to_integer('1')
+      assert 2 == Normalize.to_integer('2')
+      assert 65_535 == Normalize.to_integer('65535')
+      assert 99_999 == Normalize.to_integer('99999')
+      assert 999_991 == Normalize.to_integer('999991')
+      assert 0 == Normalize.to_integer('0')
+      assert -1 == Normalize.to_integer('-1')
+    end
+
+    test "converts floats to integer" do
+      assert 1 == Normalize.to_integer(1.0)
+      assert 2 == Normalize.to_integer(2.0)
+      assert 65_535 == Normalize.to_integer(65_535.0)
+      assert 99_999 == Normalize.to_integer(99_999.0)
+      assert 999_991 == Normalize.to_integer(999_991.0)
+      assert 0 == Normalize.to_integer(0.0)
+      assert -1 == Normalize.to_integer(-1.0)
+
+      assert 1 == Normalize.to_integer(1.1)
+      assert 2 == Normalize.to_integer(2.2)
+      assert 65_535 == Normalize.to_integer(65_535.3)
+      assert 99_999 == Normalize.to_integer(99_999.4)
+      assert 999_992 == Normalize.to_integer(999_991.5)
+      assert 0 == Normalize.to_integer(0.0)
+      assert -1 == Normalize.to_integer(-1.0)
+      assert -1 == Normalize.to_integer(-1.4)
+      assert -2 == Normalize.to_integer(-1.5)
+    end
+  end
 end

@@ -17,6 +17,7 @@ defmodule Status.Metric.Recorder do
   A GenServer template for metrics recording.
   """
   use GenServer
+  alias Utils.Helpers.Normalize
   @default_interval 5_000
   @type t :: %__MODULE__{
           name: atom(),
@@ -75,6 +76,7 @@ defmodule Status.Metric.Recorder do
         |> String.upcase()
         |> Kernel.<>("_INTERVAL")
         |> System.get_env()
+        |> Normalize.to_integer()
 
       num ->
         num

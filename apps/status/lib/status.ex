@@ -18,6 +18,7 @@ defmodule Status do
   """
   use Application
   alias Status.Metric.Recorder
+  alias Utils.Helpers.Normalize
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
@@ -69,11 +70,11 @@ defmodule Status do
 
   @spec is_enabled?() :: boolean() | nil
   defp is_enabled?() do
-    case {Application.get_env(:status, :metrics), System.get_env("METRICS")} do
+    case {Application.get_env(:status, :metrics), Normalize.to_boolean(System.get_env("METRICS"))} do
       {true, _} -> true
-      {_, "true"} -> true
+      {_, true} -> true
       {false, _} -> false
-      {_, "false"} -> false
+      {_, false} -> false
       _ -> nil
     end
   end
