@@ -162,9 +162,9 @@ jobs:
           name: Build eWallet in test environment
           command: |
             set -xe
-            # * Clean bcrypt_elixir to avoid NIF issue due to broken cache.
+            # * Clean bcrypt_elixir and libsecp256k1 to avoid NIF issue due to broken cache.
             # * Clean mime in order to make the new type recognized by mime app. See also admin_api/config/config.exs
-            mix deps.clean bcrypt_elixir mime --build
+            mix deps.clean bcrypt_elixir libsecp256k1 mime --build
             make build-test
       - run:
           name: Build eWallet assets
