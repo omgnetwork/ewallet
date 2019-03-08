@@ -106,6 +106,23 @@ defmodule AdminAPI.V1.BalanceControllerTest do
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation."
     end
+
+    test_with_auths "returns :error when missing wallet address" do
+      attrs = %{
+        "sort_by" => "inserted_at",
+        "sort_dir" => "asc",
+        "start_after" => nil,
+        "start_by" => "id"
+      }
+
+      response = request("/wallet.all_balances", attrs)
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `address` is required."
+    end
   end
 
   # number of created tokens == number of given amounts
