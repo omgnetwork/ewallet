@@ -94,6 +94,30 @@ AccountListBodyWithOwned:
         example:
           id: acc_01ca2p8jqans5aty5gj5etmjcf
           owned: true
+
+AccountListBodyWithOwnedWallets:
+  description: The parameters to use for listing an account's owned wallets
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          id:
+            type: string
+          owned:
+            type: boolean
+          start_by:
+            type: string
+        required:
+          - id
+          - owned
+        example:
+          id: acc_01ca2p8jqans5aty5gj5etmjcf
+          owned: true
+          start_by: address
+
 AccountListBody:
   description: The parameters to use for listing an account's data
   required: true

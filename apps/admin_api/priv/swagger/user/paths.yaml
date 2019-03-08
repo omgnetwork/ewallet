@@ -76,7 +76,7 @@ user.get_wallets:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/UserIdentifierWithFiltersBody'
+      $ref: 'request_bodies.yaml#/UserIdentifierWithWalletFiltersBody'
     responses:
       '200':
         $ref: '../wallet/responses.yaml#/WalletsResponse'

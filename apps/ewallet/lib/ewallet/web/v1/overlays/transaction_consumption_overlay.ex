@@ -143,4 +143,11 @@ defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
       exchange_account: AccountOverlay.self_filter_fields(),
       exchange_wallet: WalletOverlay.self_filter_fields()
     ]
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end

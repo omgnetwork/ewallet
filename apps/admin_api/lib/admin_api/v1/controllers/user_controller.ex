@@ -187,6 +187,10 @@ defmodule AdminAPI.V1.UserController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   # Respond with a single user
   defp respond_single(%User{} = user, conn), do: render(conn, :user, %{user: user})
 

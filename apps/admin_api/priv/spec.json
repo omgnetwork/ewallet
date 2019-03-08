@@ -1681,9 +1681,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -1748,7 +1748,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -1822,10 +1823,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -1839,8 +1841,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -1864,8 +1867,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -3314,9 +3318,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -3381,7 +3385,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -3467,10 +3472,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -3484,8 +3490,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -3509,8 +3516,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -4425,9 +4433,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -4492,7 +4500,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -4566,10 +4575,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -4583,8 +4593,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -4608,8 +4619,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -5371,10 +5383,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -5388,8 +5401,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -5413,8 +5427,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -5820,10 +5835,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -5837,8 +5853,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -5862,8 +5879,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -6265,10 +6283,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -6282,8 +6301,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -6307,8 +6327,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -6637,9 +6658,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -6704,7 +6725,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -6778,10 +6800,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -6795,8 +6818,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -6820,8 +6844,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -8391,9 +8416,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -8458,7 +8483,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -8532,10 +8558,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -8549,8 +8576,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -8574,8 +8602,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -11053,9 +11082,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -11120,7 +11149,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -11205,10 +11235,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -11222,8 +11253,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -11247,8 +11279,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -11705,9 +11738,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -11772,7 +11805,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -11862,10 +11896,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -11879,8 +11914,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -11904,8 +11940,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -12133,9 +12170,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -12200,7 +12237,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -12274,10 +12312,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -12291,8 +12330,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -12316,8 +12356,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -12704,7 +12745,7 @@
           }
         ],
         "requestBody": {
-          "description": "The parameters to use for listing an account's owned data",
+          "description": "The parameters to use for listing an account's owned wallets",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {
@@ -12712,9 +12753,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -12779,7 +12820,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -12794,6 +12836,9 @@
                   },
                   "owned": {
                     "type": "boolean"
+                  },
+                  "start_by": {
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -12802,7 +12847,8 @@
                 ],
                 "example": {
                   "id": "acc_01ca2p8jqans5aty5gj5etmjcf",
-                  "owned": true
+                  "owned": true,
+                  "start_by": "address"
                 }
               }
             }
@@ -12869,10 +12915,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -12886,8 +12933,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -12911,8 +12959,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -13482,7 +13531,7 @@
           }
         ],
         "requestBody": {
-          "description": "The parameters to use for listing an account's owned data",
+          "description": "The parameters to use for listing an account's owned wallets",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {
@@ -13490,9 +13539,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -13557,7 +13606,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -13572,6 +13622,9 @@
                   },
                   "owned": {
                     "type": "boolean"
+                  },
+                  "start_by": {
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -13580,7 +13633,8 @@
                 ],
                 "example": {
                   "id": "acc_01ca2p8jqans5aty5gj5etmjcf",
-                  "owned": true
+                  "owned": true,
+                  "start_by": "address"
                 }
               }
             }
@@ -13647,10 +13701,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -13664,8 +13719,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -13689,8 +13745,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -14268,9 +14325,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -14335,7 +14392,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -14425,10 +14483,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -14442,8 +14501,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -14467,8 +14527,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -14850,9 +14911,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -14917,7 +14978,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -15007,10 +15069,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -15024,8 +15087,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -15049,8 +15113,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -15350,9 +15415,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -15417,7 +15482,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -15507,10 +15573,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -15524,8 +15591,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -15549,8 +15617,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -16447,9 +16516,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -16514,7 +16583,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -16588,10 +16658,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -16605,8 +16676,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -16630,8 +16702,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -19230,9 +19303,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -19297,7 +19370,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -19371,10 +19445,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -19388,8 +19463,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -19413,8 +19489,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -19809,9 +19886,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -19876,7 +19953,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -19950,10 +20028,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -19967,8 +20046,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -19992,8 +20072,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -21014,16 +21095,16 @@
           }
         ],
         "requestBody": {
-          "description": "The parameters to use for retrieving a collection owned by user by its id or provider_user_id",
+          "description": "The parameters to use for retrieving wallets owned by user by its id or provider_user_id",
           "content": {
             "application/vnd.omisego.v1+json": {
               "schema": {
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -21088,7 +21169,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -21102,6 +21184,9 @@
                     "properties": {
                       "id": {
                         "type": "string"
+                      },
+                      "start_by": {
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -21112,6 +21197,9 @@
                     "properties": {
                       "provider_user_id": {
                         "type": "string"
+                      },
+                      "start_by": {
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -21120,7 +21208,8 @@
                   }
                 ],
                 "example": {
-                  "id": "usr_01ce83q2zw7zk1dqr79t22zr1v"
+                  "id": "usr_01ce83q2zw7zk1dqr79t22zr1v",
+                  "start_by": "address"
                 }
               }
             }
@@ -21187,10 +21276,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -21204,8 +21294,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -21229,8 +21320,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -21799,9 +21891,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -21866,7 +21958,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -21973,10 +22066,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -21990,8 +22084,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -22015,8 +22110,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -22397,9 +22493,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -22464,7 +22560,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -22563,10 +22660,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -22580,8 +22678,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -22605,8 +22704,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -23179,7 +23279,7 @@
           }
         ],
         "requestBody": {
-          "description": "The default parameters to use when querying a paginated resource",
+          "description": "The parameters to use for listing the wallets",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {
@@ -23187,9 +23287,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -23254,7 +23354,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -23262,7 +23363,15 @@
                       "sort_dir": "desc"
                     }
                   }
-                ]
+                ],
+                "properties": {
+                  "start_by": {
+                    "type": "string"
+                  }
+                },
+                "example": {
+                  "start_by": "address"
+                }
               }
             }
           }
@@ -23328,10 +23437,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -23345,8 +23455,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -23370,8 +23481,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -25201,9 +25313,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -25268,7 +25380,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -25353,10 +25466,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -25370,8 +25484,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -25395,8 +25510,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -26309,9 +26425,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -26376,7 +26492,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -26450,10 +26567,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -26467,8 +26585,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -26492,8 +26611,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -28447,9 +28567,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -28514,7 +28634,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -28588,10 +28709,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -28605,8 +28727,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -28630,8 +28753,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -29997,9 +30121,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -30064,7 +30188,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -30149,10 +30274,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -30166,8 +30292,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -30191,8 +30318,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -30505,9 +30633,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -30572,7 +30700,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -30646,10 +30775,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -30663,8 +30793,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -30688,8 +30819,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -31977,9 +32109,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -32044,7 +32176,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -32118,10 +32251,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -32135,8 +32269,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -32160,8 +32295,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -33238,9 +33374,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -33305,7 +33441,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -33379,10 +33516,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -33396,8 +33534,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -33421,8 +33560,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -34479,9 +34619,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -34546,7 +34686,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -34620,10 +34761,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -34637,8 +34779,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -34662,8 +34805,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -35282,9 +35426,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -35349,7 +35493,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -35423,10 +35568,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -35440,8 +35586,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -35465,8 +35612,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -35909,9 +36057,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -35976,7 +36124,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -36050,10 +36199,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -36067,8 +36217,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -36092,8 +36243,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true

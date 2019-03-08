@@ -85,6 +85,32 @@ UserIdentifierWithFiltersBody:
         example:
           id: usr_01ce83q2zw7zk1dqr79t22zr1v
 
+UserIdentifierWithWalletFiltersBody:
+  description: The parameters to use for retrieving wallets owned by user by its id or provider_user_id
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        oneOf:
+          - properties:
+              id:
+                type: string
+              start_by:
+                type: string
+            required:
+              - id
+          - properties:
+              provider_user_id:
+                type: string
+              start_by:
+                type: string
+            required:
+              - provider_user_id
+        example:
+          id: usr_01ce83q2zw7zk1dqr79t22zr1v
+          start_by: address
+
 UserToggleStatusBody:
   description: The parameters to enable/disable a user. Send enabled=true to enable, enabled=false to disable.
   required: true
