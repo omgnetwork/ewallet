@@ -145,13 +145,6 @@ jobs:
     executor: builder
     steps:
       - checkout
-      - restore_cache:
-          name: Restore eWallet artifacts from cache
-          keys:
-            - v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
-            - v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-
-            - v2-ewallet-{{ checksum "mix.lock" }}-
-            - v2-ewallet-
       - run:
           name: Print current tools version
           command: |
@@ -162,22 +155,12 @@ jobs:
           name: Build eWallet in test environment
           command: |
             set -xe
-            # * Clean bcrypt_elixir and libsecp256k1 to avoid NIF issue due to broken cache.
-            # * Clean mime in order to make the new type recognized by mime app. See also admin_api/config/config.exs
-            mix deps.clean bcrypt_elixir libsecp256k1 mime --build
             make build-test
       - run:
           name: Build eWallet assets
           command: |
             set -xe
             make deps-assets
-      - save_cache:
-          name: Cache eWallet artifacts
-          key: v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
-          paths:
-            - deps
-            - _build/test
-            - apps/admin_panel/assets/node_modules
       - persist_to_workspace:
           name: Persist workspace
           root: ~/
@@ -269,17 +252,10 @@ jobs:
       - checkout
       - setup_remote_docker
       - setup_ewallet_workspace
-      - restore_cache:
-          name: Restore eWallet production artifacts from cache
-          keys:
-            - v2-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
-            - v2-ewallet-prod-{{ checksum "mix.exs" }}-
-            - v2-ewallet-prod-
       - run:
           name: Build eWallet in production environment
           command: |
             set -xe
-            mix deps.clean mime --build
             make build-prod
       - run:
           name: Build eWallet Docker image
@@ -289,14 +265,6 @@ jobs:
             make docker-build IMAGE_NAME=$IMAGE_NAME
             mkdir -p ~/caches
             docker save -o ~/caches/docker-layers.tar "$IMAGE_NAME"
-      - save_cache:
-          name: Cache eWallet production artifacts
-          key: v2-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
-          paths:
-            - _build/prod/.mix
-            - _build/prod/consolidated
-            - _build/prod/lib
-            - ~/caches/docker-layers.tar
       - persist_to_workspace:
           name: Persist workspace
           root: ~/
