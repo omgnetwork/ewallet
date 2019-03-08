@@ -1684,6 +1684,61 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert inserted_transaction.uuid == inserted_transaction_2.uuid
     end
 
+    test_with_auths "returns a max_consumption_per_interval_reached error", context do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit,
+          consumption_interval_duration: 360_000_000,
+          max_consumptions_per_interval: 1
+        )
+
+      set_initial_balance(%{
+        address: context.bob_wallet.address,
+        token: context.token,
+        amount: 150_000
+      })
+
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "1234",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: context.account.id
+        })
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+
+      assert response["success"]
+      assert response["data"]["id"] == inserted_consumption.id
+
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "12345",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: context.account.id
+        })
+
+      refute response["success"]
+
+      assert response["data"]["code"] ==
+               "transaction_request:max_consumptions_per_interval_reached"
+    end
+
     test_with_auths "returns idempotency error if header is not specified" do
       response =
         request("/transaction_request.consume", %{

@@ -171,7 +171,8 @@ defmodule EWalletDB.TransactionRequestTest do
         |> TransactionRequest.insert()
 
       assert changeset.errors == [
-               {:amount, {"needs to be set if amount override is not allowed.", []}}
+               {:max_consumptions_per_interval,
+                {"can't be set when consumption_interval_duration is nil.", []}}
              ]
     end
 
@@ -185,7 +186,8 @@ defmodule EWalletDB.TransactionRequestTest do
         |> TransactionRequest.insert()
 
       assert changeset.errors == [
-               {:amount, {"needs to be set if amount override is not allowed.", []}}
+               {:max_consumptions_per_interval_per_user,
+                {"can't be set when consumption_interval_duration is nil.", []}}
              ]
     end
   end

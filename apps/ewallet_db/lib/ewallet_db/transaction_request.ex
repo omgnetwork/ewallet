@@ -208,24 +208,30 @@ defmodule EWalletDB.TransactionRequest do
   defp validate_interval_fields(changeset) do
     case Changeset.get_field(changeset, :consumption_interval_duration) do
       nil ->
-        if Changeset.get_field(changeset, :max_consumptions_per_interval) != nil do
-          Changeset.add_error(
-            changeset,
-            :max_consumptions_per_interval,
-            "can't be set when consumption_interval_duration is nil."
-          )
-        end
+        error = "can't be set when consumption_interval_duration is nil."
 
-        if Changeset.get_field(changeset, :max_consumptions_per_interval_per_user) != nil do
-          Changeset.add_error(
-            changeset,
-            :max_consumptions_per_interval_per_user,
-            "can't be set when consumption_interval_duration is nil."
-          )
-        end
+        changeset
+        |> validate_dependant_field(:max_consumptions_per_interval, error)
+        |> validate_dependant_field(:max_consumptions_per_interval_per_user, error)
 
       _ ->
         changeset
+    end
+  end
+
+  defp validate_dependant_field(changeset, field, error) do
+    changeset
+    |> Changeset.get_field(field)
+    |> case do
+      nil ->
+        changeset
+
+      _ ->
+        Changeset.add_error(
+          changeset,
+          field,
+          error
+        )
     end
   end
 
