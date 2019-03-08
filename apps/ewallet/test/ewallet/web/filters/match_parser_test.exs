@@ -118,29 +118,7 @@ defmodule EWallet.Web.MatchParserTest do
   end
 
   describe "build_query/3 with nested fields" do
-    test "supports up to 5 different associations" do
-      whitelist = [
-        from_user: [:id],
-        to_user: [:id],
-        from_token: [:id],
-        to_token: [:id],
-        from_wallet: [:id],
-        to_wallet: [:id]
-      ]
-
-      attrs = [
-        %{"field" => "from_user.id", "comparator" => "eq", "value" => 1234},
-        %{"field" => "to_user.id", "comparator" => "eq", "value" => 1234},
-        %{"field" => "from_token.id", "comparator" => "eq", "value" => 1234},
-        %{"field" => "to_token.id", "comparator" => "eq", "value" => 1234},
-        %{"field" => "from_wallet.id", "comparator" => "eq", "value" => 1234}
-      ]
-
-      assert %Ecto.Query{} =
-               MatchParser.build_query(Transaction, attrs, whitelist, true, MatchAllQuery)
-    end
-
-    test "returns error if more than 5 associations are referenced" do
+    test "supports more than 5 associations are referenced" do
       whitelist = [
         from_user: [:id],
         to_user: [:id],
@@ -159,8 +137,8 @@ defmodule EWallet.Web.MatchParserTest do
         %{"field" => "to_wallet.id", "comparator" => "eq", "value" => 1234}
       ]
 
-      result = MatchParser.build_query(Transaction, attrs, whitelist, true, MatchAllQuery)
-      assert result == {:error, :too_many_associations}
+      assert %Ecto.Query{} =
+                MatchParser.build_query(Transaction, attrs, whitelist, true, MatchAllQuery)
     end
 
     test "returns error if filtering is not allowed on the field" do
