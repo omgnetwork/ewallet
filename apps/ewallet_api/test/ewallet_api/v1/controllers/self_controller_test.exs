@@ -51,6 +51,8 @@ defmodule EWalletAPI.V1.SelfControllerTest do
       transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
       transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
 
+      expected_avatar = %{"large" => nil, "original" => nil, "small" => nil, "thumb" => nil}
+
       response = client_request("/me.get_wallets")
 
       assert response == %{
@@ -73,12 +75,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                      "created_at" => DateFormatter.to_iso8601(user_wallet.inserted_at),
                      "updated_at" => DateFormatter.to_iso8601(user_wallet.updated_at),
                      "user" => %{
-                       "avatar" => %{
-                         "large" => nil,
-                         "original" => nil,
-                         "small" => nil,
-                         "thumb" => nil
-                       },
+                       "avatar" => expected_avatar,
                        "created_at" => DateFormatter.to_iso8601(user.inserted_at),
                        "email" => nil,
                        "encrypted_metadata" => %{},
@@ -107,6 +104,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
+                           "avatar" => expected_avatar,
                            "created_at" => DateFormatter.to_iso8601(btc.inserted_at),
                            "updated_at" => DateFormatter.to_iso8601(btc.updated_at)
                          }
@@ -123,6 +121,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
+                           "avatar" => expected_avatar,
                            "created_at" => DateFormatter.to_iso8601(omg.inserted_at),
                            "updated_at" => DateFormatter.to_iso8601(omg.updated_at)
                          }

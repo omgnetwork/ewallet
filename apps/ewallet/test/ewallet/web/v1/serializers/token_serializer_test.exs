@@ -21,6 +21,8 @@ defmodule EWallet.Web.V1.TokenSerializerTest do
     test "serializes into correct V1 token format" do
       token = build(:token)
 
+      expected_avatar = %{large: nil, original: nil, small: nil, thumb: nil}
+
       expected = %{
         object: "token",
         id: token.id,
@@ -30,6 +32,7 @@ defmodule EWallet.Web.V1.TokenSerializerTest do
         metadata: token.metadata,
         encrypted_metadata: token.encrypted_metadata,
         enabled: true,
+        avatar: expected_avatar,
         created_at: token.inserted_at,
         updated_at: token.updated_at
       }
@@ -48,6 +51,8 @@ defmodule EWallet.Web.V1.TokenSerializerTest do
       token2 = build(:token)
       tokens = [token1, token2]
 
+      expected_avatar = %{large: nil, original: nil, small: nil, thumb: nil}
+
       expected = [
         %{
           object: "token",
@@ -58,6 +63,7 @@ defmodule EWallet.Web.V1.TokenSerializerTest do
           metadata: token1.metadata,
           encrypted_metadata: token1.encrypted_metadata,
           enabled: true,
+          avatar: expected_avatar,
           created_at: token1.inserted_at,
           updated_at: token1.updated_at
         },
@@ -70,6 +76,7 @@ defmodule EWallet.Web.V1.TokenSerializerTest do
           metadata: token2.metadata,
           encrypted_metadata: token2.encrypted_metadata,
           enabled: true,
+          avatar: expected_avatar,
           created_at: token2.inserted_at,
           updated_at: token2.updated_at
         }

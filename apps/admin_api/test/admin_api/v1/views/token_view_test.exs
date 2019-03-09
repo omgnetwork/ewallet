@@ -22,6 +22,8 @@ defmodule AdminAPI.V1.TokenViewTest do
     test "renders token.json with correct response structure" do
       token = insert(:token)
 
+      expected_avatar = %{large: nil, original: nil, small: nil, thumb: nil}
+
       expected = %{
         version: @expected_version,
         success: true,
@@ -33,6 +35,7 @@ defmodule AdminAPI.V1.TokenViewTest do
           metadata: %{},
           encrypted_metadata: %{},
           enabled: true,
+          avatar: expected_avatar,
           subunit_to_unit: token.subunit_to_unit,
           created_at: DateFormatter.to_iso8601(token.inserted_at),
           updated_at: DateFormatter.to_iso8601(token.updated_at)
@@ -45,6 +48,8 @@ defmodule AdminAPI.V1.TokenViewTest do
     test "renders tokens.json with correct response structure" do
       token1 = insert(:token)
       token2 = insert(:token)
+
+      expected_avatar = %{large: nil, original: nil, small: nil, thumb: nil}
 
       paginator = %Paginator{
         data: [token1, token2],
@@ -70,6 +75,7 @@ defmodule AdminAPI.V1.TokenViewTest do
               metadata: %{},
               encrypted_metadata: %{},
               enabled: true,
+              avatar: expected_avatar,
               subunit_to_unit: token1.subunit_to_unit,
               created_at: DateFormatter.to_iso8601(token1.inserted_at),
               updated_at: DateFormatter.to_iso8601(token1.updated_at)
@@ -82,6 +88,7 @@ defmodule AdminAPI.V1.TokenViewTest do
               metadata: %{},
               encrypted_metadata: %{},
               enabled: true,
+              avatar: expected_avatar,
               subunit_to_unit: token2.subunit_to_unit,
               created_at: DateFormatter.to_iso8601(token2.inserted_at),
               updated_at: DateFormatter.to_iso8601(token2.updated_at)
