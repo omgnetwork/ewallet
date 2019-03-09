@@ -82,5 +82,4 @@ defmodule EWallet.Web.MatchAnyQuery do
       _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
     end
   end
-
 end

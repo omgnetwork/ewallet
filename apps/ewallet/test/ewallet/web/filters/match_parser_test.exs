@@ -136,7 +136,7 @@ defmodule EWallet.Web.MatchParserTest do
       ]
 
       assert %Ecto.Query{} =
-                MatchParser.build_query(Transaction, attrs, whitelist, true, MatchAllQuery)
+               MatchParser.build_query(Transaction, attrs, whitelist, true, MatchAllQuery)
     end
 
     test "returns error if filtering is not allowed on the field" do
