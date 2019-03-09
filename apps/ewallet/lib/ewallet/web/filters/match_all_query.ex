@@ -61,7 +61,6 @@ defmodule EWallet.Web.MatchAllQuery do
     end
   end
 
-
   def do_filter_assoc(dynamic, position, field, nil, comparator, nil = value) do
     case comparator do
       "eq" -> dynamic([{a, position}], is_nil(field(a, ^field)) and ^dynamic)
@@ -71,19 +70,33 @@ defmodule EWallet.Web.MatchAllQuery do
   end
 
   def do_filter_assoc(dynamic, position, field, nil, comparator, value) do
-    IO.puts("Position:")
-    IO.inspect(position)
     case comparator do
-      "eq" -> dynamic([{a, position}], field(a, ^field) == ^value and ^dynamic)
-      "neq" -> dynamic([{a, position}], field(a, ^field) != ^value and ^dynamic)
-      "gt" -> dynamic([{a, position}], field(a, ^field) > ^value and ^dynamic)
-      "gte" -> dynamic([{a, position}], field(a, ^field) >= ^value and ^dynamic)
-      "lt" -> dynamic([{a, position}], field(a, ^field) < ^value and ^dynamic)
-      "lte" -> dynamic([{a, position}], field(a, ^field) <= ^value and ^dynamic)
-      "contains" -> dynamic([{a, position}], ilike(field(a, ^field), ^"%#{value}%") and ^dynamic)
-      "starts_with" -> dynamic([{a, position}], ilike(field(a, ^field), ^"#{value}%") and ^dynamic)
-      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+      "eq" ->
+        dynamic([{a, position}], field(a, ^field) == ^value and ^dynamic)
+
+      "neq" ->
+        dynamic([{a, position}], field(a, ^field) != ^value and ^dynamic)
+
+      "gt" ->
+        dynamic([{a, position}], field(a, ^field) > ^value and ^dynamic)
+
+      "gte" ->
+        dynamic([{a, position}], field(a, ^field) >= ^value and ^dynamic)
+
+      "lt" ->
+        dynamic([{a, position}], field(a, ^field) < ^value and ^dynamic)
+
+      "lte" ->
+        dynamic([{a, position}], field(a, ^field) <= ^value and ^dynamic)
+
+      "contains" ->
+        dynamic([{a, position}], ilike(field(a, ^field), ^"%#{value}%") and ^dynamic)
+
+      "starts_with" ->
+        dynamic([{a, position}], ilike(field(a, ^field), ^"#{value}%") and ^dynamic)
+
+      _ ->
+        {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
     end
   end
-
 end
