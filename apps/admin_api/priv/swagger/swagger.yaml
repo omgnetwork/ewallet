@@ -114,6 +114,8 @@ paths:
     $ref: 'token/paths.yaml#/token.create'
   /token.update:
     $ref: 'token/paths.yaml#/token.update'
+  /token.upload_avatar:
+    $ref: 'token/paths.yaml#/token.upload_avatar'
   /token.enable_or_disable:
     $ref: 'token/paths.yaml#/token.enable_or_disable'
   /token.stats:
