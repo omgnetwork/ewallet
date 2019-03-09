@@ -1,0 +1,6 @@
+BalancesResponse:
+  description: Returns a list of balances
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/BalancesResponseSchema'

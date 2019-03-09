@@ -1,0 +1,27 @@
+BalancesResponseSchema:
+  description: The response schema for a list of balance
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../../../../ewallet/priv/swagger/wallet/schemas.yaml#/BalanceSchema'
+    example:
+      data:
+        object: list
+        data:
+          object: balance
+          amount: 0
+          token:
+            object: token
+            id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+            symbol: BTC
+            name: Bitcoin
+            subunit_to_unit: 100000000000000000
