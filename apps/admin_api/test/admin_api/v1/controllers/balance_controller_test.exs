@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.BalanceControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Account, Token, User}
 
-  describe "/wallet.all_balances" do
+  describe "/wallet.get_balances" do
     test_with_auths "returns a list of balances and pagination data when given an existing wallet address" do
       user_wallet = prepare_user_wallet()
 
@@ -31,7 +31,7 @@ defmodule AdminAPI.V1.BalanceControllerTest do
         "address" => user_wallet.address
       }
 
-      response = request("/wallet.all_balances", attrs)
+      response = request("/wallet.get_balances", attrs)
       token_ids = map_tokens_field(response, "id")
 
       assert response["success"] == true
@@ -53,7 +53,7 @@ defmodule AdminAPI.V1.BalanceControllerTest do
         "address" => user_wallet.address
       }
 
-      response = request("/wallet.all_balances", attrs)
+      response = request("/wallet.get_balances", attrs)
       token_ids = map_tokens_field(response, "id")
 
       assert response["success"] == true
@@ -74,7 +74,7 @@ defmodule AdminAPI.V1.BalanceControllerTest do
         "address" => user_wallet.address
       }
 
-      response = request("/wallet.all_balances", attrs)
+      response = request("/wallet.get_balances", attrs)
 
       amounts = map_balances_field(response, "amount")
       token_ids = map_tokens_field(response, "id")
@@ -98,7 +98,7 @@ defmodule AdminAPI.V1.BalanceControllerTest do
         "address" => "qwertyuiop"
       }
 
-      response = request("/wallet.all_balances", attrs)
+      response = request("/wallet.get_balances", attrs)
 
       assert response["success"] == false
       assert response["data"]["code"] == "unauthorized"
@@ -115,7 +115,7 @@ defmodule AdminAPI.V1.BalanceControllerTest do
         "start_by" => "id"
       }
 
-      response = request("/wallet.all_balances", attrs)
+      response = request("/wallet.get_balances", attrs)
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"

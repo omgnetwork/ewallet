@@ -134,7 +134,7 @@ defmodule AdminAPI.V1.Router do
 
     # Wallet endpoints
     post("/wallet.all", WalletController, :all)
-    post("/wallet.all_balances", BalanceController, :all_for_wallet)
+    post("/wallet.get_balances", BalanceController, :all_for_wallet)
     post("/wallet.get", WalletController, :get)
     post("/wallet.create", WalletController, :create)
     post("/wallet.enable_or_disable", WalletController, :enable_or_disable)
