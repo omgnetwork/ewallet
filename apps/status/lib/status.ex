@@ -71,10 +71,10 @@ defmodule Status do
   @spec is_enabled?() :: boolean() | nil
   defp is_enabled?() do
     case {Application.get_env(:status, :metrics), Normalize.to_boolean(System.get_env("METRICS"))} do
-      {true, _} -> true
       {_, true} -> true
-      {false, _} -> false
       {_, false} -> false
+      {true, _} -> true
+      {false, _} -> false
       _ -> nil
     end
   end
