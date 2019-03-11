@@ -5,8 +5,8 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import walletFetcher from '../omg-wallet/accountUsersWalletsFetcher'
 function AccountWalletSubPage (props) {
+  const { walletType } = queryString.parse(props.location.search)
   function getQuery () {
-    const { walletType } = queryString.parse(props.location.search)
     const userWalletQuery = [
       {
         field: 'account.id',
@@ -43,6 +43,7 @@ function AccountWalletSubPage (props) {
       walletQuery={{
         matchAny: getQuery()
       }}
+      title={walletType === 'user' ? 'User Wallets' : 'Account Wallets'}
     />
   )
 }

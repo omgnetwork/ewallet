@@ -77,12 +77,14 @@ class WalletPage extends Component {
     walletQuery: PropTypes.object,
     transferButton: PropTypes.bool,
     onClickRow: PropTypes.func,
-    fetcher: PropTypes.func
+    fetcher: PropTypes.func,
+    title: PropTypes.string
   }
   static defaultProps = {
     walletQuery: {},
     transferButton: false,
-    fetcher: WalletsFetcher
+    fetcher: WalletsFetcher,
+    title: 'Wallets'
   }
 
   constructor (props) {
@@ -155,7 +157,7 @@ class WalletPage extends Component {
     return (
       <WalletPageContainer>
         <TopNavigation
-          title={'Wallets'}
+          title={this.props.title}
           buttons={[this.props.transferButton && this.renderTransferButton()]}
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
