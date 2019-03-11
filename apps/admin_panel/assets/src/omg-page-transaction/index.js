@@ -78,7 +78,7 @@ const TransactionIdContainer = styled.div`
     padding: 8px;
     border-radius: 6px;
     border: 1px solid ${props => props.theme.colors.S400};
-    margin-right: 5px;
+    margin-right: 10px;
   }
 `
 const StatusContainer = styled.div`
@@ -293,7 +293,7 @@ class TransactionPage extends Component {
         render={this.renderTransactionPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: 15,
+          perPage: 10,
           search: queryString.parse(this.props.location.search).search,
           ...this.props.query
         }}

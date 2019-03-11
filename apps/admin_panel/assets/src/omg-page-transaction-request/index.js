@@ -211,7 +211,7 @@ class TransactionRequestsPage extends Component {
         {...this.props}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: Math.floor(window.innerHeight / 65),
+          perPage: Math.floor(window.innerHeight / 100),
           search: queryString.parse(this.props.location.search).search,
           ...this.props.query
         }}

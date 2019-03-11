@@ -19,7 +19,7 @@ import _ from 'lodash'
 const ConfigurationPageContainer = styled.div`
   position: relative;
   padding-bottom: 150px;
-  h4 {
+  h4:not(:first-child) {
     margin-top: 50px;
   }
 `
@@ -148,12 +148,13 @@ class ConfigurationPage extends Component {
   }
   isSendButtonDisabled () {
     return (
-      Object.keys(this.props.configurations).reduce((prev, curr) => {
-        return (
-          prev &&
-          String(this.props.configurations[curr].value) === String(this.state[_.camelCase(curr)])
-        )
-      }, true) ||
+      Object.keys(this.props.configurations)
+        .filter(configKey => this.state[_.camelCase(configKey)])
+        .reduce((prev, curr) => {
+          const stateValue = this.state[_.camelCase(curr)]
+          const propsValue = this.props.configurations[curr].value
+          return prev && String(propsValue) === String(stateValue)
+        }, true) ||
       Number(this.state.maxPerPage) < 1 ||
       Number(this.state.minPasswordLength) < 1
     )

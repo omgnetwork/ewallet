@@ -21,7 +21,7 @@ const TokenDetailPageContainer = styled.div`
     flex: 1;
   }
   td:nth-child(1) {
-    width: 100%;
+    width: 40%;
     border: none;
     position: relative;
     :before {
