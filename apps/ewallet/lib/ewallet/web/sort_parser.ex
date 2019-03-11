@@ -38,9 +38,12 @@ defmodule EWallet.Web.SortParser do
     field =
       mapped_fields
       |> Map.get(field, field)
-      |> String.to_atom()
+      |> String.to_existing_atom()
 
     if Enum.member?(allowed_fields, field), do: field, else: nil
+  rescue
+    ArgumentError ->
+      nil
   end
 
   defp get_sort_field(_, _, _), do: nil

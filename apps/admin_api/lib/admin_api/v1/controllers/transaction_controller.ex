@@ -198,6 +198,10 @@ defmodule AdminAPI.V1.TransactionController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   # Respond with a single transaction
   defp respond_single(%Transaction{} = transaction, conn) do
     render(conn, :transaction, %{transaction: transaction})

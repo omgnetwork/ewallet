@@ -320,6 +320,10 @@ defmodule EWalletDB.User do
     end)
   end
 
+  def query_admin_users(query \\ User) do
+    where(query, [u], u.is_admin == true)
+  end
+
   @doc """
   Retrieves a specific user.
   """

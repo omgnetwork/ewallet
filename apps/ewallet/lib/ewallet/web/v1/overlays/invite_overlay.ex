@@ -60,4 +60,11 @@ defmodule EWallet.Web.V1.InviteOverlay do
       updated_at: nil,
       user: UserOverlay.default_preload_assocs()
     ]
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end

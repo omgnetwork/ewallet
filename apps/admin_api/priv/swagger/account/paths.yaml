@@ -168,7 +168,7 @@ account.get_wallets_and_user_wallets:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/AccountListBodyWithOwned'
+      $ref: 'request_bodies.yaml#/AccountListBodyWithOwnedWallets'
     responses:
       '200':
         $ref: '../wallet/responses.yaml#/WalletsResponse'
@@ -184,7 +184,7 @@ account.get_wallets:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/AccountListBodyWithOwned'
+      $ref: 'request_bodies.yaml#/AccountListBodyWithOwnedWallets'
     responses:
       '200':
         $ref: '../wallet/responses.yaml#/WalletsResponse'

@@ -17,6 +17,7 @@ defmodule EWallet.PolicyHelper do
   The authorization policy for mints.
   """
   alias EWallet.{Bouncer, Bouncer.Permission}
+  alias Ecto.Query
 
   def authorize(:export, attrs, type, schema, nil) do
     authorize_scope(:export, attrs, type, schema)
@@ -33,7 +34,12 @@ defmodule EWallet.PolicyHelper do
   defp authorize_scope(_action, attrs, type, schema) do
     case Bouncer.bounce(attrs, %Permission{action: :all, type: type, schema: schema}) do
       {:ok, permission} ->
-        {:ok, %{permission | query: Bouncer.scoped_query(permission)}}
+        query =
+          permission
+          |> Bouncer.scoped_query()
+          |> Query.subquery()
+
+        {:ok, %{permission | query: query}}
 
       error ->
         error

@@ -45,6 +45,10 @@ defmodule AdminAPI.V1.KeyController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   @doc """
   Creates a new key. Currently keys are assigned to the master account only.
   """

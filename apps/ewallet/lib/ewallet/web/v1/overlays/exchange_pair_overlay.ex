@@ -65,4 +65,11 @@ defmodule EWallet.Web.V1.ExchangePairOverlay do
       from_token: TokenOverlay.self_filter_fields(),
       to_token: TokenOverlay.self_filter_fields()
     ]
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end

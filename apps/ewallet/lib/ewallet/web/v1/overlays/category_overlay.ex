@@ -63,4 +63,11 @@ defmodule EWallet.Web.V1.CategoryOverlay do
       deleted_at: nil,
       accounts: AccountOverlay.self_filter_fields()
     ]
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end

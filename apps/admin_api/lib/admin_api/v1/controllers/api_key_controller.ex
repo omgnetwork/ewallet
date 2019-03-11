@@ -44,6 +44,10 @@ defmodule AdminAPI.V1.APIKeyController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   @doc """
   Creates a new API key. Currently API keys are assigned to the master account only.
   """

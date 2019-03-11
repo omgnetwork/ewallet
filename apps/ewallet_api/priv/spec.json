@@ -1703,7 +1703,7 @@
         "summary": "Get the wallets of a specific user. The client can call this to get the wallets of the user corresponding to the authentication_token provided.",
         "operationId": "me_get_wallets",
         "requestBody": {
-          "description": "The default parameters to use when querying a paginated resource",
+          "description": "The parameters to use for listing the wallets",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {
@@ -1711,9 +1711,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -1778,7 +1778,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -1786,7 +1787,18 @@
                       "sort_dir": "desc"
                     }
                   }
-                ]
+                ],
+                "properties": {
+                  "start_by": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "address"
+                ],
+                "example": {
+                  "start_by": "address"
+                }
               }
             }
           }
@@ -1857,10 +1869,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -1874,8 +1887,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -1899,8 +1913,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
@@ -2470,9 +2485,9 @@
                 "allOf": [
                   {
                     "properties": {
-                      "page": {
-                        "type": "integer",
-                        "minimum": 1
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
                       },
                       "per_page": {
                         "type": "integer",
@@ -2537,7 +2552,8 @@
                       }
                     },
                     "example": {
-                      "page": 1,
+                      "start_after": null,
+                      "start_by": "id",
                       "per_page": 10,
                       "match_all": [],
                       "match_any": [],
@@ -2624,10 +2640,11 @@
                                         "type": "object"
                                       },
                                       "properties": {
-                                        "per_page": {
-                                          "type": "integer"
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
                                         },
-                                        "current_page": {
+                                        "per_page": {
                                           "type": "integer"
                                         },
                                         "count": {
@@ -2641,8 +2658,9 @@
                                         }
                                       },
                                       "required": [
+                                        "start_after",
+                                        "start_by",
                                         "per_page",
-                                        "current_page",
                                         "count",
                                         "is_first_page",
                                         "is_last_page"
@@ -2666,8 +2684,9 @@
                               "object": "list",
                               "data": null,
                               "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
                                 "per_page": 10,
-                                "current_page": 1,
                                 "count": 5,
                                 "is_first_page": true,
                                 "is_last_page": true
