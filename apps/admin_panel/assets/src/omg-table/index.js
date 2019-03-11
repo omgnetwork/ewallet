@@ -30,7 +30,7 @@ const TableContainer = styled.div`
       background-color: ${props => props.theme.colors.S100};
     }
     tbody td {
-      border-bottom: 1px solid ${props => props.theme.colors.S100};
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
     }
     tr {
       cursor: pointer;

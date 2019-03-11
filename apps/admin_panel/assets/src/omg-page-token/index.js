@@ -20,12 +20,22 @@ const TokenDetailPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  td:first-child {
-    width: 50%;
+  td:nth-child(1) {
+    width: 100%;
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
   }
-  td:nth-child(3),
   td:nth-child(4) {
-    width: 25%;
+    white-space: nowrap;
   }
 `
 const columns = [

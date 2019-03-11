@@ -30,7 +30,7 @@ const AdminPageContainer = styled.div`
       bottom: -1px;
       height: 1px;
       width: calc(100% - 50px);
-      border-bottom: 1px solid ${props => props.theme.colors.S100};
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
     }
   }
   tr:hover {
