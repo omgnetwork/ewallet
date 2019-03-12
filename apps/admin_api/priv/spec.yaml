@@ -4512,6 +4512,20 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
+      requestBody:
+        description: The parameters to use for creating an access key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                name:
+                  type: string
+                global_role:
+                  type: string
+              example:
+                name: my_key
+                global_role: none
       responses:
         '200': &ref_56
           description: Returns a single access key
@@ -4542,7 +4556,6 @@ paths:
         - API Access
       summary: Update a pair of access and secret keys by its id (deprecated)
       operationId: access_key_update
-      deprecated: true
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -4555,14 +4568,16 @@ paths:
               properties:
                 id:
                   type: string
-                expired:
-                  type: boolean
+                name:
+                  type: string
+                global_role:
+                  type: string
               required:
                 - id
-                - expired
               example:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
-                expired: true
+                name: my_key
+                global_role: none
       responses:
         '200': *ref_56
         '500': *ref_2

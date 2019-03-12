@@ -1,3 +1,18 @@
+AccessKeyCreateBody:
+  description: The parameters to use for creating an access key
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          name:
+            type: string
+          global_role:
+            type: string
+        example:
+          name: my_key
+          global_role: none
+
 AccessKeyUpdateBody:
   description: The parameters to use for updating an access key
   required: true
@@ -7,14 +22,16 @@ AccessKeyUpdateBody:
         properties:
           id:
             type: string
-          expired:
-            type: boolean
+          name:
+            type: string
+          global_role:
+            type: string
         required:
           - id
-          - expired
         example:
           id: key_01ce83yphmq6vt4qnmn3ykwcw6
-          expired: true
+          name: my_key
+          global_role: none
 
 AccessKeyToggleStatusBody:
   description: The parameters to enable/disable an access key. Send enabled=true to enable, enabled=false to disable.
