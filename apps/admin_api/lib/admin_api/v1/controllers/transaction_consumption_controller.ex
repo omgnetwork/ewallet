@@ -179,7 +179,11 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def consume(conn, _) do
-    handle_error(conn, :invalid_parameter)
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. 'idempotency_token' is required"
+    )
   end
 
   def cancel(conn, %{"id" => id} = attrs) do
@@ -200,7 +204,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def cancel(conn, _) do
-    handle_error(conn, :invalid_parameter)
+    handle_error(conn, :invalid_parameter, "Invalid parameter provided. 'id' is required")
   end
 
   def approve(conn, attrs), do: confirm(conn, conn.assigns, attrs, true)

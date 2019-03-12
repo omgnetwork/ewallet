@@ -10,7 +10,7 @@ ConsumptionConfirmationRequestBody:
         required:
           - id
         example:
-          id: 'txn_01cbfg5m2ee06kzm8tbysfmmw5'
+          id: 'txc_01cbfg5m2ee06kzm8tbysfmmw5'
 
 ConsumptionCancellationRequestBody:
   description: Cancel an owned pending consumption using the specified ID.
@@ -24,4 +24,4 @@ ConsumptionCancellationRequestBody:
         required:
           - id
         example:
-          id: 'txn_01cbfg5m2ee06kzm8tbysfmmw5'
+          id: 'txc_01cbfg5m2ee06kzm8tbysfmmw5'

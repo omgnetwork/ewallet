@@ -22,9 +22,9 @@ defmodule EWallet.TransactionConsumptionFetcher do
   alias EWalletDB.{Transaction, TransactionConsumption}
 
   @spec get(String.t()) ::
-          {:ok, %TransactionConsumption{}}
+          {:ok, %TransactionConsumption{}, String.t()}
           | {:error, :invalid_parameter}
-  def get(nil), do: {:error, :invalid_parameter}
+  def get(nil), do: {:error, :invalid_parameter, "'id' cannot be nil"}
 
   def get(id) do
     %{id: id}

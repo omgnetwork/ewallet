@@ -571,7 +571,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
-    test "returns idempotency error if header is not specified" do
+    test "returns idempotency error if idempotency token is missing" do
       response =
         client_request("/me.consume_transaction_request", %{
           transaction_request_id: "123",
@@ -587,7 +587,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided.",
+                 "description" => "Invalid parameter provided. 'idempotency_token' is required",
                  "messages" => nil,
                  "object" => "error"
                }

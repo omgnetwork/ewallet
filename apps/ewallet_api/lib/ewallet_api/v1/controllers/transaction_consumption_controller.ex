@@ -47,7 +47,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   end
 
   def consume_for_user(conn, _) do
-    handle_error(conn, :invalid_parameter)
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. 'idempotency_token' is required"
+    )
   end
 
   def cancel_for_user(conn, %{"id" => id} = attrs) do
@@ -68,7 +72,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   end
 
   def cancel_for_user(conn, _) do
-    handle_error(conn, :invalid_parameter)
+    handle_error(conn, :invalid_parameter, "Invalid parameter provided. 'id' is required")
   end
 
   def approve_for_user(conn, attrs), do: confirm(conn, conn.assigns.end_user, attrs, true)

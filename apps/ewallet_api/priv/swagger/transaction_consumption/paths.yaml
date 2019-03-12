@@ -35,7 +35,7 @@ me.cancel_transaction_consumption:
     tags:
       - TransactionConsumption
     summary: Cancel a pending consumption.
-    operationId: reject_transaction_consumption
+    operationId: cancel_transaction_consumption
     security:
       - ClientAuth: []
     requestBody:
