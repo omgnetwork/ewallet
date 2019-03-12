@@ -133,17 +133,20 @@ defmodule EWallet.Web.OrchestratorTest do
     test "returns records with the given `start_after`, `start_by` and `search_term` matched multiple records" do
       # Add search_term-unmatched records
       insert(:account, name: "account1")
+      :timer.sleep(10)
       insert(:account, name: "account2")
+      :timer.sleep(10)
       insert(:account, name: "account3")
+      :timer.sleep(10)
 
       # Add search_term-matched records.
       my_account1 = insert(:account, name: "my_account1")
+      :timer.sleep(10)
       my_account2 = insert(:account, name: "my_account2")
 
       attrs = %{
         "start_by" => "id",
         "start_after" => my_account1.id,
-        "sort_by" => "id",
         "search_term" => "my_account"
       }
 
@@ -174,7 +177,9 @@ defmodule EWallet.Web.OrchestratorTest do
 
     test "returns records with the given `start_after`, `start_by` and `match_any` matched multiple records" do
       account1 = insert(:account)
+      :timer.sleep(10)
       account2 = insert(:account)
+      :timer.sleep(10)
       account3 = insert(:account)
 
       attrs = %{
