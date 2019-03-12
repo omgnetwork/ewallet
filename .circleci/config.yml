@@ -256,7 +256,6 @@ workflows:
             branches:
               ignore:
                 - master
-                - really-fix-staging
                 - /^v[0-9]+\.[0-9]+/
                 - /.*e2e$/
             tags:
@@ -269,7 +268,6 @@ workflows:
             branches:
               only:
                 - master
-                - really-fix-staging
                 - /^v[0-9]+\.[0-9]+/
                 - /.*e2e$/
             tags:
@@ -282,4 +280,3 @@ workflows:
             branches:
               only:
                 - master
-                - really-fix-staging
