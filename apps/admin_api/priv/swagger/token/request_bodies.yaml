@@ -164,7 +164,7 @@ TokenMintBody:
           amount: 1000
 
 TokenUploadBody:
-  description: The parameters to use for uploading a oken's avatar. Only supports .jpg, .jpeg, .gif and .png.
+  description: The parameters to use for uploading a token's avatar. Only supports .jpg, .jpeg, .gif and .png.
   required: true
   content:
     application/x-www-form-urlencoded:
