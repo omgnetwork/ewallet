@@ -6,8 +6,6 @@ executors:
     docker:
       - image: omisegoimages/ewallet-builder:v1.2
     working_directory: ~/src
-    environment:
-      IMAGE_NAME: "omisego/ewallet"
 
   builder_pg:
     docker:
@@ -145,43 +143,17 @@ jobs:
     executor: builder
     steps:
       - checkout
-      - restore_cache:
-          name: Restore eWallet artifacts from cache
-          keys:
-            - v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
-            - v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-
-            - v2-ewallet-{{ checksum "mix.lock" }}-
-            - v2-ewallet-
-      - run:
-          name: Print current tools version
-          command: |
-            set -xe
-            elixir --version
-            node --version
-      - run:
-          name: Build eWallet in test environment
-          command: |
-            set -xe
-            # * Clean bcrypt_elixir to avoid NIF issue due to broken cache.
-            # * Clean mime in order to make the new type recognized by mime app. See also admin_api/config/config.exs
-            mix deps.clean bcrypt_elixir mime --build
-            make build-test
-      - run:
-          name: Build eWallet assets
-          command: |
-            set -xe
-            make deps-assets
-      - save_cache:
-          name: Cache eWallet artifacts
-          key: v2-ewallet-{{ checksum "mix.lock" }}-{{ checksum "mix.exs" }}-{{ checksum "apps/admin_panel/assets/yarn.lock" }}
-          paths:
-            - deps
-            - _build/test
-            - apps/admin_panel/assets/node_modules
+      - run: |
+          mkdir -p ~/var
+          elixir --version | tee ~/var/elixir-version
+          node --version | tee ~/var/node-version
+      - run: make build-test
+      - run: make deps-assets
       - persist_to_workspace:
           name: Persist workspace
           root: ~/
           paths:
+            - var/
             - src/deps
             - src/_build
             - src/apps/admin_panel/assets/node_modules
@@ -192,16 +164,8 @@ jobs:
     steps:
       - checkout
       - setup_ewallet_workspace
-      - run:
-          name: Check code formattings
-          command: |
-            set +xe
-            make check-format
-      - run:
-          name: Check credo
-          command: |
-            set -xe
-            make check-credo
+      - run: make check-format
+      - run: make check-credo
       - notify_slack_failure
 
   dialyze:
@@ -209,25 +173,16 @@ jobs:
     steps:
       - checkout
       - setup_ewallet_workspace
-      - run:
-          name: Determine runtime versions
-          command: |
-            set -xe
-            mkdir -p ~/var
-            elixir --version > ~/var/elixir-version
       - restore_cache:
           name: Restore runtime PLT from cache
           keys:
             - v2-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
             - v2-ewallet-plt-{{ checksum "~/var/elixir-version" }}-
             - v2-ewallet-plt-
-      - run:
-          name: Check dialyzer
-          command: |
-            set -xe
-            export PLT_CORE_PATH=$HOME/var/dialyzer
-            mkdir -p $PLT_CORE_PATH
-            make check-dialyzer
+      - run: |
+          export PLT_CORE_PATH=$HOME/var/dialyzer
+          mkdir -p $PLT_CORE_PATH
+          make check-dialyzer
       - save_cache:
           name: Cache runtime PLT
           key: v2-ewallet-plt-{{ checksum "~/var/elixir-version" }}-{{ checksum "mix.lock" }}
@@ -240,22 +195,14 @@ jobs:
 
   test:
     executor: builder_pg
+    environment:
+      DATABASE_URL: postgresql://postgres:@localhost:5432/ewallet
+      LOCAL_LEDGER_DATABASE_URL: postgresql://postgres:@localhost:5432/ledger
     steps:
       - checkout
       - setup_ewallet_workspace
-      - run:
-          name: Run eWallet tests
-          command: |
-            set -xe
-            make test-ewallet
-          environment:
-            DATABASE_URL: postgresql://postgres:@localhost:5432/ewallet
-            LOCAL_LEDGER_DATABASE_URL: postgresql://postgres:@localhost:5432/ledger
-      - run:
-          name: Run eWallet assets tests
-          command: |
-            set -xe
-            make test-assets
+      - run: make test-ewallet
+      - run: make test-assets
       - notify_slack_failure
 
   report:
@@ -263,307 +210,20 @@ jobs:
     steps:
       - notify_slack
 
-  build_prod:
-    executor: builder
-    steps:
-      - checkout
-      - setup_remote_docker
-      - setup_ewallet_workspace
-      - restore_cache:
-          name: Restore eWallet production artifacts from cache
-          keys:
-            - v2-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
-            - v2-ewallet-prod-{{ checksum "mix.exs" }}-
-            - v2-ewallet-prod-
-      - run:
-          name: Build eWallet in production environment
-          command: |
-            set -xe
-            mix deps.clean mime --build
-            make build-prod
-      - run:
-          name: Build eWallet Docker image
-          command: |
-            set -xe
-            docker load -i ~/caches/docker-layers.tar || true
-            make docker-build IMAGE_NAME=$IMAGE_NAME
-            mkdir -p ~/caches
-            docker save -o ~/caches/docker-layers.tar "$IMAGE_NAME"
-      - save_cache:
-          name: Cache eWallet production artifacts
-          key: v2-ewallet-prod-{{ checksum "mix.exs" }}-{{ checksum "Dockerfile" }}
-          paths:
-            - _build/prod/.mix
-            - _build/prod/consolidated
-            - _build/prod/lib
-            - ~/caches/docker-layers.tar
-      - persist_to_workspace:
-          name: Persist workspace
-          root: ~/
-          paths:
-            - caches/docker-layers.tar
-      - notify_slack_failure
-
-  test_e2e:
+  publish:
     executor: metal
     steps:
       - checkout
-      - setup_ewallet_workspace
-      - run:
-          name: Prepare E2E environments
-          command: |
-            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping E2E (running in fork)\\033[0;0m\\n"
-              exit 0
-            fi
-
-            set -xe
-
-            cat \<<EOF > .env
-            E2E_HTTP_HOST=http://ewallet:4000
-            E2E_SOCKET_HOST=ws://ewallet:4000
-            E2E_TEST_ADMIN_EMAIL=$(openssl rand -hex 4)@example.com
-            E2E_TEST_ADMIN_PASSWORD=$(openssl rand -base64 24 | tr '+/' '-_')
-            E2E_TEST_ADMIN_1_EMAIL=$(openssl rand -hex 4)@example.com
-            E2E_TEST_ADMIN_1_PASSWORD=$(openssl rand -base64 24 | tr '+/' '-_')
-            E2E_TEST_USER_EMAIL=$(openssl rand -hex 4)@example.com
-            E2E_TEST_USER_PASSWORD=$(openssl rand -base64 24 | tr '+/' '-_')
-            EOF
-
-            docker load -i ~/caches/docker-layers.tar
-            docker network create net0
-
-            sh docker-gen.sh -i "$IMAGE_NAME" -n net0 -f .env > docker-compose.override.yml
-            docker-compose up -d postgres mail
-            docker-compose run --rm ewallet sh \<<EOF
-              bin/ewallet initdb
-              bin/ewallet seed -e
-              bin/ewallet config base_url http://ewallet:4000
-              bin/ewallet config email_adapter smtp
-              bin/ewallet config smtp_host mail
-              bin/ewallet config smtp_port 1025
-            EOF
-      - run:
-          name: Configure E2E secret
-          command: |
-            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping E2E (running in fork)\\033[0;0m\\n"
-              exit 0
-            fi
-
-            docker-compose run --rm ewallet sh \<<EOF >/dev/null 2>&1
-              bin/ewallet config aws_bucket "$AWS_BUCKET"
-              bin/ewallet config aws_region "$AWS_REGION"
-              bin/ewallet config aws_access_key_id "$AWS_ACCESS_KEY_ID"
-              bin/ewallet config aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
-              bin/ewallet config gcs_bucket "$GCS_BUCKET"
-            EOF
-
-            # Use printf/awk to unescape the string with double escaping.
-            unescaped_gcs_creds="$(printf "%b" "$GCS_CREDENTIALS" | awk '{ gsub("\\\\\"", "\""); print $0 }')"
-            docker-compose run --rm ewallet config gcs_credentials "$unescaped_gcs_creds" >/dev/null 2>&1
-      - run:
-          name: Run E2E tests
-          command: |
-            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping E2E (running in fork)\\033[0;0m\\n"
-              exit 0
-            fi
-
-            set -xe
-
-            _e2e_repo="https://github.com/omisego/e2e.git"
-            _e2e_branch="ewallet/$CIRCLE_BRANCH"
-
-            if [ "$(git ls-remote $_e2e_repo "$_e2e_branch")" == "" ]; then
-              _e2e_branch="master"
-            fi
-
-            git clone --depth 1 -b "$_e2e_branch" https://github.com/omisego/e2e.git ~/e2e
-            printf "\\033[0;34mRunning E2E from %s branch\\033[0;0m\\n" "$_e2e_branch"
-
-            docker-compose up -d ewallet
-            trap "docker-compose logs ewallet" 0 1 2 3 6 14 15
-
-            docker run -i -v $HOME/e2e:/e2e --network net0 --env-file .env --rm python:3.7-alpine sh \<<EOF
-            cd /e2e
-            pip3 install pipenv==2018.11.26
-            pipenv install
-            pipenv run robot tests
-            EOF
-      - notify_slack_failure
-
-  publish:
-    executor: builder
-    steps:
-      - setup_remote_docker
-      - setup_ewallet_workspace
-      - run:
-          name: Log into Docker Hub
-          command: |
-            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping publish (running in fork)\\033[0;0m\\n"
-              exit 0
-            fi
-
-            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-      - run:
-          name: Publish Docker image
-          command: |
-            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping publish (running in fork)\\033[0;0m\\n"
-              exit 0
-            fi
-
-            set -xe
-
-            mkdir -p ~/.ssh
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
-            docker load -i ~/caches/docker-layers.tar
-
-            IMAGE_TAG=""
-            if [ -n "$CIRCLE_TAG" ]; then
-                _ver="${CIRCLE_TAG#*v}"
-
-                # Given a v1.0.0-pre.1 tag, this will generate:
-                # - 1.0
-                # - 1.0.0-pre
-                # - 1.0.0-pre.1
-                while true; do
-                    case "$_ver" in
-                        *.* )
-                            IMAGE_TAG="$_ver $IMAGE_TAG"
-                            _ver="${_ver%.*}"
-                            ;;
-                        * )
-                            break;;
-                    esac
-                done
-
-                # In case the commit is HEAD of latest version branch, also tag stable.
-                if [ -n "$CIRCLE_REPOSITORY_URL" ] && [ -n "$CIRCLE_SHA1" ]; then
-                    _stable_head="$(
-                        git ls-remote --heads "$CIRCLE_REPOSITORY_URL" "v*" |
-                        awk '/refs\/heads\/v[0-9]+\.[0-9]+$/ { LH=$1 } END { print LH }')"
-
-                    if [ "$CIRCLE_SHA1" = "$_stable_head" ]; then
-                        IMAGE_TAG="stable $IMAGE_TAG"
-                    fi
-                fi
-            else
-                _shortref="$(printf "%s" "$CIRCLE_SHA1" | head -c 8)"
-
-                case "$CIRCLE_BRANCH" in
-                    master )
-                        IMAGE_TAG="latest"
-                        IMAGE_TAG="$_shortref $IMAGE_TAG"
-                        ;;
-                    v* )
-                        _ver="${CIRCLE_BRANCH#*v}"
-                        IMAGE_TAG="$_ver-dev"
-                        IMAGE_TAG="$_shortref $IMAGE_TAG"
-                        ;;
-                    * )
-                        ;;
-                esac
-            fi
-
-            for tag in $IMAGE_TAG; do
-                printf "\\033[0;34mPublishing Docker image as %s\\033[0;0m\\n" "$tag"
-                docker tag "$IMAGE_NAME" "$IMAGE_NAME:$tag"
-                docker push "$IMAGE_NAME:$tag"
-            done
+      - run: make docker IMAGE_NAME=$IMAGE_NAME
+      - run: sh .circleci/ci_e2e.sh
+      - run: sh .circleci/ci_publish.sh
       - notify_slack_failure
       - notify_slack
 
   deploy:
     executor: deploy
     steps:
-      - run:
-          name: Configure deploy secrets
-          command: |
-            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping deploy (running in fork)\\033[0;0m\\n"
-              exit 0
-            fi
-
-            GPGFILE=$(mktemp)
-            trap 'rm -f $GPGFILE' 0 1 2 3 6 14 15
-            echo "$CIRCLE_GPG_KEY" | base64 -d | gunzip > "$GPGFILE"
-            gpg --import "$GPGFILE"
-            printf "$CIRCLE_GPG_OWNERTRUST\\n" | gpg --import-ownertrust
-
-            GCPFILE=$(mktemp)
-            trap 'rm -f $GCPFILE' 0 1 2 3 6 14 15
-            echo "$GCP_KEY_FILE" | base64 -d > "$GCPFILE"
-
-            gcloud auth activate-service-account --key-file="$GCPFILE"
-            gcloud config set project "$GCP_ACCOUNT_ID"
-            gcloud config set compute/region "$GCP_REGION"
-            gcloud config set compute/zone "$GCP_ZONE"
-            gcloud container clusters get-credentials --region="$GCP_REGION" "$GCP_CLUSTER_ID"
-      - run:
-          name: Clone deploy repository
-          command: |
-            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping deploy (running in fork)\\033[0;0m\\n"
-              exit 0
-            fi
-
-            set -xe
-
-            mkdir -p ~/.ssh
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-            git init ~/deploy
-            cd ~/deploy || exit 1
-            git remote add origin "git@github.com:omisego/deploy.git"
-            git config core.sparsecheckout true
-
-            cat \<<EOF >> ~/deploy/.git/info/sparse-checkout
-            .gitmodules
-            kapitan/components/*
-            kapitan/inventory/classes/*
-            kapitan/inventory/targets/demo-staging.yml
-            kapitan/secrets/default/*
-            kapitan/secrets/demo-staging/*
-            kapitan/share/*
-            vendor/github.com/omisego/*
-            vendor/github.com/ksonnet/*
-            EOF
-
-            git pull --depth 1 origin master
-            git submodule update --init vendor/github.com/omisego/charts
-            git submodule update --init vendor/github.com/ksonnet/ksonnet-lib
-            git submodule update --init vendor/github.com/deepmind/kapitan
-      - run:
-          name: Deploy to staging
-          command: |
-            if [ "$CIRCLE_PROJECT_USERNAME" != "omisego" ]; then
-              printf "\\033[0;33mSkipping deploy (running in fork)\\033[0;0m\\n"
-              exit 0
-            fi
-
-            set -xe
-
-            cd ~/deploy || exit 1
-            helm init --client-only
-            helm dependency update vendor/github.com/omisego/charts/ewallet
-
-            cd ~/deploy/kapitan || exit 1
-
-            TARGET="inventory/targets/demo-staging.yml"
-            NEW_TAG="$(printf "%s" "$CIRCLE_SHA1" | head -c 8)" awk '
-              m = match($0, "^([\ ]+tag:[\ ]+)") {
-              print substr($0, RSTART, RLENGTH-1) " \"" ENVIRON["NEW_TAG"] "\""
-            } ! m { print }' < "$TARGET" > "$TARGET.tmp"
-            mv "$TARGET.tmp" "$TARGET"
-
-            kapitan compile -J ./ \
-              ../vendor/github.com/ksonnet/ksonnet-lib \
-              ../vendor/github.com/deepmind/kapitan/kapitan/lib
-
-            sh compiled/demo-staging/ewallet/apply.sh
+      - run: sh .circleci/ci_deploy.sh
       - notify_slack_failure
       - notify_slack_deploy
 
@@ -578,23 +238,19 @@ workflows:
             tags:
               only: /.*/
       - lint:
-          requires:
-            - build
+          requires: [build]
           filters: *all_branches
       - test:
-          requires:
-            - build
+          requires: [build]
           filters: *all_branches
       - dialyze:
-          requires:
-            - build
+          requires: [build]
           filters: *all_branches
 
-      # Non-mainline branches only
+      # Report success status to Slack and finish the workflow immediately
+      # if E2E are not going to be run (e.g. non-master/version branches)
       - report:
-          requires:
-            - lint
-            - test
+          requires: [lint, test]
           filters:
             branches:
               ignore:
@@ -604,12 +260,10 @@ workflows:
             tags:
               ignore: /^v.*/
 
-      # Mainline branches and E2E-enabled branches
-      - build_prod:
-          requires:
-            - lint
-            - test
-          filters: &mainline_branches
+      # Continue with E2E for master and version branches.
+      - publish:
+          requires: [lint, test]
+          filters:
             branches:
               only:
                 - master
@@ -617,19 +271,10 @@ workflows:
                 - /.*e2e$/
             tags:
               only: /^v[0-9]+\.[0-9]+\.[0-9]+/
-      - test_e2e:
-          requires:
-            - build_prod
-          filters: *mainline_branches
-      - publish:
-          requires:
-            - test_e2e
-          filters: *mainline_branches
 
-      # Master branch only
+      # Deploy to staging in case of master branch.
       - deploy:
-          requires:
-            - publish
+          requires: [publish]
           filters:
             branches:
               only:
