@@ -18,6 +18,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias Ecto.{Changeset}
   alias EWallet.{Helper, MintGate, TokenPolicy, MintPolicy, AdapterHelper}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
   alias EWalletDB.{Account, Mint, Token}
@@ -200,7 +201,7 @@ defmodule AdminAPI.V1.TokenController do
       changeset when is_map(changeset) ->
         handle_error(conn, :invalid_parameter, changeset)
 
-      {:error, changeset} when is_map(changeset) ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->
