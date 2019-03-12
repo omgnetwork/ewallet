@@ -894,7 +894,7 @@ paths:
         - AdminAuth: []
       requestBody:
         description: >-
-          The parameters to use for uploading a oken's avatar. Only supports
+          The parameters to use for uploading a token's avatar. Only supports
           .jpg, .jpeg, .gif and .png.
         required: true
         content:
@@ -913,7 +913,7 @@ paths:
                 id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
                 avatar: /path/to/file
       responses:
-        '200': *ref_15
+        '200': *ref_11
         '500': *ref_2
   /token.enable_or_disable:
     post:
