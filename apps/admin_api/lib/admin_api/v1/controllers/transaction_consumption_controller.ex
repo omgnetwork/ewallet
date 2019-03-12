@@ -34,6 +34,8 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     Web.V1.Event
   }
 
+  alias Utils.Helpers.UUID
+
   alias Ecto.Changeset
 
   alias EWalletDB.{Account, TransactionConsumption, TransactionRequest, User, Wallet}
@@ -43,7 +45,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
          {:ok, _} <- authorize(:get, conn.assigns, account),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
-         user_uuids <- [account.uuid] |> Account.get_all_users() |> Enum.map(fn u -> u.uuid end) do
+         user_uuids <- [account.uuid] |> Account.get_all_users() |> UUID.get_uuids() do
       [account.uuid]
       |> TransactionConsumption.query_all_for_account_and_user_uuids(user_uuids, query)
       |> do_all(attrs, conn)
@@ -57,7 +59,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
          {:ok, _} <- authorize(:get, conn.assigns, account),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
-         user_uuids <- [account.uuid] |> Account.get_all_users() |> Enum.map(fn u -> u.uuid end) do
+         user_uuids <- [account.uuid] |> Account.get_all_users() |> UUID.get_uuids() do
       [account.uuid]
       |> TransactionConsumption.query_all_for_account_and_user_uuids(user_uuids, query)
       |> do_all(attrs, conn)
@@ -71,7 +73,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all_for_user(conn, attrs) do
-    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs) || {:error, :unauthorized},
+    with {:ok, user} <- UserFetcher.fetch(attrs),
          {:ok, _} <- authorize(:get, conn.assigns, user),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
@@ -177,7 +179,32 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def consume(conn, _) do
-    handle_error(conn, :invalid_parameter)
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `idempotency_token` is required"
+    )
+  end
+
+  def cancel(conn, %{"id" => id} = attrs) do
+    with {:ok, consumption} <- TransactionConsumptionFetcher.get(id),
+         {:ok, _} <- TransactionConsumptionPolicy.authorize(:cancel, conn.assigns, consumption),
+         true <-
+           TransactionConsumption.cancellable?(consumption) ||
+             {:error, :uncancellable_transaction_consumption},
+         %TransactionConsumption{} = consumption <-
+           TransactionConsumption.cancel(consumption, Originator.extract(conn.assigns)) do
+      consumption
+      |> Orchestrator.one(TransactionConsumptionOverlay, attrs)
+      |> respond(conn, true)
+    else
+      error ->
+        respond(error, conn, true)
+    end
+  end
+
+  def cancel(conn, _) do
+    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required")
   end
 
   def approve(conn, attrs), do: confirm(conn, conn.assigns, attrs, true)
@@ -212,6 +239,10 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
+  end
+
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
   end
 
   defp respond({:error, error}, conn, _dispatch?) when is_atom(error) do

@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.ExchangePairScopeTest do
   alias EWallet.Bouncer.{ExchangePairScope, Permission}
   alias EWalletDB.{Repo, ExchangePair}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities" do
     test "returns ExchangePair as queryable when 'global' ability" do
@@ -36,7 +37,7 @@ defmodule EWallet.Bouncer.ExchangePairScopeTest do
       }
 
       query = ExchangePairScope.scoped_query(permission)
-      exchange_pair_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      exchange_pair_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(exchange_pair_uuids) == 2
       assert Enum.member?(exchange_pair_uuids, exchange_pair_1.uuid)
@@ -98,7 +99,7 @@ defmodule EWallet.Bouncer.ExchangePairScopeTest do
       }
 
       query = ExchangePairScope.scoped_query(permission)
-      exchange_pair_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      exchange_pair_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(exchange_pair_uuids) == 2
       assert Enum.member?(exchange_pair_uuids, exchange_pair_1.uuid)

@@ -17,6 +17,7 @@ defmodule EWallet.Bouncer.ConfigurationScopeTest do
   alias EWallet.Bouncer.{ConfigurationScope, Permission}
   alias EWalletConfig.{Config, Repo}
   alias EWalletDB.Factory
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities" do
     test "returns Configuration queryable when 'global' ability" do
@@ -29,7 +30,7 @@ defmodule EWallet.Bouncer.ConfigurationScopeTest do
       }
 
       query = ConfigurationScope.scoped_query(permission)
-      stored_setting_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      stored_setting_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(stored_setting_uuids) == length(Config.settings())
     end
@@ -82,7 +83,7 @@ defmodule EWallet.Bouncer.ConfigurationScopeTest do
       }
 
       query = ConfigurationScope.scoped_query(permission)
-      stored_setting_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      stored_setting_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert length(stored_setting_uuids) == length(Config.settings())
     end

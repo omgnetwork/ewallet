@@ -42,7 +42,8 @@ defmodule EWalletDB.TransactionConsumption do
   @expired "expired"
   @approved "approved"
   @rejected "rejected"
-  @statuses [@pending, @approved, @rejected, @confirmed, @failed, @expired]
+  @cancelled "cancelled"
+  @statuses [@pending, @approved, @rejected, @confirmed, @cancelled, @failed, @expired]
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
@@ -63,6 +64,7 @@ defmodule EWalletDB.TransactionConsumption do
     field(:rejected_at, :naive_datetime_usec)
     field(:confirmed_at, :naive_datetime_usec)
     field(:failed_at, :naive_datetime_usec)
+    field(:cancelled_at, :naive_datetime_usec)
     field(:expired_at, :naive_datetime_usec)
     field(:estimated_at, :naive_datetime_usec)
 
@@ -214,6 +216,15 @@ defmodule EWalletDB.TransactionConsumption do
       attrs,
       cast: [:status, :rejected_at],
       required: [:status, :rejected_at]
+    )
+  end
+
+  def cancelled_changeset(%TransactionConsumption{} = consumption, attrs) do
+    consumption
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:status, :cancelled_at],
+      required: [:status, :cancelled_at]
     )
   end
 
@@ -451,6 +462,14 @@ defmodule EWalletDB.TransactionConsumption do
   end
 
   @doc """
+  Cancel a consumption.
+  """
+  @spec cancel(%TransactionConsumption{}, map()) :: %TransactionConsumption{}
+  def cancel(consumption, originator) do
+    state_transition(consumption, @cancelled, originator)
+  end
+
+  @doc """
   Confirms a consumption and saves the transaction ID.
   """
   @spec confirm(%TransactionConsumption{}, %Transaction{}) :: %TransactionConsumption{}
@@ -494,13 +513,23 @@ defmodule EWalletDB.TransactionConsumption do
     consumption.status == @expired
   end
 
+  @spec cancellable?(%TransactionConsumption{}) :: boolean()
+  def cancellable?(consumption) do
+    consumption.status == @pending
+  end
+
+  @spec cancelled?(%TransactionConsumption{}) :: boolean()
+  def cancelled?(consumption) do
+    consumption.status == @cancelled
+  end
+
   def success?(consumption) do
-    Enum.member?([@confirmed, @rejected], consumption.status)
+    Enum.member?([@confirmed, @rejected, @cancelled], consumption.status)
   end
 
   @spec finalized?(%TransactionConsumption{}) :: boolean()
   def finalized?(consumption) do
-    Enum.member?([@rejected, @confirmed, @failed, @expired], consumption.status)
+    Enum.member?([@rejected, @confirmed, @failed, @expired, @cancelled], consumption.status)
   end
 
   defp state_transition(consumption, status, originator, transaction_uuid \\ nil) do

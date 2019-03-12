@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
   alias EWallet.Bouncer.{Permission, UserScope}
   alias EWalletDB.{AccountUser, Membership, Repo}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities (account: global / end_user:*)" do
     test "returns the appropriate query when 'global / global' ability" do
@@ -41,7 +42,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, admin_1.uuid)
       assert Enum.member?(user_uuids, admin_2.uuid)
@@ -90,7 +91,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, admin_1.uuid)
       assert Enum.member?(user_uuids, admin_2.uuid)
@@ -143,7 +144,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, actor.uuid)
       assert Enum.member?(user_uuids, admin_1.uuid)
@@ -197,7 +198,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, admin_1.uuid)
       assert Enum.member?(user_uuids, admin_2.uuid)
@@ -251,7 +252,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, actor.uuid)
       assert Enum.member?(user_uuids, admin_1.uuid)
@@ -305,7 +306,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, admin_1.uuid)
       assert Enum.member?(user_uuids, admin_2.uuid)
@@ -361,7 +362,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, actor.uuid)
       assert Enum.member?(user_uuids, admin_1.uuid)
@@ -415,7 +416,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, actor.uuid)
       assert Enum.member?(user_uuids, admin_1.uuid)
@@ -469,7 +470,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, actor.uuid)
       assert Enum.member?(user_uuids, admin_1.uuid)
@@ -523,7 +524,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, actor.uuid)
       assert Enum.member?(user_uuids, admin_1.uuid)
@@ -579,7 +580,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       refute Enum.member?(user_uuids, actor.uuid)
       refute Enum.member?(user_uuids, admin_1.uuid)
@@ -633,7 +634,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       refute Enum.member?(user_uuids, actor.uuid)
       refute Enum.member?(user_uuids, admin_1.uuid)
@@ -687,7 +688,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, actor.uuid)
 
@@ -742,7 +743,7 @@ defmodule EWallet.Bouncer.UserScopeTest do
       }
 
       query = UserScope.scoped_query(permission)
-      user_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      user_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(user_uuids, actor.uuid)
 

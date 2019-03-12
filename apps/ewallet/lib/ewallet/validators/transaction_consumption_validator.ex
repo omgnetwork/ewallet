@@ -79,21 +79,16 @@ defmodule EWallet.TransactionConsumptionValidator do
     with {request, wallet} <- {consumption.transaction_request, consumption.wallet},
          request <- Repo.preload(request, [:wallet]),
          {:ok, _} <- TransactionRequestPolicy.authorize(:confirm, creator, request),
+         {:ok, consumption} <- validate_not_cancelled(consumption),
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request, %System{}),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
          {:ok, nil} <- validate_max_consumptions_per_interval(request),
          {:ok, _wallet} <- validate_max_consumptions_per_interval_per_user(request, wallet),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
-         {:ok, consumption} =
-           TransactionConsumption.expire_if_past_expiration_date(consumption, %System{}) do
-      case TransactionConsumption.expired?(consumption) do
-        false ->
-          {:ok, consumption}
-
-        true ->
-          Event.dispatch(:transaction_consumption_finalized, %{consumption: consumption})
-          {:error, :expired_transaction_consumption}
-      end
+         {:ok, consumption} <-
+           TransactionConsumption.expire_if_past_expiration_date(consumption, %System{}),
+         {:ok, consumption} <- validate_not_expired(consumption) do
+      {:ok, consumption}
     else
       error when is_binary(error) ->
         {:error, String.to_existing_atom(error)}
@@ -103,6 +98,28 @@ defmodule EWallet.TransactionConsumptionValidator do
 
       error ->
         error
+    end
+  end
+
+  defp validate_not_expired(consumption) do
+    case TransactionConsumption.expired?(consumption) do
+      false ->
+        {:ok, consumption}
+
+      true ->
+        Event.dispatch(:transaction_consumption_finalized, %{consumption: consumption})
+        {:error, :expired_transaction_consumption}
+    end
+  end
+
+  defp validate_not_cancelled(consumption) do
+    case TransactionConsumption.cancelled?(consumption) do
+      false ->
+        {:ok, consumption}
+
+      true ->
+        Event.dispatch(:transaction_consumption_finalized, %{consumption: consumption})
+        {:error, :cancelled_transaction_consumption}
     end
   end
 

@@ -190,6 +190,10 @@ defmodule AdminAPI.V1.TokenController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   # Respond with a single token
   defp respond_single({:error, %Changeset{} = changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)

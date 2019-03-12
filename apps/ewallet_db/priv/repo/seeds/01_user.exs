@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWalletDB.Repo.Seeds.UserSeed do
-  alias EWalletDB.{Account, User}
+  alias EWalletDB.{Account, User, GlobalRole}
   alias Utils.Helpers.Crypto
   alias EWalletDB.Seeder
 
@@ -42,6 +42,7 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       metadata: %{},
       account_uuid: Account.get_master_account().uuid,
       is_admin: true,
+      global_role: GlobalRole.super_admin(),
       originator: %Seeder{}
     }
 

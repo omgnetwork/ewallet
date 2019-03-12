@@ -45,17 +45,6 @@ defmodule EWallet.Bouncer.HelperTest do
     end
   end
 
-  describe "get_uuids/1" do
-    test "maps a list of records to a list of uuids" do
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      account_3 = insert(:account)
-      res = Helper.get_uuids([account_1, account_2, account_3])
-
-      assert res == [account_1.uuid, account_2.uuid, account_3.uuid]
-    end
-  end
-
   describe "extract_permission/2" do
     test "returns the appropriate permission when 3 levels" do
       permissions = %{"super_admin" => %{accounts: %{read: :global}}}
@@ -70,22 +59,22 @@ defmodule EWallet.Bouncer.HelperTest do
     end
   end
 
-  describe "prepare_query_with_membership_for/2" do
+  describe "query_with_membership_for/2" do
     test "builds a join query when admin user" do
       admin = insert(:admin)
-      res = Helper.prepare_query_with_membership_for(admin, Account)
+      res = Helper.query_with_membership_for(admin, Account)
       assert %Ecto.Query{} = res
     end
 
     test "builds a join query when end user" do
       user = insert(:user)
-      res = Helper.prepare_query_with_membership_for(user, Account)
+      res = Helper.query_with_membership_for(user, Account)
       assert %Ecto.Query{} = res
     end
 
     test "builds a join query when key" do
       key = insert(:key)
-      res = Helper.prepare_query_with_membership_for(key, Account)
+      res = Helper.query_with_membership_for(key, Account)
       assert %Ecto.Query{} = res
     end
   end

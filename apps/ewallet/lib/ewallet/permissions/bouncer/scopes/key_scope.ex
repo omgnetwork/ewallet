@@ -36,7 +36,7 @@ defmodule EWallet.Bouncer.KeyScope do
 
   defp do_scoped_query(actor, %{keys: :accounts}) do
     actor
-    |> Helper.prepare_query_with_membership_for(Key)
+    |> Helper.query_with_membership_for(Key)
     |> join(:inner, [g, actor_m], key_m in Membership,
       on: actor_m.account_uuid == key_m.account_uuid
     )

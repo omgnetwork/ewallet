@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.MembershipScopeTest do
   alias EWallet.Bouncer.{Permission, MembershipScope}
   alias EWalletDB.{Membership, Membership, Repo}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "scope_query/1 with global abilities" do
     test "returns Membership as queryable when 'global' ability" do
@@ -33,7 +34,7 @@ defmodule EWallet.Bouncer.MembershipScopeTest do
       }
 
       query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(membership_uuids, membership_1.uuid)
       assert Enum.member?(membership_uuids, membership_2.uuid)
@@ -59,7 +60,7 @@ defmodule EWallet.Bouncer.MembershipScopeTest do
       }
 
       query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(membership_uuids, membership_1.uuid)
       assert Enum.member?(membership_uuids, membership_2.uuid)
@@ -87,7 +88,7 @@ defmodule EWallet.Bouncer.MembershipScopeTest do
       }
 
       query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(membership_uuids, membership_1.uuid)
       assert Enum.member?(membership_uuids, membership_2.uuid)
@@ -149,7 +150,7 @@ defmodule EWallet.Bouncer.MembershipScopeTest do
       }
 
       query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(membership_uuids, membership_1.uuid)
       assert Enum.member?(membership_uuids, membership_2.uuid)
@@ -175,7 +176,7 @@ defmodule EWallet.Bouncer.MembershipScopeTest do
       }
 
       query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(membership_uuids, membership_1.uuid)
       assert Enum.member?(membership_uuids, membership_2.uuid)
@@ -203,7 +204,7 @@ defmodule EWallet.Bouncer.MembershipScopeTest do
       }
 
       query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> Enum.map(fn a -> a.uuid end)
+      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
 
       assert Enum.member?(membership_uuids, membership_1.uuid)
       assert Enum.member?(membership_uuids, membership_2.uuid)

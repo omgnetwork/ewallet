@@ -80,6 +80,7 @@ defmodule AdminAPI.V1.Router do
     post("/transaction_consumption.get", TransactionConsumptionController, :get)
     post("/transaction_consumption.approve", TransactionConsumptionController, :approve)
     post("/transaction_consumption.reject", TransactionConsumptionController, :reject)
+    post("/transaction_consumption.cancel", TransactionConsumptionController, :cancel)
 
     # Category endpoints
     post("/category.all", CategoryController, :all)

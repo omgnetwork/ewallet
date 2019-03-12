@@ -15,7 +15,7 @@
 defmodule EWalletDB.UserTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
-  alias Utils.Helpers.Crypto
+  alias Utils.Helpers.{Crypto, UUID}
   alias EWalletDB.{Invite, User, Membership, Repo}
   alias ActivityLogger.{System, ActivityLog}
 
@@ -528,7 +528,7 @@ defmodule EWalletDB.UserTest do
       {:ok, _} = Membership.assign(user, account_1, role, %System{})
       {:ok, _} = Membership.assign(user, account_2, role, %System{})
 
-      accounts = user |> User.get_accounts() |> Enum.map(fn account -> account.uuid end)
+      accounts = user |> User.get_accounts() |> UUID.get_uuids()
       assert length(accounts) == 2
       assert Enum.member?(accounts, account_1.uuid)
       assert Enum.member?(accounts, account_2.uuid)

@@ -18,6 +18,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionTargetTest do
   alias EWalletDB.AccountUser
   alias EWallet.Bouncer.{TransactionConsumptionTarget, DispatchConfig}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the transaction consumption when user and account not nil" do
@@ -91,7 +92,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionTargetTest do
       target_accounts_uuids =
         transaction_consumption
         |> TransactionConsumptionTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert Enum.member?(target_accounts_uuids, account.uuid)
     end
@@ -106,7 +107,7 @@ defmodule EWallet.Bouncer.TransactionConsumptionTargetTest do
       target_accounts_uuids =
         transaction_consumption
         |> TransactionConsumptionTarget.get_target_accounts(DispatchConfig)
-        |> Enum.map(fn a -> a.uuid end)
+        |> UUID.get_uuids()
 
       assert Enum.member?(target_accounts_uuids, account.uuid)
     end

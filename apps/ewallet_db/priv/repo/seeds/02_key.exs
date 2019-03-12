@@ -13,8 +13,7 @@
 # limitations under the License.
 
 defmodule EWalletDB.Repo.Seeds.KeySeed do
-  alias EWalletDB.Key
-  alias EWalletDB.Seeder
+  alias EWalletDB.{Key, GlobalRole, Seeder}
 
   def seed do
     [
@@ -24,7 +23,7 @@ defmodule EWalletDB.Repo.Seeds.KeySeed do
   end
 
   def run(writer, args) do
-    case Key.insert(%{originator: %Seeder{}}) do
+    case Key.insert(%{global_role: GlobalRole.super_admin(), originator: %Seeder{}}) do
       {:ok, key} ->
         writer.success("""
           Access key   : #{key.access_key}

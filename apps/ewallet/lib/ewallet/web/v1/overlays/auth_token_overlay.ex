@@ -31,4 +31,11 @@ defmodule EWallet.Web.V1.AuthTokenOverlay do
   def sort_fields, do: []
   def self_filter_fields, do: []
   def filter_fields, do: []
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end

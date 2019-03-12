@@ -21,12 +21,10 @@ defmodule EWallet.Bouncer.UserActor do
   alias EWalletDB.Helpers.Preloader
 
   def get_actor_accounts(%User{is_admin: true} = actor) do
-    actor = Preloader.preload(actor, [:accounts, :memberships])
-    actor.accounts
+    Preloader.preload(actor, [:accounts, :memberships]).accounts
   end
 
   def get_actor_accounts(%User{is_admin: false} = actor) do
-    actor = Preloader.preload(actor, [:linked_accounts])
-    actor.linked_accounts
+    Preloader.preload(actor, [:linked_accounts]).linked_accounts
   end
 end

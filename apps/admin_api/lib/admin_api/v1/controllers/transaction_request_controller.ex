@@ -24,6 +24,8 @@ defmodule AdminAPI.V1.TransactionRequestController do
     TransactionRequestGate
   }
 
+  alias Utils.Helpers.UUID
+
   alias EWalletDB.{Account, TransactionRequest}
 
   @spec all(Plug.Conn.t(), map) :: Plug.Conn.t()
@@ -42,7 +44,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
          {:ok, _} <- authorize(:get, conn.assigns, account),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
-         user_uuids <- [account.uuid] |> Account.get_all_users() |> Enum.map(fn u -> u.uuid end) do
+         user_uuids <- [account.uuid] |> Account.get_all_users() |> UUID.get_uuids() do
       [account.uuid]
       |> TransactionRequest.query_all_for_account_and_user_uuids(user_uuids, query)
       |> do_all(attrs, conn)
@@ -100,6 +102,10 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
+  end
+
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
   end
 
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)

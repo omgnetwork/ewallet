@@ -28,6 +28,7 @@ defmodule AdminAPI.V1.AdminUserController do
     with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
       query
+      |> User.query_admin_users()
       |> Orchestrator.query(UserOverlay, attrs)
       |> respond_multiple(conn)
     else
@@ -55,7 +56,7 @@ defmodule AdminAPI.V1.AdminUserController do
   """
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, attrs) do
-    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
+    with {:ok, user} <- UserFetcher.fetch(attrs),
          {:ok, _} <- authorize(:enable_or_disable, conn.assigns, user),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- User.enable_or_disable(user, attrs),
@@ -81,6 +82,10 @@ defmodule AdminAPI.V1.AdminUserController do
 
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
+  end
+
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
   end
 
   # Respond with a single admin

@@ -72,4 +72,11 @@ defmodule EWallet.Web.V1.WalletOverlay do
       user: UserOverlay.self_filter_fields(),
       account: AccountOverlay.self_filter_fields()
     ]
+
+  def pagination_fields,
+    do: [
+      :address,
+      :inserted_at,
+      :updated_at
+    ]
 end
