@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,8 +18,7 @@ defmodule AdminAPI.V1.WalletController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.AccountHelper
-  alias EWallet.{UUIDFetcher, WalletPolicy}
+  alias EWallet.{UUIDFetcher, EndUserPolicy, WalletPolicy}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, BalanceLoader, V1.WalletOverlay}
   alias EWalletDB.{Account, User, Wallet}
 
@@ -29,11 +28,9 @@ defmodule AdminAPI.V1.WalletController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil),
-         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
-      Wallet
-      |> Wallet.query_all_for_account_uuids_and_user(account_uuids)
-      |> do_all(attrs, conn)
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
+      do_all(query, attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)
       error -> handle_error(conn, error)
@@ -43,9 +40,11 @@ defmodule AdminAPI.V1.WalletController do
   @spec all_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_user(conn, %{"id" => id} = attrs) do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, user) do
+         {:ok, _} <- authorize(:get, conn.assigns, user),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
       user
-      |> Wallet.all_for()
+      |> Wallet.all_for(query)
       |> do_all(attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)
@@ -56,9 +55,11 @@ defmodule AdminAPI.V1.WalletController do
   def all_for_user(conn, %{"provider_user_id" => provider_user_id} = attrs) do
     with %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, user) do
+         {:ok, _} <- authorize(:get, conn.assigns, user),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
       user
-      |> Wallet.all_for()
+      |> Wallet.all_for(query)
       |> do_all(attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)
@@ -78,7 +79,7 @@ defmodule AdminAPI.V1.WalletController do
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, wallet),
+         {:ok, _} <- authorize(:get, conn.assigns, wallet),
          {:ok, wallet} <- BalanceLoader.add_balances(wallet) do
       respond_single(wallet, conn, attrs)
     else
@@ -90,10 +91,10 @@ defmodule AdminAPI.V1.WalletController do
 
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, attrs),
+    with attrs = UUIDFetcher.replace_external_ids(attrs),
+         {:ok, _} <- authorize(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns) do
       attrs
-      |> UUIDFetcher.replace_external_ids()
       |> Wallet.insert_secondary_or_burn()
       |> BalanceLoader.add_balances()
       |> respond_single(conn, attrs)
@@ -108,7 +109,7 @@ defmodule AdminAPI.V1.WalletController do
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def enable_or_disable(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
-         :ok <- permit(:enable_or_disable, conn.assigns, wallet),
+         {:ok, _} <- authorize(:enable_or_disable, conn.assigns, wallet),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Wallet.enable_or_disable(wallet, attrs),
          {:ok, updated} <- BalanceLoader.add_balances(updated) do
@@ -131,6 +132,10 @@ defmodule AdminAPI.V1.WalletController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   # Respond with a single wallet
   defp respond_single({:error, changeset}, conn, _attrs) do
     handle_error(conn, :invalid_parameter, changeset)
@@ -145,9 +150,13 @@ defmodule AdminAPI.V1.WalletController do
     respond_single({:ok, wallet}, conn, attrs)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), %Account{} | %User{} | %Wallet{} | nil) ::
+  @spec authorize(:all | :create | :get | :update, map(), %Account{} | %User{} | %Wallet{} | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, data) do
-    Bodyguard.permit(WalletPolicy, action, params, data)
+  defp authorize(action, actor, %User{} = user) do
+    EndUserPolicy.authorize(action, actor, user)
+  end
+
+  defp authorize(action, actor, data) do
+    WalletPolicy.authorize(action, actor, data)
   end
 end

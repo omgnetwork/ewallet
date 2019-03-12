@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -71,5 +71,12 @@ defmodule EWallet.Web.V1.MintOverlay do
       token: TokenOverlay.self_filter_fields(),
       account: AccountOverlay.self_filter_fields(),
       transaction: TransactionOverlay.self_filter_fields()
+    ]
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
     ]
 end

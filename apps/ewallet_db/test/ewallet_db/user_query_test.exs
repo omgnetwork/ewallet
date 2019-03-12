@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
 defmodule EWalletDB.UserQueryTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
-  alias EWalletDB.{User, UserQuery, Repo}
+  alias EWalletDB.{User, Membership, UserQuery, Repo}
+  alias ActivityLogger.System
 
   describe "where_has_membership/1" do
     test "returns only users with memberships" do
@@ -23,8 +24,11 @@ defmodule EWalletDB.UserQueryTest do
       user2 = insert(:admin, %{email: "user2@example.com"})
       user3 = insert(:user, %{email: "user3@example.com"})
 
-      insert(:membership, %{user: user1})
-      insert(:membership, %{user: user2})
+      role = insert(:role)
+      account = insert(:account)
+
+      {:ok, _} = Membership.assign(user1, account, role, %System{})
+      {:ok, _} = Membership.assign(user2, account, role, %System{})
 
       result =
         User
@@ -39,9 +43,11 @@ defmodule EWalletDB.UserQueryTest do
 
     test "returns unique records" do
       user = insert(:admin, %{email: "multiple.memberships@example.com"})
+      role = insert(:role)
+      account = insert(:account)
 
-      insert(:membership, %{user: user})
-      insert(:membership, %{user: user})
+      {:ok, _} = Membership.assign(user, account, role, %System{})
+      {:ok, _} = Membership.assign(user, account, role, %System{})
 
       result =
         User

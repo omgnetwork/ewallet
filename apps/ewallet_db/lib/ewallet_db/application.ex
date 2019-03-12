@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ defmodule EWalletDB.Application do
   @moduledoc """
   The EWalletDB Data Store
 
-  Kebura's data store lives in this application.
+  The eWallet's data store lives in this application.
   """
   use Application
   alias Appsignal.Ecto

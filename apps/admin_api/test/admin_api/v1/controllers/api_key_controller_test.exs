@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -140,6 +140,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           expired: true
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["expired"] == true
       assert response["data"]["enabled"] == false
@@ -155,6 +156,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           expired: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["expired"] == false
       assert response["data"]["enabled"] == true
@@ -255,6 +257,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["enabled"] == false
     end
@@ -269,6 +272,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["enabled"] == false
 
@@ -278,6 +282,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["enabled"] == false
     end
@@ -292,6 +297,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           enabled: true
         })
 
+      assert response["success"]
       assert response["data"]["id"] == api_key.id
       assert response["data"]["enabled"] == true
     end
@@ -352,26 +358,14 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
       api_key = insert(:api_key)
       response = request("/api_key.delete", %{id: api_key.id})
 
-      assert response == %{
-               "version" => "1",
-               "success" => true,
-               "data" => %{}
-             }
+      assert response["success"]
     end
 
-    test_with_auths "responds with an error if the provided id is not found" do
+    test_with_auths "responds with 'unauthorized' if the provided id is not found" do
       response = request("/api_key.delete", %{id: "wrong_id"})
 
-      assert response == %{
-               "version" => "1",
-               "success" => false,
-               "data" => %{
-                 "code" => "api_key:not_found",
-                 "description" => "The API key could not be found.",
-                 "messages" => nil,
-                 "object" => "error"
-               }
-             }
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "responds with an error if the user is not authorized to delete the API key" do

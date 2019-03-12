@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@ defmodule AdminAPI.V1.KeyViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.KeyView
   alias EWallet.Web.Paginator
-  alias EWalletDB.Helpers.Preloader
   alias Utils.Helpers.DateFormatter
 
   describe "render/2" do
     test "renders key.json with correct response format" do
-      key = :key |> insert() |> Preloader.preload(:account)
+      key = insert(:key)
 
       expected = %{
         version: @expected_version,
@@ -31,7 +30,7 @@ defmodule AdminAPI.V1.KeyViewTest do
           id: key.id,
           access_key: key.access_key,
           secret_key: key.secret_key,
-          account_id: key.account.id,
+          account_id: nil,
           expired: !key.enabled,
           enabled: key.enabled,
           created_at: DateFormatter.to_iso8601(key.inserted_at),
@@ -44,8 +43,8 @@ defmodule AdminAPI.V1.KeyViewTest do
     end
 
     test "renders keys.json with correct response format" do
-      key1 = :key |> insert() |> Preloader.preload(:account)
-      key2 = :key |> insert() |> Preloader.preload(:account)
+      key1 = :key |> insert()
+      key2 = :key |> insert()
 
       paginator = %Paginator{
         data: [key1, key2],
@@ -68,7 +67,7 @@ defmodule AdminAPI.V1.KeyViewTest do
               id: key1.id,
               access_key: key1.access_key,
               secret_key: key1.secret_key,
-              account_id: key1.account.id,
+              account_id: nil,
               expired: !key1.enabled,
               enabled: key1.enabled,
               created_at: DateFormatter.to_iso8601(key1.inserted_at),
@@ -80,7 +79,7 @@ defmodule AdminAPI.V1.KeyViewTest do
               id: key2.id,
               access_key: key2.access_key,
               secret_key: key2.secret_key,
-              account_id: key2.account.id,
+              account_id: nil,
               expired: !key2.enabled,
               enabled: key2.enabled,
               created_at: DateFormatter.to_iso8601(key2.inserted_at),

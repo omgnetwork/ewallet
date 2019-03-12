@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,13 +28,11 @@ defmodule EWallet.Web.V1.AccountOverlay do
 
   def preload_assocs,
     do: [
-      :parent,
       :categories
     ]
 
   def default_preload_assocs,
     do: [
-      :parent,
       :categories
     ]
 
@@ -72,12 +70,18 @@ defmodule EWallet.Web.V1.AccountOverlay do
       inserted_at: nil,
       updated_at: nil,
       metadata: nil,
-      parent: self_filter_fields(),
       categories: CategoryOverlay.self_filter_fields(),
       wallets: WalletOverlay.self_filter_fields(),
       tokens: TokenOverlay.self_filter_fields(),
       keys: KeyOverlay.self_filter_fields(),
       api_keys: APIKeyOverlay.self_filter_fields(),
       memberships: MembershipOverlay.self_filter_fields()
+    ]
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
     ]
 end

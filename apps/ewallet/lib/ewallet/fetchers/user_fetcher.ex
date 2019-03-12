@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,24 +20,28 @@ defmodule EWallet.UserFetcher do
 
   @spec fetch(map()) :: {:ok, %User{}} | {:error, atom()}
   def fetch(%{"id" => id}) do
-    with %User{} = user <- User.get(id) || :user_id_not_found do
+    with %User{} = user <- User.get(id) || :unauthorized do
       {:ok, user}
     else
       error -> {:error, error}
     end
   end
 
+  def fetch(%{"user_id" => nil}), do: {:error, :invalid_parameter}
+
   def fetch(%{"user_id" => user_id}) do
-    with %User{} = user <- User.get(user_id) || :user_id_not_found do
+    with %User{} = user <- User.get(user_id) || :unauthorized do
       {:ok, user}
     else
       error -> {:error, error}
     end
   end
+
+  def fetch(%{"provider_user_id" => nil}), do: {:error, :invalid_parameter}
 
   def fetch(%{"provider_user_id" => provider_user_id}) do
     with %User{} = user <-
-           User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found do
+           User.get_by_provider_user_id(provider_user_id) || :unauthorized do
       {:ok, user}
     else
       error -> {:error, error}

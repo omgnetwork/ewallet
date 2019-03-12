@@ -2,79 +2,74 @@ role.all:
   post:
     tags:
       - Role
-    summary: Get the list of roles
+    summary: Get the list of roles (deprecated)
     operationId: role_all
+    deprecated: true
     security:
       - ProviderAuth: []
       - AdminAuth: []
-    requestBody:
-      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
     responses:
       '200':
-        $ref: 'responses.yaml#/RolesResponse'
+        $ref: 'responses.yaml#/UnauthorizedResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 role.get:
   post:
     tags:
       - Role
-    summary: Get a specific role
+    summary: Get a specific role (deprecated)
     operationId: role_get
+    deprecated: true
     security:
       - ProviderAuth: []
       - AdminAuth: []
-    requestBody:
-      $ref: 'request_bodies.yaml#/RoleGetBody'
     responses:
       '200':
-        $ref: 'responses.yaml#/RoleResponse'
+        $ref: 'responses.yaml#/UnauthorizedResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 role.create:
   post:
     tags:
       - Role
-    summary: Create a new role
+    summary: Create a new role (deprecated)
     operationId: role_create
+    deprecated: true
     security:
       - ProviderAuth: []
       - AdminAuth: []
-    requestBody:
-      $ref: 'request_bodies.yaml#/RoleCreateBody'
     responses:
       '200':
-        $ref: 'responses.yaml#/RoleResponse'
+        $ref: 'responses.yaml#/UnauthorizedResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 role.update:
   post:
     tags:
       - Role
-    summary: Update an existing role
+    summary: Update an existing role (deprecated)
     operationId: role_update
+    deprecated: true
     security:
       - ProviderAuth: []
       - AdminAuth: []
-    requestBody:
-      $ref: 'request_bodies.yaml#/RoleUpdateBody'
     responses:
       '200':
-        $ref: 'responses.yaml#/RoleResponse'
+        $ref: 'responses.yaml#/UnauthorizedResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 role.delete:
   post:
     tags:
       - Role
-    summary: Delete a role by its id
+    summary: Delete a role by its id (deprecated)
     operationId: role_delete
+    deprecated: true
     security:
       - ProviderAuth: []
       - AdminAuth: []
-    requestBody:
-      $ref: 'request_bodies.yaml#/RoleDeleteBody'
     responses:
       '200':
-        $ref: 'responses.yaml#/RoleResponse'
+        $ref: 'responses.yaml#/UnauthorizedResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

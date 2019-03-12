@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -109,10 +109,65 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
 
       assert data["max_per_page"] == %{
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided. `value` must be of type 'integer'.",
+               "description" =>
+                 "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
                "messages" => %{"value" => ["invalid_type_for_value"]},
                "object" => "error"
              }
+    end
+
+    test_with_auths "returns errors when updating unsigned_integer settings with nil", context do
+      response =
+        request("/configuration.update", %{
+          max_per_page: nil,
+          min_password_length: nil,
+          forget_password_request_lifetime: nil,
+          balance_caching_reset_frequency: nil,
+          config_pid: context[:config_pid]
+        })
+
+      assert response["success"] == true
+      data = response["data"]["data"]
+
+      error = %{
+        "code" => "client:invalid_parameter",
+        "description" =>
+          "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
+        "messages" => %{"value" => ["invalid_type_for_value"]},
+        "object" => "error"
+      }
+
+      assert data["max_per_page"] == error
+      assert data["min_password_length"] == error
+      assert data["forget_password_request_lifetime"] == error
+      assert data["balance_caching_reset_frequency"] == error
+    end
+
+    test_with_auths "returns errors when updating unsigned_integer settings with -1", context do
+      response =
+        request("/configuration.update", %{
+          max_per_page: -1,
+          min_password_length: -1,
+          forget_password_request_lifetime: -1,
+          balance_caching_reset_frequency: -1,
+          config_pid: context[:config_pid]
+        })
+
+      assert response["success"] == true
+      data = response["data"]["data"]
+
+      error = %{
+        "code" => "client:invalid_parameter",
+        "description" =>
+          "Invalid parameter provided. `value` must be of type 'unsigned_integer'.",
+        "messages" => %{"value" => ["invalid_type_for_value"]},
+        "object" => "error"
+      }
+
+      assert data["max_per_page"] == error
+      assert data["min_password_length"] == error
+      assert data["forget_password_request_lifetime"] == error
+      assert data["balance_caching_reset_frequency"] == error
     end
 
     test_with_auths "reloads app env", context do

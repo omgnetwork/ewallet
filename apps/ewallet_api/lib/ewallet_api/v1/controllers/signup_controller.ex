@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 defmodule EWalletAPI.V1.SignupController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.{SignupGate, UserPolicy}
+  alias EWallet.SignupGate
   alias EWallet.Web.Preloader
   alias EWalletAPI.V1.VerifyEmailController
   alias EWallet.VerificationEmail
@@ -28,8 +28,7 @@ defmodule EWalletAPI.V1.SignupController do
   """
   @spec signup(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def signup(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, nil),
-         attrs <- Map.put_new(attrs, "verification_url", VerifyEmailController.verify_url()),
+    with attrs <- Map.put_new(attrs, "verification_url", VerifyEmailController.verify_url()),
          attrs <- Map.put_new(attrs, "success_url", VerifyEmailController.success_url()),
          {:ok, _invite} <- SignupGate.signup(attrs, &VerificationEmail.create/2) do
       render(conn, :empty, %{success: true})
@@ -47,8 +46,7 @@ defmodule EWalletAPI.V1.SignupController do
   """
   @spec verify_email(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def verify_email(conn, attrs) do
-    with :ok <- permit(:verify_email, conn.assigns, nil),
-         {:ok, invite} <- SignupGate.verify_email(attrs),
+    with {:ok, invite} <- SignupGate.verify_email(attrs),
          {:ok, invite} <- Preloader.preload_one(invite, :user) do
       render(conn, :user, %{user: invite.user})
     else
@@ -58,10 +56,5 @@ defmodule EWalletAPI.V1.SignupController do
       {:error, code, description} ->
         handle_error(conn, code, description)
     end
-  end
-
-  @spec permit(:create | :verify_email, map(), nil) :: :ok | {:error, any()}
-  defp permit(action, params, user) do
-    Bodyguard.permit(UserPolicy, action, params, user)
   end
 end

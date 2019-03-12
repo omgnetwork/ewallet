@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.WalletChannel do
 
   def join("address:" <> address, _params, %{assigns: %{auth: auth}} = socket) do
     with %Wallet{} = wallet <- Wallet.get(address),
-         :ok <- Bodyguard.permit(WalletPolicy, :join, auth, wallet) do
+         {:ok, _} <- WalletPolicy.authorize(:listen, auth, wallet) do
       {:ok, socket}
     else
       _ -> {:error, :forbidden_channel}

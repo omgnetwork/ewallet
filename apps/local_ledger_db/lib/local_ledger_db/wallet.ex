@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 defmodule LocalLedgerDB.Wallet do
   @moduledoc """
-  Ecto Schema representing wallets. A balance is made up of a unique address
+  Ecto Schema representing wallets. A wallet is made up of a unique address
   and the ID associated with it in eWallet DB.
   """
   use Ecto.Schema
@@ -41,7 +41,7 @@ defmodule LocalLedgerDB.Wallet do
   end
 
   @doc """
-  Validate the balance attributes.
+  Validate the wallet attributes.
   """
   def changeset(%Wallet{} = balance, attrs) do
     balance
@@ -51,7 +51,7 @@ defmodule LocalLedgerDB.Wallet do
   end
 
   @doc """
-  Batch load wallets and run the callback for each balance.
+  Batch load wallets and run the callback for each wallet.
   """
   def stream_all(callback) do
     Repo
@@ -68,27 +68,27 @@ defmodule LocalLedgerDB.Wallet do
       |> NaiveDateTime.to_iso8601()
 
     Repo.update_all(
-      from(b in Wallet, where: b.address in ^addresses),
+      from(w in Wallet, where: w.address in ^addresses),
       set: [updated_at: updated_at]
     )
   end
 
   @doc """
-  Use a FOR UPDATE lock on the balance records for which the current wallets
+  Use a FOR UPDATE lock on the wallet records for which the current wallets
   will be calculated.
   """
   def lock(addresses) do
     Repo.all(
       from(
-        b in Wallet,
-        where: b.address in ^addresses,
+        w in Wallet,
+        where: w.address in ^addresses,
         lock: "FOR UPDATE"
       )
     )
   end
 
   @doc """
-  Retrieve a balance from the database using the specified address
+  Retrieve a wallet from the database using the specified address
   or insert a new one before returning it.
   """
   def get_or_insert(%{"address" => address} = attrs) do
@@ -96,8 +96,8 @@ defmodule LocalLedgerDB.Wallet do
       nil ->
         insert(attrs)
 
-      balance ->
-        {:ok, balance}
+      wallet ->
+        {:ok, wallet}
     end
   end
 
@@ -128,7 +128,7 @@ defmodule LocalLedgerDB.Wallet do
     opts = [on_conflict: :nothing, conflict_target: :address]
 
     case Repo.insert(changeset, opts) do
-      {:ok, _balance} ->
+      {:ok, _wallet} ->
         {:ok, get(address)}
 
       {:error, changeset} ->

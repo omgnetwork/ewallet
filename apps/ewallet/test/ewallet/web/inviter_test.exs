@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ defmodule EWallet.Web.InviterTest do
   use Bamboo.Test
   alias ActivityLogger.System
   alias EWallet.Web.{Inviter, MockInviteEmail, Preloader}
-  alias EWalletDB.{Account, Invite, Membership, User}
+  alias EWalletDB.{Account, Invite, Membership, User, Role}
 
   @user_redirect_url "http://localhost:4000/some_redirect_url?email={email}&token={token}"
   @user_success_url "http://localhost:4000/some_success_url"
@@ -51,7 +51,10 @@ defmodule EWallet.Web.InviterTest do
 
       {:ok, invite} = Preloader.preload_one(invite, :user)
       accounts = User.get_all_linked_accounts(invite.user.uuid)
-      assert Enum.any?(accounts, fn account -> Account.master?(account) end)
+
+      assert Enum.any?(accounts, fn account ->
+               Account.get_master_account().uuid == account.uuid
+             end)
     end
 
     test "resends the verification email if the user has not verified their email" do
@@ -96,7 +99,7 @@ defmodule EWallet.Web.InviterTest do
     test "sends email and returns the invite if successful" do
       user = insert(:admin, %{email: "activeuser@example.com"})
       account = insert(:account)
-      role = insert(:role)
+      role = Role.get_by(name: "admin")
 
       {res, invite} =
         Inviter.invite_admin(
@@ -116,7 +119,7 @@ defmodule EWallet.Web.InviterTest do
     test "sends a new invite if this email has been invited before" do
       user = insert(:admin, %{email: "activeuser@example.com"})
       account = insert(:account)
-      role = insert(:role)
+      role = Role.get_by(name: "admin")
 
       {:ok, invite1} =
         Inviter.invite_admin(
@@ -145,7 +148,7 @@ defmodule EWallet.Web.InviterTest do
     test "assigns the user to account and role" do
       user = insert(:admin, %{email: "activeuser@example.com"})
       account = insert(:account)
-      role = insert(:role)
+      role = Role.get_by(name: "admin")
 
       {:ok, invite} =
         Inviter.invite_admin(
@@ -168,7 +171,7 @@ defmodule EWallet.Web.InviterTest do
       # This should already be an active user
       user = insert(:admin, %{email: "activeuser@example.com"})
       account = insert(:account)
-      role = insert(:role)
+      role = Role.get_by(name: "admin")
 
       {res, error} =
         Inviter.invite_admin(

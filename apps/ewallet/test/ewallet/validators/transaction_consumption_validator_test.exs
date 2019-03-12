@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,22 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.{TestEndpoint, TransactionConsumptionValidator}
-  alias EWalletDB.{Account, Repo, TransactionConsumption, TransactionRequest, User}
+
+  alias EWalletDB.{
+    Account,
+    Repo,
+    TransactionConsumption,
+    Membership,
+    TransactionRequest,
+    GlobalRole,
+    User
+  }
+
   alias ActivityLogger.System
+
+  def creator do
+    insert(:admin, global_role: GlobalRole.super_admin())
+  end
 
   describe "validate_before_consumption/3" do
     test "expires a transaction request if past expiration date" do
@@ -29,7 +43,9 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       wallet = request.wallet
 
       {:error, error} =
-        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{})
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{
+          "creator" => creator()
+        })
 
       assert error == :expired_transaction_request
     end
@@ -39,7 +55,9 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       wallet = request.wallet
 
       {:error, error} =
-        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{})
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{
+          "creator" => creator()
+        })
 
       assert error == :expired_transaction_request
     end
@@ -50,7 +68,8 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       {:error, error} =
         TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{
-          "amount" => 100
+          "amount" => 100,
+          "creator" => creator()
         })
 
       assert error == :unauthorized_amount_override
@@ -61,7 +80,9 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       wallet = request.wallet
 
       {:ok, request, token, amount} =
-        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{})
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{
+          "creator" => creator()
+        })
 
       assert request.status == "valid"
       assert token.uuid == request.token_uuid
@@ -91,20 +112,23 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
         })
 
       assert status == :error
-      assert res == :unauthorized
+      assert %{authorized: false} = res
     end
 
     test "returns unauthorized if the request is not owned by account" do
       {:ok, account} = :account |> params_for() |> Account.insert()
+      admin = insert(:admin)
+      {:ok, _} = Membership.assign(admin, account, "admin", %System{})
+
       consumption = :transaction_consumption |> insert() |> Repo.preload([:transaction_request])
 
       {status, res} =
         TransactionConsumptionValidator.validate_before_confirmation(consumption, %{
-          end_user: account
+          admin_user: admin
         })
 
       assert status == :error
-      assert res == :unauthorized
+      assert %{authorized: false} = res
     end
 
     test "expires request if past expiration date" do
@@ -251,6 +275,27 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       assert status == :error
       assert res == :expired_transaction_consumption
+    end
+
+    test "returns 'cancelled_transaction_consumption' if the consumption is cancelled" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      request =
+        insert(:transaction_request, account_uuid: nil, user_uuid: user.uuid, wallet: wallet)
+
+      consumption =
+        :transaction_consumption
+        |> insert(status: "cancelled", transaction_request_uuid: request.uuid)
+        |> Repo.preload([:transaction_request])
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_before_confirmation(consumption, %{
+          end_user: user
+        })
+
+      assert status == :error
+      assert res == :cancelled_transaction_consumption
     end
 
     test "returns the consumption if valid" do

@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ defmodule AdminAPI.V1.TransactionConsumptionChannel do
       ) do
     with %TransactionConsumption{} = consumption <-
            TransactionConsumption.get(consumption_id, preload: [:account, :wallet]),
-         :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :join, auth, consumption) do
+         {:ok, _} <- TransactionConsumptionPolicy.authorize(:listen, auth, consumption) do
       {:ok, socket}
     else
       _ -> {:error, :forbidden_channel}

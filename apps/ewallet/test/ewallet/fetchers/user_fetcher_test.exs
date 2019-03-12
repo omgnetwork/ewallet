@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,17 +34,27 @@ defmodule EWallet.UserFetcherTest do
       assert user.uuid == meta.user.uuid
     end
 
-    test "Raise user_id_not_found if the user_id doesn't exist" do
+    test "returns an 'unauthorized' error when the user_id doesn't exist" do
       {:error, error} = UserFetcher.fetch(%{"user_id" => "fake"})
-      assert error == :user_id_not_found
+      assert error == :unauthorized
     end
 
-    test "Raise provider_user_id_not_found if the user_id doesn't exist" do
+    test "returns an 'unauthorized' error when the provider_user_id doesn't exist" do
       {:error, error} = UserFetcher.fetch(%{"provider_user_id" => "fake"})
-      assert error == :provider_user_id_not_found
+      assert error == :unauthorized
     end
 
-    test "Raise invalid_parameter if no user_id or provider_user_id" do
+    test "returns an 'invalid_parameter' error when the user_id is nil" do
+      {:error, error} = UserFetcher.fetch(%{"user_id" => nil})
+      assert error == :invalid_parameter
+    end
+
+    test "returns an 'invalid_parameter' error when the provider_user_id is nil" do
+      {:error, error} = UserFetcher.fetch(%{"provider_user_id" => nil})
+      assert error == :invalid_parameter
+    end
+
+    test "returns an 'invalid_parameter' error when no user_id or provider_user_id" do
       {:error, error} = UserFetcher.fetch(%{})
       assert error == :invalid_parameter
     end

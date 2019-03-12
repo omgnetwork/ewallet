@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,14 +21,10 @@ defmodule EWallet.Web.V1.KeyOverlay do
   alias EWallet.Web.V1.AccountOverlay
 
   def preload_assocs,
-    do: [
-      :account
-    ]
+    do: []
 
   def default_preload_assocs,
-    do: [
-      :account
-    ]
+    do: []
 
   def search_fields,
     do: [
@@ -59,5 +55,12 @@ defmodule EWallet.Web.V1.KeyOverlay do
       updated_at: nil,
       deleted_at: nil,
       account: AccountOverlay.self_filter_fields()
+    ]
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
     ]
 end

@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,47 +15,38 @@
 defmodule AdminAPI.V1.TransactionRequestController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.AccountHelper
-  alias EWallet.TransactionRequestPolicy
+  alias EWallet.{TransactionRequestPolicy, AccountPolicy}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TransactionRequestOverlay}
+  alias Ecto.Changeset
 
   alias EWallet.{
     TransactionRequestFetcher,
     TransactionRequestGate
   }
 
+  alias Utils.Helpers.UUID
+
   alias EWalletDB.{Account, TransactionRequest}
 
   @spec all(Plug.Conn.t(), map) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil),
-         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
-      TransactionRequest
-      |> TransactionRequest.query_all_for_account_uuids_and_users(account_uuids)
-      |> do_all(attrs, conn)
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
+      do_all(query, attrs, conn)
     else
       error -> respond(error, conn)
     end
   end
 
   @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
-    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account) do
-      TransactionRequest
-      |> TransactionRequest.query_all_for_account_uuids_and_users([account.uuid])
-      |> do_all(attrs, conn)
-    else
-      error -> respond(error, conn)
-    end
-  end
-
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account),
-         descendant_uuids <- Account.get_all_descendants_uuids(account) do
-      TransactionRequest
-      |> TransactionRequest.query_all_for_account_uuids_and_users(descendant_uuids)
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized},
+         user_uuids <- [account.uuid] |> Account.get_all_users() |> UUID.get_uuids() do
+      [account.uuid]
+      |> TransactionRequest.query_all_for_account_and_user_uuids(user_uuids, query)
       |> do_all(attrs, conn)
     else
       error -> respond(error, conn)
@@ -75,8 +66,8 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   @spec get(Plug.Conn.t(), map) :: Plug.Conn.t()
   def get(conn, %{"formatted_id" => formatted_id}) do
-    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id),
-         :ok <- permit(:get, conn.assigns, request) do
+    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, request) do
       respond({:ok, request}, conn)
     else
       {:error, :transaction_request_not_found} ->
@@ -113,10 +104,18 @@ defmodule AdminAPI.V1.TransactionRequestController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
 
-  defp respond({:error, changeset}, conn) do
+  defp respond({:error, %Changeset{} = changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
+  end
+
+  defp respond({:error, error}, conn) do
+    handle_error(conn, error)
   end
 
   defp respond({:ok, request}, conn) do
@@ -125,12 +124,16 @@ defmodule AdminAPI.V1.TransactionRequestController do
     })
   end
 
-  @spec permit(
+  @spec authorize(
           :all | :create | :get | :update,
           map(),
           String.t() | %Account{} | %TransactionRequest{} | nil
         ) :: :ok | {:error, any()} | no_return()
-  defp permit(action, params, request) do
-    Bodyguard.permit(TransactionRequestPolicy, action, params, request)
+  defp authorize(action, actor, %Account{} = account) do
+    AccountPolicy.authorize(action, actor, account)
+  end
+
+  defp authorize(action, actor, request) do
+    TransactionRequestPolicy.authorize(action, actor, request)
   end
 end

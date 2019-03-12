@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWalletDB.Repo.Seeds.UserSeed do
-  alias EWalletDB.{Account, AccountUser, User}
+  alias EWalletDB.{Account, User, GlobalRole}
   alias Utils.Helpers.Crypto
   alias EWalletDB.Seeder
 
@@ -42,6 +42,7 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       metadata: %{},
       account_uuid: Account.get_master_account().uuid,
       is_admin: true,
+      global_role: GlobalRole.super_admin(),
       originator: %Seeder{}
     }
 
@@ -49,8 +50,6 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       nil ->
         case User.insert(data) do
           {:ok, user} ->
-            {:ok, _} = AccountUser.link(data.account_uuid, user.uuid, %Seeder{})
-
             writer.success("""
               ID       : #{user.id}
               Email    : #{user.email}

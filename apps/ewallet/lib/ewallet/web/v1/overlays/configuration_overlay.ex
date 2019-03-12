@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -55,4 +55,11 @@ defmodule EWallet.Web.V1.ConfigurationOverlay do
 
   def filter_fields,
     do: self_filter_fields()
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end

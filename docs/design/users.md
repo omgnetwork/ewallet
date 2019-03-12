@@ -16,7 +16,6 @@ Also, the actual permissions that each `Admin` has are determined by the role-pe
 
 Function | Master Admin | Admin | User
 -------- | ------------ | ----- | --------
-`User.master_admin?/1` | `true` | `false` | `false`
 `User.admin?/1` | `true` | `true` | `false`
 
 Since all users  including admins can be end users, there is no checker function to check for an end user.

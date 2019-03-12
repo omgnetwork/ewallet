@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
 
 defmodule AdminAPI.V1.AdminAuthControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
+  alias EWallet.Web.V1.UserSerializer
   alias ActivityLogger.System
-  alias EWalletDB.{Account, AuthToken, Membership, Repo, Role, User}
+  alias EWalletDB.{AuthToken, Membership, Repo, Role, User}
 
   describe "/admin.login" do
     test "responds with a new auth token if the given email and password are valid" do
@@ -33,10 +33,11 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "authentication_token" => auth_token.token,
           "user_id" => auth_token.user.id,
           "user" => auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
-          "account_id" => auth_token.account.id,
-          "account" => auth_token.account |> AccountSerializer.serialize() |> stringify_keys(),
-          "master_admin" => true,
-          "role" => "admin"
+          "account_id" => nil,
+          "account" => nil,
+          "master_admin" => nil,
+          "role" => nil,
+          "global_role" => auth_token.user.global_role
         }
       }
 
@@ -63,10 +64,11 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "authentication_token" => auth_token.token,
           "user_id" => auth_token.user.id,
           "user" => auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
-          "account_id" => auth_token.account.id,
-          "account" => auth_token.account |> AccountSerializer.serialize() |> stringify_keys(),
-          "master_admin" => false,
-          "role" => "admin"
+          "account_id" => nil,
+          "account" => nil,
+          "master_admin" => nil,
+          "role" => nil,
+          "global_role" => auth_token.user.global_role
         }
       }
 
@@ -74,6 +76,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
     end
 
     test "responds with a new auth token if credentials are valid and user is a viewer" do
+      set_admin_as_none()
       user = get_test_admin() |> Repo.preload([:accounts])
       {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0), %System{})
       account = insert(:account)
@@ -93,10 +96,11 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "authentication_token" => auth_token.token,
           "user_id" => auth_token.user.id,
           "user" => auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
-          "account_id" => auth_token.account.id,
-          "account" => auth_token.account |> AccountSerializer.serialize() |> stringify_keys(),
-          "master_admin" => false,
-          "role" => "viewer"
+          "account_id" => nil,
+          "account" => nil,
+          "master_admin" => nil,
+          "role" => nil,
+          "global_role" => auth_token.user.global_role
         }
       }
 
@@ -210,7 +214,6 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
         originator: get_test_admin(),
         target: auth_token,
         changes: %{
-          "account_uuid" => auth_token.account.uuid,
           "owner_app" => "admin_api",
           "token" => auth_token.token,
           "user_uuid" => auth_token.user.uuid
@@ -221,109 +224,11 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
   end
 
   describe "/auth_token.switch_account" do
-    test "switches the account" do
-      user = get_test_admin()
-      account = insert(:account, parent: Account.get_master_account())
-
-      # User belongs to the master account and has access to the sub account
-      # just created
-      response =
-        admin_user_request("/auth_token.switch_account", %{
-          "account_id" => account.id
-        })
-
-      assert response["success"]
-      assert response["data"]["user"]["id"] == user.id
-      assert response["data"]["account"]["id"] == account.id
-    end
-
-    test "returns a permission error when trying to switch to an invalid account" do
-      user = get_test_admin() |> Repo.preload([:accounts])
-      {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0), %System{})
-      account = insert(:account)
-
-      response =
-        admin_user_request("/auth_token.switch_account", %{
-          "account_id" => account.id
-        })
+    test "returns 'unauthorized'" do
+      response = admin_user_request("/auth_token.switch_account")
 
       refute response["success"]
       assert response["data"]["code"] == "unauthorized"
-    end
-
-    test "returns :unauthorized when the account does not exist" do
-      response =
-        admin_user_request("/auth_token.switch_account", %{
-          "account_id" => "123"
-        })
-
-      refute response["success"]
-      assert response["data"]["code"] == "unauthorized"
-    end
-
-    test "returns :invalid_parameter when account_id is not sent" do
-      response =
-        admin_user_request("/auth_token.switch_account", %{
-          "fake" => "123"
-        })
-
-      refute response["success"]
-      assert response["data"]["code"] == "client:invalid_parameter"
-    end
-
-    test "returns :auth_token_not_found if user credentials are invalid" do
-      response =
-        admin_user_request(
-          "/auth_token.switch_account",
-          %{
-            "account_id" => "123"
-          },
-          auth_token: "bad_auth_token"
-        )
-
-      refute response["success"]
-      assert response["data"]["code"] == "auth_token:not_found"
-    end
-
-    test "gets access_key:unauthorized back when requesting with a provider key" do
-      account = insert(:account)
-
-      # User belongs to the master account and has access to the sub account
-      # just created
-      response =
-        provider_request("/auth_token.switch_account", %{
-          "account_id" => account.id
-        })
-
-      refute response["success"]
-      assert response["data"]["code"] == "access_key:unauthorized"
-    end
-
-    test "generates an activity log" do
-      account = insert(:account, parent: Account.get_master_account())
-      timestamp = DateTime.utc_now()
-
-      response =
-        admin_user_request("/auth_token.switch_account", %{
-          "account_id" => account.id
-        })
-
-      assert response["success"] == true
-      auth_token = AuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
-      logs = get_all_activity_logs_since(timestamp)
-      assert Enum.count(logs) == 1
-
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "update",
-        originator: get_test_admin(),
-        target: auth_token,
-        changes: %{
-          "account_uuid" => account.uuid
-        },
-        encrypted_changes: %{}
-      )
     end
   end
 
@@ -349,10 +254,10 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
       assert response2["data"]["code"] == "user:auth_token_expired"
     end
 
-    test "gets access_key:unauthorized back when requesting with a provider key" do
+    test "gets unauthorized back when requesting with a provider key" do
       response = provider_request("/me.logout")
       refute response["success"]
-      assert response["data"]["code"] == "access_key:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "generates an activity log" do

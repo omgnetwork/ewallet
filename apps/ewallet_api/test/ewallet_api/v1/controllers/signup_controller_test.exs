@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,12 +39,12 @@ defmodule EWalletAPI.V1.SignupControllerTest do
     test "uses the default verification_url if not provided" do
       %{"success" => true} =
         client_request("/user.signup", %{
-          email: "test_verfication_url@example.com",
+          email: "test_verification_url@example.com",
           password: "the_password",
           password_confirmation: "the_password"
         })
 
-      user = User.get_by(email: "test_verfication_url@example.com")
+      user = User.get_by(email: "test_verification_url@example.com")
       {:ok, user} = Preloader.preload_one(user, :invite)
 
       assert_delivered_email(

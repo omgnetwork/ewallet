@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -176,7 +176,8 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
       when not is_nil(token_id) do
     with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]),
          {:ok, request} <- TransactionRequestFetcher.get(formatted_transaction_request_id),
-         true <- request.token.id == token_id || :exchange_client_not_allowed do
+         true <- request.token.id == token_id || :exchange_client_not_allowed,
+         attrs <- Map.put(attrs, "creator", user) do
       consume(wallet, attrs)
     else
       error when is_atom(error) -> {:error, error}
@@ -188,7 +189,8 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
         %User{} = user,
         attrs
       ) do
-    with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]) do
+    with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]),
+         attrs <- Map.put(attrs, "creator", user) do
       consume(wallet, attrs)
     else
       error -> error

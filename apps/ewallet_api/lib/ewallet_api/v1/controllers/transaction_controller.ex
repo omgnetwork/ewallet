@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -158,6 +158,10 @@ defmodule EWalletAPI.V1.TransactionController do
 
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
+  end
+
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
   end
 
   defp respond({:ok, transaction}, conn) do

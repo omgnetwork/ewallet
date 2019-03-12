@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   """
   import Ecto.Changeset, only: [traverse_errors: 2]
   alias Ecto.Changeset
-  alias EWallet.AmountFormatter
+  alias EWallet.{Bouncer.Permission, AmountFormatter}
   alias EWallet.Web.V1.ErrorSerializer
   alias EWalletDB.Token
   alias Sentry.Event
@@ -244,6 +244,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
     unfinalized_transaction_consumption: %{
       code: "transaction_consumption:unfinalized",
       description: "The specified transaction consumption has not been finalized yet."
+    },
+    uncancellable_transaction_consumption: %{
+      code: "transaction_consumption:uncancellable",
+      description: "The specified transaction consumption can't be cancelled."
+    },
+    cancelled_transaction_consumption: %{
+      code: "transaction_consumption:cancelled",
+      description: "The specified transaction consumption has been cancelled."
     },
     invalid_token_provided: %{
       code: "transaction_consumption:invalid_token",
@@ -474,6 +482,19 @@ defmodule EWallet.Web.V1.ErrorHandler do
   def build_error(code, data, supported_errors) when is_map(data) or is_list(data) do
     run_if_valid_error(code, supported_errors, fn error ->
       build(code: error.code, desc: build_template(data, error.template))
+    end)
+  end
+
+  # ---- WITH PERMISSION STRUCT ----
+  @spec build_error(
+          Permission.t() | atom(),
+          map() | Ecto.Changeset.t() | String.t(),
+          map() | nil
+        ) ::
+          map()
+  def build_error(%Permission{authorized: false}, supported_errors) do
+    run_if_valid_error(:unauthorized, supported_errors, fn error ->
+      build(code: error.code, desc: error.description)
     end)
   end
 

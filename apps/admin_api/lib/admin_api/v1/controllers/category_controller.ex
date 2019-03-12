@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,14 +18,16 @@ defmodule AdminAPI.V1.CategoryController do
   alias EWallet.CategoryPolicy
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.CategoryOverlay}
   alias EWalletDB.Category
+  alias Ecto.Changeset
 
   @doc """
   Retrieves a list of categories.
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil),
-         %Paginator{} = paginator <- Orchestrator.query(Category, CategoryOverlay, attrs) do
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized},
+         %Paginator{} = paginator <- Orchestrator.query(query, CategoryOverlay, attrs) do
       render(conn, :categories, %{categories: paginator})
     else
       {:error, code, description} ->
@@ -41,8 +43,8 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:get, conn.assigns, id),
-         %Category{} = category <- Category.get_by(id: id),
+    with %Category{} = category <- Category.get_by(id: id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, category),
          {:ok, category} <- Orchestrator.one(category, CategoryOverlay, attrs) do
       render(conn, :category, %{category: category})
     else
@@ -61,13 +63,13 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, nil),
+    with {:ok, _} <- authorize(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, category} <- Category.insert(attrs),
          {:ok, category} <- Orchestrator.one(category, CategoryOverlay, attrs) do
       render(conn, :category, %{category: category})
     else
-      {:error, %{} = changeset} ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->
@@ -80,14 +82,14 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:update, conn.assigns, id),
-         %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
+    with %Category{} = original <- Category.get(id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:update, conn.assigns, original),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Category.update(original, attrs),
          {:ok, updated} <- Orchestrator.one(updated, CategoryOverlay, attrs) do
       render(conn, :category, %{category: updated})
     else
-      {:error, %{} = changeset} ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->
@@ -102,14 +104,14 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:delete, conn.assigns, id),
-         %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
+    with %Category{} = category <- Category.get(id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:delete, conn.assigns, category),
          originator <- Originator.extract(conn.assigns),
          {:ok, deleted} <- Category.delete(category, originator),
          {:ok, deleted} <- Orchestrator.one(deleted, CategoryOverlay, attrs) do
       render(conn, :category, %{category: deleted})
     else
-      {:error, %{} = changeset} ->
+      {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->
@@ -119,9 +121,9 @@ defmodule AdminAPI.V1.CategoryController do
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
+  @spec authorize(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, account_id) do
-    Bodyguard.permit(CategoryPolicy, action, params, account_id)
+  defp authorize(action, actor, category) do
+    CategoryPolicy.authorize(action, actor, category)
   end
 end

@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,15 @@ defmodule EWalletDB.Key do
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
-  alias EWalletDB.{Account, Key, Repo}
+
+  alias EWalletDB.{
+    Account,
+    Key,
+    GlobalRole,
+    Membership,
+    Role,
+    Repo
+  }
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
@@ -39,13 +47,27 @@ defmodule EWalletDB.Key do
     field(:access_key, :string)
     field(:secret_key, :string, virtual: true)
     field(:secret_key_hash, :string)
+    field(:global_role, :string)
 
-    belongs_to(
-      :account,
+    has_many(
+      :memberships,
+      Membership,
+      foreign_key: :user_uuid,
+      references: :uuid
+    )
+
+    many_to_many(
+      :roles,
+      Role,
+      join_through: Membership,
+      join_keys: [key_uuid: :uuid, role_uuid: :uuid]
+    )
+
+    many_to_many(
+      :accounts,
       Account,
-      foreign_key: :account_uuid,
-      references: :uuid,
-      type: UUID
+      join_through: Membership,
+      join_keys: [key_uuid: :uuid, account_uuid: :uuid]
     )
 
     field(:enabled, :boolean, default: true)
@@ -58,14 +80,23 @@ defmodule EWalletDB.Key do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:access_key, :secret_key, :account_uuid, :enabled],
-      required: [:access_key, :secret_key, :account_uuid],
+      cast: [:access_key, :secret_key, :enabled, :global_role],
+      required: [:access_key, :secret_key],
       prevent_saving: [:secret_key]
     )
+    |> validate_inclusion(:global_role, GlobalRole.global_roles())
     |> unique_constraint(:access_key, name: :key_access_key_index)
     |> put_change(:secret_key_hash, Crypto.hash_secret(attrs[:secret_key]))
     |> put_change(:secret_key, Base.url_encode64(attrs[:secret_key], padding: false))
-    |> assoc_constraint(:account)
+  end
+
+  defp update_changeset(%Key{} = key, attrs) do
+    cast_and_validate_required_for_activity_log(
+      key,
+      attrs,
+      cast: [:global_role],
+      required: [:global_role]
+    )
   end
 
   defp enable_changeset(%Key{} = key, attrs) do
@@ -135,6 +166,16 @@ defmodule EWalletDB.Key do
     |> Repo.insert_record_with_activity_log()
   end
 
+  @doc """
+  Updates a key with the provided attributes.
+  """
+  @spec update(%Key{}, map()) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
+  def update(%Key{} = key, attrs) do
+    key
+    |> update_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
+  end
+
   defp get_master_account_uuid do
     case Account.get_master_account() do
       %{uuid: uuid} -> uuid
@@ -164,7 +205,7 @@ defmodule EWalletDB.Key do
 
   @doc """
   Authenticates using the specified access and secret keys.
-  Returns the associated account if authenticated, false otherwise.
+  Returns the key if authenticated, false otherwise.
 
   Use this function instead of the usual get/2
   to avoid passing the access/secret key information around.
@@ -175,9 +216,7 @@ defmodule EWalletDB.Key do
     query =
       from(
         k in Key,
-        where: k.access_key == ^access and k.enabled == true,
-        join: a in assoc(k, :account),
-        preload: [account: a]
+        where: k.access_key == ^access and k.enabled == true
       )
 
     query
@@ -228,6 +267,6 @@ defmodule EWalletDB.Key do
   """
   @spec get_all_accessible_account_uuids(%Key{}) :: [String.t()]
   def get_all_accessible_account_uuids(key) do
-    Account.get_all_descendants_uuids(key.account)
+    [key.account.uuid]
   end
 end

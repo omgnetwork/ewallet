@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ defmodule EWalletAPI.V1.Router do
     )
 
     post("/me.reject_transaction_consumption", TransactionConsumptionController, :reject_for_user)
+    post("/me.cancel_transaction_consumption", TransactionConsumptionController, :cancel_for_user)
     post("/me.consume_transaction_request", TransactionConsumptionController, :consume_for_user)
 
     post("/me.logout", AuthController, :logout)

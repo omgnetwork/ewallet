@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,6 +76,15 @@ defmodule EWalletDB.KeyTest do
 
     test "returns nil if the key with the given access_key is not found" do
       assert Key.get(access_key: "not_access_key") == nil
+    end
+  end
+
+  describe "update/2" do
+    test "Updates a key with a new global_role" do
+      key = insert(:key)
+      assert key.global_role == nil
+      {:ok, updated_key} = Key.update(key, %{global_role: "a_role", originator: %System{}})
+      assert updated_key.global_role == "a_role"
     end
   end
 
@@ -197,31 +206,24 @@ defmodule EWalletDB.KeyTest do
 
   describe "authenticate/2" do
     test "returns an existing key if access and secret key match" do
-      account = insert(:account)
-
       :key
       |> params_for(%{
         access_key: "access123",
-        secret_key: "secret321",
-        account: account
+        secret_key: "secret321"
       })
       |> Key.insert()
 
       {res, key} = Key.authenticate("access123", Base.url_encode64("secret321"))
       assert res == :ok
       assert %Key{} = key
-      assert key.account.uuid == account.uuid
     end
 
     test "returns false if access key is disabled" do
-      account = insert(:account)
-
       {:ok, key} =
         :key
         |> params_for(%{
           access_key: "access123",
-          secret_key: "secret321",
-          account: account
+          secret_key: "secret321"
         })
         |> Key.insert()
 

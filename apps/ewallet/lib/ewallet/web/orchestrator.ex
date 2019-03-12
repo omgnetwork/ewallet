@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,14 @@ defmodule EWallet.Web.Orchestrator do
 
   def query(query, overlay, attrs \\ %{}, repo \\ Repo) do
     with %Ecto.Query{} = query <- build_query(query, overlay, attrs),
-         paginated <- Paginator.paginate_attrs(query, attrs, repo) do
+         paginated <-
+           Paginator.paginate_attrs(
+             query,
+             attrs,
+             overlay.pagination_fields(),
+             repo,
+             default_mapped_fields()
+           ) do
       paginated
     else
       {:error, :not_allowed, field} ->

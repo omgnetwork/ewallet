@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ defmodule EWallet.Web.V1.RoleSerializer do
       object: "role",
       id: role.id,
       name: role.name,
-      priority: role.priority,
+      priority: nil,
       display_name: role.display_name,
       created_at: DateFormatter.to_iso8601(role.inserted_at),
       updated_at: DateFormatter.to_iso8601(role.updated_at)

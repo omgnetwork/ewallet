@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ defmodule EWalletDB.UserQuery do
       :inner,
       [u],
       m in Membership,
-      u.uuid == m.user_uuid and m.account_uuid in ^account_uuids
+      on: u.uuid == m.user_uuid and m.account_uuid in ^account_uuids
     )
     |> distinct(true)
     |> select([c], c)

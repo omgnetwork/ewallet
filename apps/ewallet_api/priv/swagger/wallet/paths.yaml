@@ -5,7 +5,7 @@ me.get_wallets:
     summary: Get the wallets of a specific user. The client can call this to get the wallets of the user corresponding to the authentication_token provided.
     operationId: me_get_wallets
     requestBody:
-      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: 'request_bodies.yaml#/WalletAllBody'
     security:
       - ClientAuth: []
     responses:
