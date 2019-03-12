@@ -4702,6 +4702,7 @@ paths:
                         data:
                           - object: api_key
                             id: api_01ce844d5w9e81snekr5kprvem
+                            name: my_key
                             key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
                             owner_app: admin_api
                             enabled: true
@@ -4719,6 +4720,20 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
+      requestBody:
+        description: The parameters to use for creating an API key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+              example:
+                id: api_01ce83yphmq6vt4qnmn3ykwcw6
+                name: my_api_key
       responses:
         '200': &ref_58
           description: Returns a single API key
@@ -4735,6 +4750,7 @@ paths:
                       data:
                         object: api_key
                         id: api_01ce844d5w9e81snekr5kprvem
+                        name: my_key
                         key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
                         owner_app: admin_api
                         enabled: true
@@ -4749,7 +4765,6 @@ paths:
         - API Access
       summary: Update an API key (deprecated)
       operationId: api_key_update
-      deprecated: true
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -4762,14 +4777,13 @@ paths:
               properties:
                 id:
                   type: string
-                expired:
-                  type: boolean
+                name:
+                  type: name
               required:
                 - id
-                - expired
               example:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
-                expired: true
+                name: my_api_key
       responses:
         '200': *ref_58
         '500': *ref_2

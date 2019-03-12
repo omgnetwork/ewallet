@@ -30,6 +30,7 @@ defmodule EWallet.Web.V1.APIKeySerializer do
     %{
       object: "api_key",
       id: api_key.id,
+      name: api_key.name,
       key: api_key.key,
       account_id: api_key.account.id,
       owner_app: api_key.owner_app,

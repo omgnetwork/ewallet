@@ -59,6 +59,21 @@ AccessKeyDeleteBody:
           id: key_01ce83yphmq6vt4qnmn3ykwcw6
 
 # API KEY REQUEST BODIES
+APIKeyCreateBody:
+  description: The parameters to use for creating an API key
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+        example:
+          id: api_01ce83yphmq6vt4qnmn3ykwcw6
+          name: my_api_key
+
 APIKeyUpdateBody:
   description: The parameters to use for updating an API key
   required: true
@@ -68,14 +83,13 @@ APIKeyUpdateBody:
         properties:
           id:
             type: string
-          expired:
-            type: boolean
+          name:
+            type: name
         required:
           - id
-          - expired
         example:
           id: api_01ce83yphmq6vt4qnmn3ykwcw6
-          expired: true
+          name: my_api_key
 
 APIKeyToggleStatusBody:
   description: The parameters to enable/disable an api key. Send enabled=true to enable, enabled=false to disable.

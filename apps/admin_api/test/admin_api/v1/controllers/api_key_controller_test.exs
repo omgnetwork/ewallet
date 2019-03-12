@@ -74,6 +74,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                "data" => %{
                  "object" => "api_key",
                  "id" => api_key.id,
+                 "name" => api_key.name,
                  "key" => api_key.key,
                  "account_id" => Account.get_master_account().id,
                  "owner_app" => "ewallet_api",
@@ -169,6 +170,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
       response =
         request("/api_key.update", %{
           id: api_key.id,
+          name: "my_name",
           expired: true,
           owner_app: "something",
           key: "some_key",
@@ -183,6 +185,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                "data" => %{
                  "object" => "api_key",
                  "id" => updated.id,
+                 "name" => "my_name",
                  "key" => api_key.key,
                  "expired" => true,
                  "enabled" => false,

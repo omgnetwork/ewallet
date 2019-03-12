@@ -263,6 +263,7 @@ defmodule EWalletDB.Factory do
 
   def api_key_factory do
     %APIKey{
+      name: sequence("api_key_name"),
       key: sequence("api_key"),
       owner_app: "some_app_name",
       account: insert(:account),
