@@ -34,10 +34,10 @@ defmodule AdminAPI.V1.TokenViewTest do
           encrypted_metadata: %{},
           enabled: true,
           avatar: %{
-            "large" => nil,
-            "original" => nil,
-            "small" => nil,
-            "thumb" => nil
+            large: nil,
+            original: nil,
+            small: nil,
+            thumb: nil
           },
           subunit_to_unit: token.subunit_to_unit,
           created_at: DateFormatter.to_iso8601(token.inserted_at),
@@ -77,10 +77,10 @@ defmodule AdminAPI.V1.TokenViewTest do
               encrypted_metadata: %{},
               enabled: true,
               avatar: %{
-                "large" => nil,
-                "original" => nil,
-                "small" => nil,
-                "thumb" => nil
+                large: nil,
+                original: nil,
+                small: nil,
+                thumb: nil
               },
               subunit_to_unit: token1.subunit_to_unit,
               created_at: DateFormatter.to_iso8601(token1.inserted_at),
@@ -94,7 +94,12 @@ defmodule AdminAPI.V1.TokenViewTest do
               metadata: %{},
               encrypted_metadata: %{},
               enabled: true,
-              avatar: expected_avatar,
+              avatar: %{
+                large: nil,
+                original: nil,
+                small: nil,
+                thumb: nil
+              },
               subunit_to_unit: token2.subunit_to_unit,
               created_at: DateFormatter.to_iso8601(token2.inserted_at),
               updated_at: DateFormatter.to_iso8601(token2.updated_at)

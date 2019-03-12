@@ -107,7 +107,12 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
-                           "avatar" => expected_avatar,
+                           "avatar" => %{
+                             "large" => nil,
+                             "original" => nil,
+                             "small" => nil,
+                             "thumb" => nil
+                           },
                            "created_at" => DateFormatter.to_iso8601(btc.inserted_at),
                            "updated_at" => DateFormatter.to_iso8601(btc.updated_at)
                          }
@@ -124,7 +129,12 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
-                           "avatar" => expected_avatar,
+                           "avatar" => %{
+                             "large" => nil,
+                             "original" => nil,
+                             "small" => nil,
+                             "thumb" => nil
+                           },
                            "created_at" => DateFormatter.to_iso8601(omg.inserted_at),
                            "updated_at" => DateFormatter.to_iso8601(omg.updated_at)
                          }
