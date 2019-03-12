@@ -143,7 +143,7 @@ defmodule EWallet.Web.OrchestratorTest do
       attrs = %{
         "start_by" => "id",
         "start_after" => my_account1.id,
-        "sort_by" => "id",
+        "sort_by" => "inserted_at",
         "search_term" => "my_account"
       }
 
@@ -186,7 +186,8 @@ defmodule EWallet.Web.OrchestratorTest do
             "comparator" => "gt",
             "value" => account1.id
           }
-        ]
+        ],
+        "sort_by" => "inserted_at"
       }
 
       # Is it not error when used with match_any?
