@@ -198,7 +198,7 @@ defmodule AdminAPI.V1.TokenController do
       nil ->
         handle_error(conn, :invalid_parameter)
 
-      changeset when is_map(changeset) ->
+      %Changeset{} = changeset ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, %Changeset{} = changeset} ->

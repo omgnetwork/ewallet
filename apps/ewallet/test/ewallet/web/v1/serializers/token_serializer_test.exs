@@ -72,7 +72,7 @@ defmodule EWallet.Web.V1.TokenSerializerTest do
           metadata: token2.metadata,
           encrypted_metadata: token2.encrypted_metadata,
           enabled: true,
-          avatar: expected_avatar,
+          avatar: %{large: nil, original: nil, small: nil, thumb: nil},
           created_at: token2.inserted_at,
           updated_at: token2.updated_at
         }
