@@ -175,6 +175,12 @@ defmodule AdminAPI.V1.WalletControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
+                           "avatar" => %{
+                             "large" => nil,
+                             "original" => nil,
+                             "small" => nil,
+                             "thumb" => nil
+                           },
                            "created_at" => DateFormatter.to_iso8601(btc.inserted_at),
                            "updated_at" => DateFormatter.to_iso8601(btc.updated_at)
                          }
@@ -191,6 +197,12 @@ defmodule AdminAPI.V1.WalletControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
+                           "avatar" => %{
+                             "large" => nil,
+                             "original" => nil,
+                             "small" => nil,
+                             "thumb" => nil
+                           },
                            "created_at" => DateFormatter.to_iso8601(omg.inserted_at),
                            "updated_at" => DateFormatter.to_iso8601(omg.updated_at)
                          }

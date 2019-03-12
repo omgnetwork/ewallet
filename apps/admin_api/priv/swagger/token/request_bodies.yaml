@@ -162,3 +162,22 @@ TokenMintBody:
         example:
           id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
           amount: 1000
+
+TokenUploadBody:
+  description: The parameters to use for uploading a token's avatar. Only supports .jpg, .jpeg, .gif and .png.
+  required: true
+  content:
+    application/x-www-form-urlencoded:
+      schema:
+        properties:
+          id:
+            type: string
+          avatar:
+            type: string
+            format: binary
+        required:
+          - id
+          - avatar
+        example:
+          id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+          avatar: /path/to/file

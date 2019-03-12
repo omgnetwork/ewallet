@@ -17,6 +17,7 @@ TokenResponseSchema:
           created_at: '2018-01-01T00:00:00Z'
           updated_at: '2018-01-01T10:00:00Z'
           enabled: true
+          avatar: {original: file_url}
           metadata: {}
           encrypted_metadata: {}
 
@@ -46,6 +47,7 @@ TokensResponseSchema:
             subunit_to_unit: 100
             created_at: '2018-01-01T00:00:00Z'
             updated_at: '2018-01-01T10:00:00Z'
+            avatar: {'original': 'file_url'}
             enabled: true
             metadata: {}
             encrypted_metadata: {}
