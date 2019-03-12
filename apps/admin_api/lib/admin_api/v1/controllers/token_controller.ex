@@ -18,11 +18,10 @@ defmodule AdminAPI.V1.TokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias Ecto.{Changeset}
+  alias Ecto.Changeset
   alias EWallet.{Helper, MintGate, TokenPolicy, MintPolicy, AdapterHelper}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
   alias EWalletDB.{Account, Mint, Token}
-  alias Ecto.Changeset
 
   @doc """
   Retrieves a list of tokens.
