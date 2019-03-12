@@ -61,6 +61,28 @@ defmodule EWallet.Web.MatchAllQuery do
     end
   end
 
+  # March 11, 2019
+  #
+  # Previous implementations had a 5-assocation limit and required hard-cording it's position.
+  # The original plan to fix this issue was to utilize Ecto's named binding feature. However,
+  # that required creating compile time atoms for every association within our schema. So, named binding
+  # was abandoned. Instead, Dynamic queries with dynamic positiong was used. This allowed for any number
+  # of associations and without the use of compile-time atoms.
+  #
+  # The use of {a, position} within dynamic() is an internal implementation.
+  # Links on this topic:
+  # https://github.com/elixir-ecto/ecto/issues/2832
+  # https://stackoverflow.com/a/54491195/11157034
+  #
+  # It is possible that this feature will become part of the Eto API in the future. (Designed with Ecto 3.0)
+  # If this interanl implementation disappears, one can use the named binding implementation specified in the
+  # Issue 783, link is below. Or revert back to 5-association limit if there are no other paths.
+  #
+  # This only affects do_filter_assoc()
+  #
+  # This was implemented for issue 783: https://github.com/omisego/ewallet/issues/783
+  # Related PR: https://github.com/omisego/ewallet/pull/834
+  #
   def do_filter_assoc(dynamic, position, field, nil, comparator, nil = value) do
     case comparator do
       "eq" -> dynamic([{a, position}], is_nil(field(a, ^field)) and ^dynamic)
