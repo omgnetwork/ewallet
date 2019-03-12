@@ -38,6 +38,7 @@ services:
       EWALLET_SECRET_KEY: "CHANGE_ME"
       LOCAL_LEDGER_SECRET_KEY: "CHANGE_ME"
       SERVE_LOCAL_STATIC: false
+      METRICS: false
     ports:
       - "4000:4000"
 

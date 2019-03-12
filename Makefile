@@ -95,7 +95,7 @@ build-test: deps-ewallet
 test: test-ewallet test-assets
 
 test-ewallet: clean-test-assets build-test
-	env MIX_ENV=test mix do ecto.create, ecto.migrate, test
+	env MIX_ENV=test SERVE_LOCAL_STATIC=false METRICS=false mix do ecto.create, ecto.migrate, test
 
 test-assets: build-assets
 	cd apps/admin_panel/assets && \
