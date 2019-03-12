@@ -1,5 +1,5 @@
 BalancesResponseSchema:
-  description: The response schema for a list of balance
+  description: The response schema for a list of balances
   allOf:
   - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
   - type: object
