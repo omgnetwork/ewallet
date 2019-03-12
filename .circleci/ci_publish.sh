@@ -29,8 +29,7 @@ fi
 ##
 
 if [ -n "$CIRCLE_SHA1" ]; then
-    _shortref="$(printf "%s" "$CIRCLE_SHA1" | head -c 8)"
-    _image_tag="$_shortref"
+    _image_tag="$(printf "%s" "$CIRCLE_SHA1" | head -c 8)"
 fi
 
 if [ -n "$CIRCLE_TAG" ]; then
