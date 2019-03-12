@@ -3,13 +3,12 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TransactionProvider from '../omg-transaction/transactionProvider'
 import { Icon } from '../omg-uikit'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { compose } from 'recompose'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
 import { MarkContainer } from '../omg-page-transaction'
-import Link from '../omg-links'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
@@ -68,7 +67,7 @@ class TransactionRequestPanel extends Component {
     match: PropTypes.object
   }
 
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {}
   }
@@ -85,28 +84,37 @@ class TransactionRequestPanel extends Component {
     const accountId = _.get(transaction, 'account.id')
     const userId = _.get(transaction, 'user.id')
     const tokenId = _.get(transaction, 'token.id')
+
     return (
       <TransactionInfoContainer>
         <h5>{title}</h5>
         <InformationItem>
           <b>Wallet Address : </b>
-          <Link to={`wallets/${address}`}>{address}</Link>
+          <Link to={{ pathname: `/wallets/${address}`, search: this.props.location.search }}>
+            {address}
+          </Link>
         </InformationItem>
         {_.get(transaction, 'account') && (
           <InformationItem>
             <b>Account : </b>
-            <Link to={`accounts/${accountId}`}>{accountName}</Link>
+            <Link to={{ pathname: `/accounts/${accountId}/detail`, search: this.props.location.search }}>
+              {accountName}
+            </Link>
           </InformationItem>
         )}
         {_.get(transaction, 'user') && (
           <InformationItem>
             <b>User : </b>
-            <Link to={`users/${userId}`}>{userId}</Link>
+            <Link to={{ pathname: `/users/${userId}`, search: this.props.location.search }}>
+              {userId}
+            </Link>
           </InformationItem>
         )}
         <InformationItem>
           <b>Token : </b>
-          <Link to={`tokens/${tokenId}`}>{_.get(transaction, 'token.name')}</Link>
+          <Link to={{ pathname: `/tokens/${tokenId}`, search: this.props.location.search }}>
+            {_.get(transaction, 'token.name')}
+          </Link>
         </InformationItem>
         <InformationItem>
           <b>Amount : </b>
@@ -125,13 +133,19 @@ class TransactionRequestPanel extends Component {
       <TransactionInfoContainer>
         <h5>{'Exchange'}</h5>
         <InformationItem>
-          <b>Rate : </b>
-          1 {_.get(exchange, 'exchange_pair.from_token.symbol')} :{' '}
+          <b>Rate : </b>1 {_.get(exchange, 'exchange_pair.from_token.symbol')} :{' '}
           {_.get(exchange, 'exchange_pair.rate')} {_.get(exchange, 'exchange_pair.to_token.symbol')}
         </InformationItem>
         <InformationItem>
           <b>Exchange wallet address : </b>
-          <Link to={`wallets/${exchangeWalletAddress}`}>{exchangeWalletAddress}</Link>
+          <Link
+            to={{
+              pathname: `/wallets/${exchangeWalletAddress}`,
+              search: this.props.location.search
+            }}
+          >
+            {exchangeWalletAddress}
+          </Link>
         </InformationItem>
       </TransactionInfoContainer>
     )
@@ -143,15 +157,15 @@ class TransactionRequestPanel extends Component {
         render={({ transaction }) => {
           return (
             <PanelContainer>
-              <Icon name='Close' onClick={this.onClickClose} />
+              <Icon name="Close" onClick={this.onClickClose} />
               <h4>Transaction {transaction.id}</h4>
               <SubDetailTitle>
                 <span>
                   <MarkContainer status={transaction.status}>
                     {transaction.status === 'failed' ? (
-                      <Icon name='Close' />
+                      <Icon name="Close" />
                     ) : (
-                      <Icon name='Checked' />
+                      <Icon name="Checked" />
                     )}
                   </MarkContainer>
                   {transaction.status}

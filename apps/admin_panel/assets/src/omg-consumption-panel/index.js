@@ -3,13 +3,12 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import ConsumptionProvider from '../omg-consumption/consumptionProvider'
 import { Icon, Button } from '../omg-uikit'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
 import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
 import { compose } from 'recompose'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import Link from '../omg-links'
 import moment from 'moment'
 import TransactionRequestDetail from '../omg-transaction-request-tab/TransactionRequestDetail'
 const PanelContainer = styled.div`
@@ -90,10 +89,11 @@ class TransactionRequestPanel extends Component {
       search: queryString.stringify(searchObject)
     })
   }
-  render = () => {
+  render () {
+    const searchObject = queryString.parse(this.props.location.search)
     return (
       <ConsumptionProvider
-        consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
+        consumptionId={searchObject['show-consumption-tab']}
         render={({ consumption }) => {
           const tq = consumption.transaction_request || {}
           return (
@@ -107,18 +107,42 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Request:</b>{' '}
                   <span>
-                    <Link to={{ search: `show-request-tab=${tq.id}` }}>{tq.id}</Link>
+                    <Link
+                      to={{
+                        search: queryString.stringify({
+                          page: searchObject.page,
+                          'show-request-tab': tq.id
+                        })
+                      }}
+                    >
+                      {tq.id}
+                    </Link>
                   </span>
                 </InformationItem>
                 <InformationItem>
                   <b>Type:</b> <span>{tq.type}</span>
                 </InformationItem>
                 <InformationItem>
-                  <b>Requester Address:</b> <Link to={`/wallets/${tq.address}`}>{tq.address}</Link>
+                  <b>Requester Address:</b>{' '}
+                  <Link
+                    to={{
+                      pathname: `/accounts/${tq.account_id}/wallets/${tq.address}`,
+                      search: this.props.location.search
+                    }}
+                  >
+                    {tq.address}
+                  </Link>
                 </InformationItem>
                 <InformationItem>
                   <b>Consumer Address:</b>{' '}
-                  <Link to={`/wallets/${consumption.address}`}>{consumption.address}</Link>
+                  <Link
+                    to={{
+                      pathname: `/accounts/${tq.account_id}/wallets/${consumption.address}`,
+                      search: this.props.location.search
+                    }}
+                  >
+                    {consumption.address}
+                  </Link>
                 </InformationItem>
                 <InformationItem>
                   <b>Token:</b> <span>{_.get(consumption, 'token.name')}</span>
@@ -143,24 +167,17 @@ class TransactionRequestPanel extends Component {
                 )}
                 {consumption.approved_at && (
                   <InformationItem>
-                    <b>Approved Date:</b>{' '}
-                    <span>
-                      {moment(consumption.approved_at).format()}
-                    </span>
+                    <b>Approved Date:</b> <span>{moment(consumption.approved_at).format()}</span>
                   </InformationItem>
                 )}
                 {consumption.rejected_at && (
                   <InformationItem>
-                    <b>Rejected At:</b>{' '}
-                    <span>
-                      {moment(consumption.rejected_at).format()}
-                    </span>
+                    <b>Rejected At:</b> <span>{moment(consumption.rejected_at).format()}</span>
                   </InformationItem>
                 )}
                 {consumption.expired_at && (
                   <InformationItem>
-                    <b>Expired Date:</b>{' '}
-                    <span>{moment(consumption.expired_at).format()}</span>
+                    <b>Expired Date:</b> <span>{moment(consumption.expired_at).format()}</span>
                   </InformationItem>
                 )}
                 {consumption.status === 'pending' && (

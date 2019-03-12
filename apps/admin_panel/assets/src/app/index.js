@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Provider } from 'react-redux'
-import { hot } from 'react-hot-loader'
+import { hot } from 'react-hot-loader/root'
 import Routes from './routes'
 import { ThemeProvider } from 'styled-components'
 import Modal from 'react-modal'
@@ -15,6 +15,9 @@ class App extends Component {
   static propTypes = {
     store: PropTypes.object.isRequired
   }
+  componentDidCatch () {
+    return 'Something very bad happened, please contact admin.'
+  }
   render () {
     return (
       <Provider store={this.props.store}>
@@ -26,4 +29,4 @@ class App extends Component {
   }
 }
 
-export default hot(module)(App)
+export default hot(App)

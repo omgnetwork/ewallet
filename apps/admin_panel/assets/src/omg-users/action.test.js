@@ -57,13 +57,17 @@ describe('users actions', () => {
         cacheKey: 'key'
       }
     ]
-    return store
-      .dispatch(getUsers({ accountId: '1', page: 1, perPage: 10, cacheKey: 'key' }))
-      .then(() => {
-        expect(userService.getUsers).toBeCalledWith(
-          expect.objectContaining({ accountId: '1', page: 1, perPage: 10 })
-        )
-        expect(store.getActions()).toEqual(expectedActions)
-      })
+    return store.dispatch(getUsers({ page: 1, perPage: 10, cacheKey: 'key' })).then(() => {
+      expect(userService.getUsers).toBeCalledWith(
+        expect.objectContaining({
+          matchAll: undefined,
+          matchAny: undefined,
+          page: 1,
+          perPage: 10,
+          sort: { by: 'created_at', dir: 'desc' }
+        })
+      )
+      expect(store.getActions()).toEqual(expectedActions)
+    })
   })
 })

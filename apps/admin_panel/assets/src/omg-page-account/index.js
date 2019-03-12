@@ -19,9 +19,19 @@ const AccountPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  td:first-child {
+  td:nth-child(1) {
     width: 30%;
-    max-width: 30%;
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
   }
   td:nth-child(2),
   td:nth-child(3) {
@@ -37,7 +47,7 @@ const AccountPageContainer = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
@@ -119,8 +129,7 @@ class AccountPage extends Component {
     })
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/accounts/${data.id}`)
+    this.props.history.push(`/accounts/${data.id}/detail`)
   }
   rowRenderer (key, data, rows) {
     if (key === 'name') {

@@ -325,7 +325,7 @@ class TransactionExportPage extends Component {
   }
   renderExportButton (fetch) {
     return (
-      <Manager key={'popjs-manager'}>
+      <Manager>
         <Reference>
           {({ ref, style }) => (
             <div ref={ref} style={{ ...style, display: 'inline-block', marginLeft: '10px' }}>
@@ -455,7 +455,7 @@ class DateTimeHotFix extends PureComponent {
           return (
             <Input
               {...props}
-              value={this.props.value && this.props.value.format()}
+              value={this.props.value && this.props.value.format('DD/MM/YYYY hh:mm:ss a')}
               onFocus={this.props.onFocus}
               normalPlaceholder={this.props.placeholder}
             />

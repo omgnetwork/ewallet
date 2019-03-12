@@ -16,7 +16,7 @@ export function getAllAccounts ({ perPage, page, sort, query, search, searchTerm
 export function createAccount ({ name, description, category }) {
   return authenticatedRequest({
     path: '/account.create',
-    data: { name, description, category_ids: [category] }
+    data: { name, description, category_ids: category ? [category] : [] }
   })
 }
 
@@ -87,6 +87,47 @@ export function listMembers ({ accountId, matchAll, matchAny }) {
     path: '/account.get_members',
     data: {
       id: accountId,
+      match_all: matchAll,
+      match_any: matchAny
+    }
+  })
+}
+
+export function getConsumptionsByAccountId ({
+  accountId,
+  perPage,
+  page,
+  sort,
+  search,
+  searchTerms,
+  matchAll,
+  matchAny
+}) {
+  return authenticatedRequest({
+    path: '/account.get_transaction_consumptions',
+    data: {
+      id: accountId,
+      per_page: Number(perPage),
+      page: Number(page) || 1,
+      sort_by: sort.by,
+      sort_dir: sort.dir,
+      search_term: search,
+      search_terms: searchTerms,
+      match_all: matchAll,
+      match_any: matchAny
+    }
+  })
+}
+
+export function getUsersByAccountId ({ accountId, perPage, page, sort, matchAll, matchAny }) {
+  return authenticatedRequest({
+    path: '/account.get_users',
+    data: {
+      id: accountId,
+      per_page: Number(perPage),
+      page: Number(page) || 1,
+      sort_by: sort.by,
+      sort_dir: sort.dir,
       match_all: matchAll,
       match_any: matchAny
     }

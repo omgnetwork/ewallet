@@ -34,7 +34,21 @@ const TransactionRequestsPageContainer = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  td:nth-child(1) {
+    width: 40%;
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
+  }
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
@@ -51,8 +65,11 @@ export const NameColumn = styled.div`
   > span {
     margin-left: 10px;
   }
-  i[name="Request"] {
-    color: ${props => props.theme.colors.BL400};
+  i[name='Request'] {
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
   }
 `
 class TransactionRequestsPage extends Component {
@@ -60,7 +77,13 @@ class TransactionRequestsPage extends Component {
     match: PropTypes.object,
     history: PropTypes.object,
     location: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    query: PropTypes.object,
+    createTransactionRequestButton: PropTypes.bool
+  }
+  static defaultProps = {
+    query: {},
+    createTransactionRequestButton: false
   }
   constructor (props) {
     super(props)
@@ -108,7 +131,8 @@ class TransactionRequestsPage extends Component {
     if (key === 'id') {
       return (
         <NameColumn>
-          <Icon name='Request' /> <span>{data}</span> <Copy data={data} />
+          <Icon name='Request' />
+          <span>{data}</span> <Copy data={data} />
         </NameColumn>
       )
     }
@@ -147,7 +171,11 @@ class TransactionRequestsPage extends Component {
       <TransactionRequestsPageContainer>
         <TopNavigation
           title={'Transaction Requests'}
-          buttons={[this.renderCreateTransactionRequestButton()]}
+          buttons={
+            this.props.createTransactionRequestButton
+              ? [this.renderCreateTransactionRequestButton()]
+              : null
+          }
         />
         <SortableTableContainer
           innerRef={table => (this.table = table)}
@@ -184,7 +212,8 @@ class TransactionRequestsPage extends Component {
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 65),
-          search: queryString.parse(this.props.location.search).search
+          search: queryString.parse(this.props.location.search).search,
+          ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

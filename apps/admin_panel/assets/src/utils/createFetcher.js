@@ -28,10 +28,13 @@ export const createFetcher = (entity, reducer, selectors) => {
         onFetchComplete: PropTypes.func,
         cacheKey: PropTypes.string,
         data: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
-        pagination: PropTypes.object
+        pagination: PropTypes.object,
+        shouldFetch: PropTypes.bool
+
       }
       static defaultProps = {
-        onFetchComplete: _.noop
+        onFetchComplete: _.noop,
+        shouldFetch: true
       }
 
       static getDerivedStateFromProps (props, state) {
@@ -55,7 +58,7 @@ export const createFetcher = (entity, reducer, selectors) => {
           trailing: true
         })
       }
-      componentDidMount = () => {
+      componentDidMount () {
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
         this.fetch()
       }
@@ -66,10 +69,11 @@ export const createFetcher = (entity, reducer, selectors) => {
         }
       }
 
-      getQuery = () => {
+      getQuery () {
         return { page: 1, perPage: 10, ...this.props.query }
       }
       fetch = async () => {
+        if (!this.props.shouldFetch) return
         this.setState(oldState => ({
           loadingStatus:
             oldState.loadingStatus === CONSTANT.LOADING_STATUS.INITIATED

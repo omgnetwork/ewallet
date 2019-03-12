@@ -2,17 +2,16 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import withDropdownState from '../omg-uikit/dropdown/withDropdownState'
 import { DropdownBox } from '../omg-uikit/dropdown'
-import { Avatar, Icon } from '../omg-uikit'
+import { Icon } from '../omg-uikit'
 import styled from 'styled-components'
 import { compose } from 'recompose'
 import CurrentUserProvider from '../omg-user-current/currentUserProvider'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { logout } from '../omg-session/action'
+import PopperRenderer from '../omg-popper'
 const AvatarDropdownContainer = styled.div`
   position: relative;
-`
-const StyledAvatar = styled(Avatar)`
   cursor: pointer;
 `
 const DropdownItem = styled.div`
@@ -55,6 +54,15 @@ const DropdownBoxStyled = DropdownBox.extend`
   text-align: left;
 `
 
+const CurrentUserName = styled.div`
+  font-weight: 600;
+  font-size: 16px;
+  i {
+    color: ${props => props.theme.colors.B100};
+    font-size: 14px;
+  }
+`
+
 const enhance = compose(
   withDropdownState,
   withRouter,
@@ -73,40 +81,46 @@ class ProfileAvatarDropdown extends Component {
     logout: PropTypes.func
   }
   onClickProfile = e => {
-    const accountId = this.props.match.params.accountId
     this.props.closeDropdown()
-    this.props.history.push(`/${accountId}/user_setting`)
+    this.props.history.push('/user_setting')
   }
   onClickLogout = async e => {
     await this.props.logout()
     this.props.history.push('/login')
   }
 
-  renderAvatar = currentUser => {
+  renderCurrentUserName = currentUser => () => {
     return (
-      <StyledAvatar onClick={this.props.onClickButton} image={_.get(currentUser, 'avatar.small')} name={currentUser.name || currentUser.email} />
+      <CurrentUserName onClick={this.props.onClickButton}>
+        {currentUser.name || currentUser.email}{' '}
+        {this.props.open ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
+      </CurrentUserName>
     )
   }
   renderCurrentUserAvatar = ({ currentUser, loadingStatus }) => {
     return (
       <AvatarDropdownContainer>
-        {this.renderAvatar(currentUser)}
-        {this.props.open && (
-          <DropdownBoxStyled>
-            <div>
-              <DropdownItemName>{currentUser.name || currentUser.email}</DropdownItemName>
-              <DropdownItemEmail>{currentUser.email}</DropdownItemEmail>
-              <DropdownItemProfile onClick={this.onClickProfile}>
-                <Icon name='Profile' />
-                <span>Profile</span>
-              </DropdownItemProfile>
-              <DropdownItemLogout onClick={this.onClickLogout}>
-                <Icon name='Arrow-Left' />
-                <span>Logout</span>
-              </DropdownItemLogout>
-            </div>
-          </DropdownBoxStyled>
-        )}
+        <PopperRenderer
+          renderReference={this.renderCurrentUserName(currentUser)}
+          open={this.props.open}
+          offset={150}
+          renderPopper={() => {
+            return (
+              <DropdownBoxStyled>
+                <DropdownItemName>{currentUser.name || currentUser.email}</DropdownItemName>
+                <DropdownItemEmail>{currentUser.email}</DropdownItemEmail>
+                <DropdownItemProfile onClick={this.onClickProfile}>
+                  <Icon name='Profile' />
+                  <span>Profile</span>
+                </DropdownItemProfile>
+                <DropdownItemLogout onClick={this.onClickLogout}>
+                  <Icon name='Arrow-Left' />
+                  <span>Logout</span>
+                </DropdownItemLogout>
+              </DropdownBoxStyled>
+            )
+          }}
+        />
       </AvatarDropdownContainer>
     )
   }

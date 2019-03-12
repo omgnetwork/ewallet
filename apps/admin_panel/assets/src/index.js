@@ -6,6 +6,7 @@ import moment from 'moment'
 
 // SETUP DEFAULT FORMAT FOR MOMENT
 moment.defaultFormat = 'ddd, DD/MM/YYYY HH:mm:ss'
+
 // RENDER APP
 render(<App store={store} />, document.getElementById('app'))
 

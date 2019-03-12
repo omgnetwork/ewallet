@@ -10,15 +10,26 @@ class AccountsProvider extends Component {
     account: PropTypes.object,
     getAccountById: PropTypes.func
   }
-  componentDidMount = () => {
+
+  componentDidMount () {
     this.props.getAccountById(this.props.accountId)
   }
+
+  componentWillReceiveProps = nextProps => {
+    if (nextProps.accountId !== this.props.accountId) {
+      this.props.getAccountById(nextProps.accountId)
+    }
+  }
+
   render () {
     return this.props.render({ account: this.props.account })
   }
 }
-export default connect((state, props) => {
-  return {
-    account: selectGetAccountById(state)(props.accountId)
-  }
-}, { getAccountById })(AccountsProvider)
+export default connect(
+  (state, props) => {
+    return {
+      account: selectGetAccountById(state)(props.accountId)
+    }
+  },
+  { getAccountById }
+)(AccountsProvider)

@@ -2,7 +2,6 @@ import { combineReducers } from 'redux'
 import appReducer from '../app/reducer'
 import sessionReducer from '../omg-session/reducer'
 import { accountsReducer } from '../omg-account/reducer'
-import { currentAccountReducer } from '../omg-account-current/reducer'
 import { currentUserReducer } from '../omg-user-current/reducer'
 import { inviteListReducer } from '../omg-member/reducer'
 import { apiKeysReducer } from '../omg-api-keys/reducer'
@@ -22,13 +21,15 @@ import { configurationReducer } from '../omg-configuration/reducer'
 import { activitiesReducer } from '../omg-activity-log/reducer'
 import { loadingStatusReducer } from '../omg-loading-status/reducer'
 import { exportsReducer } from '../omg-export/reducer'
+import { adminsReducer } from '../omg-admins/reducer'
+import { recentAccountsReducer } from '../omg-recent-account/reducer'
 export default combineReducers({
   app: appReducer,
+  admins: adminsReducer,
   loadingBar: loadingBarReducer,
   session: sessionReducer,
   accounts: accountsReducer,
   accessKeys: accessKeysReducer,
-  currentAccount: currentAccountReducer,
   consumptions: consumptionsReducer,
   currentUser: currentUserReducer,
   inviteList: inviteListReducer,
@@ -46,5 +47,6 @@ export default combineReducers({
   configurations: configurationReducer,
   activities: activitiesReducer,
   exports: exportsReducer,
-  loadingStatus: loadingStatusReducer
+  loadingStatus: loadingStatusReducer,
+  recentAccounts: recentAccountsReducer
 })

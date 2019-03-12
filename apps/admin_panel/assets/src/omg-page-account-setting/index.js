@@ -3,31 +3,17 @@ import styled from 'styled-components'
 import { Input, Button, Icon } from '../omg-uikit'
 import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { currentAccountProviderHoc } from '../omg-account-current/currentAccountProvider'
-import SortableTable from '../omg-table'
+import { getAccountById, updateAccount } from '../omg-account/action'
+import { selectGetAccountById } from '../omg-account/selector'
 import { withRouter } from 'react-router-dom'
 import InviteModal from '../omg-invite-modal'
-import MembersFetcher from '../omg-member/MembersFetcher'
-import { updateCurrentAccount } from '../omg-account-current/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import Link from '../omg-links'
-import SearchInput from '../omg-page-layout/SearchGroup'
-import { createSearchInviteQuery } from '../omg-member/searchField'
-import TabsManager from '../omg-tabs'
 import Copy from '../omg-copy'
 
-const columns = [
-  { key: 'account_role', title: 'ROLE' },
-  { key: 'username', title: 'MEMBER NAME' },
-  { key: 'email', title: 'EMAIL' },
-  { key: 'id', title: 'ID' },
-  { key: 'updated_at', title: 'LAST UPDATED' },
-  { key: 'status', title: 'STATUS' }
-]
 const AccountSettingContainer = styled.div`
   a {
     color: inherit;
@@ -58,29 +44,6 @@ const ProfileSection = styled.div`
     }
   }
 `
-
-const TableSection = styled.div`
-  flex: 1 1 auto;
-  text-align: right;
-  margin-top: -26px;
-
-  table {
-    padding-top: 0;
-    text-align: left;
-    thead tr {
-      border-top: none;
-    }
-    tr:hover {
-      i {
-        visibility: visible;
-      }
-    }
-  }
-  i:hover {
-    background-color: transparent;
-  }
-  
-`
 const Avatar = styled(ImageUploaderAvatar)`
   margin: 0;
 `
@@ -88,16 +51,6 @@ const InviteButton = styled(Button)`
   padding-left: 30px;
   padding-right: 30px;
 `
-
-const enhance = compose(
-  withRouter,
-  currentAccountProviderHoc,
-  connect(
-    null,
-    { updateCurrentAccount }
-  )
-)
-
 export const NameColumn = styled.div`
   i[name='Copy'] {
     margin-left: 5px;
@@ -110,11 +63,21 @@ export const NameColumn = styled.div`
   }
 `
 
+const enhance = compose(
+  withRouter,
+  connect(
+    (state, props) => ({
+      currentAccount: selectGetAccountById(state)(props.match.params.accountId)
+    }),
+    { getAccountById, updateAccount }
+  )
+)
+
 class AccountSettingPage extends Component {
   static propTypes = {
     match: PropTypes.object,
-    updateCurrentAccount: PropTypes.func.isRequired,
-    loadingStatus: PropTypes.string,
+    getAccountById: PropTypes.func.isRequired,
+    updateAccount: PropTypes.func,
     currentAccount: PropTypes.object,
     location: PropTypes.object
   }
@@ -129,20 +92,25 @@ class AccountSettingPage extends Component {
       submitStatus: 'DEFAULT'
     }
   }
-  componentWillMount = () => {
+  componentDidMount () {
     this.setInitialAccountState()
   }
-  componentWillReceiveProps = props => {
-    this.setInitialAccountState()
-  }
-  setInitialAccountState = () => {
-    if (this.props.loadingStatus === 'SUCCESS' && !this.state.accountLoaded) {
+  async setInitialAccountState () {
+    if (this.props.currentAccount) {
       this.setState({
         name: this.props.currentAccount.name,
         description: this.props.currentAccount.description,
-        avatar: this.props.currentAccount.avatar.original,
-        accountLoaded: true
+        avatar: this.props.currentAccount.avatar.original
       })
+    } else {
+      const result = await this.props.getAccountById(this.props.match.params.accountId)
+      if (result.data) {
+        this.setState({
+          name: result.data.name,
+          description: result.data.description,
+          avatar: result.data.avatar.original
+        })
+      }
     }
   }
   onChangeImage = ({ file }) => {
@@ -164,7 +132,7 @@ class AccountSettingPage extends Component {
     e.preventDefault()
     this.setState({ submitStatus: 'SUBMITTING' })
     try {
-      const result = await this.props.updateCurrentAccount({
+      const result = await this.props.updateAccount({
         accountId: this.props.match.params.accountId,
         name: this.state.name,
         description: this.state.description,
@@ -218,7 +186,7 @@ class AccountSettingPage extends Component {
   renderAccountSettingTab () {
     return (
       <ProfileSection>
-        {this.props.loadingStatus === 'SUCCESS' && (
+        {this.props.currentAccount && (
           <form onSubmit={this.onClickUpdateAccount} noValidate>
             <Avatar
               onChangeImage={this.onChangeImage}
@@ -238,7 +206,6 @@ class AccountSettingPage extends Component {
                 onChange={this.onChangeDescription}
                 prefill
               />
-              {/* <Input prefill placeholder={'Group'} value={this.state.group} /> */}
               <Button
                 size='small'
                 type='submit'
@@ -258,42 +225,7 @@ class AccountSettingPage extends Component {
       </ProfileSection>
     )
   }
-  renderMemberTab () {
-    return (
-      <TableSection>
-        <SearchInput />
-        <MembersFetcher
-          query={{
-            page: queryString.parse(this.props.location.search).page,
-            accountId: this.props.match.params.accountId,
-            ...createSearchInviteQuery(queryString.parse(this.props.location.search).search)
-          }}
-          render={({ data, individualLoadingStatus }) => {
-            const page = Number(queryString.parse(this.props.location.search).page || 1) - 1
-            const pageLimit = 10
-            const paginatedData = data.slice(pageLimit * page, pageLimit + pageLimit * page)
-            return (
-              <SortableTable
-                rows={paginatedData}
-                columns={columns}
-                loadingStatus={individualLoadingStatus}
-                loadingRowNumber={10}
-                rowRenderer={this.rowRenderer}
-                navigation
-                isFirstPage={page === 0}
-                isLastPage={paginatedData.length < pageLimit}
-              />
-            )
-          }}
-        />
-      </TableSection>
-    )
-  }
   render () {
-    const tabIndex = {
-      account: 0,
-      members: 1
-    }
     return (
       <AccountSettingContainer>
         <TopNavigation
@@ -302,20 +234,7 @@ class AccountSettingPage extends Component {
           secondaryAction={false}
           types={false}
         />
-        <TabsManager
-          onClickTab={this.onClickTab}
-          activeIndex={tabIndex[this.props.match.params.state]}
-          tabs={[
-            {
-              title: <Link to={'/setting/account'}>ACCOUNT</Link>,
-              content: this.renderAccountSettingTab()
-            },
-            {
-              title: <Link to={'/setting/members'}>MEMBERS</Link>,
-              content: this.renderMemberTab()
-            }
-          ]}
-        />
+        {this.renderAccountSettingTab()}
         <InviteModal open={this.state.inviteModalOpen} onRequestClose={this.onRequestClose} />
       </AccountSettingContainer>
     )

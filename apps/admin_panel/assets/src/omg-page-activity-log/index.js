@@ -7,7 +7,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
-import Link from '../omg-links'
+import { Link } from 'react-router-dom'
 import { createSearchActivityLogQuery } from './searchField'
 import { Icon } from '../omg-uikit'
 const AccountPageContainer = styled.div`
@@ -68,6 +68,7 @@ class AccountPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     history: PropTypes.object,
+    query: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
   }
@@ -258,6 +259,8 @@ class AccountPage extends Component {
 
   render () {
     const search = queryString.parse(this.props.location.search).search
+    const query =
+      typeof this.props.query === 'function' ? this.props.query(search) : this.props.query
     return (
       <ActivityLogFetcher
         render={this.renderActivityPage}
@@ -265,7 +268,8 @@ class AccountPage extends Component {
         {...this.props}
         query={{
           page: Number(queryString.parse(this.props.location.search).page),
-          ...createSearchActivityLogQuery(search)
+          ...createSearchActivityLogQuery(search),
+          ...query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

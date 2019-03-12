@@ -5,21 +5,23 @@ import { composeWithDevTools } from 'redux-devtools-extension'
 import SocketConnector from '../../src/socket/connector'
 import { WEBSOCKET_URL } from '../config'
 import { handleWebsocketMessage } from '../socket/handleMessage'
-// import { loadingBarMiddleware } from 'react-redux-loading-bar'
+import { getAccessToken, getRecentAccountFromLocalStorage } from '../services/sessionService'
+import { getAccountById } from '../omg-account/action'
 export function configureStore (initialState = {}, injectedThunk = {}) {
   return createStore(
     reducer,
     initialState,
-    composeWithDevTools(
-      applyMiddleware(
-        thunk.withExtraArgument(injectedThunk),
-        // loadingBarMiddleware({
-        //   promiseTypeSuffixes: ['INITIATED', 'SUCCESS', 'FAILED']
-        // })
-      )
-    )
+    composeWithDevTools(applyMiddleware(thunk.withExtraArgument(injectedThunk)))
   )
 }
 const socket = new SocketConnector(WEBSOCKET_URL)
-export const store = configureStore({}, { socket })
+const currentUser = getAccessToken() ? getAccessToken().user : {}
+const recentAccountsByUserId = getRecentAccountFromLocalStorage()
+const recentAccounts = recentAccountsByUserId ? recentAccountsByUserId[currentUser.id] : []
+
+export const store = configureStore({ currentUser, recentAccounts }, { socket })
+
+// PREFETCH RECENT ACCOUNT
+recentAccounts.forEach(accountId => store.dispatch(getAccountById(accountId)))
+
 socket.on('message', handleWebsocketMessage(store))

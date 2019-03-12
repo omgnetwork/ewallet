@@ -20,16 +20,28 @@ const TokenDetailPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  td:first-child {
-    width: 50%;
+  td:nth-child(1) {
+    width: 40%;
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
   }
-  td:nth-child(2),
-  td:nth-child(3) {
-    width: 25%;
+  td:nth-child(4) {
+    white-space: nowrap;
   }
 `
 const columns = [
+
   { key: 'token', title: 'TOKEN NAME', sort: true },
+  { key: 'id', title: 'TOKEN ID', sort: true },
   { key: 'symbol', title: 'SYMBOL', sort: true },
   { key: 'created', title: 'CREATED DATE', sort: true }
 ]
@@ -117,8 +129,7 @@ class TokenDetailPage extends Component {
     return data
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/tokens/${data.id}`)
+    this.props.history.push(`/tokens/${data.id}`)
   }
   renderTokenDetailPage = ({ data: tokens, individualLoadingStatus, pagination, fetch }) => {
     const data = tokens.map(token => {

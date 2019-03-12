@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import WalletsFetcher from '../omg-wallet/walletsFetcher'
+import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import QR from './QrCode'
 import { formatAmount, formatReceiveAmountToTotal } from '../utils/formatter'
@@ -14,6 +14,7 @@ import queryString from 'query-string'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
 import WalletSelect from '../omg-wallet-select'
 import TokenSelect from '../omg-token-select'
+import { createSearchAddressQuery } from '../omg-wallet/searchField'
 import { createSearchTokenQuery } from '../omg-token/searchField'
 const ConsumeActionContainer = styled.form`
   display: flex;
@@ -297,7 +298,7 @@ class ConsumeBox extends Component {
         </QrContainer>
         <InputsContainer>
           <WalletsFetcher
-            query={{ search: this.state.consumeAddress }}
+            query={createSearchAddressQuery(this.state.consumeAddress)}
             accountId={this.props.match.params.accountId}
             owned={false}
             render={({ data }) => {
@@ -363,7 +364,7 @@ class ConsumeBox extends Component {
           {_.get(this.state, 'selectedToken.id') !== _.get(transactionRequest, 'token.id') &&
             this.state.rate && (
               <WalletsFetcher
-                query={{ search: this.state.exchangeAddress }}
+                query={createSearchAddressQuery(this.state.exchangeAddress)}
                 accountId={this.props.match.params.accountId}
                 owned={false}
                 render={({ data }) => {

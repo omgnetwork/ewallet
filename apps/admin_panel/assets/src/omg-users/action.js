@@ -8,14 +8,13 @@ export const createUser = ({ username, providerUserId }) =>
     service: () => userService.createUser({ username, providerUserId })
   })
 
-export const getUsers = ({ accountId, page, perPage, cacheKey, matchAll, matchAny }) =>
+export const getUsers = ({ page, perPage, cacheKey, matchAll, matchAny }) =>
   createPaginationActionCreator({
     actionName: 'USERS',
     action: 'REQUEST',
     service: () =>
       userService.getUsers({
-        accountId,
-        perPage: perPage,
+        perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
         matchAll,
@@ -30,3 +29,4 @@ export const getUserById = id =>
     action: 'REQUEST',
     service: () => userService.getUserById(id)
   })
+

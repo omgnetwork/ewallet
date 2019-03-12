@@ -8,7 +8,6 @@ import { compose } from 'recompose'
 import { Button } from '../omg-uikit'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
-import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import MintTokenModal from '../omg-mint-token-modal'
 import ExchangeRateModal from '../omg-exchange-rate-modal'
@@ -23,7 +22,6 @@ const TokenDetailContainer = styled.div`
   padding-bottom: 20px;
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 40px;
   display: flex;
   width: 100%;
 `
@@ -141,7 +139,7 @@ class TokenDetailPage extends Component {
       <TokenProvider
         render={({ token }) => {
           return token ? (
-            <DetailLayout>
+            <div>
               <ContentContainer>
                 {this.renderTopBar(token)}
                 <ContentDetailContainer>
@@ -168,7 +166,7 @@ class TokenDetailPage extends Component {
                 open={this.state.exchangeRateModalOpen}
                 fromTokenId={token.id}
               />
-            </DetailLayout>
+            </div>
           ) : null
         }}
         tokenId={this.props.match.params.viewTokenId}

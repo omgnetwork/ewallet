@@ -136,18 +136,25 @@ class CreateTransaction extends Component {
     this.setState({ [`${type}SearchToken`]: e.target.value, [`${type}Selected`]: null })
   }
   onSelectTokenSelect = type => token => {
-    this.setState({ [`${type}SearchToken`]: _.get(token, 'token.name'), [`${type}Selected`]: token })
+    this.setState({
+      [`${type}SearchToken`]: _.get(token, 'token.name'),
+      [`${type}Selected`]: token
+    })
   }
   onSelectToAddressSelect = item => {
     this.setState({
       toAddress: item.key,
-      toTokenSelected: this.state.toTokenSelected ? item.balances.find(b => b.token.id === _.get(this.state.toTokenSelected, 'token.id')) : null
+      toTokenSelected: this.state.toTokenSelected
+        ? item.balances.find(b => b.token.id === _.get(this.state.toTokenSelected, 'token.id'))
+        : null
     })
   }
   onSelectFromAddressSelect = item => {
     this.setState({
       fromAddress: item.key,
-      fromTokenSelected: this.state.fromTokenSelected ? item.balances.find(b => b.token.id === _.get(this.state.fromTokenSelected, 'token.id')) : null
+      fromTokenSelected: this.state.fromTokenSelected
+        ? item.balances.find(b => b.token.id === _.get(this.state.fromTokenSelected, 'token.id'))
+        : null
     })
   }
   onSelectExchangeAddressSelect = item => {
@@ -181,13 +188,21 @@ class CreateTransaction extends Component {
     e.preventDefault()
     this.setState({ submitting: true })
     try {
-      const fromAmount = formatAmount(this.state.fromTokenAmount, _.get(this.state.fromTokenSelected, 'token.subunit_to_unit'))
-      const toAmount = formatAmount(this.state.toTokenAmount, _.get(this.state.toTokenSelected, 'token.subunit_to_unit'))
+      const fromAmount = formatAmount(
+        this.state.fromTokenAmount,
+        _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
+      )
+      const toAmount = formatAmount(
+        this.state.toTokenAmount,
+        _.get(this.state.toTokenSelected, 'token.subunit_to_unit')
+      )
       const result = await this.props.transfer({
         fromAddress: this.state.fromAddress.trim(),
         toAddress: this.state.toAddress.trim(),
         fromTokenId: _.get(this.state.fromTokenSelected, 'token.id'),
-        toTokenId: _.get(this.state.toTokenSelected, 'token.id') || _.get(this.state.fromTokenSelected, 'token.id'),
+        toTokenId:
+          _.get(this.state.toTokenSelected, 'token.id') ||
+          _.get(this.state.fromTokenSelected, 'token.id'),
         fromAmount,
         toAmount,
         exchangeAddress: this.state.exchangeAddress
@@ -215,7 +230,10 @@ class CreateTransaction extends Component {
 
   getBalanceOfSelectedToken = type => {
     return this.state[`${type}Selected`]
-      ? formatReceiveAmountToTotal(_.get(this.state[`${type}Selected`], 'amount'), _.get(this.state[`${type}Selected`], 'token.subunit_to_unit'))
+      ? formatReceiveAmountToTotal(
+          _.get(this.state[`${type}Selected`], 'amount'),
+          _.get(this.state[`${type}Selected`], 'token.subunit_to_unit')
+        )
       : '-'
   }
 
@@ -229,6 +247,7 @@ class CreateTransaction extends Component {
           accountId={this.props.match.params.accountId}
           owned={false}
           query={createSearchAddressQuery(this.state.fromAddress)}
+          shouldFetch={this.props.match.params.accountId || fromWallet && fromWallet.account_id}
           render={({ data }) => {
             return (
               <Select
@@ -237,13 +256,15 @@ class CreateTransaction extends Component {
                 value={this.state.fromAddress}
                 onChange={this.onChangeInputFromAddress}
                 onBlur={this.onBlurFromAddressSelect}
-                options={data.filter(w => w.identifier !== 'burn').map(d => {
-                  return {
-                    key: d.address,
-                    value: <WalletSelect wallet={d} />,
-                    ...d
-                  }
-                })}
+                options={data
+                  .filter(w => w.identifier !== 'burn')
+                  .map(d => {
+                    return {
+                      key: d.address,
+                      value: <WalletSelect wallet={d} />,
+                      ...d
+                    }
+                  })}
               />
             )
           }}
@@ -267,11 +288,18 @@ class CreateTransaction extends Component {
                   : []
               }
             />
-            <BalanceTokenLabel>Balance: {this.getBalanceOfSelectedToken('fromToken')}</BalanceTokenLabel>
+            <BalanceTokenLabel>
+              Balance: {this.getBalanceOfSelectedToken('fromToken')}
+            </BalanceTokenLabel>
           </div>
           <div>
             <InputLabel>Amount</InputLabel>
-            <Input value={this.state.fromTokenAmount} onChange={this.onChangeAmount('fromToken')} type='amount' normalPlaceholder={'Token amount'} />
+            <Input
+              value={this.state.fromTokenAmount}
+              onChange={this.onChangeAmount('fromToken')}
+              type='amount'
+              normalPlaceholder={'Token amount'}
+            />
           </div>
         </InputGroupContainer>
       </FromToContainer>
@@ -302,8 +330,8 @@ class CreateTransaction extends Component {
         />
         <div>
           <OptionalExplanation>
-            The fields below are optional and should only be used if you want to perform an exchange. Leave the amount blank to let the server use the
-            default exchange rate.
+            The fields below are optional and should only be used if you want to perform an
+            exchange. Leave the amount blank to let the server use the default exchange rate.
           </OptionalExplanation>
           <InputGroupContainer>
             <div>
@@ -324,11 +352,18 @@ class CreateTransaction extends Component {
                     : []
                 }
               />
-              <BalanceTokenLabel>Balance: {this.getBalanceOfSelectedToken('toToken')}</BalanceTokenLabel>
+              <BalanceTokenLabel>
+                Balance: {this.getBalanceOfSelectedToken('toToken')}
+              </BalanceTokenLabel>
             </div>
             <div>
               <InputLabel>Amount</InputLabel>
-              <Input value={this.state.toTokenAmount} onChange={this.onChangeAmount('toToken')} type='amount' normalPlaceholder={'Token amount'} />
+              <Input
+                value={this.state.toTokenAmount}
+                onChange={this.onChangeAmount('toToken')}
+                type='amount'
+                normalPlaceholder={'Token amount'}
+              />
             </div>
           </InputGroupContainer>
         </div>
@@ -390,7 +425,12 @@ export default class CreateTransactionModal extends Component {
   }
   render = () => {
     return (
-      <Modal isOpen={this.props.open} onRequestClose={this.props.onRequestClose} contentLabel='create transaction modal' overlayClassName='dummy2'>
+      <Modal
+        isOpen={this.props.open}
+        onRequestClose={this.props.onRequestClose}
+        contentLabel='create transaction modal'
+        overlayClassName='dummy2'
+      >
         <EnhancedCreateTransaction
           onRequestClose={this.props.onRequestClose}
           onCreateTransaction={this.props.onCreateTransaction}
