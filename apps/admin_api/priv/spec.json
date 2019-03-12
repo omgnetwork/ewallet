@@ -15193,6 +15193,15 @@
                                       "max_consumptions_per_user": {
                                         "type": "integer"
                                       },
+                                      "max_consumptions_per_interval": {
+                                        "type": "integer"
+                                      },
+                                      "max_consumptions_per_interval_per_user": {
+                                        "type": "integer"
+                                      },
+                                      "consumption_interval_duration": {
+                                        "type": "integer"
+                                      },
                                       "consumption_lifetime": {
                                         "type": "integer"
                                       },
@@ -15243,6 +15252,9 @@
                                       "require_confirmation",
                                       "max_consumptions",
                                       "max_consumptions_per_user",
+                                      "max_consumptions_per_interval",
+                                      "max_consumptions_per_interval_per_user",
+                                      "consumption_interval_duration",
                                       "consumption_lifetime",
                                       "expiration_reason",
                                       "allow_amount_override",
@@ -28833,6 +28845,15 @@
                                       "max_consumptions_per_user": {
                                         "type": "integer"
                                       },
+                                      "max_consumptions_per_interval": {
+                                        "type": "integer"
+                                      },
+                                      "max_consumptions_per_interval_per_user": {
+                                        "type": "integer"
+                                      },
+                                      "consumption_interval_duration": {
+                                        "type": "integer"
+                                      },
                                       "consumption_lifetime": {
                                         "type": "integer"
                                       },
@@ -28883,6 +28904,9 @@
                                       "require_confirmation",
                                       "max_consumptions",
                                       "max_consumptions_per_user",
+                                      "max_consumptions_per_interval",
+                                      "max_consumptions_per_interval_per_user",
+                                      "consumption_interval_duration",
                                       "consumption_lifetime",
                                       "expiration_reason",
                                       "allow_amount_override",
@@ -29102,6 +29126,21 @@
                     "default": null,
                     "description": "The maximum number of times a user can consume the request."
                   },
+                  "consumption_interval_duration": {
+                    "type": "integer",
+                    "default": null,
+                    "description": "The duration (in milliseconds) during which the following attributes take effect."
+                  },
+                  "max_consumptions_per_interval": {
+                    "type": "integer",
+                    "default": null,
+                    "description": "The maximum number of times the request can be consumed in the \"consumption_interval_duration\"."
+                  },
+                  "max_consumptions_per_interval_per_user": {
+                    "type": "integer",
+                    "default": null,
+                    "description": "The maximum number of times the request can be consumed by a specific user in the \"consumption_interval_duration\"."
+                  },
                   "consumption_lifetime": {
                     "type": "integer",
                     "default": null,
@@ -29234,6 +29273,15 @@
                             "max_consumptions_per_user": {
                               "type": "integer"
                             },
+                            "max_consumptions_per_interval": {
+                              "type": "integer"
+                            },
+                            "max_consumptions_per_interval_per_user": {
+                              "type": "integer"
+                            },
+                            "consumption_interval_duration": {
+                              "type": "integer"
+                            },
                             "consumption_lifetime": {
                               "type": "integer"
                             },
@@ -29284,6 +29332,9 @@
                             "require_confirmation",
                             "max_consumptions",
                             "max_consumptions_per_user",
+                            "max_consumptions_per_interval",
+                            "max_consumptions_per_interval_per_user",
+                            "consumption_interval_duration",
                             "consumption_lifetime",
                             "expiration_reason",
                             "allow_amount_override",
@@ -29546,6 +29597,15 @@
                             "max_consumptions_per_user": {
                               "type": "integer"
                             },
+                            "max_consumptions_per_interval": {
+                              "type": "integer"
+                            },
+                            "max_consumptions_per_interval_per_user": {
+                              "type": "integer"
+                            },
+                            "consumption_interval_duration": {
+                              "type": "integer"
+                            },
                             "consumption_lifetime": {
                               "type": "integer"
                             },
@@ -29596,6 +29656,9 @@
                             "require_confirmation",
                             "max_consumptions",
                             "max_consumptions_per_user",
+                            "max_consumptions_per_interval",
+                            "max_consumptions_per_interval_per_user",
+                            "consumption_interval_duration",
                             "consumption_lifetime",
                             "expiration_reason",
                             "allow_amount_override",
