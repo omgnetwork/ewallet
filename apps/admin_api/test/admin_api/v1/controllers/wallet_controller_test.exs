@@ -129,8 +129,6 @@ defmodule AdminAPI.V1.WalletControllerTest do
       transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
       transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
 
-      expected_avatar = %{"large" => nil, "original" => nil, "small" => nil, "thumb" => nil}
-
       response =
         request("/user.get_wallets", %{
           provider_user_id: user.provider_user_id
@@ -177,7 +175,12 @@ defmodule AdminAPI.V1.WalletControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
-                           "avatar" => expected_avatar,
+                           "avatar" => %{
+                             "large" => nil,
+                             "original" => nil,
+                             "small" => nil,
+                             "thumb" => nil
+                           },
                            "created_at" => DateFormatter.to_iso8601(btc.inserted_at),
                            "updated_at" => DateFormatter.to_iso8601(btc.updated_at)
                          }
@@ -194,7 +197,12 @@ defmodule AdminAPI.V1.WalletControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
-                           "avatar" => expected_avatar,
+                           "avatar" => %{
+                             "large" => nil,
+                             "original" => nil,
+                             "small" => nil,
+                             "thumb" => nil
+                           },
                            "created_at" => DateFormatter.to_iso8601(omg.inserted_at),
                            "updated_at" => DateFormatter.to_iso8601(omg.updated_at)
                          }
