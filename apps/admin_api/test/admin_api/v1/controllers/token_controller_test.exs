@@ -832,6 +832,8 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
       response = request("/token.upload_avatar", attrs)
       assert response["success"]
+      token = Token.get(attrs.id)
+      assert token.avatar != nil
 
       attrs = %{
         id: token.id,
