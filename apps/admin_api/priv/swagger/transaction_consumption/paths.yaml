@@ -68,3 +68,21 @@ transaction_consumption.reject:
         $ref: 'responses.yaml#/TransactionConsumptionResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+transaction_consumption.cancel:
+  post:
+    tags:
+      - TransactionConsumption
+    summary: Cancel a pending consumption.
+    description: This is a server call only.
+    operationId: transaction_consumption_cancel
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/ConsumptionCancellationRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/TransactionConsumptionResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

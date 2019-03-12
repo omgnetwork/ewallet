@@ -205,6 +205,16 @@ defmodule EWalletDB.TransactionConsumptionTest do
     end
   end
 
+  describe "cancel/1" do
+    test "cancels the consumption" do
+      consumption = insert(:transaction_consumption, status: "pending")
+      assert consumption.status == "pending"
+      consumption = TransactionConsumption.cancel(consumption, %System{})
+      assert consumption.status == "cancelled"
+      assert consumption.cancelled_at != nil
+    end
+  end
+
   describe "confirm/2" do
     test "confirms the consumption" do
       consumption = insert(:transaction_consumption)
@@ -234,6 +244,18 @@ defmodule EWalletDB.TransactionConsumptionTest do
     test "returns false if expired" do
       consumption = insert(:transaction_consumption, status: "expired")
       assert TransactionConsumption.expired?(consumption) == true
+    end
+  end
+
+  describe "cancelled?/1" do
+    test "returns true if cancelled" do
+      consumption = insert(:transaction_consumption, status: "cancelled")
+      assert TransactionConsumption.cancelled?(consumption) == true
+    end
+
+    test "returns false if not cancelled" do
+      consumption = insert(:transaction_consumption)
+      assert TransactionConsumption.cancelled?(consumption) == false
     end
   end
 end

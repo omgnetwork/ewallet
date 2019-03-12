@@ -274,6 +274,8 @@ paths:
     $ref: 'transaction_consumption/paths.yaml#/transaction_consumption.approve'
   /transaction_consumption.reject:
     $ref: 'transaction_consumption/paths.yaml#/transaction_consumption.reject'
+  /transaction_consumption.cancel:
+    $ref: 'transaction_consumption/paths.yaml#/transaction_consumption.cancel'
 
   # API AND SECRET KEYS
   /access_key.all:

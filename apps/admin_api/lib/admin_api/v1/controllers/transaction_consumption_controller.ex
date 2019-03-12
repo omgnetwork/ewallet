@@ -179,7 +179,32 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def consume(conn, _) do
-    handle_error(conn, :invalid_parameter)
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `idempotency_token` is required"
+    )
+  end
+
+  def cancel(conn, %{"id" => id} = attrs) do
+    with {:ok, consumption} <- TransactionConsumptionFetcher.get(id),
+         {:ok, _} <- TransactionConsumptionPolicy.authorize(:cancel, conn.assigns, consumption),
+         true <-
+           TransactionConsumption.cancellable?(consumption) ||
+             {:error, :uncancellable_transaction_consumption},
+         %TransactionConsumption{} = consumption <-
+           TransactionConsumption.cancel(consumption, Originator.extract(conn.assigns)) do
+      consumption
+      |> Orchestrator.one(TransactionConsumptionOverlay, attrs)
+      |> respond(conn, true)
+    else
+      error ->
+        respond(error, conn, true)
+    end
+  end
+
+  def cancel(conn, _) do
+    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required")
   end
 
   def approve(conn, attrs), do: confirm(conn, conn.assigns, attrs, true)

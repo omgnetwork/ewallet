@@ -277,6 +277,27 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       assert res == :expired_transaction_consumption
     end
 
+    test "returns 'cancelled_transaction_consumption' if the consumption is cancelled" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      request =
+        insert(:transaction_request, account_uuid: nil, user_uuid: user.uuid, wallet: wallet)
+
+      consumption =
+        :transaction_consumption
+        |> insert(status: "cancelled", transaction_request_uuid: request.uuid)
+        |> Repo.preload([:transaction_request])
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_before_confirmation(consumption, %{
+          end_user: user
+        })
+
+      assert status == :error
+      assert res == :cancelled_transaction_consumption
+    end
+
     test "returns the consumption if valid" do
       {:ok, user} = :user |> params_for() |> User.insert()
       wallet = User.get_primary_wallet(user)

@@ -115,14 +115,14 @@ defmodule EWalletDB.GlobalRole do
         get: :accounts,
         listen: :accounts,
         create: :accounts,
-        approve: :accounts
+        cancel: :accounts
       },
       end_user_transaction_consumptions: %{
         all: :accounts,
         get: :accounts,
         listen: :accounts,
         create: :accounts,
-        approve: :accounts
+        cancel: :accounts
       },
       exports: %{all: :self, get: :self, create: :global},
       configuration: :none
@@ -189,14 +189,16 @@ defmodule EWalletDB.GlobalRole do
         get: :accounts,
         listen: :accounts,
         create: :none,
-        approve: :none
+        approve: :none,
+        cancel: :none
       },
       end_user_transaction_consumptions: %{
         all: :accounts,
         get: :accounts,
         listen: :accounts,
         create: :none,
-        approve: :none
+        approve: :none,
+        cancel: :none
       },
       exports: %{all: :self, get: :self, create: :none},
       configuration: :none
@@ -231,7 +233,13 @@ defmodule EWalletDB.GlobalRole do
       account_transaction_requests: %{
         get: :global
       },
-      end_user_transaction_consumptions: %{all: :self, get: :self, listen: :self, create: :self}
+      end_user_transaction_consumptions: %{
+        all: :self,
+        get: :self,
+        listen: :self,
+        create: :self,
+        cancel: :self
+      }
     },
     "none" => %{
       account_permissions: true

@@ -80,7 +80,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
         confirmed_at: DateFormatter.to_iso8601(consumption.confirmed_at),
         failed_at: DateFormatter.to_iso8601(consumption.failed_at),
         expired_at: DateFormatter.to_iso8601(consumption.expired_at),
-        created_at: DateFormatter.to_iso8601(consumption.inserted_at)
+        created_at: DateFormatter.to_iso8601(consumption.inserted_at),
+        cancelled_at: DateFormatter.to_iso8601(consumption.cancelled_at)
       }
 
       assert TransactionConsumptionSerializer.serialize(consumption) == expected
