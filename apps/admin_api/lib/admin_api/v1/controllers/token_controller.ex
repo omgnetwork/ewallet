@@ -187,7 +187,7 @@ defmodule AdminAPI.V1.TokenController do
   @spec upload_avatar(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
     with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
-         :ok <- permit(:update, conn.assigns, token.id),
+         {:ok, _} <- authorize(:update, conn.assigns, token),
          :ok <- AdapterHelper.check_adapter_status(),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          %{} = saved <- Token.store_avatar(token, attrs),
