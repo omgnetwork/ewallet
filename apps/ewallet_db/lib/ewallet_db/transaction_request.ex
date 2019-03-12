@@ -219,7 +219,7 @@ defmodule EWalletDB.TransactionRequest do
     end
   end
 
-  defp validate_dependant_field(changeset, field, error) do
+  defp validate_dependent_field(changeset, field, error) do
     changeset
     |> Changeset.get_field(field)
     |> case do
