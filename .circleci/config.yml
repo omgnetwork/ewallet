@@ -223,6 +223,7 @@ jobs:
   deploy:
     executor: deploy
     steps:
+      - checkout
       - run: sh .circleci/ci_deploy.sh
       - notify_slack_failure
       - notify_slack_deploy
@@ -255,6 +256,7 @@ workflows:
             branches:
               ignore:
                 - master
+                - really-fix-staging
                 - /^v[0-9]+\.[0-9]+/
                 - /.*e2e$/
             tags:
@@ -267,6 +269,7 @@ workflows:
             branches:
               only:
                 - master
+                - really-fix-staging
                 - /^v[0-9]+\.[0-9]+/
                 - /.*e2e$/
             tags:
@@ -279,3 +282,4 @@ workflows:
             branches:
               only:
                 - master
+                - really-fix-staging
