@@ -208,7 +208,8 @@ defmodule AdminAPI.V1.TokenController do
     end
   end
 
-  def upload_avatar(conn, _), do: handle_error(conn, :invalid_parameter)
+  def upload_avatar(conn, _),
+    do: handle_error(conn, :invalid_parameter, "`id` and `avatar` are required")
 
   # Respond with a list of tokens
   defp respond_multiple(%Paginator{} = paged_tokens, conn) do

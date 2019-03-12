@@ -74,11 +74,11 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                      "updated_at" => DateFormatter.to_iso8601(user_wallet.updated_at),
                      "user" => %{
                        "avatar" => %{
-                        "large" => nil,
-                        "original" => nil,
-                        "small" => nil,
-                        "thumb" => nil
-                      },
+                         "large" => nil,
+                         "original" => nil,
+                         "small" => nil,
+                         "thumb" => nil
+                       },
                        "created_at" => DateFormatter.to_iso8601(user.inserted_at),
                        "email" => nil,
                        "encrypted_metadata" => %{},
