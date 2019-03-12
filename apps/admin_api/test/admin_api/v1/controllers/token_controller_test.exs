@@ -879,7 +879,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert response["data"]["description"] == "`id` and `avatar` are required"
     end
 
     test_with_auths "returns 'unauthorized' if the given token ID was not found" do
