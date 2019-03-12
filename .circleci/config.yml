@@ -223,6 +223,7 @@ jobs:
   deploy:
     executor: deploy
     steps:
+      - checkout
       - run: sh .circleci/ci_deploy.sh
       - notify_slack_failure
       - notify_slack_deploy
