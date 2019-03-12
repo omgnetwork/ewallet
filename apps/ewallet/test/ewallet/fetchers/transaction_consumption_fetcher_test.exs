@@ -88,7 +88,7 @@ defmodule EWallet.TransactionConsumptionFetcherTest do
 
     test "returns an 'invalid_parameter' error when given nil" do
       assert TransactionConsumptionFetcher.get(nil) ==
-               {:error, :invalid_parameter, "'id' cannot be nil"}
+               {:error, :invalid_parameter, "`id` cannot be nil"}
     end
 
     test "returns an 'unauthorized' when given invalid UUID" do
