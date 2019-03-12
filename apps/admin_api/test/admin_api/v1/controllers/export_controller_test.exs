@@ -127,6 +127,9 @@ defmodule AdminAPI.V1.ExportControllerTest do
     end
 
     test_with_auths "returns 'unauthorized' if the export is not owned" do
+      set_admin_as_none()
+      set_key_role_to_none()
+
       export = insert(:export)
       response = request("/export.get", %{"id" => export.id})
 
@@ -186,40 +189,6 @@ defmodule AdminAPI.V1.ExportControllerTest do
       refute response["success"]
       assert response["data"]["code"] == "export:not_local"
       assert response["data"]["description"] == "The given export is not stored locally."
-    end
-
-    test_with_auths "returns 'unauthorized' if the export is not owned" do
-      export = insert(:export)
-      response = request("/export.get", %{"id" => export.id})
-
-      refute response["success"]
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "unauthorized"
-
-      assert response["data"]["description"] ==
-               "You are not allowed to perform the requested operation."
-    end
-
-    test_with_auths "returns 'unauthorized' if the given ID was not found" do
-      response = request("/export.get", %{"id" => "exp_12345678901234567890123456"})
-
-      refute response["success"]
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "unauthorized"
-
-      assert response["data"]["description"] ==
-               "You are not allowed to perform the requested operation."
-    end
-
-    test_with_auths "returns 'unauthorized' if the given ID format is invalid" do
-      response = request("/export.get", %{"id" => "not_an_id"})
-
-      refute response["success"]
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "unauthorized"
-
-      assert response["data"]["description"] ==
-               "You are not allowed to perform the requested operation."
     end
   end
 end

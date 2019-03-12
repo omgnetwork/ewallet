@@ -17,7 +17,8 @@ defmodule EWallet.Web.V1.MembershipSerializerTest do
   alias EWallet.Web.V1.MembershipSerializer
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Orchestrator, V1.MembershipOverlay}
-  alias EWalletDB.User
+  alias EWalletDB.{User, Membership}
+  alias ActivityLogger.System
   alias Utils.Helpers.DateFormatter
 
   describe "serialize/1" do
@@ -25,7 +26,7 @@ defmodule EWallet.Web.V1.MembershipSerializerTest do
       account = insert(:account)
       {:ok, user} = :user |> params_for() |> User.insert()
       role = insert(:role)
-      membership = insert(:membership, %{account: account, user: user, role: role})
+      {:ok, membership} = Membership.assign(user, account, role, %System{})
       {:ok, membership} = Orchestrator.one(membership, MembershipOverlay)
 
       expected = %{
@@ -60,7 +61,7 @@ defmodule EWallet.Web.V1.MembershipSerializerTest do
           description: account.description,
           encrypted_metadata: %{},
           id: account.id,
-          master: true,
+          master: false,
           metadata: %{},
           name: account.name,
           object: "account",
@@ -86,7 +87,7 @@ defmodule EWallet.Web.V1.MembershipSerializerTest do
       account = insert(:account)
       {:ok, user} = :user |> params_for() |> User.insert()
       role = insert(:role)
-      membership = insert(:membership, %{account: account, user: user, role: role})
+      {:ok, membership} = Membership.assign(user, account, role, %System{})
       {:ok, membership} = Orchestrator.one(membership, MembershipOverlay)
 
       expected = %{
@@ -121,7 +122,7 @@ defmodule EWallet.Web.V1.MembershipSerializerTest do
           description: account.description,
           encrypted_metadata: %{},
           id: account.id,
-          master: true,
+          master: false,
           metadata: %{},
           name: account.name,
           object: "account",

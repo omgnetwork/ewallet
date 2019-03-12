@@ -418,7 +418,7 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
              }
     end
 
-    test_with_auths "receives an error when the address is invalid" do
+    test_with_auths "receives an 'unauthorized' error when the address is invalid" do
       token = insert(:token)
 
       response =
@@ -431,10 +431,10 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
         })
 
       assert response["success"] == false
-      assert response["data"]["code"] == "wallet:wallet_not_found"
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test_with_auths "receives an error when the address does not belong to the user" do
+    test_with_auths "receives an 'unauthorized' error when the address does not belong to the user" do
       account = Account.get_master_account()
       token = insert(:token)
       wallet = insert(:wallet)
@@ -449,16 +449,8 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
           address: wallet.address
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "code" => "account:account_wallet_mismatch",
-                 "description" => "The provided wallet does not belong to the given account.",
-                 "messages" => nil,
-                 "object" => "error"
-               }
-             }
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "receives an error when the token ID is not found" do

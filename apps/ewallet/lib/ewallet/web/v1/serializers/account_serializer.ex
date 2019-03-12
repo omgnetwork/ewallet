@@ -20,7 +20,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
   alias EWallet.Web.Paginator
   alias EWallet.Web.V1.{CategorySerializer, PaginatorSerializer}
   alias EWalletDB.Account
-  alias Utils.Helpers.{Assoc, DateFormatter}
+  alias Utils.Helpers.DateFormatter
   alias EWalletDB.Uploaders.Avatar
 
   def serialize(%Paginator{} = paginator) do
@@ -39,7 +39,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
       object: "account",
       id: account.id,
       socket_topic: "account:#{account.id}",
-      parent_id: Assoc.get(account, [:parent, :id]),
+      parent_id: nil,
       name: account.name,
       description: account.description,
       master: Account.master?(account),

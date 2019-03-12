@@ -23,7 +23,6 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
 
   describe "AccountSerializer.serialize/1" do
     test "serializes an account into V1 response format" do
-      master = :account |> insert()
       category = :category |> insert()
       {:ok, account} = :account |> insert() |> Account.add_category(category, %System{})
       {:ok, account} = Orchestrator.one(account, AccountOverlay)
@@ -32,7 +31,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
                object: "account",
                id: account.id,
                socket_topic: "account:#{account.id}",
-               parent_id: master.id,
+               parent_id: nil,
                name: account.name,
                description: account.description,
                master: Account.master?(account),
@@ -52,8 +51,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
     end
 
     test "serializes a list of accounts into a list object" do
-      account1 = :account |> insert() |> Repo.preload([:parent, :categories])
-      account2 = :account |> insert() |> Repo.preload([:parent, :categories])
+      account1 = :account |> insert() |> Repo.preload([:categories])
+      account2 = :account |> insert() |> Repo.preload([:categories])
 
       accounts = [account1, account2]
 
@@ -85,7 +84,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
             object: "account",
             id: account2.id,
             socket_topic: "account:#{account2.id}",
-            parent_id: account2.parent.id,
+            parent_id: nil,
             name: account2.name,
             description: account2.description,
             master: Account.master?(account2),
@@ -109,8 +108,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
     end
 
     test "serializes an account paginator into a list object" do
-      account1 = :account |> insert() |> Repo.preload([:parent, :categories])
-      account2 = :account |> insert() |> Repo.preload([:parent, :categories])
+      account1 = :account |> insert() |> Repo.preload([:categories])
+      account2 = :account |> insert() |> Repo.preload([:categories])
 
       paginator = %Paginator{
         data: [account1, account2],
@@ -150,7 +149,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
             object: "account",
             id: account2.id,
             socket_topic: "account:#{account2.id}",
-            parent_id: account2.parent.id,
+            parent_id: nil,
             name: account2.name,
             description: account2.description,
             master: Account.master?(account2),

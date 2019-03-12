@@ -15,15 +15,16 @@
 defmodule AdminAPI.V1.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Utils.Helpers.DateFormatter
-  alias EWalletDB.{Account, Key, Repo}
+  alias EWalletDB.{Key, Repo}
 
   describe "/access_key.all" do
     test_with_auths "responds with a list of keys without secret keys" do
-      key_1 = Key.get_by(%{access_key: @access_key}, preload: :account)
+      key_1 = Key.get_by(%{access_key: @access_key})
       key_2 = insert(:key, %{secret_key: "the_secret_key"})
 
       response = request("/access_key.all")
 
+      assert response["success"]
       assert Enum.all?(response["data"]["data"], fn key -> key["object"] == "key" end)
       assert Enum.all?(response["data"]["data"], fn key -> key["secret_key"] == nil end)
 
@@ -44,8 +45,9 @@ defmodule AdminAPI.V1.KeyControllerTest do
       {:ok, _} = Key.delete(key2, originator)
 
       response = request("/access_key.all")
-      keys = response["data"]["data"]
 
+      assert response["success"]
+      keys = response["data"]["data"]
       assert Enum.count(keys) == 2
       assert Enum.any?(keys, fn a -> a["id"] == key1.id end)
       refute Enum.any?(keys, fn a -> a["id"] == key2.id end)
@@ -72,7 +74,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
                  "id" => _,
                  "access_key" => _,
                  "secret_key" => _,
-                 "account_id" => _,
+                 "account_id" => nil,
                  "enabled" => _,
                  "expired" => _,
                  "created_at" => _,
@@ -83,7 +85,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
 
       assert response["data"]["id"] == key.id
       assert response["data"]["access_key"] == key.access_key
-      assert response["data"]["account_id"] == Account.get_master_account().id
+      assert response["data"]["account_id"] == nil
       assert response["data"]["expired"] == !key.enabled
       assert response["data"]["enabled"] == key.enabled
       assert response["data"]["created_at"] == DateFormatter.to_iso8601(key.inserted_at)
@@ -105,7 +107,6 @@ defmodule AdminAPI.V1.KeyControllerTest do
         originator: originator,
         target: target,
         changes: %{
-          "account_uuid" => target.account.uuid,
           "access_key" => target.access_key,
           "secret_key_hash" => target.secret_key_hash
         },
@@ -118,7 +119,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
       response = admin_user_request("/access_key.create")
 
       assert response["success"] == true
-      key = Key |> get_last_inserted() |> Repo.preload(:account)
+      key = get_last_inserted(Key)
 
       timestamp
       |> get_all_activity_logs_since()
@@ -130,7 +131,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
       response = provider_request("/access_key.create")
 
       assert response["success"] == true
-      key = Key |> get_last_inserted() |> Repo.preload(:account)
+      key = get_last_inserted(Key)
 
       timestamp
       |> get_all_activity_logs_since()
@@ -149,6 +150,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           expired: true
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == true
       assert response["data"]["enabled"] == false
@@ -164,6 +166,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           expired: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == false
       assert response["data"]["enabled"] == true
@@ -182,6 +185,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           secret_key_hash: "new_secret_key_hash"
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == true
       assert response["data"]["enabled"] == false
@@ -255,6 +259,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["enabled"] == false
     end
@@ -269,6 +274,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["enabled"] == false
 
@@ -278,6 +284,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           enabled: false
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["enabled"] == false
     end
@@ -292,6 +299,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
           enabled: true
         })
 
+      assert response["success"]
       assert response["data"]["id"] == key.id
       assert response["data"]["enabled"] == true
     end
@@ -365,16 +373,8 @@ defmodule AdminAPI.V1.KeyControllerTest do
     test_with_auths "responds with an error if the provided id is not found" do
       response = request("/access_key.delete", %{id: "wrong_id"})
 
-      assert response == %{
-               "version" => "1",
-               "success" => false,
-               "data" => %{
-                 "code" => "key:not_found",
-                 "description" => "The key could not be found.",
-                 "messages" => nil,
-                 "object" => "error"
-               }
-             }
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "responds with an error if the user is not authorized to delete the key" do

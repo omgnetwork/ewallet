@@ -22,7 +22,7 @@ defmodule EWallet.DBCase do
   alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
   alias EWallet.{MintGate, TransactionGate}
-  alias EWalletDB.{Account, Repo}
+  alias EWalletDB.{Account, Repo, Role}
   alias EWalletConfig.ConfigTestHelper
 
   using do
@@ -44,6 +44,9 @@ defmodule EWallet.DBCase do
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
+    :ok = Role.insert_default_roles(%System{})
+    {:ok, account} = :account |> params_for() |> Account.insert()
+
     config_pid = start_supervised!(EWalletConfig.Config)
 
     ConfigTestHelper.restart_config_genserver(
@@ -54,11 +57,10 @@ defmodule EWallet.DBCase do
       %{
         "enable_standalone" => false,
         "base_url" => "http://localhost:4000",
-        "email_adapter" => "test"
+        "email_adapter" => "test",
+        "master_account" => account.id
       }
     )
-
-    {:ok, _account} = :account |> params_for(parent: nil) |> Account.insert()
 
     %{config_pid: config_pid}
   end

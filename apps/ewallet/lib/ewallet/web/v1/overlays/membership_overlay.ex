@@ -18,7 +18,7 @@ defmodule EWallet.Web.V1.MembershipOverlay do
   """
 
   @behaviour EWallet.Web.V1.Overlay
-  alias EWallet.Web.V1.{AccountOverlay, UserOverlay, RoleOverlay}
+  alias EWallet.Web.V1.{AccountOverlay, KeyOverlay, UserOverlay, RoleOverlay}
 
   def preload_assocs,
     do: [
@@ -31,8 +31,8 @@ defmodule EWallet.Web.V1.MembershipOverlay do
     do: [
       :role,
       :user,
+      :key,
       account: [
-        :parent,
         :categories
       ]
     ]
@@ -62,6 +62,7 @@ defmodule EWallet.Web.V1.MembershipOverlay do
       inserted_at: nil,
       updated_at: nil,
       user: UserOverlay.self_filter_fields(),
+      key: KeyOverlay.self_filter_fields(),
       account: AccountOverlay.self_filter_fields(),
       role: RoleOverlay.self_filter_fields()
     ]

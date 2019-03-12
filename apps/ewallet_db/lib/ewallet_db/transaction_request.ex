@@ -239,10 +239,11 @@ defmodule EWalletDB.TransactionRequest do
     where(query, [w], w.account_uuid in ^account_uuids or not is_nil(w.user_uuid))
   end
 
-  @spec query_all_for_account_and_user_uuids([String.t()], [String.t()]) :: Ecto.Queryable.t()
-  def query_all_for_account_and_user_uuids(account_uuids, user_uuids) do
+  @spec query_all_for_account_and_user_uuids([String.t()], [String.t()], Ecto.Queryable.t()) ::
+          Ecto.Queryable.t()
+  def query_all_for_account_and_user_uuids(account_uuids, user_uuids, query) do
     from(
-      t in TransactionRequest,
+      t in query,
       where: t.account_uuid in ^account_uuids or t.user_uuid in ^user_uuids
     )
   end

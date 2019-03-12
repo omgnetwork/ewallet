@@ -20,19 +20,145 @@ defmodule EWalletDB.Role do
   use Utils.Types.ExternalID
   use EWalletDB.SoftDelete
   use ActivityLogger.ActivityLogging
-  import Ecto.{Changeset, Query}
+  import Ecto.Changeset
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
   alias EWalletDB.{Membership, Repo, Role, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
+  @account_role_permissions %{
+    "admin" => %{
+      accounts: %{all: :accounts, get: :accounts, update: :accounts},
+      categories: %{all: :global, get: :global},
+      memberships: %{all: :accounts, get: :accounts, create: :accounts, delete: :accounts},
+      admin_users: %{
+        all: :accounts,
+        get: :accounts,
+        create: :accounts,
+        update: :accounts,
+        update_password: :self,
+        update_email: :self,
+        upload_avatar: :self,
+        get_account: :self,
+        get_accounts: :self,
+        logout: :self
+      },
+      end_users: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts,
+        update: :accounts,
+        login: :accounts,
+        logout: :accounts
+      },
+      access_keys: %{
+        all: :accounts,
+        get: :accounts,
+        create: :accounts,
+        update: :accounts,
+        disable: :accounts
+      },
+      api_keys: %{
+        all: :accounts,
+        get: :accounts,
+        create: :accounts,
+        update: :accounts,
+        disable: :accounts
+      },
+      tokens: %{all: :global, get: :global},
+      mints: :none,
+      account_wallets: %{
+        all: :global,
+        get: :global,
+        listen: :accounts,
+        view_balance: :accounts,
+        create: :accounts,
+        update: :accounts
+      },
+      end_user_wallets: %{
+        all: :global,
+        get: :global,
+        listen: :accounts,
+        view_balance: :accounts,
+        create: :accounts,
+        update: :accounts
+      },
+      account_transactions: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts
+      },
+      end_user_transactions: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts
+      },
+      account_transaction_requests: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts,
+        confirm: :accounts
+      },
+      end_user_transaction_requests: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts,
+        confirm: :accounts
+      },
+      account_transaction_consumptions: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts
+      },
+      end_user_transaction_consumptions: %{
+        all: :accounts,
+        get: :accounts,
+        listen: :accounts,
+        create: :accounts
+      },
+      exports: :none,
+      configuration: :none
+    },
+    "viewer" => %{
+      account: %{all: :accounts, get: :accounts},
+      categories: %{all: :global, get: :global},
+      memberships: %{all: :accounts, get: :accounts},
+      admin_users: %{
+        all: :accounts,
+        get: :accounts,
+        get_account: :self,
+        get_accounts: :self,
+        logout: :self
+      },
+      end_users: %{all: :accounts, get: :accounts, listen: :accounts},
+      access_keys: %{all: :accounts, get: :accounts},
+      api_keys: %{all: :accounts, get: :accounts},
+      tokens: %{all: :global, get: :global},
+      mints: :none,
+      account_wallets: %{all: :global, get: :global, listen: :accounts, view_balance: :accounts},
+      end_user_wallets: %{all: :global, get: :global, listen: :accounts, view_balance: :accounts},
+      account_transactions: %{all: :accounts, get: :accounts, listen: :accounts},
+      end_user_transactions: %{all: :accounts, get: :accounts, listen: :accounts},
+      account_transaction_requests: %{all: :accounts, get: :accounts, listen: :accounts},
+      end_user_transaction_requests: %{all: :accounts, get: :accounts, listen: :accounts},
+      account_transaction_consumptions: %{all: :accounts, get: :accounts, listen: :accounts},
+      end_user_transaction_consumptions: %{all: :accounts, get: :accounts, listen: :accounts},
+      exports: :none,
+      configuration: :none
+    }
+  }
 
   schema "role" do
     external_id(prefix: "rol_")
 
     field(:name, :string)
-    field(:priority, :integer)
     field(:display_name, :string)
 
     many_to_many(
@@ -47,16 +173,19 @@ defmodule EWalletDB.Role do
     activity_logging()
   end
 
+  def account_roles, do: Map.keys(@account_role_permissions)
+  def account_role_permissions, do: @account_role_permissions
+
   defp changeset(%Role{} = key, attrs) do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:priority, :name, :display_name],
-      required: [:name, :priority]
+      cast: [:name, :display_name],
+      required: [:name]
     )
-    |> validate_required([:name, :priority])
-    |> unique_constraint(:name)
-    |> unique_constraint(:priority)
+    |> validate_required([:name])
+    |> validate_inclusion(:name, account_roles())
+    |> unique_constraint(:name, name: "role_name_index")
   end
 
   @doc """
@@ -96,20 +225,6 @@ defmodule EWalletDB.Role do
   Creates a new role with the passed attributes.
   """
   def insert(attrs) do
-    highest_priority = Repo.one(from(r in Role, select: max(r.priority)))
-
-    [{key, _}] = Enum.take(attrs, 1)
-    priority_field = if is_atom(key), do: :priority, else: "priority"
-
-    attrs =
-      case highest_priority do
-        nil ->
-          Map.put(attrs, priority_field, 0)
-
-        highest_priority ->
-          Map.put(attrs, priority_field, highest_priority + 1)
-      end
-
     %Role{}
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log()
@@ -161,5 +276,18 @@ defmodule EWalletDB.Role do
   """
   def is_role?(%Role{} = role, role_name) do
     role.name == role_name
+  end
+
+  def insert_default_roles(originator) do
+    Enum.each(account_roles(), fn role ->
+      {:ok, _} =
+        insert(%{
+          name: role,
+          display_name: String.capitalize(role),
+          originator: originator
+        })
+    end)
+
+    :ok
   end
 end

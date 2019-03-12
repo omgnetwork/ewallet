@@ -25,7 +25,7 @@ defmodule EWallet.Web.OrchestratorTest do
 
     def pagination_fields, do: [:id]
     def preload_assocs, do: [:categories]
-    def default_preload_assocs, do: [:parent]
+    def default_preload_assocs, do: [:wallets]
     def sort_fields, do: [:id, :name]
     def search_fields, do: [:id, :name]
     def self_filter_fields, do: [:id, :name, :description, :inserted_at]
@@ -287,7 +287,7 @@ defmodule EWallet.Web.OrchestratorTest do
 
       # Preloaded fields must no longer be `%NotLoaded{}`
       assert Enum.all?(result, fn acc ->
-               acc.parent == nil || acc.parent.__struct__ != NotLoaded
+               acc.wallets == [] || length(acc.wallets) > 0
              end)
 
       # `categories` fields are not preloaded and so they should be `%NotLoaded{}`
@@ -306,7 +306,7 @@ defmodule EWallet.Web.OrchestratorTest do
       assert Enum.all?(result, fn acc -> is_list(acc.categories) end)
 
       # `parent` is no longer preloaded because the "preload" attribute is specified
-      assert Enum.all?(result, fn acc -> acc.parent.__struct__ == NotLoaded end)
+      assert Enum.all?(result, fn acc -> acc.memberships.__struct__ == NotLoaded end)
     end
 
     test "performs match_all with the given overlay and attributes" do
@@ -401,7 +401,7 @@ defmodule EWallet.Web.OrchestratorTest do
 
       # Preloaded fields must no longer be `%NotLoaded{}`
       assert Enum.all?(result, fn acc ->
-               acc.parent == nil || acc.parent.__struct__ != NotLoaded
+               acc.wallets == [] || length(acc.wallets) > 0
              end)
 
       # `categories` fields are not preloaded and so they should be `%NotLoaded{}`
@@ -420,7 +420,7 @@ defmodule EWallet.Web.OrchestratorTest do
       assert Enum.all?(result, fn acc -> is_list(acc.categories) end)
 
       # `parent` is no longer preloaded because the "preload" attribute is specified
-      assert Enum.all?(result, fn acc -> acc.parent.__struct__ == NotLoaded end)
+      assert Enum.all?(result, fn acc -> acc.wallets.__struct__ == NotLoaded end)
     end
   end
 
@@ -435,7 +435,7 @@ defmodule EWallet.Web.OrchestratorTest do
         |> Orchestrator.one(MockOverlay)
 
       # Preloaded fields must no longer be `%NotLoaded{}`
-      assert result.parent == nil || result.parent.__struct__ != NotLoaded
+      assert result.wallets == nil || length(result.wallets) > 0
 
       # `categories` fields are not preloaded and so they should be `%NotLoaded{}`
       assert result.categories.__struct__ == NotLoaded
@@ -454,7 +454,7 @@ defmodule EWallet.Web.OrchestratorTest do
       assert is_list(result.categories)
 
       # `parent` is no longer preloaded because the "preload" attribute is specified
-      assert result.parent.__struct__ == NotLoaded
+      assert result.wallets.__struct__ == NotLoaded
     end
   end
 
@@ -469,7 +469,7 @@ defmodule EWallet.Web.OrchestratorTest do
 
       # Preloaded fields must no longer be `%NotLoaded{}`
       assert Enum.all?(result, fn acc ->
-               acc.parent == nil || acc.parent.__struct__ != NotLoaded
+               acc.wallets == [] || length(acc.wallets) > 0
              end)
 
       # `categories` fields are not preloaded and so they should be `%NotLoaded{}`
@@ -488,7 +488,7 @@ defmodule EWallet.Web.OrchestratorTest do
       assert Enum.all?(result, fn acc -> is_list(acc.categories) end)
 
       # `parent` is no longer preloaded because the "preload" attribute is specified
-      assert Enum.all?(result, fn acc -> acc.parent.__struct__ == NotLoaded end)
+      assert Enum.all?(result, fn acc -> acc.wallets.__struct__ == NotLoaded end)
     end
   end
 end

@@ -85,26 +85,20 @@ defmodule AdminAPI.V1.CategoryControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
     end
 
-    test_with_auths "returns 'category:id_not_found' if the given ID was not found" do
+    test_with_auths "returns 'unauthorized' if the given ID was not found" do
       response = request("/category.get", %{"id" => "cat_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "category:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no category corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test_with_auths "returns 'category:id_not_found' if the given ID format is invalid" do
+    test_with_auths "returns 'unauthorized' if the given ID format is invalid" do
       response = request("/category.get", %{"id" => "not_an_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "category:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no category corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 
@@ -225,10 +219,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "category:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no category corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     defp assert_update_logs(logs, originator, target) do
@@ -326,20 +317,12 @@ defmodule AdminAPI.V1.CategoryControllerTest do
                }
     end
 
-    test_with_auths "responds with an error if the provided id is not found" do
+    test_with_auths "responds with 'unauthorized' if the provided id is not found" do
       response = request("/category.delete", %{id: "wrong_id"})
 
-      assert response ==
-               %{
-                 "version" => "1",
-                 "success" => false,
-                 "data" => %{
-                   "code" => "category:id_not_found",
-                   "description" => "There is no category corresponding to the provided id.",
-                   "messages" => nil,
-                   "object" => "error"
-                 }
-               }
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "responds with an error if the user is not authorized to delete the category" do

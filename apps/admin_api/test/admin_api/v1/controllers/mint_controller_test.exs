@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.MintControllerTest do
   alias EWallet.MintGate
   alias Utils.Helpers.DateFormatter
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, TransactionSerializer}
-  alias EWalletDB.{Mint, Transaction, Wallet, Repo}
+  alias EWalletDB.{Account, Mint, Transaction, Wallet, Repo}
   alias ActivityLogger.System
 
   describe "/token.get_mints" do
@@ -190,7 +190,7 @@ defmodule AdminAPI.V1.MintControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "token:id_not_found"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "fails to mint a disabled token" do
@@ -384,7 +384,8 @@ defmodule AdminAPI.V1.MintControllerTest do
     end
 
     test "generates an activity log for a provider request" do
-      token = insert(:token)
+      account = Account.get_master_account()
+      token = insert(:token, account: account)
       timestamp = DateTime.utc_now()
 
       response =

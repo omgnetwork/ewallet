@@ -21,13 +21,18 @@ defmodule AdminAPI.V1.ExportController do
   alias Utils.Helpers.PathResolver
 
   def all(conn, attrs) do
-    storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
+    with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
+      storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
 
-    conn.assigns
-    |> Originator.extract()
-    |> Export.all_for(storage_adapter)
-    |> Orchestrator.query(ExportOverlay, attrs)
-    |> render_exports(conn)
+      conn.assigns
+      |> Originator.extract()
+      |> Export.all_for(storage_adapter, query)
+      |> Orchestrator.query(ExportOverlay, attrs)
+      |> render_exports(conn)
+    else
+      {:error, code} -> handle_error(conn, code)
+    end
   end
 
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
@@ -35,7 +40,7 @@ defmodule AdminAPI.V1.ExportController do
     storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
 
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, export),
+         {:ok, _} <- authorize(:get, conn.assigns, export),
          true <- export.adapter == storage_adapter || {:error, :invalid_storage_adapter},
          {:ok, url} <- ExportGate.generate_url(export),
          export <- Map.put(export, :url, url),
@@ -52,7 +57,7 @@ defmodule AdminAPI.V1.ExportController do
     storage_adapter = Application.get_env(:admin_api, :file_storage_adapter)
 
     with %Export{} = export <- Export.get(id) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, export),
+         {:ok, _} <- authorize(:download, conn.assigns, export),
          true <- export.adapter == "local" || {:error, :export_not_local},
          true <- export.adapter == storage_adapter || {:error, :invalid_storage_adapter},
          path <- Path.join(PathResolver.static_dir(:url_dispatcher), export.path),
@@ -79,9 +84,9 @@ defmodule AdminAPI.V1.ExportController do
     handle_error(conn, code, description)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
+  @spec authorize(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, export) do
-    Bodyguard.permit(ExportPolicy, action, params, export)
+  defp authorize(action, actor, export) do
+    ExportPolicy.authorize(action, actor, export)
   end
 end

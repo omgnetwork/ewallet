@@ -21,13 +21,13 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
 
   describe "serialize/1" do
     test "serializes a role into V1 response format" do
-      role = :role |> insert() |> Repo.preload([:users])
+      role = :role |> insert(name: "admin") |> Repo.preload([:users])
 
       expected = %{
         object: "role",
         id: role.id,
         name: role.name,
-        priority: role.priority,
+        priority: nil,
         display_name: role.display_name,
         created_at: DateFormatter.to_iso8601(role.inserted_at),
         updated_at: DateFormatter.to_iso8601(role.updated_at)
@@ -37,8 +37,8 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
     end
 
     test "serializes a role paginator into a list object" do
-      role1 = :role |> insert() |> Repo.preload([:users])
-      role2 = :role |> insert() |> Repo.preload([:users])
+      role1 = :role |> insert(name: "admin") |> Repo.preload([:users])
+      role2 = :role |> insert(name: "viewer") |> Repo.preload([:users])
 
       paginator = %Paginator{
         data: [role1, role2],
@@ -57,7 +57,7 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
             object: "role",
             id: role1.id,
             name: role1.name,
-            priority: role1.priority,
+            priority: nil,
             display_name: role1.display_name,
             created_at: DateFormatter.to_iso8601(role1.inserted_at),
             updated_at: DateFormatter.to_iso8601(role1.updated_at)
@@ -66,7 +66,7 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
             object: "role",
             id: role2.id,
             name: role2.name,
-            priority: role2.priority,
+            priority: nil,
             display_name: role2.display_name,
             created_at: DateFormatter.to_iso8601(role2.inserted_at),
             updated_at: DateFormatter.to_iso8601(role2.updated_at)
@@ -119,7 +119,8 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
 
   describe "serialize/2" do
     test "serializes roles to ids" do
-      roles = [role1, role2] = insert_list(2, :role)
+      roles = [role1, role2] = [insert(:role, name: "admin"), insert(:role, name: "viewer")]
+
       assert RoleSerializer.serialize(roles, :id) == [role1.id, role2.id]
     end
   end

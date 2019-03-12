@@ -55,6 +55,7 @@ defmodule EWalletDB.SchemaCase do
   alias Ecto.Adapters.SQL.Sandbox
   alias EWalletDB.{Account, User}
   alias ActivityLogger.System
+  alias EWalletConfig.ConfigTestHelper
 
   using do
     quote do
@@ -66,9 +67,21 @@ defmodule EWalletDB.SchemaCase do
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(EWalletConfig.Repo)
     :ok = Sandbox.checkout(ActivityLogger.Repo)
-    %{} = get_or_insert_master_account()
 
-    :ok
+    account = get_or_insert_master_account()
+    config_pid = start_supervised!(EWalletConfig.Config)
+
+    ConfigTestHelper.restart_config_genserver(
+      self(),
+      config_pid,
+      EWalletConfig.Repo,
+      [:ewallet_db],
+      %{
+        "master_account" => account.id
+      }
+    )
+
+    %{config_pid: config_pid}
   end
 
   def prepare_admin_user do
@@ -91,7 +104,7 @@ defmodule EWalletDB.SchemaCase do
         account
 
       _ ->
-        insert(:account, %{parent: nil})
+        insert(:account)
     end
   end
 

@@ -16,18 +16,19 @@ defmodule EWallet.ConfigurationPolicy do
   @moduledoc """
   The authorization policy for configuration.
   """
-  @behaviour Bodyguard.Policy
-  alias EWalletDB.{Account, User}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
+  alias EWalletConfig.Setting
 
-  def authorize(:get, _user_or_key, _category_id), do: true
-
-  def authorize(_, %{key: key}, _category_id) do
-    Account.get_master_account().uuid == key.account.uuid
+  def authorize(:create, actor, _attrs) do
+    Bouncer.bounce(actor, %Permission{action: :create, target: %Setting{}})
   end
 
-  def authorize(_, %{admin_user: user}, _category_id) do
-    User.master_admin?(user.id)
+  def authorize(:update, actor, _attrs) do
+    Bouncer.bounce(actor, %Permission{action: :create, target: %Setting{}})
   end
 
-  def authorize(_, _, _), do: false
+  def authorize(action, actor, target) do
+    PolicyHelper.authorize(action, actor, :settings, Setting, target)
+  end
 end

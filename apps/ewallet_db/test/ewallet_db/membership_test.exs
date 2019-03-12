@@ -15,7 +15,7 @@
 defmodule EWalletDB.MembershipTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
-  alias EWalletDB.{Account, Membership, Repo, User}
+  alias EWalletDB.{Membership, Repo, User}
   alias ActivityLogger.System
 
   describe "Membership factory" do
@@ -38,10 +38,20 @@ defmodule EWalletDB.MembershipTest do
     {membership, user, account, role}
   end
 
-  describe "Membership.get_by_user_and_account/2" do
+  describe "Membership.get_by_member_and_account/2" do
     test "returns a list of memberships associated with the given user and account" do
       {membership, user, account, _} = prepare_membership()
-      result = Membership.get_by_user_and_account(user, account)
+      result = Membership.get_by_member_and_account(user, account)
+
+      assert result.uuid == membership.uuid
+    end
+
+    test "returns a list of memberships associated with the given key and account" do
+      key = insert(:key)
+      account = insert(:account)
+      role = insert(:role, %{name: "some_role"})
+      membership = insert(:membership, %{key: key, account: account, role: role})
+      result = Membership.get_by_member_and_account(key, account)
 
       assert result.uuid == membership.uuid
     end
@@ -84,212 +94,6 @@ defmodule EWalletDB.MembershipTest do
       assert User.get_roles(user) == ["new_role"]
     end
 
-    test "returns {:error, :user_already_has_rights} when
-          user has more powerful role in ancestor" do
-      user = insert(:user)
-      level_0 = Account.get_master_account()
-      level_1 = insert(:account, parent: level_0)
-      level_2 = insert(:account, parent: level_1)
-      admin = insert(:role, name: "admin", priority: 111_111)
-      viewer = insert(:role, name: "viewer", priority: 222_222)
-
-      # We assign to the master account
-      {:ok, inserted_membership} = Membership.assign(user, level_0, admin, %System{})
-
-      # So we can't assign the role viewer here on a lower account
-      {res, reason} = Membership.assign(user, level_2, viewer, %System{})
-
-      assert res == :error
-      assert reason == :user_already_has_rights
-
-      memberships = Membership.all_by_user(user)
-      assert length(memberships) == 1
-      membership = Enum.at(memberships, 0)
-      assert membership.uuid == inserted_membership.uuid
-    end
-
-    test "returns {:ok, membership} when user has less powerful role in ancestor" do
-      user = insert(:user)
-      level_0 = Account.get_master_account()
-      level_1 = insert(:account, parent: level_0)
-      level_2 = insert(:account, parent: level_1)
-      admin = insert(:role, name: "admin", priority: 111_111)
-      viewer = insert(:role, name: "viewer", priority: 222_222)
-
-      {:ok, _membership} = Membership.assign(user, level_0, viewer, %System{})
-      {res, membership} = Membership.assign(user, level_2, admin, %System{})
-
-      assert res == :ok
-      assert membership.user_uuid == user.uuid
-      assert membership.account_uuid == level_2.uuid
-      assert membership.role_uuid == admin.uuid
-
-      assert length(Membership.all_by_user(user)) == 2
-    end
-
-    test "returns {:error, :user_already_has_rights} when the user has two more
-          powerful roles in ancestors" do
-      user = insert(:user)
-      level_0 = Account.get_master_account()
-      level_1 = insert(:account, parent: level_0)
-      level_2 = insert(:account, parent: level_1)
-      level_3 = insert(:account, parent: level_2)
-      admin = insert(:role, name: "admin", priority: 111_111)
-      viewer = insert(:role, name: "viewer", priority: 222_222)
-      grunt = insert(:role, name: "grunt", priority: 333_333)
-
-      {:ok, _membership} = Membership.assign(user, level_0, viewer, %System{})
-      {:ok, _membership} = Membership.assign(user, level_2, admin, %System{})
-      {res, reason} = Membership.assign(user, level_3, grunt, %System{})
-
-      assert res == :error
-      assert reason == :user_already_has_rights
-    end
-
-    test "returns {:ok, membership} when the user has two less powerful roles
-          in ancestors" do
-      user = insert(:user)
-      level_0 = Account.get_master_account()
-      level_1 = insert(:account, parent: level_0)
-      level_2 = insert(:account, parent: level_1)
-      level_3 = insert(:account, parent: level_2)
-      admin = insert(:role, name: "admin", priority: 111_111)
-      viewer = insert(:role, name: "viewer", priority: 222_222)
-      grunt = insert(:role, name: "grunt", priority: 333_333)
-
-      {:ok, _membership} = Membership.assign(user, level_0, grunt, %System{})
-      {:ok, _membership} = Membership.assign(user, level_2, viewer, %System{})
-      {res, membership} = Membership.assign(user, level_3, admin, %System{})
-
-      assert res == :ok
-      assert membership.user_uuid == user.uuid
-      assert membership.account_uuid == level_3.uuid
-      assert membership.role_uuid == admin.uuid
-
-      assert length(Membership.all_by_user(user)) == 3
-    end
-
-    test "returns {:ok, membership} when user has more powerful role
-          in descendant" do
-      user = insert(:user)
-      level_0 = Account.get_master_account()
-      level_1 = insert(:account, parent: level_0)
-      level_2 = insert(:account, parent: level_1)
-      admin = insert(:role, name: "admin", priority: 111_111)
-      viewer = insert(:role, name: "viewer", priority: 222_222)
-
-      {:ok, _membership} = Membership.assign(user, level_2, admin, %System{})
-      {res, membership} = Membership.assign(user, level_0, viewer, %System{})
-
-      assert res == :ok
-      assert membership.user_uuid == user.uuid
-      assert membership.account_uuid == level_0.uuid
-      assert membership.role_uuid == viewer.uuid
-
-      assert length(Membership.all_by_user(user)) == 2
-    end
-
-    test "removes and re-assigns the user when user has less powerful
-          role in descendant" do
-      user = insert(:user)
-      level_0 = Account.get_master_account()
-      level_1 = insert(:account, parent: level_0)
-      level_2 = insert(:account, parent: level_1)
-      admin = insert(:role, name: "admin", priority: 111_111)
-      viewer = insert(:role, name: "viewer", priority: 222_222)
-
-      {:ok, inserted_membership} = Membership.assign(user, level_2, viewer, %System{})
-      {res, membership} = Membership.assign(user, level_0, admin, %System{})
-
-      assert res == :ok
-      assert membership.user_uuid == user.uuid
-      assert membership.account_uuid == level_0.uuid
-      assert membership.role_uuid == admin.uuid
-      assert membership.uuid != inserted_membership.uuid
-
-      assert length(Membership.all_by_user(user)) == 1
-    end
-
-    test "removes and re-assigns the user when user has same role in descendant" do
-      user = insert(:user)
-      level_0 = Account.get_master_account()
-      level_1 = insert(:account, parent: level_0)
-      level_2 = insert(:account, parent: level_1)
-      admin = insert(:role, name: "admin", priority: 111_111)
-
-      {:ok, inserted_membership} = Membership.assign(user, level_2, admin, %System{})
-      {res, membership} = Membership.assign(user, level_0, admin, %System{})
-
-      assert res == :ok
-      assert membership.user_uuid == user.uuid
-      assert membership.account_uuid == level_0.uuid
-      assert membership.role_uuid == admin.uuid
-      assert membership.uuid != inserted_membership.uuid
-
-      assert length(Membership.all_by_user(user)) == 1
-    end
-
-    test "assigns the user if he has a membership in another branch" do
-      user = insert(:user)
-      level_0 = Account.get_master_account()
-
-      level_1_1 = insert(:account, parent: level_0)
-      level_2_1 = insert(:account, parent: level_1_1)
-
-      level_1_2 = insert(:account, parent: level_0)
-      level_2_2 = insert(:account, parent: level_1_2)
-
-      admin = insert(:role, name: "admin", priority: 111_111)
-
-      {:ok, inserted_membership} = Membership.assign(user, level_2_1, admin, %System{})
-      {res, membership} = Membership.assign(user, level_2_2, admin, %System{})
-
-      assert res == :ok
-      assert membership.user_uuid == user.uuid
-      assert membership.account_uuid == level_2_2.uuid
-      assert membership.role_uuid == admin.uuid
-      assert membership.uuid != inserted_membership.uuid
-
-      assert length(Membership.all_by_user(user)) == 2
-    end
-
-    test "unassign and reassigns if the user had memberships in 2 branches" do
-      user = insert(:user)
-      level_0 = Account.get_master_account()
-
-      level_1_1 = insert(:account, parent: level_0)
-      level_2_1 = insert(:account, parent: level_1_1)
-
-      level_1_2 = insert(:account, parent: level_0)
-      level_2_2 = insert(:account, parent: level_1_2)
-
-      admin = insert(:role, name: "admin", priority: 111_111)
-
-      {:ok, _inserted_membership_1} = Membership.assign(user, level_2_1, admin, %System{})
-      {:ok, _inserted_membership_2} = Membership.assign(user, level_2_2, admin, %System{})
-      {res, membership} = Membership.assign(user, level_0, admin, %System{})
-
-      assert res == :ok
-      assert membership.user_uuid == user.uuid
-      assert membership.account_uuid == level_0.uuid
-      assert membership.role_uuid == admin.uuid
-
-      assert length(Membership.all_by_user(user)) == 1
-    end
-
-    test "returns {:error} on successful assignment" do
-      user = insert(:user)
-      account = insert(:account)
-      role = insert(:role, %{name: "some_role"})
-
-      {res, membership} = Membership.assign(user, account, "some_role", %System{})
-
-      assert res == :ok
-      assert membership.user_uuid == user.uuid
-      assert membership.account_uuid == account.uuid
-      assert membership.role_uuid == role.uuid
-    end
-
     test "returns {:error, :role_not_found} if the given role does not exist" do
       user = insert(:user)
       account = insert(:account)
@@ -297,9 +101,6 @@ defmodule EWalletDB.MembershipTest do
       {res, reason} = Membership.assign(user, account, "missing_role", %System{})
       assert res == :error
       assert reason == :role_not_found
-    end
-
-    test "prevents a user from being assigned if he is already an ancestor" do
     end
   end
 

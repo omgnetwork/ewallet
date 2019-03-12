@@ -34,7 +34,7 @@ defmodule AdminAPI.ConnCase do
   alias Ecto.UUID
   alias EWallet.{MintGate, TransactionGate}
   alias EWalletConfig.ConfigTestHelper
-  alias EWalletDB.{Account, Key, Repo, User}
+  alias EWalletDB.{Account, Membership, GlobalRole, Key, Repo, User}
   alias Utils.{Types.ExternalID, Helpers.Crypto, Helpers.DateFormatter}
   alias ActivityLogger.System
 
@@ -115,17 +115,19 @@ defmodule AdminAPI.ConnCase do
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
     end
 
-    config_pid = start_config_server()
+    # Insert account via `Account.insert/1` instead of the test
+    # factory to initialize wallets, etc.
+    {:ok, account} = :account |> params_for() |> Account.insert()
 
-    # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
-    {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
+    config_pid = start_config_server(account)
 
     # Insert necessary records for making authenticated calls.
     admin =
       insert(:admin, %{
         id: @admin_id,
         email: @user_email,
-        password_hash: Crypto.hash_password(@password)
+        password_hash: Crypto.hash_password(@password),
+        global_role: GlobalRole.super_admin()
       })
 
     # Insert user via `User.insert/1` to initialize wallets, etc.
@@ -144,17 +146,20 @@ defmodule AdminAPI.ConnCase do
 
     # Keys need to be inserted through `EWalletDB.Key.insert/1`
     # so that the secret key is hashed and usable by the tests.
-    :key
-    |> params_for(%{
-      account: account,
-      access_key: @access_key,
-      secret_key: @secret_key
-    })
-    |> Key.insert()
+    {:ok, key} =
+      :key
+      |> params_for(%{
+        access_key: @access_key,
+        secret_key: @secret_key,
+        global_role: GlobalRole.super_admin()
+      })
+      |> Key.insert()
 
     role = insert(:role, %{name: "admin"})
+
+    {:ok, _} = Membership.assign(admin, account, role, %System{})
+    {:ok, _} = Membership.assign(key, account, role, %System{})
     _api_key = insert(:api_key, %{id: @api_key_id, key: @api_key, owner_app: "admin_api"})
-    _membership = insert(:membership, %{user: admin, role: role, account: account})
 
     # Setup could return all the inserted credentials using ExUnit context
     # by returning {:ok, context_map}. But it would make the code
@@ -163,7 +168,7 @@ defmodule AdminAPI.ConnCase do
     %{config_pid: config_pid}
   end
 
-  def start_config_server do
+  def start_config_server(account) do
     config_pid = start_supervised!(EWalletConfig.Config)
 
     ConfigTestHelper.restart_config_genserver(
@@ -174,7 +179,8 @@ defmodule AdminAPI.ConnCase do
       %{
         "base_url" => "http://localhost:4000",
         "email_adapter" => "test",
-        "sender_email" => "admin@example.com"
+        "sender_email" => "admin@example.com",
+        "master_account" => account.id
       }
     )
 
@@ -207,6 +213,38 @@ defmodule AdminAPI.ConnCase do
     schema
     |> last(:inserted_at)
     |> Repo.one()
+  end
+
+  @spec set_admin_as_super_admin() :: {:ok, EWalletDB.User.t()}
+  def set_admin_as_super_admin(admin_user \\ nil) do
+    {:ok, _} =
+      User.update(admin_user || get_test_admin(), %{
+        global_role: "super_admin",
+        originator: %System{}
+      })
+  end
+
+  @spec set_admin_as_none() :: {:ok, EWalletDB.User.t()}
+  def set_admin_as_none(admin_user \\ nil) do
+    {:ok, _} =
+      User.update(admin_user || get_test_admin(), %{
+        global_role: "none",
+        originator: %System{}
+      })
+  end
+
+  @spec set_key_role_to_none() :: {:ok, EWalletDB.Key.t()}
+  def set_key_role_to_none(key \\ nil) do
+    {:ok, _} =
+      Key.update(key || get_test_key(), %{
+        global_role: "none",
+        originator: %System{}
+      })
+  end
+
+  @spec add_admin_to_account(%Account{}, %User{} | %Key{}) :: {:ok, any()}
+  def add_admin_to_account(account, admin_user \\ nil) do
+    {:ok, _} = Membership.assign(admin_user || get_test_admin(), account, "admin", %System{})
   end
 
   def mint!(token, amount \\ 1_000_000, originator \\ %System{}) do
@@ -372,6 +410,8 @@ defmodule AdminAPI.ConnCase do
         opts = unquote(opts)
         field_name = Atom.to_string(field)
 
+        set_admin_as_super_admin()
+
         factory_attrs = Keyword.get(opts, :factory_attrs, %{})
 
         _ = insert(factory, Map.merge(%{field => "value_1"}, factory_attrs))
@@ -443,6 +483,8 @@ defmodule AdminAPI.ConnCase do
         field = unquote(field)
         opts = unquote(opts)
         field_name = Atom.to_string(field)
+
+        set_admin_as_super_admin()
 
         factory_attrs = Keyword.get(opts, :factory_attrs, %{})
 

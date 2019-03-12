@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.AccountWalletController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.WalletPolicy
+  alias EWallet.{AccountPolicy, WalletPolicy}
   alias EWallet.Web.{Orchestrator, BalanceLoader, Paginator, V1.WalletOverlay}
   alias EWalletDB.{Account, Wallet}
 
@@ -32,35 +32,31 @@ defmodule AdminAPI.V1.AccountWalletController do
 
   defp do_all(%{"id" => id} = attrs, type, conn) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account) do
-      account
-      |> prepare_account_uuids(attrs["owned"])
-      |> load_wallets(type)
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
+      query
+      |> load_wallets(account, type)
       |> Orchestrator.query(WalletOverlay, attrs)
       |> BalanceLoader.add_balances()
       |> respond_multiple(conn)
     else
-      {:error, error} -> handle_error(conn, error)
-      error -> handle_error(conn, error)
+      {:error, error} ->
+        handle_error(conn, error)
+
+      error ->
+        handle_error(conn, error)
     end
   end
 
   defp do_all(_, _, conn), do: handle_error(conn, :missing_id)
 
-  defp prepare_account_uuids(account, true = _owned) do
-    [account.uuid]
+  defp load_wallets(query, account, :accounts) do
+    Wallet.query_all_for_account_uuids(query, [account.uuid])
   end
 
-  defp prepare_account_uuids(account, _owned) do
-    Account.get_all_descendants_uuids(account)
-  end
-
-  defp load_wallets(account_uuids, :accounts) do
-    Wallet.query_all_for_account_uuids(Wallet, account_uuids)
-  end
-
-  defp load_wallets(account_uuids, :accounts_and_users) do
-    Wallet.query_all_for_account_uuids_and_user(Wallet, account_uuids)
+  defp load_wallets(query, account, :accounts_and_users) do
+    Wallet.query_all_for_account_uuids_and_user(query, [account.uuid])
   end
 
   # Respond with a list of wallets
@@ -76,8 +72,12 @@ defmodule AdminAPI.V1.AccountWalletController do
     handle_error(conn, code)
   end
 
-  @spec permit(:all, map(), %Account{}) :: :ok | {:error, any()} | no_return()
-  defp permit(action, params, data) do
-    Bodyguard.permit(WalletPolicy, action, params, data)
+  @spec authorize(:all, map(), any()) :: :ok | {:error, any()} | no_return()
+  defp authorize(action, actor, %Account{} = account) do
+    AccountPolicy.authorize(action, actor, account)
+  end
+
+  defp authorize(action, actor, wallet) do
+    WalletPolicy.authorize(action, actor, wallet)
   end
 end

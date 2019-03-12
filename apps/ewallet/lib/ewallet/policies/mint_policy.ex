@@ -16,18 +16,15 @@ defmodule EWallet.MintPolicy do
   @moduledoc """
   The authorization policy for mints.
   """
-  @behaviour Bodyguard.Policy
-  alias EWalletDB.{Account, User}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
+  alias EWalletDB.Mint
 
-  def authorize(:all, _user_or_key, _category_id), do: true
-
-  def authorize(_, %{key: key}, _category_id) do
-    Account.get_master_account().uuid == key.account.uuid
+  def authorize(:create, attrs, mint_attrs) do
+    Bouncer.bounce(attrs, %Permission{action: :create, target: mint_attrs})
   end
 
-  def authorize(_, %{admin_user: user}, _category_id) do
-    User.master_admin?(user.id)
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :mints, Mint, target)
   end
-
-  def authorize(_, _, _), do: false
 end

@@ -12,7 +12,8 @@ config :ewallet_db,
     :aws_access_key_id,
     :aws_secret_access_key,
     :gcs_bucket,
-    :gcs_credentials
+    :gcs_credentials,
+    :master_account
   ]
 
 import_config "#{Mix.env()}.exs"
