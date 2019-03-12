@@ -4407,7 +4407,7 @@ paths:
               required:
                 - id
               example:
-                id: txn_01cbfg5m2ee06kzm8tbysfmmw5
+                id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
         '200': *ref_53
         '500': *ref_2
@@ -4447,9 +4447,9 @@ paths:
               required:
                 - id
               example:
-                id: txn_01cbfg5m2ee06kzm8tbysfmmw5
+                id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_52
+        '200': *ref_53
         '500': *ref_2
   /access_key.all:
     post:

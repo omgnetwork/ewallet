@@ -1514,7 +1514,7 @@ paths:
               required:
                 - id
               example:
-                id: txn_01cbfg5m2ee06kzm8tbysfmmw5
+                id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
         '200': *ref_14
         '500': *ref_1
@@ -1535,7 +1535,7 @@ paths:
       tags:
         - TransactionConsumption
       summary: Cancel a pending consumption.
-      operationId: reject_transaction_consumption
+      operationId: cancel_transaction_consumption
       security:
         - ClientAuth: []
       requestBody:
@@ -1550,7 +1550,7 @@ paths:
               required:
                 - id
               example:
-                id: txn_01cbfg5m2ee06kzm8tbysfmmw5
+                id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
         '200': *ref_14
         '500': *ref_1
