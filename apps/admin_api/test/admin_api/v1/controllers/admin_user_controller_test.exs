@@ -39,15 +39,17 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
 
     test_with_auths "returns a list of admins according to start_from and start_by" do
       account = insert(:account)
+      role = insert(:role, %{name: "some_role"})
 
       admin1 = insert(:admin, %{email: "admin1@omise.co"})
       admin2 = insert(:admin, %{email: "admin2@omise.co"})
       admin3 = insert(:admin, %{email: "admin3@omise.co"})
       _user = insert(:user, %{email: "user1@omise.co"})
 
-      {:ok, _} = Membership.assign(admin1, account, "admin", %System{})
-      {:ok, _} = Membership.assign(admin2, account, "admin", %System{})
-      {:ok, _} = Membership.assign(admin3, account, "admin", %System{})
+
+      insert(:membership, %{user: admin1, account: account, role: role})
+      insert(:membership, %{user: admin2, account: account, role: role})
+      insert(:membership, %{user: admin3, account: account, role: role})
 
       attrs = %{
         "start_after" => admin1.id,

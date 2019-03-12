@@ -211,8 +211,8 @@ defmodule EWalletDB.TransactionRequest do
         error = "can't be set when consumption_interval_duration is nil."
 
         changeset
-        |> validate_dependant_field(:max_consumptions_per_interval, error)
-        |> validate_dependant_field(:max_consumptions_per_interval_per_user, error)
+        |> validate_dependent_field(:max_consumptions_per_interval, error)
+        |> validate_dependent_field(:max_consumptions_per_interval_per_user, error)
 
       _ ->
         changeset
