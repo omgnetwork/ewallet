@@ -73,6 +73,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       status: consumption.status,
       approved_at: DateFormatter.to_iso8601(consumption.approved_at),
       rejected_at: DateFormatter.to_iso8601(consumption.rejected_at),
+      cancelled_at: DateFormatter.to_iso8601(consumption.cancelled_at),
       confirmed_at: DateFormatter.to_iso8601(consumption.confirmed_at),
       failed_at: DateFormatter.to_iso8601(consumption.failed_at),
       expired_at: DateFormatter.to_iso8601(consumption.expired_at),

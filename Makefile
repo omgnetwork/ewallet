@@ -1,9 +1,16 @@
 all: clean build-prod
 
-RELEASE_VERSION != awk '/version:/ { gsub(/[^0-9a-z\.\-]+/, "", $$2); print $$2 }' < apps/ewallet/mix.exs
 IMAGE_NAME      ?= "omisego/ewallet:latest"
 IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:v1.2"
-IMAGE_BUILD_DIR ?= "/tmp/ewallet-docker"
+IMAGE_BUILD_DIR ?= $(PWD)
+
+ASSETS          ?= cd apps/admin_panel/assets &&
+ENV_DEV         ?= env MIX_ENV=dev
+ENV_TEST        ?= env MIX_ENV=test
+ENV_PROD        ?= env MIX_ENV=prod
+
+LANG            := en_US.UTF-8
+LC_ALL          := en_US.UTF-8
 
 #
 # Setting-up
@@ -103,8 +110,8 @@ test-assets: build-assets
 docker-prod:
 	docker run --rm -it \
 		-v $(PWD):/app \
-		-v $(IMAGE_BUILD_DIR)/elixir_deps:/app/deps \
-		-v $(IMAGE_BUILD_DIR)/node_modules:/app/apps/admin_panel/assets/node_modules \
+		-v $(IMAGE_BUILD_DIR)/deps:/app/deps \
+		-v $(IMAGE_BUILD_DIR)/apps/admin_panel/assets/node_modules:/app/apps/admin_panel/assets/node_modules \
 		-u root \
 		--entrypoint /bin/sh \
 		$(IMAGE_BUILDER) \
@@ -112,7 +119,7 @@ docker-prod:
 
 docker-build:
 	docker build \
-		--build-arg release_version=$(RELEASE_VERSION) \
+		--build-arg release_version=$$(awk '/version:/ { gsub(/[^0-9a-z\.\-]+/, "", $$2); print $$2 }' $(PWD)/apps/ewallet/mix.exs) \
 		--cache-from $(IMAGE_NAME) \
 		-t $(IMAGE_NAME) \
 		.

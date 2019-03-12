@@ -92,3 +92,5 @@ paths:
     $ref: 'transaction_consumption/paths.yaml#/me.approve_transaction_consumption'
   /me.reject_transaction_consumption:
     $ref: 'transaction_consumption/paths.yaml#/me.reject_transaction_consumption'
+  /me.cancel_transaction_consumption:
+    $ref: 'transaction_consumption/paths.yaml#/me.cancel_transaction_consumption'

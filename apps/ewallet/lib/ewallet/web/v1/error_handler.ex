@@ -245,6 +245,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "transaction_consumption:unfinalized",
       description: "The specified transaction consumption has not been finalized yet."
     },
+    uncancellable_transaction_consumption: %{
+      code: "transaction_consumption:uncancellable",
+      description: "The specified transaction consumption can't be cancelled."
+    },
+    cancelled_transaction_consumption: %{
+      code: "transaction_consumption:cancelled",
+      description: "The specified transaction consumption has been cancelled."
+    },
     invalid_token_provided: %{
       code: "transaction_consumption:invalid_token",
       description: "The provided token does not match the transaction request token."

@@ -115,13 +115,15 @@ defmodule EWalletDB.Role do
         all: :accounts,
         get: :accounts,
         listen: :accounts,
-        create: :accounts
+        create: :accounts,
+        cancel: :accounts
       },
       end_user_transaction_consumptions: %{
         all: :accounts,
         get: :accounts,
         listen: :accounts,
-        create: :accounts
+        create: :accounts,
+        cancel: :accounts
       },
       exports: :none,
       configuration: :none
