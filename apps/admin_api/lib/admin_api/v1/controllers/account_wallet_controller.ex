@@ -68,6 +68,10 @@ defmodule AdminAPI.V1.AccountWalletController do
     handle_error(conn, code, description)
   end
 
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
   @spec authorize(:all, map(), any()) :: :ok | {:error, any()} | no_return()
   defp authorize(action, actor, %Account{} = account) do
     AccountPolicy.authorize(action, actor, account)

@@ -253,6 +253,37 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_8.id end)
     end
 
+    test_with_auths "returns match_all filtered transactions with no permissions", context do
+      set_admin_as_none()
+
+      response =
+        request("/transaction.all", %{
+          "match_all" => [
+            %{
+              "field" => "from_wallet.address",
+              "comparator" => "eq",
+              "value" => context.wallet_4.address
+            },
+            %{
+              "field" => "status",
+              "comparator" => "eq",
+              "value" => "confirmed"
+            }
+          ]
+        })
+
+      transactions = response["data"]["data"]
+
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_1.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_2.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_3.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_4.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_5.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_6.id end)
+      assert Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_7.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_8.id end)
+    end
+
     test_with_auths "returns match_any filtered transactions", context do
       response =
         request("/transaction.all", %{

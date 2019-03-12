@@ -84,4 +84,11 @@ defmodule EWallet.Web.V1.TokenOverlay do
       created_at: nil,
       account: AccountOverlay.default_preload_assocs()
     ]
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
+    ]
 end
