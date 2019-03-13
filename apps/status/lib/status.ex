@@ -21,6 +21,7 @@ defmodule Status do
   alias Utils.Helpers.Normalize
 
   def start(_type, _args) do
+    DeferredConfig.populate(:status)
     import Supervisor.Spec, warn: false
 
     metrics =
@@ -70,9 +71,8 @@ defmodule Status do
 
   @spec is_enabled?() :: boolean() | nil
   defp is_enabled?() do
-    Normalize.to_boolean(System.get_env("METRICS"))
-  rescue
-    Normalize.ToBooleanError ->
-      Application.get_env(:status, :metrics)
+    :status
+    |> Application.get_env(:metrics)
+    |> Normalize.to_boolean()
   end
 end
