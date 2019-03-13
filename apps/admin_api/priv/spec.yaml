@@ -3600,7 +3600,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_16
+                - *ref_12
               properties:
                 address:
                   type: string
@@ -3614,9 +3614,9 @@ paths:
           content:
             application/vnd.omisego.v1+json:
               schema:
-                description: The response schema for a list of balance
+                description: The response schema for a list of balances
                 allOf:
-                  - *ref_12
+                  - *ref_13
                   - type: object
                     properties:
                       data:
@@ -4571,7 +4571,7 @@ paths:
               example:
                 id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_53
+        '200': *ref_54
         '500': *ref_2
   /access_key.all:
     post:
@@ -5383,7 +5383,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': &ref_63
+        '200': &ref_64
           description: Returns unauthorized error
           content:
             application/vnd.omisego.v1+json:
@@ -5420,7 +5420,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_63
+        '200': *ref_64
         '500': *ref_2
   /role.create:
     post:
@@ -5433,7 +5433,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_63
+        '200': *ref_64
         '500': *ref_2
   /role.update:
     post:
@@ -5446,7 +5446,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_63
+        '200': *ref_64
         '500': *ref_2
   /role.delete:
     post:
@@ -5459,5 +5459,5 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_63
+        '200': *ref_64
         '500': *ref_2
