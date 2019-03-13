@@ -16,4 +16,10 @@ config :ewallet_db,
     :master_account
   ]
 
+config :ewallet_db, EWalletDB.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  pool: DB.SharedConnectionPool,
+  shared_pool_id: :ewallet,
+  migration_timestamps: [type: :naive_datetime_usec]
+
 import_config "#{Mix.env()}.exs"
