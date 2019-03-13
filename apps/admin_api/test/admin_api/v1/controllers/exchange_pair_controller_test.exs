@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -84,26 +84,20 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
     end
 
-    test_with_auths "returns 'exchange:pair_id_not_found' if the given ID was not found" do
+    test_with_auths "returns 'unauthorized' if the given ID was not found" do
       response = request("/exchange_pair.get", %{"id" => "exg_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "exchange:pair_id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no exchange pair corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test_with_auths "returns 'exchange:id_not_found' if the given ID format is invalid" do
+    test_with_auths "returns 'unauthorized' if the given ID format is invalid" do
       response = request("/exchange_pair.get", %{"id" => "not_an_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "exchange:pair_id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no exchange pair corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 
@@ -382,15 +376,12 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided."
     end
 
-    test_with_auths "returns a 'user:unauthorized' error if id is invalid" do
+    test_with_auths "returns a 'unauthorized' error if id is invalid" do
       response = request("/exchange_pair.update", %{id: "invalid_id"})
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "exchange:pair_id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no exchange pair corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "returns an error if given an exchange rate of 0" do
@@ -544,10 +535,7 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "exchange:pair_id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no exchange pair corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "responds with an error if the user is not authorized to delete the exchange pair" do

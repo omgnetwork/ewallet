@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ defmodule EWalletAPI.V1.TransactionRequestChannel do
 
   def join("transaction_request:" <> request_id, _params, %{assigns: %{auth: auth}} = socket) do
     with %TransactionRequest{} = request <- TransactionRequest.get(request_id, preload: :wallet),
-         :ok <- Bodyguard.permit(TransactionRequestPolicy, :join, auth, request) do
+         {:ok, _} <- TransactionRequestPolicy.authorize(:listen, auth, request) do
       {:ok, socket}
     else
       _ -> {:error, :forbidden_channel}

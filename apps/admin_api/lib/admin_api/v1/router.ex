@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -80,6 +80,7 @@ defmodule AdminAPI.V1.Router do
     post("/transaction_consumption.get", TransactionConsumptionController, :get)
     post("/transaction_consumption.approve", TransactionConsumptionController, :approve)
     post("/transaction_consumption.reject", TransactionConsumptionController, :reject)
+    post("/transaction_consumption.cancel", TransactionConsumptionController, :cancel)
 
     # Category endpoints
     post("/category.all", CategoryController, :all)

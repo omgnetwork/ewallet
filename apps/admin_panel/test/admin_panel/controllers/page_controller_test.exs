@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,11 +40,12 @@ defmodule AdminPanel.PageControllerTest do
     end
 
     test "returns the main front-end app with the API key" do
-      _account = insert(:account)
+      account = insert(:account)
 
       {:ok, api_key} =
         APIKey.insert(%{
           owner_app: "admin_api",
+          account_uuid: account.uuid,
           originator: %System{}
         })
 

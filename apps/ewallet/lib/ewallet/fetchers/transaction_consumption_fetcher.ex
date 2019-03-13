@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ defmodule EWallet.TransactionConsumptionFetcher do
 
   @spec get(String.t()) ::
           {:ok, %TransactionConsumption{}}
-          | {:error, :transaction_consumption_not_found}
-  def get(nil), do: {:error, :transaction_consumption_not_found}
+          | {:error, :invalid_parameter, String.t()}
+  def get(nil), do: {:error, :invalid_parameter, "`id` cannot be nil"}
 
   def get(id) do
     %{id: id}
@@ -32,7 +32,7 @@ defmodule EWallet.TransactionConsumptionFetcher do
     |> return_consumption()
   end
 
-  defp return_consumption(nil), do: {:error, :transaction_consumption_not_found}
+  defp return_consumption(nil), do: {:error, :unauthorized}
   defp return_consumption(consumption), do: {:ok, consumption}
 
   @spec idempotent_fetch(String.t()) ::

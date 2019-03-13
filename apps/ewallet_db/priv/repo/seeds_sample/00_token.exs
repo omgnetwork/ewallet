@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,14 +33,6 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
       name: "Kyber",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000,  # 1,000,000 KNC
-      account_name: "master_account",
-      originator: %Seeder{}
-    },
-    %{
-      symbol: "BTC",
-      name: "Bitcoin",
-      subunit_to_unit: 1_000_000_000_000_000_000,
-      genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 BTC
       account_name: "master_account",
       originator: %Seeder{}
     },

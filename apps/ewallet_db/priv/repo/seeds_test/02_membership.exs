@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ defmodule EWalletDB.Repo.Seeds.MembershipSeed do
     account = Account.get_master_account()
     role = Role.get_by(name: "admin")
 
-    case Membership.get_by_user_and_account(user, account) do
+    case Membership.get_by_member_and_account(user, account) do
       nil ->
         case Membership.assign(user, account, role, %Seeder{}) do
           {:ok, membership} ->

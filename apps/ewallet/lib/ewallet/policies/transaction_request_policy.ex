@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,37 +16,17 @@ defmodule EWallet.TransactionRequestPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """
-  @behaviour Bodyguard.Policy
-  alias EWallet.{WalletPolicy, AccountPolicy}
-  alias EWalletDB.{Wallet, Account}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
+  alias EWalletDB.TransactionRequest
 
-  def authorize(:all, _admin_user_or_key, nil), do: true
-
-  def authorize(:all, params, %Account{} = account) do
-    AccountPolicy.authorize(:get, params, account.id)
+  @spec authorize(any(), any(), any()) ::
+          {:error, EWallet.Bouncer.Permission.t()} | {:ok, EWallet.Bouncer.Permission.t()}
+  def authorize(:create, attrs, target) do
+    Bouncer.bounce(attrs, %Permission{action: :create, target: target})
   end
 
-  def authorize(:get, _params, _request) do
-    true
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :transaction_requests, TransactionRequest, target)
   end
-
-  def authorize(:join, %{admin_user: _} = params, request) do
-    authorize(:get, params, request)
-  end
-
-  def authorize(:join, %{key: _} = params, request) do
-    authorize(:get, params, request)
-  end
-
-  def authorize(:join, %{end_user: _} = params, request) do
-    WalletPolicy.authorize(:join, params, request.wallet)
-  end
-
-  # Check with the passed attributes if the current accessor can
-  # create a request for the account
-  def authorize(:create, params, %Wallet{} = wallet) do
-    WalletPolicy.authorize(:admin, params, wallet)
-  end
-
-  def authorize(_, _, _), do: false
 end

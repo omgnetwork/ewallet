@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ defmodule EWalletDB.Wallet do
   def burn, do: @burn
   def primary, do: @primary
   def secondary, do: @secondary
+  def secondary(id), do: "#{@secondary}_#{id}"
 
   def genesis_address, do: @genesis_address
 
@@ -142,15 +143,17 @@ defmodule EWalletDB.Wallet do
   end
 
   @spec all_for(any()) :: Ecto.Query.t() | nil
-  def all_for(%Account{} = account) do
-    from(t in Wallet, where: t.account_uuid == ^account.uuid, preload: [:user, :account])
+  def all_for(target, query \\ Wallet)
+
+  def all_for(%Account{} = account, query) do
+    from(w in query, where: w.account_uuid == ^account.uuid, preload: [:user, :account])
   end
 
-  def all_for(%User{} = user) do
-    from(t in Wallet, where: t.user_uuid == ^user.uuid, preload: [:user, :account])
+  def all_for(%User{} = user, query) do
+    from(w in query, where: w.user_uuid == ^user.uuid, preload: [:user, :account])
   end
 
-  def all_for(_), do: nil
+  def all_for(_, _), do: nil
 
   @spec query_all_for_account_uuids_and_user(Ecto.Queryable.t(), [String.t()]) ::
           Ecto.Queryable.t()

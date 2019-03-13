@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,24 +16,15 @@ defmodule EWallet.CategoryPolicy do
   @moduledoc """
   The authorization policy for categories.
   """
-  @behaviour Bodyguard.Policy
-  alias EWalletDB.{Account, User}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
+  alias EWalletDB.Category
 
-  # Any user can get a category
-  def authorize(:all, _user_or_key, _category_id), do: true
-  def authorize(:get, _user_or_key, _category_id), do: true
-
-  # Only keys belonging to master account can create a category
-  # create / update / delete
-  def authorize(_, %{key: key}, _category_id) do
-    Account.get_master_account().uuid == key.account.uuid
+  def authorize(:create, actor, _cateogry_attrs) do
+    Bouncer.bounce(actor, %Permission{action: :create, target: %Category{}})
   end
 
-  # Only users with an admin role on master account can create a category
-  # create / update / delete
-  def authorize(_, %{admin_user: user}, _category_id) do
-    User.master_admin?(user.id)
+  def authorize(action, actor, target) do
+    PolicyHelper.authorize(action, actor, :categories, Category, target)
   end
-
-  def authorize(_, _, _), do: false
 end

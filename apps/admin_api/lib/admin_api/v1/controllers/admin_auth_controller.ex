@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AdminAuthController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AdminUserAuthenticator
-  alias EWallet.AccountPolicy
+  alias EWallet.{AccountPolicy, AdminUserPolicy}
   alias EWallet.Web.{Orchestrator, Originator, V1.AuthTokenOverlay}
   alias EWalletDB.{Account, AuthToken, User}
 
@@ -40,24 +40,9 @@ defmodule AdminAPI.V1.AdminAuthController do
     end
   end
 
-  def switch_account(conn, %{"account_id" => account_id} = attrs) do
-    with {:ok, _current_user} <- permit(:get, conn.assigns),
-         %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit_account(:get, conn.assigns, account.id),
-         token <- conn.private.auth_auth_token,
-         %AuthToken{} = token <-
-           AuthToken.get_by_token(token, :admin_api) || {:error, :auth_token_not_found},
-         originator <- Originator.extract(conn.assigns),
-         {:ok, token} <- AuthToken.switch_account(token, account, originator),
-         {:ok, token} <- Orchestrator.one(token, AuthTokenOverlay, attrs) do
-      render_token(conn, token)
-    else
-      {:error, code} when is_atom(code) ->
-        handle_error(conn, code)
-    end
+  def switch_account(conn, _attrs) do
+    handle_error(conn, :unauthorized)
   end
-
-  def switch_account(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
   defp render_token(conn, auth_token) do
     render(conn, :auth_token, %{auth_token: auth_token})
@@ -67,7 +52,8 @@ defmodule AdminAPI.V1.AdminAuthController do
   Invalidates the authentication token used in this request.
   """
   def logout(conn, _attrs) do
-    with {:ok, _current_user} <- permit(:update, conn.assigns),
+    with %User{} = user <- conn.assigns[:admin_user] || {:error, :unauthorized},
+         {:ok, _} <- authorize(:logout, conn.assigns, user),
          originator <- Originator.extract(conn.assigns) do
       conn
       |> AdminUserAuthenticator.expire_token(originator)
@@ -78,17 +64,15 @@ defmodule AdminAPI.V1.AdminAuthController do
     end
   end
 
-  @spec permit(:get | :update, map()) ::
-          {:ok, %EWalletDB.User{}} | {:error, :access_key_unauthorized}
-  defp permit(_action, %{admin_user: admin_user}) do
-    {:ok, admin_user}
+  @spec authorize(:switch_account | :logout, map(), String.t() | nil) ::
+          {:ok, any()} | {:error, any()}
+  defp authorize(action, actor, %Account{} = account) do
+    AccountPolicy.authorize(action, actor, account)
   end
 
-  defp permit(_action, %{key: _key}) do
-    {:error, :access_key_unauthorized}
+  defp authorize(action, %{admin_user: _admin_user} = actor, target) do
+    AdminUserPolicy.authorize(action, actor, target)
   end
 
-  defp permit_account(action, params, account_id) do
-    Bodyguard.permit(AccountPolicy, action, params, account_id)
-  end
+  defp authorize(_action, %{key: _key}, _target), do: {:error, :access_key_unauthorized}
 end

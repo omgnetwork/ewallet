@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 defmodule AdminAPI.V1.TransactionRequestChannelTest do
   use AdminAPI.ChannelCase, async: false
   alias AdminAPI.V1.TransactionRequestChannel
-  alias EWalletDB.Account
+  alias EWalletDB.{Account, Role, Membership}
   alias Ecto.UUID
+  alias ActivityLogger.System
 
   defp topic(id), do: "transaction_request:#{id}"
 
@@ -33,9 +34,8 @@ defmodule AdminAPI.V1.TransactionRequestChannelTest do
       end)
     end
 
-    test "can join the channel of an account's request that is a child of the current account" do
-      master = Account.get_master_account()
-      account = insert(:account, %{parent: master})
+    test "can join the channel of an account's request" do
+      account = Account.get_master_account()
       request = insert(:transaction_request, %{account: account})
       topic = topic(request.id)
 
@@ -46,14 +46,15 @@ defmodule AdminAPI.V1.TransactionRequestChannelTest do
       end)
     end
 
-    test "can join the channel of an account's request that is a parrent account" do
-      master_account = Account.get_master_account()
-      account = insert(:account, %{parent: master_account})
-      role = insert(:role, %{name: "some_role"})
+    test "can join the channel of an account's request with account role" do
+      account = Account.get_master_account()
+      role = Role.get_by(name: "admin")
       admin = insert(:admin)
-      insert(:membership, %{user: admin, account: account, role: role})
-      insert(:key, %{account: account, access_key: "a_sub_key", secret_key: "123"})
-      request = insert(:transaction_request, %{account: master_account})
+      key = insert(:key, %{access_key: "a_sub_key", secret_key: "123"})
+      {:ok, _} = Membership.assign(admin, account, role, %System{})
+      {:ok, _} = Membership.assign(key, account, role, %System{})
+
+      request = insert(:transaction_request, %{account: account})
       topic = topic(request.id)
 
       test_with_auths(

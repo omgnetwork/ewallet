@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 defmodule AdminAPI.V1.AdminUserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
-  alias EWalletDB.{User, Account, AuthToken, Role, Membership}
+  alias EWalletDB.{User, Account, AuthToken, Membership}
   alias ActivityLogger.System
 
   @owner_app :some_app
@@ -37,7 +37,7 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test_with_auths "returns a list of admins according to search_term, sort_by and sort_direction" do
+    test_with_auths "returns a list of admins according to start_from and start_by" do
       account = insert(:account)
       role = insert(:role, %{name: "some_role"})
       admin1 = insert(:admin, %{email: "admin1@omise.co"})
@@ -48,6 +48,32 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       insert(:membership, %{user: admin1, account: account, role: role})
       insert(:membership, %{user: admin2, account: account, role: role})
       insert(:membership, %{user: admin3, account: account, role: role})
+
+      attrs = %{
+        "start_after" => admin1.id,
+        "start_by" => "id"
+      }
+
+      response = request("/admin.all", attrs)
+      admins = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(admins) == 2
+      assert Enum.at(admins, 0)["email"] == "admin2@omise.co"
+      assert Enum.at(admins, 1)["email"] == "admin3@omise.co"
+    end
+
+    test_with_auths "returns a list of admins according to search_term, sort_by and sort_direction" do
+      account = insert(:account)
+
+      admin1 = insert(:admin, %{email: "admin1@omise.co"})
+      admin2 = insert(:admin, %{email: "admin2@omise.co"})
+      admin3 = insert(:admin, %{email: "admin3@omise.co"})
+      _user = insert(:user, %{email: "user1@omise.co"})
+
+      {:ok, _} = Membership.assign(admin1, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin2, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin3, account, "admin", %System{})
 
       attrs = %{
         # Search is case-insensitive
@@ -69,15 +95,17 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_any filtering" do
+      account = insert(:account)
+
       admin_1 = insert(:admin, username: "value_1")
       admin_2 = insert(:admin, username: "value_2")
       admin_3 = insert(:admin, username: "value_3")
       admin_4 = insert(:admin, username: "value_4")
 
-      _ = insert(:membership, %{user: admin_1})
-      _ = insert(:membership, %{user: admin_2})
-      _ = insert(:membership, %{user: admin_3})
-      _ = insert(:membership, %{user: admin_4})
+      {:ok, _} = Membership.assign(admin_1, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_2, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_3, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_4, account, "admin", %System{})
 
       attrs = %{
         "match_any" => [
@@ -99,23 +127,25 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       assert response["success"]
 
       records = response["data"]["data"]
+      assert Enum.count(records) == 2
       assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
       assert Enum.any?(records, fn r -> r["id"] == admin_4.id end)
-      assert Enum.count(records) == 2
     end
 
     # This is a variation of `ConnCase.test_supports_match_all/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_all filtering" do
+      account = insert(:account)
+
       admin_1 = insert(:admin, %{username: "this_should_almost_match"})
       admin_2 = insert(:admin, %{username: "this_should_match"})
       admin_3 = insert(:admin, %{username: "should_not_match"})
       admin_4 = insert(:admin, %{username: "also_should_not_match"})
 
-      _ = insert(:membership, %{user: admin_1})
-      _ = insert(:membership, %{user: admin_2})
-      _ = insert(:membership, %{user: admin_3})
-      _ = insert(:membership, %{user: admin_4})
+      {:ok, _} = Membership.assign(admin_1, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_2, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_3, account, "admin", %System{})
+      {:ok, _} = Membership.assign(admin_4, account, "admin", %System{})
 
       attrs = %{
         "match_all" => [
@@ -137,17 +167,16 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       assert response["success"]
 
       records = response["data"]["data"]
-      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
       assert Enum.count(records) == 1
+      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
     end
   end
 
   describe "/admin.get" do
     test_with_auths "returns an admin by the given admin's ID" do
       account = insert(:account)
-      role = insert(:role, %{name: "some_role"})
       admin = insert(:admin, %{email: "admin@omise.co"})
-      _membership = insert(:membership, %{user: admin, account: account, role: role})
+      {:ok, _} = Membership.assign(admin, account, "admin", %System{})
 
       response = request("/admin.get", %{"id" => admin.id})
 
@@ -197,9 +226,8 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
   describe "/user.enable_or_disable" do
     test_with_auths "disable an admin succeed and disable his tokens" do
       account = Account.get_master_account()
-      role = insert(:role, %{name: "some_role"})
       admin = insert(:admin, %{email: "admin@omise.co"})
-      _membership = insert(:membership, %{user: admin, account: account, role: role})
+      {:ok, _} = Membership.assign(admin, account, "admin", %System{})
 
       {:ok, token} = AuthToken.generate(admin, @owner_app, %System{})
       token_string = token.token
@@ -217,36 +245,7 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
     end
 
-    test_with_auths "can't disable an admin in an account above the current one" do
-      master = Account.get_master_account()
-      role = Role.get_by(name: "admin")
-
-      admin = get_test_admin()
-      {:ok, _m} = Membership.unassign(admin, master, %System{})
-
-      master_admin = insert(:admin, %{email: "admin@omise.co"})
-      _membership = insert(:membership, %{user: master_admin, account: master, role: role})
-
-      sub_acc = insert(:account, parent: master, name: "Account 1")
-      {:ok, _m} = Membership.assign(admin, sub_acc, role, %System{})
-      key = insert(:key, %{account: sub_acc})
-
-      response =
-        request(
-          "/user.enable_or_disable",
-          %{
-            id: master_admin.id,
-            enabled: false
-          },
-          access_key: key.access_key,
-          secret_key: key.secret_key
-        )
-
-      assert response["success"] == false
-      assert response["data"]["code"] == "unauthorized"
-    end
-
-    test_with_auths "disable an admin that doesn't exist raises an error" do
+    test_with_auths "disable an admin that doesn't exist raises an 'unauthorized' error" do
       response =
         request("/admin.enable_or_disable", %{
           id: "invalid_id",
@@ -254,10 +253,7 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
         })
 
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "disable an admin with missing params raises an error" do
@@ -303,9 +299,8 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
 
     test "generates an activity log for an admin request" do
       account = Account.get_master_account()
-      role = insert(:role, %{name: "some_role"})
       admin = insert(:admin, %{email: "admin@omise.co"})
-      _membership = insert(:membership, %{user: admin, account: account, role: role})
+      {:ok, _} = Membership.assign(admin, account, "admin", %System{})
 
       timestamp = DateTime.utc_now()
 
@@ -325,9 +320,8 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
 
     test "generates an activity log for a provider request" do
       account = Account.get_master_account()
-      role = insert(:role, %{name: "some_role"})
       admin = insert(:admin, %{email: "admin@omise.co"})
-      _membership = insert(:membership, %{user: admin, account: account, role: role})
+      {:ok, _} = Membership.assign(admin, account, "admin", %System{})
 
       timestamp = DateTime.utc_now()
 

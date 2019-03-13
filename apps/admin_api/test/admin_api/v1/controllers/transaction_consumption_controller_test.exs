@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -93,6 +93,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         context.tc_3
       ]
 
+      assert response["success"]
       assert length(response["data"]["data"]) == length(transfers)
 
       # All transfers made during setup should exist in the response
@@ -113,6 +114,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           }
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 2
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -131,6 +133,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "search_term" => "pending"
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 2
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -150,6 +153,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "page" => 1
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 2
       transaction_1 = Enum.at(response["data"]["data"], 0)
       transaction_2 = Enum.at(response["data"]["data"], 1)
@@ -259,6 +263,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         context.tc_3
       ]
 
+      assert response["success"]
       assert length(response["data"]["data"]) == 3
 
       # All transfers made during setup should exist in the response
@@ -280,6 +285,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           }
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 2
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -300,6 +306,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "page" => 1
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 2
       transaction_1 = Enum.at(response["data"]["data"], 0)
       transaction_2 = Enum.at(response["data"]["data"], 1)
@@ -352,7 +359,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
              }
     end
 
-    test_with_auths "returns :id_not_found when id is not valid" do
+    test_with_auths "returns an 'unauthorized' error when id is not valid" do
       response =
         request("/user.get_transaction_consumptions", %{
           "id" => "fake",
@@ -360,19 +367,11 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_dir" => "asc"
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "messages" => nil,
-                 "object" => "error",
-                 "code" => "user:id_not_found",
-                 "description" => "There is no user corresponding to the provided id."
-               }
-             }
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test_with_auths "returns :provider_user_id_not_found when provider_user_id is not valid" do
+    test_with_auths "returns :unauthorized when provider_user_id is not valid" do
       response =
         request("/user.get_transaction_consumptions", %{
           "provider_user_id" => "fake",
@@ -380,17 +379,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_dir" => "asc"
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "messages" => nil,
-                 "object" => "error",
-                 "code" => "user:provider_user_id_not_found",
-                 "description" =>
-                   "There is no user corresponding to the provided provider_user_id."
-               }
-             }
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "returns all the transaction_consumptions for a user when given an id",
@@ -402,6 +392,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_dir" => "asc"
         })
 
+      assert response["success"]
       assert length(response["data"]["data"]) == 2
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -421,6 +412,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_dir" => "asc"
         })
 
+      assert response["success"]
       assert length(response["data"]["data"]) == 2
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -440,6 +432,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_dir" => "asc"
         })
 
+      assert response["success"]
       assert length(response["data"]["data"]) == 2
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -461,6 +454,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           }
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 1
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -480,6 +474,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "page" => 1
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 2
       transaction_1 = Enum.at(response["data"]["data"], 0)
       transaction_2 = Enum.at(response["data"]["data"], 1)
@@ -572,6 +567,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_dir" => "asc"
         })
 
+      assert response["success"]
       assert length(response["data"]["data"]) == 2
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -593,6 +589,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           }
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 1
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -612,6 +609,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "page" => 1
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 2
       transaction_1 = Enum.at(response["data"]["data"], 0)
       transaction_2 = Enum.at(response["data"]["data"], 1)
@@ -703,6 +701,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_dir" => "asc"
         })
 
+      assert response["success"]
       assert length(response["data"]["data"]) == 2
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -724,6 +723,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           }
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 1
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -743,6 +743,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "page" => 1
         })
 
+      assert response["success"]
       assert response["data"]["data"] |> length() == 2
       transaction_1 = Enum.at(response["data"]["data"], 0)
       transaction_2 = Enum.at(response["data"]["data"], 1)
@@ -766,7 +767,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           id: transaction_consumption.id
         })
 
-      assert response["success"] == true
+      assert response["success"]
       assert response["data"]["id"] == transaction_consumption.id
     end
 
@@ -779,23 +780,177 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
     end
 
-    test_with_auths "returns an error when the consumption ID is not found" do
+    test_with_auths "returns an 'unauthorized' error when the consumption ID is not found" do
       response =
         request("/transaction_consumption.get", %{
           id: "123"
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "code" => "transaction_consumption:transaction_consumption_not_found",
-                 "description" =>
-                   "There is no transaction consumption corresponding to the provided ID.",
-                 "messages" => nil,
-                 "object" => "error"
-               }
-             }
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+    end
+  end
+
+  describe "/transaction_consumption.cancel" do
+    test_with_auths "cancels a consumption when in pending state" do
+      transaction_consumption = insert(:transaction_consumption, status: "pending")
+
+      response =
+        request("/transaction_consumption.cancel", %{
+          id: transaction_consumption.id
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == transaction_consumption.id
+      assert response["data"]["cancelled_at"] != nil
+      assert response["data"]["status"] == "cancelled"
+    end
+
+    test_with_auths "returns a 'transaction_consumption:uncancellable' error when the consumption is not pending" do
+      transaction_consumption = insert(:transaction_consumption, status: "confirmed")
+
+      response =
+        request("/transaction_consumption.cancel", %{
+          id: transaction_consumption.id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "transaction_consumption:uncancellable"
+    end
+
+    test_with_auths "sends socket confirmation when cancelling", context do
+      mint!(context.token)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          wallet: context.account_wallet,
+          amount: nil,
+          require_confirmation: true
+        )
+
+      request_topic = "transaction_request:#{transaction_request.id}"
+
+      # Start listening to the channels for the transaction request created above
+      Endpoint.subscribe(request_topic)
+
+      # Making the consumption, since we made the request require_confirmation, it will
+      # create a pending consumption that we will cancel
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * context.token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          provider_user_id: context.bob.provider_user_id
+        })
+
+      consumption_id = response["data"]["id"]
+      assert response["success"]
+      assert response["data"]["status"] == "pending"
+
+      # Retrieve what just got inserted
+      inserted_consumption = TransactionConsumption.get(response["data"]["id"])
+
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_request",
+        topic: "transaction_request:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # We need to know once the consumption has been cancelled, so let's
+      # listen to the channel for it
+      Endpoint.subscribe("transaction_consumption:#{consumption_id}")
+
+      # Cancel the consumption
+      response =
+        request("/transaction_consumption.cancel", %{
+          id: consumption_id
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["status"] == "cancelled"
+      assert response["data"]["cancelled_at"] != nil
+
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_finalized",
+        topic: "transaction_consumption:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # Unsubscribe from all channels
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
+    end
+
+    defp assert_cancel_logs(logs, originator, transaction_consumption) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: transaction_consumption,
+        changes: %{
+          "status" => transaction_consumption.status,
+          "cancelled_at" => DateFormatter.to_iso8601(transaction_consumption.cancelled_at)
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log with an admin request" do
+      transaction_consumption = insert(:transaction_consumption, status: "pending")
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/transaction_consumption.cancel", %{
+          id: transaction_consumption.id
+        })
+
+      assert response["success"] == true
+
+      transaction_consumption = TransactionConsumption.get(transaction_consumption.id)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_cancel_logs(get_test_admin(), transaction_consumption)
+    end
+
+    test "generates an activity log with a provider request" do
+      transaction_consumption = insert(:transaction_consumption, status: "pending")
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/transaction_consumption.cancel", %{
+          id: transaction_consumption.id
+        })
+
+      assert response["success"] == true
+
+      transaction_consumption = TransactionConsumption.get(transaction_consumption.id)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_cancel_logs(get_test_key(), transaction_consumption)
     end
   end
 
@@ -879,7 +1034,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                  "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
                  "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
                  "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
-                 "expired_at" => nil
+                 "expired_at" => nil,
+                 "cancelled_at" => nil
                }
              }
 
@@ -916,7 +1072,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           user_id: context.bob.id
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
@@ -1008,7 +1164,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                  "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
                  "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
                  "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
-                 "expired_at" => nil
+                 "expired_at" => nil,
+                 "cancelled_at" => nil
                }
              }
 
@@ -1057,7 +1214,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           user_id: context.bob.id
         })
 
-      assert response["success"] == true
+      assert response["success"]
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
@@ -1142,7 +1299,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           exchange_wallet_address: context.account_wallet.address
         })
 
-      assert response["success"] == true
+      assert response["success"]
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
@@ -1225,7 +1382,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           exchange_account_id: context.account.id
         })
 
-      assert response["success"] == true
+      assert response["success"]
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
@@ -1310,7 +1467,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           exchange_account_id: context.account.id
         })
 
-      assert response["success"] == true
+      assert response["success"]
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
@@ -1399,7 +1556,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           exchange_account_id: account_2.id
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "consumption:request_already_contains_exchange_wallet"
 
       assert response["data"]["description"] ==
@@ -1430,7 +1587,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           account_id: context.account.id
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
@@ -1461,7 +1618,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           account_id: context.account.id
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
@@ -1551,7 +1708,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           account_id: context.account.id
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "token:disabled"
     end
 
@@ -1588,7 +1745,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           account_id: context.account.id
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "wallet:disabled"
     end
 
@@ -1659,7 +1816,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
 
-      assert response["success"] == true
+      assert response["success"]
       assert response["data"]["id"] == inserted_consumption.id
 
       response =
@@ -1699,7 +1856,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided.",
+                 "description" => "Invalid parameter provided. `idempotency_token` is required",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -1740,7 +1897,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         })
 
       consumption_id = response["data"]["id"]
-      assert response["success"] == true
+      assert response["success"]
       assert response["data"]["status"] == "pending"
       assert response["data"]["transaction_id"] == nil
 
@@ -1768,7 +1925,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           id: consumption_id
         })
 
-      assert response["success"] == true
+      assert response["success"]
       assert response["data"]["id"] == inserted_consumption.id
       assert response["data"]["status"] == "confirmed"
       assert response["data"]["approved_at"] != nil
@@ -1838,8 +1995,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: context.alice_wallet.address
         })
 
+      assert response["success"]
       consumption_id = response["data"]["id"]
-      assert response["success"] == true
       assert response["data"]["status"] == "pending"
       assert response["data"]["transaction_id"] == nil
 
@@ -1867,7 +2024,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           id: consumption_id
         })
 
-      assert response["success"] == true
+      assert response["success"]
       assert response["data"]["id"] == inserted_consumption.id
       assert response["data"]["status"] == "confirmed"
       assert response["data"]["approved_at"] != nil
@@ -1938,8 +2095,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: context.alice_wallet.address
         })
 
+      assert response["success"]
       consumption_id = response["data"]["id"]
-      assert response["success"] == true
       assert response["data"]["status"] == "pending"
 
       # The consumption is still valid...
@@ -1969,7 +2126,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         })
 
       decoded = Poison.decode!(encoded)
-      assert decoded["success"] == false
+      refute decoded["success"]
       assert decoded["error"]["code"] == "transaction_consumption:expired"
 
       assert_receive %Phoenix.Socket.Broadcast{
@@ -1987,7 +2144,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         })
 
       decoded = Poison.decode!(encoded)
-      assert decoded["success"] == false
+      refute decoded["success"]
       assert decoded["error"]["code"] == "transaction_consumption:expired"
 
       # If we try to approve it now, it will fail since it has already expired.
@@ -1996,7 +2153,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           id: consumption_id
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "transaction_consumption:expired"
 
       # Unsubscribe from all channels
@@ -2038,8 +2195,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           address: context.alice_wallet.address
         })
 
+      assert response["success"]
       consumption_id = response["data"]["id"]
-      assert response["success"] == true
       assert response["data"]["status"] == "pending"
       assert response["data"]["transaction_id"] == nil
 
@@ -2060,7 +2217,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         })
 
       decoded = Poison.decode!(encoded)
-      assert decoded["success"] == true
+      assert decoded["success"]
 
       # We need to know once the consumption has been approved, so let's
       # listen to the channel for it
@@ -2072,7 +2229,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           id: consumption_id
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "transaction:insufficient_funds"
 
       assert_receive %Phoenix.Socket.Broadcast{
@@ -2089,7 +2246,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         })
 
       decoded = Poison.decode!(encoded)
-      assert decoded["success"] == false
+      refute decoded["success"]
       assert decoded["error"]["code"] == "transaction:insufficient_funds"
       assert "The specified wallet" <> _ = decoded["error"]["description"]
 
@@ -2132,8 +2289,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           provider_user_id: context.bob.provider_user_id
         })
 
+      assert response["success"]
       consumption_id = response["data"]["id"]
-      assert response["success"] == true
       assert response["data"]["status"] == "pending"
       assert response["data"]["transaction_id"] == nil
 
@@ -2161,7 +2318,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           id: consumption_id
         })
 
-      assert response["success"] == true
+      assert response["success"]
       assert response["data"]["id"] == inserted_consumption.id
       assert response["data"]["status"] == "rejected"
       assert response["data"]["rejected_at"] != nil
@@ -2195,8 +2352,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           provider_user_id: context.bob.provider_user_id
         })
 
+      assert response["success"]
       consumption_id = response["data"]["id"]
-      assert response["success"] == true
       assert response["data"]["status"] == "pending"
       assert response["data"]["transaction_id"] == nil
 
@@ -2224,7 +2381,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           id: consumption_id
         })
 
-      assert response["success"] == true
+      assert response["success"]
       assert response["data"]["id"] == inserted_consumption.id
       assert response["data"]["status"] == "confirmed"
       assert response["data"]["confirmed_at"] != nil

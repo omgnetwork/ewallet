@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -73,6 +73,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       status: consumption.status,
       approved_at: DateFormatter.to_iso8601(consumption.approved_at),
       rejected_at: DateFormatter.to_iso8601(consumption.rejected_at),
+      cancelled_at: DateFormatter.to_iso8601(consumption.cancelled_at),
       confirmed_at: DateFormatter.to_iso8601(consumption.confirmed_at),
       failed_at: DateFormatter.to_iso8601(consumption.failed_at),
       expired_at: DateFormatter.to_iso8601(consumption.expired_at),

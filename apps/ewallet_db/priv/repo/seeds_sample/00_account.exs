@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,15 +13,14 @@
 # limitations under the License.
 
 defmodule EWalletDB.Repo.Seeds.AccountSampleSeed do
-  alias EWallet.Web.Preloader
   alias EWalletDB.Account
   alias EWalletDB.Seeder
 
   @seed_data [
-    %{name: "brand1", description: "Brand 1", parent_name: "master_account", originator: %Seeder{}},
-    %{name: "brand2", description: "Brand 2", parent_name: "master_account", originator: %Seeder{}},
-    %{name: "branch1", description: "Branch 1", parent_name: "master_account", originator: %Seeder{}},
-    %{name: "branch2", description: "Branch 2", parent_name: "master_account", originator: %Seeder{}}
+    %{name: "brand1", description: "Brand 1", originator: %Seeder{}},
+    %{name: "brand2", description: "Brand 2", originator: %Seeder{}},
+    %{name: "branch1", description: "Branch 1", originator: %Seeder{}},
+    %{name: "branch2", description: "Branch 2", originator: %Seeder{}}
   ]
 
   def seed do
@@ -38,19 +37,13 @@ defmodule EWalletDB.Repo.Seeds.AccountSampleSeed do
   end
 
   defp run_with(writer, data) do
-    parent = Account.get_by(name: data.parent_name)
-    data = Map.put(data, :parent_uuid, parent.uuid)
-
     case Account.get_by(name: data.name) do
       nil ->
         case Account.insert(data) do
           {:ok, account} ->
-            {:ok, account} = Preloader.preload_one(account, :parent)
-
             writer.success("""
               Name   : #{account.name}
               ID     : #{account.id}
-              Parent : #{account.parent.id}
             """)
 
           {:error, changeset} ->
@@ -63,12 +56,9 @@ defmodule EWalletDB.Repo.Seeds.AccountSampleSeed do
         end
 
       %Account{} = account ->
-        {:ok, account} = Preloader.preload_one(account, :parent)
-
         writer.warn("""
           Name   : #{account.name}
           ID     : #{account.id}
-          Parent : #{account.parent.id}
         """)
     end
   end

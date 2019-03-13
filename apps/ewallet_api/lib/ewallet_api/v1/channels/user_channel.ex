@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ defmodule EWalletAPI.V1.UserChannel do
   """
   use Phoenix.Channel, async: false
   alias EWalletDB.User
-  alias EWallet.UserPolicy
+  alias EWallet.EndUserPolicy
 
   def join(
         "user:" <> user_id,
@@ -29,7 +29,7 @@ defmodule EWalletAPI.V1.UserChannel do
         } = socket
       ) do
     with %User{} = user <- User.get(user_id) || User.get_by_provider_user_id(user_id),
-         :ok <- Bodyguard.permit(UserPolicy, :join, auth, user) do
+         {:ok, _} <- EndUserPolicy.authorize(:listen, auth, user) do
       {:ok, socket}
     else
       _ -> {:error, :forbidden_channel}

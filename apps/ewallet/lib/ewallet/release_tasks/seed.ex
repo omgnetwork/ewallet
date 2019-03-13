@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ defmodule EWallet.ReleaseTasks.Seed do
     :jason,
     :cloak,
     :ewallet,
-    :ewallet_db,
     :ewallet_config,
+    :ewallet_db,
     :activity_logger
   ]
   @std_spec [{:ewallet_config, :seeds_settings}, {:ewallet_db, :seeds}]

@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,5 +59,12 @@ defmodule EWallet.Web.V1.InviteOverlay do
       inserted_at: nil,
       updated_at: nil,
       user: UserOverlay.default_preload_assocs()
+    ]
+
+  def pagination_fields,
+    do: [
+      :id,
+      :inserted_at,
+      :updated_at
     ]
 end

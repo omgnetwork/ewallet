@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,14 +21,14 @@ defmodule EWallet.Web.V1.KeySerializerTest do
 
   describe "serialize/1" do
     test "serializes a key into the correct response format" do
-      key = :key |> insert() |> Repo.preload(:account)
+      key = insert(:key)
 
       expected = %{
         object: "key",
         id: key.id,
         access_key: key.access_key,
         secret_key: key.secret_key,
-        account_id: key.account.id,
+        account_id: nil,
         expired: !key.enabled,
         enabled: key.enabled,
         created_at: DateFormatter.to_iso8601(key.inserted_at),
@@ -44,8 +44,8 @@ defmodule EWallet.Web.V1.KeySerializerTest do
     end
 
     test "serializes a key paginator into a list object" do
-      key1 = :key |> insert() |> Repo.preload(:account)
-      key2 = :key |> insert() |> Repo.preload(:account)
+      key1 = insert(:key)
+      key2 = insert(:key)
 
       paginator = %Paginator{
         data: [key1, key2],
@@ -65,7 +65,7 @@ defmodule EWallet.Web.V1.KeySerializerTest do
             id: key1.id,
             access_key: key1.access_key,
             secret_key: key1.secret_key,
-            account_id: key1.account.id,
+            account_id: nil,
             expired: !key1.enabled,
             enabled: key1.enabled,
             created_at: DateFormatter.to_iso8601(key1.inserted_at),
@@ -77,7 +77,7 @@ defmodule EWallet.Web.V1.KeySerializerTest do
             id: key2.id,
             access_key: key2.access_key,
             secret_key: key2.secret_key,
-            account_id: key2.account.id,
+            account_id: nil,
             expired: !key2.enabled,
             enabled: key2.enabled,
             created_at: DateFormatter.to_iso8601(key2.inserted_at),

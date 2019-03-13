@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -208,7 +208,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
              }
     end
 
-    test "receives an error when the address is invalid" do
+    test "receives an 'unauthorized' error when the address is invalid" do
       token = insert(:token)
 
       response =
@@ -220,20 +220,11 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           address: "fake000000000000"
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "code" => "user:wallet_not_found",
-                 "description" =>
-                   "There is no user wallet corresponding to the provided address.",
-                 "messages" => nil,
-                 "object" => "error"
-               }
-             }
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test "receives an error when the address does not belong to the user" do
+    test "receives an 'unauthorized' error when the address does not belong to the user" do
       token = insert(:token)
       wallet = insert(:wallet)
 
@@ -246,19 +237,11 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           address: wallet.address
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "code" => "user:user_wallet_mismatch",
-                 "description" => "The provided wallet does not belong to the current user.",
-                 "messages" => nil,
-                 "object" => "error"
-               }
-             }
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test "receives an error when the token ID is not found" do
+    test "receives an 'unauthorized' error when the token ID is not found" do
       response =
         client_request("/me.create_transaction_request", %{
           type: "send",
@@ -268,16 +251,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           address: nil
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "code" => "token:id_not_found",
-                 "description" => "There is no token corresponding to the provided id.",
-                 "messages" => nil,
-                 "object" => "error"
-               }
-             }
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "generates an activity log" do
@@ -351,7 +326,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "Invalid parameter provided. `formatted_id` is required."
     end
 
-    test "returns an error when the request ID is not found" do
+    test "returns an 'unauthorized' error when the request ID is not found" do
       response =
         client_request("/me.get_transaction_request", %{
           formatted_id: "123"

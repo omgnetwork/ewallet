@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   Handles all validations for a transaction request, including amount and
   expiration.
   """
-  alias EWallet.{Helper, TokenFetcher, TransactionConsumptionPolicy}
+  alias EWallet.{Helper, TokenFetcher, TransactionRequestPolicy, TransactionConsumptionPolicy}
   alias EWallet.Web.V1.Event
   alias EWalletDB.{ExchangePair, Repo, Token, TransactionConsumption, TransactionRequest, Wallet}
   alias ActivityLogger.System
@@ -30,9 +30,19 @@ defmodule EWallet.TransactionConsumptionValidator do
         ) ::
           {:ok, %TransactionRequest{}, %Token{}, integer() | nil}
           | {:error, atom()}
-  def validate_before_consumption(request, wallet, attrs, wallet_exchange \\ nil) do
+  def validate_before_consumption(
+        request,
+        wallet,
+        %{"creator" => creator} = attrs,
+        wallet_exchange \\ nil
+      ) do
     with amount <- attrs["amount"],
          token_id <- attrs["token_id"],
+         {:ok, _} <-
+           TransactionConsumptionPolicy.authorize(:create, creator, %TransactionConsumption{
+             user_uuid: wallet.user_uuid,
+             account_uuid: wallet.account_uuid
+           }),
          true <- wallet.enabled || {:error, :wallet_is_disabled},
          :ok <- validate_only_one_exchange_address_in_pair(request, wallet_exchange),
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request, %System{}),
@@ -48,6 +58,9 @@ defmodule EWallet.TransactionConsumptionValidator do
       error when is_atom(error) ->
         {:error, error}
 
+      {:error, %{}} ->
+        {:error, :unauthorized}
+
       error ->
         error
     end
@@ -60,23 +73,18 @@ defmodule EWallet.TransactionConsumptionValidator do
           {:ok, %TransactionConsumption{}}
           | {:error, atom()}
           | no_return()
-  def validate_before_confirmation(consumption, originator) do
+  def validate_before_confirmation(consumption, creator) do
     with {request, wallet} <- {consumption.transaction_request, consumption.wallet},
          request <- Repo.preload(request, [:wallet]),
-         :ok <- Bodyguard.permit(TransactionConsumptionPolicy, :confirm, originator, request),
+         {:ok, _} <- TransactionRequestPolicy.authorize(:confirm, creator, request),
+         {:ok, consumption} <- validate_not_cancelled(consumption),
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request, %System{}),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
-         {:ok, consumption} =
-           TransactionConsumption.expire_if_past_expiration_date(consumption, %System{}) do
-      case TransactionConsumption.expired?(consumption) do
-        false ->
-          {:ok, consumption}
-
-        true ->
-          Event.dispatch(:transaction_consumption_finalized, %{consumption: consumption})
-          {:error, :expired_transaction_consumption}
-      end
+         {:ok, consumption} <-
+           TransactionConsumption.expire_if_past_expiration_date(consumption, %System{}),
+         {:ok, consumption} <- validate_not_expired(consumption) do
+      {:ok, consumption}
     else
       error when is_binary(error) ->
         {:error, String.to_existing_atom(error)}
@@ -86,6 +94,28 @@ defmodule EWallet.TransactionConsumptionValidator do
 
       error ->
         error
+    end
+  end
+
+  defp validate_not_expired(consumption) do
+    case TransactionConsumption.expired?(consumption) do
+      false ->
+        {:ok, consumption}
+
+      true ->
+        Event.dispatch(:transaction_consumption_finalized, %{consumption: consumption})
+        {:error, :expired_transaction_consumption}
+    end
+  end
+
+  defp validate_not_cancelled(consumption) do
+    case TransactionConsumption.cancelled?(consumption) do
+      false ->
+        {:ok, consumption}
+
+      true ->
+        Event.dispatch(:transaction_consumption_finalized, %{consumption: consumption})
+        {:error, :cancelled_transaction_consumption}
     end
   end
 

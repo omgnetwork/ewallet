@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,9 +18,16 @@ defmodule AdminAPI.V1.TransactionController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.AccountHelper
   alias Ecto.{Changeset, Query}
-  alias EWallet.{TransactionPolicy, TransactionGate, ExportGate, AdapterHelper}
+
+  alias EWallet.{
+    AccountPolicy,
+    TransactionPolicy,
+    TransactionGate,
+    ExportGate,
+    AdapterHelper,
+    EndUserPolicy
+  }
 
   alias EWallet.Web.{
     Originator,
@@ -32,18 +39,17 @@ defmodule AdminAPI.V1.TransactionController do
     V1.CSV.TransactionSerializer
   }
 
-  alias EWalletDB.{Account, Repo, Transaction, User, Export}
+  alias EWalletDB.{Account, Transaction, User, Export}
 
   @doc """
   Creates an export transactions.
   """
   @spec export(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def export(conn, attrs) do
-    with :ok <- permit(:export, conn.assigns, nil),
+    with {:ok, %{query: query}} <- authorize(:export, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized},
          :ok <- AdapterHelper.check_adapter_status(),
-         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns, :originator),
-         query <- Transaction.query_all_for_account_uuids_and_users(Transaction, account_uuids),
          %Query{} = query <- Orchestrator.build_query(query, TransactionOverlay, attrs),
          {preloads, query} <- extract_preloads(query) do
       query
@@ -65,21 +71,21 @@ defmodule AdminAPI.V1.TransactionController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil),
-         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
-      Transaction
-      |> Transaction.query_all_for_account_uuids_and_users(account_uuids)
-      |> query_records_and_respond(attrs, conn)
+    with {:ok, %{query: query}} <- authorize(:export, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
+      query_records_and_respond(query, attrs, conn)
     else
-      {:error, error} -> handle_error(conn, error)
+      error -> respond_single(error, conn)
     end
   end
 
   @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account) do
-      Transaction
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
+      query
       |> Transaction.query_all_for_account_uuids_and_users([account.uuid])
       |> query_records_and_respond(attrs, conn)
     else
@@ -89,10 +95,11 @@ defmodule AdminAPI.V1.TransactionController do
 
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account),
-         descendant_uuids <- Account.get_all_descendants_uuids(account) do
-      Transaction
-      |> Transaction.query_all_for_account_uuids_and_users(descendant_uuids)
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
+      query
+      |> Transaction.query_all_for_account_uuids_and_users([account.uuid])
       |> query_records_and_respond(attrs, conn)
     else
       error -> respond_single(error, conn)
@@ -116,26 +123,28 @@ defmodule AdminAPI.V1.TransactionController do
   @spec all_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_user(conn, %{"user_id" => user_id} = attrs) do
     with %User{} = user <- User.get(user_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, user) do
+         {:ok, _} <- authorize(:get, conn.assigns, user),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
       user
-      |> Transaction.all_for_user()
+      |> Transaction.all_for_user(query)
       |> query_records_and_respond(attrs, conn)
     else
-      error when is_atom(error) -> handle_error(conn, error)
-      {:error, error} -> handle_error(conn, error)
+      error -> respond_single(error, conn)
     end
   end
 
   def all_for_user(conn, %{"provider_user_id" => provider_user_id} = attrs) do
     with %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, user) do
+         {:ok, _} <- authorize(:get, conn.assigns, user),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized} do
       user
-      |> Transaction.all_for_user()
+      |> Transaction.all_for_user(query)
       |> query_records_and_respond(attrs, conn)
     else
-      error when is_atom(error) -> handle_error(conn, error)
-      {:error, error} -> handle_error(conn, error)
+      error -> respond_single(error, conn)
     end
   end
 
@@ -146,13 +155,13 @@ defmodule AdminAPI.V1.TransactionController do
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:get, conn.assigns, id) do
-      Transaction
-      |> Orchestrator.preload_to_query(TransactionOverlay, attrs)
-      |> Repo.get_by(id: id)
+    with %Transaction{} = transaction <- Transaction.get_by(id: id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, transaction) do
+      transaction
+      |> Orchestrator.one(TransactionOverlay, attrs)
       |> respond_single(conn)
     else
-      {:error, error} -> handle_error(conn, error)
+      error -> respond_single(error, conn)
     end
   end
 
@@ -163,7 +172,7 @@ defmodule AdminAPI.V1.TransactionController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, attrs),
+    with {:ok, _} <- authorize(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, transaction} <- TransactionGate.create(attrs) do
       transaction
@@ -187,6 +196,10 @@ defmodule AdminAPI.V1.TransactionController do
 
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
+  end
+
+  defp respond_multiple({:error, code}, conn) do
+    handle_error(conn, code)
   end
 
   # Respond with a single transaction
@@ -223,12 +236,20 @@ defmodule AdminAPI.V1.TransactionController do
     handle_error(conn, :transaction_id_not_found)
   end
 
-  @spec permit(
-          :all | :create | :get | :update,
+  @spec authorize(
+          :all | :create | :get | :update | :export,
           map(),
           String.t() | %Account{} | %User{} | map() | nil
         ) :: :ok | {:error, any()} | no_return()
-  defp permit(action, params, data) do
-    Bodyguard.permit(TransactionPolicy, action, params, data)
+  defp authorize(action, actor, %Account{} = account) do
+    AccountPolicy.authorize(action, actor, account)
+  end
+
+  defp authorize(action, actor, %User{} = user) do
+    EndUserPolicy.authorize(action, actor, user)
+  end
+
+  defp authorize(action, actor, data) do
+    TransactionPolicy.authorize(action, actor, data)
   end
 end

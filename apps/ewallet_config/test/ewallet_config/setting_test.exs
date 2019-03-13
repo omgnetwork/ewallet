@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -570,7 +570,7 @@ defmodule EWalletConfig.SettingTest do
       assert length(settings) == Enum.count(default_settings)
 
       first_setting = Enum.at(settings, 0)
-      assert first_setting.key == "base_url"
+      assert first_setting.key == "master_account"
     end
 
     test "insert all defaults with overrides" do

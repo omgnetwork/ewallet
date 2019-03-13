@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,8 +17,13 @@ defmodule EWallet.Web.V1.MembershipSerializer do
   Serializes membership(s) into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
-  alias EWalletDB.User
+  alias EWallet.Web.Paginator
+  alias EWallet.Web.V1.{AccountSerializer, PaginatorSerializer, UserSerializer, KeySerializer}
+  alias EWalletDB.{User, Key}
+
+  def serialize(%Paginator{} = paginator) do
+    PaginatorSerializer.serialize(paginator, &serialize/1)
+  end
 
   def serialize(memberships) when is_list(memberships) do
     %{
@@ -30,12 +35,21 @@ defmodule EWallet.Web.V1.MembershipSerializer do
   def serialize(%NotLoaded{}), do: nil
 
   def serialize(membership) when is_map(membership) do
-    membership.user
-    |> UserSerializer.serialize()
+    (membership.user || membership.key)
+    |> serialize_member(membership)
     |> Map.put(:account_role, membership.role.name)
     |> Map.put(:account, AccountSerializer.serialize(membership.account))
-    |> Map.put(:status, User.get_status(membership.user))
   end
 
   def serialize(nil), do: nil
+
+  defp serialize_member(%User{} = user, membership) do
+    user
+    |> UserSerializer.serialize()
+    |> Map.put(:status, User.get_status(membership.user))
+  end
+
+  defp serialize_member(%Key{} = key, _membership) do
+    KeySerializer.serialize(key)
+  end
 end

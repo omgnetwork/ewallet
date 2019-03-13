@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ defmodule EWalletDB.Repo.Seeds.TransactionRequestSeed do
   @request_correlation_id_prefix "transaction_request_"
   @request_values %{
     types: ["send", "receive"],
-    token_symbols: ["OMG", "ETH", "OEM", "BTC"],
+    token_symbols: ["OMG", "ETH", "OEM"],
     allow_amount_overrides: [false],
     require_confirmations: [true, false],
     consumption_lifetimes: [nil, 10_000, 2_000_000],

@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -148,15 +148,15 @@ defmodule EWalletDB.Export do
   @doc """
   Retrieves a list of all exports created by the given user.
   """
-  def all_for(%User{} = user, storage_adapter) do
-    from(e in Export, where: e.user_uuid == ^user.uuid and e.adapter == ^storage_adapter)
+  def all_for(%User{} = user, storage_adapter, query) do
+    from(e in query, where: e.user_uuid == ^user.uuid and e.adapter == ^storage_adapter)
   end
 
   @doc """
   Retrieves a list of all exports created by the given key.
   """
-  def all_for(%Key{} = key, storage_adapter) do
-    from(e in Export, where: e.key_uuid == ^key.uuid and e.adapter == ^storage_adapter)
+  def all_for(%Key{} = key, storage_adapter, query) do
+    from(e in query, where: e.key_uuid == ^key.uuid and e.adapter == ^storage_adapter)
   end
 
   @doc """

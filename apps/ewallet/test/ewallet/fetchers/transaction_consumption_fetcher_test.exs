@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -86,14 +86,14 @@ defmodule EWallet.TransactionConsumptionFetcherTest do
       assert %TransactionConsumption{} = consumption
     end
 
-    test "returns nil when given nil" do
+    test "returns an 'invalid_parameter' error when given nil" do
       assert TransactionConsumptionFetcher.get(nil) ==
-               {:error, :transaction_consumption_not_found}
+               {:error, :invalid_parameter, "`id` cannot be nil"}
     end
 
-    test "returns nil when given invalid UUID" do
+    test "returns an 'unauthorized' when given invalid UUID" do
       assert TransactionConsumptionFetcher.get("123") ==
-               {:error, :transaction_consumption_not_found}
+               {:error, :unauthorized}
     end
   end
 end

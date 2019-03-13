@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -101,12 +101,10 @@ defmodule EWalletDB.AuthToken do
   then returns the auth token string.
   """
   def generate(%User{} = user, owner_app, originator) when is_atom(owner_app) do
-    account = User.get_account(user)
-
     attrs = %{
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
-      account_uuid: if(account, do: account.uuid, else: nil),
+      account_uuid: nil,
       token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }

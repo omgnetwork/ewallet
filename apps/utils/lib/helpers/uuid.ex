@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,5 +21,9 @@ defmodule Utils.Helpers.UUID do
 
   def valid?(uuid) do
     String.match?(uuid, @regex)
+  end
+
+  def get_uuids(list) do
+    Enum.map(list, fn record -> record.uuid end)
   end
 end

@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -129,7 +129,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
                  "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
                  "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
-                 "expired_at" => nil
+                 "expired_at" => nil,
+                 "cancelled_at" => nil
                }
              }
 
@@ -215,7 +216,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
                  "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
                  "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
-                 "expired_at" => nil
+                 "expired_at" => nil,
+                 "cancelled_at" => nil
                }
              }
 
@@ -298,7 +300,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
                  "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
                  "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
-                 "expired_at" => nil
+                 "expired_at" => nil,
+                 "cancelled_at" => nil
                }
              }
 
@@ -386,7 +389,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "rejected_at" => DateFormatter.to_iso8601(inserted_consumption.rejected_at),
                  "confirmed_at" => DateFormatter.to_iso8601(inserted_consumption.confirmed_at),
                  "failed_at" => DateFormatter.to_iso8601(inserted_consumption.failed_at),
-                 "expired_at" => nil
+                 "expired_at" => nil,
+                 "cancelled_at" => nil
                }
              }
 
@@ -567,7 +571,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
-    test "returns idempotency error if header is not specified" do
+    test "returns idempotency error if idempotency token is missing" do
       response =
         client_request("/me.consume_transaction_request", %{
           transaction_request_id: "123",
@@ -583,7 +587,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided.",
+                 "description" => "Invalid parameter provided. `idempotency_token` is required",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -784,6 +788,152 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         changes: %{"updated_at" => DateFormatter.to_iso8601(transaction_request.updated_at)},
         encrypted_changes: %{}
       )
+    end
+  end
+
+  describe "/me.cancel_transaction_consumption" do
+    test "cancels a consumption when in pending state" do
+      transaction_consumption =
+        insert(:transaction_consumption, %{user_uuid: get_test_user().uuid, status: "pending"})
+
+      response =
+        client_request("/me.cancel_transaction_consumption", %{
+          id: transaction_consumption.id
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == transaction_consumption.id
+      assert response["data"]["cancelled_at"] != nil
+      assert response["data"]["status"] == "cancelled"
+    end
+
+    test "returns a 'transaction_consumption:uncancellable' error when the consumption is not pending" do
+      transaction_consumption =
+        insert(:transaction_consumption, %{user_uuid: get_test_user().uuid, status: "confirmed"})
+
+      response =
+        client_request("/me.cancel_transaction_consumption", %{
+          id: transaction_consumption.id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "transaction_consumption:uncancellable"
+    end
+
+    test "sends socket confirmation when cancelling", context do
+      mint!(context.token)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          wallet: context.account_wallet,
+          amount: nil,
+          require_confirmation: true
+        )
+
+      request_topic = "transaction_request:#{transaction_request.id}"
+
+      # Start listening to the channels for the transaction request created above
+      Endpoint.subscribe(request_topic)
+
+      # Making the consumption, since we made the request require_confirmation, it will
+      # create a pending consumption that we will cancel
+      response =
+        client_request("/me.consume_transaction_request", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * context.token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          provider_user_id: @provider_user_id
+        })
+
+      consumption_id = response["data"]["id"]
+      assert response["success"]
+      assert response["data"]["status"] == "pending"
+
+      # Retrieve what just got inserted
+      inserted_consumption = TransactionConsumption.get(response["data"]["id"])
+
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_request",
+        topic: "transaction_request:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # We need to know once the consumption has been cancelled, so let's
+      # listen to the channel for it
+      Endpoint.subscribe("transaction_consumption:#{consumption_id}")
+
+      # Cancel the consumption
+      response =
+        client_request("/me.cancel_transaction_consumption", %{
+          id: consumption_id
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["status"] == "cancelled"
+      assert response["data"]["cancelled_at"] != nil
+
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_finalized",
+        topic: "transaction_consumption:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # Unsubscribe from all channels
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
+    end
+
+    defp assert_cancel_logs(logs, originator, transaction_consumption) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: transaction_consumption,
+        changes: %{
+          "status" => transaction_consumption.status,
+          "cancelled_at" => DateFormatter.to_iso8601(transaction_consumption.cancelled_at)
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log" do
+      transaction_consumption =
+        insert(:transaction_consumption, %{user_uuid: get_test_user().uuid, status: "pending"})
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        client_request("/me.cancel_transaction_consumption", %{
+          id: transaction_consumption.id
+        })
+
+      assert response["success"] == true
+
+      transaction_consumption = TransactionConsumption.get(transaction_consumption.id)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_cancel_logs(get_test_user(), transaction_consumption)
     end
   end
 end

@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,27 +16,15 @@ defmodule EWallet.KeyPolicy do
   @moduledoc """
   The authorization policy for keys.
   """
-  @behaviour Bodyguard.Policy
-  alias EWalletDB.{Account, User}
+  alias EWallet.PolicyHelper
+  alias EWallet.{Bouncer, Bouncer.Permission}
+  alias EWalletDB.Key
 
-  def authorize(:all, _user_or_key, _key_id), do: true
-
-  def authorize(:create, %{key: key}, _key_id) do
-    Account.get_master_account().uuid == key.account.uuid
+  def authorize(:create, attrs, _attrs) do
+    Bouncer.bounce(attrs, %Permission{action: :create, target: %Key{}})
   end
 
-  def authorize(:create, %{admin_user: user}, _key_id) do
-    User.master_admin?(user.id)
+  def authorize(action, attrs, target) do
+    PolicyHelper.authorize(action, attrs, :keys, Key, target)
   end
-
-  # update /enable_or_disable / delete
-  def authorize(_action, %{key: key}, key_id) do
-    Account.get_master_account().uuid == key.account.uuid && key.id != key_id
-  end
-
-  def authorize(_action, %{admin_user: user}, _key_id) do
-    User.master_admin?(user.id)
-  end
-
-  def authorize(_, _, _), do: false
 end

@@ -8,7 +8,7 @@ wallet.all:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: '../../../../ewallet/priv/swagger/shared/request_bodies.yaml#/PaginatedRequestBody'
+      $ref: 'request_bodies.yaml#/WalletAllBody'
     responses:
       '200':
         $ref: 'responses.yaml#/WalletsResponse'

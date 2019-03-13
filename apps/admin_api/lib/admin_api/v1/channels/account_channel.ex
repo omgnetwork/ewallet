@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,10 +19,13 @@ defmodule AdminAPI.V1.AccountChannel do
   """
   use Phoenix.Channel, async: false
   alias EWallet.AccountPolicy
+  alias EWalletDB.Account
 
   def join("account:" <> account_id, _params, %{assigns: %{auth: auth}} = socket) do
-    case Bodyguard.permit(AccountPolicy, :join, auth, account_id) do
-      :ok -> {:ok, socket}
+    with %Account{} = account <- Account.get_by(id: account_id) || {:error, :unauthorized},
+         {:ok, _} <- AccountPolicy.authorize(:listen, auth, account) do
+      {:ok, socket}
+    else
       _ -> {:error, :forbidden_channel}
     end
   end

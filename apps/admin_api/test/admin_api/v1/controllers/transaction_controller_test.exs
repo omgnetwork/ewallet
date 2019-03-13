@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -225,6 +225,37 @@ defmodule AdminAPI.V1.TransactionControllerTest do
     end
 
     test_with_auths "returns match_all filtered transactions", context do
+      response =
+        request("/transaction.all", %{
+          "match_all" => [
+            %{
+              "field" => "from_wallet.address",
+              "comparator" => "eq",
+              "value" => context.wallet_4.address
+            },
+            %{
+              "field" => "status",
+              "comparator" => "eq",
+              "value" => "confirmed"
+            }
+          ]
+        })
+
+      transactions = response["data"]["data"]
+
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_1.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_2.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_3.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_4.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_5.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_6.id end)
+      assert Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_7.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == context.transaction_8.id end)
+    end
+
+    test_with_auths "returns match_all filtered transactions with no permissions", context do
+      set_admin_as_none()
+
       response =
         request("/transaction.all", %{
           "match_all" => [
@@ -496,7 +527,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
   end
 
   describe "/transaction.get" do
-    test_with_auths "returns an transaction by the given transaction's ID" do
+    test_with_auths "returns a transaction by the given transaction's ID" do
       transactions = insert_list(3, :transaction)
       # Pick the 2nd inserted transaction
       target = Enum.at(transactions, 1)
@@ -507,15 +538,12 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert response["data"]["id"] == target.id
     end
 
-    test_with_auths "returns 'transaction:id_not_found' if the given ID was not found" do
+    test_with_auths "returns 'unauthorized' if the given ID was not found" do
       response = request("/transaction.get", %{"id" => "tfr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "transaction:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no transaction corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test_with_auths "returns 'transaction:id_not_found' if the given ID format is invalid" do
@@ -523,10 +551,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "transaction:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no transaction corresponding to the provided id."
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 

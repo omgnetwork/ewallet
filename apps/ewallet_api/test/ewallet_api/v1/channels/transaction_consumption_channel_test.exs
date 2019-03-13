@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannelTest do
     test "joins the channel with authenticated user and owned consumption" do
       user = get_test_user()
       wallet = User.get_primary_wallet(user)
-      consumption = insert(:transaction_consumption, wallet_address: wallet.address)
+
+      consumption =
+        insert(:transaction_consumption, user_uuid: user.uuid, wallet_address: wallet.address)
 
       consumption.id
       |> topic()

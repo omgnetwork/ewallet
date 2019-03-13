@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -261,21 +261,26 @@ defmodule EWalletDB.Transaction do
     from(t in Transaction, where: t.from == ^address or t.to == ^address)
   end
 
-  def all_for_user(user) do
-    from(t in Transaction, where: t.from_user_uuid == ^user.uuid or t.to_user_uuid == ^user.uuid)
+  def all_for_user(user, query \\ Transaction) do
+    from(t in query, where: t.from_user_uuid == ^user.uuid or t.to_user_uuid == ^user.uuid)
   end
 
   def query_all_for_account_uuids_and_users(query, account_uuids) do
     where(
       query,
       [w],
-      w.from_account_uuid in ^account_uuids or w.to_account_uuid in ^account_uuids or
-        not is_nil(w.from_user_uuid) or not is_nil(w.to_user_uuid)
+      w.from_account_uuid in ^account_uuids or
+        w.to_account_uuid in ^account_uuids or
+        is_nil(w.from_account_uuid) or is_nil(w.to_account_uuid)
     )
   end
 
   def query_all_for_account_uuids(query, account_uuids) do
-    where(query, [w], w.account_uuid in ^account_uuids)
+    where(
+      query,
+      [t],
+      t.from_account_uuid in ^account_uuids or t.to_account_uuid in ^account_uuids
+    )
   end
 
   def all_for_account_and_user_uuids(account_uuids, user_uuids) do
@@ -287,9 +292,9 @@ defmodule EWalletDB.Transaction do
     )
   end
 
-  def all_for_account(account) do
+  def all_for_account(account, query \\ Transaction) do
     from(
-      t in Transaction,
+      t in query,
       where: t.from_account_uuid == ^account.uuid or t.to_account_uuid == ^account.uuid
     )
   end

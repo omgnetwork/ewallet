@@ -1,4 +1,4 @@
-# Copyright 2018 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       metadata: %{},
       account_name: "master_account",
       is_admin: true,
+      global_role: "super_admin",
       originator: %Seeder{}
     },
     %{
