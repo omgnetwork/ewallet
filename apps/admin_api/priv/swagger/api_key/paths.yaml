@@ -32,7 +32,7 @@ access_key.update:
   post:
     tags:
       - API Access
-    summary: Update a pair of access and secret keys by its id (deprecated)
+    summary: Update a pair of access and secret keys by its id
     operationId: access_key_update
     security:
       - ProviderAuth: []
@@ -112,7 +112,7 @@ api_key.update:
   post:
     tags:
       - API Access
-    summary: Update an API key (deprecated)
+    summary: Update an API key
     operationId: api_key_update
     security:
       - ProviderAuth: []
