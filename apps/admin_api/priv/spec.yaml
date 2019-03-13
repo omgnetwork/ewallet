@@ -4542,7 +4542,6 @@ paths:
         - API Access
       summary: Update a pair of access and secret keys by its id (deprecated)
       operationId: access_key_update
-      deprecated: true
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -4727,12 +4726,9 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               properties:
-                id:
-                  type: string
                 name:
                   type: string
               example:
-                id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 name: my_api_key
       responses:
         '200': &ref_58

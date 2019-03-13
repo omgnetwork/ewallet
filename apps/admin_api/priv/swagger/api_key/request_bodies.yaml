@@ -66,12 +66,9 @@ APIKeyCreateBody:
     application/vnd.omisego.v1+json:
       schema:
         properties:
-          id:
-            type: string
           name:
             type: string
         example:
-          id: api_01ce83yphmq6vt4qnmn3ykwcw6
           name: my_api_key
 
 APIKeyUpdateBody:

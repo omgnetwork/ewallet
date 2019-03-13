@@ -34,7 +34,6 @@ access_key.update:
       - API Access
     summary: Update a pair of access and secret keys by its id (deprecated)
     operationId: access_key_update
-    deprecated: true
     security:
       - ProviderAuth: []
       - AdminAuth: []
