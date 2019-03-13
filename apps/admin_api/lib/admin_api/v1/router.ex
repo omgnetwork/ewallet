@@ -147,6 +147,7 @@ defmodule AdminAPI.V1.Router do
     # Admin endpoints
     post("/admin.all", AdminUserController, :all)
     post("/admin.get", AdminUserController, :get)
+    post("/admin.create", AdminUserController, :create)
     post("/admin.enable_or_disable", AdminUserController, :enable_or_disable)
 
     # Role endpoints

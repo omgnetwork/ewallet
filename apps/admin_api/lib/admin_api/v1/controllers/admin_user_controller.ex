@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AdminUserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.UserView
-  alias EWallet.{AdminUserPolicy, UserFetcher}
+  alias EWallet.{AdminUserPolicy, UserFetcher, UserGate}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.UserOverlay}
   alias EWalletDB.{User, AuthToken}
 
@@ -50,6 +50,28 @@ defmodule AdminAPI.V1.AdminUserController do
   end
 
   def get(conn, _), do: handle_error(conn, :missing_id)
+
+
+  @doc """
+  Creates a new admin user.
+
+  The requesting user must have the permissions to create admin users.
+  """
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def create(conn, %{"redirect_url" => redirect_url} = attrs) do
+    with {:ok, _} <- authorize(:create, conn.assigns, %User{global_role: attrs["global_role"]}),
+         {:ok, user_or_email} <- UserGate.get_user_or_email(attrs),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, redirect_url} <- UserGate.validate_redirect_url(redirect_url),
+         {:ok, _invite} <- UserGate.invite_global_user(attrs, redirect_url) do
+      render(conn, UserView, :empty, %{success: true})
+    else
+      error ->
+        handle_error(conn, error)
+    end
+  end
+
+  def create(conn, _attrs), do: handle_error(conn, :invalid_parameter, "`redirect_url` is required.")
 
   @doc """
   Enable or disable a user.

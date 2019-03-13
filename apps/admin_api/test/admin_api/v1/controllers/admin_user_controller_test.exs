@@ -19,6 +19,7 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
   alias ActivityLogger.System
 
   @owner_app :some_app
+  @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
 
   describe "/admin.all" do
     test_with_auths "returns a list of admins and pagination data" do
@@ -220,6 +221,41 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
 
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation."
+    end
+  end
+
+  describe "/admin.create" do
+    test_with_auths "invites a new admin user with email" do
+      email = "admin_user@example.com"
+      attrs = %{
+        email: email,
+        global_role: "super_admin",
+        redirect_url: @redirect_url
+      }
+
+      response = request("/admin.create", attrs)
+      assert response["success"] == true
+
+      user = User.get_by(email: email)
+      assert User.get_status(user) == :pending_confirmation
+      assert user.email == email
+      assert user.global_role == "super_admin"
+    end
+
+    test_with_auths "invites a new admin user who gets no global role" do
+      email = "admin_user@example.com"
+      attrs = %{
+        email: email,
+        redirect_url: @redirect_url
+      }
+
+      response = request("/admin.create", attrs)
+      assert response["success"] == true
+
+      user = User.get_by(email: email)
+      assert User.get_status(user) == :pending_confirmation
+      assert user.email == email
+      assert user.global_role == nil
     end
   end
 
