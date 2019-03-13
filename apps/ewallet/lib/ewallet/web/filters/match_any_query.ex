@@ -74,9 +74,10 @@ defmodule EWallet.Web.MatchAnyQuery do
   # https://github.com/elixir-ecto/ecto/issues/2832
   # https://stackoverflow.com/a/54491195/11157034
   #
-  # It is possible that this feature will become part of the Ecto API in the future. (Designed with Ecto 3.0)
-  # If this internal implementation disappears, one can use the named binding implementation specified in the
-  # Issue 783, link is below. Or revert back to 5-association limit if there are no other paths.
+  # It is possible that this feature will become part of the Ecto API in the future.
+  # (Designed with Ecto 3.0) If this internal implementation disappears, one can use the
+  #  named binding implementation specified in the Issue 783, link is below. Or revert back
+  #  to 5-association limit if there are no other paths.
   #
   # This only affects do_filter_assoc()
   #
