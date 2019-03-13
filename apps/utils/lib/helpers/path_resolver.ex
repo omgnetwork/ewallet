@@ -25,7 +25,7 @@ defmodule Utils.Helpers.PathResolver do
   path from a file.
   """
   def static_dir(app) do
-    serve_local_static = System.get_env("SERVE_LOCAL_STATIC")
+    serve_local_static = System.get_env("SERVE_LOCAL_STATIC") || false
 
     case Normalize.to_boolean(serve_local_static) do
       true ->
