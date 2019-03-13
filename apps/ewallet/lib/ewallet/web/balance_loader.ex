@@ -29,13 +29,13 @@ defmodule EWallet.Web.BalanceLoader do
     BalanceFetcher.all(%{"wallet" => wallet})
   end
 
-  def add_balances(%Wallet{} = wallet, tokens) do
-    BalanceFetcher.all(%{"wallet" => wallet, "tokens" => tokens})
-  end
-
   def add_balances({:ok, wallet}) do
     BalanceFetcher.all(%{"wallet" => wallet})
   end
 
   def add_balances(error), do: error
+
+  def add_balances(%Wallet{} = wallet, tokens) do
+    BalanceFetcher.all(%{"wallet" => wallet, "tokens" => tokens})
+  end
 end
