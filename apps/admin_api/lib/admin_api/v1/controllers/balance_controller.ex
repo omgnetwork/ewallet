@@ -33,7 +33,7 @@ defmodule AdminAPI.V1.BalanceController do
   """
   def all_for_wallet(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, wallet),
+         {:ok, _} <- authorize(:get, conn.assigns, wallet),
          %Paginator{data: tokens, pagination: pagination} <- all_tokens(attrs),
          {:ok, data} <- BalanceLoader.add_balances(wallet, tokens) do
       render(conn, :balances, %Paginator{pagination: pagination, data: data})
@@ -50,7 +50,7 @@ defmodule AdminAPI.V1.BalanceController do
     Orchestrator.query(Token, TokenOverlay, attrs)
   end
 
-  defp permit(action, params, data) do
-    Bodyguard.permit(WalletPolicy, action, params, data)
+  defp authorize(action, actor, data) do
+    WalletPolicy.authorize(action, actor, data)
   end
 end
