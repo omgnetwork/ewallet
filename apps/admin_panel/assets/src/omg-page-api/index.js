@@ -141,10 +141,13 @@ const KeyTopBar = styled.div`
 const KeyButton = styled.button`
   padding: 5px 10px;
   border-radius: 4px;
-  font-weight: bold;
-  background-color: ${props => props.theme.colors.S200};
+  font-weight: ${({ active, theme }) => (active ? 'bold' : 'normal')};
+  background-color: ${({ active, theme }) => (active ? theme.colors.S200 : 'white')};
+  color: ${({ active, theme }) => (active ? theme.colors.B400 : theme.colors.B100)};
   border: none;
   margin-right: 10px;
+  border: 1px solid ${props => props.theme.colors.S300};
+  width: 100px;
 `
 const columnsApiKey = [
   { key: 'key', title: 'API KEY' },
@@ -368,7 +371,7 @@ class ApiKeyPage extends Component {
             <KeySection>
               <KeyTopBar>
                 <div>
-                  <KeyButton>Admin Keys</KeyButton>
+                  <KeyButton active>Admin Keys</KeyButton>
                   <KeyButton>Client Keys</KeyButton>
                   <Button
                     size='small'
