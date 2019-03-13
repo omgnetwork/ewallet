@@ -26,6 +26,7 @@ defmodule EWallet.Web.V1.APIKeySerializerTest do
       expected = %{
         object: "api_key",
         id: api_key.id,
+        name: api_key.name,
         key: api_key.key,
         account_id: api_key.account.id,
         owner_app: api_key.owner_app,
@@ -67,6 +68,7 @@ defmodule EWallet.Web.V1.APIKeySerializerTest do
           %{
             object: "api_key",
             id: api_key_1.id,
+            name: api_key_1.name,
             key: api_key_1.key,
             account_id: api_key_1.account.id,
             owner_app: api_key_1.owner_app,
@@ -79,6 +81,7 @@ defmodule EWallet.Web.V1.APIKeySerializerTest do
           %{
             object: "api_key",
             id: api_key_2.id,
+            name: api_key_2.name,
             key: api_key_2.key,
             account_id: api_key_2.account.id,
             owner_app: api_key_2.owner_app,

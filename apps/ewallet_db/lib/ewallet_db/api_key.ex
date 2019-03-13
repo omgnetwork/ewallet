@@ -34,6 +34,7 @@ defmodule EWalletDB.APIKey do
   schema "api_key" do
     external_id(prefix: "api_")
 
+    field(:name, :string)
     field(:key, :string)
     field(:owner_app, :string)
 
@@ -63,7 +64,7 @@ defmodule EWalletDB.APIKey do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:key, :owner_app, :account_uuid, :enabled, :exchange_address],
+      cast: [:name, :key, :owner_app, :account_uuid, :enabled, :exchange_address],
       required: [:key, :owner_app, :account_uuid]
     )
     |> unique_constraint(:key)
@@ -84,7 +85,7 @@ defmodule EWalletDB.APIKey do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:enabled, :exchange_address],
+      cast: [:name, :enabled, :exchange_address],
       required: [:enabled]
     )
   end
