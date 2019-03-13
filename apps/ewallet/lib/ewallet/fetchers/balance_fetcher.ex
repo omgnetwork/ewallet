@@ -110,7 +110,7 @@ defmodule EWallet.BalanceFetcher do
     wallets
     |> Enum.map(fn wallet -> wallet.address end)
     |> LocalLedger.Wallet.all_balances()
-    |> process_response(wallets, :all)
+    |> process_response(wallets)
   end
 
   defp query_and_add_balances(wallet, %{"tokens" => tokens} = attrs) do
@@ -128,7 +128,7 @@ defmodule EWallet.BalanceFetcher do
     Map.put(wallet, :balances, balances)
   end
 
-  defp process_response({:ok, data}, wallets, _type) when is_list(wallets) do
+  defp process_response({:ok, data}, wallets) when is_list(wallets) do
     tokens = Token.all()
 
     Enum.map(wallets, fn wallet ->
