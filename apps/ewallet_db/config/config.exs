@@ -19,6 +19,7 @@ config :ewallet_db,
 config :ewallet_db, EWalletDB.Repo,
   adapter: Ecto.Adapters.Postgres,
   pool: DB.SharedConnectionPool,
+  pool_size: {:system, "EWALLET_POOL_SIZE", 10, {String, :to_integer}},
   shared_pool_id: :ewallet,
   migration_timestamps: [type: :naive_datetime_usec]
 
