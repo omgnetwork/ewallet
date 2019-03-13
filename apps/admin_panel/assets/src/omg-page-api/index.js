@@ -45,6 +45,20 @@ const KeySection = styled.div`
       }
     }
   }
+  td:nth-child(1) {
+    width: 40%;
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
+  }
   i[name='Copy'] {
     cursor: pointer;
     visibility: hidden;
@@ -90,11 +104,16 @@ const KeyContainer = styled.div`
   span {
     vertical-align: middle;
   }
+  
   i {
     margin-right: 5px;
   }
   i[name='Key'] {
-    color: ${props => props.theme.colors.BL400};
+    margin-right: 5px;
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
   }
   i[name='People'] {
     color: inherit;
@@ -109,6 +128,10 @@ const InputContainer = styled.div`
 const InputLabel = styled.div`
   font-size: 14px;
   color: ${props => props.theme.colors.B100};
+`
+const KeyTopBar = styled.div`
+  display: flex;
+  align-items: center;
 `
 const columnsApiKey = [
   { key: 'key', title: 'API KEY' },
@@ -330,15 +353,16 @@ class ApiKeyPage extends Component {
           })
           return (
             <KeySection>
-              <h3>Access Key</h3>
-              <p>
+              <KeyTopBar>
+                <p>
                 Access Keys are used to gain access to everything. user-related functions (once the
                 user has been logged in), e.g. make transfers with the user's wallets, list a user's
                 transactions, create transaction requests, etc.
               </p>
-              <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
-                <span>Generate Access Key</span>
-              </Button>
+                <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
+                  <span>Generate Access Key</span>
+                </Button>
+              </KeyTopBar>
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
@@ -398,12 +422,11 @@ class ApiKeyPage extends Component {
     return (
       <ApiKeyContainer>
         <TopNavigation
-          title={'Manage API Keys'}
-          buttons={[
-            <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
-              <span>Generate Access Key</span>
-            </Button>
-          ]}
+          title={'Keys'}
+          description={
+            'These are all keys using in this application. Click each one to view their details.'
+          }
+          buttons={null}
           secondaryAction={false}
           types={false}
         />

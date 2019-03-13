@@ -8,7 +8,7 @@ const TopNavigationContainer = styled.div`
   align-items: center;
   flex-wrap: wrap;
   width: 100%;
-  height: 75px;
+  height: 80px;
   position: relative;
   margin-bottom: 20px;
   h2 {
@@ -67,7 +67,8 @@ export default class TopNavigation extends PureComponent {
     buttons: PropTypes.array,
     title: PropTypes.string,
     secondaryAction: PropTypes.bool,
-    normalPlaceholder: PropTypes.string
+    normalPlaceholder: PropTypes.string,
+    description: PropTypes.string
   }
   static defaultProps = {
     secondaryAction: true
@@ -84,6 +85,7 @@ export default class TopNavigation extends PureComponent {
       <TopNavigationContainer>
         <LeftNavigationContainer>
           <h2>{this.props.title}</h2>
+          {this.props.description && <p>{this.props.description}</p>}
         </LeftNavigationContainer>
         <RightNavigationContainer>
           {this.props.secondaryAction && this.renderSecondaryActions()}
