@@ -17,6 +17,9 @@ defmodule DB.SharedConnectionPool do
   A singleton connection pool that can share connections across repos. Each pool is
   identified by a `shared_pool_id`.
 
+  If `:shared_pool_id` is not given, a single connection pool is used across all repos
+  that are configured to `pool: DB.SharedConnectionPool`.
+
   The actual pool GenServer and its logic are handled by `DBConnection.ConnectionPool`.
   """
   alias DBConnection.ConnectionPool
