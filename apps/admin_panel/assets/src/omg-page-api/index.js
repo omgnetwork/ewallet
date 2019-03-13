@@ -104,7 +104,7 @@ const KeyContainer = styled.div`
   span {
     vertical-align: middle;
   }
-  
+
   i {
     margin-right: 5px;
   }
@@ -130,8 +130,21 @@ const InputLabel = styled.div`
   color: ${props => props.theme.colors.B100};
 `
 const KeyTopBar = styled.div`
-  display: flex;
-  align-items: center;
+  > div:first-child {
+    display: flex;
+    align-items: center;
+  }
+  button:last-child {
+    margin-left: auto;
+  }
+`
+const KeyButton = styled.button`
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  background-color: ${props => props.theme.colors.S200};
+  border: none;
+  margin-right: 10px;
 `
 const columnsApiKey = [
   { key: 'key', title: 'API KEY' },
@@ -339,7 +352,7 @@ class ApiKeyPage extends Component {
       <AccessKeyFetcher
         query={{
           page: queryString.parse(this.props.location.search)['access_key_page'],
-          perPage: 5
+          perPage: 10
         }}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data.map(key => {
@@ -354,14 +367,22 @@ class ApiKeyPage extends Component {
           return (
             <KeySection>
               <KeyTopBar>
+                <div>
+                  <KeyButton>Admin Keys</KeyButton>
+                  <KeyButton>Client Keys</KeyButton>
+                  <Button
+                    size='small'
+                    onClick={this.onClickCreateAccessKey}
+                    styleType={'secondary'}
+                  >
+                    <span>Generate Access Key</span>
+                  </Button>
+                </div>
                 <p>
-                Access Keys are used to gain access to everything. user-related functions (once the
-                user has been logged in), e.g. make transfers with the user's wallets, list a user's
-                transactions, create transaction requests, etc.
-              </p>
-                <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
-                  <span>Generate Access Key</span>
-                </Button>
+                  Access Keys are used to gain access to everything. user-related functions (once
+                  the user has been logged in), e.g. make transfers with the user's wallets, list a
+                  user's transactions, create transaction requests, etc.
+                </p>
               </KeyTopBar>
               <Table
                 loadingRowNumber={6}
