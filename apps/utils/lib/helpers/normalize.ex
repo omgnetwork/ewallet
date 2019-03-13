@@ -51,7 +51,8 @@ defmodule Utils.Helpers.Normalize do
   def string_to_boolean(value),
     do: raise(ToBooleanError, message: ToBooleanError.error_message(value))
 
-  # We need /1 and /2 separated, because if no default is specified, the app should crash, trying to parse nil as a bool/bin/int
+  # We need /1 and /2 separated, because if no default is specified, the app
+  # should crash, trying to parse nil as a bool/bin/int
   def to_boolean(s) when is_boolean(s), do: s
   def to_boolean(s) when is_binary(s), do: string_to_boolean(s)
   def to_boolean(s) when is_integer(s) and s >= 1, do: true
