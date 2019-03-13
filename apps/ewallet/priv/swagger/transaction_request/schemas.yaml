@@ -38,6 +38,12 @@ TransactionRequestSchema:
       type: integer
     max_consumptions_per_user:
       type: integer
+    max_consumptions_per_interval:
+      type: integer
+    max_consumptions_per_interval_per_user:
+      type: integer
+    consumption_interval_duration:
+      type: integer
     consumption_lifetime:
       type: integer
     expiration_reason:
@@ -77,6 +83,9 @@ TransactionRequestSchema:
     - require_confirmation
     - max_consumptions
     - max_consumptions_per_user
+    - max_consumptions_per_interval
+    - max_consumptions_per_interval_per_user
+    - consumption_interval_duration
     - consumption_lifetime
     - expiration_reason
     - allow_amount_override

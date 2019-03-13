@@ -458,6 +458,58 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert inserted_transaction.uuid == inserted_transaction_2.uuid
     end
 
+    test "returns a max_consumption_per_interval_reached error", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit,
+          consumption_interval_duration: 360_000_000,
+          max_consumptions_per_interval_per_user: 1
+        )
+
+      set_initial_balance(%{
+        address: meta.bob_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      response =
+        client_request("/me.consume_transaction_request", %{
+          idempotency_token: "1234",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil
+        })
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+
+      assert response["success"] == true
+      assert response["data"]["id"] == inserted_consumption.id
+
+      response =
+        client_request("/me.consume_transaction_request", %{
+          idempotency_token: "12345",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil
+        })
+
+      refute response["success"]
+
+      assert response["data"]["code"] ==
+               "transaction_request:max_consumptions_per_interval_per_user_reached"
+    end
+
     test "sends socket confirmation when require_confirmation and approved between users", meta do
       # bob = test_user
       set_initial_balance(%{
