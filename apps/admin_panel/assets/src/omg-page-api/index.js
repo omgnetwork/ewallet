@@ -45,7 +45,7 @@ const KeySection = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     cursor: pointer;
     visibility: hidden;
     cursor: pointer;
@@ -76,7 +76,7 @@ const ConfirmCreateKeyContainer = styled.div`
     margin-right: 5px;
     color: ${props => props.theme.colors.B300};
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     color: ${props => props.theme.colors.S500};
@@ -93,10 +93,10 @@ const KeyContainer = styled.div`
   i {
     margin-right: 5px;
   }
-  i[name="Key"] {
+  i[name='Key'] {
     color: ${props => props.theme.colors.BL400};
   }
-  i[name="People"] {
+  i[name='People'] {
     color: inherit;
   }
 `
@@ -258,16 +258,18 @@ class ApiKeyPage extends Component {
           perPage: 5
         }}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
-          const apiKeysRows = data.filter(key => !key.deleted_at).map(key => {
-            return {
-              key: key.key,
-              id: key.id,
-              user: key.account_id,
-              created_at: key.created_at,
-              status: key.expired,
-              updated_at: key.updated_at
-            }
-          })
+          const apiKeysRows = data
+            .filter(key => !key.deleted_at)
+            .map(key => {
+              return {
+                key: key.key,
+                id: key.id,
+                user: key.account_id,
+                created_at: key.created_at,
+                status: key.expired,
+                updated_at: key.updated_at
+              }
+            })
           return (
             <KeySection style={{ marginTop: '20px' }}>
               <h3>eWallet API Key</h3>
@@ -327,7 +329,7 @@ class ApiKeyPage extends Component {
             }
           })
           return (
-            <KeySection style={{ marginTop: '50px' }}>
+            <KeySection>
               <h3>Access Key</h3>
               <p>
                 Access Keys are used to gain access to everything. user-related functions (once the
@@ -397,11 +399,14 @@ class ApiKeyPage extends Component {
       <ApiKeyContainer>
         <TopNavigation
           title={'Manage API Keys'}
-          buttons={null}
+          buttons={[
+            <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
+              <span>Generate Access Key</span>
+            </Button>
+          ]}
           secondaryAction={false}
           types={false}
         />
-        {this.renderEwalletApiKey()}
         {this.renderAccessKey()}
       </ApiKeyContainer>
     )

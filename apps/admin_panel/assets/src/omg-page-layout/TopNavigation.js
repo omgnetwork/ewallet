@@ -4,12 +4,13 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import SearchGroup from './SearchGroup'
 const TopNavigationContainer = styled.div`
-  padding: 20px 0;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   width: 100%;
-  height: 80px;
+  height: 75px;
+  position: relative;
+  margin-bottom: 20px;
   h2 {
     display: inline-block;
     margin-right: 25px;
@@ -17,6 +18,18 @@ const TopNavigationContainer = styled.div`
   }
   > {
     vertical-align: middle;
+  }
+  /* psuedu border bottom hack overide parent padding */
+  :after {
+    content: '';
+    position: absolute;
+    display: block;
+    bottom: 0;
+    height: 1px;
+    width: 150%;
+    background-color: ${props => props.theme.colors.S300};
+    left: -8%;
+    margin: 0 auto;
   }
   @media screen and (max-width: 800px) {
     height: auto;
