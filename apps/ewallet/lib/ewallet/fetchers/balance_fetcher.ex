@@ -97,7 +97,7 @@ defmodule EWallet.BalanceFetcher do
     balances =
       id
       |> LocalLedger.Wallet.get_balance(wallet.address)
-      |> process_response(wallet, {:some})
+      |> process_response(wallet, :all)
 
     wallet = Map.put(wallet, :balances, balances)
 
@@ -110,20 +110,20 @@ defmodule EWallet.BalanceFetcher do
     wallets
     |> Enum.map(fn wallet -> wallet.address end)
     |> LocalLedger.Wallet.all_balances()
-    |> process_response(wallets, {:all})
+    |> process_response(wallets, :all)
   end
 
   defp query_and_add_balances(wallet, %{"tokens" => tokens} = attrs) do
     wallet.address
     |> LocalLedger.Wallet.all_balances(attrs)
-    |> process_response(wallet, {:some, tokens})
+    |> process_response(wallet, tokens)
   end
 
   defp query_and_add_balances(wallet, _) do
     balances =
       wallet.address
       |> LocalLedger.Wallet.all_balances()
-      |> process_response(wallet, {:all})
+      |> process_response(wallet, :all_tokens)
 
     Map.put(wallet, :balances, balances)
   end
@@ -143,11 +143,11 @@ defmodule EWallet.BalanceFetcher do
     |> map_tokens(data[wallet.address])
   end
 
-  defp load_tokens({:all}, _), do: Token.all()
+  defp load_tokens(:all_tokens, _), do: Token.all()
 
-  defp load_tokens({:some, preload_tokens}, _), do: preload_tokens
+  defp load_tokens(preload_tokens, _) when is_list(preload_tokens), do: preload_tokens
 
-  defp load_tokens({:some}, amounts) do
+  defp load_tokens(:all, amounts) do
     amounts |> Map.keys() |> Token.get_all()
   end
 
