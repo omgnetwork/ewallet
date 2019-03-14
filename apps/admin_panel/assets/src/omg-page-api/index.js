@@ -157,12 +157,12 @@ const KeyTopButtonsContainer = styled.div`
   margin: 25px 0;
 `
 const columnsApiKey = [
-  { key: 'key', title: 'API KEY' },
+  { key: 'key', title: 'CLIENT KEY' },
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
 ]
 const columnsAccessKey = [
-  { key: 'key', title: 'ACCESS KEY' },
+  { key: 'key', title: 'ADMIN KEY' },
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
 ]
