@@ -26,9 +26,7 @@ const enhance = compose(
 )
 class AccountDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
-    history: PropTypes.object,
-    theme: PropTypes.object
+    match: PropTypes.object
   }
   renderTopBar = account => {
     return <TopBar title={account.name} breadcrumbItems={['Account', account.name]} />
