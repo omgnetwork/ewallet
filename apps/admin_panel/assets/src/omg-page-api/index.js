@@ -129,6 +129,11 @@ const InputLabel = styled.div`
   color: ${props => props.theme.colors.B100};
 `
 const KeyTopBar = styled.div`
+  margin-bottom: 20px;
+  p {
+    color: ${props => props.theme.colors.B100};
+    max-width: 80%;
+  }
   > div:first-child {
     display: flex;
     align-items: center;
@@ -136,7 +141,6 @@ const KeyTopBar = styled.div`
   button:last-child {
     margin-left: auto;
   }
-  margin-bottom: 20px;
 `
 const KeyButton = styled.button`
   padding: 5px 10px;
@@ -450,11 +454,19 @@ class ApiKeyPage extends Component {
               </Button>
             )}
           </KeyTopButtonsContainer>
-          <p>
-            Access Keys are used to gain access to everything. user-related functions (once the user
-            has been logged in), e.g. make transfers with the user's wallets, list a user's
-            transactions, create transaction requests, etc.
-          </p>
+          {activeTab === 'admin' ? (
+            <p>
+              Admin Keys are used to gain access to everything. user-related functions (once the
+              user has been logged in), e.g. make transfers with the user's wallets, list a user's
+              transactions, create transaction requests, etc.
+            </p>
+          ) : (
+            <p>
+              Client Keys are used to authenticate clients and allow them to perform various
+              user-related functions (once the user has been logged in), e.g. make transfers with
+              the user's wallets, list a user's transactions, create transaction requests, etc.
+            </p>
+          )}
         </KeyTopBar>
         {activeTab === 'admin' ? this.renderAdminKey() : this.renderClientKey()}
       </ApiKeyContainer>

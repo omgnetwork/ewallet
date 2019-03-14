@@ -17,6 +17,9 @@ const TopNavigationContainer = styled.div`
     margin-right: 25px;
     font-size: 24px;
   }
+  p {
+    color: ${props => props.theme.colors.B100};
+  }
   > {
     vertical-align: middle;
   }

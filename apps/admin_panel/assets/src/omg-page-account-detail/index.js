@@ -10,7 +10,7 @@ import moment from 'moment'
 import Copy from '../omg-copy'
 const AccountDetailContainer = styled.div``
 const ContentDetailContainer = styled.div`
-  margin-top: 40px;
+  margin-top: 20px;
   display: flex;
   > div {
     flex: 1 1 50%;
