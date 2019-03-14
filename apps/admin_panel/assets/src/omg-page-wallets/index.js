@@ -189,7 +189,7 @@ class WalletPage extends Component {
         render={this.renderWalletPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: 15,
+          perPage: Math.floor(window.innerHeight / 75),
           search: queryString.parse(this.props.location.search).search,
           ...this.props.walletQuery
         }}

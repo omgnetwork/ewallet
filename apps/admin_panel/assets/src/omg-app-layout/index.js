@@ -28,7 +28,7 @@ const ContentContainer = styled.div`
   overflow: auto;
 `
 const Content = styled.div`
-  padding: 0 7%;
+  padding: 0 7% 50px 7%;
 `
 class AppLayout extends Component {
   static propTypes = {

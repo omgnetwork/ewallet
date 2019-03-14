@@ -13,15 +13,11 @@ import { compose } from 'recompose'
 import { createApiKey, updateApiKey } from '../omg-api-keys/action'
 import { createAccessKey, updateAccessKey } from '../omg-access-key/action'
 import queryString from 'query-string'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import Copy from '../omg-copy'
 
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
-  button {
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
 `
 const KeySection = styled.div`
   position: relative;
@@ -137,6 +133,7 @@ const KeyTopBar = styled.div`
   button:last-child {
     margin-left: auto;
   }
+  margin-bottom: 20px;
 `
 const KeyButton = styled.button`
   padding: 5px 10px;
@@ -148,6 +145,9 @@ const KeyButton = styled.button`
   margin-right: 10px;
   border: 1px solid ${props => props.theme.colors.S300};
   width: 100px;
+`
+const KeyTopButtonsContainer = styled.div`
+  margin: 20px 0;
 `
 const columnsApiKey = [
   { key: 'key', title: 'API KEY' },
@@ -174,7 +174,8 @@ class ApiKeyPage extends Component {
     createAccessKey: PropTypes.func,
     updateApiKey: PropTypes.func,
     location: PropTypes.object,
-    updateAccessKey: PropTypes.func
+    updateAccessKey: PropTypes.func,
+    match: PropTypes.object
   }
   state = {
     accessModalOpen: false,
@@ -289,7 +290,7 @@ class ApiKeyPage extends Component {
         return data
     }
   }
-  renderEwalletApiKey = () => {
+  renderClientKey () {
     return (
       <ApiKeysFetcher
         query={{
@@ -310,22 +311,13 @@ class ApiKeyPage extends Component {
               }
             })
           return (
-            <KeySection style={{ marginTop: '20px' }}>
-              <h3>eWallet API Key</h3>
-              <p>
-                eWallet API Keys are used to authenticate clients and allow them to perform various
-                user-related functions (once the user has been logged in), e.g. make transfers with
-                the user's wallets, list a user's transactions, create transaction requests, etc.
-              </p>
-              <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
-                <span>Generate Api Key</span>
-              </Button>
+            <KeySection>
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
                 rowRenderer={this.rowApiKeyRenderer(fetch)}
                 columns={columnsApiKey}
-                perPage={99999}
+                perPage={10}
                 loadingColNumber={4}
                 loadingStatus={individualLoadingStatus}
                 navigation
@@ -350,7 +342,7 @@ class ApiKeyPage extends Component {
       />
     )
   }
-  renderAccessKey = () => {
+  renderAdminKey = () => {
     return (
       <AccessKeyFetcher
         query={{
@@ -369,24 +361,6 @@ class ApiKeyPage extends Component {
           })
           return (
             <KeySection>
-              <KeyTopBar>
-                <div>
-                  <KeyButton active>Admin Keys</KeyButton>
-                  <KeyButton>Client Keys</KeyButton>
-                  <Button
-                    size='small'
-                    onClick={this.onClickCreateAccessKey}
-                    styleType={'secondary'}
-                  >
-                    <span>Generate Access Key</span>
-                  </Button>
-                </div>
-                <p>
-                  Access Keys are used to gain access to everything. user-related functions (once
-                  the user has been logged in), e.g. make transfers with the user's wallets, list a
-                  user's transactions, create transaction requests, etc.
-                </p>
-              </KeyTopBar>
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
@@ -443,6 +417,7 @@ class ApiKeyPage extends Component {
   }
 
   render () {
+    const activeTab = this.props.match.params.keyType === 'client' ? 'client' : 'admin'
     return (
       <ApiKeyContainer>
         <TopNavigation
@@ -454,7 +429,25 @@ class ApiKeyPage extends Component {
           secondaryAction={false}
           types={false}
         />
-        {this.renderAccessKey()}
+        <KeyTopBar>
+          <KeyTopButtonsContainer>
+            <Link to='/keys/admin'>
+              <KeyButton active={activeTab === 'admin'}>Admin Keys</KeyButton>
+            </Link>
+            <Link to='/keys/client'>
+              <KeyButton active={activeTab === 'client'}>Client Keys</KeyButton>
+            </Link>
+            <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
+              <span>Generate Access Key</span>
+            </Button>
+          </KeyTopButtonsContainer>
+          <p>
+            Access Keys are used to gain access to everything. user-related functions (once the user
+            has been logged in), e.g. make transfers with the user's wallets, list a user's
+            transactions, create transaction requests, etc.
+          </p>
+        </KeyTopBar>
+        {activeTab === 'admin' ? this.renderAdminKey() : this.renderClientKey()}
       </ApiKeyContainer>
     )
   }
