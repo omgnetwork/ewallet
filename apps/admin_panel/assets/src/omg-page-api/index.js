@@ -41,8 +41,11 @@ const KeySection = styled.div`
       }
     }
   }
+  td {
+    white-space: nowrap;
+  }
   td:nth-child(1) {
-    width: 40%;
+    width: 60%;
     border: none;
     position: relative;
     :before {
@@ -151,13 +154,11 @@ const KeyTopButtonsContainer = styled.div`
 `
 const columnsApiKey = [
   { key: 'key', title: 'API KEY' },
-  { key: 'user', title: 'CREATE BY' },
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
 ]
 const columnsAccessKey = [
   { key: 'key', title: 'ACCESS KEY' },
-  { key: 'user', title: 'CREATE BY' },
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
 ]
