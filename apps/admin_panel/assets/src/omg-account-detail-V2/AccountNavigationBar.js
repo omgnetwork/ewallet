@@ -63,7 +63,6 @@ function AccountNavigationBar (props) {
       <AccountProvider
         accountId={accountId}
         render={({ account }) => {
-          console.log(account)
           return (
             <div>
               {account && (

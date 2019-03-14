@@ -108,8 +108,8 @@ class AccountSettingPage extends Component {
       if (result.data) {
         this.setState({
           name: result.data.name,
-          description: result.data.description,
-          avatar: result.data.avatar.original
+          description: result.data.description || '',
+          avatar: result.data.avatar.original || ''
         })
       }
     }
