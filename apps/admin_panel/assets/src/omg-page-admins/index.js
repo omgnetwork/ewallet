@@ -76,7 +76,7 @@ class UsersPage extends Component {
     scrollTopContentContainer: PropTypes.func,
     query: PropTypes.object,
     fetcher: PropTypes.func,
-    navigation: PropTypes.object,
+    navigation: PropTypes.bool,
     onClickRow: PropTypes.func,
     columns: PropTypes.array,
     divider: PropTypes.bool
