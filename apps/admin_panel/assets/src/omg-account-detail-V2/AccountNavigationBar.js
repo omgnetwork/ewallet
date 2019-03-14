@@ -63,11 +63,13 @@ function AccountNavigationBar (props) {
       <AccountProvider
         accountId={accountId}
         render={({ account }) => {
+          console.log(account)
           return (
             <div>
               {account && (
                 <AccountNameContainer>
-                  <Avatar name={account.name} size={32} /> <h4>{account.email || account.name}</h4>
+                  <Avatar image={_.get(account, 'avatar.small')} name={account.name} size={32} />{' '}
+                  <h4>{account.email || account.name}</h4>
                 </AccountNameContainer>
               )}
             </div>
