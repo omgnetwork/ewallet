@@ -16,13 +16,28 @@ defmodule AdminAPI.V1.PermissionControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/permission.all" do
-    test_with_auths "returns all permissions separated by global_roles and account_roles" do
+    test_with_auths "returns all permissions separated by global_roles and account_roles maps" do
       response = request("/permission.all")
 
       assert response["success"]
-      assert Map.has_key?(response["object"], "permissions")
+      assert response["data"]["object"] == "permissions"
+
       assert Map.has_key?(response["data"], "global_roles")
       assert Map.has_key?(response["data"], "account_roles")
+
+      assert is_map(response["data"]["global_roles"])
+      assert is_map(response["data"]["account_roles"])
+    end
+
+    test "returns :invalid_auth_scheme error when the request is not authenticated" do
+      response = unauthenticated_request("/permission.all")
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_auth_scheme"
+
+      assert response["data"]["description"] ==
+               "The provided authentication scheme is not supported."
     end
   end
 end

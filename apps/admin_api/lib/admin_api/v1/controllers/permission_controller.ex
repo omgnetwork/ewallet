@@ -14,6 +14,8 @@
 
 defmodule AdminAPI.V1.PermissionController do
   use AdminAPI, :controller
+  import AdminAPI.V1.ErrorHandler
+  alias EWallet.{GlobalRolePolicy, RolePolicy}
   alias EWalletDB.{GlobalRole, Role}
 
   @doc """
@@ -21,12 +23,26 @@ defmodule AdminAPI.V1.PermissionController do
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, _attrs) do
-    permissions =
-      %{
+    with {:ok, _} <- authorize_global_role(:all, conn.assigns),
+         {:ok, _} <- authorize_account_role(:all, conn.assigns) do
+      permissions = %{
         global_roles: GlobalRole.global_role_permissions(),
         account_roles: Role.account_role_permissions()
       }
 
-    render(conn, :permissions, permissions)
+      render(conn, :permissions, permissions)
+    else
+      {:error, code} -> handle_error(conn, code)
+    end
+  end
+
+  @spec authorize_global_role(:all, map()) :: any()
+  defp authorize_global_role(action, actor) do
+    GlobalRolePolicy.authorize(action, actor, nil)
+  end
+
+  @spec authorize_account_role(:all, map()) :: any()
+  defp authorize_account_role(action, actor) do
+    RolePolicy.authorize(action, actor, nil)
   end
 end
