@@ -31,6 +31,10 @@
       "description": "Resources related to users."
     },
     {
+      "name": "Permission",
+      "description": "Resources related to permissions."
+    },
+    {
       "name": "Token",
       "description": "Resources related to tokens."
     },
@@ -38176,6 +38180,211 @@
                           "code": "unauthorized",
                           "description": "You are not allowed to perform the requested operation.",
                           "messages": {}
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/permission.all": {
+      "post": {
+        "tags": [
+          "Permission"
+        ],
+        "summary": "Get the list of permissions",
+        "operationId": "permission_all",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of permissions",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for permissions",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for permissions",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "global_roles": {
+                              "type": "object",
+                              "additionalProperties": true
+                            },
+                            "account_roles": {
+                              "type": "object",
+                              "additionalProperties": true
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "global_roles",
+                            "account_roles"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "permissions",
+                          "global_roles": {
+                            "admin": {
+                              "account_wallets": {
+                                "get": "global",
+                                "create": "accounts"
+                              }
+                            },
+                            "end_user": {
+                              "account_wallets": {
+                                "get": "none",
+                                "create": "none"
+                              }
+                            }
+                          },
+                          "account_roles": {
+                            "admin": {
+                              "account_wallets": {
+                                "get": "global",
+                                "all": "global",
+                                "create": "accounts"
+                              }
+                            },
+                            "viewer": {
+                              "account_wallets": {
+                                "get": "global",
+                                "all": "global"
+                              }
+                            }
+                          }
                         }
                       }
                     }

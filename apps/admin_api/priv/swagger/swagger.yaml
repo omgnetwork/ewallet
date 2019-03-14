@@ -47,6 +47,8 @@ tags:
     description: Resources related to user session tokens.
   - name: User
     description: Resources related to users.
+  - name: Permission
+    description: Resources related to permissions.
   - name: Token
     description: Resources related to tokens.
   - name: ExchangePair
@@ -330,3 +332,7 @@ paths:
     $ref: 'role/paths.yaml#/role.update'
   /role.delete:
     $ref: 'role/paths.yaml#/role.delete'
+
+  # PERMISSION
+  /permission.all:
+    $ref: 'permission/paths.yaml#/permission.all'

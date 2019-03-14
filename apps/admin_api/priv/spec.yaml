@@ -42,6 +42,8 @@ tags:
     description: Resources related to user session tokens.
   - name: User
     description: Resources related to users.
+  - name: Permission
+    description: Resources related to permissions.
   - name: Token
     description: Resources related to tokens.
   - name: ExchangePair
@@ -5404,4 +5406,63 @@ paths:
         - AdminAuth: []
       responses:
         '200': *ref_63
+        '500': *ref_2
+  /permission.all:
+    post:
+      tags:
+        - Permission
+      summary: Get the list of permissions
+      operationId: permission_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      responses:
+        '200':
+          description: Returns a list of permissions
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for permissions
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for permissions
+                        properties:
+                          object:
+                            type: string
+                          global_roles:
+                            type: object
+                            additionalProperties: true
+                          account_roles:
+                            type: object
+                            additionalProperties: true
+                        required:
+                          - object
+                          - global_roles
+                          - account_roles
+                    example:
+                      data:
+                        object: permissions
+                        global_roles:
+                          admin:
+                            account_wallets:
+                              get: global
+                              create: accounts
+                          end_user:
+                            account_wallets:
+                              get: none
+                              create: none
+                        account_roles:
+                          admin:
+                            account_wallets:
+                              get: global
+                              all: global
+                              create: accounts
+                          viewer:
+                            account_wallets:
+                              get: global
+                              all: global
         '500': *ref_2
