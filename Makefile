@@ -63,7 +63,7 @@ check-credo:
 	$(ENV_TEST) mix credo 2>&1
 
 check-dialyzer:
-	$(ENV_TEST) mix dialyzer --halt-exit-status2 >&1
+	$(ENV_TEST) mix dialyzer --halt-exit-status >&1
 
 .PHONY: format check-format check-credo
 
