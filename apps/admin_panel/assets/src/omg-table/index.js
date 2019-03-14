@@ -266,7 +266,7 @@ class SortableTable extends PureComponent {
         />
         {this.props.navigation &&
           this.props.loadingStatus !== 'INITIATED' &&
-          (this.props.isFirstPage !== this.props.isLastPage) && (
+          !(this.props.isFirstPage && this.props.isLastPage) && (
             <NavigationContainer>
               <Button
                 onClick={this._onClickPrev}
