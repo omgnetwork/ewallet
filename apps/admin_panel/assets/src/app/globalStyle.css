@@ -128,6 +128,7 @@ a {
   margin-right: -50%;
   border: none;
   position: absolute;
+  z-index: 2;
 }
 
 .ReactModal__Content--after-open.react-modal {
