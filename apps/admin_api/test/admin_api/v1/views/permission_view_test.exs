@@ -14,8 +14,7 @@
 
 defmodule AdminAPI.V1.PermissionViewTest do
   use AdminAPI.ViewCase, :v1
-  alias AdminAPI.V1.PermissionnView
-  alias EWallet.Web.V1.PermissionSerializer
+  alias AdminAPI.V1.PermissionView
   alias EWalletDB.{GlobalRole, Role}
 
   describe "render/2" do
@@ -28,14 +27,14 @@ defmodule AdminAPI.V1.PermissionViewTest do
       response = PermissionView.render("permissions.json", permissions)
 
       # Assert that the data went through the ResponseSerializer
-      assert response["success"] == true
-      assert Map.has_key?(response, "version")
-      assert Map.has_key?(response, "data")
+      assert response.success == true
+      assert Map.has_key?(response, :version)
+      assert Map.has_key?(response, :data)
 
       # Assert that the data went through the PermissionSerializer
-      assert response["data"]["object"] == "permissions"
-      assert Map.has_key?(response["data"], "global_roles")
-      assert Map.has_key?(response["data"], "account_roles")
+      assert response.data.object == "permissions"
+      assert Map.has_key?(response.data, :global_roles)
+      assert Map.has_key?(response.data, :account_roles)
     end
   end
 end
