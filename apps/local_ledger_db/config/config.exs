@@ -8,7 +8,7 @@ config :local_ledger_db,
 config :local_ledger_db, LocalLedgerDB.Repo,
   adapter: Ecto.Adapters.Postgres,
   pool: DB.SharedConnectionPool,
-  pool_size: {:system, "LOCAL_LEDGER_POOL_SIZE", 10, {String, :to_integer}},
+  pool_size: {:system, "LOCAL_LEDGER_POOL_SIZE", 5, {String, :to_integer}},
   shared_pool_id: :local_ledger,
   migration_timestamps: [type: :naive_datetime_usec]
 

@@ -10,7 +10,7 @@ config :activity_logger,
 config :activity_logger, ActivityLogger.Repo,
   adapter: Ecto.Adapters.Postgres,
   pool: DB.SharedConnectionPool,
-  pool_size: {:system, "EWALLET_POOL_SIZE", 10, {String, :to_integer}},
+  pool_size: {:system, "EWALLET_POOL_SIZE", 15, {String, :to_integer}},
   shared_pool_id: :ewallet,
   migration_timestamps: [type: :naive_datetime_usec]
 
