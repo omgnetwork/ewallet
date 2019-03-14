@@ -95,7 +95,7 @@ class SideNavigation extends PureComponent {
       {
         icon: 'Key',
         to: '/keys',
-        text: 'Api Keys'
+        text: 'Keys'
       },
       {
         icon: 'People',
