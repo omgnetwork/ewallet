@@ -148,7 +148,7 @@ class ConsumptionPage extends Component {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-consumption-tab']
     return (
       <ConsumptionPageContainer>
-        <TopNavigation title={'Transaction Consumptions'} buttons={[]} />
+        <TopNavigation divider={this.props.divider} title={'Transaction Consumptions'} buttons={[]} />
         <SortableTableContainer
           innerRef={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}

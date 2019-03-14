@@ -32,7 +32,7 @@ export default withRouter(
       }
     }
     render () {
-      return <ActivityPage query={this.getQuery} />
+      return <ActivityPage query={this.getQuery} divider={false} />
     }
   }
 )

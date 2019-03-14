@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import PropTypes from 'prop-types'
 import SearchGroup from './SearchGroup'
+
 const TopNavigationContainer = styled.div`
   display: flex;
   align-items: center;
@@ -10,7 +11,7 @@ const TopNavigationContainer = styled.div`
   width: 100%;
   height: 80px;
   position: relative;
-  margin-bottom: 20px;
+  margin-bottom: ${props => props.divider ? '20px' : '0'};
   h2 {
     display: inline-block;
     margin-right: 25px;
@@ -23,7 +24,7 @@ const TopNavigationContainer = styled.div`
   :after {
     content: '';
     position: absolute;
-    display: block;
+    display: ${props => (props.divider ? 'block' : 'none')};
     bottom: 0;
     height: 1px;
     width: 150%;
@@ -68,10 +69,12 @@ export default class TopNavigation extends PureComponent {
     title: PropTypes.string,
     secondaryAction: PropTypes.bool,
     normalPlaceholder: PropTypes.string,
-    description: PropTypes.string
+    description: PropTypes.string,
+    divider: PropTypes.bool
   }
   static defaultProps = {
-    secondaryAction: true
+    secondaryAction: true,
+    divider: true
   }
   renderSecondaryActions () {
     return (
@@ -82,7 +85,7 @@ export default class TopNavigation extends PureComponent {
   }
   render () {
     return (
-      <TopNavigationContainer>
+      <TopNavigationContainer divider={this.props.divider}>
         <LeftNavigationContainer>
           <h2>{this.props.title}</h2>
           {this.props.description && <p>{this.props.description}</p>}

@@ -148,7 +148,7 @@ class UsersPage extends Component {
   renderUserPage = ({ data: users, individualLoadingStatus, pagination }) => {
     return (
       <UserPageContainer>
-        <TopNavigation title={'Users'} />
+        <TopNavigation divider={this.props.divider} title={'Users'} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(users)}

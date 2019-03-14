@@ -393,7 +393,7 @@ class TransactionExportPage extends Component {
           render={({ data, individualLoadingStatus, pagination, fetch }) => {
             return (
               <div>
-                <TopNavigation
+                <TopNavigation divider={this.props.divider}
                   title={
                     <TitleContainer>
                       <Icon name='Arrow-Left' onClick={this.props.history.goBack} /> Export

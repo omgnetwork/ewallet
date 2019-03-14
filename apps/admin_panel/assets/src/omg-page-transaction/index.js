@@ -257,7 +257,7 @@ class TransactionPage extends Component {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-transaction-tab']
     return (
       <TransactionPageContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title={'Transactions'}
           buttons={
             this.props.transferButton

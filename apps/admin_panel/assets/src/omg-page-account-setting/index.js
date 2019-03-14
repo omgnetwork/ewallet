@@ -228,7 +228,7 @@ class AccountSettingPage extends Component {
   render () {
     return (
       <AccountSettingContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title='Account Settings'
           buttons={[this.renderInviteButton()]}
           secondaryAction={false}

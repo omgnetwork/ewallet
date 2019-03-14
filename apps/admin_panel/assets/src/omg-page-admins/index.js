@@ -137,7 +137,7 @@ class UsersPage extends Component {
   renderAdminPage = ({ data: admins, individualLoadingStatus, pagination }) => {
     return (
       <AdminPageContainer>
-        <TopNavigation title={'Admins'} />
+        <TopNavigation divider={this.props.divider} title={'Admins'} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(admins)}

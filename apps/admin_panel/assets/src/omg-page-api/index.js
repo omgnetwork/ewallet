@@ -420,7 +420,7 @@ class ApiKeyPage extends Component {
     const activeTab = this.props.match.params.keyType === 'client' ? 'client' : 'admin'
     return (
       <ApiKeyContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title={'Keys'}
           description={
             'These are all keys using in this application. Click each one to view their details.'

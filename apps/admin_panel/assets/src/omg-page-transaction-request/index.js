@@ -169,7 +169,7 @@ class TransactionRequestsPage extends Component {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-request-tab']
     return (
       <TransactionRequestsPageContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title={'Transaction Requests'}
           buttons={
             this.props.createTransactionRequestButton

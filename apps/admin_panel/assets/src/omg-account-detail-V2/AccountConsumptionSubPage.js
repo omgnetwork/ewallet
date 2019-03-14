@@ -12,6 +12,7 @@ export default withRouter(
     render () {
       return (
         <ConsumptionPage
+          divider={false}
           fetcher={consumptionsAccountFetcher}
           accountId={this.props.match.params.accountId}
         />

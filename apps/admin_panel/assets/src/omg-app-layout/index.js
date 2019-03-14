@@ -29,6 +29,7 @@ const ContentContainer = styled.div`
 `
 const Content = styled.div`
   padding: 0 7% 50px 7%;
+  overflow: hidden;
 `
 class AppLayout extends Component {
   static propTypes = {

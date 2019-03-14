@@ -156,7 +156,7 @@ class WalletPage extends Component {
   renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination }) => {
     return (
       <WalletPageContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title={this.props.title}
           buttons={[this.props.transferButton && this.renderTransferButton()]}
         />

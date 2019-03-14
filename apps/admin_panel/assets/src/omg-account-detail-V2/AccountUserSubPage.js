@@ -13,6 +13,7 @@ function AccountTransactionSubPage (props) {
       fetcher={getUsersByAccountId}
       accountId={props.match.params.accountId}
       onClickRow={onClickRow}
+      divider={false}
     />
   )
 }

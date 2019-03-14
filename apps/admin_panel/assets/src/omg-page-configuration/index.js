@@ -547,7 +547,7 @@ class ConfigurationPage extends Component {
   renderConfigurationPage = ({ data: configurations }) => {
     return (
       <ConfigurationPageContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title={'Configuration'}
           buttons={[this.renderSaveButton()]}
           secondaryAction={false}

@@ -233,7 +233,7 @@ class AccountPage extends Component {
   renderActivityPage = ({ data: activities, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title={'Activity Logs'}
           buttons={[]}
           normalPlaceholder='originator id, action'
