@@ -15,6 +15,7 @@ html {
 }
 button {
   font-size: inherit;
+  cursor: pointer;
 }
 
 input:-webkit-autofill,

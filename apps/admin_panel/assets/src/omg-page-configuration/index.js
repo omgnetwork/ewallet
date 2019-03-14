@@ -94,7 +94,8 @@ class ConfigurationPage extends Component {
   static propTypes = {
     configurations: PropTypes.object,
     configurationLoadingStatus: PropTypes.string,
-    updateConfiguration: PropTypes.func
+    updateConfiguration: PropTypes.func,
+    divider: PropTypes.bool
   }
 
   static getDerivedStateFromProps (props, state) {
@@ -547,7 +548,7 @@ class ConfigurationPage extends Component {
   renderConfigurationPage = ({ data: configurations }) => {
     return (
       <ConfigurationPageContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title={'Configuration'}
           buttons={[this.renderSaveButton()]}
           secondaryAction={false}

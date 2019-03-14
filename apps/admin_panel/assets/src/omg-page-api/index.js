@@ -13,15 +13,11 @@ import { compose } from 'recompose'
 import { createApiKey, updateApiKey } from '../omg-api-keys/action'
 import { createAccessKey, updateAccessKey } from '../omg-access-key/action'
 import queryString from 'query-string'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import Copy from '../omg-copy'
 
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
-  button {
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
 `
 const KeySection = styled.div`
   position: relative;
@@ -45,7 +41,24 @@ const KeySection = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  td {
+    white-space: nowrap;
+  }
+  td:nth-child(1) {
+    width: 60%;
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
+  }
+  i[name='Copy'] {
     cursor: pointer;
     visibility: hidden;
     cursor: pointer;
@@ -76,7 +89,7 @@ const ConfirmCreateKeyContainer = styled.div`
     margin-right: 5px;
     color: ${props => props.theme.colors.B300};
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     color: ${props => props.theme.colors.S500};
@@ -90,13 +103,18 @@ const KeyContainer = styled.div`
   span {
     vertical-align: middle;
   }
+
   i {
     margin-right: 5px;
   }
-  i[name="Key"] {
-    color: ${props => props.theme.colors.BL400};
+  i[name='Key'] {
+    margin-right: 5px;
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
   }
-  i[name="People"] {
+  i[name='People'] {
     color: inherit;
   }
 `
@@ -110,15 +128,41 @@ const InputLabel = styled.div`
   font-size: 14px;
   color: ${props => props.theme.colors.B100};
 `
+const KeyTopBar = styled.div`
+  margin-bottom: 20px;
+  p {
+    color: ${props => props.theme.colors.B100};
+    max-width: 80%;
+  }
+  > div:first-child {
+    display: flex;
+    align-items: center;
+  }
+  button:last-child {
+    margin-left: auto;
+  }
+`
+const KeyButton = styled.button`
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-weight: ${({ active, theme }) => (active ? 'bold' : 'normal')};
+  background-color: ${({ active, theme }) => (active ? theme.colors.S200 : 'white')};
+  color: ${({ active, theme }) => (active ? theme.colors.B400 : theme.colors.B100)};
+  border: none;
+  margin-right: 10px;
+  border: 1px solid ${props => props.theme.colors.S300};
+  width: 100px;
+`
+const KeyTopButtonsContainer = styled.div`
+  margin: 25px 0;
+`
 const columnsApiKey = [
   { key: 'key', title: 'API KEY' },
-  { key: 'user', title: 'CREATE BY' },
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
 ]
 const columnsAccessKey = [
   { key: 'key', title: 'ACCESS KEY' },
-  { key: 'user', title: 'CREATE BY' },
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
 ]
@@ -134,8 +178,10 @@ class ApiKeyPage extends Component {
     createApiKey: PropTypes.func,
     createAccessKey: PropTypes.func,
     updateApiKey: PropTypes.func,
+    divider: PropTypes.bool,
     location: PropTypes.object,
-    updateAccessKey: PropTypes.func
+    updateAccessKey: PropTypes.func,
+    match: PropTypes.object
   }
   state = {
     accessModalOpen: false,
@@ -250,7 +296,7 @@ class ApiKeyPage extends Component {
         return data
     }
   }
-  renderEwalletApiKey = () => {
+  renderClientKey () {
     return (
       <ApiKeysFetcher
         query={{
@@ -258,33 +304,26 @@ class ApiKeyPage extends Component {
           perPage: 5
         }}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
-          const apiKeysRows = data.filter(key => !key.deleted_at).map(key => {
-            return {
-              key: key.key,
-              id: key.id,
-              user: key.account_id,
-              created_at: key.created_at,
-              status: key.expired,
-              updated_at: key.updated_at
-            }
-          })
+          const apiKeysRows = data
+            .filter(key => !key.deleted_at)
+            .map(key => {
+              return {
+                key: key.key,
+                id: key.id,
+                user: key.account_id,
+                created_at: key.created_at,
+                status: key.expired,
+                updated_at: key.updated_at
+              }
+            })
           return (
-            <KeySection style={{ marginTop: '20px' }}>
-              <h3>eWallet API Key</h3>
-              <p>
-                eWallet API Keys are used to authenticate clients and allow them to perform various
-                user-related functions (once the user has been logged in), e.g. make transfers with
-                the user's wallets, list a user's transactions, create transaction requests, etc.
-              </p>
-              <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
-                <span>Generate Api Key</span>
-              </Button>
+            <KeySection>
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
                 rowRenderer={this.rowApiKeyRenderer(fetch)}
                 columns={columnsApiKey}
-                perPage={99999}
+                perPage={10}
                 loadingColNumber={4}
                 loadingStatus={individualLoadingStatus}
                 navigation
@@ -299,7 +338,7 @@ class ApiKeyPage extends Component {
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
                 <ConfirmCreateKeyContainer>
-                  <h4>Generate eWallet key</h4>
+                  <h4>Generate Client Key</h4>
                   <p>Are you sure you want to generate eWallet key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
@@ -309,12 +348,12 @@ class ApiKeyPage extends Component {
       />
     )
   }
-  renderAccessKey = () => {
+  renderAdminKey = () => {
     return (
       <AccessKeyFetcher
         query={{
           page: queryString.parse(this.props.location.search)['access_key_page'],
-          perPage: 5
+          perPage: 10
         }}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data.map(key => {
@@ -327,16 +366,7 @@ class ApiKeyPage extends Component {
             }
           })
           return (
-            <KeySection style={{ marginTop: '50px' }}>
-              <h3>Access Key</h3>
-              <p>
-                Access Keys are used to gain access to everything. user-related functions (once the
-                user has been logged in), e.g. make transfers with the user's wallets, list a user's
-                transactions, create transaction requests, etc.
-              </p>
-              <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
-                <span>Generate Access Key</span>
-              </Button>
+            <KeySection>
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
@@ -356,7 +386,7 @@ class ApiKeyPage extends Component {
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
                 <ConfirmCreateKeyContainer>
-                  <h4>Generate Access key</h4>
+                  <h4>Generate Admin Key</h4>
                   <p>Are you sure you want to generate access key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
@@ -393,16 +423,52 @@ class ApiKeyPage extends Component {
   }
 
   render () {
+    const activeTab = this.props.match.params.keyType === 'client' ? 'client' : 'admin'
     return (
       <ApiKeyContainer>
         <TopNavigation
-          title={'Manage API Keys'}
+          divider={this.props.divider}
+          title={'Keys'}
+          description={
+            'These are all keys using in this application. Click each one to view their details.'
+          }
           buttons={null}
           secondaryAction={false}
           types={false}
         />
-        {this.renderEwalletApiKey()}
-        {this.renderAccessKey()}
+        <KeyTopBar>
+          <KeyTopButtonsContainer>
+            <Link to='/keys/admin'>
+              <KeyButton active={activeTab === 'admin'}>Admin Keys</KeyButton>
+            </Link>
+            <Link to='/keys/client'>
+              <KeyButton active={activeTab === 'client'}>Client Keys</KeyButton>
+            </Link>
+            {activeTab === 'admin' ? (
+              <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
+                <span>Generate Admin Key</span>
+              </Button>
+            ) : (
+              <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
+                <span>Generate Client Key</span>
+              </Button>
+            )}
+          </KeyTopButtonsContainer>
+          {activeTab === 'admin' ? (
+            <p>
+              Admin Keys are used to gain access to everything. user-related functions (once the
+              user has been logged in), e.g. make transfers with the user's wallets, list a user's
+              transactions, create transaction requests, etc.
+            </p>
+          ) : (
+            <p>
+              Client Keys are used to authenticate clients and allow them to perform various
+              user-related functions (once the user has been logged in), e.g. make transfers with
+              the user's wallets, list a user's transactions, create transaction requests, etc.
+            </p>
+          )}
+        </KeyTopBar>
+        {activeTab === 'admin' ? this.renderAdminKey() : this.renderClientKey()}
       </ApiKeyContainer>
     )
   }

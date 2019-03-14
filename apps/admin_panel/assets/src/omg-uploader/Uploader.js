@@ -17,7 +17,7 @@ class ImageUploader extends Component {
     }
   }
   componentDidMount = () => {
-    this.fileInputDom = ReactDom.findDOMNode(this.fileInput)
+    this.fileInputDom = ReactDom.findDOMNode(this.fileInput) // eslint-disable-line react/no-find-dom-node
   }
 
   handleBrowseImage = e => {

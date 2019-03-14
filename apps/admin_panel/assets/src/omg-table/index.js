@@ -264,26 +264,28 @@ class SortableTable extends PureComponent {
           page={this.getPage()}
           perPage={this.props.perPage}
         />
-        {this.props.navigation && this.props.loadingStatus !== 'INITIATED' && (
-          <NavigationContainer>
-            <Button
-              onClick={this._onClickPrev}
-              styleType='secondary'
-              disabled={this.props.isFirstPage}
-              style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
-            >
-              <Icon name='Chevron-Left' />
-            </Button>
-            <Button
-              onClick={this._onClickNext}
-              styleType='secondary'
-              disabled={this.props.isLastPage}
-              style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
-            >
-              <Icon name='Chevron-Right' />
-            </Button>
-          </NavigationContainer>
-        )}
+        {this.props.navigation &&
+          this.props.loadingStatus !== 'INITIATED' &&
+          (this.props.isFirstPage !== this.props.isLastPage) && (
+            <NavigationContainer>
+              <Button
+                onClick={this._onClickPrev}
+                styleType='secondary'
+                disabled={this.props.isFirstPage}
+                style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
+              >
+                <Icon name='Chevron-Left' />
+              </Button>
+              <Button
+                onClick={this._onClickNext}
+                styleType='secondary'
+                disabled={this.props.isLastPage}
+                style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
+              >
+                <Icon name='Chevron-Right' />
+              </Button>
+            </NavigationContainer>
+          )}
       </TableContainer>
     )
   }

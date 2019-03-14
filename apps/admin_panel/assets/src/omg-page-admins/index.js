@@ -73,13 +73,13 @@ class UsersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
     history: PropTypes.object,
-    match: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
     query: PropTypes.object,
     fetcher: PropTypes.func,
     navigation: PropTypes.object,
     onClickRow: PropTypes.func,
-    columns: PropTypes.array
+    columns: PropTypes.array,
+    divider: PropTypes.bool
   }
   static defaultProps = {
     query: {},
@@ -137,7 +137,7 @@ class UsersPage extends Component {
   renderAdminPage = ({ data: admins, individualLoadingStatus, pagination }) => {
     return (
       <AdminPageContainer>
-        <TopNavigation title={'Admins'} />
+        <TopNavigation divider={this.props.divider} title={'Admins'} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(admins)}

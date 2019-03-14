@@ -73,7 +73,7 @@ class UsersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
     history: PropTypes.object,
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     scrollTopContentContainer: PropTypes.func,
     query: PropTypes.object,
     fetcher: PropTypes.func,
@@ -148,7 +148,7 @@ class UsersPage extends Component {
   renderUserPage = ({ data: users, individualLoadingStatus, pagination }) => {
     return (
       <UserPageContainer>
-        <TopNavigation title={'Users'} />
+        <TopNavigation divider={this.props.divider} title={'Users'} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(users)}
