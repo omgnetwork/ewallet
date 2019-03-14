@@ -147,7 +147,7 @@ const KeyButton = styled.button`
   width: 100px;
 `
 const KeyTopButtonsContainer = styled.div`
-  margin: 20px 0;
+  margin: 25px 0;
 `
 const columnsApiKey = [
   { key: 'key', title: 'API KEY' },
@@ -333,7 +333,7 @@ class ApiKeyPage extends Component {
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
                 <ConfirmCreateKeyContainer>
-                  <h4>Generate eWallet key</h4>
+                  <h4>Generate Client Key</h4>
                   <p>Are you sure you want to generate eWallet key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
@@ -381,7 +381,7 @@ class ApiKeyPage extends Component {
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
                 <ConfirmCreateKeyContainer>
-                  <h4>Generate Access key</h4>
+                  <h4>Generate Admin Key</h4>
                   <p>Are you sure you want to generate access key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
@@ -421,7 +421,8 @@ class ApiKeyPage extends Component {
     const activeTab = this.props.match.params.keyType === 'client' ? 'client' : 'admin'
     return (
       <ApiKeyContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={'Keys'}
           description={
             'These are all keys using in this application. Click each one to view their details.'
@@ -438,9 +439,15 @@ class ApiKeyPage extends Component {
             <Link to='/keys/client'>
               <KeyButton active={activeTab === 'client'}>Client Keys</KeyButton>
             </Link>
-            <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
-              <span>Generate Access Key</span>
-            </Button>
+            {activeTab === 'admin' ? (
+              <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
+                <span>Generate Admin Key</span>
+              </Button>
+            ) : (
+              <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
+                <span>Generate Client Key</span>
+              </Button>
+            )}
           </KeyTopButtonsContainer>
           <p>
             Access Keys are used to gain access to everything. user-related functions (once the user
