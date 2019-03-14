@@ -76,6 +76,12 @@ defmodule EWalletDB.APIKeyTest do
     test_insert_allow_duplicate(APIKey, :account, insert(:account))
     test_insert_prevent_duplicate(APIKey, :key)
 
+    test "inserts with the given name" do
+      {:ok, api_key} = :api_key |> params_for(%{name: "my_cool_api_key"}) |> APIKey.insert()
+
+      assert api_key.name == "my_cool_api_key"
+    end
+
     test "defaults to master account if not provided" do
       master_account = get_or_insert_master_account()
       {:ok, api_key} = :api_key |> params_for(%{account: nil}) |> APIKey.insert()
@@ -96,6 +102,19 @@ defmodule EWalletDB.APIKeyTest do
       insert(:wallet).address,
       insert(:wallet).address
     )
+
+    test "updates with the given name" do
+      {:ok, api_key} = :api_key |> params_for(name: "my_cool_api_key") |> APIKey.insert()
+      assert api_key.name == "my_cool_api_key"
+
+      {:ok, api_key} =
+        APIKey.update(api_key, %{
+          "name" => "updated_name",
+          "originator" => %System{}
+        })
+
+      assert api_key.name == "updated_name"
+    end
 
     test "update enable state with `expired`" do
       {:ok, api_key} = APIKey.insert(params_for(:api_key))

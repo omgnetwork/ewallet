@@ -23,6 +23,8 @@ access_key.create:
     security:
       - ProviderAuth: []
       - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccessKeyCreateBody'
     responses:
       '200':
         $ref: 'responses.yaml#/AccessKeyResponse'
@@ -32,9 +34,8 @@ access_key.update:
   post:
     tags:
       - API Access
-    summary: Update a pair of access and secret keys by its id (deprecated)
+    summary: Update a pair of access and secret keys by its id
     operationId: access_key_update
-    deprecated: true
     security:
       - ProviderAuth: []
       - AdminAuth: []
@@ -102,6 +103,8 @@ api_key.create:
     security:
       - ProviderAuth: []
       - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/APIKeyCreateBody'
     responses:
       '200':
         $ref: 'responses.yaml#/APIKeyResponse'
@@ -111,9 +114,8 @@ api_key.update:
   post:
     tags:
       - API Access
-    summary: Update an API key (deprecated)
+    summary: Update an API key
     operationId: api_key_update
-    deprecated: true
     security:
       - ProviderAuth: []
       - AdminAuth: []

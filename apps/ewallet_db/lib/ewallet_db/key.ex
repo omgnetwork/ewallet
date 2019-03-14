@@ -44,6 +44,7 @@ defmodule EWalletDB.Key do
   schema "key" do
     external_id(prefix: "key_")
 
+    field(:name, :string)
     field(:access_key, :string)
     field(:secret_key, :string, virtual: true)
     field(:secret_key_hash, :string)
@@ -80,7 +81,7 @@ defmodule EWalletDB.Key do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:access_key, :secret_key, :enabled, :global_role],
+      cast: [:name, :access_key, :secret_key, :enabled, :global_role],
       required: [:access_key, :secret_key],
       prevent_saving: [:secret_key]
     )
@@ -94,7 +95,7 @@ defmodule EWalletDB.Key do
     cast_and_validate_required_for_activity_log(
       key,
       attrs,
-      cast: [:global_role],
+      cast: [:name, :global_role],
       required: [:global_role]
     )
   end

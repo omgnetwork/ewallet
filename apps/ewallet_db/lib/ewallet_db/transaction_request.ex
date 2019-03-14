@@ -58,6 +58,10 @@ defmodule EWalletDB.TransactionRequest do
     # nil -> unlimited
     field(:max_consumptions, :integer)
     field(:max_consumptions_per_user, :integer)
+    field(:max_consumptions_per_interval, :integer)
+    field(:max_consumptions_per_interval_per_user, :integer)
+    # milliseconds
+    field(:consumption_interval_duration, :integer)
     # milliseconds
     field(:consumption_lifetime, :integer)
     field(:expiration_date, :naive_datetime_usec)
@@ -141,6 +145,9 @@ defmodule EWalletDB.TransactionRequest do
         :require_confirmation,
         :max_consumptions,
         :max_consumptions_per_user,
+        :max_consumptions_per_interval,
+        :max_consumptions_per_interval_per_user,
+        :consumption_interval_duration,
         :consumption_lifetime,
         :expiration_date,
         :metadata,
@@ -158,6 +165,7 @@ defmodule EWalletDB.TransactionRequest do
       encrypted: [:encrypted_metadata]
     )
     |> validate_amount_if_disallow_override()
+    |> validate_interval_fields()
     |> validate_number(:amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_inclusion(:type, @types)
     |> validate_inclusion(:status, @statuses)
@@ -195,6 +203,36 @@ defmodule EWalletDB.TransactionRequest do
       cast: [:updated_at],
       required: [:updated_at]
     )
+  end
+
+  defp validate_interval_fields(changeset) do
+    case Changeset.get_field(changeset, :consumption_interval_duration) do
+      nil ->
+        error = "can't be set when consumption_interval_duration is nil."
+
+        changeset
+        |> validate_dependent_field(:max_consumptions_per_interval, error)
+        |> validate_dependent_field(:max_consumptions_per_interval_per_user, error)
+
+      _ ->
+        changeset
+    end
+  end
+
+  defp validate_dependent_field(changeset, field, error) do
+    changeset
+    |> Changeset.get_field(field)
+    |> case do
+      nil ->
+        changeset
+
+      _ ->
+        Changeset.add_error(
+          changeset,
+          field,
+          error
+        )
+    end
   end
 
   defp validate_amount_if_disallow_override(changeset) do

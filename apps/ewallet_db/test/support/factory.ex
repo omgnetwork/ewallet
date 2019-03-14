@@ -252,6 +252,7 @@ defmodule EWalletDB.Factory do
     secret_key = sequence("secret_key")
 
     %Key{
+      name: sequence("key"),
       access_key: access_key,
       secret_key: Base.url_encode64(secret_key, padding: false),
       secret_key_hash: Crypto.hash_secret(secret_key),
@@ -263,6 +264,7 @@ defmodule EWalletDB.Factory do
 
   def api_key_factory do
     %APIKey{
+      name: sequence("api_key_name"),
       key: sequence("api_key"),
       owner_app: "some_app_name",
       account: insert(:account),

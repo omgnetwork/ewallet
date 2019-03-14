@@ -28,6 +28,7 @@ defmodule AdminAPI.V1.KeyViewTest do
         data: %{
           object: "key",
           id: key.id,
+          name: key.name,
           access_key: key.access_key,
           secret_key: key.secret_key,
           account_id: nil,
@@ -65,6 +66,7 @@ defmodule AdminAPI.V1.KeyViewTest do
             %{
               object: "key",
               id: key1.id,
+              name: key1.name,
               access_key: key1.access_key,
               secret_key: key1.secret_key,
               account_id: nil,
@@ -77,6 +79,7 @@ defmodule AdminAPI.V1.KeyViewTest do
             %{
               object: "key",
               id: key2.id,
+              name: key2.name,
               access_key: key2.access_key,
               secret_key: key2.secret_key,
               account_id: nil,

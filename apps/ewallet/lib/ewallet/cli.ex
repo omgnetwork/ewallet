@@ -63,7 +63,7 @@ defmodule EWallet.CLI do
   def configure_logger do
     "DEBUG"
     |> System.get_env()
-    |> Normalize.to_boolean()
+    |> Normalize.to_boolean(false)
     |> case do
       true -> Logger.configure(level: :debug)
       false -> Logger.configure(level: :warn)

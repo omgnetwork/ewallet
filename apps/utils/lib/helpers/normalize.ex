@@ -16,16 +16,60 @@ defmodule Utils.Helpers.Normalize do
   @moduledoc """
   Module to normalize strings.
   """
+  defmodule ToBooleanError do
+    defexception message: "Could not represent the value as boolean."
+    def error_message(value), do: "Could not represent the value (#{inspect(value)}) as boolean."
+  end
 
-  def string_to_boolean(<<"T", _::binary>>), do: true
-  def string_to_boolean(<<"Y", _::binary>>), do: true
-  def string_to_boolean(<<"t", _::binary>>), do: true
-  def string_to_boolean(<<"y", _::binary>>), do: true
-  def string_to_boolean(<<"1", _::binary>>), do: true
-  def string_to_boolean(_), do: false
+  defmodule ToIntegerError do
+    defexception message: "Could not represent the value as an integer."
+    def error_message(value), do: "Could not represent the value (#{value}) as an integer."
+  end
 
+  def string_to_boolean(<<"T">>), do: true
+  def string_to_boolean(<<"Y">>), do: true
+  def string_to_boolean(<<"t">>), do: true
+  def string_to_boolean(<<"y">>), do: true
+  def string_to_boolean(<<"1">>), do: true
+  def string_to_boolean(<<"True">>), do: true
+  def string_to_boolean(<<"true">>), do: true
+  def string_to_boolean(<<"yes">>), do: true
+  def string_to_boolean(<<"Yes">>), do: true
+
+  def string_to_boolean(<<"F">>), do: false
+  def string_to_boolean(<<"N">>), do: false
+  def string_to_boolean(<<"f">>), do: false
+  def string_to_boolean(<<"n">>), do: false
+  def string_to_boolean(<<"0">>), do: false
+  def string_to_boolean(<<"False">>), do: false
+  def string_to_boolean(<<"false">>), do: false
+  def string_to_boolean(<<"no">>), do: false
+  def string_to_boolean(<<"No">>), do: false
+
+  def string_to_boolean(<<>>), do: nil
+
+  def string_to_boolean(value),
+    do: raise(ToBooleanError, message: ToBooleanError.error_message(value))
+
+  # We need /1 and /2 separated, because if no default is specified, the app
+  # should crash, trying to parse nil as a bool/bin/int
   def to_boolean(s) when is_boolean(s), do: s
   def to_boolean(s) when is_binary(s), do: string_to_boolean(s)
   def to_boolean(s) when is_integer(s) and s >= 1, do: true
-  def to_boolean(_), do: false
+
+  def to_boolean(value),
+    do: raise(ToBooleanError, message: ToBooleanError.error_message(value))
+
+  # Can be used when having a default value is fine, like DEBUG for seeds
+  def to_boolean(nil, default), do: default
+  def to_boolean(s, _) when is_boolean(s), do: s
+  def to_boolean(s, _) when is_binary(s), do: string_to_boolean(s)
+  def to_boolean(s, _) when is_integer(s) and s >= 1, do: true
+  def to_boolean(_, default), do: default
+
+  def to_integer(<<_::binary>> = s), do: :erlang.binary_to_integer(s)
+  def to_integer([_ | _] = s), do: :erlang.list_to_integer(s)
+  def to_integer(s) when is_integer(s), do: s
+  def to_integer(s) when is_float(s), do: :erlang.round(s)
+  def to_integer(value), do: raise(ToIntegerError, message: ToIntegerError.error_message(value))
 end

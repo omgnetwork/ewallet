@@ -72,6 +72,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
                "data" => %{
                  "object" => "key",
                  "id" => _,
+                 "name" => _,
                  "access_key" => _,
                  "secret_key" => _,
                  "account_id" => nil,
