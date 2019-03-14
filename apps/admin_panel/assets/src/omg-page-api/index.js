@@ -173,6 +173,7 @@ class ApiKeyPage extends Component {
     createApiKey: PropTypes.func,
     createAccessKey: PropTypes.func,
     updateApiKey: PropTypes.func,
+    divider: PropTypes.bool,
     location: PropTypes.object,
     updateAccessKey: PropTypes.func,
     match: PropTypes.object

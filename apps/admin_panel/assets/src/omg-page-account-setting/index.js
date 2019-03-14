@@ -79,7 +79,8 @@ class AccountSettingPage extends Component {
     getAccountById: PropTypes.func.isRequired,
     updateAccount: PropTypes.func,
     currentAccount: PropTypes.object,
-    location: PropTypes.object
+    location: PropTypes.object,
+    divider: PropTypes.bool
   }
 
   constructor (props) {

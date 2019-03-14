@@ -94,7 +94,8 @@ class ConfigurationPage extends Component {
   static propTypes = {
     configurations: PropTypes.object,
     configurationLoadingStatus: PropTypes.string,
-    updateConfiguration: PropTypes.func
+    updateConfiguration: PropTypes.func,
+    divider: PropTypes.bool
   }
 
   static getDerivedStateFromProps (props, state) {

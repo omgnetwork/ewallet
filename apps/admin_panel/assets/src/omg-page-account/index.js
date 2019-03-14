@@ -71,7 +71,7 @@ export const NameColumn = styled.div`
 `
 class AccountPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func

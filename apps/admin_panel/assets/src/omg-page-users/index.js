@@ -73,7 +73,7 @@ class UsersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
     history: PropTypes.object,
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     scrollTopContentContainer: PropTypes.func,
     query: PropTypes.object,
     fetcher: PropTypes.func,

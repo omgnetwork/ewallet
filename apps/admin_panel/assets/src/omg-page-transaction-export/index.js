@@ -132,13 +132,6 @@ const TitleContainer = styled.div`
     cursor: pointer;
   }
 `
-const columns = [
-  { key: 'filename', title: 'NAME' },
-  { key: 'params_match_all', title: 'MATCH ALL' },
-  { key: 'params_match_any', title: 'MATCH ANY' },
-  { key: 'status', title: 'STATUS' },
-  { key: 'created_at', title: 'EXPORTED AT' }
-]
 const StatusContainer = styled.div`
   white-space: nowrap;
   span {
@@ -149,6 +142,15 @@ const StatusContainer = styled.div`
     font-size: 10px;
   }
 `
+
+const columns = [
+  { key: 'filename', title: 'NAME' },
+  { key: 'params_match_all', title: 'MATCH ALL' },
+  { key: 'params_match_any', title: 'MATCH ANY' },
+  { key: 'status', title: 'STATUS' },
+  { key: 'created_at', title: 'EXPORTED AT' }
+]
+
 const enhance = compose(
   withRouter,
   connect(
@@ -166,7 +168,8 @@ class TransactionExportPage extends Component {
     exportTransaction: PropTypes.func,
     location: PropTypes.object,
     downloadExportFileById: PropTypes.func,
-    getExports: PropTypes.func
+    getExports: PropTypes.func,
+    divider: PropTypes.bool
   }
   state = { submitStatus: CONSTANT.LOADING_STATUS.DEFAULT, confirmationModalOpen: false }
 

@@ -145,7 +145,7 @@ class TransactionPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
     history: PropTypes.object,
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     query: PropTypes.object,
     transferButton: PropTypes.bool
   }

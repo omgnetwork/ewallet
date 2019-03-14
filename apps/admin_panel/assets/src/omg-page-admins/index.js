@@ -73,13 +73,13 @@ class UsersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
     history: PropTypes.object,
-    match: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
     query: PropTypes.object,
     fetcher: PropTypes.func,
     navigation: PropTypes.object,
     onClickRow: PropTypes.func,
-    columns: PropTypes.array
+    columns: PropTypes.array,
+    divider: PropTypes.bool
   }
   static defaultProps = {
     query: {},

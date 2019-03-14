@@ -76,7 +76,8 @@ const GetStartedContent = styled.div`
 export default withRouter(
   class Dashboard extends Component {
     static propTypes = {
-      match: PropTypes.object
+      match: PropTypes.object,
+      divider: PropTypes.bool
     }
     renderExportButton = () => {
       return (

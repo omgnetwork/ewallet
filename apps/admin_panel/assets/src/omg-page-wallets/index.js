@@ -78,7 +78,8 @@ class WalletPage extends Component {
     transferButton: PropTypes.bool,
     onClickRow: PropTypes.func,
     fetcher: PropTypes.func,
-    title: PropTypes.string
+    title: PropTypes.string,
+    divider: PropTypes.bool
   }
   static defaultProps = {
     walletQuery: {},
