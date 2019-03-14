@@ -51,12 +51,21 @@ defmodule Utils.Helpers.Normalize do
   def string_to_boolean(value),
     do: raise(ToBooleanError, message: ToBooleanError.error_message(value))
 
+  # We need /1 and /2 separated, because if no default is specified, the app
+  # should crash, trying to parse nil as a bool/bin/int
   def to_boolean(s) when is_boolean(s), do: s
   def to_boolean(s) when is_binary(s), do: string_to_boolean(s)
   def to_boolean(s) when is_integer(s) and s >= 1, do: true
 
   def to_boolean(value),
     do: raise(ToBooleanError, message: ToBooleanError.error_message(value))
+
+  # Can be used when having a default value is fine, like DEBUG for seeds
+  def to_boolean(nil, default), do: default
+  def to_boolean(s, _) when is_boolean(s), do: s
+  def to_boolean(s, _) when is_binary(s), do: string_to_boolean(s)
+  def to_boolean(s, _) when is_integer(s) and s >= 1, do: true
+  def to_boolean(_, default), do: default
 
   def to_integer(<<_::binary>> = s), do: :erlang.binary_to_integer(s)
   def to_integer([_ | _] = s), do: :erlang.list_to_integer(s)

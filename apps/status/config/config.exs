@@ -1,6 +1,6 @@
 use Mix.Config
 
 config :status,
-  metrics: true
+  metrics: {:system, "METRICS", false}
 
 import_config "#{Mix.env()}.exs"

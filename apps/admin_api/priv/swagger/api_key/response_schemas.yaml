@@ -60,6 +60,7 @@ APIKeyResponseSchema:
       data:
         object: api_key
         id: api_01ce844d5w9e81snekr5kprvem
+        name: my_key
         key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
         owner_app: admin_api
         enabled: true
@@ -89,6 +90,7 @@ APIKeysResponseSchema:
         data:
           - object: api_key
             id: api_01ce844d5w9e81snekr5kprvem
+            name: my_key
             key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
             owner_app: admin_api
             enabled: true
