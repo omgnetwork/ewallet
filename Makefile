@@ -22,8 +22,7 @@ deps-ewallet:
 	mix deps.get
 
 deps-assets:
-	cd apps/admin_panel/assets && \
-		yarn install
+	$(ASSETS) yarn install
 
 .PHONY: deps deps-ewallet deps-assets
 
@@ -58,13 +57,13 @@ format:
 	mix format
 
 check-format:
-	mix format --check-formatted
+	mix format --check-formatted 2>&1
 
 check-credo:
-	mix credo
+	$(ENV_TEST) mix credo 2>&1
 
 check-dialyzer:
-	mix dialyzer --halt-exit-status
+	$(ENV_TEST) mix dialyzer --halt-exit-status >&1
 
 .PHONY: format check-format check-credo
 
@@ -73,18 +72,17 @@ check-dialyzer:
 #
 
 build-assets: deps-assets
-	cd apps/admin_panel/assets && \
-		yarn build
+	$(ASSETS) yarn build
 
 # If we call mix phx.digest without mix compile, mix release will silently fail
 # for some reason. Always make sure to run mix compile first.
 build-prod: deps-ewallet build-assets
-	env MIX_ENV=prod mix compile
-	env MIX_ENV=prod mix phx.digest
-	env MIX_ENV=prod mix release
+	$(ENV_PROD) mix compile
+	$(ENV_PROD) mix phx.digest
+	$(ENV_PROD) mix release
 
 build-test: deps-ewallet
-	env MIX_ENV=test mix compile
+	$(ENV_TEST) mix compile
 
 .PHONY: build-assets build-prod build-test
 
@@ -95,11 +93,10 @@ build-test: deps-ewallet
 test: test-ewallet test-assets
 
 test-ewallet: clean-test-assets build-test
-	env MIX_ENV=test mix do ecto.create, ecto.migrate, test
+	$(ENV_TEST) mix do ecto.create, ecto.migrate, test
 
 test-assets: build-assets
-	cd apps/admin_panel/assets && \
-		yarn test
+	$(ASSETS) yarn test
 
 .PHONY: test test-ewallet test-assets
 
