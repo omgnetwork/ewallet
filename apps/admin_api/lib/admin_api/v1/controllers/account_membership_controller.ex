@@ -85,7 +85,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   end
 
   @doc """
-  Assigns the user to the given account and role.
+  Assigns the key to the given account and role.
   """
   def assign_key(conn, %{"key_id" => key_id, "account_id" => account_id, "role_name" => role_name}) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
@@ -118,6 +118,33 @@ defmodule AdminAPI.V1.AccountMembershipController do
         :invalid_parameter,
         "`key_id`, `account_id` and `role_name` are required."
       )
+
+  @doc """
+  Unassigns the key to the given account and role.
+  """
+  def unassign_key(conn, %{
+        "key_id" => key_id,
+        "account_id" => account_id
+      })
+      when not is_nil(account_id) and not is_nil(key_id) do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         %Key{} = key <- Key.get(key_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, key),
+         %Membership{} = membership <-
+           Membership.get_by_member_and_account(key, account) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:delete, conn.assigns, membership),
+         originator <- Originator.extract(conn.assigns),
+         {:ok, _} <- Membership.unassign(key, account, originator) do
+      render(conn, :empty, %{success: true})
+    else
+      nil -> handle_error(conn, :unauthorized)
+      {:error, error} -> handle_error(conn, error)
+    end
+  end
+
+  def unassign_key(conn, _attrs),
+    do: handle_error(conn, :invalid_parameter, "`key_id` and `account_id` are required.")
 
   @doc """
   Assigns the user to the given account and role.
@@ -170,7 +197,8 @@ defmodule AdminAPI.V1.AccountMembershipController do
          {:ok, _} <- authorize(:get, conn.assigns, account),
          %User{} = user <- User.get(user_id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, user),
-         %Membership{} = membership <- Membership.get_by_member_and_account(user, account),
+         %Membership{} = membership <-
+           Membership.get_by_member_and_account(user, account) || {:error, :unauthorized},
          {:ok, _} <- authorize(:delete, conn.assigns, membership),
          originator <- Originator.extract(conn.assigns),
          {:ok, _} <- Membership.unassign(user, account, originator) do

@@ -28,13 +28,13 @@ defmodule EWallet.Bouncer.KeyTargetTest do
 
   describe "get_target_types/0" do
     test "returns a list of types" do
-      assert KeyTarget.get_target_types() == [:keys]
+      assert KeyTarget.get_target_types() == [:access_keys]
     end
   end
 
   describe "get_target_type/1" do
     test "returns the type of the given key" do
-      assert KeyTarget.get_target_type(Key) == :keys
+      assert KeyTarget.get_target_type(Key) == :access_keys
     end
   end
 

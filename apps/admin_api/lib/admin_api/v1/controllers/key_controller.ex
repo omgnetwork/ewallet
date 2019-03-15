@@ -52,6 +52,8 @@ defmodule AdminAPI.V1.KeyController do
   @doc """
   Creates a new key.
   """
+  # TODO: assign key to account directly
+  # TODO: Add tests
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with {:ok, _} <- authorize(:create, conn.assigns, attrs),

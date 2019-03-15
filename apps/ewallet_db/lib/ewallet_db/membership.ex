@@ -196,8 +196,8 @@ defmodule EWalletDB.Membership do
   @doc """
   Unassigns the user from the given account.
   """
-  def unassign(%User{} = user, %Account{} = account, originator) do
-    case get_by_member_and_account(user, account) do
+  def unassign(member, %Account{} = account, originator) do
+    case get_by_member_and_account(member, account) do
       nil ->
         {:error, :membership_not_found}
 

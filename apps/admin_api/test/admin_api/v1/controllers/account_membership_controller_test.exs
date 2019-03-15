@@ -434,6 +434,26 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
   end
 
+  describe "/account.unassign_key" do
+    test_with_auths "returns empty success if unassigned with key_id successfully" do
+      key = insert(:key)
+      account = insert(:account)
+
+      {:ok, _} = Membership.assign(key, account, "admin", %System{})
+
+      response =
+        request("/account.unassign_key", %{
+          key_id: key.id,
+          account_id: account.id
+        })
+
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
+    # TODO: MORE
+  end
+
   describe "/account.assign_user" do
     test_with_auths "returns empty success if assigned with user_id successfully" do
       {:ok, user} = :user |> params_for() |> User.insert()
