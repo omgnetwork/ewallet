@@ -13,6 +13,9 @@
 # limitations under the License.
 
 defmodule EWallet.UserGate do
+  @moduledoc """
+  Business logic for shared functions related to user creation.
+  """
   alias EWallet.{EmailValidator, InviteEmail}
   alias EWallet.Web.{UrlValidator, Inviter}
   alias EWalletDB.{User, Membership}

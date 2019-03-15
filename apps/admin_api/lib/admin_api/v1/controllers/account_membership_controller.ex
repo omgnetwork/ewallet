@@ -103,7 +103,8 @@ defmodule AdminAPI.V1.AccountMembershipController do
            Role.get_by(name: attrs["role_name"]) || {:error, :role_name_not_found},
          {:ok, redirect_url} <- UserGate.validate_redirect_url(attrs["redirect_url"]),
          originator <- Originator.extract(conn.assigns),
-         {:ok, _} <- UserGate.assign_or_invite(user_or_email, account, role, redirect_url, originator) do
+         {:ok, _} <-
+           UserGate.assign_or_invite(user_or_email, account, role, redirect_url, originator) do
       render(conn, :empty, %{success: true})
     else
       {true, :user_id_not_found} ->

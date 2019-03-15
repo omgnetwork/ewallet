@@ -215,29 +215,20 @@ defmodule AdminAPI.ConnCase do
     |> Repo.one()
   end
 
-  @spec set_admin_as_super_admin() :: {:ok, EWalletDB.User.t()}
-  def set_admin_as_super_admin(admin_user \\ nil) do
+  @spec set_admin_user_role(String.t()) :: {:ok, EWalletDB.User.t()}
+  def set_admin_user_role(role, admin_user \\ nil) do
     {:ok, _} =
       User.update(admin_user || get_test_admin(), %{
-        global_role: "super_admin",
+        global_role: role,
         originator: %System{}
       })
   end
 
-  @spec set_admin_as_none() :: {:ok, EWalletDB.User.t()}
-  def set_admin_as_none(admin_user \\ nil) do
-    {:ok, _} =
-      User.update(admin_user || get_test_admin(), %{
-        global_role: "none",
-        originator: %System{}
-      })
-  end
-
-  @spec set_key_role_to_none() :: {:ok, EWalletDB.Key.t()}
-  def set_key_role_to_none(key \\ nil) do
+  @spec set_key_role(String.t()) :: {:ok, EWalletDB.Key.t()}
+  def set_key_role(role, key \\ nil) do
     {:ok, _} =
       Key.update(key || get_test_key(), %{
-        global_role: "none",
+        global_role: role,
         originator: %System{}
       })
   end
@@ -410,7 +401,7 @@ defmodule AdminAPI.ConnCase do
         opts = unquote(opts)
         field_name = Atom.to_string(field)
 
-        set_admin_as_super_admin()
+        set_admin_user_role("super_admin")
 
         factory_attrs = Keyword.get(opts, :factory_attrs, %{})
 
@@ -484,7 +475,7 @@ defmodule AdminAPI.ConnCase do
         opts = unquote(opts)
         field_name = Atom.to_string(field)
 
-        set_admin_as_super_admin()
+        set_admin_user_role("super_admin")
 
         factory_attrs = Keyword.get(opts, :factory_attrs, %{})
 

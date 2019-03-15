@@ -57,7 +57,7 @@ defmodule EWallet.Web.Inviter do
   end
 
   @spec invite_admin(String.t(), %Account{}, %Role{}, String.t(), map() | atom(), fun()) ::
-        {:ok, %Invite{}} | {:error, atom()}
+          {:ok, %Invite{}} | {:error, atom()}
   def invite_admin(email, account, role, redirect_url, originator, create_email_func) do
     with {:ok, user} <- get_or_insert_user(email, nil, originator),
          {:ok, invite} <- Invite.generate(user, originator, preload: :user),

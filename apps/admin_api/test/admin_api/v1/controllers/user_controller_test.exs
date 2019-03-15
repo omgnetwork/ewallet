@@ -336,7 +336,6 @@ defmodule AdminAPI.V1.UserControllerTest do
       data = response["data"]
       assert data["object"] == "user"
       assert data["provider_user_id"] == request_data.provider_user_id
-      assert data["global_role"] == "end_user"
       assert data["username"] == request_data.username
       assert data["metadata"] == %{"something" => "interesting"}
       assert data["encrypted_metadata"] == %{"something" => "secret"}

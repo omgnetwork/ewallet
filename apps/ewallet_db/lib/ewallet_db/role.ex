@@ -36,7 +36,6 @@ defmodule EWalletDB.Role do
         all: :accounts,
         get: :accounts,
         create: :accounts,
-        update: :accounts,
         update_password: :self,
         update_email: :self,
         upload_avatar: :self,
