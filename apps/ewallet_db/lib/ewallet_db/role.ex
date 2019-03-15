@@ -126,7 +126,8 @@ defmodule EWalletDB.Role do
         cancel: :accounts
       },
       exports: :none,
-      configuration: :none
+      configuration: :none,
+      permissions: %{all: :global}
     },
     "viewer" => %{
       account: %{all: :accounts, get: :accounts},
@@ -153,7 +154,8 @@ defmodule EWalletDB.Role do
       account_transaction_consumptions: %{all: :accounts, get: :accounts, listen: :accounts},
       end_user_transaction_consumptions: %{all: :accounts, get: :accounts, listen: :accounts},
       exports: :none,
-      configuration: :none
+      configuration: :none,
+      permissions: %{all: :global}
     }
   }
 

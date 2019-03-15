@@ -1,0 +1,14 @@
+permission.all:
+  post:
+    tags:
+      - Permission
+    summary: Get the list of permissions
+    operationId: permission_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    responses:
+      '200':
+        $ref: 'responses.yaml#/PermissionsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
