@@ -25,6 +25,7 @@ defmodule BlockchainEth.Worker do
   ##
 
   use GenServer
+  alias Keychain.Key
   alias ExthCrypto.ECIES.ECDH
   alias ExthCrypto.Hash.Keccak
 
@@ -73,7 +74,10 @@ defmodule BlockchainEth.Worker do
       |> Keccak.kec()
       |> Base.encode16(case: :lower)
 
-    {:reply, {:ok, "0x#{account_encoded}", pkey_encoded}, reg}
+    wallet_id = "0x#{account_encoded}"
+
+    {:ok, _} = Key.insert_private_key(wallet_id, pkey_encoded)
+    {:reply, {:ok, wallet_id, pkey_encoded}, reg}
   end
 
   ## Client API

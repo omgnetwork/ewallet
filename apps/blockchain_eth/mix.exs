@@ -26,6 +26,7 @@ defmodule BlockchainEth.MixProject do
   defp deps do
     [
       {:blockchain, in_umbrella: true},
+      {:keychain, in_umbrella: true},
       {:exth_crypto, "~> 0.1.6"}
     ]
   end
