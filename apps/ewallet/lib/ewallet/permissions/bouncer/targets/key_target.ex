@@ -25,11 +25,11 @@ defmodule EWallet.Bouncer.KeyTarget do
   end
 
   @spec get_target_types() :: [:keys]
-  def get_target_types, do: [:keys]
+  def get_target_types, do: [:access_keys]
 
-  def get_target_type(_), do: :keys
+  def get_target_type(_), do: :access_keys
 
-  @spec get_target_type(Key.t()) :: :keys
+  @spec get_target_type(Key.t()) :: [Account.t()]
   def get_target_accounts(%Key{} = key, _dispatch_config) do
     get_actor_accounts(key)
   end
