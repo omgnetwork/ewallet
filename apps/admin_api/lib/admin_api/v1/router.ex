@@ -156,7 +156,7 @@ defmodule AdminAPI.V1.Router do
     post("/role.update", RoleController, :update)
     post("/role.delete", RoleController, :delete)
 
-    # Permission endpoitns
+    # Permission endpoints
     post("/permission.all", PermissionController, :all)
 
     # API Access endpoints
