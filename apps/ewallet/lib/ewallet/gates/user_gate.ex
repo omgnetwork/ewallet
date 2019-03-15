@@ -58,7 +58,7 @@ defmodule EWallet.UserGate do
 
   def invite_global_user(%{"email" => email} = attrs, redirect_url) when is_binary(email) do
     case EmailValidator.validate(email) do
-      {:ok, email} ->
+      {:ok, _email} ->
         Inviter.invite_admin(
           attrs,
           redirect_url,

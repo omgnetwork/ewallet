@@ -74,6 +74,73 @@ AdminGetBody:
           - id
         example:
           id: usr_01ce83q2zw7zk1dqr79t22zr1v
+
+AdminCreateBody:
+  description: The parameters to send to create an admin user
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          email:
+            type: string
+          redirect_url:
+            type: string
+          full_name:
+            type: string
+          calling_name:
+            type: string
+          enabled: 
+            type: boolean
+          global_role: 
+            type: string
+          metadata:
+            type: object
+            additionalProperties: true
+          encrypted_metadata:
+            type: object
+            additionalProperties: true
+        required:
+          - email
+          - redirect_url
+        example:
+          email: user@example.com
+          redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
+          full_name: John Doe
+          calling_name: John
+          global_role: admin
+
+AdminUpdateBody:
+  description: Parameters to update a user. A user can't update himself through this endpoint. If an email address is given, an email will be sent to the address, allowing the user to confirm the new email address.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          full_name:
+            type: string
+          calling_name:
+            type: string
+          enabled: 
+            type: boolean
+          global_role: 
+            type: string
+          metadata:
+            type: object
+            additionalProperties: true
+          encrypted_metadata:
+            type: object
+            additionalProperties: true
+        required:
+          - id
+        example:
+          id: usr_01ce83q2zw7zk1dqr79t22zr1v  
+          full_name: John Doe
+          calling_name: John
+          global_role: admin
+
 InviteAcceptBody:
   description: The parameters to use for accepting an invite
   required: true
@@ -99,23 +166,6 @@ InviteAcceptBody:
           token: dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg
           password: user_provided_password
           password_confirmation: user_provided_password
-
-AdminUpdateBody:
-  description: The parameters to use for updating a user
-  required: true
-  content:
-    application/vnd.omisego.v1+json:
-      schema:
-        properties:
-          metadata:
-            type: object
-            additionalProperties: true
-          encrypted_metadata:
-            type: object
-            additionalProperties: true
-        example:
-          metadata: {}
-          encrypted_metadata: {}
 
 AdminToggleStatusBody:
   description: The parameters to enable/disable an admin. Send enabled=true to enable, enabled=false to disable.

@@ -17,16 +17,14 @@ defmodule AdminAPI.V1.AccountMembershipController do
   import AdminAPI.V1.ErrorHandler
 
   alias EWallet.{
-    InviteEmail,
     AccountMembershipPolicy,
     AdminUserPolicy,
     AccountPolicy,
-    EmailValidator,
     Bouncer.Permission,
     UserGate
   }
 
-  alias EWallet.Web.{Inviter, Orchestrator, Originator, UrlValidator, V1.MembershipOverlay}
+  alias EWallet.Web.{Orchestrator, Originator, V1.MembershipOverlay}
   alias EWalletDB.{Account, Membership, Role, User}
 
   @doc """

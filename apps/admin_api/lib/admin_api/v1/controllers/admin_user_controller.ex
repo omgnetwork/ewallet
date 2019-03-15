@@ -16,7 +16,6 @@ defmodule AdminAPI.V1.AdminUserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.UpdateEmailAddressEmail
-  alias AdminAPI.V1.AdminUserView
   alias Bamboo.Email
   alias EWallet.{Mailer, AdminUserPolicy, UserFetcher, UpdateEmailGate, UserGate}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.UserOverlay}
@@ -64,7 +63,6 @@ defmodule AdminAPI.V1.AdminUserController do
     with {:ok, _} <- authorize(:create, conn.assigns, %User{global_role: attrs["global_role"]}),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          attrs <- Map.put(attrs, "is_admin", true),
-         {:ok, user_or_email} <- UserGate.get_user_or_email(attrs),
          {:ok, redirect_url} <- UserGate.validate_redirect_url(redirect_url),
          {:ok, _invite} <- UserGate.invite_global_user(attrs, redirect_url) do
       render(conn, :empty, %{success: true})
@@ -100,7 +98,7 @@ defmodule AdminAPI.V1.AdminUserController do
 
   def update(conn, _), do: handle_error(conn, :invalid_parameter, "`id` is required.")
 
-  defp update_email(user, %{"email" => email, "redirect_url" => redirect_url} = attrs)
+  defp update_email(user, %{"email" => email, "redirect_url" => redirect_url})
        when not is_nil(email) and not is_nil(redirect_url) do
     with {:ok, redirect_url} <- UserGate.validate_redirect_url(redirect_url),
          {:ok, request} <- UpdateEmailGate.update(user, email),
@@ -113,7 +111,7 @@ defmodule AdminAPI.V1.AdminUserController do
     end
   end
 
-  defp update_email(user, %{"email" => email} = attrs) when not is_nil(email) do
+  defp update_email(_user, %{"email" => email}) when not is_nil(email) do
     {:error, :invalid_parameter,
      "A valid `redirect_url` is required when updating an admin user's email."}
   end

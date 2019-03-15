@@ -259,7 +259,7 @@ defmodule EWalletDB.User do
     |> unique_constraint(:email)
   end
 
-  defp set_global_role(changeset, attrs) do
+  defp set_global_role(changeset, _attrs) do
     case {get_field(changeset, :is_admin), get_field(changeset, :global_role)} do
       {true, _} ->
         changeset

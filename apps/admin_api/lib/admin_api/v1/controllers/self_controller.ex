@@ -20,7 +20,7 @@ defmodule AdminAPI.V1.SelfController do
   alias Bamboo.Email
   alias Ecto.Changeset
   alias EWallet.{Mailer, UserGate, UpdateEmailGate, AdapterHelper, AdminUserPolicy}
-  alias EWallet.Web.{Orchestrator, Originator, UrlValidator}
+  alias EWallet.Web.{Orchestrator, Originator}
   alias EWallet.Web.V1.AccountOverlay
   alias EWalletDB.{Account, User}
 
