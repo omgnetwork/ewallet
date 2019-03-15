@@ -17,8 +17,6 @@ defmodule Keychain.Repo do
     otp_app: :keychain,
     adapter: Ecto.Adapters.Postgres
 
-  use ActivityLogger.ActivityRepo, repo: Keychain.Repo
-
   # Workaround an issue where ecto.migrate task won't start the app
   # thus DeferredConfig.populate is not getting called.
   #
