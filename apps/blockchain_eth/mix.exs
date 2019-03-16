@@ -10,6 +10,7 @@ defmodule BlockchainEth.MixProject do
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixir: "~> 1.8",
+      elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -26,8 +27,13 @@ defmodule BlockchainEth.MixProject do
   defp deps do
     [
       {:blockchain, in_umbrella: true},
+      {:exth_crypto, "~> 0.1.6"},
       {:keychain, in_umbrella: true},
-      {:exth_crypto, "~> 0.1.6"}
     ]
   end
+
+  # This makes sure your factory and any other modules in test/support are
+  # compiled when in the test environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end
