@@ -14,9 +14,42 @@
 
 defmodule Keychain.KeyTest do
   use ExUnit.Case
+  import Keychain.Factory
   alias Ecto.Adapters.SQL.Sandbox
+  alias Ecto.ConstraintError
+  alias Keychain.{Repo, Key}
 
   setup do
-    :ok = Sandbox.checkout(Keychain.Repo)
+    :ok = Sandbox.checkout(Repo)
+  end
+
+  describe "Key.private_key_for_wallet/1" do
+    test "retrieves a private key for wallet" do
+      key_1 = insert(:key)
+      key_2 = insert(:key)
+
+      assert Key.private_key_for_wallet(key_1.wallet_id) == key_1.encrypted_private_key
+      assert Key.private_key_for_wallet(key_2.wallet_id) == key_2.encrypted_private_key
+    end
+
+    test "returns nil for non-existing wallet" do
+      assert Key.private_key_for_wallet("nonexists") == nil
+    end
+  end
+
+  describe "Key.insert_private_key/2" do
+    test "inserts a new private key" do
+      assert Repo.all(Key) == []
+      {:ok, key} = Key.insert_private_key("key-1", "private-key-1")
+      assert Repo.all(Key) == [key]
+    end
+
+    test "raises if wallet id already exists" do
+      key_1 = insert(:key)
+
+      assert_raise ConstraintError, fn ->
+        Key.insert_private_key(key_1.wallet_id, "private-key-1")
+      end
+    end
   end
 end

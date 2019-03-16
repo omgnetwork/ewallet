@@ -10,6 +10,7 @@ defmodule Keychain.MixProject do
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixir: "~> 1.8",
+      elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
@@ -30,7 +31,8 @@ defmodule Keychain.MixProject do
       {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
       {:ecto_sql, "~> 3.0"},
-      {:postgrex, ">= 0.0.0"}
+      {:ex_machina, "~> 2.2", only: :test},
+      {:postgrex, ">= 0.0.0"},
     ]
   end
 
@@ -47,4 +49,9 @@ defmodule Keychain.MixProject do
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
+
+  # This makes sure your factory and any other modules in test/support are
+  # compiled when in the test environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end

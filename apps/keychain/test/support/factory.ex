@@ -12,6 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{:ok, _} = Application.ensure_all_started(:ex_machina)
-ExUnit.start()
-Ecto.Adapters.SQL.Sandbox.mode(Keychain.Repo, :manual)
+defmodule Keychain.Factory do
+  @moduledoc """
+  Factories used for testing.
+  """
+  use ExMachina.Ecto, repo: Keychain.Repo
+  alias Keychain.Key
+
+  def key_factory do
+    %Key{
+      wallet_id: sequence(:email, &"wallet-id-#{&1}"),
+      encrypted_private_key: sequence(:encrypted_private_key, &"private-key-#{&1}")
+    }
+  end
+end
