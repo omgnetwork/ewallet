@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import SideNavigation from './SideNavigationV2'
+import SideNavigation from './SideNavigation'
 import PropTypes from 'prop-types'
 import Alert from '../omg-alert'
 import LoadingBar from 'react-redux-loading-bar'

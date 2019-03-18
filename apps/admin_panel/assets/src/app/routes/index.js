@@ -25,7 +25,7 @@ import AdminsPage from '../../omg-page-admins'
 import ActivityLogPage from '../../omg-page-activity-log'
 import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
-import AccountLayout from '../../omg-account-detail-V2/AccountLayout'
+import AccountLayout from '../../omg-page-each-account/AccountLayout'
 // prettier-ignore
 
 const createRoute = () => (

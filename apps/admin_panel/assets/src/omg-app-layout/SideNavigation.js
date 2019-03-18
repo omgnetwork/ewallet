@@ -1,26 +1,27 @@
 import React, { PureComponent } from 'react'
-import styled, { keyframes } from 'styled-components'
-import { Icon, Avatar } from '../omg-uikit'
+import styled from 'styled-components'
+import { Icon, LoadingSkeleton } from '../omg-uikit'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
-import CurrentAccountProvider from '../omg-account-current/currentAccountProvider'
+import CurrentUserProvider from '../omg-user-current/currentUserProvider'
 import { fuzzySearch } from '../utils/search'
+import ProfileDropdown from './ProfileDropdown'
+import { selectRecentAccounts } from '../omg-recent-account/selector'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
+import FlipMove from 'react-flip-move'
 const SideNavigationContainer = styled.div`
-  background-color: ${props => props.theme.colors.B300};
+  background-color: #f0f2f5;
   height: 100%;
-  color: white;
-  padding: 50px 0;
   overflow: auto;
 `
 const NavigationItem = styled.div`
-  padding: 15px 35px;
+  padding: 5px 35px;
   white-space: nowrap;
-  letter-spacing: 1px;
-  font-weight: 600;
   text-align: left;
-  font-size: 12px;
-  background-color: ${props => (props.active ? '#30343F' : 'transparent')};
+  font-size: 14px;
+  color: ${props => (props.active ? props.theme.colors.BL400 : 'inherit')};
   transition: 0.1s background-color;
   span {
     vertical-align: middle;
@@ -28,18 +29,15 @@ const NavigationItem = styled.div`
   i {
     margin-right: 15px;
     font-size: 14px;
+    color: ${props => props.theme.colors.S500};
+    font-weight: 400;
   }
   :hover {
-    background-color: #30343f;
+    color: ${props => props.theme.colors.BL400};
   }
 `
-const progress = keyframes`
-0% {
-      background-position: -200px 0;
-  }
-  100% {
-      background-position: calc(200px + 100%) 0;
-  }
+const RecentAccountItem = styled(NavigationItem)`
+  color: ${props => (props.active ? props.theme.colors.BL400 : props.theme.colors.S500)};
 `
 
 const NavigationItemsContainer = styled.div`
@@ -48,138 +46,171 @@ const NavigationItemsContainer = styled.div`
     color: inherit;
   }
 `
-const SwitchAccountButton = styled.button`
-  padding: 5px 15px;
-  display: inline-block;
-  font-weight: 300;
-  border-radius: 4px;
-  border: 1px solid;
-  border-color: ${props => (props.active ? 'transparent' : props.theme.colors.B100)};
-  letter-spacing: 1px;
-  white-space: nowrap;
-  color: ${props => props.theme.colors.B100};
-  cursor: pointer;
-  background-color: ${props => (props.active ? props.theme.colors.B400 : 'transparent')};
-  span {
-    display: inline-block;
-    margin-bottom: 2px;
-    vertical-align: middle;
-  }
-  :hover {
-    background-color: ${props => props.theme.colors.B400};
-  }
-`
-const SwitchAccount = styled.div`
-  background-color: ${props => (props.active ? props.theme.colors.B400 : 'transparent')};
-  margin-bottom: 25px;
-  padding: 8px 35px;
-  text-align: left;
-  margin-top: 25px;
-`
 const CurrentAccountContainer = styled.div`
   text-align: left;
   display: flex;
   align-items: center;
   padding: 0 35px;
+  height: 30px;
 `
-const CurrentAccountName = styled.h4`
-  flex: 1 1 auto;
-  margin-left: 15px;
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
+const MenuName = styled.div`
+  padding: 5px 35px;
+  margin-top: 30px;
+  font-size: 10px;
+  color: ${props => props.theme.colors.B100};
+  font-weight: 600;
+  letter-spacing: 1px;
 `
-const BigAvatar = styled(Avatar)`
-  text-align: center;
-  line-height: 36px;
-  background-color: ${props => props.theme.colors.B200};
-  color: white;
-  font-size: 14px;
-  width: 36px;
-  height: 36px;
+const RecentAccount = styled.div`
+  margin-left: 32px;
 `
-const LoadingLogo = styled(Avatar)`
-  width: 36px;
-  height: 36px;
-  background-color: ${props => props.theme.colors.B200};
-  background-image: ${props =>
-    `linear-gradient(90deg, ${props.theme.colors.B200}, grey, ${props.theme.colors.B200})`};
-  background-size: 200px 100%;
-  background-repeat: no-repeat;
-  animation: ${progress} 1.5s ease-in-out infinite;
-`
+
+const enhance = compose(
+  withRouter,
+  connect(
+    state => ({ recentAccounts: selectRecentAccounts(state) }),
+    null
+  )
+)
+
 class SideNavigation extends PureComponent {
   static propTypes = {
     location: PropTypes.object,
     className: PropTypes.string,
-    onClickSwitchAccount: PropTypes.func,
-    switchAccount: PropTypes.bool,
+    recentAccounts: PropTypes.array,
     match: PropTypes.object
+  }
+  static defaultProps = {
+    recentAccounts: []
   }
   constructor (props) {
     super(props)
     this.dataLink = [
-      { icon: 'Dashboard', to: '/dashboard', text: 'DASHBOARD' },
-      { icon: 'Merchant', to: '/accounts', text: 'ACCOUNTS' },
-      { icon: 'Token', to: '/tokens', text: 'TOKENS' },
-      { icon: 'Wallet', to: '/wallets', text: 'WALLETS' },
-      { icon: 'Transaction', to: '/transaction', text: 'TRANSACTIONS' },
-      { icon: 'Request', to: '/requests', text: 'REQUESTS' },
-      { icon: 'Consumption', to: '/consumptions', text: 'CONSUMPTIONS' },
-      { icon: 'Key', to: '/api', text: 'API KEYS' },
-      { icon: 'People', to: '/users', text: 'USERS' },
-      { icon: 'Setting', to: '/activity', text: 'ACTIVITY LOGS' },
-      { icon: 'Setting', to: '/configuration', text: 'CONFIGURATION' },
-      { icon: 'Setting', to: '/setting', text: 'SETTINGS' }
+      {
+        icon: 'Token',
+        to: '/tokens',
+        text: 'Tokens'
+      },
+      {
+        icon: 'Key',
+        to: '/keys',
+        text: 'Keys'
+      },
+      {
+        icon: 'People',
+        to: '/admins',
+        text: 'Admins'
+      },
+      {
+        icon: 'Setting',
+        to: '/configuration',
+        text: 'Configurations'
+      }
+    ]
+    this.overviewLinks = [
+      {
+        icon: 'Wallet',
+        to: '/wallets',
+        text: 'Wallets'
+      },
+      {
+        icon: 'Transaction',
+        to: '/transaction',
+        text: 'Transactions'
+      },
+      {
+        icon: 'Request',
+        to: '/requests',
+        text: 'Requests'
+      },
+      {
+        icon: 'Consumption',
+        to: '/consumptions',
+        text: 'Consumptions'
+      },
+      {
+        icon: 'People',
+        to: '/users',
+        text: 'Users'
+      },
+      {
+        icon: 'Setting',
+        to: '/activity',
+        text: 'Activity Logs'
+      }
     ]
   }
-  renderCurrentAccount = ({ currentAccount, loadingStatus }) => {
+
+  renderCurrentUser = ({ currentUser, loadingStatus }) => {
     return (
       <CurrentAccountContainer>
-        {loadingStatus === 'SUCCESS' ? (
-          <BigAvatar
-            image={_.get(currentAccount, 'avatar.large')}
-            name={
-              _.get(currentAccount, 'avatar.large')
-                ? _.get(currentAccount, 'avatar.large')
-                : _.get(currentAccount, 'name').slice(0, 2)
-            }
-          />
-        ) : (
-          <LoadingLogo />
-        )}
-        <CurrentAccountName>{_.get(currentAccount, 'name', '')}</CurrentAccountName>
+        {loadingStatus === 'SUCCESS' ? <ProfileDropdown /> : <LoadingSkeleton height='18px' />}
       </CurrentAccountContainer>
     )
   }
 
+  renderRecentAccounts () {
+    return this.props.recentAccounts.length ? (
+      <FlipMove>
+        {this.props.recentAccounts.map((account, i) => {
+          return (
+            <div key={account.id || i}>
+              <Link to={`/accounts/${account.id}/detail`}>
+                <RecentAccountItem active={this.props.match.params.accountId === account.id}>
+                  <RecentAccount className='recent-account'>{account.name}</RecentAccount>
+                </RecentAccountItem>
+              </Link>
+            </div>
+          )
+        })}
+      </FlipMove>
+    ) : null
+  }
+  renderOverview () {
+    const firstSubPath = this.props.location.pathname.split('/')[1]
+    return this.overviewLinks.map(link => {
+      return (
+        <Link to={link.to} key={link.to}>
+          <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
+            <Icon name={link.icon} /> <span>{link.text}</span>
+          </NavigationItem>
+        </Link>
+      )
+    })
+  }
+
   render () {
-    const accountIdFromLocation = this.props.match.params.accountId
+    const firstSubPath = this.props.location.pathname.split('/')[1]
+    const matchedAccountId = this.props.match.params.accountId
     return (
       <SideNavigationContainer className={this.props.className}>
         <NavigationItemsContainer>
-          <CurrentAccountProvider render={this.renderCurrentAccount} />
-          <SwitchAccount active={this.props.switchAccount}>
-            <SwitchAccountButton
-              active={this.props.switchAccount}
-              onClick={this.props.onClickSwitchAccount}
+          <CurrentUserProvider render={this.renderCurrentUser} />
+          <MenuName> MANAGE </MenuName>
+          <Link to={'/accounts'}>
+            <NavigationItem
+              active={!matchedAccountId && fuzzySearch('/accounts', `/${firstSubPath}`)}
             >
-              <span>Switch Account</span> <Icon name='Chevron-Right' />
-            </SwitchAccountButton>
-          </SwitchAccount>
+              <Icon name='Merchant' /> <span>{'Accounts'}</span>
+            </NavigationItem>
+          </Link>
+          {this.renderRecentAccounts()}
           {this.dataLink.map(link => {
             return (
-              <Link to={`/${accountIdFromLocation}${link.to}`} key={link.to}>
-                <NavigationItem active={fuzzySearch(link.to, this.props.location.pathname)}>
+              <Link to={link.to} key={link.to}>
+                <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
                   <Icon name={link.icon} /> <span>{link.text}</span>
                 </NavigationItem>
               </Link>
             )
           })}
+          <MenuName> OVERVIEW </MenuName>
+          {this.renderOverview()}
         </NavigationItemsContainer>
       </SideNavigationContainer>
     )
   }
 }
-export default withRouter(SideNavigation)
+
+export default enhance(SideNavigation)
