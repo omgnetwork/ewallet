@@ -26209,7 +26209,7 @@
           }
         ],
         "requestBody": {
-          "description": "The parameters to use for listing the balances for a wallet",
+          "description": "The parameters to use for listing the balances for a wallet. Note that the pagination parameters are based on token.",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {
