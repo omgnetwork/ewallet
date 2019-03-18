@@ -158,6 +158,7 @@ defmodule EWalletDB.User do
     |> assoc_constraint(:invite)
     |> put_change(:password_hash, password_hash)
     |> validate_by_roles(attrs)
+    |> set_global_role(attrs)
   end
 
   defp update_user_changeset(user, attrs) do
@@ -258,6 +259,19 @@ defmodule EWalletDB.User do
     |> unique_constraint(:email)
   end
 
+  defp set_global_role(changeset, _attrs) do
+    case {get_field(changeset, :is_admin), get_field(changeset, :global_role)} do
+      {true, _} ->
+        changeset
+
+      {false, "end_user"} ->
+        changeset
+
+      {false, _} ->
+        put_change(changeset, :global_role, GlobalRole.end_user())
+    end
+  end
+
   # Two cases to validate for loginable:
   #
   #   1. A new admin user has just been created. No membership assigned yet.
@@ -303,9 +317,7 @@ defmodule EWalletDB.User do
   end
 
   defp do_validate_provider_user(changeset, _attrs) do
-    changeset
-    |> validate_required([:username, :provider_user_id])
-    |> put_change(:global_role, GlobalRole.end_user())
+    validate_required(changeset, [:username, :provider_user_id])
   end
 
   @doc """

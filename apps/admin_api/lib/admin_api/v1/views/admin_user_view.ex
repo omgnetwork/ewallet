@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.UserView do
+defmodule AdminAPI.V1.AdminUserView do
   use AdminAPI, :view
   alias EWallet.Web.V1.ResponseSerializer
-  alias EWallet.Web.V1.UserSerializer
+  alias EWallet.Web.V1.AdminUserSerializer
 
-  def render("user.json", %{user: user}) do
-    user
-    |> UserSerializer.serialize()
+  def render("admin_user.json", %{admin_user: admin_user}) do
+    admin_user
+    |> AdminUserSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 
-  def render("users.json", %{users: users}) do
-    users
-    |> UserSerializer.serialize()
+  def render("admin_users.json", %{admin_users: admin_users}) do
+    admin_users
+    |> AdminUserSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 

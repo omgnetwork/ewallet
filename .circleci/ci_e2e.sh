@@ -14,6 +14,12 @@ echo_warn() {
 ## Sanity check
 ##
 
+REPOSITORY_URL="$CIRCLE_REPOSITORY_URL"
+
+if [ -z "$REPOSITORY_URL" ]; then
+    REPOSITORY_URL="https://github.com/omisego/ewallet.git"
+fi
+
 if [ -z "$GCS_BUCKET" ] ||
        [ -z "$GCS_CREDENTIALS" ] ||
        [ -z "$AWS_BUCKET" ] ||
@@ -79,8 +85,21 @@ docker-compose run --rm ewallet config gcs_credentials "$unescaped_gcs_creds" >/
 ## Running E2E
 ##
 
+_merge_base="master"
+_branches="$(git ls-remote -h --refs git@github.com:omisego/ewallet 'v*' | awk '{ print $2 }' | sort -r)"
+
+for _branch in "refs/heads/master" $_branches; do
+    _branch="${_branch#refs/heads/*}"
+    if [ "$(git merge-base --fork-point "origin/$_branch")" != "" ]; then
+        _merge_base="$_branch"
+        break
+    fi
+done
+
+echo_info "Detected $_merge_base as merge base."
+
 _e2e_repo="https://github.com/omisego/e2e.git"
-_e2e_branch="ewallet/$CIRCLE_BRANCH"
+_e2e_branch="ewallet/$_merge_base"
 
 if [ "$(git ls-remote $_e2e_repo "$_e2e_branch")" = "" ]; then
   _e2e_branch="master"
