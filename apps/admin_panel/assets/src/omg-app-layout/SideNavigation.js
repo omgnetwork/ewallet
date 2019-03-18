@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react'
+import React, { PureComponent, Fragment } from 'react'
 import styled from 'styled-components'
 import { Icon, LoadingSkeleton } from '../omg-uikit'
 import { Link } from 'react-router-dom'
@@ -9,6 +9,7 @@ import ProfileDropdown from './ProfileDropdown'
 import { selectRecentAccounts } from '../omg-recent-account/selector'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
+import { logout } from '../omg-session/action'
 import FlipMove from 'react-flip-move'
 const SideNavigationContainer = styled.div`
   background-color: #f0f2f5;
@@ -73,7 +74,7 @@ const enhance = compose(
   withRouter,
   connect(
     state => ({ recentAccounts: selectRecentAccounts(state) }),
-    null
+    { logout }
   )
 )
 
@@ -82,7 +83,8 @@ class SideNavigation extends PureComponent {
     location: PropTypes.object,
     className: PropTypes.string,
     recentAccounts: PropTypes.array,
-    match: PropTypes.object
+    match: PropTypes.object,
+    logout: PropTypes.func
   }
   static defaultProps = {
     recentAccounts: []
@@ -144,13 +146,9 @@ class SideNavigation extends PureComponent {
       }
     ]
   }
-
-  renderCurrentUser = ({ currentUser, loadingStatus }) => {
-    return (
-      <CurrentAccountContainer>
-        {loadingStatus === 'SUCCESS' ? <ProfileDropdown /> : <LoadingSkeleton height='18px' />}
-      </CurrentAccountContainer>
-    )
+  onLogout = async e => {
+    await this.props.logout()
+    this.props.history.push('/login')
   }
 
   renderRecentAccounts () {
@@ -172,44 +170,71 @@ class SideNavigation extends PureComponent {
   }
   renderOverview () {
     const firstSubPath = this.props.location.pathname.split('/')[1]
-    return this.overviewLinks.map(link => {
-      return (
-        <Link to={link.to} key={link.to}>
-          <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
-            <Icon name={link.icon} /> <span>{link.text}</span>
-          </NavigationItem>
-        </Link>
-      )
-    })
+    return (
+      <Fragment>
+        <MenuName> OVERVIEW </MenuName>
+        {this.overviewLinks.map(link => {
+          return (
+            <Link to={link.to} key={link.to}>
+              <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
+                <Icon name={link.icon} /> <span>{link.text}</span>
+              </NavigationItem>
+            </Link>
+          )
+        })}
+      </Fragment>
+    )
   }
 
-  render () {
-    const firstSubPath = this.props.location.pathname.split('/')[1]
+  renderManage () {
     const matchedAccountId = this.props.match.params.accountId
+    const firstSubPath = this.props.location.pathname.split('/')[1]
+    return (
+      <Fragment>
+        <MenuName> MANAGE </MenuName>
+        <Link to={'/accounts'}>
+          <NavigationItem
+            active={!matchedAccountId && fuzzySearch('/accounts', `/${firstSubPath}`)}
+          >
+            <Icon name='Merchant' /> <span>{'Accounts'}</span>
+          </NavigationItem>
+        </Link>
+        {this.renderRecentAccounts()}
+        {this.dataLink.map(link => {
+          return (
+            <Link to={link.to} key={link.to}>
+              <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
+                <Icon name={link.icon} /> <span>{link.text}</span>
+              </NavigationItem>
+            </Link>
+          )
+        })}
+      </Fragment>
+    )
+  }
+  renderMyProfile () {
+    const firstSubPath = this.props.location.pathname.split('/')[1]
+    return (
+      <Fragment>
+        <MenuName> MY PROFILE </MenuName>
+        <Link to={'/user_setting'}>
+          <NavigationItem active={fuzzySearch('/user_setting', `/${firstSubPath}`)}>
+            <Icon name={'Profile'} /> <span>Profile Setting</span>
+          </NavigationItem>
+        </Link>
+        <NavigationItem onClick={this.onLogout}>
+          <Icon name={'Arrow-Left'} /> <span>Logout</span>
+        </NavigationItem>
+      </Fragment>
+    )
+  }
+  render () {
     return (
       <SideNavigationContainer className={this.props.className}>
         <NavigationItemsContainer>
-          {/* <CurrentUserProvider render={this.renderCurrentUser} /> */}
-          <MenuName> MANAGE </MenuName>
-          <Link to={'/accounts'}>
-            <NavigationItem
-              active={!matchedAccountId && fuzzySearch('/accounts', `/${firstSubPath}`)}
-            >
-              <Icon name='Merchant' /> <span>{'Accounts'}</span>
-            </NavigationItem>
-          </Link>
-          {this.renderRecentAccounts()}
-          {this.dataLink.map(link => {
-            return (
-              <Link to={link.to} key={link.to}>
-                <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
-                  <Icon name={link.icon} /> <span>{link.text}</span>
-                </NavigationItem>
-              </Link>
-            )
-          })}
-          <MenuName> OVERVIEW </MenuName>
+          {this.renderManage()}
           {this.renderOverview()}
+          {this.renderMyProfile()}
         </NavigationItemsContainer>
       </SideNavigationContainer>
     )
