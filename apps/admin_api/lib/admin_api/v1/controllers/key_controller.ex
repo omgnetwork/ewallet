@@ -15,9 +15,9 @@
 defmodule AdminAPI.V1.KeyController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.KeyPolicy
+  alias EWallet.{KeyPolicy, AccountPolicy}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.KeyOverlay}
-  alias EWalletDB.Key
+  alias EWalletDB.{Key, Account, Membership, Role}
   alias Ecto.Changeset
 
   @doc """
@@ -52,12 +52,40 @@ defmodule AdminAPI.V1.KeyController do
   @doc """
   Creates a new key.
   """
-  # TODO: assign key to account directly
-  # TODO: Add tests
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def create(conn, attrs) do
-    with {:ok, _} <- authorize(:create, conn.assigns, attrs),
+  def create(conn, %{"account_id" => account_id, "role_name" => role_name})
+      when not is_nil(account_id) and not is_nil(role_name) do
+    attrs = %{account_id: account_id}
+
+    with %Account{} = account <- Account.get_by(id: account_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:create, conn.assigns, attrs),
+         {:ok, _} <-
+           authorize(:create, conn.assigns, %Membership{
+             account: account,
+             account_uuid: account.uuid
+           }),
+         %Role{} = role <-
+           Role.get_by(name: role_name) || {:error, :role_name_not_found},
          attrs <- Originator.set_in_attrs(attrs, conn.assigns, :originator),
+         {:ok, key} <- Key.insert(attrs),
+         {:ok, _} = Membership.assign(key, account, role, attrs[:originator]),
+         {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
+      render(conn, :key, %{key: key})
+    else
+      {:error, %Changeset{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+
+      {:error, code} ->
+        handle_error(conn, code)
+
+      {:error, code, description} ->
+        handle_error(conn, code, description)
+    end
+  end
+
+  def create(conn, _attrs) do
+    with {:ok, _} <- authorize(:create, conn.assigns, %{}),
+         attrs <- Originator.set_in_attrs(%{}, conn.assigns, :originator),
          {:ok, key} <- Key.insert(attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
       render(conn, :key, %{key: key})
@@ -67,6 +95,9 @@ defmodule AdminAPI.V1.KeyController do
 
       {:error, code} ->
         handle_error(conn, code)
+
+      {:error, code, description} ->
+        handle_error(conn, code, description)
     end
   end
 
@@ -158,11 +189,10 @@ defmodule AdminAPI.V1.KeyController do
 
   defp do_delete(conn, nil), do: handle_error(conn, :key_not_found)
 
-  @spec authorize(
-          :all | :create | :get | :update | :enable_or_disable | :delete,
-          map(),
-          String.t() | nil
-        ) :: :ok | {:error, any()} | no_return()
+  defp authorize(action, actor, %Account{} = account) do
+    AccountPolicy.authorize(action, actor, account)
+  end
+
   defp authorize(action, actor, key) do
     KeyPolicy.authorize(action, actor, key)
   end

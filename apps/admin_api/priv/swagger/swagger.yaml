@@ -164,6 +164,10 @@ paths:
     $ref: 'account/paths.yaml#/account.assign_user'
   /account.unassign_user:
     $ref: 'account/paths.yaml#/account.unassign_user'
+  /account.assign_key:
+    $ref: 'account/paths.yaml#/account.assign_key'
+  /account.unassign_key:
+    $ref: 'account/paths.yaml#/account.unassign_key'
   /account.get_members:
     $ref: 'account/paths.yaml#/account.get_members'
   /account.get_users:
