@@ -6,6 +6,10 @@ defmodule DB.Mixfile do
       app: :db,
       version: "1.2.0-dev",
       elixir: "~> 1.8",
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps_path: "../../deps",
+      lockfile: "../../mix.lock",
       start_permanent: Mix.env == :prod,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
