@@ -451,7 +451,74 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       assert response["data"] == %{}
     end
 
-    # TODO: MORE
+    test_with_auths "returns an error when key_id is missing" do
+      response =
+        request("/account.unassign_key", %{
+          account_id: insert(:account).id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    test_with_auths "returns unauthorized when key_id is not found" do
+      response =
+        request("/account.unassign_key", %{
+          key_id: "something",
+          account_id: insert(:account).id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "returns unauthorized when account_id is not found" do
+      response =
+        request("/account.unassign_key", %{
+          key_id: insert(:key).id,
+          account_id: "something"
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "returns empty success if unassigned as admin with the rights" do
+      set_admin_user_role("admin")
+      set_key_role("admin")
+
+      account_1 = insert(:account)
+      key = insert(:key)
+
+      # Having a membership on account_1 gives access to the target key to the actor
+      {:ok, _} = Membership.assign(get_test_admin(), account_1, "admin", %System{})
+      {:ok, _} = Membership.assign(get_test_key(), account_1, "admin", %System{})
+
+      {:ok, _} = Membership.assign(key, account_1, "admin", %System{})
+
+      response =
+        request("/account.unassign_key", %{
+          key_id: key.id,
+          account_id: account_1.id
+        })
+
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
+    test_with_auths "returns unauthorized if adding to an account without the rights" do
+      set_admin_user_role("admin")
+      set_key_role("admin")
+
+      response =
+        request("/account.unassign_key", %{
+          key_id: insert(:key).id,
+          account_id: insert(:account).id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
+    end
   end
 
   describe "/account.assign_user" do

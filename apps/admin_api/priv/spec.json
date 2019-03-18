@@ -11398,6 +11398,344 @@
         }
       }
     },
+    "/account.assign_key": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Assigns a key to an account with a role",
+        "operationId": "account_assign_key",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to use for assigning a key to an account",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "key_id": {
+                  "type": "string"
+                },
+                "account_id": {
+                  "type": "string"
+                },
+                "role_name": {
+                  "type": "string"
+                },
+                "redirect_url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "key_id",
+                "account_id",
+                "role_name",
+                "redirect_url"
+              ],
+              "example": {
+                "key_id": "key_01ce83q2zw7zk1dqr79t22zr1v",
+                "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                "role_name": "admin",
+                "redirect_url": "https://domain/redirect_path?email={email}&token={token}"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns an empty response",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a successful operation",
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "success",
+                    "data"
+                  ],
+                  "example": {
+                    "version": "1",
+                    "success": true,
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/account.unassign_key": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Unassigns a key from an account",
+        "operationId": "account_unassign_key",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to use for unassigning a key from an account",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "key_id": {
+                    "type": "string"
+                  },
+                  "account_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key_id",
+                  "account_id"
+                ],
+                "example": {
+                  "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                  "key_id": "key_01ce83q2zw7zk1dqr79t22zr1v"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns an empty response",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a successful operation",
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "success",
+                    "data"
+                  ],
+                  "example": {
+                    "version": "1",
+                    "success": true,
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/account.get_members": {
       "post": {
         "tags": [
@@ -33792,6 +34130,12 @@
             "application/vnd.omisego.v1+json": {
               "schema": {
                 "properties": {
+                  "account_id": {
+                    "type": "string"
+                  },
+                  "role_name": {
+                    "type": "string"
+                  },
                   "name": {
                     "type": "string"
                   },
