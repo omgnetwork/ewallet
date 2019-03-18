@@ -23,6 +23,10 @@ const NavigationItem = styled.div`
   font-size: 14px;
   color: ${props => (props.active ? props.theme.colors.BL400 : 'inherit')};
   transition: 0.1s background-color;
+  >* {
+    overflow: hidden;
+  text-overflow: ellipsis;
+  }
   span {
     vertical-align: middle;
   }
@@ -186,7 +190,7 @@ class SideNavigation extends PureComponent {
     return (
       <SideNavigationContainer className={this.props.className}>
         <NavigationItemsContainer>
-          <CurrentUserProvider render={this.renderCurrentUser} />
+          {/* <CurrentUserProvider render={this.renderCurrentUser} /> */}
           <MenuName> MANAGE </MenuName>
           <Link to={'/accounts'}>
             <NavigationItem
