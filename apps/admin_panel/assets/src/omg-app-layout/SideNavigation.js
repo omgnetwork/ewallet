@@ -1,11 +1,10 @@
 import React, { PureComponent, Fragment } from 'react'
 import styled from 'styled-components'
-import { Icon, LoadingSkeleton } from '../omg-uikit'
+import { Icon } from '../omg-uikit'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
 import { fuzzySearch } from '../utils/search'
-import ProfileDropdown from './ProfileDropdown'
 import { selectRecentAccounts } from '../omg-recent-account/selector'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
@@ -50,13 +49,6 @@ const NavigationItemsContainer = styled.div`
     color: inherit;
   }
 `
-const CurrentAccountContainer = styled.div`
-  text-align: left;
-  display: flex;
-  align-items: center;
-  padding: 0 35px;
-  height: 30px;
-`
 
 const MenuName = styled.div`
   padding: 5px 35px;
@@ -84,7 +76,8 @@ class SideNavigation extends PureComponent {
     className: PropTypes.string,
     recentAccounts: PropTypes.array,
     match: PropTypes.object,
-    logout: PropTypes.func
+    logout: PropTypes.func,
+    history: PropTypes.object
   }
   static defaultProps = {
     recentAccounts: []
@@ -171,7 +164,7 @@ class SideNavigation extends PureComponent {
   renderOverview () {
     const firstSubPath = this.props.location.pathname.split('/')[1]
     return (
-      <Fragment>
+      <div>
         <MenuName> OVERVIEW </MenuName>
         {this.overviewLinks.map(link => {
           return (
@@ -182,7 +175,7 @@ class SideNavigation extends PureComponent {
             </Link>
           )
         })}
-      </Fragment>
+      </div>
     )
   }
 
