@@ -4,7 +4,6 @@ import { Icon, LoadingSkeleton } from '../omg-uikit'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
-import CurrentUserProvider from '../omg-user-current/currentUserProvider'
 import { fuzzySearch } from '../utils/search'
 import ProfileDropdown from './ProfileDropdown'
 import { selectRecentAccounts } from '../omg-recent-account/selector'
@@ -23,9 +22,9 @@ const NavigationItem = styled.div`
   font-size: 14px;
   color: ${props => (props.active ? props.theme.colors.BL400 : 'inherit')};
   transition: 0.1s background-color;
-  >* {
+  > * {
     overflow: hidden;
-  text-overflow: ellipsis;
+    text-overflow: ellipsis;
   }
   span {
     vertical-align: middle;
