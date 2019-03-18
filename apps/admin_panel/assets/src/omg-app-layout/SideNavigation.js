@@ -62,6 +62,11 @@ const RecentAccount = styled.div`
   margin-left: 32px;
 `
 
+const OverviewContainer = styled.div`
+  padding-bottom: 30px;
+  border-bottom: 1px solid ${props => props.theme.colors.S300};
+`
+
 const enhance = compose(
   withRouter,
   connect(
@@ -164,7 +169,7 @@ class SideNavigation extends PureComponent {
   renderOverview () {
     const firstSubPath = this.props.location.pathname.split('/')[1]
     return (
-      <div>
+      <OverviewContainer>
         <MenuName> OVERVIEW </MenuName>
         {this.overviewLinks.map(link => {
           return (
@@ -175,7 +180,7 @@ class SideNavigation extends PureComponent {
             </Link>
           )
         })}
-      </div>
+      </OverviewContainer>
     )
   }
 
