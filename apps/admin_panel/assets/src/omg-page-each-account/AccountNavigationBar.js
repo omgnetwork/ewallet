@@ -12,6 +12,9 @@ const LinksContainer = styled.div`
   overflow: auto;
   margin-bottom: -1.5px;
   white-space: nowrap;
+  &::-webkit-scrollbar {
+    display: none;
+  }
   a {
     display: block;
     padding: 0 10px;
@@ -47,7 +50,7 @@ const AccountNameContainer = styled.div`
   padding-right: 20px;
   > div:first-child {
     margin-right: 10px;
-    flex: 1 0 auto;
+    flex: 0 0 auto;
   }
   h4 {
     text-overflow: ellipsis;
