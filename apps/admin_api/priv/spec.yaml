@@ -2987,7 +2987,7 @@ paths:
                 - redirect_url
               example:
                 email: user@example.com
-                redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
+                redirect_url: 'http://localhost:4000/admin/invite?email={email}&token={token}'
                 full_name: John Doe
                 calling_name: John
                 global_role: admin
