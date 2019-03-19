@@ -50,16 +50,18 @@ defmodule ActivityLogger.TestUser do
     |> Repo.insert_record_with_activity_log([])
   end
 
+  @spec insert_with_document(map()) :: {:ok, %TestUser{}} | {:error, Ecto.Changeset.t()}
   def insert_with_document(attrs) do
     %TestUser{}
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log(
       [],
-      Multi.run(Multi.new(), :document, fn %{record: record} ->
-        TestDocument.insert(%{
+      Multi.run(Multi.new(), :document, fn %{record: record}, _ ->
+        {:ok, _ } = TestDocument.insert(%{
           title: record.username,
           originator: record
         })
+        :ok
       end)
     )
   end
