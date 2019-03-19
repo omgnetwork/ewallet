@@ -301,7 +301,7 @@ class ApiKeyPage extends Component {
       <ApiKeysFetcher
         query={{
           page: queryString.parse(this.props.location.search)['api_key_page'],
-          perPage: 5
+          perPage: 10
         }}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data
@@ -430,7 +430,7 @@ class ApiKeyPage extends Component {
           divider={this.props.divider}
           title={'Keys'}
           description={
-            'These are all keys using in this application. Click each one to view their details.'
+            'These are the keys that can be used by developers to interact with the API.'
           }
           buttons={null}
           secondaryAction={false}
@@ -456,8 +456,7 @@ class ApiKeyPage extends Component {
           </KeyTopButtonsContainer>
           {activeTab === 'admin' ? (
             <p>
-              Admin Keys are used to gain access to everything. user-related functions (once the
-              user has been logged in), e.g. make transfers with the user's wallets, list a user's
+              Admin Keys are used to access all admin related APIs.er's wallets, list a user's
               transactions, create transaction requests, etc.
             </p>
           ) : (
