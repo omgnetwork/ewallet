@@ -92,12 +92,13 @@ defmodule EWalletDB.Key do
   end
 
   defp update_changeset(%Key{} = key, attrs) do
-    cast_and_validate_required_for_activity_log(
-      key,
+    key
+    |> cast_and_validate_required_for_activity_log(
       attrs,
       cast: [:name, :global_role],
       required: [:global_role]
     )
+    |> validate_inclusion(:global_role, GlobalRole.global_roles())
   end
 
   defp enable_changeset(%Key{} = key, attrs) do

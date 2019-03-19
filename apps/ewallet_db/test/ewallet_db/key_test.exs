@@ -83,8 +83,8 @@ defmodule EWalletDB.KeyTest do
     test "Updates a key with a new global_role" do
       key = insert(:key)
       assert key.global_role == nil
-      {:ok, updated_key} = Key.update(key, %{global_role: "a_role", originator: %System{}})
-      assert updated_key.global_role == "a_role"
+      {:ok, updated_key} = Key.update(key, %{global_role: "admin", originator: %System{}})
+      assert updated_key.global_role == "admin"
     end
   end
 

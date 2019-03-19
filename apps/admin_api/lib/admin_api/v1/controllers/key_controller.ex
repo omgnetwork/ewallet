@@ -59,11 +59,7 @@ defmodule AdminAPI.V1.KeyController do
 
     with %Account{} = account <- Account.get_by(id: account_id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:create, conn.assigns, attrs),
-         {:ok, _} <-
-           authorize(:create, conn.assigns, %Membership{
-             account: account,
-             account_uuid: account.uuid
-           }),
+         {:ok, _} <- authorize(:update, conn.assigns, account),
          %Role{} = role <-
            Role.get_by(name: role_name) || {:error, :role_name_not_found},
          attrs <- Originator.set_in_attrs(attrs, conn.assigns, :originator),
