@@ -224,7 +224,7 @@ defmodule AdminAPI.ConnCase do
       })
   end
 
-  @spec set_key_role(String.t()) :: {:ok, EWalletDB.Key.t()}
+  @spec set_key_role(String.t(), %Key{}) :: {:ok, EWalletDB.Key.t()} | no_return()
   def set_key_role(role, key \\ nil) do
     {:ok, _} =
       Key.update(key || get_test_key(), %{

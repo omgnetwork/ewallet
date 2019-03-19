@@ -71,11 +71,12 @@ defmodule AdminAPI.V1.AdminUserController do
     end
   end
 
-  def create(conn, _attrs),
-    do: handle_error(conn, :invalid_parameter, "`redirect_url` is required.")
+  def create(conn, _attrs) do
+    handle_error(conn, :invalid_parameter, "`email` and `redirect_url` are required.")
+  end
 
   @doc """
-  Updates a new admin user.
+  Updates an admin user.
 
   The requesting user must have the permissions to update admin users.
   Admin users can't update themselves through this endpoint.
