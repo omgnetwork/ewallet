@@ -243,6 +243,11 @@ class SortableTable extends PureComponent {
     )
   }
   render () {
+    const shouldShowNavigation =
+      this.props.navigation &&
+      this.props.rows.length &&
+      this.props.loadingStatus !== 'INITIATED' &&
+      !(this.props.isFirstPage && this.props.isLastPage)
     return (
       <TableContainer
         loading={this.props.loadingStatus === 'PENDING'}
@@ -264,29 +269,26 @@ class SortableTable extends PureComponent {
           page={this.getPage()}
           perPage={this.props.perPage}
         />
-        {this.props.navigation &&
-          this.props.rows.length &&
-          this.props.loadingStatus !== 'INITIATED' &&
-          !(this.props.isFirstPage && this.props.isLastPage) && (
-            <NavigationContainer>
-              <Button
-                onClick={this._onClickPrev}
-                styleType='secondary'
-                disabled={this.props.isFirstPage}
-                style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
-              >
-                <Icon name='Chevron-Left' />
-              </Button>
-              <Button
-                onClick={this._onClickNext}
-                styleType='secondary'
-                disabled={this.props.isLastPage}
-                style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
-              >
-                <Icon name='Chevron-Right' />
-              </Button>
-            </NavigationContainer>
-          )}
+        {shouldShowNavigation ? (
+          <NavigationContainer>
+            <Button
+              onClick={this._onClickPrev}
+              styleType='secondary'
+              disabled={this.props.isFirstPage}
+              style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
+            >
+              <Icon name='Chevron-Left' />
+            </Button>
+            <Button
+              onClick={this._onClickNext}
+              styleType='secondary'
+              disabled={this.props.isLastPage}
+              style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
+            >
+              <Icon name='Chevron-Right' />
+            </Button>
+          </NavigationContainer>
+        ) : null}
       </TableContainer>
     )
   }
