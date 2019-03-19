@@ -59,6 +59,14 @@ defmodule EWallet.BalanceFetcher do
   end
 
   @doc """
+  Prepare the list of balances for specified tokens and turn them into a suitable format for
+  EWalletAPI using only a wallet.
+  """
+  def all(%{"wallet" => wallet, "tokens" => tokens}) do
+    {:ok, query_and_add_balances(wallet, %{"tokens" => tokens})}
+  end
+
+  @doc """
   Prepare the list of balances and turn them into a suitable format for
   EWalletAPI using only a wallet.
   """
@@ -86,28 +94,41 @@ defmodule EWallet.BalanceFetcher do
   """
   @spec get(String.t(), %Token{}) :: {:ok, %EWalletDB.Wallet{}} | {:error, atom()}
   def get(id, %Wallet{} = wallet) do
-    wallet =
+    balances =
       id
       |> LocalLedger.Wallet.get_balance(wallet.address)
-      |> process_response(wallet, :one)
+      |> process_response(wallet, :all)
+
+    wallet = Map.put(wallet, :balances, balances)
 
     {:ok, wallet}
   end
 
-  defp query_and_add_balances(wallets) when is_list(wallets) do
+  defp query_and_add_balances(wallet_or_wallets, attrs \\ %{})
+
+  defp query_and_add_balances(wallets, _) when is_list(wallets) do
     wallets
     |> Enum.map(fn wallet -> wallet.address end)
     |> LocalLedger.Wallet.all_balances()
-    |> process_response(wallets, :all)
+    |> process_response(wallets)
   end
 
-  defp query_and_add_balances(wallet) do
+  defp query_and_add_balances(wallet, %{"tokens" => tokens} = attrs) do
     wallet.address
-    |> LocalLedger.Wallet.all_balances()
-    |> process_response(wallet, :all)
+    |> LocalLedger.Wallet.all_balances(attrs)
+    |> process_response(wallet, tokens)
   end
 
-  defp process_response({:ok, data}, wallets, _type) when is_list(wallets) do
+  defp query_and_add_balances(wallet, _) do
+    balances =
+      wallet.address
+      |> LocalLedger.Wallet.all_balances()
+      |> process_response(wallet, :all_tokens)
+
+    Map.put(wallet, :balances, balances)
+  end
+
+  defp process_response({:ok, data}, wallets) when is_list(wallets) do
     tokens = Token.all()
 
     Enum.map(wallets, fn wallet ->
@@ -117,17 +138,16 @@ defmodule EWallet.BalanceFetcher do
   end
 
   defp process_response({:ok, data}, wallet, type) do
-    balances =
-      type
-      |> load_tokens(data[wallet.address])
-      |> map_tokens(data[wallet.address])
-
-    Map.put(wallet, :balances, balances)
+    type
+    |> load_tokens(data[wallet.address])
+    |> map_tokens(data[wallet.address])
   end
 
-  defp load_tokens(:all, _), do: Token.all()
+  defp load_tokens(:all_tokens, _), do: Token.all()
 
-  defp load_tokens(:one, amounts) do
+  defp load_tokens(preload_tokens, _) when is_list(preload_tokens), do: preload_tokens
+
+  defp load_tokens(:all, amounts) do
     amounts |> Map.keys() |> Token.get_all()
   end
 

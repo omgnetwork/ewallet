@@ -44,6 +44,23 @@ WalletUserBody:
         example:
           id: usr_01cc02x0v98qcctvycfx4vsk8x
 
+BalanceAllForWalletBody:
+  description: The parameters to use for listing the balances for a wallet. Note that the pagination parameters are based on token.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          address:
+            type: string
+        required:
+          - address
+        example:
+          address: kxhk519271652215
+
+
 TransactionConsumptionAllForWalletBody:
   description: The parameters to use for listing the consumptions for a wallet
   required: true

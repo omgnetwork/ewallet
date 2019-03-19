@@ -26197,6 +26197,438 @@
         }
       }
     },
+    "/wallet.get_balances": {
+      "post": {
+        "tags": [
+          "Wallet"
+        ],
+        "summary": "Get the list of balances for a wallet.",
+        "operationId": "wallet_get_balances",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to use for listing the balances for a wallet. Note that the pagination parameters are based on token.",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
+                      },
+                      "per_page": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "search_term": {
+                        "type": "string"
+                      },
+                      "match_all": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "comparator": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "comparator",
+                            "value"
+                          ]
+                        }
+                      },
+                      "match_any": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "comparator": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "comparator",
+                            "value"
+                          ]
+                        }
+                      },
+                      "sort_by": {
+                        "type": "string"
+                      },
+                      "sort_dir": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    },
+                    "example": {
+                      "start_after": null,
+                      "start_by": "id",
+                      "per_page": 10,
+                      "match_all": [],
+                      "match_any": [],
+                      "sort_by": "created_at",
+                      "sort_dir": "desc"
+                    }
+                  }
+                ],
+                "properties": {
+                  "address": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "address"
+                ],
+                "example": {
+                  "address": "kxhk519271652215"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a list of balances",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a list of balances",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "allOf": [
+                        {
+                          "description": "The response schema for a successful operation",
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string"
+                            },
+                            "success": {
+                              "type": "boolean"
+                            },
+                            "data": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "success",
+                            "data"
+                          ],
+                          "example": {
+                            "version": "1",
+                            "success": true,
+                            "data": {}
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "data": {
+                              "type": "object",
+                              "allOf": [
+                                {
+                                  "description": "The object schema for a paginated list",
+                                  "type": "object",
+                                  "properties": {
+                                    "object": {
+                                      "type": "string"
+                                    },
+                                    "data": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object"
+                                      }
+                                    },
+                                    "pagination": {
+                                      "type": "object",
+                                      "items": {
+                                        "type": "object"
+                                      },
+                                      "properties": {
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
+                                        },
+                                        "per_page": {
+                                          "type": "integer"
+                                        },
+                                        "count": {
+                                          "type": "integer"
+                                        },
+                                        "is_first_page": {
+                                          "type": "boolean"
+                                        },
+                                        "is_last_page": {
+                                          "type": "boolean"
+                                        }
+                                      },
+                                      "required": [
+                                        "start_after",
+                                        "start_by",
+                                        "per_page",
+                                        "count",
+                                        "is_first_page",
+                                        "is_last_page"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "object",
+                                    "data",
+                                    "pagination"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "data"
+                          ],
+                          "example": {
+                            "data": {
+                              "object": "list",
+                              "data": null,
+                              "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
+                                "per_page": 10,
+                                "count": 5,
+                                "is_first_page": true,
+                                "is_last_page": true
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "allOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "data": {
+                                  "type": "array",
+                                  "items": {
+                                    "description": "The object schema for a balance",
+                                    "type": "object",
+                                    "properties": {
+                                      "object": {
+                                        "type": "string"
+                                      },
+                                      "token": {
+                                        "type": "object",
+                                        "description": "The object schema for a token",
+                                        "properties": {
+                                          "object": {
+                                            "type": "string"
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "symbol": {
+                                            "type": "string"
+                                          },
+                                          "name": {
+                                            "type": "string"
+                                          },
+                                          "subunit_to_unit": {
+                                            "type": "integer"
+                                          },
+                                          "avatar": {
+                                            "type": "object"
+                                          },
+                                          "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                          },
+                                          "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                          },
+                                          "metadata": {
+                                            "type": "object"
+                                          },
+                                          "encrypted_metadata": {
+                                            "type": "object"
+                                          },
+                                          "enabled": {
+                                            "type": "boolean"
+                                          }
+                                        },
+                                        "required": [
+                                          "object",
+                                          "id",
+                                          "symbol",
+                                          "name",
+                                          "subunit_to_unit",
+                                          "avatar",
+                                          "created_at",
+                                          "updated_at",
+                                          "enabled"
+                                        ]
+                                      },
+                                      "amount": {
+                                        "type": "number"
+                                      }
+                                    },
+                                    "required": [
+                                      "object",
+                                      "token",
+                                      "amount"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "list",
+                          "data": {
+                            "object": "balance",
+                            "amount": 0,
+                            "token": {
+                              "object": "token",
+                              "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
+                              "symbol": "BTC",
+                              "name": "Bitcoin",
+                              "subunit_to_unit": 100000000000000000
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/wallet.enable_or_disable": {
       "post": {
         "tags": [
