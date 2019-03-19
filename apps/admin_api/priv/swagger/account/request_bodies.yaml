@@ -210,18 +210,14 @@ AccountAssignKeyBody:
           type: string
         role_name:
           type: string
-        redirect_url:
-          type: string
       required:
         - key_id
         - account_id
         - role_name
-        - redirect_url
       example:
         key_id: key_01ce83q2zw7zk1dqr79t22zr1v
         account_id: acc_01ca2p8jqans5aty5gj5etmjcf
         role_name: admin
-        redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
 AccountUnassignKeyBody:
   description: The parameters to use for unassigning a key from an account
   required: true
