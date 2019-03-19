@@ -116,7 +116,8 @@ defmodule AdminAPI.V1.Router do
     )
 
     # Account membership endpoints
-    post("/account.get_members", AccountMembershipController, :all_for_account)
+    post("/account.get_members", AccountMembershipController, :all_users_for_account)
+    post("/account.get_keys", AccountMembershipController, :all_keys_for_account)
     post("/account.assign_user", AccountMembershipController, :assign_user)
     post("/account.unassign_user", AccountMembershipController, :unassign_user)
 
