@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import styled, { withTheme } from 'styled-components'
+import styled from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
 import WalletProvider from '../omg-wallet/walletProvider'
 import { compose } from 'recompose'
 import { Button, Icon } from '../omg-uikit'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
-import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
@@ -49,14 +48,11 @@ const ErrorPageContainer = styled.div`
   }
 `
 const enhance = compose(
-  withTheme,
   withRouter
 )
 class WalletDetaillPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
-    history: PropTypes.object,
-    theme: PropTypes.object
+    match: PropTypes.object
   }
   state = {
     createTransactionModalOpen: false
@@ -81,7 +77,6 @@ class WalletDetaillPage extends Component {
     )
   }
   renderDetail = wallet => {
-    const accountId = this.props.match.params.accountId
     return (
       <Section title='DETAILS'>
         <DetailGroup>

@@ -14,12 +14,12 @@ export default withRouter(
           {
             field: 'originator_identifier',
             comparator: 'contains',
-            value: this.props.match.params.accountId
+            value: this.props.match.params.walletAddress
           },
           {
             field: 'target_identifier',
             comparator: 'contains',
-            value: this.props.match.params.accountId
+            value: this.props.match.params.walletAddress
           }
         ],
         matchAll: [
@@ -32,7 +32,7 @@ export default withRouter(
       }
     }
     render () {
-      return <ActivityPage query={this.getQuery} />
+      return <ActivityPage query={this.getQuery} divider={false} />
     }
   }
 )

@@ -71,7 +71,7 @@ export const NameColumn = styled.div`
 `
 class AccountPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
@@ -160,7 +160,7 @@ class AccountPage extends Component {
   renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
-        <TopNavigation title={'Accounts'} buttons={[this.renderCreateAccountButton()]} />
+        <TopNavigation divider={this.props.divider} title={'Accounts'} buttons={[this.renderCreateAccountButton()]} />
         <SortableTableContainer
           innerRef={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}

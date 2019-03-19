@@ -7,6 +7,7 @@ function AccountTransactionSubPage (props) {
   return (
     <TransactionsPage
       transferButton
+      divider={false}
       query={{
         matchAny: [
           {

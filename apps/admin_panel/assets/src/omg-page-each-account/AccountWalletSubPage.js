@@ -43,6 +43,7 @@ function AccountWalletSubPage (props) {
       walletQuery={{
         matchAny: getQuery()
       }}
+      divider={false}
       title={walletType === 'user' ? 'User Wallets' : 'Account Wallets'}
     />
   )

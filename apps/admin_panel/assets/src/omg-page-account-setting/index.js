@@ -79,7 +79,8 @@ class AccountSettingPage extends Component {
     getAccountById: PropTypes.func.isRequired,
     updateAccount: PropTypes.func,
     currentAccount: PropTypes.object,
-    location: PropTypes.object
+    location: PropTypes.object,
+    divider: PropTypes.bool
   }
 
   constructor (props) {
@@ -107,8 +108,8 @@ class AccountSettingPage extends Component {
       if (result.data) {
         this.setState({
           name: result.data.name,
-          description: result.data.description,
-          avatar: result.data.avatar.original
+          description: result.data.description || '',
+          avatar: result.data.avatar.original || ''
         })
       }
     }
@@ -228,7 +229,7 @@ class AccountSettingPage extends Component {
   render () {
     return (
       <AccountSettingContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title='Account Settings'
           buttons={[this.renderInviteButton()]}
           secondaryAction={false}

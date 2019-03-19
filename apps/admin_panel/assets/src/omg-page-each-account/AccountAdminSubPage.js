@@ -16,6 +16,7 @@ export default withRouter(
     render () {
       return (
         <AdminPage
+          divider={false}
           fetcher={adminsAccountFetcher}
           accountId={this.props.match.params.accountId}
           navigation={false}
