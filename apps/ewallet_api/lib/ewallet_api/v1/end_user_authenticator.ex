@@ -56,7 +56,7 @@ defmodule EWalletAPI.V1.EndUserAuthenticator do
   """
   def expire_token(conn) do
     token_string = conn.private[:auth_auth_token]
-    AuthToken.expire(token_string, :ewallet_api)
+    _ = AuthToken.expire(token_string, :ewallet_api)
     handle_fail_auth(conn, :auth_token_expired)
   end
 

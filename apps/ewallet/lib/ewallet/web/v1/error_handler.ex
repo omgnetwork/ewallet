@@ -544,20 +544,21 @@ defmodule EWallet.Web.V1.ErrorHandler do
     type = ErrorCodeNotFoundError
     message = Exception.message(%ErrorCodeNotFoundError{})
 
-    [
-      error_type: :error,
-      exception: [
-        %{
-          type: type,
-          value: message,
-          module: __MODULE__
-        }
-      ],
-      extra: %{error_code: code},
-      message: "(#{inspect(type)}) #{message}"
-    ]
-    |> Event.create_event()
-    |> Sentry.send_event()
+    _ =
+      [
+        error_type: :error,
+        exception: [
+          %{
+            type: type,
+            value: message,
+            module: __MODULE__
+          }
+        ],
+        extra: %{error_code: code},
+        message: "(#{inspect(type)}) #{message}"
+      ]
+      |> Event.create_event()
+      |> Sentry.send_event()
 
     build_error(:internal_server_error, supported_errors)
   end

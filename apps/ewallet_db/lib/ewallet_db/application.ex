@@ -27,7 +27,7 @@ defmodule EWalletDB.Application do
     DeferredConfig.populate(:ewallet_db)
 
     settings = Application.get_env(:ewallet_db, :settings)
-    Config.register_and_load(:ewallet_db, settings)
+    _ = Config.register_and_load(:ewallet_db, settings)
 
     ActivityLogger.configure(%{
       EWalletDB.Seeder => %{type: "seeder", identifier: nil},

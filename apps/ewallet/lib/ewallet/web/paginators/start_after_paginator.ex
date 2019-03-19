@@ -223,7 +223,7 @@ defmodule EWallet.Web.StartAfterPaginator do
   defp build_error(:unknown_db_error, error) do
     # This event should not happen.
     # We will need to handle more if we encounter this error.
-    Logger.error("An unknown error occurred during pagination. Error: #{inspect(error)}")
+    _ = Logger.error("An unknown error occurred during pagination. Error: #{inspect(error)}")
     {:error, :unknown_error, "An unknown error occured on the database."}
   end
 

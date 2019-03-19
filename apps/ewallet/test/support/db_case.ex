@@ -69,7 +69,7 @@ defmodule EWallet.DBCase do
     num_remaining = num_required - Repo.aggregate(schema, :count, count_field)
     factory_name = get_factory(schema)
 
-    insert_list(num_remaining, factory_name, attrs)
+    _ = insert_list(num_remaining, factory_name, attrs)
     Repo.all(schema)
   end
 

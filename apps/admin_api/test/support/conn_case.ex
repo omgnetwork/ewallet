@@ -100,8 +100,8 @@ defmodule AdminAPI.ConnCase do
 
   setup tags do
     # Restarts `EWalletConfig.Config` so it does not hang on to a DB connection for too long.
-    Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
-    Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+    _ = Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+    _ = Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
 
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
@@ -273,9 +273,7 @@ defmodule AdminAPI.ConnCase do
     account = Account.get_master_account()
     master_wallet = Account.get_primary_wallet(account)
 
-    if mint do
-      mint!(token, amount * 100)
-    end
+    _ = if mint, do: mint!(token, amount * 100)
 
     transfer!(
       master_wallet.address,
@@ -394,7 +392,7 @@ defmodule AdminAPI.ConnCase do
     num_remaining = num_required - Repo.aggregate(schema, :count, count_field)
     factory_name = get_factory(schema)
 
-    insert_list(num_remaining, factory_name, attrs)
+    _ = insert_list(num_remaining, factory_name, attrs)
     Repo.all(schema)
   end
 

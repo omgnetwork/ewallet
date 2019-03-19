@@ -56,7 +56,7 @@ defmodule EWalletAPI.V1.ClientAuthPlug do
     token_string = conn.private[:auth_auth_token]
     originator = Originator.extract(conn.assigns)
 
-    AuthToken.expire(token_string, :ewallet_api, originator)
+    _ = AuthToken.expire(token_string, :ewallet_api, originator)
 
     conn
     |> assign(:authenticated, false)

@@ -57,7 +57,7 @@ defmodule AdminAPI.V1.AdminUserAuthenticator do
   """
   def expire_token(conn, originator) do
     token_string = conn.private[:auth_auth_token]
-    AuthToken.expire(token_string, :admin_api, originator)
+    _ = AuthToken.expire(token_string, :admin_api, originator)
     handle_fail_auth(conn, :auth_token_expired)
   end
 
