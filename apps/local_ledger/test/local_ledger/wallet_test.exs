@@ -89,6 +89,18 @@ defmodule LocalLedger.WalletTest do
                }
              }
     end
+
+    test "retrieves all balances with one address for specified tokens", meta do
+      attrs = %{"tokens" => [meta.token_2]}
+
+      {:ok, address_with_amounts} = Wallet.all_balances(meta.wallet.address, attrs)
+
+      assert address_with_amounts == %{
+               meta.wallet.address => %{
+                 "tok_BTC_5678" => 160_524 - 74_961
+               }
+             }
+    end
   end
 
   describe "get_balance/2" do

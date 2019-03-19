@@ -40,12 +40,13 @@ defmodule EWallet.Web.Config do
         value -> String.to_integer(value)
       end
 
+    IO.inspect(System.get_env("CORS_ORIGIN"))
     cors_origin = System.get_env("CORS_ORIGIN")
 
     Application.put_env(:cors_plug, :max_age, max_age)
     Application.put_env(:cors_plug, :headers, @headers)
     Application.put_env(:cors_plug, :methods, ["POST"])
-    Application.put_env(:cors_plug, :origin, cors_plug_origin(cors_origin))
+    # Application.put_env(:cors_plug, :origin, cors_plug_origin(cors_origin))
 
     :ok
   end

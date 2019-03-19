@@ -42,6 +42,8 @@ tags:
     description: Resources related to user session tokens.
   - name: User
     description: Resources related to users.
+  - name: Permission
+    description: Resources related to permissions.
   - name: Token
     description: Resources related to tokens.
   - name: ExchangePair
@@ -2347,7 +2349,7 @@ paths:
                                     account: *ref_30
                                     balances:
                                       type: array
-                                      items:
+                                      items: &ref_47
                                         description: The object schema for a balance
                                         type: object
                                         properties:
@@ -3724,6 +3726,64 @@ paths:
                 address: kxhk519271652215
       responses:
         '200': *ref_44
+        '500': *ref_2
+  /wallet.get_balances:
+    post:
+      tags:
+        - Wallet
+      summary: Get the list of balances for a wallet.
+      operationId: wallet_get_balances
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for listing the balances for a wallet. Note that
+          the pagination parameters are based on token.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_12
+              properties:
+                address:
+                  type: string
+              required:
+                - address
+              example:
+                address: kxhk519271652215
+      responses:
+        '200':
+          description: Returns a list of balances
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of balances
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: *ref_47
+                    example:
+                      data:
+                        object: list
+                        data:
+                          object: balance
+                          amount: 0
+                          token:
+                            object: token
+                            id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                            symbol: BTC
+                            name: Bitcoin
+                            subunit_to_unit: 100000000000000000
         '500': *ref_2
   /wallet.enable_or_disable:
     post:
@@ -5549,4 +5609,66 @@ paths:
         - AdminAuth: []
       responses:
         '200': *ref_64
+<<<<<<< HEAD
+=======
+        '500': *ref_2
+  /permission.all:
+    post:
+      tags:
+        - Permission
+      summary: Get the list of permissions
+      operationId: permission_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      responses:
+        '200':
+          description: Returns a list of permissions
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for permissions
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for permissions
+                        properties:
+                          object:
+                            type: string
+                          global_roles:
+                            type: object
+                            additionalProperties: true
+                          account_roles:
+                            type: object
+                            additionalProperties: true
+                        required:
+                          - object
+                          - global_roles
+                          - account_roles
+                    example:
+                      data:
+                        object: permissions
+                        global_roles:
+                          admin:
+                            account_wallets:
+                              get: global
+                              create: accounts
+                          end_user:
+                            account_wallets:
+                              get: none
+                              create: none
+                        account_roles:
+                          admin:
+                            account_wallets:
+                              get: global
+                              all: global
+                              create: accounts
+                          viewer:
+                            account_wallets:
+                              get: global
+                              all: global
+>>>>>>> origin/v1.2
         '500': *ref_2

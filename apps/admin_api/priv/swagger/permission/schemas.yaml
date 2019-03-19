@@ -1,0 +1,16 @@
+PermissionsSchema:
+  description: The object schema for permissions
+  type: object
+  properties:
+    object:
+      type: string
+    global_roles:
+      type: object
+      additionalProperties: true
+    account_roles:
+      type: object
+      additionalProperties: true
+  required:
+    - object
+    - global_roles
+    - account_roles

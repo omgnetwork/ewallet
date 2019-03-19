@@ -4,7 +4,7 @@
   "description": "The OmiseGO Wallet admin panel for a provider to manage staff, users, roles and permissions, API access, tokens, transactions, etc.",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server --config webpack/webpack.dev.config.js --hot --progress --host 0.0.0.0",
+    "dev": "webpack-dev-server --config webpack/webpack.dev.config.js --hot --progress",
     "start:dev": "webpack-dev-server --config webpack/webpack.dev.config.js --hot --progress",
     "build": "webpack --config webpack/webpack.prod.config.js --colors",
     "test": "jest --config config/jest.config.js",

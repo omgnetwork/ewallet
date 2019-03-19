@@ -17,6 +17,10 @@ defmodule EWalletDB.GlobalRole do
   Fake Schema representing global roles.
   """
 
+  # This is an empty struct for the sole purpose of compatibility. So the bouncer can reference
+  # this global role by `%GlobalRole{}` like it does with other targets.
+  defstruct []
+
   # global admin -
 
   @global_role_permissions %{
@@ -125,7 +129,8 @@ defmodule EWalletDB.GlobalRole do
         cancel: :accounts
       },
       exports: %{all: :self, get: :self, create: :global},
-      configuration: :none
+      configuration: :none,
+      permissions: %{all: :global}
     },
     "viewer" => %{
       account_permissions: true,
@@ -201,7 +206,8 @@ defmodule EWalletDB.GlobalRole do
         cancel: :none
       },
       exports: %{all: :self, get: :self, create: :none},
-      configuration: :none
+      configuration: :none,
+      permissions: %{all: :global}
     },
     "end_user" => %{
       account_permissions: false,
