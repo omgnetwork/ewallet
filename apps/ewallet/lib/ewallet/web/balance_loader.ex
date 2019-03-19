@@ -34,4 +34,8 @@ defmodule EWallet.Web.BalanceLoader do
   end
 
   def add_balances(error), do: error
+
+  def add_balances(%Wallet{} = wallet, tokens) do
+    BalanceFetcher.all(%{"wallet" => wallet, "tokens" => tokens})
+  end
 end

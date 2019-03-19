@@ -31,12 +31,14 @@ defmodule LocalLedger.CachedBalance do
     end)
   end
 
+  @spec all(%Wallet{} | [%Wallet{}]) :: {:ok, map()}
+  def all(wallet, attrs \\ %{})
+
   @doc """
   Get all the balances for the given wallet or wallets.
   """
-  @spec all(%Wallet{} | [%Wallet{}]) :: {:ok, map()}
-  def all(wallet_or_wallets) do
-    {:ok, get_balances(wallet_or_wallets)}
+  def all(wallet_or_wallets, attrs) do
+    {:ok, get_balances(wallet_or_wallets, attrs)}
   end
 
   @doc """
@@ -55,29 +57,47 @@ defmodule LocalLedger.CachedBalance do
     {:ok, balances}
   end
 
-  defp get_balances(wallets) when is_list(wallets) do
+  defp get_balances(wallet_or_wallets, attrs \\ %{})
+
+  defp get_balances(wallets, attrs) when is_list(wallets) do
     wallets
     |> Enum.map(fn wallet -> wallet.address end)
     |> CachedBalance.all()
-    |> calculate_all_amounts(wallets)
+    |> calculate_all_amounts(wallets, attrs)
   end
 
-  defp get_balances(wallet), do: get_balances([wallet])
+  defp get_balances(wallet, attrs), do: get_balances([wallet], attrs)
 
-  defp calculate_all_amounts(computed_balances, wallets) do
+  defp calculate_all_amounts(computed_balances, wallets, attrs) do
     computed_balances =
       Enum.into(computed_balances, %{}, fn balance ->
         {balance.wallet_address, balance}
       end)
 
     Enum.into(wallets, %{}, fn wallet ->
-      {wallet.address, calculate_amounts(computed_balances[wallet.address], wallet)}
+      attrs = Map.put(attrs, "computed_balance", computed_balances[wallet.address])
+      {wallet.address, calculate_amounts(wallet, attrs)}
     end)
   end
 
-  defp calculate_amounts(nil, wallet), do: calculate_from_beginning_and_insert(wallet)
+  defp calculate_amounts(wallet, %{"computed_balance" => nil, "tokens" => tokens}),
+    do: calculate_from_beginning_and_insert(wallet, tokens)
 
-  defp calculate_amounts(computed_balance, wallet) do
+  defp calculate_amounts(wallet, %{"computed_balance" => nil}),
+    do: calculate_from_beginning_and_insert(wallet)
+
+  defp calculate_amounts(wallet, %{"computed_balance" => computed_balance, "tokens" => tokens}) do
+    tokens_id = Enum.map(tokens, fn token -> token.id end)
+
+    wallet.address
+    |> Entry.calculate_all_balances(%{
+      since: computed_balance.computed_at,
+      token_id: tokens_id
+    })
+    |> add_amounts(computed_balance.amounts)
+  end
+
+  defp calculate_amounts(wallet, %{"computed_balance" => computed_balance}) do
     wallet.address
     |> Entry.calculate_all_balances(%{
       since: computed_balance.computed_at
@@ -135,6 +155,15 @@ defmodule LocalLedger.CachedBalance do
 
     wallet.address
     |> Entry.calculate_all_balances(%{upto: computed_at})
+    |> insert(wallet, computed_at, 1)
+  end
+
+  defp calculate_from_beginning_and_insert(wallet, tokens) do
+    computed_at = NaiveDateTime.utc_now()
+    token_ids = Enum.map(tokens, fn token -> token.id end)
+
+    wallet.address
+    |> Entry.calculate_all_balances(%{upto: computed_at, token_id: token_ids})
     |> insert(wallet, computed_at, 1)
   end
 

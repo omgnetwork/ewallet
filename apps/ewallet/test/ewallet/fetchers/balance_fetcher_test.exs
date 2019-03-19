@@ -207,6 +207,42 @@ defmodule EWallet.BalanceFetcherTest do
       assert Enum.member?(wallet.balances, %{token: context.knc, amount: 0})
       assert Enum.count(wallet.balances) == 3
     end
+
+    test "retrieve all balance for a wallet with specified tokens", context do
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.btc,
+        100 * context.btc.subunit_to_unit
+      )
+
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.omg,
+        200 * context.omg.subunit_to_unit
+      )
+
+      {status, balances} =
+        BalanceFetcher.all(%{
+          "wallet" => context.user_wallet,
+          "tokens" => [context.btc, context.omg]
+        })
+
+      assert status == :ok
+
+      assert Enum.member?(balances, %{
+               token: context.btc,
+               amount: 100 * context.btc.subunit_to_unit
+             })
+
+      assert Enum.member?(balances, %{
+               token: context.omg,
+               amount: 200 * context.btc.subunit_to_unit
+             })
+
+      assert Enum.count(balances) == 2
+    end
   end
 
   describe "get/2" do

@@ -242,6 +242,8 @@ paths:
     $ref: 'wallet/paths.yaml#/wallet.get'
   /wallet.get_transaction_consumptions:
     $ref: 'wallet/paths.yaml#/wallet.get_transaction_consumptions'
+  /wallet.get_balances:
+    $ref: 'wallet/paths.yaml#/wallet.get_balances'
   /wallet.enable_or_disable:
     $ref: 'wallet/paths.yaml#/wallet.enable_or_disable'
 
