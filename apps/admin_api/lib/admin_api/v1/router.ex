@@ -134,6 +134,7 @@ defmodule AdminAPI.V1.Router do
 
     # Wallet endpoints
     post("/wallet.all", WalletController, :all)
+    post("/wallet.get_balances", BalanceController, :all_for_wallet)
     post("/wallet.get", WalletController, :get)
     post("/wallet.create", WalletController, :create)
     post("/wallet.enable_or_disable", WalletController, :enable_or_disable)
@@ -157,6 +158,9 @@ defmodule AdminAPI.V1.Router do
     post("/role.create", RoleController, :create)
     post("/role.update", RoleController, :update)
     post("/role.delete", RoleController, :delete)
+
+    # Permission endpoints
+    post("/permission.all", PermissionController, :all)
 
     # API Access endpoints
     post("/access_key.all", KeyController, :all)

@@ -47,6 +47,8 @@ tags:
     description: Resources related to user session tokens.
   - name: User
     description: Resources related to users.
+  - name: Permission
+    description: Resources related to permissions.
   - name: Token
     description: Resources related to tokens.
   - name: ExchangePair
@@ -244,6 +246,8 @@ paths:
     $ref: 'wallet/paths.yaml#/wallet.get'
   /wallet.get_transaction_consumptions:
     $ref: 'wallet/paths.yaml#/wallet.get_transaction_consumptions'
+  /wallet.get_balances:
+    $ref: 'wallet/paths.yaml#/wallet.get_balances'
   /wallet.enable_or_disable:
     $ref: 'wallet/paths.yaml#/wallet.enable_or_disable'
 
@@ -334,3 +338,7 @@ paths:
     $ref: 'role/paths.yaml#/role.update'
   /role.delete:
     $ref: 'role/paths.yaml#/role.delete'
+
+  # PERMISSION
+  /permission.all:
+    $ref: 'permission/paths.yaml#/permission.all'
