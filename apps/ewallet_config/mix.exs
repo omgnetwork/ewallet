@@ -45,7 +45,6 @@ defmodule EWalletConfig.MixProject do
       {:arc_ecto, github: "omisego/arc_ecto"},
       {:bcrypt_elixir, "~> 1.0"},
       {:cloak, "~> 0.9.1"},
-      {:db, in_umbrella: true},
       {:deferred_config, "~> 0.1.0"},
       {:ecto_sql, "~> 3.0"},
       {:plug, "~> 1.0"},

@@ -44,18 +44,6 @@ defmodule EWallet.Web.Inviter do
   Creates the admin along with the membership if the admin does not exist,
   then sends the invite email out.
   """
-  @spec invite_admin(map(), String.t(), fun()) ::
-          {:ok, %Invite{}} | {:error, atom()}
-  def invite_admin(%{"originator" => originator} = attrs, redirect_url, create_email_func) do
-    with {:ok, user} <- insert_user(attrs),
-         {:ok, invite} <- Invite.generate(user, originator, preload: :user) do
-      send_email(invite, redirect_url, create_email_func)
-    else
-      {:error, error} ->
-        {:error, error}
-    end
-  end
-
   @spec invite_admin(String.t(), %Account{}, %Role{}, String.t(), map() | atom(), fun()) ::
           {:ok, %Invite{}} | {:error, atom()}
   def invite_admin(email, account, role, redirect_url, originator, create_email_func) do
@@ -87,12 +75,6 @@ defmodule EWallet.Web.Inviter do
           originator: originator
         })
     end
-  end
-
-  defp insert_user(attrs) do
-    attrs
-    |> Map.put("password", Crypto.generate_base64_key(32))
-    |> User.insert()
   end
 
   @doc """

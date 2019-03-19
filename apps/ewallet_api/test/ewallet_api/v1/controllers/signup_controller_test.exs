@@ -34,9 +34,6 @@ defmodule EWalletAPI.V1.SignupControllerTest do
       assert response["version"] == @expected_version
       assert response["success"] == true
       assert response["data"] == %{}
-
-      user = User.get_by(email: "test_user_signup@example.com")
-      assert user.global_role == "end_user"
     end
 
     test "uses the default verification_url if not provided" do
@@ -158,8 +155,7 @@ defmodule EWalletAPI.V1.SignupControllerTest do
         target: user,
         changes: %{
           "email" => "test_user_signup@example.com",
-          "password_hash" => user.password_hash,
-          "global_role" => "end_user"
+          "password_hash" => user.password_hash
         },
         encrypted_changes: %{}
       )
@@ -229,9 +225,6 @@ defmodule EWalletAPI.V1.SignupControllerTest do
 
       assert response["data"]["object"] == "user"
       assert response["data"]["id"] == context.user.id
-
-      user = User.get_by(email: "verify_email@example.com")
-      assert user.global_role == "end_user"
     end
 
     test "returns an error when email is invalid", context do

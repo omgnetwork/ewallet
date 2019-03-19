@@ -205,6 +205,11 @@ jobs:
       - run: make test-assets
       - notify_slack_failure
 
+  report:
+    executor: builder
+    steps:
+      - notify_slack
+
   publish:
     executor: metal
     steps:
@@ -242,9 +247,31 @@ workflows:
       - dialyze:
           requires: [build]
           filters: *all_branches
+
+      # Report success status to Slack and finish the workflow immediately
+      # if E2E are not going to be run (e.g. non-master/version branches)
+      - report:
+          requires: [lint, test]
+          filters:
+            branches:
+              ignore:
+                - master
+                - /^v[0-9]+\.[0-9]+/
+                - /.*e2e$/
+            tags:
+              ignore: /^v.*/
+
+      # Continue with E2E for master and version branches.
       - publish:
           requires: [lint, test]
-          filters: *all_branches
+          filters:
+            branches:
+              only:
+                - master
+                - /^v[0-9]+\.[0-9]+/
+                - /.*e2e$/
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+/
 
       # Deploy to staging in case of master branch.
       - deploy:

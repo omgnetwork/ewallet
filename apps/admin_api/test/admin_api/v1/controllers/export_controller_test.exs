@@ -127,8 +127,8 @@ defmodule AdminAPI.V1.ExportControllerTest do
     end
 
     test_with_auths "returns 'unauthorized' if the export is not owned" do
-      set_admin_user_role("none")
-      set_key_role("none")
+      set_admin_as_none()
+      set_key_role_to_none()
 
       export = insert(:export)
       response = request("/export.get", %{"id" => export.id})

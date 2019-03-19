@@ -50,7 +50,7 @@ defmodule AdminAPI.V1.KeyController do
   end
 
   @doc """
-  Creates a new key.
+  Creates a new key. Currently keys are assigned to the master account only.
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, %{"account_id" => account_id, "role_name" => role_name})

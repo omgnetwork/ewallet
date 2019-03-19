@@ -76,7 +76,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
     end
 
     test "responds with a new auth token if credentials are valid and user is a viewer" do
-      set_admin_user_role("none")
+      set_admin_as_none()
       user = get_test_admin() |> Repo.preload([:accounts])
       {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0), %System{})
       account = insert(:account)

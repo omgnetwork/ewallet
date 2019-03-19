@@ -19,8 +19,8 @@ defmodule AdminAPI.V1.SelfController do
   alias AdminAPI.V1.{AccountHelper, AccountView, UserView}
   alias Bamboo.Email
   alias Ecto.Changeset
-  alias EWallet.{Mailer, UserGate, UpdateEmailGate, AdapterHelper, AdminUserPolicy}
-  alias EWallet.Web.{Orchestrator, Originator}
+  alias EWallet.{Mailer, UpdateEmailGate, AdapterHelper, AdminUserPolicy}
+  alias EWallet.Web.{Orchestrator, Originator, UrlValidator}
   alias EWallet.Web.V1.AccountOverlay
   alias EWalletDB.{Account, User}
 
@@ -75,7 +75,7 @@ defmodule AdminAPI.V1.SelfController do
       when not is_nil(email) and not is_nil(redirect_url) do
     with %User{} = user <- conn.assigns[:admin_user] || {:error, :unauthorized},
          {:ok, _} <- authorize(:update_email, conn.assigns, user),
-         {:ok, redirect_url} <- UserGate.validate_redirect_url(redirect_url),
+         {:ok, redirect_url} <- validate_redirect_url(redirect_url),
          {:ok, request} <- UpdateEmailGate.update(user, email),
          %Email{} = email <- UpdateEmailAddressEmail.create(request, redirect_url),
          %Email{} <- Mailer.deliver_now(email) do
@@ -90,6 +90,14 @@ defmodule AdminAPI.V1.SelfController do
   end
 
   def update_email(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  defp validate_redirect_url(url) do
+    if UrlValidator.allowed_redirect_url?(url) do
+      {:ok, url}
+    else
+      {:error, :prohibited_url, param_name: "redirect_url", url: url}
+    end
+  end
 
   @doc """
   Verifies the user's new email.

@@ -62,7 +62,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
     test_supports_match_all("/account.all", :account, :name)
 
     test_with_auths "returns a list of accounts that the current user can access" do
-      set_admin_user_role("none")
+      set_admin_as_none()
       master = Account.get_master_account()
       admin = get_test_admin()
       key = insert(:key)
@@ -95,7 +95,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test_with_auths "returns only one account if the user only has one membership" do
-      set_admin_user_role("none")
+      set_admin_as_none()
       master = Account.get_master_account()
       admin = get_test_admin()
       {:ok, _m} = Membership.unassign(admin, master, %System{})
@@ -181,7 +181,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test_with_auths "returns unauthorized if the user doesn't have access" do
-      set_admin_user_role("none")
+      set_admin_as_none()
       master = Account.get_master_account()
       admin = get_test_admin()
       {:ok, _m} = Membership.unassign(admin, master, %System{})

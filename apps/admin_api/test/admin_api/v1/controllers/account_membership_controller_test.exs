@@ -328,6 +328,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
   end
 
+<<<<<<< HEAD
   describe "/account.assign_key" do
     test_with_auths "returns empty success if assigned with key_id successfully" do
       response =
@@ -521,6 +522,8 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
   end
 
+=======
+>>>>>>> parent of 4cdcd27c... Merge remote-tracking branch 'origin/836-assign-keys-to-accounts' into 849-update-key-page
   describe "/account.assign_user" do
     test_with_auths "returns empty success if assigned with user_id successfully" do
       {:ok, user} = :user |> params_for() |> User.insert()

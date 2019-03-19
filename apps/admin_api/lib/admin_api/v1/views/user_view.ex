@@ -28,8 +28,4 @@ defmodule AdminAPI.V1.UserView do
     |> UserSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
-
-  def render("empty.json", %{success: success}) do
-    ResponseSerializer.serialize(%{}, success: success)
-  end
 end

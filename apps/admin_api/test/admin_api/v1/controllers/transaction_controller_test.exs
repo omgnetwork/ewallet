@@ -254,7 +254,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
     end
 
     test_with_auths "returns match_all filtered transactions with no permissions", context do
-      set_admin_user_role("none")
+      set_admin_as_none()
 
       response =
         request("/transaction.all", %{
