@@ -134,16 +134,14 @@ defmodule EWalletDB.APIKey do
     attrs =
       attrs
       |> Map.put_new_lazy(:key, fn -> Crypto.generate_base64_key(@key_bytes) end)
+      # Disallow overriding :creator_user_uuid and :creator_key_uuid from the request
+      |> Map.drop([:creator_user_uuid, :creator_key_uuid])
       |> populate_creator()
 
     %__MODULE__{}
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log()
   end
-
-  defp populate_creator(%{creator_user_uuid: _} = attrs), do: attrs
-
-  defp populate_creator(%{creator_key_uuid: _} = attrs), do: attrs
 
   defp populate_creator(%{originator: %User{uuid: uuid}} = attrs) do
     Map.put(attrs, :creator_user_uuid, uuid)
