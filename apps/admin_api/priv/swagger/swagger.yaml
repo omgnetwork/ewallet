@@ -194,6 +194,10 @@ paths:
     $ref: 'admin/paths.yaml#/admin.all'
   /admin.get:
     $ref: 'admin/paths.yaml#/admin.get'
+  /admin.create:
+    $ref: 'admin/paths.yaml#/admin.create'
+  /admin.update:
+    $ref: 'admin/paths.yaml#/admin.update'
   /admin.enable_or_disable:
     $ref: 'admin/paths.yaml#/admin.enable_or_disable'
   /invite.accept:
