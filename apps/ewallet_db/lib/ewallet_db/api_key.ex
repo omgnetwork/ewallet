@@ -36,21 +36,6 @@ defmodule EWalletDB.APIKey do
 
     field(:name, :string)
     field(:key, :string)
-    belongs_to(
-      :account,
-      Account,
-      foreign_key: :account_uuid,
-      references: :uuid,
-      type: UUID
-    )
-
-    belongs_to(
-      :exchange_wallet,
-      Wallet,
-      foreign_key: :exchange_address,
-      references: :address,
-      type: :string
-    )
 
     field(:enabled, :boolean, default: true)
     timestamps()
