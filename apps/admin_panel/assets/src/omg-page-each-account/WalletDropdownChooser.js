@@ -13,6 +13,7 @@ const DropdownItem = styled.div`
   padding-right: 20px;
   font-size: 12px;
   color: ${props => props.theme.colors.B100};
+  cursor: pointer;
   i,
   span {
     vertical-align: middle;

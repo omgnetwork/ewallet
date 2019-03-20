@@ -79,6 +79,41 @@ admin.get:
         $ref: 'responses.yaml#/AdminResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+admin.create:
+  post:
+    tags:
+      - Admin
+    summary: Create a new admin.
+    operationId: admin_create
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AdminCreateBody'
+    responses:
+      '200':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+admin.update:
+  post:
+    tags:
+      - Admin
+    summary: Update an admin.
+    operationId: admin_update
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AdminUpdateBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AdminResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 admin.enable_or_disable:
   post:
     tags:

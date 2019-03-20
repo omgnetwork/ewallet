@@ -74,7 +74,7 @@ export const NameColumn = styled.div`
 `
 class TransactionRequestsPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
@@ -169,7 +169,7 @@ class TransactionRequestsPage extends Component {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-request-tab']
     return (
       <TransactionRequestsPageContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title={'Transaction Requests'}
           buttons={
             this.props.createTransactionRequestButton

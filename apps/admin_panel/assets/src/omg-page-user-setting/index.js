@@ -75,17 +75,17 @@ class UserSettingPage extends Component {
     changingPassword: false
   }
 
-  componentDidMount = () => {
-    this.setInitialCurrentUserState()
+  componentDidMount () {
+    this.setInitialCurrentUserState(this.props)
   }
   componentWillReceiveProps = props => {
-    this.setInitialCurrentUserState()
+    this.setInitialCurrentUserState(props)
   }
-  setInitialCurrentUserState = () => {
-    if (this.props.loadingStatus === 'SUCCESS' && !this.state.currentUserLoaded) {
+  setInitialCurrentUserState = props => {
+    if (props.loadingStatus === 'SUCCESS' && !this.state.currentUserLoaded) {
       this.setState({
-        email: this.props.currentUser.email,
-        avatarPlaceholder: this.props.currentUser.avatar.original,
+        email: props.currentUser.email,
+        avatarPlaceholder: props.currentUser.avatar.original,
         currentUserLoaded: true
       })
     }

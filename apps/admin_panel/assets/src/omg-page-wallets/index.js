@@ -78,7 +78,8 @@ class WalletPage extends Component {
     transferButton: PropTypes.bool,
     onClickRow: PropTypes.func,
     fetcher: PropTypes.func,
-    title: PropTypes.string
+    title: PropTypes.string,
+    divider: PropTypes.bool
   }
   static defaultProps = {
     walletQuery: {},
@@ -156,7 +157,7 @@ class WalletPage extends Component {
   renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination }) => {
     return (
       <WalletPageContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title={this.props.title}
           buttons={[this.props.transferButton && this.renderTransferButton()]}
         />
@@ -189,7 +190,7 @@ class WalletPage extends Component {
         render={this.renderWalletPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: 15,
+          perPage: Math.floor(window.innerHeight / 75),
           search: queryString.parse(this.props.location.search).search,
           ...this.props.walletQuery
         }}

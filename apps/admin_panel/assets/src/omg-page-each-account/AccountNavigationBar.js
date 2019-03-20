@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
 import { NavLink, withRouter } from 'react-router-dom'
 import { Avatar } from '../omg-uikit'
@@ -8,7 +8,13 @@ import WalletDropdownChooser from './WalletDropdownChooser'
 import { compose } from 'recompose'
 const LinksContainer = styled.div`
   display: flex;
+  min-width: 0;
+  overflow: auto;
   margin-bottom: -1.5px;
+  white-space: nowrap;
+  &::-webkit-scrollbar {
+    display: none;
+  }
   a {
     display: block;
     padding: 0 10px;
@@ -24,11 +30,6 @@ const LinksContainer = styled.div`
       border-bottom: 2px solid ${props => props.theme.colors.S500};
     }
   }
-  @media screen and (max-width: 1200px) {
-    width: calc(100% - 200px);
-    overflow: auto;
-    white-space: nowrap;
-  }
 `
 const AccountNavigationBarContainer = styled.div`
   display: flex;
@@ -39,18 +40,21 @@ const AccountNavigationBarContainer = styled.div`
   margin-right: -8%;
   padding-right: 8%;
   padding-left: 8%;
-  > div {
-    flex: 1 1 auto;
-  }
-  ${LinksContainer} {
-    flex: 0 0 auto;
-  }
 `
 const AccountNameContainer = styled.div`
   display: flex;
   align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  flex: 1 1 250px;
+  padding-right: 20px;
   > div:first-child {
     margin-right: 10px;
+    flex: 0 0 auto;
+  }
+  h4 {
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 `
 
@@ -64,13 +68,14 @@ function AccountNavigationBar (props) {
         accountId={accountId}
         render={({ account }) => {
           return (
-            <div>
+            <AccountNameContainer>
               {account && (
-                <AccountNameContainer>
-                  <Avatar name={account.name} size={32} /> <h4>{account.email || account.name}</h4>
-                </AccountNameContainer>
+                <Fragment>
+                  <Avatar image={_.get(account, 'avatar.small')} name={account.name} size={32} />{' '}
+                  <h4>{account.email || account.name}</h4>
+                </Fragment>
               )}
-            </div>
+            </AccountNameContainer>
           )
         }}
       />

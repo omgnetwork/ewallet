@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import SideNavigation from './SideNavigationV2'
+import SideNavigation from './SideNavigation'
 import PropTypes from 'prop-types'
 import Alert from '../omg-alert'
 import LoadingBar from 'react-redux-loading-bar'
@@ -28,7 +28,8 @@ const ContentContainer = styled.div`
   overflow: auto;
 `
 const Content = styled.div`
-  padding: 0 7%;
+  padding: 0 7% 50px 7%;
+  overflow: hidden;
 `
 class AppLayout extends Component {
   static propTypes = {

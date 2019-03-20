@@ -5,6 +5,7 @@
 /_build/
 /cover/
 /deps/
+/.idea
 
 # Docker
 docker-compose.override.yml

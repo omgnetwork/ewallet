@@ -25,7 +25,7 @@ import AdminsPage from '../../omg-page-admins'
 import ActivityLogPage from '../../omg-page-activity-log'
 import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
-import AccountLayout from '../../omg-account-detail-V2/AccountLayout'
+import AccountLayout from '../../omg-page-each-account/AccountLayout'
 // prettier-ignore
 
 const createRoute = () => (
@@ -46,7 +46,10 @@ const createRoute = () => (
       <AuthenticatedRoute path='/wallets' exact component={WalletPage} />
       <AuthenticatedRoute path='/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute path='/transaction/export' exact component={TransactionExportPage} />
-      <AuthenticatedRoute path='/api' exact component={ApiKeyPage} />
+
+      <AuthenticatedRoute path='/keys/:keyType' exact component={ApiKeyPage} />
+      <AuthenticatedRoute path='/keys' exact component={ApiKeyPage} />
+
       <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
 
       <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />

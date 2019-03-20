@@ -3,8 +3,6 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
-import CreateAccountModal from '../omg-create-account-modal'
-import ExportModal from '../omg-export-modal'
 import ConsumptionFetcher from '../omg-consumption/consumptionsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -78,7 +76,7 @@ export const NameColumn = styled.div`
 `
 class ConsumptionPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
@@ -148,7 +146,7 @@ class ConsumptionPage extends Component {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-consumption-tab']
     return (
       <ConsumptionPageContainer>
-        <TopNavigation title={'Transaction Consumptions'} buttons={[]} />
+        <TopNavigation divider={this.props.divider} title={'Transaction Consumptions'} buttons={[]} />
         <SortableTableContainer
           innerRef={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}

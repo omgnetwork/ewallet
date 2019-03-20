@@ -12,24 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.UserView do
+defmodule AdminAPI.V1.BalanceView do
   use AdminAPI, :view
-  alias EWallet.Web.V1.ResponseSerializer
-  alias EWallet.Web.V1.UserSerializer
+  alias EWallet.Web.V1.{ResponseSerializer, BalanceSerializer}
+  alias EWallet.Web.{Paginator}
 
-  def render("user.json", %{user: user}) do
-    user
-    |> UserSerializer.serialize()
+  def render("balances.json", %{data: data, pagination: pagination}) do
+    %Paginator{pagination: pagination, data: data}
+    |> BalanceSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
-  end
-
-  def render("users.json", %{users: users}) do
-    users
-    |> UserSerializer.serialize()
-    |> ResponseSerializer.serialize(success: true)
-  end
-
-  def render("empty.json", %{success: success}) do
-    ResponseSerializer.serialize(%{}, success: success)
   end
 end

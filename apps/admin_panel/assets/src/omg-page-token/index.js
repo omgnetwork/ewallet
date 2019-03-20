@@ -47,7 +47,7 @@ const columns = [
 ]
 class TokenDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
@@ -144,7 +144,7 @@ class TokenDetailPage extends Component {
 
     return (
       <TokenDetailPageContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title={'Tokens'}
           buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]}
         />
