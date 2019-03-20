@@ -47,10 +47,6 @@ APIKeySchema:
       type: string
     enabled:
       type: boolean
-    creator_user_id:
-      type: string
-    creator_key_id:
-      type: string
     created_at:
       type: string
       format: date-time
@@ -66,8 +62,6 @@ APIKeySchema:
     - id
     - key
     - enabled
-    - creator_user_id
-    - creator_key_id
     - created_at
     - updated_at
     - deleted_at
