@@ -176,7 +176,8 @@ defmodule EWalletDB.APIKey do
   @doc """
   Enable or disable an API key with the provided attributes.
   """
-  @spec enable_or_disable(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  @spec enable_or_disable(%__MODULE__{}, map()) ::
+          {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def enable_or_disable(api_key, attrs) do
     api_key
     |> enable_changeset(attrs)

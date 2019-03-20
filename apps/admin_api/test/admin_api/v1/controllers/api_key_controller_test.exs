@@ -66,6 +66,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
   describe "/api_key.create" do
     test_with_auths "responds with an API key on success" do
       response = request("/api_key.create", %{})
+
       api_key =
         APIKey
         |> get_last_inserted()
@@ -107,7 +108,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
         target: target,
         changes: %{
           creator_uuid_field => originator.uuid,
-          "key" => target.key,
+          "key" => target.key
         },
         encrypted_changes: %{}
       )
@@ -180,7 +181,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           id: api_key.id,
           name: "my_name",
           expired: true,
-          key: "some_key",
+          key: "some_key"
         })
 
       updated = APIKey.get(api_key.id)
