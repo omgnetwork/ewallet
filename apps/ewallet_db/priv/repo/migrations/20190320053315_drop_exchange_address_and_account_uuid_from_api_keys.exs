@@ -7,9 +7,7 @@ defmodule EWalletDB.Repo.Migrations.DropExchangeAddressAndAccountUuidFromApiKeys
   def up do
     alter table(@table) do
       remove :exchange_address
-      Logger.warn("Destructive migration: Column `exchange_address` dropped from `#{@table}`")
       remove :account_uuid
-      Logger.warn("Destructive migration: Column `account_uuid` dropped from `#{@table}`")
     end
   end
 
