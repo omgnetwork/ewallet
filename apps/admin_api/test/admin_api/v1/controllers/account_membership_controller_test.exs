@@ -410,7 +410,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
              })
     end
 
-    test_with_auths "returns unauthorized error if account id could not be found" do
+    test_with_auths "returns unauthorized error if account id was not be found" do
       assert request("/account.get_keys", %{
                id: "acc_12345678901234567890123456"
              }) ==
@@ -486,18 +486,18 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
-    # an admin and a membership in order for the inserted admin to appear in the result.
+    # a key and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_any filtering on the membership fields" do
-      admin_1 = insert(:admin, username: "value_1")
-      admin_2 = insert(:admin, username: "value_2")
-      admin_3 = insert(:admin, username: "value_3")
+      key_1 = insert(:key, name: "value_1")
+      key_2 = insert(:key, name: "value_2")
+      key_3 = insert(:key, name: "value_3")
       account = insert(:account)
       role_1 = Role.get_by(name: "admin")
       role_2 = insert(:role, name: "viewer")
 
-      {:ok, _} = Membership.assign(admin_1, account, role_1, %System{})
-      {:ok, _} = Membership.assign(admin_2, account, role_2, %System{})
-      {:ok, _} = Membership.assign(admin_3, account, role_1, %System{})
+      {:ok, _} = Membership.assign(key_1, account, role_1, %System{})
+      {:ok, _} = Membership.assign(key_2, account, role_2, %System{})
+      {:ok, _} = Membership.assign(key_3, account, role_1, %System{})
 
       attrs = %{
         "id" => account.id,
@@ -508,11 +508,11 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
             "comparator" => "eq",
             "value" => role_1.name
           },
-          # Filter for `user.username`
+          # Filter for `key.name`
           %{
-            "field" => "username",
+            "field" => "name",
             "comparator" => "eq",
-            "value" => admin_3.username
+            "value" => key_3.name
           }
         ]
       }
@@ -523,38 +523,38 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
       records = response["data"]["data"]
 
-      assert Enum.any?(records, fn r -> r["id"] == admin_1.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_2.id end)
-      assert Enum.any?(records, fn r -> r["id"] == admin_3.id end)
+      assert Enum.any?(records, fn r -> r["id"] == key_1.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_2.id end)
+      assert Enum.any?(records, fn r -> r["id"] == key_3.id end)
       assert Enum.count(records) == 2
     end
 
     # This is a variation of `ConnCase.test_supports_match_all/5` that inserts
-    # an admin and a membership in order for the inserted admin to appear in the result.
-    test_with_auths "supports match_all filtering on user fields" do
-      admin_1 = insert(:admin, %{username: "this_should_almost_match"})
-      admin_2 = insert(:admin, %{username: "this_should_match"})
-      admin_3 = insert(:admin, %{username: "should_not_match"})
-      admin_4 = insert(:admin, %{username: "also_should_not_match"})
+    # a key and a membership in order for the inserted admin to appear in the result.
+    test_with_auths "supports match_all filtering on key fields" do
+      key_1 = insert(:key, %{name: "this_should_almost_match"})
+      key_2 = insert(:key, %{name: "this_should_match"})
+      key_3 = insert(:key, %{name: "should_not_match"})
+      key_4 = insert(:key, %{name: "also_should_not_match"})
       account = insert(:account)
 
-      {:ok, _} = Membership.assign(admin_1, account, "admin", %System{})
-      {:ok, _} = Membership.assign(admin_2, account, "admin", %System{})
-      {:ok, _} = Membership.assign(admin_3, account, "admin", %System{})
-      {:ok, _} = Membership.assign(admin_4, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_1, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_2, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_3, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_4, account, "admin", %System{})
 
       attrs = %{
         "id" => account.id,
         "match_all" => [
-          # Filter for `user.username`
+          # Filter for `key.name`
           %{
-            "field" => "username",
+            "field" => "name",
             "comparator" => "starts_with",
             "value" => "this_should"
           },
-          # Filter for `user.username`
+          # Filter for `key.name`
           %{
-            "field" => "username",
+            "field" => "name",
             "comparator" => "contains",
             "value" => "should_match"
           }
@@ -566,26 +566,27 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       assert response["success"]
 
       records = response["data"]["data"]
-      refute Enum.any?(records, fn r -> r["id"] == admin_1.id end)
-      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_4.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_1.id end)
+      assert Enum.any?(records, fn r -> r["id"] == key_2.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_3.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_4.id end)
       assert Enum.count(records) == 1
     end
 
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
-    # an admin and a membership in order for the inserted admin to appear in the result.
+    # a key and a membership in order for the inserted admin to appear in the result.
     test_with_auths "supports match_all filtering on membership fields" do
-      admin_1 = insert(:admin)
-      admin_2 = insert(:admin)
-      admin_3 = insert(:admin)
+      key_1 = insert(:key)
+      key_2 = insert(:key)
+      key_3 = insert(:key)
       account = insert(:account)
       role_1 = Role.get_by(name: "admin")
       role_2 = insert(:role, name: "viewer")
 
-      {:ok, _} = Membership.assign(admin_1, account, role_1, %System{})
-      {:ok, _} = Membership.assign(admin_2, account, role_1, %System{})
-      {:ok, _} = Membership.assign(admin_3, account, role_2, %System{})
+      {:ok, _} = Membership.assign(key_1, account, role_1, %System{})
+      :timer.sleep(10)
+      {:ok, membership} = Membership.assign(key_2, account, role_1, %System{})
+      {:ok, _} = Membership.assign(key_3, account, role_2, %System{})
 
       attrs = %{
         "id" => account.id,
@@ -596,11 +597,11 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
             "comparator" => "eq",
             "value" => role_1.name
           },
-          # Filter for `membership.id`
+          # Filter for `membership.created_at`
           %{
-            "field" => "id",
-            "comparator" => "eq",
-            "value" => admin_1.id
+            "field" => "created_at",
+            "comparator" => "lt",
+            "value" => DateFormatter.to_iso8601(membership.inserted_at)
           }
         ]
       }
@@ -610,9 +611,9 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       assert response["success"]
 
       records = response["data"]["data"]
-      assert Enum.any?(records, fn r -> r["id"] == admin_1.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_2.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
+      assert Enum.any?(records, fn r -> r["id"] == key_1.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_2.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_3.id end)
       assert Enum.count(records) == 1
     end
   end

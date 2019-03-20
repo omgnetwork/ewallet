@@ -25,7 +25,15 @@ defmodule AdminAPI.V1.AccountMembershipController do
     Bouncer.Permission
   }
 
-  alias EWallet.Web.{Inviter, Orchestrator, Originator, UrlValidator, V1.MembershipOverlay}
+  alias EWallet.Web.{
+    Paginator,
+    Inviter,
+    Orchestrator,
+    Originator,
+    UrlValidator,
+    V1.MembershipOverlay
+  }
+
   alias EWalletDB.{Account, Membership, Role, User}
 
   @doc """
@@ -47,7 +55,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          attrs <- transform_member_filter_attrs(attrs, type),
          query <- query_members(account, query, type),
-         %Membership{} = memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
+         %Paginator{} = memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
       render(conn, :memberships, %{memberships: memberships})
     else
       {:error, :not_allowed, field} ->
@@ -80,25 +88,25 @@ defmodule AdminAPI.V1.AccountMembershipController do
       |> Enum.map(fn field -> Atom.to_string(field) end)
 
     attrs
-    |> do_transform_member_filter_attrs("match_any", member_filterables)
-    |> do_transform_member_filter_attrs("match_all", member_filterables)
+    |> do_transform_member_filter_attrs("match_any", member_filterables, type)
+    |> do_transform_member_filter_attrs("match_all", member_filterables, type)
   end
 
-  defp do_transform_member_filter_attrs(attrs, match_type, filterables) do
+  defp do_transform_member_filter_attrs(attrs, match_type, filterables, type) do
     case attrs[match_type] do
       nil ->
         attrs
 
       _ ->
-        match_attrs = do_transform_member_filter_attrs(attrs[match_type], filterables)
+        match_attrs = do_transform_member_filter_attrs(attrs[match_type], filterables, type)
         Map.put(attrs, match_type, match_attrs)
     end
   end
 
-  defp do_transform_member_filter_attrs(filters, filterables) do
+  defp do_transform_member_filter_attrs(filters, filterables, type) do
     Enum.map(filters, fn filter ->
       case Enum.member?(filterables, filter["field"]) do
-        true -> Map.put(filter, "field", "user." <> filter["field"])
+        true -> Map.put(filter, "field", "#{Atom.to_string(type)}." <> filter["field"])
         false -> filter
       end
     end)
