@@ -36,8 +36,6 @@ defmodule EWalletDB.APIKey do
 
     field(:name, :string)
     field(:key, :string)
-    field(:owner_app, :string)
-
     belongs_to(
       :account,
       Account,
