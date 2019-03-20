@@ -13,9 +13,7 @@
 # limitations under the License.
 
 defmodule EWalletDB.Repo.Seeds.APIKeySampleSeed do
-  alias EWallet.Web.Preloader
-  alias EWalletDB.{Account, APIKey}
-  alias EWalletDB.Seeder
+  alias EWalletDB.{APIKey, Seeder}
 
   def seed do
     [
@@ -25,15 +23,11 @@ defmodule EWalletDB.Repo.Seeds.APIKeySampleSeed do
   end
 
   def run(writer, args) do
-    account = Account.get_by(name: "master_account")
-    data = %{account_uuid: account.uuid, originator: %Seeder{}}
+    data = %{originator: %Seeder{}}
 
     case APIKey.insert(data) do
       {:ok, api_key} ->
-        {:ok, api_key} = Preloader.preload_one(api_key, :account)
-
         writer.success("""
-          Owner app       : #{api_key.owner_app}
           API key ID      : #{api_key.id}
           API key         : #{api_key.key}
         """)

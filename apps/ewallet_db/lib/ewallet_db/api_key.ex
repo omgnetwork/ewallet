@@ -25,7 +25,7 @@ defmodule EWalletDB.APIKey do
   import EWalletDB.Helpers.Preloader
   alias ActivityLogger.System
   alias Ecto.UUID
-  alias EWalletDB.{Key, Repo, User}
+  alias EWalletDB.{Key, Repo, Seeder, User}
   alias Utils.Helpers.Crypto
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -153,9 +153,9 @@ defmodule EWalletDB.APIKey do
     Map.put(attrs, :creator_key_uuid, uuid)
   end
 
-  defp populate_creator(%{originator: %System{}} = attrs) do
-    attrs
-  end
+  defp populate_creator(%{originator: %System{}} = attrs), do: attrs
+
+  defp populate_creator(%{originator: %Seeder{}} = attrs), do: attrs
 
   @doc """
   Updates an API key with the provided attributes.
