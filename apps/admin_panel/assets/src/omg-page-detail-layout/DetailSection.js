@@ -8,8 +8,7 @@ const DetailContainer = styled.div`
     margin-right: 20px;
   }
   h4 {
-    padding-bottom: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
   }
   tr {
     border: none !important;

@@ -15,6 +15,7 @@ const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
   right: 0;
+  z-index: 10;
   width: 560px;
   background-color: white;
   overflow: auto;

@@ -145,7 +145,7 @@ class TransactionPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
     history: PropTypes.object,
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     query: PropTypes.object,
     transferButton: PropTypes.bool
   }
@@ -257,7 +257,7 @@ class TransactionPage extends Component {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-transaction-tab']
     return (
       <TransactionPageContainer>
-        <TopNavigation
+        <TopNavigation divider={this.props.divider}
           title={'Transactions'}
           buttons={
             this.props.transferButton

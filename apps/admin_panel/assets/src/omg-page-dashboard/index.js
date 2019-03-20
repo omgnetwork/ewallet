@@ -76,7 +76,8 @@ const GetStartedContent = styled.div`
 export default withRouter(
   class Dashboard extends Component {
     static propTypes = {
-      match: PropTypes.object
+      match: PropTypes.object,
+      divider: PropTypes.bool
     }
     renderExportButton = () => {
       return (
@@ -124,7 +125,7 @@ export default withRouter(
       const accountId = this.props.match.params.accountId
       return (
         <div>
-          <TopNavigation title='Dashboard' types={false} secondaryAction={false} />
+          <TopNavigation divider={this.props.divider} title='Dashboard' types={false} secondaryAction={false} />
           <SectionsContainer>
             <CurrentAccountProvider render={this.renderCurrentAccountSection} />
             <SectionContainer>

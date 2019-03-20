@@ -12,6 +12,7 @@ import { MarkContainer } from '../omg-page-transaction'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
+  z-index: 10;
   right: 0;
   width: 560px;
   background-color: white;
@@ -67,7 +68,7 @@ class TransactionRequestPanel extends Component {
     match: PropTypes.object
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {}
   }
@@ -97,7 +98,9 @@ class TransactionRequestPanel extends Component {
         {_.get(transaction, 'account') && (
           <InformationItem>
             <b>Account : </b>
-            <Link to={{ pathname: `/accounts/${accountId}/detail`, search: this.props.location.search }}>
+            <Link
+              to={{ pathname: `/accounts/${accountId}/detail`, search: this.props.location.search }}
+            >
               {accountName}
             </Link>
           </InformationItem>
@@ -157,15 +160,15 @@ class TransactionRequestPanel extends Component {
         render={({ transaction }) => {
           return (
             <PanelContainer>
-              <Icon name="Close" onClick={this.onClickClose} />
+              <Icon name='Close' onClick={this.onClickClose} />
               <h4>Transaction {transaction.id}</h4>
               <SubDetailTitle>
                 <span>
                   <MarkContainer status={transaction.status}>
                     {transaction.status === 'failed' ? (
-                      <Icon name="Close" />
+                      <Icon name='Close' />
                     ) : (
-                      <Icon name="Checked" />
+                      <Icon name='Checked' />
                     )}
                   </MarkContainer>
                   {transaction.status}
