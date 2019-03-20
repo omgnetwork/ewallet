@@ -442,30 +442,30 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
-    test_with_auths "supports match_any filtering on the user fields" do
-      admin_1 = insert(:admin, username: "value_1")
-      admin_2 = insert(:admin, username: "value_2")
-      admin_3 = insert(:admin, username: "value_3")
-      admin_4 = insert(:admin, username: "value_4")
+    test_with_auths "supports match_any filtering on the key fields" do
+      key_1 = insert(:key, name: "value_1")
+      key_2 = insert(:key, name: "value_2")
+      key_3 = insert(:key, name: "value_3")
+      key_4 = insert(:key, name: "value_4")
       account = insert(:account)
 
-      {:ok, _} = Membership.assign(admin_1, account, "admin", %System{})
-      {:ok, _} = Membership.assign(admin_2, account, "admin", %System{})
-      {:ok, _} = Membership.assign(admin_3, account, "admin", %System{})
-      {:ok, _} = Membership.assign(admin_4, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_1, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_2, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_3, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_4, account, "admin", %System{})
 
       attrs = %{
         "id" => account.id,
         "match_any" => [
-          # Filter for `user.username`
+          # Filter for `key.name`
           %{
-            "field" => "username",
+            "field" => "name",
             "comparator" => "eq",
             "value" => "value_2"
           },
-          # Filter for `user.username`
+          # Filter for `key.name`
           %{
-            "field" => "username",
+            "field" => "name",
             "comparator" => "eq",
             "value" => "value_4"
           }
@@ -478,10 +478,10 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
       records = response["data"]["data"]
 
-      refute Enum.any?(records, fn r -> r["id"] == admin_1.id end)
-      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
-      assert Enum.any?(records, fn r -> r["id"] == admin_4.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_1.id end)
+      assert Enum.any?(records, fn r -> r["id"] == key_2.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_3.id end)
+      assert Enum.any?(records, fn r -> r["id"] == key_4.id end)
       assert Enum.count(records) == 2
     end
 
