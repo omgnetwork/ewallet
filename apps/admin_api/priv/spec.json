@@ -9760,9 +9760,6 @@
                   "description": {
                     "type": "string"
                   },
-                  "parent_id": {
-                    "type": "string"
-                  },
                   "category_ids": {
                     "type": "array",
                     "items": {
@@ -9784,7 +9781,6 @@
                 "example": {
                   "name": "Account Name",
                   "description": "The account description",
-                  "parent_id": "acc_01ca26pkge49aabzd6k6mshn0y",
                   "category_ids": [],
                   "metadata": {},
                   "encrypted_metadata": {}
@@ -17646,465 +17642,6 @@
                 ],
                 "example": {
                   "id": "usr_01ce83q2zw7zk1dqr79t22zr1v"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns a single admin panel user",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for an admin user",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "type": "object",
-                          "description": "The object schema for a user",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "id": {
-                              "type": "string"
-                            },
-                            "username": {
-                              "type": "string"
-                            },
-                            "full_name": {
-                              "type": "string"
-                            },
-                            "calling_name": {
-                              "type": "string"
-                            },
-                            "provider_user_id": {
-                              "type": "string"
-                            },
-                            "email": {
-                              "type": "string",
-                              "format": "email"
-                            },
-                            "enabled": {
-                              "type": "boolean"
-                            },
-                            "metadata": {
-                              "type": "object"
-                            },
-                            "encrypted_metadata": {
-                              "type": "object"
-                            },
-                            "avatar": {
-                              "type": "object"
-                            },
-                            "created_at": {
-                              "type": "string",
-                              "format": "date-time"
-                            },
-                            "updated_at": {
-                              "type": "string",
-                              "format": "date-time"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "id",
-                            "created_at",
-                            "updated_at"
-                          ]
-                        }
-                      },
-                      "example": {
-                        "data": {
-                          "object": "user",
-                          "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
-                          "provider_user_id": "wijf-fbancomw-dqwjudb",
-                          "username": "johndoe",
-                          "full_name": "John Doe",
-                          "calling_name": "John",
-                          "email": "johndoe@omise.co",
-                          "enabled": true,
-                          "metadata": {
-                            "first_name": "John",
-                            "last_name": "Doe"
-                          },
-                          "encrypted_metadata": {
-                            "something": "secret"
-                          },
-                          "avatar": {
-                            "original": "file_url"
-                          },
-                          "created_at": "2018-01-01T00:00:00Z",
-                          "updated_at": "2018-01-01T10:00:00Z"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Returns an internal server error",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for an error",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "description": "The object schema for an error",
-                          "type": "object",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "code": {
-                              "type": "string"
-                            },
-                            "description": {
-                              "type": "string"
-                            },
-                            "messages": {
-                              "type": "object"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "code",
-                            "description",
-                            "messages"
-                          ],
-                          "example": {
-                            "object": "error",
-                            "code": "server:internal_server_error",
-                            "description": "Something went wrong on the server",
-                            "messages": {
-                              "error_key": "error_reason"
-                            }
-                          }
-                        }
-                      },
-                      "required": [
-                        "data"
-                      ],
-                      "example": {
-                        "success": false,
-                        "data": {
-                          "object": "error",
-                          "code": "server:internal_server_error",
-                          "description": "Something went wrong on the server",
-                          "messages": {
-                            "error_key": "error_reason"
-                          }
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin.create": {
-      "post": {
-        "tags": [
-          "Admin"
-        ],
-        "summary": "Create a new admin.",
-        "operationId": "admin_create",
-        "security": [
-          {
-            "ProviderAuth": []
-          },
-          {
-            "AdminAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "The parameters to send to create an admin user",
-          "required": true,
-          "content": {
-            "application/vnd.omisego.v1+json": {
-              "schema": {
-                "properties": {
-                  "email": {
-                    "type": "string"
-                  },
-                  "redirect_url": {
-                    "type": "string"
-                  },
-                  "full_name": {
-                    "type": "string"
-                  },
-                  "calling_name": {
-                    "type": "string"
-                  },
-                  "enabled": {
-                    "type": "boolean"
-                  },
-                  "global_role": {
-                    "type": "string"
-                  },
-                  "metadata": {
-                    "type": "object",
-                    "additionalProperties": true
-                  },
-                  "encrypted_metadata": {
-                    "type": "object",
-                    "additionalProperties": true
-                  }
-                },
-                "required": [
-                  "email",
-                  "redirect_url"
-                ],
-                "example": {
-                  "email": "user@example.com",
-                  "redirect_url": "https://domain/redirect_path?email={email}&token={token}",
-                  "full_name": "John Doe",
-                  "calling_name": "John",
-                  "global_role": "admin"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns an empty response",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for a successful operation",
-                  "type": "object",
-                  "properties": {
-                    "version": {
-                      "type": "string"
-                    },
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "type": "object"
-                    }
-                  },
-                  "required": [
-                    "version",
-                    "success",
-                    "data"
-                  ],
-                  "example": {
-                    "version": "1",
-                    "success": true,
-                    "data": {}
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Returns an internal server error",
-            "content": {
-              "application/vnd.omisego.v1+json": {
-                "schema": {
-                  "description": "The response schema for an error",
-                  "allOf": [
-                    {
-                      "description": "The response schema for a successful operation",
-                      "type": "object",
-                      "properties": {
-                        "version": {
-                          "type": "string"
-                        },
-                        "success": {
-                          "type": "boolean"
-                        },
-                        "data": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "version",
-                        "success",
-                        "data"
-                      ],
-                      "example": {
-                        "version": "1",
-                        "success": true,
-                        "data": {}
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "description": "The object schema for an error",
-                          "type": "object",
-                          "properties": {
-                            "object": {
-                              "type": "string"
-                            },
-                            "code": {
-                              "type": "string"
-                            },
-                            "description": {
-                              "type": "string"
-                            },
-                            "messages": {
-                              "type": "object"
-                            }
-                          },
-                          "required": [
-                            "object",
-                            "code",
-                            "description",
-                            "messages"
-                          ],
-                          "example": {
-                            "object": "error",
-                            "code": "server:internal_server_error",
-                            "description": "Something went wrong on the server",
-                            "messages": {
-                              "error_key": "error_reason"
-                            }
-                          }
-                        }
-                      },
-                      "required": [
-                        "data"
-                      ],
-                      "example": {
-                        "success": false,
-                        "data": {
-                          "object": "error",
-                          "code": "server:internal_server_error",
-                          "description": "Something went wrong on the server",
-                          "messages": {
-                            "error_key": "error_reason"
-                          }
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin.update": {
-      "post": {
-        "tags": [
-          "Admin"
-        ],
-        "summary": "Update an admin.",
-        "operationId": "admin_update",
-        "security": [
-          {
-            "ProviderAuth": []
-          },
-          {
-            "AdminAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "Parameters to update a user. A user can't update himself through this endpoint. If an email address is given, an email will be sent to the address, allowing the user to confirm the new email address.",
-          "required": true,
-          "content": {
-            "application/vnd.omisego.v1+json": {
-              "schema": {
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "full_name": {
-                    "type": "string"
-                  },
-                  "calling_name": {
-                    "type": "string"
-                  },
-                  "enabled": {
-                    "type": "boolean"
-                  },
-                  "global_role": {
-                    "type": "string"
-                  },
-                  "metadata": {
-                    "type": "object",
-                    "additionalProperties": true
-                  },
-                  "encrypted_metadata": {
-                    "type": "object",
-                    "additionalProperties": true
-                  }
-                },
-                "required": [
-                  "id"
-                ],
-                "example": {
-                  "id": "usr_01ce83q2zw7zk1dqr79t22zr1v",
-                  "full_name": "John Doe",
-                  "calling_name": "John",
-                  "global_role": "admin"
                 }
               }
             }
@@ -34852,6 +34389,9 @@
                                       "enabled": {
                                         "type": "boolean"
                                       },
+                                      "global_role": {
+                                        "type": "string"
+                                      },
                                       "created_at": {
                                         "type": "string",
                                         "format": "date-time"
@@ -34872,6 +34412,7 @@
                                       "access_key",
                                       "account_id",
                                       "enabled",
+                                      "global_role",
                                       "created_at",
                                       "updated_at",
                                       "deleted_at"
@@ -34893,6 +34434,7 @@
                               "access_key": "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
                               "secret_key": "the_secret_key_or_null",
                               "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                              "global_role": "admin",
                               "enabled": true,
                               "created_at": "2018-01-01T00:00:00Z",
                               "updated_at": "2018-01-01T10:00:00Z",
@@ -35100,6 +34642,9 @@
                             "enabled": {
                               "type": "boolean"
                             },
+                            "global_role": {
+                              "type": "string"
+                            },
                             "created_at": {
                               "type": "string",
                               "format": "date-time"
@@ -35120,6 +34665,7 @@
                             "access_key",
                             "account_id",
                             "enabled",
+                            "global_role",
                             "created_at",
                             "updated_at",
                             "deleted_at"
@@ -35133,6 +34679,7 @@
                           "access_key": "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
                           "secret_key": "the_secret_key_or_null",
                           "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                          "global_role": "admin",
                           "enabled": true,
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
@@ -35339,6 +34886,9 @@
                             "enabled": {
                               "type": "boolean"
                             },
+                            "global_role": {
+                              "type": "string"
+                            },
                             "created_at": {
                               "type": "string",
                               "format": "date-time"
@@ -35359,6 +34909,7 @@
                             "access_key",
                             "account_id",
                             "enabled",
+                            "global_role",
                             "created_at",
                             "updated_at",
                             "deleted_at"
@@ -35372,6 +34923,7 @@
                           "access_key": "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
                           "secret_key": "the_secret_key_or_null",
                           "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                          "global_role": "admin",
                           "enabled": true,
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
@@ -35575,6 +35127,9 @@
                             "enabled": {
                               "type": "boolean"
                             },
+                            "global_role": {
+                              "type": "string"
+                            },
                             "created_at": {
                               "type": "string",
                               "format": "date-time"
@@ -35595,6 +35150,7 @@
                             "access_key",
                             "account_id",
                             "enabled",
+                            "global_role",
                             "created_at",
                             "updated_at",
                             "deleted_at"
@@ -35608,6 +35164,7 @@
                           "access_key": "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
                           "secret_key": "the_secret_key_or_null",
                           "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                          "global_role": "admin",
                           "enabled": true,
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",

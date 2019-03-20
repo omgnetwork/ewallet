@@ -22,8 +22,6 @@ AccountCreateBody:
             type: string
           description:
             type: string
-          parent_id:
-            type: string
           category_ids:
             type: array
             items:
@@ -39,7 +37,6 @@ AccountCreateBody:
         example:
           name: Account Name
           description: The account description
-          parent_id: acc_01ca26pkge49aabzd6k6mshn0y
           category_ids: []
           metadata: {}
           encrypted_metadata: {}

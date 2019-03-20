@@ -151,6 +151,18 @@ defmodule AdminAPI.V1.KeyControllerTest do
       assert membership.role_uuid == role.uuid
     end
 
+    test_with_auths "responds with an `invalid_parameter` error when account_id is present but not role_name" do
+      account = insert(:account)
+
+      response =
+        request("/access_key.create", %{
+          account_id: account.id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
     defp assert_create_logs(logs, originator, target) do
       assert Enum.count(logs) == 1
 

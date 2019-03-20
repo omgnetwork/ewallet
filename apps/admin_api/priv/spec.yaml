@@ -1280,11 +1280,7 @@ paths:
                             properties:
                               data:
                                 type: array
-<<<<<<< HEAD
-                                items: &ref_49
-=======
                                 items: &ref_50
->>>>>>> v1.2
                                   description: The object schema for an exchange pair
                                   type: object
                                   properties: &ref_18
@@ -1827,8 +1823,6 @@ paths:
                   type: string
                 description:
                   type: string
-                parent_id:
-                  type: string
                 category_ids:
                   type: array
                   items:
@@ -1844,7 +1838,6 @@ paths:
               example:
                 name: Account Name
                 description: The account description
-                parent_id: acc_01ca26pkge49aabzd6k6mshn0y
                 category_ids: []
                 metadata: {}
                 encrypted_metadata: {}
@@ -2507,11 +2500,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_33
       responses:
-<<<<<<< HEAD
-        '200': &ref_50
-=======
         '200': &ref_51
->>>>>>> v1.2
           description: Returns a list of transaction requests
           content:
             application/vnd.omisego.v1+json:
@@ -2533,11 +2522,7 @@ paths:
                                     The response schema for a transaction
                                     request
                                   type: object
-<<<<<<< HEAD
-                                  properties: &ref_51
-=======
                                   properties: &ref_52
->>>>>>> v1.2
                                     object:
                                       type: string
                                     id:
@@ -2602,11 +2587,7 @@ paths:
                                       type: string
                                     updated_at:
                                       type: string
-<<<<<<< HEAD
-                                  required: &ref_52
-=======
                                   required: &ref_53
->>>>>>> v1.2
                                     - object
                                     - id
                                     - formatted_id
@@ -3066,11 +3047,7 @@ paths:
                 - redirect_url
               example:
                 email: user@example.com
-<<<<<<< HEAD
-                redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
-=======
                 redirect_url: 'http://localhost:4000/admin/invite?email={email}&token={token}'
->>>>>>> v1.2
                 full_name: John Doe
                 calling_name: John
                 global_role: admin
@@ -3742,8 +3719,6 @@ paths:
                 address: kxhk519271652215
       responses:
         '200': *ref_44
-<<<<<<< HEAD
-=======
         '500': *ref_2
   /wallet.get_balances:
     post:
@@ -3802,7 +3777,6 @@ paths:
                             symbol: BTC
                             name: Bitcoin
                             subunit_to_unit: 100000000000000000
->>>>>>> v1.2
         '500': *ref_2
   /wallet.enable_or_disable:
     post:
@@ -3880,11 +3854,7 @@ paths:
                     sort_by: created_at
                     sort_dir: desc
       responses:
-<<<<<<< HEAD
-        '200': &ref_62
-=======
         '200': &ref_63
->>>>>>> v1.2
           description: Returns a single export
           content:
             application/vnd.omisego.v1+json:
@@ -3897,11 +3867,7 @@ paths:
                       data:
                         type: object
                         description: The object schema for an export
-<<<<<<< HEAD
-                        properties: &ref_60
-=======
                         properties: &ref_61
->>>>>>> v1.2
                           object:
                             type: string
                           id:
@@ -3932,11 +3898,7 @@ paths:
                           updated_at:
                             type: string
                             format: date-time
-<<<<<<< HEAD
-                        required: &ref_61
-=======
                         required: &ref_62
->>>>>>> v1.2
                           - object
                           - id
                           - filename
@@ -3986,11 +3948,7 @@ paths:
               example:
                 id: txn_01ce83x8w4db56f3fcjy4n4qpc
       responses:
-<<<<<<< HEAD
-        '200': &ref_48
-=======
         '200': &ref_49
->>>>>>> v1.2
           description: Returns a single transaction
           content:
             application/vnd.omisego.v1+json:
@@ -4120,11 +4078,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-<<<<<<< HEAD
-        '200': *ref_48
-=======
         '200': *ref_49
->>>>>>> v1.2
         '500': *ref_2
   /transaction.calculate:
     post:
@@ -4182,11 +4136,7 @@ paths:
                             type: integer
                           to_token_id:
                             type: string
-<<<<<<< HEAD
-                          exchange_pair: *ref_49
-=======
                           exchange_pair: *ref_50
->>>>>>> v1.2
                           calculated_at:
                             type: string
                             format: date-time
@@ -4243,11 +4193,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_16
       responses:
-<<<<<<< HEAD
-        '200': *ref_50
-=======
         '200': *ref_51
->>>>>>> v1.2
         '500': *ref_2
   /transaction_request.create:
     post:
@@ -4374,11 +4320,7 @@ paths:
                 correlation_id: some correlation id
                 address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
       responses:
-<<<<<<< HEAD
-        '200': &ref_53
-=======
         '200': &ref_54
->>>>>>> v1.2
           description: Transaction request response
           content:
             application/vnd.omisego.v1+json:
@@ -4391,13 +4333,8 @@ paths:
                       data:
                         type: object
                         description: The response schema for a transaction request
-<<<<<<< HEAD
-                        properties: *ref_51
-                        required: *ref_52
-=======
                         properties: *ref_52
                         required: *ref_53
->>>>>>> v1.2
                     example:
                       data:
                         object: transaction_request
@@ -4447,11 +4384,7 @@ paths:
               example:
                 formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
       responses:
-<<<<<<< HEAD
-        '200': *ref_53
-=======
         '200': *ref_54
->>>>>>> v1.2
         '500': *ref_2
   /transaction_request.consume:
     post:
@@ -4511,11 +4444,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-<<<<<<< HEAD
-        '200': &ref_54
-=======
         '200': &ref_55
->>>>>>> v1.2
           description: Transaction request consumption response
           content:
             application/vnd.omisego.v1+json:
@@ -4714,11 +4643,7 @@ paths:
               example:
                 id: txc_01abfg5m2ee06kzm8tbysfmmw5
       responses:
-<<<<<<< HEAD
-        '200': *ref_54
-=======
         '200': *ref_55
->>>>>>> v1.2
         '500': *ref_2
   /transaction_consumption.approve:
     post:
@@ -4730,11 +4655,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-<<<<<<< HEAD
-      requestBody: &ref_55
-=======
       requestBody: &ref_56
->>>>>>> v1.2
         description: Approve or reject a consumption using the specified ID.
         required: true
         content:
@@ -4748,11 +4669,7 @@ paths:
               example:
                 id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-<<<<<<< HEAD
-        '200': *ref_54
-=======
         '200': *ref_55
->>>>>>> v1.2
         '500': *ref_2
   /transaction_consumption.reject:
     post:
@@ -4764,15 +4681,9 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-<<<<<<< HEAD
-      requestBody: *ref_55
-      responses:
-        '200': *ref_54
-=======
       requestBody: *ref_56
       responses:
         '200': *ref_55
->>>>>>> v1.2
         '500': *ref_2
   /transaction_consumption.cancel:
     post:
@@ -4798,11 +4709,7 @@ paths:
               example:
                 id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-<<<<<<< HEAD
-        '200': *ref_54
-=======
         '200': *ref_55
->>>>>>> v1.2
         '500': *ref_2
   /access_key.all:
     post:
@@ -4832,11 +4739,7 @@ paths:
                             properties:
                               data:
                                 type: array
-<<<<<<< HEAD
-                                items: &ref_56
-=======
                                 items: &ref_57
->>>>>>> v1.2
                                   description: The object schema for an access key
                                   type: object
                                   properties:
@@ -4853,6 +4756,8 @@ paths:
                                       type: string
                                     enabled:
                                       type: boolean
+                                    global_role:
+                                      type: string
                                     created_at:
                                       type: string
                                       format: date-time
@@ -4869,6 +4774,7 @@ paths:
                                     - access_key
                                     - account_id
                                     - enabled
+                                    - global_role
                                     - created_at
                                     - updated_at
                                     - deleted_at
@@ -4881,6 +4787,7 @@ paths:
                             access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
                             secret_key: the_secret_key_or_null
                             account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            global_role: admin
                             enabled: true
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
@@ -4914,11 +4821,7 @@ paths:
                 name: my_key
                 global_role: none
       responses:
-<<<<<<< HEAD
-        '200': &ref_57
-=======
         '200': &ref_58
->>>>>>> v1.2
           description: Returns a single access key
           content:
             application/vnd.omisego.v1+json:
@@ -4928,11 +4831,7 @@ paths:
                   - *ref_1
                   - type: object
                     properties:
-<<<<<<< HEAD
-                      data: *ref_56
-=======
                       data: *ref_57
->>>>>>> v1.2
                     example:
                       data:
                         object: key
@@ -4940,6 +4839,7 @@ paths:
                         access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
                         secret_key: the_secret_key_or_null
                         account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                        global_role: admin
                         enabled: true
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
@@ -4974,11 +4874,7 @@ paths:
                 name: my_key
                 global_role: none
       responses:
-<<<<<<< HEAD
-        '200': *ref_57
-=======
         '200': *ref_58
->>>>>>> v1.2
         '500': *ref_2
   /access_key.enable_or_disable:
     post:
@@ -5009,11 +4905,7 @@ paths:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-<<<<<<< HEAD
-        '200': *ref_57
-=======
         '200': *ref_58
->>>>>>> v1.2
         '500': *ref_2
   /access_key.delete:
     post:
@@ -5078,11 +4970,7 @@ paths:
                             properties:
                               data:
                                 type: array
-<<<<<<< HEAD
-                                items: &ref_58
-=======
                                 items: &ref_59
->>>>>>> v1.2
                                   description: The object schema for an API key
                                   type: object
                                   properties:
@@ -5154,11 +5042,7 @@ paths:
               example:
                 name: my_api_key
       responses:
-<<<<<<< HEAD
-        '200': &ref_59
-=======
         '200': &ref_60
->>>>>>> v1.2
           description: Returns a single API key
           content:
             application/vnd.omisego.v1+json:
@@ -5168,11 +5052,7 @@ paths:
                   - *ref_1
                   - type: object
                     properties:
-<<<<<<< HEAD
-                      data: *ref_58
-=======
                       data: *ref_59
->>>>>>> v1.2
                     example:
                       data:
                         object: api_key
@@ -5212,11 +5092,7 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 name: my_api_key
       responses:
-<<<<<<< HEAD
-        '200': *ref_59
-=======
         '200': *ref_60
->>>>>>> v1.2
         '500': *ref_2
   /api_key.enable_or_disable:
     post:
@@ -5247,11 +5123,7 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-<<<<<<< HEAD
-        '200': *ref_59
-=======
         '200': *ref_60
->>>>>>> v1.2
         '500': *ref_2
   /api_key.delete:
     post:
@@ -5309,13 +5181,8 @@ paths:
                                 items:
                                   description: The object schema for an export
                                   type: object
-<<<<<<< HEAD
-                                  properties: *ref_60
-                                  required: *ref_61
-=======
                                   properties: *ref_61
                                   required: *ref_62
->>>>>>> v1.2
                     example:
                       data:
                         data:
@@ -5343,11 +5210,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-<<<<<<< HEAD
-      requestBody: &ref_63
-=======
       requestBody: &ref_64
->>>>>>> v1.2
         description: The parameters to use for retrieving a specific export by its id
         required: true
         content:
@@ -5361,11 +5224,7 @@ paths:
               example:
                 id: exp_01ca2p8jqans5aty5gj5etmjcf
       responses:
-<<<<<<< HEAD
-        '200': *ref_62
-=======
         '200': *ref_63
->>>>>>> v1.2
         '500': *ref_2
   /export.download:
     post:
@@ -5376,11 +5235,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-<<<<<<< HEAD
-      requestBody: *ref_63
-=======
       requestBody: *ref_64
->>>>>>> v1.2
       responses:
         '200':
           description: A CSV file
@@ -5675,11 +5530,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-<<<<<<< HEAD
-        '200': &ref_64
-=======
         '200': &ref_65
->>>>>>> v1.2
           description: Returns unauthorized error
           content:
             application/vnd.omisego.v1+json:
@@ -5716,11 +5567,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-<<<<<<< HEAD
-        '200': *ref_64
-=======
         '200': *ref_65
->>>>>>> v1.2
         '500': *ref_2
   /role.create:
     post:
@@ -5733,11 +5580,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-<<<<<<< HEAD
-        '200': *ref_64
-=======
         '200': *ref_65
->>>>>>> v1.2
         '500': *ref_2
   /role.update:
     post:
@@ -5750,11 +5593,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-<<<<<<< HEAD
-        '200': *ref_64
-=======
         '200': *ref_65
->>>>>>> v1.2
         '500': *ref_2
   /role.delete:
     post:
@@ -5767,9 +5606,6 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-<<<<<<< HEAD
-        '200': *ref_64
-=======
         '200': *ref_65
         '500': *ref_2
   /permission.all:
@@ -5830,5 +5666,4 @@ paths:
                             account_wallets:
                               get: global
                               all: global
->>>>>>> v1.2
         '500': *ref_2

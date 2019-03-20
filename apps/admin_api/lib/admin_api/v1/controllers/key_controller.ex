@@ -79,6 +79,14 @@ defmodule AdminAPI.V1.KeyController do
     end
   end
 
+  def create(conn, %{"account_id" => account_id}) when not is_nil(account_id) do
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "`role_name` is required when specifying an `account_id`"
+    )
+  end
+
   def create(conn, _attrs) do
     with {:ok, _} <- authorize(:create, conn.assigns, %{}),
          attrs <- Originator.set_in_attrs(%{}, conn.assigns, :originator),
