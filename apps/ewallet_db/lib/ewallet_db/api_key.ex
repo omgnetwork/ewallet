@@ -23,7 +23,7 @@ defmodule EWalletDB.APIKey do
   import Ecto.Changeset
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
-  alias EWalletDB.{Account, APIKey, Repo, Wallet}
+  alias EWalletDB.{Account, APIKey, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
@@ -36,6 +36,14 @@ defmodule EWalletDB.APIKey do
 
     field(:name, :string)
     field(:key, :string)
+
+    belongs_to(
+      :creator,
+      User,
+      foreign_key: :creator_uuid,
+      references: :user,
+      type: UUID
+    )
 
     field(:enabled, :boolean, default: true)
     timestamps()
