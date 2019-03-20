@@ -159,7 +159,7 @@ defmodule AdminAPI.ConnCase do
 
     {:ok, _} = Membership.assign(admin, account, role, %System{})
     {:ok, _} = Membership.assign(key, account, role, %System{})
-    _api_key = insert(:api_key, %{id: @api_key_id, key: @api_key, owner_app: "admin_api"})
+    _api_key = insert(:api_key, %{id: @api_key_id, key: @api_key})
 
     # Setup could return all the inserted credentials using ExUnit context
     # by returning {:ok, context_map}. But it would make the code

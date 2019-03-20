@@ -55,7 +55,7 @@ defmodule EWalletAPI.V1.ClientAuth do
   defp authenticate_client(auth) do
     api_key = auth[:auth_api_key]
 
-    case APIKey.authenticate(api_key, :ewallet_api) do
+    case APIKey.authenticate(api_key) do
       false ->
         auth
         |> Map.put(:authenticated, false)
@@ -64,7 +64,6 @@ defmodule EWalletAPI.V1.ClientAuth do
       api_key ->
         auth
         |> Map.put(:api_key, api_key)
-        |> Map.put(:account, api_key.account)
     end
   end
 

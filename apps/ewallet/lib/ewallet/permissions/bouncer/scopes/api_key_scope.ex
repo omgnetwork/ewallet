@@ -18,8 +18,8 @@ defmodule EWallet.Bouncer.APIKeyScope do
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
-  alias EWallet.Bouncer.{Helper, Permission}
-  alias EWalletDB.{APIKey, SoftDelete}
+  alias EWallet.Bouncer.Permission
+  alias EWalletDB.{APIKey, Key, User}
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) :: nil | Ecto.Query.t()
   def scoped_query(%Permission{
@@ -34,12 +34,14 @@ defmodule EWallet.Bouncer.APIKeyScope do
     APIKey.query_all()
   end
 
-  defp do_scoped_query(actor, %{api_keys: :accounts}) do
-    actor
-    |> Helper.query_with_membership_for(APIKey)
-    |> where([g, m], g.account_uuid == m.account_uuid)
-    |> SoftDelete.exclude_deleted()
-    |> select([g, m], g)
+  defp do_scoped_query(%User{} = user, %{api_keys: :self}) do
+    APIKey.query_all()
+    |> where([a], a.creator_user_uuid == ^user.uuid)
+  end
+
+  defp do_scoped_query(%Key{} = key, %{api_keys: :self}) do
+    APIKey.query_all()
+    |> where([a], a.creator_key_uuid == ^key.uuid)
   end
 
   defp do_scoped_query(_, _) do

@@ -54,12 +54,7 @@ defmodule AdminAPI.V1.APIKeyController do
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with {:ok, _} <- authorize(:create, conn.assigns, attrs),
-         # Admin API doesn't use API Keys anymore. Defaulting to "ewallet_api".
-         {:ok, api_key} <-
-           APIKey.insert(%{
-             owner_app: "ewallet_api",
-             originator: Originator.extract(conn.assigns)
-           }),
+         {:ok, api_key} <- APIKey.insert(%{originator: Originator.extract(conn.assigns)}),
          {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
       render(conn, :api_key, %{api_key: api_key})
     else
@@ -136,7 +131,7 @@ defmodule AdminAPI.V1.APIKeyController do
     end
   end
 
-  def delete(conn, _), do: handle_error(conn, :invalid_parameter)
+  def delete(conn, _), do: handle_error(conn, :invalid_parameter, "`id` is required")
 
   defp do_delete(conn, %APIKey{} = key) do
     originator = Originator.extract(conn.assigns)

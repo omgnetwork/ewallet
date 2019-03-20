@@ -59,7 +59,7 @@ defmodule AdminPanel.PageController do
     APIKey
     |> exclude_deleted()
     |> limit(1)
-    |> Repo.get_by(%{owner_app: "admin_api"})
+    |> Repo.one()
     |> api_key_script()
   end
 

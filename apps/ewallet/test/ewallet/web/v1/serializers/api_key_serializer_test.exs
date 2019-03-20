@@ -17,19 +17,19 @@ defmodule EWallet.Web.V1.APIKeySerializerTest do
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.Paginator
   alias EWallet.Web.V1.APIKeySerializer
-  alias Utils.Helpers.DateFormatter
+  alias Utils.Helpers.{Assoc, DateFormatter}
 
   describe "serialize/1" do
     test "serializes a api_key into the correct response format" do
-      api_key = :api_key |> insert() |> Repo.preload(:account)
+      api_key = :api_key |> insert() |> Repo.preload([:creator_user, :creator_key])
 
       expected = %{
         object: "api_key",
         id: api_key.id,
         name: api_key.name,
         key: api_key.key,
-        account_id: api_key.account.id,
-        owner_app: api_key.owner_app,
+        creator_user_id:  Assoc.get(api_key, [:creator_user, :id]),
+        creator_key_id:  Assoc.get(api_key, [:creator_key, :id]),
         expired: !api_key.enabled,
         enabled: api_key.enabled,
         created_at: DateFormatter.to_iso8601(api_key.inserted_at),
@@ -49,8 +49,8 @@ defmodule EWallet.Web.V1.APIKeySerializerTest do
     end
 
     test "serializes a api_key paginator into a list object" do
-      api_key_1 = :api_key |> insert() |> Repo.preload(:account)
-      api_key_2 = :api_key |> insert() |> Repo.preload(:account)
+      api_key_1 = :api_key |> insert() |> Repo.preload([:creator_user, :creator_key])
+      api_key_2 = :api_key |> insert() |> Repo.preload([:creator_user, :creator_key])
 
       paginator = %Paginator{
         data: [api_key_1, api_key_2],
@@ -70,8 +70,8 @@ defmodule EWallet.Web.V1.APIKeySerializerTest do
             id: api_key_1.id,
             name: api_key_1.name,
             key: api_key_1.key,
-            account_id: api_key_1.account.id,
-            owner_app: api_key_1.owner_app,
+            creator_user_id:  Assoc.get(api_key_1, [:creator_user, :id]),
+            creator_key_id:  Assoc.get(api_key_1, [:creator_key, :id]),
             expired: !api_key_1.enabled,
             enabled: api_key_1.enabled,
             created_at: DateFormatter.to_iso8601(api_key_1.inserted_at),
@@ -83,8 +83,8 @@ defmodule EWallet.Web.V1.APIKeySerializerTest do
             id: api_key_2.id,
             name: api_key_2.name,
             key: api_key_2.key,
-            account_id: api_key_2.account.id,
-            owner_app: api_key_2.owner_app,
+            creator_user_id:  Assoc.get(api_key_2, [:creator_user, :id]),
+            creator_key_id:  Assoc.get(api_key_2, [:creator_key, :id]),
             expired: !api_key_2.enabled,
             enabled: api_key_2.enabled,
             created_at: DateFormatter.to_iso8601(api_key_2.inserted_at),

@@ -21,9 +21,12 @@ defmodule EWalletDB.APIKey do
   use Utils.Types.ExternalID
   use ActivityLogger.ActivityLogging
   import Ecto.Changeset
+  import EWalletConfig.Validator
+  import EWalletDB.Helpers.Preloader
+  alias ActivityLogger.System
   alias Ecto.UUID
+  alias EWalletDB.{Key, Repo, User}
   alias Utils.Helpers.Crypto
-  alias EWalletDB.{Account, APIKey, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
@@ -38,10 +41,18 @@ defmodule EWalletDB.APIKey do
     field(:key, :string)
 
     belongs_to(
-      :creator,
+      :creator_user,
       User,
-      foreign_key: :creator_uuid,
-      references: :user,
+      foreign_key: :creator_user_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :creator_key,
+      Key,
+      foreign_key: :creator_key_uuid,
+      references: :uuid,
       type: UUID
     )
 
@@ -51,19 +62,20 @@ defmodule EWalletDB.APIKey do
     activity_logging()
   end
 
-  defp changeset(%APIKey{} = key, attrs) do
+  defp changeset(%__MODULE__{} = key, attrs) do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:name, :key, :owner_app, :account_uuid, :enabled, :exchange_address],
-      required: [:key, :owner_app, :account_uuid]
+      cast: [:name, :key, :creator_user_uuid, :creator_key_uuid, :enabled],
+      required: [:key]
     )
+    |> validate_exclusive([:creator_user_uuid, :creator_key_uuid])
     |> unique_constraint(:key)
-    |> assoc_constraint(:account)
-    |> assoc_constraint(:exchange_wallet)
+    |> assoc_constraint(:creator_user)
+    |> assoc_constraint(:creator_key)
   end
 
-  defp enable_changeset(%APIKey{} = key, attrs) do
+  defp enable_changeset(%__MODULE__{} = key, attrs) do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
@@ -72,11 +84,11 @@ defmodule EWalletDB.APIKey do
     )
   end
 
-  defp update_changeset(%APIKey{} = key, attrs) do
+  defp update_changeset(%__MODULE__{} = key, attrs) do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:name, :enabled, :exchange_address],
+      cast: [:name, :enabled],
       required: [:enabled]
     )
   end
@@ -85,15 +97,16 @@ defmodule EWalletDB.APIKey do
   Build the query for all APIKeys excluding the soft-deleted ones.
   """
   def query_all do
-    exclude_deleted(APIKey)
+    __MODULE__
+    |> exclude_deleted()
   end
 
   @doc """
-  Get API key by id, exclude soft-deleted.
+  Get an API key by id, exclude soft-deleted.
   """
-  @spec get(String.t()) :: %APIKey{} | nil
+  @spec get(String.t()) :: %__MODULE__{} | nil
   def get(id) when is_external_id(id) do
-    APIKey
+    __MODULE__
     |> exclude_deleted()
     |> Repo.get_by(id: id)
   end
@@ -101,51 +114,73 @@ defmodule EWalletDB.APIKey do
   def get(_), do: nil
 
   @doc """
+  Get an API key by a specific field, exclude soft-deleted.
+  """
+  @spec get_by(Keyword.t()) :: %__MODULE__{} | nil
+  def get_by(fields, opts \\ []) do
+    __MODULE__
+    |> exclude_deleted()
+    |> Repo.get_by(fields)
+    |> preload_option(opts)
+  end
+
+  @doc """
   Creates a new API key with the passed attributes.
+
   The key is automatically generated if not specified.
   """
+  @spec insert(map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
     attrs =
       attrs
-      |> Map.put_new_lazy(:account_uuid, fn -> get_master_account_uuid() end)
       |> Map.put_new_lazy(:key, fn -> Crypto.generate_base64_key(@key_bytes) end)
+      |> populate_creator()
 
-    %APIKey{}
+    %__MODULE__{}
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log()
+  end
+
+  defp populate_creator(%{creator_user_uuid: _} = attrs), do: attrs
+
+  defp populate_creator(%{creator_key_uuid: _} = attrs), do: attrs
+
+  defp populate_creator(%{originator: %User{uuid: uuid}} = attrs) do
+    Map.put(attrs, :creator_user_uuid, uuid)
+  end
+
+  defp populate_creator(%{originator: %Key{uuid: uuid}} = attrs) do
+    Map.put(attrs, :creator_key_uuid, uuid)
+  end
+
+  defp populate_creator(%{originator: %System{}} = attrs) do
+    attrs
   end
 
   @doc """
   Updates an API key with the provided attributes.
   """
-  def update(%APIKey{} = api_key, %{"expired" => expired} = attrs) do
-    attrs = Map.put(attrs, "enabled", !expired)
+  @spec update(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def update(api_key, attrs) do
+    attrs = populate_enabled(attrs)
 
     api_key
     |> update_changeset(attrs)
     |> Repo.update_record_with_activity_log()
   end
 
-  def update(%APIKey{} = api_key, attrs) do
-    api_key
-    |> update_changeset(attrs)
-    |> Repo.update_record_with_activity_log()
-  end
+  defp populate_enabled(%{"expired" => expired} = attrs), do: Map.put(attrs, "enabled", !expired)
+
+  defp populate_enabled(attrs), do: attrs
 
   @doc """
   Enable or disable an API key with the provided attributes.
   """
-  def enable_or_disable(%APIKey{} = api_key, attrs) do
+  @spec enable_or_disable(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def enable_or_disable(api_key, attrs) do
     api_key
     |> enable_changeset(attrs)
     |> Repo.update_record_with_activity_log()
-  end
-
-  defp get_master_account_uuid do
-    case Account.get_master_account() do
-      %{uuid: uuid} -> uuid
-      _ -> nil
-    end
   end
 
   @doc """
@@ -155,14 +190,14 @@ defmodule EWalletDB.APIKey do
   Use this function instead of the usual get/2
   to avoid passing the API key information around.
   """
-  def authenticate(api_key_id, api_key, owner_app)
-      when byte_size(api_key_id) > 0 and byte_size(api_key) > 0 and is_atom(owner_app) do
+  def authenticate(api_key_id, api_key)
+      when byte_size(api_key_id) > 0 and byte_size(api_key) > 0 do
     api_key_id
-    |> get(owner_app)
+    |> get()
     |> do_authenticate(api_key)
   end
 
-  def authenticate(_, _, _), do: Crypto.fake_verify()
+  def authenticate(_, _), do: Crypto.fake_verify()
 
   defp do_authenticate(%{key: expected_key} = api_key, input_key) do
     case Crypto.secure_compare(expected_key, input_key) do
@@ -180,34 +215,13 @@ defmodule EWalletDB.APIKey do
   Note that this is not protected against timing attacks
   and should only be used for non-sensitive requests, e.g. read-only requests.
   """
-  def authenticate(api_key, owner_app) when is_atom(owner_app) do
-    case get_by_key(api_key, owner_app) do
-      %APIKey{} = api_key -> api_key
+  def authenticate(nil), do: false
+
+  def authenticate(api_key) do
+    case get_by(key: api_key) do
+      %__MODULE__{} = api_key -> api_key
       nil -> false
     end
-  end
-
-  defp get(id, owner_app) when is_binary(id) and is_atom(owner_app) do
-    APIKey
-    |> Repo.get_by(%{
-      id: id,
-      owner_app: Atom.to_string(owner_app),
-      enabled: true
-    })
-    |> Repo.preload(:account)
-  end
-
-  # Handles unsafe nil query
-  defp get_by_key(nil, _), do: nil
-
-  defp get_by_key(key, owner_app) when is_binary(key) and is_atom(owner_app) do
-    APIKey
-    |> Repo.get_by(%{
-      key: key,
-      owner_app: Atom.to_string(owner_app),
-      enabled: true
-    })
-    |> Repo.preload(:account)
   end
 
   @doc """

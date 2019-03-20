@@ -62,7 +62,6 @@ APIKeyResponseSchema:
         id: api_01ce844d5w9e81snekr5kprvem
         name: my_key
         key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
-        owner_app: admin_api
         enabled: true
         account_id: acc_01ca2p8jqans5aty5gj5etmjcf
         created_at: '2018-01-01T00:00:00Z'
@@ -92,7 +91,6 @@ APIKeysResponseSchema:
             id: api_01ce844d5w9e81snekr5kprvem
             name: my_key
             key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
-            owner_app: admin_api
             enabled: true
             account_id: acc_01ca2p8jqans5aty5gj5etmjcf
             created_at: '2018-01-01T00:00:00Z'

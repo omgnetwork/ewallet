@@ -45,11 +45,11 @@ APIKeySchema:
       type: string
     key:
       type: string
-    owner_app:
-      type: string
     enabled:
       type: boolean
-    account_id:
+    creator_user_id:
+      type: string
+    creator_key_id:
       type: string
     created_at:
       type: string
@@ -65,9 +65,9 @@ APIKeySchema:
     - object
     - id
     - key
-    - owner_app
     - enabled
-    - account_id
+    - creator_user_id
+    - creator_key_id
     - created_at
     - updated_at
     - deleted_at

@@ -19,32 +19,34 @@ defmodule EWallet.Web.V1.APIKeyOverlay do
 
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.{
-    AccountOverlay,
-    WalletOverlay
+    KeyOverlay,
+    UserOverlay
   }
 
   def preload_assocs,
     do: [
-      :account
+      :creator_user,
+      :creator_key
     ]
 
   def default_preload_assocs,
     do: [
-      :account
+      :creator_user,
+      :creator_key
     ]
 
   def search_fields,
     do: [
       :id,
       :key,
-      :owner_app
+      :name
     ]
 
   def sort_fields,
     do: [
       :id,
       :key,
-      :owner_app,
+      :name,
       :inserted_at,
       :updated_at,
       :deleted_at
@@ -54,7 +56,7 @@ defmodule EWallet.Web.V1.APIKeyOverlay do
     do: [
       :id,
       :key,
-      :owner_app,
+      :name,
       :expired,
       :inserted_at,
       :updated_at,
@@ -65,13 +67,13 @@ defmodule EWallet.Web.V1.APIKeyOverlay do
     do: [
       id: nil,
       key: nil,
-      owner_app: nil,
+      name: nil,
       expired: nil,
       inserted_at: nil,
       updated_at: nil,
       deleted_at: nil,
-      account: AccountOverlay.self_filter_fields(),
-      exchange_wallet: WalletOverlay.self_filter_fields()
+      creator_user: UserOverlay.self_filter_fields(),
+      creator_key: KeyOverlay.self_filter_fields()
     ]
 
   def pagination_fields,

@@ -16,14 +16,14 @@ defmodule EWallet.Bouncer.APIKeyTargetTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Bouncer.{APIKeyTarget, DispatchConfig}
-  alias Utils.Helpers.UUID
 
   describe "get_owner_uuids/1" do
     test "returns the list of UUIDs owning the api key" do
-      account = insert(:account)
-      api_key = insert(:api_key, account: account)
+      user = insert(:user)
+      api_key = insert(:api_key, creator_user: user)
+
       res = APIKeyTarget.get_owner_uuids(api_key)
-      assert res == [api_key.account_uuid]
+      assert res == [user.uuid]
     end
   end
 
@@ -40,16 +40,9 @@ defmodule EWallet.Bouncer.APIKeyTargetTest do
   end
 
   describe "get_target_accounts/2" do
-    test "returns the list of accounts having rights on the api key" do
-      account = insert(:account)
-      api_key = insert(:api_key, account: account)
-
-      target_accounts_uuids =
-        api_key
-        |> APIKeyTarget.get_target_accounts(DispatchConfig)
-        |> UUID.get_uuids()
-
-      assert Enum.member?(target_accounts_uuids, account.uuid)
+    test "returns an empty list of account uuids" do
+      api_key = insert(:api_key)
+      assert APIKeyTarget.get_target_accounts(api_key, DispatchConfig) == []
     end
   end
 end

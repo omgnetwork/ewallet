@@ -117,7 +117,7 @@ defmodule EWalletAPI.ConnCase do
       |> params_for(%{username: @username, provider_user_id: @provider_user_id})
       |> User.insert()
 
-    _api_key = insert(:api_key, %{key: @api_key, owner_app: "ewallet_api"})
+    _api_key = insert(:api_key, %{key: @api_key})
 
     _auth_token =
       insert(:auth_token, %{

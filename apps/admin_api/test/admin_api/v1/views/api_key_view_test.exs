@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.APIKeyViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.APIKeyView
   alias EWallet.Web.Paginator
-  alias Utils.Helpers.DateFormatter
+  alias Utils.Helpers.{Assoc, DateFormatter}
 
   describe "render/2" do
     test "renders api_key.json with correct response format" do
@@ -30,8 +30,8 @@ defmodule AdminAPI.V1.APIKeyViewTest do
           id: api_key.id,
           name: api_key.name,
           key: api_key.key,
-          account_id: api_key.account.id,
-          owner_app: api_key.owner_app,
+          creator_user_id: Assoc.get(api_key, [:creator_user, :id]),
+          creator_key_id: Assoc.get(api_key, [:creator_key, :id]),
           expired: false,
           enabled: true,
           created_at: DateFormatter.to_iso8601(api_key.inserted_at),
@@ -68,8 +68,8 @@ defmodule AdminAPI.V1.APIKeyViewTest do
               id: api_key1.id,
               name: api_key1.name,
               key: api_key1.key,
-              account_id: api_key1.account.id,
-              owner_app: api_key1.owner_app,
+              creator_user_id: Assoc.get(api_key1, [:creator_user, :id]),
+              creator_key_id: Assoc.get(api_key1, [:creator_key, :id]),
               expired: false,
               enabled: true,
               created_at: DateFormatter.to_iso8601(api_key1.inserted_at),
@@ -81,8 +81,8 @@ defmodule AdminAPI.V1.APIKeyViewTest do
               id: api_key2.id,
               name: api_key2.name,
               key: api_key2.key,
-              account_id: api_key2.account.id,
-              owner_app: api_key2.owner_app,
+              creator_user_id: Assoc.get(api_key2, [:creator_user, :id]),
+              creator_key_id: Assoc.get(api_key2, [:creator_key, :id]),
               expired: false,
               enabled: true,
               created_at: DateFormatter.to_iso8601(api_key2.inserted_at),
