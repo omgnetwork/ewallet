@@ -3,6 +3,6 @@ import AccountSettingPage from '../omg-page-account-setting'
 export default class AccountSettingSubPage extends Component {
 
   render () {
-    return <AccountSettingPage />
+    return <AccountSettingPage divider={false} />
   }
 }

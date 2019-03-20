@@ -243,6 +243,11 @@ class SortableTable extends PureComponent {
     )
   }
   render () {
+    const shouldShowNavigation =
+      this.props.navigation &&
+      this.props.rows.length &&
+      this.props.loadingStatus !== 'INITIATED' &&
+      !(this.props.isFirstPage && this.props.isLastPage)
     return (
       <TableContainer
         loading={this.props.loadingStatus === 'PENDING'}
@@ -264,7 +269,7 @@ class SortableTable extends PureComponent {
           page={this.getPage()}
           perPage={this.props.perPage}
         />
-        {this.props.navigation && this.props.loadingStatus !== 'INITIATED' && (
+        {shouldShowNavigation ? (
           <NavigationContainer>
             <Button
               onClick={this._onClickPrev}
@@ -283,7 +288,7 @@ class SortableTable extends PureComponent {
               <Icon name='Chevron-Right' />
             </Button>
           </NavigationContainer>
-        )}
+        ) : null}
       </TableContainer>
     )
   }

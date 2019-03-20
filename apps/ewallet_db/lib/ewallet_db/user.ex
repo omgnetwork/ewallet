@@ -202,6 +202,7 @@ defmodule EWalletDB.User do
       ]
     )
     |> assoc_constraint(:invite)
+    |> validate_inclusion(:global_role, GlobalRole.global_roles())
     |> validate_by_roles(attrs)
   end
 

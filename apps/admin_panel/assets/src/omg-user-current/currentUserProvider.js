@@ -16,12 +16,10 @@ class UserProvider extends Component {
     history: PropTypes.object
   }
   componentDidMount = async () => {
-    if (this.props.currentUserLoadingStatus !== 'SUCCESS') {
-      const result = await this.props.getCurrentUser()
-      if (!result.data) {
-        this.props.history.push('/login')
-        removeAccessDataFromLocalStorage()
-      }
+    const result = await this.props.getCurrentUser()
+    if (!result.data) {
+      this.props.history.push('/login')
+      removeAccessDataFromLocalStorage()
     }
   }
   render () {

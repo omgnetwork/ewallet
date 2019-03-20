@@ -36,14 +36,6 @@ export const createFetcher = (entity, reducer, selectors) => {
         onFetchComplete: _.noop,
         shouldFetch: true
       }
-
-      static getDerivedStateFromProps (props, state) {
-        const intersec = _.intersectionBy(props.data, state.data, d => d.id)
-        if (intersec.length && state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS) {
-          return { data: props.data, pagination: props.pagination }
-        }
-        return null
-      }
       state = {
         loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT,
         data: this.props.data,

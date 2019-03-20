@@ -10,7 +10,7 @@ import moment from 'moment'
 import Copy from '../omg-copy'
 const AccountDetailContainer = styled.div``
 const ContentDetailContainer = styled.div`
-  margin-top: 40px;
+  margin-top: 20px;
   display: flex;
   > div {
     flex: 1 1 50%;
@@ -26,9 +26,7 @@ const enhance = compose(
 )
 class AccountDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
-    history: PropTypes.object,
-    theme: PropTypes.object
+    match: PropTypes.object
   }
   renderTopBar = account => {
     return <TopBar title={account.name} breadcrumbItems={['Account', account.name]} />
