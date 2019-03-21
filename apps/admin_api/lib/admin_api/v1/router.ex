@@ -120,6 +120,8 @@ defmodule AdminAPI.V1.Router do
     post("/account.get_keys", AccountMembershipController, :all_keys_for_account)
     post("/account.assign_user", AccountMembershipController, :assign_user)
     post("/account.unassign_user", AccountMembershipController, :unassign_user)
+    post("/account.assign_key", AccountMembershipController, :assign_key)
+    post("/account.unassign_key", AccountMembershipController, :unassign_key)
 
     # User endpoints
     post("/user.all", UserController, :all)

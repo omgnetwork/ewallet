@@ -30,11 +30,11 @@ defmodule EWallet.Bouncer.KeyScope do
     do_scoped_query(actor, global_abilities) || do_scoped_query(actor, account_abilities)
   end
 
-  defp do_scoped_query(_actor, %{keys: :global}) do
+  defp do_scoped_query(_actor, %{access_keys: :global}) do
     SoftDelete.exclude_deleted(Key)
   end
 
-  defp do_scoped_query(actor, %{keys: :accounts}) do
+  defp do_scoped_query(actor, %{access_keys: :accounts}) do
     actor
     |> Helper.query_with_membership_for(Key)
     |> join(:inner, [g, actor_m], key_m in Membership,

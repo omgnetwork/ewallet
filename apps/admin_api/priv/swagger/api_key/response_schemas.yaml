@@ -13,6 +13,7 @@ AccessKeyResponseSchema:
         access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
         secret_key: the_secret_key_or_null
         account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+        global_role: admin
         enabled: true
         created_at: '2018-01-01T00:00:00Z'
         updated_at: '2018-01-01T10:00:00Z'
@@ -42,6 +43,7 @@ AccessKeysResponseSchema:
             access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
             secret_key: the_secret_key_or_null
             account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+            global_role: admin
             enabled: true
             created_at: '2018-01-01T00:00:00Z'
             updated_at: '2018-01-01T10:00:00Z'

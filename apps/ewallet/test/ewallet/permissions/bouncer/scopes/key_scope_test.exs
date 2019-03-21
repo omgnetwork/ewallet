@@ -29,7 +29,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
 
       permission = %Permission{
         actor: actor,
-        global_abilities: %{keys: :global},
+        global_abilities: %{access_keys: :global},
         account_abilities: %{}
       }
 
@@ -65,7 +65,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
 
       permission = %Permission{
         actor: actor,
-        global_abilities: %{keys: :accounts},
+        global_abilities: %{access_keys: :accounts},
         account_abilities: %{}
       }
 
@@ -103,7 +103,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
 
       permission = %Permission{
         actor: actor,
-        global_abilities: %{keys: :accounts},
+        global_abilities: %{access_keys: :accounts},
         account_abilities: %{}
       }
 
@@ -135,7 +135,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
 
       permission = %Permission{
         actor: actor,
-        global_abilities: %{keys: :self},
+        global_abilities: %{access_keys: :self},
         account_abilities: %{}
       }
 
@@ -159,7 +159,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
 
       permission = %Permission{
         actor: actor,
-        global_abilities: %{keys: :none},
+        global_abilities: %{access_keys: :none},
         account_abilities: %{}
       }
 
@@ -177,7 +177,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities: %{keys: :global}
+        account_abilities: %{access_keys: :global}
       }
 
       query = KeyScope.scoped_query(permission)
@@ -213,7 +213,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities: %{keys: :accounts}
+        account_abilities: %{access_keys: :accounts}
       }
 
       query = KeyScope.scoped_query(permission)
@@ -251,7 +251,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities: %{keys: :accounts}
+        account_abilities: %{access_keys: :accounts}
       }
 
       query = KeyScope.scoped_query(permission)
@@ -283,7 +283,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities: %{keys: :self}
+        account_abilities: %{access_keys: :self}
       }
 
       assert KeyScope.scoped_query(permission) == nil
@@ -307,7 +307,7 @@ defmodule EWallet.Bouncer.KeyScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities: %{keys: :none}
+        account_abilities: %{access_keys: :none}
       }
 
       assert KeyScope.scoped_query(permission) == nil
