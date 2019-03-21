@@ -40,7 +40,7 @@ defmodule LoadTester.Scenarios.TransactionCreate do
   def do_run(session) do
     from_account = get_master_account(session)
     to_account = get_non_master_account(session)
-    token = config(session, :token)
+    token = session.config.token
     mint_amount = round(:rand.uniform() * token.subunit_to_unit)
 
     session
