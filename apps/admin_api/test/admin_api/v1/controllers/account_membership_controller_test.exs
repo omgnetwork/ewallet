@@ -328,6 +328,199 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
   end
 
+  describe "/account.assign_key" do
+    test_with_auths "returns empty success if assigned with key_id successfully" do
+      response =
+        request("/account.assign_key", %{
+          key_id: insert(:key).id,
+          account_id: insert(:account).id,
+          role_name: Role.get_by(name: "admin").name
+        })
+
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
+    test_with_auths "returns an error when key_id is missing" do
+      response =
+        request("/account.assign_key", %{
+          account_id: insert(:account).id,
+          role_name: Role.get_by(name: "admin").name
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    test_with_auths "returns unauthorized when key_id is not found" do
+      response =
+        request("/account.assign_key", %{
+          key_id: "something",
+          account_id: insert(:account).id,
+          role_name: Role.get_by(name: "admin").name
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "returns unauthorized when account_id is not found" do
+      response =
+        request("/account.assign_key", %{
+          key_id: insert(:key).id,
+          account_id: "something",
+          role_name: Role.get_by(name: "admin").name
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "returns an error when role_name is not found" do
+      response =
+        request("/account.assign_key", %{
+          key_id: insert(:key).id,
+          account_id: insert(:account).id,
+          role_name: "something"
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "role:name_not_found"
+    end
+
+    test_with_auths "returns empty success if assigned as admin with the rights" do
+      set_admin_user_role("admin")
+      set_key_role("admin")
+
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+
+      key = insert(:key)
+
+      # Having a membership on account_1 gives access to the target key to the actor
+      {:ok, _} = Membership.assign(get_test_admin(), account_1, "admin", %System{})
+      {:ok, _} = Membership.assign(get_test_key(), account_1, "admin", %System{})
+
+      # Having a membership on account_2 gives access to the account to the actor
+      {:ok, _} = Membership.assign(get_test_admin(), account_2, "admin", %System{})
+      {:ok, _} = Membership.assign(get_test_key(), account_2, "admin", %System{})
+
+      {:ok, _} = Membership.assign(key, account_1, "admin", %System{})
+
+      response =
+        request("/account.assign_key", %{
+          key_id: key.id,
+          account_id: account_2.id,
+          role_name: Role.get_by(name: "admin").name
+        })
+
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
+    test_with_auths "returns unauthorized if adding to an account without the rights" do
+      set_admin_user_role("admin")
+      set_key_role("admin")
+
+      response =
+        request("/account.assign_key", %{
+          key_id: insert(:key).id,
+          account_id: insert(:account).id,
+          role_name: Role.get_by(name: "admin").name
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
+    end
+  end
+
+  describe "/account.unassign_key" do
+    test_with_auths "returns empty success if unassigned with key_id successfully" do
+      key = insert(:key)
+      account = insert(:account)
+
+      {:ok, _} = Membership.assign(key, account, "admin", %System{})
+
+      response =
+        request("/account.unassign_key", %{
+          key_id: key.id,
+          account_id: account.id
+        })
+
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
+    test_with_auths "returns an error when key_id is missing" do
+      response =
+        request("/account.unassign_key", %{
+          account_id: insert(:account).id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    test_with_auths "returns unauthorized when key_id is not found" do
+      response =
+        request("/account.unassign_key", %{
+          key_id: "something",
+          account_id: insert(:account).id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "returns unauthorized when account_id is not found" do
+      response =
+        request("/account.unassign_key", %{
+          key_id: insert(:key).id,
+          account_id: "something"
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "returns empty success if unassigned as admin with the rights" do
+      set_admin_user_role("admin")
+      set_key_role("admin")
+
+      account_1 = insert(:account)
+      key = insert(:key)
+
+      # Having a membership on account_1 gives access to the target key to the actor
+      {:ok, _} = Membership.assign(get_test_admin(), account_1, "admin", %System{})
+      {:ok, _} = Membership.assign(get_test_key(), account_1, "admin", %System{})
+
+      {:ok, _} = Membership.assign(key, account_1, "admin", %System{})
+
+      response =
+        request("/account.unassign_key", %{
+          key_id: key.id,
+          account_id: account_1.id
+        })
+
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
+    test_with_auths "returns unauthorized if adding to an account without the rights" do
+      set_admin_user_role("admin")
+      set_key_role("admin")
+
+      response =
+        request("/account.unassign_key", %{
+          key_id: insert(:key).id,
+          account_id: insert(:account).id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
+    end
+  end
+
   describe "/account.assign_user" do
     test_with_auths "returns empty success if assigned with user_id successfully" do
       {:ok, user} = :user |> params_for() |> User.insert()

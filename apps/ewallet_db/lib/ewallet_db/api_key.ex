@@ -67,6 +67,7 @@ defmodule EWalletDB.APIKey do
       cast: [:name, :key, :owner_app, :account_uuid, :enabled, :exchange_address],
       required: [:key, :owner_app, :account_uuid]
     )
+    |> unique_constraint(:name, name: :api_key_name_index)
     |> unique_constraint(:key)
     |> assoc_constraint(:account)
     |> assoc_constraint(:exchange_wallet)
@@ -88,6 +89,7 @@ defmodule EWalletDB.APIKey do
       cast: [:name, :enabled, :exchange_address],
       required: [:enabled]
     )
+    |> unique_constraint(:name, name: :api_key_name_index)
   end
 
   @doc """

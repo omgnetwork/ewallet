@@ -22,8 +22,6 @@ AccountCreateBody:
             type: string
           description:
             type: string
-          parent_id:
-            type: string
           category_ids:
             type: array
             items:
@@ -39,7 +37,6 @@ AccountCreateBody:
         example:
           name: Account Name
           description: The account description
-          parent_id: acc_01ca26pkge49aabzd6k6mshn0y
           category_ids: []
           metadata: {}
           encrypted_metadata: {}
@@ -198,6 +195,43 @@ AccountUnassignUserBody:
         example:
           account_id: acc_01ca2p8jqans5aty5gj5etmjcf
           user_id: usr_01ce83q2zw7zk1dqr79t22zr1v
+AccountAssignKeyBody:
+  description: The parameters to use for assigning a key to an account
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        key_id:
+          type: string
+        account_id:
+          type: string
+        role_name:
+          type: string
+      required:
+        - key_id
+        - account_id
+        - role_name
+      example:
+        key_id: key_01ce83q2zw7zk1dqr79t22zr1v
+        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+        role_name: admin
+AccountUnassignKeyBody:
+  description: The parameters to use for unassigning a key from an account
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          key_id:
+            type: string
+          account_id:
+            type: string
+        required:
+          - key_id
+          - account_id
+        example:
+          account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+          key_id: key_01ce83q2zw7zk1dqr79t22zr1v
 AccountUploadBody:
   description: The parameters to use for uploading an account's avatar. Only supports .jpg, .jpeg, .gif and .png.
   required: true

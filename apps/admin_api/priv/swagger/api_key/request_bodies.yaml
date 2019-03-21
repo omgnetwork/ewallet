@@ -5,6 +5,10 @@ AccessKeyCreateBody:
     application/vnd.omisego.v1+json:
       schema:
         properties:
+          account_id:
+            type: string
+          role_name:
+            type: string
           name:
             type: string
           global_role:

@@ -83,8 +83,8 @@ defmodule EWalletDB.KeyTest do
     test "Updates a key with a new global_role" do
       key = insert(:key)
       assert key.global_role == nil
-      {:ok, updated_key} = Key.update(key, %{global_role: "a_role", originator: %System{}})
-      assert updated_key.global_role == "a_role"
+      {:ok, updated_key} = Key.update(key, %{global_role: "admin", originator: %System{}})
+      assert updated_key.global_role == "admin"
     end
   end
 
@@ -95,6 +95,7 @@ defmodule EWalletDB.KeyTest do
     test_insert_generate_length(Key, :access_key, 43)
     test_insert_generate_length(Key, :secret_key, 171)
     test_insert_prevent_duplicate(Key, :access_key)
+    test_insert_prevent_duplicate(Key, :name)
 
     test "hashes secret_key with sha384 and hex digest it before saving" do
       {res, key} = Key.insert(params_for(:key, %{secret_key: "my_secret"}))
