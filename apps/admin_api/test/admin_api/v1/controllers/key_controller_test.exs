@@ -89,6 +89,47 @@ defmodule AdminAPI.V1.KeyControllerTest do
       assert response["data"]["account_id"] == nil
       assert response["data"]["expired"] == !key.enabled
       assert response["data"]["enabled"] == key.enabled
+      assert response["data"]["global_role"] == nil
+      assert response["data"]["created_at"] == DateFormatter.to_iso8601(key.inserted_at)
+      assert response["data"]["updated_at"] == DateFormatter.to_iso8601(key.updated_at)
+      assert response["data"]["deleted_at"] == DateFormatter.to_iso8601(key.deleted_at)
+
+      # We cannot know the `secret_key` from the controller call,
+      # so we can only check that it is a string with some length.
+      assert String.length(response["data"]["secret_key"]) > 0
+    end
+
+    test_with_auths "responds with a key with the secret key and global role" do
+      response = request("/access_key.create", %{global_role: "super_admin"})
+      key = get_last_inserted(Key)
+
+      # Cannot do `assert response == %{...}` because we don't know the value of `secret_key`.
+      # So we assert by pattern matching to validate the response structure, then directly
+      # compare each data field for its values.
+      assert %{
+               "version" => "1",
+               "success" => true,
+               "data" => %{
+                 "object" => "key",
+                 "id" => _,
+                 "name" => _,
+                 "access_key" => _,
+                 "secret_key" => _,
+                 "account_id" => nil,
+                 "enabled" => _,
+                 "expired" => _,
+                 "created_at" => _,
+                 "updated_at" => _,
+                 "deleted_at" => _
+               }
+             } = response
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["access_key"] == key.access_key
+      assert response["data"]["account_id"] == nil
+      assert response["data"]["expired"] == !key.enabled
+      assert response["data"]["enabled"] == key.enabled
+      assert response["data"]["global_role"] == "super_admin"
       assert response["data"]["created_at"] == DateFormatter.to_iso8601(key.inserted_at)
       assert response["data"]["updated_at"] == DateFormatter.to_iso8601(key.updated_at)
       assert response["data"]["deleted_at"] == DateFormatter.to_iso8601(key.deleted_at)
@@ -104,6 +145,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
 
       response =
         request("/access_key.create", %{
+          global_role: "admin",
           account_id: account.id,
           role_name: role.name
         })
@@ -136,6 +178,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
       assert response["data"]["account_id"] == nil
       assert response["data"]["expired"] == !key.enabled
       assert response["data"]["enabled"] == key.enabled
+      assert response["data"]["global_role"] == "admin"
       assert response["data"]["created_at"] == DateFormatter.to_iso8601(key.inserted_at)
       assert response["data"]["updated_at"] == DateFormatter.to_iso8601(key.updated_at)
       assert response["data"]["deleted_at"] == DateFormatter.to_iso8601(key.deleted_at)
@@ -220,6 +263,22 @@ defmodule AdminAPI.V1.KeyControllerTest do
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == true
       assert response["data"]["enabled"] == false
+    end
+
+    test_with_auths "updates the name and global role" do
+      key = insert(:key)
+
+      response =
+        request("/access_key.update", %{
+          id: key.id,
+          global_role: "viewer",
+          name: "updated_key_name"
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == key.id
+      assert response["data"]["name"] == "updated_key_name"
+      assert response["data"]["global_role"] == "viewer"
     end
 
     test_with_auths "enables the key" do

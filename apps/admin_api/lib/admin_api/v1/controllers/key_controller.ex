@@ -53,9 +53,12 @@ defmodule AdminAPI.V1.KeyController do
   Creates a new key.
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def create(conn, %{"account_id" => account_id, "role_name" => role_name})
+  def create(conn, %{"account_id" => account_id, "role_name" => role_name} = attrs)
       when not is_nil(account_id) and not is_nil(role_name) do
-    attrs = %{account_id: account_id}
+    attrs = %{
+      name: attrs["name"],
+      global_role: attrs["global_role"]
+    }
 
     with %Account{} = account <- Account.get_by(id: account_id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:create, conn.assigns, attrs),
@@ -87,9 +90,14 @@ defmodule AdminAPI.V1.KeyController do
     )
   end
 
-  def create(conn, _attrs) do
-    with {:ok, _} <- authorize(:create, conn.assigns, %{}),
-         attrs <- Originator.set_in_attrs(%{}, conn.assigns, :originator),
+  def create(conn, attrs) do
+    attrs = %{
+      name: attrs["name"],
+      global_role: attrs["global_role"]
+    }
+
+    with {:ok, _} <- authorize(:create, conn.assigns, attrs),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns, :originator),
          {:ok, key} <- Key.insert(attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
       render(conn, :key, %{key: key})
@@ -110,10 +118,16 @@ defmodule AdminAPI.V1.KeyController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
+    attrs = %{
+      name: attrs["name"],
+      global_role: attrs["global_role"],
+      enabled: !attrs["expired"]
+    }
+
     with %Key{} = key <- Key.get(id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:update, conn.assigns, key),
-         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, key} <- Key.enable_or_disable(key, attrs),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns, :originator),
+         {:ok, key} <- Key.update(key, attrs),
          {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
       render(conn, :key, %{key: key})
     else
