@@ -33,21 +33,26 @@ defmodule EWallet.Web.Config do
     "OMGAdmin-Account-ID"
   ]
 
-  def configure_cors_plug do
-    max_age =
-      case System.get_env("CORS_MAX_AGE") do
-        nil -> 600
-        value -> String.to_integer(value)
-      end
+  @methods [
+    "POST",
+    "GET"
+  ]
 
-    cors_origin = System.get_env("CORS_ORIGIN")
+  def cors_plug_config do
+    [max_age: cors_max_age(), origin: cors_origin(), headers: @headers, methods: @methods]
+  end
 
-    Application.put_env(:cors_plug, :max_age, max_age)
-    Application.put_env(:cors_plug, :headers, @headers)
-    Application.put_env(:cors_plug, :methods, ["POST"])
-    Application.put_env(:cors_plug, :origin, cors_plug_origin(cors_origin))
+  defp cors_origin do
+    "CORS_ORIGIN"
+    |> System.get_env()
+    |> cors_plug_origin()
+  end
 
-    :ok
+  defp cors_max_age do
+    case System.get_env("CORS_MAX_AGE") do
+      nil -> 600
+      value -> String.to_integer(value)
+    end
   end
 
   defp cors_plug_origin(nil), do: []

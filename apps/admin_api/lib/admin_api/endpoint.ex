@@ -16,6 +16,7 @@ defmodule AdminAPI.Endpoint do
   use Phoenix.Endpoint, otp_app: :admin_api
   use Appsignal.Phoenix
   use Sentry.Phoenix.Endpoint
+  alias EWallet.Web.Config
 
   if code_reloading? do
     plug(Phoenix.CodeReloader)
@@ -33,7 +34,7 @@ defmodule AdminAPI.Endpoint do
 
   plug(Plug.MethodOverride)
   plug(Plug.Head)
-  plug(CORSPlug)
+  plug(CORSPlug, Config.cors_plug_config)
 
   plug(AdminAPI.Router)
 end
