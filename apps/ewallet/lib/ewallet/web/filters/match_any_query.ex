@@ -35,7 +35,7 @@ defmodule EWallet.Web.MatchAnyQuery do
         dynamic([q], ilike(fragment("?::text", field(q, ^field)), ^"#{value}%") or ^dynamic)
 
       _ ->
-        {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+        not_supported(field, comparator, value)
     end
   end
 
@@ -43,7 +43,7 @@ defmodule EWallet.Web.MatchAnyQuery do
     case comparator do
       "eq" -> dynamic([q], is_nil(field(q, ^field)) or ^dynamic)
       "neq" -> dynamic([q], not is_nil(field(q, ^field)) or ^dynamic)
-      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+      _ -> not_supported(field, comparator, value)
     end
   end
 
@@ -57,7 +57,7 @@ defmodule EWallet.Web.MatchAnyQuery do
       "lte" -> dynamic([q], field(q, ^field) <= ^value or ^dynamic)
       "contains" -> dynamic([q], ilike(field(q, ^field), ^"%#{value}%") or ^dynamic)
       "starts_with" -> dynamic([q], ilike(field(q, ^field), ^"#{value}%") or ^dynamic)
-      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+      _ -> not_supported(field, comparator, value)
     end
   end
 
@@ -88,7 +88,7 @@ defmodule EWallet.Web.MatchAnyQuery do
     case comparator do
       "eq" -> dynamic([{a, position}], is_nil(field(a, ^field)) or ^dynamic)
       "neq" -> dynamic([{a, position}], not is_nil(field(a, ^field)) or ^dynamic)
-      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+      _ -> not_supported(field, comparator, value)
     end
   end
 
@@ -102,7 +102,12 @@ defmodule EWallet.Web.MatchAnyQuery do
       "lte" -> dynamic([{a, position}], field(a, ^field) <= ^value or ^dynamic)
       "contains" -> dynamic([{a, position}], ilike(field(a, ^field), ^"%#{value}%") or ^dynamic)
       "starts_with" -> dynamic([{a, position}], ilike(field(a, ^field), ^"#{value}%") or ^dynamic)
-      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+      _ -> not_supported(field, comparator, value)
     end
+  end
+
+  defp not_supported(field, comparator, value) do
+    {:error, :comparator_not_supported,
+     field: Atom.to_string(field), comparator: comparator, value: value}
   end
 end

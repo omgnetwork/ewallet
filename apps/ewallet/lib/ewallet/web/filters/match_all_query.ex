@@ -35,7 +35,7 @@ defmodule EWallet.Web.MatchAllQuery do
         dynamic([q], ilike(fragment("?::text", field(q, ^field)), ^"#{value}%") and ^dynamic)
 
       _ ->
-        {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+        not_supported(field, comparator, value)
     end
   end
 
@@ -43,7 +43,7 @@ defmodule EWallet.Web.MatchAllQuery do
     case comparator do
       "eq" -> dynamic([q], is_nil(field(q, ^field)) and ^dynamic)
       "neq" -> dynamic([q], not is_nil(field(q, ^field)) and ^dynamic)
-      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+      _ -> not_supported(field, comparator, value)
     end
   end
 
@@ -57,7 +57,7 @@ defmodule EWallet.Web.MatchAllQuery do
       "lte" -> dynamic([q], field(q, ^field) <= ^value and ^dynamic)
       "contains" -> dynamic([q], ilike(field(q, ^field), ^"%#{value}%") and ^dynamic)
       "starts_with" -> dynamic([q], ilike(field(q, ^field), ^"#{value}%") and ^dynamic)
-      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+      _ -> not_supported(field, comparator, value)
     end
   end
 
@@ -88,7 +88,7 @@ defmodule EWallet.Web.MatchAllQuery do
     case comparator do
       "eq" -> dynamic([{a, position}], is_nil(field(a, ^field)) and ^dynamic)
       "neq" -> dynamic([{a, position}], not is_nil(field(a, ^field)) and ^dynamic)
-      _ -> {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+      _ -> not_supported(field, comparator, value)
     end
   end
 
@@ -119,7 +119,12 @@ defmodule EWallet.Web.MatchAllQuery do
         dynamic([{a, position}], ilike(field(a, ^field), ^"#{value}%") and ^dynamic)
 
       _ ->
-        {:error, :comparator_not_supported, field: field, comparator: comparator, value: value}
+        not_supported(field, comparator, value)
     end
+  end
+
+  defp not_supported(field, comparator, value) do
+    {:error, :comparator_not_supported,
+     field: Atom.to_string(field), comparator: comparator, value: value}
   end
 end
