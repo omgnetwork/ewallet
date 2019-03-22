@@ -34,7 +34,7 @@ defmodule AdminAPI.Endpoint do
 
   plug(Plug.MethodOverride)
   plug(Plug.Head)
-  plug(CORSPlug, Config.cors_plug_config)
+  plug(CORSPlug, Config.cors_plug_config())
 
   plug(AdminAPI.Router)
 end

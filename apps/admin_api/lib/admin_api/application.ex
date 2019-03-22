@@ -18,14 +18,14 @@ defmodule AdminAPI.Application do
   """
   use Application
   alias AdminAPI.Endpoint
-  alias EWallet.Web.Config
+  alias EWalletConfig.Config
 
   def start(_type, _args) do
     import Supervisor.Spec
     DeferredConfig.populate(:admin_api)
 
     settings = Application.get_env(:admin_api, :settings)
-    EWalletConfig.Config.register_and_load(:admin_api, settings)
+    Config.register_and_load(:admin_api, settings)
 
     EWallet.configure_socket_endpoints([AdminAPI.V1.Endpoint])
 
