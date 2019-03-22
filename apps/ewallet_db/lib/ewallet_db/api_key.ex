@@ -23,9 +23,8 @@ defmodule EWalletDB.APIKey do
   import Ecto.Changeset
   import EWalletConfig.Validator
   import EWalletDB.Helpers.Preloader
-  alias ActivityLogger.System
   alias Ecto.UUID
-  alias EWalletDB.{Key, Repo, Seeder, User}
+  alias EWalletDB.{Key, Repo, User}
   alias Utils.Helpers.Crypto
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -66,13 +65,21 @@ defmodule EWalletDB.APIKey do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:name, :key, :creator_user_uuid, :creator_key_uuid, :enabled],
-      required: [:key]
+      cast: [:name, :key, :creator_user_uuid, :creator_key_uuid, :enabled]
     )
+    |> populate_key()
     |> validate_exclusive([:creator_user_uuid, :creator_key_uuid])
     |> unique_constraint(:key)
     |> assoc_constraint(:creator_user)
     |> assoc_constraint(:creator_key)
+  end
+
+  # Populate the key into the changeset if it does not already exist
+  defp populate_key(changeset) do
+    case get_field(changeset, :key) do
+      nil -> put_change(changeset, :key, Crypto.generate_base64_key(@key_bytes))
+      _ -> changeset
+    end
   end
 
   defp enable_changeset(%__MODULE__{} = key, attrs) do
@@ -97,8 +104,7 @@ defmodule EWalletDB.APIKey do
   Build the query for all APIKeys excluding the soft-deleted ones.
   """
   def query_all do
-    __MODULE__
-    |> exclude_deleted()
+    exclude_deleted(__MODULE__)
   end
 
   @doc """
@@ -131,29 +137,10 @@ defmodule EWalletDB.APIKey do
   """
   @spec insert(map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
-    attrs =
-      attrs
-      |> Map.put_new_lazy(:key, fn -> Crypto.generate_base64_key(@key_bytes) end)
-      # Disallow overriding :creator_user_uuid and :creator_key_uuid from the request
-      |> Map.drop([:creator_user_uuid, :creator_key_uuid])
-      |> populate_creator()
-
     %__MODULE__{}
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log()
   end
-
-  defp populate_creator(%{originator: %User{uuid: uuid}} = attrs) do
-    Map.put(attrs, :creator_user_uuid, uuid)
-  end
-
-  defp populate_creator(%{originator: %Key{uuid: uuid}} = attrs) do
-    Map.put(attrs, :creator_key_uuid, uuid)
-  end
-
-  defp populate_creator(%{originator: %System{}} = attrs), do: attrs
-
-  defp populate_creator(%{originator: %Seeder{}} = attrs), do: attrs
 
   @doc """
   Updates an API key with the provided attributes.
