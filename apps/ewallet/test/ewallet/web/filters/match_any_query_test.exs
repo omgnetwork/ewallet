@@ -291,7 +291,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       assert res == :error
       assert code == :comparator_not_supported
-      assert meta == [field: :username, comparator: "gt", value: nil]
+      assert meta == [field: "username", comparator: "gt", value: nil]
     end
   end
 
@@ -340,7 +340,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       assert res == :error
       assert code == :comparator_not_supported
-      assert meta == [field: :username, comparator: "gte", value: nil]
+      assert meta == [field: "username", comparator: "gte", value: nil]
     end
   end
 
@@ -389,7 +389,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       assert res == :error
       assert code == :comparator_not_supported
-      assert meta == [field: :username, comparator: "lt", value: nil]
+      assert meta == [field: "username", comparator: "lt", value: nil]
     end
   end
 
@@ -438,7 +438,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       assert res == :error
       assert code == :comparator_not_supported
-      assert meta == [field: :username, comparator: "lte", value: nil]
+      assert meta == [field: "username", comparator: "lte", value: nil]
     end
   end
 
@@ -461,7 +461,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       assert res == :error
       assert code == :comparator_not_supported
-      assert meta == [field: :username, comparator: "contains", value: nil]
+      assert meta == [field: "username", comparator: "contains", value: nil]
     end
   end
 
@@ -484,7 +484,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       assert res == :error
       assert code == :comparator_not_supported
-      assert meta == [field: :username, comparator: "starts_with", value: nil]
+      assert meta == [field: "username", comparator: "starts_with", value: nil]
     end
   end
 end
