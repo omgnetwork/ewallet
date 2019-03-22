@@ -14,8 +14,6 @@
 
 defmodule AdminAPI.V1.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias Utils.Helpers.DateFormatter
-  alias EWallet.Web.V1.UserSerializer
   alias EWalletDB.{Account, AccountUser, Repo, Token, User, Wallet}
   alias ActivityLogger.System
 
@@ -134,84 +132,39 @@ defmodule AdminAPI.V1.WalletControllerTest do
           provider_user_id: user.provider_user_id
         })
 
-      assert response == %{
-               "version" => "1",
-               "success" => true,
-               "data" => %{
-                 "object" => "list",
-                 "pagination" => %{
-                   "current_page" => 1,
-                   "is_first_page" => true,
-                   "is_last_page" => true,
-                   "per_page" => 10,
-                   "count" => 1
-                 },
-                 "data" => [
-                   %{
-                     "object" => "wallet",
-                     "socket_topic" => "wallet:#{user_wallet.address}",
-                     "address" => user_wallet.address,
-                     "account" => nil,
-                     "account_id" => nil,
-                     "encrypted_metadata" => %{},
-                     "identifier" => "primary",
-                     "metadata" => %{},
-                     "name" => "primary",
-                     "user" => user |> UserSerializer.serialize() |> stringify_keys(),
-                     "user_id" => user.id,
-                     "enabled" => true,
-                     "created_at" => DateFormatter.to_iso8601(user_wallet.inserted_at),
-                     "updated_at" => DateFormatter.to_iso8601(user_wallet.updated_at),
-                     "balances" => [
-                       %{
-                         "object" => "balance",
-                         "amount" => 150_000 * btc.subunit_to_unit,
-                         "token" => %{
-                           "name" => btc.name,
-                           "object" => "token",
-                           "subunit_to_unit" => btc.subunit_to_unit,
-                           "symbol" => btc.symbol,
-                           "id" => btc.id,
-                           "metadata" => %{},
-                           "encrypted_metadata" => %{},
-                           "enabled" => true,
-                           "avatar" => %{
-                             "large" => nil,
-                             "original" => nil,
-                             "small" => nil,
-                             "thumb" => nil
-                           },
-                           "created_at" => DateFormatter.to_iso8601(btc.inserted_at),
-                           "updated_at" => DateFormatter.to_iso8601(btc.updated_at)
-                         }
-                       },
-                       %{
-                         "object" => "balance",
-                         "amount" => 12_000 * omg.subunit_to_unit,
-                         "token" => %{
-                           "name" => omg.name,
-                           "object" => "token",
-                           "subunit_to_unit" => omg.subunit_to_unit,
-                           "symbol" => omg.symbol,
-                           "id" => omg.id,
-                           "metadata" => %{},
-                           "encrypted_metadata" => %{},
-                           "enabled" => true,
-                           "avatar" => %{
-                             "large" => nil,
-                             "original" => nil,
-                             "small" => nil,
-                             "thumb" => nil
-                           },
-                           "created_at" => DateFormatter.to_iso8601(omg.inserted_at),
-                           "updated_at" => DateFormatter.to_iso8601(omg.updated_at)
-                         }
-                       }
-                     ]
-                   }
-                 ]
-               }
-             }
+      assert response["success"] == true
+      assert Enum.all?(response["data"]["data"], fn w -> w["user_id"] == user.id end)
+    end
+
+    test_with_auths "returns the balances of the wallets" do
+      account = Account.get_master_account()
+      master_wallet = Account.get_primary_wallet(account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      user_wallet = User.get_primary_wallet(user)
+      {:ok, btc} = :token |> params_for() |> Token.insert()
+      {:ok, omg} = :token |> params_for() |> Token.insert()
+
+      mint!(btc)
+      mint!(omg)
+
+      transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
+
+      response =
+        request("/user.get_wallets", %{
+          provider_user_id: user.provider_user_id
+        })
+
+      assert response["success"] == true
+      balances = List.first(response["data"]["data"])["balances"]
+
+      assert Enum.any?(balances, fn balance ->
+        balance["amount"] == 150_000 * btc.subunit_to_unit && balance["token"]["id"] == btc.id
+      end)
+
+      assert Enum.any?(balances, fn balance ->
+        balance["amount"] == 12_000 * omg.subunit_to_unit && balance["token"]["id"] == omg.id
+      end)
     end
 
     test_with_auths "Get all user wallets with an invalid parameter should fail" do
