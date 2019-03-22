@@ -33,6 +33,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       template:
         "Invalid parameter provided. The queried field is not allowed. Given: '%{field_name}'."
     },
+    missing_filter_param: %{
+      code: "client:invalid_parameter",
+      template: "Invalid parameter provided. Missing a filter parameter. Got: %{filter_params}."
+    },
     missing_id: %{
       code: "client:invalid_parameter",
       description: "Invalid parameter provided. `id` is required."
@@ -579,7 +583,11 @@ defmodule EWallet.Web.V1.ErrorHandler do
   end
 
   defp template_replace(template, pattern, nil) do
-    String.replace(template, "%{#{pattern}}", "nil")
+    template_replace(template, "%{#{pattern}}", "nil")
+  end
+
+  defp template_replace(template, pattern, replacement) when not is_binary(replacement) do
+    template_replace(template, pattern, inspect(replacement))
   end
 
   defp template_replace(template, pattern, replacement) do

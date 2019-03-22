@@ -116,6 +116,26 @@ defmodule EWallet.Web.V1.ErrorHandlerTest do
 
       assert ErrorHandler.build_error(:error_code, %{"value" => "ABCD"}, errors) == expected
     end
+
+    test "stringifies the templating data before rendering the error" do
+      errors = %{
+        error_code: %{
+          code: "error:error_code",
+          template: "Error template. Stringified data is: '%{map_data}'."
+        }
+      }
+
+      expected = %{
+        object: "error",
+        code: errors[:error_code].code,
+        description: ~s/Error template. Stringified data is: '%{"foo" => "bar"}'./,
+        messages: nil
+      }
+
+      template_data = %{"map_data" => %{"foo" => "bar"}}
+
+      assert ErrorHandler.build_error(:error_code, template_data, errors) == expected
+    end
   end
 
   describe "build_error/2" do
