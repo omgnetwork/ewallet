@@ -19,7 +19,7 @@ defmodule EWallet.Web.V1.APIKeySerializer do
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.Paginator
   alias EWallet.Web.V1.PaginatorSerializer
-  alias EWalletDB.APIKey
+  alias EWalletDB.{Account, APIKey}
   alias Utils.Helpers.{Assoc, DateFormatter}
 
   def serialize(%Paginator{} = paginator) do
@@ -38,8 +38,13 @@ defmodule EWallet.Web.V1.APIKeySerializer do
       created_at: DateFormatter.to_iso8601(api_key.inserted_at),
       updated_at: DateFormatter.to_iso8601(api_key.updated_at),
       deleted_at: DateFormatter.to_iso8601(api_key.deleted_at),
+
       # Attributes below are DEPRECATED and will be removed in the future:
-      # "expired" has been replaced by "enabled" in PR #535
+      ## An APIKey is no longer tied to an account since PR #870
+      account_id: Account.get_master_account().id,
+      ## An APIKey is no longer tied to an owner_app since PR #870
+      owner_app: "ewallet_api",
+      ## "expired" has been replaced by "enabled" in PR #535
       expired: !api_key.enabled
     }
   end

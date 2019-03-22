@@ -14,7 +14,7 @@
 
 defmodule AdminAPI.V1.APIKeyControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{APIKey, Key, User, Repo}
+  alias EWalletDB.{Account, APIKey, Key, User, Repo}
   alias Utils.Helpers.{Assoc, DateFormatter}
 
   describe "/api_key.all" do
@@ -80,10 +80,12 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                  "id" => api_key.id,
                  "name" => api_key.name,
                  "key" => api_key.key,
+                 "account_id" => Account.get_master_account().id,
+                 "owner_app" => "ewallet_api",
                  "creator_user_id" => Assoc.get(api_key, [:creator_user, :id]),
                  "creator_key_id" => Assoc.get(api_key, [:creator_key, :id]),
-                 "expired" => false,
-                 "enabled" => true,
+                 "expired" => !api_key.enabled,
+                 "enabled" => api_key.enabled,
                  "created_at" => DateFormatter.to_iso8601(api_key.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(api_key.updated_at),
                  "deleted_at" => DateFormatter.to_iso8601(api_key.deleted_at)
@@ -221,8 +223,10 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                  "id" => updated.id,
                  "name" => api_key.name,
                  "key" => api_key.key,
-                 "expired" => true,
                  "enabled" => false,
+                 "expired" => true,
+                 "account_id" => Account.get_master_account().id,
+                 "owner_app" => "ewallet_api",
                  "creator_user_id" => api_key.creator_user.id,
                  "creator_key_id" => nil,
                  "created_at" => DateFormatter.to_iso8601(api_key.inserted_at),

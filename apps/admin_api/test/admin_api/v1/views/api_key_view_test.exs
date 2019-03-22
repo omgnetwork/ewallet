@@ -16,7 +16,27 @@ defmodule AdminAPI.V1.APIKeyViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.APIKeyView
   alias EWallet.Web.Paginator
+  alias EWalletDB.Account
   alias Utils.Helpers.{Assoc, DateFormatter}
+
+  # Setup required for Account.get_master_account() to return an actual account.
+  setup do
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
+    {:ok, account} = :account |> params_for() |> Account.insert()
+    config_pid = start_supervised!(EWalletConfig.Config)
+
+    EWalletConfig.ConfigTestHelper.restart_config_genserver(
+      self(),
+      config_pid,
+      EWalletConfig.Repo,
+      [:ewallet_db],
+      %{
+        "master_account" => account.id
+      }
+    )
+
+    %{config_pid: config_pid}
+  end
 
   describe "render/2" do
     test "renders api_key.json with correct response format" do
@@ -30,6 +50,8 @@ defmodule AdminAPI.V1.APIKeyViewTest do
           id: api_key.id,
           name: api_key.name,
           key: api_key.key,
+          account_id: Account.get_master_account().id,
+          owner_app: "ewallet_api",
           creator_user_id: Assoc.get(api_key, [:creator_user, :id]),
           creator_key_id: Assoc.get(api_key, [:creator_key, :id]),
           expired: false,
@@ -68,6 +90,8 @@ defmodule AdminAPI.V1.APIKeyViewTest do
               id: api_key1.id,
               name: api_key1.name,
               key: api_key1.key,
+              account_id: Account.get_master_account().id,
+              owner_app: "ewallet_api",
               creator_user_id: Assoc.get(api_key1, [:creator_user, :id]),
               creator_key_id: Assoc.get(api_key1, [:creator_key, :id]),
               expired: false,
@@ -81,6 +105,8 @@ defmodule AdminAPI.V1.APIKeyViewTest do
               id: api_key2.id,
               name: api_key2.name,
               key: api_key2.key,
+              account_id: Account.get_master_account().id,
+              owner_app: "ewallet_api",
               creator_user_id: Assoc.get(api_key2, [:creator_user, :id]),
               creator_key_id: Assoc.get(api_key2, [:creator_key, :id]),
               expired: false,

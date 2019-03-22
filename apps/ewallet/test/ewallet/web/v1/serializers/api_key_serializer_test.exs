@@ -14,10 +14,31 @@
 
 defmodule EWallet.Web.V1.APIKeySerializerTest do
   use EWallet.Web.SerializerCase, :v1
+  import EWalletDB.Factory
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.Paginator
   alias EWallet.Web.V1.APIKeySerializer
+  alias EWalletDB.Account
   alias Utils.Helpers.{Assoc, DateFormatter}
+
+  # Setup required for Account.get_master_account() to return an actual account.
+  setup do
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
+    {:ok, account} = :account |> params_for() |> Account.insert()
+    config_pid = start_supervised!(EWalletConfig.Config)
+
+    EWalletConfig.ConfigTestHelper.restart_config_genserver(
+      self(),
+      config_pid,
+      EWalletConfig.Repo,
+      [:ewallet_db],
+      %{
+        "master_account" => account.id
+      }
+    )
+
+    %{config_pid: config_pid}
+  end
 
   describe "serialize/1" do
     test "serializes a api_key into the correct response format" do
@@ -28,6 +49,8 @@ defmodule EWallet.Web.V1.APIKeySerializerTest do
         id: api_key.id,
         name: api_key.name,
         key: api_key.key,
+        account_id: Account.get_master_account().id,
+        owner_app: "ewallet_api",
         creator_user_id: Assoc.get(api_key, [:creator_user, :id]),
         creator_key_id: Assoc.get(api_key, [:creator_key, :id]),
         expired: !api_key.enabled,
@@ -70,6 +93,8 @@ defmodule EWallet.Web.V1.APIKeySerializerTest do
             id: api_key_1.id,
             name: api_key_1.name,
             key: api_key_1.key,
+            account_id: Account.get_master_account().id,
+            owner_app: "ewallet_api",
             creator_user_id: Assoc.get(api_key_1, [:creator_user, :id]),
             creator_key_id: Assoc.get(api_key_1, [:creator_key, :id]),
             expired: !api_key_1.enabled,
@@ -83,6 +108,8 @@ defmodule EWallet.Web.V1.APIKeySerializerTest do
             id: api_key_2.id,
             name: api_key_2.name,
             key: api_key_2.key,
+            account_id: Account.get_master_account().id,
+            owner_app: "ewallet_api",
             creator_user_id: Assoc.get(api_key_2, [:creator_user, :id]),
             creator_key_id: Assoc.get(api_key_2, [:creator_key, :id]),
             expired: !api_key_2.enabled,
