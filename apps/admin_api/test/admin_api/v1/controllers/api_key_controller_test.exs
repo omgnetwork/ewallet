@@ -91,6 +91,16 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
              }
     end
 
+    test_with_auths "sets the name when provided" do
+      response = request("/api_key.create", %{"name" => "test_set_key_name"})
+
+      assert response["success"]
+      assert response["data"]["name"] == "test_set_key_name"
+
+      api_key = get_last_inserted(APIKey)
+      assert api_key.name == "test_set_key_name"
+    end
+
     defp assert_create_logs(logs, originator, target) do
       assert Enum.count(logs) == 1
 
@@ -172,6 +182,24 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
       assert response["data"]["enabled"] == true
     end
 
+    test_with_auths "updates the name" do
+      original_name = "original_key_name"
+      new_name = "new_key_name"
+
+      api_key = insert(:api_key, name: original_name)
+      assert api_key.name == original_name
+
+      response =
+        request("/api_key.update", %{
+          id: api_key.id,
+          name: new_name
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["name"] == new_name
+    end
+
     test_with_auths "does not update any other fields" do
       api_key = insert(:api_key)
       assert api_key.enabled == true
@@ -179,7 +207,6 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
       response =
         request("/api_key.update", %{
           id: api_key.id,
-          name: "my_name",
           expired: true,
           key: "some_key"
         })
@@ -192,7 +219,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                "data" => %{
                  "object" => "api_key",
                  "id" => updated.id,
-                 "name" => "my_name",
+                 "name" => api_key.name,
                  "key" => api_key.key,
                  "expired" => true,
                  "enabled" => false,
