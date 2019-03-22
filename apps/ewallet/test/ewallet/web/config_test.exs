@@ -84,12 +84,12 @@ defmodule EWallet.Web.ConfigTest do
     end
 
     test "returns a correct origin value when CORS_ORIGIN is specified with multiple values" do
-      origin = "http://example.com, http://localhost.com"
+      origin = "https://example.com, https://second.example.com"
       {:ok, original_env} = set_system_env("CORS_ORIGIN", origin)
 
       config = Config.cors_plug_config()
 
-      assert config[:origin] == ["http://example.com", "http://localhost.com"]
+      assert config[:origin] == ["https://example.com", "https://second.example.com"]
 
       # Revert the env var to their original values.
       {:ok, _} = set_system_env("CORS_ORIGIN", original_env)
