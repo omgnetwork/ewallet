@@ -35339,8 +35339,20 @@
                                       "key": {
                                         "type": "string"
                                       },
+                                      "owner_app": {
+                                        "type": "string"
+                                      },
                                       "enabled": {
                                         "type": "boolean"
+                                      },
+                                      "account_id": {
+                                        "type": "string"
+                                      },
+                                      "creator_user_id": {
+                                        "type": "string"
+                                      },
+                                      "creator_key_id": {
+                                        "type": "string"
                                       },
                                       "created_at": {
                                         "type": "string",
@@ -35360,7 +35372,9 @@
                                       "object",
                                       "id",
                                       "key",
+                                      "owner_app",
                                       "enabled",
+                                      "account_id",
                                       "created_at",
                                       "updated_at",
                                       "deleted_at"
@@ -35381,6 +35395,7 @@
                               "id": "api_01ce844d5w9e81snekr5kprvem",
                               "name": "my_key",
                               "key": "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
+                              "owner_app": "ewallet_api",
                               "enabled": true,
                               "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
                               "created_at": "2018-01-01T00:00:00Z",
@@ -35569,8 +35584,20 @@
                             "key": {
                               "type": "string"
                             },
+                            "owner_app": {
+                              "type": "string"
+                            },
                             "enabled": {
                               "type": "boolean"
+                            },
+                            "account_id": {
+                              "type": "string"
+                            },
+                            "creator_user_id": {
+                              "type": "string"
+                            },
+                            "creator_key_id": {
+                              "type": "string"
                             },
                             "created_at": {
                               "type": "string",
@@ -35590,7 +35617,9 @@
                             "object",
                             "id",
                             "key",
+                            "owner_app",
                             "enabled",
+                            "account_id",
                             "created_at",
                             "updated_at",
                             "deleted_at"
@@ -35603,6 +35632,7 @@
                           "id": "api_01ce844d5w9e81snekr5kprvem",
                           "name": "my_key",
                           "key": "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
+                          "owner_app": "ewallet_api",
                           "enabled": true,
                           "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
                           "created_at": "2018-01-01T00:00:00Z",
@@ -35796,8 +35826,20 @@
                             "key": {
                               "type": "string"
                             },
+                            "owner_app": {
+                              "type": "string"
+                            },
                             "enabled": {
                               "type": "boolean"
+                            },
+                            "account_id": {
+                              "type": "string"
+                            },
+                            "creator_user_id": {
+                              "type": "string"
+                            },
+                            "creator_key_id": {
+                              "type": "string"
                             },
                             "created_at": {
                               "type": "string",
@@ -35817,7 +35859,9 @@
                             "object",
                             "id",
                             "key",
+                            "owner_app",
                             "enabled",
+                            "account_id",
                             "created_at",
                             "updated_at",
                             "deleted_at"
@@ -35830,6 +35874,7 @@
                           "id": "api_01ce844d5w9e81snekr5kprvem",
                           "name": "my_key",
                           "key": "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
+                          "owner_app": "ewallet_api",
                           "enabled": true,
                           "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
                           "created_at": "2018-01-01T00:00:00Z",
@@ -36024,8 +36069,20 @@
                             "key": {
                               "type": "string"
                             },
+                            "owner_app": {
+                              "type": "string"
+                            },
                             "enabled": {
                               "type": "boolean"
+                            },
+                            "account_id": {
+                              "type": "string"
+                            },
+                            "creator_user_id": {
+                              "type": "string"
+                            },
+                            "creator_key_id": {
+                              "type": "string"
                             },
                             "created_at": {
                               "type": "string",
@@ -36045,7 +36102,9 @@
                             "object",
                             "id",
                             "key",
+                            "owner_app",
                             "enabled",
+                            "account_id",
                             "created_at",
                             "updated_at",
                             "deleted_at"
@@ -36058,6 +36117,7 @@
                           "id": "api_01ce844d5w9e81snekr5kprvem",
                           "name": "my_key",
                           "key": "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
+                          "owner_app": "ewallet_api",
                           "enabled": true,
                           "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
                           "created_at": "2018-01-01T00:00:00Z",
