@@ -159,12 +159,14 @@ defmodule AdminAPI.V1.WalletControllerTest do
       balances = List.first(response["data"]["data"])["balances"]
 
       assert Enum.any?(balances, fn balance ->
-        balance["amount"] == 150_000 * btc.subunit_to_unit && balance["token"]["id"] == btc.id
-      end)
+               balance["amount"] == 150_000 * btc.subunit_to_unit &&
+                 balance["token"]["id"] == btc.id
+             end)
 
       assert Enum.any?(balances, fn balance ->
-        balance["amount"] == 12_000 * omg.subunit_to_unit && balance["token"]["id"] == omg.id
-      end)
+               balance["amount"] == 12_000 * omg.subunit_to_unit &&
+                 balance["token"]["id"] == omg.id
+             end)
     end
 
     test_with_auths "Get all user wallets with an invalid parameter should fail" do
