@@ -31,6 +31,21 @@ export const getAccounts = ({ page, perPage, search, cacheKey }) =>
     cacheKey
   })
 
+export const getKeysAccountId = ({ accountId, page, perPage, search, cacheKey, matchAll, matchAny }) =>
+  createPaginationActionCreator({
+    actionName: 'ACCOUNTS',
+    action: 'REQUEST',
+    service: () =>
+      accountService.getKeysByAccountId({
+        perPage,
+        page,
+        sort: { by: 'created_at', dir: 'desc' },
+        matchAll,
+        matchAny
+      }),
+    cacheKey
+  })
+
 export const getAccountById = id =>
   createActionCreator({
     actionName: 'ACCOUNT',

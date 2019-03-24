@@ -133,3 +133,18 @@ export function getUsersByAccountId ({ accountId, perPage, page, sort, matchAll,
     }
   })
 }
+
+export function getKeysByAccountId ({ accountId, perPage, page, sort, matchAll, matchAny }) {
+  return authenticatedRequest({
+    path: '/account.get_keys',
+    data: {
+      id: accountId,
+      per_page: Number(perPage),
+      page: Number(page) || 1,
+      sort_by: sort.by,
+      sort_dir: sort.dir,
+      match_all: matchAll,
+      match_any: matchAny
+    }
+  })
+}

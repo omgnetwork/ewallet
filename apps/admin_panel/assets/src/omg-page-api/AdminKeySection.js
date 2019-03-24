@@ -142,7 +142,9 @@ class ApiKeyPage extends Component {
   static propTypes = {
     location: PropTypes.object,
     updateAccessKey: PropTypes.func,
-    createAdminKeyModalOpen: PropTypes.bool
+    createAdminKeyModalOpen: PropTypes.bool,
+    query: PropTypes.object,
+    fetcher: PropTypes.func
   }
   state = {
     createAdminKeyModalOpen: false,
@@ -236,6 +238,7 @@ class ApiKeyPage extends Component {
           page: queryString.parse(this.props.location.search)['access_key_page'],
           perPage: 10
         }}
+        {...this.props.query}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data.map(key => {
             return {

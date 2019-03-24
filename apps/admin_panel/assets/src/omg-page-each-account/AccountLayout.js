@@ -14,6 +14,7 @@ import WalletDetailPage from '../omg-page-wallet-detail'
 import UserDetailPage from '../omg-page-user-detail'
 import AdminDetailPage from '../omg-page-admin-detail'
 import AccountActivitySubPage from './AccountActivitySubPage'
+import AccountKeySubPage from './AccountKeySubPage'
 import { selectGetAccountById } from '../omg-account/selector'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
@@ -63,6 +64,8 @@ function AccountLayout (props) {
         exact
         render={() => <WalletDetailPage />}
       />
+      <Route path='/accounts/:accountId/keys' exact render={() => <AccountKeySubPage />} />
+
       <Route path='/accounts/:accountId/users' exact render={() => <AccountUserSubPage />} />
       <Route path='/accounts/:accountId/users/:userId' exact render={() => <UserDetailPage />} />
       <Route path='/accounts/:accountId/admins' exact render={() => <AccountAdminSubPage />} />
@@ -91,7 +94,8 @@ function AccountLayout (props) {
 AccountLayout.propTypes = {
   match: PropTypes.object,
   account: PropTypes.object,
-  subscribeToWebsocketByAccountId: PropTypes.func
+  subscribeToWebsocketByAccountId: PropTypes.func,
+  visitAccount: PropTypes.func
 }
 
 export default enhance(AccountLayout)

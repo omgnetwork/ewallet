@@ -98,6 +98,8 @@ function CreateAdminKeyModal (props) {
       setSubmitStatus('SUCCESS')
       props.onSubmitSuccess(data)
       onRequestClose()
+    } else {
+      setSubmitStatus('FAILED')
     }
   }
 
