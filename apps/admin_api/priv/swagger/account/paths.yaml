@@ -110,6 +110,38 @@ account.unassign_user:
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+account.assign_key:
+  post:
+    tags:
+      - Account
+    summary: Assigns a key to an account with a role
+    operationId: account_assign_key
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountAssignKeyBody'
+    responses:
+      '200':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+account.unassign_key:
+  post:
+    tags:
+      - Account
+    summary: Unassigns a key from an account
+    operationId: account_unassign_key
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountUnassignKeyBody'
+    responses:
+      '200':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 account.get_members:
   post:
     tags:
@@ -124,6 +156,22 @@ account.get_members:
     responses:
       '200':
         $ref: '../user/responses.yaml#/MembersResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+account.get_keys:
+  post:
+    tags:
+      - Account
+    summary: List the keys that are currently assigned to the given acount
+    operationId: account_get_keys
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBody'
+    responses:
+      '200':
+        $ref: '../api_key/responses.yaml#/MemberAccessKeysResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 account.get_users:

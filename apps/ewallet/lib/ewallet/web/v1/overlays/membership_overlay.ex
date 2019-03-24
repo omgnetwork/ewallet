@@ -38,20 +38,16 @@ defmodule EWallet.Web.V1.MembershipOverlay do
     ]
 
   def search_fields,
-    do: [
-      :id
-    ]
+    do: []
 
   def sort_fields,
     do: [
-      :id,
       :inserted_at,
       :updated_at
     ]
 
   def self_filter_fields,
     do: [
-      :id,
       :inserted_at,
       :updated_at
     ]

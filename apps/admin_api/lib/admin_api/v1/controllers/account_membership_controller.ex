@@ -24,21 +24,29 @@ defmodule AdminAPI.V1.AccountMembershipController do
     UserGate
   }
 
-  alias EWallet.Web.{Orchestrator, Originator, V1.MembershipOverlay}
-  alias EWalletDB.{Account, Membership, Role, User}
+  alias EWallet.Web.{Orchestrator, Paginator, Originator, V1.MembershipOverlay}
+  alias EWalletDB.{Account, Key, Membership, Role, User}
 
   @doc """
   Lists the users that are assigned to the given account.
   """
-  def all_for_account(conn, %{"id" => account_id} = attrs) do
+  def all_users_for_account(conn, attrs) do
+    all_for_account(conn, attrs, :user)
+  end
+
+  def all_keys_for_account(conn, attrs) do
+    all_for_account(conn, attrs, :key)
+  end
+
+  defp all_for_account(conn, %{"id" => account_id} = attrs, type) do
     with %Account{} = account <-
-           Account.get(account_id, preload: [memberships: [:user, :role]]) ||
+           Account.get(account_id, preload: [memberships: [type, :role]]) ||
              {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, account),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
-         attrs <- transform_user_filter_attrs(attrs),
-         query <- Membership.all_by_account(account, query),
-         memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
+         attrs <- transform_member_filter_attrs(attrs, type),
+         query <- query_members(account, query, type),
+         %Paginator{} = memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
       render(conn, :memberships, %{memberships: memberships})
     else
       {:error, :not_allowed, field} ->
@@ -46,43 +54,116 @@ defmodule AdminAPI.V1.AccountMembershipController do
 
       {:error, error} ->
         handle_error(conn, error)
+
+      {:error, code, description} ->
+        handle_error(conn, code, description)
     end
   end
 
-  def all_for_account(conn, _), do: handle_error(conn, :invalid_parameter)
+  defp all_for_account(conn, _, _), do: handle_error(conn, :invalid_parameter)
+
+  defp query_members(account, query, :user) do
+    Membership.all_users_by_account(account, query)
+  end
+
+  defp query_members(account, query, :key) do
+    Membership.all_keys_by_account(account, query)
+  end
 
   # Transform the filter attributes to the ones expected by
   # the Orchestrator + MembershipOverlay.
-  defp transform_user_filter_attrs(attrs) do
-    user_filterables =
+  defp transform_member_filter_attrs(attrs, type) do
+    member_filterables =
       MembershipOverlay.filter_fields()
-      |> Keyword.get(:user)
+      |> Keyword.get(type)
       |> Enum.map(fn field -> Atom.to_string(field) end)
 
     attrs
-    |> transform_user_filter_attrs("match_any", user_filterables)
-    |> transform_user_filter_attrs("match_all", user_filterables)
+    |> do_transform_member_filter_attrs("match_any", member_filterables, type)
+    |> do_transform_member_filter_attrs("match_all", member_filterables, type)
   end
 
-  defp transform_user_filter_attrs(attrs, match_type, filterables) do
+  defp do_transform_member_filter_attrs(attrs, match_type, filterables, type) do
     case attrs[match_type] do
       nil ->
         attrs
 
       _ ->
-        match_attrs = transform_user_filter_attrs(attrs[match_type], filterables)
+        match_attrs = do_transform_member_filter_attrs(attrs[match_type], filterables, type)
         Map.put(attrs, match_type, match_attrs)
     end
   end
 
-  defp transform_user_filter_attrs(filters, filterables) do
+  defp do_transform_member_filter_attrs(filters, filterables, type) do
     Enum.map(filters, fn filter ->
       case Enum.member?(filterables, filter["field"]) do
-        true -> Map.put(filter, "field", "user." <> filter["field"])
+        true -> Map.put(filter, "field", "#{Atom.to_string(type)}." <> filter["field"])
         false -> filter
       end
     end)
   end
+
+  @doc """
+  Assigns the key to the given account and role.
+  """
+  def assign_key(conn, %{"key_id" => key_id, "account_id" => account_id, "role_name" => role_name}) do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         %Key{} = key <- Key.get(key_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         {:ok, _} <- authorize(:get, conn.assigns, key),
+         {:ok, _} <-
+           authorize(:create, conn.assigns, %Membership{
+             account: account,
+             account_uuid: account.uuid
+           }),
+         %Role{} = role <-
+           Role.get_by(name: role_name) || {:error, :role_name_not_found},
+         originator <- Originator.extract(conn.assigns),
+         {:ok, _} = Membership.assign(key, account, role, originator) do
+      render(conn, :empty, %{success: true})
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+
+      {:error, code, description} ->
+        handle_error(conn, code, description)
+    end
+  end
+
+  def assign_key(conn, _),
+    do:
+      handle_error(
+        conn,
+        :invalid_parameter,
+        "`key_id`, `account_id` and `role_name` are required."
+      )
+
+  @doc """
+  Unassigns the key to the given account and role.
+  """
+  def unassign_key(conn, %{
+        "key_id" => key_id,
+        "account_id" => account_id
+      })
+      when not is_nil(account_id) and not is_nil(key_id) do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, account),
+         %Key{} = key <- Key.get(key_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, key),
+         %Membership{} = membership <-
+           Membership.get_by_member_and_account(key, account) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:delete, conn.assigns, membership),
+         originator <- Originator.extract(conn.assigns),
+         {:ok, _} <- Membership.unassign(key, account, originator) do
+      render(conn, :empty, %{success: true})
+    else
+      nil -> handle_error(conn, :unauthorized)
+      {:error, error} -> handle_error(conn, error)
+    end
+  end
+
+  def unassign_key(conn, _attrs),
+    do: handle_error(conn, :invalid_parameter, "`key_id` and `account_id` are required.")
 
   @doc """
   Assigns the user to the given account and role.
@@ -135,7 +216,8 @@ defmodule AdminAPI.V1.AccountMembershipController do
          {:ok, _} <- authorize(:get, conn.assigns, account),
          %User{} = user <- User.get(user_id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, user),
-         %Membership{} = membership <- Membership.get_by_member_and_account(user, account),
+         %Membership{} = membership <-
+           Membership.get_by_member_and_account(user, account) || {:error, :unauthorized},
          {:ok, _} <- authorize(:delete, conn.assigns, membership),
          originator <- Originator.extract(conn.assigns),
          {:ok, _} <- Membership.unassign(user, account, originator) do

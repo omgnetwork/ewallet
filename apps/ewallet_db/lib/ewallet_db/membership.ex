@@ -117,6 +117,22 @@ defmodule EWalletDB.Membership do
     |> preload([m], ^preload)
   end
 
+  @spec all_users_by_account(EWalletDB.Account.t(), any(), any()) :: Ecto.Query.t()
+  def all_users_by_account(%Account{} = account, query \\ Membership, preload \\ []) do
+    query
+    |> where([m], m.account_uuid == ^account.uuid)
+    |> where([m], not is_nil(m.user_uuid))
+    |> preload([m], ^preload)
+  end
+
+  @spec all_keys_by_account(EWalletDB.Account.t(), any(), any()) :: Ecto.Query.t()
+  def all_keys_by_account(%Account{} = account, query \\ Membership, preload \\ []) do
+    query
+    |> where([m], m.account_uuid == ^account.uuid)
+    |> where([m], not is_nil(m.key_uuid))
+    |> preload([m], ^preload)
+  end
+
   @spec all_by_account_uuids(any(), any()) :: Ecto.Query.t()
   def all_by_account_uuids(account_uuids, preload \\ []) do
     from(m in Membership, where: m.account_uuid in ^account_uuids, preload: ^preload)
@@ -196,8 +212,8 @@ defmodule EWalletDB.Membership do
   @doc """
   Unassigns the user from the given account.
   """
-  def unassign(%User{} = user, %Account{} = account, originator) do
-    case get_by_member_and_account(user, account) do
+  def unassign(member, %Account{} = account, originator) do
+    case get_by_member_and_account(member, account) do
       nil ->
         {:error, :membership_not_found}
 
