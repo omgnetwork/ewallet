@@ -1,9 +1,10 @@
-import { selectGetAccountById } from '../omg-account/selector'
-import _ from 'lodash'
+import { selectGetAccountByIdMaybeLoading } from '../omg-account/selector'
 export const selectRecentAccounts = state =>
   state.recentAccounts
-    .filter(maybeExistRecentAccountId => selectGetAccountById(state)(maybeExistRecentAccountId))
+    .filter(maybeExistRecentAccountId =>
+      selectGetAccountByIdMaybeLoading(state)(maybeExistRecentAccountId)
+    )
     .map((recentAccountId, i) => {
-      const account = selectGetAccountById(state)(recentAccountId)
+      const account = selectGetAccountByIdMaybeLoading(state)(recentAccountId)
       return account.injected_loading ? { ...account, name: '...' } : account
     })
