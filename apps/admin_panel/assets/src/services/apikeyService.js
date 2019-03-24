@@ -13,11 +13,11 @@ export function getAllApikey ({ perPage, sort, query, ...rest }) {
   })
 }
 
-export function createApikey ({ owner }) {
+export function createApikey ({ name }) {
   return authenticatedRequest({
     path: '/api_key.create',
     data: {
-      owner_app: owner
+      name
     }
   })
 }

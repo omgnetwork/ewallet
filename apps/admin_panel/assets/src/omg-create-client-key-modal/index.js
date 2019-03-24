@@ -3,10 +3,9 @@ import styled from 'styled-components'
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { connect } from 'react-redux'
-import AccountsFetcher from '../omg-account/accountsFetcher'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
-import { createAccessKey } from '../omg-access-key/action'
+import { createApiKey } from '../omg-api-keys/action'
 import PropTypes from 'prop-types'
 const CreateAdminKeyModalContainer = styled.div`
   padding: 50px;
@@ -48,47 +47,33 @@ const CreateAdminKeyFormContainer = styled.form`
 const StyledInput = styled(Input)`
   margin-bottom: 30px;
 `
-const StyledSelect = styled(Select)`
-  margin-bottom: 30px;
-  text-align: left;
-`
 const enhance = compose(
   withRouter,
   connect(
     null,
-    { createAccessKey }
+    { createApiKey }
   )
 )
 
 CreateAdminKeyModal.propTypes = {
   open: PropTypes.bool,
-  createAccessKey: PropTypes.func,
+  createApiKey: PropTypes.func,
   onRequestClose: PropTypes.func,
   onSubmitSuccess: PropTypes.func
 }
 
 function CreateAdminKeyModal (props) {
-  const [label, setLabel] = useState()
+  const [name, setName] = useState()
   const [submitStatus, setSubmitStatus] = useState()
-  const [role, setRole] = useState('none')
-  const [account, setAccountInput] = useState()
   function onRequestClose () {
     props.onRequestClose()
-    setLabel()
-    setAccountInput()
-    setRole()
+    setName()
     setSubmitStatus()
-  }
-  function onSelectAccount (account) {
-    setAccountInput(account)
-  }
-  function onSelectRole (role) {
-    setRole(role)
   }
   async function onSubmit (e) {
     e.preventDefault()
     setSubmitStatus('SUBMITTED')
-    const { data } = await props.createAccessKey({ name: label, globalRole: role })
+    const { data } = await props.createApiKey({ name })
     if (data) {
       setSubmitStatus('SUCCESS')
       props.onSubmitSuccess(data)
@@ -107,42 +92,12 @@ function CreateAdminKeyModal (props) {
       <CreateAdminKeyModalContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />
         <CreateAdminKeyFormContainer>
-          <h4>Create Admin Key</h4>
+          <h4>Create Client Key</h4>
           <StyledInput
             autoFocus
             placeholder='Label'
-            onChange={e => setLabel(e.target.value)}
-            value={label}
-          />
-          <AccountsFetcher
-            query={{
-              perPage: 10,
-              search: account
-            }}
-            render={({ data: accounts }) => {
-              return (
-                <StyledSelect
-                  placeholder='Account'
-                  onChange={e => setAccountInput(e.target.value)}
-                  value={account}
-                  onSelectItem={item => onSelectAccount(item.key)}
-                  options={accounts.map(account => ({ key: account.id, value: account.id }))}
-                />
-              )
-            }}
-          />
-
-          <StyledSelect
-            placeholder='Role'
-            onChange={e => setRole(e.target.value)}
-            value={role}
-            onSelectItem={item => onSelectRole(item.key)}
-            options={[
-              { key: 'viewer', value: 'Viewer' },
-              { key: 'admin', value: 'Admin' },
-              { key: 'super_admin', value: 'Super Admin' },
-              { key: 'none', value: 'none' }
-            ]}
+            onChange={e => setName(e.target.value)}
+            value={name}
           />
           <CreateAdminKeyButton
             styleType='primary'
