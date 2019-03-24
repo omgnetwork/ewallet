@@ -78,6 +78,7 @@ function CreateAdminKeyModal (props) {
   const [label, setLabel] = useState('')
   const [submitStatus, setSubmitStatus] = useState('DEFAULT')
   const [role, setRole] = useState('none')
+  const [roleAccount, setRoleAccount] = useState('none')
   const [account, setAccountInput] = useState('')
   function onRequestClose () {
     setLabel('')
@@ -97,8 +98,12 @@ function CreateAdminKeyModal (props) {
     setSubmitStatus('SUBMITTED')
     const { data } = await props.createAccessKey({ name: label, globalRole: role })
     if (data) {
-      const resultAssignKey = await props.assignKey({ keyId: data.id, accountId: account, role })
-      if (resultAssignKey.data) {
+      const resultAssignKey = await props.assignKey({
+        keyId: data.id,
+        accountId: account,
+        role: roleAccount
+      })
+      if (resultAssignKey.data && account) {
         setSubmitStatus('SUCCESS')
         props.onSubmitSuccess(data)
       }
@@ -130,7 +135,6 @@ function CreateAdminKeyModal (props) {
           <InputLabel>Global Role</InputLabel>
           <StyledSelect
             normalPlaceholder='Role ( optional )'
-            onChange={e => setRole(e.target.value)}
             value={role}
             onSelectItem={item => onSelectRole(item.key)}
             options={[
@@ -166,9 +170,8 @@ function CreateAdminKeyModal (props) {
               <InputLabel>Account Role</InputLabel>
               <StyledSelect
                 normalPlaceholder={'Account\'s Role ( optional )'}
-                onChange={e => setRole(e.target.value)}
-                value={role}
-                onSelectItem={item => onSelectRole(item.key)}
+                value={roleAccount}
+                onSelectItem={item => setRoleAccount(item.key)}
                 options={[
                   { key: 'viewer', value: 'Viewer' },
                   { key: 'admin', value: 'Admin' },

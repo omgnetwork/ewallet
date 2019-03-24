@@ -139,6 +139,7 @@ export const alertsReducer = createReducer([], {
   'CONSUMPTION/APPROVE/FAILED': errorStateHandler,
   'CONSUMPTION/REJECT/FAILED': errorStateHandler,
   'ACCOUNT/CREATE/FAILED': errorStateHandler,
+  'ACCOUNT/ASSIGN_KEY/FAILED': errorStateHandler,
   'CATEGORY/CREATE/FAILED': errorStateHandler,
   'API_KEY/UPDATE/FAILED': errorStateHandler,
   'API_KEY/CREATE/FAILED': errorStateHandler,
