@@ -8,6 +8,7 @@ import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { createAccessKey } from '../omg-access-key/action'
 import PropTypes from 'prop-types'
+import AccountSelectRow from './AccountSelectRow'
 const CreateAdminKeyModalContainer = styled.div`
   padding: 50px;
   width: 100vw;
@@ -46,11 +47,15 @@ const CreateAdminKeyFormContainer = styled.form`
   width: 400px;
 `
 const StyledInput = styled(Input)`
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 `
 const StyledSelect = styled(Select)`
-  margin-bottom: 30px;
+  margin-bottom: 35px;
   text-align: left;
+`
+const InputLabel = styled.div`
+  text-align: left;
+  margin-bottom: 5px;
 `
 const enhance = compose(
   withRouter,
@@ -108,12 +113,14 @@ function CreateAdminKeyModal (props) {
         <Icon name='Close' onClick={onRequestClose} />
         <CreateAdminKeyFormContainer>
           <h4>Create Admin Key</h4>
+          <InputLabel>Label</InputLabel>
           <StyledInput
             autoFocus
-            placeholder='Label'
+            normalPlaceholder='Label ( optional )'
             onChange={e => setLabel(e.target.value)}
             value={label}
           />
+          <InputLabel>Assign Account</InputLabel>
           <AccountsFetcher
             query={{
               perPage: 10,
@@ -122,18 +129,21 @@ function CreateAdminKeyModal (props) {
             render={({ data: accounts }) => {
               return (
                 <StyledSelect
-                  placeholder='Account'
+                  normalPlaceholder='Account ( optional )'
                   onChange={e => setAccountInput(e.target.value)}
                   value={account}
                   onSelectItem={item => onSelectAccount(item.key)}
-                  options={accounts.map(account => ({ key: account.id, value: account.id }))}
+                  options={accounts.map(account => ({
+                    key: account.id,
+                    value: <AccountSelectRow account={account} />
+                  }))}
                 />
               )
             }}
           />
-
+          <InputLabel>Role</InputLabel>
           <StyledSelect
-            placeholder='Role'
+            normalPlaceholder='Role ( optional )'
             onChange={e => setRole(e.target.value)}
             value={role}
             onSelectItem={item => onSelectRole(item.key)}
