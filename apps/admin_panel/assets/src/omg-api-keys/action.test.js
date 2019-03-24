@@ -56,8 +56,10 @@ describe('apikeys actions', () => {
         data: 'key'
       }
     ]
-    return store.dispatch(createApiKey('owner')).then(() => {
-      expect(apikeyService.createApikey).toBeCalledWith({ owner: 'owner' })
+    return store.dispatch(createApiKey({ name: 'PRAYUTHHHHHHHHHHHHHHH' })).then(() => {
+      expect(apikeyService.createApikey).toBeCalledWith({
+        name: 'PRAYUTHHHHHHHHHHHHHHH'
+      })
       expect(store.getActions()).toEqual(expectedActions)
     })
   })
