@@ -146,6 +146,10 @@ class ApiKeyPage extends Component {
     query: PropTypes.object,
     fetcher: PropTypes.func
   }
+
+  static defaultProps = {
+    fetcher: AccessKeyFetcher
+  }
   state = {
     createAdminKeyModalOpen: false,
     privateKeyModalOpen: false,
@@ -232,8 +236,9 @@ class ApiKeyPage extends Component {
   }
 
   render () {
+    const Fetcher = this.props.fetcher
     return (
-      <AccessKeyFetcher
+      <Fetcher
         query={{
           page: queryString.parse(this.props.location.search)['access_key_page'],
           perPage: 10
