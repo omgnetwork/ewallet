@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
   alias Utils.Helpers.DateFormatter
-  alias EWalletDB.{Role, User, Membership, Repo}
+  alias EWalletDB.{Role, User, Key, Membership, Repo}
   alias ActivityLogger.System
 
   @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
@@ -324,6 +324,298 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       assert Enum.any?(records, fn r -> r["id"] == admin_1.id end)
       refute Enum.any?(records, fn r -> r["id"] == admin_2.id end)
       refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
+      assert Enum.count(records) == 1
+    end
+  end
+
+  describe "/account.get_keys" do
+    test_with_auths "returns a list of keys with role and status" do
+      account = insert(:account)
+
+      {:ok, key_1} = :key |> params_for() |> Key.insert()
+      {:ok, key_2} = :key |> params_for() |> Key.insert()
+
+      admin_role = Role.get_by(name: "admin")
+      viewer_role = insert(:role, name: "viewer")
+
+      {:ok, _} = Membership.assign(key_1, account, admin_role, %System{})
+      {:ok, _} = Membership.assign(key_2, account, viewer_role, %System{})
+
+      response = request("/account.get_keys", %{id: account.id})
+
+      assert response["success"] == true
+      # created two keys for the given account
+      assert length(response["data"]["data"]) == 2
+
+      assert Enum.member?(response["data"]["data"], %{
+               "object" => "key",
+               "id" => key_1.id,
+               "name" => key_1.name,
+               "global_role" => key_1.global_role,
+               "access_key" => key_1.access_key,
+               "secret_key" => nil,
+               "created_at" => DateFormatter.to_iso8601(key_1.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(key_1.updated_at),
+               "deleted_at" => DateFormatter.to_iso8601(key_1.deleted_at),
+               "account_role" => "admin",
+               "enabled" => key_1.enabled,
+               "expired" => !key_1.enabled,
+               "account_id" => nil,
+               "account" => %{
+                 "avatar" => %{"large" => nil, "original" => nil, "small" => nil, "thumb" => nil},
+                 "categories" => %{"data" => [], "object" => "list"},
+                 "category_ids" => [],
+                 "description" => account.description,
+                 "encrypted_metadata" => %{},
+                 "id" => account.id,
+                 "master" => false,
+                 "metadata" => %{},
+                 "name" => account.name,
+                 "object" => "account",
+                 "parent_id" => nil,
+                 "socket_topic" => "account:#{account.id}",
+                 "created_at" => DateFormatter.to_iso8601(account.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(account.updated_at)
+               }
+             })
+
+      assert Enum.member?(response["data"]["data"], %{
+               "object" => "key",
+               "id" => key_2.id,
+               "name" => key_2.name,
+               "global_role" => key_2.global_role,
+               "access_key" => key_2.access_key,
+               "secret_key" => nil,
+               "created_at" => DateFormatter.to_iso8601(key_2.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(key_2.updated_at),
+               "deleted_at" => DateFormatter.to_iso8601(key_2.deleted_at),
+               "account_role" => "viewer",
+               "enabled" => key_2.enabled,
+               "expired" => !key_2.enabled,
+               "account_id" => nil,
+               "account" => %{
+                 "avatar" => %{"large" => nil, "original" => nil, "small" => nil, "thumb" => nil},
+                 "categories" => %{"data" => [], "object" => "list"},
+                 "category_ids" => [],
+                 "description" => account.description,
+                 "encrypted_metadata" => %{},
+                 "id" => account.id,
+                 "master" => false,
+                 "metadata" => %{},
+                 "name" => account.name,
+                 "object" => "account",
+                 "parent_id" => nil,
+                 "socket_topic" => "account:#{account.id}",
+                 "created_at" => DateFormatter.to_iso8601(account.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(account.updated_at)
+               }
+             })
+    end
+
+    test_with_auths "returns unauthorized error if account id was not be found" do
+      assert request("/account.get_keys", %{
+               id: "acc_12345678901234567890123456"
+             }) ==
+               %{
+                 "success" => false,
+                 "version" => "1",
+                 "data" => %{
+                   "object" => "error",
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation.",
+                   "messages" => nil
+                 }
+               }
+    end
+
+    test_with_auths "returns invalid_parameter error if account id is not provided" do
+      assert request("/account.get_keys", %{}) ==
+               %{
+                 "success" => false,
+                 "version" => "1",
+                 "data" => %{
+                   "object" => "error",
+                   "code" => "client:invalid_parameter",
+                   "description" => "Invalid parameter provided.",
+                   "messages" => nil
+                 }
+               }
+    end
+
+    # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
+    # an admin and a membership in order for the inserted admin to appear in the result.
+    test_with_auths "supports match_any filtering on the key fields" do
+      key_1 = insert(:key, name: "value_1")
+      key_2 = insert(:key, name: "value_2")
+      key_3 = insert(:key, name: "value_3")
+      key_4 = insert(:key, name: "value_4")
+      account = insert(:account)
+
+      {:ok, _} = Membership.assign(key_1, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_2, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_3, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_4, account, "admin", %System{})
+
+      attrs = %{
+        "id" => account.id,
+        "match_any" => [
+          # Filter for `key.name`
+          %{
+            "field" => "name",
+            "comparator" => "eq",
+            "value" => "value_2"
+          },
+          # Filter for `key.name`
+          %{
+            "field" => "name",
+            "comparator" => "eq",
+            "value" => "value_4"
+          }
+        ]
+      }
+
+      response = request("/account.get_keys", attrs)
+
+      assert response["success"]
+
+      records = response["data"]["data"]
+
+      refute Enum.any?(records, fn r -> r["id"] == key_1.id end)
+      assert Enum.any?(records, fn r -> r["id"] == key_2.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_3.id end)
+      assert Enum.any?(records, fn r -> r["id"] == key_4.id end)
+      assert Enum.count(records) == 2
+    end
+
+    # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
+    # a key and a membership in order for the inserted admin to appear in the result.
+    test_with_auths "supports match_any filtering on the membership fields" do
+      key_1 = insert(:key, name: "value_1")
+      key_2 = insert(:key, name: "value_2")
+      key_3 = insert(:key, name: "value_3")
+      account = insert(:account)
+      role_1 = Role.get_by(name: "admin")
+      role_2 = insert(:role, name: "viewer")
+
+      {:ok, _} = Membership.assign(key_1, account, role_1, %System{})
+      {:ok, _} = Membership.assign(key_2, account, role_2, %System{})
+      {:ok, _} = Membership.assign(key_3, account, role_1, %System{})
+
+      attrs = %{
+        "id" => account.id,
+        "match_any" => [
+          # Filter for `membership.role.name`
+          %{
+            "field" => "role.name",
+            "comparator" => "eq",
+            "value" => role_1.name
+          },
+          # Filter for `key.name`
+          %{
+            "field" => "name",
+            "comparator" => "eq",
+            "value" => key_3.name
+          }
+        ]
+      }
+
+      response = request("/account.get_keys", attrs)
+
+      assert response["success"]
+
+      records = response["data"]["data"]
+
+      assert Enum.any?(records, fn r -> r["id"] == key_1.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_2.id end)
+      assert Enum.any?(records, fn r -> r["id"] == key_3.id end)
+      assert Enum.count(records) == 2
+    end
+
+    # This is a variation of `ConnCase.test_supports_match_all/5` that inserts
+    # a key and a membership in order for the inserted admin to appear in the result.
+    test_with_auths "supports match_all filtering on key fields" do
+      key_1 = insert(:key, %{name: "this_should_almost_match"})
+      key_2 = insert(:key, %{name: "this_should_match"})
+      key_3 = insert(:key, %{name: "should_not_match"})
+      key_4 = insert(:key, %{name: "also_should_not_match"})
+      account = insert(:account)
+
+      {:ok, _} = Membership.assign(key_1, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_2, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_3, account, "admin", %System{})
+      {:ok, _} = Membership.assign(key_4, account, "admin", %System{})
+
+      attrs = %{
+        "id" => account.id,
+        "match_all" => [
+          # Filter for `key.name`
+          %{
+            "field" => "name",
+            "comparator" => "starts_with",
+            "value" => "this_should"
+          },
+          # Filter for `key.name`
+          %{
+            "field" => "name",
+            "comparator" => "contains",
+            "value" => "should_match"
+          }
+        ]
+      }
+
+      response = request("/account.get_keys", attrs)
+
+      assert response["success"]
+
+      records = response["data"]["data"]
+      refute Enum.any?(records, fn r -> r["id"] == key_1.id end)
+      assert Enum.any?(records, fn r -> r["id"] == key_2.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_3.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_4.id end)
+      assert Enum.count(records) == 1
+    end
+
+    # This is a variation of `ConnCase.test_supports_match_any/5` that inserts
+    # a key and a membership in order for the inserted admin to appear in the result.
+    test_with_auths "supports match_all filtering on membership fields" do
+      key_1 = insert(:key)
+      key_2 = insert(:key)
+      key_3 = insert(:key)
+      account = insert(:account)
+      role_1 = Role.get_by(name: "admin")
+      role_2 = insert(:role, name: "viewer")
+
+      {:ok, _} = Membership.assign(key_1, account, role_1, %System{})
+      :timer.sleep(10)
+      {:ok, membership} = Membership.assign(key_2, account, role_1, %System{})
+      {:ok, _} = Membership.assign(key_3, account, role_2, %System{})
+
+      attrs = %{
+        "id" => account.id,
+        "match_all" => [
+          # Filter for `membership.role.name`
+          %{
+            "field" => "role.name",
+            "comparator" => "eq",
+            "value" => role_1.name
+          },
+          # Filter for `membership.created_at`
+          %{
+            "field" => "created_at",
+            "comparator" => "lt",
+            "value" => DateFormatter.to_iso8601(membership.inserted_at)
+          }
+        ]
+      }
+
+      response = request("/account.get_keys", attrs)
+
+      assert response["success"]
+
+      records = response["data"]["data"]
+      assert Enum.any?(records, fn r -> r["id"] == key_1.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_2.id end)
+      refute Enum.any?(records, fn r -> r["id"] == key_3.id end)
       assert Enum.count(records) == 1
     end
   end

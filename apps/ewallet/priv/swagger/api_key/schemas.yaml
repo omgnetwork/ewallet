@@ -38,6 +38,48 @@ AccessKeySchema:
     - updated_at
     - deleted_at
 
+AccessKeyMemberSchema:
+  description: The object schema for an access key as account member
+  type: object
+  properties:
+    object:
+      type: string
+    id:
+      type: string
+    access_key:
+      type: string
+    secret_key:
+      type: string
+      nullable: true
+    account_id:
+      type: string
+    enabled:
+      type: boolean
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+    deleted_at:
+      type: string
+      format: date-time
+      nullable: true
+    role:
+      type: string
+    account:
+      type: object
+      $ref: '../account/schemas.yaml#/AccountSchema'
+  required:
+    - object
+    - id
+    - access_key
+    - account_id
+    - enabled
+    - created_at
+    - updated_at
+    - deleted_at
+
 APIKeySchema:
   description: 'The object schema for an API key'
   type: object

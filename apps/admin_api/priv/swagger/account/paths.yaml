@@ -158,6 +158,22 @@ account.get_members:
         $ref: '../user/responses.yaml#/MembersResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+account.get_keys:
+  post:
+    tags:
+      - Account
+    summary: List the keys that are currently assigned to the given acount
+    operationId: account_get_keys
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBody'
+    responses:
+      '200':
+        $ref: '../api_key/responses.yaml#/MemberAccessKeysResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 account.get_users:
   post:
     tags:
