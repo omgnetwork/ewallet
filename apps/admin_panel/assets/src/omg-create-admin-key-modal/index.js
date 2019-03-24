@@ -1,14 +1,14 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-import { RadioButton, Input, Button, Icon } from '../omg-uikit'
+import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { connect } from 'react-redux'
-import { inviteMember, getListMembers } from '../omg-member/action'
+import AccountsFetcher from '../omg-account/accountsFetcher'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
-
-const CreateAdminKeyModalContainer = styled.form`
+import { createAccessKey } from '../omg-access-key/action'
+import PropTypes from 'prop-types'
+const CreateAdminKeyModalContainer = styled.div`
   padding: 50px;
   width: 100vw;
   height: 100vh;
@@ -38,143 +38,95 @@ const InviteButton = styled(Button)`
 const CreateAdminKeyFormContainer = styled.form`
   position: absolute;
   top: 50%;
-  transform:translateY(-50%);
+  transform: translateY(-50%);
   left: 0;
   right: 0;
   margin: 0 auto;
-  width: 600px;
+  width: 400px;
+`
+const StyledInput = styled(Input)`
+  margin-bottom: 30px;
+`
+const StyledSelect = styled(Select)`
+  margin-bottom: 30px;
 `
 const enhance = compose(
   withRouter,
   connect(
     null,
-    { inviteMember, getListMembers }
+    { createAccessKey }
   )
 )
-class InviteModal extends Component {
-  static propTypes = {
-    open: PropTypes.bool,
-    onRequestClose: PropTypes.func,
-    inviteMember: PropTypes.func.isRequired,
-    getListMembers: PropTypes.func.isRequired,
-    match: PropTypes.object,
-    location: PropTypes.object
-  }
-  state = {
-    email: '',
-    role: 'viewer',
-    submitStatus: ''
-  }
-  validateEmail = email => {
-    return /@/.test(email)
-  }
-  reset = () => {
-    this.setState({
-      email: '',
-      role: 'viewer',
-      submitStatus: ''
-    })
-  }
-  onRequestClose = () => {
-    this.props.onRequestClose()
-    this.reset()
-  }
-  onSubmit = async e => {
-    e.preventDefault()
-    this.setState({ submitStatus: 'ATTEMPT_TO_SUBMIT' })
-    if (this.validateEmail(this.state.email)) {
-      this.setState({ submitStatus: 'SUBMITTED' })
-      try {
-        const accountId = this.props.match.params.accountId
-        const result = await this.props.inviteMember({
-          email: this.state.email,
-          role: this.state.role,
-          accountId,
-          redirectUrl: window.location.href.replace(this.props.location.pathname, '/invite/')
-        })
-        if (result.data) {
-          this.props.getListMembers(accountId)
-          this.setState({ submitStatus: 'SUCCESS' })
-          this.props.history.push(`/accounts/${this.props.match.params.accountId}/admins`)
-          this.onRequestClose()
-        } else {
-          this.setState({ submitStatus: 'FAILED' })
-        }
-      } catch (error) {
-        this.setState({ submitStatus: 'FAILED' })
-      }
-    }
-  }
 
-  onInputEmailChange = e => {
-    this.setState({
-      email: e.target.value
-    })
-  }
-  onClickRadioButton = role => e => {
-    this.setState({ role })
-  }
-
-  render () {
-    return (
-      <Modal
-        isOpen={this.props.open}
-        onRequestClose={this.onRequestClose}
-        contentLabel='invite modal'
-        shouldCloseOnOverlayClick={false}
-        overlayClassName='dummy'
-      >
-        <CreateAdminKeyModalContainer onSubmit={this.onSubmit}>
-          <Icon name='Close' onClick={this.props.onRequestClose} />
-          <CreateAdminKeyFormContainer>
-            <h4>Invite Member</h4>
-            <div>Label</div>
-            <Input
-              autoFocus
-              normalPlaceholder='Email'
-              onChange={this.onInputEmailChange}
-              value={this.state.email}
-              error={
-              this.state.submitStatus === 'ATTEMPT_TO_SUBMIT' &&
-              !this.validateEmail(this.state.email)
-            }
-              errorText='Email is not valid'
-            />
-            <div>Account</div>
-            <Input
-              autoFocus
-              normalPlaceholder='Email'
-              onChange={this.onInputEmailChange}
-              value={this.state.email}
-              error={
-              this.state.submitStatus === 'ATTEMPT_TO_SUBMIT' &&
-              !this.validateEmail(this.state.email)
-            }
-              errorText='Email is not valid'
-            />
-            <div>Assign Role</div>
-            <Input
-              autoFocus
-              normalPlaceholder='Email'
-              onChange={this.onInputEmailChange}
-              value={this.state.email}
-              error={
-              this.state.submitStatus === 'ATTEMPT_TO_SUBMIT' &&
-              !this.validateEmail(this.state.email)
-            }
-              errorText='Email is not valid'
-            />
-            <InviteButton
-              styleType='primary'
-              type='submit'
-              loading={this.state.submitStatus === 'SUBMITTED'}
-            >
-            Invite
-          </InviteButton>
-          </CreateAdminKeyFormContainer>
-        </CreateAdminKeyModalContainer>
-      </Modal>
-    )
-  }
+InviteModal.propTypes = {
+  open: PropTypes.func,
+  createAccessKey: PropTypes.func,
+  onRequestClose: PropTypes.func
 }
+
+function InviteModal (props) {
+  const [label, setLabel] = useState()
+  const [submitStatus, setSubmitStatus] = useState()
+  const [role, setRole] = useState()
+  const [account, setAccount] = useState()
+
+  function onRequestClose () {
+    props.onRequestClose()
+    setLabel()
+    setSubmitStatus()
+  }
+
+  function onSubmit () {
+    props.createAccessKey()
+  }
+
+  return (
+    <Modal
+      isOpen={props.open}
+      onRequestClose={onRequestClose}
+      contentLabel='invite modal'
+      shouldCloseOnOverlayClick={false}
+      overlayClassName='dummy'
+    >
+      <CreateAdminKeyModalContainer onSubmit={onSubmit}>
+        <Icon name='Close' onClick={onRequestClose} />
+        <CreateAdminKeyFormContainer>
+          <h4>Create Admin Key</h4>
+          <StyledInput
+            autoFocus
+            placeholder='Label'
+            onChange={e => setLabel(e.target.value)}
+            value={label}
+          />
+          <AccountsFetcher
+            query={{
+              perPage: 10,
+              search: account
+            }}
+            render={({ data: accounts }) => {
+              return (
+                <StyledSelect
+                  placeholder='Account'
+                  onChange={e => setAccount(e.target.value)}
+                  value={account}
+                  options={accounts.map(account => ({ key: account.id, value: account.id }))}
+                />
+              )
+            }}
+          />
+          <StyledSelect
+            placeholder='Role'
+            onChange={e => setRole(e.target.value)}
+            value={role}
+            options={[{ key: 'aa', value: '123' }]}
+          />
+          <InviteButton styleType='primary' type='submit' loading={submitStatus === 'SUBMITTED'}>
+            Create key
+          </InviteButton>
+        </CreateAdminKeyFormContainer>
+      </CreateAdminKeyModalContainer>
+    </Modal>
+  )
+}
+
 export default enhance(InviteModal)

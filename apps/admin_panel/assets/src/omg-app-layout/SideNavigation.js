@@ -154,7 +154,7 @@ class SideNavigation extends PureComponent {
       <FlipMove>
         {this.props.recentAccounts.map((account, i) => {
           return (
-            <div key={account.injected_loading ? i : account.id || i}>
+            <div key={account.id || i}>
               <Link to={`/accounts/${account.id}/detail`}>
                 <RecentAccountItem active={this.props.match.params.accountId === account.id}>
                   <RecentAccount className='recent-account'>{account.name}</RecentAccount>

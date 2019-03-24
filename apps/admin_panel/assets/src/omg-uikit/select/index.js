@@ -82,11 +82,11 @@ export default class Select extends PureComponent {
         return fuzzySearch(this.props.value, option.key)
       })
       : this.props.options
-
+    const { className, ...rest } = this.props
     return (
-      <SelectContainer className={this.props.className} active={this.state.active}>
+      <SelectContainer className={className} active={this.state.active}>
         <Input
-          {...this.props}
+          {...rest}
           onFocus={this.onFocus}
           onBlur={this.onBlur}
           onChange={this.props.onChange}
