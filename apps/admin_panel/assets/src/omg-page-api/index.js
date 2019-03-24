@@ -12,6 +12,7 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { createApiKey, updateApiKey } from '../omg-api-keys/action'
 import { createAccessKey, updateAccessKey } from '../omg-access-key/action'
+import CreateAdminKeyModal from '../omg-create-admin-key-modal'
 import queryString from 'query-string'
 import { withRouter, Link } from 'react-router-dom'
 import Copy from '../omg-copy'
@@ -378,18 +379,13 @@ class ApiKeyPage extends Component {
                 isLastPage={pagination.is_last_page}
                 pageEntity='access_key_page'
               />
-              <ConfirmationModal
+              <CreateAdminKeyModal
                 open={this.state.accessModalOpen}
                 onRequestClose={this.onRequestClose}
                 onOk={this.onClickOkCreateAccessKey(fetch)}
                 closeTimeoutMS={0}
                 loading={this.state.submitStatus === 'SUBMITTING'}
-              >
-                <ConfirmCreateKeyContainer>
-                  <h4>Generate Admin Key</h4>
-                  <p>Are you sure you want to generate access key ?</p>
-                </ConfirmCreateKeyContainer>
-              </ConfirmationModal>
+              />
               <ConfirmationModal
                 open={this.state.privateKeyModalOpen}
                 onRequestClose={this.onRequestCloseShowPrivateKey}

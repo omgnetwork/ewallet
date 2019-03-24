@@ -17,11 +17,26 @@ export function configureStore (initialState = {}, injectedThunk = {}) {
 const socket = new SocketConnector(WEBSOCKET_URL)
 const currentUser = getAccessToken() ? getAccessToken().user : {}
 const recentAccountsByUserId = getRecentAccountFromLocalStorage()
-const recentAccounts = recentAccountsByUserId ? recentAccountsByUserId[currentUser.id] : []
 
-export const store = configureStore({ currentUser, recentAccounts }, { socket })
+const recentAccounts = recentAccountsByUserId
+  ? recentAccountsByUserId[currentUser.id].filter(d => d !== 'undefined' || !d)
+  : []
 
-// PREFETCH RECENT ACCOUNT
-recentAccounts.forEach(accountId => store.dispatch(getAccountById(accountId)))
+// CREATE DUMMY ACCOUNT WHICH IS NOT LOADED YET INTO REDUX STORE
+const accounts = recentAccounts.reduce(
+  (prev, recentAccount) => ({
+    ...prev,
+    [recentAccount]: { id: recentAccount, injected_loading: true }
+  }),
+  {}
+)
+
+export const store = configureStore({ currentUser, recentAccounts, accounts }, { socket })
+
+// PREFETCH REAL RECENT ACCOUNT
+recentAccounts.forEach(accountId => {
+  const getAccountAction = getAccountById(accountId)
+  store.dispatch(getAccountAction)
+})
 
 socket.on('message', handleWebsocketMessage(store))
