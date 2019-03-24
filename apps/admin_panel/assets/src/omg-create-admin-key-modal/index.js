@@ -12,9 +12,9 @@ const CreateAdminKeyModalContainer = styled.div`
   padding: 50px;
   width: 100vw;
   height: 100vh;
-  text-align: left;
   position: relative;
   box-sizing: border-box;
+  text-align: center;
   > i {
     position: absolute;
     right: 30px;
@@ -38,6 +38,7 @@ const InviteButton = styled(Button)`
 const CreateAdminKeyFormContainer = styled.form`
   position: absolute;
   top: 50%;
+
   transform: translateY(-50%);
   left: 0;
   right: 0;
@@ -49,6 +50,7 @@ const StyledInput = styled(Input)`
 `
 const StyledSelect = styled(Select)`
   margin-bottom: 30px;
+  text-align: left;
 `
 const enhance = compose(
   withRouter,
@@ -68,14 +70,18 @@ function InviteModal (props) {
   const [label, setLabel] = useState()
   const [submitStatus, setSubmitStatus] = useState()
   const [role, setRole] = useState()
-  const [account, setAccount] = useState()
-
+  const [account, setAccountInputChange] = useState()
   function onRequestClose () {
     props.onRequestClose()
     setLabel()
     setSubmitStatus()
   }
-
+  function onSelectAccount (account) {
+    setAccountInputChange(account)
+  }
+  function onSelectRole (role) {
+    setRole(role)
+  }
   function onSubmit () {
     props.createAccessKey()
   }
@@ -107,18 +113,21 @@ function InviteModal (props) {
               return (
                 <StyledSelect
                   placeholder='Account'
-                  onChange={e => setAccount(e.target.value)}
+                  onChange={e => setAccountInputChange(e.target.value)}
                   value={account}
+                  onSelectItem={item => onSelectAccount(item.key)}
                   options={accounts.map(account => ({ key: account.id, value: account.id }))}
                 />
               )
             }}
           />
+
           <StyledSelect
             placeholder='Role'
             onChange={e => setRole(e.target.value)}
             value={role}
-            options={[{ key: 'aa', value: '123' }]}
+            onSelectItem={item => onSelectRole(item.key)}
+            options={[{ key: 'viewer', value: 'Viewer' }, { key: 'admin', value: 'Admin' }]}
           />
           <InviteButton styleType='primary' type='submit' loading={submitStatus === 'SUBMITTED'}>
             Create key
