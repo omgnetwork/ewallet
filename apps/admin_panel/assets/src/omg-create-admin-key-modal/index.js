@@ -60,31 +60,36 @@ const enhance = compose(
   )
 )
 
-InviteModal.propTypes = {
+CreateAdminKeyModal.propTypes = {
   open: PropTypes.func,
   createAccessKey: PropTypes.func,
-  onRequestClose: PropTypes.func
+  onRequestClose: PropTypes.func,
+  onSubmitSuccess: PropTypes.func
 }
 
-function InviteModal (props) {
+function CreateAdminKeyModal (props) {
   const [label, setLabel] = useState()
   const [submitStatus, setSubmitStatus] = useState()
-  const [role, setRole] = useState()
-  const [account, setAccountInputChange] = useState()
+  const [role, setRole] = useState('none')
+  const [account, setAccountInput] = useState()
   function onRequestClose () {
     props.onRequestClose()
     setLabel()
+    setAccountInput()
+    setRole()
     setSubmitStatus()
   }
   function onSelectAccount (account) {
-    setAccountInputChange(account)
+    setAccountInput(account)
   }
   function onSelectRole (role) {
     setRole(role)
   }
-  function onSubmit (e) {
+  async function onSubmit (e) {
     e.preventDefault()
-    props.createAccessKey({ name: label, globalRole: role })
+    const { data } = await props.createAccessKey({ name: label, globalRole: role })
+    if (data) props.onSubmitSuccess(data)
+    onRequestClose()
   }
 
   return (
@@ -114,7 +119,7 @@ function InviteModal (props) {
               return (
                 <StyledSelect
                   placeholder='Account'
-                  onChange={e => setAccountInputChange(e.target.value)}
+                  onChange={e => setAccountInput(e.target.value)}
                   value={account}
                   onSelectItem={item => onSelectAccount(item.key)}
                   options={accounts.map(account => ({ key: account.id, value: account.id }))}
@@ -128,7 +133,12 @@ function InviteModal (props) {
             onChange={e => setRole(e.target.value)}
             value={role}
             onSelectItem={item => onSelectRole(item.key)}
-            options={[{ key: 'viewer', value: 'Viewer' }, { key: 'admin', value: 'Admin' }]}
+            options={[
+              { key: 'viewer', value: 'Viewer' },
+              { key: 'admin', value: 'Admin' },
+              { key: 'super_admin', value: 'Super Admin' },
+              { key: 'none', value: 'none' }
+            ]}
           />
           <InviteButton styleType='primary' type='submit' loading={submitStatus === 'SUBMITTED'}>
             Create key
@@ -139,4 +149,4 @@ function InviteModal (props) {
   )
 }
 
-export default enhance(InviteModal)
+export default enhance(CreateAdminKeyModal)

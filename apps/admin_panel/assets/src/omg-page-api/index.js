@@ -46,7 +46,7 @@ const KeySection = styled.div`
     white-space: nowrap;
   }
   td:nth-child(1) {
-    width: 60%;
+    width: 50%;
     border: none;
     position: relative;
     :before {
@@ -162,10 +162,12 @@ const columnsApiKey = [
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
 ]
-const columnsAccessKey = [
+const columnsAdminKeys = [
   { key: 'key', title: 'ADMIN KEY' },
+  { key: 'name', title: 'NAME' },
   { key: 'created_at', title: 'CREATED DATE' },
-  { key: 'status', title: 'STATUS' }
+  { key: 'status', title: 'STATUS' },
+  { key: 'global_role', title: 'GLOBAL ROLE' }
 ]
 const enhance = compose(
   withRouter,
@@ -219,21 +221,13 @@ class ApiKeyPage extends Component {
       this.setState({ submitStatus: 'FAILED' })
     }
   }
-  onClickOkCreateAccessKey = fetch => async e => {
-    this.setState({ submitStatus: 'SUBMITTING' })
-    try {
-      const { data } = await this.props.createAccessKey()
-      fetch()
-      this.setState({
-        secretKey: data.secret_key,
-        accessKey: data.access_key,
-        submitStatus: 'SUCCESS',
-        privateKeyModalOpen: true
-      })
-      this.onRequestClose()
-    } catch (error) {
-      this.setState({ submitStatus: 'FAILED' })
-    }
+  onSubmitSuccess = fetch => data => {
+    fetch()
+    this.setState({
+      secretKey: data.secret_key,
+      accessKey: data.access_key,
+      privateKeyModalOpen: true
+    })
   }
   onClickSwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateApiKey({ id, expired })
@@ -363,7 +357,9 @@ class ApiKeyPage extends Component {
               id: key.id,
               user: key.account_id,
               created_at: key.created_at,
-              status: key.expired
+              status: key.expired,
+              name: key.name || 'Not Provided',
+              global_role: key.global_role || 'none'
             }
           })
           return (
@@ -372,7 +368,7 @@ class ApiKeyPage extends Component {
                 loadingRowNumber={6}
                 rows={apiKeysRows}
                 rowRenderer={this.rowAccessKeyRenderer(fetch)}
-                columns={columnsAccessKey}
+                columns={columnsAdminKeys}
                 loadingStatus={individualLoadingStatus}
                 navigation
                 isFirstPage={pagination.is_first_page}
@@ -382,7 +378,7 @@ class ApiKeyPage extends Component {
               <CreateAdminKeyModal
                 open={this.state.accessModalOpen}
                 onRequestClose={this.onRequestClose}
-                onOk={this.onClickOkCreateAccessKey(fetch)}
+                onSubmitSuccess={this.onSubmitSuccess(fetch)}
                 closeTimeoutMS={0}
                 loading={this.state.submitStatus === 'SUBMITTING'}
               />
