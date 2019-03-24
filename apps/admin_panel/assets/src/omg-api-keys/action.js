@@ -1,10 +1,10 @@
 import * as apikeyService from '../services/apikeyService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
-export const createApiKey = owner =>
+export const createApiKey = ({ name }) =>
   createActionCreator({
     actionName: 'API_KEY',
     action: 'CREATE',
-    service: () => apikeyService.createApikey({ owner })
+    service: () => apikeyService.createApikey({ name })
   })
 export const deleteApiKey = id =>
   createActionCreator({

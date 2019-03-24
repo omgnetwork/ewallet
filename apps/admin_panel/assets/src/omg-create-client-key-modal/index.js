@@ -63,12 +63,12 @@ CreateClientKeyModal.propTypes = {
 }
 
 function CreateClientKeyModal (props) {
-  const [name, setName] = useState()
-  const [submitStatus, setSubmitStatus] = useState()
+  const [name, setName] = useState('')
+  const [submitStatus, setSubmitStatus] = useState('DEFAULT')
   function onRequestClose () {
+    setName('')
+    setSubmitStatus('DEFAULT')
     props.onRequestClose()
-    setName()
-    setSubmitStatus()
   }
   async function onSubmit (e) {
     e.preventDefault()

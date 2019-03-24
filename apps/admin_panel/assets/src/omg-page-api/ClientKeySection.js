@@ -85,6 +85,7 @@ const KeyContainer = styled.div`
 
 const columnsApiKey = [
   { key: 'key', title: 'CLIENT KEY' },
+  { key: 'name', title: 'NAME' },
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
 ]
@@ -167,7 +168,7 @@ class ClientKeySection extends Component {
               return {
                 key: key.key,
                 id: key.id,
-                user: key.account_id,
+                name: key.name || 'Not Provided',
                 created_at: key.created_at,
                 status: key.expired,
                 updated_at: key.updated_at

@@ -68,16 +68,16 @@ CreateAdminKeyModal.propTypes = {
 }
 
 function CreateAdminKeyModal (props) {
-  const [label, setLabel] = useState()
-  const [submitStatus, setSubmitStatus] = useState()
+  const [label, setLabel] = useState('')
+  const [submitStatus, setSubmitStatus] = useState('DEFAULT')
   const [role, setRole] = useState('none')
-  const [account, setAccountInput] = useState()
+  const [account, setAccountInput] = useState('')
   function onRequestClose () {
+    setLabel('')
+    setAccountInput('')
+    setRole('none')
+    setSubmitStatus('DEFAULT')
     props.onRequestClose()
-    setLabel()
-    setAccountInput()
-    setRole()
-    setSubmitStatus()
   }
   function onSelectAccount (account) {
     setAccountInput(account)

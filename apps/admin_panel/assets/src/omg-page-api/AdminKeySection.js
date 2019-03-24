@@ -146,7 +146,9 @@ class ApiKeyPage extends Component {
   }
   state = {
     createAdminKeyModalOpen: false,
-    privateKeyModalOpen: false
+    privateKeyModalOpen: false,
+    accessKey: '',
+    secretKey: ''
   }
   onRequestCloseShowPrivateKey = () => {
     this.setState({
@@ -214,12 +216,12 @@ class ApiKeyPage extends Component {
           </p>
           <InputContainer>
             <InputLabel>Access Key</InputLabel>
-            <input value={this.state.accessKey} spellCheck='false' />
+            <input readOnly value={this.state.accessKey} spellCheck='false' />
             <Copy data={this.state.accessKey} />
           </InputContainer>
           <InputContainer>
             <InputLabel>Secret key</InputLabel>
-            <input value={this.state.secretKey} spellCheck='false' />
+            <input readOnly value={this.state.secretKey} spellCheck='false' />
             <Copy data={this.state.secretKey} />
           </InputContainer>
         </ConfirmCreateKeyContainer>
