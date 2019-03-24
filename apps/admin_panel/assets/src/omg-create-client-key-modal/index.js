@@ -7,7 +7,7 @@ import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { createApiKey } from '../omg-api-keys/action'
 import PropTypes from 'prop-types'
-const CreateAdminKeyModalContainer = styled.div`
+const CreateClientKeyModalContainer = styled.div`
   padding: 50px;
   width: 100vw;
   height: 100vh;
@@ -30,11 +30,11 @@ const CreateAdminKeyModalContainer = styled.div`
     margin-top: 35px;
   }
 `
-const CreateAdminKeyButton = styled(Button)`
+const CreateClientKeyButton = styled(Button)`
   padding-left: 40px;
   padding-right: 40px;
 `
-const CreateAdminKeyFormContainer = styled.form`
+const CreateClientKeyFormContainer = styled.form`
   position: absolute;
   top: 50%;
 
@@ -55,14 +55,14 @@ const enhance = compose(
   )
 )
 
-CreateAdminKeyModal.propTypes = {
+CreateClientKeyModal.propTypes = {
   open: PropTypes.bool,
   createApiKey: PropTypes.func,
   onRequestClose: PropTypes.func,
   onSubmitSuccess: PropTypes.func
 }
 
-function CreateAdminKeyModal (props) {
+function CreateClientKeyModal (props) {
   const [name, setName] = useState()
   const [submitStatus, setSubmitStatus] = useState()
   function onRequestClose () {
@@ -76,7 +76,7 @@ function CreateAdminKeyModal (props) {
     const { data } = await props.createApiKey({ name })
     if (data) {
       setSubmitStatus('SUCCESS')
-      props.onSubmitSuccess(data)
+      props.onSubmitSuccess()
       onRequestClose()
     }
   }
@@ -89,9 +89,9 @@ function CreateAdminKeyModal (props) {
       shouldCloseOnOverlayClick={false}
       overlayClassName='dummy'
     >
-      <CreateAdminKeyModalContainer onSubmit={onSubmit}>
+      <CreateClientKeyModalContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />
-        <CreateAdminKeyFormContainer>
+        <CreateClientKeyFormContainer>
           <h4>Create Client Key</h4>
           <StyledInput
             autoFocus
@@ -99,17 +99,17 @@ function CreateAdminKeyModal (props) {
             onChange={e => setName(e.target.value)}
             value={name}
           />
-          <CreateAdminKeyButton
+          <CreateClientKeyButton
             styleType='primary'
             type='submit'
             loading={submitStatus === 'SUBMITTED'}
           >
             Create key
-          </CreateAdminKeyButton>
-        </CreateAdminKeyFormContainer>
-      </CreateAdminKeyModalContainer>
+          </CreateClientKeyButton>
+        </CreateClientKeyFormContainer>
+      </CreateClientKeyModalContainer>
     </Modal>
   )
 }
 
-export default enhance(CreateAdminKeyModal)
+export default enhance(CreateClientKeyModal)

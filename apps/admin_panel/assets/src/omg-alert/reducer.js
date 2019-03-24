@@ -37,10 +37,10 @@ export const alertsReducer = createReducer([], {
     ]
   },
   'API_KEY/CREATE/SUCCESS': state => {
-    return [...state, createAlertState('Api key was successfully created.', 'success')]
+    return [...state, createAlertState('Client key was successfully created.', 'success')]
   },
   'ACCESS_KEY/CREATE/SUCCESS': state => {
-    return [...state, createAlertState('Access key was successfully created.', 'success')]
+    return [...state, createAlertState('Admin key was successfully created.', 'success')]
   },
   'EXCHANGE_PAIR/CREATE/SUCCESS': state => {
     return [...state, createAlertState('Exchange pair has successfully created.', 'success')]

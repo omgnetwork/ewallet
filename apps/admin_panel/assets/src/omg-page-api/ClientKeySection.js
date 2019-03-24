@@ -95,7 +95,7 @@ const enhance = compose(
     { createApiKey, updateApiKey }
   )
 )
-class ApiKeyPage extends Component {
+class ClientKeySection extends Component {
   static propTypes = {
     createApiKey: PropTypes.func,
     updateApiKey: PropTypes.func,
@@ -104,12 +104,7 @@ class ApiKeyPage extends Component {
     onRequestClose: PropTypes.func
   }
   state = {
-    createClientKeyModalOpen: false
-  }
-  onRequestClose = () => {
-    this.setState({
-      createClientKeyModalOpen: false
-    })
+    submitStatus: 'DEFAULT'
   }
 
   onClickCreateClientKey = fetch => async e => {
@@ -117,7 +112,7 @@ class ApiKeyPage extends Component {
     try {
       await this.props.createApiKey({ name: this.state.name })
       fetch()
-      this.onRequestClose()
+      this.props.onRequestClose()
       this.setState({ submitStatus: 'SUCCESS' })
     } catch (error) {
       this.setState({ submitStatus: 'FAILED' })
@@ -126,7 +121,10 @@ class ApiKeyPage extends Component {
   onClickSwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateApiKey({ id, expired })
   }
-
+  onSubmitSuccess = fetch => () => {
+    fetch()
+    this.setState({ createClientKeyModalOpen: false })
+  }
   rowApiKeyRenderer = fetch => (key, data, rows) => {
     switch (key) {
       case 'status':
@@ -193,6 +191,7 @@ class ApiKeyPage extends Component {
               <CreateClientKeyModal
                 open={this.props.createClientKeyModalOpen}
                 onRequestClose={this.props.onRequestClose}
+                onSubmitSuccess={this.onSubmitSuccess(fetch)}
                 onOk={this.onClickCreateClientKey(fetch)}
                 loading={this.state.submitStatus === 'SUBMITTING'}
               />
@@ -204,4 +203,4 @@ class ApiKeyPage extends Component {
   }
 }
 
-export default enhance(ApiKeyPage)
+export default enhance(ClientKeySection)
