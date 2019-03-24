@@ -82,8 +82,9 @@ function InviteModal (props) {
   function onSelectRole (role) {
     setRole(role)
   }
-  function onSubmit () {
-    props.createAccessKey()
+  function onSubmit (e) {
+    e.preventDefault()
+    props.createAccessKey({ name: label, globalRole: role })
   }
 
   return (

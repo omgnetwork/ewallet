@@ -13,10 +13,13 @@ export function getAccessKeys ({ perPage, page, search, sort }) {
   })
 }
 
-export function createAccessKey () {
+export function createAccessKey ({name, globalRole}) {
   return authenticatedRequest({
     path: '/access_key.create',
-    data: {}
+    data: {
+      name,
+      global_role: globalRole
+    }
   })
 }
 export function updateAccessKey ({ id, expired }) {

@@ -1,10 +1,10 @@
 import * as accessKeyService from '../services/accessKeyService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
-export const createAccessKey = owner =>
+export const createAccessKey = ({ name, globalRole }) =>
   createActionCreator({
     actionName: 'ACCESS_KEY',
     action: 'CREATE',
-    service: accessKeyService.createAccessKey
+    service: () => accessKeyService.createAccessKey({ name, globalRole })
   })
 export const deleteAccessKey = id =>
   createActionCreator({
