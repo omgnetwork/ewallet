@@ -6,6 +6,7 @@ import AccountKeyFetcher from '../omg-account/accountKeyFetcher'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
+import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
 const AccountKeySubPageContainer = styled.div`
   button {
     padding-left: 30px;
@@ -15,6 +16,8 @@ const AccountKeySubPageContainer = styled.div`
 
 export default withRouter(function AccountKeySubPage (props) {
   const [createAdminKeyModalOpen, setCreateAdminKeyModalOpen] = useState(false)
+  const { search, page } = queryString.parse(props.location.search)
+
   return (
     <AccountKeySubPageContainer>
       <TopNavigation
@@ -29,9 +32,10 @@ export default withRouter(function AccountKeySubPage (props) {
       <AdminKeySection
         fetcher={AccountKeyFetcher}
         query={{
-          page: queryString.parse(props.location.search)['page'],
+          page,
           perPage: 10,
-          accountId: props.match.params.accountId
+          accountId: props.match.params.accountId,
+          ...createSearchAdminKeyQuery(search)
         }}
         createAdminKeyModalOpen={createAdminKeyModalOpen}
         onRequestClose={() => setCreateAdminKeyModalOpen(false)}

@@ -7,6 +7,7 @@ import AccountsFetcher from '../omg-account/accountsFetcher'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { createAccessKey } from '../omg-access-key/action'
+import { assignKey } from '../omg-account/action.js'
 import PropTypes from 'prop-types'
 import AccountSelectRow from './AccountSelectRow'
 const CreateAdminKeyModalContainer = styled.div`
@@ -61,7 +62,7 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { createAccessKey }
+    { createAccessKey, assignKey }
   )
 )
 
@@ -69,7 +70,8 @@ CreateAdminKeyModal.propTypes = {
   open: PropTypes.bool,
   createAccessKey: PropTypes.func,
   onRequestClose: PropTypes.func,
-  onSubmitSuccess: PropTypes.func
+  onSubmitSuccess: PropTypes.func,
+  assignKey: PropTypes.func
 }
 
 function CreateAdminKeyModal (props) {
@@ -95,8 +97,11 @@ function CreateAdminKeyModal (props) {
     setSubmitStatus('SUBMITTED')
     const { data } = await props.createAccessKey({ name: label, globalRole: role })
     if (data) {
-      setSubmitStatus('SUCCESS')
-      props.onSubmitSuccess(data)
+      const resultAssignKey = await props.assignKey({ keyId: data.id, accountId: account, role })
+      if (resultAssignKey.data) {
+        setSubmitStatus('SUCCESS')
+        props.onSubmitSuccess(data)
+      }
       onRequestClose()
     } else {
       setSubmitStatus('FAILED')
@@ -122,6 +127,19 @@ function CreateAdminKeyModal (props) {
             onChange={e => setLabel(e.target.value)}
             value={label}
           />
+          <InputLabel>Global Role</InputLabel>
+          <StyledSelect
+            normalPlaceholder='Role ( optional )'
+            onChange={e => setRole(e.target.value)}
+            value={role}
+            onSelectItem={item => onSelectRole(item.key)}
+            options={[
+              { key: 'viewer', value: 'Viewer' },
+              { key: 'admin', value: 'Admin' },
+              { key: 'super_admin', value: 'Super Admin' },
+              { key: 'none', value: 'None' }
+            ]}
+          />
           <InputLabel>Assign Account</InputLabel>
           <AccountsFetcher
             query={{
@@ -143,19 +161,22 @@ function CreateAdminKeyModal (props) {
               )
             }}
           />
-          <InputLabel>Role</InputLabel>
-          <StyledSelect
-            normalPlaceholder='Role ( optional )'
-            onChange={e => setRole(e.target.value)}
-            value={role}
-            onSelectItem={item => onSelectRole(item.key)}
-            options={[
-              { key: 'viewer', value: 'Viewer' },
-              { key: 'admin', value: 'Admin' },
-              { key: 'super_admin', value: 'Super Admin' },
-              { key: 'none', value: 'none' }
-            ]}
-          />
+          {account && (
+            <div>
+              <InputLabel>Account Role</InputLabel>
+              <StyledSelect
+                normalPlaceholder={'Account\'s Role ( optional )'}
+                onChange={e => setRole(e.target.value)}
+                value={role}
+                onSelectItem={item => onSelectRole(item.key)}
+                options={[
+                  { key: 'viewer', value: 'Viewer' },
+                  { key: 'admin', value: 'Admin' },
+                  { key: 'none', value: 'None' }
+                ]}
+              />
+            </div>
+          )}
           <CreateAdminKeyButton
             styleType='primary'
             type='submit'

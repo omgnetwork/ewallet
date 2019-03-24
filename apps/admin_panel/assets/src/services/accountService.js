@@ -60,6 +60,17 @@ export function assignMember ({ userId, accountId, role, redirectUrl }) {
   })
 }
 
+export function assignKey ({ keyId, accountId, role }) {
+  return authenticatedRequest({
+    path: '/account.assign_key',
+    data: {
+      account_id: accountId,
+      key_id: keyId,
+      role_name: role
+    }
+  })
+}
+
 export function inviteMember ({ email, accountId, role, redirectUrl }) {
   return authenticatedRequest({
     path: '/account.assign_user',
