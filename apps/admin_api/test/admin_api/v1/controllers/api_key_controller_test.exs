@@ -14,7 +14,7 @@
 
 defmodule AdminAPI.V1.APIKeyControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Account, APIKey, Key, User, Repo}
+  alias EWalletDB.{APIKey, Key, User, Repo}
   alias Utils.Helpers.{Assoc, DateFormatter}
 
   describe "/api_key.all" do
@@ -80,7 +80,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                  "id" => api_key.id,
                  "name" => api_key.name,
                  "key" => api_key.key,
-                 "account_id" => Account.get_master_account().id,
+                 "account_id" => nil,
                  "owner_app" => "ewallet_api",
                  "creator_user_id" => Assoc.get(api_key, [:creator_user, :id]),
                  "creator_key_id" => Assoc.get(api_key, [:creator_key, :id]),
@@ -225,7 +225,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                  "key" => api_key.key,
                  "enabled" => false,
                  "expired" => true,
-                 "account_id" => Account.get_master_account().id,
+                 "account_id" => nil,
                  "owner_app" => "ewallet_api",
                  "creator_user_id" => api_key.creator_user.id,
                  "creator_key_id" => nil,
