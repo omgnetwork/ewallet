@@ -4860,7 +4860,7 @@ paths:
                             id: key_01ce843mvg5fa1zpk5myy69h4q
                             access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
                             secret_key: the_secret_key_or_null
-                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            account_id: null
                             global_role: admin
                             enabled: true
                             created_at: '2018-01-01T00:00:00Z'
@@ -4912,7 +4912,7 @@ paths:
                         id: key_01ce843mvg5fa1zpk5myy69h4q
                         access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
                         secret_key: the_secret_key_or_null
-                        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                        account_id: null
                         global_role: admin
                         enabled: true
                         created_at: '2018-01-01T00:00:00Z'
@@ -5060,6 +5060,10 @@ paths:
                                       type: boolean
                                     account_id:
                                       type: string
+                                    creator_user_id:
+                                      type: string
+                                    creator_key_id:
+                                      type: string
                                     created_at:
                                       type: string
                                       format: date-time
@@ -5088,9 +5092,9 @@ paths:
                             id: api_01ce844d5w9e81snekr5kprvem
                             name: my_key
                             key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
-                            owner_app: admin_api
+                            owner_app: ewallet_api
                             enabled: true
-                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            account_id: null
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
                             deleted_at: null
@@ -5133,9 +5137,9 @@ paths:
                         id: api_01ce844d5w9e81snekr5kprvem
                         name: my_key
                         key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
-                        owner_app: admin_api
+                        owner_app: ewallet_api
                         enabled: true
-                        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                        account_id: null
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         deleted_at: null

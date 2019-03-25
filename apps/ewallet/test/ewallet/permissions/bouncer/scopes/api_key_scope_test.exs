@@ -45,98 +45,56 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
       refute Enum.member?(api_key_uuids, api_key_3.uuid)
     end
 
-    test "returns all API keys the actor (user) has access to when 'accounts' ability" do
-      actor = insert(:admin)
+    test "returns all API keys the actor (user) has access to when 'self' ability" do
+      user_1 = insert(:admin)
+      user_2 = insert(:admin)
 
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      account_3 = insert(:account)
-
-      api_key_1 = insert(:api_key, account: account_1)
-      api_key_2 = insert(:api_key, account: account_1)
-      api_key_3 = insert(:api_key, account: account_2)
-      api_key_4 = insert(:api_key, account: account_3)
-
-      {:ok, _} = APIKey.delete(api_key_2, %System{})
-
-      {:ok, _} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, _} = Membership.assign(actor, account_2, "viewer", %System{})
+      api_key_1 = insert(:api_key, creator_user: user_1)
+      api_key_2 = insert(:api_key, creator_user: user_2)
+      api_key_3 = insert(:api_key, creator_user: user_1)
+      api_key_4 = insert(:api_key, creator_user: user_2)
 
       permission = %Permission{
-        actor: actor,
-        global_abilities: %{api_keys: :accounts},
-        account_abilities: %{}
-      }
-
-      query = APIKeyScope.scoped_query(permission)
-      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
-
-      assert length(api_key_uuids) == 2
-      assert Enum.member?(api_key_uuids, api_key_1.uuid)
-      assert Enum.member?(api_key_uuids, api_key_3.uuid)
-
-      # deleted
-      refute Enum.member?(api_key_uuids, api_key_2.uuid)
-      # in another account
-      refute Enum.member?(api_key_uuids, api_key_4.uuid)
-    end
-
-    test "returns all API keys the actor (key) has access to when 'accounts' ability" do
-      actor = insert(:key)
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      account_3 = insert(:account)
-
-      api_key_1 = insert(:api_key, account: account_1)
-      api_key_2 = insert(:api_key, account: account_1)
-      api_key_3 = insert(:api_key, account: account_2)
-      api_key_4 = insert(:api_key, account: account_3)
-
-      {:ok, _} = APIKey.delete(api_key_2, %System{})
-
-      {:ok, _} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, _} = Membership.assign(actor, account_2, "viewer", %System{})
-
-      permission = %Permission{
-        actor: actor,
-        global_abilities: %{api_keys: :accounts},
-        account_abilities: %{}
-      }
-
-      query = APIKeyScope.scoped_query(permission)
-      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
-
-      assert length(api_key_uuids) == 2
-      assert Enum.member?(api_key_uuids, api_key_1.uuid)
-      assert Enum.member?(api_key_uuids, api_key_3.uuid)
-
-      # deleted
-      refute Enum.member?(api_key_uuids, api_key_2.uuid)
-      # in another account
-      refute Enum.member?(api_key_uuids, api_key_4.uuid)
-    end
-
-    test "returns nil when 'self' ability" do
-      actor = insert(:admin)
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      _account_3 = insert(:account)
-
-      _api_key_1 = insert(:api_key, account: account_1)
-      _api_key_2 = insert(:api_key, account: account_2)
-
-      {:ok, _} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, _} = Membership.assign(actor, account_2, "viewer", %System{})
-
-      permission = %Permission{
-        actor: actor,
+        actor: user_2,
         global_abilities: %{api_keys: :self},
         account_abilities: %{}
       }
 
-      assert APIKeyScope.scoped_query(permission) == nil
+      query = APIKeyScope.scoped_query(permission)
+      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
+
+      assert length(api_key_uuids) == 2
+
+      refute Enum.member?(api_key_uuids, api_key_1.uuid)
+      assert Enum.member?(api_key_uuids, api_key_2.uuid)
+      refute Enum.member?(api_key_uuids, api_key_3.uuid)
+      assert Enum.member?(api_key_uuids, api_key_4.uuid)
+    end
+
+    test "returns all API keys the actor (key) has access to when 'self' ability" do
+      key_1 = insert(:key)
+      key_2 = insert(:key)
+
+      api_key_1 = insert(:api_key, creator_key: key_1)
+      api_key_2 = insert(:api_key, creator_key: key_2)
+      api_key_3 = insert(:api_key, creator_key: key_1)
+      api_key_4 = insert(:api_key, creator_key: key_2)
+
+      permission = %Permission{
+        actor: key_2,
+        global_abilities: %{api_keys: :self},
+        account_abilities: %{}
+      }
+
+      query = APIKeyScope.scoped_query(permission)
+      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
+
+      assert length(api_key_uuids) == 2
+
+      refute Enum.member?(api_key_uuids, api_key_1.uuid)
+      assert Enum.member?(api_key_uuids, api_key_2.uuid)
+      refute Enum.member?(api_key_uuids, api_key_3.uuid)
+      assert Enum.member?(api_key_uuids, api_key_4.uuid)
     end
 
     test "returns nil when 'none' ability" do
@@ -144,10 +102,9 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
 
       account_1 = insert(:account)
       account_2 = insert(:account)
-      _account_3 = insert(:account)
 
-      _api_key_1 = insert(:api_key, account: account_1)
-      _api_key_2 = insert(:api_key, account: account_2)
+      _api_key_1 = insert(:api_key)
+      _api_key_2 = insert(:api_key)
 
       {:ok, _} = Membership.assign(actor, account_1, "admin", %System{})
       {:ok, _} = Membership.assign(actor, account_2, "viewer", %System{})
@@ -162,7 +119,7 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
     end
   end
 
-  describe "scope_query/1 with account abilities" do
+  describe "scope_query/1 with user abilities" do
     test "returns APIKey as queryable when 'global' ability" do
       actor = insert(:admin)
 
@@ -187,98 +144,56 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
       refute Enum.member?(api_key_uuids, api_key_3.uuid)
     end
 
-    test "returns all API keys the actor (user) has access to when 'accounts' ability" do
-      actor = insert(:admin)
+    test "returns all API keys the actor (user) has access to when 'self' ability" do
+      user_1 = insert(:admin)
+      user_2 = insert(:admin)
 
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      account_3 = insert(:account)
-
-      api_key_1 = insert(:api_key, account: account_1)
-      api_key_2 = insert(:api_key, account: account_1)
-      api_key_3 = insert(:api_key, account: account_2)
-      api_key_4 = insert(:api_key, account: account_3)
-
-      {:ok, _} = APIKey.delete(api_key_2, %System{})
-
-      {:ok, _} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, _} = Membership.assign(actor, account_2, "viewer", %System{})
+      api_key_1 = insert(:api_key, creator_user: user_1)
+      api_key_2 = insert(:api_key, creator_user: user_2)
+      api_key_3 = insert(:api_key, creator_user: user_1)
+      api_key_4 = insert(:api_key, creator_user: user_2)
 
       permission = %Permission{
-        actor: actor,
-        global_abilities: %{},
-        account_abilities: %{api_keys: :accounts}
-      }
-
-      query = APIKeyScope.scoped_query(permission)
-      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
-
-      assert length(api_key_uuids) == 2
-      assert Enum.member?(api_key_uuids, api_key_1.uuid)
-      assert Enum.member?(api_key_uuids, api_key_3.uuid)
-
-      # deleted
-      refute Enum.member?(api_key_uuids, api_key_2.uuid)
-      # in another account
-      refute Enum.member?(api_key_uuids, api_key_4.uuid)
-    end
-
-    test "returns all API keys the actor (key) has access to when 'accounts' ability" do
-      actor = insert(:key)
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      account_3 = insert(:account)
-
-      api_key_1 = insert(:api_key, account: account_1)
-      api_key_2 = insert(:api_key, account: account_1)
-      api_key_3 = insert(:api_key, account: account_2)
-      api_key_4 = insert(:api_key, account: account_3)
-
-      {:ok, _} = APIKey.delete(api_key_2, %System{})
-
-      {:ok, _} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, _} = Membership.assign(actor, account_2, "viewer", %System{})
-
-      permission = %Permission{
-        actor: actor,
-        global_abilities: %{},
-        account_abilities: %{api_keys: :accounts}
-      }
-
-      query = APIKeyScope.scoped_query(permission)
-      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
-
-      assert length(api_key_uuids) == 2
-      assert Enum.member?(api_key_uuids, api_key_1.uuid)
-      assert Enum.member?(api_key_uuids, api_key_3.uuid)
-
-      # deleted
-      refute Enum.member?(api_key_uuids, api_key_2.uuid)
-      # in another account
-      refute Enum.member?(api_key_uuids, api_key_4.uuid)
-    end
-
-    test "returns nil when 'self' ability" do
-      actor = insert(:admin)
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      _account_3 = insert(:account)
-
-      _api_key_1 = insert(:api_key, account: account_1)
-      _api_key_2 = insert(:api_key, account: account_2)
-
-      {:ok, _} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, _} = Membership.assign(actor, account_2, "viewer", %System{})
-
-      permission = %Permission{
-        actor: actor,
+        actor: user_2,
         global_abilities: %{},
         account_abilities: %{api_keys: :self}
       }
 
-      assert APIKeyScope.scoped_query(permission) == nil
+      query = APIKeyScope.scoped_query(permission)
+      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
+
+      assert length(api_key_uuids) == 2
+
+      refute Enum.member?(api_key_uuids, api_key_1.uuid)
+      assert Enum.member?(api_key_uuids, api_key_2.uuid)
+      refute Enum.member?(api_key_uuids, api_key_3.uuid)
+      assert Enum.member?(api_key_uuids, api_key_4.uuid)
+    end
+
+    test "returns all API keys the actor (key) has access to when 'self' ability" do
+      key_1 = insert(:key)
+      key_2 = insert(:key)
+
+      api_key_1 = insert(:api_key, creator_key: key_1)
+      api_key_2 = insert(:api_key, creator_key: key_2)
+      api_key_3 = insert(:api_key, creator_key: key_1)
+      api_key_4 = insert(:api_key, creator_key: key_2)
+
+      permission = %Permission{
+        actor: key_2,
+        global_abilities: %{},
+        account_abilities: %{api_keys: :self}
+      }
+
+      query = APIKeyScope.scoped_query(permission)
+      api_key_uuids = query |> Repo.all() |> UUID.get_uuids()
+
+      assert length(api_key_uuids) == 2
+
+      refute Enum.member?(api_key_uuids, api_key_1.uuid)
+      assert Enum.member?(api_key_uuids, api_key_2.uuid)
+      refute Enum.member?(api_key_uuids, api_key_3.uuid)
+      assert Enum.member?(api_key_uuids, api_key_4.uuid)
     end
 
     test "returns nil when 'none' ability" do
@@ -288,8 +203,8 @@ defmodule EWallet.Bouncer.APIKeyScopeTest do
       account_2 = insert(:account)
       _account_3 = insert(:account)
 
-      _api_key_1 = insert(:api_key, account: account_1)
-      _api_key_2 = insert(:api_key, account: account_2)
+      _api_key_1 = insert(:api_key)
+      _api_key_2 = insert(:api_key)
 
       {:ok, _} = Membership.assign(actor, account_1, "admin", %System{})
       {:ok, _} = Membership.assign(actor, account_2, "viewer", %System{})

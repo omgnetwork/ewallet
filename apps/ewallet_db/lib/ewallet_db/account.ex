@@ -28,7 +28,6 @@ defmodule EWalletDB.Account do
   alias EWalletDB.{
     Account,
     AccountUser,
-    APIKey,
     Category,
     Membership,
     Repo,
@@ -68,13 +67,6 @@ defmodule EWalletDB.Account do
     has_many(
       :tokens,
       Token,
-      foreign_key: :account_uuid,
-      references: :uuid
-    )
-
-    has_many(
-      :api_keys,
-      APIKey,
       foreign_key: :account_uuid,
       references: :uuid
     )
