@@ -156,10 +156,15 @@ defmodule AdminAPI.V1.Router do
     post("/admin.enable_or_disable", AdminUserController, :enable_or_disable)
 
     # Role endpoints
+    # deprecated
     post("/role.all", RoleController, :all)
+    # deprecated
     post("/role.get", RoleController, :get)
+    # deprecated
     post("/role.create", RoleController, :create)
+    # deprecated
     post("/role.update", RoleController, :update)
+    # deprecated
     post("/role.delete", RoleController, :delete)
 
     # Permission endpoints
@@ -167,11 +172,10 @@ defmodule AdminAPI.V1.Router do
 
     # API Access endpoints
     post("/access_key.all", KeyController, :all)
+    post("/access_key.get", KeyController, :get)
     post("/access_key.create", KeyController, :create)
     post("/access_key.enable_or_disable", KeyController, :enable_or_disable)
     post("/access_key.delete", KeyController, :delete)
-
-    # Deprecated in PR #535
     post("/access_key.update", KeyController, :update)
 
     # API Key endpoints

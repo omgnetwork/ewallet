@@ -4867,6 +4867,53 @@ paths:
                             updated_at: '2018-01-01T10:00:00Z'
                             deleted_at: null
         '500': *ref_2
+  /access_key.get:
+    post:
+      tags:
+        - API Access
+      summary: Get a specific access key
+      operationId: access_key_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving a specific access key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: key_01ce83yphmq6vt4qnmn3ykwcw6
+      responses:
+        '200': &ref_59
+          description: Returns a single access key
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an access key
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      data: *ref_58
+                    example:
+                      data:
+                        object: key
+                        id: key_01ce843mvg5fa1zpk5myy69h4q
+                        access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+                        secret_key: the_secret_key_or_null
+                        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                        global_role: admin
+                        enabled: true
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+                        deleted_at: null
+        '500': *ref_2
   /access_key.create:
     post:
       tags:
@@ -4895,29 +4942,7 @@ paths:
                 name: my_key
                 global_role: none
       responses:
-        '200': &ref_59
-          description: Returns a single access key
-          content:
-            application/vnd.omisego.v1+json:
-              schema:
-                description: The response schema for an access key
-                allOf:
-                  - *ref_1
-                  - type: object
-                    properties:
-                      data: *ref_58
-                    example:
-                      data:
-                        object: key
-                        id: key_01ce843mvg5fa1zpk5myy69h4q
-                        access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
-                        secret_key: the_secret_key_or_null
-                        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
-                        global_role: admin
-                        enabled: true
-                        created_at: '2018-01-01T00:00:00Z'
-                        updated_at: '2018-01-01T10:00:00Z'
-                        deleted_at: null
+        '200': *ref_59
         '500': *ref_2
   /access_key.update:
     post:

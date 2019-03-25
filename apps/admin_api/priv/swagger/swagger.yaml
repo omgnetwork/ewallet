@@ -296,6 +296,8 @@ paths:
   # API AND SECRET KEYS
   /access_key.all:
     $ref: 'api_key/paths.yaml#/access_key.all'
+  /access_key.get:
+    $ref: 'api_key/paths.yaml#/access_key.get'
   /access_key.create:
     $ref: 'api_key/paths.yaml#/access_key.create'
   /access_key.update:

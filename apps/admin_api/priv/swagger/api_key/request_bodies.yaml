@@ -17,6 +17,20 @@ AccessKeyCreateBody:
           name: my_key
           global_role: none
 
+AccessKeyGetBody:
+  description: The parameters to use for retrieving a specific access key
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: key_01ce83yphmq6vt4qnmn3ykwcw6
+
 AccessKeyUpdateBody:
   description: The parameters to use for updating an access key
   required: true

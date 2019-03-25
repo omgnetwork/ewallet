@@ -14,6 +14,22 @@ access_key.all:
         $ref: 'responses.yaml#/AccessKeysResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+access_key.get:
+  post:
+    tags:
+      - API Access
+    summary: Get a specific access key
+    operationId: access_key_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccessKeyGetBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AccessKeyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 access_key.create:
   post:
     tags:
