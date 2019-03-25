@@ -40,6 +40,7 @@ defmodule EWallet.Web.V1.KeyOverlay do
 
   def self_filter_fields,
     do: [
+      :name,
       :access_key,
       :expired,
       :inserted_at,
@@ -49,6 +50,7 @@ defmodule EWallet.Web.V1.KeyOverlay do
 
   def filter_fields,
     do: [
+      name: nil,
       access_key: nil,
       expired: nil,
       inserted_at: nil,

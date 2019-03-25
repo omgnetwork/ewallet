@@ -33,7 +33,9 @@ defmodule EWallet.Web.V1.KeySerializer do
       name: key.name,
       access_key: key.access_key,
       secret_key: key.secret_key,
+      # Deprecated
       account_id: nil,
+      global_role: key.global_role,
       enabled: key.enabled,
       created_at: DateFormatter.to_iso8601(key.inserted_at),
       updated_at: DateFormatter.to_iso8601(key.updated_at),

@@ -73,6 +73,7 @@ defmodule EWalletDB.APIKeyTest do
     test_insert_generate_length(APIKey, :key, 43)
 
     test_insert_prevent_duplicate(APIKey, :key)
+    test_insert_prevent_duplicate(APIKey, :name)
 
     test "inserts with the given name" do
       {:ok, api_key} = :api_key |> params_for(%{name: "my_cool_api_key"}) |> APIKey.insert()

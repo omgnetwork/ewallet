@@ -37,7 +37,7 @@ defmodule EWallet.PolicyHelper do
         query =
           permission
           |> Bouncer.scoped_query()
-          |> Query.subquery()
+          |> build_subquery()
 
         {:ok, %{permission | query: query}}
 
@@ -45,4 +45,7 @@ defmodule EWallet.PolicyHelper do
         error
     end
   end
+
+  defp build_subquery(nil), do: nil
+  defp build_subquery(query), do: Query.subquery(query)
 end

@@ -34,6 +34,7 @@ defmodule AdminAPI.V1.KeyViewTest do
           account_id: nil,
           expired: !key.enabled,
           enabled: key.enabled,
+          global_role: key.global_role,
           created_at: DateFormatter.to_iso8601(key.inserted_at),
           updated_at: DateFormatter.to_iso8601(key.updated_at),
           deleted_at: DateFormatter.to_iso8601(key.deleted_at)
@@ -72,6 +73,7 @@ defmodule AdminAPI.V1.KeyViewTest do
               account_id: nil,
               expired: !key1.enabled,
               enabled: key1.enabled,
+              global_role: key1.global_role,
               created_at: DateFormatter.to_iso8601(key1.inserted_at),
               updated_at: DateFormatter.to_iso8601(key1.updated_at),
               deleted_at: DateFormatter.to_iso8601(key1.deleted_at)
@@ -85,6 +87,7 @@ defmodule AdminAPI.V1.KeyViewTest do
               account_id: nil,
               expired: !key2.enabled,
               enabled: key2.enabled,
+              global_role: key2.global_role,
               created_at: DateFormatter.to_iso8601(key2.inserted_at),
               updated_at: DateFormatter.to_iso8601(key2.updated_at),
               deleted_at: DateFormatter.to_iso8601(key2.deleted_at)
