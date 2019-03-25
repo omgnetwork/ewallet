@@ -491,6 +491,17 @@ defmodule EWallet.Web.V1.ErrorHandler do
   end
 
   @doc """
+  Handles response of missing_filter_param.
+  """
+  def build_error(:missing_filter_param = code, params, supported_errors) do
+    run_if_valid_error(code, supported_errors, fn error ->
+      # Convert the filter params to JSON for readability.
+      data = Map.update(params, :filter_params, %{}, &Jason.encode!/1)
+      build(code: error.code, desc: build_template(data, error.template))
+    end)
+  end
+
+  @doc """
   Handles response with template description to build.
   """
   def build_error(code, data, supported_errors) when is_map(data) or is_list(data) do
