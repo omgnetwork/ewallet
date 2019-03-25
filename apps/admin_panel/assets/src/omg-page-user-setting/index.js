@@ -18,7 +18,7 @@ const UserSettingContainer = styled.div`
 const StyledInput = styled(Input)`
   margin-bottom: 30px;
 `
-const StyledEmailInput = StyledInput.extend`
+const StyledEmailInput = styled(StyledInput)`
   pointer-events: none;
   input {
     border-bottom: none;

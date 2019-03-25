@@ -4,7 +4,7 @@ export function createSearchAdminKeyQuery (value = '') {
   return {
     matchAny: [
       {
-        field: 'id',
+        field: 'name',
         comparator: 'contains',
         value: matchValue
       }
