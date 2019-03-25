@@ -54,7 +54,7 @@ defmodule AdminAPI.V1.APIKeyController do
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with {:ok, _} <- authorize(:create, conn.assigns, attrs),
-         attrs <-Originator.set_in_attrs(attrs, conn.assigns),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          attrs <- Map.drop(attrs, ["creator_user_uuid", "creator_key_uuid"]),
          attrs <- populate_creator(attrs),
          {:ok, api_key} <- APIKey.insert(attrs),
