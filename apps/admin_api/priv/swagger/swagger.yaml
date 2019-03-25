@@ -170,8 +170,6 @@ paths:
     $ref: 'account/paths.yaml#/account.assign_key'
   /account.unassign_key:
     $ref: 'account/paths.yaml#/account.unassign_key'
-  /account.get_members:
-    $ref: 'account/paths.yaml#/account.get_members'
   /account.get_keys:
     $ref: 'account/paths.yaml#/account.get_keys'
   /account.get_users:
@@ -188,6 +186,8 @@ paths:
     $ref: 'account/paths.yaml#/account.get_transaction_requests'
   /account.get_transaction_consumptions:
     $ref: 'account/paths.yaml#/account.get_transaction_consumptions'
+  /account.get_members:
+    $ref: 'account/paths.yaml#/account.get_members'
 
   # ADMIN USER
   /admin.reset_password:
