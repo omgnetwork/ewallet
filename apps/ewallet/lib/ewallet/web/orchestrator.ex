@@ -48,9 +48,6 @@ defmodule EWallet.Web.Orchestrator do
       {:error, :not_allowed, field} ->
         {:error, :query_field_not_allowed, field_name: field}
 
-      # {:error, :missing_filter_param, params} ->
-      #   {:error, :missing_filter_param, filter_params: params}
-
       {:error, _, _} = error ->
         error
     end
