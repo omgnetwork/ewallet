@@ -398,7 +398,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     missing_filter_param: %{
       code: "client:invalid_parameter",
-      template: "Invalid parameter provided. Missing a filter parameter. Got: %{filter_params}."
+      description: "Invalid parameter provided. Missing one or more filter parameters."
     },
     comparator_not_supported: %{
       code: "client:invalid_parameter",
@@ -495,9 +495,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   """
   def build_error(:missing_filter_param = code, params, supported_errors) do
     run_if_valid_error(code, supported_errors, fn error ->
-      # Convert the filter params to JSON for readability.
-      data = Map.update(params, :filter_params, %{}, &Jason.encode!/1)
-      build(code: error.code, desc: build_template(data, error.template))
+      build(code: error.code, desc: error.description, msgs: params)
     end)
   end
 

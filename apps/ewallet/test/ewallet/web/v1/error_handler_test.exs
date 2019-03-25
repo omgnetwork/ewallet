@@ -100,23 +100,20 @@ defmodule EWallet.Web.V1.ErrorHandlerTest do
     end
 
     test "handles :missing_filter_param error" do
-      data = %{
-        filter_params: %{
-          "field" => "field_name",
-          "comparator" => "eq"
-          # "value" => "the_value"
-        }
+      filter_params = %{
+        "field" => "field_name",
+        "comparator" => "eq"
+        # "value" => "the_value"
       }
 
       expected = %{
         object: "error",
         code: "client:invalid_parameter",
-        description:
-          ~s'Invalid parameter provided. Missing a filter parameter. Got: {"comparator":"eq","field":"field_name"}.',
-        messages: nil
+        description: "Invalid parameter provided. Missing one or more filter parameters.",
+        messages: filter_params
       }
 
-      assert ErrorHandler.build_error(:missing_filter_param, data, ErrorHandler.errors()) ==
+      assert ErrorHandler.build_error(:missing_filter_param, filter_params, ErrorHandler.errors()) ==
                expected
     end
 
