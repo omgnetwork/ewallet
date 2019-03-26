@@ -43,17 +43,12 @@ defmodule EWallet.Web.Config do
   end
 
   def cors_origin do
-    "CORS_ORIGIN"
-    |> System.get_env()
+    :ewallet
+    |> Application.get_env(:cors_origin)
     |> cors_plug_origin()
   end
 
-  def cors_max_age do
-    case System.get_env("CORS_MAX_AGE") do
-      nil -> 600
-      value -> String.to_integer(value)
-    end
-  end
+  def cors_max_age, do: Application.get_env(:ewallet, :cors_max_age)
 
   defp cors_plug_origin(nil), do: []
 
