@@ -39,7 +39,12 @@ defmodule EWallet.Web.Config do
   ]
 
   def cors_plug_config do
-    [max_age: &__MODULE__.cors_max_age/0, origin: &__MODULE__.cors_origin/0, headers: @headers, methods: @methods]
+    [
+      max_age: &__MODULE__.cors_max_age/0,
+      origin: &__MODULE__.cors_origin/0,
+      headers: @headers,
+      methods: @methods
+    ]
   end
 
   def cors_origin do
