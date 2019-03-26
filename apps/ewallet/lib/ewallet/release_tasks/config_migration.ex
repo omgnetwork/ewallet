@@ -97,8 +97,11 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   defp migrate_each([]), do: :noop
 
   defp migrate_each([{setting_name, value} | remaining]) do
-    case Setting.update(setting_name, %{value: value, originator: %CLIUser{}}) do
-      {:ok, _setting} ->
+    case do_migrate(setting_name, value) do
+      :unchanged ->
+        CLI.info("  - Setting `#{setting_name}` is already #{inspect(value)}... Skipped.")
+
+      {:ok, _} ->
         CLI.info("  - Setting `#{setting_name}` to #{inspect(value)}... Done.")
 
       {:error, changeset} ->
@@ -114,5 +117,12 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
     end
 
     migrate_each(remaining)
+  end
+
+  defp do_migrate(setting_name, value) do
+    case Setting.get_value(setting_name) do
+      ^value -> :unchanged
+      _ -> Setting.update(setting_name, %{value: value, originator: %CLIUser{}})
+    end
   end
 end
