@@ -28,13 +28,16 @@ defmodule AdminAPI.V1.AccountMembershipController do
   alias EWalletDB.{Account, Key, Membership, Role, User}
 
   @doc """
-  Lists the users that are assigned to the given account.
+  Lists the admin memberships that are assigned to the given account.
   """
-  def all_users_for_account(conn, attrs) do
+  def all_admin_memberships_for_account(conn, attrs) do
     all_for_account(conn, attrs, :user)
   end
 
-  def all_keys_for_account(conn, attrs) do
+  @doc """
+  Lists the key memberships that are assigned to the given account.
+  """
+  def all_key_memberships_for_account(conn, attrs) do
     all_for_account(conn, attrs, :key)
   end
 
@@ -44,14 +47,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
              {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, account),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
-         attrs <- transform_member_filter_attrs(attrs, type),
          query <- query_members(account, query, type),
          %Paginator{} = memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
       render(conn, :memberships, %{memberships: memberships})
     else
-      {:error, :not_allowed, field} ->
-        handle_error(conn, :query_field_not_allowed, field_name: field)
-
       {:error, error} ->
         handle_error(conn, error)
 
@@ -60,7 +59,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
     end
   end
 
-  defp all_for_account(conn, _, _), do: handle_error(conn, :invalid_parameter)
+  defp all_for_account(conn, _, _), do: handle_error(conn, :missing_id)
 
   defp query_members(account, query, :user) do
     Membership.all_users_by_account(account, query)
@@ -68,39 +67,6 @@ defmodule AdminAPI.V1.AccountMembershipController do
 
   defp query_members(account, query, :key) do
     Membership.all_keys_by_account(account, query)
-  end
-
-  # Transform the filter attributes to the ones expected by
-  # the Orchestrator + MembershipOverlay.
-  defp transform_member_filter_attrs(attrs, type) do
-    member_filterables =
-      MembershipOverlay.filter_fields()
-      |> Keyword.get(type)
-      |> Enum.map(fn field -> Atom.to_string(field) end)
-
-    attrs
-    |> do_transform_member_filter_attrs("match_any", member_filterables, type)
-    |> do_transform_member_filter_attrs("match_all", member_filterables, type)
-  end
-
-  defp do_transform_member_filter_attrs(attrs, match_type, filterables, type) do
-    case attrs[match_type] do
-      nil ->
-        attrs
-
-      _ ->
-        match_attrs = do_transform_member_filter_attrs(attrs[match_type], filterables, type)
-        Map.put(attrs, match_type, match_attrs)
-    end
-  end
-
-  defp do_transform_member_filter_attrs(filters, filterables, type) do
-    Enum.map(filters, fn filter ->
-      case Enum.member?(filterables, filter["field"]) do
-        true -> Map.put(filter, "field", "#{Atom.to_string(type)}." <> filter["field"])
-        false -> filter
-      end
-    end)
   end
 
   @doc """

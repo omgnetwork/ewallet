@@ -63,6 +63,7 @@ defmodule EWallet.Web.V1.UserOverlay do
       :full_name,
       :calling_name,
       :provider_user_id,
+      :global_role,
       :inserted_at,
       :created_at
     ]
@@ -75,6 +76,7 @@ defmodule EWallet.Web.V1.UserOverlay do
       provider_user_id: nil,
       inserted_at: nil,
       created_at: nil,
+      global_role: nil,
       invite: InviteOverlay.default_preload_assocs(),
       wallets: WalletOverlay.default_preload_assocs(),
       auth_tokens: AuthTokenOverlay.default_preload_assocs(),

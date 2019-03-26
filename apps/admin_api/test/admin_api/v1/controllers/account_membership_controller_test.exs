@@ -21,47 +21,54 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
   @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
 
-  describe "/account.get_members" do
-    test_with_auths "returns a list of users with role and status" do
+  describe "/account.get_admin_user_memberships" do
+    test_with_auths "returns a list of admin user memberships" do
       account = insert(:account)
 
-      {:ok, user_1} = :user |> params_for() |> User.insert()
-      {:ok, user_2} = :user |> params_for() |> User.insert()
+      {:ok, user_1} = :admin |> params_for() |> User.insert()
+      {:ok, user_2} = :admin |> params_for() |> User.insert()
 
       admin_role = Role.get_by(name: "admin")
       viewer_role = insert(:role, name: "viewer")
 
-      {:ok, _} = Membership.assign(user_1, account, admin_role, %System{})
-      {:ok, _} = Membership.assign(user_2, account, viewer_role, %System{})
+      {:ok, m_1} = Membership.assign(user_1, account, admin_role, %System{})
+      {:ok, m_2} = Membership.assign(user_2, account, viewer_role, %System{})
 
-      response = request("/account.get_members", %{id: account.id})
+      response = request("/account.get_admin_user_memberships", %{id: account.id})
 
       assert response["success"] == true
       # created two users for the given account
       assert length(response["data"]["data"]) == 2
 
       assert Enum.member?(response["data"]["data"], %{
-               "object" => "user",
-               "id" => user_1.id,
-               "socket_topic" => "user:#{user_1.id}",
-               "username" => user_1.username,
-               "full_name" => user_1.full_name,
-               "calling_name" => user_1.calling_name,
-               "provider_user_id" => user_1.provider_user_id,
-               "email" => user_1.email,
-               "metadata" => user_1.metadata,
-               "encrypted_metadata" => %{},
-               "created_at" => DateFormatter.to_iso8601(user_1.inserted_at),
-               "updated_at" => DateFormatter.to_iso8601(user_1.updated_at),
-               "account_role" => "admin",
-               "status" => to_string(User.get_status(user_1)),
-               "enabled" => user_1.enabled,
-               "avatar" => %{
-                 "original" => nil,
-                 "large" => nil,
-                 "small" => nil,
-                 "thumb" => nil
+               "object" => "membership",
+               "user_id" => user_1.id,
+               "user" => %{
+                 "object" => "user",
+                 "id" => user_1.id,
+                 "socket_topic" => "user:#{user_1.id}",
+                 "username" => user_1.username,
+                 "full_name" => user_1.full_name,
+                 "calling_name" => user_1.calling_name,
+                 "provider_user_id" => user_1.provider_user_id,
+                 "email" => user_1.email,
+                 "metadata" => user_1.metadata,
+                 "encrypted_metadata" => %{},
+                 "created_at" => DateFormatter.to_iso8601(user_1.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(user_1.updated_at),
+                 "status" => to_string(User.get_status(user_1)),
+                 "global_role" => user_1.global_role,
+                 "enabled" => user_1.enabled,
+                 "avatar" => %{
+                   "original" => nil,
+                   "large" => nil,
+                   "small" => nil,
+                   "thumb" => nil
+                 }
                },
+               "key_id" => nil,
+               "key" => nil,
+               "account_id" => account.id,
                "account" => %{
                  "avatar" => %{"large" => nil, "original" => nil, "small" => nil, "thumb" => nil},
                  "categories" => %{"data" => [], "object" => "list"},
@@ -77,31 +84,41 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
                  "socket_topic" => "account:#{account.id}",
                  "created_at" => DateFormatter.to_iso8601(account.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(account.updated_at)
-               }
+               },
+               "role" => admin_role.name,
+               "created_at" => DateFormatter.to_iso8601(m_1.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(m_1.updated_at)
              })
 
       assert Enum.member?(response["data"]["data"], %{
-               "object" => "user",
-               "id" => user_2.id,
-               "socket_topic" => "user:#{user_2.id}",
-               "username" => user_2.username,
-               "full_name" => user_2.full_name,
-               "calling_name" => user_2.calling_name,
-               "provider_user_id" => user_2.provider_user_id,
-               "email" => user_2.email,
-               "metadata" => user_2.metadata,
-               "encrypted_metadata" => %{},
-               "created_at" => DateFormatter.to_iso8601(user_2.inserted_at),
-               "updated_at" => DateFormatter.to_iso8601(user_2.updated_at),
-               "account_role" => "viewer",
-               "status" => to_string(User.get_status(user_2)),
-               "enabled" => user_2.enabled,
-               "avatar" => %{
-                 "original" => nil,
-                 "large" => nil,
-                 "small" => nil,
-                 "thumb" => nil
+               "object" => "membership",
+               "user_id" => user_2.id,
+               "user" => %{
+                 "object" => "user",
+                 "id" => user_2.id,
+                 "socket_topic" => "user:#{user_2.id}",
+                 "username" => user_2.username,
+                 "full_name" => user_2.full_name,
+                 "calling_name" => user_2.calling_name,
+                 "provider_user_id" => user_2.provider_user_id,
+                 "email" => user_2.email,
+                 "metadata" => user_2.metadata,
+                 "encrypted_metadata" => %{},
+                 "created_at" => DateFormatter.to_iso8601(user_2.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(user_2.updated_at),
+                 "status" => to_string(User.get_status(user_2)),
+                 "global_role" => user_2.global_role,
+                 "enabled" => user_2.enabled,
+                 "avatar" => %{
+                   "original" => nil,
+                   "large" => nil,
+                   "small" => nil,
+                   "thumb" => nil
+                 }
                },
+               "key_id" => nil,
+               "key" => nil,
+               "account_id" => account.id,
                "account" => %{
                  "avatar" => %{"large" => nil, "original" => nil, "small" => nil, "thumb" => nil},
                  "categories" => %{"data" => [], "object" => "list"},
@@ -117,12 +134,15 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
                  "socket_topic" => "account:#{account.id}",
                  "created_at" => DateFormatter.to_iso8601(account.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(account.updated_at)
-               }
+               },
+               "role" => viewer_role.name,
+               "created_at" => DateFormatter.to_iso8601(m_2.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(m_2.updated_at)
              })
     end
 
     test_with_auths "returns unauthorized error if account id could not be found" do
-      assert request("/account.get_members", %{
+      assert request("/account.get_admin_user_memberships", %{
                id: "acc_12345678901234567890123456"
              }) ==
                %{
@@ -138,14 +158,14 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns invalid_parameter error if account id is not provided" do
-      assert request("/account.get_members", %{}) ==
+      assert request("/account.get_admin_user_memberships", %{}) ==
                %{
                  "success" => false,
                  "version" => "1",
                  "data" => %{
                    "object" => "error",
                    "code" => "client:invalid_parameter",
-                   "description" => "Invalid parameter provided.",
+                   "description" => "Invalid parameter provided. `id` is required.",
                    "messages" => nil
                  }
                }
@@ -170,29 +190,29 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
         "match_any" => [
           # Filter for `user.username`
           %{
-            "field" => "username",
+            "field" => "user.username",
             "comparator" => "eq",
             "value" => "value_2"
           },
           # Filter for `user.username`
           %{
-            "field" => "username",
+            "field" => "user.username",
             "comparator" => "eq",
             "value" => "value_4"
           }
         ]
       }
 
-      response = request("/account.get_members", attrs)
+      response = request("/account.get_admin_user_memberships", attrs)
 
       assert response["success"]
 
       records = response["data"]["data"]
 
-      refute Enum.any?(records, fn r -> r["id"] == admin_1.id end)
-      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
-      assert Enum.any?(records, fn r -> r["id"] == admin_4.id end)
+      refute Enum.any?(records, fn r -> r["user_id"] == admin_1.id end)
+      assert Enum.any?(records, fn r -> r["user_id"] == admin_2.id end)
+      refute Enum.any?(records, fn r -> r["user_id"] == admin_3.id end)
+      assert Enum.any?(records, fn r -> r["user_id"] == admin_4.id end)
       assert Enum.count(records) == 2
     end
 
@@ -221,22 +241,22 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           },
           # Filter for `user.username`
           %{
-            "field" => "username",
+            "field" => "user.username",
             "comparator" => "eq",
             "value" => admin_3.username
           }
         ]
       }
 
-      response = request("/account.get_members", attrs)
+      response = request("/account.get_admin_user_memberships", attrs)
 
       assert response["success"]
 
       records = response["data"]["data"]
 
-      assert Enum.any?(records, fn r -> r["id"] == admin_1.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_2.id end)
-      assert Enum.any?(records, fn r -> r["id"] == admin_3.id end)
+      assert Enum.any?(records, fn r -> r["user_id"] == admin_1.id end)
+      refute Enum.any?(records, fn r -> r["user_id"] == admin_2.id end)
+      assert Enum.any?(records, fn r -> r["user_id"] == admin_3.id end)
       assert Enum.count(records) == 2
     end
 
@@ -259,28 +279,28 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
         "match_all" => [
           # Filter for `user.username`
           %{
-            "field" => "username",
+            "field" => "user.username",
             "comparator" => "starts_with",
             "value" => "this_should"
           },
           # Filter for `user.username`
           %{
-            "field" => "username",
+            "field" => "user.username",
             "comparator" => "contains",
             "value" => "should_match"
           }
         ]
       }
 
-      response = request("/account.get_members", attrs)
+      response = request("/account.get_admin_user_memberships", attrs)
 
       assert response["success"]
 
       records = response["data"]["data"]
-      refute Enum.any?(records, fn r -> r["id"] == admin_1.id end)
-      assert Enum.any?(records, fn r -> r["id"] == admin_2.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_4.id end)
+      refute Enum.any?(records, fn r -> r["user_id"] == admin_1.id end)
+      assert Enum.any?(records, fn r -> r["user_id"] == admin_2.id end)
+      refute Enum.any?(records, fn r -> r["user_id"] == admin_3.id end)
+      refute Enum.any?(records, fn r -> r["user_id"] == admin_4.id end)
       assert Enum.count(records) == 1
     end
 
@@ -309,26 +329,26 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           },
           # Filter for `membership.id`
           %{
-            "field" => "id",
+            "field" => "user.id",
             "comparator" => "eq",
             "value" => admin_1.id
           }
         ]
       }
 
-      response = request("/account.get_members", attrs)
+      response = request("/account.get_admin_user_memberships", attrs)
 
       assert response["success"]
 
       records = response["data"]["data"]
-      assert Enum.any?(records, fn r -> r["id"] == admin_1.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_2.id end)
-      refute Enum.any?(records, fn r -> r["id"] == admin_3.id end)
+      assert Enum.any?(records, fn r -> r["user_id"] == admin_1.id end)
+      refute Enum.any?(records, fn r -> r["user_id"] == admin_2.id end)
+      refute Enum.any?(records, fn r -> r["user_id"] == admin_3.id end)
       assert Enum.count(records) == 1
     end
   end
 
-  describe "/account.get_keys" do
+  describe "/account.get_key_memberships" do
     test_with_auths "returns a list of keys with role and status" do
       account = insert(:account)
 
@@ -338,29 +358,35 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       admin_role = Role.get_by(name: "admin")
       viewer_role = insert(:role, name: "viewer")
 
-      {:ok, _} = Membership.assign(key_1, account, admin_role, %System{})
-      {:ok, _} = Membership.assign(key_2, account, viewer_role, %System{})
+      {:ok, m_1} = Membership.assign(key_1, account, admin_role, %System{})
+      {:ok, m_2} = Membership.assign(key_2, account, viewer_role, %System{})
 
-      response = request("/account.get_keys", %{id: account.id})
+      response = request("/account.get_key_memberships", %{id: account.id})
 
       assert response["success"] == true
       # created two keys for the given account
       assert length(response["data"]["data"]) == 2
 
       assert Enum.member?(response["data"]["data"], %{
-               "object" => "key",
-               "id" => key_1.id,
-               "name" => key_1.name,
-               "global_role" => key_1.global_role,
-               "access_key" => key_1.access_key,
-               "secret_key" => nil,
-               "created_at" => DateFormatter.to_iso8601(key_1.inserted_at),
-               "updated_at" => DateFormatter.to_iso8601(key_1.updated_at),
-               "deleted_at" => DateFormatter.to_iso8601(key_1.deleted_at),
-               "account_role" => "admin",
-               "enabled" => key_1.enabled,
-               "expired" => !key_1.enabled,
-               "account_id" => nil,
+               "object" => "membership",
+               "user_id" => nil,
+               "user" => nil,
+               "key_id" => key_1.id,
+               "key" => %{
+                 "object" => "key",
+                 "id" => key_1.id,
+                 "name" => key_1.name,
+                 "access_key" => key_1.access_key,
+                 "secret_key" => nil,
+                 "created_at" => DateFormatter.to_iso8601(key_1.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(key_1.updated_at),
+                 "deleted_at" => DateFormatter.to_iso8601(key_1.deleted_at),
+                 "global_role" => key_1.global_role,
+                 "enabled" => key_1.enabled,
+                 "expired" => !key_1.enabled,
+                 "account_id" => nil
+               },
+               "account_id" => account.id,
                "account" => %{
                  "avatar" => %{"large" => nil, "original" => nil, "small" => nil, "thumb" => nil},
                  "categories" => %{"data" => [], "object" => "list"},
@@ -376,23 +402,32 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
                  "socket_topic" => "account:#{account.id}",
                  "created_at" => DateFormatter.to_iso8601(account.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(account.updated_at)
-               }
+               },
+               "role" => admin_role.name,
+               "created_at" => DateFormatter.to_iso8601(m_1.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(m_1.updated_at)
              })
 
       assert Enum.member?(response["data"]["data"], %{
-               "object" => "key",
-               "id" => key_2.id,
-               "name" => key_2.name,
-               "global_role" => key_2.global_role,
-               "access_key" => key_2.access_key,
-               "secret_key" => nil,
-               "created_at" => DateFormatter.to_iso8601(key_2.inserted_at),
-               "updated_at" => DateFormatter.to_iso8601(key_2.updated_at),
-               "deleted_at" => DateFormatter.to_iso8601(key_2.deleted_at),
-               "account_role" => "viewer",
-               "enabled" => key_2.enabled,
-               "expired" => !key_2.enabled,
-               "account_id" => nil,
+               "object" => "membership",
+               "user_id" => nil,
+               "user" => nil,
+               "key_id" => key_2.id,
+               "key" => %{
+                 "object" => "key",
+                 "id" => key_2.id,
+                 "name" => key_2.name,
+                 "access_key" => key_2.access_key,
+                 "secret_key" => nil,
+                 "created_at" => DateFormatter.to_iso8601(key_2.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(key_2.updated_at),
+                 "deleted_at" => DateFormatter.to_iso8601(key_2.deleted_at),
+                 "global_role" => key_2.global_role,
+                 "enabled" => key_2.enabled,
+                 "expired" => !key_2.enabled,
+                 "account_id" => nil
+               },
+               "account_id" => account.id,
                "account" => %{
                  "avatar" => %{"large" => nil, "original" => nil, "small" => nil, "thumb" => nil},
                  "categories" => %{"data" => [], "object" => "list"},
@@ -408,12 +443,15 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
                  "socket_topic" => "account:#{account.id}",
                  "created_at" => DateFormatter.to_iso8601(account.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(account.updated_at)
-               }
+               },
+               "role" => viewer_role.name,
+               "created_at" => DateFormatter.to_iso8601(m_2.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(m_2.updated_at)
              })
     end
 
     test_with_auths "returns unauthorized error if account id was not be found" do
-      assert request("/account.get_keys", %{
+      assert request("/account.get_key_memberships", %{
                id: "acc_12345678901234567890123456"
              }) ==
                %{
@@ -429,14 +467,14 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns invalid_parameter error if account id is not provided" do
-      assert request("/account.get_keys", %{}) ==
+      assert request("/account.get_key_memberships", %{}) ==
                %{
                  "success" => false,
                  "version" => "1",
                  "data" => %{
                    "object" => "error",
                    "code" => "client:invalid_parameter",
-                   "description" => "Invalid parameter provided.",
+                   "description" => "Invalid parameter provided. `id` is required.",
                    "messages" => nil
                  }
                }
@@ -461,29 +499,29 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
         "match_any" => [
           # Filter for `key.name`
           %{
-            "field" => "name",
+            "field" => "key.name",
             "comparator" => "eq",
             "value" => "value_2"
           },
           # Filter for `key.name`
           %{
-            "field" => "name",
+            "field" => "key.name",
             "comparator" => "eq",
             "value" => "value_4"
           }
         ]
       }
 
-      response = request("/account.get_keys", attrs)
+      response = request("/account.get_key_memberships", attrs)
 
       assert response["success"]
 
       records = response["data"]["data"]
 
-      refute Enum.any?(records, fn r -> r["id"] == key_1.id end)
-      assert Enum.any?(records, fn r -> r["id"] == key_2.id end)
-      refute Enum.any?(records, fn r -> r["id"] == key_3.id end)
-      assert Enum.any?(records, fn r -> r["id"] == key_4.id end)
+      refute Enum.any?(records, fn r -> r["key_id"] == key_1.id end)
+      assert Enum.any?(records, fn r -> r["key_id"] == key_2.id end)
+      refute Enum.any?(records, fn r -> r["key_id"] == key_3.id end)
+      assert Enum.any?(records, fn r -> r["key_id"] == key_4.id end)
       assert Enum.count(records) == 2
     end
 
@@ -512,22 +550,22 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
           },
           # Filter for `key.name`
           %{
-            "field" => "name",
+            "field" => "key.name",
             "comparator" => "eq",
             "value" => key_3.name
           }
         ]
       }
 
-      response = request("/account.get_keys", attrs)
+      response = request("/account.get_key_memberships", attrs)
 
       assert response["success"]
 
       records = response["data"]["data"]
 
-      assert Enum.any?(records, fn r -> r["id"] == key_1.id end)
-      refute Enum.any?(records, fn r -> r["id"] == key_2.id end)
-      assert Enum.any?(records, fn r -> r["id"] == key_3.id end)
+      assert Enum.any?(records, fn r -> r["key_id"] == key_1.id end)
+      refute Enum.any?(records, fn r -> r["key_id"] == key_2.id end)
+      assert Enum.any?(records, fn r -> r["key_id"] == key_3.id end)
       assert Enum.count(records) == 2
     end
 
@@ -550,28 +588,28 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
         "match_all" => [
           # Filter for `key.name`
           %{
-            "field" => "name",
+            "field" => "key.name",
             "comparator" => "starts_with",
             "value" => "this_should"
           },
           # Filter for `key.name`
           %{
-            "field" => "name",
+            "field" => "key.name",
             "comparator" => "contains",
             "value" => "should_match"
           }
         ]
       }
 
-      response = request("/account.get_keys", attrs)
+      response = request("/account.get_key_memberships", attrs)
 
       assert response["success"]
 
       records = response["data"]["data"]
-      refute Enum.any?(records, fn r -> r["id"] == key_1.id end)
-      assert Enum.any?(records, fn r -> r["id"] == key_2.id end)
-      refute Enum.any?(records, fn r -> r["id"] == key_3.id end)
-      refute Enum.any?(records, fn r -> r["id"] == key_4.id end)
+      refute Enum.any?(records, fn r -> r["key_id"] == key_1.id end)
+      assert Enum.any?(records, fn r -> r["key_id"] == key_2.id end)
+      refute Enum.any?(records, fn r -> r["key_id"] == key_3.id end)
+      refute Enum.any?(records, fn r -> r["key_id"] == key_4.id end)
       assert Enum.count(records) == 1
     end
 
@@ -608,14 +646,14 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
         ]
       }
 
-      response = request("/account.get_keys", attrs)
+      response = request("/account.get_key_memberships", attrs)
 
       assert response["success"]
 
       records = response["data"]["data"]
-      assert Enum.any?(records, fn r -> r["id"] == key_1.id end)
-      refute Enum.any?(records, fn r -> r["id"] == key_2.id end)
-      refute Enum.any?(records, fn r -> r["id"] == key_3.id end)
+      assert Enum.any?(records, fn r -> r["key_id"] == key_1.id end)
+      refute Enum.any?(records, fn r -> r["key_id"] == key_2.id end)
+      refute Enum.any?(records, fn r -> r["key_id"] == key_3.id end)
       assert Enum.count(records) == 1
     end
   end

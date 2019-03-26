@@ -12,21 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Web.V1.MembershipSerializer do
+defmodule EWallet.Web.V1.MembershipDeprecatedSerializer do
   @moduledoc """
   Serializes membership(s) into V1 response format.
   """
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.Paginator
-
-  alias EWallet.Web.V1.{
-    AccountSerializer,
-    PaginatorSerializer,
-    AdminUserSerializer,
-    KeySerializer
-  }
-
-  alias Utils.Helpers.{Assoc, DateFormatter}
+  alias EWallet.Web.V1.{AccountSerializer, PaginatorSerializer, UserSerializer}
+  alias EWalletDB.User
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -42,18 +35,11 @@ defmodule EWallet.Web.V1.MembershipSerializer do
   def serialize(%NotLoaded{}), do: nil
 
   def serialize(membership) when is_map(membership) do
-    %{
-      object: "membership",
-      user_id: Assoc.get(membership, [:user, :id]),
-      user: AdminUserSerializer.serialize(membership.user),
-      key_id: Assoc.get(membership, [:key, :id]),
-      key: KeySerializer.serialize(membership.key),
-      account_id: Assoc.get(membership, [:account, :id]),
-      account: AccountSerializer.serialize(membership.account),
-      role: Assoc.get(membership, [:role, :name]),
-      created_at: DateFormatter.to_iso8601(membership.inserted_at),
-      updated_at: DateFormatter.to_iso8601(membership.updated_at)
-    }
+    membership.user
+    |> UserSerializer.serialize()
+    |> Map.put(:status, User.get_status(membership.user))
+    |> Map.put(:account_role, membership.role.name)
+    |> Map.put(:account, AccountSerializer.serialize(membership.account))
   end
 
   def serialize(nil), do: nil

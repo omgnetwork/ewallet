@@ -170,8 +170,6 @@ paths:
     $ref: 'account/paths.yaml#/account.assign_key'
   /account.unassign_key:
     $ref: 'account/paths.yaml#/account.unassign_key'
-  /account.get_keys:
-    $ref: 'account/paths.yaml#/account.get_keys'
   /account.get_users:
     $ref: 'account/paths.yaml#/account.get_users'
   /account.get_descendants:
@@ -186,8 +184,15 @@ paths:
     $ref: 'account/paths.yaml#/account.get_transaction_requests'
   /account.get_transaction_consumptions:
     $ref: 'account/paths.yaml#/account.get_transaction_consumptions'
+
+  /account.get_admin_user_memberships:
+    $ref: 'account/paths.yaml#/account.get_admin_user_memberships'
+
+  /account.get_key_memberships:
+    $ref: 'account/paths.yaml#/account.get_key_memberships'
+
   /account.get_members:
-    $ref: 'account/paths.yaml#/account.get_members'
+    $ref: 'account/paths.yaml#/account.get_members' # Deprecated
 
   # ADMIN USER
   /admin.reset_password:
