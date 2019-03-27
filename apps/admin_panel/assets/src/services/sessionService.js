@@ -2,8 +2,10 @@ import { authenticatedRequest, unAuthenticatedRequest } from './apiService'
 import localStorage from '../utils/localStorage'
 import CONSTANT from '../constants'
 
-export function getRecentAccountFromLocalStorage () {
-  return localStorage.get(CONSTANT.RECENT_ACCOUNT)
+export function getRecentAccountFromLocalStorage (accountId) {
+  const recentAccount = localStorage.get(CONSTANT.RECENT_ACCOUNT)
+  if (!recentAccount) return
+  return localStorage.get(CONSTANT.RECENT_ACCOUNT)[accountId]
 }
 
 export function getAccessToken () {

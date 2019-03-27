@@ -15,7 +15,7 @@ function createAccountIdHeader (currentAccountId) {
 export default function createHeaders ({
   auth,
   headerOption,
-  accessToken = localStorage.get(CONSTANT.AUTHENTICATION_TOKEN),
+  accessToken = (localStorage.get(CONSTANT.AUTHENTICATION_TOKEN) || {}),
   currentAccountId
 }) {
   return {

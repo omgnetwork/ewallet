@@ -64,7 +64,6 @@ export const getAccountById = id =>
   })
 
 export const deleteAccount = id => dispatch => {
-  setRecentAccount(getRecentAccountFromLocalStorage().filter(id => id !== id))
   return dispatch({ type: 'ACCOUNT/DELETE', data: id })
 }
 
@@ -140,6 +139,9 @@ export const updateAccount = ({ accountId, name, description, avatar }) =>
   })
 
 export const subscribeToWebsocketByAccountId = accountid => (dispatch, getState, { socket }) => {
-  socket.joinChannel(`account:${accountid}`)
-  return dispatch({ type: 'SOCKET/ACCOUNT/SUBSCRIBE', accountid })
+  const state = getState()
+  if (state.currentUser) {
+    socket.joinChannel(`account:${accountid}`)
+    return dispatch({ type: 'SOCKET/ACCOUNT/SUBSCRIBE', accountid })
+  }
 }
