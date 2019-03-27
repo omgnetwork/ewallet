@@ -260,7 +260,7 @@ account.get_admin_user_memberships:
   post:
     tags:
       - Account
-    summary: List the admins that are currently assigned to the given acount
+    summary: List the admin memberships of the given acount
     operationId: account_get_admin_user_memberships
     security:
       - ProviderAuth: []
@@ -277,7 +277,7 @@ account.get_key_memberships:
   post:
     tags:
       - Account
-    summary: List the keys that are currently assigned to the given acount
+    summary: List the key memberships of the given acount
     operationId: account_get_key_memberships
     security:
       - ProviderAuth: []
@@ -286,7 +286,7 @@ account.get_key_memberships:
       $ref: 'request_bodies.yaml#/AccountListBody'
     responses:
       '200':
-        $ref: 'responses.yaml#/MembershipsKeysResponse'              
+        $ref: 'responses.yaml#/MembershipsKeysResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 

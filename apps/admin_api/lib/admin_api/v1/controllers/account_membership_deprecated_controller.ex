@@ -27,9 +27,9 @@ defmodule AdminAPI.V1.AccountMembershipDeprecatedController do
   alias EWalletDB.{Account, Membership, User}
 
   @doc """
-  Lists the admin memberships that are assigned to the given account.
+  Lists the admins that are assigned to the given account.
   """
-  def all_admin_memberships_for_account(conn, %{"id" => account_id} = attrs) do
+  def all_admin_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <-
            Account.get(account_id, preload: [memberships: [:user, :role]]) ||
              {:error, :unauthorized},
@@ -51,7 +51,7 @@ defmodule AdminAPI.V1.AccountMembershipDeprecatedController do
     end
   end
 
-  def all_admin_memberships_for_account(conn, _), do: handle_error(conn, :missing_id)
+  def all_admin_for_account(conn, _), do: handle_error(conn, :missing_id)
 
   # Transform the filter attributes to the ones expected by
   # the Orchestrator + MembershipOverlay.

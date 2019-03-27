@@ -15958,7 +15958,7 @@
         "tags": [
           "Account"
         ],
-        "summary": "List the admins that are currently assigned to the given acount",
+        "summary": "List the admin memberships of the given acount",
         "operationId": "account_get_admin_user_memberships",
         "security": [
           {
@@ -16411,7 +16411,7 @@
         "tags": [
           "Account"
         ],
-        "summary": "List the keys that are currently assigned to the given acount",
+        "summary": "List the key memberships of the given acount",
         "operationId": "account_get_key_memberships",
         "security": [
           {
@@ -35569,7 +35569,7 @@
                           "id": "key_01ce843mvg5fa1zpk5myy69h4q",
                           "access_key": "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
                           "secret_key": "the_secret_key_or_null",
-                          "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                          "account_id": null,
                           "global_role": "admin",
                           "enabled": true,
                           "created_at": "2018-01-01T00:00:00Z",

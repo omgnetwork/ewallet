@@ -137,7 +137,7 @@ defmodule AdminAPI.V1.Router do
     post(
       "/account.get_members",
       AccountMembershipDeprecatedController,
-      :all_admin_memberships_for_account
+      :all_admin_for_account
     )
 
     # User endpoints
