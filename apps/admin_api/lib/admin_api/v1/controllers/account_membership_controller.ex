@@ -20,6 +20,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
     AccountMembershipPolicy,
     AdminUserPolicy,
     AccountPolicy,
+    KeyPolicy,
     Bouncer.Permission,
     UserGate
   }
@@ -28,14 +29,60 @@ defmodule AdminAPI.V1.AccountMembershipController do
   alias EWalletDB.{Account, Key, Membership, Role, User}
 
   @doc """
-  Lists the admin memberships that are assigned to the given account.
+  Lists the memberships for the given admin.
+  """
+  def all_account_memberships_for_admin(conn, %{"id" => admin_id} = attrs) do
+    with %User{} = admin <-
+           User.get_admin(admin_id, preload: [memberships: [:user, :role]]) ||
+             {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, admin),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         query <- Membership.query_all_by_user(admin, query),
+         %Paginator{} = memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
+      render(conn, :memberships, %{memberships: memberships})
+    else
+      {:error, error} ->
+        handle_error(conn, error)
+
+      {:error, code, description} ->
+        handle_error(conn, code, description)
+    end
+  end
+
+  def all_account_memberships_for_admin(conn, _), do: handle_error(conn, :missing_id)
+
+  @doc """
+  Lists the memberships for the given key.
+  """
+  def all_account_memberships_for_key(conn, %{"id" => key_id} = attrs) do
+    with %Key{} = key <-
+           Key.get(key_id, preload: [memberships: [:key, :role]]) ||
+             {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, key),
+         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         query <- Membership.query_all_by_key(key, query),
+         %Paginator{} = memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
+      render(conn, :memberships, %{memberships: memberships})
+    else
+      {:error, error} ->
+        handle_error(conn, error)
+
+      {:error, code, description} ->
+        handle_error(conn, code, description)
+    end
+  end
+
+  def all_account_memberships_for_key(conn, _), do: handle_error(conn, :missing_id)
+
+  @doc """
+  Lists the admin memberships for the given account.
   """
   def all_admin_memberships_for_account(conn, attrs) do
     all_for_account(conn, attrs, :user)
   end
 
   @doc """
-  Lists the key memberships that are assigned to the given account.
+  Lists the key memberships for the given account.
   """
   def all_key_memberships_for_account(conn, attrs) do
     all_for_account(conn, attrs, :key)
@@ -62,11 +109,11 @@ defmodule AdminAPI.V1.AccountMembershipController do
   defp all_for_account(conn, _, _), do: handle_error(conn, :missing_id)
 
   defp query_members(account, query, :user) do
-    Membership.all_users_by_account(account, query)
+    Membership.query_all_users_by_account(account, query)
   end
 
   defp query_members(account, query, :key) do
-    Membership.all_keys_by_account(account, query)
+    Membership.query_all_keys_by_account(account, query)
   end
 
   @doc """
@@ -204,6 +251,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
 
   defp authorize(action, actor, %User{} = user) do
     AdminUserPolicy.authorize(action, actor, user)
+  end
+
+  defp authorize(action, actor, %Key{} = key) do
+    KeyPolicy.authorize(action, actor, key)
   end
 
   defp authorize(action, actor, membership) do

@@ -3311,6 +3311,95 @@ paths:
       responses:
         '200': *ref_38
         '500': *ref_2
+  /admin.get_account_memberships:
+    post:
+      tags:
+        - Admin
+      summary: Get the list of account memberships linked to the given access admin id
+      operationId: admin_get_account_memberships
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for listing an admin's data
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_12
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: usr_01ce83zf80j542z4q4zqd8qvfx
+      responses:
+        '200':
+          description: Returns a list of memberships
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of memberships
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: *ref_37
+                    example:
+                      data:
+                        data:
+                          - object: membership
+                            user_id: usr_01ce83zf80j542z4q4zqd8qvfx
+                            user:
+                              object: user
+                              id: usr_01ce83zf80j542z4q4zqd8qvfx
+                              provider_user_id: wijf-fbancomw-dqwjudb
+                              username: johndoe
+                              full_name: John Doe
+                              calling_name: John
+                              email: johndoe@omise.co
+                              enabled: true
+                              metadata:
+                                first_name: John
+                                last_name: Doe
+                              encrypted_metadata:
+                                something: secret
+                              avatar:
+                                original: file_url
+                              global_role: admin
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                            key_id: null
+                            key: null
+                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            account:
+                              object: account
+                              id: acc_01ca2p8jqans5aty5gj5etmjcf
+                              parent_id: null
+                              name: Account name
+                              description: The account description
+                              master: true
+                              category_ids: []
+                              roles: []
+                              metadata: {}
+                              encrypted_metadata: {}
+                              avatar:
+                                original: file_url
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                            role: admin
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_2
   /invite.accept:
     post:
       tags:
@@ -5147,6 +5236,87 @@ paths:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
       responses:
         '200': *ref_7
+        '500': *ref_2
+  /access_key.get_account_memberships:
+    post:
+      tags:
+        - API Access
+      summary: Get the list of account memberships linked to the given access key id
+      operationId: access_key_get_account_memberships
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for listing a key's data
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_12
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: key_01ce843mvg5fa1zpk5myy69h4q
+      responses:
+        '200':
+          description: Returns a list of memberships
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of memberships
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: *ref_37
+                    example:
+                      data:
+                        data:
+                          - object: membership
+                            user_id: null
+                            user: null
+                            key_id: key_01ce843mvg5fa1zpk5myy69h4q
+                            key:
+                              object: key
+                              id: key_01ce843mvg5fa1zpk5myy69h4q
+                              access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+                              secret_key: null
+                              account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                              global_role: admin
+                              enabled: true
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                              deleted_at: null
+                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            account:
+                              - object: account
+                                id: acc_01ca2p8jqans5aty5gj5etmjcf
+                                parent_id: null
+                                name: Account name
+                                description: The account description
+                                master: true
+                                category_ids: []
+                                roles: []
+                                metadata: {}
+                                encrypted_metadata: {}
+                                avatar:
+                                  original: file_url
+                                created_at: '2018-01-01T00:00:00Z'
+                                updated_at: '2018-01-01T10:00:00Z'
+                            role: admin
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
         '500': *ref_2
   /api_key.all:
     post:

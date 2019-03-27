@@ -211,6 +211,8 @@ paths:
     $ref: 'admin/paths.yaml#/admin.update'
   /admin.enable_or_disable:
     $ref: 'admin/paths.yaml#/admin.enable_or_disable'
+  /admin.get_account_memberships:
+    $ref: 'admin/paths.yaml#/admin.get_account_memberships'
   /invite.accept:
     $ref: 'admin/paths.yaml#/invite.accept'
 
@@ -311,6 +313,8 @@ paths:
     $ref: 'api_key/paths.yaml#/access_key.enable_or_disable'
   /access_key.delete:
     $ref: 'api_key/paths.yaml#/access_key.delete'
+  /access_key.get_account_memberships:
+    $ref: 'api_key/paths.yaml#/access_key.get_account_memberships'
   /api_key.all:
     $ref: 'api_key/paths.yaml#/api_key.all'
   /api_key.create:

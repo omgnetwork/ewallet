@@ -93,6 +93,22 @@ AccessKeyDeleteBody:
         example:
           id: key_01ce83yphmq6vt4qnmn3ykwcw6
 
+KeyListBody:
+  description: The parameters to use for listing a key's data
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: key_01ce843mvg5fa1zpk5myy69h4q
+
 # API KEY REQUEST BODIES
 APIKeyCreateBody:
   description: The parameters to use for creating an API key

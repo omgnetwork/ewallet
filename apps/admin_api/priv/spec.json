@@ -19469,6 +19469,459 @@
         }
       }
     },
+    "/admin.get_account_memberships": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get the list of account memberships linked to the given access admin id",
+        "operationId": "admin_get_account_memberships",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to use for listing an admin's data",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
+                      },
+                      "per_page": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "search_term": {
+                        "type": "string"
+                      },
+                      "match_all": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "comparator": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "comparator",
+                            "value"
+                          ]
+                        }
+                      },
+                      "match_any": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "comparator": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "comparator",
+                            "value"
+                          ]
+                        }
+                      },
+                      "sort_by": {
+                        "type": "string"
+                      },
+                      "sort_dir": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    },
+                    "example": {
+                      "start_after": null,
+                      "start_by": "id",
+                      "per_page": 10,
+                      "match_all": [],
+                      "match_any": [],
+                      "sort_by": "created_at",
+                      "sort_dir": "desc"
+                    }
+                  }
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "example": {
+                  "id": "usr_01ce83zf80j542z4q4zqd8qvfx"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a list of memberships",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a list of memberships",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "allOf": [
+                        {
+                          "description": "The response schema for a successful operation",
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string"
+                            },
+                            "success": {
+                              "type": "boolean"
+                            },
+                            "data": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "success",
+                            "data"
+                          ],
+                          "example": {
+                            "version": "1",
+                            "success": true,
+                            "data": {}
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "data": {
+                              "type": "object",
+                              "allOf": [
+                                {
+                                  "description": "The object schema for a paginated list",
+                                  "type": "object",
+                                  "properties": {
+                                    "object": {
+                                      "type": "string"
+                                    },
+                                    "data": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object"
+                                      }
+                                    },
+                                    "pagination": {
+                                      "type": "object",
+                                      "items": {
+                                        "type": "object"
+                                      },
+                                      "properties": {
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
+                                        },
+                                        "per_page": {
+                                          "type": "integer"
+                                        },
+                                        "count": {
+                                          "type": "integer"
+                                        },
+                                        "is_first_page": {
+                                          "type": "boolean"
+                                        },
+                                        "is_last_page": {
+                                          "type": "boolean"
+                                        }
+                                      },
+                                      "required": [
+                                        "start_after",
+                                        "start_by",
+                                        "per_page",
+                                        "count",
+                                        "is_first_page",
+                                        "is_last_page"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "object",
+                                    "data",
+                                    "pagination"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "data"
+                          ],
+                          "example": {
+                            "data": {
+                              "object": "list",
+                              "data": null,
+                              "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
+                                "per_page": 10,
+                                "count": 5,
+                                "is_first_page": true,
+                                "is_last_page": true
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "allOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "data": {
+                                  "type": "array",
+                                  "items": {
+                                    "description": "The object schema for a membership",
+                                    "type": "object",
+                                    "properties": {
+                                      "object": {
+                                        "type": "string"
+                                      },
+                                      "user_id": {
+                                        "type": "string"
+                                      },
+                                      "user": {
+                                        "type": "object"
+                                      },
+                                      "key_id": {
+                                        "type": "string"
+                                      },
+                                      "key": {
+                                        "type": "object"
+                                      },
+                                      "account_id": {
+                                        "type": "string"
+                                      },
+                                      "account": {
+                                        "type": "object"
+                                      },
+                                      "role": {
+                                        "type": "string"
+                                      },
+                                      "created_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      },
+                                      "updated_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      }
+                                    },
+                                    "required": [
+                                      "object",
+                                      "user_id",
+                                      "user",
+                                      "key_id",
+                                      "key",
+                                      "account_id",
+                                      "account",
+                                      "role",
+                                      "created_at",
+                                      "updated_at"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "data": [
+                            {
+                              "object": "membership",
+                              "user_id": "usr_01ce83zf80j542z4q4zqd8qvfx",
+                              "user": {
+                                "object": "user",
+                                "id": "usr_01ce83zf80j542z4q4zqd8qvfx",
+                                "provider_user_id": "wijf-fbancomw-dqwjudb",
+                                "username": "johndoe",
+                                "full_name": "John Doe",
+                                "calling_name": "John",
+                                "email": "johndoe@omise.co",
+                                "enabled": true,
+                                "metadata": {
+                                  "first_name": "John",
+                                  "last_name": "Doe"
+                                },
+                                "encrypted_metadata": {
+                                  "something": "secret"
+                                },
+                                "avatar": {
+                                  "original": "file_url"
+                                },
+                                "global_role": "admin",
+                                "created_at": "2018-01-01T00:00:00Z",
+                                "updated_at": "2018-01-01T10:00:00Z"
+                              },
+                              "key_id": null,
+                              "key": null,
+                              "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                              "account": {
+                                "object": "account",
+                                "id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                                "parent_id": null,
+                                "name": "Account name",
+                                "description": "The account description",
+                                "master": true,
+                                "category_ids": [],
+                                "roles": [],
+                                "metadata": {},
+                                "encrypted_metadata": {},
+                                "avatar": {
+                                  "original": "file_url"
+                                },
+                                "created_at": "2018-01-01T00:00:00Z",
+                                "updated_at": "2018-01-01T10:00:00Z"
+                              },
+                              "role": "admin",
+                              "created_at": "2018-01-01T00:00:00Z",
+                              "updated_at": "2018-01-01T10:00:00Z"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/invite.accept": {
       "post": {
         "tags": [
@@ -36487,6 +36940,450 @@
                     "success": true,
                     "data": {}
                   }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/access_key.get_account_memberships": {
+      "post": {
+        "tags": [
+          "API Access"
+        ],
+        "summary": "Get the list of account memberships linked to the given access key id",
+        "operationId": "access_key_get_account_memberships",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to use for listing a key's data",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "start_after": {},
+                      "start_by": {
+                        "type": "string"
+                      },
+                      "per_page": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "search_term": {
+                        "type": "string"
+                      },
+                      "match_all": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "comparator": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "comparator",
+                            "value"
+                          ]
+                        }
+                      },
+                      "match_any": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "comparator": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "comparator",
+                            "value"
+                          ]
+                        }
+                      },
+                      "sort_by": {
+                        "type": "string"
+                      },
+                      "sort_dir": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    },
+                    "example": {
+                      "start_after": null,
+                      "start_by": "id",
+                      "per_page": 10,
+                      "match_all": [],
+                      "match_any": [],
+                      "sort_by": "created_at",
+                      "sort_dir": "desc"
+                    }
+                  }
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "example": {
+                  "id": "key_01ce843mvg5fa1zpk5myy69h4q"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a list of memberships",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a list of memberships",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "allOf": [
+                        {
+                          "description": "The response schema for a successful operation",
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string"
+                            },
+                            "success": {
+                              "type": "boolean"
+                            },
+                            "data": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "success",
+                            "data"
+                          ],
+                          "example": {
+                            "version": "1",
+                            "success": true,
+                            "data": {}
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "data": {
+                              "type": "object",
+                              "allOf": [
+                                {
+                                  "description": "The object schema for a paginated list",
+                                  "type": "object",
+                                  "properties": {
+                                    "object": {
+                                      "type": "string"
+                                    },
+                                    "data": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object"
+                                      }
+                                    },
+                                    "pagination": {
+                                      "type": "object",
+                                      "items": {
+                                        "type": "object"
+                                      },
+                                      "properties": {
+                                        "start_after": {},
+                                        "start_by": {
+                                          "type": "string"
+                                        },
+                                        "per_page": {
+                                          "type": "integer"
+                                        },
+                                        "count": {
+                                          "type": "integer"
+                                        },
+                                        "is_first_page": {
+                                          "type": "boolean"
+                                        },
+                                        "is_last_page": {
+                                          "type": "boolean"
+                                        }
+                                      },
+                                      "required": [
+                                        "start_after",
+                                        "start_by",
+                                        "per_page",
+                                        "count",
+                                        "is_first_page",
+                                        "is_last_page"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "object",
+                                    "data",
+                                    "pagination"
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "data"
+                          ],
+                          "example": {
+                            "data": {
+                              "object": "list",
+                              "data": null,
+                              "pagination": {
+                                "start_after": null,
+                                "start_by": "id",
+                                "per_page": 10,
+                                "count": 5,
+                                "is_first_page": true,
+                                "is_last_page": true
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "allOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "data": {
+                                  "type": "array",
+                                  "items": {
+                                    "description": "The object schema for a membership",
+                                    "type": "object",
+                                    "properties": {
+                                      "object": {
+                                        "type": "string"
+                                      },
+                                      "user_id": {
+                                        "type": "string"
+                                      },
+                                      "user": {
+                                        "type": "object"
+                                      },
+                                      "key_id": {
+                                        "type": "string"
+                                      },
+                                      "key": {
+                                        "type": "object"
+                                      },
+                                      "account_id": {
+                                        "type": "string"
+                                      },
+                                      "account": {
+                                        "type": "object"
+                                      },
+                                      "role": {
+                                        "type": "string"
+                                      },
+                                      "created_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      },
+                                      "updated_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      }
+                                    },
+                                    "required": [
+                                      "object",
+                                      "user_id",
+                                      "user",
+                                      "key_id",
+                                      "key",
+                                      "account_id",
+                                      "account",
+                                      "role",
+                                      "created_at",
+                                      "updated_at"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "data": [
+                            {
+                              "object": "membership",
+                              "user_id": null,
+                              "user": null,
+                              "key_id": "key_01ce843mvg5fa1zpk5myy69h4q",
+                              "key": {
+                                "object": "key",
+                                "id": "key_01ce843mvg5fa1zpk5myy69h4q",
+                                "access_key": "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
+                                "secret_key": null,
+                                "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                                "global_role": "admin",
+                                "enabled": true,
+                                "created_at": "2018-01-01T00:00:00Z",
+                                "updated_at": "2018-01-01T10:00:00Z",
+                                "deleted_at": null
+                              },
+                              "account_id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                              "account": [
+                                {
+                                  "object": "account",
+                                  "id": "acc_01ca2p8jqans5aty5gj5etmjcf",
+                                  "parent_id": null,
+                                  "name": "Account name",
+                                  "description": "The account description",
+                                  "master": true,
+                                  "category_ids": [],
+                                  "roles": [],
+                                  "metadata": {},
+                                  "encrypted_metadata": {},
+                                  "avatar": {
+                                    "original": "file_url"
+                                  },
+                                  "created_at": "2018-01-01T00:00:00Z",
+                                  "updated_at": "2018-01-01T10:00:00Z"
+                                }
+                              ],
+                              "role": "admin",
+                              "created_at": "2018-01-01T00:00:00Z",
+                              "updated_at": "2018-01-01T10:00:00Z"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
