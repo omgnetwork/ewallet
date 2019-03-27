@@ -19,10 +19,9 @@ const Placeholder = styled.span`
   bottom: 0;
   padding-bottom: 5px;
   font-size: 14px;
-  transition: 0.2s ease all;
   border-bottom: 1px solid transparent;
   color: ${props => props.theme.colors.B100};
-  transition: 0.2s;
+  transition: 0.2s ease all;
   transform: ${props => (props.inputActive ? 'translate3d(0, -22px, 0)' : 'translate3d(0, 0, 0)')};
 `
 
@@ -30,7 +29,7 @@ const Input = styled.input`
   width: 100%;
   border: none;
   color: ${props => props.theme.colors.B300};
-  padding-bottom: 5px;
+  padding-bottom: 3px;
   background-color: transparent;
   line-height: 1;
   border-bottom: 1px solid
@@ -84,20 +83,21 @@ const Success = styled.div`
 `
 const Suffix = styled.div`
   position: absolute;
-  right: 10px;
+  right: 0;
   bottom: 0;
+  padding-right: 8px;
   padding-bottom: 5px;
   transition: 0.2s ease all;
   border-bottom: 1px solid transparent;
   color: ${props => props.theme.colors.B100};
 `
-class InputComonent extends PureComponent {
+class InputComponent extends PureComponent {
   static propTypes = {
     placeholder: PropTypes.string,
     normalPlaceholder: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     className: PropTypes.string,
     registerRef: PropTypes.func,
-    error: PropTypes.bool,
+    error: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
     errorText: PropTypes.node,
     success: PropTypes.bool,
     successText: PropTypes.number,
@@ -165,7 +165,7 @@ class InputComonent extends PureComponent {
     }
   }
   render () {
-    const { className, placeholder, ...rest } = this.props
+    const { className, placeholder, autofocus, ...rest } = this.props
     return (
       <Container className={className}>
         <InnerContainer>
@@ -195,4 +195,4 @@ class InputComonent extends PureComponent {
   }
 }
 
-export default InputComonent
+export default InputComponent
