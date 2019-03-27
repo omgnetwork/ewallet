@@ -33,7 +33,7 @@ const createRoute = ({ authenticated }) => (
   <Router basename='/admin/'>
     <Switch>
       <Redirect from='/' to={'/accounts'} exact />
-      <Redirect from='/accounts/:accountId' to='/accounts/:accountId/detail' exact />
+      <Redirect from='/accounts/:accountId' to='/accounts/:accountId/details' exact />
       <LoginRoute path='/login' exact component={LoginForm} />
       <LoginRoute path='/forget-password' exact component={ForgetPasswordForm} />
       <LoginRoute path='/create-new-password' exact component={CreateNewPasswordForm} />

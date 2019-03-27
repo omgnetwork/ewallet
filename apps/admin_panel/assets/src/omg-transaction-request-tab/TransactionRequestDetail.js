@@ -44,7 +44,7 @@ export default withRouter(
         <AdditionalRequestDataContainer>
           <h5>ADDITIONAL REQUEST DETAILS</h5>
           <InformationItem>
-            <b>Id :</b> {tq.id}
+            <b>ID :</b> {tq.id}
           </InformationItem>
           <InformationItem>
             <b>Type :</b> {tq.type}
@@ -71,7 +71,7 @@ export default withRouter(
             {_.get(tq, 'account.id') ? (
               <Link
                 to={{
-                  pathname: `/accounts/${tq.account.id}/detail`,
+                  pathname: `/accounts/${tq.account.id}/details`,
                   search: this.props.location.search
                 }}
               >
@@ -86,7 +86,7 @@ export default withRouter(
             {_.get(tq, 'account.id') ? (
               <Link
                 to={{
-                  pathname: `/accounts/${tq.account.id}/detail`,
+                  pathname: `/accounts/${tq.account.id}/details`,
                   search: this.props.location.search
                 }}
               >
@@ -102,7 +102,7 @@ export default withRouter(
             {_.get(tq, 'exchange_account.id') ? (
               <Link
                 to={{
-                  pathname: `/accounts/${tq.exchange_account.id}/detail`,
+                  pathname: `/accounts/${tq.exchange_account.id}/details`,
                   search: this.props.location.search
                 }}
               >
@@ -117,7 +117,7 @@ export default withRouter(
             {_.get(tq, 'exchange_account.id') ? (
               <Link
                 to={{
-                  pathname: `/accounts/${tq.exchange_account.id}/detail`,
+                  pathname: `/accounts/${tq.exchange_account.id}/details`,
                   search: this.props.location.search
                 }}
               >
@@ -175,7 +175,7 @@ export default withRouter(
             <b>Allow Amount Override : </b> {tq.allow_amount_override ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
-            <b>Coorelation ID : </b> {tq.correlation_id || '-'}
+            <b>Correlation ID : </b> {tq.correlation_id || '-'}
           </InformationItem>
         </AdditionalRequestDataContainer>
       )

@@ -129,7 +129,7 @@ class AccountPage extends Component {
     })
   }
   onClickRow = (data, index) => e => {
-    this.props.history.push(`/accounts/${data.id}/detail`)
+    this.props.history.push(`/accounts/${data.id}/details`)
   }
   rowRenderer (key, data, rows) {
     if (key === 'name') {

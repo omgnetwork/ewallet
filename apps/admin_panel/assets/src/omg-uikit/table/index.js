@@ -142,7 +142,7 @@ class Table extends Component {
         </Fade>
         {!dataRows.length && (
           <EmptyStageContainer>
-            <img src={require('../../../statics/images/Empty state_1.0_Empty-state_1.0.png')} />
+            <img src={require('../../../statics/images/empty_state.png')} />
             <div>Sorry, no data yet.</div>
           </EmptyStageContainer>
         )}

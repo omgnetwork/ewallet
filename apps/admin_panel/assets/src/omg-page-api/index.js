@@ -107,7 +107,7 @@ class ApiKeyPage extends Component {
           </KeyTopButtonsContainer>
           {activeTab === 'admin' ? (
             <p>
-              Admin Keys are used to access all admin related APIs.er's wallets, list a user's
+              Admin Keys are used to access all admin related APIs, eg. wallets, list a user's
               transactions, create transaction requests, etc.
             </p>
           ) : (
