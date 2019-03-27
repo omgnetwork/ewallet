@@ -99,6 +99,24 @@ defmodule EWallet.Web.V1.ErrorHandlerTest do
       assert ErrorHandler.build_error(:error_code, data, errors) == expected
     end
 
+    test "handles :missing_filter_param error" do
+      filter_params = %{
+        "field" => "field_name",
+        "comparator" => "eq"
+        # "value" => "the_value"
+      }
+
+      expected = %{
+        object: "error",
+        code: "client:invalid_parameter",
+        description: "Invalid parameter provided. Missing one or more filter parameters.",
+        messages: filter_params
+      }
+
+      assert ErrorHandler.build_error(:missing_filter_param, filter_params, ErrorHandler.errors()) ==
+               expected
+    end
+
     test "returns an error object when given a valid code and templating data" do
       errors = %{
         error_code: %{
@@ -115,6 +133,26 @@ defmodule EWallet.Web.V1.ErrorHandlerTest do
       }
 
       assert ErrorHandler.build_error(:error_code, %{"value" => "ABCD"}, errors) == expected
+    end
+
+    test "stringifies the templating data before rendering the error" do
+      errors = %{
+        error_code: %{
+          code: "error:error_code",
+          template: "Error template. Stringified data is: '%{map_data}'."
+        }
+      }
+
+      expected = %{
+        object: "error",
+        code: errors[:error_code].code,
+        description: ~s/Error template. Stringified data is: '%{"foo" => "bar"}'./,
+        messages: nil
+      }
+
+      template_data = %{"map_data" => %{"foo" => "bar"}}
+
+      assert ErrorHandler.build_error(:error_code, template_data, errors) == expected
     end
   end
 
