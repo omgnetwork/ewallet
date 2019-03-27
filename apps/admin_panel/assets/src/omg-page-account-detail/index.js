@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import styled, { withTheme } from 'styled-components'
+import { withTheme } from 'styled-components'
 import { withRouter } from 'react-router-dom'
-import AccountProvider from '../omg-account/accountProvider'
 import { compose } from 'recompose'
+import moment from 'moment'
+
+import AccountProvider from '../omg-account/accountProvider'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import moment from 'moment'
 import Copy from '../omg-copy'
 
 const enhance = compose(

@@ -378,7 +378,7 @@ class ConfigurationPage extends Component {
   renderCacheSetting (configurations) {
     return (
       <Fragment>
-        <h4>Cache Setting</h4>
+        <h4>Cache Settings</h4>
         <ConfigRow
           name={'Balance Caching Strategy'}
           description={configurations.balance_caching_strategy.description}
@@ -409,7 +409,7 @@ class ConfigurationPage extends Component {
   renderGlobalSetting (configurations) {
     return (
       <Fragment>
-        <h4>Global Setting</h4>
+        <h4>Global Settings</h4>
         <ConfigRow
           name={'Base URL'}
           description={configurations.base_url.description}
@@ -486,7 +486,7 @@ class ConfigurationPage extends Component {
   renderEmailSetting (configurations) {
     return (
       <Fragment>
-        <h4>Email Setting</h4>
+        <h4>Email Settings</h4>
         <ConfigRow
           name={'Sender Email'}
           description={configurations.sender_email.description}

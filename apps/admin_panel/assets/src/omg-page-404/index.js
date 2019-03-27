@@ -47,7 +47,7 @@ const NotFoundPage = (props) => {
         <img src={require('../../statics/images/empty_state.png')} />
       </ImgContainer>
 
-      <h4>Page not found</h4>
+      <h4>Page Not Found</h4>
       <p>Sorry, the page you are looking for doesn't exist.</p>
 
       <Button

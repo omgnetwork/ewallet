@@ -152,7 +152,7 @@ class UserSettingPage extends Component {
   render () {
     return (
       <UserSettingContainer>
-        <h2>User Setting</h2>
+        <h2>Profile Settings</h2>
         {this.props.loadingStatus === 'SUCCESS' && (
           <form onSubmit={this.onClickUpdateAccount} noValidate>
             <AvatarContainer>

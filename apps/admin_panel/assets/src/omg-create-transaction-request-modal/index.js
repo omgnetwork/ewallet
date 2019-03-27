@@ -330,7 +330,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
         <InputLabelContainer>
           <InputLabel>
-            Correlation Id <span>( Optional )</span>
+            Correlation ID <span>( Optional )</span>
           </InputLabel>
           <StyledInput
             normalPlaceholder='0x00000000'
@@ -340,7 +340,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
         <InputLabelContainer>
           <InputLabel>
-            MaxConsumptions <span>( Optional )</span>
+            Max Consumptions <span>( Optional )</span>
           </InputLabel>
           <StyledInput
             normalPlaceholder='0'
@@ -376,7 +376,7 @@ class CreateTransactionRequest extends Component {
             Consumption Lifetime <span>( Optional )</span>
           </InputLabel>
           <StyledInput
-            normalPlaceholder='Lifetime of consumption is ms'
+            normalPlaceholder='Lifetime of consumption in ms'
             type='number'
             value={this.state.consumptionLifetime}
             onChange={this.onChange('consumptionLifetime')}
@@ -448,7 +448,7 @@ class CreateTransactionRequest extends Component {
     return (
       <Collapsable>
         <CollapsableHeader onClick={this.onClickAdvanceSetting}>
-          <span>Advanced setting (Optional)</span>{' '}
+          <span>Advanced Settings (Optional)</span>{' '}
           {this.state.advanceSettingOpen ? (
             <Icon name='Chevron-Up' />
           ) : (

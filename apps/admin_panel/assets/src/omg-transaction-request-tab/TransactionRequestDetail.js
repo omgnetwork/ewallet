@@ -44,7 +44,7 @@ export default withRouter(
         <AdditionalRequestDataContainer>
           <h5>ADDITIONAL REQUEST DETAILS</h5>
           <InformationItem>
-            <b>Id :</b> {tq.id}
+            <b>ID :</b> {tq.id}
           </InformationItem>
           <InformationItem>
             <b>Type :</b> {tq.type}
@@ -175,7 +175,7 @@ export default withRouter(
             <b>Allow Amount Override : </b> {tq.allow_amount_override ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
-            <b>Coorelation ID : </b> {tq.correlation_id || '-'}
+            <b>Correlation ID : </b> {tq.correlation_id || '-'}
           </InformationItem>
         </AdditionalRequestDataContainer>
       )

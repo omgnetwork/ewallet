@@ -70,7 +70,7 @@ export default class CreateAccountStage extends Component {
         <h4>Create Account</h4>
         <ImageUploaderAvatar onChangeImage={this.props.onChangeAvatar} placeholder={this.props.avatar} />
         <Input
-          placeholder='name'
+          placeholder='Name'
           autofocus
           value={this.props.name}
           onChange={this.props.onChangeInputName}
@@ -78,7 +78,7 @@ export default class CreateAccountStage extends Component {
           errorText={this.props.error}
         />
         <Input
-          placeholder='description'
+          placeholder='Description'
           value={this.props.description}
           onChange={this.props.onChangeInputDescription}
         />
@@ -95,7 +95,7 @@ export default class CreateAccountStage extends Component {
           loading={this.props.submitting}
           onClick={this.props.onClickCreateAccount}
         >
-          Create account
+          Create Account
         </Button>
       </Form>
     )
