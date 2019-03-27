@@ -49,7 +49,7 @@ const DropdownItemLogout = styled(DropdownItem)`
     background-color: ${props => props.theme.colors.S200};
   }
 `
-const DropdownBoxStyled =styled( DropdownBox)`
+const DropdownBoxStyled = styled(DropdownBox)`
   width: auto;
   text-align: left;
 `
@@ -71,7 +71,7 @@ const enhance = compose(
     { logout }
   )
 )
-class ProfileAvstyled(atarDropdown)s Component {
+class ProfileAvatarDropdown extends Component {
   static propTypes = {
     onClickButton: PropTypes.func,
     open: PropTypes.bool,

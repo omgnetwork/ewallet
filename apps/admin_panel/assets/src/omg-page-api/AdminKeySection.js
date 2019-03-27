@@ -219,8 +219,8 @@ class ApiKeyPage extends Component {
         <ConfirmCreateKeyContainer>
           <h4>Your key pair</h4>
           <p>
-            Please copy and keep this pair of acesss and secret key. Secret key will use to open
-            your encrypted information.
+            Please keep a copy of these secret keys. The secret key will be used to access your
+            encrypted information.
           </p>
           <InputContainer>
             <InputLabel>Access Key</InputLabel>
