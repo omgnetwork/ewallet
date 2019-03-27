@@ -13,7 +13,10 @@ export const accountsReducer = createReducer(
     },
     'ACCOUNT/CREATE/SUCCESS': handleAccountReceived,
     'ACCOUNT/UPDATE/SUCCESS': handleAccountReceived,
-    'ACCOUNT/REQUEST/SUCCESS': handleAccountReceived
+    'ACCOUNT/REQUEST/SUCCESS': handleAccountReceived,
+    'ACCOUNT/DELETE': (state, { data: accountId }) => {
+      return _.omit(state, accountId)
+    }
   }
 )
 

@@ -1,5 +1,6 @@
 import { createPaginationActionCreator, createActionCreator } from '../utils/createActionCreator'
 import * as accountService from '../services/accountService'
+import { getRecentAccountFromLocalStorage, setRecentAccount } from '../services/sessionService'
 export const createAccount = ({ name, description, avatar, category }) =>
   createActionCreator({
     actionName: 'ACCOUNT',
@@ -61,6 +62,11 @@ export const getAccountById = id =>
     action: 'REQUEST',
     service: () => accountService.getAccountById(id)
   })
+
+export const deleteAccount = id => dispatch => {
+  setRecentAccount(getRecentAccountFromLocalStorage().filter(id => id !== id))
+  return dispatch({ type: 'ACCOUNT/DELETE', data: id })
+}
 
 export const assignKey = ({ keyId, role, accountId }) =>
   createActionCreator({

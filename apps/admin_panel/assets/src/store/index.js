@@ -6,7 +6,7 @@ import SocketConnector from '../../src/socket/connector'
 import { WEBSOCKET_URL } from '../config'
 import { handleWebsocketMessage } from '../socket/handleMessage'
 import { getAccessToken, getRecentAccountFromLocalStorage } from '../services/sessionService'
-import { getAccountById } from '../omg-account/action'
+import { getAccountById, deleteAccount } from '../omg-account/action'
 export function configureStore (initialState = {}, injectedThunk = {}) {
   return createStore(
     reducer,
@@ -36,7 +36,11 @@ export const store = configureStore({ currentUser, recentAccounts, accounts }, {
 // PREFETCH REAL RECENT ACCOUNT
 recentAccounts.forEach(accountId => {
   const getAccountAction = getAccountById(accountId)
-  store.dispatch(getAccountAction)
+  store.dispatch(getAccountAction).then(({ type }) => {
+    if (type === 'ACCOUNT/REQUEST/FAILED') {
+      store.dispatch(deleteAccount(accountId))
+    }
+  })
 })
 
 socket.on('message', handleWebsocketMessage(store))
