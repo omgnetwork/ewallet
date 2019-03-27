@@ -1,16 +1,18 @@
 import React, { Component, Fragment } from 'react'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+
 import { Input, Button, Icon, Select, Checkbox } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { createExchangePair } from '../omg-exchange-pair/action'
-import { connect } from 'react-redux'
-import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { selectGetTokenById } from '../omg-token/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchTokenQuery } from '../omg-token/searchField'
+
 const Form = styled.form`
   padding: 50px;
   width: 400px;
@@ -67,6 +69,19 @@ const Error = styled.div`
   opacity: ${props => (props.error ? 1 : 0)};
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
+
+const CalculationContainer = styled.div`
+  margin-top: 20px;
+  height: ${props => props.show ? 40 : 0}px;
+  opacity: ${props => props.show ? 1 : 0};
+  transition: all 300ms ease-in-out;
+`
+
+const BackRateContainer = styled.div`
+  opacity: ${props => props.disabled ? 0.2 : 1};
+  transition: opacity 0.2s ease-in-out;
+`
+
 const enhance = compose(
   withRouter,
   connect(
@@ -94,7 +109,7 @@ class CreateExchangeRateModal extends Component {
     }
     return null
   }
-  state = { sync: true }
+  state = { onlyOneWayExchange: false }
   onChangeName = e => {
     this.setState({ name: e.target.value })
   }
@@ -107,8 +122,8 @@ class CreateExchangeRateModal extends Component {
   onSelectTokenSelect = type => token => {
     this.setState({ [`${type}Search`]: token.name, [`${type}Selected`]: token })
   }
-  onClickSync = e => {
-    this.setState(oldState => ({ sync: !oldState.sync }))
+  onClickOneWayExchange = e => {
+    this.setState(oldState => ({ onlyOneWayExchange: !oldState.onlyOneWayExchange }))
   }
   onSubmit = async e => {
     e.preventDefault()
@@ -119,7 +134,7 @@ class CreateExchangeRateModal extends Component {
         fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
         toTokenId: _.get(this.state, 'toTokenSelected.id'),
         rate: Number(this.state.toTokenRate) / Number(this.state.fromTokenRate),
-        syncOpposite: this.state.sync
+        syncOpposite: !this.state.onlyOneWayExchange
       })
       if (result.data) {
         this.props.onRequestClose()
@@ -133,6 +148,31 @@ class CreateExchangeRateModal extends Component {
       this.setState({ error: JSON.stringify(e.message), submitting: false })
     }
   }
+
+  get ratesAvailable() {
+    return this.state.toTokenRate > 0 && this.state.fromTokenRate > 0
+  }
+
+  renderCalculation = () => {
+    if (!this.ratesAvailable) {
+      return
+    }
+
+    const forwardRate = _.round(this.state.toTokenRate / this.state.fromTokenRate, 4)
+    const backRate = _.round(1 / forwardRate, 4)
+
+    return (
+      <>
+        <div>
+          {`1 ${this.state.fromTokenSearch} : ${forwardRate} ${this.state.toTokenSearch}`}
+        </div>
+        <BackRateContainer disabled={this.state.onlyOneWayExchange}>
+          {`1 ${this.state.toTokenSearch} : ${backRate} ${this.state.fromTokenSearch}`}
+        </BackRateContainer>
+      </>
+    )
+  }
+
   render () {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
@@ -208,15 +248,20 @@ class CreateExchangeRateModal extends Component {
                 </RateInputContainer>
                 <SyncContainer>
                   <Checkbox
-                    label={'Sync Exchange Pair'}
-                    checked={this.state.sync}
-                    onClick={this.onClickSync}
+                    label={'Only allow one way exchange'}
+                    checked={this.state.onlyOneWayExchange}
+                    onClick={this.onClickOneWayExchange}
                   />
                 </SyncContainer>
               </Fragment>
             )
           }}
         />
+
+        <CalculationContainer show={this.ratesAvailable}>
+          {this.renderCalculation()}
+        </CalculationContainer>
+
         <ButtonContainer>
           <Button size='small' type='submit' loading={this.state.submitting}>
             Create Pair
