@@ -170,6 +170,55 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       assert data["balance_caching_reset_frequency"] == error
     end
 
+    test_with_auths "updates the master_account ID setting", context do
+      account = insert(:account)
+
+      response =
+        request("/configuration.update", %{
+          master_account: account.id,
+          config_pid: context[:config_pid]
+        })
+
+      assert response["success"] == true
+      assert response["data"]["data"]["master_account"]["value"] == account.id
+    end
+
+    test_with_auths "fails to update the master_account setting with nil ID", context do
+      response =
+        request("/configuration.update", %{
+          master_account: nil,
+          config_pid: context[:config_pid]
+        })
+
+      assert response["success"] == true
+
+      assert response["data"]["data"]["master_account"] == %{
+               "code" => "client:invalid_parameter",
+               "description" =>
+                 "Invalid parameter provided. `value` must match an existing account.",
+               "messages" => %{"value" => [nil]},
+               "object" => "error"
+             }
+    end
+
+    test_with_auths "fails to update the master_account setting with invalid ID", context do
+      response =
+        request("/configuration.update", %{
+          master_account: "invalid",
+          config_pid: context[:config_pid]
+        })
+
+      assert response["success"] == true
+
+      assert response["data"]["data"]["master_account"] == %{
+               "code" => "client:invalid_parameter",
+               "description" =>
+                 "Invalid parameter provided. `value` must match an existing account.",
+               "messages" => %{"value" => ["invalid"]},
+               "object" => "error"
+             }
+    end
+
     test_with_auths "reloads app env", context do
       response =
         request("/configuration.update", %{
