@@ -1,16 +1,16 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { Input, Button, Icon, Select } from '../omg-uikit'
+import { Button, Icon, Select } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { connect } from 'react-redux'
-import AccountsFetcher from '../omg-account/accountsFetcher'
+import AccessKeysFetcher from '../omg-access-key/accessKeysFetcher'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { createAccessKey } from '../omg-access-key/action'
-import { assignKey } from '../omg-account/action.js'
+import { assignKey } from '../omg-account/action'
 import PropTypes from 'prop-types'
-import AccountSelectRow from './AccountSelectRow'
-const CreateAdminKeyModalContainer = styled.div`
+import AdminKeySelectRow from './AdminKeySelectRow'
+const AssignKeyAccountContainer = styled.div`
   padding: 50px;
   width: 100vw;
   height: 100vh;
@@ -47,9 +47,6 @@ const CreateAdminKeyFormContainer = styled.form`
   margin: 0 auto;
   width: 400px;
 `
-const StyledInput = styled(Input)`
-  margin-bottom: 35px;
-`
 const StyledSelect = styled(Select)`
   margin-bottom: 35px;
   text-align: left;
@@ -66,40 +63,46 @@ const enhance = compose(
   )
 )
 
-CreateAdminKeyModal.propTypes = {
+AssignKeyAccount.propTypes = {
   open: PropTypes.bool,
-  createAccessKey: PropTypes.func,
   onRequestClose: PropTypes.func,
   onSubmitSuccess: PropTypes.func,
-  assignKey: PropTypes.func
+  assignKey: PropTypes.func,
+  accountId: PropTypes.string
+}
+AssignKeyAccount.defaultProps = {
+  onSubmitSuccess: _.noop
 }
 
-function CreateAdminKeyModal (props) {
-  const [label, setLabel] = useState('')
+function AssignKeyAccount (props) {
   const [submitStatus, setSubmitStatus] = useState('DEFAULT')
-  const [role, setRole] = useState('none')
+  const [roleAccount, setRoleAccount] = useState('viewer')
+  const [adminKey, setAdminKeyInput] = useState('')
   function onRequestClose () {
-    setLabel('')
-    setRole('none')
+    setAdminKeyInput('')
     setSubmitStatus('DEFAULT')
     props.onRequestClose()
   }
-  function onSelectRole (role) {
-    setRole(role)
+  function onSelectAccount (account) {
+    setAdminKeyInput(account)
   }
   async function onSubmit (e) {
     e.preventDefault()
     setSubmitStatus('SUBMITTED')
-    const { data } = await props.createAccessKey({ name: label, globalRole: role })
+    const { data } = await props.assignKey({
+      keyId: adminKey,
+      accountId: props.accountId,
+      role: roleAccount
+    })
     if (data) {
       setSubmitStatus('SUCCESS')
+      console.log(props)
       props.onSubmitSuccess(data)
       onRequestClose()
     } else {
       setSubmitStatus('FAILED')
     }
   }
-
   return (
     <Modal
       isOpen={props.open}
@@ -108,27 +111,38 @@ function CreateAdminKeyModal (props) {
       shouldCloseOnOverlayClick={false}
       overlayClassName='dummy'
     >
-      <CreateAdminKeyModalContainer onSubmit={onSubmit}>
+      <AssignKeyAccountContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />
         <CreateAdminKeyFormContainer>
-          <h4>Create Admin Key</h4>
-          <InputLabel>Label</InputLabel>
-          <StyledInput
-            autoFocus
-            normalPlaceholder='Label ( optional )'
-            onChange={e => setLabel(e.target.value)}
-            value={label}
+          <h4>Assign Admin Key</h4>
+          <InputLabel>Admin Key to assign</InputLabel>
+          <AccessKeysFetcher
+            query={{
+              perPage: 10,
+              search: adminKey
+            }}
+            render={({ data: adminKeys }) => {
+              return (
+                <StyledSelect
+                  normalPlaceholder='Account ( optional )'
+                  onChange={e => setAdminKeyInput(e.target.value)}
+                  value={adminKey}
+                  onSelectItem={item => onSelectAccount(item.key)}
+                  options={adminKeys.map(k => (
+                    {key: k.id, value: <AdminKeySelectRow key={k.id} adminKey={k} />}
+                  ))}
+                />
+              )
+            }}
           />
-          <InputLabel>Global Role</InputLabel>
+          <InputLabel>Account Role</InputLabel>
           <StyledSelect
-            normalPlaceholder='Role ( optional )'
-            value={role}
-            onSelectItem={item => onSelectRole(item.key)}
+            normalPlaceholder={'Account\'s Role ( optional )'}
+            value={roleAccount}
+            onSelectItem={item => setRoleAccount(item.key)}
             options={[
               { key: 'viewer', value: 'Viewer' },
-              { key: 'admin', value: 'Admin' },
-              { key: 'super_admin', value: 'Super Admin' },
-              { key: 'none', value: 'None' }
+              { key: 'admin', value: 'Admin' }
             ]}
           />
           <CreateAdminKeyButton
@@ -136,12 +150,12 @@ function CreateAdminKeyModal (props) {
             type='submit'
             loading={submitStatus === 'SUBMITTED'}
           >
-            Create key
+            Assign Key
           </CreateAdminKeyButton>
         </CreateAdminKeyFormContainer>
-      </CreateAdminKeyModalContainer>
+      </AssignKeyAccountContainer>
     </Modal>
   )
 }
 
-export default enhance(CreateAdminKeyModal)
+export default enhance(AssignKeyAccount)

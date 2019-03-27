@@ -144,7 +144,9 @@ class ApiKeyPage extends Component {
     updateAccessKey: PropTypes.func,
     createAdminKeyModalOpen: PropTypes.bool,
     query: PropTypes.object,
-    fetcher: PropTypes.func
+    fetcher: PropTypes.func,
+    registerFetch: PropTypes.func,
+    onRequestClose: PropTypes.func
   }
 
   static defaultProps = {

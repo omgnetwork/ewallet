@@ -7,37 +7,42 @@ import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
-const AccountKeySubPageContainer = styled.div`
-  button {
-    padding-left: 30px;
-    padding-right: 30px;
-  }
+import AssignKeyModal from '../omg-assign-key-account-modal'
+const AccountKeySubPageContainer = styled.div``
+const AssignButton = styled(Button)`
+  padding-left: 40px;
+  padding-right: 40px;
 `
 
 export default withRouter(function AccountKeySubPage (props) {
   const [createAdminKeyModalOpen, setCreateAdminKeyModalOpen] = useState(false)
-  const { search, page } = queryString.parse(props.location.search)
-
+  const [fetcher, setFetcher] = useState(_.noop)
+  const { search, access_key_page } = queryString.parse(props.location.search)
   return (
     <AccountKeySubPageContainer>
       <TopNavigation
         title='Keys'
         divider={false}
         buttons={[
-          <Button key='key' onClick={e => setCreateAdminKeyModalOpen(true)}>
-            Generate key
-          </Button>
+          <AssignButton key='key' onClick={e => setCreateAdminKeyModalOpen(true)}>
+            Assign Key
+          </AssignButton>
         ]}
       />
       <AdminKeySection
         fetcher={AccountKeyFetcher}
+        registerFetch={fetcher => setFetcher(fetcher)}
         query={{
-          page,
+          page: access_key_page,
           perPage: 10,
           accountId: props.match.params.accountId,
           ...createSearchAdminKeyQuery(search)
         }}
-        createAdminKeyModalOpen={createAdminKeyModalOpen}
+      />
+      <AssignKeyModal
+        onSubmitSuccess={() => fetcher.fetch()}
+        open={createAdminKeyModalOpen}
+        accountId={props.match.params.accountId}
         onRequestClose={() => setCreateAdminKeyModalOpen(false)}
       />
     </AccountKeySubPageContainer>
