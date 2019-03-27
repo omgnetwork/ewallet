@@ -27,7 +27,7 @@ defmodule EWalletDB.Application do
     DeferredConfig.populate(:ewallet_db)
 
     settings = Application.get_env(:ewallet_db, :settings)
-    Config.register_and_load(:ewallet_db, settings)
+    _ = Config.register_and_load(:ewallet_db, settings)
 
     ActivityLogger.configure(%{
       EWalletDB.Seeder => %{type: "seeder", identifier: nil},
@@ -52,12 +52,13 @@ defmodule EWalletDB.Application do
       EWalletDB.Role => %{type: "role", identifier: :id}
     })
 
-    :telemetry.attach(
-      "appsignal-ecto",
-      [:ewallet_db, :repo, :query],
-      &Ecto.handle_event/4,
-      nil
-    )
+    _ =
+      :telemetry.attach(
+        "appsignal-ecto",
+        [:ewallet_db, :repo, :query],
+        &Ecto.handle_event/4,
+        nil
+      )
 
     # List all child processes to be supervised
     children = [

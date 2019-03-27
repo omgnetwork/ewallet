@@ -60,10 +60,15 @@ defmodule EWalletConfig.FileStorageSupervisor do
         {:reply, {:ok, pid}, pid}
 
       error ->
-        if Application.get_env(:ewallet, :env) != :test do
-          Logger.warn("Failed to start Goth server, probably due to an invalid configuration.")
-          Logger.warn(inspect(error))
-        end
+        _ =
+          if Application.get_env(:ewallet, :env) != :test do
+            _ =
+              Logger.warn(
+                "Failed to start Goth server, probably due to an invalid configuration."
+              )
+
+            _ = Logger.warn(inspect(error))
+          end
 
         {:reply, {:ok, nil}, nil}
     end
@@ -77,7 +82,7 @@ defmodule EWalletConfig.FileStorageSupervisor do
 
   @spec handle_call(:stop_goth, any(), pid()) :: :ok
   def handle_call(:stop_goth, _from, pid) do
-    DynamicSupervisor.terminate_child(EWalletConfig.DynamicSupervisor, pid)
+    _ = DynamicSupervisor.terminate_child(EWalletConfig.DynamicSupervisor, pid)
 
     {:reply, :ok, nil}
   end

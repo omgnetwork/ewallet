@@ -189,9 +189,7 @@ jobs:
           paths:
             - ~/var/dialyzer
           when: always
-      ## We're silenting dialyzer failure until we've fixed all dialyzer offense.
-      ## TODO: enable this once Dialyzer is fixed.
-      # - notify_slack_failure
+      - notify_slack_failure
 
   test:
     executor: builder_pg
@@ -243,7 +241,7 @@ workflows:
           requires: [build]
           filters: *all_branches
       - publish:
-          requires: [lint, test]
+          requires: [lint, test, dialyze]
           filters: *all_branches
 
       # Deploy to staging in case of master branch.

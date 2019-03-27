@@ -23,7 +23,7 @@ defmodule LocalLedger.Application do
     DeferredConfig.populate(:local_ledger)
 
     settings = Application.get_env(:local_ledger, :settings)
-    Config.register_and_load(:local_ledger, settings)
+    _ = Config.register_and_load(:local_ledger, settings)
 
     children =
       case Application.get_env(:local_ledger, LocalLedger.Scheduler) do

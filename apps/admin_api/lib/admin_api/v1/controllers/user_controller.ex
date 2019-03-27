@@ -94,13 +94,14 @@ defmodule AdminAPI.V1.UserController do
          originator <- Originator.extract(conn.assigns),
          attrs <- Map.put(attrs, "originator", originator),
          {:ok, user} <- User.insert(attrs) do
-      case Account.get(attrs["account_id"]) do
-        nil ->
-          :noop
+      _ =
+        case Account.get(attrs["account_id"]) do
+          nil ->
+            :noop
 
-        account ->
-          {:ok, _account_user} = AccountUser.link(account.uuid, user.uuid, originator)
-      end
+          account ->
+            {:ok, _account_user} = AccountUser.link(account.uuid, user.uuid, originator)
+        end
 
       respond_single(user, conn)
     else

@@ -68,7 +68,7 @@ defmodule EWalletConfig.SettingLoader do
   defp fetch_value(app, key, stored_settings) do
     case Map.get(stored_settings, Atom.to_string(key)) do
       nil ->
-        if Application.get_env(:ewallet, :env) != :test, do: warn(app, key)
+        _ = if Application.get_env(:ewallet, :env) != :test, do: warn(app, key)
         nil
 
       setting ->

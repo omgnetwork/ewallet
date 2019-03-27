@@ -119,7 +119,7 @@ defmodule Utils.Types.WalletAddress do
 
   Returns `{:ok, address}`.
   """
-  @spec generate() :: {:ok, String.t()}
+  @spec generate() :: {:ok, String.t()} | :error
   def generate do
     prefix = random(4, @alphabets)
     generate(prefix)
@@ -132,7 +132,7 @@ defmodule Utils.Types.WalletAddress do
   Returns `{:ok, address}` on success.
   Returns `:error` if more than 4 letters or invalid characters are given.
   """
-  @spec generate(String.t() | nil) :: String.t() | :error
+  @spec generate(String.t() | nil) :: {:ok, String.t()} | :error
   def generate(prefix) when byte_size(prefix) <= 4 do
     case String.match?(prefix, ~r/^[a-z0-9]*$/) do
       true ->

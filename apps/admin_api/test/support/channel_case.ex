@@ -69,8 +69,8 @@ defmodule AdminAPI.ChannelCase do
 
   setup tags do
     # Restarts `EWalletConfig.Config` so it does not hang on to a DB connection for too long.
-    Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
-    Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+    _ = Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+    _ = Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
 
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)

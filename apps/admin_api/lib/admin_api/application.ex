@@ -25,7 +25,7 @@ defmodule AdminAPI.Application do
     DeferredConfig.populate(:admin_api)
 
     settings = Application.get_env(:admin_api, :settings)
-    EWalletConfig.Config.register_and_load(:admin_api, settings)
+    _ = EWalletConfig.Config.register_and_load(:admin_api, settings)
 
     Config.configure_cors_plug()
     EWallet.configure_socket_endpoints([AdminAPI.V1.Endpoint])

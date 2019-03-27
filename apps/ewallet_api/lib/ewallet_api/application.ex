@@ -25,7 +25,7 @@ defmodule EWalletAPI.Application do
     DeferredConfig.populate(:ewallet_api)
 
     settings = Application.get_env(:ewallet_api, :settings)
-    EWalletConfig.Config.register_and_load(:ewallet_api, settings)
+    _ = EWalletConfig.Config.register_and_load(:ewallet_api, settings)
 
     Config.configure_cors_plug()
     EWallet.configure_socket_endpoints([EWalletAPI.V1.Endpoint])
