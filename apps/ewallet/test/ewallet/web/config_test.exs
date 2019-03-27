@@ -50,9 +50,6 @@ defmodule EWallet.Web.ConfigTest do
       config = Config.cors_plug_config()
 
       assert config[:max_age] == 86_400
-
-      # Revert the env var to their original values.
-      {:ok, _} = set_env(:cors_max_age, original_env)
     end
 
     test "returns the correct :cors_origin value when there is only one origin" do
