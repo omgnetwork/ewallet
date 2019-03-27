@@ -50,7 +50,7 @@ defmodule EWallet.Web.Config do
   @spec cors_plug_config() :: Keyword.t()
   def cors_plug_config do
     [
-      max_age: 86400,
+      max_age: 86_400,
       origin: &__MODULE__.cors_origin/0,
       headers: @headers,
       methods: @methods
