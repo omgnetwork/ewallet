@@ -31,6 +31,7 @@ const NavLinkContainer = styled.div`
     display: inline-block;
     i {
       margin-left: 5px;
+      font-size: 12px;
     }
   }
 `

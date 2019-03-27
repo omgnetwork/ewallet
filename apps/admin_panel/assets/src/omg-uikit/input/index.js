@@ -110,7 +110,8 @@ class InputComponent extends PureComponent {
     onBlur: PropTypes.func,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.any]),
     type: PropTypes.string,
-    validator: PropTypes.func
+    validator: PropTypes.func,
+    allowNegative: PropTypes.bool
   }
   static defaultProps = {
     onFocus: () => {},
@@ -119,7 +120,8 @@ class InputComponent extends PureComponent {
     registerRef: () => {},
     onPressEscape: () => {},
     onPressEnter: () => {},
-    type: 'string'
+    type: 'string',
+    allowNegative: true,
   }
   state = {
     active: false
@@ -141,6 +143,9 @@ class InputComponent extends PureComponent {
   handleKeyDown = e => {
     if (e.key === 'Escape') {
       this.props.onPressEscape()
+    }
+    if (!this.props.allowNegative && e.key === '-') {
+      e.preventDefault()
     }
   }
   onFocus = e => {

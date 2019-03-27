@@ -66,7 +66,7 @@ class MintTokenModal extends PureComponent {
   static defaultProps = {
     onSuccess: _.noop
   }
-  state = { amount: null, error: null }
+  state = { amount: '', error: null }
   onChangeAmount = e => {
     this.setState({ amount: e.target.value })
   }
@@ -81,7 +81,7 @@ class MintTokenModal extends PureComponent {
       if (result.data) {
         this.props.onRequestClose()
         this.props.onSuccess()
-        this.setState({ submitStatus: 'SUCCESS', amount: null })
+        this.setState({ submitStatus: 'SUCCESS', amount: '' })
       } else {
         this.setState({ submitStatus: 'FAILED', error: result.error.description })
       }
@@ -91,7 +91,7 @@ class MintTokenModal extends PureComponent {
   }
   onRequestClose = e => {
     this.props.onRequestClose()
-    this.setState({ amount: null, error: null })
+    this.setState({ amount: '', error: null })
   }
   render () {
     return (
@@ -109,6 +109,7 @@ class MintTokenModal extends PureComponent {
             value={this.state.amount}
             autofocus
             onChange={this.onChangeAmount}
+            allowNegative={false}
           />
           <ButtonsContainer>
             <Button
