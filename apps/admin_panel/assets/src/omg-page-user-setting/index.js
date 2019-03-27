@@ -209,7 +209,7 @@ class UserSettingPage extends Component {
                 }
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
-                Save Change
+                Save Changes
               </Button>
             </InputsContainer>
           </form>

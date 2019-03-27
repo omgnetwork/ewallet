@@ -439,7 +439,7 @@ class ConfigurationPage extends Component {
                     </InputPrefixContainer>
                   ))}
                   <PrefixContainer active={!this.isAddPrefixButtonDisabled()}>
-                    <a onClick={this.onClickAddPrefix}>Add More Prefix</a>
+                    <a onClick={this.onClickAddPrefix}>Add Prefix</a>
                   </PrefixContainer>
                 </InputsPrefixContainer>
               )
@@ -545,7 +545,7 @@ class ConfigurationPage extends Component {
       </Fragment>
     )
   }
-  renderConfigurationPage = ({ data: configurations }) => {
+  renderConfigurationPage = () => {
     return (
       <ConfigurationPageContainer>
         <TopNavigation divider={this.props.divider}

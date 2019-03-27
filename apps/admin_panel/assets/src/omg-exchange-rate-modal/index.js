@@ -109,7 +109,15 @@ class CreateExchangeRateModal extends Component {
     }
     return null
   }
-  state = { onlyOneWayExchange: false }
+
+  state = {
+    onlyOneWayExchange: false,
+    fromTokenSearch: '',
+    fromTokenRate: '',
+    toTokenRate: '',
+    toTokenSearch: '',
+  }
+
   onChangeName = e => {
     this.setState({ name: e.target.value })
   }
@@ -150,7 +158,10 @@ class CreateExchangeRateModal extends Component {
   }
 
   get ratesAvailable() {
-    return this.state.toTokenRate > 0 && this.state.fromTokenRate > 0
+    return this.state.toTokenRate > 0 
+      && this.state.fromTokenRate > 0
+      && this.state.toTokenSearch
+      && this.state.fromTokenSearch
   }
 
   renderCalculation = () => {
