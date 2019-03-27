@@ -266,8 +266,7 @@ defmodule EWalletDB.Factory do
     %APIKey{
       name: sequence("api_key_name"),
       key: sequence("api_key"),
-      owner_app: "some_app_name",
-      account: insert(:account),
+      creator_user: insert(:user),
       enabled: true,
       originator: %System{}
     }

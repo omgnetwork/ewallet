@@ -34,7 +34,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
 
     %{
       user: user,
-      api_key: insert(:api_key, owner_app: "ewallet_api"),
+      api_key: insert(:api_key),
       auth_token: insert(:auth_token, user: user, owner_app: "ewallet_api")
     }
   end
@@ -45,7 +45,6 @@ defmodule EWalletAPI.V1.ClientAuthTest do
 
       assert auth.authenticated
       assert auth[:authenticated] == true
-      assert auth[:account] != nil
       assert auth[:end_user] != nil
     end
 
@@ -54,7 +53,6 @@ defmodule EWalletAPI.V1.ClientAuthTest do
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :invalid_api_key
-      assert auth[:account] == nil
       assert auth[:end_user] == nil
     end
 
@@ -63,7 +61,6 @@ defmodule EWalletAPI.V1.ClientAuthTest do
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :invalid_api_key
-      assert auth[:account] == nil
       assert auth[:end_user] == nil
     end
 
@@ -72,7 +69,6 @@ defmodule EWalletAPI.V1.ClientAuthTest do
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :auth_token_not_found
-      assert auth[:account].uuid == meta.api_key.account.uuid
       assert auth[:end_user] == nil
     end
 
@@ -81,7 +77,6 @@ defmodule EWalletAPI.V1.ClientAuthTest do
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :auth_token_not_found
-      assert auth[:account].uuid == meta.api_key.account.uuid
       assert auth[:end_user] == nil
     end
 
@@ -91,7 +86,6 @@ defmodule EWalletAPI.V1.ClientAuthTest do
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :auth_token_expired
-      assert auth[:account].uuid == meta.api_key.account.uuid
       assert auth[:end_user] == nil
     end
 
@@ -103,7 +97,6 @@ defmodule EWalletAPI.V1.ClientAuthTest do
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :invalid_auth_scheme
-      assert auth[:account] == nil
       assert auth[:end_user] == nil
     end
 
@@ -117,7 +110,6 @@ defmodule EWalletAPI.V1.ClientAuthTest do
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :invalid_auth_scheme
-      assert auth[:account] == nil
       assert auth[:end_user] == nil
     end
 
@@ -131,7 +123,6 @@ defmodule EWalletAPI.V1.ClientAuthTest do
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :invalid_auth_scheme
-      assert auth[:account] == nil
       assert auth[:end_user] == nil
     end
   end

@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.APIKeyController do
   alias Ecto.Changeset
   alias EWallet.APIKeyPolicy
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.APIKeyOverlay}
-  alias EWalletDB.APIKey
+  alias EWalletDB.{APIKey, Key, User}
 
   @doc """
   Retrieves a list of API keys.
@@ -54,12 +54,10 @@ defmodule AdminAPI.V1.APIKeyController do
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with {:ok, _} <- authorize(:create, conn.assigns, attrs),
-         # Admin API doesn't use API Keys anymore. Defaulting to "ewallet_api".
-         {:ok, api_key} <-
-           APIKey.insert(%{
-             owner_app: "ewallet_api",
-             originator: Originator.extract(conn.assigns)
-           }),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         attrs <- Map.drop(attrs, ["creator_user_uuid", "creator_key_uuid"]),
+         attrs <- populate_creator(attrs),
+         {:ok, api_key} <- APIKey.insert(attrs),
          {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
       render(conn, :api_key, %{api_key: api_key})
     else
@@ -69,6 +67,14 @@ defmodule AdminAPI.V1.APIKeyController do
       {:error, code} ->
         handle_error(conn, code)
     end
+  end
+
+  defp populate_creator(%{"originator" => %User{uuid: uuid}} = attrs) do
+    Map.put(attrs, "creator_user_uuid", uuid)
+  end
+
+  defp populate_creator(%{"originator" => %Key{uuid: uuid}} = attrs) do
+    Map.put(attrs, "creator_key_uuid", uuid)
   end
 
   @doc """
@@ -136,7 +142,7 @@ defmodule AdminAPI.V1.APIKeyController do
     end
   end
 
-  def delete(conn, _), do: handle_error(conn, :invalid_parameter)
+  def delete(conn, _), do: handle_error(conn, :invalid_parameter, "`id` is required")
 
   defp do_delete(conn, %APIKey{} = key) do
     originator = Originator.extract(conn.assigns)

@@ -20,7 +20,7 @@ defmodule EWallet.Web.V1.APIKeySerializer do
   alias EWallet.Web.Paginator
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWalletDB.APIKey
-  alias Utils.Helpers.DateFormatter
+  alias Utils.Helpers.{Assoc, DateFormatter}
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -32,14 +32,19 @@ defmodule EWallet.Web.V1.APIKeySerializer do
       id: api_key.id,
       name: api_key.name,
       key: api_key.key,
-      account_id: api_key.account.id,
-      owner_app: api_key.owner_app,
+      creator_user_id: Assoc.get(api_key, [:creator_user, :id]),
+      creator_key_id: Assoc.get(api_key, [:creator_key, :id]),
       enabled: api_key.enabled,
       created_at: DateFormatter.to_iso8601(api_key.inserted_at),
       updated_at: DateFormatter.to_iso8601(api_key.updated_at),
       deleted_at: DateFormatter.to_iso8601(api_key.deleted_at),
+
       # Attributes below are DEPRECATED and will be removed in the future:
-      # "expired" has been replaced by "enabled" in PR #535
+      ## An APIKey is no longer tied to an account since PR #870
+      account_id: nil,
+      ## An APIKey is no longer tied to an owner_app since PR #870
+      owner_app: "ewallet_api",
+      ## "expired" has been replaced by "enabled" in PR #535
       expired: !api_key.enabled
     }
   end
