@@ -79,7 +79,7 @@ function AccountNavigationBar (props) {
         }}
       />
       <LinksContainer>
-        <NavLink to={`/accounts/${accountId}/detail`} activeClassName='navlink-active'>
+        <NavLink to={`/accounts/${accountId}/details`} activeClassName='navlink-active'>
           <div className='account-link-text'>Details</div>
         </NavLink>
         <WalletDropdownChooser {...props} />

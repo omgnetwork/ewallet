@@ -71,7 +71,7 @@ export default withRouter(
             {_.get(tq, 'account.id') ? (
               <Link
                 to={{
-                  pathname: `/accounts/${tq.account.id}/detail`,
+                  pathname: `/accounts/${tq.account.id}/details`,
                   search: this.props.location.search
                 }}
               >
@@ -86,7 +86,7 @@ export default withRouter(
             {_.get(tq, 'account.id') ? (
               <Link
                 to={{
-                  pathname: `/accounts/${tq.account.id}/detail`,
+                  pathname: `/accounts/${tq.account.id}/details`,
                   search: this.props.location.search
                 }}
               >
@@ -102,7 +102,7 @@ export default withRouter(
             {_.get(tq, 'exchange_account.id') ? (
               <Link
                 to={{
-                  pathname: `/accounts/${tq.exchange_account.id}/detail`,
+                  pathname: `/accounts/${tq.exchange_account.id}/details`,
                   search: this.props.location.search
                 }}
               >
@@ -117,7 +117,7 @@ export default withRouter(
             {_.get(tq, 'exchange_account.id') ? (
               <Link
                 to={{
-                  pathname: `/accounts/${tq.exchange_account.id}/detail`,
+                  pathname: `/accounts/${tq.exchange_account.id}/details`,
                   search: this.props.location.search
                 }}
               >

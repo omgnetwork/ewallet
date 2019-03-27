@@ -155,7 +155,7 @@ class SideNavigation extends PureComponent {
         {this.props.recentAccounts.map((account, i) => {
           return (
             <div key={account.id || i}>
-              <Link to={`/accounts/${account.id}/detail`}>
+              <Link to={`/accounts/${account.id}/details`}>
                 <RecentAccountItem active={this.props.match.params.accountId === account.id}>
                   <RecentAccount className='recent-account'>{account.name}</RecentAccount>
                 </RecentAccountItem>

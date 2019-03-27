@@ -88,7 +88,7 @@ class WalletDetaillPage extends Component {
         {wallet.account && (
           <DetailGroup>
             <b>Account Owner:</b>{' '}
-            <Link to={`/accounts/${wallet.account.id}/detail`}>
+            <Link to={`/accounts/${wallet.account.id}/details`}>
               {_.get(wallet, 'account.name', '-')}
             </Link>
           </DetailGroup>
