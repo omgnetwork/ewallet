@@ -32,11 +32,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
   Lists the memberships for the given admin.
   """
   def all_account_memberships_for_admin(conn, %{"id" => admin_id} = attrs) do
-    with %User{} = admin <-
-           User.get_admin(admin_id, preload: [memberships: [:user, :role]]) ||
-             {:error, :unauthorized},
+    with %User{} = admin <- User.get_admin(admin_id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, admin),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized},
          query <- Membership.query_all_by_user(admin, query),
          %Paginator{} = memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
       render(conn, :memberships, %{memberships: memberships})
@@ -55,11 +54,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
   Lists the memberships for the given key.
   """
   def all_account_memberships_for_key(conn, %{"id" => key_id} = attrs) do
-    with %Key{} = key <-
-           Key.get(key_id, preload: [memberships: [:key, :role]]) ||
-             {:error, :unauthorized},
+    with %Key{} = key <- Key.get(key_id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, key),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized},
          query <- Membership.query_all_by_key(key, query),
          %Paginator{} = memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
       render(conn, :memberships, %{memberships: memberships})
@@ -94,6 +92,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
              {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, account),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized},
          query <- query_members(account, query, type),
          %Paginator{} = memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
       render(conn, :memberships, %{memberships: memberships})

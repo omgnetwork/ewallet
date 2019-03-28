@@ -164,6 +164,26 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       refute Enum.any?(records, fn r -> r["user_id"] == admin_4.id end)
       assert Enum.count(records) == 1
     end
+
+    test_with_auths "returns an `unauthorized` error when role is none" do
+      set_admin_user_role("none")
+      set_key_role("none")
+
+      account = insert(:account)
+
+      key = insert(:key)
+      {:ok, user} = :admin |> params_for() |> User.insert()
+
+      role = insert(:role, %{name: "none"})
+
+      {:ok, _} = Membership.assign(user, account, role, %System{})
+      {:ok, _} = Membership.assign(key, account, role, %System{})
+
+      response = request("/account.get_admin_user_memberships", %{id: account.id})
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
   end
 
   describe "/account.get_key_memberships" do
@@ -308,6 +328,26 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       refute Enum.any?(records, fn r -> r["key_id"] == key_3.id end)
       refute Enum.any?(records, fn r -> r["key_id"] == key_4.id end)
       assert Enum.count(records) == 1
+    end
+
+    test_with_auths "returns an `unauthorized` error when role is none" do
+      set_admin_user_role("none")
+      set_key_role("none")
+
+      account = insert(:account)
+
+      key = insert(:key)
+      {:ok, user} = :admin |> params_for() |> User.insert()
+
+      role = insert(:role, %{name: "none"})
+
+      {:ok, _} = Membership.assign(user, account, role, %System{})
+      {:ok, _} = Membership.assign(key, account, role, %System{})
+
+      response = request("/account.get_key_memberships", %{id: key.id})
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 
@@ -455,6 +495,26 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       refute Enum.any?(records, fn r -> r["account_id"] == account_3.id end)
       refute Enum.any?(records, fn r -> r["account_id"] == account_4.id end)
     end
+
+    test_with_auths "returns an `unauthorized` error when role is none" do
+      set_admin_user_role("none")
+      set_key_role("none")
+
+      account = insert(:account)
+
+      key = insert(:key)
+      {:ok, user} = :admin |> params_for() |> User.insert()
+
+      role = insert(:role, %{name: "none"})
+
+      {:ok, _} = Membership.assign(user, account, role, %System{})
+      {:ok, _} = Membership.assign(key, account, role, %System{})
+
+      response = request("/admin.get_account_memberships", %{id: user.id})
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
   end
 
   describe "/access_key.get_account_memberships" do
@@ -600,6 +660,26 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       assert Enum.any?(records, fn r -> r["account_id"] == account_2.id end)
       refute Enum.any?(records, fn r -> r["account_id"] == account_3.id end)
       refute Enum.any?(records, fn r -> r["account_id"] == account_4.id end)
+    end
+
+    test_with_auths "returns an `unauthorized` error when role is none" do
+      set_admin_user_role("none")
+      set_key_role("none")
+
+      account = insert(:account)
+
+      key = insert(:key)
+      {:ok, user} = :admin |> params_for() |> User.insert()
+
+      role = insert(:role, %{name: "none"})
+
+      {:ok, _} = Membership.assign(user, account, role, %System{})
+      {:ok, _} = Membership.assign(key, account, role, %System{})
+
+      response = request("/access_key.get_account_memberships", %{id: key.id})
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 
