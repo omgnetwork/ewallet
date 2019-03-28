@@ -21,7 +21,7 @@ export const createFetcher = (entity, reducer, selectors) => {
       static propTypes = {
         render: PropTypes.func,
         query: PropTypes.shape({
-          page: PropTypes.string,
+          page: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
           perPage: PropTypes.number,
           search: PropTypes.string
         }),
