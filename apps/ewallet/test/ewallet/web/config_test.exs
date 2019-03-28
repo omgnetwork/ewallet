@@ -17,83 +17,61 @@ defmodule EWallet.Web.ConfigTest do
   use ExUnit.Case, async: false
   alias EWallet.Web.Config
 
-  # Take note of the original config value, then delete it.
-  defp set_system_env(key, nil) do
-    original = System.get_env(key)
-    {System.delete_env(key), original}
-  end
-
   # Take note of the original config value, then update it.
-  defp set_system_env(key, value) when not is_binary(value) do
-    set_system_env(key, to_string(value))
+  defp set_env(key, value) do
+    original = Application.get_env(:ewallet, key)
+    {Application.put_env(:ewallet, key, value), original}
   end
 
-  defp set_system_env(key, value) do
-    original = System.get_env(key)
-    {System.put_env(key, value), original}
-  end
+  describe "cors_plug_config/0" do
+    test "returns the default :headers and :methods" do
+      config = Config.cors_plug_config()
 
-  # Take note of the original config value, then delete it.
-  defp delete_config(app, key) do
-    original = Application.get_env(app, key)
-    {Application.delete_env(app, key), original}
-  end
+      assert config[:headers] == [
+               "Authorization",
+               "Content-Type",
+               "Accept",
+               "Origin",
+               "User-Agent",
+               "DNT",
+               "Cache-Control",
+               "X-Mx-ReqToken",
+               "Keep-Alive",
+               "X-Requested-With",
+               "If-Modified-Since",
+               "X-CSRF-Token",
+               "OMGAdmin-Account-ID"
+             ]
 
-  describe "configure_cors_plug/0" do
-    test "sets CORS_MAX_AGE to :max_age" do
-      new_env = 1234
-      {:ok, original_env} = set_system_env("CORS_MAX_AGE", new_env)
-      {:ok, original_config} = delete_config(:cors_plug, :max_age)
-
-      # Invoke & assert
-      res = Config.configure_cors_plug()
-      assert res == :ok
-      assert Application.get_env(:cors_plug, :max_age) == new_env
-
-      # Revert the env var and app config to their original values.
-      :ok = Application.put_env(:cors_plug, :max_age, original_config)
-      {:ok, _} = set_system_env("CORS_MAX_AGE", original_env)
+      assert config[:methods] == ["POST", "GET"]
     end
 
-    test "sets the :headers to a list" do
-      {:ok, original_config} = delete_config(:cors_plug, :headers)
+    test "returns the correct :cors_max_age value" do
+      config = Config.cors_plug_config()
 
-      # Invoke & assert
-      res = Config.configure_cors_plug()
-      assert res == :ok
-      assert is_list(Application.get_env(:cors_plug, :headers))
-
-      # Revert the app config to its original value.
-      :ok = Application.put_env(:cors_plug, :headers, original_config)
+      assert config[:max_age] == 86_400
     end
 
-    test "sets the :methods to [\"POST\"]" do
-      {:ok, original_config} = delete_config(:cors_plug, :methods)
+    test "returns the correct :cors_origin value when there is only one origin" do
+      origin = "http://example.com"
+      {:ok, original_env} = set_env(:cors_origin, origin)
+      config = Config.cors_plug_config()
 
-      # Invoke & assert
-      res = Config.configure_cors_plug()
-      assert res == :ok
-      assert is_list(Application.get_env(:cors_plug, :headers))
+      assert config[:origin].() == [origin]
 
-      # Revert the app config to its original value.
-      :ok = Application.put_env(:cors_plug, :headers, original_config)
+      # Revert the env var to their original values.
+      {:ok, _} = set_env(:cors_originn, original_env)
     end
 
-    test "sets CORS_ORIGIN to :origin" do
-      new_env = "https://example.com, https://second.example.com"
-      new_parsed_env = ["https://example.com", "https://second.example.com"]
+    test "returns the correct :cors_origin values when there are multiple origins" do
+      origin = "https://example.com, https://second.example.com"
+      {:ok, original_env} = set_env(:cors_origin, origin)
+      config = Config.cors_plug_config()
 
-      {:ok, original_env} = set_system_env("CORS_ORIGIN", new_env)
-      {:ok, original_config} = delete_config(:cors_plug, :origin)
+      assert config[:origin].() == ["https://example.com", "https://second.example.com"]
 
-      # Invoke & assert
-      res = Config.configure_cors_plug()
-      assert res == :ok
-      assert Application.get_env(:cors_plug, :origin) == new_parsed_env
-
-      # Revert the env var and app config to their original values.
-      :ok = Application.put_env(:cors_plug, :origin, original_config)
-      {:ok, _} = set_system_env("CORS_ORIGIN", original_env)
+      # Revert the env var to their original values.
+      {:ok, _} = set_env(:cors_origin, original_env)
     end
   end
 end
