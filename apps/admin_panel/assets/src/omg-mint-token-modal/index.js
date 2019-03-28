@@ -66,7 +66,7 @@ class MintTokenModal extends PureComponent {
   static defaultProps = {
     onSuccess: _.noop
   }
-  state = { amount: '', error: null }
+  state = { amount: '', error: '' }
   onChangeAmount = e => {
     this.setState({ amount: e.target.value })
   }
@@ -91,7 +91,7 @@ class MintTokenModal extends PureComponent {
   }
   onRequestClose = e => {
     this.props.onRequestClose()
-    this.setState({ amount: '', error: null })
+    this.setState({ amount: '', error: '' })
   }
   render () {
     return (

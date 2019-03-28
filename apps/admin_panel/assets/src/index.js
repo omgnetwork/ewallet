@@ -17,8 +17,9 @@ async function bootUp () {
   let store = {}
   if (result.data.success) {
     const currentUser = result.data.data
-    const recentAccounts = getRecentAccountFromLocalStorage(currentUser.id)
-      ? recentAccounts.filter(d => d !== 'undefined' || !d)
+    const fromLocal = getRecentAccountFromLocalStorage(currentUser.id)
+    const recentAccounts = fromLocal
+      ? fromLocal.filter(d => d !== 'undefined' || !d)
       : []
     const accounts = recentAccounts.reduce(
       (prev, recentAccount) => ({
