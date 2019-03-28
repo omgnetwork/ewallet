@@ -125,11 +125,11 @@ const InputLabel = styled.div`
   color: ${props => props.theme.colors.B100};
 `
 const columnsAdminKeys = [
-  { key: 'key', title: 'ADMIN KEY' },
+  { key: 'key', title: 'ACCESS KEY' },
   { key: 'name', title: 'NAME' },
-  { key: 'created_at', title: 'CREATED DATE' },
-  { key: 'status', title: 'STATUS' },
-  { key: 'global_role', title: 'GLOBAL ROLE' }
+  { key: 'global_role', title: 'GLOBAL ROLE' },
+  { key: 'created_at', title: 'CREATED AT' },
+  { key: 'status', title: 'STATUS' }
 ]
 const enhance = compose(
   withRouter,
@@ -194,12 +194,8 @@ class ApiKeyPage extends Component {
             <Icon name='Key' /> <span>{data}</span> <Copy data={data} />
           </KeyContainer>
         )
-      case 'user':
-        return (
-          <KeyContainer>
-            <Icon name='Profile' /> <span>{data}</span>
-          </KeyContainer>
-        )
+      case 'global_role':
+        return _.startCase(data)
       case 'created_at':
         return moment(data).format()
       default:
@@ -219,8 +215,11 @@ class ApiKeyPage extends Component {
         <ConfirmCreateKeyContainer>
           <h4>Your key pair</h4>
           <p>
-            Please keep a copy of these secret keys. The secret key will be used to access your
-            encrypted information.
+            An access key and a secret have been generated. In order to access the admin API
+            programmatically, you will need to use them together. We do not store the secret key in
+            our database for security reasons. This is the only time you will see it, so copy it and
+            store it somewhere safe. Note that you will be able to get the access key anytime from
+            the admin panel.
           </p>
           <InputContainer>
             <InputLabel>Access Key</InputLabel>

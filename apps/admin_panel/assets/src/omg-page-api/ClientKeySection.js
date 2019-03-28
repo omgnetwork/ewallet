@@ -84,9 +84,9 @@ const KeyContainer = styled.div`
 `
 
 const columnsApiKey = [
-  { key: 'key', title: 'CLIENT KEY' },
+  { key: 'key', title: 'ACCESS KEY' },
   { key: 'name', title: 'NAME' },
-  { key: 'created_at', title: 'CREATED DATE' },
+  { key: 'created_at', title: 'CREATED AT' },
   { key: 'status', title: 'STATUS' }
 ]
 const enhance = compose(

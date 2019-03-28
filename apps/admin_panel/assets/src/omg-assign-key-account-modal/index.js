@@ -115,7 +115,7 @@ function AssignKeyAccount (props) {
         <Icon name='Close' onClick={onRequestClose} />
         <CreateAdminKeyFormContainer>
           <h4>Assign Admin Key</h4>
-          <InputLabel>Admin Key to assign</InputLabel>
+          <InputLabel>Key To Assign</InputLabel>
           <AccessKeysFetcher
             query={{
               perPage: 10,
@@ -137,8 +137,8 @@ function AssignKeyAccount (props) {
           />
           <InputLabel>Account Role</InputLabel>
           <StyledSelect
-            normalPlaceholder={'Account\'s Role ( optional )'}
-            value={roleAccount}
+            normalPlaceholder={'Account\'s Role'}
+            value={_.upperFirst(roleAccount)}
             onSelectItem={item => setRoleAccount(item.key)}
             options={[
               { key: 'viewer', value: 'Viewer' },
