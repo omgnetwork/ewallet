@@ -43,13 +43,13 @@ export const alertsReducer = createReducer([], {
     return [...state, createAlertState('New admin key successfully created.', 'success')]
   },
   'EXCHANGE_PAIR/CREATE/SUCCESS': state => {
-    return [...state, createAlertState('Exchange pair has successfully created.', 'success')]
+    return [...state, createAlertState('Exchange pair was successfully created.', 'success')]
   },
   'ACCOUNT/CREATE/SUCCESS': state => {
     return [...state, createAlertState('Account was successfully created.', 'success')]
   },
   'TOKEN/CREATE/SUCCESS': state => {
-    return [...state, createAlertState('token was successfully created.', 'success')]
+    return [...state, createAlertState('Token was successfully created.', 'success')]
   },
   'TOKEN/MINT/SUCCESS': state => {
     return [...state, createAlertState('Minted token successfully.', 'success')]
@@ -67,7 +67,7 @@ export const alertsReducer = createReducer([], {
     return [...state, createAlertState('Assign key to account successfully.', 'success')]
   },
   'CURRENT_USER/UPDATE/SUCCESS': (state, { user }) => {
-    return [...state, createAlertState('Updated user setting successfully.', 'success')]
+    return [...state, createAlertState('Updated user settings successfully.', 'success')]
   },
   'PASSWORD/UPDATE/SUCCESS': (state, { user }) => {
     return [...state, createAlertState('Updated password successfully.', 'success')]
@@ -76,7 +76,7 @@ export const alertsReducer = createReducer([], {
     return [...state, createAlertState('Transferred successfully.', 'success')]
   },
   'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
-    return [...state, createAlertState('Transaction request has successfully created.', 'success')]
+    return [...state, createAlertState('Transaction request was successfully created.', 'success')]
   },
   'TRANSACTION_REQUEST/CONSUME/SUCCESS': (state, { data }) => {
     if (data.status === 'confirmed') {
@@ -129,11 +129,11 @@ export const alertsReducer = createReducer([], {
   'CONFIGURATIONS/UPDATE/SUCCESS': (state, { data }) => {
     return [
       ...state,
-      createAlertState('Updated configurations successfully, reloading application..', 'success')
+      createAlertState('Updated configuration successfully, reloading application...', 'success')
     ]
   },
   'TRANSACTIONS/EXPORT/SUCCESS': (state, { error }) => {
-    return [...state, createAlertState(<div>Export transactions successfully</div>, 'success')]
+    return [...state, createAlertState(<div>Exported transactions successfully</div>, 'success')]
   },
   'CONFIGURATIONS/UPDATE/FAILED': errorStateHandler,
   'TRANSACTIONS/EXPORT/FAILED': errorStateHandler,

@@ -51,13 +51,13 @@ function AccountLayout (props) {
         <Breadcrumb
           items={[
             <Link to={'/accounts/'}>Accounts</Link>,
-            <Link to={`/accounts/${accountId}/detail`}>{_.get(props.account, 'name', '...')}</Link>,
+            <Link to={`/accounts/${accountId}/details`}>{_.get(props.account, 'name', '...')}</Link>,
             <Link to={`/accounts/${accountId}/${type}`}>{_.upperFirst(type)}</Link>,
             id ? <Link to={`/accounts/${accountId}/${type}/${id}`}>{id}</Link> : null
           ]}
         />
       </BreadContainer>
-      <Route path='/accounts/:accountId/detail' exact render={() => <AccountDetailSubPage />} />
+      <Route path='/accounts/:accountId/details' exact render={() => <AccountDetailSubPage />} />
       <Route path='/accounts/:accountId/wallets' exact render={() => <AccountWalletSubPage />} />
       <Route
         path='/accounts/:accountId/wallets/:walletAddress'

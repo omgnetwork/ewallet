@@ -99,7 +99,7 @@ class TransactionRequestPanel extends Component {
           <InformationItem>
             <b>Account : </b>
             <Link
-              to={{ pathname: `/accounts/${accountId}/detail`, search: this.props.location.search }}
+              to={{ pathname: `/accounts/${accountId}/details`, search: this.props.location.search }}
             >
               {accountName}
             </Link>

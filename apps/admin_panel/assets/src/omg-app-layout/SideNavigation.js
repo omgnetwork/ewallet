@@ -108,7 +108,7 @@ class SideNavigation extends PureComponent {
       {
         icon: 'Setting',
         to: '/configuration',
-        text: 'Configurations'
+        text: 'Configuration'
       }
     ]
     this.overviewLinks = [
@@ -155,7 +155,7 @@ class SideNavigation extends PureComponent {
         {this.props.recentAccounts.map((account, i) => {
           return (
             <div key={account.id || i}>
-              <Link to={`/accounts/${account.id}/detail`}>
+              <Link to={`/accounts/${account.id}/details`}>
                 <RecentAccountItem active={this.props.match.params.accountId === account.id}>
                   <RecentAccount className='recent-account'>{account.name}</RecentAccount>
                 </RecentAccountItem>
@@ -217,7 +217,7 @@ class SideNavigation extends PureComponent {
         <MenuName> MY PROFILE </MenuName>
         <Link to={'/user_setting'}>
           <NavigationItem active={fuzzySearch('/user_setting', `/${firstSubPath}`)}>
-            <Icon name={'Profile'} /> <span>Profile Setting</span>
+            <Icon name={'Profile'} /> <span>Profile Settings</span>
           </NavigationItem>
         </Link>
         <NavigationItem onClick={this.onLogout}>
