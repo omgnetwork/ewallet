@@ -57,14 +57,22 @@ class AppLayout extends Component {
           </Content>
         </ContentContainer>
         <Alert />
-        {searchObject['show-request-tab'] && <TransactionRequestPanel />}
-        {searchObject['show-consumption-tab'] && <ConsumptionPanel />}
+
+        <SlideInRight path='transaction-panel' width={560}>
+          {searchObject['show-request-tab'] && <TransactionRequestPanel />}
+        </SlideInRight>
+
+        <SlideInRight path='transaction-panel' width={560}>
+          {searchObject['show-consumption-tab'] && <ConsumptionPanel />}
+        </SlideInRight>
 
         <SlideInRight path='transaction-panel' width={560}>
           {searchObject['show-transaction-tab'] && <TransactionPanel />}
         </SlideInRight>
 
-        {searchObject['show-activity-tab'] && <ActivityPanel />}
+        <SlideInRight path='activity-tab' width={560}>
+          {searchObject['show-activity-tab'] && <ActivityPanel />}
+        </SlideInRight>
       </Container>
     )
   }
