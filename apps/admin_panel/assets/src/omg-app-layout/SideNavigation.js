@@ -36,6 +36,7 @@ const NavigationItem = styled.div`
     font-weight: 400;
   }
   :hover {
+    cursor: pointer;
     color: ${props => props.theme.colors.BL400};
   }
 `
@@ -221,7 +222,8 @@ class SideNavigation extends PureComponent {
           </NavigationItem>
         </Link>
         <NavigationItem onClick={this.onLogout}>
-          <Icon name={'Arrow-Left'} /> <span>Logout</span>
+          <Icon name={'Arrow-Left'} />
+          <span>Logout</span>
         </NavigationItem>
       </Fragment>
     )
