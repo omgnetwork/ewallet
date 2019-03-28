@@ -26,7 +26,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
     PaginatorSerializer,
     UserSerializer
   }
-
+  alias EWallet.WalletPolicy
   alias EWalletDB.{Wallet, Helpers.Preloader}
   alias Utils.Helpers.{Assoc, DateFormatter}
 
@@ -44,15 +44,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
   def serialize(nil), do: nil
 
   def serialize(%Wallet{} = wallet) do
-    wallet =
-      case Map.get(wallet, :balances) do
-        nil ->
-          {:ok, wallet} = BalanceLoader.add_balances(wallet)
-          wallet
-
-        _ ->
-          wallet
-      end
+    balances = serialize_balances(wallet.balances)
 
     %{
       object: "wallet",
@@ -66,7 +58,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
       user: UserSerializer.serialize(wallet.user),
       account_id: Assoc.get(wallet, [:account, :id]),
       account: AccountSerializer.serialize(wallet.account),
-      balances: serialize_balances(wallet.balances),
+      balances: balances,
       enabled: wallet.enabled,
       created_at: DateFormatter.to_iso8601(wallet.inserted_at),
       updated_at: DateFormatter.to_iso8601(wallet.updated_at)
@@ -74,30 +66,33 @@ defmodule EWallet.Web.V1.WalletSerializer do
   end
 
   def serialize_without_balances(%Wallet{} = wallet) do
-    wallet = Preloader.preload(wallet, [:user, :account])
-
-    %{
-      object: "wallet",
-      socket_topic: "wallet:#{wallet.address}",
-      address: wallet.address,
-      name: wallet.name,
-      identifier: wallet.identifier,
-      metadata: wallet.metadata,
-      encrypted_metadata: wallet.encrypted_metadata,
-      user_id: Assoc.get(wallet, [:user, :id]),
-      user: UserSerializer.serialize(wallet.user),
-      account_id: Assoc.get(wallet, [:account, :id]),
-      account: AccountSerializer.serialize(wallet.account),
-      balances: nil,
-      enabled: wallet.enabled,
-      created_at: DateFormatter.to_iso8601(wallet.inserted_at),
-      updated_at: DateFormatter.to_iso8601(wallet.updated_at)
-    }
+    wallet
+    |> Preloader.preload([:user, :account])
+    |> do_serialize(nil)
   end
 
   def serialize_without_balances(_), do: nil
 
+  defp get_serialized_balances(wallet) do
+    wallet
+    |> Map.get(:balances)
+    |> case do
+      nil ->
+        {:ok, wallet} = BalanceLoader.add_balances(wallet)
+        serialize_balances(wallet.balances)
+
+      _ ->
+        wallet
+    end
+  end
+
+  defp serialize_balances(nil), do: nil
+
   defp serialize_balances(balances) do
     Enum.map(balances, &BalanceSerializer.serialize/1)
+  end
+
+  defp authorize(action, actor, data) do
+    WalletPolicy.authorize(action, actor, data)
   end
 end
