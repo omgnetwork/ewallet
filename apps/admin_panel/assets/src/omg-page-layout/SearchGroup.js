@@ -4,8 +4,10 @@ import styled from 'styled-components'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
+
 import clickOutside from '../enhancer/clickOutside'
 import { Icon, Input } from '../omg-uikit'
+
 const SearchGroupContainer = styled.form`
   display: inline-block;
   vertical-align: middle;
@@ -46,7 +48,8 @@ const enhance = compose(
 class SearchGroup extends PureComponent {
   static propTypes = {
     location: PropTypes.object,
-    history: PropTypes.object
+    history: PropTypes.object,
+    debounced: PropTypes.number
   }
   state = {
     searching: false
@@ -86,6 +89,14 @@ class SearchGroup extends PureComponent {
     }
     this.props.history.push({ search: queryString.stringify(search) })
   }
+
+  debouncedSearch = _.debounce(this.onSearch, this.props.debounced);
+  handleOnChange = (e) => {
+    e.persist()
+    if (this.props.debounced) {
+      this.debouncedSearch(e)
+    }
+  }
   registerRef = input => {
     this.input = input
   }
@@ -104,6 +115,7 @@ class SearchGroup extends PureComponent {
           search={this.state.searching}
           registerRef={this.registerRef}
           onPressEscape={this.handleClickOutside}
+          onChange={this.handleOnChange}
           defaultValue={queryString.parse(this.props.location.search).search}
           suffix={
             <CloseIconInputContainer open={this.state.searching} onClick={this.onClickRemoveSearch}>
