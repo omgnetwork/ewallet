@@ -40,6 +40,7 @@ const Form = styled.form`
     background-color: ${props => props.theme.colors.S300};
     display: inline-block;
     margin-top: 40px;
+    border-radius: 3px;
   }
 `
 const InputLabel = styled.div`
@@ -72,13 +73,41 @@ const Error = styled.div`
 
 const CalculationContainer = styled.div`
   margin-top: 20px;
-  height: ${props => props.show ? 40 : 0}px;
+  height: ${props => props.show ? 100 : 0}px;
   opacity: ${props => props.show ? 1 : 0};
   transition: all 300ms ease-in-out;
+  color: ${props => props.theme.colors.B100};
+
+  #calculation-title {
+    padding-bottom: 10px;
+  }
+
+  #calculation-disclaimer {
+    padding-bottom: 10px;
+    font-size: 0.8em;
+  }
+`
+
+const RateContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 10px;
+
+  div {
+    padding: 5px 10px;
+    background-color: ${props => props.theme.colors.S300};
+    color: ${props => props.theme.colors.B300};
+    display: inline-block;
+    border-radius: 3px;
+
+    :first-child {
+      margin-right: 5px;
+    }
+  }
 `
 
 const BackRateContainer = styled.div`
-  opacity: ${props => props.disabled ? 0.2 : 1};
+  opacity: ${props => props.disabled ? 0 : 1};
   transition: opacity 0.2s ease-in-out;
 `
 
@@ -114,8 +143,10 @@ class CreateExchangeRateModal extends Component {
     onlyOneWayExchange: false,
     fromTokenSearch: '',
     fromTokenRate: '',
+    fromTokenSymbol: '',
     toTokenRate: '',
     toTokenSearch: '',
+    toTokenSymbol: '',
   }
 
   onChangeName = e => {
@@ -125,10 +156,18 @@ class CreateExchangeRateModal extends Component {
     this.setState({ [`${type}Rate`]: e.target.value })
   }
   onChangeSearchToken = type => e => {
-    this.setState({ [`${type}Search`]: e.target.value, [`${type}Selected`]: null })
+    this.setState({ 
+      [`${type}Search`]: e.target.value,
+      [`${type}Selected`]: '',
+      [`${type}Symbol`]: e.target.value,
+    })
   }
   onSelectTokenSelect = type => token => {
-    this.setState({ [`${type}Search`]: token.name, [`${type}Selected`]: token })
+    this.setState({ 
+      [`${type}Search`]: token.name,
+      [`${type}Selected`]: token,
+      [`${type}Symbol`]: token.symbol
+    })
   }
   onClickOneWayExchange = e => {
     this.setState(oldState => ({ onlyOneWayExchange: !oldState.onlyOneWayExchange }))
@@ -169,17 +208,37 @@ class CreateExchangeRateModal extends Component {
       return
     }
 
-    const forwardRate = _.round(this.state.toTokenRate / this.state.fromTokenRate, 4)
-    const backRate = _.round(1 / forwardRate, 4)
+    const {
+      toTokenRate,
+      toTokenSymbol,
+      fromTokenRate,
+      fromTokenSymbol,
+      onlyOneWayExchange 
+    } = this.state
+
+    const forwardRate = _.round(toTokenRate / fromTokenRate, 3)
+    const backRate = _.round(1 / forwardRate, 3)
 
     return (
       <>
-        <div>
-          {`1 ${this.state.fromTokenSearch} : ${forwardRate} ${this.state.toTokenSearch}`}
+        <div id='calculation-title'>Exchange Pair</div>
+
+        <RateContainer>
+          <div>
+            {`1 ${fromTokenSymbol} / ${forwardRate} ${toTokenSymbol}`}
+          </div>
+          <BackRateContainer disabled={onlyOneWayExchange}>
+            {`1 ${toTokenSymbol} / ${backRate} ${fromTokenSymbol}`}
+          </BackRateContainer>
+        </RateContainer>
+
+        <div id='calculation-disclaimer'>
+          {
+            onlyOneWayExchange
+              ? `*${fromTokenSymbol} can only be exchanged for ${toTokenSymbol} but the reverse exchange will not be possible.`
+              : `*${fromTokenSymbol} can be exchanged for ${toTokenSymbol} and vice versa.`
+          }
         </div>
-        <BackRateContainer disabled={this.state.onlyOneWayExchange}>
-          {`1 ${this.state.toTokenSearch} : ${backRate} ${this.state.fromTokenSearch}`}
-        </BackRateContainer>
       </>
     )
   }
@@ -217,6 +276,7 @@ class CreateExchangeRateModal extends Component {
                       onChange={this.onChangeRate('fromToken')}
                       type='amount'
                       normalPlaceholder={0}
+                      suffix={this.state.fromTokenSymbol}
                     />
                   </div>
                 </RateInputContainer>
@@ -254,6 +314,7 @@ class CreateExchangeRateModal extends Component {
                       type='amount'
                       step='any'
                       normalPlaceholder={0}
+                      suffix={this.state.toTokenSymbol}
                     />
                   </div>
                 </RateInputContainer>
