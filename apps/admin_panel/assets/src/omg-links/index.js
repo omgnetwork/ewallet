@@ -13,13 +13,17 @@ export class LinkWithAccount extends Component {
 
   createPathWithAccount () {
     const props = {}
-    const to =
-      typeof this.props.to === 'object'
-        ? path.join(
-            `/${this.props.match.params.accountId}`,
-            _.get(this.props, 'to.pathname', this.props.location.pathname)
-          )
-        : path.join(`/${this.props.match.params.accountId}`, this.props.to)
+
+    const { accountId } = this.props.match.params
+    const to = typeof this.props.to === 'object'
+      ? path.join(
+          `/${accountId}`,
+          _.get(this.props, 'to.pathname', this.props.location.pathname)
+        )
+      : accountId 
+        ? path.join(`/${accountId}`, this.props.to)
+        : this.props.to
+
     const search = typeof this.props.to === 'object' ? _.get(this.props, 'to.search') : undefined
     if (to) Object.assign(props, { pathname: to })
     if (search) Object.assign(props, { search })
