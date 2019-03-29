@@ -71,7 +71,8 @@ defmodule EWallet.ReleaseTasks.Config do
         :init.stop()
 
       {:error, :setting_not_found} ->
-        CLI.error("Error: `#{key}` is not a valid settings.")
+        CLI.error("Error: `#{key}` is not a valid settings." <>
+          " Please check that the given settings name is correct and settings have been seeded.")
         :init.stop(1)
 
       {:error, changeset} ->
@@ -89,18 +90,21 @@ defmodule EWallet.ReleaseTasks.Config do
   end
 
   defp do_set_config(key, value) do
-    setting = Config.get_setting(key)
-    existing = setting.value
+    case Config.get_setting(key) do
+      nil ->
+        {:error, :setting_not_found}
 
-    case cast_env(value, setting.type) do
-      ^existing ->
-        {:unchanged, existing}
+      %{value: existing, type: type} ->
+        case cast_env(value, type) do
+          ^existing ->
+            {:unchanged, existing}
 
-      casted_value ->
-        # The GenServer will return {:ok, result}, where the result is the actual
-        # {:ok, _} | {:error, _} of the operation, so we need to return only the result.
-        {:ok, result} = Config.update(%{key => casted_value, :originator => %CLIUser{}})
-        Enum.find_value(result, fn {^key, v} -> v end)
+          casted_value ->
+            # The GenServer will return {:ok, result}, where the result is the actual
+            # {:ok, _} | {:error, _} of the operation, so we need to return only the result.
+            {:ok, result} = Config.update(%{key => casted_value, :originator => %CLIUser{}})
+            Enum.find_value(result, fn {^key, v} -> v end)
+        end
     end
   end
 
