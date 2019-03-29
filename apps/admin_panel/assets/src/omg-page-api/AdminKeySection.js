@@ -9,7 +9,7 @@ import ConfirmationModal from '../omg-confirmation-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { createApiKey } from '../omg-api-keys/action'
-import { createAccessKey, updateAccessKey } from '../omg-access-key/action'
+import { createAccessKey, updateAccessKey, downloadKey } from '../omg-access-key/action'
 import CreateAdminKeyModal from '../omg-create-admin-key-modal'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
@@ -134,7 +134,7 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { createApiKey, createAccessKey, updateAccessKey }
+    { createApiKey, createAccessKey, updateAccessKey, downloadKey }
   )
 )
 class ApiKeyPage extends Component {
@@ -147,7 +147,8 @@ class ApiKeyPage extends Component {
     registerFetch: PropTypes.func,
     onRequestClose: PropTypes.func,
     columnsAdminKeys: PropTypes.array,
-    search: PropTypes.string
+    search: PropTypes.string,
+    downloadKey: PropTypes.func
   }
 
   static defaultProps = {
@@ -186,6 +187,12 @@ class ApiKeyPage extends Component {
   }
   onClickAccessKeySwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateAccessKey({ id, expired })
+  }
+  onClickDownloadKey = e => {
+    this.props.downloadKey({
+      accessKey: this.state.accessKey,
+      secretKey: this.state.secretKey
+    })
   }
 
   rowAdminKeyRenderer = fetch => (key, data, rows) => {
@@ -247,6 +254,11 @@ class ApiKeyPage extends Component {
             <input readOnly value={this.state.secretKey} spellCheck='false' />
             <Copy data={this.state.secretKey} />
           </InputContainer>
+          <div
+            onClick={this.onClickDownloadKey}
+          >
+            download
+          </div>
         </ConfirmCreateKeyContainer>
       </ConfirmationModal>
     )
