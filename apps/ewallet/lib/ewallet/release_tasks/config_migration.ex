@@ -125,7 +125,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
 
     case cast_env(value, setting.type) do
       ^existing -> {:unchanged, existing}
-      casted -> Config.update_one(setting_name, %{value: casted, originator: %CLIUser{}})
+      casted_value -> Config.update(%{setting_name: casted_value, originator: %CLIUser{}})
     end
   end
 

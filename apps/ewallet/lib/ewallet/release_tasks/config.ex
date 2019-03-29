@@ -94,7 +94,7 @@ defmodule EWallet.ReleaseTasks.Config do
 
     case cast_env(value, setting.type) do
       ^existing -> {:unchanged, existing}
-      casted -> Config.update_one(key, %{value: casted, originator: %CLIUser{}})
+      casted_value -> Config.update(%{key: casted_value, originator: %CLIUser{}})
     end
   end
 
