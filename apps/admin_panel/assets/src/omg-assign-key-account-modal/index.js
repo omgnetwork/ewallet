@@ -117,7 +117,7 @@ function AssignKeyAccount (props) {
             render={({ data: adminKeys }) => {
               return (
                 <StyledSelect
-                  normalPlaceholder='Account ( optional )'
+                  normalPlaceholder='Access Key'
                   onChange={e => setAdminKeyInput(e.target.value)}
                   value={adminKey}
                   onSelectItem={item => onSelectAccount(item.key)}
@@ -132,9 +132,9 @@ function AssignKeyAccount (props) {
           <InputLabel>Account Role</InputLabel>
           <StyledSelect
             normalPlaceholder={'Account\'s Role'}
-            value={_.upperFirst(roleAccount)}
+            value={_.startCase(roleAccount)}
             onSelectItem={item => setRoleAccount(item.key)}
-            options={[{ key: 'viewer', value: 'Viewer' }, { key: 'admin', value: 'Admin' }]}
+            options={[{ key: 'admin', value: 'Admin' }, { key: 'viewer', value: 'Viewer' } ]}
           />
           <CreateAdminKeyButton
             styleType='primary'
@@ -156,7 +156,7 @@ function AssignKeyAccount (props) {
         shouldCloseOnOverlayClick={false}
         overlayClassName='dummy'
       >
-        {renderAssignKey()}}
+        {renderAssignKey()}
       </Modal>
     )
   )
