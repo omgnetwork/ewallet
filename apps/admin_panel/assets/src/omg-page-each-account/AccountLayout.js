@@ -39,9 +39,14 @@ const enhance = compose(
 )
 function AccountLayout (props) {
   const { accountId, type, id } = props.match.params
+
   useEffect(() => {
-    props.visitAccount(accountId)
-    props.subscribeToWebsocketByAccountId(accountId)
+    if (!_.isEmpty(props.account)) {
+      props.visitAccount(accountId)
+      props.subscribeToWebsocketByAccountId(accountId)
+    } else {
+      props.history.push('/')
+    }
   }, [accountId])
 
   return (
