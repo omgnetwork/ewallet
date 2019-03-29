@@ -100,15 +100,17 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   defp ask_confirmation({to_migrate, unchanged} = plan, true) do
     _ = CLI.info("The following settings will be populated into the database:\n")
 
-    _ =Enum.each(to_migrate, fn {setting_name, value} ->
-      CLI.info("  - #{setting_name}: \"#{value}\"")
-    end)
+    _ =
+      Enum.each(to_migrate, fn {setting_name, value} ->
+        CLI.info("  - #{setting_name}: \"#{value}\"")
+      end)
 
     _ = CLI.info("The following settings will be skipped:\n")
 
-    _ = Enum.each(unchanged, fn {setting_name, value} ->
-      CLI.info("  - #{setting_name}: \"#{value}\"")
-    end)
+    _ =
+      Enum.each(unchanged, fn {setting_name, value} ->
+        CLI.info("  - #{setting_name}: \"#{value}\"")
+      end)
 
     confirmed? = CLI.confirm?("\nAre you sure to migrate these settings to the database?")
 
@@ -127,38 +129,44 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   defp migrate({to_migrate, unchanged}) do
     _ = CLI.info("\nMigrating the settings to the database...\n")
 
-    _ = Enum.each(unchanged, fn {setting_name, value} ->
-      CLI.warn("  - Skipped: `#{setting_name}` is already #{inspect(value)}.")
-    end)
+    _ =
+      Enum.each(unchanged, fn {setting_name, value} ->
+        CLI.warn("  - Skipped: `#{setting_name}` is already #{inspect(value)}.")
+      end)
 
     {:ok, results} =
       to_migrate
       |> build_update_attrs()
       |> Config.update()
 
-    _ = Enum.each(results, fn
-      {setting_name, {:ok, setting}} ->
-        _ = CLI.success("  - Migrated: `#{setting_name}` is now #{inspect(setting.value)}.")
+    _ =
+      Enum.each(results, fn
+        {setting_name, {:ok, setting}} ->
+          _ = CLI.success("  - Migrated: `#{setting_name}` is now #{inspect(setting.value)}.")
 
-      {setting_name, {:error, changeset}} ->
-        error_message =
-          Enum.reduce(changeset.errors, "", fn {field, {message, _}}, acc ->
-            acc <> "`#{field}` #{message}. "
-          end)
+        {setting_name, {:error, changeset}} ->
+          error_message =
+            Enum.reduce(changeset.errors, "", fn {field, {message, _}}, acc ->
+              acc <> "`#{field}` #{message}. "
+            end)
 
-        _ = CLI.error(
-          "  - Error: setting `#{setting_name}` to #{inspect(Changeset.get_field(changeset, :value))}"
-          <> " returned #{error_message}"
-        )
-    end)
+          _ =
+            CLI.error(
+              "  - Error: setting `#{setting_name}` to #{
+                inspect(Changeset.get_field(changeset, :value))
+              }" <>
+                " returned #{error_message}"
+            )
+      end)
 
     _ = CLI.info("\nSettings migration completed. Please remove the environment variables.")
   end
 
   defp build_update_attrs(to_migrate) do
-    _ = Enum.reduce(to_migrate, [{:originator, %CLIUser{}}], fn {setting_name, value}, attrs ->
-      [{String.to_existing_atom(setting_name), value} | attrs]
-    end)
+    _ =
+      Enum.reduce(to_migrate, [{:originator, %CLIUser{}}], fn {setting_name, value}, attrs ->
+        [{String.to_existing_atom(setting_name), value} | attrs]
+      end)
   end
 
   # These cast_env/2 are private to this module because the only other place that

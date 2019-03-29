@@ -71,8 +71,11 @@ defmodule EWallet.ReleaseTasks.Config do
         :init.stop()
 
       {:error, :setting_not_found} ->
-        CLI.error("Error: `#{key}` is not a valid settings." <>
-          " Please check that the given settings name is correct and settings have been seeded.")
+        CLI.error(
+          "Error: `#{key}` is not a valid settings." <>
+            " Please check that the given settings name is correct and settings have been seeded."
+        )
+
         :init.stop(1)
 
       {:error, changeset} ->
