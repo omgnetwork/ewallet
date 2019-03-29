@@ -18,10 +18,11 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   environment variables into the database.
   """
   use EWallet.ReleaseTasks
-  alias EWallet.ReleaseTasks.CLIUser
   alias EWallet.CLI
+  alias EWallet.ReleaseTasks.CLIUser
   alias EWallet.Seeder.CLI, as: Seeder
-  alias EWalletConfig.Setting
+  alias EWalletConfig.Config
+  alias Utils.Helpers.Normalize
 
   @start_apps [:logger, :postgrex, :ecto_sql, :telemetry, :ewallet, :ewallet_db]
   @apps [:activity_logger, :ewallet_config]
@@ -91,18 +92,18 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   defp migrate(migration_plan) do
     CLI.info("\nMigrating the settings to the database...\n")
     migrate_each(migration_plan)
-    CLI.success("\nSettings migration completed. Please remove the environment variables.")
+    CLI.info("\nSettings migration completed. Please remove the environment variables.")
   end
 
   defp migrate_each([]), do: :noop
 
   defp migrate_each([{setting_name, value} | remaining]) do
     case do_migrate(setting_name, value) do
-      :unchanged ->
-        CLI.info("  - Setting `#{setting_name}` is already #{inspect(value)}... Skipped.")
+      {:ok, setting} ->
+        CLI.success("  - Migrated: `#{setting_name}` is now #{inspect(setting.value)}.")
 
-      {:ok, _} ->
-        CLI.info("  - Setting `#{setting_name}` to #{inspect(value)}... Done.")
+      {:unchanged, value} ->
+        CLI.warn("  - Skipped: `#{setting_name}` is already set to #{inspect(value)}.")
 
       {:error, changeset} ->
         error_message =
@@ -111,8 +112,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
           end)
 
         CLI.error(
-          "  - Setting `#{setting_name}` to #{inspect(value)}... Failed. #{error_message}",
-          :error
+          "  - Error: setting `#{setting_name}` to #{inspect(value)} returned #{error_message}"
         )
     end
 
@@ -120,9 +120,20 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   end
 
   defp do_migrate(setting_name, value) do
-    case Setting.get_value(setting_name) do
-      ^value -> :unchanged
-      _ -> Setting.update(setting_name, %{value: value, originator: %CLIUser{}})
+    setting = Config.get_setting(setting_name)
+    existing = setting.value
+
+    case cast_env(value, setting.type) do
+      ^existing -> {:unchanged, existing}
+      casted -> Config.update_one(setting_name, %{value: casted, originator: %CLIUser{}})
     end
   end
+
+  # These cast_env/2 are private to this module because the only other place that
+  # needs to convert ENV strings by config type is its sibling `Config` release task.
+  defp cast_env(value, "string"), do: value
+  defp cast_env(value, "integer"), do: Normalize.to_integer(value)
+  defp cast_env(value, "unsigned_integer"), do: Normalize.to_integer(value)
+  defp cast_env(value, "boolean"), do: Normalize.to_boolean(value)
+  defp cast_env(value, "array"), do: Normalize.to_strings(value)
 end
