@@ -132,6 +132,7 @@ class CreateExchangeRateModal extends Component {
       return {
         fromTokenSelected: props.fromTokenPrefill,
         fromTokenSearch: props.fromTokenPrefill.name,
+        fromTokenSymbol: props.fromTokenPrefill.symbol,
         fromTokenRate: 1,
         fromTokenId: props.fromTokenId
       }
