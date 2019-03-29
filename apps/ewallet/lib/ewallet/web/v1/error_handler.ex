@@ -396,6 +396,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "setting:not_found",
       description: "There is no setting corresponding to the provided key."
     },
+    missing_filter_param: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. Missing one or more filter parameters."
+    },
     comparator_not_supported: %{
       code: "client:invalid_parameter",
       template:
@@ -483,6 +487,15 @@ defmodule EWallet.Web.V1.ErrorHandler do
       }
 
       build(code: error.code, desc: build_template(data, error.template))
+    end)
+  end
+
+  @doc """
+  Handles response of missing_filter_param.
+  """
+  def build_error(:missing_filter_param = code, params, supported_errors) do
+    run_if_valid_error(code, supported_errors, fn error ->
+      build(code: error.code, desc: error.description, msgs: params)
     end)
   end
 
@@ -579,7 +592,11 @@ defmodule EWallet.Web.V1.ErrorHandler do
   end
 
   defp template_replace(template, pattern, nil) do
-    String.replace(template, "%{#{pattern}}", "nil")
+    template_replace(template, pattern, "nil")
+  end
+
+  defp template_replace(template, pattern, replacement) when not is_binary(replacement) do
+    template_replace(template, pattern, inspect(replacement))
   end
 
   defp template_replace(template, pattern, replacement) do

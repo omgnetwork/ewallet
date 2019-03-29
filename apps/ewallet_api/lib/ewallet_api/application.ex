@@ -17,17 +17,16 @@ defmodule EWalletAPI.Application do
   EWalletAPI's startup and shutdown functionalities
   """
   use Application
-  alias EWallet.Web.Config
   alias EWalletAPI.Endpoint
+  alias EWalletConfig.Config
 
   def start(_type, _args) do
     import Supervisor.Spec
     DeferredConfig.populate(:ewallet_api)
 
     settings = Application.get_env(:ewallet_api, :settings)
-    EWalletConfig.Config.register_and_load(:ewallet_api, settings)
+    Config.register_and_load(:ewallet_api, settings)
 
-    Config.configure_cors_plug()
     EWallet.configure_socket_endpoints([EWalletAPI.V1.Endpoint])
 
     # Always run EWalletAPI.Endpoint and EWalletAPI.V1.Endpoint in supervision tree
