@@ -120,7 +120,7 @@ function CreateAdminKeyModal (props) {
           <InputLabel>Global Role</InputLabel>
           <StyledSelect
             normalPlaceholder='Role ( optional )'
-            value={_.upperFirst(role)}
+            value={_.startCase(role)}
             onSelectItem={item => onSelectRole(item.key)}
             options={[
               { key: 'super_admin', value: 'Super Admin' },
@@ -128,7 +128,7 @@ function CreateAdminKeyModal (props) {
               { key: 'viewer', value: 'Viewer' },
               { key: 'none', value: 'None' }
             ]}
-            optionRenderer={value => _.upperFirst(value)}
+            optionRenderer={value => _.startCase(value)}
           />
           <CreateAdminKeyButton
             styleType='primary'
