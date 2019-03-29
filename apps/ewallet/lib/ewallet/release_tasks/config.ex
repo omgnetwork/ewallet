@@ -99,16 +99,17 @@ defmodule EWallet.ReleaseTasks.Config do
 
       %{value: existing, type: type} ->
         case cast_env(value, type) do
-          ^existing ->
-            {:unchanged, existing}
-
-          casted_value ->
-            # The GenServer will return {:ok, result}, where the result is the actual
-            # {:ok, _} | {:error, _} of the operation, so we need to return only the result.
-            {:ok, result} = Config.update(%{key => casted_value, :originator => %CLIUser{}})
-            Enum.find_value(result, fn {^key, v} -> v end)
+          ^existing -> {:unchanged, existing}
+          casted_value -> do_update(key, value)
         end
     end
+  end
+
+  defp do_update(key, value) do
+    # The GenServer will return {:ok, result}, where the result is the actual
+    # {:ok, _} | {:error, _} of the operation, so we need to return only the result.
+    {:ok, result} = Config.update(%{key => value, :originator => %CLIUser{}})
+    Enum.find_value(result, fn {^key, v} -> v end)
   end
 
   # These cast_env/2 are private to this module because the only other place that
