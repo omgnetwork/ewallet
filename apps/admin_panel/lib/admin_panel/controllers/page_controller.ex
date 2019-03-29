@@ -24,12 +24,19 @@ defmodule AdminPanel.PageController do
   please make sure that the front-end assets have been built.
   """
 
-  def index(conn, _params) do
+  def admin_index(conn, _params) do
+    index("admin", conn)
+  end
+  
+  def client_index(conn, _params) do
+    index("client", conn)
+  end
+
+  defp index(type, conn) do
     content =
-      conn
-      |> index_file_path()
+      type
+      |> index_file_path(conn)
       |> File.read!()
-      |> inject_api_key()
 
     conn
     |> put_resp_header("content-type", "text/html; charset=utf-8")
@@ -41,41 +48,13 @@ defmodule AdminPanel.PageController do
       |> Conn.send_resp(:not_found, @not_found_message)
   end
 
-  defp index_file_path(%{private: %{override_dist_path: dist_path}}) do
-    Path.join(dist_path, "index.html")
+  defp index_file_path(type, %{private: %{override_dist_path: dist_path}}) do
+    Path.join(dist_path, "#{type}_index.html")
   end
 
-  defp index_file_path(_conn) do
+  defp index_file_path(type, _conn) do
     :admin_panel
     |> Application.get_env(:dist_path)
-    |> Path.join("index.html")
+    |> Path.join("#{type}_index.html")
   end
-
-  defp inject_api_key(content) do
-    String.replace(content, ~s("app"></div>), api_key_script(), insert_replaced: 0)
-  end
-
-  defp api_key_script do
-    APIKey
-    |> exclude_deleted()
-    |> limit(1)
-    |> Repo.one()
-    |> api_key_script()
-  end
-
-  defp api_key_script(%APIKey{} = api_key) do
-    """
-    <script>
-      var adminConfig = {};
-
-      adminConfig.apiKeyId = "#{api_key.id}";
-      adminConfig.apiKey = "#{api_key.key}";
-
-      window.adminConfig = adminConfig;
-    </script>
-    """
-  end
-
-  # For troubleshooting purposes
-  defp api_key_script(_), do: "<!-- No API key found -->"
 end
