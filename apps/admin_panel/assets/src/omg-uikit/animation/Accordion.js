@@ -2,33 +2,34 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { TransitionMotion, spring } from 'react-motion'
 
-const SlideInRight = ({ children: child, path, width }) => {
+const Accordion = ({ children: child, path, height }) => {
 
-  const springConfig = {stiffness: 150, damping: 20}
+  const springConfig = {stiffness: 200, damping: 25}
 
-  const willEnter = () => ({
-    xPosition: width
+	const willEnter = () => ({
+    height: 0
   })
   
   const willLeave = () => ({
-    xPosition: spring(width, springConfig)
+    height: spring(0, springConfig)
   })
   
-  const finalStyles = () => ({
-    xPosition: spring(0, springConfig),
-  })
-
-  const getStyles = () => {
+	const getStyles = () => {
     return child
       ? [{
           key: path,
-          style: finalStyles(),
-          data: {child}
+          style: {
+            height: spring(
+              height,
+              springConfig
+            ),
+          },
+          data: { child }
         }]
       : []
-  }
+	}
 
-  return (
+	return (
     <TransitionMotion
       willEnter={willEnter}
       willLeave={willLeave}
@@ -41,7 +42,8 @@ const SlideInRight = ({ children: child, path, width }) => {
               <div
                 key={item.key}
                 style={{
-                  transform: `translateX(${item.style.xPosition}px)`,
+                  height: `${item.style.height}px`,
+                  overflow: 'hidden',
                 }}
               >
                 {item.data.child}
@@ -54,9 +56,9 @@ const SlideInRight = ({ children: child, path, width }) => {
   )
 }
 
-SlideInRight.propTypes = {
+Accordion.propTypes = {
   path: PropTypes.string.isRequired,
-  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
 }
 
-export default SlideInRight
+export default Accordion

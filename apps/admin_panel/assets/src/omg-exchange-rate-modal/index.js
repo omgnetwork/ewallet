@@ -236,7 +236,7 @@ class CreateExchangeRateModal extends Component {
         <div id='calculation-disclaimer'>
           {
             onlyOneWayExchange
-              ? `*${fromTokenSymbol} can only be exchanged for ${toTokenSymbol} but the reverse exchange will not be possible.`
+              ? `*${fromTokenSymbol} can only be exchanged for ${toTokenSymbol}, and the reverse exchange will not be possible.`
               : `*${fromTokenSymbol} can be exchanged for ${toTokenSymbol} and vice versa.`
           }
         </div>
