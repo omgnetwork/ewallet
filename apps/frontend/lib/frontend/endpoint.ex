@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminPanel.Endpoint do
-  use Phoenix.Endpoint, otp_app: :admin_panel
+defmodule Frontend.Endpoint do
+  use Phoenix.Endpoint, otp_app: :frontend
 
   # Serve at "/admin" the static files from "priv/static" directory.
   #
@@ -22,7 +22,7 @@ defmodule AdminPanel.Endpoint do
   plug(
     Plug.Static,
     at: "/admin",
-    from: {:admin_panel, "priv/static"},
+    from: {:frontend, "priv/static"},
     gzip: true
   )
 
@@ -45,5 +45,5 @@ defmodule AdminPanel.Endpoint do
   plug(Plug.MethodOverride)
   plug(Plug.Head)
 
-  plug(AdminPanel.Router)
+  plug(Frontend.Router)
 end

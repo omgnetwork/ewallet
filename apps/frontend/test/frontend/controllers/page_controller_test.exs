@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminPanel.PageControllerTest do
+defmodule Frontend.PageControllerTest do
   use ExUnit.Case, async: true
   use Phoenix.ConnTest
   alias Ecto.Adapters.SQL.Sandbox
@@ -20,7 +20,7 @@ defmodule AdminPanel.PageControllerTest do
   alias ActivityLogger.System
 
   # Attributes required by Phoenix.ConnTest
-  @endpoint AdminPanel.Endpoint
+  @endpoint Frontend.Endpoint
 
   setup do
     Sandbox.checkout(EWalletDB.Repo)

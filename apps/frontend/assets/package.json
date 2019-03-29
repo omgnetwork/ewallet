@@ -1,7 +1,7 @@
 {
-  "name": "admin-panel",
+  "name": "frontend",
   "version": "0.1.0",
-  "description": "The OmiseGO Wallet admin panel for a provider to manage staff, users, roles and permissions, API access, tokens, transactions, etc.",
+  "description": "The OmiseGO frontend that contains an admin panel for a provider to manage staff, users, roles and permissions, API access, tokens, transactions, etc.",
   "main": "index.js",
   "scripts": {
     "dev": "webpack-dev-server --config webpack/webpack.dev.config.js --hot --progress",

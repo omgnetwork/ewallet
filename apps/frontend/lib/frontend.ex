@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminPanel do
+defmodule Frontend do
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, views, channels and so on.
 
   This can be used in your application as:
 
-      use AdminPanel, :controller
-      use AdminPanel, :view
+      use Frontend, :controller
+      use Frontend, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
@@ -33,22 +33,22 @@ defmodule AdminPanel do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: AdminPanel
+      use Phoenix.Controller, namespace: Frontend
       import Plug.Conn
-      import AdminPanel.Router.Helpers
+      import Frontend.Router.Helpers
     end
   end
 
   def view do
     quote do
       use Phoenix.View,
-        root: "lib/admin_panel/templates",
-        namespace: AdminPanel
+        root: "lib/frontend/templates",
+        namespace: Frontend
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 2, view_module: 1]
 
-      import AdminPanel.Router.Helpers
+      import Frontend.Router.Helpers
     end
   end
 

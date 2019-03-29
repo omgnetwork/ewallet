@@ -12,20 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminPanel.ErrorView do
-  use AdminPanel, :view
+defmodule Frontend.Router do
+  use Frontend, :router
 
-  def render("404.html", _assigns) do
-    "Page not found"
+  pipeline :browser do
+    plug(:accepts, ["html"])
+    plug(:put_secure_browser_headers)
   end
 
-  def render("500.html", _assigns) do
-    "Internal server error"
-  end
-
-  # In case no render clause matches or no
-  # template is found, let's render it as 500
-  def template_not_found(_template, assigns) do
-    render("500.html", assigns)
+  scope "/admin", Frontend do
+    pipe_through(:browser)
+    # All requests serve from the same index page
+    match(:*, "/*path", PageController, :index)
   end
 end
