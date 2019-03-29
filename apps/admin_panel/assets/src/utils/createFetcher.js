@@ -60,7 +60,6 @@ export const createFetcher = (entity, reducer, selectors) => {
       }
       componentDidUpdate = async nextProps => {
         if (this.props.cacheKey !== nextProps.cacheKey) {
-          console.log(this.props.cacheKey, nextProps.cacheKey)
           this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.PENDING })
           await this.fetchDebounce()
         }
