@@ -55,55 +55,91 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   end
 
   defp build_migration_plan(mapping) do
-    Enum.reduce(mapping, [], fn {env_name, setting_name}, accumulator ->
-      case System.get_env(env_name) do
-        nil -> accumulator
-        value -> [{setting_name, value} | accumulator]
+    # Reduce the mapping into a list of migrations to be run and a list of unchanged key-values
+    Enum.reduce(mapping, {[], []}, fn {env_name, setting_name}, {to_migrate, unchanged} ->
+      case build_migration(setting_name, System.get_env(env_name)) do
+        {:ok, value} ->
+          {[{setting_name, value} | to_migrate], unchanged}
+
+        {:unchanged, value} ->
+          {to_migrate, [{setting_name, value} | unchanged]}
+
+        nil ->
+          {to_migrate, unchanged}
       end
     end)
   end
 
-  defp ask_confirmation([], _) do
+  # Skips if there's no value for the given setting.
+  defp build_migration(_, nil), do: nil
+
+  # Return the value only if the value is different from what's already set.
+  defp build_migration(setting_name, value) do
+    case Config.get_setting(setting_name) do
+      nil ->
+        nil
+
+      setting ->
+        existing_value = setting.value
+
+        # Determines if the normalized settings value is the same as in database
+        case cast_env(value, setting.type) do
+          ^existing_value -> {:unchanged, existing_value}
+          casted_value -> {:ok, casted_value}
+        end
+    end
+  end
+
+  defp ask_confirmation({[], []}, _) do
     _ = CLI.info("No settings could be found in the environment variables.")
     :aborted
   end
 
-  defp ask_confirmation(migration_plan, true) do
+  defp ask_confirmation({to_migrate, unchanged} = plan, true) do
     CLI.info("The following settings will be populated into the database:\n")
 
-    Enum.each(migration_plan, fn {setting_name, value} ->
+    Enum.each(to_migrate, fn {setting_name, value} ->
+      CLI.info("  - #{setting_name}: \"#{value}\"")
+    end)
+
+    CLI.info("The following settings will be skipped:\n")
+
+    Enum.each(unchanged, fn {setting_name, value} ->
       CLI.info("  - #{setting_name}: \"#{value}\"")
     end)
 
     confirmed? = CLI.confirm?("\nAre you sure to migrate these settings to the database?")
 
     case confirmed? do
-      true -> migration_plan
+      true -> plan
       false -> :aborted
     end
   end
 
-  defp ask_confirmation(migration_plan, false), do: migration_plan
+  defp ask_confirmation(plan, false), do: plan
 
   defp migrate(:aborted) do
     CLI.info("Settings migration aborted.")
   end
 
-  defp migrate(migration_plan) do
+  defp migrate({to_migrate, unchanged}) do
     CLI.info("\nMigrating the settings to the database...\n")
-    migrate_each(migration_plan)
+
+    to_migrate
+    |> build_update_attrs()
+    |> Config.update()
+
     CLI.info("\nSettings migration completed. Please remove the environment variables.")
   end
 
-  defp migrate_each([]), do: :noop
+  defp build_update_attrs(to_migrate) do
 
-  defp migrate_each([{key, value} | remaining]) do
+  end
+
+  defp migrate_all([{key, value} | remaining]) do
     case do_migrate(key, value) do
       {:ok, setting} ->
         CLI.success("  - Migrated: `#{key}` is now #{inspect(setting.value)}.")
-
-      {:unchanged, value} ->
-        CLI.warn("  - Skipped: `#{key}` is already set to #{inspect(value)}.")
 
       {:error, :setting_not_found} ->
         CLI.error("Error: `#{key}` is not a valid settings." <>
@@ -124,22 +160,10 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   end
 
   defp do_migrate(key, value) do
-    case Config.get_setting(key) do
-      nil ->
-        {:error, :setting_not_found}
-
-      %{value: existing, type: type} ->
-        case cast_env(value, type) do
-          ^existing ->
-            {:unchanged, existing}
-
-          casted_value ->
-            # The GenServer will return {:ok, result}, where the result is the actual
-            # {:ok, _} | {:error, _} of the operation, so we need to return only the result.
-            {:ok, result} = Config.update(%{key => casted_value, :originator => %CLIUser{}})
-            Enum.find_value(result, fn {^key, v} -> v end)
-        end
-    end
+    # The GenServer will return {:ok, result}, where the result is the actual
+    # {:ok, _} | {:error, _} of the operation, so we need to return only the result.
+    {:ok, result} = Config.update(%{key => casted_value, :originator => %CLIUser{}})
+    Enum.find_value(result, fn {^key, v} -> v end)
   end
 
   # These cast_env/2 are private to this module because the only other place that
