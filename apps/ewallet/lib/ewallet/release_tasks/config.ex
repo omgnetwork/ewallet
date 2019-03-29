@@ -93,8 +93,14 @@ defmodule EWallet.ReleaseTasks.Config do
     existing = setting.value
 
     case cast_env(value, setting.type) do
-      ^existing -> {:unchanged, existing}
-      casted_value -> Config.update(%{key: casted_value, originator: %CLIUser{}})
+      ^existing ->
+        {:unchanged, existing}
+
+      casted_value ->
+        # The GenServer will return {:ok, result}, where the result is the actual
+        # {:ok, _} | {:error, _} of the operation, so we need to return only the result.
+        {:ok, result} = Config.update(%{key => casted_value, :originator => %CLIUser{}})
+        Enum.find_value(result, fn {^key, v} -> v end)
     end
   end
 
