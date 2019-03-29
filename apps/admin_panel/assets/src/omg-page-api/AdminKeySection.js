@@ -73,6 +73,9 @@ const ConfirmCreateKeyContainer = styled.div`
   font-size: 16px;
   padding: 30px;
   max-width: 500px;
+  a:hover{
+    text-decoration: underline;
+  }
   
   h4 {
     padding-bottom: 10px;
@@ -255,7 +258,7 @@ class ApiKeyPage extends Component {
             <input readOnly value={this.state.secretKey} spellCheck='false' />
             <Copy data={this.state.secretKey} />
           </InputContainer>
-          <a onClick={this.onClickDownloadKey}>Download</a>
+          <a onClick={this.onClickDownloadKey}>Download a CSV backup of your keys</a>
         </ConfirmCreateKeyContainer>
       </ConfirmationModal>
     )
