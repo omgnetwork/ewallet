@@ -125,45 +125,30 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   defp migrate({to_migrate, unchanged}) do
     CLI.info("\nMigrating the settings to the database...\n")
 
-    to_migrate
-    |> build_update_attrs()
-    |> Config.update()
+    {:ok, results} = Config.update([{:originator, %CLIUser{}} | to_migrate])
 
-    CLI.info("\nSettings migration completed. Please remove the environment variables.")
-  end
+    Enum.each(results, fn
+      {setting_name, {:ok, setting}} ->
+        CLI.success("  - Migrated: `#{setting_name}` is now #{inspect(setting.value)}.")
 
-  defp build_update_attrs(to_migrate) do
-
-  end
-
-  defp migrate_all([{key, value} | remaining]) do
-    case do_migrate(key, value) do
-      {:ok, setting} ->
-        CLI.success("  - Migrated: `#{key}` is now #{inspect(setting.value)}.")
-
-      {:error, :setting_not_found} ->
-        CLI.error("Error: `#{key}` is not a valid settings." <>
-          " Please check that the given settings name is correct and settings have been seeded.")
-
-      {:error, changeset} ->
+      {setting_name, {:error, changeset}} ->
         error_message =
           Enum.reduce(changeset.errors, "", fn {field, {message, _}}, acc ->
             acc <> "`#{field}` #{message}. "
           end)
 
         CLI.error(
-          "  - Error: setting `#{key}` to #{inspect(value)} returned #{error_message}"
+          "  - Error: setting `#{setting_name}` to #{inspect(value)} returned #{error_message}"
         )
-    end
+    end)
 
-    migrate_each(remaining)
+    CLI.info("\nSettings migration completed. Please remove the environment variables.")
   end
 
-  defp do_migrate(key, value) do
-    # The GenServer will return {:ok, result}, where the result is the actual
-    # {:ok, _} | {:error, _} of the operation, so we need to return only the result.
-    {:ok, result} = Config.update(%{key => casted_value, :originator => %CLIUser{}})
-    Enum.find_value(result, fn {^key, v} -> v end)
+  # `to_migrate` is already a list of `{setting_name, value}` supported by `Config.update/2`,
+  # only need to add the originator.
+  defp build_update_attrs(to_migrate) do
+    [{:originator, %CLIUser{}} | to_migrate]
   end
 
   # These cast_env/2 are private to this module because the only other place that
