@@ -19,7 +19,7 @@ export const updateAccessKey = ({ id, expired }) =>
     service: () => accessKeyService.updateAccessKey({ id, expired })
   })
 
-export const getAccessKeys = ({ page, perPage, search, cacheKey }) =>
+export const getAccessKeys = ({ page, perPage, matchAll, matchAny, cacheKey }) =>
   createPaginationActionCreator({
     actionName: 'ACCESS_KEYS',
     action: 'REQUEST',
@@ -28,7 +28,8 @@ export const getAccessKeys = ({ page, perPage, search, cacheKey }) =>
         perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
-        search
+        matchAll,
+        matchAny
       }),
     cacheKey
   })

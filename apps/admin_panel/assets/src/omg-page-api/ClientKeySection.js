@@ -12,6 +12,7 @@ import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
 import Copy from '../omg-copy'
+import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
 const KeySection = styled.div`
   position: relative;
   p {
@@ -102,7 +103,8 @@ class ClientKeySection extends Component {
     updateApiKey: PropTypes.func,
     location: PropTypes.object,
     createClientKeyModalOpen: PropTypes.bool,
-    onRequestClose: PropTypes.func
+    onRequestClose: PropTypes.func,
+    search: PropTypes.string
   }
   state = {
     submitStatus: 'DEFAULT'
@@ -159,8 +161,10 @@ class ClientKeySection extends Component {
       <ApiKeysFetcher
         query={{
           page: queryString.parse(this.props.location.search)['api_key_page'],
-          perPage: 10
+          perPage: 10,
+          ...createSearchAdminKeyQuery(this.props.search)
         }}
+        {...this.props}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data
             .filter(key => !key.deleted_at)

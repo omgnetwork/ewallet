@@ -14,7 +14,7 @@ import CreateAdminKeyModal from '../omg-create-admin-key-modal'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import Copy from '../omg-copy'
-
+import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
 const KeySection = styled.div`
   position: relative;
   p {
@@ -55,9 +55,9 @@ const KeySection = styled.div`
     }
   }
   td:first-child div {
-      max-width: 20vw;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    max-width: 20vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   i[name='Copy'] {
     cursor: pointer;
@@ -146,7 +146,8 @@ class ApiKeyPage extends Component {
     fetcher: PropTypes.func,
     registerFetch: PropTypes.func,
     onRequestClose: PropTypes.func,
-    columnsAdminKeys: PropTypes.array
+    columnsAdminKeys: PropTypes.array,
+    search: PropTypes.string
   }
 
   static defaultProps = {
@@ -159,7 +160,6 @@ class ApiKeyPage extends Component {
       { key: 'created_at', title: 'CREATED AT' },
       { key: 'status', title: 'STATUS' }
     ]
-
   }
   state = {
     createAdminKeyModalOpen: false,
@@ -258,7 +258,8 @@ class ApiKeyPage extends Component {
       <Fetcher
         query={{
           page: queryString.parse(this.props.location.search)['access_key_page'],
-          perPage: 10
+          perPage: 10,
+          ...createSearchAdminKeyQuery(this.props.search)
         }}
         {...this.props}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
