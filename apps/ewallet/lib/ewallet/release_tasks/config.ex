@@ -100,7 +100,7 @@ defmodule EWallet.ReleaseTasks.Config do
       %{value: existing, type: type} ->
         case cast_env(value, type) do
           ^existing -> {:unchanged, existing}
-          casted_value -> do_update(key, value)
+          casted_value -> do_update(key, casted_value)
         end
     end
   end
