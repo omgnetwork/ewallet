@@ -28,7 +28,7 @@ const KeySection = styled.div`
     margin-bottom: 20px;
   }
   tr:hover {
-    td:nth-child(1) {
+    td:nth-child(2) {
       i {
         visibility: visible;
       }
@@ -37,8 +37,8 @@ const KeySection = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(1) {
-    width: 50%;
+  td:nth-child(2) {
+    width: 40%;
     border: none;
     position: relative;
     :before {
@@ -84,8 +84,8 @@ const KeyContainer = styled.div`
 `
 
 const columnsApiKey = [
-  { key: 'key', title: 'ACCESS KEY' },
   { key: 'name', title: 'NAME' },
+  { key: 'key', title: 'ACCESS KEY' },
   { key: 'created_at', title: 'CREATED AT' },
   { key: 'status', title: 'STATUS' }
 ]
@@ -138,13 +138,13 @@ class ClientKeySection extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /> <span>{data}</span> <Copy data={data} />
+            <span>{data}</span> <Copy data={data} />
           </KeyContainer>
         )
-      case 'user':
+      case 'name':
         return (
           <KeyContainer>
-            <Icon name='Profile' /> <span>{data}</span>
+            <Icon name='Key' /> <span>{data}</span>
           </KeyContainer>
         )
       case 'created_at':

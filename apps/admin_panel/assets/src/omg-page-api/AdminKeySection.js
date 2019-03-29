@@ -31,7 +31,7 @@ const KeySection = styled.div`
     margin-bottom: 20px;
   }
   tr:hover {
-    td:nth-child(1) {
+    td:nth-child(2) {
       i {
         visibility: visible;
       }
@@ -40,7 +40,7 @@ const KeySection = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(1) {
+  td:nth-child(2) {
     width: 50%;
     border: none;
     position: relative;
@@ -53,6 +53,11 @@ const KeySection = styled.div`
       width: calc(100% - 50px);
       border-bottom: 1px solid ${props => props.theme.colors.S200};
     }
+  }
+  td:first-child div {
+      max-width: 20vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
   }
   i[name='Copy'] {
     cursor: pointer;
@@ -124,13 +129,7 @@ const InputLabel = styled.div`
   font-size: 14px;
   color: ${props => props.theme.colors.B100};
 `
-const columnsAdminKeys = [
-  { key: 'key', title: 'ACCESS KEY' },
-  { key: 'name', title: 'NAME' },
-  { key: 'global_role', title: 'GLOBAL ROLE' },
-  { key: 'created_at', title: 'CREATED AT' },
-  { key: 'status', title: 'STATUS' }
-]
+
 const enhance = compose(
   withRouter,
   connect(
@@ -146,11 +145,21 @@ class ApiKeyPage extends Component {
     query: PropTypes.object,
     fetcher: PropTypes.func,
     registerFetch: PropTypes.func,
-    onRequestClose: PropTypes.func
+    onRequestClose: PropTypes.func,
+    columnsAdminKeys: PropTypes.object
   }
 
   static defaultProps = {
-    fetcher: AccessKeyFetcher
+    fetcher: AccessKeyFetcher,
+    columnsAdminKeys: [
+      { key: 'name', title: 'NAME' },
+      { key: 'key', title: 'ACCESS KEY' },
+
+      { key: 'global_role', title: 'GLOBAL ROLE' },
+      { key: 'created_at', title: 'CREATED AT' },
+      { key: 'status', title: 'STATUS' }
+    ]
+
   }
   state = {
     createAdminKeyModalOpen: false,
@@ -191,10 +200,17 @@ class ApiKeyPage extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /> <span>{data}</span> <Copy data={data} />
+            <span>{data}</span> <Copy data={data} />
+          </KeyContainer>
+        )
+      case 'name':
+        return (
+          <KeyContainer>
+            <Icon name='Key' /> <span>{data}</span>
           </KeyContainer>
         )
       case 'global_role':
+      case 'account_role':
         return _.startCase(data)
       case 'created_at':
         return moment(data).format()
@@ -254,7 +270,8 @@ class ApiKeyPage extends Component {
               created_at: key.created_at,
               status: key.expired,
               name: key.name || 'Not Provided',
-              global_role: key.global_role || 'none'
+              global_role: key.global_role || 'none',
+              account_role: key.account_role || 'none'
             }
           })
           return (
@@ -263,7 +280,7 @@ class ApiKeyPage extends Component {
                 loadingRowNumber={6}
                 rows={apiKeysRows}
                 rowRenderer={this.rowAdminKeyRenderer(fetch)}
-                columns={columnsAdminKeys}
+                columns={this.props.columnsAdminKeys}
                 loadingStatus={individualLoadingStatus}
                 navigation
                 isFirstPage={pagination.is_first_page}

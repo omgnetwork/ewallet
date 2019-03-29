@@ -3,13 +3,11 @@ import styled from 'styled-components'
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { connect } from 'react-redux'
-import AccountsFetcher from '../omg-account/accountsFetcher'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { createAccessKey } from '../omg-access-key/action'
 import { assignKey } from '../omg-account/action.js'
 import PropTypes from 'prop-types'
-import AccountSelectRow from './AccountSelectRow'
 const CreateAdminKeyModalContainer = styled.div`
   padding: 50px;
   width: 100vw;
@@ -125,9 +123,9 @@ function CreateAdminKeyModal (props) {
             value={_.upperFirst(role)}
             onSelectItem={item => onSelectRole(item.key)}
             options={[
-              { key: 'viewer', value: 'Viewer' },
-              { key: 'admin', value: 'Admin' },
               { key: 'super_admin', value: 'Super Admin' },
+              { key: 'admin', value: 'Admin' },
+              { key: 'viewer', value: 'Viewer' },
               { key: 'none', value: 'None' }
             ]}
             optionRenderer={value => _.upperFirst(value)}

@@ -96,8 +96,7 @@ function AssignKeyAccount (props) {
     })
     if (data) {
       setSubmitStatus('SUCCESS')
-      console.log(props)
-      props.onSubmitSuccess(data)
+      props.onSubmitSuccess()
       onRequestClose()
     } else {
       setSubmitStatus('FAILED')
