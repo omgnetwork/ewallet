@@ -18,6 +18,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   environment variables into the database.
   """
   use EWallet.ReleaseTasks
+  alias Ecto.Changeset
   alias EWallet.CLI
   alias EWallet.ReleaseTasks.CLIUser
   alias EWallet.Seeder.CLI, as: Seeder
@@ -32,8 +33,8 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   def run_skip_confirm, do: run(ask_confirm: false)
 
   def run(opts \\ []) do
-    Enum.each(@start_apps, &Application.ensure_all_started/1)
-    Enum.each(@apps, &ensure_app_started/1)
+    _ = Enum.each(@start_apps, &Application.ensure_all_started/1)
+    _ = Enum.each(@apps, &ensure_app_started/1)
 
     _ = Seeder.run([{:ewallet_config, :seeds_settings}], true)
 
@@ -41,17 +42,18 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
     # starts outputting again, makes it seem that the whole execution has ended while
     # we are only halfway through. The message below suggests the user to continue waiting
     # during that silent gap.
-    CLI.info("Starting the settings migration task...")
+    _ = CLI.info("Starting the settings migration task...")
 
     ask? = Keyword.get(opts, :ask_confirm, true)
 
-    :ewallet
-    |> Application.get_env(:env_migration_mapping)
-    |> build_migration_plan()
-    |> ask_confirmation(ask?)
-    |> migrate()
+    _ =
+      :ewallet
+      |> Application.get_env(:env_migration_mapping)
+      |> build_migration_plan()
+      |> ask_confirmation(ask?)
+      |> migrate()
 
-    :init.stop()
+    _ = :init.stop()
   end
 
   defp build_migration_plan(mapping) do
@@ -96,15 +98,15 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   end
 
   defp ask_confirmation({to_migrate, unchanged} = plan, true) do
-    CLI.info("The following settings will be populated into the database:\n")
+    _ = CLI.info("The following settings will be populated into the database:\n")
 
-    Enum.each(to_migrate, fn {setting_name, value} ->
+    _ =Enum.each(to_migrate, fn {setting_name, value} ->
       CLI.info("  - #{setting_name}: \"#{value}\"")
     end)
 
-    CLI.info("The following settings will be skipped:\n")
+    _ = CLI.info("The following settings will be skipped:\n")
 
-    Enum.each(unchanged, fn {setting_name, value} ->
+    _ = Enum.each(unchanged, fn {setting_name, value} ->
       CLI.info("  - #{setting_name}: \"#{value}\"")
     end)
 
@@ -119,17 +121,24 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
   defp ask_confirmation(plan, false), do: plan
 
   defp migrate(:aborted) do
-    CLI.info("Settings migration aborted.")
+    _ = CLI.info("Settings migration aborted.")
   end
 
   defp migrate({to_migrate, unchanged}) do
-    CLI.info("\nMigrating the settings to the database...\n")
+    _ = CLI.info("\nMigrating the settings to the database...\n")
 
-    {:ok, results} = Config.update([{:originator, %CLIUser{}} | to_migrate])
+    _ = Enum.each(unchanged, fn {setting_name, value} ->
+      CLI.warn("  - Skipped: `#{setting_name}` is already #{inspect(value)}.")
+    end)
 
-    Enum.each(results, fn
+    {:ok, results} =
+      to_migrate
+      |> build_update_attrs()
+      |> Config.update()
+
+    _ = Enum.each(results, fn
       {setting_name, {:ok, setting}} ->
-        CLI.success("  - Migrated: `#{setting_name}` is now #{inspect(setting.value)}.")
+        _ = CLI.success("  - Migrated: `#{setting_name}` is now #{inspect(setting.value)}.")
 
       {setting_name, {:error, changeset}} ->
         error_message =
@@ -137,18 +146,19 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
             acc <> "`#{field}` #{message}. "
           end)
 
-        CLI.error(
-          "  - Error: setting `#{setting_name}` to #{inspect(value)} returned #{error_message}"
+        _ = CLI.error(
+          "  - Error: setting `#{setting_name}` to #{inspect(Changeset.get_field(changeset, :value))}"
+          <> " returned #{error_message}"
         )
     end)
 
-    CLI.info("\nSettings migration completed. Please remove the environment variables.")
+    _ = CLI.info("\nSettings migration completed. Please remove the environment variables.")
   end
 
-  # `to_migrate` is already a list of `{setting_name, value}` supported by `Config.update/2`,
-  # only need to add the originator.
   defp build_update_attrs(to_migrate) do
-    [{:originator, %CLIUser{}} | to_migrate]
+    _ = Enum.reduce(to_migrate, [{:originator, %CLIUser{}}], fn {setting_name, value}, attrs ->
+      [{String.to_existing_atom(setting_name), value} | attrs]
+    end)
   end
 
   # These cast_env/2 are private to this module because the only other place that
