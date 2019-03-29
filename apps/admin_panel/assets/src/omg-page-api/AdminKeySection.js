@@ -146,7 +146,7 @@ class ApiKeyPage extends Component {
     fetcher: PropTypes.func,
     registerFetch: PropTypes.func,
     onRequestClose: PropTypes.func,
-    columnsAdminKeys: PropTypes.object
+    columnsAdminKeys: PropTypes.array
   }
 
   static defaultProps = {

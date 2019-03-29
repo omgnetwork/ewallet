@@ -80,7 +80,6 @@ function AssignKeyAccount (props) {
   const [adminKey, setAdminKeyInput] = useState('')
   function onRequestClose () {
     setAdminKeyInput('')
-    setSubmitStatus('DEFAULT')
     props.onRequestClose()
   }
   function onSelectAccount (account) {
@@ -102,14 +101,9 @@ function AssignKeyAccount (props) {
       setSubmitStatus('FAILED')
     }
   }
-  return (
-    <Modal
-      isOpen={props.open}
-      onRequestClose={onRequestClose}
-      contentLabel='invite modal'
-      shouldCloseOnOverlayClick={false}
-      overlayClassName='dummy'
-    >
+
+  function renderAssignKey () {
+    return (
       <AssignKeyAccountContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />
         <CreateAdminKeyFormContainer>
@@ -127,9 +121,10 @@ function AssignKeyAccount (props) {
                   onChange={e => setAdminKeyInput(e.target.value)}
                   value={adminKey}
                   onSelectItem={item => onSelectAccount(item.key)}
-                  options={adminKeys.map(k => (
-                    {key: k.id, value: <AdminKeySelectRow key={k.id} adminKey={k} />}
-                  ))}
+                  options={adminKeys.map(k => ({
+                    key: k.id,
+                    value: <AdminKeySelectRow key={k.id} adminKey={k} />
+                  }))}
                 />
               )
             }}
@@ -139,10 +134,7 @@ function AssignKeyAccount (props) {
             normalPlaceholder={'Account\'s Role'}
             value={_.upperFirst(roleAccount)}
             onSelectItem={item => setRoleAccount(item.key)}
-            options={[
-              { key: 'viewer', value: 'Viewer' },
-              { key: 'admin', value: 'Admin' }
-            ]}
+            options={[{ key: 'viewer', value: 'Viewer' }, { key: 'admin', value: 'Admin' }]}
           />
           <CreateAdminKeyButton
             styleType='primary'
@@ -153,7 +145,20 @@ function AssignKeyAccount (props) {
           </CreateAdminKeyButton>
         </CreateAdminKeyFormContainer>
       </AssignKeyAccountContainer>
-    </Modal>
+    )
+  }
+  return (
+    props.open && (
+      <Modal
+        isOpen={props.open}
+        onRequestClose={onRequestClose}
+        contentLabel='invite modal'
+        shouldCloseOnOverlayClick={false}
+        overlayClassName='dummy'
+      >
+        {renderAssignKey()}}
+      </Modal>
+    )
   )
 }
 
