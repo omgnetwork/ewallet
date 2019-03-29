@@ -17,7 +17,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
   Serializes address data into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Paginator, BalanceLoader}
+  alias EWallet.Web.Paginator
 
   alias EWallet.Web.V1.{
     AccountSerializer,
@@ -26,8 +26,8 @@ defmodule EWallet.Web.V1.WalletSerializer do
     PaginatorSerializer,
     UserSerializer
   }
-  alias EWallet.WalletPolicy
-  alias EWalletDB.{Wallet, Helpers.Preloader}
+
+  alias EWalletDB.Wallet
   alias Utils.Helpers.{Assoc, DateFormatter}
 
   def serialize(%Paginator{} = paginator) do
@@ -44,8 +44,6 @@ defmodule EWallet.Web.V1.WalletSerializer do
   def serialize(nil), do: nil
 
   def serialize(%Wallet{} = wallet) do
-    balances = serialize_balances(wallet.balances)
-
     %{
       object: "wallet",
       socket_topic: "wallet:#{wallet.address}",
@@ -58,41 +56,18 @@ defmodule EWallet.Web.V1.WalletSerializer do
       user: UserSerializer.serialize(wallet.user),
       account_id: Assoc.get(wallet, [:account, :id]),
       account: AccountSerializer.serialize(wallet.account),
-      balances: balances,
+      balances: serialize_balances(wallet),
       enabled: wallet.enabled,
       created_at: DateFormatter.to_iso8601(wallet.inserted_at),
       updated_at: DateFormatter.to_iso8601(wallet.updated_at)
     }
   end
 
-  def serialize_without_balances(%Wallet{} = wallet) do
-    wallet
-    |> Preloader.preload([:user, :account])
-    |> do_serialize(nil)
-  end
+  defp serialize_balances(%{balances: nil}), do: []
 
-  def serialize_without_balances(_), do: nil
-
-  defp get_serialized_balances(wallet) do
-    wallet
-    |> Map.get(:balances)
-    |> case do
-      nil ->
-        {:ok, wallet} = BalanceLoader.add_balances(wallet)
-        serialize_balances(wallet.balances)
-
-      _ ->
-        wallet
-    end
-  end
-
-  defp serialize_balances(nil), do: nil
-
-  defp serialize_balances(balances) do
+  defp serialize_balances(%{balances: balances}) do
     Enum.map(balances, &BalanceSerializer.serialize/1)
   end
 
-  defp authorize(action, actor, data) do
-    WalletPolicy.authorize(action, actor, data)
-  end
+  defp serialize_balances(_), do: []
 end

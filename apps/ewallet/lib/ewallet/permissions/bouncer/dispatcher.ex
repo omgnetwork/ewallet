@@ -31,11 +31,23 @@ defmodule EWallet.Bouncer.Dispatcher do
   # Redefines the target type if the given record has subtypes.
   # like transaction_requests -> end_user_transaction_requests /
   # account_transaction_requests.
-  def get_target_types(schema, dispatch_config \\ DispatchConfig) do
+  def get_target_types(schema_or_schemas, dispatch_config \\ DispatchConfig)
+
+  def get_target_types([schema | _schemas] = list, dispatch_config) when is_list(list) do
     dispatch_config.target_references[schema].get_target_types()
   end
 
-  def get_target_type(record, dispatch_config \\ DispatchConfig) do
+  def get_target_types(schema, dispatch_config) do
+    dispatch_config.target_references[schema].get_target_types()
+  end
+
+  def get_target_type(record_or_records, dispatch_config \\ DispatchConfig)
+
+  def get_target_type([record | _records] = list, dispatch_config) when is_list(list) do
+    dispatch_config.target_references[record.__struct__].get_target_type(record)
+  end
+
+  def get_target_type(record, dispatch_config) do
     dispatch_config.target_references[record.__struct__].get_target_type(record)
   end
 
