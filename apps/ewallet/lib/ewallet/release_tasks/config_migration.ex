@@ -97,13 +97,17 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
 
   defp migrate_each([]), do: :noop
 
-  defp migrate_each([{setting_name, value} | remaining]) do
-    case do_migrate(setting_name, value) do
+  defp migrate_each([{key, value} | remaining]) do
+    case do_migrate(key, value) do
       {:ok, setting} ->
-        CLI.success("  - Migrated: `#{setting_name}` is now #{inspect(setting.value)}.")
+        CLI.success("  - Migrated: `#{key}` is now #{inspect(setting.value)}.")
 
       {:unchanged, value} ->
-        CLI.warn("  - Skipped: `#{setting_name}` is already set to #{inspect(value)}.")
+        CLI.warn("  - Skipped: `#{key}` is already set to #{inspect(value)}.")
+
+      {:error, :setting_not_found} ->
+        CLI.error("Error: `#{key}` is not a valid settings." <>
+          " Please check that the given settings name is correct and settings have been seeded.")
 
       {:error, changeset} ->
         error_message =
@@ -112,20 +116,29 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
           end)
 
         CLI.error(
-          "  - Error: setting `#{setting_name}` to #{inspect(value)} returned #{error_message}"
+          "  - Error: setting `#{key}` to #{inspect(value)} returned #{error_message}"
         )
     end
 
     migrate_each(remaining)
   end
 
-  defp do_migrate(setting_name, value) do
-    setting = Config.get_setting(setting_name)
-    existing = setting.value
+  defp do_migrate(key, value) do
+    case Config.get_setting(key) do
+      nil ->
+        {:error, :setting_not_found}
 
-    case cast_env(value, setting.type) do
-      ^existing -> {:unchanged, existing}
-      casted_value -> Config.update(%{setting_name: casted_value, originator: %CLIUser{}})
+      %{value: existing, type: type} ->
+        case cast_env(value, type) do
+          ^existing ->
+            {:unchanged, existing}
+
+          casted_value ->
+            # The GenServer will return {:ok, result}, where the result is the actual
+            # {:ok, _} | {:error, _} of the operation, so we need to return only the result.
+            {:ok, result} = Config.update(%{key => casted_value, :originator => %CLIUser{}})
+            Enum.find_value(result, fn {^key, v} -> v end)
+        end
     end
   end
 
