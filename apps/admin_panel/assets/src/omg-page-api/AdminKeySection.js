@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Switch, Icon } from '../omg-uikit'
+import { Switch, Icon, Button } from '../omg-uikit'
 import Table from '../omg-table'
 import AccessKeyFetcher from '../omg-access-key/accessKeysFetcher'
 import moment from 'moment'
@@ -72,12 +72,13 @@ const KeySection = styled.div`
 const ConfirmCreateKeyContainer = styled.div`
   font-size: 16px;
   padding: 30px;
+  max-width: 500px;
+  
   h4 {
     padding-bottom: 10px;
   }
   p {
     font-size: 12px;
-    max-width: 350px;
     margin-bottom: 10px;
   }
   input {
@@ -254,11 +255,7 @@ class ApiKeyPage extends Component {
             <input readOnly value={this.state.secretKey} spellCheck='false' />
             <Copy data={this.state.secretKey} />
           </InputContainer>
-          <div
-            onClick={this.onClickDownloadKey}
-          >
-            download
-          </div>
+          <a onClick={this.onClickDownloadKey}>Download</a>
         </ConfirmCreateKeyContainer>
       </ConfirmationModal>
     )
