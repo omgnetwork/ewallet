@@ -72,4 +72,11 @@ defmodule Utils.Helpers.Normalize do
   def to_integer(s) when is_integer(s), do: s
   def to_integer(s) when is_float(s), do: :erlang.round(s)
   def to_integer(value), do: raise(ToIntegerError, message: ToIntegerError.error_message(value))
+
+  # Converts a comma-separated string to a list of strings
+  def to_strings(s) do
+    s
+    |> String.split(",")
+    |> Enum.map(&String.trim/1)
+  end
 end
