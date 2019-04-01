@@ -196,7 +196,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
                "code" => "client:invalid_parameter",
                "description" =>
                  "Invalid parameter provided. `value` must match an existing account.",
-               "messages" => %{"value" => [nil]},
+               "messages" => %{"value" => ["account_not_found"]},
                "object" => "error"
              }
     end
@@ -214,7 +214,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
                "code" => "client:invalid_parameter",
                "description" =>
                  "Invalid parameter provided. `value` must match an existing account.",
-               "messages" => %{"value" => ["invalid"]},
+               "messages" => %{"value" => ["account_not_found"]},
                "object" => "error"
              }
     end

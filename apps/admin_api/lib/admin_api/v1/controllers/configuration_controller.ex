@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.ConfigurationController do
   import AdminAPI.V1.ErrorHandler
 
   alias EWallet.Web.{Orchestrator, Originator, V1.ConfigurationOverlay}
-  alias EWalletConfig.{Config, Repo}
+  alias EWalletConfig.{Config, Repo, StoredSetting}
   alias EWallet.ConfigurationPolicy
   alias EWalletDB.Account
   alias Ecto.Changeset
@@ -53,28 +53,20 @@ defmodule AdminAPI.V1.ConfigurationController do
       nil ->
         {
           Map.delete(attrs, "master_account"),
-          {
-            :master_account,
-            {:error,
-             %Changeset{
-               errors: [
-                 value: {"must match an existing account", [validation: master_account_id]}
-               ],
-               types: %{},
-               changes: %{data: %{value: master_account_id}},
-               action: :update,
-               data: %EWalletConfig.StoredSetting{},
-               valid?: false
-             }}
-          }
+          {:master_account, {:error, prepare_error(master_account_id)}}
         }
-
       _ ->
         {attrs, nil}
     end
   end
 
   defp validate_master_account(attrs), do: {attrs, nil}
+
+  defp prepare_error(master_account_id) do
+    %StoredSetting{}
+    |> Changeset.change(%{value: master_account_id})
+    |> Changeset.add_error(:value, "must match an existing account", validation: :account_not_found)
+  end
 
   defp add_master_account_error(settings, nil) do
     settings
