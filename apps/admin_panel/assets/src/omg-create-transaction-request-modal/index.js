@@ -150,7 +150,11 @@ class CreateTransactionRequest extends Component {
     advanceSettingOpen: false,
     expirationDate: '',
     searchTokenValue: '',
-    amount: ''
+    maxConsumptionPerUser: '',
+    amount: '',
+    consumptionIntervalDuration: '',
+    maxConsumptionPerInterval: '',
+    maxConsumptionPerIntervalPerUser: ''
   }
   onSubmit = async e => {
     e.preventDefault()
@@ -303,7 +307,7 @@ class CreateTransactionRequest extends Component {
         </RadioSectionContainer>
         <InputLabelContainer>
           <InputLabel>
-            Wallet Address <span>( Optional )</span>
+            Wallet Address
           </InputLabel>
           <WalletsFetcher
             accountId={this.props.match.params.accountId}
@@ -330,7 +334,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
         <InputLabelContainer>
           <InputLabel>
-            Correlation ID <span>( Optional )</span>
+            Correlation ID
           </InputLabel>
           <StyledInput
             normalPlaceholder='0x00000000'
@@ -340,7 +344,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
         <InputLabelContainer>
           <InputLabel>
-            Max Consumptions <span>( Optional )</span>
+            Max Consumptions
           </InputLabel>
           <StyledInput
             normalPlaceholder='0'
@@ -352,7 +356,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
         <InputLabelContainer>
           <InputLabel>
-            Expiration Date <span>( Optional )</span>
+            Expiration Date
           </InputLabel>
           <DateTime
             ref='picker'
@@ -373,7 +377,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
         <InputLabelContainer>
           <InputLabel>
-            Consumption Lifetime <span>( Optional )</span>
+            Consumption Lifetime
           </InputLabel>
           <StyledInput
             normalPlaceholder='Lifetime of consumption in ms'
@@ -382,9 +386,23 @@ class CreateTransactionRequest extends Component {
             onChange={this.onChange('consumptionLifetime')}
           />
         </InputLabelContainer>
+
         <InputLabelContainer>
           <InputLabel>
-            Max Consumption Per User <span>( Optional )</span>
+            Consumption Interval Duration
+          </InputLabel>
+          <StyledInput
+            type='number'
+            normalPlaceholder='Consumption interval in ms'
+            min={0}
+            value={this.state.consumptionIntervalDuration}
+            onChange={this.onChange('consumptionIntervalDuration')}
+          />
+        </InputLabelContainer>
+
+        <InputLabelContainer>
+          <InputLabel>
+            Max Consumption Per User
           </InputLabel>
           <StyledInput
             normalPlaceholder='1'
@@ -393,9 +411,36 @@ class CreateTransactionRequest extends Component {
             onChange={this.onChange('maxConsumptionPerUser')}
           />
         </InputLabelContainer>
+
         <InputLabelContainer>
           <InputLabel>
-            Exchange Address <span>( Optional )</span>
+            Max Consumption Per Interval
+          </InputLabel>
+          <StyledInput
+            type='number'
+            normalPlaceholder='10'
+            min={0}
+            value={this.state.maxConsumptionPerInterval}
+            onChange={this.onChange('maxConsumptionPerInterval')}
+          />
+        </InputLabelContainer>
+
+        <InputLabelContainer>
+          <InputLabel>
+            Max Consumption Per Interval Per User
+          </InputLabel>
+          <StyledInput
+            type='number'
+            normalPlaceholder='10'
+            min={0}
+            value={this.state.maxConsumptionPerIntervalPerUser}
+            onChange={this.onChange('maxConsumptionPerIntervalPerUser')}
+          />
+        </InputLabelContainer>
+
+        <InputLabelContainer>
+          <InputLabel>
+            Exchange Address
           </InputLabel>
           <WalletsFetcher
             accountId={this.props.match.params.accountId}
@@ -423,7 +468,7 @@ class CreateTransactionRequest extends Component {
 
         <InputLabelContainer>
           <InputLabel>
-            Metadata <span>( Optional )</span>
+            Metadata
           </InputLabel>
           <StyledInput
             normalPlaceholder='Token name'
@@ -431,9 +476,10 @@ class CreateTransactionRequest extends Component {
             onChange={this.onChange('metadata')}
           />
         </InputLabelContainer>
+
         <InputLabelContainer>
           <InputLabel>
-            Encrypted Metadata <span>( Optional )</span>
+            Encrypted Metadata
           </InputLabel>
           <StyledInput
             normalPlaceholder='meta data'
