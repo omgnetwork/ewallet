@@ -20,7 +20,7 @@ defmodule EWallet.PolicyHelper do
   alias Ecto.Query
 
   def authorize(:view_balance, attrs, type, schema, nil) do
-    authorize_scope(:export, attrs, type, schema)
+    authorize_scope(:view_balance, attrs, type, schema)
   end
 
   def authorize(:export, attrs, type, schema, nil) do
