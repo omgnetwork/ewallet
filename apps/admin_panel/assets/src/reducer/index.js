@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux'
-import appReducer from '../app/reducer'
 import sessionReducer from '../omg-session/reducer'
 import { accountsReducer } from '../omg-account/reducer'
 import { currentUserReducer } from '../omg-user-current/reducer'
@@ -24,7 +23,6 @@ import { exportsReducer } from '../omg-export/reducer'
 import { adminsReducer } from '../omg-admins/reducer'
 import { recentAccountsReducer } from '../omg-recent-account/reducer'
 export default combineReducers({
-  app: appReducer,
   admins: adminsReducer,
   loadingBar: loadingBarReducer,
   session: sessionReducer,

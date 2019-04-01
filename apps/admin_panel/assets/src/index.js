@@ -12,7 +12,7 @@ import { configureStore } from './store'
 moment.defaultFormat = 'ddd, DD/MM/YYYY HH:mm:ss'
 
 async function bootAdminPanelApp () {
-    // INIT SOCKET
+  // INIT SOCKET
   const socket = new SocketConnector(WEBSOCKET_URL)
   let store = {}
 
@@ -22,29 +22,29 @@ async function bootAdminPanelApp () {
     const currentUser = currentUserData
     const recentAccounts = getRecentAccountFromLocalStorage(currentUser.id)
     const toInjectRecentAccount = recentAccounts
-        ? recentAccounts.filter(d => d !== 'undefined' || !d)
-        : []
+      ? recentAccounts.filter(d => d !== 'undefined' || !d)
+      : []
     const accounts = toInjectRecentAccount.reduce(
-        (prev, recentAccount) => ({
-          ...prev,
-          [recentAccount]: { id: recentAccount, injected_loading: true }
-        }),
-        {}
-      )
+      (prev, recentAccount) => ({
+        ...prev,
+        [recentAccount]: { id: recentAccount, injected_loading: true }
+      }),
+      {}
+    )
     store = configureStore(
-        { currentUser, recentAccounts: toInjectRecentAccount, accounts },
-        { socket }
-      )
+      { currentUser, recentAccounts: toInjectRecentAccount, accounts },
+      { socket }
+    )
 
-      // PREFETCH ACCOUNT IN RECENT TAB SIDE BAR
+    // PREFETCH ACCOUNT IN RECENT TAB SIDE BAR
     toInjectRecentAccount.forEach(accountId => {
       const getAccountAction = getAccountById(accountId)
       store.dispatch(getAccountAction).then(({ type }) => {
         if (type === 'ACCOUNT/REQUEST/FAILED') {
           store.dispatch(deleteAccount(accountId))
           const removedBadRecentAccounts = getRecentAccountFromLocalStorage(currentUser.id).filter(
-              id => accountId !== id
-            )
+            id => accountId !== id
+          )
           setRecentAccount(currentUser.id, removedBadRecentAccounts)
         }
       })
@@ -56,19 +56,49 @@ async function bootAdminPanelApp () {
   // HANDLE WEBSOCKET MESSAGES
   socket.on('message', handleWebsocketMessage(store))
 
-  import('./app').then(App => {
-    const LoadedApp = App.default
-    render(<LoadedApp store={store} authenticated={success} />, document.getElementById('app'))
-    // HOT RELOADING FOR DEVELOPMENT MODE
-    if (module.hot) {
-      module.hot.accept('./app', () => {
-        render(<App />, document.getElementById('app'))
-      })
-      module.hot.accept('./reducer', () => {
-        store.replaceReducer(require('./reducer').default)
-      })
-    }
-  })
+  const App = await import('./adminPanelApp')
+  const LoadedApp = App.default
+  if (!LoadedApp) return false
+  render(<LoadedApp store={store} authenticated={success} />, document.getElementById('app'))
+  // HOT RELOADING FOR DEVELOPMENT MODE
+  if (module.hot) {
+    module.hot.accept('./adminPanelApp', () => {
+      render(<App />, document.getElementById('app'))
+    })
+    module.hot.accept('./reducer', () => {
+      store.replaceReducer(require('./reducer').default)
+    })
+  }
+  console.log('booted up admin panel app.')
+  return true
 }
 
-bootAdminPanelApp() // BOOT UP APP :)
+async function bootClientApp () {
+  const App = await import('./clientApp')
+  const LoadedApp = App.default
+  if (!LoadedApp) return false
+  render(<LoadedApp />, document.getElementById('app'))
+  // HOT RELOADING FOR DEVELOPMENT MODE
+  if (module.hot) {
+    module.hot.accept('./clientApp', () => {
+      render(<App />, document.getElementById('app'))
+    })
+  }
+  ('booted up client app.')
+  return true
+}
+
+async function bootApp () {
+  const [, app] = window.location.pathname.split('/')
+  console.log(`Booting up ${app} app...`)
+  switch (app) {
+    case 'admin':
+      return bootAdminPanelApp()
+    case 'client':
+      return bootClientApp()
+    default:
+      return false
+  }
+}
+
+bootApp()
