@@ -55,6 +55,7 @@ defmodule AdminAPI.V1.ConfigurationController do
           Map.delete(attrs, "master_account"),
           {:master_account, {:error, prepare_error(master_account_id)}}
         }
+
       _ ->
         {attrs, nil}
     end
@@ -65,7 +66,9 @@ defmodule AdminAPI.V1.ConfigurationController do
   defp prepare_error(master_account_id) do
     %StoredSetting{}
     |> Changeset.change(%{value: master_account_id})
-    |> Changeset.add_error(:value, "must match an existing account", validation: :account_not_found)
+    |> Changeset.add_error(:value, "must match an existing account",
+      validation: :account_not_found
+    )
   end
 
   defp add_master_account_error(settings, nil) do
