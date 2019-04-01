@@ -133,7 +133,6 @@ const InputLabel = styled.div`
   font-size: 14px;
   color: ${props => props.theme.colors.B100};
 `
-
 const enhance = compose(
   withRouter,
   connect(
