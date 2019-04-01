@@ -73,8 +73,8 @@ const Error = styled.div`
 
 const CalculationContainer = styled.div`
   margin-top: 20px;
-  height: ${props => props.show ? 100 : 0}px;
-  opacity: ${props => props.show ? 1 : 0};
+  height: ${props => (props.show ? 100 : 0)}px;
+  opacity: ${props => (props.show ? 1 : 0)};
   transition: all 300ms ease-in-out;
   color: ${props => props.theme.colors.B100};
 
@@ -107,7 +107,7 @@ const RateContainer = styled.div`
 `
 
 const BackRateContainer = styled.div`
-  opacity: ${props => props.disabled ? 0 : 1};
+  opacity: ${props => (props.disabled ? 0 : 1)};
   transition: opacity 0.2s ease-in-out;
 `
 
@@ -127,7 +127,7 @@ class CreateExchangeRateModal extends Component {
   static defaultProps = {
     onCreateTransaction: _.noop
   }
-  static getDerivedStateFromProps (props, state) {
+  static getDerivedStateFromProps(props, state) {
     if (state.fromTokenId !== props.fromTokenId) {
       return {
         fromTokenSelected: props.fromTokenPrefill,
@@ -147,7 +147,7 @@ class CreateExchangeRateModal extends Component {
     fromTokenSymbol: '',
     toTokenRate: '',
     toTokenSearch: '',
-    toTokenSymbol: '',
+    toTokenSymbol: ''
   }
 
   onChangeName = e => {
@@ -157,14 +157,14 @@ class CreateExchangeRateModal extends Component {
     this.setState({ [`${type}Rate`]: e.target.value })
   }
   onChangeSearchToken = type => e => {
-    this.setState({ 
+    this.setState({
       [`${type}Search`]: e.target.value,
       [`${type}Selected`]: '',
-      [`${type}Symbol`]: e.target.value,
+      [`${type}Symbol`]: e.target.value
     })
   }
   onSelectTokenSelect = type => token => {
-    this.setState({ 
+    this.setState({
       [`${type}Search`]: token.name,
       [`${type}Selected`]: token,
       [`${type}Symbol`]: token.symbol
@@ -198,10 +198,12 @@ class CreateExchangeRateModal extends Component {
   }
 
   get ratesAvailable() {
-    return this.state.toTokenRate > 0 
-      && this.state.fromTokenRate > 0
-      && this.state.toTokenSearch
-      && this.state.fromTokenSearch
+    return (
+      this.state.toTokenRate > 0 &&
+      this.state.fromTokenRate > 0 &&
+      this.state.toTokenSearch &&
+      this.state.fromTokenSearch
+    )
   }
 
   renderCalculation = () => {
@@ -214,7 +216,7 @@ class CreateExchangeRateModal extends Component {
       toTokenSymbol,
       fromTokenRate,
       fromTokenSymbol,
-      onlyOneWayExchange 
+      onlyOneWayExchange
     } = this.state
 
     const forwardRate = _.round(toTokenRate / fromTokenRate, 3)
@@ -222,32 +224,28 @@ class CreateExchangeRateModal extends Component {
 
     return (
       <>
-        <div id='calculation-title'>Exchange Pair</div>
+        <div id="calculation-title">Exchange Pair</div>
 
         <RateContainer>
-          <div>
-            {`1 ${fromTokenSymbol} / ${forwardRate} ${toTokenSymbol}`}
-          </div>
+          <div>{`1 ${fromTokenSymbol} / ${forwardRate} ${toTokenSymbol}`}</div>
           <BackRateContainer disabled={onlyOneWayExchange}>
             {`1 ${toTokenSymbol} / ${backRate} ${fromTokenSymbol}`}
           </BackRateContainer>
         </RateContainer>
 
-        <div id='calculation-disclaimer'>
-          {
-            onlyOneWayExchange
-              ? `*${fromTokenSymbol} can only be exchanged for ${toTokenSymbol}, and the reverse exchange will not be possible.`
-              : `*${fromTokenSymbol} can be exchanged for ${toTokenSymbol} and vice versa.`
-          }
+        <div id="calculation-disclaimer">
+          {onlyOneWayExchange
+            ? `*${fromTokenSymbol} can only be exchanged for ${toTokenSymbol}, and the reverse exchange will not be possible.`
+            : `*${fromTokenSymbol} can be exchanged for ${toTokenSymbol} and vice versa.`}
         </div>
       </>
     )
   }
 
-  render () {
+  render() {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
-        <Icon name='Close' onClick={this.props.onRequestClose} />
+        <Icon name="Close" onClick={this.props.onRequestClose} />
         <h4>Create Exchange Pair</h4>
         <TokensFetcher
           query={createSearchTokenQuery(this.state.fromTokenSearch)}
@@ -259,7 +257,7 @@ class CreateExchangeRateModal extends Component {
                   <div>
                     <InputLabel>Token</InputLabel>
                     <Select
-                      normalPlaceholder='Token'
+                      normalPlaceholder="Token"
                       onSelectItem={this.onSelectTokenSelect('fromToken')}
                       onChange={this.onChangeSearchToken('fromToken')}
                       value={this.state.fromTokenSearch}
@@ -275,7 +273,7 @@ class CreateExchangeRateModal extends Component {
                     <Input
                       value={this.state.fromTokenRate}
                       onChange={this.onChangeRate('fromToken')}
-                      type='amount'
+                      type="amount"
                       normalPlaceholder={0}
                       suffix={this.state.fromTokenSymbol}
                     />
@@ -295,7 +293,7 @@ class CreateExchangeRateModal extends Component {
                   <div>
                     <InputLabel>Token</InputLabel>
                     <Select
-                      normalPlaceholder='Token'
+                      normalPlaceholder="Token"
                       onSelectItem={this.onSelectTokenSelect('toToken')}
                       onChange={this.onChangeSearchToken('toToken')}
                       value={this.state.toTokenSearch}
@@ -312,8 +310,8 @@ class CreateExchangeRateModal extends Component {
                     <Input
                       value={this.state.toTokenRate}
                       onChange={this.onChangeRate('toToken')}
-                      type='amount'
-                      step='any'
+                      type="amount"
+                      step="any"
                       normalPlaceholder={0}
                       suffix={this.state.toTokenSymbol}
                     />
@@ -336,7 +334,7 @@ class CreateExchangeRateModal extends Component {
         </CalculationContainer>
 
         <ButtonContainer>
-          <Button size='small' type='submit' loading={this.state.submitting}>
+          <Button size="small" type="submit" loading={this.state.submitting}>
             Create Pair
           </Button>
         </ButtonContainer>
@@ -354,12 +352,12 @@ export default class CreateExchangeModal extends Component {
     onRequestClose: PropTypes.func,
     fromTokenId: PropTypes.string
   }
-  render () {
+  render() {
     return (
       <Modal
         isOpen={this.props.open}
         onRequestClose={this.props.onRequestClose}
-        contentLabel='create account modal'
+        contentLabel="create account modal"
       >
         <EnhancedCreateExchange {...this.props} />
       </Modal>

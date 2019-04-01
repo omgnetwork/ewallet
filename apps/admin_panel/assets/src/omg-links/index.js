@@ -15,12 +15,10 @@ export class LinkWithAccount extends Component {
     const props = {}
 
     const { accountId } = this.props.match.params
-    const to = typeof this.props.to === 'object'
-      ? path.join(
-          `/${accountId}`,
-          _.get(this.props, 'to.pathname', this.props.location.pathname)
-        )
-      : accountId 
+    const to =
+      typeof this.props.to === 'object'
+        ? path.join(`/${accountId}`, _.get(this.props, 'to.pathname', this.props.location.pathname))
+        : accountId
         ? path.join(`/${accountId}`, this.props.to)
         : this.props.to
 
