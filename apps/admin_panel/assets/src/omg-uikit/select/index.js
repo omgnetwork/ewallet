@@ -40,7 +40,8 @@ export default class Select extends PureComponent {
     onBlur: PropTypes.func,
     optionBoxHeight: PropTypes.string,
     className: PropTypes.string,
-    filterByKey: PropTypes.bool
+    filterByKey: PropTypes.bool,
+    optionRenderer: PropTypes.func
   }
   static defaultProps = {
     onSelectItem: _.noop,
@@ -82,11 +83,11 @@ export default class Select extends PureComponent {
         return fuzzySearch(this.props.value, option.key)
       })
       : this.props.options
-
+    const { className, ...rest } = this.props
     return (
-      <SelectContainer className={this.props.className} active={this.state.active}>
+      <SelectContainer className={className} active={this.state.active}>
         <Input
-          {...this.props}
+          {...rest}
           onFocus={this.onFocus}
           onBlur={this.onBlur}
           onChange={this.props.onChange}
@@ -105,7 +106,7 @@ export default class Select extends PureComponent {
             {filteredOption.map(option => {
               return (
                 <OptionItem onMouseDown={this.onClickItem(option)} key={option.key}>
-                  {option.value}
+                  {this.props.optionRenderer ? this.props.optionRenderer(option.value) : option.value}
                 </OptionItem>
               )
             })}

@@ -50,7 +50,7 @@
     "eslint-config-standard-react": "^4.2.0",
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-promise": "^3.4.0",
-    "eslint-plugin-react": "^6.9.0",
+    "eslint-plugin-react": "^7.1.24",
     "eslint-plugin-standard": "^2.0.1",
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.0.7",

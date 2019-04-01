@@ -218,7 +218,7 @@ class AccountSettingPage extends Component {
                 }
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
-                <span>Save Change</span>
+                <span>Save Changes</span>
               </Button>
             </div>
           </form>

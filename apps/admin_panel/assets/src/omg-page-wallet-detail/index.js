@@ -88,7 +88,7 @@ class WalletDetaillPage extends Component {
         {wallet.account && (
           <DetailGroup>
             <b>Account Owner:</b>{' '}
-            <Link to={`/accounts/${wallet.account.id}/detail`}>
+            <Link to={`/accounts/${wallet.account.id}/details`}>
               {_.get(wallet, 'account.name', '-')}
             </Link>
           </DetailGroup>
@@ -146,7 +146,7 @@ class WalletDetaillPage extends Component {
   renderErrorPage (error) {
     return (
       <ErrorPageContainer>
-        <img src={require('../../statics/images/Empty state_1.0_Empty-state_1.0.png')} />
+        <img src={require('../../statics/images/empty_state.png')} />
         <h2>{error.code}</h2>
         <p>{error.description}</p>
       </ErrorPageContainer>

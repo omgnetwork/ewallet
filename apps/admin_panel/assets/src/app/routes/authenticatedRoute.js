@@ -2,14 +2,14 @@ import React, { Component } from 'react'
 import { Route, Redirect } from 'react-router-dom'
 import AppLayout from '../../omg-app-layout'
 import PropTypes from 'prop-types'
-import { getAccessToken } from '../../services/sessionService'
 import { connect } from 'react-redux'
 import { bootstrap } from '../bootup/action'
 class AuthenticatedRoute extends Component {
   static propTypes = {
     component: PropTypes.func,
     currentAccount: PropTypes.object,
-    bootstrap: PropTypes.func
+    bootstrap: PropTypes.func,
+    authenticated: PropTypes.bool
   }
   componentDidMount = async () => {
     this.props.bootstrap()
@@ -32,8 +32,7 @@ class AuthenticatedRoute extends Component {
     )
   }
   renderPage = (props, Component) => {
-    const token = getAccessToken()
-    if (!token) {
+    if (!this.props.authenticated) {
       return this.renderRedirectRoute(props)
     }
     return this.renderApp(Component)

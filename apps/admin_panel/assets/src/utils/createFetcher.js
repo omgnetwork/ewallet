@@ -29,17 +29,15 @@ export const createFetcher = (entity, reducer, selectors) => {
         cacheKey: PropTypes.string,
         data: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
         pagination: PropTypes.object,
-        shouldFetch: PropTypes.bool
+        shouldFetch: PropTypes.bool,
+        registerFetch: PropTypes.func,
+        dispatcher: PropTypes.func
 
       }
       static defaultProps = {
         onFetchComplete: _.noop,
-        shouldFetch: true
-      }
-      state = {
-        loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT,
-        data: this.props.data,
-        pagination: this.props.pagination
+        shouldFetch: true,
+        registerFetch: _.noop
       }
 
       constructor (props) {
@@ -49,6 +47,12 @@ export const createFetcher = (entity, reducer, selectors) => {
           leading: true,
           trailing: true
         })
+        props.registerFetch(this)
+        this.state = {
+          loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT,
+          data: this.props.data,
+          pagination: this.props.pagination
+        }
       }
       componentDidMount () {
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })

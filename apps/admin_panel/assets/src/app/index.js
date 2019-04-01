@@ -13,7 +13,8 @@ import './icons.css'
 Modal.setAppElement('#app')
 class App extends Component {
   static propTypes = {
-    store: PropTypes.object.isRequired
+    store: PropTypes.object.isRequired,
+    authenticated: PropTypes.bool
   }
   componentDidCatch () {
     return 'Something very bad happened, please contact admin.'
@@ -22,7 +23,7 @@ class App extends Component {
     return (
       <Provider store={this.props.store}>
         <ThemeProvider theme={theme}>
-          <Routes />
+          <Routes authenticated={this.props.authenticated} />
         </ThemeProvider>
       </Provider>
     )

@@ -1,6 +1,6 @@
 import { authenticatedRequest } from './apiService'
 
-export function getAccessKeys ({ perPage, page, search, sort }) {
+export function getAccessKeys ({ perPage, page, matchAll, matchAny, sort }) {
   return authenticatedRequest({
     path: '/access_key.all',
     data: {
@@ -8,15 +8,19 @@ export function getAccessKeys ({ perPage, page, search, sort }) {
       page,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: search
+      match_all: matchAll,
+      match_any: matchAny
     }
   })
 }
 
-export function createAccessKey () {
+export function createAccessKey ({ name, globalRole }) {
   return authenticatedRequest({
     path: '/access_key.create',
-    data: {}
+    data: {
+      name,
+      global_role: globalRole
+    }
   })
 }
 export function updateAccessKey ({ id, expired }) {
@@ -32,3 +36,4 @@ export function deleteAccessKeyById (id) {
     data: { id }
   })
 }
+

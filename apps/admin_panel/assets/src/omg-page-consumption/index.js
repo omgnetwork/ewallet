@@ -126,7 +126,10 @@ class ConsumptionPage extends Component {
       )
     }
     if (key === 'type') {
-      return _.get(rows, 'transaction_request.type')
+      return _.upperFirst(_.get(rows, 'transaction_request.type'))
+    }
+    if (key === 'status') {
+      return _.upperFirst(data)
     }
     if (key === 'estimated_consumption_amount') {
       return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
