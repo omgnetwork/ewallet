@@ -6,6 +6,8 @@
     "plugin:react/recommended"
   ],
   "parser": "babel-eslint",
+  "parserOptions": {
+  },
   "rules": {
     "react/jsx-no-bind": 0,
     "no-return-assign": 0,
