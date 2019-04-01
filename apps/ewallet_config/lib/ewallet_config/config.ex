@@ -124,7 +124,7 @@ defmodule EWalletConfig.Config do
           {:ok, %Setting{}} | {:error, Ecto.Changeset.t()} | {:error, atom()}
         ]
   def update(attrs, pid \\ __MODULE__) do
-    {config_pid, attrs} = get_config_pid(attrs)
+    {config_pid, attrs} = extract_config_pid(attrs)
 
     case Application.get_env(:ewallet, :env) == :test do
       true ->
@@ -135,13 +135,13 @@ defmodule EWalletConfig.Config do
     end
   end
 
-  defp get_config_pid(%{config_pid: config_pid} = attrs),
+  defp extract_config_pid(%{config_pid: config_pid} = attrs),
     do: {config_pid, Map.delete(attrs, :config_pid)}
 
-  defp get_config_pid(%{"config_pid" => config_pid} = attrs),
+  defp extract_config_pid(%{"config_pid" => config_pid} = attrs),
     do: {config_pid, Map.delete(attrs, "config_pid")}
 
-  defp get_config_pid(attrs) when is_list(attrs) do
+  defp extract_config_pid(attrs) when is_list(attrs) do
     case Keyword.fetch(attrs, :config_pid) do
       :error ->
         {nil, attrs}
@@ -151,7 +151,7 @@ defmodule EWalletConfig.Config do
     end
   end
 
-  defp get_config_pid(attrs), do: {nil, attrs}
+  defp extract_config_pid(attrs), do: {nil, attrs}
 
   @spec insert_all_defaults(map(), map(), atom()) :: :ok
   def insert_all_defaults(originator, opts \\ %{}, pid \\ __MODULE__) do

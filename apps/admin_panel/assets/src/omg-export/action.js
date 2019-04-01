@@ -82,6 +82,7 @@ export const downloadExportFileById = file => async dispatch => {
 }
 
 export const createBlobDownloadCsvLink = (data, filename) => {
+  console.log(data)
   const csvData = new window.Blob([data], { type: 'text/csv;charset=utf-8;' })
   const csvURL = window.URL.createObjectURL(csvData)
   const tempLink = document.createElement('a')

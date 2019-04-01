@@ -60,6 +60,17 @@ export function assignMember ({ userId, accountId, role, redirectUrl }) {
   })
 }
 
+export function assignKey ({ keyId, accountId, role }) {
+  return authenticatedRequest({
+    path: '/account.assign_key',
+    data: {
+      account_id: accountId,
+      key_id: keyId,
+      role_name: role
+    }
+  })
+}
+
 export function inviteMember ({ email, accountId, role, redirectUrl }) {
   return authenticatedRequest({
     path: '/account.assign_user',
@@ -122,6 +133,21 @@ export function getConsumptionsByAccountId ({
 export function getUsersByAccountId ({ accountId, perPage, page, sort, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/account.get_users',
+    data: {
+      id: accountId,
+      per_page: Number(perPage),
+      page: Number(page) || 1,
+      sort_by: sort.by,
+      sort_dir: sort.dir,
+      match_all: matchAll,
+      match_any: matchAny
+    }
+  })
+}
+
+export function getKeysByAccountId ({ accountId, perPage, page, sort, matchAll, matchAny }) {
+  return authenticatedRequest({
+    path: '/account.get_keys',
     data: {
       id: accountId,
       per_page: Number(perPage),

@@ -1,14 +1,17 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import SideNavigation from './SideNavigation'
 import PropTypes from 'prop-types'
-import Alert from '../omg-alert'
 import LoadingBar from 'react-redux-loading-bar'
+import queryString from 'query-string'
+
+import SlideInRight from '../omg-uikit/animation/SlideInRight'
+import SideNavigation from './SideNavigation'
+import Alert from '../omg-alert'
 import TransactionRequestPanel from '../omg-transaction-request-tab'
 import TransactionPanel from '../omg-transaction-panel'
 import ActivityPanel from '../omg-page-activity-log/ActivityPanel'
-import queryString from 'query-string'
 import ConsumptionPanel from '../omg-consumption-panel'
+
 const Container = styled.div`
   height: 100%;
   position: relative;
@@ -54,10 +57,22 @@ class AppLayout extends Component {
           </Content>
         </ContentContainer>
         <Alert />
-        {searchObject['show-request-tab'] && <TransactionRequestPanel />}
-        {searchObject['show-consumption-tab'] && <ConsumptionPanel />}
-        {searchObject['show-transaction-tab'] && <TransactionPanel />}
-        {searchObject['show-activity-tab'] && <ActivityPanel />}
+
+        <SlideInRight path='transaction-panel' width={560}>
+          {searchObject['show-request-tab'] && <TransactionRequestPanel />}
+        </SlideInRight>
+
+        <SlideInRight path='transaction-panel' width={560}>
+          {searchObject['show-consumption-tab'] && <ConsumptionPanel />}
+        </SlideInRight>
+
+        <SlideInRight path='transaction-panel' width={560}>
+          {searchObject['show-transaction-tab'] && <TransactionPanel />}
+        </SlideInRight>
+
+        <SlideInRight path='activity-tab' width={560}>
+          {searchObject['show-activity-tab'] && <ActivityPanel />}
+        </SlideInRight>
       </Container>
     )
   }

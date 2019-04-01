@@ -8,7 +8,6 @@ import WalletDropdownChooser from './WalletDropdownChooser'
 import { compose } from 'recompose'
 const LinksContainer = styled.div`
   display: flex;
-  min-width: 0;
   overflow: auto;
   margin-bottom: -1.5px;
   white-space: nowrap;
@@ -46,7 +45,7 @@ const AccountNameContainer = styled.div`
   align-items: center;
   overflow: hidden;
   white-space: nowrap;
-  flex: 1 1 250px;
+  flex: 1 1 200px;
   padding-right: 20px;
   > div:first-child {
     margin-right: 10px;
@@ -80,7 +79,7 @@ function AccountNavigationBar (props) {
         }}
       />
       <LinksContainer>
-        <NavLink to={`/accounts/${accountId}/detail`} activeClassName='navlink-active'>
+        <NavLink to={`/accounts/${accountId}/details`} activeClassName='navlink-active'>
           <div className='account-link-text'>Details</div>
         </NavLink>
         <WalletDropdownChooser {...props} />
@@ -127,11 +126,18 @@ function AccountNavigationBar (props) {
           <div className='account-link-text'>Activities</div>
         </NavLink>
         <NavLink
+          to={`/accounts/${accountId}/keys`}
+          activeClassName='navlink-active'
+          className='account-link'
+        >
+          <div className='account-link-text'>Keys</div>
+        </NavLink>
+        <NavLink
           to={`/accounts/${accountId}/setting`}
           activeClassName='navlink-active'
           className='account-link'
         >
-          <div className='account-link-text'>Setting</div>
+          <div className='account-link-text'>Settings</div>
         </NavLink>
       </LinksContainer>
     </AccountNavigationBarContainer>

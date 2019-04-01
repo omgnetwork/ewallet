@@ -15,7 +15,6 @@ const TransactionPageContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  padding-bottom: 50px;
   > div {
     flex: 1;
   }
@@ -288,12 +287,10 @@ class TransactionPage extends Component {
   render () {
     return (
       <TransactionsFetcher
-        {...this.state}
-        {...this.props}
         render={this.renderTransactionPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: 10,
+          perPage: Math.floor(window.innerHeight / 100),
           search: queryString.parse(this.props.location.search).search,
           ...this.props.query
         }}

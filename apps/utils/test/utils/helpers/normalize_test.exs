@@ -119,4 +119,16 @@ defmodule Utils.Helpers.NormalizeTest do
       assert -2 == Normalize.to_integer(-1.5)
     end
   end
+
+  describe "to_strings/1" do
+    test "converts a comma-separated string to a list of strings" do
+      assert ["a", "b", "c"] == Normalize.to_strings("a,b,c")
+      assert ["1", "2", "3"] == Normalize.to_strings("1,2,3")
+      assert ["aaaaa"] == Normalize.to_strings("aaaaa")
+    end
+
+    test "trims whitespaces for each list element" do
+      assert ["a", "b", "c"] == Normalize.to_strings("\na,  b,c  \n")
+    end
+  end
 end
