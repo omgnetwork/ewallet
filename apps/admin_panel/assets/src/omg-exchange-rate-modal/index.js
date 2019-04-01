@@ -78,11 +78,11 @@ const CalculationContainer = styled.div`
   transition: all 300ms ease-in-out;
   color: ${props => props.theme.colors.B100};
 
-  #calculation-title {
+  .calculation-title {
     padding-bottom: 10px;
   }
 
-  #calculation-disclaimer {
+  .calculation-disclaimer {
     padding-bottom: 10px;
     font-size: 0.8em;
   }
@@ -224,7 +224,7 @@ class CreateExchangeRateModal extends Component {
 
     return (
       <>
-        <div id="calculation-title">Exchange Pair</div>
+        <div className="calculation-title">Exchange Pair</div>
 
         <RateContainer>
           <div>{`1 ${fromTokenSymbol} / ${forwardRate} ${toTokenSymbol}`}</div>
@@ -233,7 +233,7 @@ class CreateExchangeRateModal extends Component {
           </BackRateContainer>
         </RateContainer>
 
-        <div id="calculation-disclaimer">
+        <div className="calculation-disclaimer">
           {onlyOneWayExchange
             ? `*${fromTokenSymbol} can only be exchanged for ${toTokenSymbol}, and the reverse exchange will not be possible.`
             : `*${fromTokenSymbol} can be exchanged for ${toTokenSymbol} and vice versa.`}
