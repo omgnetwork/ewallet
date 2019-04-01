@@ -142,7 +142,7 @@ class CreateAccountModal extends Component {
         isOpen={this.props.open}
         onRequestClose={this.onRequestClose}
         contentLabel='create account modal'
-        shouldCloseOnOverlayClick={false}
+        shouldCloseOnOverlayClick={true}
       >
         <CreateAccountContainer>{stageComponent[this.state.stage]}</CreateAccountContainer>
       </Modal>

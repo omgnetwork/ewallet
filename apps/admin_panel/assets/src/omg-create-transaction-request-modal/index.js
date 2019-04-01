@@ -1,20 +1,23 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
+import moment from 'moment'
+import DateTime from 'react-datetime'
+import { compose } from 'recompose'
+
 import { Input, Button, Icon, RadioButton, Select } from '../omg-uikit'
+import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
 import { createTransactionRequest } from '../omg-transaction-request/action'
-import { connect } from 'react-redux'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import { selectPrimaryWalletByAccountId } from '../omg-wallet/selector'
-import { withRouter } from 'react-router-dom'
-import { compose } from 'recompose'
 import { formatAmount } from '../utils/formatter'
-import moment from 'moment'
-import DateTime from 'react-datetime'
 import WalletSelect from '../omg-wallet-select'
 import TokenSelect from '../omg-token-select'
+
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -455,7 +458,10 @@ class CreateTransactionRequest extends Component {
             <Icon name='Chevron-Down' />
           )}
         </CollapsableHeader>
-        {this.state.advanceSettingOpen && this.renderAdvanceSettingContent()}
+
+        <Accordion path='advanced-settings' height={390}>
+          {this.state.advanceSettingOpen && this.renderAdvanceSettingContent()}
+        </Accordion>
       </Collapsable>
     )
   }
