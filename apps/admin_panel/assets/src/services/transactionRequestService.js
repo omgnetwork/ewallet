@@ -71,9 +71,9 @@ export function createTransactionRequest ({
       allow_amount_override: allowAmountOverride,
       consumption_lifetime: Number(consumptionLifetime) || undefined,
       exchange_wallet_address: exchangeAddress,
-      maxConsumptionPerIntervalPerUser: Number(maxConsumptionPerIntervalPerUser) || undefined,
-      maxConsumptionPerInterval: Number(maxConsumptionPerInterval) || undefined,
-      consumptionIntervalDuration: Number(consumptionIntervalDuration) || undefined
+      max_consumptions_per_interval_per_user: Number(maxConsumptionPerIntervalPerUser) || undefined,
+      max_consumptions_per_interval: Number(maxConsumptionPerInterval) || undefined,
+      consumption_interval_duration: Number(consumptionIntervalDuration) || undefined
     }
   })
 }

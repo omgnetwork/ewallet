@@ -21,6 +21,7 @@
     "@babel/plugin-proposal-class-properties": "^7.3.3",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-react": "^7.0.0",
+    "@babel/runtime": "^7.4.2",
     "autoprefixer": "^6.3.6",
     "axios": "^0.18.0",
     "axios-mock-adapter": "^1.16.0",
@@ -54,7 +55,7 @@
     "eslint-plugin-standard": "^2.0.1",
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.0.7",
-    "jest": "^22.4.3",
+    "jest": "^24.5.0",
     "json-loader": "^0.5.4",
     "mini-css-extract-plugin": "^0.4.5",
     "mock-socket": "^7.1.0",
@@ -105,6 +106,7 @@
     "webpack-dev-server": "^3.1.14"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.4.0",
     "babel-core": "^7.0.0-0",
     "regenerator-runtime": "^0.11.1"
   }
