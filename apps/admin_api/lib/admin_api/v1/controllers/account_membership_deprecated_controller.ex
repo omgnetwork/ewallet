@@ -35,6 +35,7 @@ defmodule AdminAPI.V1.AccountMembershipDeprecatedController do
              {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, account),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
+         true <- !is_nil(query) || {:error, :unauthorized},
          attrs <- transform_member_filter_attrs(attrs),
          query <- Membership.query_all_users_by_account(account, query),
          %Paginator{} = memberships <- Orchestrator.query(query, MembershipOverlay, attrs) do
