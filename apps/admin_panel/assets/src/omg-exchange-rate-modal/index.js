@@ -12,6 +12,7 @@ import TokensFetcher from '../omg-token/tokensFetcher'
 import { selectGetTokenById } from '../omg-token/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchTokenQuery } from '../omg-token/searchField'
+import { formatAmount } from '../utils/formatter'
 
 const Form = styled.form`
   padding: 50px;
@@ -181,7 +182,7 @@ class CreateExchangeRateModal extends Component {
         name: this.state.name,
         fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
         toTokenId: _.get(this.state, 'toTokenSelected.id'),
-        rate: Number(this.state.toTokenRate) / Number(this.state.fromTokenRate),
+        rate: formatAmount(this.state.toTokenRate, 1) / formatAmount(this.state.fromTokenRate, 1),
         syncOpposite: !this.state.onlyOneWayExchange
       })
       if (result.data) {
@@ -199,8 +200,8 @@ class CreateExchangeRateModal extends Component {
 
   get ratesAvailable() {
     return (
-      this.state.toTokenRate > 0 &&
-      this.state.fromTokenRate > 0 &&
+      formatAmount(this.state.toTokenRate, 1) > 0 &&
+      formatAmount(this.state.fromTokenRate, 1) > 0 &&
       this.state.toTokenSearch &&
       this.state.fromTokenSearch
     )
@@ -219,7 +220,7 @@ class CreateExchangeRateModal extends Component {
       onlyOneWayExchange
     } = this.state
 
-    const forwardRate = _.round(toTokenRate / fromTokenRate, 3)
+    const forwardRate = _.round(formatAmount(toTokenRate, 1) / formatAmount(fromTokenRate, 1), 3)
     const backRate = _.round(1 / forwardRate, 3)
 
     return (
