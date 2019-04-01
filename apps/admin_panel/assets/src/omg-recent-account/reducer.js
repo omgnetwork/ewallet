@@ -7,5 +7,8 @@ export const recentAccountsReducer = createReducer([], {
     } else {
       return state
     }
+  },
+  'ACCOUNT/DELETE': (state, { data }) => {
+    return state.filter(accountId => accountId !== data)
   }
 })

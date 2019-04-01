@@ -43,7 +43,7 @@ class TokenDetailPage extends Component {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
-          <b>Id:</b> <span>{admin.id}</span> <Copy data={admin.id} />
+          <b>ID:</b> <span>{admin.id}</span> <Copy data={admin.id} />
         </DetailGroup>
         <DetailGroup>
           <b>Email:</b> <span>{admin.email || '-'}</span>

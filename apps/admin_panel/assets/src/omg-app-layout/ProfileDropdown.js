@@ -26,30 +26,30 @@ const DropdownItem = styled.div`
     margin-right: 10px;
   }
 `
-const DropdownItemEmail = DropdownItem.extend`
+const DropdownItemEmail = styled(DropdownItem)`
   padding-top: 0;
   color: ${props => props.theme.colors.B100};
 `
-const DropdownItemName = DropdownItem.extend`
+const DropdownItemName = styled(DropdownItem)`
   color: ${props => props.theme.colors.B400};
   font-weight: 600;
   font-size: 20px;
   padding-bottom: 0;
 `
-const DropdownItemProfile = DropdownItem.extend`
+const DropdownItemProfile = styled(DropdownItem)`
   cursor: pointer;
   border-bottom: 1px solid ${props => props.theme.colors.S400};
   :hover {
     background-color: ${props => props.theme.colors.S200};
   }
 `
-const DropdownItemLogout = DropdownItem.extend`
+const DropdownItemLogout = styled(DropdownItem)`
   cursor: pointer;
   :hover {
     background-color: ${props => props.theme.colors.S200};
   }
 `
-const DropdownBoxStyled = DropdownBox.extend`
+const DropdownBoxStyled = styled(DropdownBox)`
   width: auto;
   text-align: left;
 `

@@ -18,7 +18,7 @@ const UserSettingContainer = styled.div`
 const StyledInput = styled(Input)`
   margin-bottom: 30px;
 `
-const StyledEmailInput = StyledInput.extend`
+const StyledEmailInput = styled(StyledInput)`
   pointer-events: none;
   input {
     border-bottom: none;
@@ -152,7 +152,7 @@ class UserSettingPage extends Component {
   render () {
     return (
       <UserSettingContainer>
-        <h2>User Setting</h2>
+        <h2>Profile Settings</h2>
         {this.props.loadingStatus === 'SUCCESS' && (
           <form onSubmit={this.onClickUpdateAccount} noValidate>
             <AvatarContainer>
@@ -209,7 +209,7 @@ class UserSettingPage extends Component {
                 }
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
-                Save Change
+                Save Changes
               </Button>
             </InputsContainer>
           </form>

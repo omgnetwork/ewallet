@@ -8,6 +8,7 @@ import styled from 'styled-components'
 import { compose } from 'recompose'
 import { NavLink } from 'react-router-dom'
 import queryString from 'query-string'
+
 const DropdownItem = styled.div`
   padding: 7px 10px;
   padding-right: 20px;
@@ -31,6 +32,7 @@ const NavLinkContainer = styled.div`
     display: inline-block;
     i {
       margin-left: 5px;
+      font-size: 12px;
     }
   }
 `
@@ -65,7 +67,8 @@ class WalletDropdown extends Component {
     return (
       <DropdownBox>
         <DropdownItem onClick={this.onClickFilterWallet('account')}>
-          <Icon name='Wallet' /> <span>Account Wallets</span>
+          <Icon name='Wallet' />
+          <span>Account Wallets</span>
         </DropdownItem>
         <DropdownItem onClick={this.onClickFilterWallet('user')}>
           <Icon name='Wallet' />
@@ -100,7 +103,7 @@ class WalletDropdown extends Component {
               onClick={this.onClickNavLink}
             >
               <div className='account-link-text'>
-                {nameMap[this.state.type || walletType] || nameMap.account}
+                {nameMap[walletType] || nameMap.account}
                 {this.props.open ? (
                   <Icon name='Chevron-Up' onClick={this.props.onClickButton} />
                 ) : (

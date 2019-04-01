@@ -50,13 +50,13 @@ class TokenDetailPage extends Component {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
-          <b>Id:</b> <span>{user.id}</span> <Copy data={user.id} />
+          <b>ID:</b> <span>{user.id}</span> <Copy data={user.id} />
         </DetailGroup>
         <DetailGroup>
           <b>Email:</b> <span>{user.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Provider Id:</b> <span>{user.provider_user_id || '-'}</span>
+          <b>Provider ID:</b> <span>{user.provider_user_id || '-'}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Created Date:</b> <span>{moment(user.created_at).format()}</span>
