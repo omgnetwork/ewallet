@@ -14,9 +14,6 @@
 
 defmodule AdminPanel.PageController do
   use AdminPanel, :controller
-  import Ecto.Query
-  import EWalletDB.SoftDelete
-  alias EWalletDB.{APIKey, Repo}
   alias Plug.Conn
 
   @not_found_message """
@@ -27,7 +24,7 @@ defmodule AdminPanel.PageController do
   def admin_index(conn, _params) do
     index("admin", conn)
   end
-  
+
   def client_index(conn, _params) do
     index("client", conn)
   end
