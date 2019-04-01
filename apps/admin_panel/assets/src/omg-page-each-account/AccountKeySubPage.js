@@ -25,13 +25,22 @@ export default withRouter(function AccountKeySubPage (props) {
         divider={false}
         buttons={[
           <AssignButton key='key' onClick={e => setCreateAdminKeyModalOpen(true)}>
-            Assign Key
+            Assign
           </AssignButton>
         ]}
       />
       <AdminKeySection
         fetcher={AccountKeyFetcher}
         registerFetch={fetcher => setFetcher(fetcher)}
+        columnsAdminKeys={[
+          { key: 'name', title: 'NAME' },
+          { key: 'key', title: 'ACCESS KEY' },
+
+          { key: 'account_role', title: 'ACCOUNT ROLE' },
+          { key: 'global_role', title: 'GLOBAL ROLE' },
+          { key: 'created_at', title: 'CREATED AT' },
+          { key: 'status', title: 'STATUS' }
+        ]}
         query={{
           page: access_key_page,
           perPage: 10,

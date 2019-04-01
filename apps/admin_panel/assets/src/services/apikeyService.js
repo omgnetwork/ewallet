@@ -1,14 +1,14 @@
 import { authenticatedRequest } from './apiService'
 
-export function getAllApikey ({ perPage, sort, query, ...rest }) {
+export function getAllApikey ({ perPage, sort, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/api_key.all',
     data: {
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: query,
-      ...rest
+      match_all: matchAll,
+      match_any: matchAny
     }
   })
 }

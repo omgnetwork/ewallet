@@ -12,32 +12,39 @@ import { configureStore } from './store'
 moment.defaultFormat = 'ddd, DD/MM/YYYY HH:mm:ss'
 
 async function bootUp () {
+  // INIT SOCKET
   const socket = new SocketConnector(WEBSOCKET_URL)
-  const result = await getCurrentUser()
   let store = {}
+
+  const result = await getCurrentUser()
   if (result.data.success) {
     const currentUser = result.data.data
-    const fromLocal = getRecentAccountFromLocalStorage(currentUser.id)
-    const recentAccounts = fromLocal
-      ? fromLocal.filter(d => d !== 'undefined' || !d)
+    const recentAccounts = getRecentAccountFromLocalStorage(currentUser.id)
+    const toInjectRecentAccount = recentAccounts
+      ? recentAccounts.filter(d => d !== 'undefined' || !d)
       : []
-    const accounts = recentAccounts.reduce(
+    const accounts = toInjectRecentAccount.reduce(
       (prev, recentAccount) => ({
         ...prev,
         [recentAccount]: { id: recentAccount, injected_loading: true }
       }),
       {}
     )
-    store = configureStore({ currentUser, recentAccounts, accounts }, { socket })
-    recentAccounts.forEach(accountId => {
+    store = configureStore(
+      { currentUser, recentAccounts: toInjectRecentAccount, accounts },
+      { socket }
+    )
+
+    // PREFETCH ACCOUNT IN RECENT TAB SIDE BAR
+    toInjectRecentAccount.forEach(accountId => {
       const getAccountAction = getAccountById(accountId)
-      store.dispatch(getAccountAction).then(({ type, data: accountId }) => {
+      store.dispatch(getAccountAction).then(({ type }) => {
         if (type === 'ACCOUNT/REQUEST/FAILED') {
+          store.dispatch(deleteAccount(accountId))
           const removedBadRecentAccounts = getRecentAccountFromLocalStorage(currentUser.id).filter(
             id => accountId !== id
           )
-          setRecentAccount(removedBadRecentAccounts)
-          store.dispatch(deleteAccount(accountId))
+          setRecentAccount(currentUser.id, removedBadRecentAccounts)
         }
       })
     })

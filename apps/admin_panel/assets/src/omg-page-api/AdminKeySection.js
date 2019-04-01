@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Switch, Icon } from '../omg-uikit'
+import { Switch, Icon, Button } from '../omg-uikit'
 import Table from '../omg-table'
 import AccessKeyFetcher from '../omg-access-key/accessKeysFetcher'
 import moment from 'moment'
@@ -9,12 +9,12 @@ import ConfirmationModal from '../omg-confirmation-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { createApiKey } from '../omg-api-keys/action'
-import { createAccessKey, updateAccessKey } from '../omg-access-key/action'
+import { createAccessKey, updateAccessKey, downloadKey } from '../omg-access-key/action'
 import CreateAdminKeyModal from '../omg-create-admin-key-modal'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import Copy from '../omg-copy'
-
+import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
 const KeySection = styled.div`
   position: relative;
   p {
@@ -31,7 +31,7 @@ const KeySection = styled.div`
     margin-bottom: 20px;
   }
   tr:hover {
-    td:nth-child(1) {
+    td:nth-child(2) {
       i {
         visibility: visible;
       }
@@ -40,7 +40,7 @@ const KeySection = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(1) {
+  td:nth-child(2) {
     width: 50%;
     border: none;
     position: relative;
@@ -53,6 +53,11 @@ const KeySection = styled.div`
       width: calc(100% - 50px);
       border-bottom: 1px solid ${props => props.theme.colors.S200};
     }
+  }
+  td:first-child div {
+    max-width: 20vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   i[name='Copy'] {
     cursor: pointer;
@@ -67,12 +72,16 @@ const KeySection = styled.div`
 const ConfirmCreateKeyContainer = styled.div`
   font-size: 16px;
   padding: 30px;
+  max-width: 500px;
+  a:hover{
+    text-decoration: underline;
+  }
+  
   h4 {
     padding-bottom: 10px;
   }
   p {
     font-size: 12px;
-    max-width: 350px;
     margin-bottom: 10px;
   }
   input {
@@ -124,18 +133,11 @@ const InputLabel = styled.div`
   font-size: 14px;
   color: ${props => props.theme.colors.B100};
 `
-const columnsAdminKeys = [
-  { key: 'key', title: 'ADMIN KEY' },
-  { key: 'name', title: 'NAME' },
-  { key: 'created_at', title: 'CREATED DATE' },
-  { key: 'status', title: 'STATUS' },
-  { key: 'global_role', title: 'GLOBAL ROLE' }
-]
 const enhance = compose(
   withRouter,
   connect(
     null,
-    { createApiKey, createAccessKey, updateAccessKey }
+    { createApiKey, createAccessKey, updateAccessKey, downloadKey }
   )
 )
 class ApiKeyPage extends Component {
@@ -146,11 +148,22 @@ class ApiKeyPage extends Component {
     query: PropTypes.object,
     fetcher: PropTypes.func,
     registerFetch: PropTypes.func,
-    onRequestClose: PropTypes.func
+    onRequestClose: PropTypes.func,
+    columnsAdminKeys: PropTypes.array,
+    search: PropTypes.string,
+    downloadKey: PropTypes.func
   }
 
   static defaultProps = {
-    fetcher: AccessKeyFetcher
+    fetcher: AccessKeyFetcher,
+    columnsAdminKeys: [
+      { key: 'name', title: 'NAME' },
+      { key: 'key', title: 'ACCESS KEY' },
+
+      { key: 'global_role', title: 'GLOBAL ROLE' },
+      { key: 'created_at', title: 'CREATED AT' },
+      { key: 'status', title: 'STATUS' }
+    ]
   }
   state = {
     createAdminKeyModalOpen: false,
@@ -178,6 +191,12 @@ class ApiKeyPage extends Component {
   onClickAccessKeySwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateAccessKey({ id, expired })
   }
+  onClickDownloadKey = e => {
+    this.props.downloadKey({
+      accessKey: this.state.accessKey,
+      secretKey: this.state.secretKey
+    })
+  }
 
   rowAdminKeyRenderer = fetch => (key, data, rows) => {
     switch (key) {
@@ -191,15 +210,18 @@ class ApiKeyPage extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /> <span>{data}</span> <Copy data={data} />
+            <span>{data}</span> <Copy data={data} />
           </KeyContainer>
         )
-      case 'user':
+      case 'name':
         return (
           <KeyContainer>
-            <Icon name='Profile' /> <span>{data}</span>
+            <Icon name='Key' /> <span>{data}</span>
           </KeyContainer>
         )
+      case 'global_role':
+      case 'account_role':
+        return _.startCase(data)
       case 'created_at':
         return moment(data).format()
       default:
@@ -219,8 +241,11 @@ class ApiKeyPage extends Component {
         <ConfirmCreateKeyContainer>
           <h4>Your key pair</h4>
           <p>
-            Please keep a copy of these secret keys. The secret key will be used to access your
-            encrypted information.
+            An access key and a secret have been generated. In order to access the admin API
+            programmatically, you will need to use them together. We do not store the secret key in
+            our database for security reasons. This is the only time you will see it, so copy it and
+            store it somewhere safe. Note that you will be able to get the access key anytime from
+            the admin panel.
           </p>
           <InputContainer>
             <InputLabel>Access Key</InputLabel>
@@ -232,6 +257,7 @@ class ApiKeyPage extends Component {
             <input readOnly value={this.state.secretKey} spellCheck='false' />
             <Copy data={this.state.secretKey} />
           </InputContainer>
+          <a onClick={this.onClickDownloadKey}>Download a CSV backup of your keys</a>
         </ConfirmCreateKeyContainer>
       </ConfirmationModal>
     )
@@ -243,7 +269,8 @@ class ApiKeyPage extends Component {
       <Fetcher
         query={{
           page: queryString.parse(this.props.location.search)['access_key_page'],
-          perPage: 10
+          perPage: 10,
+          ...createSearchAdminKeyQuery(this.props.search)
         }}
         {...this.props}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
@@ -255,7 +282,8 @@ class ApiKeyPage extends Component {
               created_at: key.created_at,
               status: key.expired,
               name: key.name || 'Not Provided',
-              global_role: key.global_role || 'none'
+              global_role: key.global_role || 'none',
+              account_role: key.account_role || 'none'
             }
           })
           return (
@@ -264,7 +292,7 @@ class ApiKeyPage extends Component {
                 loadingRowNumber={6}
                 rows={apiKeysRows}
                 rowRenderer={this.rowAdminKeyRenderer(fetch)}
-                columns={columnsAdminKeys}
+                columns={this.props.columnsAdminKeys}
                 loadingStatus={individualLoadingStatus}
                 navigation
                 isFirstPage={pagination.is_first_page}

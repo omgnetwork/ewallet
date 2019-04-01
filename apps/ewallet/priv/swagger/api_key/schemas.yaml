@@ -96,6 +96,10 @@ APIKeySchema:
       type: boolean
     account_id:
       type: string
+    creator_user_id:
+      type: string
+    creator_key_id:
+      type: string
     created_at:
       type: string
       format: date-time

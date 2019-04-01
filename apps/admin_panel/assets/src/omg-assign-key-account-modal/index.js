@@ -80,7 +80,6 @@ function AssignKeyAccount (props) {
   const [adminKey, setAdminKeyInput] = useState('')
   function onRequestClose () {
     setAdminKeyInput('')
-    setSubmitStatus('DEFAULT')
     props.onRequestClose()
   }
   function onSelectAccount (account) {
@@ -96,26 +95,20 @@ function AssignKeyAccount (props) {
     })
     if (data) {
       setSubmitStatus('SUCCESS')
-      console.log(props)
-      props.onSubmitSuccess(data)
+      props.onSubmitSuccess()
       onRequestClose()
     } else {
       setSubmitStatus('FAILED')
     }
   }
-  return (
-    <Modal
-      isOpen={props.open}
-      onRequestClose={onRequestClose}
-      contentLabel='invite modal'
-      shouldCloseOnOverlayClick={false}
-      overlayClassName='dummy'
-    >
+
+  function renderAssignKey () {
+    return (
       <AssignKeyAccountContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />
         <CreateAdminKeyFormContainer>
           <h4>Assign Admin Key</h4>
-          <InputLabel>Admin Key to assign</InputLabel>
+          <InputLabel>Key To Assign</InputLabel>
           <AccessKeysFetcher
             query={{
               perPage: 10,
@@ -124,26 +117,24 @@ function AssignKeyAccount (props) {
             render={({ data: adminKeys }) => {
               return (
                 <StyledSelect
-                  normalPlaceholder='Account ( optional )'
+                  normalPlaceholder='Access Key'
                   onChange={e => setAdminKeyInput(e.target.value)}
                   value={adminKey}
                   onSelectItem={item => onSelectAccount(item.key)}
-                  options={adminKeys.map(k => (
-                    {key: k.id, value: <AdminKeySelectRow key={k.id} adminKey={k} />}
-                  ))}
+                  options={adminKeys.map(k => ({
+                    key: k.id,
+                    value: <AdminKeySelectRow key={k.id} adminKey={k} />
+                  }))}
                 />
               )
             }}
           />
           <InputLabel>Account Role</InputLabel>
           <StyledSelect
-            normalPlaceholder={'Account\'s Role ( optional )'}
-            value={roleAccount}
+            normalPlaceholder={'Account\'s Role'}
+            value={_.startCase(roleAccount)}
             onSelectItem={item => setRoleAccount(item.key)}
-            options={[
-              { key: 'viewer', value: 'Viewer' },
-              { key: 'admin', value: 'Admin' }
-            ]}
+            options={[{ key: 'admin', value: 'Admin' }, { key: 'viewer', value: 'Viewer' } ]}
           />
           <CreateAdminKeyButton
             styleType='primary'
@@ -154,7 +145,20 @@ function AssignKeyAccount (props) {
           </CreateAdminKeyButton>
         </CreateAdminKeyFormContainer>
       </AssignKeyAccountContainer>
-    </Modal>
+    )
+  }
+  return (
+    props.open && (
+      <Modal
+        isOpen={props.open}
+        onRequestClose={onRequestClose}
+        contentLabel='invite modal'
+        shouldCloseOnOverlayClick={false}
+        overlayClassName='dummy'
+      >
+        {renderAssignKey()}
+      </Modal>
+    )
   )
 }
 

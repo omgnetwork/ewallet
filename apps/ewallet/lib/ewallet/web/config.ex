@@ -33,21 +33,37 @@ defmodule EWallet.Web.Config do
     "OMGAdmin-Account-ID"
   ]
 
-  def configure_cors_plug do
-    max_age =
-      case System.get_env("CORS_MAX_AGE") do
-        nil -> 600
-        value -> String.to_integer(value)
-      end
+  @methods [
+    "POST",
+    "GET"
+  ]
 
-    cors_origin = System.get_env("CORS_ORIGIN")
+  @doc """
+  Prepares the config that is accepted by CORSPlug.
 
-    Application.put_env(:cors_plug, :max_age, max_age)
-    Application.put_env(:cors_plug, :headers, @headers)
-    Application.put_env(:cors_plug, :methods, ["POST"])
-    Application.put_env(:cors_plug, :origin, cors_plug_origin(cors_origin))
+  Note that calling this function when setting up a plug,
+  e.g. `plug CORSPlug, Config.cors_plug_config()`, would call this function at compile-time.
 
-    :ok
+  The only value that can be dynamic is :origin, which CORSPlug allows passing
+  a function reference to be called at runtime. See: https://hexdocs.pm/cors_plug/
+  """
+  @spec cors_plug_config() :: Keyword.t()
+  def cors_plug_config do
+    [
+      max_age: 86_400,
+      origin: &__MODULE__.cors_origin/0,
+      headers: @headers,
+      methods: @methods
+    ]
+  end
+
+  # This should be a private function but required to be public as it's passed into CORSPLug.
+  @doc false
+  @spec cors_origin() :: [String.t()]
+  def cors_origin do
+    :ewallet
+    |> Application.get_env(:cors_origin)
+    |> cors_plug_origin()
   end
 
   defp cors_plug_origin(nil), do: []

@@ -39,7 +39,6 @@ const enhance = compose(
 )
 function AccountLayout (props) {
   const { accountId, type, id } = props.match.params
-
   useEffect(() => {
     if (!_.isEmpty(props.account)) {
       props.visitAccount(accountId)

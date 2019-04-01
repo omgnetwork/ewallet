@@ -7,7 +7,7 @@ import { compose } from 'recompose'
 import AdminKeySection from './AdminKeySection'
 import { withRouter, Link } from 'react-router-dom'
 import ClientKeySection from './ClientKeySection'
-
+import queryString from 'query-string'
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
 `
@@ -44,7 +44,8 @@ const enhance = compose(withRouter)
 class ApiKeyPage extends Component {
   static propTypes = {
     divider: PropTypes.bool,
-    match: PropTypes.object
+    match: PropTypes.object,
+    location: PropTypes.object
   }
   state = {
     createAdminKeyModalOpen: false,
@@ -75,6 +76,8 @@ class ApiKeyPage extends Component {
 
   render () {
     const activeTab = this.props.match.params.keyType === 'client' ? 'client' : 'admin'
+    const searchQuery = queryString.parse(this.props.location.search).search
+    const stringQuery = queryString.stringify({search: searchQuery})
     return (
       <ApiKeyContainer>
         <TopNavigation
@@ -84,15 +87,14 @@ class ApiKeyPage extends Component {
             'These are the keys that can be used by developers to interact with the API.'
           }
           buttons={null}
-          secondaryAction={false}
           types={false}
         />
         <KeyTopBar>
           <KeyTopButtonsContainer>
-            <Link to='/keys/admin'>
+            <Link to='/keys/admin' query={stringQuery}>
               <KeyButton active={activeTab === 'admin'}>Admin Keys</KeyButton>
             </Link>
-            <Link to='/keys/client'>
+            <Link to='/keys/client' query={stringQuery}>
               <KeyButton active={activeTab === 'client'}>Client Keys</KeyButton>
             </Link>
             {activeTab === 'admin' ? (
@@ -122,11 +124,13 @@ class ApiKeyPage extends Component {
           <AdminKeySection
             createAdminKeyModalOpen={this.state.createAdminKeyModalOpen}
             onRequestClose={this.onRequestClose}
+            search={queryString.parse(this.props.location.search).search}
           />
         ) : (
           <ClientKeySection
             createClientKeyModalOpen={this.state.createClientKeyModalOpen}
             onRequestClose={this.onRequestClose}
+            search={queryString.parse(this.props.location.search).search}
           />
         )}
       </ApiKeyContainer>

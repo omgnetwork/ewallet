@@ -11,8 +11,9 @@ export function getRecentAccountFromLocalStorage (accountId) {
 export function getAccessToken () {
   return localStorage.get(CONSTANT.AUTHENTICATION_TOKEN)
 }
-export function setRecentAccount (data) {
-  return localStorage.set(CONSTANT.RECENT_ACCOUNT, data)
+export function setRecentAccount (id, data) {
+  const recentAccounts = localStorage.get(CONSTANT.RECENT_ACCOUNT)
+  return localStorage.set(CONSTANT.RECENT_ACCOUNT, { ...recentAccounts, [id]: data })
 }
 
 export function setAccessToken (data) {

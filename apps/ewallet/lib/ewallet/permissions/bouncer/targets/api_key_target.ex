@@ -17,21 +17,18 @@ defmodule EWallet.Bouncer.APIKeyTarget do
   A policy helper containing the actual authorization.
   """
   @behaviour EWallet.Bouncer.TargetBehaviour
-  alias EWalletDB.{APIKey, Helpers.Preloader}
 
-  @spec get_owner_uuids(APIKey.t()) :: [Ecto.UUID.t()]
-  def get_owner_uuids(%APIKey{account_uuid: uuid}) do
-    [uuid]
-  end
+  @spec get_owner_uuids(%EWalletDB.APIKey{}) :: [Ecto.UUID.t()]
+  def get_owner_uuids(%{creator_user_uuid: uuid}), do: [uuid]
+
+  def get_owner_uuids(%{creator_key_uuid: uuid}), do: [uuid]
 
   @spec get_target_types() :: [:api_keys]
   def get_target_types, do: [:api_keys]
 
-  @spec get_target_type(APIKey.t()) :: :api_keys
+  @spec get_target_type(%EWalletDB.APIKey{}) :: :api_keys
   def get_target_type(_), do: :api_keys
 
-  @spec get_target_accounts(APIKey.t(), any()) :: [Account.t()]
-  def get_target_accounts(%APIKey{} = key, _dispatch_config) do
-    [Preloader.preload(key, [:account]).account]
-  end
+  @spec get_target_accounts(%EWalletDB.APIKey{}, any()) :: []
+  def get_target_accounts(_api_key, _dispatch_config), do: []
 end

@@ -12,6 +12,7 @@ import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
 import Copy from '../omg-copy'
+import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
 const KeySection = styled.div`
   position: relative;
   p {
@@ -28,7 +29,7 @@ const KeySection = styled.div`
     margin-bottom: 20px;
   }
   tr:hover {
-    td:nth-child(1) {
+    td:nth-child(2) {
       i {
         visibility: visible;
       }
@@ -37,8 +38,8 @@ const KeySection = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(1) {
-    width: 50%;
+  td:nth-child(2) {
+    width: 40%;
     border: none;
     position: relative;
     :before {
@@ -84,9 +85,9 @@ const KeyContainer = styled.div`
 `
 
 const columnsApiKey = [
-  { key: 'key', title: 'CLIENT KEY' },
   { key: 'name', title: 'NAME' },
-  { key: 'created_at', title: 'CREATED DATE' },
+  { key: 'key', title: 'ACCESS KEY' },
+  { key: 'created_at', title: 'CREATED AT' },
   { key: 'status', title: 'STATUS' }
 ]
 const enhance = compose(
@@ -102,7 +103,8 @@ class ClientKeySection extends Component {
     updateApiKey: PropTypes.func,
     location: PropTypes.object,
     createClientKeyModalOpen: PropTypes.bool,
-    onRequestClose: PropTypes.func
+    onRequestClose: PropTypes.func,
+    search: PropTypes.string
   }
   state = {
     submitStatus: 'DEFAULT'
@@ -138,13 +140,13 @@ class ClientKeySection extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /> <span>{data}</span> <Copy data={data} />
+            <span>{data}</span> <Copy data={data} />
           </KeyContainer>
         )
-      case 'user':
+      case 'name':
         return (
           <KeyContainer>
-            <Icon name='Profile' /> <span>{data}</span>
+            <Icon name='Key' /> <span>{data}</span>
           </KeyContainer>
         )
       case 'created_at':
@@ -159,8 +161,10 @@ class ClientKeySection extends Component {
       <ApiKeysFetcher
         query={{
           page: queryString.parse(this.props.location.search)['api_key_page'],
-          perPage: 10
+          perPage: 10,
+          ...createSearchAdminKeyQuery(this.props.search)
         }}
+        {...this.props}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data
             .filter(key => !key.deleted_at)

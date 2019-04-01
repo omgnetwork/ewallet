@@ -15,7 +15,6 @@
 defmodule AdminPanel.PageControllerTest do
   use ExUnit.Case, async: true
   use Phoenix.ConnTest
-  import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias EWalletDB.APIKey
   alias ActivityLogger.System
@@ -40,12 +39,8 @@ defmodule AdminPanel.PageControllerTest do
     end
 
     test "returns the main front-end app with the API key" do
-      account = insert(:account)
-
       {:ok, api_key} =
         APIKey.insert(%{
-          owner_app: "admin_api",
-          account_uuid: account.uuid,
           originator: %System{}
         })
 

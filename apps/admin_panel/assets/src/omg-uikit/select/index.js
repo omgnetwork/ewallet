@@ -40,7 +40,8 @@ export default class Select extends PureComponent {
     onBlur: PropTypes.func,
     optionBoxHeight: PropTypes.string,
     className: PropTypes.string,
-    filterByKey: PropTypes.bool
+    filterByKey: PropTypes.bool,
+    optionRenderer: PropTypes.func
   }
   static defaultProps = {
     onSelectItem: _.noop,
@@ -105,7 +106,7 @@ export default class Select extends PureComponent {
             {filteredOption.map(option => {
               return (
                 <OptionItem onMouseDown={this.onClickItem(option)} key={option.key}>
-                  {option.value}
+                  {this.props.optionRenderer ? this.props.optionRenderer(option.value) : option.value}
                 </OptionItem>
               )
             })}
