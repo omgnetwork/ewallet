@@ -115,7 +115,7 @@ class CreateExchangeRateModal extends Component {
     fromTokenSearch: '',
     fromTokenRate: '',
     toTokenRate: '',
-    toTokenSearch: '',
+    toTokenSearch: ''
   }
 
   onChangeName = e => {
@@ -157,11 +157,11 @@ class CreateExchangeRateModal extends Component {
     }
   }
 
-  get ratesAvailable() {
-    return this.state.toTokenRate > 0 
-      && this.state.fromTokenRate > 0
-      && this.state.toTokenSearch
-      && this.state.fromTokenSearch
+  get ratesAvailable () {
+    return this.state.toTokenRate > 0 &&
+      this.state.fromTokenRate > 0 &&
+      this.state.toTokenSearch &&
+      this.state.fromTokenSearch
   }
 
   renderCalculation = () => {
@@ -173,14 +173,11 @@ class CreateExchangeRateModal extends Component {
     const backRate = _.round(1 / forwardRate, 4)
 
     return (
-      <>
-        <div>
-          {`1 ${this.state.fromTokenSearch} : ${forwardRate} ${this.state.toTokenSearch}`}
-        </div>
-        <BackRateContainer disabled={this.state.onlyOneWayExchange}>
-          {`1 ${this.state.toTokenSearch} : ${backRate} ${this.state.fromTokenSearch}`}
-        </BackRateContainer>
-      </>
+      <>'       '<div>
+        {`1 ${this.state.fromTokenSearch} : ${forwardRate} ${this.state.toTokenSearch}`}
+      </div>'       '<BackRateContainer disabled={this.state.onlyOneWayExchange}>
+        {`1 ${this.state.toTokenSearch} : ${backRate} ${this.state.fromTokenSearch}`}
+      </BackRateContainer>'     '</>
     )
   }
 

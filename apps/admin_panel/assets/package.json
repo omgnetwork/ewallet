@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "webpack-dev-server --config webpack/webpack.dev.config.js --hot --progress",
     "start:dev": "webpack-dev-server --config webpack/webpack.dev.config.js --hot --progress",
-    "build": "webpack --config webpack/webpack.prod.config.js --colors",
+    "build": "NODE_ENV=production webpack --config webpack/webpack.prod.config.js --colors",
     "test": "jest --config config/jest.config.js",
     "test:watch": "jest --config config/jest.config.js --watch",
     "lint": "eslint src --ext .js"
@@ -44,7 +44,7 @@
     "dotenv-webpack": "^1.7.0",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.9.1",
-    "eslint": "^3.14.1",
+    "eslint": "^5.16.0",
     "eslint-config-standard": "^6.2.1",
     "eslint-config-standard-jsx": "^3.2.0",
     "eslint-config-standard-react": "^4.2.0",
