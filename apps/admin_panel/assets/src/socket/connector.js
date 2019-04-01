@@ -169,7 +169,7 @@ class SocketConnector {
           console.log(
             `attempt to join channel : ${channel} when socket is not initialized, added to queue.`
           )
-        } else if (this.getConnectionStatus === 'CONNECTED') {
+        } else if (this.getConnectionStatus() === 'CONNECTED') {
           this.send(payload)
         }
       } catch (error) {
