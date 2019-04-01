@@ -69,7 +69,7 @@ async function bootAdminPanelApp () {
       store.replaceReducer(require('./reducer').default)
     })
   }
-  console.log('booted up admin panel app.')
+  console.log('Started Admin panel app.')
   return true
 }
 
@@ -84,13 +84,13 @@ async function bootClientApp () {
       render(<App />, document.getElementById('app'))
     })
   }
-  ('booted up client app.')
+  console.log('Started client app.')
   return true
 }
 
 async function bootApp () {
   const [, app] = window.location.pathname.split('/')
-  console.log(`Booting up ${app} app...`)
+  console.log(`Starting up ${app} app...`)
   switch (app) {
     case 'admin':
       return bootAdminPanelApp()
