@@ -21,14 +21,6 @@ defmodule AdminPanel.PageController do
   please make sure that the front-end assets have been built.
   """
 
-  # def admin_index(conn, _params) do
-  #   index("admin", conn)
-  # end
-  #
-  # def client_index(conn, _params) do
-  #   index("client", conn)
-  # end
-
   def index(conn, _params) do
     content =
       conn
