@@ -23,12 +23,12 @@ defmodule AdminPanel.Router do
   scope "/admin", AdminPanel do
     pipe_through(:browser)
     # All requests serve from the same index page
-    match(:*, "/*path", PageController, :admin_index)
+    match(:*, "/*path", PageController, :index)
   end
 
   scope "/client", AdminPanel do
     pipe_through(:browser)
     # All requests serve from the same index page
-    match(:*, "/*path", PageController, :client_index)
+    match(:*, "/*path", PageController, :index)
   end
 end

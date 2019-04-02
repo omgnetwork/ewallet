@@ -33,7 +33,7 @@ defmodule AdminPanel.PageControllerTest do
         |> get("/admin")
         |> html_response(:ok)
 
-      assert response =~ "<title>Admin Panel</title>"
+      assert response =~ "<title>OmiseGO | Loading</title>"
     end
 
     test "returns :not_found if the index file could not be found" do
@@ -55,7 +55,7 @@ defmodule AdminPanel.PageControllerTest do
         |> get("/client")
         |> html_response(:ok)
 
-      assert response =~ "<title>Client app</title>"
+      assert response =~ "<title>OmiseGO | Loading</title>"
     end
 
     test "returns :not_found if the index file could not be found" do
@@ -80,7 +80,7 @@ defmodule AdminPanel.PageControllerTest do
         |> get("/admin/any-path")
         |> html_response(:ok)
 
-      assert response =~ "<title>Admin Panel</title>"
+      assert response =~ "<title>OmiseGO | Loading</title>"
     end
   end
 
@@ -95,7 +95,7 @@ defmodule AdminPanel.PageControllerTest do
         |> get("/client/any-path")
         |> html_response(:ok)
 
-      assert response =~ "<title>Client app</title>"
+      assert response =~ "<title>OmiseGO | Loading</title>"
     end
   end
 end

@@ -21,18 +21,18 @@ defmodule AdminPanel.PageController do
   please make sure that the front-end assets have been built.
   """
 
-  def admin_index(conn, _params) do
-    index("admin", conn)
-  end
+  # def admin_index(conn, _params) do
+  #   index("admin", conn)
+  # end
+  #
+  # def client_index(conn, _params) do
+  #   index("client", conn)
+  # end
 
-  def client_index(conn, _params) do
-    index("client", conn)
-  end
-
-  defp index(type, conn) do
+  def index(conn, _params) do
     content =
-      type
-      |> index_file_path(conn)
+      conn
+      |> index_file_path()
       |> File.read!()
 
     conn
@@ -45,13 +45,13 @@ defmodule AdminPanel.PageController do
       |> Conn.send_resp(:not_found, @not_found_message)
   end
 
-  defp index_file_path(type, %{private: %{override_dist_path: dist_path}}) do
-    Path.join(dist_path, "#{type}_index.html")
+  defp index_file_path(%{private: %{override_dist_path: dist_path}}) do
+    Path.join(dist_path, "index.html")
   end
 
-  defp index_file_path(type, _conn) do
+  defp index_file_path(_conn) do
     :admin_panel
     |> Application.get_env(:dist_path)
-    |> Path.join("#{type}_index.html")
+    |> Path.join("index.html")
   end
 end
