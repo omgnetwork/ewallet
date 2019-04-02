@@ -17,6 +17,7 @@ defmodule EWalletDB.MembershipTest do
   import EWalletDB.Factory
   alias EWalletDB.{Membership, Repo, User}
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "Membership factory" do
     # Not using `test_has_valid_factory/1` macro here because `Membership.insert/1` is private.
@@ -29,19 +30,14 @@ defmodule EWalletDB.MembershipTest do
     end
   end
 
-  defp prepare_membership do
-    user = insert(:user)
-    account = insert(:account)
-    role = insert(:role, %{name: "some_role"})
-    membership = insert(:membership, %{user: user, account: account, role: role})
-
-    {membership, user, account, role}
-  end
-
   describe "Membership.get_by_member_and_account/2" do
     test "returns a list of memberships associated with the given user and account" do
-      {membership, user, account, _} = prepare_membership()
-      result = Membership.get_by_member_and_account(user, account)
+      admin = insert(:admin)
+      account = insert(:account)
+      role = insert(:role, %{name: "some_role"})
+      membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      result = Membership.get_by_member_and_account(admin, account)
 
       assert result.uuid == membership.uuid
     end
@@ -57,12 +53,52 @@ defmodule EWalletDB.MembershipTest do
     end
   end
 
-  describe "Membership.all_by_user/1" do
+  describe "Membership.query_all_by_user/1" do
     test "returns all memberships associated with the given user" do
-      {membership, user, _, _} = prepare_membership()
-      result = Membership.all_by_user(user)
+      admin_1 = insert(:admin)
+      admin_2 = insert(:admin)
 
-      assert Enum.at(result, 0).uuid == membership.uuid
+      role = insert(:role, %{name: "some_role"})
+
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+
+      membership_1 = insert(:membership, %{user: admin_1, account: account_1, role: role})
+      membership_2 = insert(:membership, %{user: admin_1, account: account_2, role: role})
+      membership_3 = insert(:membership, %{user: admin_2, account: account_2, role: role})
+
+      membership_uuids =
+        admin_1 |> Membership.query_all_by_user() |> Repo.all() |> UUID.get_uuids()
+
+      assert length(membership_uuids) == 2
+
+      assert Enum.member?(membership_uuids, membership_1.uuid)
+      assert Enum.member?(membership_uuids, membership_2.uuid)
+      refute Enum.member?(membership_uuids, membership_3.uuid)
+    end
+  end
+
+  describe "Membership.query_all_by_key/3" do
+    test "returns all memberships associated with the given key" do
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+
+      key_1 = insert(:key)
+      key_2 = insert(:key)
+
+      role = insert(:role, %{name: "some_role"})
+
+      membership_1 = insert(:membership, %{key: key_1, account: account_1, role: role})
+      membership_2 = insert(:membership, %{key: key_1, account: account_2, role: role})
+      membership_3 = insert(:membership, %{key: key_2, account: account_2, role: role})
+
+      membership_uuids = key_1 |> Membership.query_all_by_key() |> Repo.all() |> UUID.get_uuids()
+
+      assert length(membership_uuids) == 2
+
+      assert Enum.member?(membership_uuids, membership_1.uuid)
+      assert Enum.member?(membership_uuids, membership_2.uuid)
+      refute Enum.member?(membership_uuids, membership_3.uuid)
     end
   end
 

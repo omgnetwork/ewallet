@@ -90,9 +90,9 @@ AdminCreateBody:
             type: string
           calling_name:
             type: string
-          enabled: 
+          enabled:
             type: boolean
-          global_role: 
+          global_role:
             type: string
           metadata:
             type: object
@@ -123,9 +123,9 @@ AdminUpdateBody:
             type: string
           calling_name:
             type: string
-          enabled: 
+          enabled:
             type: boolean
-          global_role: 
+          global_role:
             type: string
           metadata:
             type: object
@@ -136,7 +136,7 @@ AdminUpdateBody:
         required:
           - id
         example:
-          id: usr_01ce83q2zw7zk1dqr79t22zr1v  
+          id: usr_01ce83q2zw7zk1dqr79t22zr1v
           full_name: John Doe
           calling_name: John
           global_role: admin
@@ -239,3 +239,19 @@ AdminUploadBody:
         example:
           id: usr_01ce83xvrsh8bzpctq3wqbprf8
           avatar: /path/to/file
+
+AdminListBody:
+  description: The parameters to use for listing an admin's data
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: usr_01ce83zf80j542z4q4zqd8qvfx

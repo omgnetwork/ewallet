@@ -1,0 +1,37 @@
+MembershipSchema:
+  description: The object schema for a membership
+  type: object
+  properties:
+    object:
+      type: string
+    user_id:
+      type: string
+    user:
+      type: object
+    key_id:
+      type: string
+    key:
+      type: object
+    account_id:
+      type: string
+    account:
+      type: object
+    role:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+  required:
+    - object
+    - user_id
+    - user
+    - key_id
+    - key
+    - account_id
+    - account
+    - role
+    - created_at
+    - updated_at
