@@ -53,3 +53,59 @@ AdminsResponseSchema:
             avatar: {original: file_url}
             created_at: '2018-01-01T00:00:00Z'
             updated_at: '2018-01-01T10:00:00Z'
+
+MembershipsResponseSchema:
+  description: The response schema for a list of memberships
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../../../../ewallet/priv/swagger/membership/schemas.yaml#/MembershipSchema'
+    example:
+      data:
+        data:
+          - object: membership
+            user_id: usr_01ce83zf80j542z4q4zqd8qvfx
+            user:
+              object: user
+              id: usr_01ce83zf80j542z4q4zqd8qvfx
+              provider_user_id: wijf-fbancomw-dqwjudb
+              username: johndoe
+              full_name: John Doe
+              calling_name: John
+              email: johndoe@omise.co
+              enabled: true
+              metadata: {first_name: John, last_name: Doe}
+              encrypted_metadata: {something: secret}
+              avatar: {original: file_url}
+              global_role: admin
+              created_at: '2018-01-01T00:00:00Z'
+              updated_at: '2018-01-01T10:00:00Z'
+            key_id: null
+            key: null
+            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+            account:
+              object: account
+              id: acc_01ca2p8jqans5aty5gj5etmjcf
+              parent_id: null
+              name: Account name
+              description: The account description
+              master: true
+              category_ids: []
+              roles: []
+              metadata: {}
+              encrypted_metadata: {}
+              avatar: {'original': 'file_url'}
+              created_at: '2018-01-01T00:00:00Z'
+              updated_at: '2018-01-01T10:00:00Z'
+            role: admin
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'

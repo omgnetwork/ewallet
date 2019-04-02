@@ -142,38 +142,6 @@ account.unassign_key:
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
-account.get_members:
-  post:
-    tags:
-      - Account
-    summary: List the admins that are currently assigned to the given acount
-    operationId: account_get_members
-    security:
-      - ProviderAuth: []
-      - AdminAuth: []
-    requestBody:
-      $ref: 'request_bodies.yaml#/AccountListBody'
-    responses:
-      '200':
-        $ref: '../user/responses.yaml#/MembersResponse'
-      '500':
-        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
-account.get_keys:
-  post:
-    tags:
-      - Account
-    summary: List the keys that are currently assigned to the given acount
-    operationId: account_get_keys
-    security:
-      - ProviderAuth: []
-      - AdminAuth: []
-    requestBody:
-      $ref: 'request_bodies.yaml#/AccountListBody'
-    responses:
-      '200':
-        $ref: '../api_key/responses.yaml#/MemberAccessKeysResponse'
-      '500':
-        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 account.get_users:
   post:
     tags:
@@ -284,5 +252,58 @@ account.get_transaction_consumptions:
     responses:
       '200':
         $ref: '../transaction_consumption/responses.yaml#/TransactionConsumptionsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+
+account.get_admin_user_memberships:
+  post:
+    tags:
+      - Account
+    summary: List the admin memberships of the given acount
+    operationId: account_get_admin_user_memberships
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/MembershipsAdminsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+account.get_key_memberships:
+  post:
+    tags:
+      - Account
+    summary: List the key memberships of the given acount
+    operationId: account_get_key_memberships
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/MembershipsKeysResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+account.get_members:
+  post:
+    tags:
+      - Account
+    summary: List the admins that are currently assigned to the given acount (deprecated, use 'account.get_admin_user_memberships' instead)
+    operationId: account_get_members
+    deprecated: true
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccountListBody'
+    responses:
+      '200':
+        $ref: '../user/responses.yaml#/MembersResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

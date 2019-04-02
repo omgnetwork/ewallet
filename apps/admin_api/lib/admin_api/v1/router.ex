@@ -116,12 +116,29 @@ defmodule AdminAPI.V1.Router do
     )
 
     # Account membership endpoints
-    post("/account.get_members", AccountMembershipController, :all_users_for_account)
-    post("/account.get_keys", AccountMembershipController, :all_keys_for_account)
     post("/account.assign_user", AccountMembershipController, :assign_user)
     post("/account.unassign_user", AccountMembershipController, :unassign_user)
     post("/account.assign_key", AccountMembershipController, :assign_key)
     post("/account.unassign_key", AccountMembershipController, :unassign_key)
+
+    post(
+      "/account.get_admin_user_memberships",
+      AccountMembershipController,
+      :all_admin_memberships_for_account
+    )
+
+    post(
+      "/account.get_key_memberships",
+      AccountMembershipController,
+      :all_key_memberships_for_account
+    )
+
+    # deprecated
+    post(
+      "/account.get_members",
+      AccountMembershipDeprecatedController,
+      :all_admin_for_account
+    )
 
     # User endpoints
     post("/user.all", UserController, :all)
@@ -155,11 +172,22 @@ defmodule AdminAPI.V1.Router do
     post("/admin.update", AdminUserController, :update)
     post("/admin.enable_or_disable", AdminUserController, :enable_or_disable)
 
+    post(
+      "/admin.get_account_memberships",
+      AccountMembershipController,
+      :all_account_memberships_for_admin
+    )
+
     # Role endpoints
+    # deprecated
     post("/role.all", RoleController, :all)
+    # deprecated
     post("/role.get", RoleController, :get)
+    # deprecated
     post("/role.create", RoleController, :create)
+    # deprecated
     post("/role.update", RoleController, :update)
+    # deprecated
     post("/role.delete", RoleController, :delete)
 
     # Permission endpoints
@@ -167,12 +195,17 @@ defmodule AdminAPI.V1.Router do
 
     # API Access endpoints
     post("/access_key.all", KeyController, :all)
+    post("/access_key.get", KeyController, :get)
     post("/access_key.create", KeyController, :create)
     post("/access_key.enable_or_disable", KeyController, :enable_or_disable)
     post("/access_key.delete", KeyController, :delete)
-
-    # Deprecated in PR #535
     post("/access_key.update", KeyController, :update)
+
+    post(
+      "/access_key.get_account_memberships",
+      AccountMembershipController,
+      :all_account_memberships_for_key
+    )
 
     # API Key endpoints
     post("/api_key.all", APIKeyController, :all)
