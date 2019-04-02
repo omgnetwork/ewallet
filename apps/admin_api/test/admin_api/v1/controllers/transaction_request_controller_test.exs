@@ -205,7 +205,7 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
                  "exchange_wallet_address" => account_wallet.address,
                  "exchange_wallet" =>
                    account_wallet
-                   |> WalletSerializer.serialize_without_balances()
+                   |> WalletSerializer.serialize()
                    |> stringify_keys(),
                  "created_at" => DateFormatter.to_iso8601(request.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(request.updated_at)
@@ -272,7 +272,7 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
                  "exchange_wallet_address" => account_wallet.address,
                  "exchange_wallet" =>
                    account_wallet
-                   |> WalletSerializer.serialize_without_balances()
+                   |> WalletSerializer.serialize()
                    |> stringify_keys(),
                  "created_at" => DateFormatter.to_iso8601(request.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(request.updated_at)
