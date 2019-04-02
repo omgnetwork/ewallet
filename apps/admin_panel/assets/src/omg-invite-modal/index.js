@@ -128,7 +128,7 @@ class InviteModal extends Component {
         isOpen={this.props.open}
         onRequestClose={this.onRequestClose}
         contentLabel='invite modal'
-        shouldCloseOnOverlayClick={false}
+        shouldCloseOnOverlayClick={true}
       >
         <InviteModalContainer onSubmit={this.onSubmit}>
           <Icon name='Close' onClick={this.props.onRequestClose} />

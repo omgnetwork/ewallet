@@ -129,13 +129,13 @@ class AccountPage extends Component {
     })
   }
   onClickRow = (data, index) => e => {
-    this.props.history.push(`/accounts/${data.id}/detail`)
+    this.props.history.push(`/accounts/${data.id}/details`)
   }
   rowRenderer (key, data, rows) {
     if (key === 'name') {
       return (
         <NameColumn>
-          <Avatar image={rows.avatar} name={data.slice(0, 2)} /> <span>{data}</span>
+          <Avatar image={rows.avatar} name={data.slice(0, 3)} /> <span>{data}</span>
         </NameColumn>
       )
     }

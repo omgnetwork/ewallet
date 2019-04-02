@@ -56,8 +56,8 @@ describe('apikeys actions', () => {
         data: 'key'
       }
     ]
-    return store.dispatch(createAccessKey()).then(() => {
-      expect(accessKeyService.createAccessKey).toBeCalled()
+    return store.dispatch(createAccessKey({ name: 'PRAYUTHHHHHHHHHHHHHHH' })).then(() => {
+      expect(accessKeyService.createAccessKey).toBeCalledWith({ name: 'PRAYUTHHHHHHHHHHHHHHH' })
       expect(store.getActions()).toEqual(expectedActions)
     })
   })

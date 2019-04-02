@@ -49,13 +49,13 @@ const ConfirmButton = styled.button`
     font-size: 10px;
   }
 `
-const ConfirmButtonApprove = ConfirmButton.extend`
+const ConfirmButtonApprove = styled(ConfirmButton)`
   :hover {
     color: #16826b;
     background-color: #dcfaf4;
   }
 `
-const ConfirmButtonReject = ConfirmButton.extend`
+const ConfirmButtonReject = styled(ConfirmButton)`
   :hover {
     color: #d51404;
     background-color: #ffefed;
