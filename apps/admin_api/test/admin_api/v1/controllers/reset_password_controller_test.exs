@@ -37,7 +37,7 @@ defmodule AdminAPI.V1.ResetPasswordControllerTest do
         |> Repo.preload(:user)
 
       assert response["success"]
-      assert_delivered_email(ForgetPasswordEmail.create(request, @redirect_url))
+      assert_delivered_email(ForgetPasswordEmail.create(request, @redirect_url, nil))
       assert request != nil
       assert request.token != nil
     end

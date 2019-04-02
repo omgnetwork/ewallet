@@ -56,7 +56,7 @@ defmodule AdminAPI.V1.ResetPasswordController do
 
   defp send_request_email(request, redirect_url) do
     request
-    |> ForgetPasswordEmail.create(redirect_url)
+    |> ForgetPasswordEmail.create(redirect_url, nil)
     |> Mailer.deliver_now()
   end
 
