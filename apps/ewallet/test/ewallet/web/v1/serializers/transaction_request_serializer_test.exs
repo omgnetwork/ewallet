@@ -29,7 +29,11 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
 
   describe "serialize/1 for single transaction request" do
     test "serializes into correct V1 transaction_request format" do
-      request = insert(:transaction_request, %{consumption_interval_duration: 1000, max_consumptions_per_interval: 1})
+      request =
+        insert(:transaction_request, %{
+          consumption_interval_duration: 1000,
+          max_consumptions_per_interval: 1
+        })
 
       transaction_request =
         TransactionRequest.get(
