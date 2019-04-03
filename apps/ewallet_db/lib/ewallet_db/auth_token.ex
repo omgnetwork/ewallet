@@ -160,6 +160,9 @@ defmodule EWalletDB.AuthToken do
       %{expired: true} ->
         :token_expired
 
+      %{required_2fa: true} ->
+        false
+
       token ->
         token
         |> Repo.preload(:user)
