@@ -1,21 +1,20 @@
 import React, { Component, Fragment } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
-import styled from 'styled-components'
-import { Button, Icon, Input, LoadingSkeleton } from '../omg-uikit'
-import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
-import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
-import ConfigRow from './ConfigRow'
+import { Prompt, withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
-import {
-  selectConfigurationsByKey,
-  selectConfigurationLoadingStatus
-} from '../omg-configuration/selector'
+import styled from 'styled-components'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import { Button, Icon, Input, LoadingSkeleton } from '../omg-uikit'
+import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
+import ConfigRow from './ConfigRow'
+import { selectConfigurationsByKey, selectConfigurationLoadingStatus } from '../omg-configuration/selector'
 import { getConfiguration, updateConfiguration } from '../omg-configuration/action'
 import CONSTANT from '../constants'
 import { isEmail } from '../utils/validator'
-import _ from 'lodash'
+
 const ConfigurationPageContainer = styled.div`
   position: relative;
   padding-bottom: 150px;
@@ -579,7 +578,15 @@ class ConfigurationPage extends Component {
   }
 
   render () {
-    return <ConfigurationsFetcher render={this.renderConfigurationPage} {...this.state} />
+    return (
+      <>
+        <Prompt
+          when={!this.isSendButtonDisabled()}
+          message="You have unsaved changes. Are you sure you want to leave?"
+        />
+        <ConfigurationsFetcher render={this.renderConfigurationPage} {...this.state} />
+      </>
+    )
   }
 }
 

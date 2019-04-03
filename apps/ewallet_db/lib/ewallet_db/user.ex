@@ -355,14 +355,13 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves a specific admin.
   """
-  @spec get_admin(String.t()) :: %User{} | nil
-  @spec get_admin(String.t(), Ecto.Queryable.t()) :: %User{} | nil
-  def get_admin(id, queryable \\ User)
+  @spec get_admin(String.t(), keyword()) :: %__MODULE__{} | nil
+  def get_admin(id, opts \\ [:wallets])
 
-  def get_admin(id, queryable) when is_external_id(id) do
-    queryable
+  def get_admin(id, opts) when is_external_id(id) do
+    __MODULE__
     |> Repo.get_by(id: id, is_admin: true)
-    |> Repo.preload(:wallets)
+    |> preload_option(opts)
   end
 
   def get_admin(_, _), do: nil

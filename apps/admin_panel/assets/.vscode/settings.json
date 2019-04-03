@@ -1,2 +1,13 @@
 {
+  "prettier.semi": false,
+  "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
+  "typescript.format.insertSpaceAfterConstructor": true,
+  "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "none",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript"
+  ]
 }

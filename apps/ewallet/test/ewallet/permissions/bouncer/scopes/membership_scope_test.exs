@@ -20,100 +20,108 @@ defmodule EWallet.Bouncer.MembershipScopeTest do
   alias ActivityLogger.System
   alias Utils.Helpers.UUID
 
+  defp scoped_query(type, %Permission{} = permission) do
+    actor = insert(type)
+    target = insert(type)
+
+    account_1 = insert(:account)
+    account_2 = insert(:account)
+    _account_3 = insert(:account)
+
+    {:ok, m_1} = Membership.assign(actor, account_1, "admin", %System{})
+    {:ok, m_2} = Membership.assign(target, account_1, "viewer", %System{})
+    {:ok, m_3} = Membership.assign(target, account_2, "viewer", %System{})
+    m_4 = insert(:membership)
+
+    query =
+      permission
+      |> Map.put(:actor, actor)
+      |> MembershipScope.scoped_query()
+
+    membership_uuids = query |> Repo.all() |> UUID.get_uuids()
+
+    {membership_uuids, m_1, m_2, m_3, m_4}
+  end
+
   describe "scope_query/1 with global abilities" do
     test "returns Membership as queryable when 'global' ability" do
-      actor = insert(:admin)
-
-      membership_1 = insert(:membership)
-      membership_2 = insert(:membership)
-
       permission = %Permission{
-        actor: actor,
         global_abilities: %{memberships: :global},
         account_abilities: %{}
       }
 
-      query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
+      {membership_uuids, m_1, m_2, m_3, m_4} = scoped_query(:admin, permission)
 
-      assert Enum.member?(membership_uuids, membership_1.uuid)
-      assert Enum.member?(membership_uuids, membership_2.uuid)
-      assert length(membership_uuids) == 2
+      assert length(membership_uuids) == 4
+
+      assert Enum.member?(membership_uuids, m_1.uuid)
+      assert Enum.member?(membership_uuids, m_2.uuid)
+      assert Enum.member?(membership_uuids, m_3.uuid)
+      assert Enum.member?(membership_uuids, m_4.uuid)
     end
 
     test "returns all memberships the actor (user) has access to when 'accounts' ability" do
-      actor = insert(:admin)
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      _account_3 = insert(:account)
-
-      {:ok, membership_1} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, membership_2} = Membership.assign(actor, account_2, "viewer", %System{})
-      membership_3 = insert(:membership)
-      membership_4 = insert(:membership)
-
       permission = %Permission{
-        actor: actor,
         global_abilities: %{memberships: :accounts},
         account_abilities: %{}
       }
 
-      query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
+      {membership_uuids, m_1, m_2, m_3, m_4} = scoped_query(:admin, permission)
 
-      assert Enum.member?(membership_uuids, membership_1.uuid)
-      assert Enum.member?(membership_uuids, membership_2.uuid)
-      refute Enum.member?(membership_uuids, membership_3.uuid)
-      refute Enum.member?(membership_uuids, membership_4.uuid)
       assert length(membership_uuids) == 2
+
+      assert Enum.member?(membership_uuids, m_1.uuid)
+      assert Enum.member?(membership_uuids, m_2.uuid)
+      refute Enum.member?(membership_uuids, m_3.uuid)
+      refute Enum.member?(membership_uuids, m_4.uuid)
     end
 
     test "returns all memberships the actor (key) has access to when 'accounts' ability" do
-      actor = insert(:key)
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      _account_3 = insert(:account)
-
-      {:ok, membership_1} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, membership_2} = Membership.assign(actor, account_2, "viewer", %System{})
-      membership_3 = insert(:membership)
-      membership_4 = insert(:membership)
-
       permission = %Permission{
-        actor: actor,
         global_abilities: %{memberships: :accounts},
         account_abilities: %{}
       }
 
-      query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
+      {membership_uuids, m_1, m_2, m_3, m_4} = scoped_query(:key, permission)
 
-      assert Enum.member?(membership_uuids, membership_1.uuid)
-      assert Enum.member?(membership_uuids, membership_2.uuid)
-      refute Enum.member?(membership_uuids, membership_3.uuid)
-      refute Enum.member?(membership_uuids, membership_4.uuid)
       assert length(membership_uuids) == 2
+
+      assert Enum.member?(membership_uuids, m_1.uuid)
+      assert Enum.member?(membership_uuids, m_2.uuid)
+      refute Enum.member?(membership_uuids, m_3.uuid)
+      refute Enum.member?(membership_uuids, m_4.uuid)
     end
 
-    test "returns nil when 'self' ability" do
-      actor = insert(:admin)
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      _account_3 = insert(:account)
-
-      {:ok, _membership_1} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, _membership_2} = Membership.assign(actor, account_2, "viewer", %System{})
-
+    test "returns all memberships the actor (user) has access to when 'self' ability" do
       permission = %Permission{
-        actor: actor,
         global_abilities: %{memberships: :self},
         account_abilities: %{}
       }
 
-      assert MembershipScope.scoped_query(permission) == nil
+      {membership_uuids, m_1, m_2, m_3, m_4} = scoped_query(:admin, permission)
+
+      assert length(membership_uuids) == 1
+
+      assert Enum.member?(membership_uuids, m_1.uuid)
+      refute Enum.member?(membership_uuids, m_2.uuid)
+      refute Enum.member?(membership_uuids, m_3.uuid)
+      refute Enum.member?(membership_uuids, m_4.uuid)
+    end
+
+    test "returns all memberships the actor (key) has access to when 'self' ability" do
+      permission = %Permission{
+        global_abilities: %{memberships: :self},
+        account_abilities: %{}
+      }
+
+      {membership_uuids, m_1, m_2, m_3, m_4} = scoped_query(:key, permission)
+
+      assert length(membership_uuids) == 1
+
+      assert Enum.member?(membership_uuids, m_1.uuid)
+      refute Enum.member?(membership_uuids, m_2.uuid)
+      refute Enum.member?(membership_uuids, m_3.uuid)
+      refute Enum.member?(membership_uuids, m_4.uuid)
     end
 
     test "returns nil when 'none' ability" do
@@ -138,98 +146,83 @@ defmodule EWallet.Bouncer.MembershipScopeTest do
 
   describe "scope_query/1 with account abilities" do
     test "returns Membership as queryable when 'global' ability" do
-      actor = insert(:admin)
-
-      membership_1 = insert(:membership)
-      membership_2 = insert(:membership)
-
       permission = %Permission{
-        actor: actor,
         global_abilities: %{},
         account_abilities: %{memberships: :global}
       }
 
-      query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
+      {membership_uuids, m_1, m_2, m_3, m_4} = scoped_query(:admin, permission)
 
-      assert Enum.member?(membership_uuids, membership_1.uuid)
-      assert Enum.member?(membership_uuids, membership_2.uuid)
-      assert length(membership_uuids) == 2
+      assert length(membership_uuids) == 4
+
+      assert Enum.member?(membership_uuids, m_1.uuid)
+      assert Enum.member?(membership_uuids, m_2.uuid)
+      assert Enum.member?(membership_uuids, m_3.uuid)
+      assert Enum.member?(membership_uuids, m_4.uuid)
     end
 
     test "returns all memberships the actor (user) has access to when 'accounts' ability" do
-      actor = insert(:admin)
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      _account_3 = insert(:account)
-
-      {:ok, membership_1} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, membership_2} = Membership.assign(actor, account_2, "viewer", %System{})
-      membership_3 = insert(:membership)
-      membership_4 = insert(:membership)
-
       permission = %Permission{
-        actor: actor,
         global_abilities: %{},
         account_abilities: %{memberships: :accounts}
       }
 
-      query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
+      {membership_uuids, m_1, m_2, m_3, m_4} = scoped_query(:admin, permission)
 
-      assert Enum.member?(membership_uuids, membership_1.uuid)
-      assert Enum.member?(membership_uuids, membership_2.uuid)
-      refute Enum.member?(membership_uuids, membership_3.uuid)
-      refute Enum.member?(membership_uuids, membership_4.uuid)
       assert length(membership_uuids) == 2
+
+      assert Enum.member?(membership_uuids, m_1.uuid)
+      assert Enum.member?(membership_uuids, m_2.uuid)
+      refute Enum.member?(membership_uuids, m_3.uuid)
+      refute Enum.member?(membership_uuids, m_4.uuid)
     end
 
     test "returns all memberships the actor (key) has access to when 'accounts' ability" do
-      actor = insert(:key)
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      _account_3 = insert(:account)
-
-      {:ok, membership_1} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, membership_2} = Membership.assign(actor, account_2, "viewer", %System{})
-      membership_3 = insert(:membership)
-      membership_4 = insert(:membership)
-
       permission = %Permission{
-        actor: actor,
         global_abilities: %{},
         account_abilities: %{memberships: :accounts}
       }
 
-      query = MembershipScope.scoped_query(permission)
-      membership_uuids = query |> Repo.all() |> UUID.get_uuids()
+      {membership_uuids, m_1, m_2, m_3, m_4} = scoped_query(:key, permission)
 
-      assert Enum.member?(membership_uuids, membership_1.uuid)
-      assert Enum.member?(membership_uuids, membership_2.uuid)
-      refute Enum.member?(membership_uuids, membership_3.uuid)
-      refute Enum.member?(membership_uuids, membership_4.uuid)
       assert length(membership_uuids) == 2
+
+      assert Enum.member?(membership_uuids, m_1.uuid)
+      assert Enum.member?(membership_uuids, m_2.uuid)
+      refute Enum.member?(membership_uuids, m_3.uuid)
+      refute Enum.member?(membership_uuids, m_4.uuid)
     end
 
-    test "returns nil when 'self' ability" do
-      actor = insert(:admin)
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      _account_3 = insert(:account)
-
-      {:ok, _membership_1} = Membership.assign(actor, account_1, "admin", %System{})
-      {:ok, _membership_2} = Membership.assign(actor, account_2, "viewer", %System{})
-
+    test "returns all memberships the actor (user) has access to when 'self' ability" do
       permission = %Permission{
-        actor: actor,
         global_abilities: %{},
         account_abilities: %{memberships: :self}
       }
 
-      assert MembershipScope.scoped_query(permission) == nil
+      {membership_uuids, m_1, m_2, m_3, m_4} = scoped_query(:admin, permission)
+
+      assert length(membership_uuids) == 1
+
+      assert Enum.member?(membership_uuids, m_1.uuid)
+      refute Enum.member?(membership_uuids, m_2.uuid)
+      refute Enum.member?(membership_uuids, m_3.uuid)
+      refute Enum.member?(membership_uuids, m_4.uuid)
+    end
+
+    test "returns all memberships the actor (key) has access to when 'self' ability" do
+      permission = %Permission{
+        global_abilities: %{},
+        account_abilities: %{memberships: :self}
+      }
+
+      {membership_uuids, m_1, m_2, m_3, m_4} = scoped_query(:key, permission)
+
+      assert length(membership_uuids) == 1
+
+      assert Enum.member?(membership_uuids, m_1.uuid)
+      refute Enum.member?(membership_uuids, m_2.uuid)
+      refute Enum.member?(membership_uuids, m_3.uuid)
+      refute Enum.member?(membership_uuids, m_4.uuid)
     end
 
     test "returns nil when 'none' ability" do

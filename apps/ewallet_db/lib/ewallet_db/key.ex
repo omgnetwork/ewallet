@@ -53,7 +53,7 @@ defmodule EWalletDB.Key do
     has_many(
       :memberships,
       Membership,
-      foreign_key: :user_uuid,
+      foreign_key: :key_uuid,
       references: :uuid
     )
 

@@ -195,6 +195,9 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
                  "max_consumptions" => nil,
                  "current_consumptions_count" => 0,
                  "max_consumptions_per_user" => nil,
+                 "max_consumptions_per_interval" => nil,
+                 "max_consumptions_per_interval_per_user" => nil,
+                 "consumption_interval_duration" => nil,
                  "metadata" => %{},
                  "exchange_account_id" => account.id,
                  "exchange_account" =>
@@ -202,7 +205,7 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
                  "exchange_wallet_address" => account_wallet.address,
                  "exchange_wallet" =>
                    account_wallet
-                   |> WalletSerializer.serialize_without_balances()
+                   |> WalletSerializer.serialize()
                    |> stringify_keys(),
                  "created_at" => DateFormatter.to_iso8601(request.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(request.updated_at)
@@ -259,6 +262,9 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
                  "max_consumptions" => nil,
                  "current_consumptions_count" => 0,
                  "max_consumptions_per_user" => nil,
+                 "max_consumptions_per_interval" => nil,
+                 "max_consumptions_per_interval_per_user" => nil,
+                 "consumption_interval_duration" => nil,
                  "metadata" => %{},
                  "exchange_account_id" => account.id,
                  "exchange_account" =>
@@ -266,7 +272,7 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
                  "exchange_wallet_address" => account_wallet.address,
                  "exchange_wallet" =>
                    account_wallet
-                   |> WalletSerializer.serialize_without_balances()
+                   |> WalletSerializer.serialize()
                    |> stringify_keys(),
                  "created_at" => DateFormatter.to_iso8601(request.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(request.updated_at)
@@ -326,6 +332,9 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
                  "max_consumptions" => nil,
                  "current_consumptions_count" => 0,
                  "max_consumptions_per_user" => nil,
+                 "max_consumptions_per_interval" => nil,
+                 "max_consumptions_per_interval_per_user" => nil,
+                 "consumption_interval_duration" => nil,
                  "created_at" => DateFormatter.to_iso8601(request.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(request.updated_at)
                }
@@ -384,6 +393,9 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
                  "max_consumptions" => nil,
                  "current_consumptions_count" => 0,
                  "max_consumptions_per_user" => nil,
+                 "max_consumptions_per_interval" => nil,
+                 "max_consumptions_per_interval_per_user" => nil,
+                 "consumption_interval_duration" => nil,
                  "created_at" => DateFormatter.to_iso8601(request.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(request.updated_at)
                }

@@ -16,6 +16,12 @@ MemberAccessKeysResponse:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/MemberAccessKeysResponseSchema'
+MembershipsResponse:
+  description: Returns a list of memberships
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/MembershipsResponseSchema'
 # API KEY RESPONSES
 APIKeyResponse:
   description: Returns a single API key
