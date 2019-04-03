@@ -71,10 +71,10 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
 
   defp do_enable(conn, attrs, enable) do
     with %User{} = user <- conn.assigns[:admin_user] || {:error, :unauthorized},
-         auth_token_string <- conn.private[:auth_auth_token],
+         auth_token <- conn.private[:auth_auth_token],
          {:ok, _} <- authorize(:create, conn.assigns, user),
          {:ok} <- TwoFactorAuthenticator.verify(attrs, user),
-         {:ok, token} <- TwoFactorAuthenticator.enable(user, auth_token_string, :admin_api, enable),
+         {:ok, token} <- TwoFactorAuthenticator.enable(user, auth_token, :admin_api, enable),
          {:ok, token} <- Orchestrator.one(token, AuthTokenOverlay, attrs) do
       render(conn, :auth_token, %{auth_token: token})
     else
