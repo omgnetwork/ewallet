@@ -12,7 +12,7 @@ import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
 import { createTransactionRequest } from '../omg-transaction-request/action'
 import TokensFetcher from '../omg-token/tokensFetcher'
-import WalletsFetcher from '../omg-wallet/walletsFetcher'
+import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import { selectPrimaryWalletByAccountId } from '../omg-wallet/selector'
 import { formatAmount } from '../utils/formatter'
 import WalletSelect from '../omg-wallet-select'
@@ -309,7 +309,6 @@ class CreateTransactionRequest extends Component {
             Wallet Address <span>( Optional )</span>
           </InputLabel>
           <WalletsFetcher
-            accountId={this.props.match.params.accountId}
             query={{ search: this.state.address }}
             owned={false}
             render={({ data }) => {
@@ -401,7 +400,6 @@ class CreateTransactionRequest extends Component {
             Exchange Address <span>( Optional )</span>
           </InputLabel>
           <WalletsFetcher
-            accountId={this.props.match.params.accountId}
             query={{ search: this.state.exchangeAddress }}
             owned={false}
             render={({ data }) => {

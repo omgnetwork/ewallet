@@ -83,7 +83,7 @@ class TransactionRequestsPage extends Component {
   }
   static defaultProps = {
     query: {},
-    createTransactionRequestButton: false
+    createTransactionRequestButton: true
   }
   constructor (props) {
     super(props)
