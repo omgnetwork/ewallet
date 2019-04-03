@@ -40,6 +40,7 @@ defmodule AdminAPI.V1.SelfViewTest do
           enabled: user.enabled,
           global_role: user.global_role,
           status: :active,
+          enabled_2fa_at: nil,
           avatar: %{
             original: nil,
             large: nil,

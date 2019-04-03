@@ -34,6 +34,7 @@ defmodule EWalletAPI.V1.SelfViewTest do
           calling_name: user.calling_name,
           email: user.email,
           enabled: user.enabled,
+          enabled_2fa_at: nil,
           avatar: %{
             original: nil,
             large: nil,

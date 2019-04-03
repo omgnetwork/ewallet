@@ -42,6 +42,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       response = request("/account.get_admin_user_memberships", %{id: account_1.id})
 
       assert response["success"] == true
+<<<<<<< HEAD
 
       records = response["data"]["data"]
 
@@ -58,6 +59,92 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       refute Enum.any?(records, fn r -> r["user_id"] == user_3.id end)
       refute Enum.any?(records, fn r -> r["account_id"] == account_2.id end)
       refute Enum.any?(records, fn r -> r["key_id"] == key.id end)
+=======
+      # created two users for the given account
+      assert length(response["data"]["data"]) == 2
+
+      assert Enum.member?(response["data"]["data"], %{
+               "object" => "user",
+               "id" => user_1.id,
+               "socket_topic" => "user:#{user_1.id}",
+               "username" => user_1.username,
+               "full_name" => user_1.full_name,
+               "calling_name" => user_1.calling_name,
+               "provider_user_id" => user_1.provider_user_id,
+               "email" => user_1.email,
+               "metadata" => user_1.metadata,
+               "encrypted_metadata" => %{},
+               "created_at" => DateFormatter.to_iso8601(user_1.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(user_1.updated_at),
+               "account_role" => "admin",
+               "status" => to_string(User.get_status(user_1)),
+               "enabled" => user_1.enabled,
+               "enabled_2fa_at" => nil,
+               "avatar" => %{
+                 "original" => nil,
+                 "large" => nil,
+                 "small" => nil,
+                 "thumb" => nil
+               },
+               "account" => %{
+                 "avatar" => %{"large" => nil, "original" => nil, "small" => nil, "thumb" => nil},
+                 "categories" => %{"data" => [], "object" => "list"},
+                 "category_ids" => [],
+                 "description" => account.description,
+                 "encrypted_metadata" => %{},
+                 "id" => account.id,
+                 "master" => false,
+                 "metadata" => %{},
+                 "name" => account.name,
+                 "object" => "account",
+                 "parent_id" => nil,
+                 "socket_topic" => "account:#{account.id}",
+                 "created_at" => DateFormatter.to_iso8601(account.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(account.updated_at)
+               }
+             })
+
+      assert Enum.member?(response["data"]["data"], %{
+               "object" => "user",
+               "id" => user_2.id,
+               "socket_topic" => "user:#{user_2.id}",
+               "username" => user_2.username,
+               "full_name" => user_2.full_name,
+               "calling_name" => user_2.calling_name,
+               "provider_user_id" => user_2.provider_user_id,
+               "email" => user_2.email,
+               "metadata" => user_2.metadata,
+               "encrypted_metadata" => %{},
+               "created_at" => DateFormatter.to_iso8601(user_2.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(user_2.updated_at),
+               "account_role" => "viewer",
+               "status" => to_string(User.get_status(user_2)),
+               "enabled" => user_2.enabled,
+               "enabled_2fa_at" => nil,
+               "avatar" => %{
+                 "original" => nil,
+                 "large" => nil,
+                 "small" => nil,
+                 "thumb" => nil
+               },
+               "account" => %{
+                 "avatar" => %{"large" => nil, "original" => nil, "small" => nil, "thumb" => nil},
+                 "categories" => %{"data" => [], "object" => "list"},
+                 "category_ids" => [],
+                 "description" => account.description,
+                 "encrypted_metadata" => %{},
+                 "id" => account.id,
+                 "master" => false,
+                 "metadata" => %{},
+                 "name" => account.name,
+                 "object" => "account",
+                 "parent_id" => nil,
+                 "socket_topic" => "account:#{account.id}",
+                 "created_at" => DateFormatter.to_iso8601(account.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(account.updated_at)
+               }
+             })
+>>>>>>> :white_check_mark: Fix tests
     end
 
     test_with_auths "returns unauthorized error if account id could not be found" do
