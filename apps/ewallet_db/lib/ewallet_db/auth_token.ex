@@ -101,11 +101,14 @@ defmodule EWalletDB.AuthToken do
   Generate an auth token for the specified user,
   then returns the auth token string.
   """
-  def generate(%User{} = user, owner_app, originator) when is_atom(owner_app) do
+  def generate(user, owner_app, originator, is_2fa_token \\ false)
+
+  def generate(%User{} = user, owner_app, originator, is_2fa_token) when is_atom(owner_app) do
     attrs = %{
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: nil,
+      required_2fa: is_required_2fa(user, is_2fa_token),
       token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
@@ -113,7 +116,15 @@ defmodule EWalletDB.AuthToken do
     insert(attrs)
   end
 
-  def generate(_, _, _), do: {:error, :invalid_parameter}
+  def generate(_, _, _, _), do: {:error, :invalid_parameter}
+
+  defp is_required_2fa(%User{enabled_2fa_at: nil}, _is_2fa_token) do
+    false
+  end
+
+  defp is_required_2fa(_user, is_2fa_token) do
+    !is_2fa_token
+  end
 
   @doc """
   Retrieves an auth token using the specified token.
