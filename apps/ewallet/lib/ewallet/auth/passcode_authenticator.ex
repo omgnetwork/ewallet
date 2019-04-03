@@ -15,6 +15,25 @@
 alias Utils.Helpers.Crypto
 
 defmodule EWallet.PasscodeAuthenticator do
+  @moduledoc """
+  Handle verify passcode with associated secret code and create new secret code.
+
+  Example:
+
+  # Create a secret code.
+  iex> EWallet.PasscodeAuthenticator.create()
+  {:ok, "2VN5NYWNQ5Q75IC7"}
+
+  # Verify passcode with associated secret code.
+  iex> EWallet.PasscodeAuthenticator.verify("123456", "2VN5NYWNQ5Q75IC7")
+
+  # Success
+  {:ok}
+
+  # Failure
+  {:error, :invalid_passcode}
+  """
+
   @number_of_bytes 10
 
   def verify(passcode, secret) do

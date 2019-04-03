@@ -15,6 +15,43 @@
 alias Utils.Helpers.Crypto
 
 defmodule EWallet.BackupCodeAuthenticator do
+  @moduledoc """
+  Handle verify backup_code with encrypted_backup_codes and create new backup codes.
+
+  Example:
+
+  # Create backup codes.
+  iex(4)> EWallet.BackupCodeAuthenticator.create(3)
+  {
+    :ok,
+    [
+      "7c501e31",
+      "ecd704eb",
+      "25f5da3f"
+    ],
+    [
+      "$2b$12$a9m6U7NG2C.5R1LluPBDBO9dscWhZEO7XyNDaMaNG3bff5vwiHxRK",
+      "$2b$12$58HR6Tc/hbH77JH6/RS3wusR4.NI/eP26mAuC2K6/.f.zLPomo4uK",
+      "$2b$12$xwrHaJb9YvYDFVusSxohvexH36IW6p/mlICobmR7muzAxnrmBiP.6"
+    ]
+  }
+
+  The response format is {:ok, backup_codes, encrypted_backup_codes}
+
+  # Verify backup code with associated encrypted_backup_codes.
+  iex> EWallet.BackupCodeAuthenticator.verify([
+    "$2b$12$a9m6U7NG2C.5R1LluPBDBO9dscWhZEO7XyNDaMaNG3bff5vwiHxRK",
+    "$2b$12$58HR6Tc/hbH77JH6/RS3wusR4.NI/eP26mAuC2K6/.f.zLPomo4uK",
+    "$2b$12$xwrHaJb9YvYDFVusSxohvexH36IW6p/mlICobmR7muzAxnrmBiP.6"
+  ], "7c501e31")
+
+  # Success
+  {:ok}
+
+  # Failure
+  {:error, :invalid_backup_code}
+
+  """
   @number_of_bytes 4
 
   def verify(encrypted_backup_codes, backup_code) do
@@ -38,7 +75,7 @@ defmodule EWallet.BackupCodeAuthenticator do
     {:ok, backup_codes, encrypted_backup_codes}
   end
 
-  defp do_create() do
+  defp do_create do
     @number_of_bytes
     |> Crypto.generate_base16_key()
     |> String.downcase()

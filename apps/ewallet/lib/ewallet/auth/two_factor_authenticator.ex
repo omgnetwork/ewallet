@@ -17,6 +17,23 @@ alias EWallet.BackupCodeAuthenticator
 alias EWalletDB.{User, AuthToken}
 
 defmodule EWallet.TwoFactorAuthenticator do
+  @moduledoc """
+  Handle of verify, create, enable and disable 2FA logic.
+  The authentication methods can be different, this module will form particular parameters,
+  then delegate call to the particular module e.g. `BackupCodeAuthenticator` or `PasscodeAuthenticator`.
+
+  Note that some operations like create, enable and disable will updating the corresponding entity as well:
+  - create_and_update:
+    - Update encrypted_backup_codes or secret_2fa_code for user entity.
+  - enable:
+    - Update `required_2fa` to `true` for all auth tokens belong to this user. (all tokens cannot be used anymore.)
+    - Update `enabled_2fa_at` to the current naive date time for user entity.
+    - Generate new auth_token with `required_2fa` `false`. (this token is 2FA authenticated. Use this token instead.)
+  - disable:
+    - Clear `enabled_2fa_at`, `encrypted_backup_codes`, `secret_2fa_code` for user entity.
+    - Update `required_2fa` to `false` for the current auth token. (this token can still be used)
+  """
+
   @number_of_backup_codes 10
 
   def verify(attrs, %User{} = user) do
