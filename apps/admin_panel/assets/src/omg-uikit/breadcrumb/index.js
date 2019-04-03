@@ -7,7 +7,7 @@ const BreadcrumbContainer = styled.div`
   color: ${props => props.theme.colors.B100};
   i {
     padding: 0 5px;
-    font-size: inherit;
+    font-size: 8px;
   }
   a {
     color: inherit;

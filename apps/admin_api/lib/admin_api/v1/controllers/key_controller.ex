@@ -36,6 +36,23 @@ defmodule AdminAPI.V1.KeyController do
     end
   end
 
+  @doc """
+  Retrieves a specific key by its id.
+  """
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def get(conn, %{"id" => id} = attrs) do
+    with %Key{} = key <- Key.get(id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, key),
+         {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
+      render(conn, :key, %{key: key})
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+    end
+  end
+
+  def get(conn, _), do: handle_error(conn, :missing_id)
+
   # Respond with a list of keys
   defp respond_multiple(%Paginator{} = paginated_keys, conn) do
     render(conn, :keys, %{keys: paginated_keys})
@@ -114,7 +131,7 @@ defmodule AdminAPI.V1.KeyController do
   end
 
   @doc """
-  Updates a key. (Deprecated)
+  Updates a key.
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
@@ -140,7 +157,7 @@ defmodule AdminAPI.V1.KeyController do
   end
 
   def update(conn, _attrs) do
-    handle_error(conn, :invalid_parameter, "`id` is required")
+    handle_error(conn, :missing_id)
   end
 
   @doc """

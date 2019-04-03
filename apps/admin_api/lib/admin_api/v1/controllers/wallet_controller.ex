@@ -72,7 +72,7 @@ defmodule AdminAPI.V1.WalletController do
   defp do_all(query, attrs, conn) do
     query
     |> Orchestrator.query(WalletOverlay, attrs)
-    |> BalanceLoader.add_balances()
+    |> add_balances_if_allowed(conn)
     |> respond_multiple(conn)
   end
 
@@ -80,7 +80,7 @@ defmodule AdminAPI.V1.WalletController do
   def get(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, wallet),
-         {:ok, wallet} <- BalanceLoader.add_balances(wallet) do
+         wallet <- add_balances_if_allowed(wallet, conn) do
       respond_single(wallet, conn, attrs)
     else
       {:error, error} -> handle_error(conn, error)
@@ -93,11 +93,10 @@ defmodule AdminAPI.V1.WalletController do
   def create(conn, attrs) do
     with attrs = UUIDFetcher.replace_external_ids(attrs),
          {:ok, _} <- authorize(:create, conn.assigns, attrs),
-         attrs <- Originator.set_in_attrs(attrs, conn.assigns) do
-      attrs
-      |> Wallet.insert_secondary_or_burn()
-      |> BalanceLoader.add_balances()
-      |> respond_single(conn, attrs)
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, wallet} <- Wallet.insert_secondary_or_burn(attrs),
+         wallet <- add_balances_if_allowed(wallet, conn) do
+      respond_single(wallet, conn, attrs)
     else
       {:error, error} -> handle_error(conn, error)
     end
@@ -112,7 +111,7 @@ defmodule AdminAPI.V1.WalletController do
          {:ok, _} <- authorize(:enable_or_disable, conn.assigns, wallet),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, updated} <- Wallet.enable_or_disable(wallet, attrs),
-         {:ok, updated} <- BalanceLoader.add_balances(updated) do
+         updated <- add_balances_if_allowed(updated, conn) do
       respond_single(updated, conn, attrs)
     else
       {:error, error} -> handle_error(conn, error)
@@ -122,6 +121,26 @@ defmodule AdminAPI.V1.WalletController do
   def enable_or_disable(conn, _),
     do:
       handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
+
+  defp add_balances_if_allowed({:error, code, description}, _), do: {:error, code, description}
+
+  defp add_balances_if_allowed(%Paginator{} = paginator, conn) do
+    with {:ok, %{query: query}} <- authorize(:view_balance, conn.assigns, nil),
+         true <- !is_nil(query) do
+      BalanceLoader.add_balances_to_wallets_intersect(paginator, query)
+    else
+      _ -> paginator
+    end
+  end
+
+  defp add_balances_if_allowed(wallet, conn) do
+    with {:ok, _} <- authorize(:view_balance, conn.assigns, wallet) do
+      {:ok, wallet} = BalanceLoader.add_balances(wallet)
+      wallet
+    else
+      _ -> wallet
+    end
+  end
 
   # Respond with a list of wallets
   defp respond_multiple(%Paginator{} = paged_wallets, conn) do

@@ -19,7 +19,6 @@ defmodule EWallet.Web.V1.WalletSerializerTest do
   alias EWallet.BalanceFetcher
   alias EWallet.Web.Paginator
   alias EWallet.Web.V1.{AccountSerializer, BalanceSerializer, WalletSerializer, UserSerializer}
-  alias EWalletDB.Helpers.Preloader
   alias LocalLedgerDB.Repo, as: LocalLedgerDBRepo
   alias Utils.Helpers.{Assoc, DateFormatter}
 
@@ -175,33 +174,6 @@ defmodule EWallet.Web.V1.WalletSerializerTest do
 
     test "serializes to nil if the wallet is not loaded" do
       assert WalletSerializer.serialize(%NotLoaded{}) == nil
-    end
-  end
-
-  describe "serialize_without_balances/1" do
-    test "serializes a wallet into a wallet object with `balances: nil`" do
-      wallet = insert(:wallet)
-      wallet = Preloader.preload(wallet, [:user, :account])
-
-      expected = %{
-        object: "wallet",
-        socket_topic: "wallet:#{wallet.address}",
-        address: wallet.address,
-        name: wallet.name,
-        identifier: wallet.identifier,
-        metadata: wallet.metadata,
-        encrypted_metadata: wallet.encrypted_metadata,
-        user_id: Assoc.get(wallet, [:user, :id]),
-        user: UserSerializer.serialize(wallet.user),
-        account_id: Assoc.get(wallet, [:account, :id]),
-        account: AccountSerializer.serialize(wallet.account),
-        balances: nil,
-        enabled: wallet.enabled,
-        created_at: DateFormatter.to_iso8601(wallet.inserted_at),
-        updated_at: DateFormatter.to_iso8601(wallet.updated_at)
-      }
-
-      assert WalletSerializer.serialize_without_balances(wallet) == expected
     end
   end
 end
