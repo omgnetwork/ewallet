@@ -12,25 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AuthTokenSerializer do
+defmodule EWallet.Web.V1.TwoFactorAuthSerializer do
   @moduledoc """
-  Serializes authentication token data into V1 response format.
+  Serializes auth token data into V1 JSON response format.
   """
-  alias EWallet.Web.V1.UserSerializer
-  alias Utils.Helpers.Assoc
+  alias EWalletDB.{User}
 
-  def serialize(auth_token) do
+  def serialize(%User{} = user) do
     %{
-      object: "authentication_token",
-      required_2fa: auth_token.required_2fa,
-      authentication_token: auth_token.token,
-      user_id: Assoc.get(auth_token, [:user, :id]),
-      user: UserSerializer.serialize(auth_token.user),
-      account_id: nil,
-      account: nil,
-      master_admin: nil,
-      role: nil,
-      global_role: Assoc.get(auth_token, [:user, :global_role])
+      object: "secret_code",
+      secret_2fa_code: user.secret_2fa_code,
+      issuer: "OmiseGO",
+      label: user.email
+    }
+  end
+
+  def serialize(%{backup_codes: backup_codes}) do
+    %{
+      object: "backup_codes",
+      backup_codes: backup_codes
     }
   end
 end
