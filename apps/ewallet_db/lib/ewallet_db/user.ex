@@ -277,6 +277,33 @@ defmodule EWalletDB.User do
     |> unique_constraint(:email)
   end
 
+  defp encrypted_backup_codes_changeset(user, attrs) do
+    cast_and_validate_required_for_activity_log(
+      user,
+      attrs,
+      cast: [:encrypted_backup_codes],
+      required: []
+    )
+  end
+
+  defp secret_code_changeset(user, attrs) do
+    cast_and_validate_required_for_activity_log(
+      user,
+      attrs,
+      cast: [:secret_2fa_code],
+      required: []
+    )
+  end
+
+  defp enabled_2fa_at_changeset(user, attrs) do
+    cast_and_validate_required_for_activity_log(
+      user,
+      attrs,
+      cast: [:enabled_2fa_at],
+      required: []
+    )
+  end
+
   defp set_global_role(changeset, _attrs) do
     case {get_field(changeset, :is_admin), get_field(changeset, :global_role)} do
       {true, _} ->
@@ -696,6 +723,24 @@ defmodule EWalletDB.User do
   def enable_or_disable(user, attrs) do
     user
     |> enable_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def set_encrypted_backup_codes(user, attrs) do
+    user
+    |> encrypted_backup_codes_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def set_secret_code(user, attrs) do
+    user
+    |> secret_code_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def set_enabled_2fa_at(user, attrs) do
+    user
+    |> enabled_2fa_at_changeset(attrs)
     |> Repo.update_record_with_activity_log()
   end
 end
