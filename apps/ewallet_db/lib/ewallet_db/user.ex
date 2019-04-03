@@ -59,6 +59,9 @@ defmodule EWalletDB.User do
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
     field(:enabled, :boolean, default: true)
+    field(:enabled_2fa_at, :naive_datetime)
+    field(:secret_2fa_code, :string)
+    field(:encrypted_backup_codes, {:array, :string}, default: [])
 
     belongs_to(
       :invite,
