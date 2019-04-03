@@ -18,7 +18,7 @@ defmodule EWallet.Web.InviterTest do
   use Bamboo.Test
   alias ActivityLogger.System
   alias EWallet.Web.{Inviter, MockInviteEmail, Preloader}
-  alias EWalletDB.{Account, Invite, Membership, User, Role}
+  alias EWalletDB.{Account, Invite, Membership, User, Role, Repo}
 
   @user_redirect_url "http://localhost:4000/some_redirect_url?email={email}&token={token}"
   @user_success_url "http://localhost:4000/some_success_url"
@@ -160,7 +160,7 @@ defmodule EWallet.Web.InviterTest do
           &MockInviteEmail.create/2
         )
 
-      memberships = Membership.all_by_user(invite.user)
+      memberships = invite.user |> Membership.query_all_by_user() |> Repo.all()
 
       assert Enum.any?(memberships, fn m ->
                m.account_uuid == account.uuid && m.role_uuid == role.uuid

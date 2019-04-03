@@ -82,7 +82,7 @@ export default class TopNavigation extends PureComponent {
   renderSecondaryActions () {
     return (
       <SecondaryActionsContainer>
-        <SearchGroup normalPlaceholder={this.props.normalPlaceholder} />
+        <SearchGroup debounced={500} normalPlaceholder={this.props.normalPlaceholder} />
       </SecondaryActionsContainer>
     )
   }

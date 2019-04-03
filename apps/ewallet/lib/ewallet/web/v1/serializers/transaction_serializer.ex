@@ -74,7 +74,7 @@ defmodule EWallet.Web.V1.TransactionSerializer do
         exchange_account_id: Assoc.get(transaction, [:exchange_account, :id]),
         exchange_account: AccountSerializer.serialize(transaction.exchange_account),
         exchange_wallet_address: Assoc.get(transaction, [:exchange_wallet, :address]),
-        exchange_wallet: WalletSerializer.serialize_without_balances(transaction.exchange_wallet)
+        exchange_wallet: WalletSerializer.serialize(transaction.exchange_wallet)
       },
       metadata: transaction.metadata || %{},
       encrypted_metadata: transaction.encrypted_metadata || %{},

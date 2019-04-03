@@ -156,7 +156,7 @@ class TransactionRequestPanel extends Component {
               </SubDetailTitle>
               <div>
                 <InformationItem>
-                  <b> Originator</b>
+                  <b>Originator</b>
                   <span className='colon'> : </span>
                   <span>
                     {activity.originator
