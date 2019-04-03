@@ -14,7 +14,7 @@
 
 defmodule EWallet.Web.V1.TwoFactorAuthSerializer do
   @moduledoc """
-  Serializes auth token data into V1 JSON response format.
+  Serializes 2FA code generated into V1 JSON response format.
   """
   alias EWalletDB.{User}
 
