@@ -18,7 +18,7 @@ defmodule EWallet.ForgetPasswordEmail do
   """
   import Bamboo.Email
 
-  def create(request, reset_password_url, forward_url) do
+  def create(request, reset_password_url, forward_url \\ nil) do
     sender = Application.get_env(:ewallet, :sender_email)
 
     link =

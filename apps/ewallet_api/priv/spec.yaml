@@ -350,7 +350,7 @@ paths:
           recommended to use the default url for this parameter. The
           'forward_url' is an optional URL that can be provided if you don't
           want to use the default page but your custom page instead (it could be
-          an mobile application URI for example).
+          a mobile application URI for example).
         required: true
         content:
           application/vnd.omisego.v1+json:

@@ -31,7 +31,7 @@ defmodule AdminAPI.UpdateEmailAddressEmailTest do
     email
   end
 
-  describe "ForgetPasswordEmail.create/2" do
+  describe "ForgetPasswordEmail.create/3" do
     test "creates an email with correct from and to addresses" do
       email = create_email("test_update_email@example.com", "the_token")
 

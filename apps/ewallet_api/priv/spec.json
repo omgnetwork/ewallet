@@ -975,7 +975,7 @@
         "summary": "Request a password reset",
         "operationId": "user_reset_password",
         "requestBody": {
-          "description": "The parameters to use for requesting a password reset. The 'reset_password_url' is the link that will be sent to the user's email address containing the 'email' and 'token' parameters. It's recommended to use the default url for this parameter. The 'forward_url' is an optional URL that can be provided if you don't want to use the default page but your custom page instead (it could be an mobile application URI for example).",
+          "description": "The parameters to use for requesting a password reset. The 'reset_password_url' is the link that will be sent to the user's email address containing the 'email' and 'token' parameters. It's recommended to use the default url for this parameter. The 'forward_url' is an optional URL that can be provided if you don't want to use the default page but your custom page instead (it could be a mobile application URI for example).",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {

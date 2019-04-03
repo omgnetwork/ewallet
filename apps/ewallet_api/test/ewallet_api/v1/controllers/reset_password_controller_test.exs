@@ -38,7 +38,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
         |> Repo.preload(:user)
 
       assert response["success"]
-      assert_delivered_email(ForgetPasswordEmail.create(request, @reset_password_url, nil))
+      assert_delivered_email(ForgetPasswordEmail.create(request, @reset_password_url))
       assert request != nil
       assert request.token != nil
     end
@@ -58,7 +58,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
         |> Repo.preload(:user)
 
       assert response["success"]
-      assert_delivered_email(ForgetPasswordEmail.create(request, @reset_password_url, nil))
+      assert_delivered_email(ForgetPasswordEmail.create(request, @reset_password_url))
       assert request != nil
       assert request.token != nil
     end
