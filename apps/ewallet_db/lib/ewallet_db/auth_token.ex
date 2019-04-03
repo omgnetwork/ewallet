@@ -51,6 +51,7 @@ defmodule EWalletDB.AuthToken do
       type: UUID
     )
 
+    field(:required_2fa, :boolean, default: false)
     field(:expired, :boolean)
     timestamps()
     activity_logging()
