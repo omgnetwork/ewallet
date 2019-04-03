@@ -18,7 +18,7 @@ defmodule EWallet.Bouncer.MembershipScope do
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   import Ecto.Query
-  alias EWallet.Bouncer.Permission
+  alias EWallet.Bouncer.{Helper, Permission}
   alias EWalletDB.{Membership, User, Key}
 
   @spec scoped_query(EWallet.Bouncer.Permission.t()) ::
@@ -35,11 +35,19 @@ defmodule EWallet.Bouncer.MembershipScope do
     Membership
   end
 
-  defp do_scoped_query(%User{is_admin: true} = user, %{memberships: :accounts}) do
+  defp do_scoped_query(actor, %{memberships: :accounts}) do
+    actor
+    |> Helper.query_with_membership_for(Membership)
+    |> where([m, actor_m], m.account_uuid == actor_m.account_uuid)
+    |> distinct(true)
+    |> select([m, actor_m], m)
+  end
+
+  defp do_scoped_query(%User{is_admin: true} = user, %{memberships: :self}) do
     where(Membership, [m], m.user_uuid == ^user.uuid)
   end
 
-  defp do_scoped_query(%Key{} = key, %{memberships: :accounts}) do
+  defp do_scoped_query(%Key{} = key, %{memberships: :self}) do
     where(Membership, [m], m.key_uuid == ^key.uuid)
   end
 
