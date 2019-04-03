@@ -233,6 +233,18 @@ defmodule EWalletDB.AuthToken do
     :ok
   end
 
+  def set_required_2fa_for_user(user, required_2fa) do
+    Repo.update_all(
+      from(
+        a in AuthToken,
+        where: a.user_uuid == ^user.uuid
+      ),
+      set: [required_2fa: required_2fa]
+    )
+
+    :ok
+  end
+
   # `update/2` is private to prohibit direct auth token updates,
   # if expiring the token, please use `expire/2` instead.
   defp update(%AuthToken{} = token, attrs) do
