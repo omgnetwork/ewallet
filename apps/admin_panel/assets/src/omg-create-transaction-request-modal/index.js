@@ -505,7 +505,7 @@ class CreateTransactionRequest extends Component {
           )}
         </CollapsableHeader>
 
-        <Accordion path='advanced-settings' height={390}>
+        <Accordion path='advanced-settings' height={480}>
           {this.state.advanceSettingOpen && this.renderAdvanceSettingContent()}
         </Accordion>
       </Collapsable>
