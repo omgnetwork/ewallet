@@ -103,9 +103,8 @@
     "webpack": "4.28.4",
     "webpack-bundle-analyzer": "^2.11.1",
     "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.1.14"
-  },
-  "devDependencies": {
+    "webpack-dev-server": "^3.1.14",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "babel-core": "^7.0.0-0",
     "regenerator-runtime": "^0.11.1"
   }
