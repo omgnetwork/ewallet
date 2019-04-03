@@ -171,6 +171,10 @@ class ConfigurationPage extends Component {
     this.setState({ balanceCachingStrategy: option.value })
   }
 
+  onSelectMasterAccount = option => {
+    this.setState({ masterAccount: option.value })
+  }
+
   onClickRemovePrefix = index => e => {
     if (this.state.redirectUrlPrefixes.length > 1) {
       const newState = this.state.redirectUrlPrefixes.slice()
@@ -478,6 +482,22 @@ class ConfigurationPage extends Component {
           onChange={this.onChangeInput('forgetPasswordRequestLifetime')}
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
+        />
+        <ConfigRow
+          name={'Master Account'}
+          description={configurations.master_account.description}
+          value={this.state.masterAccount}
+          onSelectItem={this.onSelectMasterAccount}
+          onChange={this.onChangeInput('masterAccount')}
+          type='select'
+          options={[
+            { key: 1, value: 'hi' },
+            { key: 2, value: 'yo' },
+          ]}
+          // options={masterAccountOptions.map(option => ({
+          //   key: option,
+          //   value: option
+          // }))}
         />
       </Fragment>
     )
