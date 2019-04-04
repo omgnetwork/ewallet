@@ -1,6 +1,6 @@
-import { unAuthenticatedRequest } from './apiService'
+import { unAuthenticatedClientRequest } from './apiService'
 export function updateUserPassword ({ email, token, password, passwordConfirmation }) {
-  return unAuthenticatedRequest({
+  return unAuthenticatedClientRequest({
     path: 'user.update_password',
     data: {
       email,
