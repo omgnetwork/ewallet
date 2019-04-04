@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import { Input, Button } from '../../omg-uikit'
 import styled from 'styled-components'
-import { Link, withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import AuthFormLayout from '../../omg-layout/authFormLayout'
 import { compose } from 'recompose'
+import { updateUserPassword } from '../../services/clientService'
 const Form = styled.form`
   text-align: left;
   input {
@@ -67,9 +68,9 @@ class ForgetPasswordForm extends Component {
       submitStatus: !newPasswordError && !reEnteredNewPasswordError ? 'SUBMITTED' : null
     })
     if (!newPasswordError && !reEnteredNewPasswordError) {
-      const result = await this.props.updatePasswordWithResetToken({
+      const result = await updateUserPassword({
         email,
-        resetToken: token,
+        token,
         password: this.state.newPassword,
         passwordConfirmation: this.state.reEnteredNewPassword
       })
@@ -122,7 +123,7 @@ class ForgetPasswordForm extends Component {
                 disabled={this.state.submitStatus === 'SUBMITTED'}
               />
               <Button size='large' type='submit' fluid loading={this.state.submitStatus === 'SUBMITTED'}>
-              Reset Password
+                Reset Password
               </Button>
             </div>
           ) : (
