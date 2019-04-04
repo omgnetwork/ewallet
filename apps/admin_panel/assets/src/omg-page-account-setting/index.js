@@ -112,9 +112,6 @@ class AccountSettingPage extends Component {
   onChangeImage = ({ file }) => {
     this.setState({ image: file })
   }
-  onRequestClose = () => {
-    this.setState({ inviteModalOpen: false })
-  }
   onChangeName = e => {
     this.setState({ name: e.target.value })
   }

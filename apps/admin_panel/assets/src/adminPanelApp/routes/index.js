@@ -30,7 +30,7 @@ import PropTypes from 'prop-types'
 // prettier-ignore
 
 const createRoute = ({ authenticated }) => (
-  <Router basename='/admin/'>
+  <Router basename='/admin'>
     <Switch>
       <Redirect from='/' to={'/accounts'} exact />
       <Redirect from='/accounts/:accountId' to='/accounts/:accountId/details' exact />

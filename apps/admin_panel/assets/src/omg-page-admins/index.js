@@ -103,6 +103,9 @@ class UsersPage extends Component {
       inviteModalOpen: false
     }
   }
+  onRequestClose = () => {
+    this.setState({ inviteModalOpen: false })
+  }
   onClickRow = (data, index) => e => {
     this.props.history.push(`/admins/${data.id}`)
   }
@@ -150,7 +153,7 @@ class UsersPage extends Component {
     )
   }
 
-  renderAdminPage = ({ data: admins, individualLoadingStatus, pagination }) => {
+  renderAdminPage = ({ data: admins, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AdminPageContainer>
         <TopNavigation
@@ -171,7 +174,7 @@ class UsersPage extends Component {
             pagination={false}
           />
         </SortableTableContainer>
-        <InviteModal open={this.state.inviteModalOpen} onRequestClose={this.onRequestClose} />
+        <InviteModal open={this.state.inviteModalOpen} onRequestClose={this.onRequestClose} onInviteSuccess={fetch} />
       </AdminPageContainer>
     )
   }
