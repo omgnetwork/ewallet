@@ -40,7 +40,10 @@ describe('transactionRequest actions', () => {
           maxConsumptionPerUser: 'maxConsumptionPerUser',
           expirationDate: 'expirationDate',
           allowAmountOverride: 'allowAmountOverride',
-          consumptionLifetime: 'consumptionLifetime'
+          consumptionLifetime: 'consumptionLifetime',
+          maxConsumptionPerIntervalPerUser: 'maxConsumptionPerIntervalPerUser',
+          maxConsumptionPerInterval: 'maxConsumptionPerInterval',
+          consumptionIntervalDuration: 'consumptionIntervalDuration'
         })
       )
       .then(() => {
@@ -57,7 +60,10 @@ describe('transactionRequest actions', () => {
           maxConsumptionPerUser: 'maxConsumptionPerUser',
           expirationDate: 'expirationDate',
           allowAmountOverride: 'allowAmountOverride',
-          consumptionLifetime: 'consumptionLifetime'
+          consumptionLifetime: 'consumptionLifetime',
+          maxConsumptionPerIntervalPerUser: 'maxConsumptionPerIntervalPerUser',
+          maxConsumptionPerInterval: 'maxConsumptionPerInterval',
+          consumptionIntervalDuration: 'consumptionIntervalDuration'
         })
         expect(store.getActions()).toEqual(expectedActions)
       })

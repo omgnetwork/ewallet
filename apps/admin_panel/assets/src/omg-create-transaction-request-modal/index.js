@@ -153,7 +153,11 @@ class CreateTransactionRequest extends Component {
     advanceSettingOpen: false,
     expirationDate: '',
     searchTokenValue: '',
-    amount: ''
+    maxConsumptionPerUser: '',
+    amount: '',
+    consumptionIntervalDuration: '',
+    maxConsumptionPerInterval: '',
+    maxConsumptionPerIntervalPerUser: ''
   }
   onSubmit = async e => {
     e.preventDefault()
@@ -301,22 +305,54 @@ class CreateTransactionRequest extends Component {
             <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(true)} label='Yes' checked={this.state.allowAmountOverride} />
           </InputLabelContainer>
         </RadioSectionContainer>
-        {this.props.match.params.accountId && this.renderWalletTarget()}
         <InputLabelContainer>
           <InputLabel>
-            Correlation ID <span>( Optional )</span>
+            Wallet Address
+          </InputLabel>
+          <WalletsFetcher
+            accountId={this.props.match.params.accountId}
+            query={{ search: this.state.address }}
+            owned={false}
+            render={({ data }) => {
+              return (
+                <StyledSelect
+                  normalPlaceholder='0x00000000'
+                  value={this.state.address}
+                  onSelectItem={this.onSelectWallet}
+                  onChange={this.onChange('address')}
+                  options={data
+                    .filter(w => w.identifier !== 'burn')
+                    .map(wallet => ({
+                      key: wallet.address,
+                      value: <WalletSelect wallet={wallet} />,
+                      ...wallet
+                    }))}
+                />
+              )
+            }}
+          />
+        </InputLabelContainer>
+        <InputLabelContainer>
+          <InputLabel>
+            Correlation ID
           </InputLabel>
           <StyledInput normalPlaceholder='0x00000000' value={this.state.correlationId} onChange={this.onChange('correlationId')} />
         </InputLabelContainer>
         <InputLabelContainer>
           <InputLabel>
-            Max Consumptions <span>( Optional )</span>
+            Max Consumptions
           </InputLabel>
-          <StyledInput normalPlaceholder='0' type='number' step={1} value={this.state.maxConsumption} onChange={this.onChange('maxConsumption')} />
+          <StyledInput
+            normalPlaceholder='0'
+            type='amount'
+            step={1}
+            value={this.state.maxConsumption}
+            onChange={this.onChange('maxConsumption')}
+          />
         </InputLabelContainer>
         <InputLabelContainer>
           <InputLabel>
-            Expiration Date <span>( Optional )</span>
+            Expiration Date
           </InputLabel>
           <DateTime
             ref='picker'
@@ -330,19 +366,70 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
         <InputLabelContainer>
           <InputLabel>
-            Consumption Lifetime <span>( Optional )</span>
+            Consumption Lifetime (ms)
           </InputLabel>
-          <StyledInput normalPlaceholder='Lifetime of consumption in ms' type='number' value={this.state.consumptionLifetime} onChange={this.onChange('consumptionLifetime')} />
+          <StyledInput
+            normalPlaceholder='Lifetime of consumption in ms'
+            type='amount'
+            value={this.state.consumptionLifetime}
+            onChange={this.onChange('consumptionLifetime')}
+          />
         </InputLabelContainer>
+
         <InputLabelContainer>
           <InputLabel>
-            Max Consumption Per User <span>( Optional )</span>
+            Consumption Interval Duration (ms)
           </InputLabel>
-          <StyledInput normalPlaceholder='1' type='number' value={this.state.maxConsumptionPerUser} onChange={this.onChange('maxConsumptionPerUser')} />
+          <StyledInput
+            type='amount'
+            normalPlaceholder='Consumption interval in ms'
+            min={0}
+            value={this.state.consumptionIntervalDuration}
+            onChange={this.onChange('consumptionIntervalDuration')}
+          />
         </InputLabelContainer>
+
         <InputLabelContainer>
           <InputLabel>
-            Exchange Address <span>( Optional )</span>
+            Max Consumption Per User
+          </InputLabel>
+          <StyledInput
+            normalPlaceholder='1'
+            type='amount'
+            value={this.state.maxConsumptionPerUser}
+            onChange={this.onChange('maxConsumptionPerUser')}
+          />
+        </InputLabelContainer>
+
+        <InputLabelContainer>
+          <InputLabel>
+            Max Consumption Per Interval
+          </InputLabel>
+          <StyledInput
+            type='amount'
+            normalPlaceholder='10'
+            min={0}
+            value={this.state.maxConsumptionPerInterval}
+            onChange={this.onChange('maxConsumptionPerInterval')}
+          />
+        </InputLabelContainer>
+
+        <InputLabelContainer>
+          <InputLabel>
+            Max Consumption Per Interval Per User
+          </InputLabel>
+          <StyledInput
+            type='amount'
+            normalPlaceholder='10'
+            min={0}
+            value={this.state.maxConsumptionPerIntervalPerUser}
+            onChange={this.onChange('maxConsumptionPerIntervalPerUser')}
+          />
+        </InputLabelContainer>
+
+        <InputLabelContainer>
+          <InputLabel>
+            Exchange Address
           </InputLabel>
           <WalletsFetcher
             query={createSearchAddressQuery(this.state.exchangeAddress)}
@@ -369,13 +456,14 @@ class CreateTransactionRequest extends Component {
 
         <InputLabelContainer>
           <InputLabel>
-            Metadata <span>( Optional )</span>
+            Metadata
           </InputLabel>
           <StyledInput normalPlaceholder='Token name' value={this.state.metadata} onChange={this.onChange('metadata')} />
         </InputLabelContainer>
+
         <InputLabelContainer>
           <InputLabel>
-            Encrypted Metadata <span>( Optional )</span>
+            Encrypted Metadata
           </InputLabel>
           <StyledInput normalPlaceholder='meta data' value={this.state.encryptedMetadata} onChange={this.onChange('encryptedMetadata')} />
         </InputLabelContainer>
@@ -389,7 +477,7 @@ class CreateTransactionRequest extends Component {
           <span>Advanced Settings (Optional)</span> {this.state.advanceSettingOpen ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
         </CollapsableHeader>
 
-        <Accordion path='advanced-settings' height={390}>
+        <Accordion path='advanced-settings' height={480}>
           {this.state.advanceSettingOpen && this.renderAdvanceSettingContent()}
         </Accordion>
       </Collapsable>

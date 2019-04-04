@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
+import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
 import styled from 'styled-components'
 import moment from 'moment'
 import { Link, withRouter } from 'react-router-dom'
@@ -36,8 +36,7 @@ export default withRouter(
           'Not Specified'
         ) : (
           <span>
-            {formatReceiveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
-            {_.get(tq, 'token.symbol')}
+            {formatReceiveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))} {_.get(tq, 'token.symbol')}
           </span>
         )
       return (
@@ -132,10 +131,7 @@ export default withRouter(
             {_.get(tq, 'exchange_wallet') ? (
               <Link
                 to={{
-                  pathname: `/accounts/${tq.account_id}/wallets/${_.get(
-                    tq,
-                    'exchange_wallet.address'
-                  )}`,
+                  pathname: `/accounts/${tq.account_id}/wallets/${_.get(tq, 'exchange_wallet.address')}`,
                   search: this.props.location.search
                 }}
               >
@@ -147,29 +143,39 @@ export default withRouter(
           </InformationItem>
           <InformationItem>
             <b>User ID : </b>
-            {_.get(tq, 'user.id') ? (
-              <Link to={`/users/${_.get(tq, 'user.id')}`}>{tq.user.id}</Link>
-            ) : (
-              '-'
-            )}
+            {_.get(tq, 'user.id') ? <Link to={`/users/${_.get(tq, 'user.id')}`}>{tq.user.id}</Link> : '-'}
           </InformationItem>
           <InformationItem>
             <b>Confirmation : </b> {tq.require_confirmation ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
-            <b>Consumptions Count : </b> {tq.current_consumptions_count}
+            <b>Consumptions Count : </b> {formatNumber(tq.current_consumptions_count)}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumptions : </b> {tq.max_consumptions || '-'}
+            <b>Max Consumptions : </b> {tq.max_consumptions ? formatNumber(tq.max_consumptions) : '-'}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumptions Per User : </b> {tq.max_consumptions_per_user || '-'}
+            <b>Max Consumptions Per User : </b> {tq.max_consumptions_per_user ? formatNumber(tq.max_consumptions_per_user) : '-'}
           </InformationItem>
           <InformationItem>
-            <b>Expiry Date : </b>{' '}
-            {tq.expiration_date
-              ? moment(tq.expiration_date).format()
-              : '-'}
+            <b>Consumption Life Time : </b>
+            {tq.consumption_lifetime ? `${formatNumber(tq.consumption_lifetime)} ms` : '-'}
+          </InformationItem>
+          <InformationItem>
+            <b>Consumption Interval Duration : </b>
+            {tq.consumption_interval_duration ? `${formatNumber(tq.consumption_interval_duration)} ms` : '-'}
+          </InformationItem>
+          <InformationItem>
+            <b>Max Consumption Per Interval : </b>
+            {tq.max_consumptions_per_interval ? formatNumber(tq.max_consumptions_per_interval) : '-'}
+          </InformationItem>
+          <InformationItem>
+            <b>Max Consumption Per Interval Per User : </b>
+            {tq.max_consumptions_per_interval_per_user ? formatNumber(tq.max_consumptions_per_interval_per_user) : '-'}
+          </InformationItem>
+
+          <InformationItem>
+            <b>Expiry Date : </b> {tq.expiration_date ? moment(tq.expiration_date).format() : '-'}
           </InformationItem>
           <InformationItem>
             <b>Allow Amount Override : </b> {tq.allow_amount_override ? 'Yes' : 'No'}
