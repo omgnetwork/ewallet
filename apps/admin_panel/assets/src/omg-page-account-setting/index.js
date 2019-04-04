@@ -6,7 +6,6 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import { getAccountById, updateAccount } from '../omg-account/action'
 import { selectGetAccountById } from '../omg-account/selector'
 import { withRouter } from 'react-router-dom'
-import InviteModal from '../omg-invite-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import queryString from 'query-string'
@@ -46,10 +45,6 @@ const ProfileSection = styled.div`
 `
 const Avatar = styled(ImageUploaderAvatar)`
   margin: 0;
-`
-const InviteButton = styled(Button)`
-  padding-left: 30px;
-  padding-right: 30px;
 `
 export const NameColumn = styled.div`
   i[name='Copy'] {
@@ -119,9 +114,6 @@ class AccountSettingPage extends Component {
   }
   onRequestClose = () => {
     this.setState({ inviteModalOpen: false })
-  }
-  onClickInviteButton = () => {
-    this.setState({ inviteModalOpen: true })
   }
   onChangeName = e => {
     this.setState({ name: e.target.value })
@@ -231,12 +223,10 @@ class AccountSettingPage extends Component {
       <AccountSettingContainer>
         <TopNavigation divider={this.props.divider}
           title='Account Settings'
-          buttons={[this.renderInviteButton()]}
           secondaryAction={false}
           types={false}
         />
         {this.renderAccountSettingTab()}
-        <InviteModal open={this.state.inviteModalOpen} onRequestClose={this.onRequestClose} />
       </AccountSettingContainer>
     )
   }
