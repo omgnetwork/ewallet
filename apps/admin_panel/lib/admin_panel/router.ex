@@ -25,4 +25,10 @@ defmodule AdminPanel.Router do
     # All requests serve from the same index page
     match(:*, "/*path", PageController, :index)
   end
+
+  scope "/client", AdminPanel do
+    pipe_through(:browser)
+    # All requests serve from the same index page
+    match(:*, "/*path", PageController, :index)
+  end
 end

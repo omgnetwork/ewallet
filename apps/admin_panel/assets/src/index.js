@@ -1,5 +1,5 @@
 import { render } from 'react-dom'
-import App from './app'
+
 import React from 'react'
 import moment from 'moment'
 import { getCurrentUser } from './services/currentUserService'
@@ -11,14 +11,15 @@ import { getAccountById, deleteAccount } from './omg-account/action'
 import { configureStore } from './store'
 moment.defaultFormat = 'ddd, DD/MM/YYYY HH:mm:ss'
 
-async function bootUp () {
+async function bootAdminPanelApp () {
   // INIT SOCKET
   const socket = new SocketConnector(WEBSOCKET_URL)
   let store = {}
 
-  const result = await getCurrentUser()
-  if (result.data.success) {
-    const currentUser = result.data.data
+  const { data: { success, data: currentUserData } } = await getCurrentUser()
+
+  if (success) {
+    const currentUser = currentUserData
     const recentAccounts = getRecentAccountFromLocalStorage(currentUser.id)
     const toInjectRecentAccount = recentAccounts
       ? recentAccounts.filter(d => d !== 'undefined' || !d)
@@ -52,18 +53,52 @@ async function bootUp () {
     store = configureStore({}, { socket })
   }
 
+  // HANDLE WEBSOCKET MESSAGES
   socket.on('message', handleWebsocketMessage(store))
-  render(<App store={store} authenticated={result.data.success} />, document.getElementById('app'))
+
+  const App = await import('./adminPanelApp')
+  const LoadedApp = App.default
+  if (!LoadedApp) return false
+  render(<LoadedApp store={store} authenticated={success} />, document.getElementById('app'))
+  // HOT RELOADING FOR DEVELOPMENT MODE
+  if (module.hot) {
+    module.hot.accept('./adminPanelApp', () => {
+      render(<App />, document.getElementById('app'))
+    })
+    module.hot.accept('./reducer', () => {
+      store.replaceReducer(require('./reducer').default)
+    })
+  }
+  console.log('Started Admin panel app.')
+  return true
 }
 
-// HOT RELOADING FOR DEVELOPMENT MODE
-if (module.hot) {
-  module.hot.accept('./app', () => {
-    render(<App />, document.getElementById('app'))
-  })
-  module.hot.accept('./reducer', () => {
-    store.replaceReducer(require('./reducer').default)
-  })
+async function bootClientApp () {
+  const App = await import('./clientApp')
+  const LoadedApp = App.default
+  if (!LoadedApp) return false
+  render(<LoadedApp />, document.getElementById('app'))
+  // HOT RELOADING FOR DEVELOPMENT MODE
+  if (module.hot) {
+    module.hot.accept('./clientApp', () => {
+      render(<App />, document.getElementById('app'))
+    })
+  }
+  console.log('Started client app.')
+  return true
 }
 
-bootUp() // BOOT UP APP :)
+async function bootApp () {
+  const [, app] = window.location.pathname.split('/')
+  console.log(`Starting up ${app} app...`)
+  switch (app) {
+    case 'admin':
+      return bootAdminPanelApp()
+    case 'client':
+      return bootClientApp()
+    default:
+      return false
+  }
+}
+
+bootApp()

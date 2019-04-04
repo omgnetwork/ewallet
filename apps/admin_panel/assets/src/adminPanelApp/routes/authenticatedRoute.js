@@ -3,7 +3,7 @@ import { Route, Redirect } from 'react-router-dom'
 import AppLayout from '../../omg-app-layout'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { bootstrap } from '../bootup/action'
+import { bootstrap } from '../action'
 class AuthenticatedRoute extends Component {
   static propTypes = {
     component: PropTypes.func,
