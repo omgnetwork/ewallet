@@ -159,7 +159,7 @@ class UsersPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Admins'}
-          buttons={[<InviteButton key='invite' onClick={this.onClickInviteButton}>Invite</InviteButton>]}
+          buttons={[<InviteButton key='invite' onClick={this.onClickInviteButton}>Invite Member</InviteButton>]}
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
