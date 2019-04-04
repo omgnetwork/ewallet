@@ -21,6 +21,7 @@ export default withRouter(
           accountId={this.props.match.params.accountId}
           navigation={false}
           onClickRow={this.onClickRow}
+          showInviteButton
           columns={[
             { key: 'id', title: 'ADMIN ID', sort: true },
             { key: 'email', title: 'EMAIL', sort: true },

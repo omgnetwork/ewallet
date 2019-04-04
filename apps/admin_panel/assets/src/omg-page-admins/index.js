@@ -84,11 +84,13 @@ class UsersPage extends Component {
     navigation: PropTypes.bool,
     onClickRow: PropTypes.func,
     columns: PropTypes.array,
-    divider: PropTypes.bool
+    divider: PropTypes.bool,
+    showInviteButton: PropTypes.bool
   }
   static defaultProps = {
     query: {},
     fetcher: AdminsFetcher,
+    showInviteButton: false,
     columns: [
       { key: 'id', title: 'ADMIN ID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
@@ -159,7 +161,7 @@ class UsersPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Admins'}
-          buttons={[<InviteButton key='invite' onClick={this.onClickInviteButton}>Invite Member</InviteButton>]}
+          buttons={[this.props.showInviteButton ? this.renderInviteButton() : null]}
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
