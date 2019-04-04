@@ -198,13 +198,11 @@ class CreateExchangeRateModal extends Component {
     }
   }
 
-  get ratesAvailable() {
-    return (
-      formatAmount(this.state.toTokenRate, 1) > 0 &&
-      formatAmount(this.state.fromTokenRate, 1) > 0 &&
+  get ratesAvailable () {
+    return this.state.toTokenRate > 0 &&
+      this.state.fromTokenRate > 0 &&
       this.state.toTokenSearch &&
       this.state.fromTokenSearch
-    )
   }
 
   renderCalculation = () => {

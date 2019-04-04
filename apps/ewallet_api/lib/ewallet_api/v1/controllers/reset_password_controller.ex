@@ -24,13 +24,46 @@ defmodule EWalletAPI.V1.ResetPasswordController do
   This function is used when the eWallet is setup as a standalone solution,
   allowing users to reset their password without going through the integration
   with the provider's server.
+
+  Accepted params:
+  - `reset_password_url` (previously `redirect_url`) -> In most cases, this should be
+  the default frontend page located at BASE_URL/client/reset_password. This page is designed
+  to handle an optional `forward_url` params and contains a form to reset the user's password.
+  - `redirect_url` (deprecated) -> old name for `reset_password_url`
+  - `forward_url` (optional) -> A url where, if valid, the user will be redirected instead of
+  using the default client frontend view to reset the password.
+  This param can be usefull if the developer wants to handle the password reset in
+  a mobile application for example. In this case, he could put the app scheme URI in
+  the `forward_url` params and if the application is installed on the targeted phone,
+  the user will be redirected there.
   """
   @spec reset(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def reset(conn, %{"email" => email, "redirect_url" => redirect_url})
+  def reset(conn, %{"email" => email, "reset_password_url" => reset_password_url} = attrs)
+      when not is_nil(email) and not is_nil(reset_password_url) do
+    do_reset(conn, attrs)
+  end
+
+  # Backward compatibility: we still need to support the `redirect_url` param name
+  # which is now `reset_password_url`
+  def reset(conn, %{"email" => email, "redirect_url" => redirect_url} = attrs)
       when not is_nil(email) and not is_nil(redirect_url) do
-    with {:ok, redirect_url} <- validate_redirect_url(redirect_url),
+    attrs =
+      attrs
+      |> Map.put("reset_password_url", redirect_url)
+      |> Map.drop(["redirect_url"])
+
+    do_reset(conn, attrs)
+  end
+
+  def reset(conn, _) do
+    handle_error(conn, :invalid_parameter, "`email` and `reset_password_url` are required")
+  end
+
+  defp do_reset(conn, %{"email" => email, "reset_password_url" => reset_password_url} = attrs) do
+    with {:ok, reset_password_url} <- validate_url(reset_password_url, "reset_password_url"),
+         {:ok, forward_url} <- validate_url(attrs["forward_url"], "forward_url"),
          {:ok, request} <- ResetPasswordGate.request(email),
-         {:ok, _email} <- send_request_email(request, redirect_url) do
+         {:ok, _email} <- send_request_email(request, reset_password_url, forward_url) do
       render(conn, :empty, %{success: true})
     else
       # Prevents attackers from gaining knowledge about a user's email.
@@ -45,22 +78,20 @@ defmodule EWalletAPI.V1.ResetPasswordController do
     end
   end
 
-  def reset(conn, _) do
-    handle_error(conn, :invalid_parameter, "`email` and `redirect_url` are required")
-  end
-
-  defp validate_redirect_url(url) do
+  defp validate_url(url, param_name) when not is_nil(url) do
     if UrlValidator.allowed_redirect_url?(url) do
       {:ok, url}
     else
-      {:error, :prohibited_url, param_name: "redirect_url", url: url}
+      {:error, :prohibited_url, param_name: param_name, url: url}
     end
   end
 
-  defp send_request_email(request, redirect_url) do
+  defp validate_url(_, _), do: {:ok, nil}
+
+  defp send_request_email(request, redirect_url, forward_url) do
     email =
       request
-      |> ForgetPasswordEmail.create(redirect_url)
+      |> ForgetPasswordEmail.create(redirect_url, forward_url)
       |> Mailer.deliver_now()
 
     {:ok, email}

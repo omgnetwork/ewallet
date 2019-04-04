@@ -18,16 +18,22 @@ defmodule EWallet.ForgetPasswordEmailTest do
   alias EWallet.ForgetPasswordEmail
   alias EWalletDB.ForgetPasswordRequest
 
-  defp create_email(email, token) do
+  defp create_email(email, token, forward_url \\ nil) do
     user = insert(:user, email: email)
     _request = insert(:forget_password_request, token: token, user_uuid: user.uuid)
     request = ForgetPasswordRequest.get(user, token)
-    email = ForgetPasswordEmail.create(request, "https://reset_url/?email={email}&token={token}")
+
+    email =
+      ForgetPasswordEmail.create(
+        request,
+        "https://reset_url/?email={email}&token={token}",
+        forward_url
+      )
 
     email
   end
 
-  describe "ForgetPasswordEmail.create/2" do
+  describe "ForgetPasswordEmail.create/3" do
     test "creates an email with correct from and to addresses" do
       email = create_email("forgetpassword@example.com", "the_token")
 
@@ -62,6 +68,26 @@ defmodule EWallet.ForgetPasswordEmailTest do
 
       assert email.html_body =~
                "https://reset_url/?email=forgetpassword%2Btest%40example.com&token=the_token"
+    end
+
+    test "creates an email with a forward_url and a normal email" do
+      email = "forgetpassword@example.com"
+      token = "the_token"
+      forward_url = "my-app://reset_password?email={email}&token={token}"
+      email = create_email(email, token, forward_url)
+
+      assert email.html_body =~
+               "https://reset_url/?email=forgetpassword%40example.com&token=the_token&forward_url=my-app%3A%2F%2Freset_password%3Femail%3Dforgetpassword%40example.com%26token%3Dthe_token"
+    end
+
+    test "creates an email with a forward_url and an email containing +" do
+      email = "forgetpassword+test@example.com"
+      token = "the_token"
+      forward_url = "my-app://reset_password?email={email}&token={token}"
+      email = create_email(email, token, forward_url)
+
+      assert email.html_body =~
+               "https://reset_url/?email=forgetpassword%2Btest%40example.com&token=the_token&forward_url=my-app%3A%2F%2Freset_password%3Femail%3Dforgetpassword%2Btest%40example.com%26token%3Dthe_token"
     end
   end
 end
