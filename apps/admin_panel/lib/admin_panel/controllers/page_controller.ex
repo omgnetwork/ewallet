@@ -14,9 +14,6 @@
 
 defmodule AdminPanel.PageController do
   use AdminPanel, :controller
-  import Ecto.Query
-  import EWalletDB.SoftDelete
-  alias EWalletDB.{APIKey, Repo}
   alias Plug.Conn
 
   @not_found_message """
@@ -29,7 +26,6 @@ defmodule AdminPanel.PageController do
       conn
       |> index_file_path()
       |> File.read!()
-      |> inject_api_key()
 
     conn
     |> put_resp_header("content-type", "text/html; charset=utf-8")
@@ -50,32 +46,4 @@ defmodule AdminPanel.PageController do
     |> Application.get_env(:dist_path)
     |> Path.join("index.html")
   end
-
-  defp inject_api_key(content) do
-    String.replace(content, ~s("app"></div>), api_key_script(), insert_replaced: 0)
-  end
-
-  defp api_key_script do
-    APIKey
-    |> exclude_deleted()
-    |> limit(1)
-    |> Repo.one()
-    |> api_key_script()
-  end
-
-  defp api_key_script(%APIKey{} = api_key) do
-    """
-    <script>
-      var adminConfig = {};
-
-      adminConfig.apiKeyId = "#{api_key.id}";
-      adminConfig.apiKey = "#{api_key.key}";
-
-      window.adminConfig = adminConfig;
-    </script>
-    """
-  end
-
-  # For troubleshooting purposes
-  defp api_key_script(_), do: "<!-- No API key found -->"
 end
