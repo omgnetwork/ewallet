@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import { Input, Button } from '../omg-uikit'
+import { Input, Button } from '../../omg-uikit'
 import styled from 'styled-components'
 import { Link, withRouter } from 'react-router-dom'
-import { sendResetPasswordEmail } from '../omg-session/action'
-import { connect } from 'react-redux'
+import queryString from 'query-string'
 import PropTypes from 'prop-types'
+import AuthFormLayout from '../../omg-layout/authFormLayout'
 import { compose } from 'recompose'
 const Form = styled.form`
   text-align: left;
@@ -23,7 +23,7 @@ const Form = styled.form`
     text-align: center;
   }
 `
-const SendEmailSuccessfulContainer = styled.div`
+const UpdateSuccessfulContainer = styled.div`
   text-align: center;
 `
 const Error = styled.div`
@@ -35,88 +35,106 @@ const Error = styled.div`
   opacity: ${props => (props.error ? 1 : 0)};
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
+
+const enhance = compose(withRouter)
 class ForgetPasswordForm extends Component {
   static propTypes = {
-    sendResetPasswordEmail: PropTypes.func,
-    location: PropTypes.func
+    location: PropTypes.object.isRequired,
+    updatePasswordWithResetToken: PropTypes.func.isRequired
   }
   state = {
-    email: '',
-    emailError: false,
+    newPassword: '',
+    newPasswordError: false,
+    reEnteredNewPassword: '',
+    reEnteredNewPasswordError: false,
     submitStatus: null
   }
 
-  validateEmail = email => {
-    return !/@/.test(email) || email.length === 0
-  }
   validatePassword = password => {
-    return password.length === 0
+    return password.length >= 8
+  }
+  validateReEnteredNewPassword = (newPassword, reEnteredNewPassword) => {
+    return newPassword === reEnteredNewPassword && newPassword !== '' && reEnteredNewPassword !== ''
   }
   onSubmit = async e => {
     e.preventDefault()
-    const emailError = this.validateEmail(this.state.email)
+    const { email, token } = queryString.parse(this.props.location.search)
+    const newPasswordError = !this.validatePassword(this.state.newPassword)
+    const reEnteredNewPasswordError = !this.validateReEnteredNewPassword(this.state.newPassword, this.state.reEnteredNewPassword)
     this.setState({
-      emailError,
-      submitStatus: emailError ? 'ERROR' : 'SUBMITTED'
+      newPasswordError,
+      reEnteredNewPasswordError,
+      submitStatus: !newPasswordError && !reEnteredNewPasswordError ? 'SUBMITTED' : null
     })
-    if (!emailError) {
-      const result = await this.props.sendResetPasswordEmail({
-        email: this.state.email,
-        redirectUrl: window.location.href.replace(
-          this.props.location.pathname,
-          '/create-new-password/'
-        )
+    if (!newPasswordError && !reEnteredNewPasswordError) {
+      const result = await this.props.updatePasswordWithResetToken({
+        email,
+        resetToken: token,
+        password: this.state.newPassword,
+        passwordConfirmation: this.state.reEnteredNewPassword
       })
-      if (result.data) {
+      if (result.data.success) {
         this.setState({ submitStatus: 'SUCCESS' })
       } else {
-        this.setState({ submitStatus: 'FAILED', submitErrorText: result.error.description })
+        this.setState({ submitStatus: 'FAILED', submitErrorText: result.data.data.code })
       }
     }
   }
-  onEmailInputChange = e => {
+  onNewPasswordInputChange = e => {
     const value = e.target.value
     this.setState({
-      email: value,
-      emailError: this.state.submitStatus === 'ERROR' && this.validateEmail(value)
+      newPassword: value,
+      newPasswordError: this.state.submitStatus && !this.validatePassword(value)
+    })
+  }
+  onReEnteredNewPasswordInputChange = e => {
+    const value = e.target.value
+    this.setState({
+      reEnteredNewPassword: value,
+      reEnteredNewPasswordError: !this.validateReEnteredNewPassword(this.state.newPassword, value)
     })
   }
   render () {
+    const { email } = queryString.parse(this.props.location.search)
     return (
-      <Form onSubmit={this.onSubmit} noValidate>
-        {this.state.submitStatus === 'SUCCESS' ? (
-          <SendEmailSuccessfulContainer>
-            <h4>Email has been sent, please check your email</h4>
-          </SendEmailSuccessfulContainer>
-        ) : (
-          <div>
-            <h4>Reset Password</h4>
-            <p>Please enter your recovery email to reset password.</p>
-            <Input
-              placeholder='email@domain.com'
-              error={this.state.emailError}
-              errorText='Invalid email'
-              onChange={this.onEmailInputChange}
-              value={this.state.email}
-              disabled={this.state.submitted}
-            />
-            <Button
-              size='large'
-              type='submit'
-              fluid
-              loading={this.state.submitStatus === 'SUBMITTED'}
-            >
-              Send Request Email
-            </Button>
-          </div>
-        )}
-        <Link to='/login/' className='back-link'>
-          Go back to Login
-        </Link>
-        <Error error={this.state.submitStatus === 'FAILED'}>{this.state.submitErrorText}</Error>
-      </Form>
+      <AuthFormLayout>
+        <Form onSubmit={this.onSubmit} noValidate>
+          {this.state.submitStatus !== 'SUCCESS' ? (
+            <div>
+              <h4>Create Password ({email})</h4>
+              <p>Create new password with at least 8 characters</p>
+              <Input
+                placeholder='New password'
+                error={this.state.newPasswordError}
+                errorText='Invalid password'
+                onChange={this.onNewPasswordInputChange}
+                value={this.state.newPassword}
+                disabled={this.state.submitStatus === 'SUBMITTED'}
+                type='password'
+              />
+              <Input
+                placeholder='Re-enter new password'
+                type='password'
+                error={this.state.reEnteredNewPasswordError}
+                errorText='Password does not match'
+                onChange={this.onReEnteredNewPasswordInputChange}
+                value={this.state.reEnteredNewPassword}
+                disabled={this.state.submitStatus === 'SUBMITTED'}
+              />
+              <Button size='large' type='submit' fluid loading={this.state.submitStatus === 'SUBMITTED'}>
+              Reset Password
+              </Button>
+            </div>
+          ) : (
+            <UpdateSuccessfulContainer>
+              <h4>Reset password successfully</h4>
+            </UpdateSuccessfulContainer>
+          )}
+          <Error error={this.state.submitStatus === 'FAILED'}>{this.state.submitErrorText}</Error>
+        </Form>
+      </AuthFormLayout>
     )
   }
 }
 
-export default ForgetPasswordForm
+export default enhance(ForgetPasswordForm)
