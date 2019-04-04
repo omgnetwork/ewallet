@@ -351,7 +351,7 @@ class CreateTransactionRequest extends Component {
           </InputLabel>
           <StyledInput
             normalPlaceholder='0'
-            type='number'
+            type='amount'
             step={1}
             value={this.state.maxConsumption}
             onChange={this.onChange('maxConsumption')}
@@ -384,7 +384,7 @@ class CreateTransactionRequest extends Component {
           </InputLabel>
           <StyledInput
             normalPlaceholder='Lifetime of consumption in ms'
-            type='number'
+            type='amount'
             value={this.state.consumptionLifetime}
             onChange={this.onChange('consumptionLifetime')}
           />
@@ -395,7 +395,7 @@ class CreateTransactionRequest extends Component {
             Consumption Interval Duration
           </InputLabel>
           <StyledInput
-            type='number'
+            type='amount'
             normalPlaceholder='Consumption interval in ms'
             min={0}
             value={this.state.consumptionIntervalDuration}
@@ -409,7 +409,7 @@ class CreateTransactionRequest extends Component {
           </InputLabel>
           <StyledInput
             normalPlaceholder='1'
-            type='number'
+            type='amount'
             value={this.state.maxConsumptionPerUser}
             onChange={this.onChange('maxConsumptionPerUser')}
           />
@@ -420,7 +420,7 @@ class CreateTransactionRequest extends Component {
             Max Consumption Per Interval
           </InputLabel>
           <StyledInput
-            type='number'
+            type='amount'
             normalPlaceholder='10'
             min={0}
             value={this.state.maxConsumptionPerInterval}
@@ -433,7 +433,7 @@ class CreateTransactionRequest extends Component {
             Max Consumption Per Interval Per User
           </InputLabel>
           <StyledInput
-            type='number'
+            type='amount'
             normalPlaceholder='10'
             min={0}
             value={this.state.maxConsumptionPerIntervalPerUser}

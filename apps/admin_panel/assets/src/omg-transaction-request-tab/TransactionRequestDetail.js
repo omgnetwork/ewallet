@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
+import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
 import styled from 'styled-components'
 import moment from 'moment'
 import { Link, withRouter } from 'react-router-dom'
@@ -149,22 +149,29 @@ export default withRouter(
             <b>Confirmation : </b> {tq.require_confirmation ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
-            <b>Consumptions Count : </b> {tq.current_consumptions_count}
+            <b>Consumptions Count : </b> {formatNumber(tq.current_consumptions_count)}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumptions : </b> {tq.max_consumptions || '-'}
+            <b>Max Consumptions : </b> {tq.max_consumptions ? formatNumber(tq.max_consumptions) : '-'}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumptions Per User : </b> {tq.max_consumptions_per_user || '-'}
+            <b>Max Consumptions Per User : </b> {tq.max_consumptions_per_user ? formatNumber(tq.max_consumptions_per_user) : '-'}
           </InformationItem>
           <InformationItem>
-            <b>Consumption Interval Duration : </b> {tq.consumption_interval_duration || '-'}
+            <b>Consumption Life Time : </b>
+            {tq.consumption_lifetime ? `${formatNumber(tq.consumption_lifetime)} ms` : '-'}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumption Per Interval : </b> {tq.max_consumptions_per_interval || '-'}
+            <b>Consumption Interval Duration : </b>
+            {tq.consumption_interval_duration ? `${formatNumber(tq.consumption_interval_duration)} ms` : '-'}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumption Per Interval Per User : </b> {tq.max_consumptions_per_interval_per_user || '-'}
+            <b>Max Consumption Per Interval : </b>
+            {tq.max_consumptions_per_interval ? formatNumber(tq.max_consumptions_per_interval) : '-'}
+          </InformationItem>
+          <InformationItem>
+            <b>Max Consumption Per Interval Per User : </b>
+            {tq.max_consumptions_per_interval_per_user ? formatNumber(tq.max_consumptions_per_interval_per_user) : '-'}
           </InformationItem>
 
           <InformationItem>
