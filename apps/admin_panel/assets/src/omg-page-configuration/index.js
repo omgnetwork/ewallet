@@ -7,6 +7,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 
 import AccountsFetcher from '../omg-account/accountsFetcher'
+import AccountSelect from '../omg-account-select'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Button, Icon, Input, LoadingSkeleton } from '../omg-uikit'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
@@ -122,7 +123,8 @@ class ConfigurationPage extends Component {
         balanceCachingStrategy: props.configurations.balance_caching_strategy.value,
         balanceCachingResetFrequency: props.configurations.balance_caching_reset_frequency.value,
         forgetPasswordRequestLifetime: props.configurations.forget_password_request_lifetime.value,
-        fetched: true
+        fetched: true,
+        masterAccount: props.configurations.master_account.value
       }
     } else {
       return null
@@ -173,7 +175,7 @@ class ConfigurationPage extends Component {
   }
 
   onSelectMasterAccount = option => {
-    this.setState({ masterAccount: option.value })
+    this.setState({ masterAccount: option.id })
   }
 
   onClickRemovePrefix = index => e => {
@@ -254,7 +256,8 @@ class ConfigurationPage extends Component {
             balanceCachingResetFrequency: _.get(
               result.data.data,
               'balance_caching_reset_frequency.value'
-            )
+            ),
+            masterAccount: _.get(result.data.data, 'master_account.value')
           },
           _.isNil
         )
@@ -484,18 +487,8 @@ class ConfigurationPage extends Component {
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
         />
-        {/* TODO: wrap in accounts fetcher...  */}
         <AccountsFetcher
-          // {...this.state}
-          // {...this.props}
-          query={{
-            page: queryString.parse(this.props.location.search).page,
-            perPage: 12,
-            search: queryString.parse(this.props.location.search).search
-          }}
-          // onFetchComplete={this.props.scrollTopContentContainer}
           render={({ accounts }) => {
-            console.log('accounts: ', accounts);
             return (
               <ConfigRow
                 name={'Master Account'}
@@ -504,14 +497,11 @@ class ConfigurationPage extends Component {
                 onSelectItem={this.onSelectMasterAccount}
                 onChange={this.onChangeInput('masterAccount')}
                 type='select'
-                options={[
-                  { key: 1, value: 'hi' },
-                  { key: 2, value: 'yo' },
-                ]}
-                // options={configurations.master_account.map(option => ({
-                //   key: option,
-                //   value: option
-                // }))}
+                options={accounts.map(account => ({
+                  key: account.id,
+                  value: <AccountSelect account={account} />,
+                  ...account
+                }))}
               />
             )}
           }
