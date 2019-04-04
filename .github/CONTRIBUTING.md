@@ -27,7 +27,7 @@ In order for the build to pass, the following commands must run successfully wit
 
 #### **Do you have questions about the source code?**
 
-* You can ask any questions about the source code at [Gitter](https://gitter.im/omisego/ewallet) or on [stack overflow](https://stackoverflow.com/).
+* You can ask any questions about the source code on [Gitter](https://gitter.im/omisego/ewallet) or on [stack overflow](https://stackoverflow.com/).
 
 Thanks!
 
