@@ -163,7 +163,7 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
           address: wallet.address,
           exchange_wallet_address: account_wallet.address,
           max_consumptions_per_interval: 1,
-          consumption_interval_duration: 10000
+          consumption_interval_duration: 10_000
         })
 
       request = TransactionRequest |> Repo.all() |> Enum.at(0)
@@ -199,7 +199,7 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
                  "max_consumptions_per_user" => nil,
                  "max_consumptions_per_interval" => 1,
                  "max_consumptions_per_interval_per_user" => nil,
-                 "consumption_interval_duration" => 10000,
+                 "consumption_interval_duration" => 10_000,
                  "metadata" => %{},
                  "exchange_account_id" => account.id,
                  "exchange_account" =>
