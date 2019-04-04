@@ -36,8 +36,7 @@ export default withRouter(
           'Not Specified'
         ) : (
           <span>
-            {formatReceiveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
-            {_.get(tq, 'token.symbol')}
+            {formatReceiveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))} {_.get(tq, 'token.symbol')}
           </span>
         )
       return (
@@ -132,10 +131,7 @@ export default withRouter(
             {_.get(tq, 'exchange_wallet') ? (
               <Link
                 to={{
-                  pathname: `/accounts/${tq.account_id}/wallets/${_.get(
-                    tq,
-                    'exchange_wallet.address'
-                  )}`,
+                  pathname: `/accounts/${tq.account_id}/wallets/${_.get(tq, 'exchange_wallet.address')}`,
                   search: this.props.location.search
                 }}
               >
@@ -147,11 +143,7 @@ export default withRouter(
           </InformationItem>
           <InformationItem>
             <b>User ID : </b>
-            {_.get(tq, 'user.id') ? (
-              <Link to={`/users/${_.get(tq, 'user.id')}`}>{tq.user.id}</Link>
-            ) : (
-              '-'
-            )}
+            {_.get(tq, 'user.id') ? <Link to={`/users/${_.get(tq, 'user.id')}`}>{tq.user.id}</Link> : '-'}
           </InformationItem>
           <InformationItem>
             <b>Confirmation : </b> {tq.require_confirmation ? 'Yes' : 'No'}
@@ -166,10 +158,17 @@ export default withRouter(
             <b>Max Consumptions Per User : </b> {tq.max_consumptions_per_user || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Expiry Date : </b>{' '}
-            {tq.expiration_date
-              ? moment(tq.expiration_date).format()
-              : '-'}
+            <b>Consumption Interval Duration : </b> {tq.consumption_interval_duration || '-'}
+          </InformationItem>
+          <InformationItem>
+            <b>Max Consumption Per Interval : </b> {tq.max_consumptions_per_interval || '-'}
+          </InformationItem>
+          <InformationItem>
+            <b>Max Consumption Per Interval Per User : </b> {tq.max_consumptions_per_interval_per_user || '-'}
+          </InformationItem>
+
+          <InformationItem>
+            <b>Expiry Date : </b> {tq.expiration_date ? moment(tq.expiration_date).format() : '-'}
           </InformationItem>
           <InformationItem>
             <b>Allow Amount Override : </b> {tq.allow_amount_override ? 'Yes' : 'No'}
