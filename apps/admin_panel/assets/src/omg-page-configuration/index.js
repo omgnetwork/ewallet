@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 
+import AccountsFetcher from '../omg-account/accountsFetcher'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Button, Icon, Input, LoadingSkeleton } from '../omg-uikit'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
@@ -483,21 +484,37 @@ class ConfigurationPage extends Component {
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
         />
-        <ConfigRow
-          name={'Master Account'}
-          description={configurations.master_account.description}
-          value={this.state.masterAccount}
-          onSelectItem={this.onSelectMasterAccount}
-          onChange={this.onChangeInput('masterAccount')}
-          type='select'
-          options={[
-            { key: 1, value: 'hi' },
-            { key: 2, value: 'yo' },
-          ]}
-          // options={masterAccountOptions.map(option => ({
-          //   key: option,
-          //   value: option
-          // }))}
+        {/* TODO: wrap in accounts fetcher...  */}
+        <AccountsFetcher
+          // {...this.state}
+          // {...this.props}
+          query={{
+            page: queryString.parse(this.props.location.search).page,
+            perPage: 12,
+            search: queryString.parse(this.props.location.search).search
+          }}
+          // onFetchComplete={this.props.scrollTopContentContainer}
+          render={({ accounts }) => {
+            console.log('accounts: ', accounts);
+            return (
+              <ConfigRow
+                name={'Master Account'}
+                description={configurations.master_account.description}
+                value={this.state.masterAccount}
+                onSelectItem={this.onSelectMasterAccount}
+                onChange={this.onChangeInput('masterAccount')}
+                type='select'
+                options={[
+                  { key: 1, value: 'hi' },
+                  { key: 2, value: 'yo' },
+                ]}
+                // options={configurations.master_account.map(option => ({
+                //   key: option,
+                //   value: option
+                // }))}
+              />
+            )}
+          }
         />
       </Fragment>
     )
