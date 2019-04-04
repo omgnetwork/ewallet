@@ -228,6 +228,9 @@ defmodule EWallet.TransactionRequestGate do
       expiration_date: attrs["expiration_date"],
       max_consumptions: attrs["max_consumptions"],
       max_consumptions_per_user: attrs["max_consumptions_per_user"],
+      max_consumptions_per_interval: attrs["max_consumptions_per_interval"],
+      max_consumptions_per_interval_per_user: attrs["max_consumptions_per_interval_per_user"],
+      consumption_interval_duration: attrs["consumption_interval_duration"],
       exchange_account_uuid: Assoc.get_if_exists(exchange_wallet, [:account_uuid]),
       exchange_wallet_address: Assoc.get_if_exists(exchange_wallet, [:address]),
       originator: attrs["originator"]
