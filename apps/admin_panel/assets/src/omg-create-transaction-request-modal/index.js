@@ -380,7 +380,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
         <InputLabelContainer>
           <InputLabel>
-            Consumption Lifetime
+            Consumption Lifetime (ms)
           </InputLabel>
           <StyledInput
             normalPlaceholder='Lifetime of consumption in ms'
@@ -392,7 +392,7 @@ class CreateTransactionRequest extends Component {
 
         <InputLabelContainer>
           <InputLabel>
-            Consumption Interval Duration
+            Consumption Interval Duration (ms)
           </InputLabel>
           <StyledInput
             type='amount'
