@@ -40,8 +40,7 @@ const Error = styled.div`
 const enhance = compose(withRouter)
 class ForgetPasswordForm extends Component {
   static propTypes = {
-    location: PropTypes.object.isRequired,
-    updatePasswordWithResetToken: PropTypes.func.isRequired
+    location: PropTypes.object.isRequired
   }
   state = {
     newPassword: '',
