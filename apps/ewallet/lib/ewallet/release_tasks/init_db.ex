@@ -24,7 +24,7 @@ defmodule EWallet.ReleaseTasks.InitDB do
   alias EWallet.CLI
 
   @start_apps [:crypto, :ssl, :postgrex, :ecto_sql, :telemetry]
-  @apps [:ewallet_config, :activity_logger, :ewallet_db, :local_ledger_db]
+  @apps [:ewallet_config, :activity_logger, :ewallet_db, :local_ledger_db, :keychain]
 
   def run do
     Enum.each(@start_apps, &Application.ensure_all_started/1)

@@ -15,15 +15,28 @@
 defmodule BlockchainEth.WorkerTest do
   use ExUnit.Case
   alias BlockchainEth.Worker
+  alias Ecto.Adapters.SQL.Sandbox
+  alias Keychain.{Repo, Key}
 
-  setup do
+  setup tags do
+    :ok = Sandbox.checkout(Repo)
+
+    unless tags[:async] do
+      Sandbox.mode(Repo, {:shared, self()})
+    end
+
     {:ok, pid} = Worker.start_link()
     %{pid: pid}
   end
 
   describe "generate_wallet/0" do
     test "generates a ECDH keypair and wallet id", state do
+      assert Repo.aggregate(Key, :count, :wallet_id) == 0
       {:ok, wallet_id, public_key} = Worker.generate_wallet(state[:pid])
+      {:ok, _, _} = Worker.generate_wallet(state[:pid])
+      {:ok, _, _} = Worker.generate_wallet(state[:pid])
+      {:ok, _, _} = Worker.generate_wallet(state[:pid])
+      assert Repo.aggregate(Key, :count, :wallet_id) == 4
 
       assert is_binary(wallet_id)
       assert byte_size(wallet_id) == 66

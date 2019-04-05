@@ -25,6 +25,7 @@ defmodule BlockchainEth.Worker do
   ##
 
   use GenServer
+  alias Keychain.Key
   alias ExthCrypto.ECIES.ECDH
   alias ExthCrypto.Hash.Keccak
 
@@ -62,18 +63,22 @@ defmodule BlockchainEth.Worker do
   """
   @spec handle_call(:generate_wallet, from(), state()) :: reply({:ok, String.t(), String.t()})
   def handle_call(:generate_wallet, _from, reg) do
-    {public_key, _private_key} = ECDH.new_ecdh_keypair()
+    {public_key, private_key} = ECDH.new_ecdh_keypair()
 
-    <<_::binary-size(45), pkey_last20::binary-size(20)>> = public_key
+    <<_::binary-size(45), public_key_last20::binary-size(20)>> = public_key
 
-    pkey_encoded = Base.encode16(public_key, case: :lower)
+    public_key_encoded = Base.encode16(public_key, case: :lower)
+    private_key_encoded = Base.encode16(private_key, case: :lower)
 
     account_encoded =
-      pkey_last20
+      public_key_last20
       |> Keccak.kec()
       |> Base.encode16(case: :lower)
 
-    {:reply, {:ok, "0x#{account_encoded}", pkey_encoded}, reg}
+    wallet_id = "0x#{account_encoded}"
+
+    {:ok, _} = Key.insert_private_key(wallet_id, private_key_encoded)
+    {:reply, {:ok, wallet_id, public_key_encoded}, reg}
   end
 
   ## Client API

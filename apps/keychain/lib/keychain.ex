@@ -12,5 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ExUnit.start()
-Ecto.Adapters.SQL.Sandbox.mode(Keychain.Repo, :manual)
+defmodule Keychain do
+  @moduledoc """
+  Documentation for Keychain.
+  """
+end
