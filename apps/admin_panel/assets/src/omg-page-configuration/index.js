@@ -7,6 +7,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 
 import AccountsFetcher from '../omg-account/accountsFetcher'
+import { createSearchMasterAccountQuery } from '../omg-account/searchField'
 import AccountSelect from '../omg-account-select'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Button, Icon, Input, LoadingSkeleton } from '../omg-uikit'
@@ -417,6 +418,26 @@ class ConfigurationPage extends Component {
     return (
       <Fragment>
         <h4>Global Settings</h4>
+        <AccountsFetcher
+          query={createSearchMasterAccountQuery(this.state.masterAccount)}
+          render={({ accounts }) => {
+            return (
+              <ConfigRow
+                name={'Master Account'}
+                description={configurations.master_account.description}
+                value={this.state.masterAccount}
+                onSelectItem={this.onSelectMasterAccount}
+                onChange={this.onChangeInput('masterAccount')}
+                type='select'
+                options={accounts.map(account => ({
+                  key: account.id,
+                  value: <AccountSelect account={account} />,
+                  ...account
+                }))}
+              />
+            )}
+          }
+        />
         <ConfigRow
           name={'Base URL'}
           description={configurations.base_url.description}
@@ -486,25 +507,6 @@ class ConfigurationPage extends Component {
           onChange={this.onChangeInput('forgetPasswordRequestLifetime')}
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
-        />
-        <AccountsFetcher
-          render={({ accounts }) => {
-            return (
-              <ConfigRow
-                name={'Master Account'}
-                description={configurations.master_account.description}
-                value={this.state.masterAccount}
-                onSelectItem={this.onSelectMasterAccount}
-                onChange={this.onChangeInput('masterAccount')}
-                type='select'
-                options={accounts.map(account => ({
-                  key: account.id,
-                  value: <AccountSelect account={account} />,
-                  ...account
-                }))}
-              />
-            )}
-          }
         />
       </Fragment>
     )
