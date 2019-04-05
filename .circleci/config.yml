@@ -256,6 +256,7 @@ workflows:
             branches:
               ignore:
                 - master
+                - fix-ci-deploy
                 - /^v[0-9]+\.[0-9]+/
                 - /.*e2e$/
             tags:
@@ -268,6 +269,7 @@ workflows:
             branches:
               only:
                 - master
+                - fix-ci-deploy
                 - /^v[0-9]+\.[0-9]+/
                 - /.*e2e$/
             tags:
@@ -280,3 +282,4 @@ workflows:
             branches:
               only:
                 - master
+                - fix-ci-deploy

@@ -63,11 +63,12 @@ git config core.sparsecheckout true
 
 cat <<EOF >> ~/deploy/.git/info/sparse-checkout
 .gitmodules
+kapitan/.kapitan
 kapitan/components/*
 kapitan/inventory/classes/*
-kapitan/inventory/targets/demo-staging.yml
-kapitan/secrets/default/*
-kapitan/secrets/demo-staging/*
+kapitan/inventory/targets/omisego-demo-staging.yml
+kapitan/secrets/omisego-default/*
+kapitan/secrets/omisego-demo-staging/*
 kapitan/share/*
 vendor/github.com/omisego/*
 vendor/github.com/ksonnet/*
@@ -87,24 +88,18 @@ helm init --client-only
 helm dependency update vendor/github.com/omisego/charts/ewallet
 
 
-## Compile Kapitan
+## Deploy!
 ##
 
 cd ~/deploy/kapitan || exit 1
 
-TARGET="inventory/targets/demo-staging.yml"
+TARGET="inventory/targets/omisego-demo-staging.yml"
+
 NEW_TAG="$(printf "%s" "$CIRCLE_SHA1" | head -c 8)" awk '
   m = match($0, "^([\ ]+tag:[\ ]+)") {
   print substr($0, RSTART, RLENGTH-1) " \"" ENVIRON["NEW_TAG"] "\""
 } ! m { print }' < "$TARGET" > "$TARGET.tmp"
 mv "$TARGET.tmp" "$TARGET"
 
-kapitan compile -J ./ \
-  ../vendor/github.com/ksonnet/ksonnet-lib \
-  ../vendor/github.com/deepmind/kapitan/kapitan/lib
-
-
-## Deploy!
-##
-
-sh compiled/demo-staging/ewallet/apply.sh
+kapitan compile --target=omisego-demo-staging
+sh compiled/omisego-demo-staging/ewallet/apply.sh
