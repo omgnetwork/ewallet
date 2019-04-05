@@ -41,8 +41,12 @@ const MobileRedirect = styled.div`
   text-align: center;
   padding: 20px;
   position: absolute;
-  top:50%;
+  top: 50%;
   transform: translateY(-50%);
+  font-size: 18px;
+  a {
+    cursor: pointer;
+  }
 `
 const enhance = compose(withRouter)
 class ForgetPasswordForm extends Component {
@@ -110,11 +114,15 @@ class ForgetPasswordForm extends Component {
       reEnteredNewPasswordError: !this.validateReEnteredNewPassword(this.state.newPassword, value)
     })
   }
+  onClickShowForm = e => {
+    e.preventDefault()
+    this.setState({ maybeAppExist: false })
+  }
   render () {
     const { email } = queryString.parse(this.props.location.search)
     return this.state.maybeAppExist ? (
       <MobileRedirect>
-        We are trying to open an app for you, if it does not work, <a>Click here</a>
+        We are trying to open an app for you, if this does not work <a onClick={this.onClickShowForm}>Click here</a>
       </MobileRedirect>
     ) : (
       <AuthFormLayout>
