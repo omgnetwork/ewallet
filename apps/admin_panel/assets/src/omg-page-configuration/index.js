@@ -150,7 +150,7 @@ class ConfigurationPage extends Component {
       awsSecretAccessKey: this.props.configurations.aws_secret_access_key.value
     })
   }
-  isSendButtonDisabled () {
+  get isSendButtonDisabled () {
     return (
       Object.keys(this.props.configurations)
         .filter(configKey => this.state[_.camelCase(configKey)] !== undefined)
@@ -160,7 +160,8 @@ class ConfigurationPage extends Component {
           return prev && String(propsValue) === String(stateValue)
         }, true) ||
       Number(this.state.maxPerPage) < 1 ||
-      Number(this.state.minPasswordLength) < 1
+      Number(this.state.minPasswordLength) < 1 ||
+      !this.state.masterAccountSelected
     )
   }
   isAddPrefixButtonDisabled () {
@@ -176,7 +177,10 @@ class ConfigurationPage extends Component {
   }
 
   onSelectMasterAccount = option => {
-    this.setState({ masterAccount: option.id })
+    this.setState({
+      masterAccount: option.id,
+      masterAccountSelected: true,
+    })
   }
 
   onClickRemovePrefix = index => e => {
@@ -203,9 +207,15 @@ class ConfigurationPage extends Component {
     this.setState({ fileStorageAdapter: option.value })
   }
   onChangeInput = key => e => {
-    this.setState({
-      [key]: e.target.value
-    })
+    let newState = { [key]: e.target.value };
+    if (key === 'masterAccount') {
+      newState = {
+        ...newState,
+        masterAccountSelected: false
+      }
+    }
+
+    this.setState(newState);
   }
   onChangeInputredirectUrlPrefixes = index => e => {
     const newState = this.state.redirectUrlPrefixes.slice()
@@ -289,7 +299,7 @@ class ConfigurationPage extends Component {
         onClick={this.onClickSaveConfiguration}
         key={'save'}
         loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}
-        disabled={this.isSendButtonDisabled()}
+        disabled={this.isSendButtonDisabled}
       >
         <span>Save Configuration</span>
       </Button>
@@ -610,7 +620,7 @@ class ConfigurationPage extends Component {
     return (
       <>
         <Prompt
-          when={!this.isSendButtonDisabled()}
+          when={!this.isSendButtonDisabled}
           message="You have unsaved changes. Are you sure you want to leave?"
         />
         <ConfigurationsFetcher render={this.renderConfigurationPage} {...this.state} />
