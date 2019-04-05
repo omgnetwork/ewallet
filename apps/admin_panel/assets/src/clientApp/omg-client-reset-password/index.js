@@ -8,6 +8,11 @@ import AuthFormLayout from '../../omg-layout/authFormLayout'
 import { compose } from 'recompose'
 import { updateUserPassword } from '../../services/clientService'
 import { isMobile } from '../../utils/device'
+import PasswordValidator from 'password-validator'
+
+const schema = new PasswordValidator()
+schema.is().min(8).has().uppercase().has().lowercase().has().digits().has().symbols()
+
 const Form = styled.form`
   text-align: left;
   input {
@@ -74,7 +79,7 @@ class ForgetPasswordForm extends Component {
   }
 
   validatePassword = password => {
-    return password.length >= 8
+    return schema.validate(password)
   }
   validateReEnteredNewPassword = (newPassword, reEnteredNewPassword) => {
     return newPassword === reEnteredNewPassword && newPassword !== '' && reEnteredNewPassword !== ''
@@ -133,7 +138,7 @@ class ForgetPasswordForm extends Component {
           {this.state.submitStatus !== 'SUCCESS' ? (
             <div>
               <h4>Create Password ({email})</h4>
-              <p>Create new password with at least 8 characters</p>
+              <p>Create new password with at least 8 characters, symbol, number, uppercase and lowercase</p>
               <Input
                 placeholder='New password'
                 error={this.state.newPasswordError}
