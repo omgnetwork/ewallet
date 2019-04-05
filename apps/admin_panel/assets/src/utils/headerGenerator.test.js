@@ -12,8 +12,7 @@ describe('headerGenerator', () => {
     const AuthorizationEncoded = btoa(`${accessToken.user_id}:${accessToken.authentication_token}`)
     expect(header).toEqual({
       'Accept': 'application/vnd.omisego.v1+json',
-      'Authorization': `OMGAdmin ${AuthorizationEncoded}`,
-      'OMGAdmin-Account-ID': currentAccountId
+      'Authorization': `OMGAdmin ${AuthorizationEncoded}`
     })
   })
   test('function createHeaders should return correct header for [unauthenticated] request', () => {
@@ -23,8 +22,7 @@ describe('headerGenerator', () => {
       currentAccountId
     })
     expect(header).toEqual({
-      'Accept': 'application/vnd.omisego.v1+json',
-      'OMGAdmin-Account-ID': currentAccountId
+      'Accept': 'application/vnd.omisego.v1+json'
     })
   })
 })
