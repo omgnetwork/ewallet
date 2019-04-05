@@ -9,5 +9,6 @@
     "javascript",
     "javascriptreact",
     "typescript"
-  ]
+  ],
+  "editor.tabSize": 2
 }

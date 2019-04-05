@@ -18,7 +18,7 @@ export const createAccount = ({ name, description, avatar, category }) =>
     }
   })
 
-export const getAccounts = ({ page, perPage, search, cacheKey }) =>
+export const getAccounts = ({ page, perPage, search, cacheKey, matchAny }) =>
   createPaginationActionCreator({
     actionName: 'ACCOUNTS',
     action: 'REQUEST',
@@ -27,7 +27,8 @@ export const getAccounts = ({ page, perPage, search, cacheKey }) =>
         perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
-        search
+        search,
+        matchAny
       }),
     cacheKey
   })

@@ -6,6 +6,9 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 
+import AccountsFetcher from '../omg-account/accountsFetcher'
+import { createSearchMasterAccountQuery } from '../omg-account/searchField'
+import AccountSelect from '../omg-account-select'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Button, Icon, Input, LoadingSkeleton } from '../omg-uikit'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
@@ -121,7 +124,8 @@ class ConfigurationPage extends Component {
         balanceCachingStrategy: props.configurations.balance_caching_strategy.value,
         balanceCachingResetFrequency: props.configurations.balance_caching_reset_frequency.value,
         forgetPasswordRequestLifetime: props.configurations.forget_password_request_lifetime.value,
-        fetched: true
+        fetched: true,
+        masterAccount: props.configurations.master_account.value
       }
     } else {
       return null
@@ -146,7 +150,7 @@ class ConfigurationPage extends Component {
       awsSecretAccessKey: this.props.configurations.aws_secret_access_key.value
     })
   }
-  isSendButtonDisabled () {
+  get isSendButtonDisabled () {
     return (
       Object.keys(this.props.configurations)
         .filter(configKey => this.state[_.camelCase(configKey)] !== undefined)
@@ -156,7 +160,8 @@ class ConfigurationPage extends Component {
           return prev && String(propsValue) === String(stateValue)
         }, true) ||
       Number(this.state.maxPerPage) < 1 ||
-      Number(this.state.minPasswordLength) < 1
+      Number(this.state.minPasswordLength) < 1 ||
+      !this.state.masterAccountSelected
     )
   }
   isAddPrefixButtonDisabled () {
@@ -169,6 +174,13 @@ class ConfigurationPage extends Component {
 
   onSelectBalanceCache = option => {
     this.setState({ balanceCachingStrategy: option.value })
+  }
+
+  onSelectMasterAccount = option => {
+    this.setState({
+      masterAccount: option.id,
+      masterAccountSelected: true,
+    })
   }
 
   onClickRemovePrefix = index => e => {
@@ -195,9 +207,15 @@ class ConfigurationPage extends Component {
     this.setState({ fileStorageAdapter: option.value })
   }
   onChangeInput = key => e => {
-    this.setState({
-      [key]: e.target.value
-    })
+    let newState = { [key]: e.target.value };
+    if (key === 'masterAccount') {
+      newState = {
+        ...newState,
+        masterAccountSelected: false
+      }
+    }
+
+    this.setState(newState);
   }
   onChangeInputredirectUrlPrefixes = index => e => {
     const newState = this.state.redirectUrlPrefixes.slice()
@@ -249,7 +267,8 @@ class ConfigurationPage extends Component {
             balanceCachingResetFrequency: _.get(
               result.data.data,
               'balance_caching_reset_frequency.value'
-            )
+            ),
+            masterAccount: _.get(result.data.data, 'master_account.value')
           },
           _.isNil
         )
@@ -280,7 +299,7 @@ class ConfigurationPage extends Component {
         onClick={this.onClickSaveConfiguration}
         key={'save'}
         loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}
-        disabled={this.isSendButtonDisabled()}
+        disabled={this.isSendButtonDisabled}
       >
         <span>Save Configuration</span>
       </Button>
@@ -409,6 +428,26 @@ class ConfigurationPage extends Component {
     return (
       <Fragment>
         <h4>Global Settings</h4>
+        <AccountsFetcher
+          query={createSearchMasterAccountQuery(this.state.masterAccount)}
+          render={({ data }) => {
+            return (
+              <ConfigRow
+                name={'Master Account'}
+                description={configurations.master_account.description}
+                value={this.state.masterAccount}
+                onSelectItem={this.onSelectMasterAccount}
+                onChange={this.onChangeInput('masterAccount')}
+                type='select'
+                options={data.map(account => ({
+                  key: account.id,
+                  value: <AccountSelect account={account} />,
+                  ...account
+                }))}
+              />
+            )}
+          }
+        />
         <ConfigRow
           name={'Base URL'}
           description={configurations.base_url.description}
@@ -581,7 +620,7 @@ class ConfigurationPage extends Component {
     return (
       <>
         <Prompt
-          when={!this.isSendButtonDisabled()}
+          when={!this.isSendButtonDisabled}
           message="You have unsaved changes. Are you sure you want to leave?"
         />
         <ConfigurationsFetcher render={this.renderConfigurationPage} {...this.state} />
