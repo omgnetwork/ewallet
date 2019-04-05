@@ -178,7 +178,7 @@ class ConfigurationPage extends Component {
 
   onSelectMasterAccount = option => {
     this.setState({
-      masterAccount: `${option.name} - ${option.id}`,
+      masterAccount: option.id,
       masterAccountSelected: true,
     })
   }
