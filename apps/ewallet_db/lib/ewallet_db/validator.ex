@@ -22,6 +22,7 @@ defmodule EWalletDB.Validator do
   @doc """
   Validates email requirements.
   """
+  @spec validate_email(Changeset.t(), atom()) :: Changeset.t()
   def validate_email(changeset, key) do
     email = Changeset.get_field(changeset, key) || ""
     email_regex = ~r/^[^\@]+\@[^\@]+$/
@@ -43,6 +44,7 @@ defmodule EWalletDB.Validator do
   @doc """
   Gets the minimum password length from settings.
   """
+  @spec min_password_length() :: integer()
   def min_password_length do
     case Application.get_env(:ewallet_db, :min_password_length) do
       nil ->
@@ -53,6 +55,7 @@ defmodule EWalletDB.Validator do
     end
   end
 
+  @spec validate_from_wallet_identifier(Changeset.t()) :: Changeset.t()
   def validate_from_wallet_identifier(changeset) do
     from = Changeset.get_field(changeset, :from)
     wallet = Wallet.get(from)
@@ -74,9 +77,11 @@ defmodule EWalletDB.Validator do
   @doc """
   Validates the given string with the password requirements.
   """
+  @spec validate_password(nil) :: {:error, atom(), Keyword.t()}
   def validate_password(nil),
     do: {:error, :password_too_short, [min_length: min_password_length()]}
 
+  @spec validate_password(String.t()) :: {:ok, String.t()} | {:error, atom(), Keyword.t()}
   def validate_password(password) do
     min_length = min_password_length()
 
@@ -90,6 +95,7 @@ defmodule EWalletDB.Validator do
   @doc """
   Validates password requirements on the given changeset and key.
   """
+  @spec validate_password(Changeset.t(), atom()) :: Changeset.t()
   def validate_password(changeset, key) do
     password = Changeset.get_field(changeset, key)
 
@@ -105,6 +111,7 @@ defmodule EWalletDB.Validator do
   @doc """
   Validates that the values are different.
   """
+  @spec validate_different_values(Changeset.t(), atom(), atom()) :: Changeset.t()
   def validate_different_values(changeset, key_1, key_2) do
     value_1 = Changeset.get_field(changeset, key_1)
     value_2 = Changeset.get_field(changeset, key_2)
@@ -126,32 +133,38 @@ defmodule EWalletDB.Validator do
   @doc """
   Validates that only one out of the provided fields can have value.
   """
+  @spec validate_required_exclusive(Changeset.t(), list(atom())) :: Changeset.t()
   def validate_required_exclusive(changeset, attrs) when is_map(attrs) or is_list(attrs) do
     case count_fields_present(changeset, attrs) do
       1 ->
         changeset
 
       n when n > 1 ->
-        Changeset.add_error(
-          changeset,
-          attrs,
-          "only one must be present",
-          validation: :only_one_required
-        )
+        for attr <- attrs do
+          Changeset.add_error(
+            changeset,
+            attr,
+            "only one must be present",
+            validation: :only_one_required
+          )
+        end
 
       _ ->
-        Changeset.add_error(
-          changeset,
-          attrs,
-          "can't all be blank",
-          validation: :required_exclusive
-        )
+        for attr <- attrs do
+          Changeset.add_error(
+            changeset,
+            attr,
+            "can't all be blank",
+            validation: :required_exclusive
+          )
+        end
     end
   end
 
   @doc """
   Validates that either all or none the given fields are present.
   """
+  @spec validate_required_all_or_none(Changeset.t(), list(atom())) :: Changeset.t()
   def validate_required_all_or_none(changeset, attrs) do
     num_attrs = Enum.count(attrs)
     missing_attrs = Enum.filter(attrs, fn attr -> !field_present?(changeset, attr) end)
@@ -164,12 +177,14 @@ defmodule EWalletDB.Validator do
         changeset
 
       _ ->
-        Changeset.add_error(
-          changeset,
-          attrs,
-          "either all or none of them must be present",
-          validation: "all_or_none"
-        )
+        for attr <- attrs do
+          Changeset.add_error(
+            changeset,
+            attr,
+            "either all or none of them must be present",
+            validation: "all_or_none"
+          )
+        end
     end
   end
 
@@ -177,15 +192,18 @@ defmodule EWalletDB.Validator do
   Validates that only one out of the provided fields can have value but
   both can be nil.
   """
+  @spec validate_exclusive(Changeset.t(), list(atom())) :: Changeset.t()
   def validate_exclusive(changeset, attrs) when is_map(attrs) or is_list(attrs) do
     case count_fields_present(changeset, attrs) do
       n when n > 1 ->
-        Changeset.add_error(
-          changeset,
-          attrs,
-          "only one must be present",
-          validation: :only_one_required
-        )
+        for attr <- attrs do
+          Changeset.add_error(
+            changeset,
+            attr,
+            "only one must be present",
+            validation: :only_one_required
+          )
+        end
 
       _ ->
         changeset
@@ -195,6 +213,7 @@ defmodule EWalletDB.Validator do
   @doc """
   Validates that the value cannot be changed after it has been set.
   """
+  @spec validate_immutable(Changeset.t(), atom()) :: Changeset.t()
   def validate_immutable(changeset, key) do
     changed = Changeset.get_field(changeset, key)
 
@@ -205,10 +224,12 @@ defmodule EWalletDB.Validator do
     end
   end
 
+  @spec count_fields_present(Changeset.t(), list(atom())) :: integer()
   def count_fields_present(changeset, attrs) do
     Enum.count(attrs, fn attr -> field_present?(changeset, attr) end)
   end
 
+  @spec field_present?(Changeset.t(), atom() | {atom(), String.t() | nil}) :: boolean()
   def field_present?(changeset, attr) when is_atom(attr) do
     value = Changeset.get_field(changeset, attr)
     value && value != ""

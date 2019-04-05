@@ -20,6 +20,11 @@ defmodule ActivityLogger.ActivityRepo do
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
       @repo opts[:repo]
+      @type resp ::
+              {:ok, any()}
+              | {:error, any()}
+              | {:error, :no_originator_given}
+              | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
 
       import Ecto.{Changeset, Query}
       alias ActivityLogger.ActivityLog
@@ -29,44 +34,36 @@ defmodule ActivityLogger.ActivityRepo do
         @repo
       end
 
-      @spec insert_record_with_activity_log(%Changeset{}, Keyword.t(), Multi.t()) ::
-              {:ok, any()}
-              | {:error, any()}
-              | {:error, :no_originator_given}
-              | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
+      @spec insert_record_with_activity_log(%Changeset{}) :: resp()
+      @spec insert_record_with_activity_log(%Changeset{}, Keyword.t()) :: resp()
+      @spec insert_record_with_activity_log(%Changeset{}, Keyword.t(), Multi.t()) :: resp()
       def insert_record_with_activity_log(changeset, opts \\ [], multi \\ Multi.new()) do
         :insert
         |> perform(changeset, opts, multi)
         |> handle_perform_result(:insert, changeset)
       end
 
-      @spec update_record_with_activity_log(%Changeset{}, Keyword.t(), Multi.t()) ::
-              {:ok, any()}
-              | {:error, any()}
-              | {:error, :no_originator_given}
-              | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
+      @spec update_record_with_activity_log(%Changeset{}) :: resp()
+      @spec update_record_with_activity_log(%Changeset{}, Keyword.t()) :: resp()
+      @spec update_record_with_activity_log(%Changeset{}, Keyword.t(), Multi.t()) :: resp()
       def update_record_with_activity_log(changeset, opts \\ [], multi \\ Multi.new()) do
         :update
         |> perform(changeset, opts, multi)
         |> handle_perform_result(:update, changeset)
       end
 
-      @spec delete_record_with_activity_log(map(), Keyword.t(), Multi.t()) ::
-              {:ok, any()}
-              | {:error, any()}
-              | {:error, :no_originator_given}
-              | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
+      @spec delete_record_with_activity_log(map()) :: resp()
+      @spec delete_record_with_activity_log(map(), Keyword.t()) :: resp()
+      @spec delete_record_with_activity_log(map(), Keyword.t(), Multi.t()) :: resp()
       def delete_record_with_activity_log(changeset, opts \\ [], multi \\ Multi.new()) do
         :delete
         |> perform(changeset, opts, multi)
         |> handle_perform_result(:delete, changeset)
       end
 
-      @spec perform(atom(), %Changeset{}, Keyword.t(), Multi.t()) ::
-              {:ok, any()}
-              | {:error, any()}
-              | {:error, :no_originator_given}
-              | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
+      @spec perform(atom(), %Changeset{}) :: resp()
+      @spec perform(atom(), %Changeset{}, Keyword.t()) :: resp()
+      @spec perform(atom(), %Changeset{}, Keyword.t(), Multi.t()) :: resp()
       def perform(action, changeset, opts \\ [], multi \\ Multi.new()) do
         Multi
         |> apply(action, [Multi.new(), :record, changeset, opts])
