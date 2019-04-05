@@ -7,6 +7,7 @@ import PropTypes from 'prop-types'
 import AuthFormLayout from '../../omg-layout/authFormLayout'
 import { compose } from 'recompose'
 import { updateUserPassword } from '../../services/clientService'
+import { isMobile } from '../../utils/device'
 const Form = styled.form`
   text-align: left;
   input {
@@ -36,18 +37,33 @@ const Error = styled.div`
   opacity: ${props => (props.error ? 1 : 0)};
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
-
+const MobileRedirect = styled.div`
+  text-align: center;
+  padding: 20px;
+  position: absolute;
+  top:50%;
+  transform: translateY(-50%);
+`
 const enhance = compose(withRouter)
 class ForgetPasswordForm extends Component {
   static propTypes = {
     location: PropTypes.object.isRequired
   }
-  state = {
-    newPassword: '',
-    newPasswordError: false,
-    reEnteredNewPassword: '',
-    reEnteredNewPasswordError: false,
-    submitStatus: null
+
+  constructor (props) {
+    super(props)
+    const { forward_url: forwardUrl } = queryString.parse(this.props.location.search)
+    this.state = {
+      newPassword: '',
+      newPasswordError: false,
+      reEnteredNewPassword: '',
+      reEnteredNewPasswordError: false,
+      submitStatus: null,
+      maybeAppExist: isMobile() ? !!forwardUrl : false
+    }
+    if (forwardUrl) {
+      window.location = forwardUrl
+    }
   }
 
   validatePassword = password => {
@@ -96,7 +112,11 @@ class ForgetPasswordForm extends Component {
   }
   render () {
     const { email } = queryString.parse(this.props.location.search)
-    return (
+    return this.state.maybeAppExist ? (
+      <MobileRedirect>
+        We are trying to open an app for you, if it does not work, <a>Click here</a>
+      </MobileRedirect>
+    ) : (
       <AuthFormLayout>
         <Form onSubmit={this.onSubmit} noValidate>
           {this.state.submitStatus !== 'SUCCESS' ? (

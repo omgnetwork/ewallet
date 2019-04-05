@@ -15,7 +15,7 @@ class App extends Component {
       <ThemeProvider theme={theme}>
         <Router basename='/client'>
           <Switch>
-            <Route path='/reset-password' exact component={ResetPasswordForm} />
+            <Route path='/reset_password' exact component={ResetPasswordForm} />
           </Switch>
         </Router>
       </ThemeProvider>
