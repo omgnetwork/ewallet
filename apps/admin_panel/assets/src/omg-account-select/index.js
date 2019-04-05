@@ -23,7 +23,7 @@ const Identifier = styled.div`
 const AccountSelect = ({ account }) => {
 	const name = _.get(account, 'name')
 	const identifier = _.get(account, 'id')
-	const thumbnail = _.get(account, 'avatar.thumb');
+	const thumbnail = _.get(account, 'avatar.thumb')
 
 	return (
 		<AccountSelectContainer>

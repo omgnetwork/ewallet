@@ -420,7 +420,7 @@ class ConfigurationPage extends Component {
         <h4>Global Settings</h4>
         <AccountsFetcher
           query={createSearchMasterAccountQuery(this.state.masterAccount)}
-          render={({ accounts }) => {
+          render={({ data }) => {
             return (
               <ConfigRow
                 name={'Master Account'}
@@ -429,7 +429,7 @@ class ConfigurationPage extends Component {
                 onSelectItem={this.onSelectMasterAccount}
                 onChange={this.onChangeInput('masterAccount')}
                 type='select'
-                options={accounts.map(account => ({
+                options={data.map(account => ({
                   key: account.id,
                   value: <AccountSelect account={account} />,
                   ...account
