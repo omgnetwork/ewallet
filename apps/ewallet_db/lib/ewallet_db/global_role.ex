@@ -148,9 +148,9 @@ defmodule EWalletDB.GlobalRole do
       admin_users: %{
         all: :accounts,
         get: :accounts,
-        create: :none,
-        update: :none,
-        disable: :none,
+        update_password: :self,
+        update_email: :self,
+        upload_avatar: :self,
         get_account: :self,
         get_accounts: :self,
         logout: :self
