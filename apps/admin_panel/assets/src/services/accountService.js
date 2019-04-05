@@ -95,7 +95,7 @@ export function unassignMember ({ userId, accountId }) {
 
 export function listMembers ({ accountId, matchAll, matchAny }) {
   return authenticatedRequest({
-    path: '/account.get_members',
+    path: '/account.get_admin_user_memberships',
     data: {
       id: accountId,
       match_all: matchAll,
@@ -147,7 +147,7 @@ export function getUsersByAccountId ({ accountId, perPage, page, sort, matchAll,
 
 export function getKeysByAccountId ({ accountId, perPage, page, sort, matchAll, matchAny }) {
   return authenticatedRequest({
-    path: '/account.get_keys',
+    path: '/account.get_key_memberships',
     data: {
       id: accountId,
       per_page: Number(perPage),
