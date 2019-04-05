@@ -104,7 +104,7 @@ class ForgetPasswordForm extends Component {
       if (result.data.success) {
         this.setState({ submitStatus: 'SUCCESS' })
       } else {
-        this.setState({ submitStatus: 'FAILED', submitErrorText: result.data.data.code })
+        this.setState({ submitStatus: 'FAILED', submitErrorText: result.data.data.description })
       }
     }
   }
