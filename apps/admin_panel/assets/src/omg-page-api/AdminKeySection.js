@@ -274,13 +274,13 @@ class ApiKeyPage extends Component {
         }}
         {...this.props}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
-          const apiKeysRows = data.map(key => {
+          const apiKeysRows = data.map((key, index) => {
             if (key.hasOwnProperty('key')) {
               key = key.key;
             }
             return {
+              id: index,
               key: key.access_key,
-              id: key.id,
               user: key.account_id,
               created_at: key.created_at,
               status: key.expired,
