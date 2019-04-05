@@ -102,4 +102,4 @@ NEW_TAG="$(printf "%s" "$CIRCLE_SHA1" | head -c 8)" awk '
 mv "$TARGET.tmp" "$TARGET"
 
 kapitan compile --target=omisego-demo-staging
-sh compiled/omisego-demo-staging/ewallet/apply.sh
+sh compiled/omisego-demo-staging/90-ewallet/apply.sh
