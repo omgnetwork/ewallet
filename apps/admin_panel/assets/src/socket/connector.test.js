@@ -88,7 +88,7 @@ describe('websocket', () => {
     socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
-  test.only('should not join channel if is not connected', () => {
+  test('should not join channel if is not connected', () => {
     let result = socket.connect().then(result => {
       socket.send = jest.fn()
       expect(result).toBe(true)

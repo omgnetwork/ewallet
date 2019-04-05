@@ -878,11 +878,11 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
   describe "/account.assign_user" do
     test_with_auths "returns empty success if assigned with user_id successfully" do
-      {:ok, user} = :user |> params_for() |> User.insert()
+      {:ok, admin} = :admin |> params_for() |> User.insert()
 
       response =
         request("/account.assign_user", %{
-          user_id: user.id,
+          user_id: admin.id,
           account_id: insert(:account).id,
           role_name: Role.get_by(name: "admin").name,
           redirect_url: @redirect_url
@@ -890,12 +890,15 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
       assert response["success"] == true
       assert response["data"] == %{}
+      assert User.get_primary_wallet(admin) == nil
     end
 
     test_with_auths "returns empty success if assigned with email successfully" do
+      admin = insert(:admin)
+
       response =
         request("/account.assign_user", %{
-          email: insert(:admin).email,
+          email: admin.email,
           account_id: insert(:account).id,
           role_name: Role.get_by(name: "admin").name,
           redirect_url: @redirect_url
@@ -903,6 +906,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
       assert response["success"] == true
       assert response["data"] == %{}
+      assert User.get_primary_wallet(admin) == nil
     end
 
     test_with_auths "returns empty success if the user has a pending confirmation" do
@@ -922,8 +926,9 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
       # Make sure that the first attemps created the user with pending_confirmation status
       assert response["success"] == true
-      user = User.get_by(email: email)
-      assert User.get_status(user) == :pending_confirmation
+      admin = User.get_by(email: email)
+      assert User.get_status(admin) == :pending_confirmation
+      assert User.get_primary_wallet(admin) == nil
 
       response =
         request("/account.assign_user", %{
@@ -936,6 +941,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       # The second attempt should also be successful
       assert response["success"] == true
       assert response["data"] == %{}
+      assert User.get_primary_wallet(admin) == nil
     end
 
     test_with_auths "returns an error if the email format is invalid" do
