@@ -145,12 +145,10 @@ class TransactionPage extends Component {
     scrollTopContentContainer: PropTypes.func,
     history: PropTypes.object,
     divider: PropTypes.bool,
-    query: PropTypes.object,
-    transferButton: PropTypes.bool
+    query: PropTypes.object
   }
   static defaultProps = {
-    query: {},
-    transferButton: false
+    query: {}
   }
   state = {
     createTransactionModalOpen: false
@@ -258,11 +256,7 @@ class TransactionPage extends Component {
       <TransactionPageContainer>
         <TopNavigation divider={this.props.divider}
           title={'Transactions'}
-          buttons={
-            this.props.transferButton
-              ? [this.renderCreateTransactionButton(), this.renderExportButton()]
-              : null
-          }
+          buttons={[this.renderCreateTransactionButton(), this.renderExportButton()]}
         />
         <SortableTable
           rows={transactions}

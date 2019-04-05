@@ -43,10 +43,8 @@ function AccountLayout (props) {
     if (!_.isEmpty(props.account)) {
       props.visitAccount(accountId)
       props.subscribeToWebsocketByAccountId(accountId)
-    } else {
-      props.history.push('/')
     }
-  }, [accountId])
+  }, [_.get(props, 'account.id')])
 
   return (
     <div>
@@ -54,10 +52,10 @@ function AccountLayout (props) {
       <BreadContainer>
         <Breadcrumb
           items={[
-            <Link to={'/accounts/'}>Accounts</Link>,
-            <Link to={`/accounts/${accountId}/details`}>{_.get(props.account, 'name', '...')}</Link>,
-            <Link to={`/accounts/${accountId}/${type}`}>{_.upperFirst(type)}</Link>,
-            id ? <Link to={`/accounts/${accountId}/${type}/${id}`}>{id}</Link> : null
+            <Link key='account' to={'/accounts/'}>Accounts</Link>,
+            <Link key='detail' to={`/accounts/${accountId}/details`}>{_.get(props.account, 'name', '...')}</Link>,
+            <Link key='type' to={`/accounts/${accountId}/${type}`}>{_.upperFirst(type)}</Link>,
+            id ? <Link key='id' to={`/accounts/${accountId}/${type}/${id}`}>{id}</Link> : null
           ]}
         />
       </BreadContainer>

@@ -10,6 +10,7 @@ import moment from 'moment'
 import queryString from 'query-string'
 import Copy from '../omg-copy'
 import { createSearchAdminsQuery } from '../omg-admins/searchField'
+import InviteModal from '../omg-invite-modal'
 
 const AdminPageContainer = styled.div`
   position: relative;
@@ -69,6 +70,10 @@ const UserIdContainer = styled.div`
     vertical-align: middle;
   }
 `
+const InviteButton = styled(Button)`
+  padding-left: 30px;
+  padding-right: 30px;
+`
 class UsersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
@@ -79,11 +84,13 @@ class UsersPage extends Component {
     navigation: PropTypes.bool,
     onClickRow: PropTypes.func,
     columns: PropTypes.array,
-    divider: PropTypes.bool
+    divider: PropTypes.bool,
+    showInviteButton: PropTypes.bool
   }
   static defaultProps = {
     query: {},
     fetcher: AdminsFetcher,
+    showInviteButton: false,
     columns: [
       { key: 'id', title: 'ADMIN ID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
@@ -94,11 +101,18 @@ class UsersPage extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      createAccountModalOpen: false
+      createAccountModalOpen: false,
+      inviteModalOpen: false
     }
+  }
+  onRequestClose = () => {
+    this.setState({ inviteModalOpen: false })
   }
   onClickRow = (data, index) => e => {
     this.props.history.push(`/admins/${data.id}`)
+  }
+  onClickInviteButton = () => {
+    this.setState({ inviteModalOpen: true })
   }
   renderCreateAccountButton = () => {
     return (
@@ -133,11 +147,22 @@ class UsersPage extends Component {
         return data
     }
   }
+  renderInviteButton = () => {
+    return (
+      <InviteButton size='small' onClick={this.onClickInviteButton} key={'create'}>
+        <Icon name='Plus' /> <span>Invite Member</span>
+      </InviteButton>
+    )
+  }
 
-  renderAdminPage = ({ data: admins, individualLoadingStatus, pagination }) => {
+  renderAdminPage = ({ data: admins, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AdminPageContainer>
-        <TopNavigation divider={this.props.divider} title={'Admins'} />
+        <TopNavigation
+          divider={this.props.divider}
+          title={'Admins'}
+          buttons={[this.props.showInviteButton ? this.renderInviteButton() : null]}
+        />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(admins)}
@@ -151,6 +176,7 @@ class UsersPage extends Component {
             pagination={false}
           />
         </SortableTableContainer>
+        <InviteModal open={this.state.inviteModalOpen} onRequestClose={this.onRequestClose} onInviteSuccess={fetch} />
       </AdminPageContainer>
     )
   }
