@@ -130,7 +130,7 @@ class AccountSettingPage extends Component {
   }
   onClickUpdateAccount = async e => {
     e.preventDefault()
-    this.setState({ submitStatus: 'SUBMITTING' })
+    this.setState({ submitStatus: 'SUBMITTING', categoryTouched: false })
     try {
       const result = await this.props.updateAccount({
         accountId: this.props.match.params.accountId,
@@ -211,7 +211,7 @@ class AccountSettingPage extends Component {
       }))}
     />
   )
-  get checkDiff() {
+  get shouldSave() {
     const propsCategoryId = _.get(this.props.currentAccount, 'categories.data[0].id')
     const stateCategoryId = _.get(this.state.categorySelect, 'id')
     const sameCategory = propsCategoryId && propsCategoryId === stateCategoryId
@@ -219,8 +219,9 @@ class AccountSettingPage extends Component {
     return this.props.currentAccount.name === this.state.name &&
       this.props.currentAccount.description === this.state.description &&
       !this.state.image &&
-      !sameCategory &&
-      this.state.categoryTouched
+      this.state.categoryTouched &&
+      !(!this.state.categorySelect && this.state.categorySearch.length)
+      !sameCategory
   }
   renderAccountSettingTab = () => (
     <ProfileSection>
@@ -254,7 +255,7 @@ class AccountSettingPage extends Component {
               size='small'
               type='submit'
               key={'save'}
-              disabled={!this.checkDiff}
+              disabled={!this.shouldSave}
               loading={this.state.submitStatus === 'SUBMITTING'}
             >
               <span>Save Changes</span>
