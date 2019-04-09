@@ -38,7 +38,7 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
     AdminAPIAuth.authenticate(%{headers: conn.req_headers})
   end
 
-  defp verify_user_2fa_enabled(%{admin_user: admin_user} = attrs) do
+  defp verify_user_2fa_enabled(%{admin_user: admin_user}) do
     do_verify_user_2fa_enabled(admin_user)
   end
 

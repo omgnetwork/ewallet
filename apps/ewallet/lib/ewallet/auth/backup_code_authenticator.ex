@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-alias Utils.Helpers.Crypto
-
 defmodule EWallet.BackupCodeAuthenticator do
+  alias Utils.Helpers.Crypto
+
   @moduledoc """
-  Handle verify backup_code with encrypted_backup_codes and create new backup codes.
+  Handle verify backup_code with hashed_backup_codes and create new backup codes.
 
   Example:
 
@@ -36,9 +36,9 @@ defmodule EWallet.BackupCodeAuthenticator do
     ]
   }
 
-  The response format is {:ok, backup_codes, encrypted_backup_codes}
+  The response format is {:ok, backup_codes, hashed_backup_codes}
 
-  # Verify backup code with associated encrypted_backup_codes.
+  # Verify backup code with associated hashed_backup_codes.
   iex> EWallet.BackupCodeAuthenticator.verify([
     "$2b$12$a9m6U7NG2C.5R1LluPBDBO9dscWhZEO7XyNDaMaNG3bff5vwiHxRK",
     "$2b$12$58HR6Tc/hbH77JH6/RS3wusR4.NI/eP26mAuC2K6/.f.zLPomo4uK",
@@ -52,10 +52,11 @@ defmodule EWallet.BackupCodeAuthenticator do
   {:error, :invalid_backup_code}
 
   """
+
   @number_of_bytes 4
 
-  def verify(encrypted_backup_codes, backup_code) do
-    if Enum.any?(encrypted_backup_codes, &Crypto.verify_password(backup_code, &1)) do
+  def verify(hashed_backup_codes, backup_code) do
+    if Enum.any?(hashed_backup_codes, &Crypto.verify_password(backup_code, &1)) do
       {:ok}
     else
       {:error, :invalid_backup_code}
@@ -67,12 +68,12 @@ defmodule EWallet.BackupCodeAuthenticator do
       1..number_of_backup_codes
       |> Enum.map(fn _ -> do_create() end)
 
-    encrypted_backup_codes =
+    hashed_backup_codes =
       backup_codes
       |> Enum.map(&Task.async(fn -> Crypto.hash_password(&1) end))
       |> Enum.map(&Task.await(&1))
 
-    {:ok, backup_codes, encrypted_backup_codes}
+    {:ok, backup_codes, hashed_backup_codes}
   end
 
   defp do_create do

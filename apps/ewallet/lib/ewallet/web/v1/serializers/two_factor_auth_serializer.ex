@@ -18,12 +18,12 @@ defmodule EWallet.Web.V1.TwoFactorAuthSerializer do
   """
   alias EWalletDB.{User}
 
-  def serialize(%User{} = user) do
+  def serialize(%{secret_2fa_code: secret_2fa_code, issuer: issuer, label: label}) do
     %{
       object: "secret_code",
-      secret_2fa_code: user.secret_2fa_code,
-      issuer: "OmiseGO",
-      label: user.email
+      secret_2fa_code: secret_2fa_code,
+      issuer: issuer,
+      label: label
     }
   end
 

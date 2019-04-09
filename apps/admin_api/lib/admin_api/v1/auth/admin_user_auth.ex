@@ -59,6 +59,12 @@ defmodule AdminAPI.V1.AdminUserAuth do
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, :auth_token_not_found)
 
+      %AuthToken{} = auth_token ->
+        auth
+        |> Map.put(:authenticated, false)
+        |> Map.put(:admin_user, auth_token.user)
+        |> Map.put(:auth_error, :auth_token_not_found)
+
       :token_expired ->
         auth
         |> Map.put(:authenticated, false)

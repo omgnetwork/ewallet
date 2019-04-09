@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-alias EWallet.PasscodeAuthenticator
-alias EWallet.BackupCodeAuthenticator
-alias EWalletDB.{User, AuthToken}
-
 defmodule EWallet.TwoFactorAuthenticator do
+  alias EWallet.PasscodeAuthenticator
+  alias EWallet.BackupCodeAuthenticator
+  alias EWalletDB.{User, AuthToken}
+
   @moduledoc """
   Handle of verify, create, enable and disable 2FA logic.
   The authentication methods can be different, this module will form particular parameters,
@@ -24,13 +24,13 @@ defmodule EWallet.TwoFactorAuthenticator do
 
   Note that some operations like create, enable and disable will updating the corresponding entity as well:
   - create_and_update:
-    - Update encrypted_backup_codes or secret_2fa_code for user entity.
+    - Update hashed_backup_codes or secret_2fa_code for user entity.
   - enable:
     - Update `required_2fa` to `true` for all auth tokens belong to this user. (all tokens cannot be used anymore.)
     - Update `enabled_2fa_at` to the current naive date time for user entity.
     - Generate new auth_token with `required_2fa` `false`. (this token is 2FA authenticated. Use this token instead.)
   - disable:
-    - Clear `enabled_2fa_at`, `encrypted_backup_codes`, `secret_2fa_code` for user entity.
+    - Clear `enabled_2fa_at`, `hashed_backup_codes`, `secret_2fa_code` for user entity.
     - Update `required_2fa` to `false` for the current auth token. (this token can still be used)
   """
 
@@ -50,7 +50,7 @@ defmodule EWallet.TwoFactorAuthenticator do
     {:error, :secret_code_not_found}
   end
 
-  defp do_verify(%{"backup_code" => _, "user" => %User{encrypted_backup_codes: []}}) do
+  defp do_verify(%{"backup_code" => _, "user" => %User{hashed_backup_codes: []}}) do
     {:error, :backup_codes_not_found}
   end
 
@@ -61,10 +61,14 @@ defmodule EWallet.TwoFactorAuthenticator do
 
   defp do_verify(%{
          "backup_code" => backup_code,
-         "user" => %User{encrypted_backup_codes: encrypted_backup_codes}
+         "user" => %User{hashed_backup_codes: hashed_backup_codes}
        })
        when is_binary(backup_code) do
-    BackupCodeAuthenticator.verify(encrypted_backup_codes, backup_code)
+    BackupCodeAuthenticator.verify(hashed_backup_codes, backup_code)
+  end
+
+  defp do_verify(_) do
+    {:error, :invalid_parameter}
   end
 
   def create_and_update(user, type, ops \\ %{number_of_backup_codes: @number_of_backup_codes})
@@ -76,6 +80,8 @@ defmodule EWallet.TwoFactorAuthenticator do
       "secret_2fa_code" => secret_code,
       "originator" => user
     })
+
+    {:ok, %{secret_2fa_code: secret_code, issuer: "OmiseGO", label: user.email}}
   end
 
   def create_and_update(
@@ -84,11 +90,11 @@ defmodule EWallet.TwoFactorAuthenticator do
         %{number_of_backup_codes: number_of_backup_codes}
       )
       when number_of_backup_codes > 0 do
-    {:ok, backup_codes, encrypted_backup_codes} =
+    {:ok, backup_codes, hashed_backup_codes} =
       BackupCodeAuthenticator.create(number_of_backup_codes)
 
-    User.set_encrypted_backup_codes(user, %{
-      "encrypted_backup_codes" => encrypted_backup_codes,
+    User.set_hashed_backup_codes(user, %{
+      "hashed_backup_codes" => hashed_backup_codes,
       "originator" => user
     })
 
@@ -101,38 +107,18 @@ defmodule EWallet.TwoFactorAuthenticator do
 
   # Enable 2FA
   def enable(%User{} = user, _, owner_app, true) do
-    AuthToken.set_required_2fa_for_user(user, true)
-
-    {:ok, updated_user} =
-      User.set_enabled_2fa_at(
-        user,
-        %{
-          "enabled_2fa_at" => NaiveDateTime.utc_now(),
-          "originator" => user
-        }
-      )
-
-    AuthToken.generate(updated_user, owner_app, updated_user, true)
+    with {:ok, updated_user} = User.enable_2fa(user),
+         :ok <- AuthToken.set_required_2fa_for_user(user, true) do
+      AuthToken.generate(updated_user, owner_app, updated_user, true)
+    else
+      error -> error
+    end
   end
 
   # Disable 2FA
   def enable(%User{} = user, token_string, owner_app, false) do
-    with {:ok, updated_user} <-
-           User.set_secret_code(user, %{
-             "secret_2fa_code" => nil,
-             "originator" => user
-           }),
-         {:ok, updated_user} <-
-           User.set_encrypted_backup_codes(user, %{
-             "encrypted_backup_codes" => [],
-             "originator" => updated_user
-           }),
-         {:ok, updated_user} <-
-           User.set_enabled_2fa_at(user, %{
-             "enabled_2fa_at" => nil,
-             "originator" => updated_user
-           }),
-         :ok = AuthToken.set_required_2fa_for_user(updated_user, false) do
+    with {:ok, updated_user} <- User.disable_2fa(user),
+         :ok <- AuthToken.set_required_2fa_for_user(updated_user, false) do
       {:ok, AuthToken.get_by_token(token_string, owner_app)}
     else
       error -> error

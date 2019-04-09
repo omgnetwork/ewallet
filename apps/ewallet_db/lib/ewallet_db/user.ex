@@ -61,7 +61,7 @@ defmodule EWalletDB.User do
     field(:enabled, :boolean, default: true)
     field(:enabled_2fa_at, :naive_datetime)
     field(:secret_2fa_code, :string)
-    field(:encrypted_backup_codes, {:array, :string}, default: [])
+    field(:hashed_backup_codes, {:array, :string}, default: [])
 
     belongs_to(
       :invite,
@@ -277,11 +277,11 @@ defmodule EWalletDB.User do
     |> unique_constraint(:email)
   end
 
-  defp encrypted_backup_codes_changeset(user, attrs) do
+  defp hashed_backup_codes_changeset(user, attrs) do
     cast_and_validate_required_for_activity_log(
       user,
       attrs,
-      cast: [:encrypted_backup_codes],
+      cast: [:hashed_backup_codes],
       required: []
     )
   end
@@ -295,11 +295,28 @@ defmodule EWalletDB.User do
     )
   end
 
-  defp enabled_2fa_at_changeset(user, attrs) do
+  defp enable_2fa_changeset(user) do
     cast_and_validate_required_for_activity_log(
       user,
-      attrs,
+      %{
+        "enabled_2fa_at" => NaiveDateTime.utc_now(),
+        "originator" => user
+      },
       cast: [:enabled_2fa_at],
+      required: []
+    )
+  end
+
+  defp disable_2fa_changeset(user) do
+    cast_and_validate_required_for_activity_log(
+      user,
+      %{
+        "hashed_backup_codes" => [],
+        "secret_2fa_code" => nil,
+        "enabled_2fa_at" => nil,
+        "originator" => user
+      },
+      cast: [:enabled_2fa_at, :hashed_backup_codes, :secret_2fa_code],
       required: []
     )
   end
@@ -726,21 +743,27 @@ defmodule EWalletDB.User do
     |> Repo.update_record_with_activity_log()
   end
 
-  def set_encrypted_backup_codes(user, attrs) do
-    user
-    |> encrypted_backup_codes_changeset(attrs)
-    |> Repo.update_record_with_activity_log()
-  end
-
   def set_secret_code(user, attrs) do
     user
     |> secret_code_changeset(attrs)
     |> Repo.update_record_with_activity_log()
   end
 
-  def set_enabled_2fa_at(user, attrs) do
+  def set_hashed_backup_codes(user, attrs) do
     user
-    |> enabled_2fa_at_changeset(attrs)
+    |> hashed_backup_codes_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def enable_2fa(user) do
+    user
+    |> enable_2fa_changeset()
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def disable_2fa(user) do
+    user
+    |> disable_2fa_changeset()
     |> Repo.update_record_with_activity_log()
   end
 end
