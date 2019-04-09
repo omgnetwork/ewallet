@@ -1,17 +1,19 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import { Input, Button, Icon } from '../omg-uikit'
-import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
-import TopNavigation from '../omg-page-layout/TopNavigation'
-import { getAccountById, updateAccount } from '../omg-account/action'
-import { selectGetAccountById } from '../omg-account/selector'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import moment from 'moment'
+
+import { Input, Button, Icon, Select } from '../omg-uikit'
+import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import { getAccountById, updateAccount } from '../omg-account/action'
+import { selectGetAccountById } from '../omg-account/selector'
 import Copy from '../omg-copy'
+import CategoriesFetcher from '../omg-account-category/categoriesFetcher'
 
 const AccountSettingContainer = styled.div`
   a {
@@ -85,18 +87,23 @@ class AccountSettingPage extends Component {
       name: '',
       description: '',
       avatar: '',
-      submitStatus: 'DEFAULT'
+      submitStatus: 'DEFAULT',
+      categorySearch: '',
+      categorySelect: '',
     }
   }
   componentDidMount () {
     this.setInitialAccountState()
   }
   async setInitialAccountState () {
-    if (this.props.currentAccount) {
+    const { currentAccount } = this.props;
+    if (currentAccount) {
       this.setState({
-        name: this.props.currentAccount.name,
-        description: this.props.currentAccount.description,
-        avatar: this.props.currentAccount.avatar.original
+        name: currentAccount.name,
+        description: currentAccount.description,
+        avatar: currentAccount.avatar.original,
+        categorySelect: currentAccount.categories.data[0],
+        categorySearch: currentAccount.categories.data[0].name
       })
     } else {
       const result = await this.props.getAccountById(this.props.match.params.accountId)
@@ -104,7 +111,9 @@ class AccountSettingPage extends Component {
         this.setState({
           name: result.data.name,
           description: result.data.description || '',
-          avatar: result.data.avatar.original || ''
+          avatar: result.data.avatar.original || '',
+          categorySelect: result.data.categories.data[0] || '',
+          categorySearch: result.data.categories.data[0].name || ''
         })
       }
     }
@@ -173,48 +182,84 @@ class AccountSettingPage extends Component {
     }
     return data
   }
-  renderAccountSettingTab () {
-    return (
-      <ProfileSection>
-        {this.props.currentAccount && (
-          <form onSubmit={this.onClickUpdateAccount} noValidate>
-            <Avatar
-              onChangeImage={this.onChangeImage}
-              size='180px'
-              placeholder={this.state.avatar}
-            />
-            <div>
-              <Input
-                prefill
-                placeholder={'Name'}
-                value={this.state.name}
-                onChange={this.onChangeName}
-              />
-              <Input
-                placeholder={'Description'}
-                value={this.state.description}
-                onChange={this.onChangeDescription}
-                prefill
-              />
-              <Button
-                size='small'
-                type='submit'
-                key={'save'}
-                disabled={
-                  this.props.currentAccount.name === this.state.name &&
-                  this.props.currentAccount.description === this.state.description &&
-                  !this.state.image
-                }
-                loading={this.state.submitStatus === 'SUBMITTING'}
-              >
-                <span>Save Changes</span>
-              </Button>
-            </div>
-          </form>
-        )}
-      </ProfileSection>
-    )
+  onChangeCategory = e => {
+    this.setState({
+      categorySearch: e.target.value,
+      categorySelect: ''
+    });
   }
+  onSelectCategory = category => {
+    this.setState({
+      categorySearch: category.name,
+      categorySelect: category
+    });
+  }
+  renderCategoriesPicker = ({ data: categories = [] }) => (
+    <Select
+      placeholder="Category"
+      onSelectItem={this.onSelectCategory}
+      onChange={this.onChangeCategory}
+      value={this.state.categorySearch}
+      options={categories.map(category => ({
+        key: category.id,
+        value: category.name,
+        ...category
+      }))}
+    />
+  )
+  get checkDiff() {
+    const propsCategoryId = _.get(this.props.currentAccount, 'categories.data[0].id')
+    const stateCategoryId = _.get(this.state.categorySelect, 'id')
+    const sameCategory = propsCategoryId && propsCategoryId === stateCategoryId
+
+    return this.props.currentAccount.name === this.state.name &&
+      this.props.currentAccount.description === this.state.description &&
+      !this.state.image &&
+      !sameCategory &&
+      this.state.categorySelect
+  }
+  renderAccountSettingTab = () => (
+    <ProfileSection>
+      {this.props.currentAccount && (
+        <form onSubmit={this.onClickUpdateAccount} noValidate>
+          <Avatar
+            onChangeImage={this.onChangeImage}
+            size='180px'
+            placeholder={this.state.avatar}
+          />
+          <div>
+            <Input
+              prefill
+              placeholder={'Name'}
+              value={this.state.name}
+              onChange={this.onChangeName}
+            />
+            <Input
+              placeholder={'Description'}
+              value={this.state.description}
+              onChange={this.onChangeDescription}
+              prefill
+            />
+            <CategoriesFetcher
+              {...this.state}
+              render={this.renderCategoriesPicker}
+              search={this.state.categorySearch}
+              perPage={100}
+            />
+            <Button
+              size='small'
+              type='submit'
+              key={'save'}
+              disabled={!this.checkDiff}
+              loading={this.state.submitStatus === 'SUBMITTING'}
+            >
+              <span>Save Changes</span>
+            </Button>
+          </div>
+        </form>
+      )}
+    </ProfileSection>
+  )
   render () {
     return (
       <AccountSettingContainer>
