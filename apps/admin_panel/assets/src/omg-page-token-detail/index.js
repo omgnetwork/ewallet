@@ -50,10 +50,15 @@ class TokenDetailPage extends Component {
     getMintedTokenHistory: PropTypes.func
   }
   state = {
-    mintTokenModalOpen: false
+    mintTokenModalOpen: false,
+    exchangeRateToEdit: null,
   }
   onRequestClose = () => {
-    this.setState({ mintTokenModalOpen: false, exchangeRateModalOpen: false })
+    this.setState({
+      mintTokenModalOpen: false,
+      exchangeRateModalOpen: false,
+      exchangeRateToEdit: null
+    })
   }
   onClickMintTopen = e => {
     this.setState({ mintTokenModalOpen: true })
@@ -74,6 +79,12 @@ class TokenDetailPage extends Component {
         cacheKey: createCacheKey({ query }, 'tokensHistory')
       })
     }
+  }
+  editExchangeRate = (pair) => {
+    this.setState({
+      exchangeRateModalOpen: true,
+      exchangeRateToEdit: pair
+    })
   }
   renderTopBar = token => {
     return (
@@ -165,6 +176,7 @@ class TokenDetailPage extends Component {
                 onRequestClose={this.onRequestClose}
                 open={this.state.exchangeRateModalOpen}
                 fromTokenId={token.id}
+                toEdit={this.state.exchangeRateToEdit}
               />
             </div>
           ) : null
@@ -186,7 +198,9 @@ class TokenDetailPage extends Component {
                   return (
                     <DetailGroup key={pair.id}>
                       <b>{_.get(pair, 'to_token.name')}</b>
-                      {pair.rate} {_.get(pair, 'to_token.symbol')}
+                      <span onClick={() => this.editExchangeRate(pair)}>
+                        {pair.rate} {_.get(pair, 'to_token.symbol')}
+                      </span>
                     </DetailGroup>
                   )
                 })}

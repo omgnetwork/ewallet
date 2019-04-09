@@ -123,25 +123,35 @@ class CreateExchangeRateModal extends Component {
   static propTypes = {
     onRequestClose: PropTypes.func,
     fromTokenId: PropTypes.string,
-    createExchangePair: PropTypes.func
+    createExchangePair: PropTypes.func,
+    toEdit: PropTypes.object
   }
   static defaultProps = {
     onCreateTransaction: _.noop
   }
   static getDerivedStateFromProps(props, state) {
     if (state.fromTokenId !== props.fromTokenId) {
+      console.log(props.toEdit);
+      // TODO: populate oneway exchange state from props...
+      // TODO: change create to edit
+      // TODO: change create call to update if in edit state
       return {
+        editing: !!props.toEdit,
         fromTokenSelected: props.fromTokenPrefill,
         fromTokenSearch: props.fromTokenPrefill.name,
         fromTokenSymbol: props.fromTokenPrefill.symbol,
         fromTokenRate: 1,
-        fromTokenId: props.fromTokenId
+        fromTokenId: props.fromTokenId,
+        toTokenRate: _.get(props, 'toEdit.rate'),
+        toTokenSearch: _.get(props, 'toEdit.to_token.name'),
+        toTokenSymbol: _.get(props, 'toEdit.to_token.symbol')
       }
     }
     return null
   }
 
   state = {
+    editing: false,
     onlyOneWayExchange: false,
     fromTokenSearch: '',
     fromTokenRate: '',
