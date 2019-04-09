@@ -228,10 +228,10 @@ defmodule AdminAPI.V1.Router do
     post("/activity_log.all", ActivityLogController, :all)
 
     # 2FA endpoints
-    post("/2fa.create_backup_codes", TwoFactorAuthController, :create_backup_codes)
-    post("/2fa.create_secret_code", TwoFactorAuthController, :create_secret_code)
-    post("/2fa.enable", TwoFactorAuthController, :enable)
-    post("/2fa.disable", TwoFactorAuthController, :disable)
+    post("/me.create_backup_codes", TwoFactorAuthController, :create_backup_codes)
+    post("/me.create_secret_code", TwoFactorAuthController, :create_secret_code)
+    post("/me.enable_2fa", TwoFactorAuthController, :enable)
+    post("/me.disable_2fa", TwoFactorAuthController, :disable)
 
     # Self endpoints (operations on the currently authenticated user)
     post("/me.get", SelfController, :get)
