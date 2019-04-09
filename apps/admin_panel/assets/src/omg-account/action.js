@@ -118,7 +118,7 @@ export const getUsersByAccountId = ({ accountId, page, perPage, cacheKey, matchA
     cacheKey
   })
 
-export const updateAccount = ({ accountId, name, description, avatar }) =>
+export const updateAccount = ({ accountId, name, description, avatar, categoryIds }) =>
   createActionCreator({
     actionName: 'ACCOUNT',
     action: 'UPDATE',
@@ -126,7 +126,8 @@ export const updateAccount = ({ accountId, name, description, avatar }) =>
       const updatedAccount = await accountService.updateAccountInfo({
         id: accountId,
         name,
-        description
+        description,
+        categoryIds
       })
       if (updatedAccount.data.success && avatar) {
         const result = await accountService.uploadAccountAvatar({

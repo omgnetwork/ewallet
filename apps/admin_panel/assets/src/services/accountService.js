@@ -38,13 +38,14 @@ export function uploadAccountAvatar ({ accountId, avatar }) {
   })
 }
 
-export function updateAccountInfo ({ id, name, description }) {
+export function updateAccountInfo ({ id, name, description, categoryIds }) {
   return authenticatedRequest({
     path: '/account.update',
     data: {
       id,
       name,
-      description
+      description,
+      category_ids: categoryIds
     }
   })
 }

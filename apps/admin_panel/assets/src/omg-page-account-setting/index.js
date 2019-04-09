@@ -90,6 +90,7 @@ class AccountSettingPage extends Component {
       submitStatus: 'DEFAULT',
       categorySearch: '',
       categorySelect: '',
+      categoryTouched: false
     }
   }
   componentDidMount () {
@@ -102,8 +103,8 @@ class AccountSettingPage extends Component {
         name: currentAccount.name,
         description: currentAccount.description,
         avatar: currentAccount.avatar.original,
-        categorySelect: currentAccount.categories.data[0],
-        categorySearch: currentAccount.categories.data[0].name
+        categorySelect: _.get(currentAccount, 'categories.data[0]'),
+        categorySearch: _.get(currentAccount, 'categories.data[0].name')
       })
     } else {
       const result = await this.props.getAccountById(this.props.match.params.accountId)
@@ -112,8 +113,8 @@ class AccountSettingPage extends Component {
           name: result.data.name,
           description: result.data.description || '',
           avatar: result.data.avatar.original || '',
-          categorySelect: result.data.categories.data[0] || '',
-          categorySearch: result.data.categories.data[0].name || ''
+          categorySelect: _.get(result, 'data.categories.data[0]') || '',
+          categorySearch: _.get(result, 'data.categories.data[0].name') || ''
         })
       }
     }
@@ -135,7 +136,8 @@ class AccountSettingPage extends Component {
         accountId: this.props.match.params.accountId,
         name: this.state.name,
         description: this.state.description,
-        avatar: this.state.image
+        avatar: this.state.image,
+        categoryIds: [_.get(this.state.categorySelect, 'id')]
       })
 
       if (result.data) {
@@ -185,13 +187,15 @@ class AccountSettingPage extends Component {
   onChangeCategory = e => {
     this.setState({
       categorySearch: e.target.value,
-      categorySelect: ''
+      categorySelect: '',
+      categoryTouched: true
     });
   }
   onSelectCategory = category => {
     this.setState({
       categorySearch: category.name,
-      categorySelect: category
+      categorySelect: category,
+      categoryTouched: true
     });
   }
   renderCategoriesPicker = ({ data: categories = [] }) => (
@@ -216,7 +220,7 @@ class AccountSettingPage extends Component {
       this.props.currentAccount.description === this.state.description &&
       !this.state.image &&
       !sameCategory &&
-      this.state.categorySelect
+      this.state.categoryTouched
   }
   renderAccountSettingTab = () => (
     <ProfileSection>
