@@ -1,5 +1,22 @@
 import * as exchangePairService from '../services/exchangePairService'
 
+export const updateExchangePair = ({ id, rate, syncOpposite }) => async dispatch => {
+  try {
+    const result = await exchangePairService.updateExchangePair({
+      id,
+      rate,
+      syncOpposite
+    })
+    if (result.data.success) {
+      return dispatch({ type: 'EXCHANGE_PAIR/UPDATE/SUCCESS', data: result.data.data })
+    } else {
+      return dispatch({ type: 'EXCHANGE_PAIR/UPDATE/FAILED', error: result.data.data })
+    }
+  } catch (error) {
+    return dispatch({ type: 'EXCHANGE_PAIR/UPDATE/FAILED', error })
+  }
+}
+
 export const createExchangePair = ({ name, toTokenId, fromTokenId, rate, syncOpposite }) => async dispatch => {
   try {
     const result = await exchangePairService.createExchangePair({

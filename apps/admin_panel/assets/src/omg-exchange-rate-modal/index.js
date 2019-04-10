@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react'
+import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
@@ -6,8 +7,7 @@ import styled from 'styled-components'
 
 import { Input, Button, Icon, Select, Checkbox } from '../omg-uikit'
 import Modal from '../omg-modal'
-import { createExchangePair } from '../omg-exchange-pair/action'
-import { withRouter } from 'react-router-dom'
+import { createExchangePair, updateExchangePair } from '../omg-exchange-pair/action'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { selectGetTokenById } from '../omg-token/selector'
 import TokenSelect from '../omg-token-select'
@@ -116,7 +116,7 @@ const enhance = compose(
   withRouter,
   connect(
     (state, props) => ({ fromTokenPrefill: selectGetTokenById(state)(props.fromTokenId) }),
-    { createExchangePair }
+    { createExchangePair, updateExchangePair }
   )
 )
 class CreateExchangeRateModal extends Component {
@@ -124,6 +124,7 @@ class CreateExchangeRateModal extends Component {
     onRequestClose: PropTypes.func,
     fromTokenId: PropTypes.string,
     createExchangePair: PropTypes.func,
+    updateExchangePair: PropTypes.func,
     toEdit: PropTypes.object
   }
   static defaultProps = {
@@ -131,20 +132,21 @@ class CreateExchangeRateModal extends Component {
   }
   static getDerivedStateFromProps(props, state) {
     if (state.fromTokenId !== props.fromTokenId) {
+      // TODO: Get sync_opposite in response from exchange.create
       console.log(props.toEdit);
-      // TODO: populate oneway exchange state from props...
-      // TODO: change create to edit
-      // TODO: change create call to update if in edit state
       return {
         editing: !!props.toEdit,
+        exchangeId: _.get(props, 'toEdit.id', ''),
         fromTokenSelected: props.fromTokenPrefill,
         fromTokenSearch: props.fromTokenPrefill.name,
         fromTokenSymbol: props.fromTokenPrefill.symbol,
         fromTokenRate: 1,
         fromTokenId: props.fromTokenId,
-        toTokenRate: _.get(props, 'toEdit.rate'),
-        toTokenSearch: _.get(props, 'toEdit.to_token.name'),
-        toTokenSymbol: _.get(props, 'toEdit.to_token.symbol')
+        toTokenRate: _.get(props, 'toEdit.rate', ''),
+        toTokenSelected: _.get(props, 'toEdit.to_token', ''),
+        toTokenSearch: _.get(props, 'toEdit.to_token.name', ''),
+        toTokenSymbol: _.get(props, 'toEdit.to_token.symbol', ''),
+        onlyOneWayExchange: _.get(props, 'toEdit.sync_opposite', false)
       }
     }
     return null
@@ -152,6 +154,7 @@ class CreateExchangeRateModal extends Component {
 
   state = {
     editing: false,
+    exchangeId: '',
     onlyOneWayExchange: false,
     fromTokenSearch: '',
     fromTokenRate: '',
@@ -188,13 +191,21 @@ class CreateExchangeRateModal extends Component {
     e.preventDefault()
     this.setState({ submitting: true })
     try {
-      const result = await this.props.createExchangePair({
-        name: this.state.name,
-        fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
-        toTokenId: _.get(this.state, 'toTokenSelected.id'),
+      const baseKeys = {
         rate: formatAmount(this.state.toTokenRate, 1) / formatAmount(this.state.fromTokenRate, 1),
         syncOpposite: !this.state.onlyOneWayExchange
-      })
+      }
+      const result = this.state.editing
+        ? await this.props.updateExchangePair({
+            ...baseKeys,
+            id: this.state.exchangeId
+          })
+        : await this.props.createExchangePair({
+            ...baseKeys,
+            name: this.state.name,
+            fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
+            toTokenId: _.get(this.state, 'toTokenSelected.id')
+          })
       if (result.data) {
         this.props.onRequestClose()
       } else {
@@ -234,14 +245,12 @@ class CreateExchangeRateModal extends Component {
     return (
       <>
         <div className="calculation-title">Exchange Pair</div>
-
         <RateContainer>
           <div>{`1 ${fromTokenSymbol} / ${forwardRate} ${toTokenSymbol}`}</div>
           <BackRateContainer disabled={onlyOneWayExchange}>
             {`1 ${toTokenSymbol} / ${backRate} ${fromTokenSymbol}`}
           </BackRateContainer>
         </RateContainer>
-
         <div className="calculation-disclaimer">
           {onlyOneWayExchange
             ? `*${fromTokenSymbol} can only be exchanged for ${toTokenSymbol}, and the reverse exchange will not be possible.`
@@ -255,7 +264,9 @@ class CreateExchangeRateModal extends Component {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
         <Icon name="Close" onClick={this.props.onRequestClose} />
-        <h4>Create Exchange Pair</h4>
+        <h4>
+          {`${this.state.editing ? 'Edit' : 'Create'} Exchange Pair`}
+        </h4>
         <TokensFetcher
           query={createSearchTokenQuery(this.state.fromTokenSearch)}
           render={({ data }) => {
@@ -344,7 +355,7 @@ class CreateExchangeRateModal extends Component {
 
         <ButtonContainer>
           <Button size="small" type="submit" loading={this.state.submitting}>
-            Create Pair
+            {`${this.state.editing ? 'Update' : 'Create'} Pair`}
           </Button>
         </ButtonContainer>
         <Error error={this.state.error}>{this.state.error}</Error>

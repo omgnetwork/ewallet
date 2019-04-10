@@ -21,13 +21,13 @@ export function getExchangePairById (id) {
     }
   })
 }
-export function updateExchangePair ({ id, name, rate }) {
+export function updateExchangePair ({ id, rate, syncOpposite }) {
   return authenticatedRequest({
     path: '/exchange_pair.update',
     data: {
       id,
-      name,
-      rate
+      rate,
+      sync_opposite: syncOpposite
     }
   })
 }

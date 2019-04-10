@@ -196,9 +196,13 @@ class TokenDetailPage extends Component {
                 <h5>1 {token.name} :</h5>
                 {exchangePairs.map(pair => {
                   return (
-                    <DetailGroup key={pair.id}>
+                    <DetailGroup
+                      key={pair.id}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => this.editExchangeRate(pair)}
+                    >
                       <b>{_.get(pair, 'to_token.name')}</b>
-                      <span onClick={() => this.editExchangeRate(pair)}>
+                      <span>
                         {pair.rate} {_.get(pair, 'to_token.symbol')}
                       </span>
                     </DetailGroup>
