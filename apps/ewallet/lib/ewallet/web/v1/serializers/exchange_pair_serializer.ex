@@ -46,6 +46,7 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
       created_at: DateFormatter.to_iso8601(exchange_pair.inserted_at),
       updated_at: DateFormatter.to_iso8601(exchange_pair.updated_at),
       deleted_at: DateFormatter.to_iso8601(exchange_pair.deleted_at)
+      # sync_opposite: TODO
     }
   end
 

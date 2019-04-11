@@ -146,7 +146,7 @@ class CreateExchangeRateModal extends Component {
         toTokenSelected: _.get(props, 'toEdit.to_token', ''),
         toTokenSearch: _.get(props, 'toEdit.to_token.name', ''),
         toTokenSymbol: _.get(props, 'toEdit.to_token.symbol', ''),
-        onlyOneWayExchange: _.get(props, 'toEdit.sync_opposite', false)
+        onlyOneWayExchange: !_.get(props, 'toEdit.sync_opposite', true)
       }
     }
     return null
