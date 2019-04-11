@@ -133,7 +133,6 @@ class CreateExchangeRateModal extends Component {
   static getDerivedStateFromProps(props, state) {
     if (state.fromTokenId !== props.fromTokenId) {
       // TODO: Get sync_opposite in response from exchange.create
-      console.log(props.toEdit);
       return {
         editing: !!props.toEdit,
         exchangeId: _.get(props, 'toEdit.id', ''),
