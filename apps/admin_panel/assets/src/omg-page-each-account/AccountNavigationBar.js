@@ -112,18 +112,18 @@ function AccountNavigationBar (props) {
           <div className='account-link-text'>Users</div>
         </NavLink>
         <NavLink
-          to={`/accounts/${accountId}/admins`}
-          activeClassName='navlink-active'
-          className='account-link'
-        >
-          <div className='account-link-text'>Admins</div>
-        </NavLink>
-        <NavLink
           to={`/accounts/${accountId}/keys`}
           activeClassName='navlink-active'
           className='account-link'
         >
           <div className='account-link-text'>Keys</div>
+        </NavLink>
+        <NavLink
+          to={`/accounts/${accountId}/admins`}
+          activeClassName='navlink-active'
+          className='account-link'
+        >
+          <div className='account-link-text'>Admins</div>
         </NavLink>
         <NavLink
           to={`/accounts/${accountId}/activity`}
