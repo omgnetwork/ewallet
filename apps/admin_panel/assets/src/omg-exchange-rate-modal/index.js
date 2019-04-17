@@ -95,24 +95,24 @@ const RateContainer = styled.div`
   display: flex;
   flex-direction: row;
   padding-bottom: 10px;
-
-  div {
-    padding: 5px 10px;
-    background-color: ${props => props.theme.colors.S300};
-    color: ${props => props.theme.colors.B300};
-    display: inline-block;
-    border-radius: 3px;
-
-    :first-child {
-      margin-right: 5px;
-    }
-  }
 `
 
 const BackRateContainer = styled.div`
   opacity: ${props => (props.disabled ? 0 : 1)};
   transition: opacity 0.2s ease-in-out;
 `
+
+const Rate = styled.div`
+  padding: 5px 10px;
+  background-color: ${props => props.theme.colors.S300};
+  color: ${props => props.changed ? props.theme.colors.BL300 : props.theme.colors.B300};
+  display: inline-block;
+  border-radius: 3px;
+
+  :first-child {
+    margin-right: 5px;
+  }
+`;
 
 const enhance = compose(
   withRouter,
@@ -238,20 +238,29 @@ class CreateExchangeRateModal extends Component {
       oppositeExchangePair
     } = this.state
 
-    const forwardRate = _.round(formatAmount(toTokenRate, 1) / formatAmount(fromTokenRate, 1), 3)
+    const forwardRate = _.round(toTokenRate / fromTokenRate, 3)
     const backRate = _.round(1 / forwardRate, 3)
-    const oldBackRate = _.round(1 / _.get(this.props, 'toEdit.rate'), 3)
+    
+    const oldForwardRate = _.get(this.props, 'toEdit.rate')
+    const oldBackRate = _.round(_.get(oppositeExchangePair, 'rate'), 3)
+
+    const forwardRateDiff = oldForwardRate != forwardRate
 
     if (this.state.editing) {
       return (
         <>
           <div className="calculation-title">Exchange Pairs</div>
           <RateContainer>
-            <div>{`1 ${fromTokenSymbol} / ${forwardRate} ${toTokenSymbol}`}</div>
+            <Rate changed={forwardRateDiff}>
+              {`1 ${fromTokenSymbol} = ${forwardRate} ${toTokenSymbol}`}
+            </Rate>
+
             <BackRateContainer disabled={!oppositeExchangePair}>
-              {onlyOneWayExchange
-                ? `1 ${toTokenSymbol} / ${oldBackRate} ${fromTokenSymbol}`
-                : `1 ${toTokenSymbol} / ${backRate} ${fromTokenSymbol}`
+              {!forwardRateDiff
+                ? <Rate>{`1 ${toTokenSymbol} = ${oldBackRate} ${fromTokenSymbol}`}</Rate>
+                : !onlyOneWayExchange
+                  ? <Rate changed={true}>{`1 ${toTokenSymbol} = ${backRate} ${fromTokenSymbol}`}</Rate>
+                  : <Rate>{`1 ${toTokenSymbol} = ${oldBackRate} ${fromTokenSymbol}`}</Rate>
               }
             </BackRateContainer>
           </RateContainer>
@@ -263,9 +272,9 @@ class CreateExchangeRateModal extends Component {
       <>
         <div className="calculation-title">Exchange Pairs</div>
         <RateContainer>
-          <div>{`1 ${fromTokenSymbol} / ${forwardRate} ${toTokenSymbol}`}</div>
+          <Rate>{`1 ${fromTokenSymbol} = ${forwardRate} ${toTokenSymbol}`}</Rate>
           <BackRateContainer disabled={onlyOneWayExchange}>
-            {`1 ${toTokenSymbol} / ${backRate} ${fromTokenSymbol}`}
+            <Rate>{`1 ${toTokenSymbol} = ${backRate} ${fromTokenSymbol}`}</Rate>
           </BackRateContainer>
         </RateContainer>
         <div className="calculation-disclaimer">
@@ -380,7 +389,7 @@ class CreateExchangeRateModal extends Component {
             {!!editing && !!oppositeExchangePair && rateDiff && (
               <SyncContainer>
                 {`*The opposite exchange rate of 1 ${oppositeExchangePair.from_token.symbol} 
-                / ${_.round(oppositeExchangePair.rate, 3)} ${oppositeExchangePair.to_token.symbol} 
+                = ${_.round(oppositeExchangePair.rate, 3)} ${oppositeExchangePair.to_token.symbol} 
                 currently exists. Would you like to sync this opposite rate to match your recent changes?`}
               </SyncContainer>
             )}
