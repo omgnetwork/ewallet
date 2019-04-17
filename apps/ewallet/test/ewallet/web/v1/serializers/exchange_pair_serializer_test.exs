@@ -35,6 +35,45 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
         rate: exchange_pair.rate,
         created_at: DateFormatter.to_iso8601(exchange_pair.inserted_at),
         updated_at: DateFormatter.to_iso8601(exchange_pair.updated_at),
+        opposite_exchange_pair_id: nil,
+        opposite_exchange_pair: nil,
+        deleted_at: nil
+      }
+
+      assert ExchangePairSerializer.serialize(exchange_pair) == expected
+    end
+
+    test "serializes an exchange pair and its opposite into V1 response format" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      exchange_pair = insert(:exchange_pair, from_token: token_1, to_token: token_2)
+      opposite_pair = insert(:exchange_pair, from_token: token_2, to_token: token_1)
+
+      expected = %{
+        object: "exchange_pair",
+        id: exchange_pair.id,
+        name: ExchangePair.get_name(exchange_pair),
+        from_token_id: exchange_pair.from_token.id,
+        from_token: TokenSerializer.serialize(exchange_pair.from_token),
+        to_token_id: exchange_pair.to_token.id,
+        to_token: TokenSerializer.serialize(exchange_pair.to_token),
+        rate: exchange_pair.rate,
+        created_at: DateFormatter.to_iso8601(exchange_pair.inserted_at),
+        updated_at: DateFormatter.to_iso8601(exchange_pair.updated_at),
+        opposite_exchange_pair_id: opposite_pair.id,
+        opposite_exchange_pair: %{
+          object: "exchange_pair",
+          id: opposite_pair.id,
+          name: ExchangePair.get_name(opposite_pair),
+          from_token_id: opposite_pair.from_token.id,
+          from_token: TokenSerializer.serialize(opposite_pair.from_token),
+          to_token_id: opposite_pair.to_token.id,
+          to_token: TokenSerializer.serialize(opposite_pair.to_token),
+          rate: opposite_pair.rate,
+          created_at: DateFormatter.to_iso8601(opposite_pair.inserted_at),
+          updated_at: DateFormatter.to_iso8601(opposite_pair.updated_at),
+          deleted_at: nil
+        },
         deleted_at: nil
       }
 
@@ -69,6 +108,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             rate: exchange_pair1.rate,
             created_at: DateFormatter.to_iso8601(exchange_pair1.inserted_at),
             updated_at: DateFormatter.to_iso8601(exchange_pair1.updated_at),
+            opposite_exchange_pair_id: nil,
+            opposite_exchange_pair: nil,
             deleted_at: nil
           },
           %{
@@ -82,6 +123,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             rate: exchange_pair2.rate,
             created_at: DateFormatter.to_iso8601(exchange_pair2.inserted_at),
             updated_at: DateFormatter.to_iso8601(exchange_pair2.updated_at),
+            opposite_exchange_pair_id: nil,
+            opposite_exchange_pair: nil,
             deleted_at: nil
           }
         ],

@@ -34,6 +34,18 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
   end
 
   def serialize(%ExchangePair{} = exchange_pair) do
+    opposite_pair = get_opposite_pair(exchange_pair)
+
+    exchange_pair
+    |> serialize_without_opposite_pair()
+    |> Map.put(:opposite_exchange_pair_id, get_opposite_pair_id(opposite_pair))
+    |> Map.put(:opposite_exchange_pair, serialize_without_opposite_pair(opposite_pair))
+  end
+
+  def serialize(%NotLoaded{}), do: nil
+  def serialize(nil), do: nil
+
+  def serialize_without_opposite_pair(%ExchangePair{} = exchange_pair) do
     %{
       object: "exchange_pair",
       id: exchange_pair.id,
@@ -46,10 +58,22 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
       created_at: DateFormatter.to_iso8601(exchange_pair.inserted_at),
       updated_at: DateFormatter.to_iso8601(exchange_pair.updated_at),
       deleted_at: DateFormatter.to_iso8601(exchange_pair.deleted_at)
-      # sync_opposite: TODO
     }
   end
 
-  def serialize(%NotLoaded{}), do: nil
-  def serialize(nil), do: nil
+  def serialize_without_opposite_pair(%NotLoaded{}), do: nil
+  def serialize_without_opposite_pair(nil), do: nil
+
+  defp get_opposite_pair_id(nil), do: nil
+  defp get_opposite_pair_id(exchange_pair), do: exchange_pair.id
+
+  defp get_opposite_pair(exchange_pair) do
+    ExchangePair.get_by(
+      %{
+        from_token_uuid: exchange_pair.to_token_uuid,
+        to_token_uuid: exchange_pair.from_token_uuid
+      },
+      preload: [:from_token, :to_token]
+    )
+  end
 end
