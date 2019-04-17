@@ -7,14 +7,21 @@ import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 
+import Modal from '../omg-modal'
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { getAccountById, updateAccount } from '../omg-account/action'
 import { selectGetAccountById } from '../omg-account/selector'
 import Copy from '../omg-copy'
-import CategoriesFetcher from '../omg-account-category/categoriesFetcher'
+import ChooseCategoryStage from '../omg-create-account-modal/ChooseCategoryStage'
 
+const ChooseCategoryContainer = styled.div`
+  position: relative;
+  text-align: center;
+  width: 380px;
+  height: 600px;
+`
 const AccountSettingContainer = styled.div`
   a {
     color: inherit;
@@ -48,6 +55,16 @@ const ProfileSection = styled.div`
 const Avatar = styled(ImageUploaderAvatar)`
   margin: 0;
 `
+
+const CategorySelect = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  button {
+    margin-top: 20px;
+  }
+`
+
 export const NameColumn = styled.div`
   i[name='Copy'] {
     margin-left: 5px;
@@ -90,7 +107,8 @@ class AccountSettingPage extends Component {
       submitStatus: 'DEFAULT',
       categorySearch: '',
       categorySelect: '',
-      categoryTouched: false
+      categoryTouched: false,
+      chooseCategoryModal: false
     }
   }
   componentDidMount () {
@@ -102,7 +120,7 @@ class AccountSettingPage extends Component {
       this.setState({
         name: currentAccount.name,
         description: currentAccount.description,
-        avatar: currentAccount.avatar.original,
+        avatar: _.get(currentAccount, 'avatar.original'),
         categorySelect: _.get(currentAccount, 'categories.data[0]'),
         categorySearch: _.get(currentAccount, 'categories.data[0].name')
       })
@@ -188,14 +206,16 @@ class AccountSettingPage extends Component {
     this.setState({
       categorySearch: e.target.value,
       categorySelect: '',
-      categoryTouched: true
+      categoryTouched: true,
+      chooseCategoryModal: false
     });
   }
   onSelectCategory = category => {
     this.setState({
       categorySearch: category.name,
       categorySelect: category,
-      categoryTouched: true
+      categoryTouched: true,
+      chooseCategoryModal: false
     });
   }
   renderCategoriesPicker = ({ data: categories = [] }) => (
@@ -211,17 +231,21 @@ class AccountSettingPage extends Component {
       }))}
     />
   )
+  toggleModal = (e) => {
+    e.preventDefault();
+    this.setState(oldState => ({ chooseCategoryModal: !oldState.chooseCategoryModal }));
+  }
   get shouldSave() {
     const propsCategoryId = _.get(this.props.currentAccount, 'categories.data[0].id')
     const stateCategoryId = _.get(this.state.categorySelect, 'id')
     const sameCategory = propsCategoryId && propsCategoryId === stateCategoryId
 
-    return this.props.currentAccount.name === this.state.name &&
-      this.props.currentAccount.description === this.state.description &&
-      !this.state.image &&
-      this.state.categoryTouched &&
-      !(!this.state.categorySelect && this.state.categorySearch.length)
-      !sameCategory
+    return this.props.currentAccount.name !== this.state.name ||
+      this.props.currentAccount.description !== this.state.description ||
+      this.state.image ||
+      (this.state.categorySelect && !this.state.categorySearch.length) ||
+      !sameCategory ||
+      this.state.categoryTouched
   }
   renderAccountSettingTab = () => (
     <ProfileSection>
@@ -245,12 +269,17 @@ class AccountSettingPage extends Component {
               onChange={this.onChangeDescription}
               prefill
             />
-            <CategoriesFetcher
-              {...this.state}
-              render={this.renderCategoriesPicker}
-              search={this.state.categorySearch}
-              perPage={100}
-            />
+            <CategorySelect>
+              <div>{this.state.categorySearch}</div>
+              <Button
+                size='small'
+                key={'openModal'}
+                onClick={this.toggleModal}
+                styleType='secondary'
+              >
+                <span>{this.state.categorySearch ? 'Edit Category' : 'Add Category'}</span>
+              </Button>
+            </CategorySelect>
             <Button
               size='small'
               type='submit'
@@ -267,14 +296,32 @@ class AccountSettingPage extends Component {
   )
   render () {
     return (
-      <AccountSettingContainer>
-        <TopNavigation divider={this.props.divider}
-          title='Account Settings'
-          secondaryAction={false}
-          types={false}
-        />
-        {this.renderAccountSettingTab()}
-      </AccountSettingContainer>
+      <>
+        <Modal
+          isOpen={this.state.chooseCategoryModal}
+          onRequestClose={this.toggleModal}
+          contentLabel='add category modal'
+          shouldCloseOnOverlayClick={true}
+        >
+          <ChooseCategoryContainer>
+            <ChooseCategoryStage
+              category={this.state.categorySelect}
+              onClickBack={this.toggleModal}
+              onChooseCategory={this.onSelectCategory}
+              goToStage={this.goToStage}
+            />
+          </ChooseCategoryContainer>
+        </Modal>
+
+        <AccountSettingContainer>
+          <TopNavigation divider={this.props.divider}
+            title='Account Settings'
+            secondaryAction={false}
+            types={false}
+          />
+          {this.renderAccountSettingTab()}
+        </AccountSettingContainer>
+      </>
     )
   }
 }
