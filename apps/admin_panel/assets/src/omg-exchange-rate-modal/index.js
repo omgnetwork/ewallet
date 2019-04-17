@@ -49,6 +49,9 @@ const InputLabel = styled.div`
   font-size: 14px;
   font-weight: 400;
 `
+const ReadOnlyInput = styled.div`
+  padding-top: 7px;
+`
 const ButtonContainer = styled.div`
   text-align: center;
 `
@@ -61,6 +64,7 @@ const RateInputContainer = styled.div`
 `
 const SyncContainer = styled.div`
   margin-top: 20px;
+  color: ${props => props.theme.colors.B100};
 `
 const Error = styled.div`
   color: ${props => props.theme.colors.R400};
@@ -74,8 +78,6 @@ const Error = styled.div`
 
 const CalculationContainer = styled.div`
   margin-top: 20px;
-  height: ${props => (props.show ? 100 : 0)}px;
-  opacity: ${props => (props.show ? 1 : 0)};
   transition: all 300ms ease-in-out;
   color: ${props => props.theme.colors.B100};
 
@@ -132,7 +134,6 @@ class CreateExchangeRateModal extends Component {
   }
   static getDerivedStateFromProps(props, state) {
     if (state.fromTokenId !== props.fromTokenId) {
-      // TODO: Get sync_opposite in response from exchange.create
       return {
         editing: !!props.toEdit,
         exchangeId: _.get(props, 'toEdit.id', ''),
@@ -145,7 +146,8 @@ class CreateExchangeRateModal extends Component {
         toTokenSelected: _.get(props, 'toEdit.to_token', ''),
         toTokenSearch: _.get(props, 'toEdit.to_token.name', ''),
         toTokenSymbol: _.get(props, 'toEdit.to_token.symbol', ''),
-        onlyOneWayExchange: !_.get(props, 'toEdit.sync_opposite', true)
+        oppositeExchangePair: _.get(props, 'toEdit.opposite_exchange_pair', null),
+        onlyOneWayExchange: !!!_.get(props, 'toEdit.opposite_exchange_pair', true)
       }
     }
     return null
@@ -160,7 +162,8 @@ class CreateExchangeRateModal extends Component {
     fromTokenSymbol: '',
     toTokenRate: '',
     toTokenSearch: '',
-    toTokenSymbol: ''
+    toTokenSymbol: '',
+    oppositeExchangePair: null,
   }
 
   onChangeName = e => {
@@ -226,24 +229,39 @@ class CreateExchangeRateModal extends Component {
   }
 
   renderCalculation = () => {
-    if (!this.ratesAvailable) {
-      return
-    }
-
     const {
       toTokenRate,
       toTokenSymbol,
       fromTokenRate,
       fromTokenSymbol,
-      onlyOneWayExchange
+      onlyOneWayExchange,
+      oppositeExchangePair
     } = this.state
 
     const forwardRate = _.round(formatAmount(toTokenRate, 1) / formatAmount(fromTokenRate, 1), 3)
     const backRate = _.round(1 / forwardRate, 3)
+    const oldBackRate = _.round(1 / _.get(this.props, 'toEdit.rate'), 3)
+
+    if (this.state.editing) {
+      return (
+        <>
+          <div className="calculation-title">Exchange Pairs</div>
+          <RateContainer>
+            <div>{`1 ${fromTokenSymbol} / ${forwardRate} ${toTokenSymbol}`}</div>
+            <BackRateContainer disabled={!oppositeExchangePair}>
+              {onlyOneWayExchange
+                ? `1 ${toTokenSymbol} / ${oldBackRate} ${fromTokenSymbol}`
+                : `1 ${toTokenSymbol} / ${backRate} ${fromTokenSymbol}`
+              }
+            </BackRateContainer>
+          </RateContainer>
+        </>
+      )
+    }
 
     return (
       <>
-        <div className="calculation-title">Exchange Pair</div>
+        <div className="calculation-title">Exchange Pairs</div>
         <RateContainer>
           <div>{`1 ${fromTokenSymbol} / ${forwardRate} ${toTokenSymbol}`}</div>
           <BackRateContainer disabled={onlyOneWayExchange}>
@@ -252,7 +270,7 @@ class CreateExchangeRateModal extends Component {
         </RateContainer>
         <div className="calculation-disclaimer">
           {onlyOneWayExchange
-            ? `*${fromTokenSymbol} can only be exchanged for ${toTokenSymbol}, and the reverse exchange will not be possible.`
+            ? `*${fromTokenSymbol} can only be exchanged for ${toTokenSymbol}, and the reverse exchange is not possible.`
             : `*${fromTokenSymbol} can be exchanged for ${toTokenSymbol} and vice versa.`}
         </div>
       </>
@@ -260,11 +278,17 @@ class CreateExchangeRateModal extends Component {
   }
 
   render() {
+    const { oppositeExchangePair, editing } = this.state;
+
+    const oldRate = _.get(this.props, 'toEdit.rate');
+    const newRate = this.state.toTokenRate / this.state.fromTokenRate;
+    const rateDiff = oldRate != newRate;
+
     return (
       <Form onSubmit={this.onSubmit} noValidate>
         <Icon name="Close" onClick={this.props.onRequestClose} />
         <h4>
-          {`${this.state.editing ? 'Edit' : 'Create'} Exchange Pair`}
+          {`${editing ? 'Edit' : 'Create'} Exchange Pair`}
         </h4>
         <TokensFetcher
           query={createSearchTokenQuery(this.state.fromTokenSearch)}
@@ -275,17 +299,22 @@ class CreateExchangeRateModal extends Component {
                 <RateInputContainer>
                   <div>
                     <InputLabel>Token</InputLabel>
-                    <Select
-                      normalPlaceholder="Token"
-                      onSelectItem={this.onSelectTokenSelect('fromToken')}
-                      onChange={this.onChangeSearchToken('fromToken')}
-                      value={this.state.fromTokenSearch}
-                      options={data.map(b => ({
-                        key: `${b.id}${b.name}${b.symbol}`,
-                        value: <TokenSelect token={b} />,
-                        ...b
-                      }))}
-                    />
+                    {editing && (
+                      <ReadOnlyInput>{this.state.fromTokenSearch}</ReadOnlyInput>
+                    )}
+                    {!editing && (
+                      <Select
+                        normalPlaceholder="Token"
+                        onSelectItem={this.onSelectTokenSelect('fromToken')}
+                        onChange={this.onChangeSearchToken('fromToken')}
+                        value={this.state.fromTokenSearch}
+                        options={data.map(b => ({
+                          key: `${b.id}${b.name}${b.symbol}`,
+                          value: <TokenSelect token={b} />,
+                          ...b
+                        }))}
+                      />
+                    )}
                   </div>
                   <div>
                     <InputLabel>Amount</InputLabel>
@@ -311,18 +340,23 @@ class CreateExchangeRateModal extends Component {
                 <RateInputContainer>
                   <div>
                     <InputLabel>Token</InputLabel>
-                    <Select
-                      normalPlaceholder="Token"
-                      onSelectItem={this.onSelectTokenSelect('toToken')}
-                      onChange={this.onChangeSearchToken('toToken')}
-                      value={this.state.toTokenSearch}
-                      optionBoxHeight={'120px'}
-                      options={data.map(b => ({
-                        key: `${b.id}${b.name}${b.symbol}`,
-                        value: <TokenSelect token={b} />,
-                        ...b
-                      }))}
-                    />
+                    {editing && (
+                      <ReadOnlyInput>{this.state.toTokenSearch}</ReadOnlyInput>
+                    )}
+                    {!editing && (
+                      <Select
+                        normalPlaceholder="Token"
+                        onSelectItem={this.onSelectTokenSelect('toToken')}
+                        onChange={this.onChangeSearchToken('toToken')}
+                        value={this.state.toTokenSearch}
+                        optionBoxHeight={'120px'}
+                        options={data.map(b => ({
+                          key: `${b.id}${b.name}${b.symbol}`,
+                          value: <TokenSelect token={b} />,
+                          ...b
+                        }))}
+                      />
+                    )}
                   </div>
                   <div>
                     <InputLabel>Amount</InputLabel>
@@ -336,25 +370,45 @@ class CreateExchangeRateModal extends Component {
                     />
                   </div>
                 </RateInputContainer>
-                <SyncContainer>
-                  <Checkbox
-                    label={'Only allow one way exchange'}
-                    checked={this.state.onlyOneWayExchange}
-                    onClick={this.onClickOneWayExchange}
-                  />
-                </SyncContainer>
               </Fragment>
             )
           }}
         />
 
-        <CalculationContainer show={this.ratesAvailable}>
-          {this.renderCalculation()}
-        </CalculationContainer>
+        {this.ratesAvailable && (
+          <>
+            {!!editing && !!oppositeExchangePair && rateDiff && (
+              <SyncContainer>
+                {`*The opposite exchange rate of 1 ${oppositeExchangePair.from_token.symbol} 
+                / ${_.round(oppositeExchangePair.rate, 3)} ${oppositeExchangePair.to_token.symbol} 
+                currently exists. Would you like to sync this opposite rate to match your recent changes?`}
+              </SyncContainer>
+            )}
+
+            {(!editing || (!!oppositeExchangePair && rateDiff)) && (
+              <SyncContainer>
+                <Checkbox
+                  label={editing ? 'Sync opposite': 'Only allow one way exchange'}
+                  checked={editing ? !this.state.onlyOneWayExchange : this.state.onlyOneWayExchange}
+                  onClick={this.onClickOneWayExchange}
+                />
+              </SyncContainer>
+            )}
+
+            <CalculationContainer>
+              {this.renderCalculation()}
+            </CalculationContainer>
+          </>  
+        )}
 
         <ButtonContainer>
-          <Button size="small" type="submit" loading={this.state.submitting}>
-            {`${this.state.editing ? 'Update' : 'Create'} Pair`}
+          <Button
+            size="small"
+            type="submit"
+            loading={this.state.submitting}
+            disabled={!this.ratesAvailable || !rateDiff}
+          >
+            {this.state.editing ? 'Update Pair' : 'Create Pair'}
           </Button>
         </ButtonContainer>
         <Error error={this.state.error}>{this.state.error}</Error>
