@@ -29,6 +29,10 @@ defmodule EWalletDB.Role do
   @timestamps_opts [type: :naive_datetime_usec]
   @account_role_permissions %{
     "admin" => %{
+      exchange_pairs: %{
+        all: :global,
+        get: :global
+      },
       accounts: %{all: :accounts, get: :accounts, update: :accounts},
       categories: %{all: :global, get: :global},
       memberships: %{all: :accounts, get: :accounts, create: :accounts, delete: :accounts},
@@ -36,6 +40,7 @@ defmodule EWalletDB.Role do
         all: :accounts,
         get: :accounts,
         create: :accounts,
+        update: :accounts,
         update_password: :self,
         update_email: :self,
         upload_avatar: :self,
@@ -129,12 +134,19 @@ defmodule EWalletDB.Role do
       permissions: %{all: :global}
     },
     "viewer" => %{
+      exchange_pairs: %{
+        all: :global,
+        get: :global
+      },
       account: %{all: :accounts, get: :accounts},
       categories: %{all: :global, get: :global},
       memberships: %{all: :accounts, get: :accounts},
       admin_users: %{
         all: :accounts,
         get: :accounts,
+        update_password: :self,
+        update_email: :self,
+        upload_avatar: :self,
         get_account: :self,
         get_accounts: :self,
         logout: :self
