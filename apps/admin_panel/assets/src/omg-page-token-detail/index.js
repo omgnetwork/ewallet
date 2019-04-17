@@ -36,6 +36,12 @@ const ContentContainer = styled.div`
   width: 100%;
 `
 
+const EditButton = styled.span`
+  cursor: pointer;
+  color: ${props => props.theme.colors.BL300};
+  float: right;
+`
+
 const enhance = compose(
   withRouter,
   connect(
@@ -196,15 +202,16 @@ class TokenDetailPage extends Component {
                 <h5>1 {token.name} :</h5>
                 {exchangePairs.map(pair => {
                   return (
-                    <DetailGroup
-                      key={pair.id}
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => this.editExchangeRate(pair)}
-                    >
+                    <DetailGroup key={pair.id}>
                       <b>{_.get(pair, 'to_token.name')}</b>
                       <span>
                         {pair.rate} {_.get(pair, 'to_token.symbol')}
                       </span>
+                      <EditButton
+                        onClick={() => this.editExchangeRate(pair)}
+                      >
+                        Edit
+                      </EditButton>
                     </DetailGroup>
                   )
                 })}
