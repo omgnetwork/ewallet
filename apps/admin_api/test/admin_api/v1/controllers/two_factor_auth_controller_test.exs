@@ -14,6 +14,8 @@
 
 defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWallet.{TwoFactorAuthenticator}
+  alias EWalletDB.{User}
 
   describe "/me.create_secret_code" do
     test "responds a new secret code if the authentication is valid" do
@@ -78,24 +80,25 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
 
   describe "/me.enable_2fa" do
     test "responds authentication_token if the authentication is valid and the secret code has been created" do
-      response = admin_user_request("/me.create_secret_code")
-      secret_2fa_code = response["data"]["secret_2fa_code"]
+      user = User.get(@admin_id)
+      {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
 
-      token = generate_totp(secret_2fa_code)
+      passcode = generate_totp(attrs.secret_2fa_code)
 
-      response = admin_user_request("/me.enable_2fa", %{"passcode" => token})
+      response = admin_user_request("/me.enable_2fa", %{"passcode" => passcode})
 
       assert response["success"] == true
       assert response["data"]["user"]["enabled_2fa_at"] != nil
-      assert response["data"]["required_2fa"] == false
+      assert Map.has_key?(response["data"], "authentication_token")
     end
 
     test "create authorization header from the response should be able to access authenticated apis" do
-      response = admin_user_request("/me.create_secret_code")
-      secret_2fa_code = response["data"]["secret_2fa_code"]
+      user = User.get(@admin_id)
+      {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
 
-      token = generate_totp(secret_2fa_code)
-      response = admin_user_request("/me.enable_2fa", %{"passcode" => token})
+      passcode = generate_totp(attrs.secret_2fa_code)
+
+      response = admin_user_request("/me.enable_2fa", %{"passcode" => passcode})
       assert response["success"] == true
 
       user_id = response["data"]["user_id"]
@@ -106,7 +109,9 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
     end
 
     test "responds error if given passcode is invalid" do
-      admin_user_request("/me.create_secret_code", %{})
+      user = User.get(@admin_id)
+      {:ok, _} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
+
       response = admin_user_request("/me.enable_2fa", %{"passcode" => "S3CR3T"})
 
       assert response == %{
@@ -139,20 +144,22 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
 
   describe "/me.disable_2fa" do
     test "responds authentication_token if the authentication is valid and the secret code has been created" do
-      response = admin_user_request("/me.create_secret_code")
-      secret_2fa_code = response["data"]["secret_2fa_code"]
+      user = User.get(@admin_id)
+      {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
 
-      token = generate_totp(secret_2fa_code)
+      passcode = generate_totp(attrs.secret_2fa_code)
 
-      response = admin_user_request("/me.disable_2fa", %{"passcode" => token})
+      response = admin_user_request("/me.disable_2fa", %{"passcode" => passcode})
 
       assert response["success"] == true
       assert response["data"]["user"]["enabled_2fa_at"] == nil
-      assert response["data"]["required_2fa"] == false
+      assert Map.has_key?(response["data"], "authentication_token")
     end
 
     test "responds error if given passcode is invalid" do
-      admin_user_request("/me.create_secret_code", %{})
+      user = User.get(@admin_id)
+      {:ok, _} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
+
       response = admin_user_request("/me.enable_2fa", %{"passcode" => "S3CR3T"})
 
       assert response == %{
@@ -185,20 +192,24 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
 
   describe "/2fa.verify_passcode" do
     test "create authorization header from the response should be able to access the authenticated apis" do
-      response = admin_user_request("/me.create_secret_code")
-      secret_2fa_code = response["data"]["secret_2fa_code"]
+      user = User.get(@admin_id)
 
-      token = generate_totp(secret_2fa_code)
-      response = admin_user_request("/me.enable_2fa", %{"passcode" => token})
+      {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
+      {:ok, auth_token} = TwoFactorAuthenticator.enable(user, nil, :admin_api, true)
+
+      passcode = generate_totp(attrs.secret_2fa_code)
+
+      response =
+        admin_user_request("/2fa.verify_passcode", %{"passcode" => passcode},
+          user_id: user.id,
+          auth_token: auth_token.token
+        )
+
       assert response["success"] == true
 
-      response = admin_user_request("/2fa.verify_passcode", %{"passcode" => token})
-      assert response["success"] == true
+      response =
+        admin_user_request("/wallet.all", %{}, user_id: user.id, auth_token: auth_token.token)
 
-      user_id = response["data"]["user_id"]
-      auth_token = response["data"]["authentication_token"]
-
-      response = admin_user_request("/wallet.all", %{}, user_id: user_id, auth_token: auth_token)
       assert response["success"] == true
     end
   end
