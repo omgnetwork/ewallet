@@ -27,6 +27,10 @@ defmodule EWalletDB.GlobalRole do
     "super_admin" => :global,
     "admin" => %{
       account_permissions: true,
+      exchange_pairs: %{
+        all: :global,
+        get: :global
+      },
       accounts: %{
         all: :accounts,
         get: :accounts,
@@ -134,15 +138,19 @@ defmodule EWalletDB.GlobalRole do
     },
     "viewer" => %{
       account_permissions: true,
+      exchange_pairs: %{
+        all: :global,
+        get: :global
+      },
       accounts: %{all: :accounts, get: :accounts, create: :none, update: :none},
       categories: %{all: :global, get: :global, create: :none, update: :none},
       memberships: %{all: :accounts, get: :accounts, create: :none, update: :none},
       admin_users: %{
         all: :accounts,
         get: :accounts,
-        create: :none,
-        update: :none,
-        disable: :none,
+        update_password: :self,
+        update_email: :self,
+        upload_avatar: :self,
         get_account: :self,
         get_accounts: :self,
         logout: :self
@@ -211,6 +219,10 @@ defmodule EWalletDB.GlobalRole do
     },
     "end_user" => %{
       account_permissions: false,
+      exchange_pairs: %{
+        all: :global,
+        get: :global
+      },
       end_users: %{all: :self, get: :self, listen: :self, update: :self},
       tokens: %{all: :global, get: :global, create: :none, update: :none},
       account_wallets: %{

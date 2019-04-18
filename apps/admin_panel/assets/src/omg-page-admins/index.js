@@ -122,12 +122,11 @@ class UsersPage extends Component {
     )
   }
   getRow = admins => {
-    return admins.map(d => {
-      return {
-        ...d,
-        avatar: _.get(d, 'avatar.thumb')
-      }
-    })
+    return admins.map(admin => ({
+      ...admin.user,
+      role: admin.role,
+      avatar: _.get(admin, 'user.avatar.thumb')
+    }))
   }
   rowRenderer (key, data, rows) {
     switch (key) {

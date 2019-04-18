@@ -6,7 +6,7 @@ import AccountKeyFetcher from '../omg-account/accountKeyFetcher'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
-import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
+import { createSearchAdminSubKeyQuery } from '../omg-access-key/searchField'
 import AssignKeyModal from '../omg-assign-key-account-modal'
 const AccountKeySubPageContainer = styled.div``
 const AssignButton = styled(Button)`
@@ -35,7 +35,6 @@ export default withRouter(function AccountKeySubPage (props) {
         columnsAdminKeys={[
           { key: 'name', title: 'NAME' },
           { key: 'key', title: 'ACCESS KEY' },
-
           { key: 'account_role', title: 'ACCOUNT ROLE' },
           { key: 'global_role', title: 'GLOBAL ROLE' },
           { key: 'created_at', title: 'CREATED AT' },
@@ -45,7 +44,7 @@ export default withRouter(function AccountKeySubPage (props) {
           page: access_key_page,
           perPage: 10,
           accountId: props.match.params.accountId,
-          ...createSearchAdminKeyQuery(search)
+          ...createSearchAdminSubKeyQuery(search)
         }}
       />
       <AssignKeyModal

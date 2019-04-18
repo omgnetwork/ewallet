@@ -63,7 +63,7 @@ async function bootAdminPanelApp () {
   // HOT RELOADING FOR DEVELOPMENT MODE
   if (module.hot) {
     module.hot.accept('./adminPanelApp', () => {
-      render(<App />, document.getElementById('app'))
+      render(<LoadedApp />, document.getElementById('app'))
     })
     module.hot.accept('./reducer', () => {
       store.replaceReducer(require('./reducer').default)
@@ -81,7 +81,7 @@ async function bootClientApp () {
   // HOT RELOADING FOR DEVELOPMENT MODE
   if (module.hot) {
     module.hot.accept('./clientApp', () => {
-      render(<App />, document.getElementById('app'))
+      render(<LoadedApp />, document.getElementById('app'))
     })
   }
   console.log('Started client app.')
