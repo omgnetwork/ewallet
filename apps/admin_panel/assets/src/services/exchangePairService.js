@@ -21,6 +21,7 @@ export function getExchangePairById (id) {
     }
   })
 }
+
 export function updateExchangePair ({ id, rate, syncOpposite }) {
   return authenticatedRequest({
     path: '/exchange_pair.update',
@@ -31,9 +32,10 @@ export function updateExchangePair ({ id, rate, syncOpposite }) {
     }
   })
 }
-export function deleteExchangePairById (id) {
+
+export function deleteExchangePairById ({ id }) {
   return authenticatedRequest({
-    path: '/exchange_pair.update',
+    path: '/exchange_pair.delete',
     data: {
       id
     }

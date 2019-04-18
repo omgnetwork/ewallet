@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { Button } from '../omg-uikit';
+import { deleteExchangePair } from '../omg-exchange-pair/action';
 
 const DeleteExchangeModalStyle = styled.div`
   padding: 50px;
@@ -26,17 +28,22 @@ const ButtonGroup = styled.div`
   }
 `;
 
-const DeleteExchangeModal = ({ toDelete, onRequestClose }) => {
+const DeleteExchangeModal = ({ toDelete, onRequestClose, deleteExchangePair }) => {
   if (!toDelete) return null;
+
+  const [ submitting, setSubmitting ] = useState(false);
 
   const {
     from_token: { symbol: fromSymbol },
     to_token: { symbol: toSymbol },
-    rate
+    rate,
+    id
   } = toDelete;
 
-  const deletePair = () => {
-    console.log('deleting...');
+  const deletePair = async () => {
+    setSubmitting(true);
+    await deleteExchangePair({ id });
+    setSubmitting(false);
     onRequestClose();
   }
 
@@ -44,7 +51,10 @@ const DeleteExchangeModal = ({ toDelete, onRequestClose }) => {
     <DeleteExchangeModalStyle>
       {`Are you sure you want to delete\nthe exchange pair 1 ${fromSymbol} = ${_.round(rate, 3)} ${toSymbol}?`}
       <ButtonGroup>
-        <Button onClick={deletePair}>
+        <Button
+          onClick={deletePair}
+          loading={submitting}
+        >
           Delete
         </Button>
         <Button
@@ -58,4 +68,9 @@ const DeleteExchangeModal = ({ toDelete, onRequestClose }) => {
   );
 }
 
-export default DeleteExchangeModal;
+const enhance = connect(
+  null,
+  { deleteExchangePair }
+);
+
+export default enhance(DeleteExchangeModal);

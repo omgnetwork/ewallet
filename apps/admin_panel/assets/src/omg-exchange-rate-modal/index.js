@@ -19,7 +19,7 @@ const ExchangeRateModal = ({
       contentLabel={`${action}-exchange-rate-modal`}
     >
       {action === 'create'
-        ? <CreateExchangeModal {...restProps} />
+        ? <CreateExchangeModal onRequestClose={onRequestClose} {...restProps} />
         : <DeleteExchangeModal onRequestClose={onRequestClose} {...restProps} />}
     </Modal>
   );

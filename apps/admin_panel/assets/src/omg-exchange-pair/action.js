@@ -17,6 +17,19 @@ export const updateExchangePair = ({ id, rate, syncOpposite }) => async dispatch
   }
 }
 
+export const deleteExchangePair = ({ id }) => async dispatch => {
+  try {
+    const result = await exchangePairService.deleteExchangePairById({ id });
+    if (result.data.success) {
+      return dispatch({ type: 'EXCHANGE_PAIR/DELETE/SUCCESS', data: result.data.data })
+    } else {
+      return dispatch({ type: 'EXCHANGE_PAIR/DELETE/FAILED', error: result.data.data })
+    }
+  } catch (error) {
+    return dispatch({ type: 'EXCHANGE_PAIR/DELETE/FAILED', error })
+  }
+}
+
 export const createExchangePair = ({ name, toTokenId, fromTokenId, rate, syncOpposite }) => async dispatch => {
   try {
     const result = await exchangePairService.createExchangePair({
