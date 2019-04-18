@@ -24,8 +24,11 @@ export default withRouter(function AccountKeySubPage (props) {
         title='Keys'
         divider={false}
         buttons={[
+          <Button size='small' onClick={e => onClickCreateAdminKey} styleType={'secondary'}>
+            <span>Generate Admin Key</span>
+          </Button>,
           <AssignButton key='key' onClick={e => setCreateAdminKeyModalOpen(true)}>
-            Assign
+            Assign Admin Key
           </AssignButton>
         ]}
       />
