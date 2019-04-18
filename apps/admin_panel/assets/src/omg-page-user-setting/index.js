@@ -20,6 +20,14 @@ const StyledInput = styled(Input)`
 `
 const StyledEmailInput = styled(StyledInput)`
   pointer-events: none;
+  margin-top: 30px;
+  input {
+    border-bottom: none;
+  }
+`
+const StyledRoleInput = styled(StyledInput)`
+  margin-bottom: 8px;
+  pointer-events: none;
   input {
     border-bottom: none;
   }
@@ -71,6 +79,7 @@ class UserSettingPage extends Component {
   }
   state = {
     email: '',
+    globalRole: '',
     submitStatus: 'DEFAULT',
     changingPassword: false
   }
@@ -85,6 +94,7 @@ class UserSettingPage extends Component {
     if (props.loadingStatus === 'SUCCESS' && !this.state.currentUserLoaded) {
       this.setState({
         email: props.currentUser.email,
+        globalRole: props.currentUser.global_role,
         avatarPlaceholder: props.currentUser.avatar.original,
         currentUserLoaded: true
       })
@@ -168,6 +178,11 @@ class UserSettingPage extends Component {
                 value={this.state.email}
                 prefill
                 onChange={this.onChangeEmail}
+              />
+              <StyledRoleInput
+                placeholder={'Global Role'}
+                value={_.startCase(this.state.globalRole)}
+                prefill
               />
               <ChangePasswordContainer>
                 <div>Password</div>

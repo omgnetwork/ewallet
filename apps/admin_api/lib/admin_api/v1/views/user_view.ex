@@ -15,17 +15,17 @@
 defmodule AdminAPI.V1.UserView do
   use AdminAPI, :view
   alias EWallet.Web.V1.ResponseSerializer
-  alias EWallet.Web.V1.UserSerializer
+  alias EWallet.Web.V1.AdminUserSerializer
 
   def render("user.json", %{user: user}) do
     user
-    |> UserSerializer.serialize()
+    |> AdminUserSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 
   def render("users.json", %{users: users}) do
     users
-    |> UserSerializer.serialize()
+    |> AdminUserSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 
