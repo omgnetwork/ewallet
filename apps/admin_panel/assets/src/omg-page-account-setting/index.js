@@ -60,8 +60,15 @@ const CategorySelect = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  button {
-    margin-top: 20px;
+  margin-top: 20px;
+
+  .category {
+    padding-right: 20px;
+  }
+
+  .button {
+    cursor: pointer;
+    color: ${props => props.theme.colors.BL400}
   }
 `
 
@@ -270,15 +277,12 @@ class AccountSettingPage extends Component {
               prefill
             />
             <CategorySelect>
-              <div>{this.state.categorySearch}</div>
-              <Button
-                size='small'
-                key={'openModal'}
-                onClick={this.toggleModal}
-                styleType='secondary'
-              >
-                <span>{this.state.categorySearch ? 'Edit Category' : 'Add Category'}</span>
-              </Button>
+              {this.state.categorySearch && this.state.categorySearch !== 'None' && (
+                <div className='category'>{this.state.categorySearch}</div>
+              )}
+              <div className='button' onClick={this.toggleModal}>
+                {this.state.categorySearch === 'None' || !this.state.categorySearch ? 'Add Category' : 'Edit Category'}
+              </div>
             </CategorySelect>
             <Button
               size='small'
