@@ -159,7 +159,7 @@ class ApiKeyPage extends Component {
     columnsAdminKeys: [
       { key: 'name', title: 'NAME' },
       { key: 'key', title: 'ACCESS KEY' },
-
+      { key: 'account_role', title: 'ACCOUNT ROLE' },
       { key: 'global_role', title: 'GLOBAL ROLE' },
       { key: 'created_at', title: 'CREATED AT' },
       { key: 'status', title: 'STATUS' }
@@ -274,10 +274,13 @@ class ApiKeyPage extends Component {
         }}
         {...this.props}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
-          const apiKeysRows = data.map(key => {
+          const apiKeysRows = data.map((key, index) => {
+            if (key.hasOwnProperty('key')) {
+              key = key.key;
+            }
             return {
+              id: index,
               key: key.access_key,
-              id: key.id,
               user: key.account_id,
               created_at: key.created_at,
               status: key.expired,

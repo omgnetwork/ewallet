@@ -3,17 +3,17 @@ export function createSearchAdminsQuery (value = '') {
   return {
     matchAny: [
       {
-        field: 'id',
+        field: 'user.id',
         comparator: 'contains',
         value: matchValue
       },
       {
-        field: 'email',
+        field: 'user.email',
         comparator: 'contains',
         value: matchValue
       },
       {
-        field: 'username',
+        field: 'user.username',
         comparator: 'contains',
         value: matchValue
       }
