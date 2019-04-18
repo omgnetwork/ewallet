@@ -151,7 +151,8 @@ class ApiKeyPage extends Component {
     onRequestClose: PropTypes.func,
     columnsAdminKeys: PropTypes.array,
     search: PropTypes.string,
-    downloadKey: PropTypes.func
+    downloadKey: PropTypes.func,
+    accountId: PropTypes.string
   }
 
   static defaultProps = {
@@ -303,6 +304,7 @@ class ApiKeyPage extends Component {
                 pageEntity='access_key_page'
               />
               <CreateAdminKeyModal
+                accountId={this.props.accountId}
                 open={this.props.createAdminKeyModalOpen}
                 onRequestClose={this.props.onRequestClose}
                 onSubmitSuccess={this.onSubmitSuccess(fetch)}

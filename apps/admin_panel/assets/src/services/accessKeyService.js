@@ -14,12 +14,14 @@ export function getAccessKeys ({ perPage, page, matchAll, matchAny, sort }) {
   })
 }
 
-export function createAccessKey ({ name, globalRole }) {
+export function createAccessKey ({ name, globalRole, accountId, roleName }) {
   return authenticatedRequest({
     path: '/access_key.create',
     data: {
       name,
-      global_role: globalRole
+      global_role: globalRole,
+      account_id: accountId,
+      role_name: roleName
     }
   })
 }

@@ -8,6 +8,7 @@ import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import { createSearchAdminSubKeyQuery } from '../omg-access-key/searchField'
 import AssignKeyModal from '../omg-assign-key-account-modal'
+
 const AccountKeySubPageContainer = styled.div``
 const AssignButton = styled(Button)`
   padding-left: 40px;
@@ -15,21 +16,31 @@ const AssignButton = styled(Button)`
 `
 
 export default withRouter(function AccountKeySubPage (props) {
-  const [createAdminKeyModalOpen, setCreateAdminKeyModalOpen] = useState(false)
+  const [assignAdminKeyModalOpen, setAssignAdminKeyModalOpen] = useState(false)
+  const [generateAdminKeyModalOpen, setGenerateAdminKeyModalOpen] = useState(false)
   const [fetcher, setFetcher] = useState(_.noop)
+
   const { search, access_key_page } = queryString.parse(props.location.search)
+  const { accountId } = props.match.params;
+
   return (
     <AccountKeySubPageContainer>
       <TopNavigation
         title='Keys'
         divider={false}
         buttons={[
-          <AssignButton key='key' onClick={e => setCreateAdminKeyModalOpen(true)}>
+          <AssignButton key='assign' onClick={e => setAssignAdminKeyModalOpen(true)}>
             Assign
-          </AssignButton>
+          </AssignButton>,
+          <Button key='generate-admin-key' size='small' onClick={e => setGenerateAdminKeyModalOpen(true)} styleType={'secondary'}>
+            <span>Generate Admin Key</span>
+          </Button>
         ]}
       />
       <AdminKeySection
+        accountId={accountId}
+        createAdminKeyModalOpen={generateAdminKeyModalOpen}
+        onRequestClose={e => setGenerateAdminKeyModalOpen(false)}
         fetcher={AccountKeyFetcher}
         registerFetch={fetcher => setFetcher(fetcher)}
         columnsAdminKeys={[
@@ -49,9 +60,9 @@ export default withRouter(function AccountKeySubPage (props) {
       />
       <AssignKeyModal
         onSubmitSuccess={() => fetcher.fetch()}
-        open={createAdminKeyModalOpen}
+        open={assignAdminKeyModalOpen}
         accountId={props.match.params.accountId}
-        onRequestClose={() => setCreateAdminKeyModalOpen(false)}
+        onRequestClose={() => setAssignAdminKeyModalOpen(false)}
       />
     </AccountKeySubPageContainer>
   )
