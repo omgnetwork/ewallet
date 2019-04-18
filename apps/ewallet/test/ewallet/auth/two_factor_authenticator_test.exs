@@ -12,66 +12,75 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.TwoFactorAuthenticatorTest do
-  use AdminAPI.ConnCase, async: true
+defmodule EWallet.TwoFactorAuthenticatorTest do
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
   alias EWallet.TwoFactorAuthenticator
-  alias EWalletDB.{User}
+  alias EWalletDB.{User, AuthToken}
   alias Utils.Helpers.Crypto
 
   describe "verify" do
     test "returns {:ok} if the user has secret code and the given passcode is correct" do
-      response = admin_user_request("/me.create_secret_code")
-      secret_2fa_code = response["data"]["secret_2fa_code"]
+      user = insert(:user)
+
+      {:ok, %{secret_2fa_code: secret_2fa_code}} =
+        TwoFactorAuthenticator.create_and_update(user, :secret_code)
+
+      updated_user = User.get(user.id)
 
       passcode = generate_totp(secret_2fa_code)
-      user = User.get_by_email(@user_email)
-
-      assert TwoFactorAuthenticator.verify(%{"passcode" => passcode}, user) == {:ok}
+      assert TwoFactorAuthenticator.verify(%{"passcode" => passcode}, updated_user) == {:ok}
     end
 
     test "returns {:ok} if the user has hashed backup codes and the given backup code is correct" do
-      response = admin_user_request("/me.create_backup_codes")
+      user = insert(:user)
 
-      [backup_code | _] = response["data"]["backup_codes"]
-      user = User.get_by_email(@user_email)
+      {:ok, %{backup_codes: [backup_code | _]}} =
+        TwoFactorAuthenticator.create_and_update(user, :backup_codes)
 
-      assert TwoFactorAuthenticator.verify(%{"backup_code" => backup_code}, user) == {:ok}
+      updated_user = User.get(user.id)
+
+      assert TwoFactorAuthenticator.verify(%{"backup_code" => backup_code}, updated_user) == {:ok}
     end
 
     test "returns {:error, :invalid_passcode} if the user has secret code but the given passcode is incorrect" do
-      admin_user_request("/me.create_secret_code")
+      user = insert(:user)
 
-      user = User.get_by_email(@user_email)
+      TwoFactorAuthenticator.create_and_update(user, :secret_code)
 
-      assert TwoFactorAuthenticator.verify(%{"passcode" => "¯\_(ツ)_/¯"}, user) ==
+      updated_user = User.get(user.id)
+
+      assert TwoFactorAuthenticator.verify(%{"passcode" => "¯\_(ツ)_/¯"}, updated_user) ==
                {:error, :invalid_passcode}
     end
 
     test "returns {:error, :invalid_backup_code} if the user has secret code but the given passcode is incorrect" do
-      admin_user_request("/me.create_backup_codes")
+      user = insert(:user)
 
-      user = User.get_by_email(@user_email)
+      TwoFactorAuthenticator.create_and_update(user, :backup_codes, %{number_of_backup_codes: 1})
 
-      assert TwoFactorAuthenticator.verify(%{"backup_code" => "／人 ◕ ‿‿ ◕ 人＼"}, user) ==
+      updated_user = User.get(user.id)
+
+      assert TwoFactorAuthenticator.verify(%{"backup_code" => "／人 ◕ ‿‿ ◕ 人＼"}, updated_user) ==
                {:error, :invalid_backup_code}
     end
 
     test "returns {:error, :secret_code_not_found} if the user's secret code is nil" do
-      user = User.get_by_email(@user_email)
+      user = insert(:user)
 
       assert TwoFactorAuthenticator.verify(%{"passcode" => "¯\_(ツ)_/¯"}, user) ==
                {:error, :secret_code_not_found}
     end
 
     test "returns {:error, :backup_codes_not_found} if the user's hashed backup codes is nil" do
-      user = User.get_by_email(@user_email)
+      user = insert(:user)
 
       assert TwoFactorAuthenticator.verify(%{"backup_code" => "／人 ◕ ‿‿ ◕ 人＼"}, user) ==
                {:error, :backup_codes_not_found}
     end
 
     test "returns {:error, :invalid_parameter} if attributes are not matched" do
-      user = User.get_by_email(@user_email)
+      user = insert(:user)
 
       assert TwoFactorAuthenticator.verify(%{"sms_otp" => "¬_¬"}, user) ==
                {:error, :invalid_parameter}
@@ -85,23 +94,23 @@ defmodule AdminAPI.V1.TwoFactorAuthenticatorTest do
 
   describe "create_and_update" do
     test "returns {:ok, secret_code_attrs} when given :secret_code" do
-      user = User.get_by_email(@user_email)
+      user = insert(:user)
       assert {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
 
-      updated_user = User.get_by_email(@user_email)
+      updated_user = User.get(user.id)
 
       assert attrs == %{
                issuer: "OmiseGO",
-               label: @user_email,
+               label: updated_user.email,
                secret_2fa_code: updated_user.secret_2fa_code
              }
     end
 
     test "returns {:ok, backup_codes_attrs} when given :backup_codes" do
-      user = User.get_by_email(@user_email)
+      user = insert(:user)
       assert {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :backup_codes)
 
-      updated_user = User.get_by_email(@user_email)
+      updated_user = User.get(user.id)
 
       assert length(attrs.backup_codes) == 10
 
@@ -119,34 +128,32 @@ defmodule AdminAPI.V1.TwoFactorAuthenticatorTest do
   end
 
   describe "enable" do
-    test "returns an auth token with required_2fa: false" do
-      user = User.get_by_email(@user_email)
+    test "returns an auth token with required_2fa: false when enabled 2fa" do
+      user = insert(:user)
 
-      # Verify the enable_2fa response should indicate required_2fa: false
       assert {:ok, auth_token} = TwoFactorAuthenticator.enable(user, nil, :admin_api, true)
       assert auth_token.required_2fa == false
     end
 
-    test "a request with pre-enabled-2fa authorization should not be allowed to access authenticated apis" do
-      user = User.get_by_email(@user_email)
+    test "the user's `enabled_2fa_at` should not be nil when enabled 2fa" do
+      user = insert(:user)
 
-      TwoFactorAuthenticator.enable(user, nil, :admin_api, true)
+      assert {:ok, _} = TwoFactorAuthenticator.enable(user, nil, :admin_api, true)
 
-      # Verify authenticated API with pre-enabled-2fa token should not be successful
-      response = admin_user_request("/wallet.all")
-      assert response["success"] == false
+      updated_user = User.get(user.id)
+
+      assert updated_user.enabled_2fa_at != nil
     end
 
-    test "login api should return an auth token with required_2fa: true" do
-      user = User.get_by_email(@user_email)
+    test "the user's `enabled_2fa_at` should be nil when disabled 2fa" do
+      user = insert(:user)
+      auth_token = AuthToken.generate(user, :admin_api, user)
 
-      TwoFactorAuthenticator.enable(user, nil, :admin_api, true)
+      assert {:ok, _} = TwoFactorAuthenticator.enable(user, auth_token, :admin_api, false)
 
-      # Verify login response should indicate required_2fa: true
-      response =
-        unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
+      updated_user = User.get(user.id)
 
-      assert response["data"]["required_2fa"] == true
+      assert updated_user.enabled_2fa_at == nil
     end
   end
 
