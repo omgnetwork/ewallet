@@ -156,13 +156,21 @@ class WalletPage extends Component {
     this.props.history.push(`/wallets/${data.address}`)
   }
   rowRenderer (key, data, rows) {
+    if (key === 'name') {
+      return (
+        <WalletAddressContainer>
+          <Icon name='Wallet' />
+          <span>{data}</span>
+        </WalletAddressContainer>
+      )
+    }
     if (key === 'created_at') {
       return moment(data).format()
     }
     if (key === 'identifier') {
       return (
         <WalletAddressContainer>
-          <Icon name='Wallet' /> <span>{data.split('_')[0]}</span>
+          <span>{data.split('_')[0]}</span>
         </WalletAddressContainer>
       )
     }
