@@ -36,10 +36,16 @@ const ContentContainer = styled.div`
   width: 100%;
 `
 
-const EditButton = styled.span`
-  cursor: pointer;
-  color: ${props => props.theme.colors.BL300};
+const ActionButtons = styled.div`
   float: right;
+  display: flex;
+  flex-direction: row;
+
+  .button {
+    cursor: pointer;
+    color: ${props => props.theme.colors.BL300};
+    padding-left: 20px;
+  }
 `
 
 const enhance = compose(
@@ -57,13 +63,18 @@ class TokenDetailPage extends Component {
   }
   state = {
     mintTokenModalOpen: false,
+    exchangeRateModalOpen: false,
+    deleteExchangeRateModalOpen: false,
     exchangeRateToEdit: null,
+    exchangeRateToDelete: null,
   }
   onRequestClose = () => {
     this.setState({
       mintTokenModalOpen: false,
       exchangeRateModalOpen: false,
-      exchangeRateToEdit: null
+      deleteExchangeRateModalOpen: false,
+      exchangeRateToEdit: null,
+      exchangeRateToDelete: null,
     })
   }
   onClickMintTopen = e => {
@@ -86,11 +97,17 @@ class TokenDetailPage extends Component {
       })
     }
   }
-  editExchangeRate = (pair) => {
+  editExchangePair = (pair) => {
     this.setState({
       exchangeRateModalOpen: true,
       exchangeRateToEdit: pair
     })
+  }
+  deleteExchangePair = (pair) => {
+    this.setState({
+      deleteExchangeRateModalOpen: true,
+      exchangeRateToDelete: pair
+    });
   }
   renderTopBar = token => {
     return (
@@ -179,10 +196,17 @@ class TokenDetailPage extends Component {
                 onSuccess={this.onMintTokenSuccess}
               />
               <ExchangeRateModal
+                action='create'
                 onRequestClose={this.onRequestClose}
                 open={this.state.exchangeRateModalOpen}
                 fromTokenId={token.id}
                 toEdit={this.state.exchangeRateToEdit}
+              />
+              <ExchangeRateModal
+                action='delete'
+                open={this.state.deleteExchangeRateModalOpen}
+                onRequestClose={this.onRequestClose}
+                toDelete={this.state.exchangeRateToDelete}
               />
             </div>
           ) : null
@@ -207,11 +231,14 @@ class TokenDetailPage extends Component {
                       <span>
                         {pair.rate} {_.get(pair, 'to_token.symbol')}
                       </span>
-                      <EditButton
-                        onClick={() => this.editExchangeRate(pair)}
-                      >
-                        Edit
-                      </EditButton>
+                      <ActionButtons>
+                        <div className='button' onClick={() => this.editExchangePair(pair)}>
+                          Edit
+                        </div>
+                        <div className='button' onClick={() => this.deleteExchangePair(pair)}>
+                          Delete
+                        </div>
+                      </ActionButtons>
                     </DetailGroup>
                   )
                 })}
