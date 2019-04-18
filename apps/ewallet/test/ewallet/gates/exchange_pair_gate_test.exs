@@ -202,4 +202,53 @@ defmodule EWallet.ExchangePairGateTest do
       assert code == :exchange_pair_id_not_found
     end
   end
+
+  describe "add_opposite_pairs/1" do
+    test "adds the opposite pairs infos to the given list of exchange pairs and keep the order" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      token_3 = insert(:token)
+      token_4 = insert(:token)
+
+      pair_1 = insert(:exchange_pair, from_token: token_1, to_token: token_2)
+      pair_2 = insert(:exchange_pair, from_token: token_1, to_token: token_3)
+      pair_3 = insert(:exchange_pair, from_token: token_1, to_token: token_4)
+      pair_4 = insert(:exchange_pair, from_token: token_2, to_token: token_3)
+
+      opp_pair_1 = insert(:exchange_pair, from_token: token_2, to_token: token_1)
+      opp_pair_2 = insert(:exchange_pair, from_token: token_3, to_token: token_1)
+
+      updated_pairs = ExchangePairGate.add_opposite_pairs([pair_1, pair_2, pair_3, pair_4])
+
+      updated_pair_1 = Enum.at(updated_pairs, 0)
+      updated_pair_2 = Enum.at(updated_pairs, 1)
+      updated_pair_3 = Enum.at(updated_pairs, 2)
+      updated_pair_4 = Enum.at(updated_pairs, 3)
+
+      assert updated_pair_1.uuid == pair_1.uuid
+      assert updated_pair_2.uuid == pair_2.uuid
+      assert updated_pair_3.uuid == pair_3.uuid
+      assert updated_pair_4.uuid == pair_4.uuid
+
+      assert updated_pair_1.opposite_exchange_pair.uuid == opp_pair_1.uuid
+      assert updated_pair_2.opposite_exchange_pair.uuid == opp_pair_2.uuid
+      assert updated_pair_3.opposite_exchange_pair == nil
+      assert updated_pair_4.opposite_exchange_pair == nil
+    end
+  end
+
+  describe "add_opposite_pair/1" do
+    test "adds the opposite pair infos to an exchange pair" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      pair_1 = insert(:exchange_pair, from_token: token_1, to_token: token_2)
+
+      opp_pair = insert(:exchange_pair, from_token: token_2, to_token: token_1)
+
+      updated_pair = ExchangePairGate.add_opposite_pair(pair_1)
+
+      assert updated_pair.opposite_exchange_pair.uuid == opp_pair.uuid
+    end
+  end
 end

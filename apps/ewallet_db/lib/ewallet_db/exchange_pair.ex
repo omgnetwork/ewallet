@@ -37,11 +37,12 @@ defmodule EWalletDB.ExchangePair do
   use EWalletDB.SoftDelete
   use ActivityLogger.ActivityLogging
   use Utils.Types.ExternalID
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
   import EWalletDB.Validator
   alias Ecto.UUID
+  alias Ecto.Query
   alias EWalletDB.{Repo, Token}
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -203,6 +204,32 @@ defmodule EWalletDB.ExchangePair do
   def get_name(exchange_pair) do
     exchange_pair = Repo.preload(exchange_pair, [:from_token, :to_token])
     exchange_pair.from_token.symbol <> "/" <> exchange_pair.to_token.symbol
+  end
+
+  @spec get_opposite_pairs([%__MODULE__{}]) :: [%__MODULE__{}]
+  def get_opposite_pairs([]), do: []
+
+  def get_opposite_pairs(exchange_pairs) do
+    exchange_pairs
+    |> Enum.reduce(__MODULE__, fn x, query ->
+      or_where(
+        query,
+        [e],
+        e.from_token_uuid == ^x.to_token_uuid and e.to_token_uuid == ^x.from_token_uuid
+      )
+    end)
+    |> Query.preload([:from_token, :to_token])
+    |> Repo.all()
+  end
+
+  def get_opposite_pair(exchange_pair) do
+    __MODULE__.get_by(
+      %{
+        from_token_uuid: exchange_pair.to_token_uuid,
+        to_token_uuid: exchange_pair.from_token_uuid
+      },
+      preload: [:from_token, :to_token]
+    )
   end
 
   @doc """

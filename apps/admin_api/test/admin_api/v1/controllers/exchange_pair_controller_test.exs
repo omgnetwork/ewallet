@@ -58,6 +58,26 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       assert Enum.at(exchange_pairs, 2)["id"] == "exg_aaaaa111111111111111111111"
     end
 
+    test_with_auths "returns a list of exchange pairs including their opposite pairs" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      pair_1 = insert(:exchange_pair, %{from_token: token_1, to_token: token_2})
+      pair_2 = insert(:exchange_pair, %{from_token: token_2, to_token: token_1})
+
+      response = request("/exchange_pair.all", %{})
+      exchange_pairs = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(exchange_pairs) == 2
+
+      assert Enum.at(exchange_pairs, 0)["opposite_exchange_pair_id"] == pair_2.id
+      assert Enum.at(exchange_pairs, 0)["opposite_exchange_pair"]["id"] == pair_2.id
+
+      assert Enum.at(exchange_pairs, 1)["opposite_exchange_pair_id"] == pair_1.id
+      assert Enum.at(exchange_pairs, 1)["opposite_exchange_pair"]["id"] == pair_1.id
+    end
+
     test_supports_match_any("/exchange_pair.all", :exchange_pair, :id)
     test_supports_match_all("/exchange_pair.all", :exchange_pair, :id)
   end
@@ -73,6 +93,22 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       assert response["success"]
       assert response["data"]["object"] == "exchange_pair"
       assert response["data"]["id"] == target.id
+    end
+
+    test_with_auths "returns an exchange pairs including its opposite pair" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      pair_1 = insert(:exchange_pair, %{from_token: token_1, to_token: token_2})
+      pair_2 = insert(:exchange_pair, %{from_token: token_2, to_token: token_1})
+
+      response = request("/exchange_pair.get", %{"id" => pair_1.id})
+      exchange_pair = response["data"]
+
+      assert response["success"]
+
+      assert exchange_pair["opposite_exchange_pair_id"] == pair_2.id
+      assert exchange_pair["opposite_exchange_pair"]["id"] == pair_2.id
     end
 
     test_with_auths "returns :invalid_parameter error when id is not given" do
@@ -149,6 +185,12 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       assert opposite["from_token_id"] == request_data.to_token_id
       assert opposite["to_token_id"] == request_data.from_token_id
       assert opposite["rate"] == 1 / 2.0
+
+      assert pair["opposite_exchange_pair_id"] == opposite["id"]
+      assert pair["opposite_exchange_pair"]["id"] == opposite["id"]
+
+      assert opposite["opposite_exchange_pair_id"] == pair["id"]
+      assert opposite["opposite_exchange_pair"]["id"] == pair["id"]
     end
 
     test_with_auths "returns client:invalid_parameter error if given an exchange rate of 0" do
@@ -337,9 +379,15 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       assert pair["id"] == exchange_pair.id
       assert pair["rate"] == 1000
 
-      pair = Enum.at(response["data"]["data"], 1)
-      assert pair["id"] == opposite_pair.id
-      assert pair["rate"] == 1 / 1000
+      opposite = Enum.at(response["data"]["data"], 1)
+      assert opposite["id"] == opposite_pair.id
+      assert opposite["rate"] == 1 / 1000
+
+      assert pair["opposite_exchange_pair_id"] == opposite["id"]
+      assert pair["opposite_exchange_pair"]["id"] == opposite["id"]
+
+      assert opposite["opposite_exchange_pair_id"] == pair["id"]
+      assert opposite["opposite_exchange_pair"]["id"] == pair["id"]
     end
 
     test_with_auths "reverts and returns error if sync_opposite: true but opposite pair is not found" do
@@ -504,9 +552,15 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       assert pair["object"] == "exchange_pair"
       assert pair["deleted_at"] != nil
 
-      pair = Enum.at(response["data"]["data"], 1)
-      assert pair["object"] == "exchange_pair"
-      assert pair["deleted_at"] != nil
+      opposite = Enum.at(response["data"]["data"], 1)
+      assert opposite["object"] == "exchange_pair"
+      assert opposite["deleted_at"] != nil
+
+      assert pair["opposite_exchange_pair_id"] == opposite["id"]
+      assert pair["opposite_exchange_pair"]["id"] == opposite["id"]
+
+      assert opposite["opposite_exchange_pair_id"] == pair["id"]
+      assert opposite["opposite_exchange_pair"]["id"] == pair["id"]
     end
 
     test_with_auths "reverts and returns error if sync_opposite: true but opposite pair is not found" do

@@ -16,13 +16,14 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.Paginator
+  alias EWallet.ExchangePairGate
   alias EWallet.Web.V1.{ExchangePairSerializer, TokenSerializer}
   alias EWalletDB.ExchangePair
   alias Utils.Helpers.DateFormatter
 
   describe "serialize/1" do
     test "serializes an exchange pair into V1 response format" do
-      exchange_pair = insert(:exchange_pair)
+      exchange_pair = :exchange_pair |> insert() |> ExchangePairGate.add_opposite_pair()
 
       expected = %{
         object: "exchange_pair",
@@ -46,8 +47,12 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
     test "serializes an exchange pair and its opposite into V1 response format" do
       token_1 = insert(:token)
       token_2 = insert(:token)
-      exchange_pair = insert(:exchange_pair, from_token: token_1, to_token: token_2)
       opposite_pair = insert(:exchange_pair, from_token: token_2, to_token: token_1)
+
+      exchange_pair =
+        :exchange_pair
+        |> insert(%{from_token: token_1, to_token: token_2})
+        |> ExchangePairGate.add_opposite_pair()
 
       expected = %{
         object: "exchange_pair",
@@ -81,8 +86,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
     end
 
     test "serializes an exchange pair paginator into a list object" do
-      exchange_pair1 = insert(:exchange_pair)
-      exchange_pair2 = insert(:exchange_pair)
+      exchange_pair1 = :exchange_pair |> insert() |> ExchangePairGate.add_opposite_pair()
+      exchange_pair2 = :exchange_pair |> insert() |> ExchangePairGate.add_opposite_pair()
 
       paginator = %Paginator{
         data: [exchange_pair1, exchange_pair2],
