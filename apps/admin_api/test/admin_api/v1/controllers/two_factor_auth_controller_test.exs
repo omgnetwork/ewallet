@@ -198,7 +198,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
       user_id = response["data"]["user_id"]
       auth_token = response["data"]["authentication_token"]
 
-      response = admin_user_request("/wallet.all", %{}, [user_id: user_id, auth_token: auth_token])
+      response = admin_user_request("/wallet.all", %{}, user_id: user_id, auth_token: auth_token)
       assert response["success"] == true
     end
   end
