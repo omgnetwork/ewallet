@@ -193,7 +193,7 @@ class CreateExchangeRateModal extends Component {
     this.setState({ submitting: true })
     try {
       const baseKeys = {
-        rate: formatAmount(this.state.toTokenRate, 1) / formatAmount(this.state.fromTokenRate, 1),
+        rate: this.state.toTokenRate / this.state.fromTokenRate,
         syncOpposite: !this.state.onlyOneWayExchange
       }
       const result = this.state.editing
@@ -391,7 +391,7 @@ class CreateExchangeRateModal extends Component {
               <SyncContainer>
                 {`*The opposite exchange rate of 1 ${oppositeExchangePair.from_token.symbol} 
                 = ${_.round(oppositeExchangePair.rate, 3)} ${oppositeExchangePair.to_token.symbol} 
-                currently exists. Would you like to sync this opposite rate?`}
+                currently exists. Would you like to sync the opposite rate with the above rates?`}
               </SyncContainer>
             )}
 
