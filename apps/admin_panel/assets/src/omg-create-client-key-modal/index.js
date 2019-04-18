@@ -47,6 +47,10 @@ const CreateClientKeyFormContainer = styled.form`
 const StyledInput = styled(Input)`
   margin-bottom: 30px;
 `
+const InputLabel = styled.div`
+  text-align: left;
+  margin-bottom: 5px;
+`
 const enhance = compose(
   withRouter,
   connect(
@@ -93,9 +97,10 @@ function CreateClientKeyModal (props) {
         <Icon name='Close' onClick={onRequestClose} />
         <CreateClientKeyFormContainer>
           <h4>Create Client Key</h4>
+          <InputLabel>Label</InputLabel>
           <StyledInput
             autoFocus
-            placeholder='Label'
+            normalPlaceholder='Label (Optional)'
             onChange={e => setName(e.target.value)}
             value={name}
           />

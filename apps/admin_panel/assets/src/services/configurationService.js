@@ -27,7 +27,8 @@ export function updateConfiguration ({
   awsSecretAccessKey,
   balanceCachingStrategy,
   balanceCachingResetFrequency,
-  forgetPasswordRequestLifetime
+  forgetPasswordRequestLifetime,
+  masterAccount
 }) {
   const omittedObject = _.omitBy(
     {
@@ -55,7 +56,8 @@ export function updateConfiguration ({
       aws_secret_access_key: awsSecretAccessKey,
       balance_caching_strategy: balanceCachingStrategy,
       balance_caching_reset_frequency: Number(balanceCachingResetFrequency),
-      forget_password_request_lifetime: Number(forgetPasswordRequestLifetime)
+      forget_password_request_lifetime: Number(forgetPasswordRequestLifetime),
+      master_account: masterAccount
     },
     value => _.isNil(value) || _.isNaN(value) || value === 0
   )

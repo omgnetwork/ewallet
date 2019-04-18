@@ -9,7 +9,6 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
-import AccountUsersWalletsFetcher from '../omg-wallet/accountUsersWalletsFetcher'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
 import { selectWalletById } from '../omg-wallet/selector'
@@ -231,9 +230,9 @@ class CreateTransaction extends Component {
   getBalanceOfSelectedToken = type => {
     return this.state[`${type}Selected`]
       ? formatReceiveAmountToTotal(
-          _.get(this.state[`${type}Selected`], 'amount'),
-          _.get(this.state[`${type}Selected`], 'token.subunit_to_unit')
-        )
+        _.get(this.state[`${type}Selected`], 'amount'),
+        _.get(this.state[`${type}Selected`], 'token.subunit_to_unit')
+      )
       : '-'
   }
 
@@ -243,7 +242,7 @@ class CreateTransaction extends Component {
       <FromToContainer>
         <h5>From</h5>
         <InputLabel>From Address</InputLabel>
-        <AccountUsersWalletsFetcher
+        <AllWalletsFetcher
           accountId={this.props.match.params.accountId}
           owned={false}
           query={createSearchAddressQuery(this.state.fromAddress)}
