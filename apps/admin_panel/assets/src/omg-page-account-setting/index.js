@@ -121,9 +121,9 @@ class AccountSettingPage extends Component {
   componentDidMount () {
     this.setInitialAccountState()
   }
-  async setInitialAccountState () {
+  setInitialAccountState = async () => {
     const { currentAccount } = this.props;
-    if (currentAccount) {
+    if (!_.isEmpty(currentAccount)) {
       this.setState({
         name: currentAccount.name,
         description: currentAccount.description,
