@@ -128,11 +128,12 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
   end
 
   describe "enable" do
-    test "returns an auth token with required_2fa: false when enabled 2fa" do
+    test "returns an auth token when enabled 2fa" do
       user = insert(:user)
 
       assert {:ok, auth_token} = TwoFactorAuthenticator.enable(user, nil, :admin_api, true)
-      assert auth_token.required_2fa == false
+      assert auth_token.token != nil
+      assert auth_token.pre_token == nil
     end
 
     test "the user's `enabled_2fa_at` should not be nil when enabled 2fa" do
@@ -147,7 +148,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
 
     test "the user's `enabled_2fa_at` should be nil when disabled 2fa" do
       user = insert(:user)
-      auth_token = AuthToken.generate(user, :admin_api, user)
+      auth_token = AuthToken.generate_token(user, :admin_api, user)
 
       assert {:ok, _} = TwoFactorAuthenticator.enable(user, auth_token, :admin_api, false)
 

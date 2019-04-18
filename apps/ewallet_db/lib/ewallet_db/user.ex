@@ -766,4 +766,9 @@ defmodule EWalletDB.User do
     |> disable_2fa_changeset()
     |> Repo.update_record_with_activity_log()
   end
+
+  # Convenent function to check if the user has been enabled 2FA.
+  def enabled_2fa?(user) do
+    user.enabled_2fa_at != nil
+  end
 end

@@ -33,6 +33,7 @@ defmodule EWalletDB.AuthToken do
     external_id(prefix: "atk_")
 
     field(:token, :string)
+    field(:pre_token, :string)
     field(:owner_app, :string)
 
     belongs_to(
@@ -51,7 +52,6 @@ defmodule EWalletDB.AuthToken do
       type: UUID
     )
 
-    field(:required_2fa, :boolean, default: false)
     field(:expired, :boolean)
     timestamps()
     activity_logging()
@@ -61,7 +61,7 @@ defmodule EWalletDB.AuthToken do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:token, :owner_app, :user_uuid, :required_2fa, :account_uuid, :expired],
+      cast: [:token, :owner_app, :user_uuid, :pre_token, :account_uuid, :expired],
       required: [:token, :owner_app, :user_uuid]
     )
     |> unique_constraint(:token)
@@ -101,30 +101,44 @@ defmodule EWalletDB.AuthToken do
   Generate an auth token for the specified user,
   then returns the auth token string.
   """
-  def generate(user, owner_app, originator, is_2fa_token \\ false)
+  def generate_token(user, owner_app, originator) do
+    generate(
+      %{
+        token: Crypto.generate_base64_key(@key_length)
+      },
+      user,
+      owner_app,
+      originator
+    )
+  end
 
-  def generate(%User{} = user, owner_app, originator, is_2fa_token) when is_atom(owner_app) do
-    attrs = %{
+  @doc """
+  Generate a pre auth token for the specified user to be used for verify two factor auth,
+  then returns the pre auth token string.
+  """
+  def generate_pre_token(user, owner_app, originator) do
+    generate(
+      %{
+        pre_token: Crypto.generate_base64_key(@key_length)
+      },
+      user,
+      owner_app,
+      originator
+    )
+  end
+
+  defp generate(attrs, %User{} = user, owner_app, originator) when is_atom(owner_app) do
+    %{
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: nil,
-      required_2fa: is_required_2fa(user, is_2fa_token),
-      token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
-
-    insert(attrs)
+    |> Map.merge(attrs)
+    |> insert()
   end
 
-  def generate(_, _, _, _), do: {:error, :invalid_parameter}
-
-  defp is_required_2fa(%User{enabled_2fa_at: nil}, _is_2fa_token) do
-    false
-  end
-
-  defp is_required_2fa(_user, is_2fa_token) do
-    !is_2fa_token
-  end
+  defp generate(_, _, _, _), do: {:error, :invalid_parameter}
 
   @doc """
   Retrieves an auth token using the specified token.
@@ -160,13 +174,13 @@ defmodule EWalletDB.AuthToken do
       %{expired: true} ->
         :token_expired
 
-      %{required_2fa: true} ->
-        Repo.preload(token, :user)
-
-      token ->
+      %{pre_token: nil} ->
         token
         |> Repo.preload(:user)
         |> Map.get(:user)
+
+      token ->
+        Repo.preload(token, :user)
     end
   end
 
@@ -233,13 +247,12 @@ defmodule EWalletDB.AuthToken do
     :ok
   end
 
-  def set_required_2fa_for_user(user, required_2fa) do
-    Repo.update_all(
+  def delete_for_user(user) do
+    Repo.delete_all(
       from(
         a in AuthToken,
         where: a.user_uuid == ^user.uuid
-      ),
-      set: [required_2fa: required_2fa]
+      )
     )
 
     :ok

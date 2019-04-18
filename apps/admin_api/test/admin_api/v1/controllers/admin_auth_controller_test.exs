@@ -36,7 +36,6 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "account_id" => nil,
           "account" => nil,
           "master_admin" => nil,
-          "required_2fa" => false,
           "role" => nil,
           "global_role" => auth_token.user.global_role
         }
@@ -68,7 +67,6 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "account_id" => nil,
           "account" => nil,
           "master_admin" => nil,
-          "required_2fa" => false,
           "role" => nil,
           "global_role" => auth_token.user.global_role
         }
@@ -102,7 +100,6 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
           "account" => nil,
           "master_admin" => nil,
           "role" => nil,
-          "required_2fa" => false,
           "global_role" => auth_token.user.global_role
         }
       }

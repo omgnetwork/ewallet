@@ -26,12 +26,11 @@ defmodule EWallet.TwoFactorAuthenticator do
   - create_and_update:
     - Update hashed_backup_codes or secret_2fa_code for user entity.
   - enable:
-    - Update `required_2fa` to `true` for all auth tokens belong to this user. (all tokens cannot be used anymore.)
+    - Remove all auth tokens belong to this user. (all existed tokens cannot be used anymore.)
     - Update `enabled_2fa_at` to the current naive date time for user entity.
-    - Generate new auth_token with `required_2fa` `false`. (this token is 2FA authenticated. Use this token instead.)
+    - Create a new auth_token. (The client must upgrade to this token)
   - disable:
     - Clear `enabled_2fa_at`, `hashed_backup_codes`, `secret_2fa_code` for user entity.
-    - Update `required_2fa` to `false` for the current auth token. (this token can still be used)
   """
 
   @number_of_backup_codes 10
@@ -108,8 +107,8 @@ defmodule EWallet.TwoFactorAuthenticator do
   # Enable 2FA
   def enable(%User{} = user, _, owner_app, true) do
     with {:ok, updated_user} = User.enable_2fa(user),
-         :ok <- AuthToken.set_required_2fa_for_user(user, true) do
-      AuthToken.generate(updated_user, owner_app, updated_user, true)
+         :ok <- AuthToken.delete_for_user(user) do
+      AuthToken.generate_token(updated_user, owner_app, updated_user)
     else
       error -> error
     end
@@ -117,8 +116,7 @@ defmodule EWallet.TwoFactorAuthenticator do
 
   # Disable 2FA
   def enable(%User{} = user, token_string, owner_app, false) do
-    with {:ok, updated_user} <- User.disable_2fa(user),
-         :ok <- AuthToken.set_required_2fa_for_user(updated_user, false) do
+    with {:ok, updated_user} <- User.disable_2fa(user) do
       {:ok, AuthToken.get_by_token(token_string, owner_app)}
     else
       error -> error

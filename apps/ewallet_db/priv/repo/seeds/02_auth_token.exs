@@ -27,7 +27,7 @@ defmodule EWalletDB.Repo.Seeds.AuthTokenSeed do
     user = User.get_by_email(args[:admin_email])
     owner_app = :admin_api
 
-    case AuthToken.generate(user, owner_app, %Seeder{}) do
+    case AuthToken.generate_token(user, owner_app, %Seeder{}) do
       {:ok, token} ->
         {:ok, token} = Preloader.preload_one(token, :user)
 

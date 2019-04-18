@@ -31,12 +31,20 @@ defmodule AdminAPI.V1.AdminAuthController do
          true <- conn.assigns.authenticated || {:error, :invalid_login_credentials},
          true <- User.get_status(conn.assigns.admin_user) == :active || {:error, :invite_pending},
          originator <- Originator.extract(conn.assigns),
-         {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api, originator),
+         {:ok, auth_token} <- generate_auth_token(conn.assigns.admin_user, originator),
          {:ok, auth_token} <- Orchestrator.one(auth_token, AuthTokenOverlay, attrs) do
       render_token(conn, auth_token)
     else
       {:error, code} when is_atom(code) ->
         handle_error(conn, code)
+    end
+  end
+
+  defp generate_auth_token(%User{} = admin_user, originator) do
+    if User.enabled_2fa?(admin_user) do
+      AuthToken.generate_pre_token(admin_user, :admin_api, originator)
+    else
+      AuthToken.generate_token(admin_user, :admin_api, originator)
     end
   end
 

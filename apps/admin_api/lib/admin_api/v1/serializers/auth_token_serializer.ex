@@ -19,10 +19,23 @@ defmodule AdminAPI.V1.AuthTokenSerializer do
   alias EWallet.Web.V1.UserSerializer
   alias Utils.Helpers.Assoc
 
+  def serialize(%{pre_token: pre_token} = auth_token) when not is_nil(pre_token) do
+    %{
+      object: "authentication_token",
+      pre_authentication_token: auth_token.pre_token,
+      user_id: Assoc.get(auth_token, [:user, :id]),
+      user: UserSerializer.serialize(auth_token.user),
+      account_id: nil,
+      account: nil,
+      master_admin: nil,
+      role: nil,
+      global_role: Assoc.get(auth_token, [:user, :global_role])
+    }
+  end
+
   def serialize(auth_token) do
     %{
       object: "authentication_token",
-      required_2fa: auth_token.required_2fa,
       authentication_token: auth_token.token,
       user_id: Assoc.get(auth_token, [:user, :id]),
       user: UserSerializer.serialize(auth_token.user),

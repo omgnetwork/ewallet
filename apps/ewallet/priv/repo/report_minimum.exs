@@ -29,7 +29,7 @@ admin_api_swagger_ui_url = base_url <> "/api/admin/docs"
 api_key_id              = Application.get_env(:ewallet, :seed_admin_api_key).id
 api_key                 = Application.get_env(:ewallet, :seed_admin_api_key).key
 admin                   = Application.get_env(:ewallet, :seed_admin_user)
-{:ok, admin_auth_token} = AuthToken.generate(admin, :admin_api, %Seeder{})
+{:ok, admin_auth_token} = AuthToken.generate_token(admin, :admin_api, %Seeder{})
 
 # Output the seeding result
 CLI.heading("Setting up the OmiseGO eWallet Server")

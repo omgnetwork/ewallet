@@ -26,7 +26,7 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
          {:ok, user} <- verify_user_2fa_enabled(auth_params),
          {:ok, _} <- authorize(:verify, auth_params, user),
          {:ok} <- TwoFactorAuthenticator.verify(attrs, user),
-         {:ok, token} = AuthToken.generate(user, :admin_api, user, true),
+         {:ok, token} = AuthToken.generate_token(user, :admin_api, user),
          {:ok, token} <- Orchestrator.one(token, AuthTokenOverlay, attrs) do
       render(conn, :auth_token, %{auth_token: token})
     else
