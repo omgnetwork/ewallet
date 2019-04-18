@@ -66,16 +66,17 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       pair_2 = insert(:exchange_pair, %{from_token: token_2, to_token: token_1})
 
       response = request("/exchange_pair.all", %{})
+      assert response["success"]
+
       exchange_pairs = response["data"]["data"]
 
-      assert response["success"]
       assert Enum.count(exchange_pairs) == 2
 
-      assert Enum.at(exchange_pairs, 0)["opposite_exchange_pair_id"] == pair_2.id
-      assert Enum.at(exchange_pairs, 0)["opposite_exchange_pair"]["id"] == pair_2.id
+      assert Enum.any?(exchange_pairs, fn exg -> exg["opposite_exchange_pair_id"] == pair_2.id end)
+      assert Enum.any?(exchange_pairs, fn exg -> exg["opposite_exchange_pair"]["id"] == pair_2.id end)
 
-      assert Enum.at(exchange_pairs, 1)["opposite_exchange_pair_id"] == pair_1.id
-      assert Enum.at(exchange_pairs, 1)["opposite_exchange_pair"]["id"] == pair_1.id
+      assert Enum.any?(exchange_pairs, fn exg -> exg["opposite_exchange_pair_id"] == pair_1.id end)
+      assert Enum.any?(exchange_pairs, fn exg -> exg["opposite_exchange_pair"]["id"] == pair_1.id end)
     end
 
     test_supports_match_any("/exchange_pair.all", :exchange_pair, :id)
@@ -555,12 +556,6 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       opposite = Enum.at(response["data"]["data"], 1)
       assert opposite["object"] == "exchange_pair"
       assert opposite["deleted_at"] != nil
-
-      assert pair["opposite_exchange_pair_id"] == opposite["id"]
-      assert pair["opposite_exchange_pair"]["id"] == opposite["id"]
-
-      assert opposite["opposite_exchange_pair_id"] == pair["id"]
-      assert opposite["opposite_exchange_pair"]["id"] == pair["id"]
     end
 
     test_with_auths "reverts and returns error if sync_opposite: true but opposite pair is not found" do

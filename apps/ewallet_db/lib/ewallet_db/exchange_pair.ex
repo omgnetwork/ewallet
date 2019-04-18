@@ -218,6 +218,7 @@ defmodule EWalletDB.ExchangePair do
         e.from_token_uuid == ^x.to_token_uuid and e.to_token_uuid == ^x.from_token_uuid
       )
     end)
+    |> exclude_deleted()
     |> Query.preload([:from_token, :to_token])
     |> Repo.all()
   end
