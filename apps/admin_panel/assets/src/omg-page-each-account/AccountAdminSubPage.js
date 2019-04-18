@@ -25,7 +25,7 @@ export default withRouter(
           columns={[
             { key: 'id', title: 'ADMIN ID', sort: true },
             { key: 'email', title: 'EMAIL', sort: true },
-            { key: 'account_role', title: 'ROLE', sort: true },
+            { key: 'role', title: 'ROLE', sort: true },
             { key: 'status', title: 'STATUS', sort: true }
           ]}
         />
