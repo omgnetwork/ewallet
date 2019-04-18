@@ -34,6 +34,24 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
   end
 
   def serialize(%ExchangePair{} = exchange_pair) do
+    exchange_pair = Map.put_new(exchange_pair, :opposite_exchange_pair, nil)
+
+    exchange_pair
+    |> serialize_without_opposite_pair()
+    |> Map.put(
+      :opposite_exchange_pair_id,
+      get_opposite_pair_id(exchange_pair.opposite_exchange_pair)
+    )
+    |> Map.put(
+      :opposite_exchange_pair,
+      serialize_without_opposite_pair(exchange_pair.opposite_exchange_pair)
+    )
+  end
+
+  def serialize(%NotLoaded{}), do: nil
+  def serialize(nil), do: nil
+
+  def serialize_without_opposite_pair(%ExchangePair{} = exchange_pair) do
     %{
       object: "exchange_pair",
       id: exchange_pair.id,
@@ -49,6 +67,9 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
     }
   end
 
-  def serialize(%NotLoaded{}), do: nil
-  def serialize(nil), do: nil
+  def serialize_without_opposite_pair(%NotLoaded{}), do: nil
+  def serialize_without_opposite_pair(nil), do: nil
+
+  defp get_opposite_pair_id(nil), do: nil
+  defp get_opposite_pair_id(exchange_pair), do: exchange_pair.id
 end
