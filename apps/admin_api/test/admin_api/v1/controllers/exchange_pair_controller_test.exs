@@ -73,10 +73,16 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       assert Enum.count(exchange_pairs) == 2
 
       assert Enum.any?(exchange_pairs, fn exg -> exg["opposite_exchange_pair_id"] == pair_2.id end)
-      assert Enum.any?(exchange_pairs, fn exg -> exg["opposite_exchange_pair"]["id"] == pair_2.id end)
+
+      assert Enum.any?(exchange_pairs, fn exg ->
+               exg["opposite_exchange_pair"]["id"] == pair_2.id
+             end)
 
       assert Enum.any?(exchange_pairs, fn exg -> exg["opposite_exchange_pair_id"] == pair_1.id end)
-      assert Enum.any?(exchange_pairs, fn exg -> exg["opposite_exchange_pair"]["id"] == pair_1.id end)
+
+      assert Enum.any?(exchange_pairs, fn exg ->
+               exg["opposite_exchange_pair"]["id"] == pair_1.id
+             end)
     end
 
     test_supports_match_any("/exchange_pair.all", :exchange_pair, :id)
