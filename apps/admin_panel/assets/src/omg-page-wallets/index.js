@@ -1,16 +1,19 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
+import moment from 'moment'
+import queryString from 'query-string'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
-import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
-import moment from 'moment'
-import queryString from 'query-string'
 import { selectWallets } from '../omg-wallet/selector'
 import Copy from '../omg-copy'
 import CreateTransactionModal from '../omg-create-transaction-modal'
+import CreateWalletModal from '../omg-create-wallet-modal'
+
 const WalletPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -19,7 +22,7 @@ const WalletPageContainer = styled.div`
     flex: 1;
   }
   td:nth-child(1) {
-    width: 40%;
+    width: 25%;
     border: none;
     position: relative;
     :before {
@@ -35,13 +38,13 @@ const WalletPageContainer = styled.div`
   td:nth-child(2),
   td:nth-child(3),
   td:nth-child(4) {
-    width: 20%;
+    width: 25%;
   }
   tbody td:first-child {
     border-bottom: none;
   }
 `
-const TransferButton = styled(Button)`
+const ActionButton = styled(Button)`
   padding-left: 40px;
   padding-right: 40px;
 `
@@ -88,31 +91,49 @@ class WalletPage extends Component {
     title: 'Wallets'
   }
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      transferModalOpen: false
-    }
+  state = {
+    transferModalOpen: false,
+    createWalletModalOpen: false
   }
+
   onClickTransfer = () => {
     this.setState({ transferModalOpen: true })
   }
+  onClickCreateWallet = () => {
+    this.setState({ createWalletModalOpen: true })
+  }
   onRequestCloseTransferModal = () => {
-    this.setState({ transferModalOpen: false })
+    this.setState({
+      transferModalOpen: false,
+      createWalletModalOpen: false,
+    })
   }
   renderTransferButton = () => {
     return (
-      <TransferButton size='small' onClick={this.onClickTransfer} key={'transfer'}>
+      <ActionButton size='small' onClick={this.onClickTransfer} key={'transfer'}>
         <Icon name='Transaction' />
         <span>Transfer</span>
-      </TransferButton>
+      </ActionButton>
+    )
+  }
+  renderCreateWalletButton = () => {
+    return (
+      <ActionButton
+        key='create-wallet'
+        styleType='secondary'
+        size='small'
+        onClick={this.onClickCreateWallet}
+      >
+        <Icon name='Wallet' />
+        <span>Create</span>
+      </ActionButton>
     )
   }
   getColumns = wallets => {
     return [
+      { key: 'name', title: 'NAME', sort: true },
       { key: 'identifier', title: 'TYPE', sort: true },
       { key: 'address', title: 'ADDRESS', sort: true },
-      { key: 'owner', title: 'OWNER TYPE', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true }
     ]
   }
@@ -141,7 +162,7 @@ class WalletPage extends Component {
     if (key === 'identifier') {
       return (
         <WalletAddressContainer>
-          <Icon name='Wallet' /> <span>{data}</span>
+          <Icon name='Wallet' /> <span>{data.split('_')[0]}</span>
         </WalletAddressContainer>
       )
     }
@@ -154,12 +175,19 @@ class WalletPage extends Component {
     }
     return data
   }
+
   renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination }) => {
+    const isAccountWalletsPage = queryString.parse(this.props.location.search).walletType !== 'user';
+    const { accountId } = this.props.match.params;
+
     return (
       <WalletPageContainer>
         <TopNavigation divider={this.props.divider}
           title={this.props.title}
-          buttons={[this.props.transferButton && this.renderTransferButton()]}
+          buttons={[
+            this.props.transferButton && this.renderTransferButton(),
+            isAccountWalletsPage && this.renderCreateWalletButton()
+          ]}
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
@@ -176,6 +204,11 @@ class WalletPage extends Component {
         <CreateTransactionModal
           open={this.state.transferModalOpen}
           onRequestClose={this.onRequestCloseTransferModal}
+        />
+        <CreateWalletModal
+          isOpen={this.state.createWalletModalOpen}
+          onRequestClose={this.onRequestCloseTransferModal}
+          accountId={accountId}
         />
       </WalletPageContainer>
     )
