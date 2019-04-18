@@ -30,7 +30,7 @@ const CreateWalletModalStyle = styled.div`
   }
 `;
 
-const CreateWalletModal = ({ createWallet, accountId, isOpen, onRequestClose }) => {
+const CreateWalletModal = ({ createWallet, accountId, isOpen, onRequestClose, onCreateWallet }) => {
   const [ name, setName ] = useState('');
   const [ identifier, setIdentifier ] = useState({ key: 'secondary', value: 'secondary'});
   const [ loading, setLoading ] = useState(false);
@@ -42,6 +42,7 @@ const CreateWalletModal = ({ createWallet, accountId, isOpen, onRequestClose }) 
       identifier: identifier.value,
       accountId
     });
+    onCreateWallet();
     setLoading(false);
     handleClose();
   }
@@ -106,7 +107,8 @@ const CreateWalletModal = ({ createWallet, accountId, isOpen, onRequestClose }) 
 CreateWalletModal.propTypes = {
   isOpen: PropTypes.bool,
   accountId: PropTypes.string,
-  onRequestClose: PropTypes.func
+  onRequestClose: PropTypes.func,
+  onCreateWallet: PropTypes.func
 }
 
 export default connect(

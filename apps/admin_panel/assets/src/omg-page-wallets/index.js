@@ -176,7 +176,7 @@ class WalletPage extends Component {
     return data
   }
 
-  renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination }) => {
+  renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination, fetch }) => {
     const isAccountWalletsPage = queryString.parse(this.props.location.search).walletType !== 'user';
     const { accountId } = this.props.match.params;
 
@@ -209,6 +209,7 @@ class WalletPage extends Component {
           isOpen={this.state.createWalletModalOpen}
           onRequestClose={this.onRequestCloseTransferModal}
           accountId={accountId}
+          onCreateWallet={fetch}
         />
       </WalletPageContainer>
     )
