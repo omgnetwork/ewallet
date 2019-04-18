@@ -58,7 +58,7 @@ const WalletAddressContainer = styled.div`
     padding: 8px;
     border-radius: 6px;
     border: 1px solid ${props => props.theme.colors.S400};
-    margin-right: 5px;
+    margin-right: 10px;
   }
   i[name='Copy'] {
     visibility: hidden;
