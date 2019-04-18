@@ -15,12 +15,13 @@ const DeleteExchangeModalStyle = styled.div`
 const ButtonGroup = styled.div`
   display: flex;
   flex-direction: row;
+  margin-top: 40px;
 
   button {
     flex: 1 1 0;
 
     &:last-child {
-      margin-left: 5px;
+      margin-left: 10px;
     }
   }
 `;
@@ -36,6 +37,7 @@ const DeleteExchangeModal = ({ toDelete, onRequestClose }) => {
 
   const deletePair = () => {
     console.log('deleting...');
+    onRequestClose();
   }
 
   return (
