@@ -39,7 +39,6 @@ const KeySection = styled.div`
     white-space: nowrap;
   }
   td:nth-child(2) {
-    width: 40%;
     border: none;
     position: relative;
     :before {

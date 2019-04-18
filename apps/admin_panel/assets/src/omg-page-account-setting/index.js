@@ -16,6 +16,9 @@ import { selectGetAccountById } from '../omg-account/selector'
 import Copy from '../omg-copy'
 import ChooseCategoryStage from '../omg-create-account-modal/ChooseCategoryStage'
 
+const NameInput = styled(Input)`
+  margin-top: -20px;
+`
 const ChooseCategoryContainer = styled.div`
   position: relative;
   text-align: center;
@@ -264,7 +267,7 @@ class AccountSettingPage extends Component {
             placeholder={this.state.avatar}
           />
           <div>
-            <Input
+            <NameInput
               prefill
               placeholder={'Name'}
               value={this.state.name}
@@ -319,7 +322,7 @@ class AccountSettingPage extends Component {
 
         <AccountSettingContainer>
           <TopNavigation divider={this.props.divider}
-            title='Account Settings'
+            title={`Edit ${this.state.name}`}
             secondaryAction={false}
             types={false}
           />

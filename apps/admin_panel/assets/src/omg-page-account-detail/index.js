@@ -34,7 +34,7 @@ class AccountDetailPage extends Component {
             <b>Category:</b> {_.get(account.categories, 'data[0].name', '-')}
           </DetailGroup>
           <DetailGroup>
-            <b>Created Date:</b> {moment(account.created_at).format()}
+            <b>Created At:</b> {moment(account.created_at).format()}
           </DetailGroup>
           <DetailGroup>
             <b>Last Update:</b> {moment(account.updated_at).format()}

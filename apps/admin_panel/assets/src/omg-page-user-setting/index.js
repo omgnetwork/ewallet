@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import { Input, Button } from '../omg-uikit'
 import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
@@ -10,10 +11,7 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 const UserSettingContainer = styled.div`
-  padding-top: 20px;
-  h2 {
-    margin-bottom: 30px;
-  }
+  padding-bottom: 50px;
 `
 const StyledInput = styled(Input)`
   margin-bottom: 30px;
@@ -162,7 +160,10 @@ class UserSettingPage extends Component {
   render () {
     return (
       <UserSettingContainer>
-        <h2>Profile Settings</h2>
+        <TopNavigation divider={this.props.divider}
+          title={'My Profile'}
+          secondaryAction={false}
+        />
         {this.props.loadingStatus === 'SUCCESS' && (
           <form onSubmit={this.onClickUpdateAccount} noValidate>
             <AvatarContainer>

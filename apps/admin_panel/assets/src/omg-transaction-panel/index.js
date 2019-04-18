@@ -83,9 +83,9 @@ class TransactionRequestPanel extends Component {
     const address = _.get(transaction, 'address')
     const accountName = _.get(transaction, 'account.name')
     const accountId = _.get(transaction, 'account.id')
-    const userId = _.get(transaction, 'user.id')
+    const user = _.get(transaction, 'user')
     const tokenId = _.get(transaction, 'token.id')
-
+    console.log(user)
     return (
       <TransactionInfoContainer>
         <h5>{title}</h5>
@@ -105,11 +105,27 @@ class TransactionRequestPanel extends Component {
             </Link>
           </InformationItem>
         )}
-        {_.get(transaction, 'user') && (
+        {user && (
+            <InformationItem>
+              <b>User : </b>
+              <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
+                {user.id}
+              </Link>
+            </InformationItem>
+        )}   
+        {user && user.email && (
           <InformationItem>
-            <b>User : </b>
-            <Link to={{ pathname: `/users/${userId}`, search: this.props.location.search }}>
-              {userId}
+            <b>User email: </b>
+            <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
+              {user.email}
+            </Link>
+          </InformationItem>
+        )}
+        {user && user.provider_user_id && (
+          <InformationItem>
+              <b>User provider ID: </b>
+            <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
+                {user.provider_user_id}
             </Link>
           </InformationItem>
         )}
@@ -171,7 +187,7 @@ class TransactionRequestPanel extends Component {
                       <Icon name='Checked' />
                     )}
                   </MarkContainer>
-                  {transaction.status}
+                  <span>{_.capitalize(transaction.status)}</span>
                 </span>{' '}
                 | <span>{moment(transaction.created_at).format()}</span>
               </SubDetailTitle>

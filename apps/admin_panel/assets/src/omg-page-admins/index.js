@@ -21,7 +21,6 @@ const AdminPageContainer = styled.div`
     flex: 1;
   }
   td:first-child {
-    width: 40%;
     border: none;
     position: relative;
     :before {
@@ -94,8 +93,8 @@ class UsersPage extends Component {
     columns: [
       { key: 'id', title: 'ADMIN ID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'updated_at', title: 'LAST UPDATED', sort: true }
+      { key: 'created_at', title: 'CREATED AT', sort: true },
+      { key: 'updated_at', title: 'UPDATED AT', sort: true }
     ]
   }
   constructor (props) {

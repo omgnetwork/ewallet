@@ -100,7 +100,7 @@ class WalletDetaillPage extends Component {
           </DetailGroup>
         )}
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(wallet.created_at).format()}</span>
+          <b>Created At:</b> <span>{moment(wallet.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Last Update:</b> <span>{moment(wallet.updated_at).format()}</span>

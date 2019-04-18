@@ -218,12 +218,12 @@ class SideNavigation extends PureComponent {
         <MenuName> MY PROFILE </MenuName>
         <Link to={'/user_setting'}>
           <NavigationItem active={fuzzySearch('/user_setting', `/${firstSubPath}`)}>
-            <Icon name={'Profile'} /> <span>Profile Settings</span>
+            <Icon name={'Profile'} /> <span>My Profile</span>
           </NavigationItem>
         </Link>
         <NavigationItem onClick={this.onLogout}>
           <Icon name={'Arrow-Left'} />
-          <span>Logout</span>
+          <span>Log Out</span>
         </NavigationItem>
       </Fragment>
     )
