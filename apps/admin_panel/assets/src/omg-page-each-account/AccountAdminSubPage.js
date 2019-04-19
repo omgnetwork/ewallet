@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import MemberPageContainer from '../omg-page-members'
-import adminsAccountFetcher from '../omg-member/MembersFetcher'
+import MembersPage from '../omg-page-members'
+import MembersFetcher from '../omg-member/MembersFetcher'
 import { withRouter } from 'react-router-dom'
 export default withRouter(
   class AccountAdminSubPage extends Component {
@@ -15,9 +15,9 @@ export default withRouter(
 
     render () {
       return (
-        <MemberPageContainer
+        <MembersPage
           divider={false}
-          fetcher={adminsAccountFetcher}
+          fetcher={MembersFetcher}
           accountId={this.props.match.params.accountId}
           navigation={false}
           onClickRow={this.onClickRow}
