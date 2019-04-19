@@ -17,12 +17,10 @@ const AssignButton = styled(Button)`
 
 export default withRouter(function AccountKeySubPage (props) {
   const [assignAdminKeyModalOpen, setAssignAdminKeyModalOpen] = useState(false)
-  const [generateAdminKeyModalOpen, setGenerateAdminKeyModalOpen] = useState(false)
+  const [createAdminKeyModalOpen, setCreateAdminKeyModalOpen] = useState(false)
   const [fetcher, setFetcher] = useState(_.noop)
 
   const { search, access_key_page } = queryString.parse(props.location.search)
-  const { accountId } = props.match.params;
-
   return (
     <AccountKeySubPageContainer>
       <TopNavigation
@@ -32,15 +30,14 @@ export default withRouter(function AccountKeySubPage (props) {
           <AssignButton key='assign' onClick={e => setAssignAdminKeyModalOpen(true)}>
             Assign
           </AssignButton>,
-          <Button key='generate-admin-key' size='small' onClick={e => setGenerateAdminKeyModalOpen(true)} styleType={'secondary'}>
+          <Button key='generate-admin-key' size='small' onClick={e => setCreateAdminKeyModalOpen(true)} styleType={'secondary'}>
             <span>Generate Admin Key</span>
           </Button>
         ]}
       />
       <AdminKeySection
-        accountId={accountId}
-        createAdminKeyModalOpen={generateAdminKeyModalOpen}
-        onRequestClose={e => setGenerateAdminKeyModalOpen(false)}
+        createAdminKeyModalOpen={createAdminKeyModalOpen}
+        onRequestClose={e => setCreateAdminKeyModalOpen(false)}
         fetcher={AccountKeyFetcher}
         registerFetch={fetcher => setFetcher(fetcher)}
         columnsAdminKeys={[

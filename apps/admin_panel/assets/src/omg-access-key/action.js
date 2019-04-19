@@ -1,5 +1,6 @@
 import * as accessKeyService from '../services/accessKeyService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
+
 export const createAccessKey = ({ name, globalRole, accountId, roleName }) =>
   createActionCreator({
     actionName: 'ACCESS_KEY',
@@ -11,12 +12,14 @@ export const createAccessKey = ({ name, globalRole, accountId, roleName }) =>
       roleName
     })
   })
+
 export const deleteAccessKey = id =>
   createActionCreator({
     actionName: 'ACCESS_KEY',
     action: 'DELETE',
     service: () => accessKeyService.deleteAccessKeyById(id)
   })
+
 export const updateAccessKey = ({ id, expired }) =>
   createActionCreator({
     actionName: 'ACCESS_KEY',
