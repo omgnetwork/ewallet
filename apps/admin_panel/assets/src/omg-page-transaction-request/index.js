@@ -35,7 +35,6 @@ const TransactionRequestsPageContainer = styled.div`
     }
   }
   td:nth-child(1) {
-    width: 40%;
     border: none;
     position: relative;
     :before {
@@ -60,6 +59,15 @@ const TransactionRequestsPageContainer = styled.div`
 `
 const SortableTableContainer = styled.div`
   position: relative;
+`
+const StyledIcon = styled.span`
+  i {
+    margin-top: -3px;
+    margin-right: 10px;
+    margin-top
+    font-size: 14px;
+    font-weight: 400;
+  }
 `
 export const NameColumn = styled.div`
   > span {
@@ -96,10 +104,10 @@ class TransactionRequestsPage extends Component {
       { key: 'id', title: 'REQUEST ID', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
       { key: 'amount', title: 'AMOUNT', sort: true },
-      { key: 'created_by', title: 'CREATED BY' },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'require_confirmation', title: 'CONFIRMATION' },
-      { key: 'status', title: 'STATUS' }
+      { key: 'status', title: 'STATUS' },
+      { key: 'created_by', title: 'CREATED BY' },
+      { key: 'created_at', title: 'CREATED AT', sort: true }
     ]
   }
   onClickCreateRequest = e => {
@@ -124,7 +132,32 @@ class TransactionRequestsPage extends Component {
       })
     })
   }
-  rowRenderer (key, data, rows) {
+  renderCreator = request => {
+    return (
+      <span>
+        {request.account &&
+          <span>
+            <StyledIcon><Icon name='Merchant' /></StyledIcon>
+            {request.account.name}
+          </span>
+
+        }
+        {request.user && request.user.email &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {request.user.email}
+          </span>
+        }
+        {request.user && request.user.provider_user_id &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {request.user.provider_user_id}
+          </span>
+        }
+      </span>
+    )
+  }
+  rowRenderer = (key, data, rows) => {
     if (key === 'require_confirmation') {
       return data ? 'Yes' : 'No'
     }
@@ -149,7 +182,7 @@ class TransactionRequestsPage extends Component {
       return amount
     }
     if (key === 'created_by') {
-      return rows.user_id || rows.account.name || rows.account_id
+      return this.renderCreator(rows)
     }
     if (key === 'created_at') {
       return moment(data).format()

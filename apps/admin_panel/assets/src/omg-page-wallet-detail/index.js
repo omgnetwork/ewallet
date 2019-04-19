@@ -5,6 +5,7 @@ import { withRouter, Link } from 'react-router-dom'
 import WalletProvider from '../omg-wallet/walletProvider'
 import { compose } from 'recompose'
 import { Button, Icon } from '../omg-uikit'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import moment from 'moment'
@@ -64,17 +65,16 @@ class WalletDetaillPage extends Component {
     this.setState({ createTransactionModalOpen: true })
   }
   renderTopBar = wallet => {
-    return (
-      <TopBar
-        title={wallet.name}
-        buttons={[
-          <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
-            <Icon name='Transaction' />
-            <span>Transfer</span>
-          </Button>
-        ]}
-      />
-    )
+    return <TopNavigation
+      divider={this.props.divider}
+      title={wallet.name}
+      buttons={[
+        <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
+          <Icon name='Transaction' />
+          <span>Transfer</span>
+        </Button>
+      ]}
+    />
   }
   renderDetail = wallet => {
     return (
@@ -100,10 +100,10 @@ class WalletDetaillPage extends Component {
           </DetailGroup>
         )}
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(wallet.created_at).format()}</span>
+          <b>Created At:</b> <span>{moment(wallet.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(wallet.updated_at).format()}</span>
+          <b>Updated At:</b> <span>{moment(wallet.updated_at).format()}</span>
         </DetailGroup>
       </Section>
     )

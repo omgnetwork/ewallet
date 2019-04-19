@@ -21,7 +21,6 @@ const TokenDetailPageContainer = styled.div`
     flex: 1;
   }
   td:nth-child(1) {
-    width: 40%;
     border: none;
     position: relative;
     :before {
@@ -43,7 +42,7 @@ const columns = [
   { key: 'token', title: 'TOKEN NAME', sort: true },
   { key: 'id', title: 'TOKEN ID', sort: true },
   { key: 'symbol', title: 'SYMBOL', sort: true },
-  { key: 'created', title: 'CREATED DATE', sort: true }
+  { key: 'created', title: 'CREATED AT', sort: true }
 ]
 class TokenDetailPage extends Component {
   static propTypes = {

@@ -20,7 +20,6 @@ const UserPageContainer = styled.div`
     flex: 1;
   }
   td:nth-child(1) {
-    width: 40%;
     border: none;
     position: relative;
     :before {
@@ -114,9 +113,9 @@ class UsersPage extends Component {
       { key: 'id', title: 'USER ID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
       { key: 'username', title: 'USERNAME', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'updated_at', title: 'LAST UPDATED', sort: true },
-      { key: 'provider_user_id', title: 'PROVIDER', sort: true }
+      { key: 'provider_user_id', title: 'PROVIDER', sort: true },
+      { key: 'created_at', title: 'CREATED AT', sort: true },
+      { key: 'updated_at', title: 'UPDATED AT', sort: true }
     ]
   }
   getRow = users => {

@@ -38,6 +38,8 @@ defmodule AdminAPI.V1.SelfViewTest do
           provider_user_id: user.provider_user_id,
           email: user.email,
           enabled: user.enabled,
+          global_role: user.global_role,
+          status: :active,
           avatar: %{
             original: nil,
             large: nil,

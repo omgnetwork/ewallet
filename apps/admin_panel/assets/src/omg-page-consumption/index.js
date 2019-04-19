@@ -40,9 +40,6 @@ const ConsumptionPageContainer = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  td:nth-child(5) {
-    text-transform: capitalize;
-  }
   tr:hover {
     td:nth-child(1) {
       i {
@@ -69,6 +66,15 @@ const SortableTableContainer = styled.div`
     border: 1px solid ${props => props.theme.colors.S400};
   }
 `
+const StyledIcon = styled.span`
+  i {
+    margin-top: -3px;
+    margin-right: 10px;
+    margin-top
+    font-size: 14px;
+    font-weight: 400;
+  }
+`
 export const NameColumn = styled.div`
   > span {
     margin-left: 10px;
@@ -93,9 +99,9 @@ class ConsumptionPage extends Component {
       { key: 'id', title: 'CONSUMPTION ID', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
       { key: 'estimated_consumption_amount', title: 'AMOUNT', sort: true },
+      { key: 'status', title: 'STATUS', sort: true },
       { key: 'created_by', title: 'CONSUMER' },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'status', title: 'STATUS', sort: true }
+      { key: 'created_at', title: 'CREATED AT', sort: true }
     ]
   }
   renderCreateAccountButton = () => {
@@ -114,7 +120,32 @@ class ConsumptionPage extends Component {
       })
     })
   }
-  rowRenderer (key, data, rows) {
+  renderCreator = consumption => {
+    return (
+      <span>
+        {consumption.account &&
+          <span>
+            <StyledIcon><Icon name='Merchant' /></StyledIcon>
+            {consumption.account.name}
+          </span>
+
+        }
+        {consumption.user && consumption.user.email &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {consumption.user.email}
+          </span>
+        }
+        {consumption.user && consumption.user.provider_user_id &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {consumption.user.provider_user_id}
+          </span>
+        }
+      </span>
+    )
+  }
+  rowRenderer = (key, data, rows) => {
     if (key === 'require_confirmation') {
       return data ? 'Yes' : 'No'
     }
@@ -135,7 +166,7 @@ class ConsumptionPage extends Component {
       return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
     }
     if (key === 'created_by') {
-      return rows.user_id || rows.account.name || rows.account_id
+      return this.renderCreator(rows)
     }
     if (key === 'created_at') {
       return moment(data).format()

@@ -23,7 +23,7 @@ const TopNavigationContainer = styled.div`
   > {
     vertical-align: middle;
   }
-  /* psuedu border bottom hack overide parent padding */
+  /* pseudo border bottom hack overide parent padding */
   :after {
     content: '';
     position: absolute;

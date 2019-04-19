@@ -24,8 +24,11 @@ export default withRouter(function AccountKeySubPage (props) {
         title='Keys'
         divider={false}
         buttons={[
+          <Button size='small' onClick={e => onClickCreateAdminKey} styleType={'secondary'}>
+            <span>Generate Admin Key</span>
+          </Button>,
           <AssignButton key='key' onClick={e => setCreateAdminKeyModalOpen(true)}>
-            Assign
+            Assign Admin Key
           </AssignButton>
         ]}
       />
@@ -35,8 +38,8 @@ export default withRouter(function AccountKeySubPage (props) {
         columnsAdminKeys={[
           { key: 'name', title: 'NAME' },
           { key: 'key', title: 'ACCESS KEY' },
-          { key: 'account_role', title: 'ACCOUNT ROLE' },
           { key: 'global_role', title: 'GLOBAL ROLE' },
+          { key: 'account_role', title: 'ACCOUNT ROLE' },
           { key: 'created_at', title: 'CREATED AT' },
           { key: 'status', title: 'STATUS' }
         ]}

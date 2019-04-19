@@ -22,7 +22,6 @@ const WalletPageContainer = styled.div`
     flex: 1;
   }
   td:nth-child(1) {
-    width: 25%;
     border: none;
     position: relative;
     :before {
@@ -35,10 +34,12 @@ const WalletPageContainer = styled.div`
       border-bottom: 1px solid ${props => props.theme.colors.S200};
     }
   }
+  td:nth-child(1),
   td:nth-child(2),
   td:nth-child(3),
-  td:nth-child(4) {
-    width: 25%;
+  td:nth-child(4), 
+  td:nth-child(5), {
+    width: 20%;
   }
   tbody td:first-child {
     border-bottom: none;
@@ -71,6 +72,15 @@ const WalletAddressContainer = styled.div`
 `
 const SortableTableContainer = styled.div`
   position: relative;
+`
+const StyledIcon = styled.span`
+  i {
+    margin-top: -3px;
+    margin-right: 10px;
+    margin-top
+    font-size: 14px;
+    font-weight: 400;
+  }
 `
 class WalletPage extends Component {
   static propTypes = {
@@ -134,16 +144,47 @@ class WalletPage extends Component {
       { key: 'name', title: 'NAME', sort: true },
       { key: 'identifier', title: 'TYPE', sort: true },
       { key: 'address', title: 'ADDRESS', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true }
+      { key: 'owner', title: 'OWNER', sort: true },
+      { key: 'created_at', title: 'CREATED AT', sort: true }
     ]
   }
+  getOwner = wallet => {
+    return (  
+      <span>
+        {wallet.account && 
+          <span>
+            <StyledIcon><Icon name='Merchant' /></StyledIcon>
+            {wallet.account.name}
+          </span>
+          
+        }
+        {wallet.user && wallet.user.email && 
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {wallet.user.email}
+          </span>
+        }
+        {wallet.user && wallet.user.provider_user_id && 
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {wallet.user.provider_user_id}
+          </span>
+        }
+        {wallet.address == 'gnis000000000000' && 
+          <span>
+            <StyledIcon><Icon name='Token' /></StyledIcon>
+            Genesis
+          </span>
+        }
+      </span>
+    )
+  }
   getRow = wallets => {
-    // WALLET API DOESN'T HAVE SEACH TERM, SO WE FILTER AGAIN
     return selectWallets(
       {
         wallets: wallets.map(wallet => {
           return {
-            owner: wallet.user_id ? 'User' : 'Account',
+            owner: this.getOwner(wallet),
             id: wallet.address,
             ...wallet
           }

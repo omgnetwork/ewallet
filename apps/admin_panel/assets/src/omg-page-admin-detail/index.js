@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
 import { withRouter } from 'react-router-dom'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import AdminProvider from '../omg-admins/adminProvider'
 import { compose } from 'recompose'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
@@ -37,7 +38,11 @@ class TokenDetailPage extends Component {
     match: PropTypes.object
   }
   renderTopBar = admin => {
-    return <TopBar title={admin.id} breadcrumbItems={['Admin', admin.id]} buttons={[]} />
+    return <TopNavigation
+      divider={this.props.divider}
+      title={admin.email}
+      secondaryAction={false}
+    />
   }
   renderDetail = admin => {
     return (
@@ -49,10 +54,13 @@ class TokenDetailPage extends Component {
           <b>Email:</b> <span>{admin.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(admin.created_at).format()}</span>
+          <b>Global Role:</b> <span>{_.startCase(admin.global_role) || 'None'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(admin.updated_at).format()}</span>
+          <b>Created At:</b> <span>{moment(admin.created_at).format()}</span>
+        </DetailGroup>
+        <DetailGroup>
+          <b>Updated At:</b> <span>{moment(admin.updated_at).format()}</span>
         </DetailGroup>
       </Section>
     )

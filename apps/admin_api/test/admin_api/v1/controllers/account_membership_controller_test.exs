@@ -774,8 +774,8 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test_with_auths "returns unauthorized if adding to an account without the rights" do
-      set_admin_user_role("admin")
-      set_key_role("admin")
+      set_admin_user_role("viewer")
+      set_key_role("viewer")
 
       response =
         request("/account.assign_key", %{

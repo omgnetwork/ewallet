@@ -44,7 +44,7 @@ export default class WalletSelectItem extends Component {
         <DetailContainer>
           <Address>{this.props.wallet.address}</Address>
           <WalletNameAndIdentifier>
-            {type} {accountName || userName || userEmail} | {this.props.wallet.identifier}
+            {type} {accountName || userName || userEmail} | {this.props.wallet.name} - {this.props.wallet.identifier}
           </WalletNameAndIdentifier>
         </DetailContainer>
       </WalletSelectItemContainer>

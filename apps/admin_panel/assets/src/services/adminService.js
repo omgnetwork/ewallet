@@ -34,6 +34,17 @@ export function uploadAvatar ({ id, avatar }) {
   })
 }
 
+export function inviteAdmin ({ email, redirectUrl, globalRole }) {
+  return authenticatedRequest({
+    path: '/admin.create',
+    data: {
+      email,
+      redirect_url: redirectUrl,
+      global_role: globalRole
+    }
+  })
+}
+
 export function createAdmin ({ resetToken, password, passwordConfirmation, email }) {
   return unAuthenticatedRequest({
     path: '/invite.accept',
