@@ -161,7 +161,6 @@ class ApiKeyPage extends Component {
     columnsAdminKeys: [
       { key: 'name', title: 'NAME' },
       { key: 'key', title: 'ACCESS KEY' },
-      { key: 'account_role', title: 'ACCOUNT ROLE' },
       { key: 'global_role', title: 'GLOBAL ROLE' },
       { key: 'created_at', title: 'CREATED AT' },
       { key: 'status', title: 'STATUS' }
@@ -277,7 +276,10 @@ class ApiKeyPage extends Component {
         {...this.props}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data.map((item, index) => {
+
+            let role;
             if (item.hasOwnProperty('key')) {
+              role = item.role;
               item = item.key;
             }
             return {
@@ -288,7 +290,7 @@ class ApiKeyPage extends Component {
               status: item.expired,
               name: item.name || 'Not Provided',
               global_role: item.global_role || 'none',
-              account_role: item.account_role || 'none'
+              account_role: role || 'none'
             }
           })
           return (
