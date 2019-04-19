@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Switch, Icon, Button } from '../omg-uikit'
 import moment from 'moment'
 
 import { Switch, Icon } from '../omg-uikit'
@@ -193,7 +192,7 @@ class ApiKeyPage extends Component {
   }
   onClickAccessKeySwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateAccessKey({ id, expired })
-    fetch();
+    fetch()
   }
   onClickDownloadKey = e => {
     this.props.downloadKey({
@@ -278,12 +277,6 @@ class ApiKeyPage extends Component {
         }}
         {...this.props}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
-          const apiKeysRows = data.map((item, index) => {
-
-            let role;
-            if (item.hasOwnProperty('key')) {
-              role = item.role;
-              item = item.key;
           const apiKeysRows = data.map((item, index) => {
             let role
             if (item.hasOwnProperty('key')) {

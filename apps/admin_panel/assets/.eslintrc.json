@@ -13,7 +13,9 @@
     "react/no-unused-prop-types": 1,
     "react/sort-comp": 1,
     "quotes": ["error", "single"],
-    "space-before-function-paren": ["error", "always"]
+    "space-before-function-paren": ["error", "always"],
+    "camelcase": "off",
+    "react/no-unescaped-entities": "warn"
   },
   "env": {
     "jquery": true,

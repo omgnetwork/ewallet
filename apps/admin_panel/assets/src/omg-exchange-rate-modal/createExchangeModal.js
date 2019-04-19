@@ -11,7 +11,6 @@ import TokensFetcher from '../omg-token/tokensFetcher'
 import { selectGetTokenById } from '../omg-token/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchTokenQuery } from '../omg-token/searchField'
-import { formatAmount } from '../utils/formatter'
 
 const Form = styled.form`
   padding: 50px;
@@ -126,7 +125,8 @@ class CreateExchangeRateModal extends Component {
     fromTokenId: PropTypes.string,
     createExchangePair: PropTypes.func,
     updateExchangePair: PropTypes.func,
-    toEdit: PropTypes.object
+    toEdit: PropTypes.object,
+    fromTokenPrefill: PropTypes.object
   }
   static defaultProps = {
     onCreateTransaction: _.noop
@@ -243,7 +243,7 @@ class CreateExchangeRateModal extends Component {
     const oldForwardRate = _.get(this.props, 'toEdit.rate')
     const oldBackRate = _.round(_.get(oppositeExchangePair, 'rate'), 3)
 
-    const forwardRateDiff = oldForwardRate != forwardRate
+    const forwardRateDiff = oldForwardRate !== forwardRate
 
     const renderEditingState = () => (
       <>
@@ -289,10 +289,6 @@ class CreateExchangeRateModal extends Component {
 
   render () {
     const { oppositeExchangePair, editing } = this.state
-
-    const oldRate = _.get(this.props, 'toEdit.rate')
-    const newRate = this.state.toTokenRate / this.state.fromTokenRate
-    const rateDiff = oldRate != newRate
 
     return (
       <Form onSubmit={this.onSubmit} noValidate>

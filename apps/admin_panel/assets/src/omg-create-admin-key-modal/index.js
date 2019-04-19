@@ -69,7 +69,6 @@ CreateAdminKeyModal.propTypes = {
   createAccessKey: PropTypes.func,
   onRequestClose: PropTypes.func,
   onSubmitSuccess: PropTypes.func,
-  assignKey: PropTypes.func,
   accountId: PropTypes.string
 }
 

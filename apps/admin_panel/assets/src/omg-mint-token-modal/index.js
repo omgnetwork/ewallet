@@ -59,9 +59,7 @@ class MintTokenModal extends PureComponent {
     onRequestClose: PropTypes.func,
     token: PropTypes.object,
     mintToken: PropTypes.func.isRequired,
-    getWalletsByAccountId: PropTypes.func.isRequired,
-    onSuccess: PropTypes.func,
-    match: PropTypes.object
+    onSuccess: PropTypes.func
   }
   static defaultProps = {
     onSuccess: _.noop

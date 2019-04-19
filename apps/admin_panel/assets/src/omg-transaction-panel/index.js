@@ -64,8 +64,7 @@ const enhance = compose(withRouter)
 class TransactionRequestPanel extends Component {
   static propTypes = {
     history: PropTypes.object,
-    location: PropTypes.object,
-    match: PropTypes.object
+    location: PropTypes.object
   }
 
   constructor (props) {

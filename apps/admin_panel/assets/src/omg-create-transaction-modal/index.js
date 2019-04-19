@@ -102,7 +102,8 @@ class CreateTransaction extends Component {
     selectWalletById: PropTypes.func,
     getWalletById: PropTypes.func,
     match: PropTypes.object,
-    onCreateTransaction: PropTypes.func
+    onCreateTransaction: PropTypes.func,
+    transfer: PropTypes.func
   }
   static defaultProps = {
     onCreateTransaction: _.noop

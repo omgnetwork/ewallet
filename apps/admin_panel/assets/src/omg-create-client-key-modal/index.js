@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { Input, Button, Icon, Select } from '../omg-uikit'
+import { Input, Button, Icon } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'

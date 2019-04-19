@@ -32,7 +32,10 @@ const CreateWalletModalStyle = styled.div`
 
 const CreateWalletModal = ({ createWallet, accountId, isOpen, onRequestClose, onCreateWallet }) => {
   const [ name, setName ] = useState('')
-  const [ identifier, setIdentifier ] = useState({ key: 'secondary', value: 'secondary'})
+  const [ identifier, setIdentifier ] = useState({
+    key: 'secondary',
+    value: 'secondary'
+  })
   const [ loading, setLoading ] = useState(false)
 
   const submit = async () => {
@@ -108,7 +111,8 @@ CreateWalletModal.propTypes = {
   isOpen: PropTypes.bool,
   accountId: PropTypes.string,
   onRequestClose: PropTypes.func,
-  onCreateWallet: PropTypes.func
+  onCreateWallet: PropTypes.func,
+  createWallet: PropTypes.func
 }
 
 export default connect(

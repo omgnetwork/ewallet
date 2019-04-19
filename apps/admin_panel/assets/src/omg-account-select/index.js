@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Avatar } from '../omg-uikit'
 
@@ -36,6 +37,10 @@ const AccountSelect = ({ account }) => {
       </DetailContainer>
     </AccountSelectContainer>
   )
+}
+
+AccountSelect.propTypes = {
+  account: PropTypes.object
 }
 
 export default AccountSelect

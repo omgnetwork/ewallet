@@ -451,7 +451,6 @@ class DateTimeHotFix extends PureComponent {
   render () {
     return (
       <DateTime
-        ref={'picker'}
         closeOnSelect
         onChange={this.props.onChange}
         renderInput={(props, openCalendar, closeCalendar) => {

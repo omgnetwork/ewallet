@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 
@@ -66,6 +67,12 @@ const DeleteExchangeModal = ({ toDelete, onRequestClose, deleteExchangePair }) =
       </ButtonGroup>
     </DeleteExchangeModalStyle>
   )
+}
+
+DeleteExchangeModal.propTypes = {
+  toDelete: PropTypes.object,
+  onRequestClose: PropTypes.func,
+  deleteExchangePair: PropTypes.func
 }
 
 const enhance = connect(
