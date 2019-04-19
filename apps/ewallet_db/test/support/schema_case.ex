@@ -260,6 +260,35 @@ defmodule EWalletDB.SchemaCase do
   end
 
   @doc """
+  Test schema's insert/1 raises a changeset error when field value is too long.
+  """
+  defmacro test_insert_field_length(
+             schema,
+             field,
+             value \\ "A long long long long long long long long long long long long
+  long long long long long long long long long long long long long long long
+  long long long long long long long long long long long long long long long
+  long long long long long long long long long long long long long value"
+           ) do
+    quote do
+      test "raises an error when content is too long for :#{unquote(field)}" do
+        schema = unquote(schema)
+        field = unquote(field)
+        value = unquote(value)
+
+        {res, changeset} =
+          schema
+          |> get_factory
+          |> params_for(%{field => value})
+          |> schema.insert
+
+        assert res == :error
+        refute changeset.valid?
+      end
+    end
+  end
+
+  @doc """
   Test schema's insert/1 generates an external ID when given field is blank.
   """
   defmacro test_insert_generate_external_id(schema, field, prefix \\ "") do
@@ -482,6 +511,38 @@ defmodule EWalletDB.SchemaCase do
 
         assert res == :ok
         assert Map.fetch!(updated, field) == new
+      end
+    end
+  end
+
+  @doc """
+  Test schema's update/2 raises an error when the value is too long
+  """
+  defmacro test_update_field_length(schema, field, old \\ "old") do
+    quote do
+      test "raises an error when content is too long for :#{unquote(field)}" do
+        value = "A long long long long long long long long long long long long
+        long long long long long long long long long long long long long long long
+        long long long long long long long long long long long long long long long
+        long long long long long long long long long long long long long value"
+        schema = unquote(schema)
+        field = unquote(field)
+        old = unquote(old)
+
+        {res, original} =
+          schema
+          |> get_factory
+          |> params_for(%{field => old})
+          |> schema.insert()
+
+        {res, changeset} =
+          schema.update(original, %{
+            :originator => %System{},
+            field => value
+          })
+
+        assert res == :error
+        refute changeset.valid?
       end
     end
   end
