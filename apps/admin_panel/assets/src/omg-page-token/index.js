@@ -166,6 +166,7 @@ class TokenDetailPage extends Component {
           onFetchSuccess={fetch}
         />
         <ExchangePairModal
+          action='create'
           open={this.state.createExchangePairModalOpen}
           onRequestClose={this.onRequestCloseCreateExchangePair}
         />

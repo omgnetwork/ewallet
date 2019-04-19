@@ -16,13 +16,14 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.Paginator
+  alias EWallet.ExchangePairGate
   alias EWallet.Web.V1.{ExchangePairSerializer, TokenSerializer}
   alias EWalletDB.ExchangePair
   alias Utils.Helpers.DateFormatter
 
   describe "serialize/1" do
     test "serializes an exchange pair into V1 response format" do
-      exchange_pair = insert(:exchange_pair)
+      exchange_pair = :exchange_pair |> insert() |> ExchangePairGate.add_opposite_pair()
 
       expected = %{
         object: "exchange_pair",
@@ -35,6 +36,49 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
         rate: exchange_pair.rate,
         created_at: DateFormatter.to_iso8601(exchange_pair.inserted_at),
         updated_at: DateFormatter.to_iso8601(exchange_pair.updated_at),
+        opposite_exchange_pair_id: nil,
+        opposite_exchange_pair: nil,
+        deleted_at: nil
+      }
+
+      assert ExchangePairSerializer.serialize(exchange_pair) == expected
+    end
+
+    test "serializes an exchange pair and its opposite into V1 response format" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      opposite_pair = insert(:exchange_pair, from_token: token_2, to_token: token_1)
+
+      exchange_pair =
+        :exchange_pair
+        |> insert(%{from_token: token_1, to_token: token_2})
+        |> ExchangePairGate.add_opposite_pair()
+
+      expected = %{
+        object: "exchange_pair",
+        id: exchange_pair.id,
+        name: ExchangePair.get_name(exchange_pair),
+        from_token_id: exchange_pair.from_token.id,
+        from_token: TokenSerializer.serialize(exchange_pair.from_token),
+        to_token_id: exchange_pair.to_token.id,
+        to_token: TokenSerializer.serialize(exchange_pair.to_token),
+        rate: exchange_pair.rate,
+        created_at: DateFormatter.to_iso8601(exchange_pair.inserted_at),
+        updated_at: DateFormatter.to_iso8601(exchange_pair.updated_at),
+        opposite_exchange_pair_id: opposite_pair.id,
+        opposite_exchange_pair: %{
+          object: "exchange_pair",
+          id: opposite_pair.id,
+          name: ExchangePair.get_name(opposite_pair),
+          from_token_id: opposite_pair.from_token.id,
+          from_token: TokenSerializer.serialize(opposite_pair.from_token),
+          to_token_id: opposite_pair.to_token.id,
+          to_token: TokenSerializer.serialize(opposite_pair.to_token),
+          rate: opposite_pair.rate,
+          created_at: DateFormatter.to_iso8601(opposite_pair.inserted_at),
+          updated_at: DateFormatter.to_iso8601(opposite_pair.updated_at),
+          deleted_at: nil
+        },
         deleted_at: nil
       }
 
@@ -42,8 +86,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
     end
 
     test "serializes an exchange pair paginator into a list object" do
-      exchange_pair1 = insert(:exchange_pair)
-      exchange_pair2 = insert(:exchange_pair)
+      exchange_pair1 = :exchange_pair |> insert() |> ExchangePairGate.add_opposite_pair()
+      exchange_pair2 = :exchange_pair |> insert() |> ExchangePairGate.add_opposite_pair()
 
       paginator = %Paginator{
         data: [exchange_pair1, exchange_pair2],
@@ -69,6 +113,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             rate: exchange_pair1.rate,
             created_at: DateFormatter.to_iso8601(exchange_pair1.inserted_at),
             updated_at: DateFormatter.to_iso8601(exchange_pair1.updated_at),
+            opposite_exchange_pair_id: nil,
+            opposite_exchange_pair: nil,
             deleted_at: nil
           },
           %{
@@ -82,6 +128,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             rate: exchange_pair2.rate,
             created_at: DateFormatter.to_iso8601(exchange_pair2.inserted_at),
             updated_at: DateFormatter.to_iso8601(exchange_pair2.updated_at),
+            opposite_exchange_pair_id: nil,
+            opposite_exchange_pair: nil,
             deleted_at: nil
           }
         ],
