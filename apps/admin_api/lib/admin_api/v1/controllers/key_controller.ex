@@ -135,11 +135,11 @@ defmodule AdminAPI.V1.KeyController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    attrs = %{
-      name: attrs["name"],
-      global_role: attrs["global_role"],
-      enabled: !attrs["expired"]
-    }
+    attrs =
+      %{}
+      |> add_to_attrs(attrs, "name", :name, attrs["name"])
+      |> add_to_attrs(attrs, "global_role", :global_role, attrs["global_role"])
+      |> add_to_attrs(attrs, "expired", :enabled, !attrs["expired"])
 
     with %Key{} = key <- Key.get(id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:update, conn.assigns, key),
@@ -223,6 +223,16 @@ defmodule AdminAPI.V1.KeyController do
   end
 
   defp do_delete(conn, nil), do: handle_error(conn, :key_not_found)
+
+  defp add_to_attrs(new_attrs, attrs, string_name, atom_name, value) do
+    case Map.has_key?(attrs, string_name) do
+      true ->
+        Map.put(new_attrs, atom_name, value)
+
+      false ->
+        new_attrs
+    end
+  end
 
   defp authorize(action, actor, %Account{} = account) do
     AccountPolicy.authorize(action, actor, account)
