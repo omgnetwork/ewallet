@@ -228,6 +228,7 @@ defmodule AdminAPI.V1.KeyController do
     case Map.has_key?(attrs, string_name) do
       true ->
         Map.put(new_attrs, atom_name, value)
+
       false ->
         new_attrs
     end
