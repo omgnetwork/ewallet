@@ -14,7 +14,7 @@
     "react/sort-comp": 1,
     "quotes": ["error", "single"],
     "space-before-function-paren": ["error", "always"],
-    "camelcase": "off",
+    "camelcase": "warn",
     "react/no-unescaped-entities": "warn"
   },
   "env": {
