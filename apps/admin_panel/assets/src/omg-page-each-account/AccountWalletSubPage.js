@@ -52,7 +52,7 @@ function AccountWalletSubPage (props) {
 AccountWalletSubPage.propTypes = {
   location: PropTypes.object,
   match: PropTypes.object,
-  onClickRow: PropTypes.func
+  history: PropTypes.object
 }
 
 export default withRouter(AccountWalletSubPage)

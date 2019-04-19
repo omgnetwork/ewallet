@@ -179,9 +179,10 @@ class UsersPage extends Component {
             pagination={false}
           />
         </SortableTableContainer>
-        <GlobalInviteModal open={this.state.inviteModalOpen} 
-                           onRequestClose={this.onRequestClose} 
-                           onInviteSuccess={fetch} />
+        <GlobalInviteModal open={this.state.inviteModalOpen}
+          onRequestClose={this.onRequestClose}
+          onInviteSuccess={fetch}
+        />
       </AdminPageContainer>
     )
   }

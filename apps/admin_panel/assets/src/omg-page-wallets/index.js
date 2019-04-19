@@ -92,7 +92,12 @@ class WalletPage extends Component {
     onClickRow: PropTypes.func,
     fetcher: PropTypes.func,
     title: PropTypes.string,
-    divider: PropTypes.bool
+    divider: PropTypes.bool,
+    match: PropTypes.shape({
+      params: PropTypes.shape({
+        accountId: PropTypes.string
+      })
+    })
   }
   static defaultProps = {
     walletQuery: {},
@@ -115,7 +120,7 @@ class WalletPage extends Component {
   onRequestCloseTransferModal = () => {
     this.setState({
       transferModalOpen: false,
-      createWalletModalOpen: false,
+      createWalletModalOpen: false
     })
   }
   renderTransferButton = () => {
@@ -149,28 +154,28 @@ class WalletPage extends Component {
     ]
   }
   getOwner = wallet => {
-    return (  
+    return (
       <span>
-        {wallet.account && 
+        {wallet.account &&
           <span>
             <StyledIcon><Icon name='Merchant' /></StyledIcon>
             {wallet.account.name}
           </span>
-          
+
         }
-        {wallet.user && wallet.user.email && 
+        {wallet.user && wallet.user.email &&
           <span>
             <StyledIcon><Icon name='People' /></StyledIcon>
             {wallet.user.email}
           </span>
         }
-        {wallet.user && wallet.user.provider_user_id && 
+        {wallet.user && wallet.user.provider_user_id &&
           <span>
             <StyledIcon><Icon name='People' /></StyledIcon>
             {wallet.user.provider_user_id}
           </span>
         }
-        {wallet.address == 'gnis000000000000' && 
+        {wallet.address === 'gnis000000000000' &&
           <span>
             <StyledIcon><Icon name='Token' /></StyledIcon>
             Genesis
@@ -226,8 +231,8 @@ class WalletPage extends Component {
   }
 
   renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination, fetch }) => {
-    const isAccountWalletsPage = queryString.parse(this.props.location.search).walletType !== 'user';
-    const { accountId } = this.props.match.params;
+    const isAccountWalletsPage = queryString.parse(this.props.location.search).walletType !== 'user'
+    const { accountId } = this.props.match.params
 
     return (
       <WalletPageContainer>

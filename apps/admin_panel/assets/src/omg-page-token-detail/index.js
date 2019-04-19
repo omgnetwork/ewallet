@@ -66,7 +66,7 @@ class TokenDetailPage extends Component {
     exchangeRateModalOpen: false,
     deleteExchangeRateModalOpen: false,
     exchangeRateToEdit: null,
-    exchangeRateToDelete: null,
+    exchangeRateToDelete: null
   }
   onRequestClose = () => {
     this.setState({
@@ -74,7 +74,7 @@ class TokenDetailPage extends Component {
       exchangeRateModalOpen: false,
       deleteExchangeRateModalOpen: false,
       exchangeRateToEdit: null,
-      exchangeRateToDelete: null,
+      exchangeRateToDelete: null
     })
   }
   onClickMintTopen = e => {
@@ -107,7 +107,7 @@ class TokenDetailPage extends Component {
     this.setState({
       deleteExchangeRateModalOpen: true,
       exchangeRateToDelete: pair
-    });
+    })
   }
   renderTopBar = token => {
     return (

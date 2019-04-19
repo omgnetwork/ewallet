@@ -188,7 +188,7 @@ class TransactionPage extends Component {
       </ExportButton>
     )
   }
-  renderFromOrTo(fromOrTo) {
+  renderFromOrTo (fromOrTo) {
     return (
       <span>
         {fromOrTo.account && (

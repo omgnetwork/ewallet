@@ -156,7 +156,7 @@ class AccountPage extends Component {
       return null
     }
     if (key === 'description') {
-      return _.truncate(data, 100) 
+      return _.truncate(data, 100)
     }
     return data
   }

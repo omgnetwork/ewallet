@@ -121,7 +121,7 @@ class InputComponent extends PureComponent {
     onPressEscape: () => {},
     onPressEnter: () => {},
     type: 'string',
-    allowNegative: true,
+    allowNegative: true
   }
   state = {
     active: false
@@ -170,7 +170,7 @@ class InputComponent extends PureComponent {
     }
   }
   render () {
-    const { className, placeholder, autofocus, ...rest } = this.props
+    const { className, placeholder, ...rest } = this.props
     return (
       <Container className={className}>
         <InnerContainer>

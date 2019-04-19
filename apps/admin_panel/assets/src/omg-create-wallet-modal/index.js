@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { connect } from 'react-redux';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import { connect } from 'react-redux'
 
-import Modal from '../omg-modal';
-import { Button, Select, Input } from '../omg-uikit';
-import { createWallet } from '../omg-wallet/action';
+import Modal from '../omg-modal'
+import { Button, Select, Input } from '../omg-uikit'
+import { createWallet } from '../omg-wallet/action'
 
 const CreateWalletModalStyle = styled.div`
   padding: 50px;
@@ -28,29 +28,29 @@ const CreateWalletModalStyle = styled.div`
       }
     }
   }
-`;
+`
 
 const CreateWalletModal = ({ createWallet, accountId, isOpen, onRequestClose, onCreateWallet }) => {
-  const [ name, setName ] = useState('');
-  const [ identifier, setIdentifier ] = useState({ key: 'secondary', value: 'secondary'});
-  const [ loading, setLoading ] = useState(false);
+  const [ name, setName ] = useState('')
+  const [ identifier, setIdentifier ] = useState({ key: 'secondary', value: 'secondary'})
+  const [ loading, setLoading ] = useState(false)
 
   const submit = async () => {
-    setLoading(true);
+    setLoading(true)
     await createWallet({
       name,
       identifier: identifier.value,
       accountId
-    });
-    onCreateWallet();
-    setLoading(false);
-    handleClose();
+    })
+    onCreateWallet()
+    setLoading(false)
+    handleClose()
   }
 
   const handleClose = () => {
-    setName('');
-    setIdentifier({ key: 'secondary', value: 'secondary' });
-    onRequestClose();
+    setName('')
+    setIdentifier({ key: 'secondary', value: 'secondary' })
+    onRequestClose()
   }
 
   return (
@@ -101,7 +101,7 @@ const CreateWalletModal = ({ createWallet, accountId, isOpen, onRequestClose, on
         </div>
       </CreateWalletModalStyle>
     </Modal>
-  );
+  )
 }
 
 CreateWalletModal.propTypes = {
@@ -114,4 +114,4 @@ CreateWalletModal.propTypes = {
 export default connect(
   null,
   { createWallet }
-)(CreateWalletModal);
+)(CreateWalletModal)

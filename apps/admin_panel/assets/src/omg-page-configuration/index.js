@@ -179,7 +179,7 @@ class ConfigurationPage extends Component {
   onSelectMasterAccount = option => {
     this.setState({
       masterAccount: option.id,
-      masterAccountSelected: true,
+      masterAccountSelected: true
     })
   }
 
@@ -207,7 +207,7 @@ class ConfigurationPage extends Component {
     this.setState({ fileStorageAdapter: option.value })
   }
   onChangeInput = key => e => {
-    let newState = { [key]: e.target.value };
+    let newState = { [key]: e.target.value }
     if (key === 'masterAccount') {
       newState = {
         ...newState,
@@ -215,7 +215,7 @@ class ConfigurationPage extends Component {
       }
     }
 
-    this.setState(newState);
+    this.setState(newState)
   }
   onChangeInputredirectUrlPrefixes = index => e => {
     const newState = this.state.redirectUrlPrefixes.slice()
@@ -445,7 +445,8 @@ class ConfigurationPage extends Component {
                   ...account
                 }))}
               />
-            )}
+            )
+          }
           }
         />
         <ConfigRow
@@ -621,7 +622,7 @@ class ConfigurationPage extends Component {
       <>
         <Prompt
           when={!this.isSendButtonDisabled}
-          message="You have unsaved changes. Are you sure you want to leave?"
+          message='You have unsaved changes. Are you sure you want to leave?'
         />
         <ConfigurationsFetcher render={this.renderConfigurationPage} {...this.state} />
       </>

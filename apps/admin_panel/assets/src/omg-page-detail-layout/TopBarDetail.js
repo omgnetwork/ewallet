@@ -26,7 +26,6 @@ const TopBar = styled.div`
 export default class TopBarDetail extends Component {
   static propTypes = {
     title: PropTypes.string,
-    breadcrumbItems: PropTypes.array,
     buttons: PropTypes.array
   }
 

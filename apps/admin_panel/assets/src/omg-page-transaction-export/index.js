@@ -274,11 +274,11 @@ class TransactionExportPage extends Component {
               <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
                 {moment(query.value).isValid()
-                    ? moment(query.value).format()
-                    : query.value}{' '}
+                  ? moment(query.value).format()
+                  : query.value}{' '}
                   ]
-                </div>
-              ))
+              </div>
+            ))
             : '-'
           : '-'
 
@@ -289,11 +289,11 @@ class TransactionExportPage extends Component {
               <div style={{ whiteSpace: 'nowrap' }} key={i}>
                   [ {query.field} ] [ {query.comparator} :{' '}
                 {moment(query.value).isValid()
-                    ? moment(query.value).format()
-                    : query.value}{' '}
+                  ? moment(query.value).format()
+                  : query.value}{' '}
                   ]
-                </div>
-              ))
+              </div>
+            ))
             : '-'
           : '-'
       case 'status':
@@ -451,7 +451,7 @@ class DateTimeHotFix extends PureComponent {
   render () {
     return (
       <DateTime
-        ref='picker'
+        ref={'picker'}
         closeOnSelect
         onChange={this.props.onChange}
         renderInput={(props, openCalendar, closeCalendar) => {

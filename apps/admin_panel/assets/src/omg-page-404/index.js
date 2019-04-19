@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -32,12 +33,12 @@ const ImgContainer = styled.div`
 
 const NotFoundPage = (props) => {
   const [loaded, setLoaded] = useState(false)
-  
+
   useEffect(() => {
     setLoaded(true)
   }, [])
 
-  function handleClick() {
+  function handleClick () {
     props.history.push('/')
   }
 
@@ -47,8 +48,8 @@ const NotFoundPage = (props) => {
         <img src={require('../../statics/images/empty_state.png')} />
       </ImgContainer>
 
-      <h4>Page Not Found</h4>
-      <p>Sorry, the page you are looking for doesn't exist.</p>
+      <h4>{`Page Not Found`}</h4>
+      <p>{`Sorry, the page you are looking for doesn't exist.`}</p>
 
       <Button
         styleType='primary'
@@ -59,6 +60,10 @@ const NotFoundPage = (props) => {
       </Button>
     </Container>
   )
+}
+
+NotFoundPage.propTypes = {
+  history: PropTypes.object
 }
 
 export default withRouter(NotFoundPage)

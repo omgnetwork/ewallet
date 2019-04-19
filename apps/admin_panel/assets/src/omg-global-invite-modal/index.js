@@ -127,10 +127,10 @@ class GlobalInviteModal extends Component {
   }
   onSelectRole = role => {
     this.setState({
-      globalRole: role,
+      globalRole: role
     })
   }
-  render() {
+  render () {
     return (
       <Modal
         isOpen={this.props.open}

@@ -62,7 +62,7 @@ export default class CreateAccountStage extends Component {
       <CreateAccountSuccessContainer>
         <h4>Account successfully created</h4>
         {
-          this.props.avatar 
+          this.props.avatar
             ? <ImageUpload placeholder={this.props.avatar} />
             : <AvatarWrapper name={this.props.name.slice(0, 3)} />
         }

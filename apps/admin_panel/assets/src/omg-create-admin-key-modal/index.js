@@ -125,6 +125,19 @@ function CreateAdminKeyModal (props) {
             onChange={e => setLabel(e.target.value)}
             value={label}
           />
+          <InputLabel>Global Role</InputLabel>
+          <StyledSelect
+            normalPlaceholder='Role ( optional )'
+            value={_.startCase(role)}
+            onSelectItem={item => onSelectRole(item.key)}
+            options={[
+              { key: 'super_admin', value: 'Super Admin' },
+              { key: 'admin', value: 'Admin' },
+              { key: 'viewer', value: 'Viewer' },
+              { key: 'none', value: 'None' }
+            ]}
+            optionRenderer={value => _.startCase(value)}
+          />
           {!props.accountId && (
             <>
               <InputLabel>Global Role</InputLabel>
@@ -151,7 +164,7 @@ function CreateAdminKeyModal (props) {
                 onSelectItem={item => setRoleName(item.key)}
                 options={[
                   { key: 'admin', value: 'Admin' },
-                  { key: 'viewer', value: 'Viewer' },
+                  { key: 'viewer', value: 'Viewer' }
                 ]}
                 optionRenderer={value => _.startCase(value)}
               />

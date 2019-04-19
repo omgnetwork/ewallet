@@ -4,9 +4,10 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import { Switch, Icon, Button } from '../omg-uikit'
 import moment from 'moment'
 
-import { Switch, Icon, Button } from '../omg-uikit'
+import { Switch, Icon } from '../omg-uikit'
 import Table from '../omg-table'
 import AccessKeyFetcher from '../omg-access-key/accessKeysFetcher'
 import ConfirmationModal from '../omg-confirmation-modal'
@@ -154,6 +155,7 @@ class ApiKeyPage extends Component {
     columnsAdminKeys: PropTypes.array,
     search: PropTypes.string,
     downloadKey: PropTypes.func,
+    match: PropTypes.object
   }
 
   static defaultProps = {
@@ -282,6 +284,11 @@ class ApiKeyPage extends Component {
             if (item.hasOwnProperty('key')) {
               role = item.role;
               item = item.key;
+          const apiKeysRows = data.map((item, index) => {
+            let role
+            if (item.hasOwnProperty('key')) {
+              role = item.role
+              item = item.key
             }
             return {
               id: item.id,

@@ -19,7 +19,8 @@ function AccountTransactionSubPage (props) {
 }
 
 AccountTransactionSubPage.propTypes = {
-  match: PropTypes.object
+  match: PropTypes.object,
+  history: PropTypes.object
 }
 
 export default withRouter(AccountTransactionSubPage)
