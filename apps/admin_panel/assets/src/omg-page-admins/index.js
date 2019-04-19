@@ -143,7 +143,7 @@ class UsersPage extends Component {
       case 'email':
         return data || '-'
       case 'global_role':
-        return _.startCase(data) || 'none'
+        return _.startCase(data) || 'None'
       case 'status':
         return _.startCase(data)
       default:

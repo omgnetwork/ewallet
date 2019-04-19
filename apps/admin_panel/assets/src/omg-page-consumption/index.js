@@ -40,9 +40,6 @@ const ConsumptionPageContainer = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  td:nth-child(5) {
-    text-transform: capitalize;
-  }
   tr:hover {
     td:nth-child(1) {
       i {

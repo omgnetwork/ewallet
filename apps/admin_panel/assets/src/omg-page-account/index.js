@@ -155,6 +155,9 @@ class AccountPage extends Component {
     if (key === 'avatar') {
       return null
     }
+    if (key === 'description') {
+      return _.truncate(data, 100) 
+    }
     return data
   }
   renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetch }) => {

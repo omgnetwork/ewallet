@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.SelfController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.UpdateEmailAddressEmail
-  alias AdminAPI.V1.{AccountHelper, AccountView, UserView}
+  alias AdminAPI.V1.{AccountHelper, AccountView, AdminUserView}
   alias Bamboo.Email
   alias Ecto.Changeset
   alias EWallet.{Mailer, UserGate, UpdateEmailGate, AdapterHelper, AdminUserPolicy}
@@ -172,11 +172,11 @@ defmodule AdminAPI.V1.SelfController do
 
   # Respond with a single admin
   defp respond_single({:ok, user}, conn) do
-    render(conn, UserView, :user, %{user: user})
+    render(conn, AdminUserView, :admin_user, %{admin_user: user})
   end
 
   defp respond_single(%User{} = user, conn) do
-    render(conn, UserView, :user, %{user: user})
+    render(conn, AdminUserView, :admin_user, %{admin_user: user})
   end
 
   # Responds when the given params were invalid
