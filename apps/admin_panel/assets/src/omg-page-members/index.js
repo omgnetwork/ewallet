@@ -95,6 +95,7 @@ class MembersPage extends Component {
       { key: 'email', title: 'EMAIL', sort: true },
       { key: 'global_role', title: 'GLOBAL ROLE', sort: true },
       { key: 'role', title: 'ACCOUNT ROLE', sort: true },
+      { key: 'status', title: 'STATUS', sort: true },
       { key: 'created_at', title: 'ADDED AT', sort: true }
     ]
   }
@@ -144,7 +145,11 @@ class MembersPage extends Component {
       case 'email':
         return data || '-'
       case 'global_role':
-        return data || 'none'
+        return _.startCase(data) || 'None'
+      case 'role':
+        return _.startCase(data)
+      case 'status':
+        return _.startCase(data)
       default:
         return data
     }
@@ -158,7 +163,6 @@ class MembersPage extends Component {
   }
 
   renderAdminPage = ({ data: admins, individualLoadingStatus, pagination, fetch }) => {
-    console.log(admins)
     return (
       <MemberPageContainer>
         <TopNavigation

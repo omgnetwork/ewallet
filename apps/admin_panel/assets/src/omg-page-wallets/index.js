@@ -37,8 +37,9 @@ const WalletPageContainer = styled.div`
   td:nth-child(1),
   td:nth-child(2),
   td:nth-child(3),
-  td:nth-child(4) {
-    width: 25%;
+  td:nth-child(4), 
+  td:nth-child(5), {
+    width: 20%;
   }
   tbody td:first-child {
     border-bottom: none;

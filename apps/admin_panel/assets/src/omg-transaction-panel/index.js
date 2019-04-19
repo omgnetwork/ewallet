@@ -85,7 +85,7 @@ class TransactionRequestPanel extends Component {
     const accountId = _.get(transaction, 'account.id')
     const user = _.get(transaction, 'user')
     const tokenId = _.get(transaction, 'token.id')
-    console.log(user)
+
     return (
       <TransactionInfoContainer>
         <h5>{title}</h5>

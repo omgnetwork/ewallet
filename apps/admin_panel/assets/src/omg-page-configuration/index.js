@@ -161,7 +161,7 @@ class ConfigurationPage extends Component {
         }, true) ||
       Number(this.state.maxPerPage) < 1 ||
       Number(this.state.minPasswordLength) < 1 ||
-      !this.state.masterAccountSelected
+      !this.state.masterAccount
     )
   }
   isAddPrefixButtonDisabled () {

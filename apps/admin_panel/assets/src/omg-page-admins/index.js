@@ -10,7 +10,7 @@ import moment from 'moment'
 import queryString from 'query-string'
 import Copy from '../omg-copy'
 import { createSearchAdminsQuery } from '../omg-admins/searchField'
-import InviteModal from '../omg-invite-modal'
+import GlobalInviteModal from '../omg-global-invite-modal'
 
 const AdminPageContainer = styled.div`
   position: relative;
@@ -93,6 +93,8 @@ class UsersPage extends Component {
     columns: [
       { key: 'id', title: 'ADMIN ID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
+      { key: 'global_role', title: 'GLOBAL ROLE', sort: true },
+      { key: 'status', title: 'STATUS', sort: true },
       { key: 'created_at', title: 'CREATED AT', sort: true },
       { key: 'updated_at', title: 'UPDATED AT', sort: true }
     ]
@@ -122,9 +124,8 @@ class UsersPage extends Component {
   }
   getRow = admins => {
     return admins.map(admin => ({
-      ...admin.user,
-      role: admin.role,
-      avatar: _.get(admin, 'user.avatar.thumb')
+      ...admin,
+      avatar: _.get(admin, 'avatar.thumb')
     }))
   }
   rowRenderer (key, data, rows) {
@@ -141,6 +142,10 @@ class UsersPage extends Component {
         )
       case 'email':
         return data || '-'
+      case 'global_role':
+        return _.startCase(data) || 'none'
+      case 'status':
+        return _.startCase(data)
       default:
         return data
     }
@@ -148,7 +153,7 @@ class UsersPage extends Component {
   renderInviteButton = () => {
     return (
       <InviteButton size='small' onClick={this.onClickInviteButton} key={'create'}>
-        <Icon name='Plus' /> <span>Invite Member</span>
+        <Icon name='Plus' /> <span>Invite Admin</span>
       </InviteButton>
     )
   }
@@ -159,7 +164,7 @@ class UsersPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Admins'}
-          buttons={[this.props.showInviteButton ? this.renderInviteButton() : null]}
+          buttons={[this.renderInviteButton()]}
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
@@ -174,13 +179,16 @@ class UsersPage extends Component {
             pagination={false}
           />
         </SortableTableContainer>
-        <InviteModal open={this.state.inviteModalOpen} onRequestClose={this.onRequestClose} onInviteSuccess={fetch} />
+        <GlobalInviteModal open={this.state.inviteModalOpen} 
+                           onRequestClose={this.onRequestClose} 
+                           onInviteSuccess={fetch} />
       </AdminPageContainer>
     )
   }
 
   render () {
     const Fetcher = this.props.fetcher
+
     return (
       <Fetcher
         {...this.state}
