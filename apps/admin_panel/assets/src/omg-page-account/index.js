@@ -115,7 +115,7 @@ class AccountPage extends Component {
       { key: 'name', title: 'NAME', sort: true },
       { key: 'id', title: 'ID', sort: true },
       { key: 'description', title: 'DESCRIPTION', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
+      { key: 'created_at', title: 'CREATED AT', sort: true },
       { key: 'avatar', title: 'AVATAR', hide: true }
     ]
   }
@@ -154,6 +154,9 @@ class AccountPage extends Component {
     }
     if (key === 'avatar') {
       return null
+    }
+    if (key === 'description') {
+      return _.truncate(data, 100) 
     }
     return data
   }

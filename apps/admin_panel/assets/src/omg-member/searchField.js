@@ -1,4 +1,4 @@
-export function createSearchInviteQuery (value = '') {
+export function createMemberSearchQuery (value = '') {
   const matchValue = value.trim()
   return {
     matchAny: [

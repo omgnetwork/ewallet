@@ -249,7 +249,7 @@ b {
 .rdtPicker th.rdtNext,
 .rdtPicker th.rdtPrev {
   font-size: 21px;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .rdtPrev span,

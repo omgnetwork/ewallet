@@ -152,6 +152,12 @@ defmodule EWalletDB.User do
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_inclusion(:global_role, GlobalRole.global_roles())
     |> validate_immutable(:provider_user_id)
+    |> validate_length(:username, count: :bytes, max: 255)
+    |> validate_length(:provider_user_id, count: :bytes, max: 255)
+    |> validate_length(:email, count: :bytes, max: 255)
+    |> validate_length(:full_name, count: :bytes, max: 255)
+    |> validate_length(:calling_name, count: :bytes, max: 255)
+    |> validate_length(:global_role, count: :bytes, max: 255)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
     |> unique_constraint(:email)
@@ -178,6 +184,10 @@ defmodule EWalletDB.User do
         :encrypted_metadata
       ]
     )
+    |> validate_length(:username, count: :bytes, max: 255)
+    |> validate_length(:provider_user_id, count: :bytes, max: 255)
+    |> validate_length(:full_name, count: :bytes, max: 255)
+    |> validate_length(:calling_name, count: :bytes, max: 255)
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
@@ -201,6 +211,9 @@ defmodule EWalletDB.User do
         :encrypted_metadata
       ]
     )
+    |> validate_length(:full_name, count: :bytes, max: 255)
+    |> validate_length(:calling_name, count: :bytes, max: 255)
+    |> validate_length(:global_role, count: :bytes, max: 255)
     |> assoc_constraint(:invite)
     |> validate_inclusion(:global_role, GlobalRole.global_roles())
     |> validate_by_roles(attrs)
@@ -256,6 +269,7 @@ defmodule EWalletDB.User do
       cast: [:email],
       required: [:email]
     )
+    |> validate_length(:email, count: :bytes, max: 255)
     |> validate_email(:email)
     |> unique_constraint(:email)
   end

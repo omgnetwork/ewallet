@@ -137,7 +137,7 @@ function AccountNavigationBar (props) {
           activeClassName='navlink-active'
           className='account-link'
         >
-          <div className='account-link-text'>Settings</div>
+          <div className='account-link-text'>Edit</div>
         </NavLink>
       </LinksContainer>
     </AccountNavigationBarContainer>

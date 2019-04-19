@@ -3,16 +3,16 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
-import AdminsFetcher from '../omg-admins/adminsFetcher'
+import MembersFetcher from '../omg-member/MembersFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
 import Copy from '../omg-copy'
-import { createSearchAdminsQuery } from '../omg-admins/searchField'
-import GlobalInviteModal from '../omg-global-invite-modal'
+import { createMemberSearchQuery } from '../omg-member/searchField'
+import InviteModal from '../omg-invite-modal'
 
-const AdminPageContainer = styled.div`
+const MemberPageContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -73,7 +73,7 @@ const InviteButton = styled(Button)`
   padding-left: 30px;
   padding-right: 30px;
 `
-class UsersPage extends Component {
+class MembersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
     history: PropTypes.object,
@@ -88,15 +88,15 @@ class UsersPage extends Component {
   }
   static defaultProps = {
     query: {},
-    fetcher: AdminsFetcher,
+    fetcher: MembersFetcher,
     showInviteButton: false,
     columns: [
       { key: 'id', title: 'ADMIN ID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
       { key: 'global_role', title: 'GLOBAL ROLE', sort: true },
+      { key: 'role', title: 'ACCOUNT ROLE', sort: true },
       { key: 'status', title: 'STATUS', sort: true },
-      { key: 'created_at', title: 'CREATED AT', sort: true },
-      { key: 'updated_at', title: 'UPDATED AT', sort: true }
+      { key: 'created_at', title: 'ADDED AT', sort: true }
     ]
   }
   constructor (props) {
@@ -124,8 +124,10 @@ class UsersPage extends Component {
   }
   getRow = admins => {
     return admins.map(admin => ({
-      ...admin,
-      avatar: _.get(admin, 'avatar.thumb')
+      ...admin.user,
+      global_role: admin.user.global_role,
+      role: admin.role,
+      avatar: _.get(admin, 'user.avatar.thumb')
     }))
   }
   rowRenderer (key, data, rows) {
@@ -144,6 +146,8 @@ class UsersPage extends Component {
         return data || '-'
       case 'global_role':
         return _.startCase(data) || 'None'
+      case 'role':
+        return _.startCase(data)
       case 'status':
         return _.startCase(data)
       default:
@@ -153,18 +157,18 @@ class UsersPage extends Component {
   renderInviteButton = () => {
     return (
       <InviteButton size='small' onClick={this.onClickInviteButton} key={'create'}>
-        <Icon name='Plus' /> <span>Invite Admin</span>
+        <Icon name='Plus' /> <span>Invite Member</span>
       </InviteButton>
     )
   }
 
   renderAdminPage = ({ data: admins, individualLoadingStatus, pagination, fetch }) => {
     return (
-      <AdminPageContainer>
+      <MemberPageContainer>
         <TopNavigation
           divider={this.props.divider}
           title={'Admins'}
-          buttons={[this.renderInviteButton()]}
+          buttons={[this.props.showInviteButton ? this.renderInviteButton() : null]}
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
@@ -179,10 +183,8 @@ class UsersPage extends Component {
             pagination={false}
           />
         </SortableTableContainer>
-        <GlobalInviteModal open={this.state.inviteModalOpen} 
-                           onRequestClose={this.onRequestClose} 
-                           onInviteSuccess={fetch} />
-      </AdminPageContainer>
+        <InviteModal open={this.state.inviteModalOpen} onRequestClose={this.onRequestClose} onInviteSuccess={fetch} />
+      </MemberPageContainer>
     )
   }
 
@@ -196,7 +198,7 @@ class UsersPage extends Component {
         render={this.renderAdminPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          ...createSearchAdminsQuery(queryString.parse(this.props.location.search).search),
+          ...createMemberSearchQuery(queryString.parse(this.props.location.search).search),
           ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
@@ -205,4 +207,4 @@ class UsersPage extends Component {
   }
 }
 
-export default withRouter(UsersPage)
+export default withRouter(MembersPage)

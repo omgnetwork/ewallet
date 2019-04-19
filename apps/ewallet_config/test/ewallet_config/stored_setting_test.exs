@@ -43,6 +43,18 @@ defmodule EWalletConfig.StoredSettingTest do
       assert changeset.valid?
     end
 
+    test "returns an error if the description is too long", context do
+      value = "A long long long long long long long long long long long long
+      long long long long long long long long long long long long long long long
+      long long long long long long long long long long long long long long long
+      long long long long long long long long long long long long long value"
+      record = %StoredSetting{}
+      attrs = Map.put(context.attrs, "description", value)
+
+      changeset = StoredSetting.changeset(record, attrs)
+      refute changeset.valid?
+    end
+
     test "returns an invalid changeset if the `key` is being changed", context do
       record = %StoredSetting{key: "record_key"}
       changeset = StoredSetting.changeset(record, context.attrs)
@@ -142,6 +154,17 @@ defmodule EWalletConfig.StoredSettingTest do
 
       changeset = StoredSetting.update_changeset(context.record, attrs)
       assert changeset.valid?
+    end
+
+    test "returns an error if the description is too long", context do
+      value = "A long long long long long long long long long long long long
+      long long long long long long long long long long long long long long long
+      long long long long long long long long long long long long long long long
+      long long long long long long long long long long long long long value"
+      attrs = %{"description" => value}
+
+      changeset = StoredSetting.update_changeset(context.record, attrs)
+      refute changeset.valid?
     end
 
     test "returns an invalid changeset if both `data` and `encrypted_data` are given", context do

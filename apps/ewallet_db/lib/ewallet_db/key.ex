@@ -88,6 +88,8 @@ defmodule EWalletDB.Key do
     |> validate_inclusion(:global_role, GlobalRole.global_roles())
     |> unique_constraint(:name, name: :key_name_index)
     |> unique_constraint(:access_key, name: :key_access_key_index)
+    |> validate_length(:name, count: :bytes, max: 255)
+    |> validate_length(:global_role, count: :bytes, max: 255)
     |> put_change(:secret_key_hash, Crypto.hash_secret(attrs[:secret_key]))
     |> put_change(:secret_key, Base.url_encode64(attrs[:secret_key], padding: false))
   end
@@ -98,6 +100,8 @@ defmodule EWalletDB.Key do
       attrs,
       cast: [:name, :global_role, :enabled]
     )
+    |> validate_length(:name, count: :bytes, max: 255)
+    |> validate_length(:global_role, count: :bytes, max: 255)
     |> unique_constraint(:name, name: :key_name_index)
   end
 

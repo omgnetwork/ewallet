@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import { Input, Button } from '../omg-uikit'
 import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
@@ -10,15 +11,20 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 const UserSettingContainer = styled.div`
-  padding-top: 20px;
-  h2 {
-    margin-bottom: 30px;
-  }
+  padding-bottom: 50px;
 `
 const StyledInput = styled(Input)`
   margin-bottom: 30px;
 `
 const StyledEmailInput = styled(StyledInput)`
+  pointer-events: none;
+  margin-top: 30px;
+  input {
+    border-bottom: none;
+  }
+`
+const StyledRoleInput = styled(StyledInput)`
+  margin-bottom: 8px;
   pointer-events: none;
   input {
     border-bottom: none;
@@ -71,6 +77,7 @@ class UserSettingPage extends Component {
   }
   state = {
     email: '',
+    globalRole: '',
     submitStatus: 'DEFAULT',
     changingPassword: false
   }
@@ -85,6 +92,7 @@ class UserSettingPage extends Component {
     if (props.loadingStatus === 'SUCCESS' && !this.state.currentUserLoaded) {
       this.setState({
         email: props.currentUser.email,
+        globalRole: props.currentUser.global_role,
         avatarPlaceholder: props.currentUser.avatar.original,
         currentUserLoaded: true
       })
@@ -152,7 +160,10 @@ class UserSettingPage extends Component {
   render () {
     return (
       <UserSettingContainer>
-        <h2>Profile Settings</h2>
+        <TopNavigation divider={this.props.divider}
+          title={'My Profile'}
+          secondaryAction={false}
+        />
         {this.props.loadingStatus === 'SUCCESS' && (
           <form onSubmit={this.onClickUpdateAccount} noValidate>
             <AvatarContainer>
@@ -168,6 +179,11 @@ class UserSettingPage extends Component {
                 value={this.state.email}
                 prefill
                 onChange={this.onChangeEmail}
+              />
+              <StyledRoleInput
+                placeholder={'Global Role'}
+                value={_.startCase(this.state.globalRole)}
+                prefill
               />
               <ChangePasswordContainer>
                 <div>Password</div>

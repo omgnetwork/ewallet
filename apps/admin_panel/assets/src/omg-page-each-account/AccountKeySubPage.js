@@ -43,8 +43,8 @@ export default withRouter(function AccountKeySubPage (props) {
         columnsAdminKeys={[
           { key: 'name', title: 'NAME' },
           { key: 'key', title: 'ACCESS KEY' },
-          { key: 'account_role', title: 'ACCOUNT ROLE' },
           { key: 'global_role', title: 'GLOBAL ROLE' },
+          { key: 'account_role', title: 'ACCOUNT ROLE' },
           { key: 'created_at', title: 'CREATED AT' },
           { key: 'status', title: 'STATUS' }
         ]}

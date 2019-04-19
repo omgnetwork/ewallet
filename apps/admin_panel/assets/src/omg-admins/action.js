@@ -22,3 +22,15 @@ export const getAdminById = id =>
     action: 'REQUEST',
     service: () => adminService.getAdminById(id)
   })
+
+export const inviteAdmin = ({ email, redirectUrl, globalRole }) =>
+  createActionCreator({
+    actionName: 'INVITE_ADMIN',
+    action: 'REQUEST',
+    service: () =>
+      adminService.inviteAdmin({
+        email,
+        redirectUrl: `${redirectUrl}?token={token}&email={email}`,
+        globalRole
+      })
+  })

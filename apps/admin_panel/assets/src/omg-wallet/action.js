@@ -68,3 +68,14 @@ export const getWalletById = id =>
     action: 'REQUEST',
     service: async () => walletService.getWallet(id)
   })
+
+export const createWallet = ({ name, identifier, accountId }) =>
+  createActionCreator({
+    actionName: 'WALLET',
+    action: 'CREATE', 
+    service: async () => walletService.createWallet({
+      name,
+      identifier,
+      accountId
+    })
+  })

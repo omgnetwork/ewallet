@@ -27,7 +27,8 @@ defmodule AdminAPI.V1.ExchangePairController do
   def all(conn, attrs) do
     with {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized},
-         %Paginator{} = paginator <- Orchestrator.query(query, ExchangePairOverlay, attrs) do
+         %Paginator{} = paginator <- Orchestrator.query(query, ExchangePairOverlay, attrs),
+         %Paginator{} = paginator <- ExchangePairGate.add_opposite_pairs(paginator) do
       render(conn, :exchange_pairs, %{exchange_pairs: paginator})
     else
       {:error, code, description} ->
@@ -45,7 +46,8 @@ defmodule AdminAPI.V1.ExchangePairController do
   def get(conn, %{"id" => id}) do
     with %ExchangePair{} = pair <- ExchangePair.get_by(id: id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, pair),
-         {:ok, pair} <- Orchestrator.one(pair, ExchangePairOverlay) do
+         {:ok, pair} <- Orchestrator.one(pair, ExchangePairOverlay),
+         pair <- ExchangePairGate.add_opposite_pair(pair) do
       render(conn, :exchange_pair, %{exchange_pair: pair})
     else
       {:error, code} ->
@@ -66,7 +68,8 @@ defmodule AdminAPI.V1.ExchangePairController do
     with {:ok, _} <- authorize(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, pairs} <- ExchangePairGate.insert(attrs),
-         {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay) do
+         {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay),
+         pairs <- ExchangePairGate.add_opposite_pairs(pairs) do
       render(conn, :exchange_pairs, %{exchange_pairs: pairs})
     else
       {:error, %Changeset{} = changeset} ->
@@ -86,7 +89,8 @@ defmodule AdminAPI.V1.ExchangePairController do
          {:ok, _} <- authorize(:update, conn.assigns, pair),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, pairs} <- ExchangePairGate.update(id, attrs),
-         {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay) do
+         {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay),
+         pairs <- ExchangePairGate.add_opposite_pairs(pairs) do
       render(conn, :exchange_pairs, %{exchange_pairs: pairs})
     else
       {:error, %Changeset{} = changeset} ->
@@ -108,7 +112,8 @@ defmodule AdminAPI.V1.ExchangePairController do
          {:ok, _} <- authorize(:delete, conn.assigns, pair),
          originator <- Originator.extract(conn.assigns),
          {:ok, deleted_pairs} <- ExchangePairGate.delete(id, attrs, originator),
-         {:ok, deleted_pairs} <- Orchestrator.all(deleted_pairs, ExchangePairOverlay) do
+         {:ok, deleted_pairs} <- Orchestrator.all(deleted_pairs, ExchangePairOverlay),
+         deleted_pairs <- ExchangePairGate.add_opposite_pairs(deleted_pairs) do
       render(conn, :exchange_pairs, %{exchange_pairs: deleted_pairs})
     else
       {:error, %Changeset{} = changeset} ->

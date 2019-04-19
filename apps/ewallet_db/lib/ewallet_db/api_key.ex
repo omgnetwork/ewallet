@@ -69,6 +69,7 @@ defmodule EWalletDB.APIKey do
     )
     |> populate_key()
     |> validate_exclusive([:creator_user_uuid, :creator_key_uuid])
+    |> validate_length(:name, count: :bytes, max: 255)
     |> unique_constraint(:name, name: :api_key_name_index)
     |> unique_constraint(:key)
     |> assoc_constraint(:creator_user)
@@ -99,6 +100,7 @@ defmodule EWalletDB.APIKey do
       cast: [:name, :enabled],
       required: [:enabled]
     )
+    |> validate_length(:name, count: :bytes, max: 255)
     |> unique_constraint(:name, name: :api_key_name_index)
   end
 

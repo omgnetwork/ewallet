@@ -81,7 +81,7 @@ class ActivityList extends Component {
     this.columns = [
       { key: 'estimated_consumption_amount', title: 'AMOUNT' },
       { key: 'to', title: 'CONSUMER' },
-      { key: 'created_at', title: 'CREATED DATE' },
+      { key: 'created_at', title: 'CREATED AT' },
       { key: 'status', title: 'CONFIRMATION' }
     ]
     this.perPage = Math.floor(window.innerHeight / 60)

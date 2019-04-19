@@ -316,7 +316,7 @@ class TransactionExportPage extends Component {
                 style={{ verticalAlign: 'middle' }}
               />
             )}{' '}
-            <span>{data}</span>
+            <span>{_.capitalize(data)}</span>
           </StatusContainer>
         )
       default:

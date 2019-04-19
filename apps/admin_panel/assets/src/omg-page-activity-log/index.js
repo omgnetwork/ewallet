@@ -88,7 +88,7 @@ class AccountPage extends Component {
       { key: 'originator', title: 'ORIGINATOR' },
       { key: 'action', title: 'ACTION' },
       { key: 'target', title: 'TARGET' },
-      { key: 'created_at', title: 'CREATED DATE' }
+      { key: 'created_at', title: 'CREATED AT' }
     ]
   }
 
