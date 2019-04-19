@@ -75,6 +75,8 @@ defmodule EWalletDB.APIKeyTest do
     test_insert_prevent_duplicate(APIKey, :key)
     test_insert_prevent_duplicate(APIKey, :name)
 
+    test_insert_field_length(APIKey, :name)
+
     test "inserts with the given name" do
       {:ok, api_key} = :api_key |> params_for(%{name: "my_cool_api_key"}) |> APIKey.insert()
 
@@ -86,6 +88,8 @@ defmodule EWalletDB.APIKeyTest do
     test_update_ignores_changing(APIKey, :key)
 
     test_update_field_ok(APIKey, :enabled, true, false)
+
+    test_update_field_length(APIKey, :name)
 
     test "updates with the given name" do
       {:ok, api_key} = :api_key |> params_for(name: "my_cool_api_key") |> APIKey.insert()

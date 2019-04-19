@@ -55,6 +55,8 @@ defmodule EWalletDB.Category do
       cast: [:name, :description],
       required: [:name]
     )
+    |> validate_length(:name, count: :bytes, max: 255)
+    |> validate_length(:description, count: :bytes, max: 255)
     |> unique_constraint(:name)
     |> put_accounts(attrs, :account_ids)
   end
