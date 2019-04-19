@@ -17,6 +17,7 @@ defmodule EWalletDB.ExchangePairTest do
   import EWalletDB.Factory
   alias EWalletDB.ExchangePair
   alias ActivityLogger.System
+  alias Utils.Helpers.UUID
 
   describe "ExchangePair factory" do
     test_has_valid_factory(ExchangePair)
@@ -189,6 +190,78 @@ defmodule EWalletDB.ExchangePairTest do
       pair = insert(:exchange_pair, from_token: abc, to_token: xyz)
 
       assert ExchangePair.get_name(pair) == "ABC/XYZ"
+    end
+  end
+
+  describe "get_opposite_pairs/1" do
+    test "returns a list of opposite pairs when given a list of exchange pairs" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      token_3 = insert(:token)
+      token_4 = insert(:token)
+
+      pair_1 = insert(:exchange_pair, from_token: token_1, to_token: token_2)
+      pair_2 = insert(:exchange_pair, from_token: token_1, to_token: token_3)
+      pair_3 = insert(:exchange_pair, from_token: token_1, to_token: token_4)
+      pair_4 = insert(:exchange_pair, from_token: token_2, to_token: token_3)
+
+      opp_pair_1 = insert(:exchange_pair, from_token: token_2, to_token: token_1)
+      opp_pair_2 = insert(:exchange_pair, from_token: token_3, to_token: token_1)
+
+      opposites_uuids =
+        [pair_1, pair_2, pair_3, pair_4]
+        |> ExchangePair.get_opposite_pairs()
+        |> UUID.get_uuids()
+
+      assert length(opposites_uuids) == 2
+      assert Enum.member?(opposites_uuids, opp_pair_1.uuid)
+      assert Enum.member?(opposites_uuids, opp_pair_2.uuid)
+    end
+
+    test "returns an empty list when no opposite exchange pairs found" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      token_3 = insert(:token)
+
+      pair_1 = insert(:exchange_pair, from_token: token_1, to_token: token_2)
+      pair_2 = insert(:exchange_pair, from_token: token_1, to_token: token_3)
+      pair_3 = insert(:exchange_pair, from_token: token_2, to_token: token_3)
+
+      opposites = ExchangePair.get_opposite_pairs([pair_1, pair_2, pair_3])
+      assert Enum.empty?(opposites)
+    end
+
+    test "returns an empty list when no exchange pairs given" do
+      opposites = ExchangePair.get_opposite_pairs([])
+      assert Enum.empty?(opposites)
+    end
+  end
+
+  describe "get_opposite_pair/1" do
+    test "returns the opposite pairs when given an exchange pair" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      token_3 = insert(:token)
+
+      pair_1 = insert(:exchange_pair, from_token: token_1, to_token: token_2)
+      _pair_2 = insert(:exchange_pair, from_token: token_1, to_token: token_3)
+
+      opp_pair = insert(:exchange_pair, from_token: token_2, to_token: token_1)
+
+      opposite = ExchangePair.get_opposite_pair(pair_1)
+
+      assert opposite.uuid == opp_pair.uuid
+    end
+
+    test "returns nil when no opposite pair found" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      token_3 = insert(:token)
+
+      pair_1 = insert(:exchange_pair, from_token: token_1, to_token: token_2)
+      _pair_2 = insert(:exchange_pair, from_token: token_1, to_token: token_3)
+
+      assert ExchangePair.get_opposite_pair(pair_1) == nil
     end
   end
 
