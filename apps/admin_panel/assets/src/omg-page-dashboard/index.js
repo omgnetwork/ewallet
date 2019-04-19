@@ -115,7 +115,7 @@ export default withRouter(
             <span>{moment(currentAccount.created_at).format()}</span>
           </DetailGroup>
           <DetailGroup>
-            <b>Last Update:</b>{' '}
+            <b>Updated At:</b>{' '}
             <span>{moment(currentAccount.updated_at).format()}</span>
           </DetailGroup>
         </SectionContainer>

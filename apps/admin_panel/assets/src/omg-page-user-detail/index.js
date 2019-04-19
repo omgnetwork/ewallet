@@ -62,7 +62,7 @@ class TokenDetailPage extends Component {
           <b>Created At:</b> <span>{moment(user.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(user.updated_at).format()}</span>
+          <b>Updated At:</b> <span>{moment(user.updated_at).format()}</span>
         </DetailGroup>
       </Section>
     )

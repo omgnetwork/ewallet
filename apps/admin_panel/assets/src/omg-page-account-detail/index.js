@@ -37,7 +37,7 @@ class AccountDetailPage extends Component {
             <b>Created At:</b> {moment(account.created_at).format()}
           </DetailGroup>
           <DetailGroup>
-            <b>Last Update:</b> {moment(account.updated_at).format()}
+            <b>Updated At:</b> {moment(account.updated_at).format()}
           </DetailGroup>
         </Section>
       </>

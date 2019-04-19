@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import AdminPage from '../omg-page-admins'
+import MemberPageContainer from '../omg-page-members'
 import adminsAccountFetcher from '../omg-member/MembersFetcher'
 import { withRouter } from 'react-router-dom'
 export default withRouter(
@@ -15,19 +15,13 @@ export default withRouter(
 
     render () {
       return (
-        <AdminPage
+        <MemberPageContainer
           divider={false}
           fetcher={adminsAccountFetcher}
           accountId={this.props.match.params.accountId}
           navigation={false}
           onClickRow={this.onClickRow}
           showInviteButton
-          columns={[
-            { key: 'id', title: 'ADMIN ID', sort: true },
-            { key: 'email', title: 'EMAIL', sort: true },
-            { key: 'role', title: 'ROLE', sort: true },
-            { key: 'status', title: 'STATUS', sort: true }
-          ]}
         />
       )
     }
