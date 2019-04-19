@@ -162,7 +162,6 @@ class ApiKeyPage extends Component {
       { key: 'name', title: 'NAME' },
       { key: 'key', title: 'ACCESS KEY' },
       { key: 'global_role', title: 'GLOBAL ROLE' },
-      { key: 'account_role', title: 'ACCOUNT ROLE' },
       { key: 'created_at', title: 'CREATED AT' },
       { key: 'status', title: 'STATUS' }
     ]
@@ -192,6 +191,7 @@ class ApiKeyPage extends Component {
   }
   onClickAccessKeySwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateAccessKey({ id, expired })
+    fetch();
   }
   onClickDownloadKey = e => {
     this.props.downloadKey({
