@@ -135,6 +135,8 @@ defmodule EWalletDB.Wallet do
     |> unique_constraint(:unique_user_name, name: :wallet_user_uuid_name_index)
     |> unique_constraint(:unique_account_identifier, name: :wallet_account_uuid_identifier_index)
     |> unique_constraint(:unique_user_identifier, name: :wallet_user_uuid_identifier_index)
+    |> validate_length(:name, count: :bytes, max: 255)
+    |> validate_length(:identifier, count: :bytes, max: 255)
   end
 
   defp enable_changeset(%Wallet{} = wallet, attrs) do

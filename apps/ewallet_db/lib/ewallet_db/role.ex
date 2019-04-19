@@ -199,6 +199,8 @@ defmodule EWalletDB.Role do
       required: [:name]
     )
     |> validate_required([:name])
+    |> validate_length(:name, count: :bytes, max: 255)
+    |> validate_length(:display_name, count: :bytes, max: 255)
     |> validate_inclusion(:name, account_roles())
     |> unique_constraint(:name, name: "role_name_index")
   end

@@ -113,6 +113,8 @@ defmodule EWalletDB.Account do
       encrypted: [:encrypted_metadata]
     )
     |> unique_constraint(:name)
+    |> validate_length(:name, count: :bytes, max: 255)
+    |> validate_length(:description, count: :bytes, max: 255)
     |> put_categories(attrs, :category_ids)
   end
 

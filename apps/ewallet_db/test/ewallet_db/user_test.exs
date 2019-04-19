@@ -52,6 +52,13 @@ defmodule EWalletDB.UserTest do
     test_insert_prevent_duplicate(User, :provider_user_id)
     test_default_metadata_fields(User, "user")
 
+    test_insert_field_length(User, :username)
+    test_insert_field_length(User, :provider_user_id)
+    test_insert_field_length(User, :email)
+    test_insert_field_length(User, :full_name)
+    test_insert_field_length(User, :calling_name)
+    test_insert_field_length(User, :global_role)
+
     test "creates a primary wallet for end users" do
       {:ok, inserted_user} = :user |> params_for() |> User.insert()
 
@@ -92,6 +99,11 @@ defmodule EWalletDB.UserTest do
     test_update_field_ok(User, :username)
     test_update_field_ok(User, :full_name)
     test_update_field_ok(User, :calling_name)
+
+    test_update_field_length(User, :username)
+    test_update_field_length(User, :full_name)
+    test_update_field_length(User, :calling_name)
+    test_update_field_length(User, :provider_user_id)
 
     test_update_field_ok(User, :metadata, %{"field" => "old"}, %{"field" => "new"})
 
@@ -242,6 +254,25 @@ defmodule EWalletDB.UserTest do
 
       assert res == :ok
       assert updated.email == new_email
+    end
+
+    test "prevents the update if the email is too long" do
+      user = insert(:standalone_user)
+      new_email = "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong
+      longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong
+      longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong
+      longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong
+      longlonglonglonglonglonglonglonglong@example.com"
+      assert user.email != new_email
+
+      {res, changeset} =
+        User.update_email(user, %{
+          email: new_email,
+          originator: user
+        })
+
+      assert res == :error
+      refute changeset.valid?
     end
 
     test "prevents the update if the email is already used" do
