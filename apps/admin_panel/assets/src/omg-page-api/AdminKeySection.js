@@ -284,7 +284,7 @@ class ApiKeyPage extends Component {
               item = item.key;
             }
             return {
-              id: index,
+              id: item.id,
               key: item.access_key,
               user: item.account_id,
               created_at: item.created_at,
