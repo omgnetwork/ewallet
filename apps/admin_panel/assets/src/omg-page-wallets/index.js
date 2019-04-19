@@ -194,7 +194,7 @@ class WalletPage extends Component {
           title={this.props.title}
           buttons={[
             this.props.transferButton && this.renderTransferButton(),
-            isAccountWalletsPage && this.renderCreateWalletButton()
+            isAccountWalletsPage && accountId && this.renderCreateWalletButton()
           ]}
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
