@@ -192,6 +192,7 @@ class ApiKeyPage extends Component {
   }
   onClickAccessKeySwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateAccessKey({ id, expired })
+    fetch();
   }
   onClickDownloadKey = e => {
     this.props.downloadKey({
