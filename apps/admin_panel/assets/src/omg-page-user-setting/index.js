@@ -160,7 +160,8 @@ class UserSettingPage extends Component {
   render () {
     return (
       <UserSettingContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={'My Profile'}
           secondaryAction={false}
         />

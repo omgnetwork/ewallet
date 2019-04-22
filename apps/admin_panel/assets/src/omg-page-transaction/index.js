@@ -171,10 +171,10 @@ class TransactionPage extends Component {
   renderCreateTransactionButton = () => {
     return (
       <TransferButton
+        key='create'
         size='small'
         styleType='primary'
         onClick={this.onClickCreateTransaction}
-        key={'create'}
       >
         <Icon name='Transaction' />
         <span>Transfer</span>
@@ -183,7 +183,12 @@ class TransactionPage extends Component {
   }
   renderExportButton () {
     return (
-      <ExportButton size='small' styleType='secondary' key={'export'} onClick={this.onClickExport}>
+      <ExportButton
+        key='export'
+        size='small'
+        styleType='secondary'
+        onClick={this.onClickExport}
+      >
         Export
       </ExportButton>
     )
@@ -268,7 +273,8 @@ class TransactionPage extends Component {
 
     return (
       <TransactionPageContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={'Transactions'}
           buttons={[this.renderCreateTransactionButton(), this.renderExportButton()]}
         />

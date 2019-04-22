@@ -1,24 +1,26 @@
 import React, { Component, PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import queryString from 'query-string'
+import moment from 'moment'
+import { withRouter } from 'react-router-dom'
+import { compose } from 'recompose'
+import DateTime from 'react-datetime'
+import { connect } from 'react-redux'
+
 import SortableTable from '../omg-table'
 import ExportFetcher from '../omg-export/exportFetcher'
 import { downloadExportFileById, getExports } from '../omg-export/action'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { withRouter } from 'react-router-dom'
-import { compose } from 'recompose'
 import { Input, Button, Icon } from '../omg-uikit'
-import DateTime from 'react-datetime'
-import { connect } from 'react-redux'
 import { exportTransaction } from '../omg-transaction/action'
 import { createSearchTransactionExportQuery } from './searchField'
-import queryString from 'query-string'
-import moment from 'moment'
 import CONSTANT from '../constants'
 import ProgressBar from './ProgressBar'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { Manager, Reference, Popper } from 'react-popper'
 import { MarkContainer } from '../omg-page-transaction'
+
 const Container = styled.div`
   position: relative;
   padding-bottom: 50px;
@@ -328,7 +330,7 @@ class TransactionExportPage extends Component {
   }
   renderExportButton (fetch) {
     return (
-      <Manager>
+      <Manager key='export-button'>
         <Reference>
           {({ ref, style }) => (
             <div ref={ref} style={{ ...style, display: 'inline-block', marginLeft: '10px' }}>
@@ -395,8 +397,9 @@ class TransactionExportPage extends Component {
           }}
           render={({ data, individualLoadingStatus, pagination, fetch }) => {
             return (
-              <div>
-                <TopNavigation divider={this.props.divider}
+              <>
+                <TopNavigation
+                  divider={this.props.divider}
                   title={
                     <TitleContainer>
                       <Icon name='Arrow-Left' onClick={this.props.history.goBack} /> Export
@@ -432,7 +435,7 @@ class TransactionExportPage extends Component {
                     <div>Do you want to proceed?</div>
                   </AlertEmptyTextContainer>
                 </ConfirmationModal>
-              </div>
+              </>
             )
           }}
         />

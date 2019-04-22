@@ -97,7 +97,11 @@ class TokenDetailPage extends Component {
   }
   renderMintTokenButton = () => {
     return (
-      <Button size='small' onClick={this.onClickCreateToken} key={'mint'}>
+      <Button
+        key='mint'
+        size='small'
+        onClick={this.onClickCreateToken}
+      >
         <Icon name='Plus' /> <span>Create Token</span>
       </Button>
     )
@@ -105,10 +109,10 @@ class TokenDetailPage extends Component {
   renderCreateExchangePairButton = () => {
     return (
       <Button
+        key='create pair'
         size='small'
         styleType='secondary'
         onClick={this.onClickCreateExchangePair}
-        key={'create pair'}
       >
         <span>Create Exchange Pair</span>
       </Button>
@@ -143,7 +147,8 @@ class TokenDetailPage extends Component {
 
     return (
       <TokenDetailPageContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={'Tokens'}
           buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]}
         />

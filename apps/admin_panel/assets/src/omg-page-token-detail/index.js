@@ -116,14 +116,18 @@ class TokenDetailPage extends Component {
         breadcrumbItems={['Token', `${token.name} (${token.symbol})`]}
         buttons={[
           <Button
+            key='rate'
             size='small'
             styleType='secondary'
             onClick={this.onClickCreateExchangeRate}
-            key='rate'
           >
             <span>Create Exchange Pair</span>
           </Button>,
-          <Button size='small' onClick={this.onClickMintTopen} key='mint'>
+          <Button
+            key='mint'
+            size='small'
+            onClick={this.onClickMintTopen}
+          >
             <span>Mint Token</span>
           </Button>
         ]}

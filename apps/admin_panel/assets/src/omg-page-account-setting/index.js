@@ -321,7 +321,8 @@ class AccountSettingPage extends Component {
         </Modal>
 
         <AccountSettingContainer>
-          <TopNavigation divider={this.props.divider}
+          <TopNavigation
+            divider={this.props.divider}
             title={`Edit ${this.state.name}`}
             secondaryAction={false}
             types={false}
