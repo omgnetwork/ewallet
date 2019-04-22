@@ -355,7 +355,6 @@ class CreateTransactionRequest extends Component {
             Expiration Date
           </InputLabel>
           <DateTime
-            ref='picker'
             closeOnSelect
             onChange={this.onDateTimeChange}
             isValidDate={current => current.isAfter(DateTime.moment().subtract(1, 'day'))}

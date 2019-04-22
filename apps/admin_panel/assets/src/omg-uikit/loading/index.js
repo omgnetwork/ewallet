@@ -24,9 +24,9 @@ const LoadingSkeletonSpan = styled.div`
   border-radius: 10px;
   animation: ${progress} 1.5s ease-in-out infinite;
 `
-const LoadingBar = styled.div.attrs({
-  style: ({ width }) => ({ width })
-})`
+const LoadingBar = styled.div.attrs(({ width }) => ({
+  style: { width }
+}))`
   position: relative;
   height: ${props => props.height || '1.5em'};
   background-color: ${props => props.theme.colors.S100};

@@ -83,7 +83,9 @@ export default class Select extends PureComponent {
         return fuzzySearch(this.props.value, option.key)
       })
       : this.props.options
-    const { className, ...rest } = this.props
+
+    // eslint-disable-next-line no-unused-vars
+    const { className, onSelectItem, ...rest } = this.props
     return (
       <SelectContainer className={className} active={this.state.active}>
         <Input

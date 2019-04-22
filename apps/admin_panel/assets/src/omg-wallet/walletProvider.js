@@ -16,7 +16,7 @@ class WalletProvider extends Component {
   componentDidMount = () => {
     this.fetch()
   }
-  componentWillReceiveProps = nextProps => {
+  UNSAFE_componentWillReceiveProps = nextProps => {
     if (nextProps.walletAddress !== this.props.walletAddress) {
       this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT })
       this.fetch(nextProps.walletAddress)

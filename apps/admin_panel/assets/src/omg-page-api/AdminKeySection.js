@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import moment from 'moment'
 
-import { Switch, Icon, Button } from '../omg-uikit'
+import { Switch, Icon } from '../omg-uikit'
 import Table from '../omg-table'
 import AccessKeyFetcher from '../omg-access-key/accessKeysFetcher'
 import ConfirmationModal from '../omg-confirmation-modal'
@@ -154,6 +154,7 @@ class ApiKeyPage extends Component {
     columnsAdminKeys: PropTypes.array,
     search: PropTypes.string,
     downloadKey: PropTypes.func,
+    match: PropTypes.object
   }
 
   static defaultProps = {
@@ -191,7 +192,7 @@ class ApiKeyPage extends Component {
   }
   onClickAccessKeySwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateAccessKey({ id, expired })
-    fetch();
+    fetch()
   }
   onClickDownloadKey = e => {
     this.props.downloadKey({
@@ -277,11 +278,10 @@ class ApiKeyPage extends Component {
         {...this.props}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data.map((item, index) => {
-
-            let role;
+            let role
             if (item.hasOwnProperty('key')) {
-              role = item.role;
-              item = item.key;
+              role = item.role
+              item = item.key
             }
             return {
               id: item.id,

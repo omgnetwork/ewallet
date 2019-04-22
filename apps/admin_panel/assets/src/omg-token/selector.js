@@ -1,10 +1,10 @@
 import { createSelectAllPagesCachedQuery } from '../omg-cache/selector'
 export const selectTokens = (state, search) => {
   return _.values(state.tokens)
-  .filter(x => {
-    const reg = new RegExp(search)
-    return reg.test(x.name) || reg.test(x.symbol)
-  })
+    .filter(x => {
+      const reg = new RegExp(search)
+      return reg.test(x.name) || reg.test(x.symbol)
+    })
 }
 export const selectTokensCachedQuery = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'ids', []).map(tokenId => {

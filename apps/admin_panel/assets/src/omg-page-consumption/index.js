@@ -182,7 +182,7 @@ class ConsumptionPage extends Component {
       <ConsumptionPageContainer>
         <TopNavigation divider={this.props.divider} title={'Transaction Consumptions'} buttons={[]} />
         <SortableTableContainer
-          innerRef={table => (this.table = table)}
+          ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable

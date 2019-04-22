@@ -64,8 +64,7 @@ const enhance = compose(withRouter)
 class TransactionRequestPanel extends Component {
   static propTypes = {
     history: PropTypes.object,
-    location: PropTypes.object,
-    match: PropTypes.object
+    location: PropTypes.object
   }
 
   constructor (props) {
@@ -106,13 +105,13 @@ class TransactionRequestPanel extends Component {
           </InformationItem>
         )}
         {user && (
-            <InformationItem>
-              <b>User : </b>
-              <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
-                {user.id}
-              </Link>
-            </InformationItem>
-        )}   
+          <InformationItem>
+            <b>User : </b>
+            <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
+              {user.id}
+            </Link>
+          </InformationItem>
+        )}
         {user && user.email && (
           <InformationItem>
             <b>User email: </b>
@@ -123,9 +122,9 @@ class TransactionRequestPanel extends Component {
         )}
         {user && user.provider_user_id && (
           <InformationItem>
-              <b>User provider ID: </b>
+            <b>User provider ID: </b>
             <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
-                {user.provider_user_id}
+              {user.provider_user_id}
             </Link>
           </InformationItem>
         )}

@@ -36,8 +36,8 @@ export function updateConfiguration ({
       redirect_url_prefixes: Array.isArray(redirectUrlPrefixes)
         ? redirectUrlPrefixes
         : _.isNil(redirectUrlPrefixes)
-        ? null
-        : [redirectUrlPrefixes],
+          ? null
+          : [redirectUrlPrefixes],
       enable_standalone: enableStandalone,
       max_per_page: Number(maxPerPage),
       min_password_length: Number(minPasswordLength),

@@ -170,7 +170,7 @@ class MembersPage extends Component {
           title={'Admins'}
           buttons={[this.props.showInviteButton ? this.renderInviteButton() : null]}
         />
-        <SortableTableContainer innerRef={table => (this.table = table)}>
+        <SortableTableContainer ref={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(admins)}
             columns={this.props.columns}

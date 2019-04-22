@@ -121,7 +121,7 @@ class InputComponent extends PureComponent {
     onPressEscape: () => {},
     onPressEnter: () => {},
     type: 'string',
-    allowNegative: true,
+    allowNegative: true
   }
   state = {
     active: false
@@ -170,7 +170,9 @@ class InputComponent extends PureComponent {
     }
   }
   render () {
-    const { className, placeholder, autofocus, ...rest } = this.props
+    // eslint-disable-next-line no-unused-vars
+    const { className, placeholder, onPressEscape, onPressEnter, autofocus, ...rest } = this.props
+
     return (
       <Container className={className}>
         <InnerContainer>
@@ -178,7 +180,7 @@ class InputComponent extends PureComponent {
             {...rest}
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
-            innerRef={this.registerInput}
+            ref={this.registerInput}
             placeholder={this.props.normalPlaceholder}
             onFocus={this.onFocus}
             onBlur={this.onBlur}

@@ -17,7 +17,6 @@ const GlobalSearchBarContainer = styled.div`
   }
 `
 class GlobalSearchBar extends PureComponent {
-
   render () {
     return (
       <GlobalSearchBarContainer {...this.props}>

@@ -14,7 +14,7 @@ export default class Icon extends Component {
   static propTypes = {
     name: PropTypes.string,
     button: PropTypes.bool,
-    onClick: PropTypes.func,
+    onClick: PropTypes.func
   }
   render () {
     const { name, button, onClick, ...restProps } = this.props

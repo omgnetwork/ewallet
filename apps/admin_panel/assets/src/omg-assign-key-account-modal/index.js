@@ -134,7 +134,10 @@ function AssignKeyAccount (props) {
             normalPlaceholder={'Account\'s Role'}
             value={_.startCase(roleAccount)}
             onSelectItem={item => setRoleAccount(item.key)}
-            options={[{ key: 'admin', value: 'Admin' }, { key: 'viewer', value: 'Viewer' } ]}
+            options={[
+              { key: 'admin', value: 'Admin' },
+              { key: 'viewer', value: 'Viewer' }
+            ]}
           />
           <CreateAdminKeyButton
             styleType='primary'

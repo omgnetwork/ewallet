@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
-import styled from 'styled-components';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import styled from 'styled-components'
 
-import { Button, Checkbox } from '../omg-uikit';
-import { deleteExchangePair } from '../omg-exchange-pair/action';
+import { Button, Checkbox } from '../omg-uikit'
+import { deleteExchangePair } from '../omg-exchange-pair/action'
 
 const DeleteExchangeModalStyle = styled.div`
   padding: 50px;
@@ -16,7 +17,7 @@ const DeleteExchangeModalStyle = styled.div`
   p {
     padding-bottom: 20px;
   }
-`;
+`
 
 const ButtonGroup = styled.div`
   display: flex;
@@ -30,13 +31,13 @@ const ButtonGroup = styled.div`
       margin-left: 10px;
     }
   }
-`;
+`
 
 const DeleteExchangeModal = ({ toDelete, onRequestClose, deleteExchangePair }) => {
-  if (!toDelete) return null;
+  if (!toDelete) return null
 
-  const [ submitting, setSubmitting ] = useState(false);
-  const [ deleteOpp, setDeleteOpp ] = useState(false);
+  const [ submitting, setSubmitting ] = useState(false)
+  const [ deleteOpp, setDeleteOpp ] = useState(false)
 
   const toggleDeleteOpp = () => {
     setDeleteOpp(prevBool => !prevBool)
@@ -49,16 +50,16 @@ const DeleteExchangeModal = ({ toDelete, onRequestClose, deleteExchangePair }) =
     id,
     opposite_exchange_pair_id: oppId,
     opposite_exchange_pair: opp
-  } = toDelete;
+  } = toDelete
 
   const deletePair = async () => {
-    setSubmitting(true);
+    setSubmitting(true)
     await deleteExchangePair({ id })
     if (deleteOpp) {
       await deleteExchangePair({ id: oppId })
     }
-    setSubmitting(false);
-    onRequestClose();
+    setSubmitting(false)
+    onRequestClose()
   }
 
   const currentPair = `1 ${fromSymbol} = ${_.round(rate, 3)} ${toSymbol}`
@@ -94,12 +95,18 @@ const DeleteExchangeModal = ({ toDelete, onRequestClose, deleteExchangePair }) =
         </Button>
       </ButtonGroup>
     </DeleteExchangeModalStyle>
-  );
+  )
+}
+
+DeleteExchangeModal.propTypes = {
+  toDelete: PropTypes.object,
+  onRequestClose: PropTypes.func,
+  deleteExchangePair: PropTypes.func
 }
 
 const enhance = connect(
   null,
   { deleteExchangePair }
-);
+)
 
-export default enhance(DeleteExchangeModal);
+export default enhance(DeleteExchangeModal)

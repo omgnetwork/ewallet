@@ -69,11 +69,11 @@ const enhance = compose(
 
 class UserSettingPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
     updatePassword: PropTypes.func.isRequired,
     updateCurrentUser: PropTypes.func.isRequired,
     loadingStatus: PropTypes.string,
-    currentUser: PropTypes.object
+    currentUser: PropTypes.object,
+    divider: PropTypes.bool
   }
   state = {
     email: '',
@@ -85,7 +85,7 @@ class UserSettingPage extends Component {
   componentDidMount () {
     this.setInitialCurrentUserState(this.props)
   }
-  componentWillReceiveProps = props => {
+  UNSAFE_componentWillReceiveProps = props => {
     this.setInitialCurrentUserState(props)
   }
   setInitialCurrentUserState = props => {
@@ -160,7 +160,8 @@ class UserSettingPage extends Component {
   render () {
     return (
       <UserSettingContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={'My Profile'}
           secondaryAction={false}
         />

@@ -1,6 +1,6 @@
 import { createPaginationActionCreator, createActionCreator } from '../utils/createActionCreator'
 import * as accountService from '../services/accountService'
-import { getRecentAccountFromLocalStorage, setRecentAccount } from '../services/sessionService'
+
 export const createAccount = ({ name, description, avatar, category }) =>
   createActionCreator({
     actionName: 'ACCOUNT',

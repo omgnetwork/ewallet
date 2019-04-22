@@ -52,7 +52,8 @@ const enhance = compose(
 )
 class WalletDetaillPage extends Component {
   static propTypes = {
-    match: PropTypes.object
+    match: PropTypes.object,
+    divider: PropTypes.bool
   }
   state = {
     createTransactionModalOpen: false
