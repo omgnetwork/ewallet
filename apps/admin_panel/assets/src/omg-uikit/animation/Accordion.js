@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { TransitionMotion, spring } from 'react-motion'
 
 const Accordion = ({ children: child, path, height }) => {
-  const springConfig = {stiffness: 200, damping: 25}
+  const springConfig = { stiffness: 200, damping: 25 }
 
   const willEnter = () => ({
     height: 0

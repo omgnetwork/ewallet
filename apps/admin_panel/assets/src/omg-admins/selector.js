@@ -13,4 +13,3 @@ export const selectAdminsLoadingStatus = state => state.loadingStatus.admins
 export const selectGetAdminById = state => id => {
   return state.admins[id]
 }
-

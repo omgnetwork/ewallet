@@ -77,7 +77,7 @@ class ApiKeyPage extends Component {
   render () {
     const activeTab = this.props.match.params.keyType === 'client' ? 'client' : 'admin'
     const searchQuery = queryString.parse(this.props.location.search).search
-    const stringQuery = queryString.stringify({search: searchQuery})
+    const stringQuery = queryString.stringify({ search: searchQuery })
     return (
       <ApiKeyContainer>
         <TopNavigation

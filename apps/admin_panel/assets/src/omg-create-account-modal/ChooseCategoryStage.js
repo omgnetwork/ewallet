@@ -143,7 +143,7 @@ class ChooseCategoryStage extends Component {
           <SearchResult>
             <SearchItem
               active={_.isEmpty(this.props.category)}
-              onClick={e => this.props.onChooseCategory({name: 'None'})}
+              onClick={e => this.props.onChooseCategory({ name: 'None' })}
             >
               <Icon name='Checked' />
               <span>None</span>

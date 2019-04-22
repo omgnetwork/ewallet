@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { TransitionMotion, spring } from 'react-motion'
 
 const SlideInRight = ({ children: child, path, width }) => {
-  const springConfig = {stiffness: 150, damping: 20}
+  const springConfig = { stiffness: 150, damping: 20 }
 
   const willEnter = () => ({
     xPosition: width
@@ -22,7 +22,7 @@ const SlideInRight = ({ children: child, path, width }) => {
       ? [{
         key: path,
         style: finalStyles(),
-        data: {child}
+        data: { child }
       }]
       : []
   }
