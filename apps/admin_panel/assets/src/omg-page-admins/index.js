@@ -166,7 +166,7 @@ class UsersPage extends Component {
           title={'Admins'}
           buttons={[this.renderInviteButton()]}
         />
-        <SortableTableContainer innerRef={table => (this.table = table)}>
+        <SortableTableContainer ref={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(admins)}
             columns={this.props.columns}

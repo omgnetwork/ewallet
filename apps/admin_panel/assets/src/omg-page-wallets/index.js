@@ -236,14 +236,15 @@ class WalletPage extends Component {
 
     return (
       <WalletPageContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={this.props.title}
           buttons={[
             this.props.transferButton && this.renderTransferButton(),
             isAccountWalletsPage && accountId && this.renderCreateWalletButton()
           ]}
         />
-        <SortableTableContainer innerRef={table => (this.table = table)}>
+        <SortableTableContainer ref={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(wallets)}
             columns={this.getColumns(wallets)}
