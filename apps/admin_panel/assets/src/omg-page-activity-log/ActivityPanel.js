@@ -75,8 +75,7 @@ const enhance = compose(withRouter)
 class TransactionRequestPanel extends Component {
   static propTypes = {
     history: PropTypes.object,
-    location: PropTypes.object,
-    match: PropTypes.object
+    location: PropTypes.object
   }
 
   constructor (props) {
@@ -161,9 +160,9 @@ class TransactionRequestPanel extends Component {
                   <span>
                     {activity.originator
                       ? this.getLink(
-                          activity.originator_type,
-                          activity.originator.id || activity.originator.address
-                        )
+                        activity.originator_type,
+                        activity.originator.id || activity.originator.address
+                      )
                       : '-'}
                   </span>
                 </InformationItem>
@@ -184,9 +183,9 @@ class TransactionRequestPanel extends Component {
                     {' '}
                     {activity.target
                       ? this.getLink(
-                          activity.target_type,
-                          activity.target.id || activity.target.address
-                        )
+                        activity.target_type,
+                        activity.target.id || activity.target.address
+                      )
                       : '-'}
                   </span>
                 </InformationItem>

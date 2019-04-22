@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import {Avatar} from '../omg-uikit'
+
+import { Avatar } from '../omg-uikit'
+
 const AccountItemLogo = styled(Avatar)`
   width: 32px;
   height: 32px;

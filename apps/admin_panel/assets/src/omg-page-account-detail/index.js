@@ -22,7 +22,7 @@ class AccountDetailPage extends Component {
   renderAccountDetailContainer = account => {
     return (
       <>
-        <TopNavigation title={'Details'} divider={false} secondaryAction={false}/>
+        <TopNavigation title={'Details'} divider={false} secondaryAction={false} />
         <Section>
           <DetailGroup>
             <b>ID:</b> {account.id} <Copy data={account.id} />

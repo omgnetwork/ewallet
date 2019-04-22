@@ -6,7 +6,6 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import AdminProvider from '../omg-admins/adminProvider'
 import { compose } from 'recompose'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import moment from 'moment'
 import Copy from '../omg-copy'
 const UserDetailContainer = styled.div`
@@ -35,14 +34,17 @@ const enhance = compose(
 )
 class TokenDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object
+    match: PropTypes.object,
+    divider: PropTypes.bool
   }
   renderTopBar = admin => {
-    return <TopNavigation
-      divider={this.props.divider}
-      title={admin.email}
-      secondaryAction={false}
-    />
+    return (
+      <TopNavigation
+        divider={this.props.divider}
+        title={admin.email}
+        secondaryAction={false}
+      />
+    )
   }
   renderDetail = admin => {
     return (

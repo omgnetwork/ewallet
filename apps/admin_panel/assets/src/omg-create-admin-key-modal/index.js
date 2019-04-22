@@ -69,7 +69,6 @@ CreateAdminKeyModal.propTypes = {
   createAccessKey: PropTypes.func,
   onRequestClose: PropTypes.func,
   onSubmitSuccess: PropTypes.func,
-  assignKey: PropTypes.func,
   accountId: PropTypes.string
 }
 
@@ -151,7 +150,7 @@ function CreateAdminKeyModal (props) {
                 onSelectItem={item => setRoleName(item.key)}
                 options={[
                   { key: 'admin', value: 'Admin' },
-                  { key: 'viewer', value: 'Viewer' },
+                  { key: 'viewer', value: 'Viewer' }
                 ]}
                 optionRenderer={value => _.startCase(value)}
               />

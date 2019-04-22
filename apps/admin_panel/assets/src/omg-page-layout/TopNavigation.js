@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-import PropTypes from 'prop-types'
 import SearchGroup from './SearchGroup'
 
 const TopNavigationContainer = styled.div`
@@ -69,7 +69,7 @@ const SecondaryActionsContainer = styled.div`
 export default class TopNavigation extends PureComponent {
   static propTypes = {
     buttons: PropTypes.array,
-    title: PropTypes.string,
+    title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     secondaryAction: PropTypes.bool,
     normalPlaceholder: PropTypes.string,
     description: PropTypes.string,

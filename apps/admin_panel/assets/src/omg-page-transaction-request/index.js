@@ -202,7 +202,8 @@ class TransactionRequestsPage extends Component {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-request-tab']
     return (
       <TransactionRequestsPageContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={'Transaction Requests'}
           buttons={
             this.props.createTransactionRequestButton
@@ -211,7 +212,7 @@ class TransactionRequestsPage extends Component {
           }
         />
         <SortableTableContainer
-          innerRef={table => (this.table = table)}
+          ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable

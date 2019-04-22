@@ -102,12 +102,18 @@ class CreateTransaction extends Component {
     selectWalletById: PropTypes.func,
     getWalletById: PropTypes.func,
     match: PropTypes.object,
-    onCreateTransaction: PropTypes.func
+    onCreateTransaction: PropTypes.func,
+    transfer: PropTypes.func
   }
   static defaultProps = {
     onCreateTransaction: _.noop
   }
-  state = { fromAddress: this.props.fromAddress || '', toAddress: '' }
+  state = {
+    fromTokenAmount: '',
+    toTokenAmount: '',
+    fromAddress: this.props.fromAddress || '',
+    toAddress: ''
+  }
 
   onChangeInputFromAddress = e => {
     this.setState({
@@ -246,7 +252,7 @@ class CreateTransaction extends Component {
           accountId={this.props.match.params.accountId}
           owned={false}
           query={createSearchAddressQuery(this.state.fromAddress)}
-          shouldFetch={this.props.match.params.accountId || fromWallet && fromWallet.account_id}
+          shouldFetch={!!this.props.match.params.accountId || (fromWallet && !!fromWallet.account_id)}
           render={({ data }) => {
             return (
               <Select

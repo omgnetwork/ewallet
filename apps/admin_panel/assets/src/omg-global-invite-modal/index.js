@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { RadioButton, Input, Button, Icon, Select } from '../omg-uikit'
+import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { connect } from 'react-redux'
 import { inviteAdmin, getAdmins } from '../omg-admins/action'
@@ -26,26 +26,6 @@ const InviteModalContainer = styled.form`
   > button {
     margin-top: 35px;
   }
-`
-const RadioButtonsContainer = styled.div`
-  flex: 0 1 auto;
-  margin-left: auto;
-  display: flex;
-  > div:first-child {
-    margin-right: 15px;
-  }
-`
-const RoleRadioButtonContainer = styled.div`
-  display: flex;
-  margin-top: 35px;
-  > h5 {
-    flex: 1 1 auto;
-    text-align: left;
-  }
-`
-const InviteTitle = styled.span`
-  font-size: 14px;
-  color: ${props => props.theme.colors.B100};
 `
 const StyledInput = styled(Input)`
   margin-bottom: 20px;
@@ -74,7 +54,6 @@ class GlobalInviteModal extends Component {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
     inviteAdmin: PropTypes.func.isRequired,
-    match: PropTypes.object,
     location: PropTypes.object,
     onInviteSuccess: PropTypes.func
   }
@@ -127,10 +106,10 @@ class GlobalInviteModal extends Component {
   }
   onSelectRole = role => {
     this.setState({
-      globalRole: role,
+      globalRole: role
     })
   }
-  render() {
+  render () {
     return (
       <Modal
         isOpen={this.props.open}

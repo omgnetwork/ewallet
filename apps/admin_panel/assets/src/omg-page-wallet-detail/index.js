@@ -7,7 +7,6 @@ import { compose } from 'recompose'
 import { Button, Icon } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
@@ -53,7 +52,8 @@ const enhance = compose(
 )
 class WalletDetaillPage extends Component {
   static propTypes = {
-    match: PropTypes.object
+    match: PropTypes.object,
+    divider: PropTypes.bool
   }
   state = {
     createTransactionModalOpen: false
@@ -65,16 +65,18 @@ class WalletDetaillPage extends Component {
     this.setState({ createTransactionModalOpen: true })
   }
   renderTopBar = wallet => {
-    return <TopNavigation
-      divider={this.props.divider}
-      title={wallet.name}
-      buttons={[
-        <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
-          <Icon name='Transaction' />
-          <span>Transfer</span>
-        </Button>
-      ]}
-    />
+    return (
+      <TopNavigation
+        divider={this.props.divider}
+        title={wallet.name}
+        buttons={[
+          <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
+            <Icon name='Transaction' />
+            <span>Transfer</span>
+          </Button>
+        ]}
+      />
+    )
   }
   renderDetail = wallet => {
     return (

@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import { bootstrap } from '../action'
 class AuthenticatedRoute extends Component {
   static propTypes = {
-    component: PropTypes.func,
+    component: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
     currentAccount: PropTypes.object,
     bootstrap: PropTypes.func,
     authenticated: PropTypes.bool

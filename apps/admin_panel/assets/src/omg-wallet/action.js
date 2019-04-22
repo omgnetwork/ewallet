@@ -72,7 +72,7 @@ export const getWalletById = id =>
 export const createWallet = ({ name, identifier, accountId }) =>
   createActionCreator({
     actionName: 'WALLET',
-    action: 'CREATE', 
+    action: 'CREATE',
     service: async () => walletService.createWallet({
       name,
       identifier,

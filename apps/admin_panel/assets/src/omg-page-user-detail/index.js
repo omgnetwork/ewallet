@@ -6,7 +6,6 @@ import UserProvider from '../omg-users/userProvider'
 import { compose } from 'recompose'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import moment from 'moment'
 import { LoadingSkeleton } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
@@ -42,15 +41,18 @@ const enhance = compose(
 )
 class TokenDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object
+    match: PropTypes.object,
+    divider: PropTypes.bool
   }
   renderTopBar = user => {
-    return <TopNavigation
-      divider={this.props.divider}
-      title={user.email || user.provider_user_id}
-      breadcrumbItems={['User', user.id]}
-      secondaryAction={false}
-    />
+    return (
+      <TopNavigation
+        divider={this.props.divider}
+        title={user.email || user.provider_user_id}
+        breadcrumbItems={['User', user.id]}
+        secondaryAction={false}
+      />
+    )
   }
   renderDetail = user => {
     return (

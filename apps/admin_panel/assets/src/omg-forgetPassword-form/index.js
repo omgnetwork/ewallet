@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
-import { Input, Button } from '../omg-uikit'
 import styled from 'styled-components'
 import { Link, withRouter } from 'react-router-dom'
-import { sendResetPasswordEmail } from '../omg-session/action'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { compose } from 'recompose'
+
+import { Input, Button } from '../omg-uikit'
+import { sendResetPasswordEmail } from '../omg-session/action'
+
 const Form = styled.form`
   text-align: left;
   input {
@@ -39,7 +41,7 @@ const enhance = compose(withRouter, connect(null, { sendResetPasswordEmail }))
 class ForgetPasswordForm extends Component {
   static propTypes = {
     sendResetPasswordEmail: PropTypes.func,
-    location: PropTypes.func
+    location: PropTypes.object
   }
   state = {
     email: '',

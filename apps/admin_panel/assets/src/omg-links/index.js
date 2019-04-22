@@ -19,8 +19,8 @@ export class LinkWithAccount extends Component {
       typeof this.props.to === 'object'
         ? path.join(`/${accountId}`, _.get(this.props, 'to.pathname', this.props.location.pathname))
         : accountId
-        ? path.join(`/${accountId}`, this.props.to)
-        : this.props.to
+          ? path.join(`/${accountId}`, this.props.to)
+          : this.props.to
 
     const search = typeof this.props.to === 'object' ? _.get(this.props, 'to.search') : undefined
     if (to) Object.assign(props, { pathname: to })

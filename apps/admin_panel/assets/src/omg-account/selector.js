@@ -10,7 +10,7 @@ export const selectAccountsCachedQuery = state => cacheKey => {
   })
 }
 export const selectGetAccountById = state => id =>
-  !_.get(state, `accounts[${id}].injected_loading`) && state.accounts[id] || {}
+  !_.get(state, `accounts[${id}].injected_loading`) ? state.accounts[id] : {}
 
 export const selectGetAccountByIdMaybeLoading = state => id => state.accounts[id]
 

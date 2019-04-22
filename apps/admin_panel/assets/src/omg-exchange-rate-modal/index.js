@@ -1,10 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import Modal from '../omg-modal';
+import Modal from '../omg-modal'
 
-import CreateExchangeModal from './createExchangeModal';
-import DeleteExchangeModal from './deleteExchangeModal';
+import CreateExchangeModal from './createExchangeModal'
+import DeleteExchangeModal from './deleteExchangeModal'
 
 const ExchangeRateModal = ({
   action,
@@ -22,7 +22,7 @@ const ExchangeRateModal = ({
         ? <CreateExchangeModal onRequestClose={onRequestClose} {...restProps} />
         : <DeleteExchangeModal onRequestClose={onRequestClose} {...restProps} />}
     </Modal>
-  );
+  )
 }
 
 ExchangeRateModal.propTypes = {
@@ -31,4 +31,4 @@ ExchangeRateModal.propTypes = {
   onRequestClose: PropTypes.func
 }
 
-export default ExchangeRateModal;
+export default ExchangeRateModal

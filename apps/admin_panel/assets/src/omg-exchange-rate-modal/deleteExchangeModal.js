@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
-import styled from 'styled-components';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import styled from 'styled-components'
 
-import { Button } from '../omg-uikit';
-import { deleteExchangePair } from '../omg-exchange-pair/action';
+import { Button } from '../omg-uikit'
+import { deleteExchangePair } from '../omg-exchange-pair/action'
 
 const DeleteExchangeModalStyle = styled.div`
   padding: 50px;
@@ -12,7 +13,7 @@ const DeleteExchangeModalStyle = styled.div`
   flex-direction: column;
   justify-content: center;
   text-align: center;
-`;
+`
 
 const ButtonGroup = styled.div`
   display: flex;
@@ -26,25 +27,25 @@ const ButtonGroup = styled.div`
       margin-left: 10px;
     }
   }
-`;
+`
 
 const DeleteExchangeModal = ({ toDelete, onRequestClose, deleteExchangePair }) => {
-  if (!toDelete) return null;
+  if (!toDelete) return null
 
-  const [ submitting, setSubmitting ] = useState(false);
+  const [ submitting, setSubmitting ] = useState(false)
 
   const {
     from_token: { symbol: fromSymbol },
     to_token: { symbol: toSymbol },
     rate,
     id
-  } = toDelete;
+  } = toDelete
 
   const deletePair = async () => {
-    setSubmitting(true);
-    await deleteExchangePair({ id });
-    setSubmitting(false);
-    onRequestClose();
+    setSubmitting(true)
+    await deleteExchangePair({ id })
+    setSubmitting(false)
+    onRequestClose()
   }
 
   return (
@@ -65,12 +66,18 @@ const DeleteExchangeModal = ({ toDelete, onRequestClose, deleteExchangePair }) =
         </Button>
       </ButtonGroup>
     </DeleteExchangeModalStyle>
-  );
+  )
+}
+
+DeleteExchangeModal.propTypes = {
+  toDelete: PropTypes.object,
+  onRequestClose: PropTypes.func,
+  deleteExchangePair: PropTypes.func
 }
 
 const enhance = connect(
   null,
   { deleteExchangePair }
-);
+)
 
-export default enhance(DeleteExchangeModal);
+export default enhance(DeleteExchangeModal)

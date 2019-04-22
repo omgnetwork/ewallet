@@ -52,7 +52,7 @@ export default class RatioBar extends Component {
       <TransactionBar>
         {this.props.rows.map((d, i) => (
           <BarItem width={d.percent} color={d.color} key={i} />
-      ))}
+        ))}
       </TransactionBar>
     )
   }
@@ -64,7 +64,7 @@ export default class RatioBar extends Component {
           <RatioDetailItem key={i}>
             <BoxRatio color={d.color} /> <span>{d.content}</span>
           </RatioDetailItem>
-       ))}
+        ))}
       </RatioBarDetailContainer>
     )
   }

@@ -49,7 +49,7 @@ class AppLayout extends Component {
       <Container>
         <LoadingBar updateTime={1000} style={{ backgroundColor: '#1A56F0', zIndex: 99999 }} />
         <SideNav />
-        <ContentContainer innerRef={contentContainer => (this.contentContainer = contentContainer)}>
+        <ContentContainer ref={contentContainer => (this.contentContainer = contentContainer)}>
           <Content>
             {React.cloneElement(this.props.children, {
               scrollTopContentContainer: this.scrollTopContentContainer
