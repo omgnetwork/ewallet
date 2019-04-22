@@ -1,4 +1,9 @@
 {
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "extends": [
     "standard",
     "standard-react",
@@ -14,7 +19,7 @@
     "react/sort-comp": 1,
     "quotes": ["error", "single"],
     "space-before-function-paren": ["error", "always"],
-    "camelcase": "warn",
+    "camelcase": "off",
     "react/no-unescaped-entities": "warn"
   },
   "env": {
