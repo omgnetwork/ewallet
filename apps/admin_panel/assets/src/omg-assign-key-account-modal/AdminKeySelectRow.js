@@ -15,7 +15,7 @@ const AdminKeySlectRowContainer = styled.div`
 const AdminKeySlectRowName = styled.div`
 `
 const AdminKeySlectRowId = styled.div`
-  color: ${props => props.theme.colors.B100};
+  color: ${props => props.theme.colors.B300};
   font-size: 12px;
 `
 const AdminKeyRowDate = styled.div`
