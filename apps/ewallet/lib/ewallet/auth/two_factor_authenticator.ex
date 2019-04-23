@@ -15,7 +15,7 @@
 defmodule EWallet.TwoFactorAuthenticator do
   alias EWallet.PasscodeAuthenticator
   alias EWallet.BackupCodeAuthenticator
-  alias EWalletDB.{User, AuthToken}
+  alias EWalletDB.{User, AuthToken, PreAuthToken}
 
   @moduledoc """
   Handle of verify, create, enable and disable 2FA logic.
@@ -34,6 +34,41 @@ defmodule EWallet.TwoFactorAuthenticator do
   """
 
   @number_of_backup_codes 10
+
+  def login(_, _, %User{enabled_2fa_at: nil}), do: {:error, :user_2fa_disabled}
+
+  def login(attrs, owner_app, %User{} = user) do
+    with {:ok} <- verify(attrs, user),
+         :ok <- PreAuthToken.delete_for_user(user),
+         :ok <- AuthToken.delete_for_user(user) do
+      AuthToken.generate(user, owner_app, user)
+    else
+      error -> error
+    end
+  end
+
+  # Verify multiple two-factor authentication factors.
+  # Example:
+  # iex> TwoFactorAuthenticator.verify_multiple(
+  #  %{"secret_code" => "123456", "backup_codes" => "12345678"}
+  # )
+  #
+  # :ok
+  def verify_multiple(attrs, user) when map_size(attrs) > 0 do
+    errors =
+      attrs
+      |> Enum.map(fn {k, v} -> Map.put(%{}, k, v) end)
+      |> Enum.map(&verify(&1, user))
+      |> Enum.filter(&match?({:error, _}, &1))
+
+    if Enum.empty?(errors) do
+      {:ok}
+    else
+      hd(errors)
+    end
+  end
+
+  def verify_multiple(_, _), do: {:error, :invalid_parameters}
 
   def verify(attrs, %User{} = user) do
     attrs
@@ -64,6 +99,11 @@ defmodule EWallet.TwoFactorAuthenticator do
        })
        when is_binary(backup_code) do
     BackupCodeAuthenticator.verify(hashed_backup_codes, backup_code)
+  end
+
+  defp do_verify(%{"user" => _}) do
+    error_description = "Invalid parameter provided. `backup_code` or `passcode` is required."
+    {:error, :invalid_parameter, error_description}
   end
 
   defp do_verify(_) do
@@ -104,20 +144,45 @@ defmodule EWallet.TwoFactorAuthenticator do
     {:error, :invalid_parameters}
   end
 
-  # Enable 2FA
-  def enable(%User{} = user, _, owner_app, true) do
-    with {:ok, updated_user} = User.enable_2fa(user),
-         :ok <- AuthToken.delete_for_user(user) do
-      AuthToken.generate_token(updated_user, owner_app, updated_user)
+  # Enable two-factor authentication for specified user.
+  # All tokens belong to this user will be deleted.
+  # The client will then need to do 2-steps login to obtain the authentication_token.
+  #
+  # Note: The responsibility of two-factor params verification will be left here.
+  # However, it does a small check that the user has already created some two-factor methods.
+  def enable(%User{} = user, owner_app) do
+    with {:ok} <- validate_enable_attrs(user),
+         {:ok, updated_user} <- User.enable_2fa(user),
+         :ok <- AuthToken.delete_for_user(updated_user) do
+      {:ok}
     else
       error -> error
     end
   end
 
-  # Disable 2FA
-  def enable(%User{} = user, token_string, owner_app, false) do
-    with {:ok, updated_user} <- User.disable_2fa(user) do
-      {:ok, AuthToken.get_by_token(token_string, owner_app)}
+  defp validate_enable_attrs(user) do
+    cond do
+      Enum.empty?(user.hashed_backup_codes) ->
+        {:error, :backup_codes_not_found}
+
+      is_nil(user.secret_2fa_code) ->
+        {:error, :secret_code_not_found}
+
+      true ->
+        {:ok}
+    end
+  end
+
+  # Disable two-factor authentication for specified user.
+  # All tokens, hashed_backup_codes and secret_2fa_code belong to this user will be deleted.
+  # The client will then need to re-login to obtain the authentication_token.
+  #
+  # Note: The responsibility of two-factor params verification will be left here.
+  # However, it does a small check that the user has already created some two-factor methods.
+  def disable(%User{} = user, owner_app) do
+    with {:ok, updated_user} <- User.disable_2fa(user),
+         AuthToken.delete_for_user(updated_user) do
+      {:ok}
     else
       error -> error
     end
