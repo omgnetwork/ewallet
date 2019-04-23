@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.AuthTokenSerializer do
+defmodule EWallet.Web.V1.PreAuthTokenSerializer do
   @moduledoc """
-  Serializes authentication token data into V1 response format.
+  Serializes pre authentication token data into V1 response format.
   """
   alias EWallet.Web.V1.UserSerializer
   alias Utils.Helpers.Assoc
+  alias EWalletDB.{PreAuthToken}
 
-  def serialize(auth_token) do
+  def serialize(%PreAuthToken{} = auth_token) do
     %{
-      object: "authentication_token",
-      authentication_token: auth_token.token,
+      object: "pre_authentication_token",
+      pre_authentication_token: auth_token.token,
       user_id: Assoc.get(auth_token, [:user, :id]),
       user: UserSerializer.serialize(auth_token.user),
       account_id: nil,
