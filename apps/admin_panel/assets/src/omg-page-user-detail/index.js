@@ -18,9 +18,10 @@ const UserDetailContainer = styled.div`
 `
 const ContentDetailContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
 `
 const DetailContainer = styled.div`
-  flex: 1 1 50%;
+  flex: 1 1 auto;
   :first-child {
     margin-right: 20px;
   }

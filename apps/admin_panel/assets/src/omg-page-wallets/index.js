@@ -21,6 +21,9 @@ const WalletPageContainer = styled.div`
   > div {
     flex: 1;
   }
+  td {
+    white-space: nowrap;
+  }
   td:nth-child(1) {
     border: none;
     position: relative;
