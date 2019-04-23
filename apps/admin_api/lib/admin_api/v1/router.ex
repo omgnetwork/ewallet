@@ -256,8 +256,7 @@ defmodule AdminAPI.V1.Router do
     pipe_through([:api])
 
     post("/admin.login", AdminAuthController, :login)
-    post("/2fa.verify_passcode", TwoFactorAuthController, :verify)
-    post("/2fa.verify_backup_code", TwoFactorAuthController, :verify)
+    post("/admin.login_2fa", TwoFactorAuthController, :login)
     post("/invite.accept", InviteController, :accept)
 
     # Forget Password endpoints
