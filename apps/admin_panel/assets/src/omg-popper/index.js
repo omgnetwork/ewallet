@@ -18,7 +18,7 @@ export default class PopperRenderer extends Component {
       <Manager>
         <Reference>
           {({ ref, style }) => (
-            <div ref={ref} style={{ ...style, zIndex: 1 }}>
+            <div ref={ref} style={style}>
               {this.props.renderReference()}
             </div>
           )}
