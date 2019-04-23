@@ -89,7 +89,7 @@ class WalletDetaillPage extends Component {
           <b>Name:</b> <span>{wallet.name}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Wallet Type:</b> <span>{wallet.identifier}</span>
+          <b>Wallet Identifier:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
         {wallet.account && (
           <DetailGroup>
