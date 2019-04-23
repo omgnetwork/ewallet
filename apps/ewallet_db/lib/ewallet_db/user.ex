@@ -30,6 +30,7 @@ defmodule EWalletDB.User do
     Account,
     AccountUser,
     AuthToken,
+    PreAuthToken,
     Invite,
     Membership,
     Repo,
@@ -81,6 +82,13 @@ defmodule EWalletDB.User do
     has_many(
       :auth_tokens,
       AuthToken,
+      foreign_key: :user_uuid,
+      references: :uuid
+    )
+
+    has_many(
+      :pre_auth_tokens,
+      PreAuthToken,
       foreign_key: :user_uuid,
       references: :uuid
     )
