@@ -13,7 +13,7 @@ export const updateCurrentUser = ({ avatar, email }) =>
     actionName: 'CURRENT_USER',
     action: 'UPDATE',
     service: async () => {
-      const resultUpdateCurrentUser = await currentUserService.updateCurrentUser({ email })
+      const resultUpdateCurrentUser = await currentUserService.updateCurrentUserEmail({ email })
       if (resultUpdateCurrentUser.data.success && avatar) {
         const userId = resultUpdateCurrentUser.data.data.id
         const resultUploadAvatar = await adminService.uploadAvatar({

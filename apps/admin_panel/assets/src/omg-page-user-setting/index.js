@@ -17,11 +17,7 @@ const StyledInput = styled(Input)`
   margin-bottom: 30px;
 `
 const StyledEmailInput = styled(StyledInput)`
-  pointer-events: none;
   margin-top: 30px;
-  input {
-    border-bottom: none;
-  }
 `
 const StyledRoleInput = styled(StyledInput)`
   margin-bottom: 8px;

@@ -26,7 +26,7 @@ describe('current user actions', () => {
     })
   })
   test('[updateCurrentUser]  should dispatch success action if update current user successfully', () => {
-    currentUserService.updateCurrentUser.mockImplementation(() => {
+    currentUserService.updateCurrentUserEmail.mockImplementation(() => {
       return Promise.resolve({ data: { success: true, data: { id: 'a' } } })
     })
     const expectedActions = [
@@ -34,7 +34,7 @@ describe('current user actions', () => {
       { type: 'CURRENT_USER/UPDATE/SUCCESS', data: { id: 'a' } }
     ]
     return store.dispatch(updateCurrentUser({ email: 'email' })).then(() => {
-      expect(currentUserService.updateCurrentUser).toBeCalledWith({ email: 'email' })
+      expect(currentUserService.updateCurrentUserEmail).toBeCalledWith({ email: 'email' })
       expect(store.getActions()).toEqual(expectedActions)
     })
   })
