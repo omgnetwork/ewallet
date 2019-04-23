@@ -27,22 +27,6 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials."
     },
-    invalid_passcode: %{
-      code: "user:invalid_passcode",
-      description: "The provided passcode is invalid."
-    },
-    invalid_backup_code: %{
-      code: "user:invalid_backup_code",
-      description: "The provided backup code is invalid."
-    },
-    secret_code_not_found: %{
-      code: "user:secret_code_not_found",
-      description: "The secret code could not be found."
-    },
-    backup_codes_not_found: %{
-      code: "user:backup_codes_not_found",
-      description: "The backup codes could not be found."
-    },
     account_id_not_found: %{
       code: "account:id_not_found",
       description: "There is no account corresponding to the provided id."
