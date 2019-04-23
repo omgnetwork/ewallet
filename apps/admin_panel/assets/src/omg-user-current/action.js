@@ -8,20 +8,16 @@ export const getCurrentUser = () =>
     service: currentUserService.getCurrentUser
   })
 
-export const updateCurrentUser = ({ avatar, email }) =>
+export const updateCurrentUserAvatar = ({ avatar }) =>
   createActionCreator({
     actionName: 'CURRENT_USER',
     action: 'UPDATE',
-    service: async () => {
-      const resultUpdateCurrentUser = await currentUserService.updateCurrentUserEmail({ email })
-      if (resultUpdateCurrentUser.data.success && avatar) {
-        const userId = resultUpdateCurrentUser.data.data.id
-        const resultUploadAvatar = await adminService.uploadAvatar({
-          id: userId,
-          avatar
-        })
-        return resultUploadAvatar
-      }
-      return resultUpdateCurrentUser
-    }
+    service: () => adminService.uploadAvatar({ avatar })
+  })
+
+export const updateCurrentUserEmail = ({ email }) =>
+  createActionCreator({
+    actionName: 'CURRENT_USER_EMAIL',
+    action: 'UPDATE',
+    service: () => currentUserService.updateCurrentUserEmail({ email })
   })

@@ -69,6 +69,9 @@ export const alertsReducer = createReducer([], {
   'CURRENT_USER/UPDATE/SUCCESS': (state, { user }) => {
     return [...state, createAlertState('Updated user settings successfully.', 'success')]
   },
+  'CURRENT_USER_EMAIL/UPDATE/SUCCESS': (state, { user }) => {
+    return [...state, createAlertState('Please check your email to verify the new email address.', 'success')]
+  },
   'PASSWORD/UPDATE/SUCCESS': (state, { user }) => {
     return [...state, createAlertState('Updated password successfully.', 'success')]
   },

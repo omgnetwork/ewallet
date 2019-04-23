@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
-import styled from 'styled-components'
-import { Input, Button } from '../omg-uikit'
-import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
-import { currentUserProviderHoc } from '../omg-user-current/currentUserProvider'
 import { withRouter } from 'react-router-dom'
-import { updateCurrentUser } from '../omg-user-current/action'
-import { updatePassword } from '../omg-session/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
+import styled from 'styled-components'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import { Input, Button } from '../omg-uikit'
+import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
+import { currentUserProviderHoc } from '../omg-user-current/currentUserProvider'
+import { updateCurrentUserEmail, updateCurrentUserAvatar } from '../omg-user-current/action'
+import { updatePassword } from '../omg-session/action'
+
 const UserSettingContainer = styled.div`
   padding-bottom: 50px;
 `
@@ -58,7 +60,7 @@ const enhance = compose(
   currentUserProviderHoc,
   connect(
     null,
-    { updateCurrentUser, updatePassword }
+    { updateCurrentUserAvatar, updateCurrentUserEmail, updatePassword }
   ),
   withRouter
 )
@@ -66,7 +68,8 @@ const enhance = compose(
 class UserSettingPage extends Component {
   static propTypes = {
     updatePassword: PropTypes.func.isRequired,
-    updateCurrentUser: PropTypes.func.isRequired,
+    updateCurrentUserEmail: PropTypes.func.isRequired,
+    updateCurrentUserAvatar: PropTypes.func.isRequired,
     loadingStatus: PropTypes.string,
     currentUser: PropTypes.object,
     divider: PropTypes.bool
@@ -75,7 +78,8 @@ class UserSettingPage extends Component {
     email: '',
     globalRole: '',
     submitStatus: 'DEFAULT',
-    changingPassword: false
+    changingPassword: false,
+    newEmailSubmitted: false
   }
 
   componentDidMount () {
@@ -98,7 +102,10 @@ class UserSettingPage extends Component {
     this.setState({ image: file })
   }
   onChangeEmail = e => {
-    this.setState({ email: e.target.value.trim() })
+    this.setState({
+      email: e.target.value.trim(),
+      newEmailSubmitted: false
+    })
   }
   onChangeOldPassword = e => {
     this.setState({ oldPassword: e.target.value })
@@ -109,50 +116,64 @@ class UserSettingPage extends Component {
   onChangeNewPasswordConfirmation = e => {
     this.setState({ newPasswordConfirmation: e.target.value })
   }
+
   onClickUpdateAccount = async e => {
     e.preventDefault()
+    this.setState({ submitStatus: 'SUBMITTING' })
+
     try {
-      if (this.state.email !== this.props.currentUser.email || this.state.image) {
-        this.setState({ submitStatus: 'SUBMITTING' })
-        const result = await this.props.updateCurrentUser({
-          email: this.state.email,
-          avatar: this.state.image
-        })
-        if (result.data) {
-          this.setState({ image: null, submitStatus: 'SUBMITTED' })
+      // update email
+      if (this.state.email !== this.props.currentUser.email) {
+        const updateEmailResult = await this.props.updateCurrentUserEmail({ email: this.state.email })
+        if (updateEmailResult.data) {
+          this.setState({ newEmailSubmitted: true })
+        } else {
+          throw new Error('failed email update')
         }
       }
+
+      // update avatar
+      if (this.state.image) {
+        const updateAvatarResult = await this.props.updateCurrentUserAvatar({ avatar: this.state.image })
+        if (!updateAvatarResult.data) {
+          throw new Error('failed avatar update')
+        }
+      }
+
+      // update password
       if (
         this.state.changingPassword &&
         this.state.newPassword === this.state.newPasswordConfirmation &&
         this.state.newPassword &&
         this.state.newPasswordConfirmation
       ) {
-        this.setState({ submitStatus: 'SUBMITTING' })
-        const updatePassworldResult = await this.props.updatePassword({
+        const updatePasswordResult = await this.props.updatePassword({
           oldPassword: this.state.oldPassword,
           password: this.state.newPassword,
           passwordConfirmation: this.state.newPasswordConfirmation
         })
-        if (updatePassworldResult.data) {
-          this.setState({
-            submitStatus: 'SUBMITTED',
-            image: null,
-            changingPassword: false,
-            newPassword: '',
-            newPasswordConfirmation: ''
-          })
-        } else {
-          this.setState({ submitStatus: 'FAILED' })
+        if (!updatePasswordResult.data) {
+          throw new Error('failed password update')
         }
       }
+
+      // submission success
+      this.setState({
+        submitStatus: 'SUBMITTED',
+        image: null,
+        changingPassword: false,
+        newPassword: '',
+        newPasswordConfirmation: ''
+      })
     } catch (error) {
       this.setState({ submitStatus: 'FAILED' })
     }
   }
+
   onClickChangePassword = e => {
     this.setState({ changingPassword: true })
   }
+
   render () {
     return (
       <UserSettingContainer>
@@ -215,7 +236,7 @@ class UserSettingPage extends Component {
                 key={'save'}
                 disabled={
                   !this.state.image &&
-                  this.state.email === this.props.currentUser.email &&
+                  (this.state.newEmailSubmitted || this.state.email === this.props.currentUser.email) &&
                   (this.state.newPassword !== this.state.newPasswordConfirmation ||
                     !this.state.newPassword ||
                     !this.state.newPasswordConfirmation)
