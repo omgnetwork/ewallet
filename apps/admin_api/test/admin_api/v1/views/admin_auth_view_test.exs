@@ -29,7 +29,7 @@ defmodule AdminAPI.V1.AdminAuthViewTest do
       }
 
       attrs = %{auth_token: auth_token}
-      assert AdminAuthView.render("auth_token.json", attrs) == expected
+      assert AdminAuthView.render("user_auth_token.json", attrs) == expected
     end
 
     test "renders empty_response.json with correct structure" do

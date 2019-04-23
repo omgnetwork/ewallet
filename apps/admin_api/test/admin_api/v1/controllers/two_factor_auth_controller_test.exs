@@ -14,11 +14,12 @@
 
 defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWallet.Web.V1.UserSerializer
   alias EWallet.{TwoFactorAuthenticator}
-  alias EWalletDB.{User}
+  alias EWalletDB.{User, Repo, AuthToken}
 
   describe "/me.create_secret_code" do
-    test "responds a new secret code if the authentication is valid" do
+    test "responds a new secret code if the authorization header is valid" do
       response = admin_user_request("/me.create_secret_code", %{})
 
       assert %{
@@ -35,7 +36,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
       assert secret_2fa_code != nil
     end
 
-    test "responds error if the authentication is not valid" do
+    test "responds error if the authorization header  is invalid" do
       response =
         admin_user_request("/me.create_secret_code", %{}, user_id: "1234", auth_token: "5678")
 
@@ -53,7 +54,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
   end
 
   describe "/me.create_backup_codes" do
-    test "responds new backup_codes if the authentication is valid" do
+    test "responds new backup_codes if the authorization header is valid" do
       response = admin_user_request("/me.create_backup_codes")
 
       assert response["success"] == true
@@ -61,7 +62,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
       assert length(response["data"]["backup_codes"]) > 0
     end
 
-    test "responds error if the authentication is valid" do
+    test "responds error if the authorization header is invalid" do
       response =
         admin_user_request("/me.create_backup_codes", %{}, user_id: "1234", auth_token: "5678")
 
@@ -79,45 +80,46 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
   end
 
   describe "/me.enable_2fa" do
-    test "responds authentication_token if the authentication is valid and the secret code has been created" do
+    test "responds success if the given both passcode and backup_code are valid" do
       user = User.get(@admin_id)
-      {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
 
-      passcode = generate_totp(attrs.secret_2fa_code)
+      {%{backup_codes: [backup_code | _]}, _} = create_backup_codes(user)
+      {%{secret_2fa_code: secret_2fa_code}, _} = create_secret_code(user)
 
-      response = admin_user_request("/me.enable_2fa", %{"passcode" => passcode})
+      passcode = generate_totp(secret_2fa_code)
+
+      response =
+        admin_user_request("/me.enable_2fa", %{
+          "passcode" => passcode,
+          "backup_code" => backup_code
+        })
 
       assert response["success"] == true
-      assert response["data"]["user"]["enabled_2fa_at"] != nil
-      assert Map.has_key?(response["data"], "authentication_token")
+      assert response["data"] == %{}
     end
 
-    test "create authorization header from the response should be able to access authenticated apis" do
+    test "responds error auth_token:not_found if continue using the old authentication token" do
       user = User.get(@admin_id)
-      {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
 
-      passcode = generate_totp(attrs.secret_2fa_code)
+      {%{backup_codes: [backup_code | _]}, _} = create_backup_codes(user)
+      {%{secret_2fa_code: secret_2fa_code}, _} = create_secret_code(user)
 
-      response = admin_user_request("/me.enable_2fa", %{"passcode" => passcode})
-      assert response["success"] == true
+      passcode = generate_totp(secret_2fa_code)
 
-      user_id = response["data"]["user_id"]
-      auth_token = response["data"]["authentication_token"]
+      response =
+        admin_user_request("/me.enable_2fa", %{
+          "passcode" => passcode,
+          "backup_code" => backup_code
+        })
 
-      response = admin_user_request("/wallet.all", %{}, user_id: user_id, auth_token: auth_token)
-      assert response["success"] == true
-    end
+      assert response == %{"data" => %{}, "success" => true, "version" => "1"}
 
-    test "responds error if given passcode is invalid" do
-      user = User.get(@admin_id)
-      {:ok, _} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
-
-      response = admin_user_request("/me.enable_2fa", %{"passcode" => "S3CR3T"})
+      response = admin_user_request("/wallet.all", %{})
 
       assert response == %{
                "data" => %{
-                 "code" => "user:invalid_passcode",
-                 "description" => "The provided passcode is invalid.",
+                 "code" => "auth_token:not_found",
+                 "description" => "There is no auth token corresponding to the provided token.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -126,13 +128,132 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
              }
     end
 
-    test "responds error if the secret code has not been generated" do
-      response = admin_user_request("/me.enable_2fa", %{"passcode" => "S3CR3T"})
+    test "responds error user:invalid_parameter if the passcode is not provided" do
+      response =
+        admin_user_request("/me.enable_2fa", %{
+          "backup_code" => "12345678"
+        })
+
+      assert response == %{
+               "data" => %{
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided. `passcode` is required.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "responds error user:invalid_parameter if the backup_code is not provided" do
+      response =
+        admin_user_request("/me.enable_2fa", %{
+          "passcode" => "123456"
+        })
+
+      assert response == %{
+               "data" => %{
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided. `backup_code` is required.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "responds error user:invalid_passcode if given passcode is invalid" do
+      user = User.get(@admin_id)
+
+      create_secret_code(user)
+      {%{backup_codes: [backup_code | _]}, _} = create_backup_codes(user)
+
+      response =
+        admin_user_request("/me.enable_2fa", %{
+          "passcode" => "S3CR3T",
+          "backup_code" => backup_code
+        })
+
+      assert response == %{
+               "data" => %{
+                 "code" => "user:invalid_passcode",
+                 "description" => "The provided `passcode` is invalid.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "responds error user:invalid_backup_code if given backup_code is invalid" do
+      user = User.get(@admin_id)
+
+      {attrs, _} = create_secret_code(user)
+      create_backup_codes(user)
+
+      passcode = generate_totp(attrs.secret_2fa_code)
+
+      response =
+        admin_user_request("/me.enable_2fa", %{
+          "passcode" => passcode,
+          "backup_code" => "12345678"
+        })
+
+      assert response == %{
+               "data" => %{
+                 "code" => "user:invalid_backup_code",
+                 "description" => "The provided `backup_code` is invalid.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "responds error user:secret_code_not_found if the secret code has not been generated" do
+      user = User.get(@admin_id)
+
+      {%{backup_codes: [backup_code | _]}, _} = create_backup_codes(user)
+
+      response =
+        admin_user_request("/me.enable_2fa", %{
+          "passcode" => "S3CR3T",
+          "backup_code" => backup_code
+        })
 
       assert response == %{
                "data" => %{
                  "code" => "user:secret_code_not_found",
                  "description" => "The secret code could not be found.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "responds error user:backup_codes_not_found if the backup codes have not been generated" do
+      user = User.get(@admin_id)
+
+      {%{secret_2fa_code: secret_2fa_code}, _} = create_secret_code(user)
+
+      passcode = generate_totp(secret_2fa_code)
+
+      response =
+        admin_user_request("/me.enable_2fa", %{
+          "passcode" => passcode,
+          "backup_code" => "12345678"
+        })
+
+      assert response == %{
+               "data" => %{
+                 "code" => "user:backup_codes_not_found",
+                 "description" => "The backup codes could not be found.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -143,29 +264,62 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
   end
 
   describe "/me.disable_2fa" do
-    test "responds authentication_token if the authentication is valid and the secret code has been created" do
+    test "responds success if the given passcode is valid" do
       user = User.get(@admin_id)
-      {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
 
-      passcode = generate_totp(attrs.secret_2fa_code)
+      {_, secret_2fa_code, _} = create_two_factors_and_enable_2fa(user)
 
-      response = admin_user_request("/me.disable_2fa", %{"passcode" => passcode})
+      passcode = generate_totp(secret_2fa_code)
+
+      response = login_two_steps(user, %{passcode: passcode})
+
+      response =
+        admin_user_request("/me.disable_2fa", %{"passcode" => passcode},
+          user_id: @admin_id,
+          auth_token: response["data"]["authentication_token"]
+        )
 
       assert response["success"] == true
-      assert response["data"]["user"]["enabled_2fa_at"] == nil
-      assert Map.has_key?(response["data"], "authentication_token")
+      assert response["data"] == %{}
     end
 
-    test "responds error if given passcode is invalid" do
+    test "responds success if the given backup_code is valid" do
       user = User.get(@admin_id)
-      {:ok, _} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
 
-      response = admin_user_request("/me.enable_2fa", %{"passcode" => "S3CR3T"})
+      {[backup_code | _], _, _} = create_two_factors_and_enable_2fa(user)
+
+      response = login_two_steps(user, %{backup_code: backup_code})
+
+      response =
+        admin_user_request("/me.disable_2fa", %{"backup_code" => backup_code},
+          user_id: @admin_id,
+          auth_token: response["data"]["authentication_token"]
+        )
+
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
+    test "responds error client:invalid_parameter if the required params are missing" do
+      user = User.get(@admin_id)
+
+      {_, secret_2fa_code, _} = create_two_factors_and_enable_2fa(user)
+
+      passcode = generate_totp(secret_2fa_code)
+
+      response = login_two_steps(user, %{passcode: passcode})
+
+      response =
+        admin_user_request("/me.disable_2fa", %{},
+          user_id: @admin_id,
+          auth_token: response["data"]["authentication_token"]
+        )
 
       assert response == %{
                "data" => %{
-                 "code" => "user:invalid_passcode",
-                 "description" => "The provided passcode is invalid.",
+                 "code" => "client:invalid_parameter",
+                 "description" =>
+                   "Invalid parameter provided. `backup_code` or `passcode` is required.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -174,8 +328,27 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
              }
     end
 
-    test "responds error if the secret code has not been generated" do
-      response = admin_user_request("/me.enable_2fa", %{"passcode" => "S3CR3T"})
+    test "responds error user:invalid_passcode if given passcode is invalid" do
+      user = User.get(@admin_id)
+
+      create_two_factors_and_enable_2fa(user)
+
+      response = login_two_steps(user, %{passcode: "1234567"})
+
+      assert response == %{
+               "data" => %{
+                 "code" => "user:invalid_passcode",
+                 "description" => "The provided `passcode` is invalid.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "responds error user:secret_code_not_found if the secret code has not been generated" do
+      response = admin_user_request("/me.disable_2fa", %{"passcode" => "S3CR3T"})
 
       assert response == %{
                "data" => %{
@@ -190,28 +363,214 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
     end
   end
 
-  describe "/2fa.verify_passcode" do
-    test "create authorization header from the response should be able to access the authenticated apis" do
+  describe "/admin.login_2fa" do
+    test "responds success on valid passcode" do
       user = User.get(@admin_id)
 
-      {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
-      {:ok, auth_token} = TwoFactorAuthenticator.enable(user, nil, :admin_api, true)
+      {_, secret_2fa_code, _} = create_two_factors_and_enable_2fa(user)
 
-      passcode = generate_totp(attrs.secret_2fa_code)
+      passcode = generate_totp(secret_2fa_code)
 
-      response =
-        admin_user_request("/2fa.verify_passcode", %{"passcode" => passcode},
-          user_id: user.id,
-          auth_token: auth_token.token
-        )
+      response = login_two_steps(user, %{passcode: passcode})
+
+      auth_token = AuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
+
+      assert response == %{
+               "version" => @expected_version,
+               "success" => true,
+               "data" => %{
+                 "object" => "authentication_token",
+                 "authentication_token" => auth_token.token,
+                 "user_id" => auth_token.user.id,
+                 "user" => auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
+                 "account_id" => nil,
+                 "account" => nil,
+                 "master_admin" => nil,
+                 "role" => nil,
+                 "global_role" => auth_token.user.global_role
+               }
+             }
+    end
+
+    test "responds success on valid backup_code" do
+      user = User.get(@admin_id)
+
+      {[backup_code | _], _, _} = create_two_factors_and_enable_2fa(user)
+
+      response = login_two_steps(user, %{backup_code: backup_code})
+
+      auth_token = AuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
+
+      assert response == %{
+               "version" => @expected_version,
+               "success" => true,
+               "data" => %{
+                 "object" => "authentication_token",
+                 "authentication_token" => auth_token.token,
+                 "user_id" => auth_token.user.id,
+                 "user" => auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
+                 "account_id" => nil,
+                 "account" => nil,
+                 "master_admin" => nil,
+                 "role" => nil,
+                 "global_role" => auth_token.user.global_role
+               }
+             }
+    end
+
+    test "responds success when access authenticated apis with new authentication header" do
+      user = User.get(@admin_id)
+
+      {_, secret_2fa_code, _} = create_two_factors_and_enable_2fa(user)
+
+      passcode = generate_totp(secret_2fa_code)
+
+      response = login_two_steps(user, %{passcode: passcode})
 
       assert response["success"] == true
+      assert auth_token = response["data"]["authentication_token"]
 
-      response =
-        admin_user_request("/wallet.all", %{}, user_id: user.id, auth_token: auth_token.token)
-
+      response = admin_user_request("/wallet.all", %{}, user_id: user.id, auth_token: auth_token)
       assert response["success"] == true
     end
+
+    test "responds error when access authenticated apis with old authentication header" do
+      user = User.get(@admin_id)
+
+      create_two_factors_and_enable_2fa(user)
+
+      response = admin_user_request("/wallet.all", %{})
+
+      assert response == %{
+               "data" => %{
+                 "code" => "auth_token:not_found",
+                 "description" => "There is no auth token corresponding to the provided token.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "responds error when the two-factor authentication has not been enabled" do
+      user = User.get(@admin_id)
+
+      {%{secret_2fa_code: secret_2fa_code}, _} = create_secret_code(user)
+      create_backup_codes(user)
+
+      passcode = generate_totp(secret_2fa_code)
+
+      response = admin_user_request("/admin.login_2fa", %{"passcode" => passcode})
+
+      assert response == %{
+               "data" => %{
+                 "code" => "user:2fa_disabled",
+                 "description" => "This user has not enabled two-factor authentication.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "responds error when the given passcode is invalid" do
+      user = User.get(@admin_id)
+
+      create_two_factors_and_enable_2fa(user)
+
+      response = login_two_steps(user, %{passcode: "123456"})
+
+      assert response == %{
+               "data" => %{
+                 "code" => "user:invalid_passcode",
+                 "description" => "The provided `passcode` is invalid.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "responds error when the give backup_code is invalid" do
+      user = User.get(@admin_id)
+
+      create_two_factors_and_enable_2fa(user)
+
+      response = login_two_steps(user, %{backup_code: "12345678"})
+
+      assert response == %{
+               "data" => %{
+                 "code" => "user:invalid_backup_code",
+                 "description" => "The provided `backup_code` is invalid.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "responds error when required params are missing" do
+      user = User.get(@admin_id)
+
+      create_two_factors_and_enable_2fa(user)
+
+      response = login_two_steps(user, %{})
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "messages" => nil,
+                 "object" => "error",
+                 "code" => "client:invalid_parameter",
+                 "description" =>
+                   "Invalid parameter provided. `backup_code` or `passcode` is required."
+               }
+             }
+    end
+  end
+
+  defp create_two_factors_and_enable_2fa(user) do
+    {secret_attrs, _} = create_secret_code(user)
+    {backup_attrs, created_backup_codes_user} = create_backup_codes(user)
+
+    {:ok} = TwoFactorAuthenticator.enable(created_backup_codes_user, :admin_api)
+
+    {backup_attrs.backup_codes, secret_attrs.secret_2fa_code, User.get(user.id)}
+  end
+
+  defp login_two_steps(user, attrs) do
+    response = unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
+
+    pre_auth_token = response["data"]["pre_authentication_token"]
+
+    response =
+      admin_user_request("/admin.login_2fa", attrs,
+        user_id: user.id,
+        auth_token: pre_auth_token
+      )
+
+    response
+  end
+
+  defp create_backup_codes(user) do
+    {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :backup_codes)
+
+    created_backup_codes_user = User.get(user.id)
+
+    {attrs, created_backup_codes_user}
+  end
+
+  defp create_secret_code(user) do
+    {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
+
+    created_secret_code_user = User.get(user.id)
+
+    {attrs, created_secret_code_user}
   end
 
   defp generate_totp(secret_code), do: :pot.totp(secret_code)

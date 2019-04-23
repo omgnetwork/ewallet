@@ -19,49 +19,86 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
   alias EWalletDB.{User, AuthToken}
   alias Utils.Helpers.Crypto
 
-  describe "verify" do
-    test "returns {:ok} if the user has secret code and the given passcode is correct" do
+  describe "login" do
+    test "returns {:ok, token} if the user has secret code and the given passcode is correct" do
       user = insert(:user)
 
-      {:ok, %{secret_2fa_code: secret_2fa_code}} =
-        TwoFactorAuthenticator.create_and_update(user, :secret_code)
-
-      updated_user = User.get(user.id)
+      {_, secret_2fa_code, enabled_2fa_user} = create_two_factors_and_enable_2fa(user)
 
       passcode = generate_totp(secret_2fa_code)
-      assert TwoFactorAuthenticator.verify(%{"passcode" => passcode}, updated_user) == {:ok}
+
+      params = %{"passcode" => passcode}
+
+      assert {:ok, auth_token} =
+               TwoFactorAuthenticator.login(params, :admin_api, enabled_2fa_user)
+
+      assert auth_token.token != nil
+      # assert auth_token.user == enabled_2fa_user
     end
 
-    test "returns {:ok} if the user has hashed backup codes and the given backup code is correct" do
+    test "returns {:ok, token} if the user has hashed backup codes and the given backup code is correct" do
       user = insert(:user)
 
-      {:ok, %{backup_codes: [backup_code | _]}} =
-        TwoFactorAuthenticator.create_and_update(user, :backup_codes)
+      {[backup_code | _], _, enabled_2fa_user} = create_two_factors_and_enable_2fa(user)
 
-      updated_user = User.get(user.id)
+      params = %{"backup_code" => backup_code}
 
-      assert TwoFactorAuthenticator.verify(%{"backup_code" => backup_code}, updated_user) == {:ok}
+      assert {:ok, auth_token} =
+               TwoFactorAuthenticator.login(params, :admin_api, enabled_2fa_user)
+
+      assert auth_token.token != nil
     end
 
-    test "returns {:error, :invalid_passcode} if the user has secret code but the given passcode is incorrect" do
-      user = insert(:user)
-
-      TwoFactorAuthenticator.create_and_update(user, :secret_code)
-
-      updated_user = User.get(user.id)
-
-      assert TwoFactorAuthenticator.verify(%{"passcode" => "¯\_(ツ)_/¯"}, updated_user) ==
-               {:error, :invalid_passcode}
-    end
-
-    test "returns {:error, :invalid_backup_code} if the user has secret code but the given passcode is incorrect" do
+    test "returns {:error, :user_2fa_disabled} if the user has not enabled two-factor authorization" do
       user = insert(:user)
 
       TwoFactorAuthenticator.create_and_update(user, :backup_codes, %{number_of_backup_codes: 1})
 
       updated_user = User.get(user.id)
 
-      assert TwoFactorAuthenticator.verify(%{"backup_code" => "／人 ◕ ‿‿ ◕ 人＼"}, updated_user) ==
+      assert TwoFactorAuthenticator.login(%{"secret_code" => "123456"}, :admin_api, updated_user) ==
+               {:error, :user_2fa_disabled}
+    end
+  end
+
+  describe "verify" do
+    test "returns {:ok} if the user has secret code and the given passcode is correct" do
+      user = insert(:user)
+
+      {attrs, created_secret_code_user} = create_secret_code(user)
+
+      passcode = generate_totp(attrs.secret_2fa_code)
+
+      assert TwoFactorAuthenticator.verify(%{"passcode" => passcode}, created_secret_code_user) ==
+               {:ok}
+    end
+
+    test "returns {:ok} if the user has hashed backup codes and the given backup code is correct" do
+      user = insert(:user)
+
+      {attrs, updated_user} = create_backup_codes(user)
+
+      assert TwoFactorAuthenticator.verify(
+               %{"backup_code" => hd(attrs.backup_codes)},
+               updated_user
+             ) == {:ok}
+    end
+
+    test "returns {:error, :invalid_passcode} if the user has secret code but the given passcode is incorrect" do
+      user = insert(:user)
+
+      {_, updated_user} = create_secret_code(user)
+
+      assert TwoFactorAuthenticator.verify(%{"passcode" => "nil"}, updated_user) ==
+               {:error, :invalid_passcode}
+    end
+
+    test "returns {:error, :invalid_backup_code} if the user has backup_codes but the given backup_code is incorrect" do
+      user = insert(:user)
+
+      {_, updated_user} = create_backup_codes(user)
+
+      assert TwoFactorAuthenticator.verify(%{"backup_code" => "nil"}, updated_user) ==
                {:error, :invalid_backup_code}
     end
 
@@ -82,8 +119,11 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
     test "returns {:error, :invalid_parameter} if attributes are not matched" do
       user = insert(:user)
 
-      assert TwoFactorAuthenticator.verify(%{"sms_otp" => "¬_¬"}, user) ==
-               {:error, :invalid_parameter}
+      {_, updated_user} = create_backup_codes(user)
+
+      assert TwoFactorAuthenticator.verify(%{"sms_otp" => "¬_¬"}, updated_user) ==
+               {:error, :invalid_parameter,
+                "Invalid parameter provided. `backup_code` or `passcode` is required."}
     end
 
     test "returns {:error, :invalid_parameter} if the user is nil" do
@@ -92,12 +132,125 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
     end
   end
 
+  describe "verify_multiple" do
+    test "returns {:error, :invalid_parameters} when the attributes are empty" do
+      user = insert(:user)
+
+      assert TwoFactorAuthenticator.verify_multiple(%{}, user) == {:error, :invalid_parameters}
+    end
+
+    test "returns {:error, :invalid_backup_code} when the invalid backup_code is passed" do
+      user = insert(:user)
+
+      {_, updated_user} = create_backup_codes(user)
+
+      assert TwoFactorAuthenticator.verify_multiple(
+               %{"backup_code" => "12345678"},
+               updated_user
+             ) == {:error, :invalid_backup_code}
+    end
+
+    test "returns {:error, :invalid_passcode} when the invalid passcode is passed" do
+      user = insert(:user)
+
+      {_, updated_user} = create_secret_code(user)
+
+      assert TwoFactorAuthenticator.verify_multiple(%{"passcode" => "123456"}, updated_user) ==
+               {:error, :invalid_passcode}
+    end
+
+    test "returns {:error, :passcode_not_found} when the secret_2fa_code has not been created" do
+      user = insert(:user)
+
+      assert TwoFactorAuthenticator.verify_multiple(%{"passcode" => "123456"}, user) ==
+               {:error, :secret_code_not_found}
+    end
+
+    test "returns {:error, :backup_code_not_found} when the hashed_backup_codes has not been created" do
+      user = insert(:user)
+
+      assert TwoFactorAuthenticator.verify_multiple(%{"backup_code" => "123456"}, user) ==
+               {:error, :backup_codes_not_found}
+    end
+
+    test "returns {:ok} when the valid passcode is passed" do
+      user = insert(:user)
+
+      {attrs, updated_user} = create_secret_code(user)
+
+      passcode = generate_totp(attrs.secret_2fa_code)
+
+      assert TwoFactorAuthenticator.verify_multiple(%{"passcode" => passcode}, updated_user) ==
+               {:ok}
+    end
+
+    test "returns {:ok} when the valid backup_code is passed" do
+      user = insert(:user)
+
+      {attrs, updated_user} = create_backup_codes(user)
+
+      assert TwoFactorAuthenticator.verify_multiple(
+               %{"backup_code" => hd(attrs.backup_codes)},
+               updated_user
+             ) == {:ok}
+    end
+
+    test "returns {:ok} when both valid passcode and backup_code are passed" do
+      user = insert(:user)
+
+      {backup_code_attrs, updated_user} = create_backup_codes(user)
+      {secret_code_attrs, updated_user} = create_secret_code(updated_user)
+
+      passcode = generate_totp(secret_code_attrs.secret_2fa_code)
+
+      assert TwoFactorAuthenticator.verify_multiple(
+               %{
+                 "backup_code" => hd(backup_code_attrs.backup_codes),
+                 "passcode" => passcode
+               },
+               updated_user
+             ) == {:ok}
+    end
+
+    test "returns {:error, :invalid_backup_code} when the valid passcode and the invalid backup_code are passed" do
+      user = insert(:user)
+
+      {_, updated_user} = create_backup_codes(user)
+      {secret_code_attrs, updated_user} = create_secret_code(updated_user)
+
+      passcode = generate_totp(secret_code_attrs.secret_2fa_code)
+
+      assert TwoFactorAuthenticator.verify_multiple(
+               %{
+                 "backup_code" => "12345",
+                 "passcode" => passcode
+               },
+               updated_user
+             ) == {:error, :invalid_backup_code}
+    end
+
+    test "returns {:error, :invalid_passcode} when the invalid passcode and the valid backup_code are passed" do
+      user = insert(:user)
+
+      {backup_code_attrs, updated_user} = create_backup_codes(user)
+
+      {_, updated_user} = create_secret_code(updated_user)
+
+      assert TwoFactorAuthenticator.verify_multiple(
+               %{
+                 "backup_code" => hd(backup_code_attrs.backup_codes),
+                 "passcode" => "123456"
+               },
+               updated_user
+             ) == {:error, :invalid_passcode}
+    end
+  end
+
   describe "create_and_update" do
     test "returns {:ok, secret_code_attrs} when given :secret_code" do
       user = insert(:user)
-      assert {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
 
-      updated_user = User.get(user.id)
+      {attrs, updated_user} = create_secret_code(user)
 
       assert attrs == %{
                issuer: "OmiseGO",
@@ -108,9 +261,8 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
 
     test "returns {:ok, backup_codes_attrs} when given :backup_codes" do
       user = insert(:user)
-      assert {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :backup_codes)
 
-      updated_user = User.get(user.id)
+      {attrs, updated_user} = create_backup_codes(user)
 
       assert length(attrs.backup_codes) == 10
 
@@ -118,6 +270,13 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
                attrs.backup_codes,
                &verify_backup_code(&1, updated_user.hashed_backup_codes)
              )
+    end
+
+    test "returns {:error, :invalid_parameters} when given unsupported 2fa method" do
+      user = insert(:user)
+
+      assert TwoFactorAuthenticator.create_and_update(user, :something) ==
+               {:error, :invalid_parameters}
     end
 
     defp verify_backup_code(backup_code, hashed_backup_codes) do
@@ -128,34 +287,88 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
   end
 
   describe "enable" do
-    test "returns an auth token when enabled 2fa" do
+    test "returns {:ok, auth_token} when enabled 2fa" do
       user = insert(:user)
 
-      assert {:ok, auth_token} = TwoFactorAuthenticator.enable(user, nil, :admin_api, true)
-      assert auth_token.token != nil
-      assert auth_token.pre_token == nil
-    end
+      create_backup_codes(user)
+      {_, updated_user} = create_secret_code(user)
 
-    test "the user's `enabled_2fa_at` should not be nil when enabled 2fa" do
-      user = insert(:user)
+      # Assert auth token
+      assert {:ok} = TwoFactorAuthenticator.enable(updated_user, :admin_api)
 
-      assert {:ok, _} = TwoFactorAuthenticator.enable(user, nil, :admin_api, true)
-
+      # Assert updated user
       updated_user = User.get(user.id)
-
       assert updated_user.enabled_2fa_at != nil
+      assert updated_user.hashed_backup_codes != []
+      assert updated_user.secret_2fa_code != nil
     end
 
-    test "the user's `enabled_2fa_at` should be nil when disabled 2fa" do
+    test "returns {:error, :backup_codes_not_found} when backup_code has not been created" do
       user = insert(:user)
-      auth_token = AuthToken.generate_token(user, :admin_api, user)
 
-      assert {:ok, _} = TwoFactorAuthenticator.enable(user, auth_token, :admin_api, false)
+      {_, updated_user} = create_secret_code(user)
+
+      assert {:error, :backup_codes_not_found} =
+               TwoFactorAuthenticator.enable(updated_user, :admin_api)
+    end
+
+    test "returns {:error, :secret_code_not_found} when secret_2fa_code has not been created" do
+      user = insert(:user)
+
+      {_, updated_user} = create_backup_codes(user)
+
+      assert {:error, :secret_code_not_found} =
+               TwoFactorAuthenticator.enable(updated_user, :admin_api)
+    end
+  end
+
+  describe "disable" do
+    test "returns an auth token when disable 2fa" do
+      user = insert(:user)
+      auth_token = insert(:auth_token, user: user, owner_app: "admin_api")
+
+      assert {:ok} = TwoFactorAuthenticator.disable(user, :admin_api)
+
+      assert auth_token.token != nil
+    end
+
+    test "the user's two-factor related properties should be unset" do
+      user = insert(:user)
+      {:ok, _} = AuthToken.generate(user, :admin_api, user)
+
+      assert {:ok} = TwoFactorAuthenticator.disable(user, :admin_api)
 
       updated_user = User.get(user.id)
 
       assert updated_user.enabled_2fa_at == nil
+      assert updated_user.hashed_backup_codes == []
+      assert updated_user.secret_2fa_code == nil
     end
+  end
+
+  defp create_two_factors_and_enable_2fa(user) do
+    {secret_code_attrs, _} = create_secret_code(user)
+    {backup_code_attrs, created_backup_codes_user} = create_backup_codes(user)
+
+    TwoFactorAuthenticator.enable(created_backup_codes_user, :admin_api)
+
+    {backup_code_attrs.backup_codes, secret_code_attrs.secret_2fa_code, User.get(user.id)}
+  end
+
+  defp create_backup_codes(user) do
+    {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :backup_codes)
+
+    created_backup_codes_user = User.get(user.id)
+
+    {attrs, created_backup_codes_user}
+  end
+
+  defp create_secret_code(user) do
+    {:ok, attrs} = TwoFactorAuthenticator.create_and_update(user, :secret_code)
+
+    created_secret_code_user = User.get(user.id)
+
+    {attrs, created_secret_code_user}
   end
 
   defp generate_totp(secret_code), do: :pot.totp(secret_code)
