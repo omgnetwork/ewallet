@@ -12,6 +12,7 @@ import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
 import { createTransactionRequest } from '../omg-transaction-request/action'
 import TokensFetcher from '../omg-token/tokensFetcher'
+import {createSearchTokenQuery} from '../omg-token/searchField'
 import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import { selectPrimaryWalletByAccountId } from '../omg-wallet/selector'
 import { formatAmount } from '../utils/formatter'
@@ -232,7 +233,7 @@ class CreateTransactionRequest extends Component {
       <InputLabelContainer>
         <InputLabel>Token</InputLabel>
         <TokensFetcher
-          query={{ page: 1, perPage: 10, search: this.state.searchTokenValue }}
+          query={{ page: 1, perPage: 10, ...createSearchTokenQuery(this.state.searchTokenValue)}}
           render={({ individualLoadingStatus, data }) => {
             return (
               <StyledSelect
