@@ -14,6 +14,7 @@ export const selectWalletsByAccountId = (state, search, accountId) => {
   })
 }
 export const selectPrimaryWalletByAccountId = state => accountId => {
+  if (!accountId) return {}
   return _.values(state.wallets).find(wallet => {
     const account = selectGetAccountById(state)(accountId)
     return wallet.account_id === account.id && wallet.identifier === 'primary'

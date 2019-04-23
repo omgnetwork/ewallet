@@ -306,33 +306,35 @@ class CreateTransactionRequest extends Component {
             <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(true)} label='Yes' checked={this.state.allowAmountOverride} />
           </InputLabelContainer>
         </RadioSectionContainer>
-        <InputLabelContainer>
-          <InputLabel>
+        {!this.props.match.params.accountId && (
+          <InputLabelContainer>
+            <InputLabel>
             Wallet Address
-          </InputLabel>
-          <WalletsFetcher
-            accountId={this.props.match.params.accountId}
-            query={{ search: this.state.address }}
-            owned={false}
-            render={({ data }) => {
-              return (
-                <StyledSelect
-                  normalPlaceholder='0x00000000'
-                  value={this.state.address}
-                  onSelectItem={this.onSelectWallet}
-                  onChange={this.onChange('address')}
-                  options={data
-                    .filter(w => w.identifier !== 'burn')
-                    .map(wallet => ({
-                      key: wallet.address,
-                      value: <WalletSelect wallet={wallet} />,
-                      ...wallet
-                    }))}
-                />
-              )
-            }}
-          />
-        </InputLabelContainer>
+            </InputLabel>
+            <WalletsFetcher
+              accountId={this.props.match.params.accountId}
+              query={{ search: this.state.address }}
+              owned={false}
+              render={({ data }) => {
+                return (
+                  <StyledSelect
+                    normalPlaceholder='0x00000000'
+                    value={this.state.address}
+                    onSelectItem={this.onSelectWallet}
+                    onChange={this.onChange('address')}
+                    options={data
+                      .filter(w => w.identifier !== 'burn')
+                      .map(wallet => ({
+                        key: wallet.address,
+                        value: <WalletSelect wallet={wallet} />,
+                        ...wallet
+                      }))}
+                  />
+                )
+              }}
+            />
+          </InputLabelContainer>
+        )}
         <InputLabelContainer>
           <InputLabel>
             Correlation ID
