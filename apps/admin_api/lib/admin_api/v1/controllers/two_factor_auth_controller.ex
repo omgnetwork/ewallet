@@ -18,15 +18,14 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
   alias AdminAPI.V1.AdminAPIAuth
   alias EWallet.{TwoFactorPolicy, TwoFactorAuthenticator}
   alias EWallet.Web.{Orchestrator, V1.AuthTokenOverlay}
-  alias EWalletDB.{AuthToken, User}
+  alias EWalletDB.{User}
   alias Ecto.Changeset
 
-  def verify(conn, attrs) do
-    with auth_params <- verify_user_authenticated(conn),
-         {:ok, user} <- verify_user_2fa_enabled(auth_params),
+  def login(conn, attrs) do
+    with auth_params <- parse_auth_params(conn),
+         {:ok, user} <- verify_auth_params(auth_params),
          {:ok, _} <- authorize(:verify, auth_params, user),
-         {:ok} <- TwoFactorAuthenticator.verify(attrs, user),
-         {:ok, token} = AuthToken.generate_token(user, :admin_api, user),
+         {:ok, token} <- TwoFactorAuthenticator.login(attrs, :admin_api, user),
          {:ok, token} <- Orchestrator.one(token, AuthTokenOverlay, attrs) do
       render(conn, :auth_token, %{auth_token: token})
     else
@@ -34,21 +33,17 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
     end
   end
 
-  defp verify_user_authenticated(conn) do
+  defp parse_auth_params(conn) do
     AdminAPIAuth.authenticate(%{headers: conn.req_headers})
   end
 
-  defp verify_user_2fa_enabled(%{admin_user: admin_user}) do
-    do_verify_user_2fa_enabled(admin_user)
+  defp verify_auth_params(%{admin_user: admin_user}) do
+    {:ok, admin_user}
   end
 
-  defp verify_user_2fa_enabled(%{auth_error: error_code}) when is_atom(error_code) do
+  defp verify_auth_params(%{auth_error: error_code}) when is_atom(error_code) do
     {:error, error_code}
   end
-
-  defp do_verify_user_2fa_enabled(%{enabled_2fa_at: nil}), do: {:error, :invalid_parameter}
-
-  defp do_verify_user_2fa_enabled(%{enabled_2fa_at: _} = user), do: {:ok, user}
 
   def create_backup_codes(conn, _), do: do_create(conn, :backup_codes)
 
@@ -64,18 +59,38 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
     end
   end
 
-  def enable(conn, attrs), do: do_enable(conn, attrs, true)
-
-  def disable(conn, attrs), do: do_enable(conn, attrs, false)
-
-  defp do_enable(conn, attrs, enable) do
+  def enable(conn, %{"backup_code" => _, "passcode" => _} = attrs) do
     with %User{} = user <- conn.assigns[:admin_user] || {:error, :unauthorized},
-         auth_token <- conn.private[:auth_auth_token],
+         {:ok, _} <- authorize(:create, conn.assigns, user),
+         {:ok} <- TwoFactorAuthenticator.verify_multiple(attrs, user),
+         {:ok} <- TwoFactorAuthenticator.enable(user, :admin_api) do
+      render(conn, :empty_response)
+    else
+      error -> respond_error(error, conn)
+    end
+  end
+
+  def enable(conn, %{"backup_code" => _}) do
+    error_description = "Invalid parameter provided. `passcode` is required."
+    respond_error({:error, :invalid_parameter, error_description}, conn)
+  end
+
+  def enable(conn, %{"passcode" => _}) do
+    error_description = "Invalid parameter provided. `backup_code` is required."
+    respond_error({:error, :invalid_parameter, error_description}, conn)
+  end
+
+  def enable(conn, attrs) do
+    error_description = "Invalid parameter provided. `backup_code` and `passcode` are required."
+    respond_error({:error, :invalid_parameter, error_description}, conn)
+  end
+
+  def disable(conn, attrs) do
+    with %User{} = user <- conn.assigns[:admin_user] || {:error, :unauthorized},
          {:ok, _} <- authorize(:create, conn.assigns, user),
          {:ok} <- TwoFactorAuthenticator.verify(attrs, user),
-         {:ok, token} <- TwoFactorAuthenticator.enable(user, auth_token, :admin_api, enable),
-         {:ok, token} <- Orchestrator.one(token, AuthTokenOverlay, attrs) do
-      render(conn, :auth_token, %{auth_token: token})
+         {:ok} <- TwoFactorAuthenticator.disable(user, :admin_api) do
+      render(conn, :empty_response)
     else
       error -> respond_error(error, conn)
     end

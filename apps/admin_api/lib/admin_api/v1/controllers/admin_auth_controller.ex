@@ -16,9 +16,9 @@ defmodule AdminAPI.V1.AdminAuthController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AdminUserAuthenticator
-  alias EWallet.{AccountPolicy, AdminUserPolicy}
+  alias EWallet.{AccountPolicy, AdminUserPolicy, UserAuthToken}
   alias EWallet.Web.{Orchestrator, Originator, V1.AuthTokenOverlay}
-  alias EWalletDB.{Account, AuthToken, User}
+  alias EWalletDB.{Account, User}
 
   @doc """
   Authenticates a user with the given email and password.
@@ -31,7 +31,8 @@ defmodule AdminAPI.V1.AdminAuthController do
          true <- conn.assigns.authenticated || {:error, :invalid_login_credentials},
          true <- User.get_status(conn.assigns.admin_user) == :active || {:error, :invite_pending},
          originator <- Originator.extract(conn.assigns),
-         {:ok, auth_token} <- generate_auth_token(conn.assigns.admin_user, originator),
+         {:ok, auth_token} <-
+           UserAuthToken.generate(conn.assigns.admin_user, :admin_api, originator),
          {:ok, auth_token} <- Orchestrator.one(auth_token, AuthTokenOverlay, attrs) do
       render_token(conn, auth_token)
     else
@@ -40,20 +41,12 @@ defmodule AdminAPI.V1.AdminAuthController do
     end
   end
 
-  defp generate_auth_token(%User{} = admin_user, originator) do
-    if User.enabled_2fa?(admin_user) do
-      AuthToken.generate_pre_token(admin_user, :admin_api, originator)
-    else
-      AuthToken.generate_token(admin_user, :admin_api, originator)
-    end
-  end
-
   def switch_account(conn, _attrs) do
     handle_error(conn, :unauthorized)
   end
 
   defp render_token(conn, auth_token) do
-    render(conn, :auth_token, %{auth_token: auth_token})
+    render(conn, :user_auth_token, %{auth_token: auth_token})
   end
 
   @doc """
