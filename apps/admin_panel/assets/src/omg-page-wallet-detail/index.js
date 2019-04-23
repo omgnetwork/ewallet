@@ -86,6 +86,9 @@ class WalletDetaillPage extends Component {
           <b>Address:</b> <span>{wallet.address}</span> <Copy data={wallet.address} />
         </DetailGroup>
         <DetailGroup>
+          <b>Name:</b> <span>{wallet.name}</span>
+        </DetailGroup>
+        <DetailGroup>
           <b>Wallet Type:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
         {wallet.account && (
