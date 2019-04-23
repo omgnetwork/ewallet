@@ -15,9 +15,16 @@
 defmodule AdminAPI.V1.AdminAuthView do
   use AdminAPI, :view
   alias AdminAPI.V1.AuthTokenSerializer
-  alias EWallet.Web.V1.ResponseSerializer
+  alias EWallet.Web.V1.{ResponseSerializer, PreAuthTokenSerializer}
+  alias EWalletDB.{PreAuthToken}
 
-  def render("auth_token.json", %{auth_token: auth_token}) do
+  def render("user_auth_token.json", %{auth_token: %PreAuthToken{} = auth_token}) do
+    auth_token
+    |> PreAuthTokenSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
+  end
+
+  def render("user_auth_token.json", %{auth_token: auth_token}) do
     auth_token
     |> AuthTokenSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)

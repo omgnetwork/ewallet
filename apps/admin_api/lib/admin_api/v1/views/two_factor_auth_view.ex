@@ -34,4 +34,8 @@ defmodule AdminAPI.V1.TwoFactorAuthView do
     |> UserSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
+  def render("empty_response.json", _attrs) do
+    ResponseSerializer.serialize(%{}, success: true)
+  end
 end
