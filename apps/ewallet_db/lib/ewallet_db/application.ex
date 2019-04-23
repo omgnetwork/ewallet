@@ -46,6 +46,7 @@ defmodule EWalletDB.Application do
       EWalletDB.ExchangePair => %{type: "exchange_pair", identifier: :id},
       EWalletDB.Wallet => %{type: "wallet", identifier: :address},
       EWalletDB.Membership => %{type: "membership", identifier: :id},
+      EWalletDB.PreAuthToken => %{type: "pre_auth_token", identifier: :id},
       EWalletDB.AuthToken => %{type: "auth_token", identifier: :id},
       EWalletDB.APIKey => %{type: "api_key", identifier: :id},
       EWalletDB.Token => %{type: "token", identifier: :id},
