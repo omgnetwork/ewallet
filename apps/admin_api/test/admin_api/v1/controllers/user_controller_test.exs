@@ -725,7 +725,7 @@ defmodule AdminAPI.V1.UserControllerTest do
       account = Account.get_master_account()
       {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
-      {:ok, token} = AuthToken.generate_token(user, @owner_app, %System{})
+      {:ok, token} = AuthToken.generate(user, @owner_app, %System{})
       token_string = token.token
       # Ensure tokens is usable.
       assert AuthToken.authenticate(token_string, @owner_app)
@@ -746,7 +746,7 @@ defmodule AdminAPI.V1.UserControllerTest do
       account = Account.get_master_account()
       {:ok, _} = AccountUser.link(account.uuid, user.uuid, %System{})
 
-      {:ok, token} = AuthToken.generate_token(user, @owner_app, %System{})
+      {:ok, token} = AuthToken.generate(user, @owner_app, %System{})
       token_string = token.token
       # Ensure tokens is usable.
       assert AuthToken.authenticate(token_string, @owner_app)

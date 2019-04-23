@@ -34,7 +34,7 @@ defmodule EWalletAPI.V1.AuthController do
            User.get_status(conn.assigns.end_user) == :active || {:error, :email_not_verified},
          originator <- Originator.extract(conn.assigns),
          {:ok, auth_token} <-
-           AuthToken.generate_token(conn.assigns.end_user, :ewallet_api, originator),
+           AuthToken.generate(conn.assigns.end_user, :ewallet_api, originator),
          {:ok, auth_token} = Orchestrator.one(auth_token, AuthTokenOverlay, attrs) do
       render(conn, :auth_token, %{auth_token: auth_token})
     else
