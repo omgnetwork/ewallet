@@ -68,15 +68,6 @@ defmodule EWalletDB.PreAuthToken do
     |> assoc_constraint(:user)
   end
 
-  defp expire_changeset(%PreAuthToken{} = token, attrs) do
-    token
-    |> cast_and_validate_required_for_activity_log(
-      attrs,
-      cast: [:expired],
-      required: [:expired]
-    )
-  end
-
   @doc """
   Generate a pre auth token for the specified user to be used for verify two-factor auth,
   then returns the pre auth token string.
@@ -166,34 +157,6 @@ defmodule EWalletDB.PreAuthToken do
     |> Repo.insert_record_with_activity_log()
   end
 
-  # Expires the given token.
-  def expire(token, owner_app, originator) when is_binary(token) and is_atom(owner_app) do
-    token
-    |> get_by_token(owner_app)
-    |> expire(originator)
-  end
-
-  def expire(%PreAuthToken{} = token, originator) do
-    update(token, %{
-      expired: true,
-      originator: originator
-    })
-  end
-
-  def expire_for_user(%{enabled: true}), do: :ok
-
-  def expire_for_user(user) do
-    Repo.update_all(
-      from(
-        a in PreAuthToken,
-        where: a.user_uuid == ^user.uuid
-      ),
-      set: [expired: true]
-    )
-
-    :ok
-  end
-
   def delete_for_user(user) do
     Repo.delete_all(
       from(
@@ -203,13 +166,5 @@ defmodule EWalletDB.PreAuthToken do
     )
 
     :ok
-  end
-
-  # `update/2` is private to prohibit direct auth token updates,
-  # if expiring the token, please use `expire/2` instead.
-  defp update(%PreAuthToken{} = token, attrs) do
-    token
-    |> expire_changeset(attrs)
-    |> Repo.update_record_with_activity_log()
   end
 end
