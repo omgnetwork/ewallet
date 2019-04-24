@@ -36,12 +36,16 @@ defmodule EWallet.PasscodeAuthenticator do
 
   @number_of_bytes 10
 
-  def verify(passcode, secret) do
+  def verify(passcode, secret) when is_binary(passcode) and is_binary(secret) do
     if :pot.valid_totp(passcode, secret) do
       {:ok}
     else
       {:error, :invalid_passcode}
     end
+  end
+
+  def verify(_, _) do
+    {:error, :invalid_parameter}
   end
 
   def create do
