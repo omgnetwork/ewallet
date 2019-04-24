@@ -21,7 +21,6 @@ defmodule EWalletDB.PreAuthToken do
   use ActivityLogger.ActivityLogging
   import Ecto.Changeset
   import Ecto.Query, only: [from: 2]
-  import EWalletConfig.Validator
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
   alias EWalletDB.{Account, PreAuthToken, Repo, User}
@@ -72,16 +71,18 @@ defmodule EWalletDB.PreAuthToken do
   Generate a pre auth token for the specified user to be used for verify two-factor auth,
   then returns the pre auth token string.
   """
-  def generate(user, owner_app, originator) do
+  def generate(%User{} = user, owner_app, originator) when is_atom(owner_app) do
     %{
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
-      token: Crypto.generate_base64_key(@key_length),
       account_uuid: nil,
+      token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
     |> insert()
   end
+
+  def generate(_, _, _), do: {:error, :invalid_parameter}
 
   @doc """
   Retrieves an auth token using the specified token.

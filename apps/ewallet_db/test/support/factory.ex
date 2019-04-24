@@ -26,6 +26,7 @@ defmodule EWalletDB.Factory do
     AccountUser,
     APIKey,
     AuthToken,
+    PreAuthToken,
     Category,
     Export,
     ExchangePair,
@@ -277,6 +278,17 @@ defmodule EWalletDB.Factory do
   def auth_token_factory do
     %AuthToken{
       token: sequence("auth_token"),
+      owner_app: "some_app_name",
+      user: insert(:user),
+      account: insert(:account),
+      expired: false,
+      originator: %System{}
+    }
+  end
+
+  def pre_auth_token_factory do
+    %PreAuthToken{
+      token: sequence("pre_auth_token"),
       owner_app: "some_app_name",
       user: insert(:user),
       account: insert(:account),
