@@ -23,6 +23,7 @@ const TokenDetailPageContainer = styled.div`
   td:nth-child(1) {
     border: none;
     position: relative;
+    white-space: nowrap;
     :before {
       content: '';
       position: absolute;

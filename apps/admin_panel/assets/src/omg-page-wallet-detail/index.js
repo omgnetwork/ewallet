@@ -20,6 +20,7 @@ const WalletDetailContainer = styled.div`
 `
 const ContentDetailContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
 `
 const DetailContainer = styled.div`
   flex: 1 1 auto;
@@ -85,7 +86,10 @@ class WalletDetaillPage extends Component {
           <b>Address:</b> <span>{wallet.address}</span> <Copy data={wallet.address} />
         </DetailGroup>
         <DetailGroup>
-          <b>Wallet Type:</b> <span>{wallet.identifier}</span>
+          <b>Name:</b> <span>{wallet.name}</span>
+        </DetailGroup>
+        <DetailGroup>
+          <b>Wallet Identifier:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
         {wallet.account && (
           <DetailGroup>

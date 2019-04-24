@@ -12,6 +12,7 @@ import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
 import { createTransactionRequest } from '../omg-transaction-request/action'
 import TokensFetcher from '../omg-token/tokensFetcher'
+import { createSearchTokenQuery } from '../omg-token/searchField'
 import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import { selectPrimaryWalletByAccountId } from '../omg-wallet/selector'
 import { formatAmount } from '../utils/formatter'
@@ -232,7 +233,7 @@ class CreateTransactionRequest extends Component {
       <InputLabelContainer>
         <InputLabel>Token</InputLabel>
         <TokensFetcher
-          query={{ page: 1, perPage: 10, search: this.state.searchTokenValue }}
+          query={{ page: 1, perPage: 10, ...createSearchTokenQuery(this.state.searchTokenValue) }}
           render={({ individualLoadingStatus, data }) => {
             return (
               <StyledSelect
@@ -264,7 +265,7 @@ class CreateTransactionRequest extends Component {
     return (
       <InputLabelContainer>
         <InputLabel>
-          Wallet Address {this.props.match.params.accountId && <span>( Optional )</span>}
+          Wallet Address
         </InputLabel>
         <WalletsFetcher
           query={createSearchAddressQuery(this.state.address)}
@@ -305,33 +306,7 @@ class CreateTransactionRequest extends Component {
             <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(true)} label='Yes' checked={this.state.allowAmountOverride} />
           </InputLabelContainer>
         </RadioSectionContainer>
-        <InputLabelContainer>
-          <InputLabel>
-            Wallet Address
-          </InputLabel>
-          <WalletsFetcher
-            accountId={this.props.match.params.accountId}
-            query={{ search: this.state.address }}
-            owned={false}
-            render={({ data }) => {
-              return (
-                <StyledSelect
-                  normalPlaceholder='0x00000000'
-                  value={this.state.address}
-                  onSelectItem={this.onSelectWallet}
-                  onChange={this.onChange('address')}
-                  options={data
-                    .filter(w => w.identifier !== 'burn')
-                    .map(wallet => ({
-                      key: wallet.address,
-                      value: <WalletSelect wallet={wallet} />,
-                      ...wallet
-                    }))}
-                />
-              )
-            }}
-          />
-        </InputLabelContainer>
+        {this.props.match.params.accountId ? this.renderWalletTarget() : null}
         <InputLabelContainer>
           <InputLabel>
             Correlation ID
