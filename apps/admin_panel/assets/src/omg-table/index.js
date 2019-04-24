@@ -27,13 +27,11 @@ const TableContainer = styled.div`
     width: 100%;
     text-align: left;
     tbody tr:hover {
-      background-color: ${props => props.theme.colors.S100};
+      cursor: ${props => props.hoverEffect ? 'pointer' : 'initial'};
+      background-color: ${props => props.hoverEffect ? props.theme.colors.S100 : 'initial'};
     }
     tbody td {
       border-bottom: 1px solid ${props => props.theme.colors.S200};
-    }
-    tr {
-      cursor: pointer;
     }
     td {
       opacity: ${props => (props.loading && props.loadingEffect ? 0.6 : 1)};
@@ -85,12 +83,14 @@ class SortableTable extends PureComponent {
     onClickLoadMore: PropTypes.func,
     pagination: PropTypes.bool,
     pageEntity: PropTypes.string,
-    loadingEffect: PropTypes.bool
+    loadingEffect: PropTypes.bool,
+    hoverEffect: PropTypes.bool
   }
   static defaultProps = {
     pageEntity: 'page',
     loadingEffect: true,
-    navigation: false
+    navigation: false,
+    hoverEffect: true
   }
 
   constructor (props) {
@@ -252,6 +252,7 @@ class SortableTable extends PureComponent {
       <TableContainer
         loading={this.props.loadingStatus === 'PENDING'}
         loadingEffect={this.props.loadingEffect}
+        hoverEffect={this.props.hoverEffect}
       >
         <Table
           {...this.props}
