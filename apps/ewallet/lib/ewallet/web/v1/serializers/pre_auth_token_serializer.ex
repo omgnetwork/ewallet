@@ -22,7 +22,7 @@ defmodule EWallet.Web.V1.PreAuthTokenSerializer do
 
   def serialize(%PreAuthToken{} = auth_token) do
     %{
-      object: "pre_authentication_token",
+      object: "authentication_token",
       pre_authentication_token: auth_token.token,
       user_id: Assoc.get(auth_token, [:user, :id]),
       user: UserSerializer.serialize(auth_token.user),

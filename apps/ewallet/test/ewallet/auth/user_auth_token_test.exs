@@ -42,13 +42,13 @@ defmodule EWallet.UserAuthTokenTest do
       assert pre_auth_token.token == auth_token.token
     end
 
-    test "return false if the given user has enabled 2FA but the given token didn't exist" do
+    test "return false if the given user has enabled 2FA but the given token doesn't exist" do
       user = insert(:user, %{enabled_2fa_at: ~N[2000-02-02 20:02:02], originator: nil})
 
       assert UserAuthToken.authenticate(user, "1234", :admin_api) == false
     end
 
-    test "return false if the given token didn't exist" do
+    test "return false if the given token doesn't exist" do
       user = insert(:user, %{originator: nil})
 
       assert UserAuthToken.authenticate(user, "1234", :admin_api) == false
