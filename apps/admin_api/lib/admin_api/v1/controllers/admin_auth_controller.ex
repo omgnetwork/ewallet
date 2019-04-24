@@ -46,7 +46,7 @@ defmodule AdminAPI.V1.AdminAuthController do
   end
 
   defp render_token(conn, auth_token) do
-    render(conn, :user_auth_token, %{auth_token: auth_token})
+    render(conn, :auth_token, %{auth_token: auth_token})
   end
 
   @doc """

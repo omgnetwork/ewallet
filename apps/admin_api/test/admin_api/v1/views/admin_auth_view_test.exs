@@ -14,12 +14,13 @@
 
 defmodule AdminAPI.V1.AdminAuthViewTest do
   use AdminAPI.ViewCase, :v1
+  alias EWallet.Web.V1.PreAuthTokenSerializer
   alias AdminAPI.V1.{AdminAuthView, AuthTokenSerializer}
 
   describe "AdminAPI.V1.AuthView.render/2" do
     # Potential candidate to be moved to a shared library
 
-    test "renders auth_token.json with correct structure" do
+    test "renders auth_token.json for AuthToken with correct structure" do
       auth_token = insert(:auth_token)
 
       expected = %{
@@ -29,7 +30,20 @@ defmodule AdminAPI.V1.AdminAuthViewTest do
       }
 
       attrs = %{auth_token: auth_token}
-      assert AdminAuthView.render("user_auth_token.json", attrs) == expected
+      assert AdminAuthView.render("auth_token.json", attrs) == expected
+    end
+
+    test "renders auth_token.json for PreAuthToken with correct structure" do
+      pre_auth_token = insert(:pre_auth_token)
+
+      expected = %{
+        version: @expected_version,
+        success: true,
+        data: PreAuthTokenSerializer.serialize(pre_auth_token)
+      }
+
+      attrs = %{auth_token: pre_auth_token}
+      assert AdminAuthView.render("auth_token.json", attrs) == expected
     end
 
     test "renders empty_response.json with correct structure" do
