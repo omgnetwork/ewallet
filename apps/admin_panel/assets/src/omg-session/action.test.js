@@ -1,11 +1,14 @@
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
+
 import { login, logout, sendResetPasswordEmail, updatePasswordWithResetToken, updatePassword } from './action'
 import * as sessionService from '../services/sessionService'
+
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 jest.mock('../services/sessionService')
 let store
+
 describe('transaction actions', () => {
   beforeEach(() => {
     jest.resetAllMocks()

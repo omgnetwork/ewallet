@@ -58,3 +58,17 @@ export const updatePassword = ({ password, passwordConfirmation, oldPassword }) 
         passwordConfirmation
       })
   })
+
+export const verifyEmail = ({
+  email,
+  token
+}) =>
+  createActionCreator({
+    actionName: 'VERIFY_EMAIL',
+    action: 'UPDATE',
+    service: () =>
+      sessionService.verifyEmail({
+        email,
+        token
+      })
+  })

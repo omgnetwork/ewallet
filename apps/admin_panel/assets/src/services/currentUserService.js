@@ -20,7 +20,7 @@ export function updateCurrentUserEmail ({ email }) {
     path: 'me.update_email',
     data: {
       email,
-      redirect_url: `${ADMIN_API_URL}?email={email}`
+      redirect_url: `${ADMIN_API_URL}verify_email?email={email}&token={token}`
     }
   })
 }

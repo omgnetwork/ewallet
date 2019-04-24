@@ -37,8 +37,8 @@ describe('current user actions', () => {
       return Promise.resolve({ data: { success: true, data: { id: 'a' } } })
     })
     const expectedActions = [
-      { type: 'CURRENT_USER/UPDATE/INITIATED' },
-      { type: 'CURRENT_USER/UPDATE/SUCCESS', data: { id: 'a' } }
+      { type: 'CURRENT_USER_EMAIL/UPDATE/INITIATED' },
+      { type: 'CURRENT_USER_EMAIL/UPDATE/SUCCESS', data: { id: 'a' } }
     ]
     return store.dispatch(updateCurrentUserEmail({ email: 'email' })).then(() => {
       expect(currentUserService.updateCurrentUserEmail).toBeCalledWith({ email: 'email' })
