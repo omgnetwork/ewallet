@@ -29,7 +29,7 @@ const Input = styled.input`
   width: 100%;
   border: none;
   color: ${props => props.theme.colors.B300};
-  padding-bottom: 3px;
+  padding: 8px 0px;
   background-color: transparent;
   line-height: 1;
   border-bottom: 1px solid
@@ -40,6 +40,7 @@ const Input = styled.input`
   }
   ::placeholder {
     color: ${props => props.theme.colors.S400};
+    font-size: 12px;
   }
   :focus {
     border-bottom: 1px solid

@@ -1,18 +1,20 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
+import { withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import moment from 'moment'
+import queryString from 'query-string'
 import styled from 'styled-components'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
 import CreateTokenModal from '../omg-create-token-modal'
 import ExportModal from '../omg-export-modal'
 import TokensFetcher from '../omg-token/tokensFetcher'
-import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
 import { NameColumn } from '../omg-page-account'
-import moment from 'moment'
-import queryString from 'query-string'
 import ExchangePairModal from '../omg-exchange-rate-modal'
 import { createSearchTokenQuery } from '../omg-token/searchField'
+
 const TokenDetailPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -151,7 +153,10 @@ class TokenDetailPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Tokens'}
-          buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]}
+          buttons={[
+            tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
+            this.renderMintTokenButton()
+          ]}
         />
         <SortableTable
           rows={data}

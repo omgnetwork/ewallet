@@ -22,9 +22,6 @@ const Form = styled.form`
     color: ${props => props.theme.colors.S400};
     cursor: pointer;
   }
-  input {
-    margin-top: 5px;
-  }
   button {
     margin: 35px 0 0;
     font-size: 14px;

@@ -2,22 +2,24 @@ import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
+import { compose } from 'recompose'
+import moment from 'moment'
+import queryString from 'query-string'
+import { connect } from 'react-redux'
+
 import TokenProvider from '../omg-token/TokenProvider'
 import ExchangePairsProvider from '../omg-exchange-pair/exchangePairProvider'
-import { compose } from 'recompose'
-import { Button } from '../omg-uikit'
+import { Button, Breadcrumb } from '../omg-uikit'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
-import moment from 'moment'
 import MintTokenModal from '../omg-mint-token-modal'
 import ExchangeRateModal from '../omg-exchange-rate-modal'
 import HistoryTable from './HistoryTable'
 import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
 import { getMintedTokenHistory } from '../omg-token/action'
 import { createCacheKey } from '../utils/createFetcher'
-import queryString from 'query-string'
-import { connect } from 'react-redux'
 import Copy from '../omg-copy'
+
 const TokenDetailContainer = styled.div`
   padding-bottom: 20px;
 `
@@ -46,6 +48,10 @@ const ActionButtons = styled.div`
     color: ${props => props.theme.colors.BL300};
     padding-left: 20px;
   }
+`
+
+const BreadcrumbContainer = styled.div`
+  margin-top: 30px;
 `
 
 const enhance = compose(
@@ -109,29 +115,50 @@ class TokenDetailPage extends Component {
       exchangeRateToDelete: pair
     })
   }
+  renderCreateExchangePairButton = () => {
+    return (
+      <Button
+        key='create pair'
+        size='small'
+        styleType='secondary'
+        onClick={this.onClickCreateExchangePair}
+      >
+        <span>Create Exchange Pair</span>
+      </Button>
+    )
+  }
   renderTopBar = token => {
     return (
-      <TopBar
-        title={token.name}
-        breadcrumbItems={['Token', `${token.name} (${token.symbol})`]}
-        buttons={[
-          <Button
-            key='rate'
-            size='small'
-            styleType='secondary'
-            onClick={this.onClickCreateExchangeRate}
-          >
-            <span>Create Exchange Pair</span>
-          </Button>,
-          <Button
-            key='mint'
-            size='small'
-            onClick={this.onClickMintTopen}
-          >
-            <span>Mint Token</span>
-          </Button>
-        ]}
-      />
+      <>
+        <BreadcrumbContainer>
+          <Breadcrumb
+            items={[
+              <Link key='token' to={'/tokens/'}>Token</Link>,
+              token.name
+            ]}
+          />
+        </BreadcrumbContainer>
+        <TopBar
+          title={token.name}
+          buttons={[
+            <Button
+              key='rate'
+              size='small'
+              styleType='secondary'
+              onClick={this.onClickCreateExchangeRate}
+            >
+              <span>Create Exchange Pair</span>
+            </Button>,
+            <Button
+              key='mint'
+              size='small'
+              onClick={this.onClickMintTopen}
+            >
+              <span>Mint Token</span>
+            </Button>
+          ]}
+        />
+      </>
     )
   }
   renderDetail = token => {
