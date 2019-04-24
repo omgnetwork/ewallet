@@ -24,9 +24,6 @@ const InviteModalContainer = styled.form`
   h4 {
     margin-bottom: 35px;
   }
-  > button {
-    margin-top: 35px;
-  }
 `
 const StyledInput = styled(Input)`
   margin-bottom: 20px;
@@ -36,7 +33,7 @@ const InputLabel = styled.div`
   margin-bottom: 5px;
 `
 const StyledSelect = styled(Select)`
-  margin-bottom: 35px;
+  margin-bottom: 40px;
   text-align: left;
 `
 

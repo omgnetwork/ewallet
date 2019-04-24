@@ -13,6 +13,7 @@ const SelectContainer = styled.div`
 `
 const OptionsContainer = styled.div`
   position: absolute;
+  top: 39px;
   z-index: 2;
   border: 1px solid #ebeff7;
   border-radius: 2px;

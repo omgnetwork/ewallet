@@ -32,10 +32,12 @@ const KeyButton = styled.button`
   font-weight: ${({ active, theme }) => (active ? 'bold' : 'normal')};
   background-color: ${({ active, theme }) => (active ? theme.colors.S200 : 'white')};
   color: ${({ active, theme }) => (active ? theme.colors.B400 : theme.colors.B100)};
-  border: none;
   margin-right: 10px;
-  border: 1px solid ${props => props.theme.colors.S300};
+  border: none;
   width: 100px;
+  :hover {
+    border: 1px solid ${props => props.theme.colors.S300};
+  }
 `
 const KeyTopButtonsContainer = styled.div`
   margin: 25px 0;

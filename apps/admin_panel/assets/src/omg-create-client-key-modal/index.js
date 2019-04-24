@@ -95,7 +95,7 @@ function CreateClientKeyModal (props) {
       <CreateClientKeyModalContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />
         <CreateClientKeyFormContainer>
-          <h4>Create Client Key</h4>
+          <h4>Generate Client Key</h4>
           <InputLabel>Label</InputLabel>
           <StyledInput
             autoFocus
@@ -108,7 +108,7 @@ function CreateClientKeyModal (props) {
             type='submit'
             loading={submitStatus === 'SUBMITTED'}
           >
-            Create key
+            Generate Key
           </Button>
         </CreateClientKeyFormContainer>
       </CreateClientKeyModalContainer>

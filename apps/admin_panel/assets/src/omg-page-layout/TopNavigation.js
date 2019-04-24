@@ -41,6 +41,9 @@ const TopNavigationContainer = styled.div`
 `
 const LeftNavigationContainer = styled.div`
   flex: 1 1 auto;
+  p {
+    padding-top: 5px;
+  }
 `
 const RightNavigationContainer = styled.div`
   white-space: nowrap;
@@ -90,7 +93,7 @@ export default class TopNavigation extends PureComponent {
     return (
       <TopNavigationContainer divider={this.props.divider}>
         <LeftNavigationContainer>
-          <h2>{_.startCase(this.props.title)}</h2>
+          <h2>{this.props.title}</h2>
           {this.props.description && <p>{this.props.description}</p>}
         </LeftNavigationContainer>
         <RightNavigationContainer>

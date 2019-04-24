@@ -18,7 +18,6 @@ const Placeholder = styled.span`
   left: 0;
   bottom: 0;
   padding-bottom: 5px;
-  font-size: 14px;
   border-bottom: 1px solid transparent;
   color: ${props => props.theme.colors.B100};
   transition: 0.2s ease all;
@@ -40,7 +39,7 @@ const Input = styled.input`
   }
   ::placeholder {
     color: ${props => props.theme.colors.S400};
-    font-size: 12px;
+    font-size: 10px;
   }
   :focus {
     border-bottom: 1px solid
@@ -87,7 +86,8 @@ const Suffix = styled.div`
   right: 0;
   bottom: 0;
   padding-right: 8px;
-  padding-bottom: 5px;
+  padding-bottom: 8px;
+  font-size: 10px;
   transition: 0.2s ease all;
   border-bottom: 1px solid transparent;
   color: ${props => props.theme.colors.B100};

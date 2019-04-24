@@ -150,8 +150,8 @@ class ApiKeyPage extends Component {
   static defaultProps = {
     fetcher: AccessKeyFetcher,
     columnsAdminKeys: [
-      { key: 'name', title: 'NAME' },
       { key: 'key', title: 'ACCESS KEY' },
+      { key: 'name', title: 'LABEL' },
       { key: 'global_role', title: 'GLOBAL ROLE' },
       { key: 'created_at', title: 'CREATED AT' },
       { key: 'status', title: 'STATUS' }

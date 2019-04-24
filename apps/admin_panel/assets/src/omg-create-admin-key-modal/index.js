@@ -115,7 +115,7 @@ function CreateAdminKeyModal (props) {
       <CreateAdminKeyModalContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />
         <CreateAdminKeyFormContainer>
-          <h4>Create Admin Key</h4>
+          <h4>Generate Admin Key</h4>
           <InputLabel>Label</InputLabel>
           <StyledInput
             autoFocus
@@ -160,7 +160,7 @@ function CreateAdminKeyModal (props) {
             type='submit'
             loading={submitStatus === 'SUBMITTED'}
           >
-            Create key
+            Generate Key
           </Button>
         </CreateAdminKeyFormContainer>
       </CreateAdminKeyModalContainer>
