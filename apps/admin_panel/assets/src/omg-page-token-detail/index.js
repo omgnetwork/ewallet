@@ -136,7 +136,7 @@ class TokenDetailPage extends Component {
   }
   renderDetail = token => {
     return (
-      <Section title='DETAILS'>
+      <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
           <b>ID:</b> <span>{token.id}</span> <Copy data={token.id} />
         </DetailGroup>
@@ -226,26 +226,28 @@ class TokenDetailPage extends Component {
         render={({ exchangePairs }) => {
           return exchangePairs.length ? (
             <DetailContainer>
-              <Section title={'RATES'}>
-                <h5>1 {token.name} :</h5>
-                {exchangePairs.map(pair => {
-                  return (
-                    <DetailGroup key={pair.id}>
-                      <b>{_.get(pair, 'to_token.name')}</b>
-                      <span>
-                        {pair.rate} {_.get(pair, 'to_token.symbol')}
-                      </span>
-                      <ActionButtons>
-                        <div className='button' onClick={() => this.editExchangePair(pair)}>
-                          Edit
-                        </div>
-                        <div className='button' onClick={() => this.deleteExchangePair(pair)}>
-                          Delete
-                        </div>
-                      </ActionButtons>
-                    </DetailGroup>
-                  )
-                })}
+              <Section title={{ text: 'Rates', icon: 'Token' }}>
+                <DetailGroup>
+                  <h5>1 {token.name} :</h5>
+                  {exchangePairs.map(pair => {
+                    return (
+                      <DetailGroup key={pair.id}>
+                        <b>{_.get(pair, 'to_token.name')}</b>
+                        <span>
+                          {pair.rate} {_.get(pair, 'to_token.symbol')}
+                        </span>
+                        <ActionButtons>
+                          <div className='button' onClick={() => this.editExchangePair(pair)}>
+                            Edit
+                          </div>
+                          <div className='button' onClick={() => this.deleteExchangePair(pair)}>
+                            Delete
+                          </div>
+                        </ActionButtons>
+                      </DetailGroup>
+                    )
+                  })}
+                </DetailGroup>
               </Section>
             </DetailContainer>
           ) : null

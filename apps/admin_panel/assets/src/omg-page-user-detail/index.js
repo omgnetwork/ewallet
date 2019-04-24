@@ -57,7 +57,7 @@ class TokenDetailPage extends Component {
   }
   renderDetail = user => {
     return (
-      <Section title='DETAILS'>
+      <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
           <b>ID:</b> <span>{user.id}</span> <Copy data={user.id} />
         </DetailGroup>
@@ -78,7 +78,7 @@ class TokenDetailPage extends Component {
   }
   renderWallet = wallet => {
     return (
-      <Section title='BALANCE'>
+      <Section title={{ text: 'Balance', icon: 'Token' }}>
         {wallet ? (
           <div>
             <DetailGroup>

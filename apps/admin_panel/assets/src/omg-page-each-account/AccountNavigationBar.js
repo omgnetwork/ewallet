@@ -17,7 +17,7 @@ const LinksContainer = styled.div`
   a {
     display: block;
     padding: 0 10px;
-    color: ${props => props.theme.colors.S500};
+    color: ${props => props.theme.colors.B100};
     div.account-link-text {
       border-bottom: 2px solid transparent;
       padding: 30px 0;

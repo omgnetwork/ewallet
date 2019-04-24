@@ -80,7 +80,7 @@ class WalletDetaillPage extends Component {
   }
   renderDetail = wallet => {
     return (
-      <Section title='DETAILS'>
+      <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
           <b>Address:</b> <span>{wallet.address}</span> <Copy data={wallet.address} />
         </DetailGroup>
@@ -115,7 +115,7 @@ class WalletDetaillPage extends Component {
   }
   renderBalances = wallet => {
     return (
-      <Section title='BALANCES'>
+      <Section title={{ text: 'Balances', icon: 'Token' }}>
         {wallet.balances.map(balance => {
           return (
             <DetailGroup key={balance.token.id}>

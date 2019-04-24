@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+
+import Tag from '../omg-uikit/tag'
+
 const DetailContainer = styled.div`
   flex: 1 1 auto;
   margin-bottom: 50px;
@@ -46,14 +49,22 @@ export const DetailGroup = styled.div`
 
 export default class DetailContent extends Component {
   static propTypes = {
-    title: PropTypes.string,
+    title: PropTypes.shape({
+      text: PropTypes.string,
+      icon: PropTypes.string
+    }),
     children: PropTypes.node
   }
 
   render () {
     return (
       <DetailContainer>
-        <h4>{this.props.title}</h4>
+        {this.props.title && (
+          <Tag
+            title={this.props.title.text}
+            icon={this.props.title.icon}
+          />
+        )}
         {this.props.children}
       </DetailContainer>
     )

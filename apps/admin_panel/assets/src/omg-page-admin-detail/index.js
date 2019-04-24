@@ -48,7 +48,7 @@ class TokenDetailPage extends Component {
   }
   renderDetail = admin => {
     return (
-      <Section title='DETAILS'>
+      <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
           <b>ID:</b> <span>{admin.id}</span> <Copy data={admin.id} />
         </DetailGroup>

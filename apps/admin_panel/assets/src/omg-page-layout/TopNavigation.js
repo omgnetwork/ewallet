@@ -90,7 +90,7 @@ export default class TopNavigation extends PureComponent {
     return (
       <TopNavigationContainer divider={this.props.divider}>
         <LeftNavigationContainer>
-          <h2>{this.props.title}</h2>
+          <h2>{_.startCase(this.props.title)}</h2>
           {this.props.description && <p>{this.props.description}</p>}
         </LeftNavigationContainer>
         <RightNavigationContainer>
