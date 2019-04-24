@@ -55,7 +55,10 @@ defmodule EWallet.BackupCodeAuthenticator do
 
   @number_of_bytes 4
 
-  def verify(hashed_backup_codes, backup_code) do
+  def verify(_, nil), do: {:error, :invalid_backup_code}
+
+  def verify(hashed_backup_codes, backup_code)
+      when is_list(hashed_backup_codes) and is_binary(backup_code) do
     if Enum.any?(hashed_backup_codes, &Crypto.verify_password(backup_code, &1)) do
       {:ok}
     else
@@ -63,7 +66,10 @@ defmodule EWallet.BackupCodeAuthenticator do
     end
   end
 
-  def create(number_of_backup_codes) do
+  def verify(_, _), do: {:error, :invalid_parameter}
+
+  def create(number_of_backup_codes)
+      when is_integer(number_of_backup_codes) and number_of_backup_codes > 0 do
     backup_codes =
       1..number_of_backup_codes
       |> Enum.map(fn _ -> do_create() end)
@@ -75,6 +81,8 @@ defmodule EWallet.BackupCodeAuthenticator do
 
     {:ok, backup_codes, hashed_backup_codes}
   end
+
+  def create(_), do: {:error, :invalid_parameter}
 
   defp do_create do
     @number_of_bytes
