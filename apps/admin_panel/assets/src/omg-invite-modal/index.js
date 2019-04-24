@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { RadioButton, Input, Button, Icon } from '../omg-uikit'
-import Modal from '../omg-modal'
 import { connect } from 'react-redux'
-import { inviteMember, getListMembers } from '../omg-member/action'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+
+import { RadioButton, Input, Button, Icon } from '../omg-uikit'
+import Modal from '../omg-modal'
+import { inviteMember, getListMembers } from '../omg-member/action'
 
 const InviteModalContainer = styled.form`
   padding: 50px;
@@ -47,10 +48,7 @@ const InviteTitle = styled.span`
   font-size: 14px;
   color: ${props => props.theme.colors.B100};
 `
-const InviteButton = styled(Button)`
-  padding-left: 40px;
-  padding-right: 40px;
-`
+
 const enhance = compose(
   withRouter,
   connect(
@@ -158,13 +156,13 @@ class InviteModal extends Component {
               />
             </RadioButtonsContainer>
           </RoleRadioButtonContainer>
-          <InviteButton
+          <Button
             styleType='primary'
             type='submit'
             loading={this.state.submitStatus === 'SUBMITTED'}
           >
             Invite
-          </InviteButton>
+          </Button>
         </InviteModalContainer>
       </Modal>
     )

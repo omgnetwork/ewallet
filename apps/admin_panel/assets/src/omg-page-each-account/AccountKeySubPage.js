@@ -1,19 +1,13 @@
 import React, { useState } from 'react'
+import { withRouter } from 'react-router-dom'
+import queryString from 'query-string'
+
 import AdminKeySection from '../omg-page-api/AdminKeySection'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Button } from '../omg-uikit'
 import AccountKeyFetcher from '../omg-account/accountKeyFetcher'
-import styled from 'styled-components'
-import { withRouter } from 'react-router-dom'
-import queryString from 'query-string'
 import { createSearchAdminSubKeyQuery } from '../omg-access-key/searchField'
 import AssignKeyModal from '../omg-assign-key-account-modal'
-
-const AccountKeySubPageContainer = styled.div``
-const AssignButton = styled(Button)`
-  padding-left: 40px;
-  padding-right: 40px;
-`
 
 export default withRouter(function AccountKeySubPage (props) {
   const [assignAdminKeyModalOpen, setAssignAdminKeyModalOpen] = useState(false)
@@ -22,14 +16,14 @@ export default withRouter(function AccountKeySubPage (props) {
 
   const { search, access_key_page } = queryString.parse(props.location.search)
   return (
-    <AccountKeySubPageContainer>
+    <>
       <TopNavigation
         title='Keys'
         divider={false}
         buttons={[
-          <AssignButton key='generate-assign-key' onClick={e => setAssignAdminKeyModalOpen(true)}>
+          <Button key='generate-assign-key' size='small' onClick={e => setAssignAdminKeyModalOpen(true)}>
             Assign
-          </AssignButton>,
+          </Button>,
           <Button key='generate-admin-key' size='small' onClick={e => setCreateAdminKeyModalOpen(true)} styleType={'secondary'}>
             <span>Generate Admin Key</span>
           </Button>
@@ -61,6 +55,6 @@ export default withRouter(function AccountKeySubPage (props) {
         accountId={props.match.params.accountId}
         onRequestClose={() => setAssignAdminKeyModalOpen(false)}
       />
-    </AccountKeySubPageContainer>
+    </>
   )
 })

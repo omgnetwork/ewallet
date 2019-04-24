@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 const mapSize = {
-  small: '8px 15px',
+  small: '8px 12px',
   medium: '10px 15px',
   large: '12px 15px'
 }
@@ -10,6 +10,7 @@ export const DefaultButton = styled.button`
   border: 1px solid transparent;
   padding: ${props => mapSize[props.size || 'medium']};
   width: ${props => props.fluid ? '100%' : 'auto'};
+  min-width: 100px;
   position: relative;
   pointer-events: ${props => props.loading ? 'none' : 'auto'};
   cursor: pointer;

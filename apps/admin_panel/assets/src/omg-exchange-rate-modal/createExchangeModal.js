@@ -28,8 +28,6 @@ const Form = styled.form`
   button {
     margin: 35px 0 0;
     font-size: 14px;
-    padding-left: 40px;
-    padding-right: 40px;
   }
   h4 {
     text-align: center;

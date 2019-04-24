@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { Input, Button, Icon } from '../omg-uikit'
-import Modal from '../omg-modal'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+
+import { Input, Button, Icon } from '../omg-uikit'
+import Modal from '../omg-modal'
 import { createApiKey } from '../omg-api-keys/action'
-import PropTypes from 'prop-types'
+
 const CreateClientKeyModalContainer = styled.div`
   padding: 50px;
   width: 100vw;
@@ -30,10 +32,7 @@ const CreateClientKeyModalContainer = styled.div`
     margin-top: 35px;
   }
 `
-const CreateClientKeyButton = styled(Button)`
-  padding-left: 40px;
-  padding-right: 40px;
-`
+
 const CreateClientKeyFormContainer = styled.form`
   position: absolute;
   top: 50%;
@@ -104,13 +103,13 @@ function CreateClientKeyModal (props) {
             onChange={e => setName(e.target.value)}
             value={name}
           />
-          <CreateClientKeyButton
+          <Button
             styleType='primary'
             type='submit'
             loading={submitStatus === 'SUBMITTED'}
           >
             Create key
-          </CreateClientKeyButton>
+          </Button>
         </CreateClientKeyFormContainer>
       </CreateClientKeyModalContainer>
     </Modal>

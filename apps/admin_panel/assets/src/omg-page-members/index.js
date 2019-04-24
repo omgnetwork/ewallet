@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import moment from 'moment'
+import queryString from 'query-string'
+
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import MembersFetcher from '../omg-member/MembersFetcher'
-import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
-import moment from 'moment'
-import queryString from 'query-string'
 import Copy from '../omg-copy'
 import { createMemberSearchQuery } from '../omg-member/searchField'
 import InviteModal from '../omg-invite-modal'
@@ -69,10 +70,7 @@ const UserIdContainer = styled.div`
     vertical-align: middle;
   }
 `
-const InviteButton = styled(Button)`
-  padding-left: 30px;
-  padding-right: 30px;
-`
+
 class MembersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
@@ -156,9 +154,9 @@ class MembersPage extends Component {
   }
   renderInviteButton = () => {
     return (
-      <InviteButton size='small' onClick={this.onClickInviteButton} key={'create'}>
+      <Button size='small' onClick={this.onClickInviteButton} key={'create'}>
         <Icon name='Plus' /> <span>Invite Member</span>
-      </InviteButton>
+      </Button>
     )
   }
 

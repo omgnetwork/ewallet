@@ -1,10 +1,12 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
+import styled from 'styled-components'
+
 import { ButtonPrimary, ButtonDisabled } from './primary'
 import { ButtonGhost } from './ghost'
 import { ButtonSecondary } from './secondary'
 import { Content } from './default'
-import styled from 'styled-components'
+
 const buttonMapStyle = {
   primary: {
     normal: ButtonPrimary,

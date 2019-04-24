@@ -1,19 +1,21 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
+import { withRouter } from 'react-router-dom'
+
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
-import { connect } from 'react-redux'
-import { compose } from 'recompose'
-import { withRouter } from 'react-router-dom'
 import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
 import { selectWalletById } from '../omg-wallet/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
+
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -32,8 +34,6 @@ const Form = styled.form`
   button {
     margin: 35px 0 0;
     font-size: 14px;
-    padding-left: 40px;
-    padding-right: 40px;
   }
   h4 {
     text-align: center;

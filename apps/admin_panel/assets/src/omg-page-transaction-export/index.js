@@ -46,8 +46,6 @@ const FormDetailContainer = styled.form`
 const ExportFormContainer = styled.div`
   button {
     margin-top: 20px;
-    padding-left: 40px;
-    padding-right: 40px;
   }
   background-color: white;
   width: 400px;

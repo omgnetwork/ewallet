@@ -1,15 +1,17 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { Button, Icon, Select } from '../omg-uikit'
-import Modal from '../omg-modal'
 import { connect } from 'react-redux'
-import AccessKeysFetcher from '../omg-access-key/accessKeysFetcher'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+
+import { Button, Icon, Select } from '../omg-uikit'
+import Modal from '../omg-modal'
+import AccessKeysFetcher from '../omg-access-key/accessKeysFetcher'
 import { createAccessKey } from '../omg-access-key/action'
 import { assignKey } from '../omg-account/action'
-import PropTypes from 'prop-types'
 import AdminKeySelectRow from './AdminKeySelectRow'
+
 const AssignKeyAccountContainer = styled.div`
   padding: 50px;
   width: 100vw;
@@ -33,10 +35,7 @@ const AssignKeyAccountContainer = styled.div`
     margin-top: 35px;
   }
 `
-const CreateAdminKeyButton = styled(Button)`
-  padding-left: 40px;
-  padding-right: 40px;
-`
+
 const CreateAdminKeyFormContainer = styled.form`
   position: absolute;
   top: 50%;
@@ -139,13 +138,13 @@ function AssignKeyAccount (props) {
               { key: 'viewer', value: 'Viewer' }
             ]}
           />
-          <CreateAdminKeyButton
+          <Button
             styleType='primary'
             type='submit'
             loading={submitStatus === 'SUBMITTED'}
           >
             Assign Key
-          </CreateAdminKeyButton>
+          </Button>
         </CreateAdminKeyFormContainer>
       </AssignKeyAccountContainer>
     )

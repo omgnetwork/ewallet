@@ -48,10 +48,7 @@ const WalletPageContainer = styled.div`
     border-bottom: none;
   }
 `
-const ActionButton = styled(Button)`
-  padding-left: 40px;
-  padding-right: 40px;
-`
+
 const WalletAddressContainer = styled.div`
   white-space: nowrap;
   span {
@@ -128,23 +125,22 @@ class WalletPage extends Component {
   }
   renderTransferButton = () => {
     return (
-      <ActionButton size='small' onClick={this.onClickTransfer} key={'transfer'}>
+      <Button size='small' onClick={this.onClickTransfer} key={'transfer'}>
         <Icon name='Transaction' />
         <span>Transfer</span>
-      </ActionButton>
+      </Button>
     )
   }
   renderCreateWalletButton = () => {
     return (
-      <ActionButton
+      <Button
         key='create-wallet'
         styleType='secondary'
         size='small'
         onClick={this.onClickCreateWallet}
       >
-        <Icon name='Wallet' />
-        <span>Create</span>
-      </ActionButton>
+        <Icon name='Plus' /> <span>Create Wallet</span>
+      </Button>
     )
   }
   getColumns = wallets => {
