@@ -46,10 +46,7 @@ defmodule EWalletDB.Repo.Migrations.AddIdAndDeletedAtToRole do
                  lock: "FOR UPDATE")
 
     for [uuid, inserted_at] <- Repo.all(query) do
-      {date, {hours, minutes, seconds, microseconds}} = inserted_at
-
-      {:ok, datetime} = NaiveDateTime.from_erl({date, {hours, minutes, seconds}}, {microseconds, 4})
-      {:ok, datetime} = DateTime.from_naive(datetime, "Etc/UTC")
+      {:ok, datetime} = DateTime.from_naive(inserted_at, "Etc/UTC")
 
       ulid =
         datetime
