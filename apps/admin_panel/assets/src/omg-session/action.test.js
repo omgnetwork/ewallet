@@ -1,7 +1,14 @@
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
 
-import { login, logout, sendResetPasswordEmail, updatePasswordWithResetToken, updatePassword } from './action'
+import {
+  login,
+  logout,
+  sendResetPasswordEmail,
+  updatePasswordWithResetToken,
+  updatePassword,
+  verifyEmail
+} from './action'
 import * as sessionService from '../services/sessionService'
 
 const middlewares = [thunk]
@@ -124,6 +131,46 @@ describe('transaction actions', () => {
           oldPassword: 'token',
           password: 'pw',
           passwordConfirmation: 'pw'
+        })
+        expect(store.getActions()).toEqual(expectedActions)
+      })
+  })
+  test('[verifyEmail] should dispatch correct action', () => {
+    sessionService.verifyEmail.mockImplementation(() => {
+      return Promise.resolve({ data: { success: true, data: 'wow' } })
+    })
+    const expectedActions = [{ type: 'VERIFY_EMAIL/UPDATE/INITIATED' }, { type: 'VERIFY_EMAIL/UPDATE/SUCCESS', data: 'wow' }]
+    return store
+      .dispatch(
+        verifyEmail({
+          email: 'email@email.com',
+          token: 'verifyEmailToken'
+        })
+      )
+      .then(() => {
+        expect(sessionService.verifyEmail).toBeCalledWith({
+          email: 'email@email.com',
+          token: 'verifyEmailToken'
+        })
+        expect(store.getActions()).toEqual(expectedActions)
+      })
+  })
+  test('[verifyEmail] should dispatch correct action on failure', () => {
+    sessionService.verifyEmail.mockImplementation(() => {
+      return Promise.resolve({ data: { success: false, error: 'oops' } })
+    })
+    const expectedActions = [{ type: 'VERIFY_EMAIL/UPDATE/INITIATED' }, { type: 'VERIFY_EMAIL/UPDATE/FAILED' }]
+    return store
+      .dispatch(
+        verifyEmail({
+          email: 'email@email.com',
+          token: 'invalidtoken'
+        })
+      )
+      .then(() => {
+        expect(sessionService.verifyEmail).toBeCalledWith({
+          email: 'email@email.com',
+          token: 'invalidtoken'
         })
         expect(store.getActions()).toEqual(expectedActions)
       })
