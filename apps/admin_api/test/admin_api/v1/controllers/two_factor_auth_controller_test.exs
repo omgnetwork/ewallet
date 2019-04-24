@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.UserSerializer
   alias EWallet.{TwoFactorAuthenticator}
-  alias EWalletDB.{User, Repo, AuthToken}
+  alias EWalletDB.{User, Repo, AuthToken, PreAuthToken}
 
   describe "/me.create_secret_code" do
     test "responds a new secret code if the authorization header is valid" do
@@ -36,7 +36,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
       assert secret_2fa_code != nil
     end
 
-    test "responds error if the authorization header  is invalid" do
+    test "responds error if the authorization header is invalid" do
       response =
         admin_user_request("/me.create_secret_code", %{}, user_id: "1234", auth_token: "5678")
 
@@ -390,6 +390,10 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
                  "global_role" => auth_token.user.global_role
                }
              }
+
+      # Ensure a pre authentication token has been deleted after login two-factor successfully.
+      pre_auth_token = PreAuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
+      assert pre_auth_token == nil
     end
 
     test "responds success on valid backup_code" do
@@ -416,6 +420,10 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
                  "global_role" => auth_token.user.global_role
                }
              }
+
+      # Ensure a pre authentication token has been deleted after login two-factor successfully.
+      pre_auth_token = PreAuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
+      assert pre_auth_token == nil
     end
 
     test "responds success when access authenticated apis with new authentication header" do
