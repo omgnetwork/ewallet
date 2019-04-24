@@ -413,6 +413,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     invalid_storage_adapter: %{
       code: "adapter:invalid_storage",
       description: "The file was stored in a different backend and cannot be retrieved."
+    },
+    exchanges_not_allowed: %{
+      code: "config:exchanges_not_allowed",
+      description: "End user exchanges are not allowed for this exchange pair."
     }
   }
 

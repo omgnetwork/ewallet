@@ -126,6 +126,36 @@ defmodule EWallet.AccountFetcherTest do
                 }}
     end
 
+    test "works when an admin user is making the tx even exchange pair doesn't allow it" do
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+      {:ok, admin} = :admin |> params_for() |> User.insert()
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      exchange_pair =
+        insert(:exchange_pair,
+          from_token: token_1,
+          to_token: token_2,
+          default_exchange_wallet_address: wallet.address,
+          allow_end_user_exchanges: false
+        )
+
+      {res, exchange} =
+        AccountFetcher.fetch_exchange_account(
+          %{
+            "from_token_id" => token_1.id,
+            "to_token_id" => token_2.id,
+            "originator" => admin
+          },
+          %{pair: exchange_pair}
+        )
+
+      assert res == :ok
+      assert exchange[:exchange_account_uuid] == account.uuid
+      assert exchange[:exchange_wallet_address] == wallet.address
+    end
+
     test "returns an error when there is a mismatch between exchange wallet account and address" do
       {:ok, account} = :account |> params_for() |> Account.insert()
       {:ok, user} = :user |> params_for() |> User.insert()
@@ -145,6 +175,31 @@ defmodule EWallet.AccountFetcherTest do
         )
 
       assert res == {:error, :account_wallet_mismatch}
+    end
+
+    test "returns an error when an end user is making the tx but exchange pair doesn't allow it" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      exchange_pair =
+        insert(:exchange_pair,
+          from_token: token_1,
+          to_token: token_2,
+          allow_end_user_exchanges: false
+        )
+
+      res =
+        AccountFetcher.fetch_exchange_account(
+          %{
+            "from_token_id" => token_1.id,
+            "to_token_id" => token_2.id,
+            "originator" => user
+          },
+          %{pair: exchange_pair}
+        )
+
+      assert res == {:error, :exchanges_not_allowed}
     end
 
     test "sets the token in from_token and to_token when different
