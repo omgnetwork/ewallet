@@ -20,7 +20,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
   alias Utils.Helpers.Crypto
 
   describe "login" do
-    test "returns {:ok, token} if the user has secret code and the given passcode is correct" do
+    test "returns {:ok, auth_token} if the user has secret code and the given passcode is correct" do
       user = insert(:user)
 
       {_, secret_2fa_code, enabled_2fa_user} = create_two_factors_and_enable_2fa(user)
@@ -33,10 +33,9 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
                TwoFactorAuthenticator.login(params, :admin_api, enabled_2fa_user)
 
       assert auth_token.token != nil
-      # assert auth_token.user == enabled_2fa_user
     end
 
-    test "returns {:ok, token} if the user has hashed backup codes and the given backup code is correct" do
+    test "returns {:ok, auth_token} if the user has hashed backup codes and the given backup code is correct" do
       user = insert(:user)
 
       {[backup_code | _], _, enabled_2fa_user} = create_two_factors_and_enable_2fa(user)
@@ -133,10 +132,10 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
   end
 
   describe "verify_multiple" do
-    test "returns {:error, :invalid_parameters} when the attributes are empty" do
+    test "returns {:error, :invalid_parameter} when the attributes are empty" do
       user = insert(:user)
 
-      assert TwoFactorAuthenticator.verify_multiple(%{}, user) == {:error, :invalid_parameters}
+      assert TwoFactorAuthenticator.verify_multiple(%{}, user) == {:error, :invalid_parameter}
     end
 
     test "returns {:error, :invalid_backup_code} when the invalid backup_code is passed" do
@@ -272,11 +271,11 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
              )
     end
 
-    test "returns {:error, :invalid_parameters} when given unsupported 2fa method" do
+    test "returns {:error, :invalid_parameter} when given unsupported 2fa method" do
       user = insert(:user)
 
       assert TwoFactorAuthenticator.create_and_update(user, :something) ==
-               {:error, :invalid_parameters}
+               {:error, :invalid_parameter}
     end
 
     defp verify_backup_code(backup_code, hashed_backup_codes) do

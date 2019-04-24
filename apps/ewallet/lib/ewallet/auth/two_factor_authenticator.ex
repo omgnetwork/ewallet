@@ -18,8 +18,8 @@ defmodule EWallet.TwoFactorAuthenticator do
   alias EWalletDB.{User, AuthToken, PreAuthToken}
 
   @moduledoc """
-  Handle of verify, create, enable and disable 2FA logic.
-  The authentication methods can be different, this module will form particular parameters,
+  Handle of login, create, enable and disable 2FA logic.
+  The two-factor authentication methods can be different, this module will form particular parameters,
   then delegate call to the particular module e.g. `BackupCodeAuthenticator` or `PasscodeAuthenticator`.
 
   Note that some operations like create, enable and disable will updating the corresponding entity as well:
@@ -68,7 +68,7 @@ defmodule EWallet.TwoFactorAuthenticator do
     end
   end
 
-  def verify_multiple(_, _), do: {:error, :invalid_parameters}
+  def verify_multiple(_, _), do: {:error, :invalid_parameter}
 
   def verify(attrs, %User{} = user) do
     attrs
@@ -141,7 +141,7 @@ defmodule EWallet.TwoFactorAuthenticator do
   end
 
   def create_and_update(_, _, _) do
-    {:error, :invalid_parameters}
+    {:error, :invalid_parameter}
   end
 
   # Enable two-factor authentication for specified user.
