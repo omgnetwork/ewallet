@@ -42,6 +42,8 @@ defmodule EWallet.UserAuthToken do
     authenticate(user, auth_token, owner_app)
   end
 
+  def generate(nil, _, _), do: {:error, :invalid_parameter}
+
   def generate(%User{} = user, owner_app, originator) do
     if User.enabled_2fa?(user) do
       PreAuthToken.generate(user, owner_app, originator)
