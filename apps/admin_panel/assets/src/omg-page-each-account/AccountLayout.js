@@ -47,7 +47,7 @@ function AccountLayout (props) {
   }, [_.get(props, 'account.id')])
 
   return (
-    <div>
+    <>
       <AccountNavgiationBar />
       <BreadContainer>
         <Breadcrumb
@@ -89,7 +89,7 @@ function AccountLayout (props) {
         render={() => <AccountTransactionRequestSubPage />}
       />
       <Route path='/accounts/:accountId/activity' exact render={() => <AccountActivitySubPage />} />
-    </div>
+    </>
   )
 }
 
