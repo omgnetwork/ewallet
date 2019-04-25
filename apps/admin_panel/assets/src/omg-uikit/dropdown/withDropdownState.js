@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import clickOutside from '../../enhancer/clickOutside'
+
 const WithDropdownState = BaseComponent =>
   clickOutside(
     class DropdownHoc extends PureComponent {

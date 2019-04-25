@@ -139,7 +139,7 @@ class WalletPage extends Component {
         size='small'
         onClick={this.onClickCreateWallet}
       >
-        <Icon name='Plus' /> <span>Create Wallet</span>
+        <Icon name='Plus' /><span>Create Wallet</span>
       </Button>
     )
   }
