@@ -76,7 +76,8 @@ config :ewallet_config,
       value: "OmiseGO",
       type: "string",
       position: 107,
-      description: "The issuer for the two-factor authentication, which will be used as a label on your OTP app."
+      description:
+        "The issuer for the two-factor authentication, which will be displayed the OTP app."
     },
 
     # Email Settings
