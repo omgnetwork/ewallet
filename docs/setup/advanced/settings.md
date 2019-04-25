@@ -27,6 +27,8 @@ The eWallet is able to work independent of an external integration. The default 
 
 - `min_password_length`: The minimum length of the password that a user is allowed to set.
 - `forget_password_request_lifetime`: The duration (in minutes) that a forget password request will be valid for.
+- `number_of_backup_codes`: The number of backup codes for the two-factor authentication.
+- `issuer`: The issuer for the two-factor authentication, which will be displayed the OTP app.
 
 ## External Redirects
 
