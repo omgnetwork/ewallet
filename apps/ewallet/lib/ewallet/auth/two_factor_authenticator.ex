@@ -34,6 +34,7 @@ defmodule EWallet.TwoFactorAuthenticator do
   """
 
   @default_number_of_backup_codes 10
+  @default_issuer "OmiseGO"
 
   def login(_, _, %User{enabled_2fa_at: nil}), do: {:error, :user_2fa_disabled}
 
@@ -118,7 +119,7 @@ defmodule EWallet.TwoFactorAuthenticator do
       "originator" => user
     })
 
-    {:ok, %{secret_2fa_code: secret_code, issuer: "OmiseGO", label: user.email}}
+    {:ok, %{secret_2fa_code: secret_code, issuer: get_issuer(), label: user.email}}
   end
 
   def create_and_update(%User{} = user, :backup_codes) do
@@ -136,6 +137,10 @@ defmodule EWallet.TwoFactorAuthenticator do
 
   def create_and_update(_, _) do
     {:error, :invalid_parameter}
+  end
+
+  defp get_issuer do
+    Application.get_env(:ewallet, :issuer, @default_issuer)
   end
 
   defp get_number_of_backup_codes do
