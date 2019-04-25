@@ -69,6 +69,10 @@ const SyncContainer = styled.div`
   margin-top: 20px;
   color: ${props => props.theme.colors.B100};
 `
+const EndUserExchangeContainer = styled.div`
+  margin-top: 20px;
+`
+
 const Error = styled.div`
   color: ${props => props.theme.colors.R400};
   text-align: center;
@@ -191,13 +195,16 @@ class CreateExchangeRateModal extends Component {
     })
   }
   onChangeDefaultExchangeAddress = e => {
-    this.setState({ exchangeAddress: e.target.value })
+    this.setState({ defaultExchangeAddress: e.target.value })
   }
   onSelectDefaultExchangeAddress = address => {
-    this.setState({ exchangeAddress: address.key })
+    this.setState({ defaultExchangeAddress: address.key })
   }
   onClickOneWayExchange = e => {
     this.setState(oldState => ({ onlyOneWayExchange: !oldState.onlyOneWayExchange }))
+  }
+  onClickAllowEndUserExchange = () => {
+    this.setState(oldState => ({ allowEndUserExchange: !oldState.allowEndUserExchange }))
   }
   onSubmit = async e => {
     e.preventDefault()
@@ -216,7 +223,9 @@ class CreateExchangeRateModal extends Component {
           ...baseKeys,
           name: this.state.name,
           fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
-          toTokenId: _.get(this.state, 'toTokenSelected.id')
+          toTokenId: _.get(this.state, 'toTokenSelected.id'),
+          defaultExchangeWalletAddress: this.state.defaultExchangeAddress,
+          allowEndUserExchanges: this.state.allowEndUserExchange
         })
       if (result.data) {
         this.props.onRequestClose()
@@ -232,11 +241,23 @@ class CreateExchangeRateModal extends Component {
   }
 
   getRatesAvailable () {
-    return this.state.toTokenRate > 0 && this.state.fromTokenRate > 0 && this.state.toTokenSearch && this.state.fromTokenSearch
+    return (
+      this.state.toTokenRate > 0 &&
+      this.state.fromTokenRate > 0 &&
+      this.state.toTokenSearch &&
+      this.state.fromTokenSearch
+    )
   }
 
   renderCalculation = () => {
-    const { toTokenRate, toTokenSymbol, fromTokenRate, fromTokenSymbol, onlyOneWayExchange, oppositeExchangePair } = this.state
+    const {
+      toTokenRate,
+      toTokenSymbol,
+      fromTokenRate,
+      fromTokenSymbol,
+      onlyOneWayExchange,
+      oppositeExchangePair
+    } = this.state
 
     const forwardRate = _.round(toTokenRate / fromTokenRate, 3)
     const backRate = _.round(1 / forwardRate, 3)
@@ -313,7 +334,13 @@ class CreateExchangeRateModal extends Component {
                 </div>
                 <div>
                   <InputLabel>Amount</InputLabel>
-                  <Input value={this.state.fromTokenRate} onChange={this.onChangeRate('fromToken')} type='amount' normalPlaceholder={0} suffix={this.state.fromTokenSymbol} />
+                  <Input
+                    value={this.state.fromTokenRate}
+                    onChange={this.onChangeRate('fromToken')}
+                    type='amount'
+                    normalPlaceholder={0}
+                    suffix={this.state.fromTokenSymbol}
+                  />
                 </div>
               </RateInputContainer>
             </Fragment>
@@ -351,7 +378,14 @@ class CreateExchangeRateModal extends Component {
                 </div>
                 <div>
                   <InputLabel>Amount</InputLabel>
-                  <Input value={this.state.toTokenRate} onChange={this.onChangeRate('toToken')} type='amount' step='any' normalPlaceholder={0} suffix={this.state.toTokenSymbol} />
+                  <Input
+                    value={this.state.toTokenRate}
+                    onChange={this.onChangeRate('toToken')}
+                    type='amount'
+                    step='any'
+                    normalPlaceholder={0}
+                    suffix={this.state.toTokenSymbol}
+                  />
                 </div>
               </RateInputContainer>
             </Fragment>
@@ -364,16 +398,18 @@ class CreateExchangeRateModal extends Component {
   renderDefaultAddress () {
     return (
       <AllWalletFetcher
-        query={createSearchAddressQuery(this.state.exchangeAddress)}
+        query={createSearchAddressQuery(this.state.defaultExchangeAddress)}
         render={({ data }) => {
           return (
             <>
-              <InputLabel>Default Exchange Address <span>( Optional )</span></InputLabel>
+              <InputLabel>
+                Default Exchange Address <span>( Optional )</span>
+              </InputLabel>
               <Select
                 normalPlaceholder='Exchange Address'
                 onSelectItem={this.onSelectDefaultExchangeAddress}
                 onChange={this.onChangeDefaultExchangeAddress}
-                value={this.state.exchangeAddress}
+                value={this.state.defaultExchangeAddress}
                 optionBoxHeight={'120px'}
                 options={data.map(b => ({
                   key: b.address,
@@ -384,6 +420,17 @@ class CreateExchangeRateModal extends Component {
           )
         }}
       />
+    )
+  }
+  renderEndUserExchange () {
+    return (
+      <EndUserExchangeContainer>
+        <Checkbox
+          label={'Allow End User Exchange'}
+          checked={this.state.allowEndUserExchange}
+          onClick={this.onClickAllowEndUserExchange}
+        />
+      </EndUserExchangeContainer>
     )
   }
 
@@ -420,6 +467,7 @@ class CreateExchangeRateModal extends Component {
           </>
         )}
         {this.renderDefaultAddress()}
+        {this.renderEndUserExchange()}
         <ButtonContainer>
           <Button size='small' type='submit' loading={this.state.submitting} disabled={!this.getRatesAvailable()}>
             {this.state.editing ? 'Update Pair' : 'Create Pair'}

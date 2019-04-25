@@ -30,14 +30,24 @@ export const deleteExchangePair = ({ id }) => async dispatch => {
   }
 }
 
-export const createExchangePair = ({ name, toTokenId, fromTokenId, rate, syncOpposite }) => async dispatch => {
+export const createExchangePair = ({
+  name,
+  toTokenId,
+  fromTokenId,
+  rate,
+  syncOpposite,
+  defaultExchangeWalletAddress,
+  allowEndUserExchanges
+}) => async dispatch => {
   try {
     const result = await exchangePairService.createExchangePair({
       name,
       toTokenId,
       fromTokenId,
       rate,
-      syncOpposite
+      syncOpposite,
+      defaultExchangeWalletAddress,
+      allowEndUserExchanges
     })
     if (result.data.success) {
       return dispatch({ type: 'EXCHANGE_PAIR/CREATE/SUCCESS', data: result.data.data })

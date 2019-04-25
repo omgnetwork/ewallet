@@ -42,7 +42,15 @@ export function deleteExchangePairById ({ id }) {
   })
 }
 
-export function createExchangePair ({ name, fromTokenId, toTokenId, rate, syncOpposite }) {
+export function createExchangePair ({
+  name,
+  fromTokenId,
+  toTokenId,
+  rate,
+  syncOpposite,
+  defaultExchangeWalletAddress,
+  allowEndUserExchanges
+}) {
   return authenticatedRequest({
     path: '/exchange_pair.create',
     data: {
@@ -50,7 +58,9 @@ export function createExchangePair ({ name, fromTokenId, toTokenId, rate, syncOp
       from_token_id: fromTokenId,
       to_token_id: toTokenId,
       rate,
-      sync_opposite: syncOpposite
+      sync_opposite: syncOpposite,
+      default_exchange_wallet_address: defaultExchangeWalletAddress,
+      allow_end_user_exchanges: allowEndUserExchanges
     }
   })
 }
