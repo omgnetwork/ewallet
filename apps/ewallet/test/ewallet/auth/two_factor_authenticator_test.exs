@@ -258,6 +258,37 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
              }
     end
 
+    test "returns {:ok, secret_code_attrs} with correct issuer when update a config value" do
+      user = insert(:user)
+
+      Application.put_env(:ewallet, :issuer, "Thanos")
+      {attrs, updated_user} = create_secret_code(user)
+
+      assert attrs == %{
+               issuer: "Thanos",
+               label: updated_user.email,
+               secret_2fa_code: updated_user.secret_2fa_code
+             }
+
+      Application.put_env(:ewallet, :issuer, nil)
+      {attrs, updated_user} = create_secret_code(user)
+
+      assert attrs == %{
+               issuer: nil,
+               label: updated_user.email,
+               secret_2fa_code: updated_user.secret_2fa_code
+             }
+
+      Application.put_env(:ewallet, :issuer, "OmiseGO")
+      {attrs, updated_user} = create_secret_code(user)
+
+      assert attrs == %{
+               issuer: "OmiseGO",
+               label: updated_user.email,
+               secret_2fa_code: updated_user.secret_2fa_code
+             }
+    end
+
     test "returns {:ok, backup_codes_attrs} when given :backup_codes" do
       user = insert(:user)
 
