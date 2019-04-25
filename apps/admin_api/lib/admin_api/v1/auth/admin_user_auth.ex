@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AdminUserAuth do
   @moduledoc """
   This module takes care of authenticating an admin user for websocket connections.
   """
-  alias EWalletDB.{AuthToken, PreAuthToken, User}
+  alias EWalletDB.{PreAuthToken, User}
   alias EWallet.{UserAuthToken}
 
   def authenticate(auth) do

@@ -16,8 +16,6 @@ defmodule EWallet.Web.V1.TwoFactorAuthSerializer do
   @moduledoc """
   Serializes 2FA code generated into V1 JSON response format.
   """
-  alias EWalletDB.{User}
-
   def serialize(%{secret_2fa_code: secret_2fa_code, issuer: issuer, label: label}) do
     %{
       object: "secret_code",
