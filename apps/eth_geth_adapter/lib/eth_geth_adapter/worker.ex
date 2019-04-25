@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule BlockchainEth.Worker do
+defmodule EthGethAdapter.Worker do
   @moduledoc false
 
   @type server :: GenServer.server()
@@ -30,7 +30,7 @@ defmodule BlockchainEth.Worker do
   alias ExthCrypto.Hash.Keccak
 
   @doc """
-  Starts BlockchainEth.Worker.
+  Starts EthGethAdapter.Worker.
   """
   @spec start_link() :: GenServer.on_start()
   @spec start_link(keyword()) :: GenServer.on_start()
@@ -47,7 +47,7 @@ defmodule BlockchainEth.Worker do
   end
 
   @doc """
-  Stops BlockchainEth.Worker.
+  Stops EthGethAdapter.Worker.
   """
   @spec stop() :: :ok
   @spec stop(server()) :: :ok

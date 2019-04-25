@@ -26,6 +26,6 @@ The eWallet is an umbrella Elixir application containing the following sub-appli
 
   - [load_tester](/apps/load_tester): Sub-application containing the load test runner and its scripts.
 
-## Sub-applications planned
+  - [eth_blockchain](/apps/eth_blockchain) Interface to the Ethereum blockchain and its adapters
 
-- `blockchain_gateway`: An interface to the blockchain.
+  - [eth_geth_adapter](/apps/eth_geth_adapter) The interface to interact with geth JSON RPC api

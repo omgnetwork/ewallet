@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule Blockchain.Wallet do
+defmodule EthBlockchain.Wallet do
   @moduledoc false
 
-  alias Blockchain.Backend
+  alias EthBlockchain.Backend
 
-  @typep address :: Blockchain.address()
+  @typep address :: EthBlockchain.address()
   @typep resp(ret) :: ret | {:error, atom()}
 
   @doc """

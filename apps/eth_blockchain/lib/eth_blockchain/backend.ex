@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule Blockchain.Backend do
+defmodule EthBlockchain.Backend do
   @moduledoc false
 
   @typep server :: GenServer.server()
   @typep from :: GenServer.from()
   @typep state :: {atom(), map()}
 
-  @typep backend :: Blockchain.backend()
-  @typep call :: Blockchain.call()
+  @typep backend :: EthBlockchain.backend()
+  @typep call :: EthBlockchain.call()
   @typep mfargs :: {module(), atom(), [term()]}
 
   @typep resp(ret) :: ret | {:error, atom()}
@@ -33,11 +33,11 @@ defmodule Blockchain.Backend do
   require Logger
 
   @doc """
-  Starts Blockchain.Backend.
+  Starts EthBlockchain.Backend.
   """
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
-    :ok = Logger.info("Running Blockchain Backend supervisor.")
+    :ok = Logger.info("Running EthBlockchain Backend supervisor.")
 
     {supervisor, opts} = Keyword.pop(opts, :supervisor)
     {backends, opts} = Keyword.pop(opts, :backends, [])
@@ -69,11 +69,11 @@ defmodule Blockchain.Backend do
   end
 
   @doc """
-  Stops Blockchain.Backend.
+  Stops EthBlockchain.Backend.
   """
   @spec stop(server()) :: :ok
   def stop(pid \\ __MODULE__) do
-    :ok = Logger.info("Stopping Blockchain Backend supervisor")
+    :ok = Logger.info("Stopping EthBlockchain Backend supervisor")
     GenServer.stop(pid)
   end
 
