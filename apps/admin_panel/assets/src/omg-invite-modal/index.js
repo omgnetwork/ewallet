@@ -63,9 +63,9 @@ class InviteModal extends Component {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
     inviteMember: PropTypes.func.isRequired,
-    getListMembers: PropTypes.func.isRequired,
     match: PropTypes.object,
-    location: PropTypes.object
+    location: PropTypes.object,
+    onInviteSuccess: PropTypes.func
   }
   state = {
     email: '',
@@ -100,9 +100,8 @@ class InviteModal extends Component {
           redirectUrl: window.location.href.replace(this.props.location.pathname, '/invite/')
         })
         if (result.data) {
-          this.props.getListMembers(accountId)
           this.setState({ submitStatus: 'SUCCESS' })
-          this.props.history.push(`/${this.props.match.params.accountId}/setting/members`)
+          if (this.props.onInviteSuccess) this.props.onInviteSuccess()
           this.onRequestClose()
         } else {
           this.setState({ submitStatus: 'FAILED' })
@@ -128,7 +127,7 @@ class InviteModal extends Component {
         isOpen={this.props.open}
         onRequestClose={this.onRequestClose}
         contentLabel='invite modal'
-        shouldCloseOnOverlayClick={false}
+        shouldCloseOnOverlayClick
       >
         <InviteModalContainer onSubmit={this.onSubmit}>
           <Icon name='Close' onClick={this.props.onRequestClose} />

@@ -1,13 +1,11 @@
 import * as sessionService from '../services/sessionService'
 import { createActionCreator } from '../utils/createActionCreator'
-export const login = ({ email, password, rememberMe }) => createActionCreator({actionName: 'SESSION',
+export const login = ({ email, password, rememberMe }) => createActionCreator({ actionName: 'SESSION',
   action: 'LOGIN',
   service: async () => {
     const sessionResult = await sessionService.login({ email, password })
-    const account = sessionService.getCurrentAccountFromLocalStorage()
     if (sessionResult.data.success) {
       sessionService.setAccessToken(sessionResult.data.data)
-      if (!account) sessionService.setCurrentAccount(sessionResult.data.data.account)
     }
     return sessionResult
   }

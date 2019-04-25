@@ -11,6 +11,7 @@ import Link from '../omg-links'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
+  z-index: 10;
   right: 0;
   width: 560px;
   background-color: white;
@@ -74,8 +75,7 @@ const enhance = compose(withRouter)
 class TransactionRequestPanel extends Component {
   static propTypes = {
     history: PropTypes.object,
-    location: PropTypes.object,
-    match: PropTypes.object
+    location: PropTypes.object
   }
 
   constructor (props) {
@@ -155,14 +155,14 @@ class TransactionRequestPanel extends Component {
               </SubDetailTitle>
               <div>
                 <InformationItem>
-                  <b> Originator</b>
+                  <b>Originator</b>
                   <span className='colon'> : </span>
                   <span>
                     {activity.originator
                       ? this.getLink(
-                          activity.originator_type,
-                          activity.originator.id || activity.originator.address
-                        )
+                        activity.originator_type,
+                        activity.originator.id || activity.originator.address
+                      )
                       : '-'}
                   </span>
                 </InformationItem>
@@ -183,9 +183,9 @@ class TransactionRequestPanel extends Component {
                     {' '}
                     {activity.target
                       ? this.getLink(
-                          activity.target_type,
-                          activity.target.id || activity.target.address
-                        )
+                        activity.target_type,
+                        activity.target.id || activity.target.address
+                      )
                       : '-'}
                   </span>
                 </InformationItem>

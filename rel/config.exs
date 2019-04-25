@@ -35,6 +35,7 @@ release :ewallet do
     local_ledger: :permanent,
     local_ledger_db: :permanent,
     url_dispatcher: :permanent,
+    status: :permanent
   ]
 
   set commands: [

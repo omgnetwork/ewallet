@@ -51,6 +51,8 @@ defmodule EWalletDB.CategoryTest do
     test_insert_generate_uuid(Category, :uuid)
     test_insert_generate_external_id(Category, :id, "cat_")
     test_insert_generate_timestamps(Category)
+    test_insert_field_length(Category, :name)
+    test_insert_field_length(Category, :description)
 
     test_insert_prevent_duplicate(Category, :name)
   end
@@ -58,6 +60,8 @@ defmodule EWalletDB.CategoryTest do
   describe "update/1" do
     test_update_field_ok(Category, :name)
     test_update_field_ok(Category, :description)
+    test_update_field_length(Category, :name)
+    test_update_field_length(Category, :description)
   end
 
   describe "update/2 with account_ids" do

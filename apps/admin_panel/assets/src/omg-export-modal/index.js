@@ -51,7 +51,7 @@ class ExportModal extends Component {
     exportType: 'current'
   }
   onClickRadioButton = exportType => e => {
-    this.setState({exportType})
+    this.setState({ exportType })
   }
 
   render () {

@@ -14,13 +14,12 @@
 
 defmodule AdminAPI.V1.APIKeyControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias Utils.Helpers.DateFormatter
-  alias EWalletDB.Helpers.Preloader
-  alias EWalletDB.{Account, APIKey, Repo}
+  alias EWalletDB.{APIKey, Key, User, Repo}
+  alias Utils.Helpers.{Assoc, DateFormatter}
 
   describe "/api_key.all" do
     test_with_auths "responds with a list of api keys when no params are given" do
-      [api_key1, api_key2] = APIKey |> ensure_num_records(2) |> Preloader.preload(:account)
+      [api_key1, api_key2] = APIKey |> ensure_num_records(2)
 
       response = request("/api_key.all")
       api_keys = response["data"]["data"]
@@ -32,15 +31,16 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test_with_auths "responds with a list of api keys when given params" do
-      [api_key1, api_key2] = insert_list(2, :api_key, owner_app: "test_admin_auth_api_key_all")
+      api_key1 = insert(:api_key, name: "the_api_key1_name")
+      api_key2 = insert(:api_key, name: "the_api_key2_name")
 
       # Note that per_page is set to only a single record
       attrs = %{
         match_all: [
           %{
-            field: "owner_app",
-            comparator: "eq",
-            value: "test_admin_auth_api_key_all"
+            field: "name",
+            comparator: "starts_with",
+            value: "the_"
           }
         ],
         page: 1,
@@ -66,7 +66,11 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
   describe "/api_key.create" do
     test_with_auths "responds with an API key on success" do
       response = request("/api_key.create", %{})
-      api_key = get_last_inserted(APIKey)
+
+      api_key =
+        APIKey
+        |> get_last_inserted()
+        |> Repo.preload([:creator_user, :creator_key])
 
       assert response == %{
                "version" => "1",
@@ -74,11 +78,14 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                "data" => %{
                  "object" => "api_key",
                  "id" => api_key.id,
+                 "name" => api_key.name,
                  "key" => api_key.key,
-                 "account_id" => Account.get_master_account().id,
+                 "account_id" => nil,
                  "owner_app" => "ewallet_api",
-                 "expired" => false,
-                 "enabled" => true,
+                 "creator_user_id" => Assoc.get(api_key, [:creator_user, :id]),
+                 "creator_key_id" => Assoc.get(api_key, [:creator_key, :id]),
+                 "expired" => !api_key.enabled,
+                 "enabled" => api_key.enabled,
                  "created_at" => DateFormatter.to_iso8601(api_key.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(api_key.updated_at),
                  "deleted_at" => DateFormatter.to_iso8601(api_key.deleted_at)
@@ -86,8 +93,24 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
              }
     end
 
+    test_with_auths "sets the name when provided" do
+      response = request("/api_key.create", %{"name" => "test_set_key_name"})
+
+      assert response["success"]
+      assert response["data"]["name"] == "test_set_key_name"
+
+      api_key = get_last_inserted(APIKey)
+      assert api_key.name == "test_set_key_name"
+    end
+
     defp assert_create_logs(logs, originator, target) do
       assert Enum.count(logs) == 1
+
+      creator_uuid_field =
+        case originator do
+          %Key{} -> "creator_key_uuid"
+          %User{} -> "creator_user_uuid"
+        end
 
       logs
       |> Enum.at(0)
@@ -96,9 +119,8 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
         originator: originator,
         target: target,
         changes: %{
-          "account_uuid" => target.account.uuid,
-          "key" => target.key,
-          "owner_app" => "ewallet_api"
+          creator_uuid_field => originator.uuid,
+          "key" => target.key
         },
         encrypted_changes: %{}
       )
@@ -109,7 +131,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
       response = admin_user_request("/api_key.create", %{})
 
       assert response["success"] == true
-      api_key = APIKey |> get_last_inserted() |> Repo.preload(:account)
+      api_key = get_last_inserted(APIKey)
 
       timestamp
       |> get_all_activity_logs_since()
@@ -121,7 +143,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
       response = provider_request("/api_key.create", %{})
 
       assert response["success"] == true
-      api_key = APIKey |> get_last_inserted() |> Repo.preload(:account)
+      api_key = get_last_inserted(APIKey)
 
       timestamp
       |> get_all_activity_logs_since()
@@ -131,7 +153,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
 
   describe "/api_key.update" do
     test_with_auths "disables the API key" do
-      api_key = :api_key |> insert() |> Repo.preload(:account)
+      api_key = insert(:api_key)
       assert api_key.enabled == true
 
       response =
@@ -147,7 +169,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test_with_auths "enables the API key" do
-      api_key = :api_key |> insert(enabled: false) |> Repo.preload(:account)
+      api_key = insert(:api_key, enabled: false)
       assert api_key.enabled == false
 
       response =
@@ -162,17 +184,33 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
       assert response["data"]["enabled"] == true
     end
 
+    test_with_auths "updates the name" do
+      original_name = "original_key_name"
+      new_name = "new_key_name"
+
+      api_key = insert(:api_key, name: original_name)
+      assert api_key.name == original_name
+
+      response =
+        request("/api_key.update", %{
+          id: api_key.id,
+          name: new_name
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["name"] == new_name
+    end
+
     test_with_auths "does not update any other fields" do
-      api_key = :api_key |> insert() |> Repo.preload(:account)
+      api_key = insert(:api_key)
       assert api_key.enabled == true
 
       response =
         request("/api_key.update", %{
           id: api_key.id,
           expired: true,
-          owner_app: "something",
-          key: "some_key",
-          account_id: "random"
+          key: "some_key"
         })
 
       updated = APIKey.get(api_key.id)
@@ -183,11 +221,14 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                "data" => %{
                  "object" => "api_key",
                  "id" => updated.id,
+                 "name" => api_key.name,
                  "key" => api_key.key,
-                 "expired" => true,
                  "enabled" => false,
-                 "account_id" => api_key.account.id,
-                 "owner_app" => api_key.owner_app,
+                 "expired" => true,
+                 "account_id" => nil,
+                 "owner_app" => "ewallet_api",
+                 "creator_user_id" => api_key.creator_user.id,
+                 "creator_key_id" => nil,
                  "created_at" => DateFormatter.to_iso8601(api_key.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(updated.updated_at),
                  "deleted_at" => DateFormatter.to_iso8601(api_key.deleted_at)
@@ -212,7 +253,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test "generates an activity log for an admin request" do
-      api_key = :api_key |> insert() |> Repo.preload(:account)
+      api_key = insert(:api_key)
       timestamp = DateTime.utc_now()
 
       response =
@@ -229,7 +270,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test "generates an activity log for a provider request" do
-      api_key = :api_key |> insert() |> Repo.preload(:account)
+      api_key = insert(:api_key)
       timestamp = DateTime.utc_now()
 
       response =
@@ -248,7 +289,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
 
   describe "/api_key.enable_or_disable" do
     test_with_auths "disables the API key" do
-      api_key = :api_key |> insert() |> Repo.preload(:account)
+      api_key = insert(:api_key)
       assert api_key.enabled == true
 
       response =
@@ -263,7 +304,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test_with_auths "disabling an API key twice doesn't re-enable it" do
-      api_key = :api_key |> insert() |> Repo.preload(:account)
+      api_key = insert(:api_key)
       assert api_key.enabled == true
 
       response =
@@ -288,7 +329,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test_with_auths "enables the API key" do
-      api_key = :api_key |> insert(enabled: false) |> Repo.preload(:account)
+      api_key = :api_key |> insert(enabled: false)
       assert api_key.enabled == false
 
       response =
@@ -319,7 +360,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test "generates an activity log for an admin request" do
-      api_key = :api_key |> insert() |> Repo.preload(:account)
+      api_key = insert(:api_key)
       timestamp = DateTime.utc_now()
 
       response =
@@ -336,7 +377,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test "generates an activity log for a provider request" do
-      api_key = :api_key |> insert() |> Repo.preload(:account)
+      api_key = insert(:api_key)
       timestamp = DateTime.utc_now()
 
       response =

@@ -32,7 +32,6 @@ defmodule EWallet.Web.MatchParser do
   def build_query(queryable, inputs, whitelist, dynamic, query_module, mappings \\ %{}) do
     with rules when is_list(rules) <- parse_rules(inputs, whitelist, mappings),
          {queryable, assoc_positions} <- join_assocs(queryable, rules),
-         true <- Enum.count(assoc_positions) <= 5 || {:error, :too_many_associations},
          {:ok, queryable} <- filter(queryable, assoc_positions, rules, dynamic, query_module),
          queryable <- add_distinct(queryable) do
       queryable
@@ -175,7 +174,7 @@ defmodule EWallet.Web.MatchParser do
               query_module.do_filter(dynamic, field, type, comparator, value)
 
             {field, subfield, type} ->
-              position = assoc_positions[field]
+              position = assoc_positions[field] + 1
               query_module.do_filter_assoc(dynamic, position, subfield, type, comparator, value)
           end
 

@@ -16,6 +16,7 @@ defmodule EWallet.Web.V1.BalanceSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.{BalanceSerializer, TokenSerializer}
+  alias EWallet.Web.Paginator
 
   describe "serialize/1" do
     test "serializes a balance into the correct response format" do
@@ -31,6 +32,44 @@ defmodule EWallet.Web.V1.BalanceSerializerTest do
       }
 
       assert BalanceSerializer.serialize(balance) == expected
+    end
+
+    test "serialize a paginated balances into the correct response format" do
+      balance = %{
+        token: insert(:token),
+        amount: 1_000_000
+      }
+
+      paginator = %Paginator{
+        data: [
+          balance
+        ],
+        pagination: %{
+          start_after: "1234",
+          per_page: 5,
+          is_first_page: false,
+          is_last_page: true
+        }
+      }
+
+      expected = %{
+        object: "list",
+        data: [
+          %{
+            object: "balance",
+            token: TokenSerializer.serialize(balance.token),
+            amount: balance.amount
+          }
+        ],
+        pagination: %{
+          start_after: "1234",
+          per_page: 5,
+          is_first_page: false,
+          is_last_page: true
+        }
+      }
+
+      assert BalanceSerializer.serialize(paginator) == expected
     end
 
     test "serializes to nil if the balance is not loaded" do

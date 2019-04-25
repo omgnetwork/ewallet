@@ -44,6 +44,7 @@ defmodule EWalletDB.Key do
   schema "key" do
     external_id(prefix: "key_")
 
+    field(:name, :string)
     field(:access_key, :string)
     field(:secret_key, :string, virtual: true)
     field(:secret_key_hash, :string)
@@ -52,7 +53,7 @@ defmodule EWalletDB.Key do
     has_many(
       :memberships,
       Membership,
-      foreign_key: :user_uuid,
+      foreign_key: :key_uuid,
       references: :uuid
     )
 
@@ -80,23 +81,28 @@ defmodule EWalletDB.Key do
     key
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:access_key, :secret_key, :enabled, :global_role],
+      cast: [:name, :access_key, :secret_key, :enabled, :global_role],
       required: [:access_key, :secret_key],
       prevent_saving: [:secret_key]
     )
     |> validate_inclusion(:global_role, GlobalRole.global_roles())
+    |> unique_constraint(:name, name: :key_name_index)
     |> unique_constraint(:access_key, name: :key_access_key_index)
+    |> validate_length(:name, count: :bytes, max: 255)
+    |> validate_length(:global_role, count: :bytes, max: 255)
     |> put_change(:secret_key_hash, Crypto.hash_secret(attrs[:secret_key]))
     |> put_change(:secret_key, Base.url_encode64(attrs[:secret_key], padding: false))
   end
 
   defp update_changeset(%Key{} = key, attrs) do
-    cast_and_validate_required_for_activity_log(
-      key,
+    key
+    |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:global_role],
-      required: [:global_role]
+      cast: [:name, :global_role, :enabled]
     )
+    |> validate_length(:name, count: :bytes, max: 255)
+    |> validate_length(:global_role, count: :bytes, max: 255)
+    |> unique_constraint(:name, name: :key_name_index)
   end
 
   defp enable_changeset(%Key{} = key, attrs) do
@@ -157,7 +163,6 @@ defmodule EWalletDB.Key do
   def insert(attrs) do
     attrs =
       attrs
-      |> Map.put_new_lazy(:account_uuid, fn -> get_master_account_uuid() end)
       |> Map.put_new_lazy(:access_key, fn -> Crypto.generate_base64_key(@key_bytes) end)
       |> Map.put_new_lazy(:secret_key, fn -> Crypto.generate_key(@secret_bytes) end)
 
@@ -174,13 +179,6 @@ defmodule EWalletDB.Key do
     key
     |> update_changeset(attrs)
     |> Repo.update_record_with_activity_log()
-  end
-
-  defp get_master_account_uuid do
-    case Account.get_master_account() do
-      %{uuid: uuid} -> uuid
-      _ -> nil
-    end
   end
 
   @doc """

@@ -1,0 +1,6 @@
+PermissionsResponse:
+  description: Returns a list of permissions
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/PermissionsResponseSchema'

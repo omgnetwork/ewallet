@@ -26,26 +26,18 @@ const TableContainer = styled.div`
   table {
     width: 100%;
     text-align: left;
-
-    thead {
-      tr {
-        border-top: 1px solid ${props => props.theme.colors.S300};
-        border-bottom: 1px solid ${props => props.theme.colors.S300};
-      }
-    }
-    * {
-      vertical-align: middle;
-    }
     tbody tr:hover {
       background-color: ${props => props.theme.colors.S100};
     }
-    tr {
+    tbody td {
       border-bottom: 1px solid ${props => props.theme.colors.S200};
-      padding: 20px 0;
+    }
+    tr {
       cursor: pointer;
     }
     td {
       opacity: ${props => (props.loading && props.loadingEffect ? 0.6 : 1)};
+      transition: 0.1s;
       padding: 10px;
       vertical-align: middle;
       color: ${props => props.theme.colors.B200};
@@ -60,11 +52,6 @@ const TableContainer = styled.div`
       white-space: nowrap;
       padding: 8px 0;
       cursor: pointer;
-      :not(:last-child) {
-        ${ThContent} {
-          border-right: 1px solid ${props => props.theme.colors.S400};
-        }
-      }
     }
   }
 `
@@ -102,7 +89,8 @@ class SortableTable extends PureComponent {
   }
   static defaultProps = {
     pageEntity: 'page',
-    loadingEffect: true
+    loadingEffect: true,
+    navigation: false
   }
 
   constructor (props) {
@@ -227,17 +215,17 @@ class SortableTable extends PureComponent {
     const sortOrder = [queryString.parse(this.props.location.search)['sort-order']]
     const result = shouldFilter
       ? _.chain(this.props.rows)
-          .filter(d => {
-            return _.reduce(
-              filterQuery,
-              (prev, value, key) => {
-                return prev && (value === 'ALL' || d[key] === value)
-              },
-              true
-            )
-          })
-          .orderBy(sortBy, sortOrder)
-          .value()
+        .filter(d => {
+          return _.reduce(
+            filterQuery,
+            (prev, value, key) => {
+              return prev && (value === 'ALL' || d[key] === value)
+            },
+            true
+          )
+        })
+        .orderBy(sortBy, sortOrder)
+        .value()
       : this.props.rows
     return result
   }
@@ -255,6 +243,11 @@ class SortableTable extends PureComponent {
     )
   }
   render () {
+    const shouldShowNavigation =
+      this.props.navigation &&
+      this.props.rows.length &&
+      this.props.loadingStatus !== 'INITIATED' &&
+      !(this.props.isFirstPage && this.props.isLastPage)
     return (
       <TableContainer
         loading={this.props.loadingStatus === 'PENDING'}
@@ -276,7 +269,7 @@ class SortableTable extends PureComponent {
           page={this.getPage()}
           perPage={this.props.perPage}
         />
-        {this.props.navigation && this.props.loadingStatus !== 'INITIATED' && (
+        {shouldShowNavigation ? (
           <NavigationContainer>
             <Button
               onClick={this._onClickPrev}
@@ -295,7 +288,7 @@ class SortableTable extends PureComponent {
               <Icon name='Chevron-Right' />
             </Button>
           </NavigationContainer>
-        )}
+        ) : null}
       </TableContainer>
     )
   }
@@ -353,9 +346,9 @@ const FilterHeader = withDropdownState(
               {this.props.open ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
               {this.props.open && (
                 <DropdownBox>
-                  {this.props.filterOptions.map(x => {
+                  {this.props.filterOptions.map((x, index) => {
                     return (
-                      <DropdownBoxItem onClick={e => this.props.onSelectFilter(this.props.col, x)}>
+                      <DropdownBoxItem key={index} onClick={e => this.props.onSelectFilter(this.props.col, x)}>
                         {x}
                       </DropdownBoxItem>
                     )

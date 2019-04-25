@@ -1,0 +1,31 @@
+PermissionsResponseSchema:
+  description: The response schema for permissions
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: 'schemas.yaml#/PermissionsSchema'
+    example:
+      data:
+        object: permissions
+        global_roles:
+          admin:
+            account_wallets:
+              get: global
+              create: accounts
+          end_user:
+            account_wallets:
+              get: none
+              create: none
+        account_roles:
+          admin:
+            account_wallets:
+              get: global
+              all: global
+              create: accounts
+          viewer:
+            account_wallets:
+              get: global
+              all: global

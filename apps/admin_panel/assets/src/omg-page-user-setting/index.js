@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import { Input, Button } from '../omg-uikit'
 import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
@@ -10,15 +11,20 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 const UserSettingContainer = styled.div`
-  padding-top: 20px;
-  h2 {
-    margin-bottom: 30px;
-  }
+  padding-bottom: 50px;
 `
 const StyledInput = styled(Input)`
   margin-bottom: 30px;
 `
-const StyledEmailInput = StyledInput.extend`
+const StyledEmailInput = styled(StyledInput)`
+  pointer-events: none;
+  margin-top: 30px;
+  input {
+    border-bottom: none;
+  }
+`
+const StyledRoleInput = styled(StyledInput)`
+  margin-bottom: 8px;
   pointer-events: none;
   input {
     border-bottom: none;
@@ -63,29 +69,31 @@ const enhance = compose(
 
 class UserSettingPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
     updatePassword: PropTypes.func.isRequired,
     updateCurrentUser: PropTypes.func.isRequired,
     loadingStatus: PropTypes.string,
-    currentUser: PropTypes.object
+    currentUser: PropTypes.object,
+    divider: PropTypes.bool
   }
   state = {
     email: '',
+    globalRole: '',
     submitStatus: 'DEFAULT',
     changingPassword: false
   }
 
-  componentDidMount = () => {
-    this.setInitialCurrentUserState()
+  componentDidMount () {
+    this.setInitialCurrentUserState(this.props)
   }
-  componentWillReceiveProps = props => {
-    this.setInitialCurrentUserState()
+  UNSAFE_componentWillReceiveProps = props => {
+    this.setInitialCurrentUserState(props)
   }
-  setInitialCurrentUserState = () => {
-    if (this.props.loadingStatus === 'SUCCESS' && !this.state.currentUserLoaded) {
+  setInitialCurrentUserState = props => {
+    if (props.loadingStatus === 'SUCCESS' && !this.state.currentUserLoaded) {
       this.setState({
-        email: this.props.currentUser.email,
-        avatarPlaceholder: this.props.currentUser.avatar.original,
+        email: props.currentUser.email,
+        globalRole: props.currentUser.global_role,
+        avatarPlaceholder: props.currentUser.avatar.original,
         currentUserLoaded: true
       })
     }
@@ -152,7 +160,11 @@ class UserSettingPage extends Component {
   render () {
     return (
       <UserSettingContainer>
-        <h2>User Setting</h2>
+        <TopNavigation
+          divider={this.props.divider}
+          title={'My Profile'}
+          secondaryAction={false}
+        />
         {this.props.loadingStatus === 'SUCCESS' && (
           <form onSubmit={this.onClickUpdateAccount} noValidate>
             <AvatarContainer>
@@ -168,6 +180,11 @@ class UserSettingPage extends Component {
                 value={this.state.email}
                 prefill
                 onChange={this.onChangeEmail}
+              />
+              <StyledRoleInput
+                placeholder={'Global Role'}
+                value={_.startCase(this.state.globalRole)}
+                prefill
               />
               <ChangePasswordContainer>
                 <div>Password</div>
@@ -209,7 +226,7 @@ class UserSettingPage extends Component {
                 }
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
-                Save Change
+                Save Changes
               </Button>
             </InputsContainer>
           </form>

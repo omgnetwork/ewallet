@@ -1,6 +1,6 @@
 import * as transactionRequestService from '../services/transactionRequestService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
-export const getTransactionRequests = ({ page, perPage, search, cacheKey }) =>
+export const getTransactionRequests = ({ page, perPage, search, cacheKey, matchAll, matchAny }) =>
   createPaginationActionCreator({
     actionName: 'TRANSACTION_REQUESTS',
     action: 'REQUEST',
@@ -9,7 +9,9 @@ export const getTransactionRequests = ({ page, perPage, search, cacheKey }) =>
         perPage: perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
-        search
+        search,
+        matchAll,
+        matchAny
       }),
     cacheKey
   })
@@ -59,7 +61,10 @@ export const createTransactionRequest = ({
   expirationDate,
   allowAmountOverride,
   consumptionLifetime,
-  exchangeAddress
+  exchangeAddress,
+  maxConsumptionPerIntervalPerUser,
+  maxConsumptionPerInterval,
+  consumptionIntervalDuration
 }) =>
   createActionCreator({
     actionName: 'TRANSACTION_REQUEST',
@@ -79,7 +84,10 @@ export const createTransactionRequest = ({
         expirationDate,
         allowAmountOverride,
         consumptionLifetime,
-        exchangeAddress
+        exchangeAddress,
+        maxConsumptionPerIntervalPerUser,
+        maxConsumptionPerInterval,
+        consumptionIntervalDuration
       })
   })
 

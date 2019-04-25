@@ -42,11 +42,11 @@ const AlertItemContainer = styled.div`
   }
 `
 
-const AlertItemSuccess = AlertItemContainer.extend`
+const AlertItemSuccess = styled(AlertItemContainer)`
   background-color: #e8fbf7;
   border: 1px solid #65d2bb;
 `
-const AlertItemError = AlertItemContainer.extend`
+const AlertItemError = styled(AlertItemContainer)`
   border: 1px solid #fc7166;
   background-color: #ffefed;
 `
@@ -71,7 +71,7 @@ const SuccessChecked = styled.div`
     margin: 0 auto;
   }
 `
-const ErrorChecked = SuccessChecked.extend`
+const ErrorChecked = styled(SuccessChecked)`
   background-color: #ef3526;
 `
 class AlertItem extends Component {

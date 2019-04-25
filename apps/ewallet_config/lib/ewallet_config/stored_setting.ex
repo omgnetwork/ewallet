@@ -81,6 +81,7 @@ defmodule EWalletConfig.StoredSetting do
     |> validate_immutable(:key)
     |> validate_inclusion(:type, @types)
     |> validate_required_exclusive([:data, :encrypted_data])
+    |> validate_length(:description, count: :bytes, max: 255)
     |> unique_constraint(:key)
     |> validate_setting_type()
     |> validate_setting_with_options()

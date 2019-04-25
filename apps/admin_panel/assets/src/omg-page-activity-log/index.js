@@ -3,11 +3,10 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import ActivityLogFetcher from '../omg-activity-log/ActivityLogFetcher'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
-import Link from '../omg-links'
 import { createSearchActivityLogQuery } from './searchField'
 import { Icon } from '../omg-uikit'
 const AccountPageContainer = styled.div`
@@ -66,8 +65,9 @@ const OriginatorDetailContianer = styled.div`
 `
 class AccountPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     history: PropTypes.object,
+    query: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
   }
@@ -88,7 +88,7 @@ class AccountPage extends Component {
       { key: 'originator', title: 'ORIGINATOR' },
       { key: 'action', title: 'ACTION' },
       { key: 'target', title: 'TARGET' },
-      { key: 'created_at', title: 'CREATED DATE' }
+      { key: 'created_at', title: 'CREATED AT' }
     ]
   }
 
@@ -233,12 +233,13 @@ class AccountPage extends Component {
     return (
       <AccountPageContainer>
         <TopNavigation
+          divider={this.props.divider}
           title={'Activity Logs'}
           buttons={[]}
           normalPlaceholder='originator id, action'
         />
         <SortableTableContainer
-          innerRef={table => (this.table = table)}
+          ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable
@@ -258,6 +259,8 @@ class AccountPage extends Component {
 
   render () {
     const search = queryString.parse(this.props.location.search).search
+    const query =
+      typeof this.props.query === 'function' ? this.props.query(search) : this.props.query
     return (
       <ActivityLogFetcher
         render={this.renderActivityPage}
@@ -265,7 +268,8 @@ class AccountPage extends Component {
         {...this.props}
         query={{
           page: Number(queryString.parse(this.props.location.search).page),
-          ...createSearchActivityLogQuery(search)
+          ...createSearchActivityLogQuery(search),
+          ...query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

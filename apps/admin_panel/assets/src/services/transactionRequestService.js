@@ -1,6 +1,7 @@
 import { authenticatedRequest } from './apiService'
 import uuid from 'uuid/v4'
-export function getTransactionRequests ({ perPage, page, sort, search }) {
+import numeral from 'numeral'
+export function getTransactionRequests ({ perPage, page, sort, search, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/transaction_request.all',
     data: {
@@ -8,7 +9,9 @@ export function getTransactionRequests ({ perPage, page, sort, search }) {
       page: Number(page) || 1,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: search
+      search_term: search,
+      match_all: matchAll,
+      match_any: matchAny
     }
   })
 }
@@ -47,25 +50,31 @@ export function createTransactionRequest ({
   expirationDate,
   allowAmountOverride,
   consumptionLifetime,
-  exchangeAddress
+  exchangeAddress,
+  maxConsumptionPerIntervalPerUser,
+  maxConsumptionPerInterval,
+  consumptionIntervalDuration
 }) {
   return authenticatedRequest({
     path: '/transaction_request.create',
     data: {
       type,
       token_id: tokenId,
-      amount: Number(amount) || undefined,
+      amount: numeral(amount).value() || undefined,
       correlation_id: correlationId,
       address,
       account_id: accountId,
       provider_user_id: providerUserId,
       require_confirmation: requireConfirmation,
-      max_consumptions: Number(maxConsumption) || undefined,
-      max_consumptions_per_user: Number(maxConsumptionPerUser) || undefined,
+      max_consumptions: numeral(maxConsumption).value() || undefined,
+      max_consumptions_per_user: numeral(maxConsumptionPerUser).value() || undefined,
       expiration_date: expirationDate,
       allow_amount_override: allowAmountOverride,
-      consumption_lifetime: Number(consumptionLifetime) || undefined,
-      exchange_wallet_address: exchangeAddress
+      consumption_lifetime: numeral(consumptionLifetime).value() || undefined,
+      exchange_wallet_address: exchangeAddress,
+      max_consumptions_per_interval_per_user: numeral(maxConsumptionPerIntervalPerUser).value() || undefined,
+      max_consumptions_per_interval: numeral(maxConsumptionPerInterval).value() || undefined,
+      consumption_interval_duration: numeral(consumptionIntervalDuration).value() || undefined
     }
   })
 }

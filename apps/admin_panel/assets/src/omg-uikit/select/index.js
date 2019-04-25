@@ -18,7 +18,7 @@ const OptionsContainer = styled.div`
   border-radius: 2px;
   box-shadow: 0 4px 12px 0 rgba(4, 7, 13, 0.1);
   background-color: white;
-  right: 0;
+  left: 0;
   max-height: ${props => (props.optionBoxHeight ? props.optionBoxHeight : '150px')};
   overflow: auto;
   min-width: 100%;
@@ -40,7 +40,8 @@ export default class Select extends PureComponent {
     onBlur: PropTypes.func,
     optionBoxHeight: PropTypes.string,
     className: PropTypes.string,
-    filterByKey: PropTypes.bool
+    filterByKey: PropTypes.bool,
+    optionRenderer: PropTypes.func
   }
   static defaultProps = {
     onSelectItem: _.noop,
@@ -83,10 +84,12 @@ export default class Select extends PureComponent {
       })
       : this.props.options
 
+    // eslint-disable-next-line no-unused-vars
+    const { className, onSelectItem, ...rest } = this.props
     return (
-      <SelectContainer className={this.props.className} active={this.state.active}>
+      <SelectContainer className={className} active={this.state.active}>
         <Input
-          {...this.props}
+          {...rest}
           onFocus={this.onFocus}
           onBlur={this.onBlur}
           onChange={this.props.onChange}
@@ -105,7 +108,7 @@ export default class Select extends PureComponent {
             {filteredOption.map(option => {
               return (
                 <OptionItem onMouseDown={this.onClickItem(option)} key={option.key}>
-                  {option.value}
+                  {this.props.optionRenderer ? this.props.optionRenderer(option.value) : option.value}
                 </OptionItem>
               )
             })}

@@ -14,11 +14,15 @@
 
 defmodule AdminAPI.V1.AdminUserControllerTest do
   use AdminAPI.ConnCase, async: true
+  use Bamboo.Test
   alias Ecto.UUID
-  alias EWalletDB.{User, Account, AuthToken, Membership}
+  alias AdminAPI.UpdateEmailAddressEmail
+  alias EWalletDB.{User, Repo, Account, AuthToken, Invite, UpdateEmailRequest, Membership}
   alias ActivityLogger.System
 
   @owner_app :some_app
+  @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
+  @update_email_url "http://localhost:4000/update_email?email={email}&token={token}"
 
   describe "/admin.all" do
     test_with_auths "returns a list of admins and pagination data" do
@@ -220,6 +224,300 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
 
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation."
+    end
+  end
+
+  describe "/admin.create" do
+    test_with_auths "invites a new admin user with email" do
+      email = "admin_user@example.com"
+
+      attrs = %{
+        email: email,
+        global_role: "super_admin",
+        redirect_url: @redirect_url
+      }
+
+      response = request("/admin.create", attrs)
+      assert response["success"] == true
+
+      user = User.get_by(email: email)
+      assert User.get_status(user) == :pending_confirmation
+      assert user.email == email
+      assert user.global_role == "super_admin"
+    end
+
+    test_with_auths "invites a new admin user who gets no global role once confirmed" do
+      email = "admin_user@example.com"
+
+      attrs = %{
+        email: email,
+        redirect_url: @redirect_url
+      }
+
+      response = request("/admin.create", attrs)
+      assert response["success"] == true
+
+      user = User.get_by(email: email)
+      assert User.get_status(user) == :pending_confirmation
+      assert user.email == email
+      assert user.global_role == nil
+
+      invite =
+        Invite
+        |> Repo.get_by(user_uuid: user.uuid)
+        |> Repo.preload(:user)
+
+      response =
+        unauthenticated_request("/invite.accept", %{
+          "email" => email,
+          "token" => invite.token,
+          "password" => "password",
+          "password_confirmation" => "password"
+        })
+
+      assert response["success"]
+
+      user = User.get(user.id)
+      assert user.email == email
+      assert user.global_role == nil
+      assert UpdateEmailRequest.all_active() |> length() == 0
+    end
+
+    test_with_auths "can't set the role for a user as super_admin when only admin" do
+      set_admin_user_role("admin")
+      set_key_role("admin")
+
+      email = "admin_user@example.com"
+
+      attrs = %{
+        email: email,
+        global_role: "super_admin",
+        redirect_url: @redirect_url
+      }
+
+      response = request("/admin.create", attrs)
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "can't set the role for a user as super_admin when only viewer" do
+      set_admin_user_role("viewer")
+      set_key_role("viewer")
+
+      email = "admin_user@example.com"
+
+      attrs = %{
+        email: email,
+        global_role: "super_admin",
+        redirect_url: @redirect_url
+      }
+
+      response = request("/admin.create", attrs)
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "can't set the role for a user as super_admin when only end_user" do
+      set_admin_user_role("end_user")
+      set_key_role("end_user")
+
+      email = "admin_user@example.com"
+
+      attrs = %{
+        email: email,
+        global_role: "super_admin",
+        redirect_url: @redirect_url
+      }
+
+      response = request("/admin.create", attrs)
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "can't set the role for a user as super_admin when only none" do
+      set_admin_user_role("none")
+      set_key_role("none")
+
+      email = "admin_user@example.com"
+
+      attrs = %{
+        email: email,
+        global_role: "super_admin",
+        redirect_url: @redirect_url
+      }
+
+      response = request("/admin.create", attrs)
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+  end
+
+  describe "/admin.update" do
+    test_with_auths "updates an admin's email" do
+      admin = insert(:admin)
+      email = "admin_user@example.com"
+
+      attrs = %{
+        id: admin.id,
+        email: email,
+        full_name: "John Doe",
+        redirect_url: @update_email_url,
+        global_role: "super_admin"
+      }
+
+      response = request("/admin.update", attrs)
+
+      assert response["success"] == true
+      user = User.get_by(id: admin.id)
+
+      assert user.email != email
+      assert user.is_admin == true
+      assert user.full_name == "John Doe"
+      assert user.global_role == "super_admin"
+
+      request =
+        UpdateEmailRequest
+        |> Repo.get_by(user_uuid: admin.uuid)
+        |> Repo.preload(:user)
+
+      assert_delivered_email(UpdateEmailAddressEmail.create(request, @update_email_url))
+    end
+
+    test_with_auths "updates an admin's details without changing the email" do
+      admin = insert(:admin)
+      email = "admin_user@example.com"
+
+      attrs = %{
+        id: admin.id,
+        full_name: "John Doe",
+        global_role: "super_admin"
+      }
+
+      response = request("/admin.update", attrs)
+
+      assert response["success"] == true
+      user = User.get_by(id: admin.id)
+
+      assert user.email != email
+      assert user.is_admin == true
+      assert user.full_name == "John Doe"
+      assert user.global_role == "super_admin"
+
+      request =
+        UpdateEmailRequest
+        |> Repo.get_by(user_uuid: admin.uuid)
+        |> Repo.preload(:user)
+
+      assert request == nil
+    end
+
+    test_with_auths "can't update the email without giving a redirect_url" do
+      admin = insert(:admin)
+      email = "admin_user@example.com"
+
+      attrs = %{
+        id: admin.id,
+        email: email
+      }
+
+      response = request("/admin.update", attrs)
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    test "can't update themselves" do
+      admin = get_test_admin()
+
+      attrs = %{
+        id: admin.id,
+        global_role: "admin"
+      }
+
+      response = admin_user_request("/admin.update", attrs)
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "can't change a user global role when only admin" do
+      set_admin_user_role("admin")
+      set_key_role("admin")
+
+      admin = insert(:admin, global_role: "super_admin")
+
+      attrs = %{
+        id: admin.id,
+        global_role: "admin"
+      }
+
+      response = request("/admin.update", attrs)
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+
+      user = User.get_by(id: admin.id)
+      assert user.global_role == "super_admin"
+    end
+
+    test_with_auths "can't change a user global role when only viewer" do
+      set_admin_user_role("viewer")
+      set_key_role("viewer")
+
+      admin = insert(:admin, global_role: "super_admin")
+
+      attrs = %{
+        id: admin.id,
+        global_role: "admin"
+      }
+
+      response = request("/admin.update", attrs)
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+
+      user = User.get_by(id: admin.id)
+      assert user.global_role == "super_admin"
+    end
+
+    test_with_auths "can't change a user global role when only end_user" do
+      set_admin_user_role("end_user")
+      set_key_role("end_user")
+
+      admin = insert(:admin, global_role: "super_admin")
+
+      attrs = %{
+        id: admin.id,
+        global_role: "admin"
+      }
+
+      response = request("/admin.update", attrs)
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+
+      user = User.get_by(id: admin.id)
+      assert user.global_role == "super_admin"
+    end
+
+    test_with_auths "can't change a user global role when only none" do
+      set_admin_user_role("none")
+      set_key_role("none")
+
+      admin = insert(:admin, global_role: "super_admin")
+
+      attrs = %{
+        id: admin.id,
+        global_role: "admin"
+      }
+
+      response = request("/admin.update", attrs)
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+
+      user = User.get_by(id: admin.id)
+      assert user.global_role == "super_admin"
     end
   end
 

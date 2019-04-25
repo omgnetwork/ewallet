@@ -17,6 +17,7 @@ defmodule EWalletDB.Token do
   Ecto Schema representing tokens.
   """
   use Ecto.Schema
+  use Arc.Ecto.Schema
   use Utils.Types.ExternalID
   use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
@@ -57,6 +58,7 @@ defmodule EWalletDB.Token do
     field(:smallest_denomination, :integer)
     # false
     field(:locked, :boolean)
+    field(:avatar, EWalletDB.Uploaders.Avatar.Type)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
@@ -114,6 +116,14 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
     |> unique_constraint(:iso_numeric)
+    |> validate_length(:symbol, count: :bytes, max: 255)
+    |> validate_length(:iso_code, count: :bytes, max: 255)
+    |> validate_length(:name, count: :bytes, max: 255)
+    |> validate_length(:description, count: :bytes, max: 255)
+    |> validate_length(:short_symbol, count: :bytes, max: 255)
+    |> validate_length(:subunit, count: :bytes, max: 255)
+    |> validate_length(:html_entity, count: :bytes, max: 255)
+    |> validate_length(:iso_numeric, count: :bytes, max: 255)
     |> foreign_key_constraint(:account_uuid)
     |> assoc_constraint(:account)
     |> set_id(prefix: "tok_")
@@ -139,6 +149,12 @@ defmodule EWalletDB.Token do
       ],
       encrypted: [:encrypted_metadata]
     )
+    |> validate_length(:iso_code, count: :bytes, max: 255)
+    |> validate_length(:name, count: :bytes, max: 255)
+    |> validate_length(:description, count: :bytes, max: 255)
+    |> validate_length(:short_symbol, count: :bytes, max: 255)
+    |> validate_length(:html_entity, count: :bytes, max: 255)
+    |> validate_length(:iso_numeric, count: :bytes, max: 255)
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
@@ -177,6 +193,36 @@ defmodule EWalletDB.Token do
   """
   def all do
     Repo.all(Token)
+  end
+
+  @spec avatar_changeset(Ecto.Changeset.t() | %Token{}, map()) ::
+          Ecto.Changeset.t() | %Token{} | no_return()
+  defp avatar_changeset(changeset, attrs) do
+    changeset
+    |> cast_and_validate_required_for_activity_log(attrs)
+    |> cast_attachments(attrs, [:avatar])
+  end
+
+  @doc """
+  Stores an avatar for the given token.
+  """
+  @spec store_avatar(%Token{}, map()) :: %Token{} | nil | no_return()
+  def store_avatar(%Token{} = token, %{"originator" => originator} = attrs) do
+    attrs =
+      attrs["avatar"]
+      |> case do
+        "" -> %{avatar: nil}
+        "null" -> %{avatar: nil}
+        avatar -> %{avatar: avatar}
+      end
+      |> Map.put(:originator, originator)
+
+    changeset = avatar_changeset(token, attrs)
+
+    case Repo.update_record_with_activity_log(changeset) do
+      {:ok, token} -> get(token.id)
+      result -> result
+    end
   end
 
   @doc """

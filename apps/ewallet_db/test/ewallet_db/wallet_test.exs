@@ -28,6 +28,17 @@ defmodule EWalletDB.WalletTest do
     test_insert_generate_uuid(Wallet, :uuid)
     test_insert_generate_timestamps(Wallet)
 
+    test_insert_field_length(Wallet, :name)
+
+    test_insert_field_length(
+      Wallet,
+      :identifier,
+      "secondary_A long long long long long long long long long long long long
+    long long long long long long long long long long long long long long long
+    long long long long long long long long long long long long long long long
+    long long long long long long long long long long long long long value"
+    )
+
     test "populates the schema with a valid wallet address" do
       {:ok, wallet} =
         :wallet

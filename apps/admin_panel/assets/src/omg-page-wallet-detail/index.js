@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import styled, { withTheme } from 'styled-components'
+import styled from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
 import WalletProvider from '../omg-wallet/walletProvider'
 import { compose } from 'recompose'
 import { Button, Icon } from '../omg-uikit'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import TopBar from '../omg-page-detail-layout/TopBarDetail'
-import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
@@ -20,8 +19,8 @@ const WalletDetailContainer = styled.div`
   }
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 40px;
   display: flex;
+  flex-wrap: wrap;
 `
 const DetailContainer = styled.div`
   flex: 1 1 auto;
@@ -50,14 +49,12 @@ const ErrorPageContainer = styled.div`
   }
 `
 const enhance = compose(
-  withTheme,
   withRouter
 )
 class WalletDetaillPage extends Component {
   static propTypes = {
     match: PropTypes.object,
-    history: PropTypes.object,
-    theme: PropTypes.object
+    divider: PropTypes.bool
   }
   state = {
     createTransactionModalOpen: false
@@ -70,9 +67,10 @@ class WalletDetaillPage extends Component {
   }
   renderTopBar = wallet => {
     return (
-      <TopBar
+      <TopNavigation
+        secondaryAction={false}
+        divider={this.props.divider}
         title={wallet.name}
-        breadcrumbItems={['Wallet', `${wallet.address}`]}
         buttons={[
           <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
             <Icon name='Transaction' />
@@ -83,19 +81,21 @@ class WalletDetaillPage extends Component {
     )
   }
   renderDetail = wallet => {
-    const accountId = this.props.match.params.accountId
     return (
       <Section title='DETAILS'>
         <DetailGroup>
           <b>Address:</b> <span>{wallet.address}</span> <Copy data={wallet.address} />
         </DetailGroup>
         <DetailGroup>
-          <b>Wallet Type:</b> <span>{wallet.identifier}</span>
+          <b>Name:</b> <span>{wallet.name}</span>
+        </DetailGroup>
+        <DetailGroup>
+          <b>Wallet Identifier:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
         {wallet.account && (
           <DetailGroup>
             <b>Account Owner:</b>{' '}
-            <Link to={`/${accountId}/accounts/${wallet.account.id}`}>
+            <Link to={`/accounts/${wallet.account.id}/details`}>
               {_.get(wallet, 'account.name', '-')}
             </Link>
           </DetailGroup>
@@ -103,17 +103,14 @@ class WalletDetaillPage extends Component {
         {wallet.user && (
           <DetailGroup>
             <b>User:</b>{' '}
-            <Link to={`/${accountId}/users/${wallet.user.id}`}>
-              {_.get(wallet, 'user.id', '-')}
-            </Link>
+            <Link to={`/users/${wallet.user.id}`}>{_.get(wallet, 'user.id', '-')}</Link>
           </DetailGroup>
         )}
         <DetailGroup>
-          <b>Created Date:</b>{' '}
-          <span>{moment(wallet.created_at).format()}</span>
+          <b>Created At:</b> <span>{moment(wallet.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(wallet.updated_at).format()}</span>
+          <b>Updated At:</b> <span>{moment(wallet.updated_at).format()}</span>
         </DetailGroup>
       </Section>
     )
@@ -136,9 +133,8 @@ class WalletDetaillPage extends Component {
     )
   }
   renderWalletDetailContainer = wallet => {
-    const accountId = this.props.match.params.accountId
     return (
-      <DetailLayout backPath={`/${accountId}/wallets`}>
+      <div>
         <ContentContainer>
           {this.renderTopBar(wallet)}
           <ContentDetailContainer>
@@ -151,13 +147,13 @@ class WalletDetaillPage extends Component {
           onRequestClose={this.onRequestClose}
           open={this.state.createTransactionModalOpen}
         />
-      </DetailLayout>
+      </div>
     )
   }
   renderErrorPage (error) {
     return (
       <ErrorPageContainer>
-        <img src={require('../../statics/images/Empty state_1.0_Empty-state_1.0.png')} />
+        <img src={require('../../statics/images/empty_state.png')} />
         <h2>{error.code}</h2>
         <p>{error.description}</p>
       </ErrorPageContainer>
@@ -167,9 +163,9 @@ class WalletDetaillPage extends Component {
   renderWalletDetailPage = ({ wallet, loadingStatus, result }) => {
     return (
       <WalletDetailContainer>
-        {(loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS || wallet) &&
-          this.renderWalletDetailContainer(wallet)}
-        {loadingStatus === CONSTANT.LOADING_STATUS.FAILED && this.renderErrorPage(result.error)}
+        {wallet
+          ? this.renderWalletDetailContainer(wallet)
+          : loadingStatus === CONSTANT.LOADING_STATUS.FAILED && this.renderErrorPage(result.error)}
       </WalletDetailContainer>
     )
   }
@@ -179,6 +175,7 @@ class WalletDetaillPage extends Component {
         render={this.renderWalletDetailPage}
         walletAddress={this.props.match.params.walletAddress}
         {...this.state}
+        {...this.props}
       />
     )
   }

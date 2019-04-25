@@ -1,15 +1,26 @@
-import { authenticatedRequest, authenticatedMultipartRequest, unAuthenticatedRequest } from './apiService'
+import {
+  authenticatedRequest,
+  authenticatedMultipartRequest,
+  unAuthenticatedRequest
+} from './apiService'
 
-export function getAllAdmins ({ perPage, sort, query, ...rest }) {
+export function getAllAdmins ({ perPage, sort, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/admin.all',
     data: {
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: query,
-      ...rest
+      match_all: matchAll,
+      match_any: matchAny
     }
+  })
+}
+
+export function getAdminById (id) {
+  return authenticatedRequest({
+    path: '/admin.get',
+    data: { id }
   })
 }
 
@@ -20,6 +31,17 @@ export function uploadAvatar ({ id, avatar }) {
   return authenticatedMultipartRequest({
     path: '/me.upload_avatar',
     data: formData
+  })
+}
+
+export function inviteAdmin ({ email, redirectUrl, globalRole }) {
+  return authenticatedRequest({
+    path: '/admin.create',
+    data: {
+      email,
+      redirect_url: redirectUrl,
+      global_role: globalRole
+    }
   })
 }
 

@@ -1,22 +1,17 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import SideNavigation from './SideNavigation'
-import TopBar from './TopBar'
 import PropTypes from 'prop-types'
-import AccountSelectorMenu from './AccountSelectorMenu'
-import withClickOutsideEnhancer from '../enhancer/clickOutside'
-import { compose } from 'recompose'
-import AccountsFetcher from '../omg-account/accountsFetcher'
-import { connect } from 'react-redux'
-import { withRouter } from 'react-router-dom'
-import { switchAccount } from '../omg-account-current/action'
-import Alert from '../omg-alert'
 import LoadingBar from 'react-redux-loading-bar'
+import queryString from 'query-string'
+
+import SlideInRight from '../omg-uikit/animation/SlideInRight'
+import SideNavigation from './SideNavigation'
+import Alert from '../omg-alert'
 import TransactionRequestPanel from '../omg-transaction-request-tab'
 import TransactionPanel from '../omg-transaction-panel'
 import ActivityPanel from '../omg-page-activity-log/ActivityPanel'
-import queryString from 'query-string'
 import ConsumptionPanel from '../omg-consumption-panel'
+
 const Container = styled.div`
   height: 100%;
   position: relative;
@@ -26,7 +21,7 @@ const SideNav = styled(SideNavigation)`
   display: inline-block;
   vertical-align: top;
   flex: 0 0 auto;
-  width: 240px;
+  width: 220px;
 `
 
 const ContentContainer = styled.div`
@@ -36,79 +31,15 @@ const ContentContainer = styled.div`
   overflow: auto;
 `
 const Content = styled.div`
-  padding: 0 7%;
+  padding: 0 7% 50px 7%;
+  overflow: hidden;
 `
-const enhance = compose(
-  connect(
-    null,
-    { switchAccount }
-  ),
-  withRouter,
-  withClickOutsideEnhancer
-)
-const EnhancedAccountSelectorMenuClickOutside = enhance(
-  class AccountSelectorMenuClickOutside extends Component {
-    static propTypes = {
-      closeSwitchAccountTab: PropTypes.func,
-      location: PropTypes.object,
-      history: PropTypes.object,
-      switchAccount: PropTypes.func
-    }
-    state = {
-      searchValue: ''
-    }
-    handleClickOutside = () => {
-      this.props.closeSwitchAccountTab()
-    }
-    onKeyDown = e => {
-      if (e.keyCode === 27) this.props.closeSwitchAccountTab()
-    }
-    onClickAccountItem = account => e => {
-      this.props.history.push(`/${account.id}/dashboard`)
-      this.handleClickOutside()
-      this.props.switchAccount(account)
-    }
-
-    onSearchChange = e => {
-      this.setState({ searchValue: e.target.value })
-    }
-
-    render () {
-      return (
-        <AccountsFetcher
-          query={{ search: this.state.searchValue, perPage: 20, page: 1 }}
-          render={({ data: accounts }) => {
-            return (
-              <AccountSelectorMenu
-                accounts={accounts}
-                onClickAccountItem={this.onClickAccountItem}
-                onKeyDown={this.onKeyDown}
-                onSearchChange={this.onSearchChange}
-                searchValue={this.state.searchValue}
-              />
-            )
-          }}
-        />
-      )
-    }
-  }
-)
-
 class AppLayout extends Component {
   static propTypes = {
     children: PropTypes.node,
     location: PropTypes.object
   }
-  state = {
-    switchAccount: false
-  }
 
-  closeSwitchAccountTab = () => {
-    this.setState({ switchAccount: false })
-  }
-  onClickSwitchAccount = () => {
-    this.setState({ switchAccount: true })
-  }
   scrollTopContentContainer = () => {
     this.contentContainer.scrollTo(0, 0)
   }
@@ -117,17 +48,8 @@ class AppLayout extends Component {
     return (
       <Container>
         <LoadingBar updateTime={1000} style={{ backgroundColor: '#1A56F0', zIndex: 99999 }} />
-        <SideNav
-          switchAccount={this.state.switchAccount}
-          onClickSwitchAccount={this.onClickSwitchAccount}
-        />
-        {this.state.switchAccount && (
-          <EnhancedAccountSelectorMenuClickOutside
-            closeSwitchAccountTab={this.closeSwitchAccountTab}
-          />
-        )}
-        <ContentContainer innerRef={contentContainer => (this.contentContainer = contentContainer)}>
-          <TopBar />
+        <SideNav />
+        <ContentContainer ref={contentContainer => (this.contentContainer = contentContainer)}>
           <Content>
             {React.cloneElement(this.props.children, {
               scrollTopContentContainer: this.scrollTopContentContainer
@@ -135,10 +57,22 @@ class AppLayout extends Component {
           </Content>
         </ContentContainer>
         <Alert />
-        {searchObject['show-request-tab'] && <TransactionRequestPanel />}
-        {searchObject['show-consumption-tab'] && <ConsumptionPanel />}
-        {searchObject['show-transaction-tab'] && <TransactionPanel />}
-        {searchObject['show-activity-tab'] && <ActivityPanel />}
+
+        <SlideInRight path='transaction-panel' width={560}>
+          {searchObject['show-request-tab'] && <TransactionRequestPanel />}
+        </SlideInRight>
+
+        <SlideInRight path='transaction-panel' width={560}>
+          {searchObject['show-consumption-tab'] && <ConsumptionPanel />}
+        </SlideInRight>
+
+        <SlideInRight path='transaction-panel' width={560}>
+          {searchObject['show-transaction-tab'] && <TransactionPanel />}
+        </SlideInRight>
+
+        <SlideInRight path='activity-tab' width={560}>
+          {searchObject['show-activity-tab'] && <ActivityPanel />}
+        </SlideInRight>
       </Container>
     )
   }

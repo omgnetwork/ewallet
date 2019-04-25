@@ -16,7 +16,7 @@ class TransactionProvider extends Component {
       this.props.getTransactionById(this.props.transactionId)
     }
   }
-  componentWillReceiveProps (newProps) {
+  UNSAFE_componentWillReceiveProps (newProps) {
     if (newProps.transactionId !== this.props.transactionId) {
       this.props.getTransactionById(newProps.transactionId)
     }

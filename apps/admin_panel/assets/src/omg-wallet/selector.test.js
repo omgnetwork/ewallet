@@ -1,9 +1,9 @@
-import { selectPrimaryWalletCurrentAccount } from './selector'
+import { selectPrimaryWalletByAccountId } from './selector'
 
 describe('selectors wallet', () => {
   test('should select primary wallet of current account', () => {
     const state = {
-      currentAccount: { id: 'a' },
+      accounts: { 'a': { id: 'a' } },
       wallets: {
         b: {
           account_id: 'a',
@@ -15,7 +15,9 @@ describe('selectors wallet', () => {
         }
       }
     }
-    expect(selectPrimaryWalletCurrentAccount(state)).toEqual({
+
+    const primaryWallet = selectPrimaryWalletByAccountId(state)('a')
+    expect(primaryWallet).toEqual({
       account_id: 'a',
       identifier: 'primary'
     })

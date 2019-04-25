@@ -20,22 +20,34 @@ const TokenDetailPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  td:first-child {
-    width: 50%;
+  td:nth-child(1) {
+    border: none;
+    position: relative;
+    white-space: nowrap;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
   }
-  td:nth-child(2),
-  td:nth-child(3) {
-    width: 25%;
+  td:nth-child(4) {
+    white-space: nowrap;
   }
 `
 const columns = [
+
   { key: 'token', title: 'TOKEN NAME', sort: true },
+  { key: 'id', title: 'TOKEN ID', sort: true },
   { key: 'symbol', title: 'SYMBOL', sort: true },
-  { key: 'created', title: 'CREATED DATE', sort: true }
+  { key: 'created', title: 'CREATED AT', sort: true }
 ]
 class TokenDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
@@ -86,7 +98,11 @@ class TokenDetailPage extends Component {
   }
   renderMintTokenButton = () => {
     return (
-      <Button size='small' onClick={this.onClickCreateToken} key={'mint'}>
+      <Button
+        key='mint'
+        size='small'
+        onClick={this.onClickCreateToken}
+      >
         <Icon name='Plus' /> <span>Create Token</span>
       </Button>
     )
@@ -94,10 +110,10 @@ class TokenDetailPage extends Component {
   renderCreateExchangePairButton = () => {
     return (
       <Button
+        key='create pair'
         size='small'
         styleType='secondary'
         onClick={this.onClickCreateExchangePair}
-        key={'create pair'}
       >
         <span>Create Exchange Pair</span>
       </Button>
@@ -117,8 +133,7 @@ class TokenDetailPage extends Component {
     return data
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/tokens/${data.id}`)
+    this.props.history.push(`/tokens/${data.id}`)
   }
   renderTokenDetailPage = ({ data: tokens, individualLoadingStatus, pagination, fetch }) => {
     const data = tokens.map(token => {
@@ -134,6 +149,7 @@ class TokenDetailPage extends Component {
     return (
       <TokenDetailPageContainer>
         <TopNavigation
+          divider={this.props.divider}
           title={'Tokens'}
           buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]}
         />
@@ -156,6 +172,7 @@ class TokenDetailPage extends Component {
           onFetchSuccess={fetch}
         />
         <ExchangePairModal
+          action='create'
           open={this.state.createExchangePairModalOpen}
           onRequestClose={this.onRequestCloseCreateExchangePair}
         />

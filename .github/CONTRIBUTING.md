@@ -1,17 +1,17 @@
-## How to contribute to the OmiseGO's projects
+## How to contribute to OmiseGO's projects
 
-Welcome to one of OmiseGO's open source projects! We welcome contributions in all kinds and shapes: code, documentation, bug reports, feedbacks... But before opening your first issue or PR, please read through this document.
+Welcome to one of OmiseGO's open source projects! We welcome contributions of all kinds and shapes: code, documentation, bug reports, and feedback... But before opening your first issue or PR, please read through this document.
 
 #### **Did you find a bug?**
 
-* __Do not create issues for security vulnerabilities__. We are currently setting up a bounty program for those. In the meantime, you can get in touch with us via [email](mailto:thibault@omisego.co).
-* For other bugs, first, ensure that the bug you found has not been reported yet. To do so, you can [search under issues](https://github.com/omisego/ewallet/issues).
+* __Do not create issues for security vulnerabilities__. We are currently setting up a bounty program for these. In the meantime, you can get in touch with us via [email](mailto:thibault@omisego.co).
+* For other bugs, first ensure that the bug you have found has not been reported yet. To do so, you can [search under issues](https://github.com/omisego/ewallet/issues).
 * Open a new issue if you didn't find an existing one. Follow the issue template and be as specific as possible.
 
 #### **Did you write a patch that fixes a bug?**
 
 * Open a Pull Request.
-* Describe the problem and solution. Add link to issue if any.
+* Describe the problem and solution. Add a link to the issue if any.
 * Read the [coding conventions](/docs/design/conventions.md).
 
 In order for the build to pass, the following commands must run successfully without errors:
@@ -27,7 +27,7 @@ In order for the build to pass, the following commands must run successfully wit
 
 #### **Do you have questions about the source code?**
 
-* You can ask any question about the source code in [Gitter](https://gitter.im/omisego/ewallet) or on [stack overflow](https://stackoverflow.com/).
+* You can ask any questions about the source code on [Gitter](https://gitter.im/omisego/ewallet) or on [stack overflow](https://stackoverflow.com/).
 
 Thanks!
 

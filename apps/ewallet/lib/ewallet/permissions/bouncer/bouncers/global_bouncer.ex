@@ -34,6 +34,10 @@ defmodule EWallet.Bouncer.GlobalBouncer do
     check_scope_permissions(permission, config)
   end
 
+  defp check_permissions(%{action: :view_balance, target: nil} = permission, config) do
+    check_scope_permissions(permission, config)
+  end
+
   defp check_permissions(%{action: _, type: nil, target: target} = permission, config) do
     check_global_role(
       %{permission | type: Dispatcher.get_target_type(target, config.dispatch_config)},

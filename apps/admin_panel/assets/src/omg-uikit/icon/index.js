@@ -9,31 +9,22 @@ const IconComponent = styled.i`
   display: inline-block;
   width: 1em;
   height: 1em;
-
-  :hover {
-    background-color: ${props =>
-      props.button && props.hoverable ? props.theme.colors.S200 : 'transparent'};
-  }
 `
 export default class Icon extends Component {
   static propTypes = {
     name: PropTypes.string,
     button: PropTypes.bool,
-    onClick: PropTypes.func,
-    hoverable: PropTypes.bool
-  }
-  static defaultProps = {
-    hoverable: true
+    onClick: PropTypes.func
   }
   render () {
+    const { name, button, onClick, ...restProps } = this.props
     return (
       <IconComponent
-        {...this.props}
-        className={`icon-omisego_${this.props.name}`}
-        hoverable={this.props.hoverable}
-        button={this.props.button}
-        onClick={this.props.onClick}
-        name={this.props.name}
+        {...restProps}
+        className={`icon-omisego_${name}`}
+        button={button}
+        onClick={onClick}
+        name={name}
       />
     )
   }

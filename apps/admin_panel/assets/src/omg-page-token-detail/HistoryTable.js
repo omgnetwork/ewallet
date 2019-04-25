@@ -40,7 +40,7 @@ export default withRouter(
         { key: 'amount', title: 'AMOUNT', sort: true },
         { key: 'to', title: 'TO ADDRESS', sort: true },
         { key: 'created_by', title: 'MINTED BY' },
-        { key: 'created_at', title: 'CREATED DATE', sort: true }
+        { key: 'created_at', title: 'CREATED AT', sort: true }
       ]
     }
     rowRenderer = (key, data, rows) => {

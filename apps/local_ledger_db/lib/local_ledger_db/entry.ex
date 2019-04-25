@@ -154,6 +154,13 @@ defmodule LocalLedgerDB.Entry do
     |> select([e, _], {e.token_id, sum(e.amount)})
   end
 
+  defp build_sum_query(address, type, %{token_id: token_ids}) when is_list(token_ids) do
+    Entry
+    |> where([e], e.wallet_address == ^address and e.type == ^type and e.token_id in ^token_ids)
+    |> group_by([e], e.token_id)
+    |> select([e, _], {e.token_id, sum(e.amount)})
+  end
+
   defp build_sum_query(address, type, %{token_id: id}) do
     address
     |> build_sum_query(type, %{token_id: :all})

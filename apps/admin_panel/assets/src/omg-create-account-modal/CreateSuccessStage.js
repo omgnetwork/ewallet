@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Button, PlainButton } from '../omg-uikit'
+import { Avatar, Button, PlainButton } from '../omg-uikit'
+
 const ImageUpload = styled.div`
   height: 100px;
   width: 100px;
@@ -15,6 +16,12 @@ const ImageUpload = styled.div`
   color: white;
   position: relative;
   transition: 0.2s;
+`
+const AvatarWrapper = styled(Avatar)`
+  height: 100px;
+  width: 100px;
+  margin: 50px auto 0 auto;
+  font-size: 1.3em;
 `
 const AccountDescription = styled.div`
   font-size: 14px;
@@ -54,17 +61,21 @@ export default class CreateAccountStage extends Component {
     return (
       <CreateAccountSuccessContainer>
         <h4>Account successfully created</h4>
-        <ImageUpload placeholder={this.props.avatar} />
+        {
+          this.props.avatar
+            ? <ImageUpload placeholder={this.props.avatar} />
+            : <AvatarWrapper name={this.props.name.slice(0, 3)} />
+        }
         <h5>{this.props.name}</h5>
         <AccountDescription>{this.props.description}</AccountDescription>
-        <AccountDescription>Category: {this.props.category.name}</AccountDescription>
+        {this.props.category.name && <AccountDescription>Category: {this.props.category.name}</AccountDescription>}
         <Button
           size='small'
           type='submit'
           loading={this.props.submitting}
           onClick={this.props.onClickContinue}
         >
-          Continue Create Account
+          Create Another Account
         </Button>
         <PlainButton onClick={this.props.onClickFinish}>Done</PlainButton>
       </CreateAccountSuccessContainer>

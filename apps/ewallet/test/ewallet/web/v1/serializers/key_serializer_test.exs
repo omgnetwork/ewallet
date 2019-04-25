@@ -26,11 +26,13 @@ defmodule EWallet.Web.V1.KeySerializerTest do
       expected = %{
         object: "key",
         id: key.id,
+        name: key.name,
         access_key: key.access_key,
         secret_key: key.secret_key,
         account_id: nil,
         expired: !key.enabled,
         enabled: key.enabled,
+        global_role: key.global_role,
         created_at: DateFormatter.to_iso8601(key.inserted_at),
         updated_at: DateFormatter.to_iso8601(key.updated_at),
         deleted_at: DateFormatter.to_iso8601(key.deleted_at)
@@ -63,11 +65,13 @@ defmodule EWallet.Web.V1.KeySerializerTest do
           %{
             object: "key",
             id: key1.id,
+            name: key1.name,
             access_key: key1.access_key,
             secret_key: key1.secret_key,
             account_id: nil,
             expired: !key1.enabled,
             enabled: key1.enabled,
+            global_role: key1.global_role,
             created_at: DateFormatter.to_iso8601(key1.inserted_at),
             updated_at: DateFormatter.to_iso8601(key1.updated_at),
             deleted_at: DateFormatter.to_iso8601(key1.deleted_at)
@@ -75,11 +79,13 @@ defmodule EWallet.Web.V1.KeySerializerTest do
           %{
             object: "key",
             id: key2.id,
+            name: key2.name,
             access_key: key2.access_key,
             secret_key: key2.secret_key,
             account_id: nil,
             expired: !key2.enabled,
             enabled: key2.enabled,
+            global_role: key2.global_role,
             created_at: DateFormatter.to_iso8601(key2.inserted_at),
             updated_at: DateFormatter.to_iso8601(key2.updated_at),
             deleted_at: DateFormatter.to_iso8601(key2.deleted_at)

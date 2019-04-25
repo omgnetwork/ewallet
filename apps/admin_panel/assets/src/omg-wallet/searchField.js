@@ -1,4 +1,5 @@
 export function createSearchAddressQuery (value = '') {
+  if (!value) return
   const matchValue = value.trim()
 
   if (matchValue === '') {

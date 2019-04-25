@@ -18,6 +18,7 @@ import PropertyTab from './PropertiesTab'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
+  z-index: 10;
   right: 0;
   width: 560px;
   background-color: white;

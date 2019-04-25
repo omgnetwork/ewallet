@@ -14,6 +14,22 @@ access_key.all:
         $ref: 'responses.yaml#/AccessKeysResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+access_key.get:
+  post:
+    tags:
+      - API Access
+    summary: Get a specific access key
+    operationId: access_key_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccessKeyGetBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/AccessKeyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 access_key.create:
   post:
     tags:
@@ -23,6 +39,8 @@ access_key.create:
     security:
       - ProviderAuth: []
       - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AccessKeyCreateBody'
     responses:
       '200':
         $ref: 'responses.yaml#/AccessKeyResponse'
@@ -32,9 +50,8 @@ access_key.update:
   post:
     tags:
       - API Access
-    summary: Update a pair of access and secret keys by its id (deprecated)
+    summary: Update a pair of access and secret keys by its id
     operationId: access_key_update
-    deprecated: true
     security:
       - ProviderAuth: []
       - AdminAuth: []
@@ -77,6 +94,24 @@ access_key.delete:
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+access_key.get_account_memberships:
+  post:
+    tags:
+      - API Access
+    summary: Get the list of account memberships linked to the given access key id
+    operationId: access_key_get_account_memberships
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/KeyListBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/MembershipsResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 api_key.all:
   post:
     tags:
@@ -102,6 +137,8 @@ api_key.create:
     security:
       - ProviderAuth: []
       - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/APIKeyCreateBody'
     responses:
       '200':
         $ref: 'responses.yaml#/APIKeyResponse'
@@ -111,9 +148,8 @@ api_key.update:
   post:
     tags:
       - API Access
-    summary: Update an API key (deprecated)
+    summary: Update an API key
     operationId: api_key_update
-    deprecated: true
     security:
       - ProviderAuth: []
       - AdminAuth: []

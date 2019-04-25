@@ -1,25 +1,27 @@
 import React, { Component, Fragment } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
-import styled from 'styled-components'
-import { Button, Icon, Input } from '../omg-uikit'
-import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
-import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
-import ConfigRow from './ConfigRow'
+import { Prompt, withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
-import {
-  selectConfigurationsByKey,
-  selectConfigurationLoadingStatus
-} from '../omg-configuration/selector'
+import styled from 'styled-components'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+
+import AccountsFetcher from '../omg-account/accountsFetcher'
+import { createSearchMasterAccountQuery } from '../omg-account/searchField'
+import AccountSelect from '../omg-account-select'
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import { Button, Icon, Input, LoadingSkeleton } from '../omg-uikit'
+import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
+import ConfigRow from './ConfigRow'
+import { selectConfigurationsByKey, selectConfigurationLoadingStatus } from '../omg-configuration/selector'
 import { getConfiguration, updateConfiguration } from '../omg-configuration/action'
 import CONSTANT from '../constants'
 import { isEmail } from '../utils/validator'
-import _ from 'lodash'
+
 const ConfigurationPageContainer = styled.div`
   position: relative;
   padding-bottom: 150px;
-  h4 {
+  h4:not(:first-child) {
     margin-top: 50px;
   }
 `
@@ -70,6 +72,13 @@ const PrefixContainer = styled.div`
   }
 `
 
+const LoadingSkeletonContainer = styled.div`
+  margin-top: 50px;
+  > div {
+    margin-bottom: 20px;
+  }
+`
+
 const enhance = compose(
   withRouter,
   connect(
@@ -87,7 +96,8 @@ class ConfigurationPage extends Component {
   static propTypes = {
     configurations: PropTypes.object,
     configurationLoadingStatus: PropTypes.string,
-    updateConfiguration: PropTypes.func
+    updateConfiguration: PropTypes.func,
+    divider: PropTypes.bool
   }
 
   static getDerivedStateFromProps (props, state) {
@@ -114,7 +124,8 @@ class ConfigurationPage extends Component {
         balanceCachingStrategy: props.configurations.balance_caching_strategy.value,
         balanceCachingResetFrequency: props.configurations.balance_caching_reset_frequency.value,
         forgetPasswordRequestLifetime: props.configurations.forget_password_request_lifetime.value,
-        fetched: true
+        fetched: true,
+        masterAccount: props.configurations.master_account.value
       }
     } else {
       return null
@@ -139,16 +150,18 @@ class ConfigurationPage extends Component {
       awsSecretAccessKey: this.props.configurations.aws_secret_access_key.value
     })
   }
-  isSendButtonDisabled () {
+  get isSendButtonDisabled () {
     return (
-      Object.keys(this.props.configurations).reduce((prev, curr) => {
-        return (
-          prev &&
-          String(this.props.configurations[curr].value) === String(this.state[_.camelCase(curr)])
-        )
-      }, true) ||
+      Object.keys(this.props.configurations)
+        .filter(configKey => this.state[_.camelCase(configKey)] !== undefined)
+        .reduce((prev, curr) => {
+          const stateValue = this.state[_.camelCase(curr)]
+          const propsValue = this.props.configurations[curr].value
+          return prev && String(propsValue) === String(stateValue)
+        }, true) ||
       Number(this.state.maxPerPage) < 1 ||
-      Number(this.state.minPasswordLength) < 1
+      Number(this.state.minPasswordLength) < 1 ||
+      !this.state.masterAccount
     )
   }
   isAddPrefixButtonDisabled () {
@@ -161,6 +174,13 @@ class ConfigurationPage extends Component {
 
   onSelectBalanceCache = option => {
     this.setState({ balanceCachingStrategy: option.value })
+  }
+
+  onSelectMasterAccount = option => {
+    this.setState({
+      masterAccount: option.id,
+      masterAccountSelected: true
+    })
   }
 
   onClickRemovePrefix = index => e => {
@@ -187,9 +207,15 @@ class ConfigurationPage extends Component {
     this.setState({ fileStorageAdapter: option.value })
   }
   onChangeInput = key => e => {
-    this.setState({
-      [key]: e.target.value
-    })
+    let newState = { [key]: e.target.value }
+    if (key === 'masterAccount') {
+      newState = {
+        ...newState,
+        masterAccountSelected: false
+      }
+    }
+
+    this.setState(newState)
   }
   onChangeInputredirectUrlPrefixes = index => e => {
     const newState = this.state.redirectUrlPrefixes.slice()
@@ -238,7 +264,11 @@ class ConfigurationPage extends Component {
             awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value'),
             awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value'),
             balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value'),
-            balanceCachingResetFrequency: _.get(result.data.data, 'balance_caching_reset_frequency.value')
+            balanceCachingResetFrequency: _.get(
+              result.data.data,
+              'balance_caching_reset_frequency.value'
+            ),
+            masterAccount: _.get(result.data.data, 'master_account.value')
           },
           _.isNil
         )
@@ -269,7 +299,7 @@ class ConfigurationPage extends Component {
         onClick={this.onClickSaveConfiguration}
         key={'save'}
         loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}
-        disabled={this.isSendButtonDisabled()}
+        disabled={this.isSendButtonDisabled}
       >
         <span>Save Configuration</span>
       </Button>
@@ -345,12 +375,12 @@ class ConfigurationPage extends Component {
                 name={'AWS Access Key ID'}
                 description={configurations.aws_access_key_id.description}
                 value={this.state.awsAccessKeyId}
-                placeholder={'ie. AKIAJA2ACZYRUYWQH7DZ'}
+                placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
                 border={this.state.emailAdapter !== 'gcs'}
                 onChange={this.onChangeInput('awsAccessKeyId')}
               />
               <ConfigRow
-                name={'AWS Secret Key'}
+                name={'AWS Access Key ID'}
                 description={configurations.aws_secret_access_key.description}
                 value={this.state.awsSecretAccessKey}
                 placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
@@ -366,7 +396,7 @@ class ConfigurationPage extends Component {
   renderCacheSetting (configurations) {
     return (
       <Fragment>
-        <h4>Cache Setting</h4>
+        <h4>Cache Settings</h4>
         <ConfigRow
           name={'Balance Caching Strategy'}
           description={configurations.balance_caching_strategy.description}
@@ -397,7 +427,28 @@ class ConfigurationPage extends Component {
   renderGlobalSetting (configurations) {
     return (
       <Fragment>
-        <h4>Global Setting</h4>
+        <h4>Global Settings</h4>
+        <AccountsFetcher
+          query={createSearchMasterAccountQuery(this.state.masterAccount)}
+          render={({ data }) => {
+            return (
+              <ConfigRow
+                name={'Master Account'}
+                description={configurations.master_account.description}
+                value={this.state.masterAccount}
+                onSelectItem={this.onSelectMasterAccount}
+                onChange={this.onChangeInput('masterAccount')}
+                type='select'
+                options={data.map(account => ({
+                  key: account.id,
+                  value: <AccountSelect account={account} />,
+                  ...account
+                }))}
+              />
+            )
+          }
+          }
+        />
         <ConfigRow
           name={'Base URL'}
           description={configurations.base_url.description}
@@ -427,7 +478,7 @@ class ConfigurationPage extends Component {
                     </InputPrefixContainer>
                   ))}
                   <PrefixContainer active={!this.isAddPrefixButtonDisabled()}>
-                    <a onClick={this.onClickAddPrefix}>Add More Prefix</a>
+                    <a onClick={this.onClickAddPrefix}>Add Prefix</a>
                   </PrefixContainer>
                 </InputsPrefixContainer>
               )
@@ -474,7 +525,7 @@ class ConfigurationPage extends Component {
   renderEmailSetting (configurations) {
     return (
       <Fragment>
-        <h4>Email Setting</h4>
+        <h4>Email Settings</h4>
         <ConfigRow
           name={'Sender Email'}
           description={configurations.sender_email.description}
@@ -533,29 +584,50 @@ class ConfigurationPage extends Component {
       </Fragment>
     )
   }
-  renderConfigurationPage = ({ data: configurations }) => {
+  renderConfigurationPage = () => {
     return (
       <ConfigurationPageContainer>
         <TopNavigation
+          divider={this.props.divider}
           title={'Configuration'}
           buttons={[this.renderSaveButton()]}
           secondaryAction={false}
           types={false}
         />
-        {!_.isEmpty(this.props.configurations) && (
+        {!_.isEmpty(this.props.configurations) ? (
           <form>
             {this.renderGlobalSetting(this.props.configurations)}
             {this.renderEmailSetting(this.props.configurations)}
             {this.renderFileStorageAdpter(this.props.configurations)}
             {this.renderCacheSetting(this.props.configurations)}
           </form>
+        ) : (
+          <LoadingSkeletonContainer>
+            <LoadingSkeleton width={'150px'} />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+          </LoadingSkeletonContainer>
         )}
       </ConfigurationPageContainer>
     )
   }
 
   render () {
-    return <ConfigurationsFetcher render={this.renderConfigurationPage} {...this.state} />
+    return (
+      <>
+        <Prompt
+          when={!this.isSendButtonDisabled}
+          message='You have unsaved changes. Are you sure you want to leave?'
+        />
+        <ConfigurationsFetcher render={this.renderConfigurationPage} {...this.state} />
+      </>
+    )
   }
 }
 

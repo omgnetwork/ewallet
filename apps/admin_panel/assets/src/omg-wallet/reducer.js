@@ -12,6 +12,10 @@ export const walletsReducer = createReducer(
     'WALLET/REQUEST/SUCCESS': (state, { data }) => {
       return { ...state, ...{ [data.address]: data } }
     },
+    'WALLET/CREATE/SUCCESS': (state, { data }) => {
+      const byKey = { [data.address]: data }
+      return { ...state, ...byKey }
+    },
     'CURRENT_ACCOUNT/SWITCH': () => ({})
   }
 )

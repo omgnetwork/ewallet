@@ -12,4 +12,3 @@ export const selectGetTransactionRequestById = state => id => {
 }
 
 export const selectTransactionRequestsLoadingStatus = state => state.loadingStatus.transactionRequests
-

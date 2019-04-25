@@ -15,11 +15,10 @@ const TransactionPageContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  padding-bottom: 50px;
   > div {
     flex: 1;
   }
-  td:nth-child(2) {
+  td:nth-child(3) {
     white-space: nowrap;
     > div {
       overflow: hidden;
@@ -27,14 +26,22 @@ const TransactionPageContainer = styled.div`
     }
   }
   td:nth-child(1) {
-    width: 30%;
-  }
-  td:nth-child(3) {
-    width: 20%;
+    padding-right: 0;
+    border-bottom: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
   }
   table {
     td {
-      vertical-align: top;
+      vertical-align: middle;
     }
   }
   tr:hover {
@@ -59,9 +66,12 @@ const TransactionIdContainer = styled.div`
   span {
     vertical-align: middle;
   }
-  i {
-    color: ${props => props.theme.colors.BL400};
-    margin-right: 5px;
+  i[name='Transaction'] {
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
+    margin-right: 10px;
   }
 `
 const StatusContainer = styled.div`
@@ -78,6 +88,9 @@ const Sign = styled.span`
   width: 10px;
   display: inline-block;
   vertical-align: middle;
+`
+const BoldSpan = styled.span`
+  font-weight: bold;
 `
 const FromToContainer = styled.div`
   > div:first-child {
@@ -97,7 +110,6 @@ export const MarkContainer = styled.div`
   text-align: center;
   line-height: 18px;
   margin-right: 5px;
-  }
 `
 const TransferButton = styled(Button)`
   padding-left: 40px;
@@ -119,7 +131,7 @@ const columns = [
   { key: 'status', title: 'STATUS', sort: true },
   {
     key: 'created_at',
-    title: 'TIMESTAMP',
+    title: 'CREATED AT',
     sort: true
   }
 ]
@@ -129,7 +141,11 @@ class TransactionPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
     history: PropTypes.object,
-    match: PropTypes.object
+    divider: PropTypes.bool,
+    query: PropTypes.object
+  }
+  static defaultProps = {
+    query: {}
   }
   state = {
     createTransactionModalOpen: false
@@ -150,16 +166,15 @@ class TransactionPage extends Component {
     })
   }
   onClickExport = e => {
-    const accountId = this.props.match.params.accountId
-    this.props.history.push(`/${accountId}/transaction/export`)
+    this.props.history.push('/transaction/export')
   }
   renderCreateTransactionButton = () => {
     return (
       <TransferButton
+        key='create'
         size='small'
         styleType='primary'
         onClick={this.onClickCreateTransaction}
-        key={'create'}
       >
         <Icon name='Transaction' />
         <span>Transfer</span>
@@ -168,19 +183,42 @@ class TransactionPage extends Component {
   }
   renderExportButton () {
     return (
-      <ExportButton size='small' styleType='secondary' key={'export'} onClick={this.onClickExport}>
+      <ExportButton
+        key='export'
+        size='small'
+        styleType='secondary'
+        onClick={this.onClickExport}
+      >
         Export
       </ExportButton>
+    )
+  }
+  renderFromOrTo (fromOrTo) {
+    return (
+      <span>
+        {fromOrTo.account && (
+          <BoldSpan>{fromOrTo.account.name}</BoldSpan>
+        )}
+        {fromOrTo.user && fromOrTo.user.email && (
+          <BoldSpan>{fromOrTo.user.email}</BoldSpan>
+        )}
+        {fromOrTo.user && fromOrTo.user.provider_user_id && (
+          <BoldSpan>{fromOrTo.user.provider_user_id}</BoldSpan>
+        )}
+        <span> - {fromOrTo.address}</span>
+      </span>
     )
   }
   rowRenderer = (key, data, rows) => {
     if (key === 'id') {
       return (
         <TransactionIdContainer>
-          <Icon name='Transaction' /> <span>{data}</span> <Copy data={data} />
+          <Icon name='Transaction' />
+          <span>{data}</span> <Copy data={data} />
         </TransactionIdContainer>
       )
     }
+
     if (key === 'status') {
       return (
         <StatusContainer>
@@ -193,15 +231,15 @@ class TransactionPage extends Component {
               <Icon name='Checked' />
             </MarkContainer>
           )}{' '}
-          <span>{data}</span>
+          <span>{_.capitalize(data)}</span>
         </StatusContainer>
       )
     }
     if (key === 'toFrom') {
       return (
         <FromToContainer>
-          <div>{rows.from.address}</div>
-          <div>{rows.to.address}</div>
+          <div>{this.renderFromOrTo(rows.from)}</div>
+          <div>{this.renderFromOrTo(rows.to)}</div>
         </FromToContainer>
       )
     }
@@ -232,9 +270,11 @@ class TransactionPage extends Component {
   }
   renderTransactionPage = ({ data: transactions, individualLoadingStatus, pagination, fetch }) => {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-transaction-tab']
+
     return (
       <TransactionPageContainer>
         <TopNavigation
+          divider={this.props.divider}
           title={'Transactions'}
           buttons={[this.renderCreateTransactionButton(), this.renderExportButton()]}
         />
@@ -261,13 +301,12 @@ class TransactionPage extends Component {
   render () {
     return (
       <TransactionsFetcher
-        {...this.state}
-        {...this.props}
         render={this.renderTransactionPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: 15,
-          search: queryString.parse(this.props.location.search).search
+          perPage: Math.floor(window.innerHeight / 100),
+          search: queryString.parse(this.props.location.search).search,
+          ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

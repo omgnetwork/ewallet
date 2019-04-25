@@ -19,6 +19,10 @@ defmodule EWallet.PolicyHelper do
   alias EWallet.{Bouncer, Bouncer.Permission}
   alias Ecto.Query
 
+  def authorize(:view_balance, attrs, type, schema, nil) do
+    authorize_scope(:view_balance, attrs, type, schema)
+  end
+
   def authorize(:export, attrs, type, schema, nil) do
     authorize_scope(:export, attrs, type, schema)
   end
@@ -37,7 +41,7 @@ defmodule EWallet.PolicyHelper do
         query =
           permission
           |> Bouncer.scoped_query()
-          |> Query.subquery()
+          |> build_subquery()
 
         {:ok, %{permission | query: query}}
 
@@ -45,4 +49,7 @@ defmodule EWallet.PolicyHelper do
         error
     end
   end
+
+  defp build_subquery(nil), do: nil
+  defp build_subquery(query), do: Query.subquery(query)
 end
