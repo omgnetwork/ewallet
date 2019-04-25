@@ -145,6 +145,7 @@ defmodule EWalletDB.User do
         :calling_name,
         :provider_user_id,
         :email,
+        :enabled_2fa_at,
         :password,
         :password_confirmation,
         :metadata,
