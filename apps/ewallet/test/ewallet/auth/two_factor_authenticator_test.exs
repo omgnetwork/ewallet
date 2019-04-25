@@ -341,7 +341,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       {_, updated_user} = create_secret_code(user)
 
       # Assert auth token
-      assert {:ok} = TwoFactorAuthenticator.enable(updated_user, :admin_api)
+      assert {:ok} = TwoFactorAuthenticator.enable(updated_user)
 
       # Assert updated user
       updated_user = User.get(user.id)
@@ -355,8 +355,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
 
       {_, updated_user} = create_secret_code(user)
 
-      assert {:error, :backup_codes_not_found} =
-               TwoFactorAuthenticator.enable(updated_user, :admin_api)
+      assert {:error, :backup_codes_not_found} = TwoFactorAuthenticator.enable(updated_user)
     end
 
     test "returns {:error, :secret_code_not_found} when secret_2fa_code has not been created" do
@@ -364,8 +363,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
 
       {_, updated_user} = create_backup_codes(user)
 
-      assert {:error, :secret_code_not_found} =
-               TwoFactorAuthenticator.enable(updated_user, :admin_api)
+      assert {:error, :secret_code_not_found} = TwoFactorAuthenticator.enable(updated_user)
     end
   end
 
@@ -374,7 +372,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       user = insert(:user)
       auth_token = insert(:auth_token, user: user, owner_app: "admin_api")
 
-      assert {:ok} = TwoFactorAuthenticator.disable(user, :admin_api)
+      assert {:ok} = TwoFactorAuthenticator.disable(user)
 
       assert auth_token.token != nil
     end
@@ -383,7 +381,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       user = insert(:user)
       {:ok, _} = AuthToken.generate(user, :admin_api, user)
 
-      assert {:ok} = TwoFactorAuthenticator.disable(user, :admin_api)
+      assert {:ok} = TwoFactorAuthenticator.disable(user)
 
       updated_user = User.get(user.id)
 
@@ -397,7 +395,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
     {secret_code_attrs, _} = create_secret_code(user)
     {backup_code_attrs, created_backup_codes_user} = create_backup_codes(user)
 
-    TwoFactorAuthenticator.enable(created_backup_codes_user, :admin_api)
+    TwoFactorAuthenticator.enable(created_backup_codes_user)
 
     {backup_code_attrs.backup_codes, secret_code_attrs.secret_2fa_code, User.get(user.id)}
   end

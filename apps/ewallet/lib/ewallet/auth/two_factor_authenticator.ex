@@ -156,7 +156,7 @@ defmodule EWallet.TwoFactorAuthenticator do
   #
   # Note: The responsibility of two-factor params verification will be left here.
   # However, it does a small check that the user has already created some two-factor methods.
-  def enable(%User{} = user, owner_app) do
+  def enable(%User{} = user) do
     with {:ok} <- validate_enable_attrs(user),
          {:ok, updated_user} <- User.enable_2fa(user),
          :ok <- AuthToken.delete_for_user(updated_user) do
@@ -185,7 +185,7 @@ defmodule EWallet.TwoFactorAuthenticator do
   #
   # Note: The responsibility of two-factor params verification will be left here.
   # However, it does a small check that the user has already created some two-factor methods.
-  def disable(%User{} = user, owner_app) do
+  def disable(%User{} = user) do
     with {:ok, updated_user} <- User.disable_2fa(user),
          AuthToken.delete_for_user(updated_user) do
       {:ok}

@@ -546,7 +546,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
     {secret_attrs, _} = create_secret_code(user)
     {backup_attrs, created_backup_codes_user} = create_backup_codes(user)
 
-    {:ok} = TwoFactorAuthenticator.enable(created_backup_codes_user, :admin_api)
+    {:ok} = TwoFactorAuthenticator.enable(created_backup_codes_user)
 
     {backup_attrs.backup_codes, secret_attrs.secret_2fa_code, User.get(user.id)}
   end
