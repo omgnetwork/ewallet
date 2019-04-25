@@ -210,6 +210,7 @@ jobs:
     executor: metal
     steps:
       - checkout
+      - run: sh update-versions.sh -a
       - run: make docker IMAGE_NAME=$IMAGE_NAME
       - run: sh .circleci/ci_e2e.sh
       - run: sh .circleci/ci_publish.sh

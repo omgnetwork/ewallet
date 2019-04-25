@@ -3,12 +3,48 @@
 BASE_DIR=$(cd "$(dirname "$0")" || exit; pwd -P)
 FILE_LIST="/tmp/update_version_files"
 
-if [ -z "$1" ]; then
-    printf "Usage: %s NEW_VERSION\\n" "$0"
-    printf "\\n"
-    printf "Update version string in mix.exs and config.exs with NEW_VERSION\\n"
-    printf "by scanning lines with version: string. This script will try its\\n"
-    printf "best to retain the indention of the original string.\\n"
+print_usage() {
+    printf 2>&1 "\
+Usage: %s [-a] NEW_VERSION
+
+Update version string in mix.exs and config.exs with NEW_VERSION
+by scanning lines with version: string. This script will try its
+best to retain the indention of the original string.
+
+If -a is given, it will try to determine the version from current
+branch and Git version, suitable for running in Ci environment.
+" "$0"
+}
+
+OPTIND=1
+VERSION=
+AUTO=0
+
+while getopts "a" opt; do
+    case "$opt" in
+        a ) AUTO=1;;
+        * ) print_usage; exit 1;;
+    esac
+done
+
+shift $((OPTIND-1))
+if [ "${1:-}" = "--" ]; then
+    shift
+fi
+
+VERSION=$1
+
+if [ "$AUTO" = 1 ]; then
+    VERSION=$(git describe --tags)
+
+    if ! command -v git >/dev/null; then
+        printf 2>&1 "Git is required to auto-generating version\\n"
+        exit 1
+    fi
+
+    printf 2>&1 "Using %s as the current version.\\n" "$VERSION"
+elif [ -z "$VERSION" ]; then
+    print_usage
     exit 2
 fi
 
@@ -20,14 +56,14 @@ find "$BASE_DIR/apps" \
      \( -iname "mix.exs" -or -iname "config.exs" \) \
 > "$FILE_LIST"
 
-printf "Updating versions...\\n"
+printf 2>&1 "Updating versions...\\n"
 
 while IFS= read -r file; do
     if ! grep -E -q "^[\ ]+version:" "$file"; then
         continue
     fi
 
-    printf "* %-40s" "${file#$BASE_DIR/*}..."
+    printf 2>&1 "* %-40s" "${file#$BASE_DIR/*}..."
     NEW_VERSION=$1 awk '
         m = match($0, "^([\ ]+version:[\ ]+)") {
           print substr($0, RSTART, RLENGTH-1) " \"" ENVIRON["NEW_VERSION"] "\","
@@ -35,5 +71,5 @@ while IFS= read -r file; do
     ' < "$file" > "$file.tmp"
 
     mv "$file.tmp" "$file"
-    printf " OK\\n"
+    printf 2>&1 " OK\\n"
 done < "$FILE_LIST"
