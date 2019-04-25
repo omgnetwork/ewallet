@@ -46,8 +46,8 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
     test "responds with a new pre auth token if the given user has enabled two-factor authentication" do
       @admin_id
-        |> User.get()
-        |> User.enable_2fa()
+      |> User.get()
+      |> User.enable_2fa()
 
       response =
         unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
@@ -55,20 +55,20 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
       pre_auth_token = PreAuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
 
       assert response == %{
-        "version" => @expected_version,
-        "success" => true,
-        "data" => %{
-          "object" => "authentication_token",
-          "pre_authentication_token" => pre_auth_token.token,
-          "user_id" => pre_auth_token.user.id,
-          "user" => pre_auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
-          "account_id" => nil,
-          "account" => nil,
-          "master_admin" => nil,
-          "role" => nil,
-          "global_role" => pre_auth_token.user.global_role
-        }
-      }
+               "version" => @expected_version,
+               "success" => true,
+               "data" => %{
+                 "object" => "authentication_token",
+                 "pre_authentication_token" => pre_auth_token.token,
+                 "user_id" => pre_auth_token.user.id,
+                 "user" => pre_auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
+                 "account_id" => nil,
+                 "account" => nil,
+                 "master_admin" => nil,
+                 "role" => nil,
+                 "global_role" => pre_auth_token.user.global_role
+               }
+             }
     end
 
     test "responds with a new auth token if credentials are valid but user is not master_admin" do
