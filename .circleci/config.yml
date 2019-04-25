@@ -166,6 +166,7 @@ jobs:
       - setup_ewallet_workspace
       - run: make check-format
       - run: make check-credo
+      - run: make check-assets
       - notify_slack_failure
 
   dialyze:

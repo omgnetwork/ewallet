@@ -65,6 +65,9 @@ check-credo:
 check-dialyzer:
 	$(ENV_TEST) mix dialyzer --halt-exit-status 2>&1
 
+check-assets:
+	$(ASSETS) npm run lint 2>&1
+
 .PHONY: format check-format check-credo
 
 #
