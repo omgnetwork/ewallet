@@ -237,6 +237,10 @@ paths:
     $ref: 'admin/paths.yaml#/me.create_backup_codes'
   /me.create_secret_code:
     $ref: 'admin/paths.yaml#/me.create_secret_code'
+  /me.enable_2fa:
+    $ref: 'admin/paths.yaml#/me.enable_2fa'
+  /me.disable_2fa:
+    $ref: 'admin/paths.yaml#/me.disable_2fa'
 
   # USER
   /user.all:

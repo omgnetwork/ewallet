@@ -38,7 +38,7 @@ Login2FABody:
             required:
               - passcode
             example:
-              passcode: 123456
+              passcode: "123456"
         example:
           passcode: "123456"
 

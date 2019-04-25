@@ -256,3 +256,44 @@ AdminListBody:
         example:
           id: usr_01ce83zf80j542z4q4zqd8qvfx
 
+AdminEnable2FABody:
+  description: The parameters to use for enable the two-factor authentication
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          passcode:
+            type: string
+          backup_code:
+            type: string
+        required:
+          - passcode
+          - backup_code
+        example:
+          passcode: "123456"
+          backup_code: "2f0e81e3"
+
+AdminDisable2FABody:
+  description: The parameters to use for disable the two-factor authentication
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        oneOf:
+          - properties:
+              backup_code:
+                type: string
+            required:
+              - backup_code
+            example:
+              backup_code: a1b2c3d4
+          - properties:
+              passcode:
+                type: string
+            required:
+              - passcode
+            example:
+              passcode: "123456"
+        example:
+          passcode: "123456"
