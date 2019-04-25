@@ -51,7 +51,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
     test "returns {:error, :user_2fa_disabled} if the user has not enabled two-factor authorization" do
       user = insert(:user)
 
-      TwoFactorAuthenticator.create_and_update(user, :backup_codes, %{number_of_backup_codes: 1})
+      TwoFactorAuthenticator.create_and_update(user, :backup_codes)
 
       updated_user = User.get(user.id)
 
@@ -269,6 +269,23 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
                attrs.backup_codes,
                &verify_backup_code(&1, updated_user.hashed_backup_codes)
              )
+    end
+
+    test "returns {:ok, backup_codes_attrs} with correct number of backup codes when update a config value" do
+      user = insert(:user)
+
+      Application.put_env(:ewallet, :number_of_backup_codes, 3)
+      {attrs, _} = create_backup_codes(user)
+      assert length(attrs.backup_codes) == 3
+
+      # Use default value (10) when number_of_backup_codes < 1
+      Application.put_env(:ewallet, :number_of_backup_codes, 0)
+      {attrs, _} = create_backup_codes(user)
+      assert length(attrs.backup_codes) == 10
+
+      Application.put_env(:ewallet, :number_of_backup_codes, 10)
+      {attrs, _} = create_backup_codes(user)
+      assert length(attrs.backup_codes) == 10
     end
 
     test "returns {:error, :invalid_parameter} when given unsupported 2fa method" do
