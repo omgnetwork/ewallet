@@ -92,6 +92,9 @@ const Sign = styled.span`
 const BoldSpan = styled.span`
   font-weight: bold;
 `
+const FromOrToRow = styled.div`
+  white-space: nowrap;
+`
 const FromToContainer = styled.div`
   > div:first-child {
     white-space: nowrap;
@@ -195,7 +198,7 @@ class TransactionPage extends Component {
   }
   renderFromOrTo (fromOrTo) {
     return (
-      <span>
+      <FromOrToRow>
         {fromOrTo.account && (
           <BoldSpan>{fromOrTo.account.name}</BoldSpan>
         )}
@@ -206,7 +209,7 @@ class TransactionPage extends Component {
           <BoldSpan>{fromOrTo.user.provider_user_id}</BoldSpan>
         )}
         <span> - {fromOrTo.address}</span>
-      </span>
+      </FromOrToRow>
     )
   }
   rowRenderer = (key, data, rows) => {
