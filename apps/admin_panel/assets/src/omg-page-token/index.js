@@ -21,9 +21,9 @@ const TokenDetailPageContainer = styled.div`
     flex: 1;
   }
   td:nth-child(1) {
-    width: 40%;
     border: none;
     position: relative;
+    white-space: nowrap;
     :before {
       content: '';
       position: absolute;
@@ -43,7 +43,7 @@ const columns = [
   { key: 'token', title: 'TOKEN NAME', sort: true },
   { key: 'id', title: 'TOKEN ID', sort: true },
   { key: 'symbol', title: 'SYMBOL', sort: true },
-  { key: 'created', title: 'CREATED DATE', sort: true }
+  { key: 'created', title: 'CREATED AT', sort: true }
 ]
 class TokenDetailPage extends Component {
   static propTypes = {
@@ -98,7 +98,11 @@ class TokenDetailPage extends Component {
   }
   renderMintTokenButton = () => {
     return (
-      <Button size='small' onClick={this.onClickCreateToken} key={'mint'}>
+      <Button
+        key='mint'
+        size='small'
+        onClick={this.onClickCreateToken}
+      >
         <Icon name='Plus' /> <span>Create Token</span>
       </Button>
     )
@@ -106,10 +110,10 @@ class TokenDetailPage extends Component {
   renderCreateExchangePairButton = () => {
     return (
       <Button
+        key='create pair'
         size='small'
         styleType='secondary'
         onClick={this.onClickCreateExchangePair}
-        key={'create pair'}
       >
         <span>Create Exchange Pair</span>
       </Button>
@@ -144,7 +148,8 @@ class TokenDetailPage extends Component {
 
     return (
       <TokenDetailPageContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={'Tokens'}
           buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]}
         />

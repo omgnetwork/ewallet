@@ -4,8 +4,8 @@ import styled, { withTheme } from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
 import UserProvider from '../omg-users/userProvider'
 import { compose } from 'recompose'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import moment from 'moment'
 import { LoadingSkeleton } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
@@ -18,9 +18,10 @@ const UserDetailContainer = styled.div`
 `
 const ContentDetailContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
 `
 const DetailContainer = styled.div`
-  flex: 1 1 50%;
+  flex: 1 1 auto;
   :first-child {
     margin-right: 20px;
   }
@@ -41,10 +42,18 @@ const enhance = compose(
 )
 class TokenDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object
+    match: PropTypes.object,
+    divider: PropTypes.bool
   }
   renderTopBar = user => {
-    return <TopBar title={user.id} breadcrumbItems={['User', user.id]} buttons={[]} />
+    return (
+      <TopNavigation
+        divider={this.props.divider}
+        title={user.email || user.provider_user_id}
+        breadcrumbItems={['User', user.id]}
+        secondaryAction={false}
+      />
+    )
   }
   renderDetail = user => {
     return (
@@ -59,10 +68,10 @@ class TokenDetailPage extends Component {
           <b>Provider ID:</b> <span>{user.provider_user_id || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(user.created_at).format()}</span>
+          <b>Created At:</b> <span>{moment(user.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(user.updated_at).format()}</span>
+          <b>Updated At:</b> <span>{moment(user.updated_at).format()}</span>
         </DetailGroup>
       </Section>
     )

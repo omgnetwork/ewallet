@@ -66,7 +66,7 @@ class TokenDetailPage extends Component {
     exchangeRateModalOpen: false,
     deleteExchangeRateModalOpen: false,
     exchangeRateToEdit: null,
-    exchangeRateToDelete: null,
+    exchangeRateToDelete: null
   }
   onRequestClose = () => {
     this.setState({
@@ -74,7 +74,7 @@ class TokenDetailPage extends Component {
       exchangeRateModalOpen: false,
       deleteExchangeRateModalOpen: false,
       exchangeRateToEdit: null,
-      exchangeRateToDelete: null,
+      exchangeRateToDelete: null
     })
   }
   onClickMintTopen = e => {
@@ -107,7 +107,7 @@ class TokenDetailPage extends Component {
     this.setState({
       deleteExchangeRateModalOpen: true,
       exchangeRateToDelete: pair
-    });
+    })
   }
   renderTopBar = token => {
     return (
@@ -116,14 +116,18 @@ class TokenDetailPage extends Component {
         breadcrumbItems={['Token', `${token.name} (${token.symbol})`]}
         buttons={[
           <Button
+            key='rate'
             size='small'
             styleType='secondary'
             onClick={this.onClickCreateExchangeRate}
-            key='rate'
           >
             <span>Create Exchange Pair</span>
           </Button>,
-          <Button size='small' onClick={this.onClickMintTopen} key='mint'>
+          <Button
+            key='mint'
+            size='small'
+            onClick={this.onClickMintTopen}
+          >
             <span>Mint Token</span>
           </Button>
         ]}
@@ -159,10 +163,10 @@ class TokenDetailPage extends Component {
           <Link to={`${this.props.location.pathname}/history`}>view history</Link>
         </DetailGroup>
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(token.created_at).format()}</span>
+          <b>Created At:</b> <span>{moment(token.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(token.updated_at).format()}</span>
+          <b>Updated At:</b> <span>{moment(token.updated_at).format()}</span>
         </DetailGroup>
       </Section>
     )

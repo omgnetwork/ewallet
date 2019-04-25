@@ -8,6 +8,7 @@ import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import { createSearchAdminSubKeyQuery } from '../omg-access-key/searchField'
 import AssignKeyModal from '../omg-assign-key-account-modal'
+
 const AccountKeySubPageContainer = styled.div``
 const AssignButton = styled(Button)`
   padding-left: 40px;
@@ -15,8 +16,10 @@ const AssignButton = styled(Button)`
 `
 
 export default withRouter(function AccountKeySubPage (props) {
+  const [assignAdminKeyModalOpen, setAssignAdminKeyModalOpen] = useState(false)
   const [createAdminKeyModalOpen, setCreateAdminKeyModalOpen] = useState(false)
   const [fetcher, setFetcher] = useState(_.noop)
+
   const { search, access_key_page } = queryString.parse(props.location.search)
   return (
     <AccountKeySubPageContainer>
@@ -24,19 +27,24 @@ export default withRouter(function AccountKeySubPage (props) {
         title='Keys'
         divider={false}
         buttons={[
-          <AssignButton key='key' onClick={e => setCreateAdminKeyModalOpen(true)}>
+          <AssignButton key='generate-assign-key' onClick={e => setAssignAdminKeyModalOpen(true)}>
             Assign
-          </AssignButton>
+          </AssignButton>,
+          <Button key='generate-admin-key' size='small' onClick={e => setCreateAdminKeyModalOpen(true)} styleType={'secondary'}>
+            <span>Generate Admin Key</span>
+          </Button>
         ]}
       />
       <AdminKeySection
+        createAdminKeyModalOpen={createAdminKeyModalOpen}
+        onRequestClose={e => setCreateAdminKeyModalOpen(false)}
         fetcher={AccountKeyFetcher}
         registerFetch={fetcher => setFetcher(fetcher)}
         columnsAdminKeys={[
           { key: 'name', title: 'NAME' },
           { key: 'key', title: 'ACCESS KEY' },
-          { key: 'account_role', title: 'ACCOUNT ROLE' },
           { key: 'global_role', title: 'GLOBAL ROLE' },
+          { key: 'account_role', title: 'ACCOUNT ROLE' },
           { key: 'created_at', title: 'CREATED AT' },
           { key: 'status', title: 'STATUS' }
         ]}
@@ -49,9 +57,9 @@ export default withRouter(function AccountKeySubPage (props) {
       />
       <AssignKeyModal
         onSubmitSuccess={() => fetcher.fetch()}
-        open={createAdminKeyModalOpen}
+        open={assignAdminKeyModalOpen}
         accountId={props.match.params.accountId}
-        onRequestClose={() => setCreateAdminKeyModalOpen(false)}
+        onRequestClose={() => setAssignAdminKeyModalOpen(false)}
       />
     </AccountKeySubPageContainer>
   )

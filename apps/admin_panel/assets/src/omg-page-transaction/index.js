@@ -26,12 +26,6 @@ const TransactionPageContainer = styled.div`
     }
   }
   td:nth-child(1) {
-    width: 40%;
-  }
-  td:nth-child(6) {
-    width: 20%;
-  }
-  td:nth-child(1) {
     padding-right: 0;
     border-bottom: none;
     position: relative;
@@ -47,7 +41,7 @@ const TransactionPageContainer = styled.div`
   }
   table {
     td {
-      vertical-align: top;
+      vertical-align: middle;
     }
   }
   tr:hover {
@@ -95,6 +89,9 @@ const Sign = styled.span`
   display: inline-block;
   vertical-align: middle;
 `
+const BoldSpan = styled.span`
+  font-weight: bold;
+`
 const FromToContainer = styled.div`
   > div:first-child {
     white-space: nowrap;
@@ -134,7 +131,7 @@ const columns = [
   { key: 'status', title: 'STATUS', sort: true },
   {
     key: 'created_at',
-    title: 'TIMESTAMP',
+    title: 'CREATED AT',
     sort: true
   }
 ]
@@ -174,10 +171,10 @@ class TransactionPage extends Component {
   renderCreateTransactionButton = () => {
     return (
       <TransferButton
+        key='create'
         size='small'
         styleType='primary'
         onClick={this.onClickCreateTransaction}
-        key={'create'}
       >
         <Icon name='Transaction' />
         <span>Transfer</span>
@@ -186,9 +183,30 @@ class TransactionPage extends Component {
   }
   renderExportButton () {
     return (
-      <ExportButton size='small' styleType='secondary' key={'export'} onClick={this.onClickExport}>
+      <ExportButton
+        key='export'
+        size='small'
+        styleType='secondary'
+        onClick={this.onClickExport}
+      >
         Export
       </ExportButton>
+    )
+  }
+  renderFromOrTo (fromOrTo) {
+    return (
+      <span>
+        {fromOrTo.account && (
+          <BoldSpan>{fromOrTo.account.name}</BoldSpan>
+        )}
+        {fromOrTo.user && fromOrTo.user.email && (
+          <BoldSpan>{fromOrTo.user.email}</BoldSpan>
+        )}
+        {fromOrTo.user && fromOrTo.user.provider_user_id && (
+          <BoldSpan>{fromOrTo.user.provider_user_id}</BoldSpan>
+        )}
+        <span> - {fromOrTo.address}</span>
+      </span>
     )
   }
   rowRenderer = (key, data, rows) => {
@@ -213,15 +231,15 @@ class TransactionPage extends Component {
               <Icon name='Checked' />
             </MarkContainer>
           )}{' '}
-          <span>{data}</span>
+          <span>{_.capitalize(data)}</span>
         </StatusContainer>
       )
     }
     if (key === 'toFrom') {
       return (
         <FromToContainer>
-          <div>{rows.from.address}</div>
-          <div>{rows.to.address}</div>
+          <div>{this.renderFromOrTo(rows.from)}</div>
+          <div>{this.renderFromOrTo(rows.to)}</div>
         </FromToContainer>
       )
     }
@@ -252,9 +270,11 @@ class TransactionPage extends Component {
   }
   renderTransactionPage = ({ data: transactions, individualLoadingStatus, pagination, fetch }) => {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-transaction-tab']
+
     return (
       <TransactionPageContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={'Transactions'}
           buttons={[this.renderCreateTransactionButton(), this.renderExportButton()]}
         />

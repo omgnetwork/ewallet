@@ -19,7 +19,7 @@ export const updateExchangePair = ({ id, rate, syncOpposite }) => async dispatch
 
 export const deleteExchangePair = ({ id }) => async dispatch => {
   try {
-    const result = await exchangePairService.deleteExchangePairById({ id });
+    const result = await exchangePairService.deleteExchangePairById({ id })
     if (result.data.success) {
       return dispatch({ type: 'EXCHANGE_PAIR/DELETE/SUCCESS', data: result.data.data })
     } else {

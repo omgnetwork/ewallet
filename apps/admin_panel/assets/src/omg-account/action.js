@@ -1,6 +1,6 @@
 import { createPaginationActionCreator, createActionCreator } from '../utils/createActionCreator'
 import * as accountService from '../services/accountService'
-import { getRecentAccountFromLocalStorage, setRecentAccount } from '../services/sessionService'
+
 export const createAccount = ({ name, description, avatar, category }) =>
   createActionCreator({
     actionName: 'ACCOUNT',
@@ -43,7 +43,7 @@ export const getKeysAccountId = ({
   matchAny
 }) =>
   createPaginationActionCreator({
-    actionName: 'ACCESS_KEYS',
+    actionName: 'MEMBERSHIP_ACCESS_KEYS',
     action: 'REQUEST',
     service: () =>
       accountService.getKeysByAccountId({

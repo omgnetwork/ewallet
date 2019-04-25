@@ -1,17 +1,25 @@
 import * as accessKeyService from '../services/accessKeyService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
-export const createAccessKey = ({ name, globalRole }) =>
+
+export const createAccessKey = ({ name, globalRole, accountId, roleName }) =>
   createActionCreator({
     actionName: 'ACCESS_KEY',
     action: 'CREATE',
-    service: () => accessKeyService.createAccessKey({ name, globalRole })
+    service: () => accessKeyService.createAccessKey({
+      name,
+      globalRole,
+      accountId,
+      roleName
+    })
   })
+
 export const deleteAccessKey = id =>
   createActionCreator({
     actionName: 'ACCESS_KEY',
     action: 'DELETE',
     service: () => accessKeyService.deleteAccessKeyById(id)
   })
+
 export const updateAccessKey = ({ id, expired }) =>
   createActionCreator({
     actionName: 'ACCESS_KEY',

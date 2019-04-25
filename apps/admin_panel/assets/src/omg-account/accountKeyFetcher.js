@@ -7,4 +7,3 @@ export default createFetcher('accessKeys', getKeysAccountId, (state, props) => (
   data: selectAccessKeysCachedQuery(state)(props.cacheKey),
   pagination: selectCachedQueryPagination(state)(props.cacheKey)
 }))
-

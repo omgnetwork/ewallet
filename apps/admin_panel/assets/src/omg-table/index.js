@@ -215,17 +215,17 @@ class SortableTable extends PureComponent {
     const sortOrder = [queryString.parse(this.props.location.search)['sort-order']]
     const result = shouldFilter
       ? _.chain(this.props.rows)
-          .filter(d => {
-            return _.reduce(
-              filterQuery,
-              (prev, value, key) => {
-                return prev && (value === 'ALL' || d[key] === value)
-              },
-              true
-            )
-          })
-          .orderBy(sortBy, sortOrder)
-          .value()
+        .filter(d => {
+          return _.reduce(
+            filterQuery,
+            (prev, value, key) => {
+              return prev && (value === 'ALL' || d[key] === value)
+            },
+            true
+          )
+        })
+        .orderBy(sortBy, sortOrder)
+        .value()
       : this.props.rows
     return result
   }
@@ -346,9 +346,9 @@ const FilterHeader = withDropdownState(
               {this.props.open ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
               {this.props.open && (
                 <DropdownBox>
-                  {this.props.filterOptions.map(x => {
+                  {this.props.filterOptions.map((x, index) => {
                     return (
-                      <DropdownBoxItem onClick={e => this.props.onSelectFilter(this.props.col, x)}>
+                      <DropdownBoxItem key={index} onClick={e => this.props.onSelectFilter(this.props.col, x)}>
                         {x}
                       </DropdownBoxItem>
                     )

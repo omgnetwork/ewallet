@@ -69,13 +69,15 @@ CreateAdminKeyModal.propTypes = {
   createAccessKey: PropTypes.func,
   onRequestClose: PropTypes.func,
   onSubmitSuccess: PropTypes.func,
-  assignKey: PropTypes.func
+  accountId: PropTypes.string
 }
 
 function CreateAdminKeyModal (props) {
   const [label, setLabel] = useState('')
   const [submitStatus, setSubmitStatus] = useState('DEFAULT')
   const [role, setRole] = useState('none')
+  const [roleName, setRoleName] = useState('viewer')
+
   function onRequestClose () {
     setLabel('')
     setRole('none')
@@ -88,7 +90,12 @@ function CreateAdminKeyModal (props) {
   async function onSubmit (e) {
     e.preventDefault()
     setSubmitStatus('SUBMITTED')
-    const { data } = await props.createAccessKey({ name: label, globalRole: role })
+    const { data } = await props.createAccessKey({
+      name: label,
+      globalRole: role,
+      accountId: props.accountId,
+      roleName
+    })
     if (data) {
       setSubmitStatus('SUCCESS')
       props.onSubmitSuccess(data)
@@ -117,19 +124,38 @@ function CreateAdminKeyModal (props) {
             onChange={e => setLabel(e.target.value)}
             value={label}
           />
-          <InputLabel>Global Role</InputLabel>
-          <StyledSelect
-            normalPlaceholder='Role ( optional )'
-            value={_.startCase(role)}
-            onSelectItem={item => onSelectRole(item.key)}
-            options={[
-              { key: 'super_admin', value: 'Super Admin' },
-              { key: 'admin', value: 'Admin' },
-              { key: 'viewer', value: 'Viewer' },
-              { key: 'none', value: 'None' }
-            ]}
-            optionRenderer={value => _.startCase(value)}
-          />
+          {!props.accountId && (
+            <>
+              <InputLabel>Global Role</InputLabel>
+              <StyledSelect
+                normalPlaceholder='Role ( optional )'
+                value={_.startCase(role)}
+                onSelectItem={item => onSelectRole(item.key)}
+                options={[
+                  { key: 'super_admin', value: 'Super Admin' },
+                  { key: 'admin', value: 'Admin' },
+                  { key: 'viewer', value: 'Viewer' },
+                  { key: 'none', value: 'None' }
+                ]}
+                optionRenderer={value => _.startCase(value)}
+              />
+            </>
+          )}
+          {props.accountId && (
+            <>
+              <InputLabel>Select Role</InputLabel>
+              <StyledSelect
+                normalPlaceholder='Role name'
+                value={_.startCase(roleName)}
+                onSelectItem={item => setRoleName(item.key)}
+                options={[
+                  { key: 'admin', value: 'Admin' },
+                  { key: 'viewer', value: 'Viewer' }
+                ]}
+                optionRenderer={value => _.startCase(value)}
+              />
+            </>
+          )}
           <CreateAdminKeyButton
             styleType='primary'
             type='submit'

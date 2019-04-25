@@ -1,20 +1,22 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import { Switch, Icon, Button } from '../omg-uikit'
-import Table from '../omg-table'
-import AccessKeyFetcher from '../omg-access-key/accessKeysFetcher'
-import moment from 'moment'
-import ConfirmationModal from '../omg-confirmation-modal'
+import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import moment from 'moment'
+
+import { Switch, Icon } from '../omg-uikit'
+import Table from '../omg-table'
+import AccessKeyFetcher from '../omg-access-key/accessKeysFetcher'
+import ConfirmationModal from '../omg-confirmation-modal'
 import { createApiKey } from '../omg-api-keys/action'
 import { createAccessKey, updateAccessKey, downloadKey } from '../omg-access-key/action'
 import CreateAdminKeyModal from '../omg-create-admin-key-modal'
 import queryString from 'query-string'
-import { withRouter } from 'react-router-dom'
 import Copy from '../omg-copy'
 import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
+
 const KeySection = styled.div`
   position: relative;
   p {
@@ -151,7 +153,8 @@ class ApiKeyPage extends Component {
     onRequestClose: PropTypes.func,
     columnsAdminKeys: PropTypes.array,
     search: PropTypes.string,
-    downloadKey: PropTypes.func
+    downloadKey: PropTypes.func,
+    match: PropTypes.object
   }
 
   static defaultProps = {
@@ -159,7 +162,6 @@ class ApiKeyPage extends Component {
     columnsAdminKeys: [
       { key: 'name', title: 'NAME' },
       { key: 'key', title: 'ACCESS KEY' },
-      { key: 'account_role', title: 'ACCOUNT ROLE' },
       { key: 'global_role', title: 'GLOBAL ROLE' },
       { key: 'created_at', title: 'CREATED AT' },
       { key: 'status', title: 'STATUS' }
@@ -190,6 +192,7 @@ class ApiKeyPage extends Component {
   }
   onClickAccessKeySwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateAccessKey({ id, expired })
+    fetch()
   }
   onClickDownloadKey = e => {
     this.props.downloadKey({
@@ -274,19 +277,21 @@ class ApiKeyPage extends Component {
         }}
         {...this.props}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
-          const apiKeysRows = data.map((key, index) => {
-            if (key.hasOwnProperty('key')) {
-              key = key.key;
+          const apiKeysRows = data.map((item, index) => {
+            let role
+            if (item.hasOwnProperty('key')) {
+              role = item.role
+              item = item.key
             }
             return {
-              id: index,
-              key: key.access_key,
-              user: key.account_id,
-              created_at: key.created_at,
-              status: key.expired,
-              name: key.name || 'Not Provided',
-              global_role: key.global_role || 'none',
-              account_role: key.account_role || 'none'
+              id: item.id,
+              key: item.access_key,
+              user: item.account_id,
+              created_at: item.created_at,
+              status: item.expired,
+              name: item.name || 'Not Provided',
+              global_role: item.global_role || 'none',
+              account_role: role || 'none'
             }
           })
           return (
@@ -303,6 +308,7 @@ class ApiKeyPage extends Component {
                 pageEntity='access_key_page'
               />
               <CreateAdminKeyModal
+                accountId={this.props.match.params.accountId}
                 open={this.props.createAdminKeyModalOpen}
                 onRequestClose={this.props.onRequestClose}
                 onSubmitSuccess={this.onSubmitSuccess(fetch)}

@@ -90,4 +90,3 @@ class ImageUploader extends Component {
 }
 
 export default ImageUploader
-

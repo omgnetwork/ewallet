@@ -6,7 +6,6 @@ const TopBarContainer = styled.div`
   text-align: right;
 `
 export default class TopBar extends PureComponent {
-
   render () {
     return (
       <TopBarContainer>

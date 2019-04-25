@@ -1,6 +1,6 @@
 import * as sessionService from '../services/sessionService'
 import { createActionCreator } from '../utils/createActionCreator'
-export const login = ({ email, password, rememberMe }) => createActionCreator({actionName: 'SESSION',
+export const login = ({ email, password, rememberMe }) => createActionCreator({ actionName: 'SESSION',
   action: 'LOGIN',
   service: async () => {
     const sessionResult = await sessionService.login({ email, password })

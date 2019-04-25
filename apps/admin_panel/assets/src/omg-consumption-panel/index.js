@@ -75,8 +75,7 @@ class TransactionRequestPanel extends Component {
     history: PropTypes.object,
     location: PropTypes.object,
     approveConsumptionById: PropTypes.func,
-    rejectConsumptionById: PropTypes.func,
-    match: PropTypes.object
+    rejectConsumptionById: PropTypes.func
   }
 
   constructor (props) {

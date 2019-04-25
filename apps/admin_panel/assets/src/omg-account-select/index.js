@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Avatar } from '../omg-uikit'
 
@@ -21,21 +22,25 @@ const Identifier = styled.div`
   font-size: 10px;
 `
 const AccountSelect = ({ account }) => {
-	const name = _.get(account, 'name')
-	const identifier = _.get(account, 'id')
-	const thumbnail = _.get(account, 'avatar.thumb')
+  const name = _.get(account, 'name')
+  const identifier = _.get(account, 'id')
+  const thumbnail = _.get(account, 'avatar.thumb')
 
-	return (
-		<AccountSelectContainer>
-			<StyledAvatar image={thumbnail} name={name} />
-			<DetailContainer>
-				<Name>{name}</Name>
-				<Identifier>
-					{identifier}
-				</Identifier>
-			</DetailContainer>
-		</AccountSelectContainer>
-	)
+  return (
+    <AccountSelectContainer>
+      <StyledAvatar image={thumbnail} name={name} />
+      <DetailContainer>
+        <Name>{name}</Name>
+        <Identifier>
+          {identifier}
+        </Identifier>
+      </DetailContainer>
+    </AccountSelectContainer>
+  )
 }
 
-export default AccountSelect;
+AccountSelect.propTypes = {
+  account: PropTypes.object
+}
+
+export default AccountSelect

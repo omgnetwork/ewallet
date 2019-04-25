@@ -5,8 +5,8 @@ import { withRouter, Link } from 'react-router-dom'
 import WalletProvider from '../omg-wallet/walletProvider'
 import { compose } from 'recompose'
 import { Button, Icon } from '../omg-uikit'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
@@ -20,6 +20,7 @@ const WalletDetailContainer = styled.div`
 `
 const ContentDetailContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
 `
 const DetailContainer = styled.div`
   flex: 1 1 auto;
@@ -52,7 +53,8 @@ const enhance = compose(
 )
 class WalletDetaillPage extends Component {
   static propTypes = {
-    match: PropTypes.object
+    match: PropTypes.object,
+    divider: PropTypes.bool
   }
   state = {
     createTransactionModalOpen: false
@@ -65,7 +67,9 @@ class WalletDetaillPage extends Component {
   }
   renderTopBar = wallet => {
     return (
-      <TopBar
+      <TopNavigation
+        secondaryAction={false}
+        divider={this.props.divider}
         title={wallet.name}
         buttons={[
           <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
@@ -83,7 +87,10 @@ class WalletDetaillPage extends Component {
           <b>Address:</b> <span>{wallet.address}</span> <Copy data={wallet.address} />
         </DetailGroup>
         <DetailGroup>
-          <b>Wallet Type:</b> <span>{wallet.identifier}</span>
+          <b>Name:</b> <span>{wallet.name}</span>
+        </DetailGroup>
+        <DetailGroup>
+          <b>Wallet Identifier:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
         {wallet.account && (
           <DetailGroup>
@@ -100,10 +107,10 @@ class WalletDetaillPage extends Component {
           </DetailGroup>
         )}
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(wallet.created_at).format()}</span>
+          <b>Created At:</b> <span>{moment(wallet.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(wallet.updated_at).format()}</span>
+          <b>Updated At:</b> <span>{moment(wallet.updated_at).format()}</span>
         </DetailGroup>
       </Section>
     )

@@ -22,7 +22,7 @@ class AccountDetailPage extends Component {
   renderAccountDetailContainer = account => {
     return (
       <>
-        <TopNavigation title={'Details'} divider={false} secondaryAction={false}/>
+        <TopNavigation title={'Details'} divider={false} secondaryAction={false} />
         <Section>
           <DetailGroup>
             <b>ID:</b> {account.id} <Copy data={account.id} />
@@ -34,10 +34,10 @@ class AccountDetailPage extends Component {
             <b>Category:</b> {_.get(account.categories, 'data[0].name', '-')}
           </DetailGroup>
           <DetailGroup>
-            <b>Created Date:</b> {moment(account.created_at).format()}
+            <b>Created At:</b> {moment(account.created_at).format()}
           </DetailGroup>
           <DetailGroup>
-            <b>Last Update:</b> {moment(account.updated_at).format()}
+            <b>Updated At:</b> {moment(account.updated_at).format()}
           </DetailGroup>
         </Section>
       </>

@@ -77,7 +77,7 @@ class ApiKeyPage extends Component {
   render () {
     const activeTab = this.props.match.params.keyType === 'client' ? 'client' : 'admin'
     const searchQuery = queryString.parse(this.props.location.search).search
-    const stringQuery = queryString.stringify({search: searchQuery})
+    const stringQuery = queryString.stringify({ search: searchQuery })
     return (
       <ApiKeyContainer>
         <TopNavigation
@@ -109,14 +109,14 @@ class ApiKeyPage extends Component {
           </KeyTopButtonsContainer>
           {activeTab === 'admin' ? (
             <p>
-              Admin Keys are used to access all admin related APIs, eg. wallets, list a user's
-              transactions, create transaction requests, etc.
+              {`Admin Keys are used to access all admin related APIs, eg. wallets, list a user's
+              transactions, create transaction requests, etc.`}
             </p>
           ) : (
             <p>
-              Client Keys are used to authenticate clients and allow them to perform various
+              {`Client Keys are used to authenticate clients and allow them to perform various
               user-related functions (once the user has been logged in), e.g. make transfers with
-              the user's wallets, list a user's transactions, create transaction requests, etc.
+              the user's wallets, list a user's transactions, create transaction requests, etc.`}
             </p>
           )}
         </KeyTopBar>

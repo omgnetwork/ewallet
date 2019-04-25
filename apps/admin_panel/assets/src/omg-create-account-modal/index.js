@@ -28,6 +28,11 @@ class CreateAccountModal extends Component {
     onCreateAccount: _.noop
   }
 
+  componentDidMount = () => {
+    // PREFETCH CATEGORIES FOR BETTER EXPERIENCE
+    this.props.getCategories({})
+  }
+
   initialState = {
     submitting: false,
     stage: 'create',
@@ -38,11 +43,10 @@ class CreateAccountModal extends Component {
     category: {},
     error: ''
   }
+
+  // eslint-disable-next-line react/sort-comp
   state = this.initialState
-  componentDidMount = () => {
-    // PREFETCH CATEGORIES FOR BETTER EXPERIENCE
-    this.props.getCategories({})
-  }
+
   onSubmit = e => {
     e.preventDefault()
     this.setState({ submitting: true })
@@ -142,7 +146,7 @@ class CreateAccountModal extends Component {
         isOpen={this.props.open}
         onRequestClose={this.onRequestClose}
         contentLabel='create account modal'
-        shouldCloseOnOverlayClick={true}
+        shouldCloseOnOverlayClick
       >
         <CreateAccountContainer>{stageComponent[this.state.stage]}</CreateAccountContainer>
       </Modal>

@@ -18,7 +18,7 @@ const OptionsContainer = styled.div`
   border-radius: 2px;
   box-shadow: 0 4px 12px 0 rgba(4, 7, 13, 0.1);
   background-color: white;
-  right: 0;
+  left: 0;
   max-height: ${props => (props.optionBoxHeight ? props.optionBoxHeight : '150px')};
   overflow: auto;
   min-width: 100%;
@@ -83,7 +83,9 @@ export default class Select extends PureComponent {
         return fuzzySearch(this.props.value, option.key)
       })
       : this.props.options
-    const { className, ...rest } = this.props
+
+    // eslint-disable-next-line no-unused-vars
+    const { className, onSelectItem, ...rest } = this.props
     return (
       <SelectContainer className={className} active={this.state.active}>
         <Input

@@ -124,7 +124,7 @@ class Table extends Component {
     const dataRows = this.renderDataRows()
     return (
       <TableContainer
-        innerRef={table => (this.table = table)}
+        ref={table => (this.table = table)}
         height={this.props.loadingRowNumber * 40}
         loading={this.props.loading}
       >

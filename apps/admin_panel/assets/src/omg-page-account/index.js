@@ -115,7 +115,7 @@ class AccountPage extends Component {
       { key: 'name', title: 'NAME', sort: true },
       { key: 'id', title: 'ID', sort: true },
       { key: 'description', title: 'DESCRIPTION', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
+      { key: 'created_at', title: 'CREATED AT', sort: true },
       { key: 'avatar', title: 'AVATAR', hide: true }
     ]
   }
@@ -155,6 +155,9 @@ class AccountPage extends Component {
     if (key === 'avatar') {
       return null
     }
+    if (key === 'description') {
+      return _.truncate(data, 100)
+    }
     return data
   }
   renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetch }) => {
@@ -162,7 +165,7 @@ class AccountPage extends Component {
       <AccountPageContainer>
         <TopNavigation divider={this.props.divider} title={'Accounts'} buttons={[this.renderCreateAccountButton()]} />
         <SortableTableContainer
-          innerRef={table => (this.table = table)}
+          ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable

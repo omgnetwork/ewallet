@@ -16,6 +16,9 @@ import { selectGetAccountById } from '../omg-account/selector'
 import Copy from '../omg-copy'
 import ChooseCategoryStage from '../omg-create-account-modal/ChooseCategoryStage'
 
+const NameInput = styled(Input)`
+  margin-top: -20px;
+`
 const ChooseCategoryContainer = styled.div`
   position: relative;
   text-align: center;
@@ -122,7 +125,7 @@ class AccountSettingPage extends Component {
     this.setInitialAccountState()
   }
   setInitialAccountState = async () => {
-    const { currentAccount } = this.props;
+    const { currentAccount } = this.props
     if (!_.isEmpty(currentAccount)) {
       this.setState({
         name: currentAccount.name,
@@ -185,9 +188,9 @@ class AccountSettingPage extends Component {
   }
   renderInviteButton = () => {
     return (
-      <InviteButton size='small' onClick={this.onClickInviteButton} key={'create'}>
+      <Button size='small' onClick={this.onClickInviteButton} key={'create'}>
         <Icon name='Plus' /> <span>Invite Member</span>
-      </InviteButton>
+      </Button>
     )
   }
   rowRenderer = (key, data, rows) => {
@@ -215,7 +218,7 @@ class AccountSettingPage extends Component {
       categorySelect: '',
       categoryTouched: true,
       chooseCategoryModal: false
-    });
+    })
   }
   onSelectCategory = category => {
     this.setState({
@@ -223,11 +226,11 @@ class AccountSettingPage extends Component {
       categorySelect: category,
       categoryTouched: true,
       chooseCategoryModal: false
-    });
+    })
   }
   renderCategoriesPicker = ({ data: categories = [] }) => (
     <Select
-      placeholder="Category"
+      placeholder='Category'
       onSelectItem={this.onSelectCategory}
       onChange={this.onChangeCategory}
       value={this.state.categorySearch}
@@ -239,10 +242,10 @@ class AccountSettingPage extends Component {
     />
   )
   toggleModal = (e) => {
-    e.preventDefault();
-    this.setState(oldState => ({ chooseCategoryModal: !oldState.chooseCategoryModal }));
+    e.preventDefault()
+    this.setState(oldState => ({ chooseCategoryModal: !oldState.chooseCategoryModal }))
   }
-  get shouldSave() {
+  get shouldSave () {
     const propsCategoryId = _.get(this.props.currentAccount, 'categories.data[0].id')
     const stateCategoryId = _.get(this.state.categorySelect, 'id')
     const sameCategory = propsCategoryId && propsCategoryId === stateCategoryId
@@ -264,7 +267,7 @@ class AccountSettingPage extends Component {
             placeholder={this.state.avatar}
           />
           <div>
-            <Input
+            <NameInput
               prefill
               placeholder={'Name'}
               value={this.state.name}
@@ -305,7 +308,7 @@ class AccountSettingPage extends Component {
           isOpen={this.state.chooseCategoryModal}
           onRequestClose={this.toggleModal}
           contentLabel='add category modal'
-          shouldCloseOnOverlayClick={true}
+          shouldCloseOnOverlayClick
         >
           <ChooseCategoryContainer>
             <ChooseCategoryStage
@@ -318,8 +321,9 @@ class AccountSettingPage extends Component {
         </Modal>
 
         <AccountSettingContainer>
-          <TopNavigation divider={this.props.divider}
-            title='Account Settings'
+          <TopNavigation
+            divider={this.props.divider}
+            title={`Edit ${this.state.name}`}
             secondaryAction={false}
             types={false}
           />

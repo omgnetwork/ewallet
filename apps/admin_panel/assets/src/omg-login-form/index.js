@@ -43,7 +43,8 @@ const Error = styled.div`
 
 class LoginForm extends Component {
   static propTypes = {
-    history: PropTypes.object
+    history: PropTypes.object,
+    login: PropTypes.func
   }
   state = {
     email: '',
