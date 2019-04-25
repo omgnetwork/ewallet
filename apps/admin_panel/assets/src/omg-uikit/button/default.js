@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+
 const mapSize = {
   small: '8px 12px',
   medium: '10px 15px',

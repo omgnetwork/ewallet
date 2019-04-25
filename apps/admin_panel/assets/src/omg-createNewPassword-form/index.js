@@ -130,7 +130,7 @@ class ForgetPasswordForm extends Component {
               fluid
               loading={this.state.submitStatus === 'SUBMITTED'}
             >
-              Reset Password
+              <span>Reset Password</span>
             </Button>
           </div>
         ) : (

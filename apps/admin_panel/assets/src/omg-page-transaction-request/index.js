@@ -119,7 +119,7 @@ class TransactionRequestsPage extends Component {
   renderCreateTransactionRequestButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateRequest} key={'create'}>
-        <Icon name='Plus' /> <span>Create Request</span>
+        <Icon name='Plus' /><span>Create Request</span>
       </Button>
     )
   }

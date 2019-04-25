@@ -333,7 +333,7 @@ class TransactionExportPage extends Component {
           {({ ref, style }) => (
             <div ref={ref} style={{ ...style, display: 'inline-block', marginLeft: '10px' }}>
               <Button styleType='primary' onClick={this.onClickGenerate}>
-                <Icon name='Export' /> Generate
+                <Icon name='Export' /><span>Generate</span>
               </Button>
             </div>
           )}
@@ -373,7 +373,7 @@ class TransactionExportPage extends Component {
                       />
                     </div>
                     <Button loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}>
-                      Export
+                      <span>Export</span>
                     </Button>
                   </FormDetailContainer>
                 </ExportFormContainer>

@@ -461,7 +461,7 @@ class CreateTransactionRequest extends Component {
     return (
       <ButtonContainer>
         <Button size='small' type='submit' loading={this.state.submitting}>
-          Create Request
+          <span>Create Request</span>
         </Button>
       </ButtonContainer>
     )

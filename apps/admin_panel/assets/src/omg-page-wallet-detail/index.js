@@ -71,8 +71,7 @@ class WalletDetaillPage extends Component {
         title={wallet.name}
         buttons={[
           <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
-            <Icon name='Transaction' />
-            <span>Transfer</span>
+            <Icon name='Transaction' /><span>Transfer</span>
           </Button>
         ]}
       />

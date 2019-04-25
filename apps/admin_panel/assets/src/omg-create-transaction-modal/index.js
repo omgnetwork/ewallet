@@ -411,7 +411,7 @@ class CreateTransaction extends Component {
           )}
           <ButtonContainer>
             <Button size='small' type='submit' loading={this.state.submitting}>
-              Transfer
+              <span>Transfer</span>
             </Button>
           </ButtonContainer>
           <Error error={this.state.error}>{this.state.error}</Error>

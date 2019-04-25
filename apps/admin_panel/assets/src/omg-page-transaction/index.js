@@ -169,8 +169,7 @@ class TransactionPage extends Component {
         styleType='primary'
         onClick={this.onClickCreateTransaction}
       >
-        <Icon name='Transaction' />
-        <span>Transfer</span>
+        <Icon name='Transaction' /><span>Transfer</span>
       </Button>
     )
   }
@@ -182,7 +181,7 @@ class TransactionPage extends Component {
         styleType='secondary'
         onClick={this.onClickExport}
       >
-        Export
+        <span>Export</span>
       </Button>
     )
   }

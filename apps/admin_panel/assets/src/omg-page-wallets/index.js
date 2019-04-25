@@ -126,8 +126,7 @@ class WalletPage extends Component {
   renderTransferButton = () => {
     return (
       <Button size='small' onClick={this.onClickTransfer} key={'transfer'}>
-        <Icon name='Transaction' />
-        <span>Transfer</span>
+        <Icon name='Transaction' /><span>Transfer</span>
       </Button>
     )
   }

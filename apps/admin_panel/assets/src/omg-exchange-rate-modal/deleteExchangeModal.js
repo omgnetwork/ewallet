@@ -85,13 +85,13 @@ const DeleteExchangeModal = ({ toDelete, onRequestClose, deleteExchangePair }) =
           onClick={deletePair}
           loading={submitting}
         >
-          Delete
+          <span>Delete</span>
         </Button>
         <Button
           onClick={onRequestClose}
           styleType='secondary'
         >
-          Cancel
+          <span>Cancel</span>
         </Button>
       </ButtonGroup>
     </DeleteExchangeModalStyle>

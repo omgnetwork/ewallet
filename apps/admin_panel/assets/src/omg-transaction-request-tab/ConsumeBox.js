@@ -410,7 +410,7 @@ class ConsumeBox extends Component {
             </ExpiredContainer>
           ) : (
             <Button disabled={!valid} loading={this.state.submitStatus === 'SUBMITTING'}>
-              Consume
+              <span>Consume</span>
             </Button>
           )}
           <Error error={this.state.error}>{this.state.error}</Error>

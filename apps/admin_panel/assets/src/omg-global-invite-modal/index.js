@@ -145,7 +145,7 @@ class GlobalInviteModal extends Component {
             type='submit'
             loading={this.state.submitStatus === 'SUBMITTED'}
           >
-            Invite
+            <span>Invite</span>
           </Button>
         </InviteModalContainer>
       </Modal>

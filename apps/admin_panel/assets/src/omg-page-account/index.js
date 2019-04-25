@@ -98,15 +98,14 @@ class AccountPage extends Component {
   renderExportButton = () => {
     return (
       <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
-        <Icon name='Export' />
-        <span>Export</span>
+        <Icon name='Export' /><span>Export</span>
       </Button>
     )
   }
   renderCreateAccountButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
+        <Icon name='Plus' /><span>Create Account</span>
       </Button>
     )
   }
@@ -135,7 +134,7 @@ class AccountPage extends Component {
     if (key === 'name') {
       return (
         <NameColumn>
-          <Avatar image={rows.avatar} name={data.slice(0, 3)} /> <span>{data}</span>
+          <Avatar image={rows.avatar} name={data.slice(0, 3)} /><span>{data}</span>
         </NameColumn>
       )
     }

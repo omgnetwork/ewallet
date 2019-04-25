@@ -409,7 +409,7 @@ class CreateExchangeRateModal extends Component {
             loading={this.state.submitting}
             disabled={!this.ratesAvailable}
           >
-            {this.state.editing ? 'Update Pair' : 'Create Pair'}
+            <span>{this.state.editing ? 'Update Pair' : 'Create Pair'}</span>
           </Button>
         </ButtonContainer>
         <Error error={this.state.error}>{this.state.error}</Error>

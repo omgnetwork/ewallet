@@ -160,7 +160,7 @@ function CreateAdminKeyModal (props) {
             type='submit'
             loading={submitStatus === 'SUBMITTED'}
           >
-            Generate Key
+            <span>Generate Key</span>
           </Button>
         </CreateAdminKeyFormContainer>
       </CreateAdminKeyModalContainer>

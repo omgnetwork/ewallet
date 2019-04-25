@@ -95,7 +95,7 @@ export default class CreateAccountStage extends Component {
           loading={this.props.submitting}
           onClick={this.props.onClickCreateAccount}
         >
-          Create Account
+          <span>Create Account</span>
         </Button>
       </Form>
     )

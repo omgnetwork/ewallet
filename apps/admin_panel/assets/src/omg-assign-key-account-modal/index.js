@@ -143,7 +143,7 @@ function AssignKeyAccount (props) {
             type='submit'
             loading={submitStatus === 'SUBMITTED'}
           >
-            Assign Key
+            <span>Assign Key</span>
           </Button>
         </CreateAdminKeyFormContainer>
       </AssignKeyAccountContainer>

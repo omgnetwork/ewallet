@@ -177,7 +177,7 @@ class ChooseCategoryStage extends Component {
             </CreateNewGroupActionContainer>
           ) : (
             <PlainButton onClick={this.onClickCreateNewGroup}>
-              <Icon name='Plus' /> <span>Create New Category</span>
+              <Icon name='Plus' /><span>Create New Category</span>
             </PlainButton>
           )}
         </BottomBar>

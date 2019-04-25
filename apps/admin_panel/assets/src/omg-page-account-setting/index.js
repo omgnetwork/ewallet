@@ -181,15 +181,14 @@ class AccountSettingPage extends Component {
   renderExportButton = () => {
     return (
       <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
-        <Icon name='Export' />
-        <span>Export</span>
+        <Icon name='Export' /><span>Export</span>
       </Button>
     )
   }
   renderInviteButton = () => {
     return (
       <Button size='small' onClick={this.onClickInviteButton} key={'create'}>
-        <Icon name='Plus' /> <span>Invite Member</span>
+        <Icon name='Plus' /><span>Invite Member</span>
       </Button>
     )
   }

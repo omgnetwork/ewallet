@@ -130,7 +130,7 @@ class CreateToken extends Component {
             loading={this.state.submitting}
             disabled={!this.shouldSubmit()}
           >
-            Create Token
+            <span>Create Token</span>
           </Button>
         </ButtonContainer>
         <Error error={this.state.error}>{this.state.error}</Error>

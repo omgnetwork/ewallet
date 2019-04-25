@@ -116,7 +116,7 @@ class UsersPage extends Component {
   renderCreateAccountButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
+        <Icon name='Plus' /><span>Create Account</span>
       </Button>
     )
   }
@@ -135,7 +135,7 @@ class UsersPage extends Component {
       case 'id':
         return (
           <UserIdContainer>
-            <Icon name='Profile' /> <span>{data}</span> <Copy data={data} />
+            <Icon name='Profile' /><span>{data}</span> <Copy data={data} />
           </UserIdContainer>
         )
       case 'email':
@@ -151,7 +151,7 @@ class UsersPage extends Component {
   renderInviteButton = () => {
     return (
       <Button size='small' onClick={this.onClickInviteButton} key={'create'}>
-        <Icon name='Plus' /> <span>Invite Admin</span>
+        <Icon name='Plus' /><span>Invite Admin</span>
       </Button>
     )
   }

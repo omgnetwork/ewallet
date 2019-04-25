@@ -33,7 +33,7 @@ const KeySection = styled.div`
     margin-bottom: 20px;
   }
   tr:hover {
-    td:nth-child(2) {
+    td:nth-child(1) {
       i {
         visibility: visible;
       }
@@ -43,16 +43,14 @@ const KeySection = styled.div`
     white-space: nowrap;
   }
   td:nth-child(2) {
-    width: 50%;
+    width: 20%;
     position: relative;
   }
   td:first-child div {
-    max-width: 20vw;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   i[name='Copy'] {
-    cursor: pointer;
     visibility: hidden;
     cursor: pointer;
     color: ${props => props.theme.colors.S500};
@@ -203,13 +201,13 @@ class ApiKeyPage extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <span>{data}</span> <Copy data={data} />
+            <Icon name='Key' /><span>{data}</span> <Copy data={data} />
           </KeyContainer>
         )
       case 'name':
         return (
           <KeyContainer>
-            <Icon name='Key' /> <span>{data}</span>
+            <span>{data}</span>
           </KeyContainer>
         )
       case 'global_role':

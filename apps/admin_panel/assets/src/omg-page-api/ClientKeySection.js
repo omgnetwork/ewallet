@@ -145,7 +145,7 @@ class ClientKeySection extends Component {
       case 'name':
         return (
           <KeyContainer>
-            <Icon name='Key' /> <span>{data}</span>
+            <Icon name='Key' /><span>{data}</span>
           </KeyContainer>
         )
       case 'created_at':

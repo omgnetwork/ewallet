@@ -86,8 +86,7 @@ class TokenDetailPage extends Component {
   renderExportButton = () => {
     return (
       <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'exports'}>
-        <Icon name='Export' />
-        <span>Export</span>
+        <Icon name='Export' /><span>Export</span>
       </Button>
     )
   }
@@ -105,7 +104,7 @@ class TokenDetailPage extends Component {
         size='small'
         onClick={this.onClickCreateToken}
       >
-        <Icon name='Plus' /> <span>Create Token</span>
+        <Icon name='Plus' /><span>Create Token</span>
       </Button>
     )
   }
@@ -128,7 +127,7 @@ class TokenDetailPage extends Component {
     if (key === 'token') {
       return (
         <NameColumn>
-          <Avatar image={rows.avatar} name={rows.symbol} /> <span>{data}</span>
+          <Avatar image={rows.avatar} name={rows.symbol} /><span>{data}</span>
         </NameColumn>
       )
     }
