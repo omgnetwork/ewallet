@@ -18,6 +18,30 @@ LoginBody:
           email: test@example.com
           password: the_password
 
+Login2FABody:
+  description: The parameters to use for two-factor logging in a user using backup_code
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        oneOf:
+          - properties:
+              backup_code:
+                type: string
+            required:
+              - backup_code
+            example:
+              backup_code: a1b2c3d4
+          - properties:
+              passcode:
+                type: string
+            required:
+              - passcode
+            example:
+              passcode: 123456
+        example:
+          passcode: "123456"
+
 SwitchAccountBody:
   description: The parameters to use for switching the current account
   required: true

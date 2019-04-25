@@ -271,3 +271,31 @@ me.get_accounts:
         $ref: '../account/responses.yaml#/AccountsResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.create_backup_codes:
+  post:
+    tags:
+      - Admin
+    summary: Create a list of backup_codes for two-factor authentication.
+    operationId: me_create_backup_codes
+    security:
+      - AdminAuth: []
+    responses:
+      '200':
+        $ref: '../two_factor/responses.yaml#/CreateBackupCodesResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.create_secret_code:
+  post:
+    tags:
+      - Admin
+    summary: Create a secret code for two-factor authentication.
+    operationId: me_create_secret_code
+    security:
+      - AdminAuth: []
+    responses:
+      '200':
+        $ref: '../two_factor/responses.yaml#/CreateSecretCodeResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

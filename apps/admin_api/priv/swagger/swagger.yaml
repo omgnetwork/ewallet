@@ -96,6 +96,8 @@ paths:
   # ADMIN SESSION
   /admin.login:
     $ref: 'admin_session/paths.yaml#/admin.login'
+  /admin.login_2fa:
+    $ref: 'admin_session/paths.yaml#/admin.login_2fa'
   /me.logout:
     $ref: 'admin_session/paths.yaml#/me.logout'
   /auth_token.switch_account:
@@ -231,6 +233,10 @@ paths:
     $ref: 'admin/paths.yaml#/me.get_account'
   /me.get_accounts:
     $ref: 'admin/paths.yaml#/me.get_accounts'
+  /me.create_backup_codes:
+    $ref: 'admin/paths.yaml#/me.create_backup_codes'
+  /me.create_secret_code:
+    $ref: 'admin/paths.yaml#/me.create_secret_code'
 
   # USER
   /user.all:
