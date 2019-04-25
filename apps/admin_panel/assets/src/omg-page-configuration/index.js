@@ -64,10 +64,10 @@ const InputsPrefixContainer = styled.div`
 `
 
 const PrefixContainer = styled.div`
-  text-align: right;
+  text-align: left;
   a {
     display: block;
-    margin-top: 5px;
+    margin-top: 20px;
     color: ${props => (props.active ? props.theme.colors.BL400 : props.theme.colors.S500)};
   }
 `
@@ -478,7 +478,7 @@ class ConfigurationPage extends Component {
                     </InputPrefixContainer>
                   ))}
                   <PrefixContainer active={!this.isAddPrefixButtonDisabled()}>
-                    <a onClick={this.onClickAddPrefix}>Add Prefix</a>
+                    <a onClick={this.onClickAddPrefix}>+ Add Prefix</a>
                   </PrefixContainer>
                 </InputsPrefixContainer>
               )
@@ -500,6 +500,7 @@ class ConfigurationPage extends Component {
           onChange={this.onChangeInput('maxPerPage')}
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
+          suffix='Items'
         />
         <ConfigRow
           name={'Minimum Password Length'}
@@ -509,6 +510,7 @@ class ConfigurationPage extends Component {
           onChange={this.onChangeInput('minPasswordLength')}
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
+          suffix='Characters'
         />
         <ConfigRow
           name={'Forget Password Request Lifetime'}
@@ -518,6 +520,7 @@ class ConfigurationPage extends Component {
           onChange={this.onChangeInput('forgetPasswordRequestLifetime')}
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
+          suffix='Mins'
         />
       </Fragment>
     )

@@ -45,6 +45,13 @@ const Input = styled.input`
     border-bottom: 1px solid
       ${props => (props.error ? props.theme.colors.R400 : props.theme.colors.BL400)};
   }
+
+  ::-webkit-inner-spin-button,
+  ::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
   :-webkit-autofill {
     content: 'AUTO_FILL_HACK';
     animation-name: onAutoFillStart;

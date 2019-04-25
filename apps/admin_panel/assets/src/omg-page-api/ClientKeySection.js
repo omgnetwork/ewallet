@@ -29,7 +29,7 @@ const KeySection = styled.div`
     margin-bottom: 20px;
   }
   tr:hover {
-    td:nth-child(2) {
+    td:nth-child(1) {
       i {
         visibility: visible;
       }
@@ -40,6 +40,7 @@ const KeySection = styled.div`
   }
   td:nth-child(2) {
     border: none;
+    width: 20%;
     position: relative;
     :before {
       content: '';
@@ -84,8 +85,8 @@ const KeyContainer = styled.div`
 `
 
 const columnsApiKey = [
-  { key: 'name', title: 'NAME' },
   { key: 'key', title: 'ACCESS KEY' },
+  { key: 'name', title: 'LABEL' },
   { key: 'created_at', title: 'CREATED AT' },
   { key: 'status', title: 'STATUS' }
 ]
@@ -139,13 +140,13 @@ class ClientKeySection extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <span>{data}</span> <Copy data={data} />
+            <Icon name='Key' /><span>{data}</span> <Copy data={data} />
           </KeyContainer>
         )
       case 'name':
         return (
           <KeyContainer>
-            <Icon name='Key' /><span>{data}</span>
+            <span>{data}</span>
           </KeyContainer>
         )
       case 'created_at':
@@ -180,6 +181,7 @@ class ClientKeySection extends Component {
           return (
             <KeySection>
               <Table
+                hoverEffect={false}
                 loadingRowNumber={6}
                 rows={apiKeysRows}
                 rowRenderer={this.rowApiKeyRenderer(fetch)}
