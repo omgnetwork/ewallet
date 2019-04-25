@@ -64,6 +64,13 @@ config :ewallet_config,
       position: 105,
       description: "The duration (in minutes) that a forget password request will be valid for."
     },
+    "number_of_backup_codes" => %{
+      key: "number_of_backup_codes",
+      value: 10,
+      type: "unsigned_integer",
+      position: 106,
+      description: "The number of backup codes for the two-factor authentication."
+    },
 
     # Email Settings
     "sender_email" => %{

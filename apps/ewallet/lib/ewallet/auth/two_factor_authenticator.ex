@@ -33,7 +33,7 @@ defmodule EWallet.TwoFactorAuthenticator do
     - Clear `enabled_2fa_at`, `hashed_backup_codes`, `secret_2fa_code` for user entity.
   """
 
-  @number_of_backup_codes 10
+  @default_number_of_backup_codes 10
 
   def login(_, _, %User{enabled_2fa_at: nil}), do: {:error, :user_2fa_disabled}
 
@@ -110,9 +110,7 @@ defmodule EWallet.TwoFactorAuthenticator do
     {:error, :invalid_parameter}
   end
 
-  def create_and_update(user, type, ops \\ %{number_of_backup_codes: @number_of_backup_codes})
-
-  def create_and_update(%User{} = user, :secret_code, _) do
+  def create_and_update(%User{} = user, :secret_code) do
     {:ok, secret_code} = PasscodeAuthenticator.create()
 
     User.set_secret_code(user, %{
@@ -123,14 +121,10 @@ defmodule EWallet.TwoFactorAuthenticator do
     {:ok, %{secret_2fa_code: secret_code, issuer: "OmiseGO", label: user.email}}
   end
 
-  def create_and_update(
-        %User{} = user,
-        :backup_codes,
-        %{number_of_backup_codes: number_of_backup_codes}
-      )
-      when number_of_backup_codes > 0 do
+  def create_and_update(%User{} = user, :backup_codes) do
     {:ok, backup_codes, hashed_backup_codes} =
-      BackupCodeAuthenticator.create(number_of_backup_codes)
+      get_number_of_backup_codes()
+      |> BackupCodeAuthenticator.create()
 
     User.set_hashed_backup_codes(user, %{
       "hashed_backup_codes" => hashed_backup_codes,
@@ -140,8 +134,15 @@ defmodule EWallet.TwoFactorAuthenticator do
     {:ok, %{backup_codes: backup_codes}}
   end
 
-  def create_and_update(_, _, _) do
+  def create_and_update(_, _) do
     {:error, :invalid_parameter}
+  end
+
+  defp get_number_of_backup_codes do
+    case Application.get_env(:ewallet, :number_of_backup_codes, @default_number_of_backup_codes) do
+      0 -> @default_number_of_backup_codes
+      number_of_backup_codes -> number_of_backup_codes
+    end
   end
 
   # Enable two-factor authentication for specified user.
