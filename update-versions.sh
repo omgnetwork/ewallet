@@ -64,7 +64,7 @@ while IFS= read -r file; do
     fi
 
     printf 2>&1 "* %-40s" "${file#$BASE_DIR/*}..."
-    NEW_VERSION=$1 awk '
+    NEW_VERSION=$VERSION awk '
         m = match($0, "^([\ ]+version:[\ ]+)") {
           print substr($0, RSTART, RLENGTH-1) " \"" ENVIRON["NEW_VERSION"] "\","
         } ! m { print }
