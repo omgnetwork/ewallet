@@ -35,12 +35,16 @@ fi
 VERSION=$1
 
 if [ "$AUTO" = 1 ]; then
-    VERSION=$(git describe --tags)
-
     if ! command -v git >/dev/null; then
         printf 2>&1 "Git is required to auto-generating version\\n"
         exit 1
     fi
+
+    # git describe --tags will generate a version of the TAG, if HEAD is a tag,
+    # or a TAG-NN-gSHA where NN is the number of commits since the last tag
+    # and SHA256 is an abbrev-rev of HEAD, e.g. v1.2.0-pre.0-17-gaceb325f
+    VERSION=$(git describe --tags)
+    VERSION=${VERSION#v*}
 
     printf 2>&1 "Using %s as the current version.\\n" "$VERSION"
 elif [ -z "$VERSION" ]; then
@@ -65,7 +69,7 @@ while IFS= read -r file; do
 
     printf 2>&1 "* %-40s" "${file#$BASE_DIR/*}..."
     NEW_VERSION=$VERSION awk '
-        m = match($0, "^([\ ]+version:[\ ]+)") {
+        m = match($0, "^([ ]+version:[ ]+)") {
           print substr($0, RSTART, RLENGTH-1) " \"" ENVIRON["NEW_VERSION"] "\","
         } ! m { print }
     ' < "$file" > "$file.tmp"
