@@ -102,7 +102,7 @@ class ConfigurationPage extends Component {
 
   static getDerivedStateFromProps (props, state) {
     if (!state.fetched && props.configurationLoadingStatus === CONSTANT.LOADING_STATUS.SUCCESS) {
-      return {
+      const derivedState = {
         baseUrl: props.configurations.base_url.value,
         redirectUrlPrefixes: props.configurations.redirect_url_prefixes.value,
         enableStandalone: props.configurations.enable_standalone.value,
@@ -127,13 +127,26 @@ class ConfigurationPage extends Component {
         fetched: true,
         masterAccount: props.configurations.master_account.value
       }
+      return {
+        originalState: derivedState,
+        ...derivedState
+      }
     } else {
       return null
     }
   }
 
   state = {
+    originalState: null,
     submitStatus: CONSTANT.LOADING_STATUS.DEFAULT
+  }
+
+  handleCancelClick = () => {
+    this.setState(oldState => ({
+      originalState: oldState.originalState,
+      submitStatus: CONSTANT.LOADING_STATUS.DEFAULT,
+      ...oldState.originalState
+    }))
   }
 
   resetGcsState () {
@@ -292,16 +305,31 @@ class ConfigurationPage extends Component {
       })
     }
   }
+
+  renderCancelButton = () => {
+    return (
+      <Button
+        size='small'
+        onClick={this.handleCancelClick}
+        key='cancel'
+        styleType='secondary'
+        disabled={this.isSendButtonDisabled}
+      >
+        <span>Cancel</span>
+      </Button>
+    )
+  }
+
   renderSaveButton = () => {
     return (
       <Button
         size='small'
         onClick={this.onClickSaveConfiguration}
-        key={'save'}
+        key='save'
         loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}
         disabled={this.isSendButtonDisabled}
       >
-        <span>Save Configuration</span>
+        <span>Save</span>
       </Button>
     )
   }
@@ -593,7 +621,10 @@ class ConfigurationPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Configuration'}
-          buttons={[this.renderSaveButton()]}
+          buttons={[
+            this.renderCancelButton(),
+            this.renderSaveButton()
+          ]}
           secondaryAction={false}
           types={false}
         />
