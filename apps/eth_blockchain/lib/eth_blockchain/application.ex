@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule Blockchain.Application do
+defmodule EthBlockchain.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -23,31 +23,31 @@ defmodule Blockchain.Application do
     import Supervisor.Spec
 
     backends =
-      :blockchain
-      |> Application.get_env(Blockchain.Backend)
+      :eth_blockchain
+      |> Application.get_env(EthBlockchain.Backend)
       |> Keyword.get(:backends)
 
     backend_opts = [
       backends: backends,
       named: true,
-      supervisor: Blockchain.DynamicSupervisor
+      supervisor: EthBlockchain.DynamicSupervisor
     ]
 
     children = [
-      worker(Blockchain.Backend, [backend_opts]),
-      {DynamicSupervisor, name: Blockchain.DynamicSupervisor, strategy: :one_for_one}
+      worker(EthBlockchain.Backend, [backend_opts]),
+      {DynamicSupervisor, name: EthBlockchain.DynamicSupervisor, strategy: :one_for_one}
     ]
 
-    # We want to restart DynamicSupervisor when Blockchain.Backend crashes
-    # so we don't ended up with inconsistent state where Blockchain.Backend
+    # We want to restart DynamicSupervisor when EthBlockchain.Backend crashes
+    # so we don't ended up with inconsistent state where EthBlockchain.Backend
     # has no backends in its registry, but DynamicSupervisor already has them
     # running.
     #
     # Using :one_for_all ensures that DynamicSupervisor will be restarted.
-    # You can use `DynamicSupervisor.which_children(Blockchain.DynamicSupervisor)`
+    # You can use `DynamicSupervisor.which_children(EthBlockchain.DynamicSupervisor)`
     # to check whether there's a zombie process running after crashes.
     #
-    opts = [strategy: :one_for_all, name: Blockchain.Supervisor]
+    opts = [strategy: :one_for_all, name: EthBlockchain.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

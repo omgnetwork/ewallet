@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule BlockchainEth.WorkerTest do
+defmodule EthGethAdapter.WorkerTest do
   use ExUnit.Case
-  alias BlockchainEth.Worker
+  alias EthGethAdapter.Worker
   alias Ecto.Adapters.SQL.Sandbox
   alias Keychain.{Repo, Key}
 

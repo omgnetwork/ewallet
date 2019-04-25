@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure your application as:
 #
-#     config :blockchain_eth, key: :value
+#     config :eth_geth_adapter, key: :value
 #
 # and access this configuration in your application as:
 #
-#     Application.get_env(:blockchain_eth, :key)
+#     Application.get_env(:eth_geth_adapter, :key)
 #
 # You can also configure a third-party app:
 #

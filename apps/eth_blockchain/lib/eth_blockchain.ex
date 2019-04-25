@@ -1,6 +1,6 @@
-defmodule Blockchain do
+defmodule EthBlockchain do
   @moduledoc """
-  Documentation for Blockchain.
+  Documentation for EthBlockchain.
   """
 
   @typedoc """

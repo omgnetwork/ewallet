@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule Blockchain.BackendTest do
+defmodule EthBlockchain.BackendTest do
   use ExUnit.Case
-  alias Blockchain.Backend
+  alias EthBlockchain.Backend
   alias Ecto.UUID
 
   defmodule DumbBackend do
