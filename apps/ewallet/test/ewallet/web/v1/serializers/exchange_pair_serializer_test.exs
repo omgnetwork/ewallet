@@ -36,6 +36,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
         rate: exchange_pair.rate,
         created_at: DateFormatter.to_iso8601(exchange_pair.inserted_at),
         updated_at: DateFormatter.to_iso8601(exchange_pair.updated_at),
+        default_exchange_wallet_address: exchange_pair.default_exchange_wallet_address,
+        allow_end_user_exchanges: exchange_pair.allow_end_user_exchanges,
         opposite_exchange_pair_id: nil,
         opposite_exchange_pair: nil,
         deleted_at: nil
@@ -75,10 +77,14 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
           to_token_id: opposite_pair.to_token.id,
           to_token: TokenSerializer.serialize(opposite_pair.to_token),
           rate: opposite_pair.rate,
+          default_exchange_wallet_address: exchange_pair.default_exchange_wallet_address,
+          allow_end_user_exchanges: exchange_pair.allow_end_user_exchanges,
           created_at: DateFormatter.to_iso8601(opposite_pair.inserted_at),
           updated_at: DateFormatter.to_iso8601(opposite_pair.updated_at),
           deleted_at: nil
         },
+        default_exchange_wallet_address: exchange_pair.default_exchange_wallet_address,
+        allow_end_user_exchanges: exchange_pair.allow_end_user_exchanges,
         deleted_at: nil
       }
 
@@ -115,6 +121,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             updated_at: DateFormatter.to_iso8601(exchange_pair1.updated_at),
             opposite_exchange_pair_id: nil,
             opposite_exchange_pair: nil,
+            default_exchange_wallet_address: exchange_pair1.default_exchange_wallet_address,
+            allow_end_user_exchanges: exchange_pair1.allow_end_user_exchanges,
             deleted_at: nil
           },
           %{
@@ -130,6 +138,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             updated_at: DateFormatter.to_iso8601(exchange_pair2.updated_at),
             opposite_exchange_pair_id: nil,
             opposite_exchange_pair: nil,
+            default_exchange_wallet_address: exchange_pair2.default_exchange_wallet_address,
+            allow_end_user_exchanges: exchange_pair2.allow_end_user_exchanges,
             deleted_at: nil
           }
         ],
