@@ -80,7 +80,7 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
     respond_error({:error, :invalid_parameter, error_description}, conn)
   end
 
-  def enable(conn, attrs) do
+  def enable(conn, _) do
     error_description = "Invalid parameter provided. `backup_code` and `passcode` are required."
     respond_error({:error, :invalid_parameter, error_description}, conn)
   end
