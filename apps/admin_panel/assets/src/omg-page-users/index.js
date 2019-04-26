@@ -136,6 +136,12 @@ class UsersPage extends Component {
         </UserIdContainer>
       )
     }
+    if (key === 'username') {
+      return data || 'None'
+    }
+    if (key === 'provider_user_id') {
+      return data || 'None'
+    }
     if (key === 'email') {
       return data || '-'
     }

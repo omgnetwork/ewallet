@@ -7,7 +7,7 @@ import { compose } from 'recompose'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import moment from 'moment'
-import { LoadingSkeleton } from '../omg-uikit'
+import { LoadingSkeleton, Breadcrumb } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
 const UserDetailContainer = styled.div`
@@ -35,6 +35,9 @@ const LoadingContainer = styled.div`
     margin-bottom: 1em;
   }
 `
+const BreadcrumbContainer = styled.div`
+  margin-top: 30px;
+`
 
 const enhance = compose(
   withTheme,
@@ -47,12 +50,21 @@ class TokenDetailPage extends Component {
   }
   renderTopBar = user => {
     return (
-      <TopNavigation
-        divider={this.props.divider}
-        title={user.email || user.provider_user_id}
-        breadcrumbItems={['User', user.id]}
-        secondaryAction={false}
-      />
+      <>
+        <BreadcrumbContainer>
+          <Breadcrumb
+            items={[
+              <Link key='users' to={'/users/'}>Users</Link>,
+              user.email || user.provider_user_id
+            ]}
+          />
+        </BreadcrumbContainer>
+        <TopNavigation
+          divider={false}
+          title={user.email || user.provider_user_id}
+          secondaryAction={false}
+        />
+      </>
     )
   }
   renderDetail = user => {
