@@ -34,7 +34,7 @@ const Form = styled.form`
     background-color: ${props => props.theme.colors.S300};
     display: inline-block;
     margin-top: 40px;
-    border-radius: 3px;
+    border-radius: 2px;
   }
 `
 const InputLabel = styled.div`
