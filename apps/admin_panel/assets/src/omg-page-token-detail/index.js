@@ -7,6 +7,7 @@ import moment from 'moment'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
 
+import TokensFetcher from '../omg-token/tokensFetcher'
 import TokenProvider from '../omg-token/TokenProvider'
 import ExchangePairsProvider from '../omg-exchange-pair/exchangePairProvider'
 import { Button, Breadcrumb } from '../omg-uikit'
@@ -115,18 +116,30 @@ class TokenDetailPage extends Component {
       exchangeRateToDelete: pair
     })
   }
+
   renderCreateExchangePairButton = () => {
     return (
-      <Button
-        key='create pair'
-        size='small'
-        styleType='secondary'
-        onClick={this.onClickCreateExchangePair}
-      >
-        <span>Create Exchange Pair</span>
-      </Button>
+      <TokensFetcher
+        key='create-exchange-pair-button'
+        render={({ data: tokens }) => {
+          if (tokens.length > 1) {
+            return (
+              <Button
+                key='rate'
+                size='small'
+                styleType='secondary'
+                onClick={this.onClickCreateExchangeRate}
+              >
+                <span>Create Exchange Pair</span>
+              </Button>
+            )
+          }
+          return null
+        }}
+      />
     )
   }
+
   renderTopBar = token => {
     return (
       <>
@@ -141,14 +154,7 @@ class TokenDetailPage extends Component {
         <TopBar
           title={token.name}
           buttons={[
-            <Button
-              key='rate'
-              size='small'
-              styleType='secondary'
-              onClick={this.onClickCreateExchangeRate}
-            >
-              <span>Create Exchange Pair</span>
-            </Button>,
+            this.renderCreateExchangePairButton(),
             <Button
               key='mint'
               size='small'
@@ -202,6 +208,7 @@ class TokenDetailPage extends Component {
   renderTokenDetail = () => {
     return (
       <TokenProvider
+        tokenId={this.props.match.params.viewTokenId}
         render={({ token }) => {
           return token ? (
             <div>
@@ -242,7 +249,6 @@ class TokenDetailPage extends Component {
             </div>
           ) : null
         }}
-        tokenId={this.props.match.params.viewTokenId}
       />
     )
   }

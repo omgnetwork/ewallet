@@ -1,5 +1,6 @@
-import { BrowserRouter as Router, Redirect, Switch, Route } from 'react-router-dom'
 import React from 'react'
+import { BrowserRouter as Router, Redirect, Switch, Route } from 'react-router-dom'
+import PropTypes from 'prop-types'
 
 import AuthenticatedRoute from './authenticatedRoute'
 import LoginRoute from './loginRoute'
@@ -26,7 +27,6 @@ import ActivityLogPage from '../../omg-page-activity-log'
 import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
 import AccountLayout from '../../omg-page-each-account/AccountLayout'
-import PropTypes from 'prop-types'
 // prettier-ignore
 
 const createRoute = ({ authenticated }) => (
