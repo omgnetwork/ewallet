@@ -56,7 +56,7 @@ class TokenDetailPage extends Component {
           <b>Email:</b> <span>{admin.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Global Role:</b> <span>{_.startCase(admin.global_role) || 'None'}</span>
+          <b>Global Role:</b> <span>{_.startCase(admin.global_role) || '-'}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Created At:</b> <span>{moment(admin.created_at).format()}</span>

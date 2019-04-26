@@ -137,10 +137,10 @@ class UsersPage extends Component {
       )
     }
     if (key === 'username') {
-      return data || 'None'
+      return data || '-'
     }
     if (key === 'provider_user_id') {
-      return data || 'None'
+      return data || '-'
     }
     if (key === 'email') {
       return data || '-'

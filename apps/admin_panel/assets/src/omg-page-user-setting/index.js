@@ -186,7 +186,7 @@ class UserSettingPage extends Component {
       <UserSettingContainer>
         <TopNavigation
           divider={this.props.divider}
-          title={'My Profile'}
+          title='My Profile'
           secondaryAction={false}
         />
         {this.props.loadingStatus === 'SUCCESS' && (
