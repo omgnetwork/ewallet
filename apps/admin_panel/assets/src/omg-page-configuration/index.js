@@ -43,7 +43,7 @@ const InputPrefixContainer = styled.div`
   i {
     position: absolute;
     right: -20px;
-    top: 0;
+    top: 4px;
     visibility: ${props => (props.hide ? 'hidden' : 'visible')};
     opacity: 0;
     font-size: 8px;
