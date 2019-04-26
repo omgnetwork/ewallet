@@ -257,6 +257,7 @@ class CreateTransaction extends Component {
           render={({ data }) => {
             return (
               <Select
+                disabled={!!this.props.fromAddress}
                 normalPlaceholder='acc_0x000000000000000'
                 onSelectItem={this.onSelectFromAddressSelect}
                 value={this.state.fromAddress}

@@ -13,7 +13,7 @@ const SelectContainer = styled.div`
 `
 const OptionsContainer = styled.div`
   position: absolute;
-  top: 39px;
+  top: 44px;
   z-index: 2;
   border: 1px solid #ebeff7;
   border-radius: 2px;
@@ -42,7 +42,8 @@ export default class Select extends PureComponent {
     optionBoxHeight: PropTypes.string,
     className: PropTypes.string,
     filterByKey: PropTypes.bool,
-    optionRenderer: PropTypes.func
+    optionRenderer: PropTypes.func,
+    disabled: PropTypes.bool
   }
   static defaultProps = {
     onSelectItem: _.noop,
@@ -86,22 +87,25 @@ export default class Select extends PureComponent {
       : this.props.options
 
     // eslint-disable-next-line no-unused-vars
-    const { className, onSelectItem, ...rest } = this.props
+    const { className, onSelectItem, disabled, ...rest } = this.props
     return (
       <SelectContainer className={className} active={this.state.active}>
         <Input
           {...rest}
+          disabled={disabled}
           onFocus={this.onFocus}
           onBlur={this.onBlur}
           onChange={this.props.onChange}
           value={this.props.value}
           registerRef={this.registerRef}
           suffix={
-            this.state.active ? (
-              <Icon name='Chevron-Up' />
-            ) : (
-              <Icon name='Chevron-Down' onMouseDown={this.onClickChevronDown} />
-            )
+            !disabled ? (
+              this.state.active ? (
+                <Icon name='Chevron-Up' />
+              ) : (
+                <Icon name='Chevron-Down' onMouseDown={this.onClickChevronDown} />
+              )
+            ) : null
           }
         />
         {this.state.active && filteredOption.length > 0 && (
