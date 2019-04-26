@@ -268,7 +268,10 @@ class TransactionPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Transactions'}
-          buttons={[this.renderCreateTransactionButton(), this.renderExportButton()]}
+          buttons={[
+            this.renderExportButton(),
+            this.renderCreateTransactionButton()
+          ]}
         />
         <SortableTable
           rows={transactions}

@@ -71,9 +71,23 @@ class AccountPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
   }
+
+  state = {
+    selectedRow: null
+  }
+
+  componentDidUpdate = (prevProps) => {
+    const prevTab = prevProps.location.search.includes('show-activity-tab')
+    const currentTab = this.props.location.search.includes('show-activity-tab')
+    if (prevTab && !currentTab) {
+      this.setState({ selectedRow: null })
+    }
+  }
+
   onClickRow = (data, index) => e => {
     // Click a link, ignore
     if (e.target.nodeName === 'A') return
+    this.setState({ selectedRow: data.id })
     const searchObject = queryString.parse(this.props.location.search)
     this.props.history.push({
       search: queryString.stringify({
@@ -243,6 +257,7 @@ class AccountPage extends Component {
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable
+            activeIndexKey={this.state.selectedRow}
             rows={activities}
             columns={this.getColumns()}
             loadingStatus={individualLoadingStatus}

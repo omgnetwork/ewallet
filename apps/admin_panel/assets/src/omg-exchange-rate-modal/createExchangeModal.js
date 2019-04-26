@@ -100,7 +100,7 @@ const Rate = styled.div`
   background-color: ${props => props.theme.colors.S300};
   color: ${props => props.changed ? props.theme.colors.BL300 : props.theme.colors.B300};
   display: inline-block;
-  border-radius: 3px;
+  border-radius: 2px;
 
   :first-child {
     margin-right: 5px;

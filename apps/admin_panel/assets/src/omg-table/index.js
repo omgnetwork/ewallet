@@ -84,7 +84,8 @@ class SortableTable extends PureComponent {
     pagination: PropTypes.bool,
     pageEntity: PropTypes.string,
     loadingEffect: PropTypes.bool,
-    hoverEffect: PropTypes.bool
+    hoverEffect: PropTypes.bool,
+    activeIndexKey: PropTypes.string
   }
   static defaultProps = {
     pageEntity: 'page',

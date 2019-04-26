@@ -26,7 +26,7 @@ const EmptyStageContainer = styled.div`
   }
 `
 const Tr = styled.tr`
-  background-color: ${props => (props.active ? props.theme.colors.S200 : 'transparent')};
+  background-color: ${props => (props.active ? props.theme.colors.S100 : 'transparent')};
 `
 class Table extends Component {
   static propTypes = {
