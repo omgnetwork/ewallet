@@ -33,6 +33,30 @@ defmodule EWalletDB.AuthTokenTest do
       assert String.length(auth_token.token) == 43
     end
 
+    test "generates an auth token with a correct expire_at when set a positive integer to auth_token_lifetime" do
+      user = insert(:user)
+
+      # Set the auth token lifetime to 60 minutes
+      Application.put_env(:ewallet, :auth_token_lifetime, 60)
+      assert {:ok, auth_token} = AuthToken.generate(user, @owner_app, %System{})
+
+      # Expect expire_at is next 60 minutes from now, with the precision down to a second.
+      expected_expire_at = NaiveDateTime.add(NaiveDateTime.utc_now(), 60 * 60, :second)
+
+      assert expected_expire_at
+             |> NaiveDateTime.diff(auth_token.expire_at, :second)
+             |> Kernel.floor() == 0
+    end
+
+    test "generates an auth token with expire_at nil when set zero to auth_token_lifetime" do
+      user = insert(:user)
+
+      Application.put_env(:ewallet, :auth_token_lifetime, 0)
+
+      assert {:ok, auth_token} = AuthToken.generate(user, @owner_app, %System{})
+      assert auth_token.expire_at == nil
+    end
+
     test "returns error if user is invalid" do
       account = insert(:account)
       {res, reason} = AuthToken.generate(account, @owner_app, %System{})
@@ -62,7 +86,7 @@ defmodule EWalletDB.AuthTokenTest do
   end
 
   describe "AuthToken.authenticate/2" do
-    test "returns an existing token if exists" do
+    test "returns a user if the token exists" do
       user = insert(:user)
       account = insert(:account)
       role = insert(:role, name: "admin")
@@ -71,6 +95,50 @@ defmodule EWalletDB.AuthTokenTest do
 
       auth_user = AuthToken.authenticate(auth_token.token, @owner_app)
       assert auth_user.uuid == user.uuid
+    end
+
+    test "returns a user if the token exists and the current date time is before expire_at" do
+      # Set the auth token lifetime to 1 hour.
+      Application.put_env(:ewallet, :auth_token_lifetime, 60)
+
+      user = insert(:user)
+
+      auth_token =
+        insert(:auth_token, %{
+          owner_app: Atom.to_string(@owner_app),
+          expire_at: NaiveDateTime.add(NaiveDateTime.utc_now(), 15, :second),
+          user: user
+        })
+
+      auth_user = AuthToken.authenticate(auth_token.token, @owner_app)
+      assert auth_user.uuid == user.uuid
+
+      # Assert the token has been refreshed.
+      updated_auth_token = AuthToken.get_by_token(auth_token.token, @owner_app)
+
+      # Expect expire_at is next 60 minutes from now, with the precision down to a second.
+      expected_expire_at = NaiveDateTime.add(NaiveDateTime.utc_now(), 60 * 60, :second)
+
+      assert updated_auth_token.expire_at
+             |> NaiveDateTime.diff(expected_expire_at, :second)
+             |> Kernel.floor() == 0
+    end
+
+    test "returns a user if the token exists and the expire_at is nil" do
+      user = insert(:user)
+      attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: nil, user: user}
+      token = insert(:auth_token, attrs)
+
+      auth_user = AuthToken.authenticate(token.token, @owner_app)
+      assert auth_user.uuid == user.uuid
+    end
+
+    test "returns :token_expired if the token exists and the current date time is after expire_at" do
+      attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: NaiveDateTime.utc_now()}
+
+      token = insert(:auth_token, attrs)
+
+      assert AuthToken.authenticate(token.token, @owner_app) == :token_expired
     end
 
     test "returns :token_expired if token exists but expired" do
@@ -101,7 +169,7 @@ defmodule EWalletDB.AuthTokenTest do
   end
 
   describe "AuthToken.authenticate/3" do
-    test "returns an existing token if user_id and token match" do
+    test "returns a user if user_id and token match" do
       user = insert(:user)
       account = insert(:account)
       role = insert(:role, name: "admin")
@@ -113,7 +181,7 @@ defmodule EWalletDB.AuthTokenTest do
       assert auth_user.uuid == user.uuid
     end
 
-    test "returns an existing token if user_id and token match and user has multiple tokens" do
+    test "returns a user if user_id and token match and user has multiple tokens" do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "admin")
@@ -123,6 +191,50 @@ defmodule EWalletDB.AuthTokenTest do
 
       assert AuthToken.authenticate(user.id, token1.token, @owner_app)
       assert AuthToken.authenticate(user.id, token2.token, @owner_app)
+    end
+
+    test "returns a user if the current date time is before expire_at" do
+      # Set the auth token lifetime to 60 minutes.
+      Application.put_env(:ewallet, :auth_token_lifetime, 60)
+
+      user = insert(:user)
+
+      auth_token =
+        insert(:auth_token, %{
+          owner_app: Atom.to_string(@owner_app),
+          expire_at: NaiveDateTime.add(NaiveDateTime.utc_now(), 15, :second),
+          user: user
+        })
+
+      auth_user = AuthToken.authenticate(user.id, auth_token.token, @owner_app)
+      assert auth_user.uuid == user.uuid
+
+      # Assert the token has been refreshed.
+      updated_auth_token = AuthToken.get_by_token(auth_token.token, @owner_app)
+
+      # Expect expire_at is next 60 minutes from now, with the precision down to a second.
+      expected_expire_at = NaiveDateTime.add(NaiveDateTime.utc_now(), 60 * 60, :second)
+
+      assert updated_auth_token.expire_at
+             |> NaiveDateTime.diff(expected_expire_at, :second)
+             |> Kernel.floor() == 0
+    end
+
+    test "returns a user if the expire_at is nil" do
+      user = insert(:user)
+      attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: nil, user: user}
+      token = insert(:auth_token, attrs)
+
+      auth_user = AuthToken.authenticate(user.id, token.token, @owner_app)
+      assert auth_user.uuid == user.uuid
+    end
+
+    test "returns :token_expired if the current date time is after expire_at" do
+      attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: NaiveDateTime.utc_now()}
+
+      token = insert(:auth_token, attrs)
+
+      assert AuthToken.authenticate(token.token, @owner_app) == :token_expired
     end
 
     test "returns :token_expired if token exists but expired" do
