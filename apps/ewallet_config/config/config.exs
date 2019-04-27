@@ -64,18 +64,32 @@ config :ewallet_config,
       position: 105,
       description: "The duration (in minutes) that a forget password request will be valid for."
     },
+    "auth_token_lifetime" => %{
+      key: "auth_token_lifetime",
+      value: 60 * 24,
+      type: "unsigned_integer",
+      position: 106,
+      description: "The duration (in minutes) that an auth token will be valid for."
+    },
+    "pre_auth_token_lifetime" => %{
+      key: "pre_auth_token_lifetime",
+      value: 60 * 24,
+      type: "unsigned_integer",
+      position: 107,
+      description: "The duration (in minutes) that a pre auth token will be valid for."
+    },
     "number_of_backup_codes" => %{
       key: "number_of_backup_codes",
       value: 10,
       type: "unsigned_integer",
-      position: 106,
+      position: 108,
       description: "The number of backup codes for the two-factor authentication."
     },
     "two_fa_issuer" => %{
       key: "two_fa_issuer",
       value: "OmiseGO",
       type: "string",
-      position: 107,
+      position: 109,
       description:
         "The issuer for the two-factor authentication, which will be displayed the OTP app."
     },
