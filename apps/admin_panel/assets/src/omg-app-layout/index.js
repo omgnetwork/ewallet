@@ -28,11 +28,11 @@ const ContentContainer = styled.div`
   display: inline-block;
   width: calc(100% - 220px);
   height: 100vh;
-  overflow: auto;
+  overflow-y: scroll;
+  overflow-x: hidden;
 `
 const Content = styled.div`
   padding: 0 7% 50px 7%;
-  overflow: hidden;
 `
 class AppLayout extends Component {
   static propTypes = {

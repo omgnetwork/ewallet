@@ -7,18 +7,18 @@ import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import DateTime from 'react-datetime'
 import { connect } from 'react-redux'
+import { Manager, Reference, Popper } from 'react-popper'
 
+import { Input, Button, Icon, Tag } from '../omg-uikit'
 import SortableTable from '../omg-table'
 import ExportFetcher from '../omg-export/exportFetcher'
 import { downloadExportFileById, getExports } from '../omg-export/action'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Input, Button, Icon } from '../omg-uikit'
 import { exportTransaction } from '../omg-transaction/action'
 import { createSearchTransactionExportQuery } from './searchField'
 import CONSTANT from '../constants'
 import ProgressBar from './ProgressBar'
 import ConfirmationModal from '../omg-confirmation-modal'
-import { Manager, Reference, Popper } from 'react-popper'
 import { MarkContainer } from '../omg-page-transaction'
 
 const Container = styled.div`
@@ -29,8 +29,12 @@ const Container = styled.div`
 const FormDetailContainer = styled.form`
   border: 1px solid #ebeff7;
   border-radius: 2px;
-  padding: 40px;
+  padding: 30px;
   box-shadow: 0 4px 12px 0 #e8eaed;
+  margin-bottom: 40px;
+  .date-time {
+    margin-top: 30px;
+  }
   input {
     width: 100%;
   }
@@ -40,7 +44,6 @@ const FormDetailContainer = styled.form`
   h5 {
     text-align: left;
   }
-  text-align: right;
 `
 
 const ExportFormContainer = styled.div`
@@ -91,7 +94,24 @@ const ProgressTextContainer = styled.div`
   }
 `
 
+const ContentContainer = styled.div`
+  margin-top: 40px;
+  display: flex;
+  flex-direction: row;
+`
+
+const ActionContainer = styled.div`
+  flex: 1 1 0;
+  margin-right: 40px;
+
+  .title {
+    font-weight: bold;
+    margin-bottom: 40px;
+  }
+`
+
 const TableContainer = styled.div`
+  flex: 1.2 1 0;
   td:nth-child(2) {
     width: 190px;
   }
@@ -128,6 +148,9 @@ const AlertEmptyTextContainer = styled.div`
 `
 
 const TitleContainer = styled.div`
+  span {
+    padding-left: 10px;
+  }
   > i {
     cursor: pointer;
   }
@@ -360,7 +383,7 @@ class TransactionExportPage extends Component {
                         onChange={this.onDateTimeFromChange}
                         onFocus={this.onDateTimeFromFocus}
                         value={this.state.fromDate}
-                        placeholder='From date..'
+                        normalPlaceholder='From date..'
                       />
                     </div>
                     <div>
@@ -369,7 +392,7 @@ class TransactionExportPage extends Component {
                         onChange={this.onDateTimeToChange}
                         onFocus={this.onDateTimeToFocus}
                         value={this.state.toDate}
-                        placeholder='To date..'
+                        normalPlaceholder='To date..'
                       />
                     </div>
                     <Button loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}>
@@ -400,25 +423,69 @@ class TransactionExportPage extends Component {
                   divider={this.props.divider}
                   title={
                     <TitleContainer>
-                      <Icon name='Arrow-Left' onClick={this.props.history.goBack} /> Export
-                      Transactions
+                      <Icon name='Arrow-Left' onClick={this.props.history.goBack} />
+                      <span>Export Transactions</span>
                     </TitleContainer>
                   }
                   buttons={[this.renderExportButton(fetch)]}
                   secondaryAction={false}
                 />
-                <TableContainer>
-                  <SortableTable
-                    rows={data}
-                    columns={columns}
-                    loadingStatus={individualLoadingStatus}
-                    isFirstPage={pagination.is_first_page}
-                    isLastPage={pagination.is_last_page}
-                    navigation
-                    rowRenderer={this.rowRenderer}
-                    loadingEffect={false}
-                  />
-                </TableContainer>
+
+                <ContentContainer>
+                  <ActionContainer>
+                    <div className='title'>
+                      <div>Select the range you want to export.</div>
+                      <div>The export format will be CSV.</div>
+                    </div>
+
+                    <FormDetailContainer onSubmit={this.onClickExport(fetch)}>
+                      <div>
+                        <Tag title='Start' small />
+                        <DateTimeHotFix
+                          onChange={this.onDateTimeFromChange}
+                          onFocus={this.onDateTimeFromFocus}
+                          value={this.state.fromDate}
+                          placeholder='Date'
+                          normalPlaceholder='00/00/00'
+                          inputActive
+                          icon='Calendar'
+                        />
+                      </div>
+                      <div>
+                        <Tag title='End' small />
+                        <DateTimeHotFix
+                          onChange={this.onDateTimeToChange}
+                          onFocus={this.onDateTimeToFocus}
+                          value={this.state.toDate}
+                          placeholder='Date'
+                          normalPlaceholder='00/00/00'
+                          inputActive
+                          icon='Calendar'
+                        />
+                      </div>
+                    </FormDetailContainer>
+
+                    <Button
+                      onClick={this.onClickExport(fetch)}
+                      loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}
+                    >
+                      <span>Export</span>
+                    </Button>
+                  </ActionContainer>
+
+                  <TableContainer>
+                    <SortableTable
+                      rows={data}
+                      columns={columns}
+                      loadingStatus={individualLoadingStatus}
+                      isFirstPage={pagination.is_first_page}
+                      isLastPage={pagination.is_last_page}
+                      navigation
+                      rowRenderer={this.rowRenderer}
+                      loadingEffect={false}
+                    />
+                  </TableContainer>
+                </ContentContainer>
 
                 <ConfirmationModal
                   open={this.state.confirmationModalOpen}
@@ -447,11 +514,15 @@ class DateTimeHotFix extends PureComponent {
     onChange: PropTypes.func,
     value: PropTypes.object,
     onFocus: PropTypes.func,
-    placeholder: PropTypes.string
+    placeholder: PropTypes.string,
+    normalPlaceholder: PropTypes.string,
+    inputActive: PropTypes.bool,
+    icon: PropTypes.string
   }
   render () {
     return (
       <DateTime
+        className='date-time'
         closeOnSelect
         onChange={this.props.onChange}
         renderInput={(props, openCalendar, closeCalendar) => {
@@ -460,7 +531,10 @@ class DateTimeHotFix extends PureComponent {
               {...props}
               value={this.props.value && this.props.value.format('DD/MM/YYYY hh:mm:ss a')}
               onFocus={this.props.onFocus}
-              normalPlaceholder={this.props.placeholder}
+              placeholder={this.props.placeholder}
+              normalPlaceholder={this.props.normalPlaceholder}
+              inputActive={this.props.inputActive}
+              icon={this.props.icon}
             />
           )
         }}
