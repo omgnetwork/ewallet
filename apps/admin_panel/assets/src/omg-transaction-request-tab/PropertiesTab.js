@@ -16,7 +16,6 @@ const TransactionReqeustPropertiesContainer = styled.div`
 
 class PropertiesTab extends Component {
   static propTypes = {
-    match: PropTypes.object,
     transactionRequest: PropTypes.object
   }
   state = {}

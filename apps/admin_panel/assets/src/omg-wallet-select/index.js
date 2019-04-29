@@ -29,7 +29,16 @@ export default class WalletSelectItem extends Component {
   static defaultProps = {
     wallet: {}
   }
-
+  getIdentifier (identifier) {
+    switch (identifier) {
+      case 'primary':
+        return 'Primary'
+      case 'burn':
+        return 'Burn'
+      default:
+        return 'Secondary'
+    }
+  }
   render () {
     const accountName = _.get(this.props.wallet, 'account.name')
     const userName = _.get(this.props.wallet, 'user.username')
@@ -44,7 +53,7 @@ export default class WalletSelectItem extends Component {
         <DetailContainer>
           <Address>{this.props.wallet.address}</Address>
           <WalletNameAndIdentifier>
-            {type} {accountName || userName || userEmail} | {this.props.wallet.identifier}
+            {_.upperFirst(type)} {accountName || userName || userEmail} | {this.props.wallet.name} - {this.getIdentifier(this.props.wallet.identifier)}
           </WalletNameAndIdentifier>
         </DetailContainer>
       </WalletSelectItemContainer>

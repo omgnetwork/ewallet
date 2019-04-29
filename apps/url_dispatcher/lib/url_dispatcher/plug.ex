@@ -31,6 +31,7 @@ defmodule UrlDispatcher.Plug do
   end
 
   defp handle_request("/admin" <> _, conn), do: AdminPanel.Endpoint.call(conn, [])
+  defp handle_request("/client" <> _, conn), do: AdminPanel.Endpoint.call(conn, [])
   defp handle_request("/api/client" <> _, conn), do: EWalletAPI.Endpoint.call(conn, [])
   defp handle_request("/api/admin" <> _, conn), do: AdminAPI.Endpoint.call(conn, [])
   defp handle_request("/pages/client" <> _, conn), do: EWalletAPI.Endpoint.call(conn, [])

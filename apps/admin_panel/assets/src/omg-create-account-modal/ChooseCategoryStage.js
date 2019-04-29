@@ -50,7 +50,8 @@ const SearchResult = styled.div`
   padding-right: 20px;
 `
 const SearchItem = styled.div`
-  vertical-align: middle;
+  display: flex;
+  align-items: center;
   cursor: pointer;
   i {
     opacity: ${props => (props.active ? 1 : 0)};
@@ -142,7 +143,7 @@ class ChooseCategoryStage extends Component {
           <SearchResult>
             <SearchItem
               active={_.isEmpty(this.props.category)}
-              onClick={e => this.props.onChooseCategory({name: 'None'})}
+              onClick={e => this.props.onChooseCategory({ name: 'None' })}
             >
               <Icon name='Checked' />
               <span>None</span>

@@ -4,8 +4,6 @@ import styled from 'styled-components'
 import clickOutside from '../../enhancer/clickOutside'
 
 export const DropdownBox = styled.div`
-  position: absolute;
-  z-index: 2;
   border: 1px solid #ebeff7;
   border-radius: 2px;
   box-shadow: 0 4px 12px 0 #e8eaed;

@@ -42,6 +42,8 @@ tags:
     description: Resources related to user session tokens.
   - name: User
     description: Resources related to users.
+  - name: Permission
+    description: Resources related to permissions.
   - name: Token
     description: Resources related to tokens.
   - name: ExchangePair
@@ -486,7 +488,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_40
+      requestBody: &ref_43
         description: >-
           The parameters to use for retrieving a specific user by its id or
           provider_user_id
@@ -681,6 +683,8 @@ paths:
                                       type: string
                                     subunit_to_unit:
                                       type: integer
+                                    avatar:
+                                      type: object
                                     created_at:
                                       type: string
                                       format: date-time
@@ -699,6 +703,7 @@ paths:
                                     - symbol
                                     - name
                                     - subunit_to_unit
+                                    - avatar
                                     - created_at
                                     - updated_at
                                     - enabled
@@ -713,6 +718,8 @@ paths:
                             subunit_to_unit: 100
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
+                            avatar:
+                              original: file_url
                             enabled: true
                             metadata: {}
                             encrypted_metadata: {}
@@ -765,6 +772,8 @@ paths:
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         enabled: true
+                        avatar:
+                          original: file_url
                         metadata: {}
                         encrypted_metadata: {}
         '500': *ref_2
@@ -873,6 +882,38 @@ paths:
                 id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
                 name: Bitcoin v2
                 description: an awesome updated description
+      responses:
+        '200': *ref_11
+        '500': *ref_2
+  /token.upload_avatar:
+    post:
+      tags:
+        - Token
+      summary: Uploads avatar for a token
+      operationId: token_upload_avatar
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for uploading a token's avatar. Only supports
+          .jpg, .jpeg, .gif and .png.
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                id:
+                  type: string
+                avatar:
+                  type: string
+                  format: binary
+              required:
+                - id
+                - avatar
+              example:
+                id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+                avatar: /path/to/file
       responses:
         '200': *ref_11
         '500': *ref_2
@@ -1239,7 +1280,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_48
+                                items: &ref_52
                                   description: The object schema for an exchange pair
                                   type: object
                                   properties: &ref_18
@@ -1694,7 +1735,7 @@ paths:
                         data:
                           - object: account
                             id: acc_01ca2p8jqans5aty5gj5etmjcf
-                            parent_id: acc_01ca26pkge49aabzd6k6mshn0y
+                            parent_id: null
                             name: Account name
                             description: The account description
                             master: true
@@ -1749,7 +1790,7 @@ paths:
                       data:
                         object: account
                         id: acc_01ca2p8jqans5aty5gj5etmjcf
-                        parent_id: acc_01ca26pkge49aabzd6k6mshn0y
+                        parent_id: null
                         name: Account Name
                         description: The account description
                         master: true
@@ -1782,8 +1823,6 @@ paths:
                   type: string
                 description:
                   type: string
-                parent_id:
-                  type: string
                 category_ids:
                   type: array
                   items:
@@ -1799,7 +1838,6 @@ paths:
               example:
                 name: Account Name
                 description: The account description
-                parent_id: acc_01ca26pkge49aabzd6k6mshn0y
                 category_ids: []
                 metadata: {}
                 encrypted_metadata: {}
@@ -1973,114 +2011,66 @@ paths:
       responses:
         '200': *ref_7
         '500': *ref_2
-  /account.get_members:
+  /account.assign_key:
     post:
       tags:
         - Account
-      summary: List the admins that are currently assigned to the given acount
-      operationId: account_get_members
+      summary: Assigns a key to an account with a role
+      operationId: account_assign_key
       security:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
-        description: The parameters to use for listing an account's data
+        description: The parameters to use for assigning a key to an account
         required: true
         content:
           application/vnd.omisego.v1+json:
             schema:
-              allOf:
-                - *ref_12
+              key_id:
+                type: string
+              account_id:
+                type: string
+              role_name:
+                type: string
+            required:
+              - key_id
+              - account_id
+              - role_name
+            example:
+              key_id: key_01ce83q2zw7zk1dqr79t22zr1v
+              account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+              role_name: admin
+      responses:
+        '200': *ref_7
+        '500': *ref_2
+  /account.unassign_key:
+    post:
+      tags:
+        - Account
+      summary: Unassigns a key from an account
+      operationId: account_unassign_key
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for unassigning a key from an account
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
               properties:
-                id:
+                key_id:
+                  type: string
+                account_id:
                   type: string
               required:
-                - id
+                - key_id
+                - account_id
               example:
-                id: acc_01ca2p8jqans5aty5gj5etmjcf
+                account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                key_id: key_01ce83q2zw7zk1dqr79t22zr1v
       responses:
-        '200':
-          description: Returns a list of members
-          content:
-            application/vnd.omisego.v1+json:
-              schema:
-                description: The response schema for a list of members
-                allOf:
-                  - *ref_13
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        allOf:
-                          - type: object
-                            properties:
-                              data:
-                                type: array
-                                items:
-                                  description: The object schema for an account member
-                                  type: object
-                                  properties:
-                                    object:
-                                      type: string
-                                    id:
-                                      type: string
-                                    username:
-                                      type: string
-                                    full_name:
-                                      type: string
-                                    calling_name:
-                                      type: string
-                                    provider_user_id:
-                                      type: string
-                                    email:
-                                      type: string
-                                      format: email
-                                    enabled:
-                                      type: boolean
-                                    metadata:
-                                      type: object
-                                    encrypted_metadata:
-                                      type: object
-                                    avatar:
-                                      type: object
-                                    created_at:
-                                      type: string
-                                      format: date-time
-                                    updated_at:
-                                      type: string
-                                      format: date-time
-                                    role:
-                                      type: string
-                                    account:
-                                      type: object
-                                      description: The object schema for an account
-                                      properties: *ref_14
-                                      required: *ref_15
-                                  required:
-                                    - object
-                                    - id
-                                    - created_at
-                                    - updated_at
-                    example:
-                      data:
-                        object: list
-                        data:
-                          - object: user
-                            id: usr_01ce83zf80j542z4q4zqd8qvfx
-                            provider_user_id: null
-                            username: johndoe
-                            full_name: John Doe
-                            calling_name: John
-                            email: johndoe@omise.co
-                            metadata:
-                              first_name: John
-                              last_name: Doe
-                            enabled: true
-                            encrypted_metadata:
-                              something: secret
-                            created_at: '2018-01-01T00:00:00Z'
-                            updated_at: '2018-01-01T10:00:00Z'
-                            role: admin
-                            account: {}
+        '200': *ref_7
         '500': *ref_2
   /account.get_users:
     post:
@@ -2111,7 +2101,7 @@ paths:
                 id: acc_01ca2p8jqans5aty5gj5etmjcf
                 owned: true
       responses:
-        '200': &ref_37
+        '200': &ref_40
           description: Returns a list of users
           content:
             application/vnd.omisego.v1+json:
@@ -2218,7 +2208,7 @@ paths:
                                 items:
                                   description: The object schema for a wallet
                                   type: object
-                                  properties: &ref_44
+                                  properties: &ref_47
                                     object:
                                       type: string
                                     socket_topic:
@@ -2243,7 +2233,7 @@ paths:
                                     account: *ref_30
                                     balances:
                                       type: array
-                                      items:
+                                      items: &ref_50
                                         description: The object schema for a balance
                                         type: object
                                         properties:
@@ -2260,7 +2250,7 @@ paths:
                                           - object
                                           - token
                                           - amount
-                                  required: &ref_45
+                                  required: &ref_48
                                     - object
                                     - socket_topic
                                     - address
@@ -2323,7 +2313,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_33
       responses:
-        '200': &ref_41
+        '200': &ref_44
           description: Returns a list of transactions
           content:
             application/vnd.omisego.v1+json:
@@ -2401,7 +2391,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_33
       responses:
-        '200': &ref_49
+        '200': &ref_53
           description: Returns a list of transaction requests
           content:
             application/vnd.omisego.v1+json:
@@ -2423,7 +2413,7 @@ paths:
                                     The response schema for a transaction
                                     request
                                   type: object
-                                  properties: &ref_50
+                                  properties: &ref_54
                                     object:
                                       type: string
                                     id:
@@ -2460,6 +2450,12 @@ paths:
                                       type: integer
                                     max_consumptions_per_user:
                                       type: integer
+                                    max_consumptions_per_interval:
+                                      type: integer
+                                    max_consumptions_per_interval_per_user:
+                                      type: integer
+                                    consumption_interval_duration:
+                                      type: integer
                                     consumption_lifetime:
                                       type: integer
                                     expiration_reason:
@@ -2482,7 +2478,7 @@ paths:
                                       type: string
                                     updated_at:
                                       type: string
-                                  required: &ref_51
+                                  required: &ref_55
                                     - object
                                     - id
                                     - formatted_id
@@ -2499,6 +2495,9 @@ paths:
                                     - require_confirmation
                                     - max_consumptions
                                     - max_consumptions_per_user
+                                    - max_consumptions_per_interval
+                                    - max_consumptions_per_interval_per_user
+                                    - consumption_interval_duration
                                     - consumption_lifetime
                                     - expiration_reason
                                     - allow_amount_override
@@ -2549,7 +2548,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_33
       responses:
-        '200': &ref_43
+        '200': &ref_46
           description: Returns a list of transaction consumptions
           content:
             application/vnd.omisego.v1+json:
@@ -2698,6 +2697,296 @@ paths:
                             failed_at: null
                             expired_at: null
         '500': *ref_2
+  /account.get_admin_user_memberships:
+    post:
+      tags:
+        - Account
+      summary: List the admin memberships of the given acount
+      operationId: account_get_admin_user_memberships
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: &ref_36
+        description: The parameters to use for listing an account's data
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_12
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: acc_01ca2p8jqans5aty5gj5etmjcf
+      responses:
+        '200':
+          description: Returns a list of membership
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of memberships
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: &ref_37
+                                  description: The object schema for a membership
+                                  type: object
+                                  properties:
+                                    object:
+                                      type: string
+                                    user_id:
+                                      type: string
+                                    user:
+                                      type: object
+                                    key_id:
+                                      type: string
+                                    key:
+                                      type: object
+                                    account_id:
+                                      type: string
+                                    account:
+                                      type: object
+                                    role:
+                                      type: string
+                                    created_at:
+                                      type: string
+                                      format: date-time
+                                    updated_at:
+                                      type: string
+                                      format: date-time
+                                  required:
+                                    - object
+                                    - user_id
+                                    - user
+                                    - key_id
+                                    - key
+                                    - account_id
+                                    - account
+                                    - role
+                                    - created_at
+                                    - updated_at
+                    example:
+                      data:
+                        data:
+                          - object: membership
+                            user_id: usr_01ce83zf80j542z4q4zqd8qvfx
+                            user:
+                              object: user
+                              id: usr_01ce83zf80j542z4q4zqd8qvfx
+                              provider_user_id: wijf-fbancomw-dqwjudb
+                              username: johndoe
+                              full_name: John Doe
+                              calling_name: John
+                              email: johndoe@omise.co
+                              enabled: true
+                              metadata:
+                                first_name: John
+                                last_name: Doe
+                              encrypted_metadata:
+                                something: secret
+                              avatar:
+                                original: file_url
+                              global_role: admin
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                            key_id: null
+                            key: null
+                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            account:
+                              object: account
+                              id: acc_01ca2p8jqans5aty5gj5etmjcf
+                              parent_id: null
+                              name: Account name
+                              description: The account description
+                              master: true
+                              category_ids: []
+                              roles: []
+                              metadata: {}
+                              encrypted_metadata: {}
+                              avatar:
+                                original: file_url
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                            role: admin
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_2
+  /account.get_key_memberships:
+    post:
+      tags:
+        - Account
+      summary: List the key memberships of the given acount
+      operationId: account_get_key_memberships
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_36
+      responses:
+        '200':
+          description: Returns a list of membership
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of memberships
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: *ref_37
+                    example:
+                      data:
+                        data:
+                          - object: membership
+                            user_id: null
+                            user: null
+                            key_id: key_01ce843mvg5fa1zpk5myy69h4q
+                            key:
+                              object: key
+                              id: key_01ce843mvg5fa1zpk5myy69h4q
+                              access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+                              secret_key: null
+                              account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                              global_role: admin
+                              enabled: true
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                              deleted_at: null
+                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            account:
+                              - object: account
+                                id: acc_01ca2p8jqans5aty5gj5etmjcf
+                                parent_id: null
+                                name: Account name
+                                description: The account description
+                                master: true
+                                category_ids: []
+                                roles: []
+                                metadata: {}
+                                encrypted_metadata: {}
+                                avatar:
+                                  original: file_url
+                                created_at: '2018-01-01T00:00:00Z'
+                                updated_at: '2018-01-01T10:00:00Z'
+                            role: admin
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_2
+  /account.get_members:
+    post:
+      tags:
+        - Account
+      summary: >-
+        List the admins that are currently assigned to the given acount
+        (deprecated, use 'account.get_admin_user_memberships' instead)
+      operationId: account_get_members
+      deprecated: true
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: *ref_36
+      responses:
+        '200':
+          description: Returns a list of members
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of members
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: The object schema for an account member
+                                  type: object
+                                  properties:
+                                    object:
+                                      type: string
+                                    id:
+                                      type: string
+                                    username:
+                                      type: string
+                                    full_name:
+                                      type: string
+                                    calling_name:
+                                      type: string
+                                    provider_user_id:
+                                      type: string
+                                    email:
+                                      type: string
+                                      format: email
+                                    enabled:
+                                      type: boolean
+                                    metadata:
+                                      type: object
+                                    encrypted_metadata:
+                                      type: object
+                                    avatar:
+                                      type: object
+                                    created_at:
+                                      type: string
+                                      format: date-time
+                                    updated_at:
+                                      type: string
+                                      format: date-time
+                                    role:
+                                      type: string
+                                    account:
+                                      type: object
+                                      description: The object schema for an account
+                                      properties: *ref_14
+                                      required: *ref_15
+                                  required:
+                                    - object
+                                    - id
+                                    - created_at
+                                    - updated_at
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: user
+                            id: usr_01ce83zf80j542z4q4zqd8qvfx
+                            provider_user_id: null
+                            username: johndoe
+                            full_name: John Doe
+                            calling_name: John
+                            email: johndoe@omise.co
+                            metadata:
+                              first_name: John
+                              last_name: Doe
+                            enabled: true
+                            encrypted_metadata:
+                              something: secret
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+                            role: admin
+                            account: {}
+        '500': *ref_2
   /admin.reset_password:
     post:
       tags:
@@ -2790,7 +3079,7 @@ paths:
                 email: new.email@example.com
                 token: verification_token
       responses:
-        '200': &ref_36
+        '200': &ref_38
           description: Returns a single admin panel user
           content:
             application/vnd.omisego.v1+json:
@@ -2898,7 +3187,98 @@ paths:
               example:
                 id: usr_01ce83q2zw7zk1dqr79t22zr1v
       responses:
-        '200': *ref_36
+        '200': *ref_38
+        '500': *ref_2
+  /admin.create:
+    post:
+      tags:
+        - Admin
+      summary: Create a new admin.
+      operationId: admin_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to send to create an admin user
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                email:
+                  type: string
+                redirect_url:
+                  type: string
+                full_name:
+                  type: string
+                calling_name:
+                  type: string
+                enabled:
+                  type: boolean
+                global_role:
+                  type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - email
+                - redirect_url
+              example:
+                email: user@example.com
+                redirect_url: 'http://localhost:4000/admin/invite?email={email}&token={token}'
+                full_name: John Doe
+                calling_name: John
+                global_role: admin
+      responses:
+        '200': *ref_7
+        '500': *ref_2
+  /admin.update:
+    post:
+      tags:
+        - Admin
+      summary: Update an admin.
+      operationId: admin_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody: &ref_39
+        description: >-
+          Parameters to update a user. A user can't update himself through this
+          endpoint. If an email address is given, an email will be sent to the
+          address, allowing the user to confirm the new email address.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                full_name:
+                  type: string
+                calling_name:
+                  type: string
+                enabled:
+                  type: boolean
+                global_role:
+                  type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - id
+              example:
+                id: usr_01ce83q2zw7zk1dqr79t22zr1v
+                full_name: John Doe
+                calling_name: John
+                global_role: admin
+      responses:
+        '200': *ref_38
         '500': *ref_2
   /admin.enable_or_disable:
     post:
@@ -2929,7 +3309,96 @@ paths:
                 id: usr_01ct2zjh20fj210bzz078948f6
                 enabled: false
       responses:
-        '200': *ref_36
+        '200': *ref_38
+        '500': *ref_2
+  /admin.get_account_memberships:
+    post:
+      tags:
+        - Admin
+      summary: Get the list of account memberships linked to the given access admin id
+      operationId: admin_get_account_memberships
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for listing an admin's data
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_12
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: usr_01ce83zf80j542z4q4zqd8qvfx
+      responses:
+        '200':
+          description: Returns a list of memberships
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of memberships
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: *ref_37
+                    example:
+                      data:
+                        data:
+                          - object: membership
+                            user_id: usr_01ce83zf80j542z4q4zqd8qvfx
+                            user:
+                              object: user
+                              id: usr_01ce83zf80j542z4q4zqd8qvfx
+                              provider_user_id: wijf-fbancomw-dqwjudb
+                              username: johndoe
+                              full_name: John Doe
+                              calling_name: John
+                              email: johndoe@omise.co
+                              enabled: true
+                              metadata:
+                                first_name: John
+                                last_name: Doe
+                              encrypted_metadata:
+                                something: secret
+                              avatar:
+                                original: file_url
+                              global_role: admin
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                            key_id: null
+                            key: null
+                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            account:
+                              object: account
+                              id: acc_01ca2p8jqans5aty5gj5etmjcf
+                              parent_id: null
+                              name: Account name
+                              description: The account description
+                              master: true
+                              category_ids: []
+                              roles: []
+                              metadata: {}
+                              encrypted_metadata: {}
+                              avatar:
+                                original: file_url
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                            role: admin
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
         '500': *ref_2
   /invite.accept:
     post:
@@ -2965,7 +3434,7 @@ paths:
       security:
         - ClientAuth: []
       responses:
-        '200': *ref_36
+        '200': *ref_38
         '500': *ref_2
   /me.get:
     post:
@@ -2976,7 +3445,7 @@ paths:
       security:
         - AdminAuth: []
       responses:
-        '200': *ref_36
+        '200': *ref_38
         '500': *ref_2
   /me.update:
     post:
@@ -2986,24 +3455,9 @@ paths:
       operationId: me_update
       security:
         - AdminAuth: []
-      requestBody:
-        description: The parameters to use for updating a user
-        required: true
-        content:
-          application/vnd.omisego.v1+json:
-            schema:
-              properties:
-                metadata:
-                  type: object
-                  additionalProperties: true
-                encrypted_metadata:
-                  type: object
-                  additionalProperties: true
-              example:
-                metadata: {}
-                encrypted_metadata: {}
+      requestBody: *ref_39
       responses:
-        '200': *ref_36
+        '200': *ref_38
         '500': *ref_2
   /me.update_email:
     post:
@@ -3028,7 +3482,7 @@ paths:
                 email: new.email@example.com
                 redirect_url: 'https://example.com'
       responses:
-        '200': *ref_36
+        '200': *ref_38
         '500': *ref_2
   /me.update_password:
     post:
@@ -3059,7 +3513,7 @@ paths:
                 password: new_password
                 password_confirmation: new_password
       responses:
-        '200': *ref_36
+        '200': *ref_38
         '500': *ref_2
   /me.upload_avatar:
     post:
@@ -3090,7 +3544,7 @@ paths:
                 id: usr_01ce83xvrsh8bzpctq3wqbprf8
                 avatar: /path/to/file
       responses:
-        '200': *ref_36
+        '200': *ref_38
         '500': *ref_2
   /me.get_account:
     post:
@@ -3128,7 +3582,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_16
       responses:
-        '200': *ref_37
+        '200': *ref_40
         '500': *ref_2
   /user.create:
     post:
@@ -3139,7 +3593,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_38
+      requestBody: &ref_41
         description: The parameters to use for creating or updating a user
         required: true
         content:
@@ -3173,7 +3627,7 @@ paths:
                   last_name: Doe
                 encrypted_metadata: {}
       responses:
-        '200': &ref_39
+        '200': &ref_42
           description: Returns a single user
           content:
             application/vnd.omisego.v1+json:
@@ -3215,9 +3669,9 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_38
+      requestBody: *ref_41
       responses:
-        '200': *ref_39
+        '200': *ref_42
         '500': *ref_2
   /user.get:
     post:
@@ -3228,9 +3682,9 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_40
+      requestBody: *ref_43
       responses:
-        '200': *ref_39
+        '200': *ref_42
         '500': *ref_2
   /user.get_wallets:
     post:
@@ -3277,7 +3731,7 @@ paths:
         - User
       summary: Get the list of transactions for the given user
       operationId: get_all_transactions_for_user
-      requestBody: &ref_42
+      requestBody: &ref_45
         description: >-
           The parameters to use for retrieving a collection owned by user by its
           id or provider_user_id
@@ -3303,7 +3757,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_41
+        '200': *ref_44
         '500': *ref_2
   /user.get_transaction_consumptions:
     post:
@@ -3314,9 +3768,9 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_42
+      requestBody: *ref_45
       responses:
-        '200': *ref_43
+        '200': *ref_46
         '500': *ref_2
   /user.enable_or_disable:
     post:
@@ -3356,7 +3810,7 @@ paths:
                 id: usr_01ct2zjh20fj210bzz078948f6
                 enabled: false
       responses:
-        '200': *ref_39
+        '200': *ref_42
         '500': *ref_2
   /wallet.all:
     post:
@@ -3446,7 +3900,7 @@ paths:
                     - identifier
                     - account_id
       responses:
-        '200': &ref_46
+        '200': &ref_49
           description: Returns a single wallet
           content:
             application/vnd.omisego.v1+json:
@@ -3459,8 +3913,8 @@ paths:
                       data:
                         type: object
                         description: The object schema for a wallet
-                        properties: *ref_44
-                        required: *ref_45
+                        properties: *ref_47
+                        required: *ref_48
                     example:
                       data:
                         object: wallet
@@ -3507,7 +3961,7 @@ paths:
               example:
                 address: kxhk519271652215
       responses:
-        '200': *ref_46
+        '200': *ref_49
         '500': *ref_2
   /wallet.get_transaction_consumptions:
     post:
@@ -3534,7 +3988,65 @@ paths:
               example:
                 address: kxhk519271652215
       responses:
-        '200': *ref_43
+        '200': *ref_46
+        '500': *ref_2
+  /wallet.get_balances:
+    post:
+      tags:
+        - Wallet
+      summary: Get the list of balances for a wallet.
+      operationId: wallet_get_balances
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for listing the balances for a wallet. Note that
+          the pagination parameters are based on token.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_12
+              properties:
+                address:
+                  type: string
+              required:
+                - address
+              example:
+                address: kxhk519271652215
+      responses:
+        '200':
+          description: Returns a list of balances
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of balances
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: *ref_50
+                    example:
+                      data:
+                        object: list
+                        data:
+                          object: balance
+                          amount: 0
+                          token:
+                            object: token
+                            id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                            symbol: BTC
+                            name: Bitcoin
+                            subunit_to_unit: 100000000000000000
         '500': *ref_2
   /wallet.enable_or_disable:
     post:
@@ -3563,7 +4075,7 @@ paths:
                 address: kxhk519271652215
                 enabled: false
       responses:
-        '200': *ref_46
+        '200': *ref_49
         '500': *ref_2
   /transaction.all:
     post:
@@ -3576,7 +4088,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_16
       responses:
-        '200': *ref_41
+        '200': *ref_44
         '500': *ref_2
   /transaction.export:
     post:
@@ -3612,7 +4124,7 @@ paths:
                     sort_by: created_at
                     sort_dir: desc
       responses:
-        '200': &ref_61
+        '200': &ref_65
           description: Returns a single export
           content:
             application/vnd.omisego.v1+json:
@@ -3625,7 +4137,7 @@ paths:
                       data:
                         type: object
                         description: The object schema for an export
-                        properties: &ref_59
+                        properties: &ref_63
                           object:
                             type: string
                           id:
@@ -3656,7 +4168,7 @@ paths:
                           updated_at:
                             type: string
                             format: date-time
-                        required: &ref_60
+                        required: &ref_64
                           - object
                           - id
                           - filename
@@ -3706,7 +4218,7 @@ paths:
               example:
                 id: txn_01ce83x8w4db56f3fcjy4n4qpc
       responses:
-        '200': &ref_47
+        '200': &ref_51
           description: Returns a single transaction
           content:
             application/vnd.omisego.v1+json:
@@ -3836,7 +4348,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': *ref_47
+        '200': *ref_51
         '500': *ref_2
   /transaction.calculate:
     post:
@@ -3894,7 +4406,7 @@ paths:
                             type: integer
                           to_token_id:
                             type: string
-                          exchange_pair: *ref_48
+                          exchange_pair: *ref_52
                           calculated_at:
                             type: string
                             format: date-time
@@ -3951,7 +4463,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_16
       responses:
-        '200': *ref_49
+        '200': *ref_53
         '500': *ref_2
   /transaction_request.create:
     post:
@@ -4021,6 +4533,24 @@ paths:
                   type: integer
                   default: null
                   description: The maximum number of times a user can consume the request.
+                consumption_interval_duration:
+                  type: integer
+                  default: null
+                  description: >-
+                    The duration (in milliseconds) during which the following
+                    attributes take effect.
+                max_consumptions_per_interval:
+                  type: integer
+                  default: null
+                  description: >-
+                    The maximum number of times the request can be consumed in
+                    the "consumption_interval_duration".
+                max_consumptions_per_interval_per_user:
+                  type: integer
+                  default: null
+                  description: >-
+                    The maximum number of times the request can be consumed by a
+                    specific user in the "consumption_interval_duration".
                 consumption_lifetime:
                   type: integer
                   default: null
@@ -4060,7 +4590,7 @@ paths:
                 correlation_id: some correlation id
                 address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
       responses:
-        '200': &ref_52
+        '200': &ref_56
           description: Transaction request response
           content:
             application/vnd.omisego.v1+json:
@@ -4073,8 +4603,8 @@ paths:
                       data:
                         type: object
                         description: The response schema for a transaction request
-                        properties: *ref_50
-                        required: *ref_51
+                        properties: *ref_54
+                        required: *ref_55
                     example:
                       data:
                         object: transaction_request
@@ -4124,7 +4654,7 @@ paths:
               example:
                 formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
       responses:
-        '200': *ref_52
+        '200': *ref_56
         '500': *ref_2
   /transaction_request.consume:
     post:
@@ -4184,7 +4714,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': &ref_53
+        '200': &ref_57
           description: Transaction request consumption response
           content:
             application/vnd.omisego.v1+json:
@@ -4344,7 +4874,7 @@ paths:
               example:
                 formatted_transaction_request_id: txr_01cbfg8mafdnbthgb9e68nd9y9
       responses:
-        '200': *ref_43
+        '200': *ref_46
         '500': *ref_2
   /transaction_consumption.all:
     post:
@@ -4357,7 +4887,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_16
       responses:
-        '200': *ref_43
+        '200': *ref_46
         '500': *ref_2
   /transaction_consumption.get:
     post:
@@ -4383,7 +4913,7 @@ paths:
               example:
                 id: txc_01abfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_53
+        '200': *ref_57
         '500': *ref_2
   /transaction_consumption.approve:
     post:
@@ -4395,7 +4925,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_54
+      requestBody: &ref_58
         description: Approve or reject a consumption using the specified ID.
         required: true
         content:
@@ -4409,7 +4939,7 @@ paths:
               example:
                 id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_53
+        '200': *ref_57
         '500': *ref_2
   /transaction_consumption.reject:
     post:
@@ -4421,9 +4951,9 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_54
+      requestBody: *ref_58
       responses:
-        '200': *ref_53
+        '200': *ref_57
         '500': *ref_2
   /transaction_consumption.cancel:
     post:
@@ -4449,7 +4979,7 @@ paths:
               example:
                 id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_53
+        '200': *ref_57
         '500': *ref_2
   /access_key.all:
     post:
@@ -4479,7 +5009,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_55
+                                items: &ref_59
                                   description: The object schema for an access key
                                   type: object
                                   properties:
@@ -4496,6 +5026,8 @@ paths:
                                       type: string
                                     enabled:
                                       type: boolean
+                                    global_role:
+                                      type: string
                                     created_at:
                                       type: string
                                       format: date-time
@@ -4512,6 +5044,7 @@ paths:
                                     - access_key
                                     - account_id
                                     - enabled
+                                    - global_role
                                     - created_at
                                     - updated_at
                                     - deleted_at
@@ -4523,11 +5056,59 @@ paths:
                             id: key_01ce843mvg5fa1zpk5myy69h4q
                             access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
                             secret_key: the_secret_key_or_null
-                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            account_id: null
+                            global_role: admin
                             enabled: true
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
                             deleted_at: null
+        '500': *ref_2
+  /access_key.get:
+    post:
+      tags:
+        - API Access
+      summary: Get a specific access key
+      operationId: access_key_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving a specific access key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: key_01ce83yphmq6vt4qnmn3ykwcw6
+      responses:
+        '200': &ref_60
+          description: Returns a single access key
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for an access key
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      data: *ref_59
+                    example:
+                      data:
+                        object: key
+                        id: key_01ce843mvg5fa1zpk5myy69h4q
+                        access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+                        secret_key: the_secret_key_or_null
+                        account_id: null
+                        global_role: admin
+                        enabled: true
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+                        deleted_at: null
         '500': *ref_2
   /access_key.create:
     post:
@@ -4538,37 +5119,33 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
+      requestBody:
+        description: The parameters to use for creating an access key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                account_id:
+                  type: string
+                role_name:
+                  type: string
+                name:
+                  type: string
+                global_role:
+                  type: string
+              example:
+                name: my_key
+                global_role: none
       responses:
-        '200': &ref_56
-          description: Returns a single access key
-          content:
-            application/vnd.omisego.v1+json:
-              schema:
-                description: The response schema for an access key
-                allOf:
-                  - *ref_1
-                  - type: object
-                    properties:
-                      data: *ref_55
-                    example:
-                      data:
-                        object: key
-                        id: key_01ce843mvg5fa1zpk5myy69h4q
-                        access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
-                        secret_key: the_secret_key_or_null
-                        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
-                        enabled: true
-                        created_at: '2018-01-01T00:00:00Z'
-                        updated_at: '2018-01-01T10:00:00Z'
-                        deleted_at: null
+        '200': *ref_60
         '500': *ref_2
   /access_key.update:
     post:
       tags:
         - API Access
-      summary: Update a pair of access and secret keys by its id (deprecated)
+      summary: Update a pair of access and secret keys by its id
       operationId: access_key_update
-      deprecated: true
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -4581,16 +5158,18 @@ paths:
               properties:
                 id:
                   type: string
-                expired:
-                  type: boolean
+                name:
+                  type: string
+                global_role:
+                  type: string
               required:
                 - id
-                - expired
               example:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
-                expired: true
+                name: my_key
+                global_role: none
       responses:
-        '200': *ref_56
+        '200': *ref_60
         '500': *ref_2
   /access_key.enable_or_disable:
     post:
@@ -4621,7 +5200,7 @@ paths:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-        '200': *ref_56
+        '200': *ref_60
         '500': *ref_2
   /access_key.delete:
     post:
@@ -4658,6 +5237,87 @@ paths:
       responses:
         '200': *ref_7
         '500': *ref_2
+  /access_key.get_account_memberships:
+    post:
+      tags:
+        - API Access
+      summary: Get the list of account memberships linked to the given access key id
+      operationId: access_key_get_account_memberships
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for listing a key's data
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_12
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: key_01ce843mvg5fa1zpk5myy69h4q
+      responses:
+        '200':
+          description: Returns a list of memberships
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of memberships
+                allOf:
+                  - *ref_13
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items: *ref_37
+                    example:
+                      data:
+                        data:
+                          - object: membership
+                            user_id: null
+                            user: null
+                            key_id: key_01ce843mvg5fa1zpk5myy69h4q
+                            key:
+                              object: key
+                              id: key_01ce843mvg5fa1zpk5myy69h4q
+                              access_key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
+                              secret_key: null
+                              account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                              global_role: admin
+                              enabled: true
+                              created_at: '2018-01-01T00:00:00Z'
+                              updated_at: '2018-01-01T10:00:00Z'
+                              deleted_at: null
+                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            account:
+                              - object: account
+                                id: acc_01ca2p8jqans5aty5gj5etmjcf
+                                parent_id: null
+                                name: Account name
+                                description: The account description
+                                master: true
+                                category_ids: []
+                                roles: []
+                                metadata: {}
+                                encrypted_metadata: {}
+                                avatar:
+                                  original: file_url
+                                created_at: '2018-01-01T00:00:00Z'
+                                updated_at: '2018-01-01T10:00:00Z'
+                            role: admin
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_2
   /api_key.all:
     post:
       tags:
@@ -4686,7 +5346,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_57
+                                items: &ref_61
                                   description: The object schema for an API key
                                   type: object
                                   properties:
@@ -4701,6 +5361,10 @@ paths:
                                     enabled:
                                       type: boolean
                                     account_id:
+                                      type: string
+                                    creator_user_id:
+                                      type: string
+                                    creator_key_id:
                                       type: string
                                     created_at:
                                       type: string
@@ -4728,10 +5392,11 @@ paths:
                         data:
                           - object: api_key
                             id: api_01ce844d5w9e81snekr5kprvem
+                            name: my_key
                             key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
-                            owner_app: admin_api
+                            owner_app: ewallet_api
                             enabled: true
-                            account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                            account_id: null
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
                             deleted_at: null
@@ -4745,8 +5410,19 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
+      requestBody:
+        description: The parameters to use for creating an API key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                name:
+                  type: string
+              example:
+                name: my_api_key
       responses:
-        '200': &ref_58
+        '200': &ref_62
           description: Returns a single API key
           content:
             application/vnd.omisego.v1+json:
@@ -4756,15 +5432,16 @@ paths:
                   - *ref_1
                   - type: object
                     properties:
-                      data: *ref_57
+                      data: *ref_61
                     example:
                       data:
                         object: api_key
                         id: api_01ce844d5w9e81snekr5kprvem
+                        name: my_key
                         key: jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ
-                        owner_app: admin_api
+                        owner_app: ewallet_api
                         enabled: true
-                        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                        account_id: null
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         deleted_at: null
@@ -4773,9 +5450,8 @@ paths:
     post:
       tags:
         - API Access
-      summary: Update an API key (deprecated)
+      summary: Update an API key
       operationId: api_key_update
-      deprecated: true
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -4788,16 +5464,15 @@ paths:
               properties:
                 id:
                   type: string
-                expired:
-                  type: boolean
+                name:
+                  type: name
               required:
                 - id
-                - expired
               example:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
-                expired: true
+                name: my_api_key
       responses:
-        '200': *ref_58
+        '200': *ref_62
         '500': *ref_2
   /api_key.enable_or_disable:
     post:
@@ -4828,7 +5503,7 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-        '200': *ref_58
+        '200': *ref_62
         '500': *ref_2
   /api_key.delete:
     post:
@@ -4886,8 +5561,8 @@ paths:
                                 items:
                                   description: The object schema for an export
                                   type: object
-                                  properties: *ref_59
-                                  required: *ref_60
+                                  properties: *ref_63
+                                  required: *ref_64
                     example:
                       data:
                         data:
@@ -4915,7 +5590,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_62
+      requestBody: &ref_66
         description: The parameters to use for retrieving a specific export by its id
         required: true
         content:
@@ -4929,7 +5604,7 @@ paths:
               example:
                 id: exp_01ca2p8jqans5aty5gj5etmjcf
       responses:
-        '200': *ref_61
+        '200': *ref_65
         '500': *ref_2
   /export.download:
     post:
@@ -4940,7 +5615,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_62
+      requestBody: *ref_66
       responses:
         '200':
           description: A CSV file
@@ -5235,7 +5910,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': &ref_63
+        '200': &ref_67
           description: Returns unauthorized error
           content:
             application/vnd.omisego.v1+json:
@@ -5272,7 +5947,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_63
+        '200': *ref_67
         '500': *ref_2
   /role.create:
     post:
@@ -5285,7 +5960,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_63
+        '200': *ref_67
         '500': *ref_2
   /role.update:
     post:
@@ -5298,7 +5973,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_63
+        '200': *ref_67
         '500': *ref_2
   /role.delete:
     post:
@@ -5311,5 +5986,64 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_63
+        '200': *ref_67
+        '500': *ref_2
+  /permission.all:
+    post:
+      tags:
+        - Permission
+      summary: Get the list of permissions
+      operationId: permission_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      responses:
+        '200':
+          description: Returns a list of permissions
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for permissions
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for permissions
+                        properties:
+                          object:
+                            type: string
+                          global_roles:
+                            type: object
+                            additionalProperties: true
+                          account_roles:
+                            type: object
+                            additionalProperties: true
+                        required:
+                          - object
+                          - global_roles
+                          - account_roles
+                    example:
+                      data:
+                        object: permissions
+                        global_roles:
+                          admin:
+                            account_wallets:
+                              get: global
+                              create: accounts
+                          end_user:
+                            account_wallets:
+                              get: none
+                              create: none
+                        account_roles:
+                          admin:
+                            account_wallets:
+                              get: global
+                              all: global
+                              create: accounts
+                          viewer:
+                            account_wallets:
+                              get: global
+                              all: global
         '500': *ref_2

@@ -43,7 +43,8 @@ const Error = styled.div`
 
 class LoginForm extends Component {
   static propTypes = {
-    history: PropTypes.object
+    history: PropTypes.object,
+    login: PropTypes.func
   }
   state = {
     email: '',
@@ -73,7 +74,7 @@ class LoginForm extends Component {
         })
         if (result.data) {
           this.setState({ error: null })
-          this.props.history.push(`/${result.data.account_id}/dashboard`)
+          this.props.history.push('/')
         } else {
           this.setState({ error: result.error.description || result.error.message, submitted: false })
         }

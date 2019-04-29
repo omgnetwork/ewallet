@@ -21,30 +21,23 @@ export const createFetcher = (entity, reducer, selectors) => {
       static propTypes = {
         render: PropTypes.func,
         query: PropTypes.shape({
-          page: PropTypes.number,
+          page: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
           perPage: PropTypes.number,
           search: PropTypes.string
         }),
         onFetchComplete: PropTypes.func,
         cacheKey: PropTypes.string,
         data: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
-        pagination: PropTypes.object
+        pagination: PropTypes.object,
+        shouldFetch: PropTypes.bool,
+        registerFetch: PropTypes.func,
+        dispatcher: PropTypes.func
+
       }
       static defaultProps = {
-        onFetchComplete: _.noop
-      }
-
-      static getDerivedStateFromProps (props, state) {
-        const intersec = _.intersectionBy(props.data, state.data, d => d.id)
-        if (intersec.length && state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS) {
-          return { data: props.data, pagination: props.pagination }
-        }
-        return null
-      }
-      state = {
-        loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT,
-        data: this.props.data,
-        pagination: this.props.pagination
+        onFetchComplete: _.noop,
+        shouldFetch: true,
+        registerFetch: _.noop
       }
 
       constructor (props) {
@@ -54,8 +47,14 @@ export const createFetcher = (entity, reducer, selectors) => {
           leading: true,
           trailing: true
         })
+        props.registerFetch(this)
+        this.state = {
+          loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT,
+          data: this.props.data,
+          pagination: this.props.pagination
+        }
       }
-      componentDidMount = () => {
+      componentDidMount () {
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
         this.fetch()
       }
@@ -66,10 +65,11 @@ export const createFetcher = (entity, reducer, selectors) => {
         }
       }
 
-      getQuery = () => {
+      getQuery () {
         return { page: 1, perPage: 10, ...this.props.query }
       }
       fetch = async () => {
+        if (!this.props.shouldFetch) return
         this.setState(oldState => ({
           loadingStatus:
             oldState.loadingStatus === CONSTANT.LOADING_STATUS.INITIATED

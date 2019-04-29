@@ -28,7 +28,7 @@ const ImageUpload = styled.div`
     margin: 0 auto;
     font-size: 25px;
     color: ${props => props =>
-      props.dragState === 'DRAG_ENTER' ? props.theme.colors.S100 : props.theme.colors.S400};
+    props.dragState === 'DRAG_ENTER' ? props.theme.colors.S100 : props.theme.colors.S400};
   }
 `
 const OverlayContainer = styled.div`

@@ -17,7 +17,6 @@ defmodule AdminAPI.V1.SelfControllerTest do
   use Bamboo.Test
   import Ecto.Query
   alias AdminAPI.UpdateEmailAddressEmail
-  alias EWalletDB.{Account, Membership, Repo, User}
   alias EWalletDB.{Account, Membership, Repo, UpdateEmailRequest, User}
   alias Utils.Helpers.{Crypto, Assoc, DateFormatter}
   alias ActivityLogger.System

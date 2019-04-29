@@ -86,7 +86,7 @@ class Table extends Component {
   renderLoadingRows = () => {
     return this.loadingWidthBars.map((x, i) => {
       return (
-        <tr key={`row-${i}`} ref={row => (this.row = row)}>
+        <tr key={`row-${i}`} ref={row => (this.row = row)} style={{ pointerEvents: 'none' }}>
           <td key={`col-rest-${i}`}>
             <LoadingSkeleton height={'12px'} width={x} style={{ margin: '5px 0' }} />
           </td>
@@ -124,17 +124,17 @@ class Table extends Component {
     const dataRows = this.renderDataRows()
     return (
       <TableContainer
-        innerRef={table => (this.table = table)}
+        ref={table => (this.table = table)}
         height={this.props.loadingRowNumber * 40}
         loading={this.props.loading}
       >
-        <Fade in={this.props.loading} timeout={300} key={'loading'} unmountOnExit>
+        <Fade in={this.props.loading} timeout={200} key={'loading'} unmountOnExit>
           <table style={{ position: 'absolute', background: 'white' }}>
             <thead>{this.renderLoadingColumns()}</thead>
             <tbody>{this.renderLoadingRows()}</tbody>
           </table>
         </Fade>
-        <Fade in={!this.props.loading} timeout={300} key={'data'} unmountOnExit appear>
+        <Fade in={!this.props.loading} timeout={200} key={'data'} unmountOnExit appear>
           <table>
             <thead>{this.renderColumns()}</thead>
             {!!dataRows.length && <tbody>{this.renderDataRows()}</tbody>}
@@ -142,7 +142,7 @@ class Table extends Component {
         </Fade>
         {!dataRows.length && (
           <EmptyStageContainer>
-            <img src={require('../../../statics/images/Empty state_1.0_Empty-state_1.0.png')} />
+            <img src={require('../../../statics/images/empty_state.png')} />
             <div>Sorry, no data yet.</div>
           </EmptyStageContainer>
         )}

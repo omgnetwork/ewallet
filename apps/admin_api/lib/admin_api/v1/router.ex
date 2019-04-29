@@ -57,6 +57,7 @@ defmodule AdminAPI.V1.Router do
     post("/token.stats", TokenController, :stats)
     post("/token.get_mints", MintController, :all_for_token)
     post("/token.mint", MintController, :mint)
+    post("/token.upload_avatar", TokenController, :upload_avatar)
 
     # Transaction endpoints
     post("/transaction.all", TransactionController, :all)
@@ -115,9 +116,29 @@ defmodule AdminAPI.V1.Router do
     )
 
     # Account membership endpoints
-    post("/account.get_members", AccountMembershipController, :all_for_account)
     post("/account.assign_user", AccountMembershipController, :assign_user)
     post("/account.unassign_user", AccountMembershipController, :unassign_user)
+    post("/account.assign_key", AccountMembershipController, :assign_key)
+    post("/account.unassign_key", AccountMembershipController, :unassign_key)
+
+    post(
+      "/account.get_admin_user_memberships",
+      AccountMembershipController,
+      :all_admin_memberships_for_account
+    )
+
+    post(
+      "/account.get_key_memberships",
+      AccountMembershipController,
+      :all_key_memberships_for_account
+    )
+
+    # deprecated
+    post(
+      "/account.get_members",
+      AccountMembershipDeprecatedController,
+      :all_admin_for_account
+    )
 
     # User endpoints
     post("/user.all", UserController, :all)
@@ -133,6 +154,7 @@ defmodule AdminAPI.V1.Router do
 
     # Wallet endpoints
     post("/wallet.all", WalletController, :all)
+    post("/wallet.get_balances", BalanceController, :all_for_wallet)
     post("/wallet.get", WalletController, :get)
     post("/wallet.create", WalletController, :create)
     post("/wallet.enable_or_disable", WalletController, :enable_or_disable)
@@ -146,23 +168,44 @@ defmodule AdminAPI.V1.Router do
     # Admin endpoints
     post("/admin.all", AdminUserController, :all)
     post("/admin.get", AdminUserController, :get)
+    post("/admin.create", AdminUserController, :create)
+    post("/admin.update", AdminUserController, :update)
     post("/admin.enable_or_disable", AdminUserController, :enable_or_disable)
 
+    post(
+      "/admin.get_account_memberships",
+      AccountMembershipController,
+      :all_account_memberships_for_admin
+    )
+
     # Role endpoints
+    # deprecated
     post("/role.all", RoleController, :all)
+    # deprecated
     post("/role.get", RoleController, :get)
+    # deprecated
     post("/role.create", RoleController, :create)
+    # deprecated
     post("/role.update", RoleController, :update)
+    # deprecated
     post("/role.delete", RoleController, :delete)
+
+    # Permission endpoints
+    post("/permission.all", PermissionController, :all)
 
     # API Access endpoints
     post("/access_key.all", KeyController, :all)
+    post("/access_key.get", KeyController, :get)
     post("/access_key.create", KeyController, :create)
     post("/access_key.enable_or_disable", KeyController, :enable_or_disable)
     post("/access_key.delete", KeyController, :delete)
-
-    # Deprecated in PR #535
     post("/access_key.update", KeyController, :update)
+
+    post(
+      "/access_key.get_account_memberships",
+      AccountMembershipController,
+      :all_account_memberships_for_key
+    )
 
     # API Key endpoints
     post("/api_key.all", APIKeyController, :all)

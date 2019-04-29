@@ -36,6 +36,7 @@ defmodule LocalLedgerDB.Mixfile do
     [
       {:appsignal, "~> 1.9"},
       {:cloak, "~> 0.9.1"},
+      {:db, in_umbrella: true},
       {:deferred_config, "~> 0.1.0"},
       {:ecto_sql, "~> 3.0"},
       {:ewallet_config, in_umbrella: true},

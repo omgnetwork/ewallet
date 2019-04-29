@@ -27,7 +27,7 @@ export const transfer = ({
         exchangeAddress
       })
   })
-export const getTransactions = ({ page, search, searchTerms, perPage, cacheKey }) =>
+export const getTransactions = ({ page, search, searchTerms, perPage, cacheKey, matchAll, matchAny }) =>
   createPaginationActionCreator({
     actionName: 'TRANSACTIONS',
     action: 'REQUEST',
@@ -37,7 +37,9 @@ export const getTransactions = ({ page, search, searchTerms, perPage, cacheKey }
         page,
         sort: { by: 'created_at', dir: 'desc' },
         search,
-        searchTerms
+        searchTerms,
+        matchAll,
+        matchAny
       }),
     cacheKey
   })

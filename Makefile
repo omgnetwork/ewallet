@@ -97,9 +97,7 @@ build-test: deps-ewallet
 test: test-ewallet test-assets
 
 test-ewallet: clean-test-assets build-test
-	$(ENV_TEST) mix ecto.create
-	$(ENV_TEST) mix ecto.migrate
-	$(ENV_TEST) mix test
+	$(ENV_TEST) mix do ecto.create, ecto.migrate, test
 
 test-assets: build-assets
 	$(ASSETS) yarn test

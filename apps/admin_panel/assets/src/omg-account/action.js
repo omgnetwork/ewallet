@@ -1,5 +1,6 @@
 import { createPaginationActionCreator, createActionCreator } from '../utils/createActionCreator'
 import * as accountService from '../services/accountService'
+
 export const createAccount = ({ name, description, avatar, category }) =>
   createActionCreator({
     actionName: 'ACCOUNT',
@@ -17,7 +18,7 @@ export const createAccount = ({ name, description, avatar, category }) =>
     }
   })
 
-export const getAccounts = ({ page, perPage, search, cacheKey }) =>
+export const getAccounts = ({ page, perPage, search, cacheKey, matchAny }) =>
   createPaginationActionCreator({
     actionName: 'ACCOUNTS',
     action: 'REQUEST',
@@ -26,7 +27,32 @@ export const getAccounts = ({ page, perPage, search, cacheKey }) =>
         perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
-        search
+        search,
+        matchAny
+      }),
+    cacheKey
+  })
+
+export const getKeysAccountId = ({
+  accountId,
+  page,
+  perPage,
+  search,
+  cacheKey,
+  matchAll,
+  matchAny
+}) =>
+  createPaginationActionCreator({
+    actionName: 'MEMBERSHIP_ACCESS_KEYS',
+    action: 'REQUEST',
+    service: () =>
+      accountService.getKeysByAccountId({
+        perPage,
+        page,
+        sort: { by: 'created_at', dir: 'desc' },
+        matchAll,
+        matchAny,
+        accountId
       }),
     cacheKey
   })
@@ -37,3 +63,87 @@ export const getAccountById = id =>
     action: 'REQUEST',
     service: () => accountService.getAccountById(id)
   })
+
+export const deleteAccount = id => dispatch => {
+  return dispatch({ type: 'ACCOUNT/DELETE', data: id })
+}
+
+export const assignKey = ({ keyId, role, accountId }) =>
+  createActionCreator({
+    actionName: 'ACCOUNT',
+    action: 'ASSIGN_KEY',
+    service: () => accountService.assignKey({ keyId, role, accountId })
+  })
+
+export const getConsumptionsByAccountId = ({
+  page,
+  perPage,
+  search,
+  cacheKey,
+  searchTerms,
+  matchAll,
+  matchAny,
+  accountId
+}) =>
+  createPaginationActionCreator({
+    actionName: 'CONSUMPTIONS',
+    action: 'REQUEST',
+    service: () =>
+      accountService.getConsumptionsByAccountId({
+        accountId,
+        perPage,
+        page,
+        sort: { by: 'created_at', dir: 'desc' },
+        search,
+        searchTerms,
+        matchAll,
+        matchAny
+      }),
+    cacheKey
+  })
+
+export const getUsersByAccountId = ({ accountId, page, perPage, cacheKey, matchAll, matchAny }) =>
+  createPaginationActionCreator({
+    actionName: 'USERS',
+    action: 'REQUEST',
+    service: () =>
+      accountService.getUsersByAccountId({
+        accountId,
+        perPage,
+        page,
+        sort: { by: 'created_at', dir: 'desc' },
+        matchAll,
+        matchAny
+      }),
+    cacheKey
+  })
+
+export const updateAccount = ({ accountId, name, description, avatar, categoryIds }) =>
+  createActionCreator({
+    actionName: 'ACCOUNT',
+    action: 'UPDATE',
+    service: async dispatch => {
+      const updatedAccount = await accountService.updateAccountInfo({
+        id: accountId,
+        name,
+        description,
+        categoryIds
+      })
+      if (updatedAccount.data.success && avatar) {
+        const result = await accountService.uploadAccountAvatar({
+          accountId,
+          avatar
+        })
+        return result
+      }
+      return updatedAccount
+    }
+  })
+
+export const subscribeToWebsocketByAccountId = accountid => (dispatch, getState, { socket }) => {
+  const state = getState()
+  if (state.currentUser) {
+    socket.joinChannel(`account:${accountid}`)
+    return dispatch({ type: 'SOCKET/ACCOUNT/SUBSCRIBE', accountid })
+  }
+}

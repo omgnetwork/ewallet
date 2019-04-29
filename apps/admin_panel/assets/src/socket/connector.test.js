@@ -88,6 +88,17 @@ describe('websocket', () => {
     socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
+  test('should not join channel if is not connected', () => {
+    let result = socket.connect().then(result => {
+      socket.send = jest.fn()
+      expect(result).toBe(true)
+      socket.socket.fakeEventListenerCallbackCall('close')
+      socket.joinChannel('test_channel')
+      expect(socket.send).not.toBeCalled()
+    })
+    socket.socket.fakeEventListenerCallbackCall('open')
+    return result
+  })
   test('should send heartbeat event correctly', () => {
     let result = socket.connect().then(result => {
       socket.send = jest.fn()

@@ -34,7 +34,20 @@ const TransactionRequestsPageContainer = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  td:nth-child(1) {
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
+  }
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
@@ -47,20 +60,38 @@ const TransactionRequestsPageContainer = styled.div`
 const SortableTableContainer = styled.div`
   position: relative;
 `
+const StyledIcon = styled.span`
+  i {
+    margin-top: -3px;
+    margin-right: 10px;
+    margin-top
+    font-size: 14px;
+    font-weight: 400;
+  }
+`
 export const NameColumn = styled.div`
   > span {
     margin-left: 10px;
   }
-  i[name="Request"] {
-    color: ${props => props.theme.colors.BL400};
+  i[name='Request'] {
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
   }
 `
 class TransactionRequestsPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    query: PropTypes.object,
+    createTransactionRequestButton: PropTypes.bool
+  }
+  static defaultProps = {
+    query: {},
+    createTransactionRequestButton: true
   }
   constructor (props) {
     super(props)
@@ -73,10 +104,10 @@ class TransactionRequestsPage extends Component {
       { key: 'id', title: 'REQUEST ID', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
       { key: 'amount', title: 'AMOUNT', sort: true },
-      { key: 'created_by', title: 'CREATED BY' },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'require_confirmation', title: 'CONFIRMATION' },
-      { key: 'status', title: 'STATUS' }
+      { key: 'status', title: 'STATUS' },
+      { key: 'created_by', title: 'CREATED BY' },
+      { key: 'created_at', title: 'CREATED AT', sort: true }
     ]
   }
   onClickCreateRequest = e => {
@@ -101,14 +132,40 @@ class TransactionRequestsPage extends Component {
       })
     })
   }
-  rowRenderer (key, data, rows) {
+  renderCreator = request => {
+    return (
+      <span>
+        {request.account &&
+          <span>
+            <StyledIcon><Icon name='Merchant' /></StyledIcon>
+            {request.account.name}
+          </span>
+
+        }
+        {request.user && request.user.email &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {request.user.email}
+          </span>
+        }
+        {request.user && request.user.provider_user_id &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {request.user.provider_user_id}
+          </span>
+        }
+      </span>
+    )
+  }
+  rowRenderer = (key, data, rows) => {
     if (key === 'require_confirmation') {
       return data ? 'Yes' : 'No'
     }
     if (key === 'id') {
       return (
         <NameColumn>
-          <Icon name='Request' /> <span>{data}</span> <Copy data={data} />
+          <Icon name='Request' />
+          <span>{data}</span> <Copy data={data} />
         </NameColumn>
       )
     }
@@ -125,7 +182,7 @@ class TransactionRequestsPage extends Component {
       return amount
     }
     if (key === 'created_by') {
-      return rows.user_id || rows.account.name || rows.account_id
+      return this.renderCreator(rows)
     }
     if (key === 'created_at') {
       return moment(data).format()
@@ -146,11 +203,16 @@ class TransactionRequestsPage extends Component {
     return (
       <TransactionRequestsPageContainer>
         <TopNavigation
+          divider={this.props.divider}
           title={'Transaction Requests'}
-          buttons={[this.renderCreateTransactionRequestButton()]}
+          buttons={
+            this.props.createTransactionRequestButton
+              ? [this.renderCreateTransactionRequestButton()]
+              : null
+          }
         />
         <SortableTableContainer
-          innerRef={table => (this.table = table)}
+          ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable
@@ -183,8 +245,9 @@ class TransactionRequestsPage extends Component {
         {...this.props}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: Math.floor(window.innerHeight / 65),
-          search: queryString.parse(this.props.location.search).search
+          perPage: 10,
+          search: queryString.parse(this.props.location.search).search,
+          ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

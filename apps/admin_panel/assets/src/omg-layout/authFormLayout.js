@@ -31,9 +31,9 @@ export const FormContainer = styled.div`
   text-align: center;
   padding: 20px;
 `
-const OmisegoLogo = styled.img.attrs({
+const OmisegoLogo = styled.img.attrs(props => ({
   src: require('../../statics/images/omisego_logo_black.png')
-})`
+}))`
   width: 100%;
   max-width: 350px;
 `

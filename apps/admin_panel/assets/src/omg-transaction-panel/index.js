@@ -3,16 +3,16 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TransactionProvider from '../omg-transaction/transactionProvider'
 import { Icon } from '../omg-uikit'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { compose } from 'recompose'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
 import { MarkContainer } from '../omg-page-transaction'
-import Link from '../omg-links'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
+  z-index: 10;
   right: 0;
   width: 560px;
   background-color: white;
@@ -64,8 +64,7 @@ const enhance = compose(withRouter)
 class TransactionRequestPanel extends Component {
   static propTypes = {
     history: PropTypes.object,
-    location: PropTypes.object,
-    match: PropTypes.object
+    location: PropTypes.object
   }
 
   constructor (props) {
@@ -83,30 +82,57 @@ class TransactionRequestPanel extends Component {
     const address = _.get(transaction, 'address')
     const accountName = _.get(transaction, 'account.name')
     const accountId = _.get(transaction, 'account.id')
-    const userId = _.get(transaction, 'user.id')
+    const user = _.get(transaction, 'user')
     const tokenId = _.get(transaction, 'token.id')
+
     return (
       <TransactionInfoContainer>
         <h5>{title}</h5>
         <InformationItem>
           <b>Wallet Address : </b>
-          <Link to={`wallets/${address}`}>{address}</Link>
+          <Link to={{ pathname: `/wallets/${address}`, search: this.props.location.search }}>
+            {address}
+          </Link>
         </InformationItem>
         {_.get(transaction, 'account') && (
           <InformationItem>
             <b>Account : </b>
-            <Link to={`accounts/${accountId}`}>{accountName}</Link>
+            <Link
+              to={{ pathname: `/accounts/${accountId}/details`, search: this.props.location.search }}
+            >
+              {accountName}
+            </Link>
           </InformationItem>
         )}
-        {_.get(transaction, 'user') && (
+        {user && (
           <InformationItem>
             <b>User : </b>
-            <Link to={`users/${userId}`}>{userId}</Link>
+            <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
+              {user.id}
+            </Link>
+          </InformationItem>
+        )}
+        {user && user.email && (
+          <InformationItem>
+            <b>User email: </b>
+            <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
+              {user.email}
+            </Link>
+          </InformationItem>
+        )}
+        {user && user.provider_user_id && (
+          <InformationItem>
+            <b>User provider ID: </b>
+            <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
+              {user.provider_user_id}
+            </Link>
           </InformationItem>
         )}
         <InformationItem>
           <b>Token : </b>
-          <Link to={`tokens/${tokenId}`}>{_.get(transaction, 'token.name')}</Link>
+          <Link to={{ pathname: `/tokens/${tokenId}`, search: this.props.location.search }}>
+            {_.get(transaction, 'token.name')}
+          </Link>
         </InformationItem>
         <InformationItem>
           <b>Amount : </b>
@@ -125,13 +151,19 @@ class TransactionRequestPanel extends Component {
       <TransactionInfoContainer>
         <h5>{'Exchange'}</h5>
         <InformationItem>
-          <b>Rate : </b>
-          1 {_.get(exchange, 'exchange_pair.from_token.symbol')} :{' '}
+          <b>Rate : </b>1 {_.get(exchange, 'exchange_pair.from_token.symbol')} :{' '}
           {_.get(exchange, 'exchange_pair.rate')} {_.get(exchange, 'exchange_pair.to_token.symbol')}
         </InformationItem>
         <InformationItem>
           <b>Exchange wallet address : </b>
-          <Link to={`wallets/${exchangeWalletAddress}`}>{exchangeWalletAddress}</Link>
+          <Link
+            to={{
+              pathname: `/wallets/${exchangeWalletAddress}`,
+              search: this.props.location.search
+            }}
+          >
+            {exchangeWalletAddress}
+          </Link>
         </InformationItem>
       </TransactionInfoContainer>
     )
@@ -154,7 +186,7 @@ class TransactionRequestPanel extends Component {
                       <Icon name='Checked' />
                     )}
                   </MarkContainer>
-                  {transaction.status}
+                  <span>{_.capitalize(transaction.status)}</span>
                 </span>{' '}
                 | <span>{moment(transaction.created_at).format()}</span>
               </SubDetailTitle>

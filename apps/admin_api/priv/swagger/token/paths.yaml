@@ -83,6 +83,23 @@ token.enable_or_disable:
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
+token.upload_avatar:
+  post:
+    tags:
+      - Token
+    summary: Uploads avatar for a token
+    operationId: token_upload_avatar
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenUploadBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/TokenResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 token.stats:
   post:
     tags:

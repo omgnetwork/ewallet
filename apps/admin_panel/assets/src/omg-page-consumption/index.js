@@ -3,8 +3,6 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
-import CreateAccountModal from '../omg-create-account-modal'
-import ExportModal from '../omg-export-modal'
 import ConsumptionFetcher from '../omg-consumption/consumptionsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -23,14 +21,24 @@ const ConsumptionPageContainer = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(3) {
+  td:first-child{
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
+  }
+  td:nth-child(2) {
     width: 150px;
     max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  td:nth-child(6) {
-    text-transform: capitalize;
   }
   tr:hover {
     td:nth-child(1) {
@@ -39,7 +47,7 @@ const ConsumptionPageContainer = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
@@ -51,8 +59,20 @@ const ConsumptionPageContainer = styled.div`
 `
 const SortableTableContainer = styled.div`
   position: relative;
-  i[name="Consumption"] {
-    color: ${props => props.theme.colors.BL400};
+  i[name='Consumption'] {
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
+  }
+`
+const StyledIcon = styled.span`
+  i {
+    margin-top: -3px;
+    margin-right: 10px;
+    margin-top
+    font-size: 14px;
+    font-weight: 400;
   }
 `
 export const NameColumn = styled.div`
@@ -62,25 +82,26 @@ export const NameColumn = styled.div`
 `
 class ConsumptionPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    query: PropTypes.object,
+    fetcher: PropTypes.func
+  }
+  static defaultProps = {
+    query: {},
+    fetcher: ConsumptionFetcher
   }
   constructor (props) {
     super(props)
-    this.state = {
-      createAccountModalOpen: false,
-      exportModalOpen: false,
-      loadMoreTime: 1
-    }
     this.columns = [
-      { key: 'id', title: 'REQUEST ID', sort: true },
+      { key: 'id', title: 'CONSUMPTION ID', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
       { key: 'estimated_consumption_amount', title: 'AMOUNT', sort: true },
+      { key: 'status', title: 'STATUS', sort: true },
       { key: 'created_by', title: 'CONSUMER' },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'status', title: 'STATUS', sort: true }
+      { key: 'created_at', title: 'CREATED AT', sort: true }
     ]
   }
   renderCreateAccountButton = () => {
@@ -99,7 +120,32 @@ class ConsumptionPage extends Component {
       })
     })
   }
-  rowRenderer (key, data, rows) {
+  renderCreator = consumption => {
+    return (
+      <span>
+        {consumption.account &&
+          <span>
+            <StyledIcon><Icon name='Merchant' /></StyledIcon>
+            {consumption.account.name}
+          </span>
+
+        }
+        {consumption.user && consumption.user.email &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {consumption.user.email}
+          </span>
+        }
+        {consumption.user && consumption.user.provider_user_id &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {consumption.user.provider_user_id}
+          </span>
+        }
+      </span>
+    )
+  }
+  rowRenderer = (key, data, rows) => {
     if (key === 'require_confirmation') {
       return data ? 'Yes' : 'No'
     }
@@ -111,13 +157,16 @@ class ConsumptionPage extends Component {
       )
     }
     if (key === 'type') {
-      return _.get(rows, 'transaction_request.type')
+      return _.upperFirst(_.get(rows, 'transaction_request.type'))
+    }
+    if (key === 'status') {
+      return _.upperFirst(data)
     }
     if (key === 'estimated_consumption_amount') {
       return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
     }
     if (key === 'created_by') {
-      return rows.user_id || rows.account.name || rows.account_id
+      return this.renderCreator(rows)
     }
     if (key === 'created_at') {
       return moment(data).format()
@@ -131,8 +180,11 @@ class ConsumptionPage extends Component {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-consumption-tab']
     return (
       <ConsumptionPageContainer>
-        <TopNavigation title={'Transaction Consumptions'} buttons={[]} />
-        <SortableTableContainer innerRef={table => (this.table = table)} loadingStatus={individualLoadingStatus}>
+        <TopNavigation divider={this.props.divider} title={'Transaction Consumptions'} buttons={[]} />
+        <SortableTableContainer
+          ref={table => (this.table = table)}
+          loadingStatus={individualLoadingStatus}
+        >
           <SortableTable
             rows={consumptions}
             columns={this.columns}
@@ -145,26 +197,22 @@ class ConsumptionPage extends Component {
             activeIndexKey={activeIndexKey}
           />
         </SortableTableContainer>
-        <CreateAccountModal
-          open={this.state.createAccountModalOpen}
-          onRequestClose={this.onRequestCloseCreateAccount}
-          onCreateAccount={fetch}
-        />
-        <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </ConsumptionPageContainer>
     )
   }
 
   render () {
+    const Fetcher = this.props.fetcher
     return (
-      <ConsumptionFetcher
+      <Fetcher
         render={this.renderConsumptionPage}
         {...this.state}
         {...this.props}
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 65),
-          searchTerms: {id: queryString.parse(this.props.location.search).search}
+          searchTerms: { id: queryString.parse(this.props.location.search).search },
+          ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

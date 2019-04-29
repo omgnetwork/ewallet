@@ -1,19 +1,21 @@
 import createReducer from '../reducer/createReducer'
 import _ from 'lodash'
+
+export function handleAccountReceived (state, { data }) {
+  return { ...state, ...{ [data.id]: data } }
+}
+
 export const accountsReducer = createReducer(
   {},
   {
     'ACCOUNTS/REQUEST/SUCCESS': (state, { data }) => {
       return { ...state, ..._.keyBy(data, 'id') }
     },
-    'ACCOUNT/CREATE/SUCCESS': (state, { data }) => {
-      return { ...state, ...{ [data.id]: data } }
-    },
-    'ACCOUNT/REQUEST/SUCCESS': (state, { data }) => {
-      return { ...state, ...{ [data.id]: data } }
-    },
-    'CURRENT_ACCOUNT/UPDATE/SUCCESS': (state, { data }) => {
-      return { ...state, ...{ [data.id]: data } }
+    'ACCOUNT/CREATE/SUCCESS': handleAccountReceived,
+    'ACCOUNT/UPDATE/SUCCESS': handleAccountReceived,
+    'ACCOUNT/REQUEST/SUCCESS': handleAccountReceived,
+    'ACCOUNT/DELETE': (state, { data: accountId }) => {
+      return _.omit(state, accountId)
     }
   }
 )

@@ -4,8 +4,10 @@ import styled from 'styled-components'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
+
 import clickOutside from '../enhancer/clickOutside'
 import { Icon, Input } from '../omg-uikit'
+
 const SearchGroupContainer = styled.form`
   display: inline-block;
   vertical-align: middle;
@@ -14,14 +16,25 @@ const SearchGroupContainer = styled.form`
     display: inline-block;
   }
 `
+const IconContainer = styled.div`
+  display: inline;
+  :hover {
+    i {
+      transition: all 100ms ease-in-out;
+      color: ${props => props.hoverable && props.theme.colors.B100}
+    }
+  }
+`
 const InlineInput = styled(Input)`
   display: inline-block;
-  width: ${props => (props.search ? '150px' : '0')};
-  transform: ${props => (props.search ? 'scale3d(1,1,1)' : 'scale3d(0,1,1)')};
+  width: ${props => props.search ? '150px' : '0'};
+  opacity: ${props => props.search ? 1 : 0};
   overflow: hidden;
-  transition: 0.2s;
+  transition: width 0.2s ease-in-out, opacity 0.2s ease-in-out 0.2s;
 `
 const CloseIconInputContainer = styled.div`
+  opacity: ${props => props.open ? 1 : 0};
+  transition: opacity 0.2s ease-in-out 0.4s;
   i {
     font-size: 10px;
     cursor: pointer;
@@ -35,7 +48,8 @@ const enhance = compose(
 class SearchGroup extends PureComponent {
   static propTypes = {
     location: PropTypes.object,
-    history: PropTypes.object
+    history: PropTypes.object,
+    debounced: PropTypes.number
   }
   state = {
     searching: false
@@ -75,21 +89,36 @@ class SearchGroup extends PureComponent {
     }
     this.props.history.push({ search: queryString.stringify(search) })
   }
+
+  debouncedSearch = _.debounce(this.onSearch, this.props.debounced);
+  handleOnChange = (e) => {
+    e.persist()
+    if (this.props.debounced) {
+      this.debouncedSearch(e)
+    }
+  }
   registerRef = input => {
     this.input = input
   }
   render () {
     return (
       <SearchGroupContainer onSubmit={this.onSearch} noValidate search={this.state.searching}>
-        <Icon name='Search' button hoverable={!this.state.searching} onClick={this.onClickSearch} />
+        <IconContainer hoverable={!this.state.searching}>
+          <Icon
+            name='Search'
+            button
+            onClick={this.onClickSearch}
+          />
+        </IconContainer>
         <InlineInput
           {...this.props}
           search={this.state.searching}
           registerRef={this.registerRef}
           onPressEscape={this.handleClickOutside}
+          onChange={this.handleOnChange}
           defaultValue={queryString.parse(this.props.location.search).search}
           suffix={
-            <CloseIconInputContainer onClick={this.onClickRemoveSearch}>
+            <CloseIconInputContainer open={this.state.searching} onClick={this.onClickRemoveSearch}>
               <Icon name='Close' />
             </CloseIconInputContainer>
           }

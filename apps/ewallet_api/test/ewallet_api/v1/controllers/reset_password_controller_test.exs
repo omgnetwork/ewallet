@@ -19,16 +19,17 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
   alias Utils.Helpers.{Crypto, DateFormatter}
   alias EWalletDB.{ForgetPasswordRequest, Repo, User}
 
-  @redirect_url "http://localhost:4000/reset_password?email={email}&token={token}"
+  @reset_password_url "http://localhost:4000/client/reset_password?email={email}&token={token}"
+  @forward_url "my-app://reset_password?email={email}&token={token}"
 
   describe "ResetPasswordController.reset/2" do
-    test "returns success if the request was generated successfully" do
+    test "returns success if the request was generated successfully with the deprecated `redirect_url`" do
       {:ok, user} = :admin |> params_for() |> User.insert()
 
       response =
         public_request("/user.reset_password", %{
           "email" => user.email,
-          "redirect_url" => @redirect_url
+          "redirect_url" => @reset_password_url
         })
 
       request =
@@ -37,35 +38,83 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
         |> Repo.preload(:user)
 
       assert response["success"]
-      assert_delivered_email(ForgetPasswordEmail.create(request, @redirect_url))
+      assert_delivered_email(ForgetPasswordEmail.create(request, @reset_password_url))
       assert request != nil
       assert request.token != nil
     end
 
-    test "returns client:invalid_parameter error if the redirect_url is not allowed" do
+    test "returns success if the request was generated successfully" do
+      {:ok, user} = :admin |> params_for() |> User.insert()
+
+      response =
+        public_request("/user.reset_password", %{
+          "email" => user.email,
+          "reset_password_url" => @reset_password_url
+        })
+
+      request =
+        ForgetPasswordRequest
+        |> Repo.get_by(user_uuid: user.uuid)
+        |> Repo.preload(:user)
+
+      assert response["success"]
+      assert_delivered_email(ForgetPasswordEmail.create(request, @reset_password_url))
+      assert request != nil
+      assert request.token != nil
+    end
+
+    test "returns success if the request was generated successfully with a forward_url" do
+      existing_prefixes = Application.get_env(:ewallet, :redirect_url_prefixes)
+      _ = Application.put_env(:ewallet, :redirect_url_prefixes, ["my-app://" | existing_prefixes])
+
+      {:ok, user} = :admin |> params_for() |> User.insert()
+
+      response =
+        public_request("/user.reset_password", %{
+          "email" => user.email,
+          "reset_password_url" => @reset_password_url,
+          "forward_url" => @forward_url
+        })
+
+      request =
+        ForgetPasswordRequest
+        |> Repo.get_by(user_uuid: user.uuid)
+        |> Repo.preload(:user)
+
+      assert response["success"]
+
+      assert_delivered_email(
+        ForgetPasswordEmail.create(request, @reset_password_url, @forward_url)
+      )
+
+      assert request != nil
+      assert request.token != nil
+    end
+
+    test "returns client:invalid_parameter error if the reset_password_url is not allowed" do
       redirect_url = "http://unknown-url.com/reset_password?email={email}&token={token}"
 
       response =
         public_request("/user.reset_password", %{
           "email" => "example@mail.com",
-          "redirect_url" => redirect_url
+          "reset_password_url" => redirect_url
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "The given `redirect_url` is not allowed. Got: '#{redirect_url}'."
+               "The given `reset_password_url` is not allowed. Got: '#{redirect_url}'."
     end
 
     test "returns an error when sending email = nil" do
       response =
         public_request("/user.reset_password", %{
           "email" => nil,
-          "redirect_url" => @redirect_url
+          "reset_password_url" => @reset_password_url
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
     end
 
@@ -75,7 +124,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
       response =
         public_request("/user.reset_password", %{
           "email" => "example@mail.com",
-          "redirect_url" => @redirect_url
+          "reset_password_url" => @reset_password_url
         })
 
       assert response["success"] == true
@@ -87,7 +136,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
 
       response =
         public_request("/user.reset_password", %{
-          "redirect_url" => @redirect_url
+          "redirect_url" => @reset_password_url
         })
 
       request =
@@ -95,12 +144,12 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
         |> Repo.get_by(user_uuid: user.uuid)
         |> Repo.preload(:user)
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
       assert request == nil
     end
 
-    test "returns an error if the redirect_url is not supplied" do
+    test "returns an error if the reset_password_url is not supplied" do
       {:ok, user} = :admin |> params_for() |> User.insert()
 
       response =
@@ -113,7 +162,46 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
         |> Repo.get_by(user_uuid: user.uuid)
         |> Repo.preload(:user)
 
-      assert response["success"] == false
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert request == nil
+    end
+
+    test "returns an error when the reset_password_url is not allowed" do
+      {:ok, user} = :admin |> params_for() |> User.insert()
+
+      response =
+        public_request("/user.reset_password", %{
+          "email" => user.email,
+          "reset_password_url" => "https://a-not-whitelisted-url.com"
+        })
+
+      request =
+        ForgetPasswordRequest
+        |> Repo.get_by(user_uuid: user.uuid)
+        |> Repo.preload(:user)
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert request == nil
+    end
+
+    test "returns an error when the forward_url is not allowed" do
+      {:ok, user} = :admin |> params_for() |> User.insert()
+
+      response =
+        public_request("/user.reset_password", %{
+          "email" => user.email,
+          "reset_password_url" => @reset_password_url,
+          "forward_url" => "https://a-not-whitelisted-url.com"
+        })
+
+      request =
+        ForgetPasswordRequest
+        |> Repo.get_by(user_uuid: user.uuid)
+        |> Repo.preload(:user)
+
+      refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
       assert request == nil
     end
@@ -126,7 +214,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
       response =
         public_request("/user.reset_password", %{
           "email" => user.email,
-          "redirect_url" => @redirect_url
+          "redirect_url" => @reset_password_url
         })
 
       request =
@@ -188,7 +276,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
           password_confirmation: "password"
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "forget_password:token_not_found"
       assert ForgetPasswordRequest |> Repo.all() |> length() == 1
     end
@@ -207,7 +295,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
           password_confirmation: "password"
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "forget_password:token_not_found"
       assert ForgetPasswordRequest |> Repo.all() |> length() == 1
     end
@@ -226,7 +314,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
           password_confirmation: "short"
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
@@ -248,7 +336,7 @@ defmodule EWalletAPI.V1.ResetPasswordControllerTest do
           password_confirmation: "password"
         })
 
-      assert response["success"] == false
+      refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
       assert ForgetPasswordRequest |> Repo.all() |> length() == 1
     end

@@ -32,6 +32,15 @@ defmodule EWalletDB.TokenTest do
     test_insert_prevent_blank(Token, :subunit_to_unit)
     test_default_metadata_fields(Token, "token")
 
+    test_insert_field_length(Token, :symbol)
+    test_insert_field_length(Token, :iso_code)
+    test_insert_field_length(Token, :name)
+    test_insert_field_length(Token, :description)
+    test_insert_field_length(Token, :short_symbol)
+    test_insert_field_length(Token, :subunit)
+    test_insert_field_length(Token, :html_entity)
+    test_insert_field_length(Token, :iso_numeric)
+
     test "generates an id with the schema prefix and token symbol" do
       {:ok, token} = :token |> params_for(id: nil, symbol: "OMG") |> Token.insert()
 
@@ -90,6 +99,13 @@ defmodule EWalletDB.TokenTest do
   end
 
   describe "update/2" do
+    test_insert_field_length(Token, :iso_code)
+    test_insert_field_length(Token, :name)
+    test_insert_field_length(Token, :description)
+    test_insert_field_length(Token, :short_symbol)
+    test_insert_field_length(Token, :html_entity)
+    test_insert_field_length(Token, :iso_numeric)
+
     test "updates an existing token correctly" do
       {:ok, token} =
         :token

@@ -732,4 +732,173 @@ defmodule AdminAPI.V1.TokenControllerTest do
       timestamp |> get_all_activity_logs_since() |> assert_enable_logs(get_test_key(), token)
     end
   end
+
+  describe "/token.upload_avatar" do
+    test_with_auths "uploads an avatar for the specified token" do
+      token = insert(:token)
+
+      attrs = %{
+        id: token.id,
+        avatar: %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      }
+
+      response = request("/token.upload_avatar", attrs)
+
+      assert response["success"]
+      assert response["data"]["object"] == "token"
+
+      assert response["data"]["avatar"]["large"] =~
+               "http://localhost:4000/public/uploads/test/token/avatars/#{attrs.id}/large.png?v="
+
+      assert response["data"]["avatar"]["original"] =~
+               "http://localhost:4000/public/uploads/test/token/avatars/#{attrs.id}/original.jpg?v="
+
+      assert response["data"]["avatar"]["small"] =~
+               "http://localhost:4000/public/uploads/test/token/avatars/#{attrs.id}/small.png?v="
+
+      assert response["data"]["avatar"]["thumb"] =~
+               "http://localhost:4000/public/uploads/test/token/avatars/#{attrs.id}/thumb.png?v="
+    end
+
+    test_with_auths "fails to upload an invalid file" do
+      token = insert(:token)
+
+      attrs = %{
+        "id" => token.id,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/file.json",
+          filename: "file.json"
+        }
+      }
+
+      response = request("/token.upload_avatar", attrs)
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    test_with_auths "returns an error when 'avatar' is not sent" do
+      token = insert(:token)
+
+      attrs = %{
+        "id" => token.id
+      }
+
+      response = request("/token.upload_avatar", attrs)
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    test_with_auths "removes the avatar from a token" do
+      token = insert(:token)
+
+      attrs = %{
+        id: token.id,
+        avatar: %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      }
+
+      response = request("/token.upload_avatar", attrs)
+      assert response["success"]
+
+      attrs = %{
+        id: token.id,
+        avatar: nil
+      }
+
+      response = request("/token.upload_avatar", attrs)
+
+      assert response["success"]
+      token = Token.get(attrs.id)
+      assert token.avatar == nil
+    end
+
+    test_with_auths "removes the avatar from a token with empty string" do
+      token = insert(:token)
+
+      attrs = %{
+        id: token.id,
+        avatar: %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      }
+
+      response = request("/token.upload_avatar", attrs)
+      assert response["success"]
+      token = Token.get(attrs.id)
+      assert token.avatar != nil
+
+      attrs = %{
+        id: token.id,
+        avatar: ""
+      }
+
+      response = request("/token.upload_avatar", attrs)
+
+      assert response["success"]
+      token = Token.get(attrs.id)
+      assert token.avatar == nil
+    end
+
+    test_with_auths "removes the avatar from a token with 'null' string" do
+      token = insert(:token)
+
+      attrs = %{
+        id: token.id,
+        avatar: %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      }
+
+      response = request("/token.upload_avatar", attrs)
+      assert response["success"]
+
+      attrs = %{
+        id: token.id,
+        avatar: "null"
+      }
+
+      response = request("/token.upload_avatar", attrs)
+
+      assert response["success"]
+      token = Token.get(attrs.id)
+      assert token.avatar == nil
+    end
+
+    test_with_auths "returns :invalid_parameter error when id is not given" do
+      response = request("/token.upload_avatar", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "`id` and `avatar` are required"
+    end
+
+    test_with_auths "returns 'unauthorized' if the given token ID was not found" do
+      attrs = %{
+        id: "fake",
+        avatar: %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      }
+
+      response = request("/token.upload_avatar", attrs)
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+
+      assert response["data"]["description"] ==
+               "You are not allowed to perform the requested operation."
+    end
+  end
 end

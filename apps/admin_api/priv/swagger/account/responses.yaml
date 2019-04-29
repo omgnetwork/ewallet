@@ -10,3 +10,15 @@ AccountsResponse:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/AccountsResponseSchema'
+MembershipsAdminsResponse:
+  description: Returns a list of membership
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/MembershipsAdminsResponseSchema'
+MembershipsKeysResponse:
+  description: Returns a list of membership
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/MembershipsKeysResponseSchema'

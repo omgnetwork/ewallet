@@ -17,26 +17,34 @@ defmodule EWalletDB.GlobalRole do
   Fake Schema representing global roles.
   """
 
+  # This is an empty struct for the sole purpose of compatibility. So the bouncer can reference
+  # this global role by `%GlobalRole{}` like it does with other targets.
+  defstruct []
+
   # global admin -
 
   @global_role_permissions %{
     "super_admin" => :global,
     "admin" => %{
       account_permissions: true,
-      accounts: %{
-        all: :accounts,
-        get: :accounts,
-        listen: :accounts,
-        create: :none,
-        update: :accounts
+      exchange_pairs: %{
+        all: :global,
+        get: :global
       },
-      memberships: %{all: :accounts, get: :accounts, create: :accounts, delete: :accounts},
-      categories: %{all: :global, get: :global, create: :none, update: :none},
+      accounts: %{
+        all: :global,
+        get: :global,
+        listen: :global,
+        create: :global,
+        update: :global
+      },
+      memberships: %{all: :global, get: :global, create: :global, delete: :global},
+      categories: %{all: :global, get: :global, create: :global, update: :global},
       admin_users: %{
-        all: :accounts,
-        get: :accounts,
-        update: :accounts,
-        disable: :accounts,
+        all: :global,
+        get: :global,
+        update: :self,
+        disable: :self,
         update_password: :self,
         update_email: :self,
         upload_avatar: :self,
@@ -48,96 +56,101 @@ defmodule EWalletDB.GlobalRole do
         all: :global,
         get: :global,
         listen: :global,
-        create: :accounts,
-        update: :accounts,
+        create: :global,
+        update: :global,
         disable: :none,
-        login: :accounts,
-        logout: :accounts
+        login: :global,
+        logout: :global
       },
       access_keys: %{
-        all: :accounts,
-        get: :accounts,
-        create: :accounts,
-        update: :accounts,
-        disable: :accounts
+        all: :global,
+        get: :global,
+        create: :global,
+        update: :global,
+        disable: :global
       },
       api_keys: %{
-        all: :accounts,
-        get: :accounts,
-        create: :accounts,
-        update: :accounts,
-        disable: :accounts
+        all: :global,
+        get: :global,
+        create: :global,
+        update: :global,
+        disable: :global
       },
       tokens: %{all: :global, get: :global, create: :none, update: :none},
       mints: %{all: :none, get: :none, create: :none},
       account_wallets: %{
         all: :global,
         get: :global,
-        listen: :accounts,
-        view_balance: :accounts,
-        create: :accounts,
-        update: :accounts
+        listen: :global,
+        view_balance: :global,
+        create: :global,
+        update: :global
       },
       end_user_wallets: %{
         all: :global,
         get: :global,
-        listen: :accounts,
-        view_balance: :accounts,
-        create: :accounts,
-        update: :accounts
+        listen: :global,
+        view_balance: :global,
+        create: :global,
+        update: :global
       },
       account_transactions: %{
-        all: :accounts,
-        get: :accounts,
-        listen: :accounts,
-        create: :accounts
+        all: :global,
+        get: :global,
+        listen: :global,
+        create: :global
       },
       end_user_transactions: %{
-        all: :accounts,
-        get: :accounts,
-        listen: :accounts,
-        create: :accounts
+        all: :global,
+        get: :global,
+        listen: :global,
+        create: :global
       },
       account_transaction_requests: %{
-        all: :accounts,
-        get: :accounts,
-        listen: :accounts,
-        create: :accounts
+        all: :global,
+        get: :global,
+        listen: :global,
+        create: :global
       },
       end_user_transaction_requests: %{
-        all: :accounts,
-        get: :accounts,
-        listen: :accounts,
-        create: :accounts
+        all: :global,
+        get: :global,
+        listen: :global,
+        create: :global
       },
       account_transaction_consumptions: %{
-        all: :accounts,
-        get: :accounts,
-        listen: :accounts,
-        create: :accounts,
-        cancel: :accounts
+        all: :global,
+        get: :global,
+        listen: :global,
+        create: :global,
+        cancel: :global
       },
       end_user_transaction_consumptions: %{
-        all: :accounts,
-        get: :accounts,
-        listen: :accounts,
-        create: :accounts,
-        cancel: :accounts
+        all: :global,
+        get: :global,
+        listen: :global,
+        create: :global,
+        cancel: :global
       },
       exports: %{all: :self, get: :self, create: :global},
-      configuration: :none
+      configuration: :none,
+      permissions: %{all: :global}
     },
     "viewer" => %{
       account_permissions: true,
-      accounts: %{all: :accounts, get: :accounts, create: :none, update: :none},
+      exchange_pairs: %{
+        all: :global,
+        get: :global
+      },
+      accounts: %{all: :global, get: :global, create: :none, update: :none},
       categories: %{all: :global, get: :global, create: :none, update: :none},
-      memberships: %{all: :accounts, get: :accounts, create: :none, update: :none},
+      memberships: %{all: :global, get: :global, create: :none, update: :none},
       admin_users: %{
-        all: :accounts,
-        get: :accounts,
-        create: :none,
-        update: :none,
-        disable: :none,
+        all: :global,
+        get: :global,
+        update_password: :self,
+        update_email: :self,
+        upload_avatar: :self,
         get_account: :self,
         get_accounts: :self,
         logout: :self
@@ -150,61 +163,66 @@ defmodule EWalletDB.GlobalRole do
         update: :none,
         disable: :none
       },
-      access_keys: %{all: :accounts, get: :accounts, create: :none, update: :none, disable: :none},
-      api_keys: %{all: :accounts, get: :accounts, create: :none, update: :none, disable: :none},
+      access_keys: %{all: :global, get: :global, create: :none, update: :none, disable: :none},
+      api_keys: %{all: :global, get: :global, create: :none, update: :none, disable: :none},
       tokens: %{all: :global, get: :global, create: :none, update: :none},
       mints: %{all: :none, get: :none, create: :none},
       account_wallets: %{
         all: :global,
         get: :global,
-        listen: :accounts,
-        view_balance: :accounts,
+        listen: :global,
+        view_balance: :global,
         create: :none,
         update: :none
       },
       end_user_wallets: %{
         all: :global,
         get: :global,
-        listen: :accounts,
-        view_balance: :accounts,
+        listen: :global,
+        view_balance: :global,
         create: :none,
         update: :none
       },
-      account_transactions: %{all: :accounts, listen: :accounts, get: :accounts, create: :none},
-      end_user_transactions: %{all: :accounts, listen: :accounts, get: :accounts, create: :none},
+      account_transactions: %{all: :global, listen: :global, get: :global, create: :none},
+      end_user_transactions: %{all: :global, listen: :global, get: :global, create: :none},
       account_transaction_requests: %{
-        all: :accounts,
-        listen: :accounts,
-        get: :accounts,
+        all: :global,
+        listen: :global,
+        get: :global,
         create: :none
       },
       end_user_transaction_requests: %{
-        all: :accounts,
-        listen: :accounts,
-        get: :accounts,
+        all: :global,
+        listen: :global,
+        get: :global,
         create: :none
       },
       account_transaction_consumptions: %{
-        all: :accounts,
-        get: :accounts,
-        listen: :accounts,
+        all: :global,
+        get: :global,
+        listen: :global,
         create: :none,
         approve: :none,
         cancel: :none
       },
       end_user_transaction_consumptions: %{
-        all: :accounts,
-        get: :accounts,
-        listen: :accounts,
+        all: :global,
+        get: :global,
+        listen: :global,
         create: :none,
         approve: :none,
         cancel: :none
       },
       exports: %{all: :self, get: :self, create: :none},
-      configuration: :none
+      configuration: :none,
+      permissions: %{all: :global}
     },
     "end_user" => %{
       account_permissions: false,
+      exchange_pairs: %{
+        all: :global,
+        get: :global
+      },
       end_users: %{all: :self, get: :self, listen: :self, update: :self},
       tokens: %{all: :global, get: :global, create: :none, update: :none},
       account_wallets: %{

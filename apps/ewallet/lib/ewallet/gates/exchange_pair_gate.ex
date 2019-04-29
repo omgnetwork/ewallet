@@ -18,6 +18,7 @@ defmodule EWallet.ExchangePairGate do
   """
   alias EWallet.UUIDFetcher
   alias EWalletDB.{ExchangePair, Repo}
+  alias EWallet.Web.Paginator
 
   @doc """
   Inserts an exchange pair.
@@ -98,7 +99,7 @@ defmodule EWallet.ExchangePairGate do
          direct_pair,
          %{"sync_opposite" => true, "originator" => originator} = direct_attrs
        ) do
-    case get_opposite_pair(direct_pair) do
+    case ExchangePair.get_opposite_pair(direct_pair) do
       nil ->
         {:error, :exchange_opposite_pair_not_found}
 
@@ -149,7 +150,7 @@ defmodule EWallet.ExchangePairGate do
 
   # Deletes the opposite pair if explicitly requested
   defp delete(:opposite, direct_pair, %{"sync_opposite" => true}, originator) do
-    case get_opposite_pair(direct_pair) do
+    case ExchangePair.get_opposite_pair(direct_pair) do
       nil ->
         {:error, :exchange_opposite_pair_not_found}
 
@@ -160,7 +161,36 @@ defmodule EWallet.ExchangePairGate do
 
   defp delete(:opposite, _, _, _), do: {:ok, nil}
 
-  defp get_opposite_pair(pair) do
-    ExchangePair.get_by(from_token_uuid: pair.to_token_uuid, to_token_uuid: pair.from_token_uuid)
+  def add_opposite_pairs(%Paginator{data: exchange_pairs} = paginator) do
+    updated_pairs = add_opposite_pairs(exchange_pairs)
+
+    Map.put(paginator, :data, updated_pairs)
+  end
+
+  def add_opposite_pairs(exchange_pairs) when is_list(exchange_pairs) do
+    exchange_pairs
+    |> ExchangePair.get_opposite_pairs()
+    |> insert_opposite_pairs(exchange_pairs)
+  end
+
+  def add_opposite_pair(%ExchangePair{} = exchange_pair) do
+    exchange_pair
+    |> ExchangePair.get_opposite_pair()
+    |> insert_opposite_pair(exchange_pair)
+  end
+
+  defp insert_opposite_pairs(opposites, exchange_pairs) do
+    Enum.map(exchange_pairs, fn exchange_pair ->
+      opposites
+      |> Enum.find(fn opposite ->
+        exchange_pair.from_token_uuid == opposite.to_token_uuid &&
+          exchange_pair.to_token_uuid == opposite.from_token_uuid
+      end)
+      |> insert_opposite_pair(exchange_pair)
+    end)
+  end
+
+  defp insert_opposite_pair(opposite_pair, exchange_pair) do
+    Map.put(exchange_pair, :opposite_exchange_pair, opposite_pair)
   end
 end

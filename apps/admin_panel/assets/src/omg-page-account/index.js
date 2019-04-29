@@ -19,9 +19,19 @@ const AccountPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  td:first-child {
+  td:nth-child(1) {
     width: 30%;
-    max-width: 30%;
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
   }
   td:nth-child(2),
   td:nth-child(3) {
@@ -37,7 +47,7 @@ const AccountPageContainer = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
@@ -61,7 +71,7 @@ export const NameColumn = styled.div`
 `
 class AccountPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
+    divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
@@ -105,7 +115,7 @@ class AccountPage extends Component {
       { key: 'name', title: 'NAME', sort: true },
       { key: 'id', title: 'ID', sort: true },
       { key: 'description', title: 'DESCRIPTION', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
+      { key: 'created_at', title: 'CREATED AT', sort: true },
       { key: 'avatar', title: 'AVATAR', hide: true }
     ]
   }
@@ -119,14 +129,13 @@ class AccountPage extends Component {
     })
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/accounts/${data.id}`)
+    this.props.history.push(`/accounts/${data.id}/details`)
   }
   rowRenderer (key, data, rows) {
     if (key === 'name') {
       return (
         <NameColumn>
-          <Avatar image={rows.avatar} name={data.slice(0, 2)} /> <span>{data}</span>
+          <Avatar image={rows.avatar} name={data.slice(0, 3)} /> <span>{data}</span>
         </NameColumn>
       )
     }
@@ -146,14 +155,17 @@ class AccountPage extends Component {
     if (key === 'avatar') {
       return null
     }
+    if (key === 'description') {
+      return _.truncate(data, 100)
+    }
     return data
   }
   renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
-        <TopNavigation title={'Accounts'} buttons={[this.renderCreateAccountButton()]} />
+        <TopNavigation divider={this.props.divider} title={'Accounts'} buttons={[this.renderCreateAccountButton()]} />
         <SortableTableContainer
-          innerRef={table => (this.table = table)}
+          ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable

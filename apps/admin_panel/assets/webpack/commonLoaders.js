@@ -1,4 +1,3 @@
-
 module.exports = [
   {
     test: /\.jsx?$/,
@@ -6,15 +5,23 @@ module.exports = [
       {
         loader: 'babel-loader',
         options: {
-          presets: [['@babel/preset-env', {
-            'targets': {
-              'node': 'current'
-            }
-          }], '@babel/preset-react'],
+          presets: [
+            [
+              '@babel/preset-env',
+              {
+                targets: {
+                  node: 'current'
+                }
+              }
+            ],
+            '@babel/preset-react'
+          ],
           plugins: [
             require('@babel/plugin-proposal-class-properties'),
             require('@babel/plugin-proposal-object-rest-spread'),
-            'react-hot-loader/babel']
+            require('@babel/plugin-syntax-dynamic-import'),
+            'react-hot-loader/babel'
+          ]
         }
       }
     ],
@@ -46,7 +53,6 @@ module.exports = [
   },
   {
     test: /\.css$/,
-    use: [ 'style-loader', 'css-loader' ]
+    use: ['style-loader', 'css-loader']
   }
-
 ]

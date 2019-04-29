@@ -17,6 +17,7 @@ defmodule EWallet.Bouncer.DispatchConfig do
   A permissions dispatcher calling the appropriate actors/targets.
   """
   alias EWallet.Bouncer.{
+    # Targets
     AccountTarget,
     CategoryTarget,
     KeyTarget,
@@ -33,8 +34,14 @@ defmodule EWallet.Bouncer.DispatchConfig do
     ExchangePairTarget,
     ConfigurationTarget,
     APIKeyTarget,
+    GlobalRoleTarget,
+    RoleTarget,
+
+    # Actors
     UserActor,
     KeyActor,
+
+    # Scopes
     TransactionScope,
     TransactionConsumptionScope,
     TransactionRequestScope,
@@ -67,7 +74,9 @@ defmodule EWallet.Bouncer.DispatchConfig do
     Mint,
     Token,
     ExchangePair,
-    APIKey
+    APIKey,
+    GlobalRole,
+    Role
   }
 
   alias EWalletConfig.Setting
@@ -114,7 +123,9 @@ defmodule EWallet.Bouncer.DispatchConfig do
     Token => TokenTarget,
     ActivityLog => ActivityLogTarget,
     Setting => ConfigurationTarget,
-    APIKey => APIKeyTarget
+    APIKey => APIKeyTarget,
+    GlobalRole => GlobalRoleTarget,
+    Role => RoleTarget
   }
 
   def scope_references, do: @scope_references

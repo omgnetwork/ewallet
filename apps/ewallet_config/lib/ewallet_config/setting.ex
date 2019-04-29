@@ -185,8 +185,8 @@ defmodule EWalletConfig.Setting do
     |> update(attrs)
   end
 
-  def update(key, attrs) when is_binary(key) do
-    case Repo.get_by(StoredSetting, %{key: key}) do
+  def update(key, attrs) do
+    case Repo.get_by(StoredSetting, key: key) do
       nil ->
         {:error, :setting_not_found}
 

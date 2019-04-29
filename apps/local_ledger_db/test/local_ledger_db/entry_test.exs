@@ -328,6 +328,26 @@ defmodule LocalLedgerDB.EntryTest do
       assert all_wallets == %{"tok_OMG_123" => 300 + 500 + 100 + 1200 + 250}
       assert wallets == %{"tok_OMG_123" => 100 + 1200}
     end
+
+    test "calculate specific wallet with a given list of 'token_id'" do
+      {:ok, balance} = :wallet |> build |> Repo.insert()
+
+      {:ok, omg} = :token |> build(id: "tok_OMG_123") |> Repo.insert()
+      {:ok, knc} = :token |> build(id: "tok_KNC_456") |> Repo.insert()
+      {:ok, btc} = :token |> build(id: "tok_BTC_789") |> Repo.insert()
+
+      transfer(balance, omg, 300, Entry.credit_type())
+      transfer(balance, omg, 500, Entry.credit_type())
+      transfer(balance, omg, 100, Entry.debit_type())
+      transfer(balance, knc, 100, Entry.credit_type())
+      transfer(balance, btc, 200, Entry.credit_type())
+
+      token_ids = ["tok_OMG_123", "tok_KNC_456"]
+
+      wallets = Entry.calculate_all_balances(balance.address, %{token_id: token_ids})
+
+      assert wallets == %{"tok_KNC_456" => 100, "tok_OMG_123" => 700}
+    end
   end
 
   describe "#calculate_current_amount" do

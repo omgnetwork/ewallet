@@ -53,11 +53,15 @@ defmodule EWalletDB.RoleTest do
 
     test_insert_prevent_blank(Role, :name)
     test_insert_prevent_duplicate(Role, :name, "admin")
+
+    test_insert_field_length(Role, :display_name)
   end
 
   describe "update/1" do
     test_update_field_ok(Role, :name, "admin", "viewer")
     test_update_field_ok(Role, :display_name)
+
+    test_update_field_length(Role, :display_name)
   end
 
   describe "deleted?/1" do

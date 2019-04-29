@@ -4,10 +4,10 @@
 
 Below are the general environment variables needed for the eWallet to run.
 
-- `MIX_ENV`: Environment in which the application is being ran. `prod` for production.
+- `MIX_ENV`: The environment in which the application is being ran. `prod` for production.
 - `PORT`: The port that the application listens on.
-- `EWALLET_SECRET_KEY`: Encryption key used to encrypt some data in the database.
-- `LOCAL_LEDGER_SECRET_KEY`: Encryption key used to encrypt some data in the database.
+- `EWALLET_SECRET_KEY`: The encryption key used to encrypt data in the `ewallet` database.
+- `LOCAL_LEDGER_SECRET_KEY`: The encryption key used to encrypt data in the `local_ledger` database.
 
 To generate a new secret key using Elixir:
 
@@ -20,8 +20,14 @@ $ elixir -e "IO.puts 32 |> :crypto.strong_rand_bytes() |> Base.encode64()"
 
 The eWallet needs access to two different databases: one for the eWallet itself and one for the local ledger. The following environment variables need to be set.
 
-- `DATABASE_URL`
-- `LOCAL_LEDGER_DATABASE_URL`
+- `DATABASE_URL`: The connection URI for the `ewallet` database.
+- `LOCAL_LEDGER_DATABASE_URL`: The connection URI for the `local_ledger` database.
+- `EWALLET_POOL_SIZE`: The connection pool size for the `ewallet` database. _Defaults to `10`._
+- `LOCAL_LEDGER_POOL_SIZE`: The connection pool size for the `local_ledger` database. _Defaults to `10`._
+
+See the connection URI format at [Postgres' Connection URIs](https://www.postgresql.org/docs/current/libpq-connect.html#id-1.7.3.8.3.6).
+
+See the suggestion for finding the optimal pool size at [How to Find the Optimal Database Connection Pool Size](https://wiki.postgresql.org/wiki/Number_Of_Database_Connections#How_to_Find_the_Optimal_Database_Connection_Pool_Size)
 
 ## Application Monitoring
 

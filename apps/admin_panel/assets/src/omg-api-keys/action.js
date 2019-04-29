@@ -1,10 +1,10 @@
 import * as apikeyService from '../services/apikeyService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
-export const createApiKey = owner =>
+export const createApiKey = ({ name }) =>
   createActionCreator({
     actionName: 'API_KEY',
     action: 'CREATE',
-    service: () => apikeyService.createApikey({ owner })
+    service: () => apikeyService.createApikey({ name })
   })
 export const deleteApiKey = id =>
   createActionCreator({
@@ -19,7 +19,7 @@ export const updateApiKey = ({ id, expired }) =>
     service: () => apikeyService.updateApiKey({ id, expired })
   })
 
-export const getApiKeys = ({ page, perPage, search, cacheKey }) =>
+export const getApiKeys = ({ page, perPage, matchAll, matchAny, cacheKey }) =>
   createPaginationActionCreator({
     actionName: 'API_KEYS',
     action: 'REQUEST',
@@ -28,7 +28,8 @@ export const getApiKeys = ({ page, perPage, search, cacheKey }) =>
         perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
-        search
+        matchAll,
+        matchAny
       }),
     cacheKey
   })

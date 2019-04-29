@@ -15,8 +15,9 @@
 defmodule AdminAPI.V1.AdminUserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.UserView
-  alias EWallet.{AdminUserPolicy, UserFetcher}
+  alias AdminAPI.UpdateEmailAddressEmail
+  alias Bamboo.Email
+  alias EWallet.{Mailer, AdminUserPolicy, UserFetcher, UpdateEmailGate, UserGate}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.UserOverlay}
   alias EWalletDB.{User, AuthToken}
 
@@ -52,6 +53,73 @@ defmodule AdminAPI.V1.AdminUserController do
   def get(conn, _), do: handle_error(conn, :missing_id)
 
   @doc """
+  Creates a new admin user.
+
+  The requesting user must have the permissions to create admin users.
+  """
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def create(conn, %{"email" => email, "redirect_url" => redirect_url} = attrs)
+      when not is_nil(email) and not is_nil(redirect_url) do
+    with {:ok, _} <- authorize(:create, conn.assigns, %User{global_role: attrs["global_role"]}),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         attrs <- Map.put(attrs, "is_admin", true),
+         {:ok, redirect_url} <- UserGate.validate_redirect_url(redirect_url),
+         {:ok, _invite} <- UserGate.invite_global_user(attrs, redirect_url) do
+      render(conn, :empty, %{success: true})
+    else
+      {:error, error} -> handle_error(conn, error)
+    end
+  end
+
+  def create(conn, _attrs) do
+    handle_error(conn, :invalid_parameter, "`email` and `redirect_url` are required.")
+  end
+
+  @doc """
+  Updates an admin user.
+
+  The requesting user must have the permissions to update admin users.
+  Admin users can't update themselves through this endpoint.
+  """
+  @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def update(conn, %{"id" => user_id} = attrs) do
+    with %User{} = original <- User.get(user_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:update, conn.assigns, original),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         true <- attrs["originator"].uuid != original.uuid || {:error, :unauthorized},
+         {:ok, updated} <- User.update(original, attrs),
+         {:ok, updated} <- update_email(updated, attrs),
+         {:ok, updated} <- Orchestrator.one(updated, UserOverlay, attrs) do
+      render(conn, :admin_user, %{admin_user: updated})
+    else
+      {:error, error} -> handle_error(conn, error)
+      {:error, code, description} -> handle_error(conn, code, description)
+    end
+  end
+
+  def update(conn, _), do: handle_error(conn, :invalid_parameter, "`id` is required.")
+
+  defp update_email(user, %{"email" => email, "redirect_url" => redirect_url})
+       when not is_nil(email) and not is_nil(redirect_url) do
+    with {:ok, redirect_url} <- UserGate.validate_redirect_url(redirect_url),
+         {:ok, request} <- UpdateEmailGate.update(user, email),
+         %Email{} = email <- UpdateEmailAddressEmail.create(request, redirect_url),
+         %Email{} <- Mailer.deliver_now(email) do
+      {:ok, user}
+    else
+      error ->
+        error
+    end
+  end
+
+  defp update_email(_user, %{"email" => email}) when not is_nil(email) do
+    {:error, :invalid_parameter,
+     "A valid `redirect_url` is required when updating an admin user's email."}
+  end
+
+  defp update_email(user, _), do: {:ok, user}
+
+  @doc """
   Enable or disable a user.
   """
   @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
@@ -77,7 +145,7 @@ defmodule AdminAPI.V1.AdminUserController do
 
   # Respond with a list of admins
   defp respond_multiple(%Paginator{} = paged_users, conn) do
-    render(conn, UserView, :users, %{users: paged_users})
+    render(conn, :admin_users, %{admin_users: paged_users})
   end
 
   defp respond_multiple({:error, code, description}, conn) do
@@ -90,7 +158,7 @@ defmodule AdminAPI.V1.AdminUserController do
 
   # Respond with a single admin
   defp respond_single(%User{} = user, conn) do
-    render(conn, UserView, :user, %{user: user})
+    render(conn, :admin_user, %{admin_user: user})
   end
 
   @spec authorize(:all | :create | :get | :update, map(), %User{} | nil) ::

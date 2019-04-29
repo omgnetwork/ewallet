@@ -19,8 +19,18 @@ const UserPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  td:first-child {
-    width: 40%;
+  td:nth-child(1) {
+    border: none;
+    position: relative;
+    :before {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      width: calc(100% - 50px);
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
+    }
   }
   tr:hover {
     td:nth-child(1) {
@@ -50,17 +60,28 @@ const UserIdContainer = styled.div`
   span {
     vertical-align: middle;
   }
-  i {
+  i[name='Profile'] {
     margin-right: 5px;
-    color: ${props => props.theme.colors.BL400};
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
   }
 `
 class UsersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
     history: PropTypes.object,
-    match: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    divider: PropTypes.bool,
+    scrollTopContentContainer: PropTypes.func,
+    query: PropTypes.object,
+    fetcher: PropTypes.func,
+    onClickRow: PropTypes.func
+  }
+
+  static defaultProps = {
+    query: {},
+    fetcher: UsersFetcher
   }
   constructor (props) {
     super(props)
@@ -70,8 +91,7 @@ class UsersPage extends Component {
     }
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/users/${data.id}`)
+    this.props.history.push(`/users/${data.id}`)
   }
   renderExportButton = () => {
     return (
@@ -90,12 +110,12 @@ class UsersPage extends Component {
   }
   getColumns = () => {
     return [
-      { key: 'id', title: 'ID', sort: true },
+      { key: 'id', title: 'USER ID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
       { key: 'username', title: 'USERNAME', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'updated_at', title: 'LAST UPDATED', sort: true },
-      { key: 'provider_user_id', title: 'PROVIDER', sort: true }
+      { key: 'provider_user_id', title: 'PROVIDER', sort: true },
+      { key: 'created_at', title: 'CREATED AT', sort: true },
+      { key: 'updated_at', title: 'UPDATED AT', sort: true }
     ]
   }
   getRow = users => {
@@ -127,18 +147,18 @@ class UsersPage extends Component {
   renderUserPage = ({ data: users, individualLoadingStatus, pagination }) => {
     return (
       <UserPageContainer>
-        <TopNavigation title={'Users'} />
-        <SortableTableContainer innerRef={table => (this.table = table)}>
+        <TopNavigation divider={this.props.divider} title={'Users'} />
+        <SortableTableContainer ref={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(users)}
             columns={this.getColumns(users)}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
-            onClickRow={this.onClickRow}
+            onClickRow={this.props.onClickRow || this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
-            navigation
             pagination={false}
+            navigation
           />
         </SortableTableContainer>
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
@@ -147,16 +167,17 @@ class UsersPage extends Component {
   }
 
   render () {
+    const Fetcher = this.props.fetcher
     return (
-      <UsersFetcher
+      <Fetcher
         {...this.state}
         {...this.props}
         render={this.renderUserPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
-          accountId: this.props.match.params.accountId,
-          ...createSearchUsersQuery(queryString.parse(this.props.location.search).search)
+          ...createSearchUsersQuery(queryString.parse(this.props.location.search).search),
+          ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

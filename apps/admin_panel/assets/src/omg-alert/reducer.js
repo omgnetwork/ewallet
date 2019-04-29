@@ -16,6 +16,11 @@ const CopyTextContainer = styled.div`
 const createAlertState = (text, type) => {
   return { id: uuid(), text, type }
 }
+
+const errorStateHandler = (state, { error }) => {
+  return [...state, createAlertState(`${error.description || error}`, 'error')]
+}
+
 export const alertsReducer = createReducer([], {
   'ALERTS/CLEAR': (state, { id }) => {
     return state.filter(alert => alert.id !== id)
@@ -32,24 +37,24 @@ export const alertsReducer = createReducer([], {
     ]
   },
   'API_KEY/CREATE/SUCCESS': state => {
-    return [...state, createAlertState('Api key was successfully created.', 'success')]
+    return [...state, createAlertState('Client key was successfully created.', 'success')]
   },
   'ACCESS_KEY/CREATE/SUCCESS': state => {
-    return [...state, createAlertState('Access key was successfully created.', 'success')]
+    return [...state, createAlertState('New admin key successfully created.', 'success')]
   },
   'EXCHANGE_PAIR/CREATE/SUCCESS': state => {
-    return [...state, createAlertState('Exchange pair has successfully created.', 'success')]
+    return [...state, createAlertState('Exchange pair was successfully created.', 'success')]
   },
   'ACCOUNT/CREATE/SUCCESS': state => {
     return [...state, createAlertState('Account was successfully created.', 'success')]
   },
   'TOKEN/CREATE/SUCCESS': state => {
-    return [...state, createAlertState('token was successfully created.', 'success')]
+    return [...state, createAlertState('Token was successfully created.', 'success')]
   },
   'TOKEN/MINT/SUCCESS': state => {
     return [...state, createAlertState('Minted token successfully.', 'success')]
   },
-  'CURRENT_ACCOUNT/UPDATE/SUCCESS': state => {
+  'ACCOUNT/UPDATE/SUCCESS': state => {
     return [...state, createAlertState('Updated account successfully.', 'success')]
   },
   'INVITE/REQUEST/SUCCESS': state => {
@@ -58,8 +63,11 @@ export const alertsReducer = createReducer([], {
   'CATEGORY/CREATE/SUCCESS': (state, { category }) => {
     return [...state, createAlertState('Created category successfully.', 'success')]
   },
+  'ACCOUNT/ASSIGN_KEY/SUCCESS': state => {
+    return [...state, createAlertState('Assign key to account successfully.', 'success')]
+  },
   'CURRENT_USER/UPDATE/SUCCESS': (state, { user }) => {
-    return [...state, createAlertState('Updated user setting successfully.', 'success')]
+    return [...state, createAlertState('Updated user settings successfully.', 'success')]
   },
   'PASSWORD/UPDATE/SUCCESS': (state, { user }) => {
     return [...state, createAlertState('Updated password successfully.', 'success')]
@@ -68,46 +76,13 @@ export const alertsReducer = createReducer([], {
     return [...state, createAlertState('Transferred successfully.', 'success')]
   },
   'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
-    return [...state, createAlertState('Transaction request has successfully created.', 'success')]
+    return [...state, createAlertState('Transaction request was successfully created.', 'success')]
   },
   'TRANSACTION_REQUEST/CONSUME/SUCCESS': (state, { data }) => {
     if (data.status === 'confirmed') {
       return [...state, createAlertState('Consumed transaction request.', 'success')]
     }
     return state
-  },
-  'PASSWORD/UPDATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'CURRENT_USER/UPDATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'CONSUMPTION/APPROVE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'CONSUMPTION/REJECT/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'ACCOUNT/CREATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'CATEGORY/CREATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'API_KEY/UPDATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'API_KEY/CREATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'ACCESS_KEY/CREATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'CURRENT_ACCOUNT/UPDATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'INVITE/REQUEST/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
   'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, { data }) => {
     if (data.status === 'confirmed' && data.transaction_request.require_confirmation) {
@@ -152,20 +127,26 @@ export const alertsReducer = createReducer([], {
     return state
   },
   'CONFIGURATIONS/UPDATE/SUCCESS': (state, { data }) => {
-    return [...state, createAlertState('Updated configurations successfully, reloading application..', 'success')]
-  },
-  'CONFIGURATIONS/UPDATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
+    return [
+      ...state,
+      createAlertState('Updated configuration successfully, reloading application...', 'success')
+    ]
   },
   'TRANSACTIONS/EXPORT/SUCCESS': (state, { error }) => {
-    return [...state, createAlertState(
-      <div>
-       Export transactions successfully
-      </div>,
-      'success'
-    )]
+    return [...state, createAlertState(<div>Exported transactions successfully</div>, 'success')]
   },
-  'TRANSACTIONS/EXPORT/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  }
+  'CONFIGURATIONS/UPDATE/FAILED': errorStateHandler,
+  'TRANSACTIONS/EXPORT/FAILED': errorStateHandler,
+  'PASSWORD/UPDATE/FAILED': errorStateHandler,
+  'CURRENT_USER/UPDATE/FAILED': errorStateHandler,
+  'CONSUMPTION/APPROVE/FAILED': errorStateHandler,
+  'CONSUMPTION/REJECT/FAILED': errorStateHandler,
+  'ACCOUNT/CREATE/FAILED': errorStateHandler,
+  'ACCOUNT/ASSIGN_KEY/FAILED': errorStateHandler,
+  'CATEGORY/CREATE/FAILED': errorStateHandler,
+  'API_KEY/UPDATE/FAILED': errorStateHandler,
+  'API_KEY/CREATE/FAILED': errorStateHandler,
+  'ACCESS_KEY/CREATE/FAILED': errorStateHandler,
+  'CONFIGURATIONS/REQUEST/FAILED': errorStateHandler,
+  'INVITE/REQUEST/FAILED': errorStateHandler
 })

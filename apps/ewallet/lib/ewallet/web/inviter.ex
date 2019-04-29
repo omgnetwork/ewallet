@@ -44,10 +44,23 @@ defmodule EWallet.Web.Inviter do
   Creates the admin along with the membership if the admin does not exist,
   then sends the invite email out.
   """
+  @spec invite_admin(map(), String.t(), fun()) ::
+          {:ok, %Invite{}} | {:error, atom()}
+  def invite_admin(%{"originator" => originator} = attrs, redirect_url, create_email_func) do
+    with attrs <- Map.put(attrs, "is_admin", true),
+         {:ok, user} <- insert_user(attrs),
+         {:ok, invite} <- Invite.generate(user, originator, preload: :user) do
+      send_email(invite, redirect_url, create_email_func)
+    else
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
   @spec invite_admin(String.t(), %Account{}, %Role{}, String.t(), map() | atom(), fun()) ::
           {:ok, %Invite{}} | {:error, atom()}
   def invite_admin(email, account, role, redirect_url, originator, create_email_func) do
-    with {:ok, user} <- get_or_insert_user(email, nil, originator),
+    with {:ok, user} <- get_or_insert_user(email, nil, originator, true),
          {:ok, invite} <- Invite.generate(user, originator, preload: :user),
          {:ok, _membership} <- Membership.assign(invite.user, account, role, originator) do
       send_email(invite, redirect_url, create_email_func)
@@ -57,7 +70,7 @@ defmodule EWallet.Web.Inviter do
     end
   end
 
-  defp get_or_insert_user(email, password, originator) do
+  defp get_or_insert_user(email, password, originator, is_admin \\ false) do
     case User.get_by_email(email) do
       %User{} = user ->
         case User.get_status(user) do
@@ -70,11 +83,18 @@ defmodule EWallet.Web.Inviter do
 
       nil ->
         User.insert(%{
+          is_admin: is_admin,
           email: email,
           password: password || Crypto.generate_base64_key(32),
           originator: originator
         })
     end
+  end
+
+  defp insert_user(attrs) do
+    attrs
+    |> Map.put("password", Crypto.generate_base64_key(32))
+    |> User.insert()
   end
 
   @doc """

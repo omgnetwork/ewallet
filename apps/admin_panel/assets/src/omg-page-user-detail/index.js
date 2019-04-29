@@ -4,26 +4,24 @@ import styled, { withTheme } from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
 import UserProvider from '../omg-users/userProvider'
 import { compose } from 'recompose'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import TopBar from '../omg-page-detail-layout/TopBarDetail'
-import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import { LoadingSkeleton } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
 const UserDetailContainer = styled.div`
-  padding-bottom: 20px;
   b {
     width: 150px;
     display: inline-block;
   }
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 40px;
   display: flex;
+  flex-wrap: wrap;
 `
 const DetailContainer = styled.div`
-  flex: 1 1 50%;
+  flex: 1 1 auto;
   :first-child {
     margin-right: 20px;
   }
@@ -44,43 +42,48 @@ const enhance = compose(
 )
 class TokenDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object
+    match: PropTypes.object,
+    divider: PropTypes.bool
   }
   renderTopBar = user => {
-    return <TopBar title={user.id} breadcrumbItems={['User', user.id]} buttons={[]} />
+    return (
+      <TopNavigation
+        divider={this.props.divider}
+        title={user.email || user.provider_user_id}
+        breadcrumbItems={['User', user.id]}
+        secondaryAction={false}
+      />
+    )
   }
   renderDetail = user => {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
-          <b>Id:</b> <span>{user.id}</span> <Copy data={user.id} />
+          <b>ID:</b> <span>{user.id}</span> <Copy data={user.id} />
         </DetailGroup>
         <DetailGroup>
           <b>Email:</b> <span>{user.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Provider Id:</b> <span>{user.provider_user_id || '-'}</span>
+          <b>Provider ID:</b> <span>{user.provider_user_id || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(user.created_at).format()}</span>
+          <b>Created At:</b> <span>{moment(user.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(user.updated_at).format()}</span>
+          <b>Updated At:</b> <span>{moment(user.updated_at).format()}</span>
         </DetailGroup>
       </Section>
     )
   }
   renderWallet = wallet => {
-    console.log(wallet)
-    const accountId = this.props.match.params.accountId
     return (
       <Section title='BALANCE'>
         {wallet ? (
           <div>
             <DetailGroup>
-              <b>Wallet Address:</b>{' '}
-              <Link to={`/${accountId}/wallets/${wallet.address}`}>{wallet.address}</Link> ({' '}
-              <span>{wallet.name}</span> )
+              <b>Wallet Address:</b> <Link to={`/wallets/${wallet.address}`}>{wallet.address}</Link>{' '}
+              ( <span>{wallet.name}</span> )
             </DetailGroup>
             {wallet.balances.map(balance => {
               return (
@@ -105,17 +108,14 @@ class TokenDetailPage extends Component {
     )
   }
   renderUserDetailContainer = (user, wallet) => {
-    const accountId = this.props.match.params.accountId
     return (
-      <DetailLayout backPath={`/${accountId}/users`}>
-        <ContentContainer>
-          {this.renderTopBar(user)}
-          <ContentDetailContainer>
-            <DetailContainer>{this.renderDetail(user)}</DetailContainer>
-            {wallet && <DetailContainer>{this.renderWallet(wallet)}</DetailContainer>}
-          </ContentDetailContainer>
-        </ContentContainer>
-      </DetailLayout>
+      <ContentContainer>
+        {this.renderTopBar(user)}
+        <ContentDetailContainer>
+          <DetailContainer>{this.renderDetail(user)}</DetailContainer>
+          {wallet && <DetailContainer>{this.renderWallet(wallet)}</DetailContainer>}
+        </ContentDetailContainer>
+      </ContentContainer>
     )
   }
 

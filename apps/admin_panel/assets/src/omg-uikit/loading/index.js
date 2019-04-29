@@ -24,9 +24,10 @@ const LoadingSkeletonSpan = styled.div`
   border-radius: 10px;
   animation: ${progress} 1.5s ease-in-out infinite;
 `
-const LoadingBar = styled.div`
+const LoadingBar = styled.div.attrs(({ width }) => ({
+  style: { width }
+}))`
   position: relative;
-  width: ${props => props.width || '100%'};
   height: ${props => props.height || '1.5em'};
   background-color: ${props => props.theme.colors.S100};
   overflow: hidden;
@@ -39,7 +40,7 @@ class LoadingSkeleton extends Component {
   }
   render () {
     return (
-      <LoadingBar {...this.props} height={this.props.height} width={this.props.width}>
+      <LoadingBar {...this.props}>
         <LoadingSkeletonSpan />
       </LoadingBar>
     )

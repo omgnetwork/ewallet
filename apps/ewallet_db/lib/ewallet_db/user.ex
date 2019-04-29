@@ -152,12 +152,19 @@ defmodule EWalletDB.User do
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_inclusion(:global_role, GlobalRole.global_roles())
     |> validate_immutable(:provider_user_id)
+    |> validate_length(:username, count: :bytes, max: 255)
+    |> validate_length(:provider_user_id, count: :bytes, max: 255)
+    |> validate_length(:email, count: :bytes, max: 255)
+    |> validate_length(:full_name, count: :bytes, max: 255)
+    |> validate_length(:calling_name, count: :bytes, max: 255)
+    |> validate_length(:global_role, count: :bytes, max: 255)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
     |> unique_constraint(:email)
     |> assoc_constraint(:invite)
     |> put_change(:password_hash, password_hash)
     |> validate_by_roles(attrs)
+    |> set_global_role(attrs)
   end
 
   defp update_user_changeset(user, attrs) do
@@ -177,6 +184,10 @@ defmodule EWalletDB.User do
         :encrypted_metadata
       ]
     )
+    |> validate_length(:username, count: :bytes, max: 255)
+    |> validate_length(:provider_user_id, count: :bytes, max: 255)
+    |> validate_length(:full_name, count: :bytes, max: 255)
+    |> validate_length(:calling_name, count: :bytes, max: 255)
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
@@ -200,7 +211,11 @@ defmodule EWalletDB.User do
         :encrypted_metadata
       ]
     )
+    |> validate_length(:full_name, count: :bytes, max: 255)
+    |> validate_length(:calling_name, count: :bytes, max: 255)
+    |> validate_length(:global_role, count: :bytes, max: 255)
     |> assoc_constraint(:invite)
+    |> validate_inclusion(:global_role, GlobalRole.global_roles())
     |> validate_by_roles(attrs)
   end
 
@@ -254,8 +269,22 @@ defmodule EWalletDB.User do
       cast: [:email],
       required: [:email]
     )
+    |> validate_length(:email, count: :bytes, max: 255)
     |> validate_email(:email)
     |> unique_constraint(:email)
+  end
+
+  defp set_global_role(changeset, _attrs) do
+    case {get_field(changeset, :is_admin), get_field(changeset, :global_role)} do
+      {true, _} ->
+        changeset
+
+      {false, "end_user"} ->
+        changeset
+
+      {false, _} ->
+        put_change(changeset, :global_role, GlobalRole.end_user())
+    end
   end
 
   # Two cases to validate for loginable:
@@ -303,9 +332,7 @@ defmodule EWalletDB.User do
   end
 
   defp do_validate_provider_user(changeset, _attrs) do
-    changeset
-    |> validate_required([:username, :provider_user_id])
-    |> put_change(:global_role, GlobalRole.end_user())
+    validate_required(changeset, [:username, :provider_user_id])
   end
 
   @doc """
@@ -342,14 +369,13 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves a specific admin.
   """
-  @spec get_admin(String.t()) :: %User{} | nil
-  @spec get_admin(String.t(), Ecto.Queryable.t()) :: %User{} | nil
-  def get_admin(id, queryable \\ User)
+  @spec get_admin(String.t(), keyword()) :: %__MODULE__{} | nil
+  def get_admin(id, opts \\ [:wallets])
 
-  def get_admin(id, queryable) when is_external_id(id) do
-    queryable
+  def get_admin(id, opts) when is_external_id(id) do
+    __MODULE__
     |> Repo.get_by(id: id, is_admin: true)
-    |> Repo.preload(:wallets)
+    |> preload_option(opts)
   end
 
   def get_admin(_, _), do: nil

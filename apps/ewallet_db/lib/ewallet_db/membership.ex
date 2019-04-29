@@ -98,27 +98,50 @@ defmodule EWalletDB.Membership do
   end
 
   @doc """
-  Retrieves all memberships for the given user.
+  Retrieves all memberships for the given admin.
   """
-  def all_by_user(user, preload \\ []) do
-    Repo.all(from(m in Membership, where: m.user_uuid == ^user.uuid, preload: ^preload))
+  @spec query_all_by_user(EWalletDB.User.t(), any(), any()) :: Ecto.Query.t()
+  def query_all_by_user(user, query \\ Membership, preload \\ []) do
+    query
+    |> where([m], m.user_uuid == ^user.uuid)
+    |> preload([m], ^preload)
   end
 
-  def all_by_user_and_role(user, role) do
-    Repo.all(
-      from(m in Membership, where: m.user_uuid == ^user.uuid and m.role_uuid == ^role.uuid)
-    )
+  @doc """
+  Retrieves all memberships for the given key.
+  """
+  @spec query_all_by_key(EWalletDB.Key.t(), any(), any()) :: Ecto.Query.t()
+  def query_all_by_key(key, query \\ Membership, preload \\ []) do
+    query
+    |> where([m], m.key_uuid == ^key.uuid)
+    |> preload([m], ^preload)
   end
 
-  @spec all_by_account(EWalletDB.Account.t(), any(), any()) :: Ecto.Query.t()
-  def all_by_account(%Account{} = account, query \\ Membership, preload \\ []) do
+  @spec query_all_by_account(EWalletDB.Account.t(), any(), any()) :: Ecto.Query.t()
+  def query_all_by_account(%Account{} = account, query \\ Membership, preload \\ []) do
     query
     |> where([m], m.account_uuid == ^account.uuid)
     |> preload([m], ^preload)
   end
 
-  @spec all_by_account_uuids(any(), any()) :: Ecto.Query.t()
-  def all_by_account_uuids(account_uuids, preload \\ []) do
+  @spec query_all_users_by_account(EWalletDB.Account.t(), any(), any()) :: Ecto.Query.t()
+  def query_all_users_by_account(%Account{} = account, query \\ Membership, preload \\ []) do
+    query
+    |> where([m], m.account_uuid == ^account.uuid)
+    |> where([m], not is_nil(m.user_uuid))
+    |> preload([m], ^preload)
+  end
+
+  @spec query_all_keys_by_account(EWalletDB.Account.t(), any(), any()) :: Ecto.Query.t()
+  def query_all_keys_by_account(%Account{} = account, query \\ Membership, preload \\ []) do
+    query
+    |> where([m], m.account_uuid == ^account.uuid)
+    |> where([m], not is_nil(m.key_uuid))
+    |> preload([m], ^preload)
+  end
+
+  @spec query_all_by_account_uuids(any(), any()) :: Ecto.Query.t()
+  def query_all_by_account_uuids(account_uuids, preload \\ []) do
     from(m in Membership, where: m.account_uuid in ^account_uuids, preload: ^preload)
   end
 
@@ -196,8 +219,8 @@ defmodule EWalletDB.Membership do
   @doc """
   Unassigns the user from the given account.
   """
-  def unassign(%User{} = user, %Account{} = account, originator) do
-    case get_by_member_and_account(user, account) do
+  def unassign(member, %Account{} = account, originator) do
+    case get_by_member_and_account(member, account) do
       nil ->
         {:error, :membership_not_found}
 

@@ -47,6 +47,8 @@ tags:
     description: Resources related to user session tokens.
   - name: User
     description: Resources related to users.
+  - name: Permission
+    description: Resources related to permissions.
   - name: Token
     description: Resources related to tokens.
   - name: ExchangePair
@@ -114,6 +116,8 @@ paths:
     $ref: 'token/paths.yaml#/token.create'
   /token.update:
     $ref: 'token/paths.yaml#/token.update'
+  /token.upload_avatar:
+    $ref: 'token/paths.yaml#/token.upload_avatar'
   /token.enable_or_disable:
     $ref: 'token/paths.yaml#/token.enable_or_disable'
   /token.stats:
@@ -162,8 +166,10 @@ paths:
     $ref: 'account/paths.yaml#/account.assign_user'
   /account.unassign_user:
     $ref: 'account/paths.yaml#/account.unassign_user'
-  /account.get_members:
-    $ref: 'account/paths.yaml#/account.get_members'
+  /account.assign_key:
+    $ref: 'account/paths.yaml#/account.assign_key'
+  /account.unassign_key:
+    $ref: 'account/paths.yaml#/account.unassign_key'
   /account.get_users:
     $ref: 'account/paths.yaml#/account.get_users'
   /account.get_descendants:
@@ -179,6 +185,15 @@ paths:
   /account.get_transaction_consumptions:
     $ref: 'account/paths.yaml#/account.get_transaction_consumptions'
 
+  /account.get_admin_user_memberships:
+    $ref: 'account/paths.yaml#/account.get_admin_user_memberships'
+
+  /account.get_key_memberships:
+    $ref: 'account/paths.yaml#/account.get_key_memberships'
+
+  /account.get_members:
+    $ref: 'account/paths.yaml#/account.get_members' # Deprecated
+
   # ADMIN USER
   /admin.reset_password:
     $ref: 'admin/paths.yaml#/admin.reset_password'
@@ -190,8 +205,14 @@ paths:
     $ref: 'admin/paths.yaml#/admin.all'
   /admin.get:
     $ref: 'admin/paths.yaml#/admin.get'
+  /admin.create:
+    $ref: 'admin/paths.yaml#/admin.create'
+  /admin.update:
+    $ref: 'admin/paths.yaml#/admin.update'
   /admin.enable_or_disable:
     $ref: 'admin/paths.yaml#/admin.enable_or_disable'
+  /admin.get_account_memberships:
+    $ref: 'admin/paths.yaml#/admin.get_account_memberships'
   /invite.accept:
     $ref: 'admin/paths.yaml#/invite.accept'
 
@@ -238,6 +259,8 @@ paths:
     $ref: 'wallet/paths.yaml#/wallet.get'
   /wallet.get_transaction_consumptions:
     $ref: 'wallet/paths.yaml#/wallet.get_transaction_consumptions'
+  /wallet.get_balances:
+    $ref: 'wallet/paths.yaml#/wallet.get_balances'
   /wallet.enable_or_disable:
     $ref: 'wallet/paths.yaml#/wallet.enable_or_disable'
 
@@ -280,6 +303,8 @@ paths:
   # API AND SECRET KEYS
   /access_key.all:
     $ref: 'api_key/paths.yaml#/access_key.all'
+  /access_key.get:
+    $ref: 'api_key/paths.yaml#/access_key.get'
   /access_key.create:
     $ref: 'api_key/paths.yaml#/access_key.create'
   /access_key.update:
@@ -288,6 +313,8 @@ paths:
     $ref: 'api_key/paths.yaml#/access_key.enable_or_disable'
   /access_key.delete:
     $ref: 'api_key/paths.yaml#/access_key.delete'
+  /access_key.get_account_memberships:
+    $ref: 'api_key/paths.yaml#/access_key.get_account_memberships'
   /api_key.all:
     $ref: 'api_key/paths.yaml#/api_key.all'
   /api_key.create:
@@ -328,3 +355,7 @@ paths:
     $ref: 'role/paths.yaml#/role.update'
   /role.delete:
     $ref: 'role/paths.yaml#/role.delete'
+
+  # PERMISSION
+  /permission.all:
+    $ref: 'permission/paths.yaml#/permission.all'

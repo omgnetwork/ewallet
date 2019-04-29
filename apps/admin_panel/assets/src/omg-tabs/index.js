@@ -9,8 +9,7 @@ const TabManagerContainer = styled.div`
 const TabTitle = styled.div`
   border-bottom: 3px solid ${props => (props.active ? props.theme.colors.BL400 : 'transparent')};
   display: inline-block;
-  font-weight: 600;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   :not(:last-child) {
     margin-right: 30px;
@@ -18,7 +17,8 @@ const TabTitle = styled.div`
   color: ${props => (props.active ? props.theme.colors.B400 : props.theme.colors.S500)};
 `
 const TabTitleContainer = styled.div`
-  border-bottom: 1px solid ${props => props.theme.colors.S500};
+  border-bottom: 1px solid ${props => props.theme.colors.S400};
+  white-space: nowrap;
 `
 const TabContent = styled.div`
 `

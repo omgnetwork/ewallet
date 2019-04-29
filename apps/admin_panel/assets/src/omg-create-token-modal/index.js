@@ -49,7 +49,7 @@ class CreateToken extends Component {
   state = {
     name: '',
     symbol: '',
-    amount: null,
+    amount: '',
     decimal: 18
   }
   onChangeInputName = e => {

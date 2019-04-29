@@ -66,6 +66,23 @@ wallet.get_transaction_consumptions:
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
+wallet.get_balances:
+  post:
+    tags:
+      - Wallet
+    summary: Get the list of balances for a wallet.
+    operationId: wallet_get_balances
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/BalanceAllForWalletBody'
+    responses:
+      '200':
+        $ref: '../balance/responses.yaml#/BalancesResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 wallet.enable_or_disable:
   post:
     tags:

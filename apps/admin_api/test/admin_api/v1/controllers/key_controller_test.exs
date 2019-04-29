@@ -15,7 +15,7 @@
 defmodule AdminAPI.V1.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Utils.Helpers.DateFormatter
-  alias EWalletDB.{Key, Repo}
+  alias EWalletDB.{Key, Repo, Role, Membership}
 
   describe "/access_key.all" do
     test_with_auths "responds with a list of keys without secret keys" do
@@ -58,6 +58,49 @@ defmodule AdminAPI.V1.KeyControllerTest do
     test_supports_match_all("/access_key.all", :key, :access_key)
   end
 
+  describe "/access_key.get" do
+    test_with_auths "returns an access key by the given ID" do
+      keys = insert_list(3, :key)
+
+      # Pick the 2nd inserted key
+      target = Enum.at(keys, 1)
+      response = request("/access_key.get", %{"id" => target.id})
+
+      assert response["success"]
+      assert response["data"]["object"] == "key"
+      assert response["data"]["name"] == target.name
+      assert response["data"]["id"] == target.id
+      assert response["data"]["global_role"] == target.global_role
+      assert response["data"]["access_key"] == target.access_key
+      assert response["data"]["enabled"] == target.enabled
+    end
+
+    test_with_auths "returns :invalid_parameter error when id is not given" do
+      response = request("/access_key.get", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
+    end
+
+    test_with_auths "returns 'unauthorized' if the given ID was not found" do
+      response = request("/access_key.get", %{"id" => "key_12345678901234567890123456"})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "returns 'unauthorized' if the given ID format is invalid" do
+      response = request("/access_key.get", %{"id" => "not_an_id"})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+    end
+  end
+
   describe "/access_key.create" do
     test_with_auths "responds with a key with the secret key" do
       response = request("/access_key.create")
@@ -72,6 +115,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
                "data" => %{
                  "object" => "key",
                  "id" => _,
+                 "name" => _,
                  "access_key" => _,
                  "secret_key" => _,
                  "account_id" => nil,
@@ -88,6 +132,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
       assert response["data"]["account_id"] == nil
       assert response["data"]["expired"] == !key.enabled
       assert response["data"]["enabled"] == key.enabled
+      assert response["data"]["global_role"] == nil
       assert response["data"]["created_at"] == DateFormatter.to_iso8601(key.inserted_at)
       assert response["data"]["updated_at"] == DateFormatter.to_iso8601(key.updated_at)
       assert response["data"]["deleted_at"] == DateFormatter.to_iso8601(key.deleted_at)
@@ -95,6 +140,113 @@ defmodule AdminAPI.V1.KeyControllerTest do
       # We cannot know the `secret_key` from the controller call,
       # so we can only check that it is a string with some length.
       assert String.length(response["data"]["secret_key"]) > 0
+    end
+
+    test_with_auths "responds with a key with the secret key and global role" do
+      response = request("/access_key.create", %{global_role: "super_admin"})
+      key = get_last_inserted(Key)
+
+      # Cannot do `assert response == %{...}` because we don't know the value of `secret_key`.
+      # So we assert by pattern matching to validate the response structure, then directly
+      # compare each data field for its values.
+      assert %{
+               "version" => "1",
+               "success" => true,
+               "data" => %{
+                 "object" => "key",
+                 "id" => _,
+                 "name" => _,
+                 "access_key" => _,
+                 "secret_key" => _,
+                 "account_id" => nil,
+                 "enabled" => _,
+                 "expired" => _,
+                 "created_at" => _,
+                 "updated_at" => _,
+                 "deleted_at" => _
+               }
+             } = response
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["access_key"] == key.access_key
+      assert response["data"]["account_id"] == nil
+      assert response["data"]["expired"] == !key.enabled
+      assert response["data"]["enabled"] == key.enabled
+      assert response["data"]["global_role"] == "super_admin"
+      assert response["data"]["created_at"] == DateFormatter.to_iso8601(key.inserted_at)
+      assert response["data"]["updated_at"] == DateFormatter.to_iso8601(key.updated_at)
+      assert response["data"]["deleted_at"] == DateFormatter.to_iso8601(key.deleted_at)
+
+      # We cannot know the `secret_key` from the controller call,
+      # so we can only check that it is a string with some length.
+      assert String.length(response["data"]["secret_key"]) > 0
+    end
+
+    test_with_auths "responds with a key with the secret key and set membership" do
+      account = insert(:account)
+      role = Role.get_by(name: "admin")
+
+      response =
+        request("/access_key.create", %{
+          global_role: "admin",
+          account_id: account.id,
+          role_name: role.name
+        })
+
+      key = get_last_inserted(Key)
+
+      # Cannot do `assert response == %{...}` because we don't know the value of `secret_key`.
+      # So we assert by pattern matching to validate the response structure, then directly
+      # compare each data field for its values.
+      assert %{
+               "version" => "1",
+               "success" => true,
+               "data" => %{
+                 "object" => "key",
+                 "id" => _,
+                 "name" => _,
+                 "access_key" => _,
+                 "secret_key" => _,
+                 "account_id" => nil,
+                 "enabled" => _,
+                 "expired" => _,
+                 "created_at" => _,
+                 "updated_at" => _,
+                 "deleted_at" => _
+               }
+             } = response
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["access_key"] == key.access_key
+      assert response["data"]["account_id"] == nil
+      assert response["data"]["expired"] == !key.enabled
+      assert response["data"]["enabled"] == key.enabled
+      assert response["data"]["global_role"] == "admin"
+      assert response["data"]["created_at"] == DateFormatter.to_iso8601(key.inserted_at)
+      assert response["data"]["updated_at"] == DateFormatter.to_iso8601(key.updated_at)
+      assert response["data"]["deleted_at"] == DateFormatter.to_iso8601(key.deleted_at)
+
+      # We cannot know the `secret_key` from the controller call,
+      # so we can only check that it is a string with some length.
+      assert String.length(response["data"]["secret_key"]) > 0
+
+      membership = Membership.get_by_member_and_account(key, account)
+      assert membership
+      assert membership.account_uuid == account.uuid
+      assert membership.key_uuid == key.uuid
+      assert membership.role_uuid == role.uuid
+    end
+
+    test_with_auths "responds with an `invalid_parameter` error when account_id is present but not role_name" do
+      account = insert(:account)
+
+      response =
+        request("/access_key.create", %{
+          account_id: account.id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
     end
 
     defp assert_create_logs(logs, originator, target) do
@@ -154,6 +306,22 @@ defmodule AdminAPI.V1.KeyControllerTest do
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == true
       assert response["data"]["enabled"] == false
+    end
+
+    test_with_auths "updates the name and global role" do
+      key = insert(:key)
+
+      response =
+        request("/access_key.update", %{
+          id: key.id,
+          global_role: "viewer",
+          name: "updated_key_name"
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == key.id
+      assert response["data"]["name"] == "updated_key_name"
+      assert response["data"]["global_role"] == "viewer"
     end
 
     test_with_auths "enables the key" do

@@ -476,6 +476,22 @@ defmodule LocalLedger.CachedBalanceTest do
                wallet_2.address => %{"tok_OMG_1234" => 120_000 - 61_047}
              }
     end
+
+    test "calculates the balances for specified tokens for particular wallet", %{
+      token_1: token_1,
+      token_2: token_2,
+      wallet: wallet
+    } do
+      {res, balances} = CachedBalance.all([wallet], %{"tokens" => [token_1, token_2]})
+      assert res == :ok
+
+      assert balances == %{
+               wallet.address => %{
+                 "tok_BTC_5678" => 160_524 - 74_961,
+                 "tok_OMG_1234" => 120_000 - 61_047
+               }
+             }
+    end
   end
 
   describe "get/2" do

@@ -975,7 +975,7 @@
         "summary": "Request a password reset",
         "operationId": "user_reset_password",
         "requestBody": {
-          "description": "The parameters to use for requesting a password reset",
+          "description": "The parameters to use for requesting a password reset. The 'reset_password_url' is the link that will be sent to the user's email address containing the 'email' and 'token' parameters. It's recommended to use the default url for this parameter. The 'forward_url' is an optional URL that can be provided if you don't want to use the default page but your custom page instead (it could be a mobile application URI for example).",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {
@@ -985,17 +985,21 @@
                     "type": "string",
                     "format": "email"
                   },
-                  "redirect_url": {
+                  "reset_password_url": {
+                    "type": "string"
+                  },
+                  "forward_url": {
                     "type": "string"
                   }
                 },
                 "required": [
                   "email",
-                  "redirect_url"
+                  "reset_password_url"
                 ],
                 "example": {
                   "email": "johndoe@example.com",
-                  "redirect_url": "https://example.com/reset_password?email={email}&token={token}"
+                  "reset_password_url": "https://example.com/client/reset_password?email={email}&token={token}",
+                  "forward_url": "my-app://reset_password?email={email}&token={token}"
                 }
               }
             }
@@ -2276,6 +2280,9 @@
                                                 "subunit_to_unit": {
                                                   "type": "integer"
                                                 },
+                                                "avatar": {
+                                                  "type": "object"
+                                                },
                                                 "created_at": {
                                                   "type": "string",
                                                   "format": "date-time"
@@ -2300,6 +2307,7 @@
                                                 "symbol",
                                                 "name",
                                                 "subunit_to_unit",
+                                                "avatar",
                                                 "created_at",
                                                 "updated_at",
                                                 "enabled"
@@ -2748,6 +2756,9 @@
                                               "subunit_to_unit": {
                                                 "type": "integer"
                                               },
+                                              "avatar": {
+                                                "type": "object"
+                                              },
                                               "created_at": {
                                                 "type": "string",
                                                 "format": "date-time"
@@ -2772,6 +2783,7 @@
                                               "symbol",
                                               "name",
                                               "subunit_to_unit",
+                                              "avatar",
                                               "created_at",
                                               "updated_at",
                                               "enabled"
@@ -2810,6 +2822,9 @@
                                               "subunit_to_unit": {
                                                 "type": "integer"
                                               },
+                                              "avatar": {
+                                                "type": "object"
+                                              },
                                               "created_at": {
                                                 "type": "string",
                                                 "format": "date-time"
@@ -2834,6 +2849,7 @@
                                               "symbol",
                                               "name",
                                               "subunit_to_unit",
+                                              "avatar",
                                               "created_at",
                                               "updated_at",
                                               "enabled"
@@ -3186,6 +3202,9 @@
                                     "subunit_to_unit": {
                                       "type": "integer"
                                     },
+                                    "avatar": {
+                                      "type": "object"
+                                    },
                                     "created_at": {
                                       "type": "string",
                                       "format": "date-time"
@@ -3210,6 +3229,7 @@
                                     "symbol",
                                     "name",
                                     "subunit_to_unit",
+                                    "avatar",
                                     "created_at",
                                     "updated_at",
                                     "enabled"
@@ -3248,6 +3268,9 @@
                                     "subunit_to_unit": {
                                       "type": "integer"
                                     },
+                                    "avatar": {
+                                      "type": "object"
+                                    },
                                     "created_at": {
                                       "type": "string",
                                       "format": "date-time"
@@ -3272,6 +3295,7 @@
                                     "symbol",
                                     "name",
                                     "subunit_to_unit",
+                                    "avatar",
                                     "created_at",
                                     "updated_at",
                                     "enabled"
@@ -3527,6 +3551,21 @@
                     "default": null,
                     "description": "The maximum number of times a user can consume the request."
                   },
+                  "consumption_interval_duration": {
+                    "type": "integer",
+                    "default": null,
+                    "description": "The duration (in milliseconds) during which the following attributes take effect."
+                  },
+                  "max_consumptions_per_interval": {
+                    "type": "integer",
+                    "default": null,
+                    "description": "The maximum number of times the request can be consumed in the \"consumption_interval_duration\"."
+                  },
+                  "max_consumptions_per_interval_per_user": {
+                    "type": "integer",
+                    "default": null,
+                    "description": "The maximum number of times the request can be consumed by a specific user in the \"consumption_interval_duration\"."
+                  },
                   "consumption_lifetime": {
                     "type": "integer",
                     "default": null,
@@ -3659,6 +3698,15 @@
                             "max_consumptions_per_user": {
                               "type": "integer"
                             },
+                            "max_consumptions_per_interval": {
+                              "type": "integer"
+                            },
+                            "max_consumptions_per_interval_per_user": {
+                              "type": "integer"
+                            },
+                            "consumption_interval_duration": {
+                              "type": "integer"
+                            },
                             "consumption_lifetime": {
                               "type": "integer"
                             },
@@ -3709,6 +3757,9 @@
                             "require_confirmation",
                             "max_consumptions",
                             "max_consumptions_per_user",
+                            "max_consumptions_per_interval",
+                            "max_consumptions_per_interval_per_user",
+                            "consumption_interval_duration",
                             "consumption_lifetime",
                             "expiration_reason",
                             "allow_amount_override",
@@ -3970,6 +4021,15 @@
                             "max_consumptions_per_user": {
                               "type": "integer"
                             },
+                            "max_consumptions_per_interval": {
+                              "type": "integer"
+                            },
+                            "max_consumptions_per_interval_per_user": {
+                              "type": "integer"
+                            },
+                            "consumption_interval_duration": {
+                              "type": "integer"
+                            },
                             "consumption_lifetime": {
                               "type": "integer"
                             },
@@ -4020,6 +4080,9 @@
                             "require_confirmation",
                             "max_consumptions",
                             "max_consumptions_per_user",
+                            "max_consumptions_per_interval",
+                            "max_consumptions_per_interval_per_user",
+                            "consumption_interval_duration",
                             "consumption_lifetime",
                             "expiration_reason",
                             "allow_amount_override",

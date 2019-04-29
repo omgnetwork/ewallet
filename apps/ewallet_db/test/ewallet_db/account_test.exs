@@ -31,6 +31,8 @@ defmodule EWalletDB.AccountTest do
     test_insert_prevent_blank(Account, :name)
     test_insert_prevent_duplicate(Account, :name)
     test_default_metadata_fields(Account, "account")
+    test_insert_field_length(Account, :name)
+    test_insert_field_length(Account, :description)
 
     test "inserts a non-master account by default" do
       {:ok, account} = :account |> params_for() |> Account.insert()
@@ -67,6 +69,8 @@ defmodule EWalletDB.AccountTest do
   describe "update/2" do
     test_update_field_ok(Account, :name)
     test_update_field_ok(Account, :description)
+    test_update_field_length(Account, :name)
+    test_update_field_length(Account, :description)
   end
 
   describe "update/2 with category_ids" do
