@@ -3,6 +3,7 @@ import uuid from 'uuid/v4'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+
 const CopyTextContainer = styled.div`
   b {
     display: inline-block;
@@ -69,7 +70,7 @@ export const alertsReducer = createReducer([], {
   'CURRENT_USER/UPDATE/SUCCESS': (state, { user }) => {
     return [...state, createAlertState('Updated user settings successfully.', 'success')]
   },
-  'CURRENT_USER_EMAIL/UPDATE/SUCCESS': (state, { user }) => {
+  'CURRENT_USER_EMAIL/UPDATE/SUCCESS': state => {
     return [...state, createAlertState('Please check your email to verify the new email address.', 'success')]
   },
   'PASSWORD/UPDATE/SUCCESS': (state, { user }) => {

@@ -39,7 +39,7 @@ const createRoute = ({ authenticated }) => (
       <LoginRoute path='/forget-password' exact component={ForgetPasswordForm} />
       <LoginRoute path='/create-new-password' exact component={CreateNewPasswordForm} />
       <LoginRoute path='/invite' exact component={InviteForm} />
-      <Route path='/verify_email' exact component={VerifyEmail} />
+      <Route path='/verify-email' exact component={VerifyEmail} />
 
       {/* MANAGE */}
       <AuthenticatedRoute authenticated={authenticated} path='/accounts' exact component={AccountPage} />

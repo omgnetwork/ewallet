@@ -15,9 +15,9 @@ export const updateCurrentUserAvatar = ({ avatar }) =>
     service: () => adminService.uploadAvatar({ avatar })
   })
 
-export const updateCurrentUserEmail = ({ email }) =>
+export const updateCurrentUserEmail = ({ email, redirectUrl }) =>
   createActionCreator({
     actionName: 'CURRENT_USER_EMAIL',
     action: 'UPDATE',
-    service: () => currentUserService.updateCurrentUserEmail({ email })
+    service: () => currentUserService.updateCurrentUserEmail({ email, redirectUrl })
   })

@@ -72,7 +72,8 @@ class UserSettingPage extends Component {
     updateCurrentUserAvatar: PropTypes.func.isRequired,
     loadingStatus: PropTypes.string,
     currentUser: PropTypes.object,
-    divider: PropTypes.bool
+    divider: PropTypes.bool,
+    location: PropTypes.object
   }
   state = {
     email: '',
@@ -124,7 +125,13 @@ class UserSettingPage extends Component {
     try {
       // update email
       if (this.state.email !== this.props.currentUser.email) {
-        const updateEmailResult = await this.props.updateCurrentUserEmail({ email: this.state.email })
+        const updateEmailResult = await this.props.updateCurrentUserEmail({
+          email: this.state.email,
+          redirectUrl: window.location.href.replace(
+            this.props.location.pathname,
+            '/verify-email?email={email}&token={token}'
+          )
+        })
         if (updateEmailResult.data) {
           this.setState({ newEmailSubmitted: true })
         } else {

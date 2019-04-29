@@ -1,5 +1,4 @@
 import { authenticatedRequest } from './apiService'
-import { ADMIN_API_URL } from '../config'
 
 export function getCurrentUser () {
   return authenticatedRequest({
@@ -15,12 +14,12 @@ export function getCurrentUserAccount () {
   })
 }
 
-export function updateCurrentUserEmail ({ email }) {
+export function updateCurrentUserEmail ({ email, redirectUrl }) {
   return authenticatedRequest({
     path: 'me.update_email',
     data: {
       email,
-      redirect_url: `${ADMIN_API_URL}verify_email?email={email}&token={token}`
+      redirect_url: redirectUrl
     }
   })
 }

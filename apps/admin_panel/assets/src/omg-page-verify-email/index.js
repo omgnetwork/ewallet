@@ -35,7 +35,6 @@ const VerifyEmail = ({ location: { search }, verifyEmail }) => {
 
   const doVerifyEmail = async () => {
     const res = await verifyEmail({ email, token })
-    console.log('res: ', res)
     if (res.error) {
       setPageState('error')
     }
