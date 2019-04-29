@@ -52,6 +52,7 @@ defmodule EWalletDB.PreAuthToken do
     )
 
     field(:expired, :boolean)
+    field(:expire_at, :naive_datetime_usec)
     timestamps()
     activity_logging()
   end
@@ -60,11 +61,20 @@ defmodule EWalletDB.PreAuthToken do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:token, :owner_app, :user_uuid, :account_uuid, :expired],
+      cast: [:token, :owner_app, :user_uuid, :account_uuid, :expired, :expire_at],
       required: [:token, :owner_app, :user_uuid]
     )
     |> unique_constraint(:token)
     |> assoc_constraint(:user)
+  end
+
+  defp expire_changeset(%PreAuthToken{} = token, attrs) do
+    token
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:expired, :expire_at],
+      required: [:expired]
+    )
   end
 
   @doc """
@@ -76,6 +86,7 @@ defmodule EWalletDB.PreAuthToken do
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: nil,
+      expire_at: get_life_time() |> get_new_expire_at(),
       token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
@@ -83,6 +94,16 @@ defmodule EWalletDB.PreAuthToken do
   end
 
   def generate(_, _, _), do: {:error, :invalid_parameter}
+
+  defp get_life_time do
+    Application.get_env(:ewallet, :pre_auth_token_lifetime, 0)
+  end
+
+  defp get_new_expire_at(0), do: nil
+
+  defp get_new_expire_at(lifetime) do
+    NaiveDateTime.add(NaiveDateTime.utc_now(), lifetime * 60, :second)
+  end
 
   @doc """
   Retrieves an auth token using the specified token.
@@ -92,6 +113,7 @@ defmodule EWalletDB.PreAuthToken do
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
+    |> expire_or_refresh()
     |> return_user()
   end
 
@@ -99,6 +121,7 @@ defmodule EWalletDB.PreAuthToken do
     user_id
     |> get_by_user(owner_app)
     |> compare_multiple(token)
+    |> expire_or_refresh()
     |> return_user()
   end
 
@@ -113,6 +136,9 @@ defmodule EWalletDB.PreAuthToken do
   defp return_user(token) do
     case token do
       nil ->
+        false
+
+      {:error, _} ->
         false
 
       %{expired: true} ->
@@ -146,6 +172,7 @@ defmodule EWalletDB.PreAuthToken do
         where: u.id == ^user_id and a.owner_app == ^Atom.to_string(owner_app)
       )
     )
+    |> Repo.preload(:user)
   end
 
   defp get_by_user(_, _), do: nil
@@ -170,5 +197,63 @@ defmodule EWalletDB.PreAuthToken do
     )
 
     :ok
+  end
+
+  defp expire_or_refresh(%PreAuthToken{expire_at: nil} = token), do: token
+
+  defp expire_or_refresh(%PreAuthToken{expire_at: expire_at} = token) do
+    result =
+      NaiveDateTime.utc_now()
+      |> NaiveDateTime.compare(expire_at)
+      |> do_expire_or_refresh(token)
+
+    case result do
+      {:ok, updated_token} ->
+        updated_token
+
+      error ->
+        error
+    end
+  end
+
+  defp expire_or_refresh(_), do: nil
+
+  defp do_expire_or_refresh(:lt, token) do
+    refresh(token, token.user)
+  end
+
+  defp do_expire_or_refresh(_, token) do
+    expire(token, token.user)
+  end
+
+  # Expires the given token.
+  @spec expire(binary(), atom(), any()) :: {:error, any()} | {:ok, any()}
+  def expire(token, owner_app, originator) when is_binary(token) and is_atom(owner_app) do
+    token
+    |> get_by_token(owner_app)
+    |> expire(originator)
+  end
+
+  @spec expire(EWalletDB.PreAuthToken.t(), any()) :: {:error, any()} | {:ok, any()}
+  def expire(%PreAuthToken{} = token, originator) do
+    update(token, %{
+      expired: true,
+      originator: originator
+    })
+  end
+
+  defp refresh(%PreAuthToken{} = token, originator) do
+    update(token, %{
+      expire_at: get_life_time() |> get_new_expire_at(),
+      originator: originator
+    })
+  end
+
+  # `update/2` is private to prohibit direct auth token updates,
+  # if expiring the token, please use `expire/2` instead.
+  defp update(%PreAuthToken{} = token, attrs) do
+    token
+    |> expire_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
   end
 end
