@@ -166,6 +166,7 @@ jobs:
       - setup_ewallet_workspace
       - run: make check-format
       - run: make check-credo
+      - run: make check-assets
       - notify_slack_failure
 
   dialyze:
@@ -209,6 +210,7 @@ jobs:
     executor: metal
     steps:
       - checkout
+      - run: sh update-versions.sh -a
       - run: make docker IMAGE_NAME=$IMAGE_NAME
       - run: sh .circleci/ci_e2e.sh
       - run: sh .circleci/ci_publish.sh
