@@ -7,7 +7,6 @@ import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import DateTime from 'react-datetime'
 import { connect } from 'react-redux'
-import { Manager, Reference, Popper } from 'react-popper'
 
 import { Input, Button, Icon, Tag } from '../omg-uikit'
 import SortableTable from '../omg-table'
@@ -25,7 +24,6 @@ const Container = styled.div`
   position: relative;
   padding-bottom: 50px;
 `
-
 const FormDetailContainer = styled.form`
   border: 1px solid #ebeff7;
   border-radius: 2px;
@@ -34,6 +32,10 @@ const FormDetailContainer = styled.form`
   margin-bottom: 40px;
   .date-time {
     margin-top: 30px;
+    margin-right: 20px;
+    :last-child {
+      margin-right: 0;
+    }
   }
   input {
     width: 100%;
@@ -44,22 +46,9 @@ const FormDetailContainer = styled.form`
   h5 {
     text-align: left;
   }
-`
-
-const ExportFormContainer = styled.div`
-  button {
-    margin-top: 20px;
-  }
-  background-color: white;
-  width: 400px;
-  z-index: 2;
-  position: relative;
-  > i {
-    position: absolute;
-    right: 25px;
-    color: ${props => props.theme.colors.S500};
-    top: 25px;
-    cursor: pointer;
+  .row {
+    display: flex;
+    flex-direction: row;
   }
 `
 const TimestampContainer = styled.div`
@@ -194,7 +183,18 @@ class TransactionExportPage extends Component {
     getExports: PropTypes.func,
     divider: PropTypes.bool
   }
-  state = { submitStatus: CONSTANT.LOADING_STATUS.DEFAULT, confirmationModalOpen: false }
+  state = {
+    submitStatus: CONSTANT.LOADING_STATUS.DEFAULT,
+    confirmationModalOpen: false,
+    fromTime: '',
+    toTime: '',
+    fromTimeFocus: false,
+    toTimeFocus: false,
+    fromDate: '',
+    toDate: '',
+    fromDateFocus: false,
+    toDateFocus: false
+  }
 
   componentDidMount = () => {
     this._pollingExport = setInterval(() => {
@@ -209,17 +209,29 @@ class TransactionExportPage extends Component {
     clearInterval(this._pollingExport)
   }
 
-  onDateTimeFromChange = date => {
+  onDateFromChange = date => {
     if (date.format) this.setState({ fromDate: date })
   }
-  onDateTimeFromFocus = e => {
+  onDateFromFocus = e => {
     this.setState({ fromDate: '', fromDateFocus: true })
   }
-  onDateTimeToChange = date => {
+  onDateToChange = date => {
     if (date.format) this.setState({ toDate: date })
   }
-  onDateTimeToFocus = e => {
+  onDateToFocus = e => {
     this.setState({ toDate: '', toDateFocus: true })
+  }
+  onTimeFromChange = time => {
+    if (time.format) this.setState({ fromTime: time })
+  }
+  onTimeFromFocus = e => {
+    this.setState({ fromTime: '', fromTimeFocus: true })
+  }
+  onTimeToChange = time => {
+    if (time.format) this.setState({ toTime: time })
+  }
+  onTimeToFocus = e => {
+    this.setState({ toTime: '', toTimeFocus: true })
   }
   onClickExport = (fetch, confirm) => async e => {
     e.preventDefault()
@@ -349,65 +361,6 @@ class TransactionExportPage extends Component {
   onClickClose = e => {
     this.setState({ generateExportOpen: false })
   }
-  renderExportButton (fetch) {
-    return (
-      <Manager key='export-button'>
-        <Reference>
-          {({ ref, style }) => (
-            <div ref={ref} style={{ ...style, display: 'inline-block', marginLeft: '10px' }}>
-              <Button styleType='primary' onClick={this.onClickGenerate}>
-                <Icon name='Export' /><span>Generate</span>
-              </Button>
-            </div>
-          )}
-        </Reference>
-        {this.state.generateExportOpen && (
-          <Popper
-            placement='left-start'
-            positionFixed
-            modifiers={{
-              offset: {
-                enabled: true,
-                offset: 100
-              }
-            }}
-          >
-            {({ ref, style, placement, arrowProps }) => (
-              <div ref={ref} style={{ ...style, zIndex: 1 }} data-placement={placement}>
-                <ExportFormContainer>
-                  <Icon name='Close' onClick={this.onClickClose} />
-                  <FormDetailContainer onSubmit={this.onClickExport(fetch)}>
-                    <div>
-                      <h5>From Date</h5>
-                      <DateTimeHotFix
-                        onChange={this.onDateTimeFromChange}
-                        onFocus={this.onDateTimeFromFocus}
-                        value={this.state.fromDate}
-                        normalPlaceholder='From date..'
-                      />
-                    </div>
-                    <div>
-                      <h5>To Date</h5>
-                      <DateTimeHotFix
-                        onChange={this.onDateTimeToChange}
-                        onFocus={this.onDateTimeToFocus}
-                        value={this.state.toDate}
-                        normalPlaceholder='To date..'
-                      />
-                    </div>
-                    <Button loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}>
-                      <span>Export</span>
-                    </Button>
-                  </FormDetailContainer>
-                </ExportFormContainer>
-                <div ref={arrowProps.ref} style={arrowProps.style} />
-              </div>
-            )}
-          </Popper>
-        )}
-      </Manager>
-    )
-  }
   render () {
     return (
       <Container>
@@ -427,7 +380,6 @@ class TransactionExportPage extends Component {
                       <span>Export Transactions</span>
                     </TitleContainer>
                   }
-                  buttons={[this.renderExportButton(fetch)]}
                   secondaryAction={false}
                 />
 
@@ -441,27 +393,34 @@ class TransactionExportPage extends Component {
                     <FormDetailContainer onSubmit={this.onClickExport(fetch)}>
                       <div>
                         <Tag title='Start' small />
-                        <DateTimeHotFix
-                          onChange={this.onDateTimeFromChange}
-                          onFocus={this.onDateTimeFromFocus}
-                          value={this.state.fromDate}
-                          placeholder='Date'
-                          normalPlaceholder='00/00/00'
-                          inputActive
-                          icon='Calendar'
-                        />
+                        <div className='row'>
+                          <DatePicker
+                            onChange={this.onDateFromChange}
+                            onFocus={this.onDateFromFocus}
+                            value={this.state.fromDate}
+                          />
+                          <TimePicker
+                            onChange={this.onTimeFromChange}
+                            onFocus={this.onTimeFromFocus}
+                            value={this.state.fromTime}
+                          />
+                        </div>
                       </div>
+
                       <div>
                         <Tag title='End' small />
-                        <DateTimeHotFix
-                          onChange={this.onDateTimeToChange}
-                          onFocus={this.onDateTimeToFocus}
-                          value={this.state.toDate}
-                          placeholder='Date'
-                          normalPlaceholder='00/00/00'
-                          inputActive
-                          icon='Calendar'
-                        />
+                        <div className='row'>
+                          <DatePicker
+                            onChange={this.onDateToChange}
+                            onFocus={this.onDateToFocus}
+                            value={this.state.toDate}
+                          />
+                          <TimePicker
+                            onChange={this.onTimeToChange}
+                            onFocus={this.onTimeToFocus}
+                            value={this.state.toTime}
+                          />
+                        </div>
                       </div>
                     </FormDetailContainer>
 
@@ -509,15 +468,11 @@ class TransactionExportPage extends Component {
   }
 }
 
-class DateTimeHotFix extends PureComponent {
+class TimePicker extends PureComponent {
   static propTypes = {
     onChange: PropTypes.func,
-    value: PropTypes.object,
-    onFocus: PropTypes.func,
-    placeholder: PropTypes.string,
-    normalPlaceholder: PropTypes.string,
-    inputActive: PropTypes.bool,
-    icon: PropTypes.string
+    value: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    onFocus: PropTypes.func
   }
   render () {
     return (
@@ -525,16 +480,48 @@ class DateTimeHotFix extends PureComponent {
         className='date-time'
         closeOnSelect
         onChange={this.props.onChange}
-        renderInput={(props, openCalendar, closeCalendar) => {
+        dateFormat={false}
+        renderInput={(props) => {
           return (
             <Input
               {...props}
-              value={this.props.value && this.props.value.format('DD/MM/YYYY hh:mm:ss a')}
+              value={this.props.value && this.props.value.format('hh:mm a')}
               onFocus={this.props.onFocus}
-              placeholder={this.props.placeholder}
-              normalPlaceholder={this.props.normalPlaceholder}
-              inputActive={this.props.inputActive}
-              icon={this.props.icon}
+              placeholder='Time'
+              normalPlaceholder='00 : 00'
+              icon='Time'
+              inputActive
+            />
+          )
+        }}
+      />
+    )
+  }
+}
+
+class DatePicker extends PureComponent {
+  static propTypes = {
+    onChange: PropTypes.func,
+    value: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    onFocus: PropTypes.func
+  }
+  render () {
+    return (
+      <DateTime
+        className='date-time'
+        closeOnSelect
+        onChange={this.props.onChange}
+        timeFormat={false}
+        renderInput={(props) => {
+          return (
+            <Input
+              {...props}
+              value={this.props.value && this.props.value.format('DD/MM/YY')}
+              onFocus={this.props.onFocus}
+              placeholder='Date'
+              normalPlaceholder='00/00/00'
+              icon='Calendar'
+              inputActive
             />
           )
         }}
@@ -544,3 +531,5 @@ class DateTimeHotFix extends PureComponent {
 }
 
 export default enhance(TransactionExportPage)
+
+// value={this.props.value && this.props.value.format('DD/MM/YYYY hh:mm:ss a')}
