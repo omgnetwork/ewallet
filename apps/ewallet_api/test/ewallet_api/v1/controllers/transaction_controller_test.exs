@@ -713,7 +713,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
         })
 
       assert response["success"] == false
-      assert response["data"]["code"] == "config:exchanges_not_allowed"
+      assert response["data"]["code"] == "config:end_user_exchanges_not_allowed"
 
       assert response["data"]["description"] ==
                "End user exchanges are not allowed for this exchange pair."

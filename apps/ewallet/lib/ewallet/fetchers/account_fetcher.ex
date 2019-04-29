@@ -81,7 +81,7 @@ defmodule EWallet.AccountFetcher do
         %{"originator" => %User{is_admin: false}},
         %{pair: %ExchangePair{allow_end_user_exchanges: false}}
       ) do
-    {:error, :exchanges_not_allowed}
+    {:error, :end_user_exchanges_not_allowed}
   end
 
   def fetch_exchange_account(
@@ -92,26 +92,7 @@ defmodule EWallet.AccountFetcher do
       when not is_nil(exchange_wallet_address) do
     with {:ok, wallet} <- WalletFetcher.get(nil, exchange_wallet_address),
          wallet <- Repo.preload(wallet, [:account]),
-         %Account{} = account <- wallet.account || :exchange_address_not_account do
-      return_from(exchange, account, wallet)
-    else
-      {:error, :wallet_not_found} ->
-        {:error, :exchange_account_wallet_not_found}
-
-      error ->
-        error
-    end
-  end
-
-  def fetch_exchange_account(
-        _attrs,
-        %{pair: %ExchangePair{default_exchange_wallet_address: exchange_wallet_address}} =
-          exchange
-      )
-      when not is_nil(exchange_wallet_address) do
-    with {:ok, wallet} <- WalletFetcher.get(nil, exchange_wallet_address),
-         wallet <- Repo.preload(wallet, [:account]),
-         %Account{} = account <- wallet.account || :exchange_address_not_account do
+         %Account{} = account <- wallet.account || {:error, :exchange_address_not_account} do
       return_from(exchange, account, wallet)
     else
       {:error, :wallet_not_found} ->

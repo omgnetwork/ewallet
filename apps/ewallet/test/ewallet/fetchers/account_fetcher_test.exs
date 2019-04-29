@@ -199,7 +199,7 @@ defmodule EWallet.AccountFetcherTest do
           %{pair: exchange_pair}
         )
 
-      assert res == {:error, :exchanges_not_allowed}
+      assert res == {:error, :end_user_exchanges_not_allowed}
     end
 
     test "sets the token in from_token and to_token when different
