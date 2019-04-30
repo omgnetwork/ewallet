@@ -45,6 +45,9 @@ export const alertsReducer = createReducer([], {
   'EXCHANGE_PAIR/CREATE/SUCCESS': state => {
     return [...state, createAlertState('Exchange pair was successfully created.', 'success')]
   },
+  'EXCHANGE_PAIR/UPDATE/SUCCESS': state => {
+    return [...state, createAlertState('Exchange pair was successfully updated.', 'success')]
+  },
   'ACCOUNT/CREATE/SUCCESS': state => {
     return [...state, createAlertState('Account was successfully created.', 'success')]
   },

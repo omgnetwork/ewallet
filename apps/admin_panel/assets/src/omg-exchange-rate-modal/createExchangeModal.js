@@ -11,7 +11,9 @@ import TokensFetcher from '../omg-token/tokensFetcher'
 import { selectGetTokenById } from '../omg-token/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchTokenQuery } from '../omg-token/searchField'
-
+import AllWalletFetcher from '../omg-wallet/allWalletsFetcher'
+import WalletSelect from '../omg-wallet-select'
+import { createSearchAddressQuery } from '../omg-wallet/searchField'
 const Form = styled.form`
   padding: 50px;
   width: 400px;
@@ -46,6 +48,9 @@ const InputLabel = styled.div`
   margin-top: 20px;
   font-size: 14px;
   font-weight: 400;
+  span {
+    color: ${props => props.theme.colors.S500};
+  }
 `
 const ReadOnlyInput = styled.div`
   padding-top: 7px;
@@ -64,6 +69,10 @@ const SyncContainer = styled.div`
   margin-top: 20px;
   color: ${props => props.theme.colors.B100};
 `
+const EndUserExchangeContainer = styled.div`
+  margin-top: 20px;
+`
+
 const Error = styled.div`
   color: ${props => props.theme.colors.R400};
   text-align: center;
@@ -103,7 +112,7 @@ const BackRateContainer = styled.div`
 const Rate = styled.div`
   padding: 5px 10px;
   background-color: ${props => props.theme.colors.S300};
-  color: ${props => props.changed ? props.theme.colors.BL300 : props.theme.colors.B300};
+  color: ${props => (props.changed ? props.theme.colors.BL300 : props.theme.colors.B300)};
   display: inline-block;
   border-radius: 3px;
 
@@ -146,7 +155,9 @@ class CreateExchangeRateModal extends Component {
         toTokenSearch: _.get(props, 'toEdit.to_token.name', ''),
         toTokenSymbol: _.get(props, 'toEdit.to_token.symbol', ''),
         oppositeExchangePair: _.get(props, 'toEdit.opposite_exchange_pair', null),
-        onlyOneWayExchange: !_.get(props, 'toEdit.opposite_exchange_pair', true)
+        onlyOneWayExchange: !_.get(props, 'toEdit.opposite_exchange_pair', true),
+        defaultExchangeAddress: _.get(props, 'toEdit.default_exchange_wallet_address'),
+        allowEndUserExchange: _.get(props, 'toEdit.allow_end_user_exchanges', false)
       }
     }
     return null
@@ -185,8 +196,17 @@ class CreateExchangeRateModal extends Component {
       [`${type}Symbol`]: token.symbol
     })
   }
+  onChangeDefaultExchangeAddress = e => {
+    this.setState({ defaultExchangeAddress: e.target.value })
+  }
+  onSelectDefaultExchangeAddress = address => {
+    this.setState({ defaultExchangeAddress: address.key })
+  }
   onClickOneWayExchange = e => {
     this.setState(oldState => ({ onlyOneWayExchange: !oldState.onlyOneWayExchange }))
+  }
+  onClickAllowEndUserExchange = () => {
+    this.setState(oldState => ({ allowEndUserExchange: !oldState.allowEndUserExchange }))
   }
   onSubmit = async e => {
     e.preventDefault()
@@ -199,13 +219,17 @@ class CreateExchangeRateModal extends Component {
       const result = this.state.editing
         ? await this.props.updateExchangePair({
           ...baseKeys,
-          id: this.state.exchangeId
+          id: this.state.exchangeId,
+          defaultExchangeWalletAddress: this.state.defaultExchangeAddress,
+          allowEndUserExchanges: this.state.allowEndUserExchange
         })
         : await this.props.createExchangePair({
           ...baseKeys,
           name: this.state.name,
           fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
-          toTokenId: _.get(this.state, 'toTokenSelected.id')
+          toTokenId: _.get(this.state, 'toTokenSelected.id'),
+          defaultExchangeWalletAddress: this.state.defaultExchangeAddress,
+          allowEndUserExchanges: this.state.allowEndUserExchange
         })
       if (result.data) {
         this.props.onRequestClose()
@@ -220,11 +244,13 @@ class CreateExchangeRateModal extends Component {
     }
   }
 
-  get ratesAvailable () {
-    return this.state.toTokenRate > 0 &&
+  getRatesAvailable () {
+    return (
+      this.state.toTokenRate > 0 &&
       this.state.fromTokenRate > 0 &&
       this.state.toTokenSearch &&
       this.state.fromTokenSearch
+    )
   }
 
   renderCalculation = () => {
@@ -249,17 +275,16 @@ class CreateExchangeRateModal extends Component {
       <>
         <div className='calculation-title'>Exchange Pairs</div>
         <RateContainer>
-          <Rate changed={forwardRateDiff}>
-            {`1 ${fromTokenSymbol} = ${forwardRate} ${toTokenSymbol}`}
-          </Rate>
+          <Rate changed={forwardRateDiff}>{`1 ${fromTokenSymbol} = ${forwardRate} ${toTokenSymbol}`}</Rate>
 
           <BackRateContainer disabled={!oppositeExchangePair}>
-            {!forwardRateDiff
-              ? <Rate>{`1 ${toTokenSymbol} = ${oldBackRate} ${fromTokenSymbol}`}</Rate>
-              : !onlyOneWayExchange
-                ? <Rate changed>{`1 ${toTokenSymbol} = ${backRate} ${fromTokenSymbol}`}</Rate>
-                : <Rate>{`1 ${toTokenSymbol} = ${oldBackRate} ${fromTokenSymbol}`}</Rate>
-            }
+            {!forwardRateDiff ? (
+              <Rate>{`1 ${toTokenSymbol} = ${oldBackRate} ${fromTokenSymbol}`}</Rate>
+            ) : !onlyOneWayExchange ? (
+              <Rate changed>{`1 ${toTokenSymbol} = ${backRate} ${fromTokenSymbol}`}</Rate>
+            ) : (
+              <Rate>{`1 ${toTokenSymbol} = ${oldBackRate} ${fromTokenSymbol}`}</Rate>
+            )}
           </BackRateContainer>
         </RateContainer>
       </>
@@ -282,9 +307,135 @@ class CreateExchangeRateModal extends Component {
       </>
     )
 
-    return this.state.editing
-      ? renderEditingState()
-      : renderCreationState()
+    return this.state.editing ? renderEditingState() : renderCreationState()
+  }
+
+  renderFromForm () {
+    return (
+      <TokensFetcher
+        query={createSearchTokenQuery(this.state.fromTokenSearch)}
+        render={({ data }) => {
+          return (
+            <Fragment>
+              <h5>From</h5>
+              <RateInputContainer>
+                <div>
+                  <InputLabel>Token</InputLabel>
+                  {this.state.editing && <ReadOnlyInput>{this.state.fromTokenSearch}</ReadOnlyInput>}
+                  {!this.state.editing && (
+                    <Select
+                      normalPlaceholder='Token'
+                      onSelectItem={this.onSelectTokenSelect('fromToken')}
+                      onChange={this.onChangeSearchToken('fromToken')}
+                      value={this.state.fromTokenSearch}
+                      options={data.map(b => ({
+                        key: `${b.id}${b.name}${b.symbol}`,
+                        value: <TokenSelect token={b} />,
+                        ...b
+                      }))}
+                    />
+                  )}
+                </div>
+                <div>
+                  <InputLabel>Amount</InputLabel>
+                  <Input
+                    value={this.state.fromTokenRate}
+                    onChange={this.onChangeRate('fromToken')}
+                    type='amount'
+                    normalPlaceholder={0}
+                    suffix={this.state.fromTokenSymbol}
+                  />
+                </div>
+              </RateInputContainer>
+            </Fragment>
+          )
+        }}
+      />
+    )
+  }
+  renderToForm () {
+    return (
+      <TokensFetcher
+        query={createSearchTokenQuery(this.state.toTokenSearch)}
+        render={({ data }) => {
+          return (
+            <Fragment>
+              <h5>To</h5>
+              <RateInputContainer>
+                <div>
+                  <InputLabel>Token</InputLabel>
+                  {this.state.editing && <ReadOnlyInput>{this.state.toTokenSearch}</ReadOnlyInput>}
+                  {!this.state.editing && (
+                    <Select
+                      normalPlaceholder='Token'
+                      onSelectItem={this.onSelectTokenSelect('toToken')}
+                      onChange={this.onChangeSearchToken('toToken')}
+                      value={this.state.toTokenSearch}
+                      optionBoxHeight={'120px'}
+                      options={data.map(b => ({
+                        key: `${b.id}${b.name}${b.symbol}`,
+                        value: <TokenSelect token={b} />,
+                        ...b
+                      }))}
+                    />
+                  )}
+                </div>
+                <div>
+                  <InputLabel>Amount</InputLabel>
+                  <Input
+                    value={this.state.toTokenRate}
+                    onChange={this.onChangeRate('toToken')}
+                    type='amount'
+                    step='any'
+                    normalPlaceholder={0}
+                    suffix={this.state.toTokenSymbol}
+                  />
+                </div>
+              </RateInputContainer>
+            </Fragment>
+          )
+        }}
+      />
+    )
+  }
+
+  renderDefaultAddress () {
+    return (
+      <AllWalletFetcher
+        query={createSearchAddressQuery(this.state.defaultExchangeAddress)}
+        render={({ data }) => {
+          return (
+            <>
+              <InputLabel>
+                Default Exchange Address <span>( Optional )</span>
+              </InputLabel>
+              <Select
+                normalPlaceholder='Exchange Address'
+                onSelectItem={this.onSelectDefaultExchangeAddress}
+                onChange={this.onChangeDefaultExchangeAddress}
+                value={this.state.defaultExchangeAddress}
+                optionBoxHeight={'120px'}
+                options={data.map(b => ({
+                  key: b.address,
+                  value: <WalletSelect wallet={b} />
+                }))}
+              />
+            </>
+          )
+        }}
+      />
+    )
+  }
+  renderEndUserExchange () {
+    return (
+      <EndUserExchangeContainer>
+        <Checkbox
+          label={'Allow End User Exchange'}
+          checked={this.state.allowEndUserExchange}
+          onClick={this.onClickAllowEndUserExchange}
+        />
+      </EndUserExchangeContainer>
+    )
   }
 
   render () {
@@ -293,95 +444,10 @@ class CreateExchangeRateModal extends Component {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
         <Icon name='Close' onClick={this.props.onRequestClose} />
-        <h4>
-          {`${editing ? 'Edit' : 'Create'} Exchange Pair`}
-        </h4>
-        <TokensFetcher
-          query={createSearchTokenQuery(this.state.fromTokenSearch)}
-          render={({ data }) => {
-            return (
-              <Fragment>
-                <h5>From</h5>
-                <RateInputContainer>
-                  <div>
-                    <InputLabel>Token</InputLabel>
-                    {editing && (
-                      <ReadOnlyInput>{this.state.fromTokenSearch}</ReadOnlyInput>
-                    )}
-                    {!editing && (
-                      <Select
-                        normalPlaceholder='Token'
-                        onSelectItem={this.onSelectTokenSelect('fromToken')}
-                        onChange={this.onChangeSearchToken('fromToken')}
-                        value={this.state.fromTokenSearch}
-                        options={data.map(b => ({
-                          key: `${b.id}${b.name}${b.symbol}`,
-                          value: <TokenSelect token={b} />,
-                          ...b
-                        }))}
-                      />
-                    )}
-                  </div>
-                  <div>
-                    <InputLabel>Amount</InputLabel>
-                    <Input
-                      value={this.state.fromTokenRate}
-                      onChange={this.onChangeRate('fromToken')}
-                      type='amount'
-                      normalPlaceholder={0}
-                      suffix={this.state.fromTokenSymbol}
-                    />
-                  </div>
-                </RateInputContainer>
-              </Fragment>
-            )
-          }}
-        />
-        <TokensFetcher
-          query={createSearchTokenQuery(this.state.toTokenSearch)}
-          render={({ data }) => {
-            return (
-              <Fragment>
-                <h5>To</h5>
-                <RateInputContainer>
-                  <div>
-                    <InputLabel>Token</InputLabel>
-                    {editing && (
-                      <ReadOnlyInput>{this.state.toTokenSearch}</ReadOnlyInput>
-                    )}
-                    {!editing && (
-                      <Select
-                        normalPlaceholder='Token'
-                        onSelectItem={this.onSelectTokenSelect('toToken')}
-                        onChange={this.onChangeSearchToken('toToken')}
-                        value={this.state.toTokenSearch}
-                        optionBoxHeight={'120px'}
-                        options={data.map(b => ({
-                          key: `${b.id}${b.name}${b.symbol}`,
-                          value: <TokenSelect token={b} />,
-                          ...b
-                        }))}
-                      />
-                    )}
-                  </div>
-                  <div>
-                    <InputLabel>Amount</InputLabel>
-                    <Input
-                      value={this.state.toTokenRate}
-                      onChange={this.onChangeRate('toToken')}
-                      type='amount'
-                      step='any'
-                      normalPlaceholder={0}
-                      suffix={this.state.toTokenSymbol}
-                    />
-                  </div>
-                </RateInputContainer>
-              </Fragment>
-            )
-          }}
-        />
-
-        {this.ratesAvailable && (
+        <h4>{`${editing ? 'Edit' : 'Create'} Exchange Pair`}</h4>
+        {this.renderFromForm()}
+        {this.renderToForm()}
+        {this.getRatesAvailable() && (
           <>
             {!!editing && !!oppositeExchangePair && (
               <SyncContainer>
@@ -401,19 +467,13 @@ class CreateExchangeRateModal extends Component {
               </SyncContainer>
             )}
 
-            <CalculationContainer>
-              {this.renderCalculation()}
-            </CalculationContainer>
+            <CalculationContainer>{this.renderCalculation()}</CalculationContainer>
           </>
         )}
-
+        {this.renderDefaultAddress()}
+        {this.renderEndUserExchange()}
         <ButtonContainer>
-          <Button
-            size='small'
-            type='submit'
-            loading={this.state.submitting}
-            disabled={!this.ratesAvailable}
-          >
+          <Button size='small' type='submit' loading={this.state.submitting} disabled={!this.getRatesAvailable()}>
             {this.state.editing ? 'Update Pair' : 'Create Pair'}
           </Button>
         </ButtonContainer>

@@ -26,7 +26,11 @@ defmodule EWalletAPI.V1.TransactionController do
     "to_account_id",
     "to_provider_user_id",
     "token_id",
+    "from_token_id",
+    "to_token_id",
     "amount",
+    "from_amount",
+    "to_amount",
     "metadata",
     "encrypted_metadata"
   ]
