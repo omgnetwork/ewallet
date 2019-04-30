@@ -34,13 +34,12 @@ const enhance = compose(
 )
 class TokenDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
-    divider: PropTypes.bool
+    match: PropTypes.object
   }
   renderTopBar = admin => {
     return (
       <TopNavigation
-        divider={this.props.divider}
+        divider={false}
         title={admin.email}
         secondaryAction={false}
       />
