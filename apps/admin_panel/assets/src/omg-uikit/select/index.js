@@ -99,13 +99,11 @@ export default class Select extends PureComponent {
           value={this.props.value}
           registerRef={this.registerRef}
           suffix={
-            !disabled ? (
-              this.state.active ? (
-                <Icon name='Chevron-Up' />
-              ) : (
-                <Icon name='Chevron-Down' onMouseDown={this.onClickChevronDown} />
-              )
-            ) : null
+            disabled
+              ? null
+              : this.state.active
+                ? <Icon name='Chevron-Up' />
+                : <Icon name='Chevron-Down' onMouseDown={this.onClickChevronDown} />
           }
         />
         {this.state.active && filteredOption.length > 0 && (
