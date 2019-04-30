@@ -51,7 +51,7 @@ PreAuthenticationTokenResponseSchema:
         $ref: 'schemas.yaml#/PreAuthenticationTokenSchema'
       example:
         data:
-          object: authentication_token
+          object: pre_authentication_token
           pre_authentication_token: azJRj09l7jvR8KhTqUs3
           user_id: usr_01cc02x0v98qcctvycfx4vsk8x
           user:
