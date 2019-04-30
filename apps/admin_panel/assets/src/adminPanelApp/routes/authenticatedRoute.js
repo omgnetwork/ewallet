@@ -24,10 +24,10 @@ class AuthenticatedRoute extends Component {
       />
     )
   }
-  renderApp = Component => {
+  renderApp = (props, Component) => {
     return (
       <AppLayout {...this.props}>
-        <Component />
+        <Component {...props} />
       </AppLayout>
     )
   }
@@ -35,7 +35,7 @@ class AuthenticatedRoute extends Component {
     if (!this.props.authenticated) {
       return this.renderRedirectRoute(props)
     }
-    return this.renderApp(Component)
+    return this.renderApp(props, Component)
   }
 
   render () {

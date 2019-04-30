@@ -154,7 +154,8 @@ class ApiKeyPage extends Component {
     columnsAdminKeys: PropTypes.array,
     search: PropTypes.string,
     downloadKey: PropTypes.func,
-    match: PropTypes.object
+    match: PropTypes.object,
+    history: PropTypes.object
   }
 
   static defaultProps = {
@@ -199,6 +200,11 @@ class ApiKeyPage extends Component {
       accessKey: this.state.accessKey,
       secretKey: this.state.secretKey
     })
+  }
+
+  onClickRow = (data, index) => e => {
+    const { keyType } = this.props.match.params
+    this.props.history.push(`${keyType || 'keys/admin'}/${data.id}`)
   }
 
   rowAdminKeyRenderer = fetch => (key, data, rows) => {
@@ -299,6 +305,7 @@ class ApiKeyPage extends Component {
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
+                onClickRow={this.onClickRow}
                 rowRenderer={this.rowAdminKeyRenderer(fetch)}
                 columns={this.props.columnsAdminKeys}
                 loadingStatus={individualLoadingStatus}

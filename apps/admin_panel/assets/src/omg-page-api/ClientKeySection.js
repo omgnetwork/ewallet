@@ -103,7 +103,8 @@ class ClientKeySection extends Component {
     location: PropTypes.object,
     createClientKeyModalOpen: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    search: PropTypes.string
+    search: PropTypes.string,
+    history: PropTypes.object
   }
   state = {
     submitStatus: 'DEFAULT'
@@ -122,6 +123,9 @@ class ClientKeySection extends Component {
   }
   onClickSwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateApiKey({ id, expired })
+  }
+  onClickRow = (data, index) => e => {
+    this.props.history.push(`client/${data.id}`)
   }
   onSubmitSuccess = fetch => () => {
     fetch()
@@ -180,6 +184,7 @@ class ClientKeySection extends Component {
           return (
             <KeySection>
               <Table
+                onClickRow={this.onClickRow}
                 loadingRowNumber={6}
                 rows={apiKeysRows}
                 rowRenderer={this.rowApiKeyRenderer(fetch)}
