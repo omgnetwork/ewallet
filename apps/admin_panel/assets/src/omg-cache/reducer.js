@@ -78,7 +78,7 @@ export const cacheReducer = createReducer(
     'INVITE_LIST/REQUEST/SUCCESS': (state, action) => {
       return {
         ...state,
-        [action.cacheKey]: { ids: action.data.map(d => d.id), pagination: action.pagination }
+        [action.cacheKey]: { ids: action.data.map(d => d.user_id), pagination: action.pagination }
       }
     },
     'ACTIVITIES/REQUEST/SUCCESS': (state, action) => {
