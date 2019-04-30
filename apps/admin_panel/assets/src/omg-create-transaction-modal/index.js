@@ -84,6 +84,10 @@ const FromToContainer = styled.div`
     border-radius: 2px;
   }
 `
+const FromAddress = styled.div`
+  margin-top: 5px;
+  color: ${props => props.theme.colors.B200};
+`
 const InnerTransferContainer = styled.div`
   max-width: 600px;
   padding: 50px;
@@ -100,6 +104,7 @@ class CreateTransaction extends Component {
   static propTypes = {
     onRequestClose: PropTypes.func,
     fromAddress: PropTypes.string,
+    toAddress: PropTypes.string,
     selectWalletById: PropTypes.func,
     getWalletById: PropTypes.func,
     match: PropTypes.object,
@@ -242,6 +247,9 @@ class CreateTransaction extends Component {
       )
       : '-'
   }
+  onClickSwap = e => {
+    this.setState({ toAddress: this.state.fromAddress, fromAddress: this.state.toAddress })
+  }
 
   renderFromSection () {
     const fromWallet = this.props.selectWalletById(this.state.fromAddress.trim())
@@ -255,7 +263,7 @@ class CreateTransaction extends Component {
           query={createSearchAddressQuery(this.state.fromAddress)}
           shouldFetch={!!this.props.match.params.accountId || (fromWallet && !!fromWallet.account_id)}
           render={({ data }) => {
-            return (
+            return this.props.fromAddress && this.state.fromAddress ? <FromAddress>{this.state.fromAddress} <a onClick={this.onClickSwap}>swap</a></FromAddress> : (
               <Select
                 disabled={!!this.props.fromAddress}
                 normalPlaceholder='acc_0x000000000000000'
@@ -321,7 +329,7 @@ class CreateTransaction extends Component {
         <AllWalletsFetcher
           query={createSearchAddressQuery(this.state.toAddress)}
           render={({ data }) => {
-            return (
+            return this.props.toAddress && this.state.toAddress ? <FromAddress>{this.state.toAddress} <a onClick={this.onClickSwap}>swap</a></FromAddress> : (
               <Select
                 normalPlaceholder='acc_0x000000000000000'
                 onSelectItem={this.onSelectToAddressSelect}
