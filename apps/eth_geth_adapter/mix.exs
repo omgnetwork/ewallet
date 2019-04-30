@@ -29,8 +29,8 @@ defmodule EthGethAdapter.MixProject do
       {:eth_blockchain, in_umbrella: true},
       {:exth_crypto, "~> 0.1.6"},
       {:keychain, in_umbrella: true},
-      {:httpoison, "~> 0.11"},
-      {:jason, "~> 1.1"}
+      {:ethereumex, "~> 0.5"},
+      {:abi, "~> 0.1.13"}
     ]
   end
 
