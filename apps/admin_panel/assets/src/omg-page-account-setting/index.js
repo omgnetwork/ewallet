@@ -111,6 +111,7 @@ class AccountSettingPage extends Component {
     super(props)
     this.state = {
       inviteModalOpen: queryString.parse(props.location.search).invite || false,
+      initialName: '',
       name: '',
       description: '',
       avatar: '',
@@ -128,6 +129,7 @@ class AccountSettingPage extends Component {
     const { currentAccount } = this.props
     if (!_.isEmpty(currentAccount)) {
       this.setState({
+        initialName: currentAccount.name,
         name: currentAccount.name,
         description: currentAccount.description,
         avatar: _.get(currentAccount, 'avatar.original'),
@@ -169,7 +171,7 @@ class AccountSettingPage extends Component {
       })
 
       if (result.data) {
-        this.setState({ submitStatus: 'SUBMITTED' })
+        this.setState({ submitStatus: 'SUBMITTED', initialName: this.state.name })
       } else {
         this.setState({ submitStatus: 'FAILED' })
       }
@@ -322,7 +324,7 @@ class AccountSettingPage extends Component {
         <AccountSettingContainer>
           <TopNavigation
             divider={this.props.divider}
-            title={`Edit ${this.state.name}`}
+            title={`Edit ${this.state.initialName}`}
             secondaryAction={false}
             types={false}
           />
