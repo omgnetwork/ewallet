@@ -267,7 +267,7 @@ class TokenDetailPage extends Component {
                       <DetailGroup key={pair.id}>
                         <b>{_.get(pair, 'to_token.name')}</b>
                         <span>
-                          {pair.rate} {_.get(pair, 'to_token.symbol')}
+                          {_.round(pair.rate, 3)} {_.get(pair, 'to_token.symbol')}
                         </span>
                         <ActionButtons>
                           <div className='button' onClick={() => this.editExchangePair(pair)}>
