@@ -1,11 +1,14 @@
 import * as exchangePairService from '../services/exchangePairService'
 
-export const updateExchangePair = ({ id, rate, syncOpposite }) => async dispatch => {
+export const updateExchangePair = ({ id, rate, syncOpposite, defaultExchangeWalletAddress,
+  allowEndUserExchanges }) => async dispatch => {
   try {
     const result = await exchangePairService.updateExchangePair({
       id,
       rate,
-      syncOpposite
+      syncOpposite,
+      defaultExchangeWalletAddress,
+      allowEndUserExchanges
     })
     if (result.data.success) {
       return dispatch({ type: 'EXCHANGE_PAIR/UPDATE/SUCCESS', data: result.data.data })

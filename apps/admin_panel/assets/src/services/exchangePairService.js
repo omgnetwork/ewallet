@@ -22,13 +22,15 @@ export function getExchangePairById (id) {
   })
 }
 
-export function updateExchangePair ({ id, rate, syncOpposite }) {
+export function updateExchangePair ({ id, rate, syncOpposite, defaultExchangeWalletAddress, allowEndUserExchanges }) {
   return authenticatedRequest({
     path: '/exchange_pair.update',
     data: {
       id,
       rate,
-      sync_opposite: syncOpposite
+      sync_opposite: syncOpposite,
+      default_exchange_wallet_address: defaultExchangeWalletAddress,
+      allow_end_user_exchanges: allowEndUserExchanges
     }
   })
 }

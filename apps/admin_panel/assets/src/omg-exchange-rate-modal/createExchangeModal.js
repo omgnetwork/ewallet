@@ -155,7 +155,9 @@ class CreateExchangeRateModal extends Component {
         toTokenSearch: _.get(props, 'toEdit.to_token.name', ''),
         toTokenSymbol: _.get(props, 'toEdit.to_token.symbol', ''),
         oppositeExchangePair: _.get(props, 'toEdit.opposite_exchange_pair', null),
-        onlyOneWayExchange: !_.get(props, 'toEdit.opposite_exchange_pair', true)
+        onlyOneWayExchange: !_.get(props, 'toEdit.opposite_exchange_pair', true),
+        defaultExchangeAddress: _.get(props, 'toEdit.default_exchange_wallet_address'),
+        allowEndUserExchange: _.get(props, 'toEdit.allow_end_user_exchanges', false)
       }
     }
     return null
@@ -217,7 +219,9 @@ class CreateExchangeRateModal extends Component {
       const result = this.state.editing
         ? await this.props.updateExchangePair({
           ...baseKeys,
-          id: this.state.exchangeId
+          id: this.state.exchangeId,
+          defaultExchangeWalletAddress: this.state.defaultExchangeAddress,
+          allowEndUserExchanges: this.state.allowEndUserExchange
         })
         : await this.props.createExchangePair({
           ...baseKeys,
