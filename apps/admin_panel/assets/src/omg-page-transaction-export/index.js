@@ -16,9 +16,7 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import { exportTransaction } from '../omg-transaction/action'
 import { createSearchTransactionExportQuery } from './searchField'
 import CONSTANT from '../constants'
-import ProgressBar from './ProgressBar'
 import ConfirmationModal from '../omg-confirmation-modal'
-import { MarkContainer } from '../omg-page-transaction'
 
 const Container = styled.div`
   position: relative;
@@ -31,6 +29,7 @@ const FormDetailContainer = styled.form`
   box-shadow: 0 4px 12px 0 #e8eaed;
   margin-bottom: 40px;
   .date-time {
+    flex: 1 0 0;
     margin-top: 30px;
     margin-right: 20px;
     :last-child {
@@ -66,29 +65,17 @@ const TimestampContainer = styled.div`
     border-radius: 4px;
     color: ${props => (props.disabled ? props.theme.colors.S400 : props.theme.colors.B400)};
     :hover {
+      cursor: pointer;
       background-color: ${props => props.theme.colors.BL400};
       color: white;
     }
   }
 `
-const ProgressTextContainer = styled.div`
-  display: flex;
-  margin-bottom: 5px;
-  font-size: 12px;
-  > span:first-child {
-    flex: 1 1 auto;
-  }
-  > span:last-child {
-    margin-left: auto;
-  }
-`
-
 const ContentContainer = styled.div`
   margin-top: 40px;
   display: flex;
   flex-direction: row;
 `
-
 const ActionContainer = styled.div`
   flex: 1 1 0;
   margin-right: 40px;
@@ -98,8 +85,8 @@ const ActionContainer = styled.div`
     margin-bottom: 40px;
   }
 `
-
 const TableContainer = styled.div`
+  width: 50%;
   flex: 1.2 1 0;
   td:nth-child(2) {
     width: 190px;
@@ -110,21 +97,10 @@ const TableContainer = styled.div`
       text-decoration: underline;
     }
   }
-  td:first-child {
-    width: 300px;
-    > * {
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      width: 300px;
-      display: inline-block;
-    }
-  }
   .string-value {
     white-space: nowrap;
   }
 `
-
 const AlertEmptyTextContainer = styled.div`
   max-width: 500px;
   font-size: 14px;
@@ -135,7 +111,6 @@ const AlertEmptyTextContainer = styled.div`
     color: red;
   }
 `
-
 const TitleContainer = styled.div`
   span {
     padding-left: 10px;
@@ -144,23 +119,31 @@ const TitleContainer = styled.div`
     cursor: pointer;
   }
 `
-const StatusContainer = styled.div`
-  white-space: nowrap;
-  span {
-    vertical-align: middle;
-  }
+const RangeContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
   i {
-    color: white;
-    font-size: 10px;
+    margin-right: 20px;
+  }
+
+  .range-group {
+    display: flex;
+    flex-direction: column;
+
+    .range-item {
+      display: flex;
+      span:first-child {
+        padding-right: 5px;
+        font-weight: bold;
+      }
+    }
   }
 `
-
 const columns = [
-  { key: 'filename', title: 'NAME' },
-  { key: 'params_match_all', title: 'MATCH ALL' },
-  { key: 'params_match_any', title: 'MATCH ANY' },
-  { key: 'status', title: 'STATUS' },
-  { key: 'created_at', title: 'EXPORTED AT' }
+  { key: 'range', title: 'EXPORTED RANGE' },
+  { key: 'timestamp', title: 'TIMESTAMP' }
 ]
 
 const enhance = compose(
@@ -234,6 +217,23 @@ class TransactionExportPage extends Component {
     this.setState({ toTime: '', toTimeFocus: true })
   }
   onClickExport = (fetch, confirm) => async e => {
+    let _fromDate = this.state.fromDate
+    let _toDate = this.state.toDate
+
+    if (this.state.fromTime) {
+      _fromDate = this.state.fromDate.set({
+        hour: this.state.fromTime.get('hour'),
+        minute: this.state.fromTime.get('minute')
+      })
+    }
+
+    if (this.state.toTime) {
+      _toDate = this.state.toDate.set({
+        hour: this.state.toTime.get('hour'),
+        minute: this.state.toTime.get('minute')
+      })
+    }
+
     e.preventDefault()
     if (!this.state.fromDate && !this.state.toDate && !confirm) {
       this.setState({ confirmationModalOpen: true })
@@ -241,8 +241,8 @@ class TransactionExportPage extends Component {
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.PENDING, confirmationModalOpen: false })
       try {
         const query = createSearchTransactionExportQuery({
-          fromDate: this.state.fromDate,
-          toDate: this.state.toDate
+          fromDate: _fromDate,
+          toDate: _toDate
         })
         const result = await this.props.exportTransaction(query)
         if (result.data) {
@@ -271,88 +271,45 @@ class TransactionExportPage extends Component {
   }
   rowRenderer = (key, data, row) => {
     switch (key) {
-      case 'created_at':
+      case 'range':
+        if (row.status === 'completed') {
+          const ranges = row.params.match_all
+          const start = _.first(ranges.filter(i => i.comparator === 'gte'))
+          const end = _.first(ranges.filter(i => i.comparator === 'lte'))
+
+          return (
+            <RangeContainer>
+              <Icon name='Export' />
+              <div className='range-group'>
+                <div className='range-item'>
+                  <span>Start</span>
+                  <span>{moment(start.value).format('MM/DD/YYYY H:mm')}</span>
+                </div>
+                {end && (
+                  <div className='range-item'>
+                    <span>End</span>
+                    <span>{moment(end.value).format('MM/DD/YYYY H:mm')}</span>
+                  </div>
+                )}
+                {!end && (
+                  <div className='range-item'>
+                    <span>End</span>
+                    <span>{moment(row.created_at).format('MM/DD/YYYY H:mm')}</span>
+                  </div>
+                )}
+              </div>
+            </RangeContainer>
+          )
+        }
+        return null
+      case 'timestamp':
         return (
           <TimestampContainer>
-            <span>{moment(row.created_at).format()}</span>
+            <span>{moment(row.created_at).format('MM/DD/YYYY H:mm')}</span>
             {row.status === 'completed' && (
               <Icon name='Download' onClick={this.onClickDownload(row)} />
             )}
           </TimestampContainer>
-        )
-      case 'filename':
-        if (row.status === 'completed') {
-          return <a onClick={this.onClickDownload(row)}>{row.filename}</a>
-        } else if (row.status === 'processing' || row.status === 'new') {
-          return (
-            <div style={{ maxWidth: '450px' }}>
-              <ProgressTextContainer>
-                <span>Exporting...</span>
-                <span>{row.completion.toFixed(2)}%</span>
-              </ProgressTextContainer>
-              <ProgressBar percentage={row.completion.toFixed(2)} />
-            </div>
-          )
-        } else if (row.status === 'failed') {
-          return (
-            <div>
-              <div>{row.filename}</div>
-              <div style={{ color: 'red' }}>{row.failure_reason}</div>
-            </div>
-          )
-        }
-        return '-'
-      case 'params_match_all':
-        return row.params.match_all
-          ? row.params.match_all.length
-            ? row.params.match_all.map((query, i) => (
-              <div style={{ whiteSpace: 'nowrap' }} key={i}>
-                  [ {query.field} ] [ {query.comparator} :{' '}
-                {moment(query.value).isValid()
-                  ? moment(query.value).format()
-                  : query.value}{' '}
-                  ]
-              </div>
-            ))
-            : '-'
-          : '-'
-
-      case 'params_match_any':
-        return row.params.match_any
-          ? row.params.match_any.length
-            ? row.params.match_any.map((query, i) => (
-              <div style={{ whiteSpace: 'nowrap' }} key={i}>
-                  [ {query.field} ] [ {query.comparator} :{' '}
-                {moment(query.value).isValid()
-                  ? moment(query.value).format()
-                  : query.value}{' '}
-                  ]
-              </div>
-            ))
-            : '-'
-          : '-'
-      case 'status':
-        return (
-          <StatusContainer>
-            {data === 'failed' && (
-              <MarkContainer status='failed'>
-                <Icon name='Close' />
-              </MarkContainer>
-            )}
-            {data === 'completed' && (
-              <MarkContainer status='success'>
-                <Icon name='Checked' />
-              </MarkContainer>
-            )}
-            {data === 'processing' && (
-              <img
-                src={require('../../statics/images/loading.gif')}
-                width={20}
-                style={{ verticalAlign: 'middle' }}
-              />
-            )}{' '}
-            <span>{_.capitalize(data)}</span>
-          </StatusContainer>
         )
       default:
         return data
@@ -434,6 +391,7 @@ class TransactionExportPage extends Component {
 
                   <TableContainer>
                     <SortableTable
+                      hoverEffect={false}
                       rows={data}
                       columns={columns}
                       loadingStatus={individualLoadingStatus}
