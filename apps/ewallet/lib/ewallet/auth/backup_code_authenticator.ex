@@ -59,10 +59,12 @@ defmodule EWallet.BackupCodeAuthenticator do
 
   def verify(hashed_backup_codes, backup_code)
       when is_list(hashed_backup_codes) and is_binary(backup_code) do
-    if Enum.any?(hashed_backup_codes, &Crypto.verify_password(backup_code, &1)) do
-      {:ok}
-    else
-      {:error, :invalid_backup_code}
+    case Enum.find_index(hashed_backup_codes, &Crypto.verify_password(backup_code, &1)) do
+      nil ->
+        {:error, :invalid_backup_code}
+
+      index ->
+        {:ok, List.delete_at(hashed_backup_codes, index)}
     end
   end
 

@@ -286,12 +286,12 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
     test "responds success if the given backup_code is valid" do
       user = User.get(@admin_id)
 
-      {[backup_code | _], _, _} = create_two_factors_and_enable_2fa(user)
+      {[backup_code, backup_code_2 | _], _, _} = create_two_factors_and_enable_2fa(user)
 
       response = login_two_steps(user, %{backup_code: backup_code})
 
       response =
-        admin_user_request("/me.disable_2fa", %{"backup_code" => backup_code},
+        admin_user_request("/me.disable_2fa", %{"backup_code" => backup_code_2},
           user_id: @admin_id,
           auth_token: response["data"]["authentication_token"]
         )
