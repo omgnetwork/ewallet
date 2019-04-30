@@ -8,7 +8,7 @@ import { compose } from 'recompose'
 import DateTime from 'react-datetime'
 import { connect } from 'react-redux'
 
-import { Input, Button, Icon, Tag } from '../omg-uikit'
+import { Input, Button, Icon, Tag, Tooltip } from '../omg-uikit'
 import SortableTable from '../omg-table'
 import ExportFetcher from '../omg-export/exportFetcher'
 import { downloadExportFileById, getExports } from '../omg-export/action'
@@ -307,7 +307,9 @@ class TransactionExportPage extends Component {
           <TimestampContainer>
             <span>{moment(row.created_at).format('MM/DD/YYYY H:mm')}</span>
             {row.status === 'completed' && (
-              <Icon name='Download' onClick={this.onClickDownload(row)} />
+              <Tooltip text='Download'>
+                <Icon name='Download' onClick={this.onClickDownload(row)} />
+              </Tooltip>
             )}
           </TimestampContainer>
         )
