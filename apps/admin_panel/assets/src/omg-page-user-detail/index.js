@@ -46,19 +46,22 @@ const enhance = compose(
 class TokenDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
-    divider: PropTypes.bool
+    divider: PropTypes.bool,
+    withBreadCrumb: PropTypes.bool
   }
   renderTopBar = user => {
     return (
       <>
-        <BreadcrumbContainer>
-          <Breadcrumb
-            items={[
-              <Link key='users' to={'/users/'}>Users</Link>,
-              user.email || user.provider_user_id
-            ]}
-          />
-        </BreadcrumbContainer>
+        {this.props.withBreadCrumb && (
+          <BreadcrumbContainer>
+            <Breadcrumb
+              items={[
+                <Link key='users' to={'/users/'}>Users</Link>,
+                user.email || user.provider_user_id
+              ]}
+            />
+          </BreadcrumbContainer>
+        )}
         <TopNavigation
           divider={false}
           title={user.email || user.provider_user_id}

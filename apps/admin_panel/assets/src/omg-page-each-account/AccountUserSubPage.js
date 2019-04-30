@@ -1,7 +1,8 @@
-import UserPage from '../omg-page-users'
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
+
+import UserPage from '../omg-page-users'
 import { getUsersByAccountId } from '../omg-users/usersFetcher'
 
 function AccountTransactionSubPage (props) {
