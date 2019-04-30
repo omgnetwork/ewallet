@@ -39,7 +39,7 @@ defmodule EWallet.TwoFactorAuthenticator do
   def login(_, _, %User{enabled_2fa_at: nil}), do: {:error, :user_2fa_disabled}
 
   def login(attrs, owner_app, %User{} = user) do
-    with {:ok} <- verify(attrs, user),
+    with :ok <- verify(attrs, user),
          :ok <- PreAuthToken.delete_for_user(user),
          :ok <- AuthToken.delete_for_user(user) do
       AuthToken.generate(user, owner_app, user)
@@ -51,21 +51,19 @@ defmodule EWallet.TwoFactorAuthenticator do
   # Verify multiple two-factor authentication factors.
   # Example:
   # iex> TwoFactorAuthenticator.verify_multiple(
-  #  %{"secret_code" => "123456", "backup_codes" => "12345678"}
+  #  %{"secret_code" => "123456", "backup_codes" => "12345678"},
+  #  user
   # )
   #
   # :ok
   def verify_multiple(attrs, user) when map_size(attrs) > 0 do
-    errors =
-      attrs
-      |> Enum.map(fn {k, v} -> Map.put(%{}, k, v) end)
-      |> Enum.map(&verify(&1, user))
-      |> Enum.filter(&match?({:error, _}, &1))
-
-    if Enum.empty?(errors) do
-      {:ok}
+    with sub_attrs <- Enum.map(attrs, fn {k, v} -> Map.put(%{}, k, v) end),
+         sub_results <- Enum.map(sub_attrs, &verify(&1, user)),
+         [] <- Enum.filter(sub_results, &match?({:error, _}, &1)) do
+      :ok
     else
-      hd(errors)
+      errors ->
+        hd(errors)
     end
   end
 
@@ -96,10 +94,21 @@ defmodule EWallet.TwoFactorAuthenticator do
 
   defp do_verify(%{
          "backup_code" => backup_code,
-         "user" => %User{hashed_backup_codes: hashed_backup_codes}
+         "user" => %User{hashed_backup_codes: hashed_backup_codes} = user
        })
        when is_binary(backup_code) do
-    BackupCodeAuthenticator.verify(hashed_backup_codes, backup_code)
+    case BackupCodeAuthenticator.verify(hashed_backup_codes, backup_code) do
+      {:ok, updated_backup_codes} ->
+        User.set_hashed_backup_codes(user, %{
+          "hashed_backup_codes" => updated_backup_codes,
+          "originator" => user
+        })
+
+        :ok
+
+      error ->
+        error
+    end
   end
 
   defp do_verify(%{"user" => _}) do
@@ -145,8 +154,12 @@ defmodule EWallet.TwoFactorAuthenticator do
 
   defp get_number_of_backup_codes do
     case Application.get_env(:ewallet, :number_of_backup_codes, @default_number_of_backup_codes) do
-      0 -> @default_number_of_backup_codes
-      number_of_backup_codes -> number_of_backup_codes
+      number_of_backup_codes
+      when is_integer(number_of_backup_codes) and number_of_backup_codes > 1 ->
+        number_of_backup_codes
+
+      _ ->
+        @default_number_of_backup_codes
     end
   end
 
@@ -157,10 +170,10 @@ defmodule EWallet.TwoFactorAuthenticator do
   # Note: The responsibility of two-factor params verification will be left here.
   # However, it does a small check that the user has already created some two-factor methods.
   def enable(%User{} = user) do
-    with {:ok} <- validate_enable_attrs(user),
+    with :ok <- validate_enable_attrs(user),
          {:ok, updated_user} <- User.enable_2fa(user),
          :ok <- AuthToken.delete_for_user(updated_user) do
-      {:ok}
+      :ok
     else
       error -> error
     end
@@ -175,7 +188,7 @@ defmodule EWallet.TwoFactorAuthenticator do
         {:error, :secret_code_not_found}
 
       true ->
-        {:ok}
+        :ok
     end
   end
 
@@ -188,7 +201,7 @@ defmodule EWallet.TwoFactorAuthenticator do
   def disable(%User{} = user) do
     with {:ok, updated_user} <- User.disable_2fa(user),
          AuthToken.delete_for_user(updated_user) do
-      {:ok}
+      :ok
     else
       error -> error
     end

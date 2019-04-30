@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.UserAuthToken do
+defmodule EWallet.UserAuthenticator do
   @moduledoc """
   Handle user authentication with appropriate token between AuthToken and PreAuthToken.
   """
@@ -37,18 +37,19 @@ defmodule EWallet.UserAuthToken do
   end
 
   def authenticate(user_id, auth_token, owner_app) do
-    user = User.get(user_id)
-
-    authenticate(user, auth_token, owner_app)
+    user_id
+    |> User.get()
+    |> authenticate(auth_token, owner_app)
   end
 
   def generate(nil, _, _), do: {:error, :invalid_parameter}
 
   def generate(%User{} = user, owner_app, originator) do
-    if User.enabled_2fa?(user) do
-      PreAuthToken.generate(user, owner_app, originator)
-    else
-      AuthToken.generate(user, owner_app, originator)
+    user
+    |> User.enabled_2fa?()
+    |> case do
+      true -> PreAuthToken.generate(user, owner_app, originator)
+      false -> AuthToken.generate(user, owner_app, originator)
     end
   end
 end

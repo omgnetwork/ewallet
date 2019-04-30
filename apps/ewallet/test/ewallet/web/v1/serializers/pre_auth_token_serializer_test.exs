@@ -22,7 +22,7 @@ defmodule EWallet.Web.V1.PreAuthTokenSerializerTest do
       pre_auth_token = insert(:pre_auth_token)
       serialized = PreAuthTokenSerializer.serialize(pre_auth_token)
 
-      assert serialized.object == "authentication_token"
+      assert serialized.object == "pre_authentication_token"
       assert serialized.pre_authentication_token == pre_auth_token.token
       assert serialized.user_id == pre_auth_token.user.id
       assert serialized.user != nil

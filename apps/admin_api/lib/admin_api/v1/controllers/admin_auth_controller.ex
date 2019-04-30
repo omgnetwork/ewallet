@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AdminAuthController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AdminUserAuthenticator
-  alias EWallet.{AccountPolicy, AdminUserPolicy, UserAuthToken}
+  alias EWallet.{AccountPolicy, AdminUserPolicy, UserAuthenticator}
   alias EWallet.Web.{Orchestrator, Originator, V1.AuthTokenOverlay}
   alias EWalletDB.{Account, User}
 
@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.AdminAuthController do
          true <- User.get_status(conn.assigns.admin_user) == :active || {:error, :invite_pending},
          originator <- Originator.extract(conn.assigns),
          {:ok, auth_token} <-
-           UserAuthToken.generate(conn.assigns.admin_user, :admin_api, originator),
+           UserAuthenticator.generate(conn.assigns.admin_user, :admin_api, originator),
          {:ok, auth_token} <- Orchestrator.one(auth_token, AuthTokenOverlay, attrs) do
       render_token(conn, auth_token)
     else

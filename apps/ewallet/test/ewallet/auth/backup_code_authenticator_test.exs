@@ -17,7 +17,7 @@ defmodule EWallet.BackupCodeAuthenticatorTest do
   alias EWallet.BackupCodeAuthenticator
 
   describe "verify" do
-    test "respond {:ok} when the given backup_code matches with hashed_backup_codes" do
+    test "respond :ok when the given backup_code matches with hashed_backup_codes" do
       number_of_backup_codes = 10
 
       assert {:ok, backup_codes, hashed_backup_codes} =

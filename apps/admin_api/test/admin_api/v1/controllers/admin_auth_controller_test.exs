@@ -58,7 +58,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
                "version" => @expected_version,
                "success" => true,
                "data" => %{
-                 "object" => "authentication_token",
+                 "object" => "pre_authentication_token",
                  "pre_authentication_token" => pre_auth_token.token,
                  "user_id" => pre_auth_token.user.id,
                  "user" => pre_auth_token.user |> UserSerializer.serialize() |> stringify_keys(),

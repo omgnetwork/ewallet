@@ -62,8 +62,8 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
   def enable(conn, %{"backup_code" => _, "passcode" => _} = attrs) do
     with %User{} = user <- conn.assigns[:admin_user] || {:error, :unauthorized},
          {:ok, _} <- authorize(:create, conn.assigns, user),
-         {:ok} <- TwoFactorAuthenticator.verify_multiple(attrs, user),
-         {:ok} <- TwoFactorAuthenticator.enable(user) do
+         :ok <- TwoFactorAuthenticator.verify_multiple(attrs, user),
+         :ok <- TwoFactorAuthenticator.enable(user) do
       render(conn, :empty_response)
     else
       error -> respond_error(error, conn)
@@ -88,8 +88,8 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
   def disable(conn, attrs) do
     with %User{} = user <- conn.assigns[:admin_user] || {:error, :unauthorized},
          {:ok, _} <- authorize(:create, conn.assigns, user),
-         {:ok} <- TwoFactorAuthenticator.verify(attrs, user),
-         {:ok} <- TwoFactorAuthenticator.disable(user) do
+         :ok <- TwoFactorAuthenticator.verify(attrs, user),
+         :ok <- TwoFactorAuthenticator.disable(user) do
       render(conn, :empty_response)
     else
       error -> respond_error(error, conn)

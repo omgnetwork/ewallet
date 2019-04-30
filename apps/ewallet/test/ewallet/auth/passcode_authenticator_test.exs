@@ -23,12 +23,12 @@ defmodule EWallet.PassAuthenticatorTest do
   end
 
   describe "verify" do
-    test "return {:ok} when the given passcode is correct" do
+    test "return :ok when the given passcode is correct" do
       assert {:ok, secret_2fa_key} = PasscodeAuthenticator.create()
 
       passcode = :pot.totp(secret_2fa_key)
 
-      assert PasscodeAuthenticator.verify(passcode, secret_2fa_key) == {:ok}
+      assert PasscodeAuthenticator.verify(passcode, secret_2fa_key) == :ok
     end
 
     test "return {:error, :invalid_passcode} when the given passcode is incorrect" do

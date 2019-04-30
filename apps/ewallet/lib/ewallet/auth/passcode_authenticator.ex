@@ -28,7 +28,7 @@ defmodule EWallet.PasscodeAuthenticator do
   iex> EWallet.PasscodeAuthenticator.verify("123456", "2VN5NYWNQ5Q75IC7")
 
   # Success
-  {:ok}
+  :ok
 
   # Failure
   {:error, :invalid_passcode}
@@ -38,7 +38,7 @@ defmodule EWallet.PasscodeAuthenticator do
 
   def verify(passcode, secret) when is_binary(passcode) and is_binary(secret) do
     if :pot.valid_totp(passcode, secret) do
-      {:ok}
+      :ok
     else
       {:error, :invalid_passcode}
     end
