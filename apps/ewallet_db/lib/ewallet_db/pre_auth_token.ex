@@ -30,7 +30,7 @@ defmodule EWalletDB.PreAuthToken do
   @key_length 32
 
   schema "pre_auth_token" do
-    external_id(prefix: "pat_")
+    external_id(prefix: "ptk_")
 
     field(:token, :string)
     field(:owner_app, :string)

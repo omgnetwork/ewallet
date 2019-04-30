@@ -46,7 +46,7 @@ defmodule EWallet.BackupCodeAuthenticator do
   ], "7c501e31")
 
   # Success
-  {:ok}
+  :ok
 
   # Failure
   {:error, :invalid_backup_code}
