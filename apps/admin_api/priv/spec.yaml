@@ -3795,14 +3795,10 @@ paths:
               properties:
                 passcode:
                   type: string
-                backup_code:
-                  type: string
               required:
                 - passcode
-                - backup_code
               example:
                 passcode: '123456'
-                backup_code: 2f0e81e3
       responses:
         '200': *ref_11
         '500': *ref_7

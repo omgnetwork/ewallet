@@ -59,10 +59,10 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
     end
   end
 
-  def enable(conn, %{"backup_code" => _, "passcode" => _} = attrs) do
+  def enable(conn, %{"passcode" => _} = attrs) do
     with %User{} = user <- conn.assigns[:admin_user] || {:error, :unauthorized},
          {:ok, _} <- authorize(:create, conn.assigns, user),
-         :ok <- TwoFactorAuthenticator.verify_multiple(attrs, user),
+         :ok <- TwoFactorAuthenticator.verify(attrs, user),
          :ok <- TwoFactorAuthenticator.enable(user) do
       render(conn, :empty_response)
     else
@@ -70,18 +70,8 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
     end
   end
 
-  def enable(conn, %{"backup_code" => _}) do
-    error_description = "Invalid parameter provided. `passcode` is required."
-    respond_error({:error, :invalid_parameter, error_description}, conn)
-  end
-
-  def enable(conn, %{"passcode" => _}) do
-    error_description = "Invalid parameter provided. `backup_code` is required."
-    respond_error({:error, :invalid_parameter, error_description}, conn)
-  end
-
   def enable(conn, _) do
-    error_description = "Invalid parameter provided. `backup_code` and `passcode` are required."
+    error_description = "Invalid parameter provided. `passcode` is required."
     respond_error({:error, :invalid_parameter, error_description}, conn)
   end
 
