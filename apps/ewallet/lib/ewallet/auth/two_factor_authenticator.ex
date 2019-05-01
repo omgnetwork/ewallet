@@ -40,8 +40,7 @@ defmodule EWallet.TwoFactorAuthenticator do
 
   def login(attrs, owner_app, %User{} = user) do
     with :ok <- verify(attrs, user),
-         :ok <- PreAuthToken.delete_for_user(user),
-         :ok <- AuthToken.delete_for_user(user) do
+         :ok <- PreAuthToken.delete_for_user(user) do
       AuthToken.generate(user, owner_app, user)
     else
       error -> error
