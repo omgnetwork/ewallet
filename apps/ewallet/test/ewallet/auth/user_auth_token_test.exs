@@ -67,7 +67,8 @@ defmodule EWallet.UserAuthTokenTest do
 
   describe "generate" do
     test "return {:error, :invalid_parameter} if the given user is nil" do
-      assert UserAuthenticator.generate(nil, :admin_api, %System{}) == {:error, :invalid_parameter}
+      assert UserAuthenticator.generate(nil, :admin_api, %System{}) ==
+               {:error, :invalid_parameter}
     end
 
     test "return {:ok, PreAuthToken} if the given user has enabled two-factor authentication" do

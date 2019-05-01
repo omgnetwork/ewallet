@@ -102,11 +102,13 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
       {%{backup_codes: [backup_code | _]}, _} = create_backup_codes(user)
       {%{secret_2fa_code: secret_2fa_code}, _} = create_secret_code(user)
       passcode = generate_totp(secret_2fa_code)
+
       response =
         admin_user_request("/me.enable_2fa", %{
           "passcode" => passcode,
           "backup_code" => backup_code
         })
+
       assert response == %{"data" => %{}, "success" => true, "version" => "1"}
 
       response = admin_user_request("/wallet.all", %{})
