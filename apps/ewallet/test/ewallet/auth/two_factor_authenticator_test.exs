@@ -61,7 +61,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
   end
 
   describe "verify" do
-    test "returns {:ok} if the user has secret code and the given passcode is correct" do
+    test "returns :ok if the user has secret code and the given passcode is correct" do
       user = insert(:user)
 
       {attrs, created_secret_code_user} = create_secret_code(user)
@@ -69,18 +69,42 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       passcode = generate_totp(attrs.secret_2fa_code)
 
       assert TwoFactorAuthenticator.verify(%{"passcode" => passcode}, created_secret_code_user) ==
-               {:ok}
+               :ok
     end
 
-    test "returns {:ok} if the user has hashed backup codes and the given backup code is correct" do
+    test "returns :ok if the user has hashed backup codes and the given backup code is correct" do
       user = insert(:user)
 
       {attrs, updated_user} = create_backup_codes(user)
 
+      assert Enum.all?(
+               attrs.backup_codes,
+               fn backup_code ->
+                 TwoFactorAuthenticator.verify(%{"backup_code" => backup_code}, updated_user) ==
+                   :ok
+               end
+             )
+    end
+
+    test "returns {:error, :invalid_passcode} if the user uses the same backup code more than once" do
+      user = insert(:user)
+
+      {attrs, updated_user} = create_backup_codes(user)
+
+      [backup_code | _] = attrs.backup_codes
+
+      assert TwoFactorAuthenticator.verify(%{"backup_code" => backup_code}, updated_user) == :ok
+
+      updated_user = User.get(user.id)
+
       assert TwoFactorAuthenticator.verify(
-               %{"backup_code" => hd(attrs.backup_codes)},
+               %{"backup_code" => backup_code},
                updated_user
-             ) == {:ok}
+             ) == {:error, :invalid_backup_code}
+
+      updated_user = User.get(user.id)
+
+      assert length(updated_user.hashed_backup_codes) == 9
     end
 
     test "returns {:error, :invalid_passcode} if the user has secret code but the given passcode is incorrect" do
@@ -172,7 +196,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
                {:error, :backup_codes_not_found}
     end
 
-    test "returns {:ok} when the valid passcode is passed" do
+    test "returns :ok when the valid passcode is passed" do
       user = insert(:user)
 
       {attrs, updated_user} = create_secret_code(user)
@@ -180,10 +204,10 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       passcode = generate_totp(attrs.secret_2fa_code)
 
       assert TwoFactorAuthenticator.verify_multiple(%{"passcode" => passcode}, updated_user) ==
-               {:ok}
+               :ok
     end
 
-    test "returns {:ok} when the valid backup_code is passed" do
+    test "returns :ok when the valid backup_code is passed" do
       user = insert(:user)
 
       {attrs, updated_user} = create_backup_codes(user)
@@ -191,10 +215,10 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       assert TwoFactorAuthenticator.verify_multiple(
                %{"backup_code" => hd(attrs.backup_codes)},
                updated_user
-             ) == {:ok}
+             ) == :ok
     end
 
-    test "returns {:ok} when both valid passcode and backup_code are passed" do
+    test "returns :ok when both valid passcode and backup_code are passed" do
       user = insert(:user)
 
       {backup_code_attrs, updated_user} = create_backup_codes(user)
@@ -208,7 +232,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
                  "passcode" => passcode
                },
                updated_user
-             ) == {:ok}
+             ) == :ok
     end
 
     test "returns {:error, :invalid_backup_code} when the valid passcode and the invalid backup_code are passed" do
@@ -314,6 +338,11 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       {attrs, _} = create_backup_codes(user)
       assert length(attrs.backup_codes) == 10
 
+      # Use default value (10) when number_of_backup_codes is nil
+      Application.put_env(:ewallet, :number_of_backup_codes, nil)
+      {attrs, _} = create_backup_codes(user)
+      assert length(attrs.backup_codes) == 10
+
       Application.put_env(:ewallet, :number_of_backup_codes, 10)
       {attrs, _} = create_backup_codes(user)
       assert length(attrs.backup_codes) == 10
@@ -341,7 +370,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       {_, updated_user} = create_secret_code(user)
 
       # Assert auth token
-      assert {:ok} = TwoFactorAuthenticator.enable(updated_user)
+      assert :ok = TwoFactorAuthenticator.enable(updated_user)
 
       # Assert updated user
       updated_user = User.get(user.id)
@@ -372,7 +401,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       user = insert(:user)
       auth_token = insert(:auth_token, user: user, owner_app: "admin_api")
 
-      assert {:ok} = TwoFactorAuthenticator.disable(user)
+      assert :ok = TwoFactorAuthenticator.disable(user)
 
       assert auth_token.token != nil
     end
@@ -381,7 +410,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       user = insert(:user)
       {:ok, _} = AuthToken.generate(user, :admin_api, user)
 
-      assert {:ok} = TwoFactorAuthenticator.disable(user)
+      assert :ok = TwoFactorAuthenticator.disable(user)
 
       updated_user = User.get(user.id)
 
