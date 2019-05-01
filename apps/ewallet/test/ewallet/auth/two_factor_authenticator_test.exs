@@ -48,6 +48,20 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       assert auth_token.token != nil
     end
 
+    test "returns {:error, :invalid_backup_code} if the user reused the backup_code" do
+      user = insert(:user)
+      {[backup_code | _], _, enabled_2fa_user} = create_two_factors_and_enable_2fa(user)
+
+      params = %{"backup_code" => backup_code}
+
+      assert TwoFactorAuthenticator.verify(params, enabled_2fa_user) == :ok
+
+      updated_user = User.get(user.id)
+
+      assert TwoFactorAuthenticator.login(params, :admin_api, updated_user) ==
+               {:error, :invalid_backup_code}
+    end
+
     test "returns {:error, :user_2fa_disabled} if the user has not enabled two-factor authorization" do
       user = insert(:user)
 
@@ -171,6 +185,20 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
                %{"backup_code" => "12345678"},
                updated_user
              ) == {:error, :invalid_backup_code}
+    end
+
+    test "returns {:error, :invalid_backup_code} if the backup_code is reused" do
+      user = insert(:user)
+      {%{backup_codes: [backup_code | _]}, updated_user} = create_backup_codes(user)
+
+      params = %{"backup_code" => backup_code}
+
+      assert TwoFactorAuthenticator.verify(params, updated_user) == :ok
+
+      updated_user = User.get(user.id)
+
+      assert TwoFactorAuthenticator.verify_multiple(params, updated_user) ==
+               {:error, :invalid_backup_code}
     end
 
     test "returns {:error, :invalid_passcode} when the invalid passcode is passed" do
