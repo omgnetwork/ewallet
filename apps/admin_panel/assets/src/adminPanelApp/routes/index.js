@@ -27,6 +27,7 @@ import ActivityLogPage from '../../omg-page-activity-log'
 import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
 import AccountLayout from '../../omg-page-each-account/AccountLayout'
+import VerifyEmail from '../../omg-page-verify-email'
 // prettier-ignore
 
 const createRoute = ({ authenticated }) => (
@@ -38,6 +39,7 @@ const createRoute = ({ authenticated }) => (
       <LoginRoute path='/forget-password' exact component={ForgetPasswordForm} />
       <LoginRoute path='/create-new-password' exact component={CreateNewPasswordForm} />
       <LoginRoute path='/invite' exact component={InviteForm} />
+      <Route path='/verify-email' exact component={VerifyEmail} />
 
       {/* MANAGE */}
       <AuthenticatedRoute authenticated={authenticated} path='/accounts' exact component={AccountPage} />

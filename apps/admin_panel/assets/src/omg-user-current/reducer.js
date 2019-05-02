@@ -8,6 +8,9 @@ export const currentUserReducer = createReducer({}, {
   },
   'CURRENT_USER/UPDATE/SUCCESS': (state, { data }) => {
     return data
+  },
+  'CURRENT_USER_EMAIL/UPDATE/SUCCESS': (state, { data }) => {
+    return data
   }
 })
 

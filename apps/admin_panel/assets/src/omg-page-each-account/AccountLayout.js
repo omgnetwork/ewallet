@@ -48,7 +48,7 @@ function AccountLayout (props) {
   }, [_.get(props, 'account.id')])
 
   return (
-    <div>
+    <>
       <AccountNavgiationBar />
       <BreadContainer>
         <Breadcrumb
@@ -70,9 +70,9 @@ function AccountLayout (props) {
       <Route path='/accounts/:accountId/keys' exact render={() => <AccountKeySubPage />} />
 
       <Route path='/accounts/:accountId/users' exact render={() => <AccountUserSubPage />} />
-      <Route path='/accounts/:accountId/users/:userId' exact render={() => <UserDetailPage />} />
+      <Route path='/accounts/:accountId/users/:userId' exact render={() => <UserDetailPage divider={false} />} />
       <Route path='/accounts/:accountId/admins' exact render={() => <AccountAdminSubPage />} />
-      <Route path='/accounts/:accountId/admins/:adminId' exact render={() => <AdminDetailPage />} />
+      <Route path='/accounts/:accountId/admins/:adminId' exact render={() => <AdminDetailPage divider={false} />} />
       <Route path='/accounts/:accountId/setting' exact render={() => <AccountSettingSubPage />} />
       <Route
         path='/accounts/:accountId/consumptions'
@@ -90,7 +90,7 @@ function AccountLayout (props) {
         render={() => <AccountTransactionRequestSubPage />}
       />
       <Route path='/accounts/:accountId/activity' exact render={() => <AccountActivitySubPage />} />
-    </div>
+    </>
   )
 }
 
