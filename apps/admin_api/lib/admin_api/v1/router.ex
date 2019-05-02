@@ -165,6 +165,9 @@ defmodule AdminAPI.V1.Router do
       :all_for_wallet
     )
 
+    # Blockchain wallet endpoints
+    post("/blockchain_wallet.get_balances", BlockchainBalanceController, :all_for_wallet)
+
     # Admin endpoints
     post("/admin.all", AdminUserController, :all)
     post("/admin.get", AdminUserController, :get)

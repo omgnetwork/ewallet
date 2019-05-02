@@ -36,6 +36,7 @@ defmodule EWallet.Bouncer.DispatchConfig do
     APIKeyTarget,
     GlobalRoleTarget,
     RoleTarget,
+    BlockchainWalletTarget,
 
     # Actors
     UserActor,
@@ -57,7 +58,8 @@ defmodule EWallet.Bouncer.DispatchConfig do
     ExportScope,
     APIKeyScope,
     MintScope,
-    MembershipScope
+    MembershipScope.
+    BlockchainWalletScope
   }
 
   alias EWalletDB.{
@@ -76,7 +78,8 @@ defmodule EWallet.Bouncer.DispatchConfig do
     ExchangePair,
     APIKey,
     GlobalRole,
-    Role
+    Role,
+    BlockchainWallet
   }
 
   alias EWalletConfig.Setting
@@ -95,6 +98,7 @@ defmodule EWallet.Bouncer.DispatchConfig do
     TransactionConsumption => TransactionConsumptionScope,
     User => UserScope,
     Wallet => WalletScope,
+    BlockchainWallet => BlockchainWalletScope,
     Mint => MintScope,
     Token => TokenScope,
     Setting => ConfigurationScope,
@@ -118,6 +122,7 @@ defmodule EWallet.Bouncer.DispatchConfig do
     TransactionConsumption => TransactionConsumptionTarget,
     User => UserTarget,
     Wallet => WalletTarget,
+    BlockchainWallet => BlockchainWalletTarget,
     Export => ExportTarget,
     Mint => MintTarget,
     Token => TokenTarget,
