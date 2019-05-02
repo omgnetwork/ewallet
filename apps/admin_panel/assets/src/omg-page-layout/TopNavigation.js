@@ -61,7 +61,7 @@ const RightNavigationContainer = styled.div`
     margin-top: 10px;
   }
 `
-const SecondaryActionsContainer = styled.div`
+const SearchBarContainer = styled.div`
   vertical-align: bottom;
   display: inline-block;
 `
@@ -70,20 +70,20 @@ export default class TopNavigation extends PureComponent {
   static propTypes = {
     buttons: PropTypes.array,
     title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-    secondaryAction: PropTypes.bool,
+    searchBar: PropTypes.bool,
     normalPlaceholder: PropTypes.string,
     description: PropTypes.string,
     divider: PropTypes.bool
   }
   static defaultProps = {
-    secondaryAction: true,
+    searchBar: true,
     divider: true
   }
-  renderSecondaryActions () {
+  renderSearchBar () {
     return (
-      <SecondaryActionsContainer>
+      <SearchBarContainer>
         <SearchGroup debounced={500} normalPlaceholder={this.props.normalPlaceholder} />
-      </SecondaryActionsContainer>
+      </SearchBarContainer>
     )
   }
   render () {
@@ -94,7 +94,7 @@ export default class TopNavigation extends PureComponent {
           {this.props.description && <p>{this.props.description}</p>}
         </LeftNavigationContainer>
         <RightNavigationContainer>
-          {this.props.secondaryAction && this.renderSecondaryActions()}
+          {this.props.searchBar && this.renderSearchBar()}
           {this.props.buttons}
         </RightNavigationContainer>
       </TopNavigationContainer>

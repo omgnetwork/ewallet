@@ -68,7 +68,7 @@ class WalletDetaillPage extends Component {
   renderTopBar = wallet => {
     return (
       <TopNavigation
-        secondaryAction={false}
+        searchBar={false}
         divider={this.props.divider}
         title={wallet.name}
         buttons={[

@@ -125,7 +125,7 @@ export default withRouter(
       const accountId = this.props.match.params.accountId
       return (
         <div>
-          <TopNavigation divider={this.props.divider} title='Dashboard' types={false} secondaryAction={false} />
+          <TopNavigation divider={this.props.divider} title='Dashboard' types={false} searchBar={false} />
           <SectionsContainer>
             <CurrentAccountProvider render={this.renderCurrentAccountSection} />
             <SectionContainer>

@@ -324,7 +324,7 @@ class AccountSettingPage extends Component {
           <TopNavigation
             divider={this.props.divider}
             title={`Edit ${this.state.name}`}
-            secondaryAction={false}
+            searchBar={false}
             types={false}
           />
           {this.renderAccountSettingTab()}

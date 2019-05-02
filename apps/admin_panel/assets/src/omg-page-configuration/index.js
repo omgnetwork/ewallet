@@ -591,7 +591,7 @@ class ConfigurationPage extends Component {
           divider={this.props.divider}
           title={'Configuration'}
           buttons={[this.renderSaveButton()]}
-          secondaryAction={false}
+          searchBar={false}
           types={false}
         />
         {!_.isEmpty(this.props.configurations) ? (

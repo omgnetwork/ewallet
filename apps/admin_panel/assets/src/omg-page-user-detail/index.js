@@ -51,7 +51,7 @@ class TokenDetailPage extends Component {
         divider={this.props.divider}
         title={user.email || user.provider_user_id}
         breadcrumbItems={['User', user.id]}
-        secondaryAction={false}
+        searchBar={false}
       />
     )
   }

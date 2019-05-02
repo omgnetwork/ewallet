@@ -163,7 +163,7 @@ class UserSettingPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'My Profile'}
-          secondaryAction={false}
+          searchBar={false}
         />
         {this.props.loadingStatus === 'SUCCESS' && (
           <form onSubmit={this.onClickUpdateAccount} noValidate>

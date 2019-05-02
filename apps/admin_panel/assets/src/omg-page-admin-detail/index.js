@@ -42,7 +42,7 @@ class TokenDetailPage extends Component {
       <TopNavigation
         divider={this.props.divider}
         title={admin.email}
-        secondaryAction={false}
+        searchBar={false}
       />
     )
   }

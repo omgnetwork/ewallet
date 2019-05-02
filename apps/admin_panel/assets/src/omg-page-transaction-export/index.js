@@ -407,7 +407,7 @@ class TransactionExportPage extends Component {
                     </TitleContainer>
                   }
                   buttons={[this.renderExportButton(fetch)]}
-                  secondaryAction={false}
+                  searchBar={false}
                 />
                 <TableContainer>
                   <SortableTable

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Breadcrumb } from '../omg-uikit'
+import { Breadcrumb, Icon, Button } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 
 const ApiKeyDetailPageStyles = styled.div`
@@ -12,6 +12,11 @@ const BreadContainer = styled.div`
   padding: 20px 0 0 0;
   color: ${props => props.theme.colors.B100};
   font-size: 12px;
+`
+const TitleContainer = styled.div`
+  span {
+    margin-left: 10px;
+  }
 `
 
 const ApiKeyDetailPage = ({ match: { params } }) => {
@@ -30,12 +35,20 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
       <TopNavigation
         title={
           <TitleContainer>
-            <Icon name='Arrow-Left' onClick={this.props.history.goBack} /> Export
-            {keyDetail}
+            <Icon name='Key' />
+            <span>{keyDetail}</span>
           </TitleContainer>
         }
-        secondaryAction={false}
+        searchBar={false}
         divider={false}
+        buttons={[
+          <Button
+            key='edit'
+            styleType='secondary'
+          >
+            Edit
+          </Button>
+        ]}
       />
     </ApiKeyDetailPageStyles>
   )
