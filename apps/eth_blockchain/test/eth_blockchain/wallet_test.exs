@@ -14,50 +14,32 @@
 
 defmodule EthBlockchain.WalletTest do
   use ExUnit.Case
-  alias EthBlockchain.{Backend, Wallet}
-  alias Ecto.UUID
+  alias Ecto.Adapters.SQL.Sandbox
+  alias EthBlockchain.Wallet
+  alias Keychain.{Repo, Key}
 
-  defmodule DumbBackend do
-    def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
-    def init(:ok), do: {:ok, nil}
-    def stop(pid), do: GenServer.stop(pid)
+  setup tags do
+    :ok = Sandbox.checkout(Repo)
 
-    def handle_call(:generate_wallet, _from, reg) do
-      {:reply, {:ok, "wallet_id", "public_key"}, reg}
+    unless tags[:async] do
+      Sandbox.mode(Repo, {:shared, self()})
     end
   end
 
-  setup do
-    supervisor = String.to_atom("#{UUID.generate()}")
+  describe "generate/1" do
+    test "generates a ECDH keypair and wallet id" do
+      assert Repo.aggregate(Key, :count, :wallet_id) == 0
+      {:ok, wallet_id, public_key} = Wallet.generate()
+      {:ok, _, _} = Wallet.generate()
+      {:ok, _, _} = Wallet.generate()
+      {:ok, _, _} = Wallet.generate()
+      assert Repo.aggregate(Key, :count, :wallet_id) == 4
 
-    {:ok, _} =
-      DynamicSupervisor.start_link(
-        name: supervisor,
-        strategy: :one_for_one
-      )
+      assert is_binary(wallet_id)
+      assert byte_size(wallet_id) == 66
 
-    {:ok, pid} =
-      Backend.start_link(
-        supervisor: supervisor,
-        backends: [
-          {:dumb, DumbBackend}
-        ]
-      )
-
-    %{pid: pid}
-  end
-
-  describe "generate_wallet/1" do
-    test "generates a wallet with the given backend spec", state do
-      resp1 = Wallet.generate_wallet(:dumb, state[:pid])
-      assert {:ok, "wallet_id", "public_key"} == resp1
-
-      resp2 = Wallet.generate_wallet({:dumb, "foo"}, state[:pid])
-      assert {:ok, "wallet_id", "public_key"} == resp2
-    end
-
-    test "returns an error if no such backend is registered", state do
-      assert {:error, :no_handler} == Wallet.generate_wallet(:blah, state[:pid])
+      assert is_binary(public_key)
+      assert byte_size(public_key) == 130
     end
   end
 end

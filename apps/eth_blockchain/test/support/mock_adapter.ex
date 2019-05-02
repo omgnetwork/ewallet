@@ -12,5 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ExUnit.start()
-Ecto.Adapters.SQL.Sandbox.mode(Keychain.Repo, :manual)
+defmodule EthBlockchain.MockAdapter do
+  def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
+  def init(:ok), do: {:ok, nil}
+  def stop(pid), do: GenServer.stop(pid)
+
+  def handle_call({:get_balances, _address, contract_addresses, _block}, _from, reg) do
+    balances = Map.new(contract_addresses, fn ca -> {ca, 123} end)
+    {:reply, {:ok, balances}, reg}
+  end
+end

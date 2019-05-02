@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthBlockchain.Backend do
+defmodule EthBlockchain.Adapter do
   @moduledoc false
 
   @typep server :: GenServer.server()
   @typep from :: GenServer.from()
   @typep state :: {atom(), map()}
 
-  @typep backend :: EthBlockchain.backend()
+  @typep adapter :: EthBlockchain.adapter()
   @typep call :: EthBlockchain.call()
   @typep mfargs :: {module(), atom(), [term()]}
 
@@ -33,14 +33,14 @@ defmodule EthBlockchain.Backend do
   require Logger
 
   @doc """
-  Starts EthBlockchain.Backend.
+  Starts EthBlockchain.Adapter.
   """
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
-    :ok = Logger.info("Running EthBlockchain Backend supervisor.")
+    :ok = Logger.info("Running EthBlockchain Adapter supervisor.")
 
     {supervisor, opts} = Keyword.pop(opts, :supervisor)
-    {backends, opts} = Keyword.pop(opts, :backends, [])
+    {adapters, opts} = Keyword.pop(opts, :adapters, [])
     {named, opts} = Keyword.pop(opts, :named, false)
 
     opts =
@@ -52,65 +52,65 @@ defmodule EthBlockchain.Backend do
           opts
       end
 
-    GenServer.start_link(__MODULE__, {supervisor, backends}, opts)
+    GenServer.start_link(__MODULE__, {supervisor, adapters}, opts)
   end
 
   @doc """
   Initialize the registry.
   """
   @spec init({atom(), list()}) :: {:ok, state()}
-  def init({supervisor, backends}) do
+  def init({supervisor, adapters}) do
     handlers =
-      Enum.into(backends, %{}, fn {backend, mod} ->
-        {backend, normalize_backend_mod(mod)}
+      Enum.into(adapters, %{}, fn {adapter, mod} ->
+        {adapter, normalize_adapter_mod(mod)}
       end)
 
     {:ok, {supervisor, handlers}}
   end
 
   @doc """
-  Stops EthBlockchain.Backend.
+  Stops EthBlockchain.Adapter.
   """
   @spec stop(server()) :: :ok
   def stop(pid \\ __MODULE__) do
-    :ok = Logger.info("Stopping EthBlockchain Backend supervisor")
+    :ok = Logger.info("Stopping EthBlockchain Adapter supervisor")
     GenServer.stop(pid)
   end
 
   ## Utilities
   ##
 
-  @spec backend_name(backend()) :: atom()
-  defp backend_name({backend, wallet_id}) do
+  @spec adapter_name(adapter()) :: atom()
+  defp adapter_name({adapter, wallet_id}) do
     case wallet_id do
       nil ->
-        String.to_atom("backend-#{backend}")
+        String.to_atom("adapter-#{adapter}")
 
       n ->
-        String.to_atom("backend-#{backend}-#{n}")
+        String.to_atom("adapter-#{adapter}-#{n}")
     end
   end
 
-  @spec normalize_backend_mod(module() | mfargs()) :: mfargs()
-  defp normalize_backend_mod(module) when is_atom(module) do
+  @spec normalize_adapter_mod(module() | mfargs()) :: mfargs()
+  defp normalize_adapter_mod(module) when is_atom(module) do
     {module, :start_link, []}
   end
 
-  defp normalize_backend_mod({module, func, args}) do
+  defp normalize_adapter_mod({module, func, args}) do
     {module, func, args}
   end
 
-  @spec ensure_backend_started(atom() | backend(), state()) :: resp({:ok, server()})
-  defp ensure_backend_started(backend, state) when is_atom(backend) do
-    ensure_backend_started({backend, nil}, state)
+  @spec ensure_adapter_started(atom() | adapter(), state()) :: resp({:ok, server()})
+  defp ensure_adapter_started(adapter, state) when is_atom(adapter) do
+    ensure_adapter_started({adapter, nil}, state)
   end
 
-  defp ensure_backend_started({backend, _id} = backend_spec, {supervisor, handlers}) do
+  defp ensure_adapter_started({adapter, _id} = adapter_spec, {supervisor, handlers}) do
     case handlers do
-      %{^backend => mfargs} ->
+      %{^adapter => mfargs} ->
         retval =
           DynamicSupervisor.start_child(supervisor, %{
-            id: backend_name(backend_spec),
+            id: adapter_name(adapter_spec),
             start: mfargs,
             restart: :temporary
           })
@@ -120,7 +120,7 @@ defmodule EthBlockchain.Backend do
             {:ok, pid}
 
           error ->
-            :ok = Logger.error("Failed to start backend for #{backend}: #{inspect(error)}")
+            :ok = Logger.error("Failed to start adapter for #{adapter}: #{inspect(error)}")
             {:error, :start_failed}
         end
 
@@ -135,9 +135,9 @@ defmodule EthBlockchain.Backend do
   @doc """
   Handles the call call from the client API call/4.
   """
-  @spec handle_call({:call, backend(), call()}, from(), state()) :: reply({:ok, any()})
-  def handle_call({:call, backend_spec, func_spec}, _from, state) do
-    case ensure_backend_started(backend_spec, state) do
+  @spec handle_call({:call, adapter(), call()}, from(), state()) :: reply({:ok, any()})
+  def handle_call({:call, adapter_spec, func_spec}, _from, state) do
+    case ensure_adapter_started(adapter_spec, state) do
       {:ok, pid} ->
         try do
           {:reply, {:ok, GenServer.call(pid, func_spec)}, state}
@@ -154,17 +154,17 @@ defmodule EthBlockchain.Backend do
   ##
 
   @doc """
-  Pass a tuple of `{function, arglist}` to the appropriate backend.
+  Pass a tuple of `{function, arglist}` to the appropriate adapter.
 
   Returns `{:ok, response}` if the request was successful or
   `{:error, error_code}` in case of failure.
   """
-  @spec call(atom() | backend(), call()) :: resp({:ok, any()})
-  @spec call(atom() | backend(), call(), server()) :: resp({:ok, any()})
-  def call(backend_spec, func_spec, pid \\ __MODULE__)
+  @spec call(atom() | adapter(), call()) :: resp({:ok, any()})
+  @spec call(atom() | adapter(), call(), server()) :: resp({:ok, any()})
+  def call(adapter_spec, func_spec, pid \\ __MODULE__)
 
-  def call(backend_spec, func_spec, pid) do
-    case GenServer.call(pid, {:call, backend_spec, func_spec}) do
+  def call(adapter_spec, func_spec, pid) do
+    case GenServer.call(pid, {:call, adapter_spec, func_spec}) do
       {:ok, resp} ->
         resp
 

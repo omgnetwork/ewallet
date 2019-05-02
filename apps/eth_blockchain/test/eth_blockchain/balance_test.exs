@@ -12,15 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Adapter do
-  @moduledoc false
+defmodule EthBlockchain.BalanceTest do
+  use EthBlockchain.EthBlockchainCase, async: true
 
-  alias Ethereumex.HttpClient, as: Client
-  alias EthGethAdapter.Balance
+  alias EthBlockchain.Balance
 
-  def web3_client_version do
-    Client.web3_client_version()
+  describe "get/1" do
+    test "get wallet balances with the given adapter spec", state do
+      resp = Balance.get({"0x123", ["0x01", "0x02", "0x03"]}, :mock, state[:pid])
+      assert resp == {:ok, %{"0x01" => 123, "0x02" => 123, "0x03" => 123}}
+    end
+
+    test "returns an error if no such adapter is registered", state do
+      assert {:error, :no_handler} == Balance.get({"0x123", ["0x01", "0x02"]}, :blah, state[:pid])
+    end
   end
-
-  defdelegate get_balances(address, contract_address, block \\ "latest"), to: Balance, as: :get
 end

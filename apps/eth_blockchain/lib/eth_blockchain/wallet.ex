@@ -15,28 +15,36 @@
 defmodule EthBlockchain.Wallet do
   @moduledoc false
 
-  alias EthBlockchain.Backend
+  alias Keychain.Key
+  alias ExthCrypto.ECIES.ECDH
+  alias ExthCrypto.Hash.Keccak
 
   @typep address :: EthBlockchain.address()
   @typep resp(ret) :: ret | {:error, atom()}
 
   @doc """
   Generates a new wallet address for the given blockchain adapter and return
-  a wallet ID for futher access. The blockchain adapter will responsible
-  for managing the wallet key and blockchain operations.
+  a wallet ID for futher access.
 
-  Returns a tuple of `{:ok, {backend, wallet_id, public_key}}` in case of
-  a successful wallet generation otherwise returns `{:error, error_code}`.
+  Returns a tuple of `{:ok, {adapter, wallet_id, public_key}}`.
   """
-  @spec generate_wallet(atom(), pid() | nil) :: resp({:ok, address()})
-  @spec generate_wallet(atom()) :: resp({:ok, address()})
-  def generate_wallet(backend, pid \\ nil) do
-    case pid do
-      nil ->
-        Backend.call(backend, :generate_wallet)
+  @spec generate() :: resp({:ok, address()})
+  def generate() do
+    {public_key, private_key} = ECDH.new_ecdh_keypair()
 
-      p when is_pid(p) ->
-        Backend.call(backend, :generate_wallet, p)
-    end
+    <<_::binary-size(45), public_key_last20::binary-size(20)>> = public_key
+
+    public_key_encoded = Base.encode16(public_key, case: :lower)
+    private_key_encoded = Base.encode16(private_key, case: :lower)
+
+    account_encoded =
+      public_key_last20
+      |> Keccak.kec()
+      |> Base.encode16(case: :lower)
+
+    wallet_id = "0x#{account_encoded}"
+
+    {:ok, _} = Key.insert_private_key(wallet_id, private_key_encoded)
+    {:ok, wallet_id, public_key_encoded}
   end
 end

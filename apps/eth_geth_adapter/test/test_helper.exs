@@ -13,4 +13,3 @@
 # limitations under the License.
 
 ExUnit.start()
-Ecto.Adapters.SQL.Sandbox.mode(Keychain.Repo, :manual)

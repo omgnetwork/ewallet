@@ -20,6 +20,25 @@ defmodule EthGethAdapter.Balance do
 
   import EthGethAdapter.Encoding
 
+  @doc """
+  Retrieve the balance of all given `contract_addresses` for the provided wallet `address`.
+  The contract address `0x0000000000000000000000000000000000000000` is handled as
+  the ethereum token and so the ethereum balance will be retrieved.
+  Any other given contract address will have their balance retrived on the corresponding
+  smart contract.
+
+  Returns a tuple of
+  ```
+  {
+    :ok,
+    %{
+      "contract_address_1" => integer_balance_1,
+      "contract_address_2" => integer_balance_2
+    }
+  }
+  ```
+  if successful or {:error, error_code} if failed.
+  """
   def get(address, contract_address, block \\ "latest")
 
   def get(address, contract_addresses, block) when is_list(contract_addresses) do

@@ -1,7 +1,7 @@
 use Mix.Config
 
 config :eth_blockchain,
-       EthBlockchain.Backend,
-       backends: [
-         {:eth, EthGethAdapter.Worker}
+       EthBlockchain.Adapter,
+       adapters: [
+         {:geth, EthGethAdapter.Worker}
        ]
