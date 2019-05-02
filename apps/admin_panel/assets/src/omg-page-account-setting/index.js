@@ -249,14 +249,12 @@ class AccountSettingPage extends Component {
   get shouldSave () {
     const propsCategoryId = _.get(this.props.currentAccount, 'categories.data[0].id')
     const stateCategoryId = _.get(this.state.categorySelect, 'id')
-    const sameCategory = propsCategoryId && propsCategoryId === stateCategoryId
+    const sameCategory = propsCategoryId && (propsCategoryId === stateCategoryId)
 
     return this.props.currentAccount.name !== this.state.name ||
       this.props.currentAccount.description !== this.state.description ||
-      this.state.image ||
-      (this.state.categorySelect && !this.state.categorySearch.length) ||
-      !sameCategory ||
-      this.state.categoryTouched
+      (this.state.categoryTouched && !sameCategory) ||
+      this.state.image
   }
   renderAccountSettingTab = () => (
     <ProfileSection>

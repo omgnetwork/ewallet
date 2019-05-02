@@ -74,6 +74,8 @@ const SearchItem = styled.div`
   }
 `
 const BottomBar = styled.div`
+  display: flex;
+  justify-content: center;
   background-color: white;
   text-align: center;
   padding: 20px 25px;
@@ -82,6 +84,14 @@ const BottomBar = styled.div`
   a {
     vertical-align: middle;
     margin-left: 5px;
+  }
+  button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    i {
+      margin-right: 5px;
+    }
   }
 `
 const CreateNewGroupActionContainer = styled.form``
