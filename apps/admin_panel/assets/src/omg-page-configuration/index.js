@@ -43,7 +43,7 @@ const InputPrefixContainer = styled.div`
   i {
     position: absolute;
     right: -20px;
-    top: 0;
+    top: 4px;
     visibility: ${props => (props.hide ? 'hidden' : 'visible')};
     opacity: 0;
     font-size: 8px;
@@ -64,10 +64,10 @@ const InputsPrefixContainer = styled.div`
 `
 
 const PrefixContainer = styled.div`
-  text-align: right;
+  text-align: left;
   a {
     display: block;
-    margin-top: 5px;
+    margin-top: 20px;
     color: ${props => (props.active ? props.theme.colors.BL400 : props.theme.colors.S500)};
   }
 `
@@ -102,7 +102,7 @@ class ConfigurationPage extends Component {
 
   static getDerivedStateFromProps (props, state) {
     if (!state.fetched && props.configurationLoadingStatus === CONSTANT.LOADING_STATUS.SUCCESS) {
-      return {
+      const derivedState = {
         baseUrl: props.configurations.base_url.value,
         redirectUrlPrefixes: props.configurations.redirect_url_prefixes.value,
         enableStandalone: props.configurations.enable_standalone.value,
@@ -127,13 +127,26 @@ class ConfigurationPage extends Component {
         fetched: true,
         masterAccount: props.configurations.master_account.value
       }
+      return {
+        originalState: derivedState,
+        ...derivedState
+      }
     } else {
       return null
     }
   }
 
   state = {
+    originalState: null,
     submitStatus: CONSTANT.LOADING_STATUS.DEFAULT
+  }
+
+  handleCancelClick = () => {
+    this.setState(oldState => ({
+      originalState: oldState.originalState,
+      submitStatus: CONSTANT.LOADING_STATUS.DEFAULT,
+      ...oldState.originalState
+    }))
   }
 
   resetGcsState () {
@@ -292,16 +305,31 @@ class ConfigurationPage extends Component {
       })
     }
   }
+
+  renderCancelButton = () => {
+    return (
+      <Button
+        size='small'
+        onClick={this.handleCancelClick}
+        key='cancel'
+        styleType='secondary'
+        disabled={this.isSendButtonDisabled}
+      >
+        <span>Cancel</span>
+      </Button>
+    )
+  }
+
   renderSaveButton = () => {
     return (
       <Button
         size='small'
         onClick={this.onClickSaveConfiguration}
-        key={'save'}
+        key='save'
         loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}
         disabled={this.isSendButtonDisabled}
       >
-        <span>Save Configuration</span>
+        <span>Save</span>
       </Button>
     )
   }
@@ -478,7 +506,7 @@ class ConfigurationPage extends Component {
                     </InputPrefixContainer>
                   ))}
                   <PrefixContainer active={!this.isAddPrefixButtonDisabled()}>
-                    <a onClick={this.onClickAddPrefix}>Add Prefix</a>
+                    <a onClick={this.onClickAddPrefix}>+ Add Prefix</a>
                   </PrefixContainer>
                 </InputsPrefixContainer>
               )
@@ -500,6 +528,7 @@ class ConfigurationPage extends Component {
           onChange={this.onChangeInput('maxPerPage')}
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
+          suffix='Items'
         />
         <ConfigRow
           name={'Minimum Password Length'}
@@ -509,6 +538,7 @@ class ConfigurationPage extends Component {
           onChange={this.onChangeInput('minPasswordLength')}
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
+          suffix='Characters'
         />
         <ConfigRow
           name={'Forget Password Request Lifetime'}
@@ -518,6 +548,7 @@ class ConfigurationPage extends Component {
           onChange={this.onChangeInput('forgetPasswordRequestLifetime')}
           inputValidator={value => Number(value) >= 1}
           inputErrorMessage='invalid number'
+          suffix='Mins'
         />
       </Fragment>
     )
@@ -590,7 +621,10 @@ class ConfigurationPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Configuration'}
-          buttons={[this.renderSaveButton()]}
+          buttons={[
+            this.renderCancelButton(),
+            this.renderSaveButton()
+          ]}
           secondaryAction={false}
           types={false}
         />

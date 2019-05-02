@@ -119,7 +119,7 @@ class TransactionRequestsPage extends Component {
   renderCreateTransactionRequestButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateRequest} key={'create'}>
-        <Icon name='Plus' /> <span>Create Request</span>
+        <Icon name='Plus' /><span>Create Request</span>
       </Button>
     )
   }
@@ -158,6 +158,9 @@ class TransactionRequestsPage extends Component {
     )
   }
   rowRenderer = (key, data, rows) => {
+    if (key === 'status') {
+      return _.upperFirst(data)
+    }
     if (key === 'require_confirmation') {
       return data ? 'Yes' : 'No'
     }

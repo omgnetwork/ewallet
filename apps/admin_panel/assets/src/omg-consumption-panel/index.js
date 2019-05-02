@@ -183,13 +183,13 @@ class TransactionRequestPanel extends Component {
                 {consumption.status === 'pending' && (
                   <InformationItem>
                     <Button onClick={() => this.props.approveConsumptionById(consumption.id)}>
-                      Approve
+                      <span>Approve</span>
                     </Button>
                     <Button
                       onClick={() => this.props.rejectConsumptionById(consumption.id)}
                       styleType='secondary'
                     >
-                      Reject
+                      <span>Reject</span>
                     </Button>
                   </InformationItem>
                 )}

@@ -1,14 +1,17 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+
+import { Icon } from '..'
 import { formatNumber } from '../../utils/formatter'
+
 const Container = styled.div`
   position: relative;
   width: 100%;
 `
 const InnerContainer = styled.div`
   position: relative;
-  display: inline-block;
+  display: flex;
   width: 100%;
 `
 
@@ -17,8 +20,7 @@ const Placeholder = styled.span`
   pointer-events: none;
   left: 0;
   bottom: 0;
-  padding-bottom: 5px;
-  font-size: 14px;
+  padding-bottom: 10px;
   border-bottom: 1px solid transparent;
   color: ${props => props.theme.colors.B100};
   transition: 0.2s ease all;
@@ -26,25 +28,38 @@ const Placeholder = styled.span`
 `
 
 const Input = styled.input`
+  flex: 1 1 0;
   width: 100%;
   border: none;
   color: ${props => props.theme.colors.B300};
-  padding-bottom: 3px;
+  padding: 8px 0px;
   background-color: transparent;
   line-height: 1;
-  border-bottom: 1px solid
-    ${props => (props.error ? props.theme.colors.R400 : props.theme.colors.S400)};
+  border-bottom: 1px solid ${props =>
+    props.error
+      ? props.theme.colors.R400
+      : props.disabled
+        ? 'transparent'
+        : props.theme.colors.S400};
   :disabled {
     background-color: transparent;
-    color: ${props => props.theme.colors.S400};
+    color: ${props => props.theme.colors.B300};
   }
   ::placeholder {
     color: ${props => props.theme.colors.S400};
+    font-size: 12px;
   }
   :focus {
     border-bottom: 1px solid
       ${props => (props.error ? props.theme.colors.R400 : props.theme.colors.BL400)};
   }
+
+  ::-webkit-inner-spin-button,
+  ::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
   :-webkit-autofill {
     content: 'AUTO_FILL_HACK';
     animation-name: onAutoFillStart;
@@ -81,12 +96,27 @@ const Success = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity,
     0.3s ease padding ${props => (!props.success ? '0.3s' : '0s')};
 `
+const Prefix = styled.div`
+  display: flex;
+  align-items: center;
+  padding-right: 7px;
+  border-bottom: 1px solid
+    ${props => props.error
+    ? props.theme.colors.R400
+    : props.active
+      ? props.theme.colors.BL400
+      : props.theme.colors.S400};
+  i {
+    color: ${props => props.theme.colors.BL400}
+  }
+`
 const Suffix = styled.div`
   position: absolute;
   right: 0;
   bottom: 0;
   padding-right: 8px;
-  padding-bottom: 5px;
+  padding-bottom: 8px;
+  font-size: 12px;
   transition: 0.2s ease all;
   border-bottom: 1px solid transparent;
   color: ${props => props.theme.colors.B100};
@@ -111,7 +141,9 @@ class InputComponent extends PureComponent {
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.any]),
     type: PropTypes.string,
     validator: PropTypes.func,
-    allowNegative: PropTypes.bool
+    allowNegative: PropTypes.bool,
+    inputActive: PropTypes.bool,
+    icon: PropTypes.string
   }
   static defaultProps = {
     onFocus: () => {},
@@ -159,7 +191,7 @@ class InputComponent extends PureComponent {
   registerInput = input => (this.input = input)
 
   isInputActive = () => {
-    return this.props.value || this.state.active
+    return this.props.inputActive || this.props.value || this.state.active
   }
   onChange = e => {
     if (this.props.type === 'amount') {
@@ -171,11 +203,19 @@ class InputComponent extends PureComponent {
   }
   render () {
     // eslint-disable-next-line no-unused-vars
-    const { className, placeholder, onPressEscape, onPressEnter, autofocus, ...rest } = this.props
+    const { className, placeholder, onPressEscape, onPressEnter, autofocus, icon, ...rest } = this.props
 
     return (
       <Container className={className}>
         <InnerContainer>
+          {icon && (
+            <Prefix
+              active={this.state.active}
+              error={this.props.validator ? !this.props.validator(this.props.value) : this.props.error}
+            >
+              <Icon name={icon} />
+            </Prefix>
+          )}
           <Input
             {...rest}
             onKeyPress={this.handleKeyPress}

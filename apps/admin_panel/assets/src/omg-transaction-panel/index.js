@@ -58,6 +58,7 @@ const TransactionInfoContainer = styled.div`
     background-color: ${props => props.theme.colors.S300};
     display: inline-block;
     padding: 5px 10px;
+    border-radius: 2px;
   }
 `
 const enhance = compose(withRouter)

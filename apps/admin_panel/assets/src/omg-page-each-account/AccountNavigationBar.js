@@ -1,11 +1,13 @@
 import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
 import { NavLink, withRouter } from 'react-router-dom'
+import styled from 'styled-components'
+import { compose } from 'recompose'
+
 import { Avatar } from '../omg-uikit'
 import AccountProvider from '../omg-account/accountProvider'
-import styled from 'styled-components'
 import WalletDropdownChooser from './WalletDropdownChooser'
-import { compose } from 'recompose'
+
 const LinksContainer = styled.div`
   display: flex;
   overflow: auto;
@@ -14,15 +16,20 @@ const LinksContainer = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+  .wallet-dropdown,
   a {
     display: block;
+    cursor: pointer;
     padding: 0 10px;
-    color: ${props => props.theme.colors.S500};
+    color: ${props => props.theme.colors.B100};
     div.account-link-text {
+      transition: border-bottom 300ms ease-in-out;
       border-bottom: 2px solid transparent;
       padding: 30px 0;
     }
   }
+
+  .wallet-dropdown div .navlink-active,
   a.navlink-active {
     color: ${props => props.theme.colors.B400};
     div.account-link-text {
@@ -82,7 +89,9 @@ function AccountNavigationBar (props) {
         <NavLink to={`/accounts/${accountId}/details`} activeClassName='navlink-active'>
           <div className='account-link-text'>Details</div>
         </NavLink>
-        <WalletDropdownChooser {...props} />
+        <div className='wallet-dropdown'>
+          <WalletDropdownChooser {...props} />
+        </div>
         <NavLink
           to={`/accounts/${accountId}/transactions`}
           activeClassName='navlink-active'

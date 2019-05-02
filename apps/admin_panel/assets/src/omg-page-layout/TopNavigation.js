@@ -41,6 +41,9 @@ const TopNavigationContainer = styled.div`
 `
 const LeftNavigationContainer = styled.div`
   flex: 1 1 auto;
+  p {
+    padding-top: 5px;
+  }
 `
 const RightNavigationContainer = styled.div`
   white-space: nowrap;

@@ -2,22 +2,25 @@ import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
+import { compose } from 'recompose'
+import moment from 'moment'
+import queryString from 'query-string'
+import { connect } from 'react-redux'
+
+import TokensFetcher from '../omg-token/tokensFetcher'
 import TokenProvider from '../omg-token/TokenProvider'
 import ExchangePairsProvider from '../omg-exchange-pair/exchangePairProvider'
-import { compose } from 'recompose'
-import { Button } from '../omg-uikit'
+import { Button, Breadcrumb } from '../omg-uikit'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
-import moment from 'moment'
 import MintTokenModal from '../omg-mint-token-modal'
 import ExchangeRateModal from '../omg-exchange-rate-modal'
 import HistoryTable from './HistoryTable'
 import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
 import { getMintedTokenHistory } from '../omg-token/action'
 import { createCacheKey } from '../utils/createFetcher'
-import queryString from 'query-string'
-import { connect } from 'react-redux'
 import Copy from '../omg-copy'
+
 const TokenDetailContainer = styled.div`
   padding-bottom: 20px;
 `
@@ -46,6 +49,10 @@ const ActionButtons = styled.div`
     color: ${props => props.theme.colors.BL300};
     padding-left: 20px;
   }
+`
+
+const BreadcrumbContainer = styled.div`
+  margin-top: 30px;
 `
 
 const enhance = compose(
@@ -109,34 +116,60 @@ class TokenDetailPage extends Component {
       exchangeRateToDelete: pair
     })
   }
+
+  renderCreateExchangePairButton = () => {
+    return (
+      <TokensFetcher
+        key='create-exchange-pair-button'
+        render={({ data: tokens }) => {
+          if (tokens.length > 1) {
+            return (
+              <Button
+                key='rate'
+                size='small'
+                styleType='secondary'
+                onClick={this.onClickCreateExchangeRate}
+              >
+                <span>Create Exchange Pair</span>
+              </Button>
+            )
+          }
+          return null
+        }}
+      />
+    )
+  }
+
   renderTopBar = token => {
     return (
-      <TopBar
-        title={token.name}
-        breadcrumbItems={['Token', `${token.name} (${token.symbol})`]}
-        buttons={[
-          <Button
-            key='rate'
-            size='small'
-            styleType='secondary'
-            onClick={this.onClickCreateExchangeRate}
-          >
-            <span>Create Exchange Pair</span>
-          </Button>,
-          <Button
-            key='mint'
-            size='small'
-            onClick={this.onClickMintTopen}
-          >
-            <span>Mint Token</span>
-          </Button>
-        ]}
-      />
+      <>
+        <BreadcrumbContainer>
+          <Breadcrumb
+            items={[
+              <Link key='token' to={'/tokens/'}>Token</Link>,
+              token.name
+            ]}
+          />
+        </BreadcrumbContainer>
+        <TopBar
+          title={token.name}
+          buttons={[
+            this.renderCreateExchangePairButton(),
+            <Button
+              key='mint'
+              size='small'
+              onClick={this.onClickMintTopen}
+            >
+              <span>Mint Token</span>
+            </Button>
+          ]}
+        />
+      </>
     )
   }
   renderDetail = token => {
     return (
-      <Section title='DETAILS'>
+      <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
           <b>ID:</b> <span>{token.id}</span> <Copy data={token.id} />
         </DetailGroup>
@@ -175,6 +208,7 @@ class TokenDetailPage extends Component {
   renderTokenDetail = () => {
     return (
       <TokenProvider
+        tokenId={this.props.match.params.viewTokenId}
         render={({ token }) => {
           return token ? (
             <div>
@@ -215,7 +249,6 @@ class TokenDetailPage extends Component {
             </div>
           ) : null
         }}
-        tokenId={this.props.match.params.viewTokenId}
       />
     )
   }
@@ -226,26 +259,28 @@ class TokenDetailPage extends Component {
         render={({ exchangePairs }) => {
           return exchangePairs.length ? (
             <DetailContainer>
-              <Section title={'RATES'}>
-                <h5>1 {token.name} :</h5>
-                {exchangePairs.map(pair => {
-                  return (
-                    <DetailGroup key={pair.id}>
-                      <b>{_.get(pair, 'to_token.name')}</b>
-                      <span>
-                        {pair.rate} {_.get(pair, 'to_token.symbol')}
-                      </span>
-                      <ActionButtons>
-                        <div className='button' onClick={() => this.editExchangePair(pair)}>
-                          Edit
-                        </div>
-                        <div className='button' onClick={() => this.deleteExchangePair(pair)}>
-                          Delete
-                        </div>
-                      </ActionButtons>
-                    </DetailGroup>
-                  )
-                })}
+              <Section title={{ text: 'Rates', icon: 'Token' }}>
+                <DetailGroup>
+                  <h5>1 {token.name} :</h5>
+                  {exchangePairs.map(pair => {
+                    return (
+                      <DetailGroup key={pair.id}>
+                        <b>{_.get(pair, 'to_token.name')}</b>
+                        <span>
+                          {_.round(pair.rate, 3)} {_.get(pair, 'to_token.symbol')}
+                        </span>
+                        <ActionButtons>
+                          <div className='button' onClick={() => this.editExchangePair(pair)}>
+                            Edit
+                          </div>
+                          <div className='button' onClick={() => this.deleteExchangePair(pair)}>
+                            Delete
+                          </div>
+                        </ActionButtons>
+                      </DetailGroup>
+                    )
+                  })}
+                </DetailGroup>
               </Section>
             </DetailContainer>
           ) : null

@@ -125,7 +125,7 @@ class LoginForm extends Component {
           </OptionItem>
         </OptionRowContainer>
         <Button size='large' type='submit' fluid loading={this.state.submitted}>
-          Login
+          <span>Login</span>
         </Button>
         <Error error={this.state.error}>{this.state.error}</Error>
       </Form>

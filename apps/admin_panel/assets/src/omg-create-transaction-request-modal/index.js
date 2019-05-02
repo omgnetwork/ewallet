@@ -451,7 +451,7 @@ class CreateTransactionRequest extends Component {
           <span>Advanced Settings (Optional)</span> {this.state.advanceSettingOpen ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
         </CollapsableHeader>
 
-        <Accordion path='advanced-settings' height={480}>
+        <Accordion path='advanced-settings' height={500}>
           {this.state.advanceSettingOpen && this.renderAdvanceSettingContent()}
         </Accordion>
       </Collapsable>
@@ -461,7 +461,7 @@ class CreateTransactionRequest extends Component {
     return (
       <ButtonContainer>
         <Button size='small' type='submit' loading={this.state.submitting}>
-          Create Request
+          <span>Create Request</span>
         </Button>
       </ButtonContainer>
     )

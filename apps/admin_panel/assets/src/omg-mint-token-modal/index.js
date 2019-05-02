@@ -116,7 +116,7 @@ class MintTokenModal extends PureComponent {
               type='submit'
               loading={this.state.submitStatus === 'SUBMITTED'}
             >
-              Mint
+              <span>Mint</span>
             </Button>
           </ButtonsContainer>
           <Error error={this.state.error}>{this.state.error}</Error>

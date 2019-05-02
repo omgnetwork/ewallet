@@ -158,7 +158,7 @@ class ForgetPasswordForm extends Component {
                 disabled={this.state.submitStatus === 'SUBMITTED'}
               />
               <Button size='large' type='submit' fluid loading={this.state.submitStatus === 'SUBMITTED'}>
-                Reset Password
+                <span>Reset Password</span>
               </Button>
             </div>
           ) : (

@@ -37,6 +37,10 @@ const InputsContainer = styled.div`
   max-width: 350px;
   width: 100%;
   vertical-align: top;
+
+  .cancel-button {
+    margin-left: 10px;
+  }
 `
 const AvatarContainer = styled.div`
   display: inline-block;
@@ -80,6 +84,7 @@ class UserSettingPage extends Component {
     globalRole: '',
     submitStatus: 'DEFAULT',
     changingPassword: false,
+    initialState: null,
     newEmailSubmitted: false
   }
 
@@ -91,11 +96,16 @@ class UserSettingPage extends Component {
   }
   setInitialCurrentUserState = props => {
     if (props.loadingStatus === 'SUCCESS' && !this.state.currentUserLoaded) {
-      this.setState({
+      const derivedState = {
         email: props.currentUser.email,
         globalRole: props.currentUser.global_role,
         avatarPlaceholder: props.currentUser.avatar.original,
         currentUserLoaded: true
+      }
+
+      this.setState({
+        initialState: derivedState,
+        ...derivedState
       })
     }
   }
@@ -159,7 +169,17 @@ class UserSettingPage extends Component {
           password: this.state.newPassword,
           passwordConfirmation: this.state.newPasswordConfirmation
         })
-        if (!updatePasswordResult.data) {
+        if (updatePasswordResult.data) {
+          this.setState({
+            submitStatus: 'SUBMITTED',
+            image: null,
+            changingPassword: false,
+            oldPassword: '',
+            newPassword: '',
+            newPasswordConfirmation: ''
+          })
+        } else {
+          this.setState({ submitStatus: 'FAILED' })
           throw new Error('failed password update')
         }
       }
@@ -180,13 +200,25 @@ class UserSettingPage extends Component {
   onClickChangePassword = e => {
     this.setState({ changingPassword: true })
   }
-
+  onCancel = e => {
+    e.preventDefault()
+    this.setState(oldState => {
+      return {
+        initialState: oldState.initialState,
+        changingPassword: false,
+        oldPassword: '',
+        newPassword: '',
+        newPasswordConfirmation: '',
+        ...oldState.initialState
+      }
+    })
+  }
   render () {
     return (
       <UserSettingContainer>
         <TopNavigation
           divider={this.props.divider}
-          title={'My Profile'}
+          title='My Profile'
           secondaryAction={false}
         />
         {this.props.loadingStatus === 'SUCCESS' && (
@@ -231,6 +263,8 @@ class UserSettingPage extends Component {
                       value={this.state.newPasswordConfirmation}
                       onChange={this.onChangeNewPasswordConfirmation}
                       type='password'
+                      error={this.state.newPassword !== this.state.newPasswordConfirmation}
+                      errorText='Passwords do not match'
                     />
                   </ChangePasswordFormCointainer>
                 ) : (
@@ -240,7 +274,7 @@ class UserSettingPage extends Component {
               <Button
                 size='small'
                 type='submit'
-                key={'save'}
+                key='save'
                 disabled={
                   !this.state.image &&
                   (this.state.newEmailSubmitted || this.state.email === this.props.currentUser.email) &&
@@ -250,7 +284,16 @@ class UserSettingPage extends Component {
                 }
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
-                Save Changes
+                <span>Save</span>
+              </Button>
+              <Button
+                styleType='secondary'
+                size='small'
+                key='cancel'
+                className='cancel-button'
+                onClick={this.onCancel}
+              >
+                <span>Cancel</span>
               </Button>
             </InputsContainer>
           </form>

@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+
+import { Input, Button, Icon, Select } from '../omg-uikit'
 import { createAccessKey } from '../omg-access-key/action'
 import { assignKey } from '../omg-account/action.js'
-import PropTypes from 'prop-types'
+
 const CreateAdminKeyModalContainer = styled.div`
   padding: 50px;
   width: 100vw;
@@ -31,10 +33,7 @@ const CreateAdminKeyModalContainer = styled.div`
     margin-top: 35px;
   }
 `
-const CreateAdminKeyButton = styled(Button)`
-  padding-left: 40px;
-  padding-right: 40px;
-`
+
 const CreateAdminKeyFormContainer = styled.form`
   position: absolute;
   top: 50%;
@@ -116,7 +115,7 @@ function CreateAdminKeyModal (props) {
       <CreateAdminKeyModalContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />
         <CreateAdminKeyFormContainer>
-          <h4>Create Admin Key</h4>
+          <h4>Generate Admin Key</h4>
           <InputLabel>Label</InputLabel>
           <StyledInput
             autoFocus
@@ -156,13 +155,13 @@ function CreateAdminKeyModal (props) {
               />
             </>
           )}
-          <CreateAdminKeyButton
+          <Button
             styleType='primary'
             type='submit'
             loading={submitStatus === 'SUBMITTED'}
           >
-            Create key
-          </CreateAdminKeyButton>
+            <span>Generate Key</span>
+          </Button>
         </CreateAdminKeyFormContainer>
       </CreateAdminKeyModalContainer>
     </Modal>

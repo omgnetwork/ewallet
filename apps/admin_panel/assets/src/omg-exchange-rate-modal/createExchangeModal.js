@@ -22,14 +22,9 @@ const Form = styled.form`
     color: ${props => props.theme.colors.S400};
     cursor: pointer;
   }
-  input {
-    margin-top: 5px;
-  }
   button {
     margin: 35px 0 0;
     font-size: 14px;
-    padding-left: 40px;
-    padding-right: 40px;
   }
   h4 {
     text-align: center;
@@ -39,7 +34,7 @@ const Form = styled.form`
     background-color: ${props => props.theme.colors.S300};
     display: inline-block;
     margin-top: 40px;
-    border-radius: 3px;
+    border-radius: 2px;
   }
 `
 const InputLabel = styled.div`
@@ -105,7 +100,7 @@ const Rate = styled.div`
   background-color: ${props => props.theme.colors.S300};
   color: ${props => props.changed ? props.theme.colors.BL300 : props.theme.colors.B300};
   display: inline-block;
-  border-radius: 3px;
+  border-radius: 2px;
 
   :first-child {
     margin-right: 5px;
@@ -414,7 +409,7 @@ class CreateExchangeRateModal extends Component {
             loading={this.state.submitting}
             disabled={!this.ratesAvailable}
           >
-            {this.state.editing ? 'Update Pair' : 'Create Pair'}
+            <span>{this.state.editing ? 'Update Pair' : 'Create Pair'}</span>
           </Button>
         </ButtonContainer>
         <Error error={this.state.error}>{this.state.error}</Error>

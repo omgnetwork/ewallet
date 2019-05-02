@@ -107,7 +107,7 @@ class ConsumptionPage extends Component {
   renderCreateAccountButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
+        <Icon name='Plus' /><span>Create Account</span>
       </Button>
     )
   }
@@ -152,7 +152,7 @@ class ConsumptionPage extends Component {
     if (key === 'id') {
       return (
         <NameColumn>
-          <Icon name='Consumption' /> <span>{data}</span> <Copy data={data} />
+          <Icon name='Consumption' /><span>{data}</span> <Copy data={data} />
         </NameColumn>
       )
     }

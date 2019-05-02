@@ -12,8 +12,7 @@ export const ButtonPrimary = styled(DefaultButton)`
 `
 
 export const ButtonDisabled = styled(DefaultButton)`
-  border: 1px solid #C9D1E2;
-  color: ${props => props.theme.colors.S400};
-  background-color: ${props => props.theme.colors.S200};
+  color: white;
+  background-color: ${props => props.theme.colors.S500};
   cursor: initial;
 `

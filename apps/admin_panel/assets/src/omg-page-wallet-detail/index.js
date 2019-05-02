@@ -2,16 +2,18 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
-import WalletProvider from '../omg-wallet/walletProvider'
 import { compose } from 'recompose'
+import moment from 'moment'
+
+import WalletProvider from '../omg-wallet/walletProvider'
 import { Button, Icon } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
 import CONSTANT from '../constants'
+
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
   button i {
@@ -31,10 +33,6 @@ const DetailContainer = styled.div`
 const ContentContainer = styled.div`
   display: inline-block;
   width: 100%;
-  button {
-    padding-left: 40px;
-    padding-right: 40px;
-  }
 `
 const ErrorPageContainer = styled.div`
   text-align: center;
@@ -73,8 +71,7 @@ class WalletDetaillPage extends Component {
         title={wallet.name}
         buttons={[
           <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
-            <Icon name='Transaction' />
-            <span>Transfer</span>
+            <Icon name='Transaction' /><span>Transfer</span>
           </Button>
         ]}
       />
@@ -82,7 +79,7 @@ class WalletDetaillPage extends Component {
   }
   renderDetail = wallet => {
     return (
-      <Section title='DETAILS'>
+      <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
           <b>Address:</b> <span>{wallet.address}</span> <Copy data={wallet.address} />
         </DetailGroup>
@@ -117,7 +114,7 @@ class WalletDetaillPage extends Component {
   }
   renderBalances = wallet => {
     return (
-      <Section title='BALANCES'>
+      <Section title={{ text: 'Balances', icon: 'Token' }}>
         {wallet.balances.map(balance => {
           return (
             <DetailGroup key={balance.token.id}>

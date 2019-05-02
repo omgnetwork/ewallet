@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Input, Button, Icon, Select } from '../omg-uikit'
-import Modal from '../omg-modal'
 import { connect } from 'react-redux'
-import { inviteAdmin, getAdmins } from '../omg-admins/action'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+
+import { Input, Button, Icon, Select } from '../omg-uikit'
+import Modal from '../omg-modal'
+import { inviteAdmin, getAdmins } from '../omg-admins/action'
 
 const InviteModalContainer = styled.form`
   padding: 50px;
@@ -23,9 +24,6 @@ const InviteModalContainer = styled.form`
   h4 {
     margin-bottom: 35px;
   }
-  > button {
-    margin-top: 35px;
-  }
 `
 const StyledInput = styled(Input)`
   margin-bottom: 20px;
@@ -35,13 +33,10 @@ const InputLabel = styled.div`
   margin-bottom: 5px;
 `
 const StyledSelect = styled(Select)`
-  margin-bottom: 35px;
+  margin-bottom: 40px;
   text-align: left;
 `
-const InviteButton = styled(Button)`
-  padding-left: 40px;
-  padding-right: 40px;
-`
+
 const enhance = compose(
   withRouter,
   connect(
@@ -145,13 +140,13 @@ class GlobalInviteModal extends Component {
             ]}
             optionRenderer={value => _.startCase(value)}
           />
-          <InviteButton
+          <Button
             styleType='primary'
             type='submit'
             loading={this.state.submitStatus === 'SUBMITTED'}
           >
-            Invite
-          </InviteButton>
+            <span>Invite</span>
+          </Button>
         </InviteModalContainer>
       </Modal>
     )

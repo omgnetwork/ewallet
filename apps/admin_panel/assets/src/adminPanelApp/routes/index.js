@@ -62,7 +62,8 @@ const createRoute = ({ authenticated }) => (
       <AuthenticatedRoute authenticated={authenticated} path='/accounts/:accountId/:type' component={AccountLayout} />
 
       {/* OVERVIEW */}
-      <AuthenticatedRoute authenticated={authenticated} path='/users/:userId' exact component={UserDetailPage} />
+      <AuthenticatedRoute authenticated={authenticated} path='/users/:userId' exact component={() => <UserDetailPage withBreadCrumb />} />
+
       <AuthenticatedRoute authenticated={authenticated} path='/consumptions' exact component={ReqestConsumptionPage} />
       <AuthenticatedRoute authenticated={authenticated} path='/requests' exact component={TransactionRequestPage} />
       <AuthenticatedRoute authenticated={authenticated} path='/activity' exact component={ActivityLogPage} />

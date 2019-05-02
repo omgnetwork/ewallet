@@ -62,7 +62,7 @@ export default class RatioBar extends Component {
         <RatioDetailItem>{this.props.title}</RatioDetailItem>
         {this.props.rows.map((d, i) => (
           <RatioDetailItem key={i}>
-            <BoxRatio color={d.color} /> <span>{d.content}</span>
+            <BoxRatio color={d.color} /><span>{d.content}</span>
           </RatioDetailItem>
         ))}
       </RatioBarDetailContainer>
