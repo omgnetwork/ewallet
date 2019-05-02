@@ -4,11 +4,10 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Breadcrumb } from '../omg-uikit'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 
 const ApiKeyDetailPageStyles = styled.div`
-  background-color: red;
 `
-
 const BreadContainer = styled.div`
   padding: 20px 0 0 0;
   color: ${props => props.theme.colors.B100};
@@ -16,17 +15,28 @@ const BreadContainer = styled.div`
 `
 
 const ApiKeyDetailPage = ({ match: { params } }) => {
-  console.log('params: ', params)
+  const { keyType, keyDetail } = params
+
   return (
     <ApiKeyDetailPageStyles>
       <BreadContainer>
         <Breadcrumb
           items={[
-            <Link key='keys' to={'/keys/'}>Keys</Link>,
-            'toto'
+            <Link key='keys' to={`/keys/${keyType}`}>Keys</Link>,
+            keyDetail
           ]}
         />
       </BreadContainer>
+      <TopNavigation
+        title={
+          <TitleContainer>
+            <Icon name='Arrow-Left' onClick={this.props.history.goBack} /> Export
+            {keyDetail}
+          </TitleContainer>
+        }
+        secondaryAction={false}
+        divider={false}
+      />
     </ApiKeyDetailPageStyles>
   )
 }
