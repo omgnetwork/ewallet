@@ -109,7 +109,7 @@ defmodule EWallet.Web.V1.ErrorHandlerTest do
       expected = %{
         object: "error",
         code: "client:invalid_parameter",
-        description: "Invalid parameter provided. Missing one or more filter parameters.",
+        description: "Invalid parameter provided. Expecting an array of filter parameters.",
         messages: filter_params
       }
 
