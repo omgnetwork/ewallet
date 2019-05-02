@@ -39,7 +39,6 @@ defmodule EthBlockchain.Balance do
   ```
   if successful or {:error, error_code} if failed.
   """
-  # TODO: Add spec
   def get(params, adapter, pid \\ nil)
 
   def get({address, contract_addresses}, adapter, pid) do

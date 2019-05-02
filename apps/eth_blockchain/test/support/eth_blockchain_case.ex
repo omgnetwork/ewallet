@@ -13,8 +13,7 @@
 # limitations under the License.
 
 defmodule EthBlockchain.EthBlockchainCase do
-  @moduledoc """
-  """
+  @moduledoc false
   use ExUnit.CaseTemplate
   alias EthBlockchain.{Adapter, MockAdapter}
   alias Ecto.UUID

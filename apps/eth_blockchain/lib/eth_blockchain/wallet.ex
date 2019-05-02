@@ -28,8 +28,8 @@ defmodule EthBlockchain.Wallet do
 
   Returns a tuple of `{:ok, {adapter, wallet_id, public_key}}`.
   """
-  @spec generate() :: resp({:ok, address()})
-  def generate() do
+  @spec generate :: resp({:ok, address()})
+  def generate do
     {public_key, private_key} = ECDH.new_ecdh_keypair()
 
     <<_::binary-size(45), public_key_last20::binary-size(20)>> = public_key

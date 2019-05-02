@@ -13,6 +13,8 @@
 # limitations under the License.
 
 defmodule EthBlockchain.MockAdapter do
+  @moduledoc false
+
   def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
   def init(:ok), do: {:ok, nil}
   def stop(pid), do: GenServer.stop(pid)

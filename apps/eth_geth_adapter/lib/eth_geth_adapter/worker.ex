@@ -60,7 +60,6 @@ defmodule EthGethAdapter.Worker do
   @doc """
   Handles the get_balances call from the client API get_balances/4.
   """
-  # TODO: Add spec
   def handle_call({:get_balances, address, contract_addresses, block}, _from, reg) do
     {:reply, Balance.get(address, contract_addresses, block), reg}
   end
@@ -87,7 +86,6 @@ defmodule EthGethAdapter.Worker do
   ```
   if successful or {:error, error_code} if failed.
   """
-  # TODO: Add spec
   def get_balances(address, contract_addresses, block \\ "latest", pid \\ __MODULE__) do
     GenServer.call(pid, {:get_balances, address, contract_addresses, block})
   end
