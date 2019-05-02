@@ -71,6 +71,7 @@ class AccountPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
   }
+
   onClickRow = (data, index) => e => {
     // Click a link, ignore
     if (e.target.nodeName === 'A') return
@@ -243,6 +244,7 @@ class AccountPage extends Component {
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable
+            activeIndexKey={queryString.parse(this.props.location.search)['show-activity-tab']}
             rows={activities}
             columns={this.getColumns()}
             loadingStatus={individualLoadingStatus}

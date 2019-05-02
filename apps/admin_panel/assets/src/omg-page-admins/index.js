@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import moment from 'moment'
+import queryString from 'query-string'
+
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import AdminsFetcher from '../omg-admins/adminsFetcher'
-import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
-import moment from 'moment'
-import queryString from 'query-string'
 import Copy from '../omg-copy'
 import { createSearchAdminsQuery } from '../omg-admins/searchField'
 import GlobalInviteModal from '../omg-global-invite-modal'
@@ -69,10 +70,7 @@ const UserIdContainer = styled.div`
     vertical-align: middle;
   }
 `
-const InviteButton = styled(Button)`
-  padding-left: 30px;
-  padding-right: 30px;
-`
+
 class UsersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
@@ -118,7 +116,7 @@ class UsersPage extends Component {
   renderCreateAccountButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
+        <Icon name='Plus' /><span>Create Account</span>
       </Button>
     )
   }
@@ -137,13 +135,13 @@ class UsersPage extends Component {
       case 'id':
         return (
           <UserIdContainer>
-            <Icon name='Profile' /> <span>{data}</span> <Copy data={data} />
+            <Icon name='Profile' /><span>{data}</span> <Copy data={data} />
           </UserIdContainer>
         )
       case 'email':
         return data || '-'
       case 'global_role':
-        return _.startCase(data) || 'None'
+        return _.startCase(data) || '-'
       case 'status':
         return _.startCase(data)
       default:
@@ -152,9 +150,9 @@ class UsersPage extends Component {
   }
   renderInviteButton = () => {
     return (
-      <InviteButton size='small' onClick={this.onClickInviteButton} key={'create'}>
-        <Icon name='Plus' /> <span>Invite Admin</span>
-      </InviteButton>
+      <Button size='small' onClick={this.onClickInviteButton} key={'create'}>
+        <Icon name='Plus' /><span>Invite Admin</span>
+      </Button>
     )
   }
 

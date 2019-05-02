@@ -121,10 +121,15 @@ class TransactionRequestPanel extends Component {
               </SubDetailTitle>
               <TabPanel
                 activeTabKey={
-                  queryString.parse(this.props.location.search)['active-tab'] || 'activity'
+                  queryString.parse(this.props.location.search)['active-tab'] || 'properties'
                 }
                 onClickTab={this.onClickTab}
                 data={[
+                  {
+                    key: 'properties',
+                    tabTitle: 'PROPERTIES',
+                    tabContent: <PropertyTab transactionRequest={tq} />
+                  },
                   {
                     key: 'activity',
                     tabTitle: (
@@ -134,11 +139,6 @@ class TransactionRequestPanel extends Component {
                       </div>
                     ),
                     tabContent: <ActivityList />
-                  },
-                  {
-                    key: 'properties',
-                    tabTitle: 'PROPERTIES',
-                    tabContent: <PropertyTab transactionRequest={tq} />
                   }
                 ]}
               />

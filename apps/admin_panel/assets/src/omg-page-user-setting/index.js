@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
-import styled from 'styled-components'
-import { Input, Button } from '../omg-uikit'
-import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
-import { currentUserProviderHoc } from '../omg-user-current/currentUserProvider'
 import { withRouter } from 'react-router-dom'
-import { updateCurrentUser } from '../omg-user-current/action'
-import { updatePassword } from '../omg-session/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
+import styled from 'styled-components'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import { Input, Button } from '../omg-uikit'
+import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
+import { currentUserProviderHoc } from '../omg-user-current/currentUserProvider'
+import { updateCurrentUserEmail, updateCurrentUserAvatar } from '../omg-user-current/action'
+import { updatePassword } from '../omg-session/action'
+
 const UserSettingContainer = styled.div`
   padding-bottom: 50px;
 `
@@ -17,11 +19,7 @@ const StyledInput = styled(Input)`
   margin-bottom: 30px;
 `
 const StyledEmailInput = styled(StyledInput)`
-  pointer-events: none;
   margin-top: 30px;
-  input {
-    border-bottom: none;
-  }
 `
 const StyledRoleInput = styled(StyledInput)`
   margin-bottom: 8px;
@@ -39,6 +37,10 @@ const InputsContainer = styled.div`
   max-width: 350px;
   width: 100%;
   vertical-align: top;
+
+  .cancel-button {
+    margin-left: 10px;
+  }
 `
 const AvatarContainer = styled.div`
   display: inline-block;
@@ -62,7 +64,7 @@ const enhance = compose(
   currentUserProviderHoc,
   connect(
     null,
-    { updateCurrentUser, updatePassword }
+    { updateCurrentUserAvatar, updateCurrentUserEmail, updatePassword }
   ),
   withRouter
 )
@@ -70,16 +72,20 @@ const enhance = compose(
 class UserSettingPage extends Component {
   static propTypes = {
     updatePassword: PropTypes.func.isRequired,
-    updateCurrentUser: PropTypes.func.isRequired,
+    updateCurrentUserEmail: PropTypes.func.isRequired,
+    updateCurrentUserAvatar: PropTypes.func.isRequired,
     loadingStatus: PropTypes.string,
     currentUser: PropTypes.object,
-    divider: PropTypes.bool
+    divider: PropTypes.bool,
+    location: PropTypes.object
   }
   state = {
     email: '',
     globalRole: '',
     submitStatus: 'DEFAULT',
-    changingPassword: false
+    changingPassword: false,
+    initialState: null,
+    newEmailSubmitted: false
   }
 
   componentDidMount () {
@@ -90,11 +96,16 @@ class UserSettingPage extends Component {
   }
   setInitialCurrentUserState = props => {
     if (props.loadingStatus === 'SUCCESS' && !this.state.currentUserLoaded) {
-      this.setState({
+      const derivedState = {
         email: props.currentUser.email,
         globalRole: props.currentUser.global_role,
         avatarPlaceholder: props.currentUser.avatar.original,
         currentUserLoaded: true
+      }
+
+      this.setState({
+        initialState: derivedState,
+        ...derivedState
       })
     }
   }
@@ -102,7 +113,10 @@ class UserSettingPage extends Component {
     this.setState({ image: file })
   }
   onChangeEmail = e => {
-    this.setState({ email: e.target.value.trim() })
+    this.setState({
+      email: e.target.value.trim(),
+      newEmailSubmitted: false
+    })
   }
   onChangeOldPassword = e => {
     this.setState({ oldPassword: e.target.value })
@@ -113,56 +127,98 @@ class UserSettingPage extends Component {
   onChangeNewPasswordConfirmation = e => {
     this.setState({ newPasswordConfirmation: e.target.value })
   }
+
   onClickUpdateAccount = async e => {
     e.preventDefault()
+    this.setState({ submitStatus: 'SUBMITTING' })
+
     try {
-      if (this.state.email !== this.props.currentUser.email || this.state.image) {
-        this.setState({ submitStatus: 'SUBMITTING' })
-        const result = await this.props.updateCurrentUser({
+      // update email
+      if (this.state.email !== this.props.currentUser.email) {
+        const updateEmailResult = await this.props.updateCurrentUserEmail({
           email: this.state.email,
-          avatar: this.state.image
+          redirectUrl: window.location.href.replace(
+            this.props.location.pathname,
+            '/verify-email?email={email}&token={token}'
+          )
         })
-        if (result.data) {
-          this.setState({ image: null, submitStatus: 'SUBMITTED' })
+        if (updateEmailResult.data) {
+          this.setState({ newEmailSubmitted: true })
+        } else {
+          throw new Error('failed email update')
         }
       }
+
+      // update avatar
+      if (this.state.image) {
+        const updateAvatarResult = await this.props.updateCurrentUserAvatar({ avatar: this.state.image })
+        if (!updateAvatarResult.data) {
+          throw new Error('failed avatar update')
+        }
+      }
+
+      // update password
       if (
         this.state.changingPassword &&
         this.state.newPassword === this.state.newPasswordConfirmation &&
         this.state.newPassword &&
         this.state.newPasswordConfirmation
       ) {
-        this.setState({ submitStatus: 'SUBMITTING' })
-        const updatePassworldResult = await this.props.updatePassword({
+        const updatePasswordResult = await this.props.updatePassword({
           oldPassword: this.state.oldPassword,
           password: this.state.newPassword,
           passwordConfirmation: this.state.newPasswordConfirmation
         })
-        if (updatePassworldResult.data) {
+        if (updatePasswordResult.data) {
           this.setState({
             submitStatus: 'SUBMITTED',
             image: null,
             changingPassword: false,
+            oldPassword: '',
             newPassword: '',
             newPasswordConfirmation: ''
           })
         } else {
           this.setState({ submitStatus: 'FAILED' })
+          throw new Error('failed password update')
         }
       }
+
+      // submission success
+      this.setState({
+        submitStatus: 'SUBMITTED',
+        image: null,
+        changingPassword: false,
+        newPassword: '',
+        newPasswordConfirmation: ''
+      })
     } catch (error) {
       this.setState({ submitStatus: 'FAILED' })
     }
   }
+
   onClickChangePassword = e => {
     this.setState({ changingPassword: true })
+  }
+  onCancel = e => {
+    e.preventDefault()
+    this.setState(oldState => {
+      return {
+        initialState: oldState.initialState,
+        changingPassword: false,
+        oldPassword: '',
+        newPassword: '',
+        newPasswordConfirmation: '',
+        ...oldState.initialState
+      }
+    })
   }
   render () {
     return (
       <UserSettingContainer>
         <TopNavigation
           divider={this.props.divider}
-          title={'My Profile'}
+          title='My Profile'
           searchBar={false}
         />
         {this.props.loadingStatus === 'SUCCESS' && (
@@ -207,6 +263,8 @@ class UserSettingPage extends Component {
                       value={this.state.newPasswordConfirmation}
                       onChange={this.onChangeNewPasswordConfirmation}
                       type='password'
+                      error={this.state.newPassword !== this.state.newPasswordConfirmation}
+                      errorText='Passwords do not match'
                     />
                   </ChangePasswordFormCointainer>
                 ) : (
@@ -216,17 +274,26 @@ class UserSettingPage extends Component {
               <Button
                 size='small'
                 type='submit'
-                key={'save'}
+                key='save'
                 disabled={
                   !this.state.image &&
-                  this.state.email === this.props.currentUser.email &&
+                  (this.state.newEmailSubmitted || this.state.email === this.props.currentUser.email) &&
                   (this.state.newPassword !== this.state.newPasswordConfirmation ||
                     !this.state.newPassword ||
                     !this.state.newPasswordConfirmation)
                 }
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
-                Save Changes
+                <span>Save</span>
+              </Button>
+              <Button
+                styleType='secondary'
+                size='small'
+                key='cancel'
+                className='cancel-button'
+                onClick={this.onCancel}
+              >
+                <span>Cancel</span>
               </Button>
             </InputsContainer>
           </form>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+
 const TopBarAction = styled.div`
   flex: 0 1 auto;
   margin-left: auto;

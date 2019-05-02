@@ -10,13 +10,14 @@ describe('member invite reducer', () => {
         {},
         {
           type: 'INVITE_LIST/REQUEST/SUCCESS',
-          data: [{ id: '1', data: '1' }]
+          data: [{ id: '1', data: '1', user_id: 'a' }]
         }
       )
     ).toEqual({
-      '1': {
+      'a': {
         id: '1',
-        data: '1'
+        data: '1',
+        user_id: 'a'
       }
     })
   })
@@ -25,24 +26,27 @@ describe('member invite reducer', () => {
     expect(
       inviteListReducer(
         {
-          '2': {
+          'a': {
             id: '2',
-            data: '2'
+            data: '2',
+            user_id: 'a'
           }
         },
         {
           type: 'INVITE_LIST/REQUEST/SUCCESS',
-          data: [{ id: '1', data: '1' }]
+          data: [{ id: '1', data: '1', user_id: 'b' }]
         }
       )
     ).toEqual({
-      '1': {
+      'b': {
         id: '1',
-        data: '1'
+        data: '1',
+        user_id: 'b'
       },
-      '2': {
+      'a': {
         id: '2',
-        data: '2'
+        data: '2',
+        user_id: 'a'
       }
     })
   })

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+
 const IconComponent = styled.i`
   vertical-align: middle;
   padding: ${props => (props.button ? '8px' : '0')};

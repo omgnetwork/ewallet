@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-const AdminKeySlectRowContainer = styled.div`
+const AdminKeySelectRowContainer = styled.div`
   align-items: center;
 
   max-width: 400px;
@@ -12,9 +12,9 @@ const AdminKeySlectRowContainer = styled.div`
     overflow: hidden;
   }
 `
-const AdminKeySlectRowName = styled.div`
+const AdminKeySelectRowName = styled.div`
 `
-const AdminKeySlectRowId = styled.div`
+const AdminKeySelectRowId = styled.div`
   color: ${props => props.theme.colors.B300};
   font-size: 12px;
 `
@@ -23,15 +23,15 @@ const AdminKeyRowDate = styled.div`
   margin-top: 5px;
   color: ${props => props.theme.colors.S500};
 `
-AdminKeySlectRow.propTypes = {
+AdminKeySelectRow.propTypes = {
   adminKey: PropTypes.object
 }
-export default function AdminKeySlectRow ({ adminKey }) {
+export default function AdminKeySelectRow ({ adminKey }) {
   return (
-    <AdminKeySlectRowContainer>
-      <AdminKeySlectRowName>{adminKey.name}</AdminKeySlectRowName>
-      <AdminKeySlectRowId>{adminKey.access_key}</AdminKeySlectRowId>
+    <AdminKeySelectRowContainer>
+      <AdminKeySelectRowName>{adminKey.name}</AdminKeySelectRowName>
+      <AdminKeySelectRowId>{adminKey.access_key}</AdminKeySelectRowId>
       <AdminKeyRowDate>{moment(adminKey.created_at).format()}</AdminKeyRowDate>
-    </AdminKeySlectRowContainer>
+    </AdminKeySelectRowContainer>
   )
 }

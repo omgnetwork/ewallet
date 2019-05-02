@@ -111,6 +111,7 @@ class AccountSettingPage extends Component {
     super(props)
     this.state = {
       inviteModalOpen: queryString.parse(props.location.search).invite || false,
+      initialName: '',
       name: '',
       description: '',
       avatar: '',
@@ -128,6 +129,7 @@ class AccountSettingPage extends Component {
     const { currentAccount } = this.props
     if (!_.isEmpty(currentAccount)) {
       this.setState({
+        initialName: currentAccount.name,
         name: currentAccount.name,
         description: currentAccount.description,
         avatar: _.get(currentAccount, 'avatar.original'),
@@ -169,7 +171,7 @@ class AccountSettingPage extends Component {
       })
 
       if (result.data) {
-        this.setState({ submitStatus: 'SUBMITTED' })
+        this.setState({ submitStatus: 'SUBMITTED', initialName: this.state.name })
       } else {
         this.setState({ submitStatus: 'FAILED' })
       }
@@ -181,15 +183,14 @@ class AccountSettingPage extends Component {
   renderExportButton = () => {
     return (
       <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
-        <Icon name='Export' />
-        <span>Export</span>
+        <Icon name='Export' /><span>Export</span>
       </Button>
     )
   }
   renderInviteButton = () => {
     return (
       <Button size='small' onClick={this.onClickInviteButton} key={'create'}>
-        <Icon name='Plus' /> <span>Invite Member</span>
+        <Icon name='Plus' /><span>Invite Member</span>
       </Button>
     )
   }
@@ -248,14 +249,12 @@ class AccountSettingPage extends Component {
   get shouldSave () {
     const propsCategoryId = _.get(this.props.currentAccount, 'categories.data[0].id')
     const stateCategoryId = _.get(this.state.categorySelect, 'id')
-    const sameCategory = propsCategoryId && propsCategoryId === stateCategoryId
+    const sameCategory = propsCategoryId && (propsCategoryId === stateCategoryId)
 
     return this.props.currentAccount.name !== this.state.name ||
       this.props.currentAccount.description !== this.state.description ||
-      this.state.image ||
-      (this.state.categorySelect && !this.state.categorySearch.length) ||
-      !sameCategory ||
-      this.state.categoryTouched
+      (this.state.categoryTouched && !sameCategory) ||
+      this.state.image
   }
   renderAccountSettingTab = () => (
     <ProfileSection>
@@ -323,7 +322,7 @@ class AccountSettingPage extends Component {
         <AccountSettingContainer>
           <TopNavigation
             divider={this.props.divider}
-            title={`Edit ${this.state.name}`}
+            title={`Edit ${this.state.initialName}`}
             searchBar={false}
             types={false}
           />

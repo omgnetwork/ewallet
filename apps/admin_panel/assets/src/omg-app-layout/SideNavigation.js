@@ -176,7 +176,7 @@ class SideNavigation extends PureComponent {
           return (
             <Link to={link.to} key={link.to}>
               <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
-                <Icon name={link.icon} /> <span>{link.text}</span>
+                <Icon name={link.icon} /><span>{link.text}</span>
               </NavigationItem>
             </Link>
           )
@@ -195,7 +195,7 @@ class SideNavigation extends PureComponent {
           <NavigationItem
             active={!matchedAccountId && fuzzySearch('/accounts', `/${firstSubPath}`)}
           >
-            <Icon name='Merchant' /> <span>{'Accounts'}</span>
+            <Icon name='Merchant' /><span>{'Accounts'}</span>
           </NavigationItem>
         </Link>
         {this.renderRecentAccounts()}
@@ -203,7 +203,7 @@ class SideNavigation extends PureComponent {
           return (
             <Link to={link.to} key={link.to}>
               <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
-                <Icon name={link.icon} /> <span>{link.text}</span>
+                <Icon name={link.icon} /><span>{link.text}</span>
               </NavigationItem>
             </Link>
           )
@@ -218,7 +218,7 @@ class SideNavigation extends PureComponent {
         <MenuName> MY PROFILE </MenuName>
         <Link to={'/user_setting'}>
           <NavigationItem active={fuzzySearch('/user_setting', `/${firstSubPath}`)}>
-            <Icon name={'Profile'} /> <span>My Profile</span>
+            <Icon name={'Profile'} /><span>My Profile</span>
           </NavigationItem>
         </Link>
         <NavigationItem onClick={this.onLogout}>

@@ -11,6 +11,10 @@ const BreadcrumbContainer = styled.div`
   }
   a {
     color: inherit;
+    transition: 0.2s color;
+    :hover {
+      color: ${props => props.theme.colors.BL400};
+    }
   }
 `
 export default class Breadcrumb extends Component {

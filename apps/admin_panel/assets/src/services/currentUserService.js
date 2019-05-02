@@ -1,4 +1,5 @@
 import { authenticatedRequest } from './apiService'
+
 export function getCurrentUser () {
   return authenticatedRequest({
     path: 'me.get',
@@ -13,9 +14,12 @@ export function getCurrentUserAccount () {
   })
 }
 
-export function updateCurrentUser ({ email }) {
+export function updateCurrentUserEmail ({ email, redirectUrl }) {
   return authenticatedRequest({
-    path: 'me.update',
-    data: { email }
+    path: 'me.update_email',
+    data: {
+      email,
+      redirect_url: redirectUrl
+    }
   })
 }

@@ -4,7 +4,7 @@ export const inviteListReducer = createReducer(
   {},
   {
     'INVITE_LIST/REQUEST/SUCCESS': (state, { data }) => {
-      return { ...state, ..._.keyBy(data, 'id') }
+      return { ...state, ..._.keyBy(data, 'user_id') }
     }
   }
 )

@@ -1,7 +1,17 @@
-import AccountNavgiationBar from './AccountNavigationBar'
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Route, withRouter, Link } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
+import styled from 'styled-components'
+
+import UserDetailPage from '../omg-page-user-detail'
+import AdminDetailPage from '../omg-page-admin-detail'
+import { selectGetAccountById } from '../omg-account/selector'
+import { Breadcrumb } from '../omg-uikit'
+import { subscribeToWebsocketByAccountId } from '../omg-account/action'
+import { visitAccount } from '../omg-recent-account/action'
+import AccountNavgiationBar from './AccountNavigationBar'
 import AccountWalletSubPage from './AccountWalletSubPage'
 import AccountUserSubPage from './AccountUserSubPage'
 import AccountTransactionSubPage from './AccountTransactionSubPage'
@@ -11,17 +21,8 @@ import AccountConsumptionSubPage from './AccountConsumptionSubPage'
 import AccountSettingSubPage from './AccountSettingSubPage'
 import AccountAdminSubPage from './AccountAdminSubPage'
 import WalletDetailPage from './WalletDetailSubPage'
-import UserDetailPage from '../omg-page-user-detail'
-import AdminDetailPage from '../omg-page-admin-detail'
 import AccountActivitySubPage from './AccountActivitySubPage'
 import AccountKeySubPage from './AccountKeySubPage'
-import { selectGetAccountById } from '../omg-account/selector'
-import { connect } from 'react-redux'
-import { compose } from 'recompose'
-import { Breadcrumb } from '../omg-uikit'
-import { subscribeToWebsocketByAccountId } from '../omg-account/action'
-import { visitAccount } from '../omg-recent-account/action'
-import styled from 'styled-components'
 
 const BreadContainer = styled.div`
   padding: 20px 0 0 0;
@@ -47,7 +48,7 @@ function AccountLayout (props) {
   }, [_.get(props, 'account.id')])
 
   return (
-    <div>
+    <>
       <AccountNavgiationBar />
       <BreadContainer>
         <Breadcrumb
@@ -69,9 +70,9 @@ function AccountLayout (props) {
       <Route path='/accounts/:accountId/keys' exact render={() => <AccountKeySubPage />} />
 
       <Route path='/accounts/:accountId/users' exact render={() => <AccountUserSubPage />} />
-      <Route path='/accounts/:accountId/users/:userId' exact render={() => <UserDetailPage />} />
+      <Route path='/accounts/:accountId/users/:userId' exact render={() => <UserDetailPage divider={false} />} />
       <Route path='/accounts/:accountId/admins' exact render={() => <AccountAdminSubPage />} />
-      <Route path='/accounts/:accountId/admins/:adminId' exact render={() => <AdminDetailPage />} />
+      <Route path='/accounts/:accountId/admins/:adminId' exact render={() => <AdminDetailPage divider={false} />} />
       <Route path='/accounts/:accountId/setting' exact render={() => <AccountSettingSubPage />} />
       <Route
         path='/accounts/:accountId/consumptions'
@@ -89,7 +90,7 @@ function AccountLayout (props) {
         render={() => <AccountTransactionRequestSubPage />}
       />
       <Route path='/accounts/:accountId/activity' exact render={() => <AccountActivitySubPage />} />
-    </div>
+    </>
   )
 }
 

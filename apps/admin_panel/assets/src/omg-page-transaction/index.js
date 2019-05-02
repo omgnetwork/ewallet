@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
-import SortableTable from '../omg-table'
-import { Button, Icon } from '../omg-uikit'
-import CreateTransactionModal from '../omg-create-transaction-modal'
-import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { withRouter } from 'react-router'
 import moment from 'moment'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import SortableTable from '../omg-table'
+import { Button, Icon } from '../omg-uikit'
+import CreateTransactionModal from '../omg-create-transaction-modal'
+import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
+
 const TransactionPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -92,6 +94,9 @@ const Sign = styled.span`
 const BoldSpan = styled.span`
   font-weight: bold;
 `
+const FromOrToRow = styled.div`
+  white-space: nowrap;
+`
 const FromToContainer = styled.div`
   > div:first-child {
     white-space: nowrap;
@@ -110,15 +115,6 @@ export const MarkContainer = styled.div`
   text-align: center;
   line-height: 18px;
   margin-right: 5px;
-`
-const TransferButton = styled(Button)`
-  padding-left: 40px;
-  padding-right: 40px;
-`
-
-const ExportButton = styled(Button)`
-  padding-left: 30px;
-  padding-right: 30px;
 `
 
 const columns = [
@@ -170,32 +166,31 @@ class TransactionPage extends Component {
   }
   renderCreateTransactionButton = () => {
     return (
-      <TransferButton
+      <Button
         key='create'
         size='small'
         styleType='primary'
         onClick={this.onClickCreateTransaction}
       >
-        <Icon name='Transaction' />
-        <span>Transfer</span>
-      </TransferButton>
+        <Icon name='Transaction' /><span>Transfer</span>
+      </Button>
     )
   }
   renderExportButton () {
     return (
-      <ExportButton
+      <Button
         key='export'
         size='small'
         styleType='secondary'
         onClick={this.onClickExport}
       >
-        Export
-      </ExportButton>
+        <span>Export</span>
+      </Button>
     )
   }
   renderFromOrTo (fromOrTo) {
     return (
-      <span>
+      <FromOrToRow>
         {fromOrTo.account && (
           <BoldSpan>{fromOrTo.account.name}</BoldSpan>
         )}
@@ -206,7 +201,7 @@ class TransactionPage extends Component {
           <BoldSpan>{fromOrTo.user.provider_user_id}</BoldSpan>
         )}
         <span> - {fromOrTo.address}</span>
-      </span>
+      </FromOrToRow>
     )
   }
   rowRenderer = (key, data, rows) => {
@@ -276,7 +271,10 @@ class TransactionPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Transactions'}
-          buttons={[this.renderCreateTransactionButton(), this.renderExportButton()]}
+          buttons={[
+            this.renderExportButton(),
+            this.renderCreateTransactionButton()
+          ]}
         />
         <SortableTable
           rows={transactions}

@@ -82,8 +82,7 @@ export default withRouter(
     renderExportButton = () => {
       return (
         <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
-          <Icon name='Export' />
-          <span>Export</span>
+          <Icon name='Export' /><span>Export</span>
         </Button>
       )
     }

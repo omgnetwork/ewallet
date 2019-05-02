@@ -14,6 +14,8 @@ import Select from '../omg-uikit/select'
 import Switch from '../omg-uikit/switch'
 import Error from '../omg-uikit/error'
 import DetailRow from '../omg-uikit/detailrow'
+import Tag from '../omg-uikit/tag'
+import Tooltip from '../omg-uikit/tooltip'
 
 export {
   Input,
@@ -32,5 +34,7 @@ export {
   Select,
   Switch,
   Error,
-  DetailRow
+  DetailRow,
+  Tag,
+  Tooltip
 }

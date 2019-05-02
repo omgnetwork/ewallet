@@ -90,7 +90,7 @@ const CreateWalletModal = ({ createWallet, accountId, isOpen, onRequestClose, on
             disabled={!name}
             onClick={submit}
           >
-            Create
+            <span>Create</span>
           </Button>
           <Button
             className='button'
@@ -99,7 +99,7 @@ const CreateWalletModal = ({ createWallet, accountId, isOpen, onRequestClose, on
             styleType='secondary'
             onClick={handleClose}
           >
-            Cancel
+            <span>Cancel</span>
           </Button>
         </div>
       </CreateWalletModalStyle>

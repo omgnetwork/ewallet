@@ -33,7 +33,7 @@ const KeySection = styled.div`
     margin-bottom: 20px;
   }
   tr:hover {
-    td:nth-child(2) {
+    td:nth-child(1) {
       i {
         visibility: visible;
       }
@@ -43,26 +43,14 @@ const KeySection = styled.div`
     white-space: nowrap;
   }
   td:nth-child(2) {
-    width: 50%;
-    border: none;
+    width: 20%;
     position: relative;
-    :before {
-      content: '';
-      position: absolute;
-      right: 0;
-      bottom: -1px;
-      height: 1px;
-      width: calc(100% - 50px);
-      border-bottom: 1px solid ${props => props.theme.colors.S200};
-    }
   }
   td:first-child div {
-    max-width: 20vw;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   i[name='Copy'] {
-    cursor: pointer;
     visibility: hidden;
     cursor: pointer;
     color: ${props => props.theme.colors.S500};
@@ -161,8 +149,8 @@ class ApiKeyPage extends Component {
   static defaultProps = {
     fetcher: AccessKeyFetcher,
     columnsAdminKeys: [
-      { key: 'name', title: 'NAME' },
       { key: 'key', title: 'ACCESS KEY' },
+      { key: 'name', title: 'LABEL' },
       { key: 'global_role', title: 'GLOBAL ROLE' },
       { key: 'created_at', title: 'CREATED AT' },
       { key: 'status', title: 'STATUS' }
@@ -219,13 +207,13 @@ class ApiKeyPage extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <span>{data}</span> <Copy data={data} />
+            <Icon name='Key' /><span>{data}</span> <Copy data={data} />
           </KeyContainer>
         )
       case 'name':
         return (
           <KeyContainer>
-            <Icon name='Key' /> <span>{data}</span>
+            <span>{data}</span>
           </KeyContainer>
         )
       case 'global_role':
@@ -303,6 +291,7 @@ class ApiKeyPage extends Component {
           return (
             <KeySection>
               <Table
+                hoverEffect={false}
                 loadingRowNumber={6}
                 rows={apiKeysRows}
                 onClickRow={this.onClickRow}

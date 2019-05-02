@@ -56,7 +56,7 @@ const NotFoundPage = (props) => {
         size='medium'
         onClick={handleClick}
       >
-        Go Back Home
+        <span>Go Back Home</span>
       </Button>
     </Container>
   )

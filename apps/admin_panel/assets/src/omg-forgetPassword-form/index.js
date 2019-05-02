@@ -109,7 +109,7 @@ class ForgetPasswordForm extends Component {
               fluid
               loading={this.state.submitStatus === 'SUBMITTED'}
             >
-              Send Request Email
+              <span>Send Request Email</span>
             </Button>
           </div>
         )}

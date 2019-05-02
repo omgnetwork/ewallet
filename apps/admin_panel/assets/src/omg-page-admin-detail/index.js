@@ -34,13 +34,12 @@ const enhance = compose(
 )
 class TokenDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object,
-    divider: PropTypes.bool
+    match: PropTypes.object
   }
   renderTopBar = admin => {
     return (
       <TopNavigation
-        divider={this.props.divider}
+        divider={false}
         title={admin.email}
         searchBar={false}
       />
@@ -48,7 +47,7 @@ class TokenDetailPage extends Component {
   }
   renderDetail = admin => {
     return (
-      <Section title='DETAILS'>
+      <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
           <b>ID:</b> <span>{admin.id}</span> <Copy data={admin.id} />
         </DetailGroup>
@@ -56,7 +55,7 @@ class TokenDetailPage extends Component {
           <b>Email:</b> <span>{admin.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Global Role:</b> <span>{_.startCase(admin.global_role) || 'None'}</span>
+          <b>Global Role:</b> <span>{_.startCase(admin.global_role) || '-'}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Created At:</b> <span>{moment(admin.created_at).format()}</span>

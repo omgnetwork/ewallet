@@ -9,7 +9,7 @@ const TabPanelContainer = styled.div`
   position: relative;
 `
 const TabHeader = styled.div`
-  flex: 1 1 auto;
+  flex: 1 1 50%;
   cursor: pointer;
   font-size: 10px;
   text-align: left;

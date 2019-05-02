@@ -74,3 +74,10 @@ export function updatePassword ({ oldPassword, password, passwordConfirmation })
     }
   })
 }
+
+export function verifyEmail ({ email, token }) {
+  return unAuthenticatedRequest({
+    path: '/admin.verify_email_update',
+    data: { email, token }
+  })
+}

@@ -47,9 +47,13 @@ class ConfirmationModal extends PureComponent {
         <ConfirmationModalContainer>
           <ContentContainer>{this.props.children}</ContentContainer>
           <ButtonsContainer>
-            {this.props.cancel && <PlainButton onClick={this.props.onRequestClose}>Cancel</PlainButton>}
+            {this.props.cancel && (
+              <PlainButton onClick={this.props.onRequestClose}>
+                <span>Cancel</span>
+              </PlainButton>
+            )}
             <Button styleType='primary' size='small' onClick={this.props.onOk} loading={this.props.loading}>
-              {this.props.confirmText || 'Confirm' }
+              <span>{this.props.confirmText || 'Confirm' }</span>
             </Button>
           </ButtonsContainer>
         </ConfirmationModalContainer>

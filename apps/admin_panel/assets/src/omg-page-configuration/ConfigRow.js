@@ -47,7 +47,8 @@ export default class ConfigRow extends Component {
     inputType: PropTypes.string,
     inputValidator: PropTypes.func,
     inputErrorMessage: PropTypes.string,
-    valueRenderer: PropTypes.func
+    valueRenderer: PropTypes.func,
+    suffix: PropTypes.string
   }
 
   static defaultProps = {
@@ -61,6 +62,7 @@ export default class ConfigRow extends Component {
       <Fragment>
         {this.props.type === 'input' && (
           <Input
+            suffix={this.props.suffix}
             value={this.props.value}
             normalPlaceholder={this.props.placeholder}
             onChange={this.props.onChange}
