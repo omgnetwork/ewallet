@@ -90,6 +90,21 @@ defmodule EWallet.Web.MatchParserTest do
 
       assert result == {:error, :not_allowed, "from_amount"}
     end
+
+    test "returns error if not provided a list of filter params" do
+      # Provided filter params directly instead of a list of filter params
+      attrs = %{
+        "field" => "from_amount",
+        "comparator" => "eq",
+        "value" => 1000
+      }
+
+      {res, code, params} = MatchParser.build_query(Transaction, attrs, [], true, MatchAllQuery)
+
+      assert res == :error
+      assert code == :missing_filter_param
+      assert params == %{}
+    end
   end
 
   describe "build_query/3 with field definitions" do
