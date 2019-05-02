@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthBlockchain.BackendTest do
+defmodule EthBlockchain.AdapterTest do
   use ExUnit.Case
-  alias EthBlockchain.Backend
+  alias EthBlockchain.Adapter
   alias Ecto.UUID
 
-  defmodule DumbBackend do
+  defmodule DumbAdapter do
     def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
     def init(:ok), do: {:ok, nil}
     def stop(pid), do: GenServer.stop(pid)
@@ -32,7 +32,7 @@ defmodule EthBlockchain.BackendTest do
     mock_key = UUID.generate()
 
     Code.eval_string("""
-      defmodule MockBackend do
+      defmodule MockAdapter do
         def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
         def init(:ok), do: {:ok, nil}
         def stop(pid), do: GenServer.stop(pid)
@@ -52,33 +52,33 @@ defmodule EthBlockchain.BackendTest do
       )
 
     {:ok, pid} =
-      Backend.start_link(
+      Adapter.start_link(
         supervisor: supervisor,
-        backends: [
-          {:mock, MockBackend},
-          {:dumb, DumbBackend}
+        adapters: [
+          {:mock, MockAdapter},
+          {:dumb, DumbAdapter}
         ]
       )
 
     on_exit(fn ->
-      :code.purge(MockBackend)
-      :code.delete(MockBackend)
+      :code.purge(MockAdapter)
+      :code.delete(MockAdapter)
     end)
 
     %{
       pid: pid,
       mock_id: mock_id,
       mock_key: mock_key,
-      mock_backend: MockBackend,
+      mock_adapter: MockAdapter,
       supervisor: supervisor
     }
   end
 
   describe "call/3" do
-    test "delegates call to the backend", state do
-      mock_resp = Backend.call(:mock, :generate_wallet, state[:pid])
-      dumb_resp1 = Backend.call(:dumb, :generate_wallet, state[:pid])
-      dumb_resp2 = Backend.call({:dumb, "wallet"}, :generate_wallet, state[:pid])
+    test "delegates call to the adapter", state do
+      mock_resp = Adapter.call(:mock, :generate_wallet, state[:pid])
+      dumb_resp1 = Adapter.call(:dumb, :generate_wallet, state[:pid])
+      dumb_resp2 = Adapter.call({:dumb, "wallet"}, :generate_wallet, state[:pid])
 
       assert {:ok, state[:mock_id], state[:mock_key]} == mock_resp
       assert {:ok, "wallet_id", "public_key"} == dumb_resp1
@@ -86,18 +86,18 @@ defmodule EthBlockchain.BackendTest do
     end
 
     test "shutdowns the worker once finished handling tasks", state do
-      {:ok, _, _} = Backend.call(:mock, :generate_wallet, state[:pid])
-      {:ok, _, _} = Backend.call(:dumb, :generate_wallet, state[:pid])
-      {:ok, _, _} = Backend.call({:dumb, "wallet"}, :generate_wallet, state[:pid])
-      {:ok, _, _} = Backend.call({:mock, "wallet"}, :generate_wallet, state[:pid])
-      {:ok, _, _} = Backend.call(:dumb, :generate_wallet, state[:pid])
+      {:ok, _, _} = Adapter.call(:mock, :generate_wallet, state[:pid])
+      {:ok, _, _} = Adapter.call(:dumb, :generate_wallet, state[:pid])
+      {:ok, _, _} = Adapter.call({:dumb, "wallet"}, :generate_wallet, state[:pid])
+      {:ok, _, _} = Adapter.call({:mock, "wallet"}, :generate_wallet, state[:pid])
+      {:ok, _, _} = Adapter.call(:dumb, :generate_wallet, state[:pid])
 
       childrens = DynamicSupervisor.which_children(state[:supervisor])
       assert childrens == []
     end
 
-    test "returns an error if no such backend is registered", state do
-      assert {:error, :no_handler} == Backend.call(:foobar, :generate_wallet, state[:pid])
+    test "returns an error if no such adapter is registered", state do
+      assert {:error, :no_handler} == Adapter.call(:foobar, :generate_wallet, state[:pid])
     end
   end
 end

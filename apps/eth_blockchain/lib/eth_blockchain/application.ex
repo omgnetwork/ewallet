@@ -22,25 +22,25 @@ defmodule EthBlockchain.Application do
   def start(_type, _args) do
     import Supervisor.Spec
 
-    backends =
+    adapters =
       :eth_blockchain
-      |> Application.get_env(EthBlockchain.Backend)
-      |> Keyword.get(:backends)
+      |> Application.get_env(EthBlockchain.Adapter)
+      |> Keyword.get(:adapters)
 
-    backend_opts = [
-      backends: backends,
+    adapter_opts = [
+      adapters: adapters,
       named: true,
       supervisor: EthBlockchain.DynamicSupervisor
     ]
 
     children = [
-      worker(EthBlockchain.Backend, [backend_opts]),
+      worker(EthBlockchain.Adapter, [adapter_opts]),
       {DynamicSupervisor, name: EthBlockchain.DynamicSupervisor, strategy: :one_for_one}
     ]
 
-    # We want to restart DynamicSupervisor when EthBlockchain.Backend crashes
-    # so we don't ended up with inconsistent state where EthBlockchain.Backend
-    # has no backends in its registry, but DynamicSupervisor already has them
+    # We want to restart DynamicSupervisor when EthBlockchain.Adapter crashes
+    # so we don't ended up with inconsistent state where EthBlockchain.Adapter
+    # has no adapters in its registry, but DynamicSupervisor already has them
     # running.
     #
     # Using :one_for_all ensures that DynamicSupervisor will be restarted.

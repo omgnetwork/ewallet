@@ -12,61 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Worker do
+defmodule EthBlockchain.Balance do
   @moduledoc false
 
-  alias EthGethAdapter.Balance
+  alias EthBlockchain.Adapter
 
-  @type server :: GenServer.server()
-  @typep from :: GenServer.from()
-  @typep state :: nil
+  @typep address :: EthBlockchain.address()
   @typep resp(ret) :: ret | {:error, atom()}
-  @typep reply(ret) :: {:reply, resp(ret), state()}
-
-  ## Genserver
-  ##
-
-  use GenServer
-
-  @doc """
-  Starts EthGethAdapter.Worker.
-  """
-  @spec start_link() :: GenServer.on_start()
-  @spec start_link(keyword()) :: GenServer.on_start()
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, :ok, opts)
-  end
-
-  @doc """
-  Initialize the registry.
-  """
-  @spec init(:ok) :: {:ok, nil}
-  def init(:ok) do
-    {:ok, nil}
-  end
-
-  @doc """
-  Stops EthGethAdapter.Worker.
-  """
-  @spec stop() :: :ok
-  @spec stop(server()) :: :ok
-  def stop(pid \\ __MODULE__) do
-    GenServer.stop(pid)
-  end
-
-  ## Callbacks
-  ##
-
-  @doc """
-  Handles the get_balances call from the client API get_balances/4.
-  """
-  # TODO: Add spec
-  def handle_call({:get_balances, address, contract_addresses, block}, _from, reg) do
-    {:reply, Balance.get(address, contract_addresses, block), reg}
-  end
-
-  ## Client API
-  ##
 
   @doc """
   Retrieve the balance of all given `contract_addresses` for the provided wallet `address`.
@@ -88,7 +40,19 @@ defmodule EthGethAdapter.Worker do
   if successful or {:error, error_code} if failed.
   """
   # TODO: Add spec
-  def get_balances(address, contract_addresses, block \\ "latest", pid \\ __MODULE__) do
-    GenServer.call(pid, {:get_balances, address, contract_addresses, block})
+  def get(params, adapter, pid \\ nil)
+
+  def get({address, contract_addresses}, adapter, pid) do
+    get({address, contract_addresses, "latest"}, adapter, pid)
+  end
+
+  def get({address, contract_addresses, block}, adapter, pid) do
+    case pid do
+      nil ->
+        Adapter.call(adapter, {:get_balances, address, contract_addresses, block})
+
+      p when is_pid(p) ->
+        Adapter.call(adapter, {:get_balances, address, contract_addresses, block}, p)
+    end
   end
 end

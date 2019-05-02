@@ -12,19 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.WorkerTest do
-  use ExUnit.Case
-  alias Ecto.Adapters.SQL.Sandbox
-  alias Keychain.Repo
+defmodule EthBlockchain.EthBlockchainCase do
+  @moduledoc """
+  """
+  use ExUnit.CaseTemplate
+  alias EthBlockchain.{Adapter, MockAdapter}
+  alias Ecto.UUID
 
-  setup tags do
-    :ok = Sandbox.checkout(Repo)
-
-    unless tags[:async] do
-      Sandbox.mode(Repo, {:shared, self()})
+  using do
+    quote do
+      import EthBlockchain.EthBlockchainCase
     end
+  end
 
-    {:ok, pid} = Worker.start_link()
+  setup do
+    supervisor = String.to_atom("#{UUID.generate()}")
+
+    {:ok, _} =
+      DynamicSupervisor.start_link(
+        name: supervisor,
+        strategy: :one_for_one
+      )
+
+    {:ok, pid} =
+      Adapter.start_link(
+        supervisor: supervisor,
+        adapters: [
+          {:mock, MockAdapter}
+        ]
+      )
+
     %{pid: pid}
   end
 end
