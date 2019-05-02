@@ -63,6 +63,7 @@ defmodule EWalletDB.Token do
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     field(:enabled, :boolean)
+    field(:blockchain_address, :string)
 
     belongs_to(
       :account,
@@ -94,6 +95,7 @@ defmodule EWalletDB.Token do
         :smallest_denomination,
         :locked,
         :account_uuid,
+        :blockchain_address,
         :metadata,
         :encrypted_metadata
       ],
@@ -116,6 +118,7 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
     |> unique_constraint(:iso_numeric)
+    |> unique_constraint(:blockchain_address)
     |> validate_length(:symbol, count: :bytes, max: 255)
     |> validate_length(:iso_code, count: :bytes, max: 255)
     |> validate_length(:name, count: :bytes, max: 255)
@@ -124,6 +127,7 @@ defmodule EWalletDB.Token do
     |> validate_length(:subunit, count: :bytes, max: 255)
     |> validate_length(:html_entity, count: :bytes, max: 255)
     |> validate_length(:iso_numeric, count: :bytes, max: 255)
+    |> validate_length(:blockchain_address, count: :bytes, max: 255)
     |> foreign_key_constraint(:account_uuid)
     |> assoc_constraint(:account)
     |> set_id(prefix: "tok_")
@@ -141,6 +145,7 @@ defmodule EWalletDB.Token do
         :symbol_first,
         :html_entity,
         :iso_numeric,
+        :blockchain_address,
         :metadata,
         :encrypted_metadata
       ],
@@ -155,6 +160,8 @@ defmodule EWalletDB.Token do
     |> validate_length(:short_symbol, count: :bytes, max: 255)
     |> validate_length(:html_entity, count: :bytes, max: 255)
     |> validate_length(:iso_numeric, count: :bytes, max: 255)
+    |> validate_length(:blockchain_address, count: :bytes, max: 255)
+    |> unique_constraint(:blockchain_address)
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
@@ -193,6 +200,20 @@ defmodule EWalletDB.Token do
   """
   def all do
     Repo.all(Token)
+  end
+
+  def all_blockchain do
+    Token
+    |> where([t], not is_nil(t.blockchain_address))
+    |> Repo.all()
+  end
+
+  def query_all_by_blockchain_addresses(addresses) do
+    where(Token, [t], t.blockchain_address in ^addresses)
+  end
+
+  def query_all_by_ids(ids) do
+    where(Token, [t], t.id in ^ids)
   end
 
   @spec avatar_changeset(Ecto.Changeset.t() | %Token{}, map()) ::
