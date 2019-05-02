@@ -20,6 +20,13 @@ export const deleteAccessKey = id =>
     service: () => accessKeyService.deleteAccessKeyById(id)
   })
 
+export const getAccessKey = id =>
+  createActionCreator({
+    actionName: 'ACCESS_KEY',
+    action: 'REQUEST',
+    service: () => accessKeyService.getAccessKey(id)
+  })
+
 export const updateAccessKey = ({ id, expired }) =>
   createActionCreator({
     actionName: 'ACCESS_KEY',

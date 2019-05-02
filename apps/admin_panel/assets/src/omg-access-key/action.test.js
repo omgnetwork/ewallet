@@ -1,6 +1,6 @@
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
-import { getAccessKeys, createAccessKey, deleteAccessKey, updateAccessKey } from './action'
+import { getAccessKeys, createAccessKey, deleteAccessKey, getAccessKey, updateAccessKey } from './action'
 import * as accessKeyService from '../services/accessKeyService'
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
@@ -40,7 +40,7 @@ describe('apikeys actions', () => {
       expect(store.getActions()).toEqual(expectedActions)
     })
   })
-  test('[createAccessKey] should dispatch success action if get account successfully', () => {
+  test('[createAccessKey] should dispatch success action if create key successfully', () => {
     accessKeyService.createAccessKey.mockImplementation(() => {
       return Promise.resolve({
         data: {
@@ -62,7 +62,7 @@ describe('apikeys actions', () => {
     })
   })
 
-  test('[deleteApiKey] should dispatch success action if get account successfully', () => {
+  test('[deleteApiKey] should dispatch success action if delete key successfully', () => {
     accessKeyService.deleteAccessKeyById.mockImplementation(() => {
       return Promise.resolve({
         data: {
@@ -84,7 +84,29 @@ describe('apikeys actions', () => {
     })
   })
 
-  test('[updateAccessKey] should dispatch success action if get account successfully', () => {
+  test('[getApiKey] should dispatch success action if get key successfully', () => {
+    accessKeyService.getAccessKey.mockImplementation(() => {
+      return Promise.resolve({
+        data: {
+          success: true,
+          data: 'key'
+        }
+      })
+    })
+    const expectedActions = [
+      { type: 'ACCESS_KEY/REQUEST/INITIATED' },
+      {
+        type: 'ACCESS_KEY/REQUEST/SUCCESS',
+        data: 'key'
+      }
+    ]
+    return store.dispatch(getAccessKey('id')).then(() => {
+      expect(accessKeyService.getAccessKey).toBeCalledWith('id')
+      expect(store.getActions()).toEqual(expectedActions)
+    })
+  })
+
+  test('[updateAccessKey] should dispatch success action if update key successfully', () => {
     accessKeyService.updateAccessKey.mockImplementation(() => {
       return Promise.resolve({
         data: {

@@ -13,6 +13,8 @@ import Breadcrumb from '../omg-uikit/breadcrumb'
 import Select from '../omg-uikit/select'
 import Switch from '../omg-uikit/switch'
 import Error from '../omg-uikit/error'
+import DetailRow from '../omg-uikit/detailrow'
+
 export {
   Input,
   Button,
@@ -29,5 +31,6 @@ export {
   Breadcrumb,
   Select,
   Switch,
-  Error
+  Error,
+  DetailRow
 }

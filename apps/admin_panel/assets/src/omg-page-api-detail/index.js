@@ -3,11 +3,9 @@ import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Breadcrumb, Icon, Button } from '../omg-uikit'
+import { Breadcrumb, Icon, Button, DetailRow } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 
-const ApiKeyDetailPageStyles = styled.div`
-`
 const BreadContainer = styled.div`
   padding: 20px 0 0 0;
   color: ${props => props.theme.colors.B100};
@@ -18,12 +16,20 @@ const TitleContainer = styled.div`
     margin-left: 10px;
   }
 `
+const DetailSection = styled.div`
+  width: 40%;
+  .copy-icon {
+    margin-left: 5px;
+    color: ${props => props.theme.colors.B100};
+    cursor: pointer;
+  }
+`
 
 const ApiKeyDetailPage = ({ match: { params } }) => {
   const { keyType, keyDetail } = params
 
   return (
-    <ApiKeyDetailPageStyles>
+    <>
       <BreadContainer>
         <Breadcrumb
           items={[
@@ -32,6 +38,7 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
           ]}
         />
       </BreadContainer>
+
       <TopNavigation
         title={
           <TitleContainer>
@@ -50,7 +57,44 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
           </Button>
         ]}
       />
-    </ApiKeyDetailPageStyles>
+
+      <DetailSection>
+        <DetailRow
+          label='Type'
+          value={<div>Admin Key</div>}
+        />
+        <DetailRow
+          label='ID'
+          value={
+            <>
+              <div>Admin Key</div>
+              <Icon className='copy-icon' name='Copy' />
+            </>
+          }
+        />
+        <DetailRow
+          label='Label'
+          value={<div>None</div>}
+        />
+        <DetailRow
+          label='Global Role'
+          value={<div>None</div>}
+        />
+        <DetailRow
+          label='Created by'
+          value={<div>None</div>}
+        />
+        <DetailRow
+          label='Created date'
+          icon='Time'
+          value={<div>None</div>}
+        />
+        <DetailRow
+          label='Status'
+          value={<div>Inactive</div>}
+        />
+      </DetailSection>
+    </>
   )
 }
 

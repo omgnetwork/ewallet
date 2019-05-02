@@ -14,6 +14,13 @@ export function getAccessKeys ({ perPage, page, matchAll, matchAny, sort }) {
   })
 }
 
+export function getAccessKey (id) {
+  return authenticatedRequest({
+    path: '/access_key.get',
+    data: { id }
+  })
+}
+
 export function createAccessKey ({ name, globalRole, accountId, roleName }) {
   return authenticatedRequest({
     path: '/access_key.create',
