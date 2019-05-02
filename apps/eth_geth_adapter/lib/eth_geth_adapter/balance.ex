@@ -20,9 +20,9 @@ defmodule EthGethAdapter.Balance do
 
   import EthGethAdapter.Encoding
 
-  def get(contract_address, address, block \\ "latest")
+  def get(address, contract_address, block \\ "latest")
 
-  def get(contract_addresses, address, block) when is_list(contract_addresses) do
+  def get(address, contract_addresses, block) when is_list(contract_addresses) do
     with {:ok, encoded_abi_data} <- ERC20.abi_balance_of(address) do
       contract_addresses
       |> Enum.reduce([], fn contract_address, acc ->
@@ -37,7 +37,7 @@ defmodule EthGethAdapter.Balance do
     end
   end
 
-  def get(contract_address, address, block),
+  def get(address, contract_address, block),
     do: get([contract_address], address, block)
 
   # Batch request builders
@@ -76,9 +76,12 @@ defmodule EthGethAdapter.Balance do
   # Formatters
 
   defp respond({:ok, balances}, addresses) do
-    [addresses, balances]
-    |> Enum.zip()
-    |> Enum.into(%{})
+    response =
+      [addresses, balances]
+      |> Enum.zip()
+      |> Enum.into(%{})
+
+    {:ok, response}
   end
 
   defp respond({:error, _error} = error, _addresses), do: error
