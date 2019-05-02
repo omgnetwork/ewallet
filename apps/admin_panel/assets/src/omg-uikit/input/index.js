@@ -35,11 +35,15 @@ const Input = styled.input`
   padding: 8px 0px;
   background-color: transparent;
   line-height: 1;
-  border-bottom: 1px solid
-    ${props => (props.error ? props.theme.colors.R400 : props.theme.colors.S400)};
+  border-bottom: 1px solid ${props =>
+    props.error
+      ? props.theme.colors.R400
+      : props.disabled
+        ? 'transparent'
+        : props.theme.colors.S400};
   :disabled {
     background-color: transparent;
-    color: ${props => props.theme.colors.S400};
+    color: ${props => props.theme.colors.B300};
   }
   ::placeholder {
     color: ${props => props.theme.colors.S400};
