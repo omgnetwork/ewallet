@@ -22,5 +22,5 @@ defmodule EthGethAdapter.Adapter do
     Client.web3_client_version()
   end
 
-  defdelegate get_balances(contract_address, address, block \\ "latest"), to: Balance, as: :get
+  defdelegate get_balances(address, contract_address, block \\ "latest"), to: Balance, as: :get
 end
