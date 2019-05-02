@@ -291,7 +291,6 @@ class ApiKeyPage extends Component {
           return (
             <KeySection>
               <Table
-                hoverEffect={false}
                 loadingRowNumber={6}
                 rows={apiKeysRows}
                 onClickRow={this.onClickRow}

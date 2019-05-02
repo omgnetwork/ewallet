@@ -186,7 +186,6 @@ class ClientKeySection extends Component {
             <KeySection>
               <Table
                 onClickRow={this.onClickRow}
-                hoverEffect={false}
                 loadingRowNumber={6}
                 rows={apiKeysRows}
                 rowRenderer={this.rowApiKeyRenderer(fetch)}
