@@ -3,7 +3,7 @@ use Mix.Config
 config :eth_blockchain,
        EthBlockchain.Adapter,
        adapters: [
-         {:dumb, EthGethAdapter.DumbAdapter}
+         {:dumb, EthBlockchain.DumbAdapter}
        ]
 
 config :eth_blockchain,
