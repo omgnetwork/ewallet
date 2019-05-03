@@ -17,9 +17,6 @@ defmodule EthBlockchain.Balance do
 
   alias EthBlockchain.Adapter
 
-  @typep address :: EthBlockchain.address()
-  @typep resp(ret) :: ret | {:error, atom()}
-
   @doc """
   Retrieve the balance of all given `contract_addresses` for the provided wallet `address`.
   The contract address `0x0000000000000000000000000000000000000000` is handled as
@@ -39,7 +36,7 @@ defmodule EthBlockchain.Balance do
   ```
   if successful or {:error, error_code} if failed.
   """
-  def get(params, adapter \\ :geth, pid \\ nil)
+  def get(params, adapter \\ Application.get_env(:eth_blockchain, :default_adapter), pid \\ nil)
 
   def get({address, contract_addresses}, adapter, pid) do
     get({address, contract_addresses, "latest"}, adapter, pid)

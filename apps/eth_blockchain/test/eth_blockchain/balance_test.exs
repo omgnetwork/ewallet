@@ -19,7 +19,7 @@ defmodule EthBlockchain.BalanceTest do
 
   describe "get/1" do
     test "get wallet balances with the given adapter spec", state do
-      resp = Balance.get({"0x123", ["0x01", "0x02", "0x03"]}, :mock, state[:pid])
+      resp = Balance.get({"0x123", ["0x01", "0x02", "0x03"]}, :dumb, state[:pid])
       assert resp == {:ok, %{"0x01" => 123, "0x02" => 123, "0x03" => 123}}
     end
 
