@@ -15,7 +15,7 @@
 defmodule EthBlockchain.EthBlockchainCase do
   @moduledoc false
   use ExUnit.CaseTemplate
-  alias EthBlockchain.{Adapter, MockAdapter}
+  alias EthBlockchain.{Adapter, DumbAdapter}
   alias Ecto.UUID
 
   using do
@@ -37,7 +37,7 @@ defmodule EthBlockchain.EthBlockchainCase do
       Adapter.start_link(
         supervisor: supervisor,
         adapters: [
-          {:mock, MockAdapter}
+          {:dumb, DumbAdapter}
         ]
       )
 

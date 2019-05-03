@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthBlockchain.MockAdapter do
+defmodule EthBlockchain.DumbAdapter do
   @moduledoc false
 
   def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
