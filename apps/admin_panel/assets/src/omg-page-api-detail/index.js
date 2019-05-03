@@ -3,13 +3,13 @@ import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Breadcrumb, Icon, Button, DetailRow } from '../omg-uikit'
+import { Breadcrumb, Icon, DetailRow } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 
 const BreadContainer = styled.div`
-  padding: 20px 0 0 0;
+  margin-top: 30px;
   color: ${props => props.theme.colors.B100};
-  font-size: 12px;
+  font-size: 14px;
 `
 const TitleContainer = styled.div`
   span {
@@ -48,14 +48,6 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
         }
         searchBar={false}
         divider={false}
-        buttons={[
-          <Button
-            key='edit'
-            styleType='secondary'
-          >
-            Edit
-          </Button>
-        ]}
       />
 
       <DetailSection>

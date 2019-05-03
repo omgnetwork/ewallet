@@ -9,19 +9,26 @@ const TagStyle = styled.div`
   flex-direction: row;
   align-items: center;
   padding: 5px 10px;
-  background-color: ${props => props.theme.colors.S200};
+  background-color: ${props => props.active ? props.theme.colors.S200 : 'none'};
   border-radius: 2px;
   font-weight: bold;
   font-size: ${props => props.small ? '12px' : 'inherit'};
+  color: ${props => props.theme.colors.B400};
+  transition: all 200ms ease-in-out;
+  border: 1px solid transparent;
+
+  :hover {
+    border: 1px solid ${props => props.hoverStyle ? props.theme.colors.S300 : 'transparent'};
+  }
 
   i {
     margin-right: 5px;
   }
 `
 
-const Tag = ({ title, icon, small }) => {
+const Tag = ({ title, icon, small, active = true, hoverStyle = false }) => {
   return (
-    <TagStyle small={small}>
+    <TagStyle small={small} active={active} hoverStyle={hoverStyle}>
       {icon && (
         <Icon name={icon} />
       )}
@@ -35,7 +42,9 @@ const Tag = ({ title, icon, small }) => {
 Tag.propTypes = {
   title: PropTypes.string.isRequired,
   icon: PropTypes.string,
-  small: PropTypes.bool
+  small: PropTypes.bool,
+  active: PropTypes.bool,
+  hoverStyle: PropTypes.bool
 }
 
 export default Tag

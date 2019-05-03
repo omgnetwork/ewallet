@@ -19,7 +19,7 @@ const RowStyle = styled.div`
   display: flex;
   flex-direction: row;
   border-bottom: 1px solid ${props => props.theme.colors.S200};
-  padding: 20px 0;
+  padding: 15px 0;
   flex: 1 1 0;
   justify-content: space-between;
 

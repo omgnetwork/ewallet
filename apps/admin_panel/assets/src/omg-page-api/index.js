@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Button, Icon } from '../omg-uikit'
+import { Button, Tag } from '../omg-uikit'
 import { compose } from 'recompose'
 import AdminKeySection from './AdminKeySection'
 import { withRouter, Link } from 'react-router-dom'
@@ -26,28 +26,11 @@ const KeyTopBar = styled.div`
     margin-left: auto;
   }
 `
-const KeyButton = styled.button`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  i {
-    margin-right: 5px;
-  }
-
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-weight: bold;
-  background-color: ${({ active, theme }) => (active ? theme.colors.S200 : 'white')};
-  color: ${({ active, theme }) => (active ? theme.colors.B400 : theme.colors.B100)};
-  margin-right: 10px;
-  transition: all 200ms ease-in-out;
-  border: 1px solid transparent;
-  :hover {
-    border: 1px solid ${props => props.theme.colors.S300};
-  }
-`
 const KeyTopButtonsContainer = styled.div`
   margin: 25px 0;
+  a {
+    margin-right: 10px;
+  }
 `
 const enhance = compose(withRouter)
 class ApiKeyPage extends Component {
@@ -99,16 +82,20 @@ class ApiKeyPage extends Component {
         <KeyTopBar>
           <KeyTopButtonsContainer>
             <Link to='/keys/admin' query={stringQuery}>
-              <KeyButton active={activeTab === 'admin'}>
-                <Icon name='Option-Horizontal' />
-                <span>Admin Keys</span>
-              </KeyButton>
+              <Tag
+                title='Admin Keys'
+                icon='Option-Horizontal'
+                active={activeTab === 'admin'}
+                hoverStyle
+              />
             </Link>
             <Link to='/keys/client' query={stringQuery}>
-              <KeyButton active={activeTab === 'client'}>
-                <Icon name='Option-Horizontal' />
-                <span>Client Keys</span>
-              </KeyButton>
+              <Tag
+                title='Client Keys'
+                icon='Option-Horizontal'
+                active={activeTab === 'client'}
+                hoverStyle
+              />
             </Link>
             {activeTab === 'admin' ? (
               <Button size='small' onClick={this.onClickCreateAdminKey} styleType={'secondary'}>
