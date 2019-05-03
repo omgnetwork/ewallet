@@ -35,23 +35,22 @@ const NavCardStyle = styled.div`
   }
 `
 
-const NavCard = ({ icon, title, subTitle, to, className, style }) => {
+const NavCard = ({ icon, title, subTitle, to, onClick, className }) => {
+  const Resolved = to ? Link : 'div'
   return (
-    <div className={className} style={style}>
-      <Link to={to}>
-        <NavCardStyle>
-          <Icon name={icon} className='icon' />
-          <div className='text'>
-            <div className='title'>
-              {title}
-            </div>
-            <div className='subtitle'>
-              {subTitle}
-            </div>
+    <Resolved to={to} onClick={onClick}>
+      <NavCardStyle className={className}>
+        <Icon name={icon} className='icon' />
+        <div className='text'>
+          <div className='title'>
+            {title}
           </div>
-        </NavCardStyle>
-      </Link>
-    </div>
+          <div className='subtitle'>
+            {subTitle}
+          </div>
+        </div>
+      </NavCardStyle>
+    </Resolved>
   )
 }
 
@@ -59,8 +58,8 @@ NavCard.propTypes = {
   icon: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   subTitle: PropTypes.string.isRequired,
-  to: PropTypes.string.isRequired,
-  style: PropTypes.object,
+  to: PropTypes.string,
+  onClick: PropTypes.func,
   className: PropTypes.string
 }
 

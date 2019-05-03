@@ -15,6 +15,8 @@ import WalletPage from '../../omg-page-wallets'
 import UserSettingPage from '../../omg-page-user-setting'
 import ApiKeyPage from '../../omg-page-api'
 import ApiKeyDetailPage from '../../omg-page-api-detail'
+import KeyDetailAccountsPage from '../../omg-page-api-detail-accounts'
+import KeyDetailUsersPage from '../../omg-page-api-detail-users'
 import UserPage from '../../omg-page-users'
 import TokenDetailPage from '../../omg-page-token-detail'
 import WalletDetailPage from '../../omg-page-wallet-detail'
@@ -51,6 +53,8 @@ const createRoute = ({ authenticated }) => (
       <AuthenticatedRoute authenticated={authenticated} path='/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute authenticated={authenticated} path='/transaction/export' exact component={TransactionExportPage} />
 
+      <AuthenticatedRoute authenticated={authenticated} path='/keys/:keyType/:keyDetail/assigned-accounts' exact component={KeyDetailAccountsPage} />
+      <AuthenticatedRoute authenticated={authenticated} path='/keys/:keyType/:keyDetail/assigned-users' exact component={KeyDetailUsersPage} />
       <AuthenticatedRoute authenticated={authenticated} path='/keys/:keyType/:keyDetail' exact component={ApiKeyDetailPage} />
       <AuthenticatedRoute authenticated={authenticated} path='/keys/:keyType' exact component={ApiKeyPage} />
       <AuthenticatedRoute authenticated={authenticated} path='/keys' exact component={ApiKeyPage} />

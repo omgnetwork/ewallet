@@ -9,6 +9,7 @@ const DetailRowStyle = styled.div`
   flex-direction: row;
   align-items: center;
   width: 100%;
+  position: relative;
 
   .icon {
     margin-right: 20px;
@@ -32,6 +33,8 @@ const RowStyle = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    position: absolute;
+    right: 0;
   }
 `
 

@@ -13,7 +13,7 @@ const SelectContainer = styled.div`
 `
 const OptionsContainer = styled.div`
   position: absolute;
-  top: 44px;
+  top: 41px;
   z-index: 2;
   border: 1px solid #ebeff7;
   border-radius: 2px;
@@ -43,7 +43,8 @@ export default class Select extends PureComponent {
     className: PropTypes.string,
     filterByKey: PropTypes.bool,
     optionRenderer: PropTypes.func,
-    disabled: PropTypes.bool
+    disabled: PropTypes.bool,
+    noBorder: PropTypes.bool
   }
   static defaultProps = {
     onSelectItem: _.noop,

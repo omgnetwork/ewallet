@@ -3,8 +3,8 @@ import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Breadcrumb, Icon, DetailRow, Tag, Button, NavCard, Select } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
+import { Breadcrumb, Icon, DetailRow, Tag, Button, NavCard, Select, Switch } from '../omg-uikit'
 
 const BreadContainer = styled.div`
   margin-top: 30px;
@@ -49,9 +49,12 @@ const AsideSection = styled.div`
     text-align: right;
     margin-bottom: 20px;
   }
+  .nav-card {
+    margin-bottom: 10px;
+  }
 `
 
-const ApiKeyDetailPage = ({ match: { params } }) => {
+const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }) => {
   const { keyType, keyDetail } = params
   const [ view, setView ] = useState('read')
 
@@ -124,17 +127,17 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
           </Button>
         </div>
         <NavCard
-          style={{ marginBottom: '10px' }}
+          className='nav-card'
           icon='Merchant'
           title='Assigned Accounts'
           subTitle='Lorem ipsum something something else'
-          to='/'
+          to={`${pathname}/assigned-accounts`}
         />
         <NavCard
           icon='Profile'
           title='Assigned Users'
           subTitle='Lorem ipsum something something else'
-          to='/'
+          to={`${pathname}/assigned-users`}
         />
       </AsideSection>
     </Content>
@@ -153,17 +156,44 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
           label='Label'
           value={
             <Select
+              noBorder
               normalPlaceholder='Label'
+              value='None'
+              options={[
+                { key: 'hi', value: 'HI' },
+                { key: 'yo', value: 'YO' }
+              ]}
             />
           }
         />
         <DetailRow
           label='Global Role'
-          value={<div>None</div>}
+          value={
+            <Select
+              noBorder
+              normalPlaceholder='Global Role'
+              value='None'
+              options={[
+                { key: 'hi', value: 'HI' },
+                { key: 'yo', value: 'YO' },
+                { key: 'so', value: 'SO' }
+              ]}
+            />
+          }
         />
         <DetailRow
           label='Status'
-          value={<div>Inactive</div>}
+          value={
+            <>
+              <span style={{ marginRight: '10px' }}>
+                Inactive
+              </span>
+              <Switch
+                open={false}
+                onClick={console.log}
+              />
+            </>
+          }
         />
         <div className='button-group'>
           <Button
@@ -215,7 +245,9 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
 }
 
 ApiKeyDetailPage.propTypes = {
-  match: PropTypes.object
+  match: PropTypes.object,
+  location: PropTypes.object,
+  history: PropTypes.object
 }
 
 export default ApiKeyDetailPage
