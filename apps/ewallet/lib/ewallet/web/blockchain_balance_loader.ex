@@ -17,13 +17,13 @@ defmodule EWallet.Web.BlockchainBalanceLoader do
   Module responsible for adding balances to wallets.
   """
   alias EWallet.BlockchainBalanceFetcher
-  alias EWalletDB.{BlockchainWallet, Token}
+  alias EWalletDB.Token
 
-  def add_balances(%BlockchainWallet{} = wallet) do
-    add_balances(wallet, Token.all_blockchain())
+  def balances_for_address(wallet_address) do
+    balances_for_address(wallet_address, Token.all_blockchain())
   end
 
-  def add_balances(%BlockchainWallet{} = wallet, tokens) do
-    BlockchainBalanceFetcher.all(wallet, tokens)
+  def balances_for_address(wallet_address, tokens) do
+    BlockchainBalanceFetcher.all(wallet_address, tokens)
   end
 end

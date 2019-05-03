@@ -19,24 +19,24 @@ defmodule EWallet.BlockchainBalanceFetcher do
 
   alias EthBlockchain.Balance
 
-  @spec all(%EWalletDB.BlockchainWallet{}, [%EWalletDB.Token{}]) ::
+  @spec all(String.t, [%EWalletDB.Token{}]) ::
           {:ok, %EWalletDB.BlockchainWallet{}} | {:error, atom()}
   @doc """
   Prepare the list of balances for specified tokens and turn them into a suitable format for
-  EWalletAPI using a blockchain wallet and a list of tokens.
+  EWalletAPI using a blockchain wallet address and a list of tokens.
   """
-  def all(wallet, tokens) do
-    case query_and_add_balances(wallet, tokens) do
+  def all(wallet_address, tokens) do
+    case query_and_add_balances(wallet_address, tokens) do
       {:error, _} -> {:error, :blockchain_adapter_error}
       data -> {:ok, data}
     end
   end
 
-  defp query_and_add_balances(wallet, tokens) do
+  defp query_and_add_balances(wallet_address, tokens) do
     filtered_tokens = filtered_tokens(tokens)
-    addresses = Enum.map(filtered_tokens, fn token -> token.blockchain_address end)
+    token_addresses = Enum.map(filtered_tokens, fn token -> token.blockchain_address end)
 
-    {wallet.address, addresses}
+    {wallet_address, token_addresses}
     |> Balance.get()
     |> process_response(filtered_tokens)
   end
