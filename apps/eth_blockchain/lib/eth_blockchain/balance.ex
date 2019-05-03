@@ -39,7 +39,7 @@ defmodule EthBlockchain.Balance do
   ```
   if successful or {:error, error_code} if failed.
   """
-  def get(params, adapter, pid \\ nil)
+  def get(params, adapter \\ :geth, pid \\ nil)
 
   def get({address, contract_addresses}, adapter, pid) do
     get({address, contract_addresses, "latest"}, adapter, pid)
