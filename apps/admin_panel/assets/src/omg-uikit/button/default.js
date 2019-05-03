@@ -30,5 +30,6 @@ export const Content = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   opacity: ${props => (props.loading ? 0 : 1)};
 `

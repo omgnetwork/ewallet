@@ -22,6 +22,7 @@ const RowStyle = styled.div`
   padding: 15px 0;
   flex: 1 1 0;
   justify-content: space-between;
+  align-items: center;
 
   .label {
     color: ${props => props.theme.colors.B100};

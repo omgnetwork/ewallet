@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Breadcrumb, Icon, DetailRow, Tag, Button, NavCard } from '../omg-uikit'
+import { Breadcrumb, Icon, DetailRow, Tag, Button, NavCard, Select } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 
 const BreadContainer = styled.div`
@@ -21,7 +21,7 @@ const Content = styled.div`
   flex-direction: row;
 `
 const DetailSection = styled.div`
-  width: 50%;
+  width: 45%;
   margin-right: 10%;
   .copy-icon {
     margin-left: 5px;
@@ -30,15 +30,21 @@ const DetailSection = styled.div`
   }
 
   .detail-section-header {
+    height: 36px;
     margin-bottom: 15px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
   }
+
+  .button-group {
+    margin-top: 30px;
+    text-align: right;
+  }
 `
 const AsideSection = styled.div`
-  width: 50%;
+  width: 45%;
   .aside-section-header {
     text-align: right;
     margin-bottom: 20px;
@@ -47,6 +53,137 @@ const AsideSection = styled.div`
 
 const ApiKeyDetailPage = ({ match: { params } }) => {
   const { keyType, keyDetail } = params
+  const [ view, setView ] = useState('read')
+
+  const handleSave = () => {
+    console.log('updating...')
+    setView('read')
+  }
+
+  const renderReadView = () => (
+    <Content>
+      <DetailSection>
+        <div className='detail-section-header'>
+          <Tag
+            icon='Option-Horizontal'
+            title='Details'
+          />
+          <Button
+            styleType='ghost'
+            size='small'
+            style={{ minWidth: 'initial' }}
+            onClick={() => setView('edit')}
+          >
+            <span>Edit</span>
+          </Button>
+        </div>
+        <DetailRow
+          label='Type'
+          value={<div>Admin Key</div>}
+        />
+        <DetailRow
+          label='ID'
+          value={
+            <>
+              <div>Admin Key</div>
+              <Icon className='copy-icon' name='Copy' />
+            </>
+          }
+        />
+        <DetailRow
+          label='Label'
+          value={<div>None</div>}
+        />
+        <DetailRow
+          label='Global Role'
+          value={<div>None</div>}
+        />
+        <DetailRow
+          label='Created by'
+          value={<div>None</div>}
+        />
+        <DetailRow
+          label='Created date'
+          icon='Time'
+          value={<div>None</div>}
+        />
+        <DetailRow
+          label='Status'
+          value={<div>Inactive</div>}
+        />
+      </DetailSection>
+
+      <AsideSection>
+        <div className='aside-section-header'>
+          <Button
+            styleType='secondary'
+            size='small'
+          >
+            <Icon name='Plus' style={{ marginRight: '10px' }} />
+            <span>Assign This Key</span>
+          </Button>
+        </div>
+        <NavCard
+          style={{ marginBottom: '10px' }}
+          icon='Merchant'
+          title='Assigned Accounts'
+          subTitle='Lorem ipsum something something else'
+          to='/'
+        />
+        <NavCard
+          icon='Profile'
+          title='Assigned Users'
+          subTitle='Lorem ipsum something something else'
+          to='/'
+        />
+      </AsideSection>
+    </Content>
+  )
+
+  const renderEditView = () => (
+    <Content>
+      <DetailSection>
+        <div className='detail-section-header'>
+          <Tag
+            icon='Option-Horizontal'
+            title='Details'
+          />
+        </div>
+        <DetailRow
+          label='Label'
+          value={
+            <Select
+              normalPlaceholder='Label'
+            />
+          }
+        />
+        <DetailRow
+          label='Global Role'
+          value={<div>None</div>}
+        />
+        <DetailRow
+          label='Status'
+          value={<div>Inactive</div>}
+        />
+        <div className='button-group'>
+          <Button
+            styleType='ghost'
+            onClick={() => setView('read')}
+            style={{ minWidth: 'initial' }}
+          >
+            <span>Cancel</span>
+          </Button>
+          <Button
+            styleType='primary'
+            onClick={handleSave}
+            style={{ minWidth: 'initial', marginLeft: '10px' }}
+          >
+            <span>Save</span>
+          </Button>
+        </div>
+      </DetailSection>
+    </Content>
+  )
 
   return (
     <>
@@ -70,82 +207,9 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
         divider={false}
       />
 
-      <Content>
-        <DetailSection>
-          <div className='detail-section-header'>
-            <Tag
-              icon='Option-Horizontal'
-              title='Details'
-            />
-            <Button
-              styleType='ghost'
-              size='small'
-              style={{ minWidth: 'initial' }}
-            >
-              <span>Edit</span>
-            </Button>
-          </div>
-          <DetailRow
-            label='Type'
-            value={<div>Admin Key</div>}
-          />
-          <DetailRow
-            label='ID'
-            value={
-              <>
-                <div>Admin Key</div>
-                <Icon className='copy-icon' name='Copy' />
-              </>
-            }
-          />
-          <DetailRow
-            label='Label'
-            value={<div>None</div>}
-          />
-          <DetailRow
-            label='Global Role'
-            value={<div>None</div>}
-          />
-          <DetailRow
-            label='Created by'
-            value={<div>None</div>}
-          />
-          <DetailRow
-            label='Created date'
-            icon='Time'
-            value={<div>None</div>}
-          />
-          <DetailRow
-            label='Status'
-            value={<div>Inactive</div>}
-          />
-        </DetailSection>
-
-        <AsideSection>
-          <div className='aside-section-header'>
-            <Button
-              styleType='secondary'
-              size='small'
-            >
-              <Icon name='Plus' style={{ marginRight: '10px' }} />
-              <span>Assign This Key</span>
-            </Button>
-          </div>
-          <NavCard
-            style={{ marginBottom: '10px' }}
-            icon='Merchant'
-            title='Assigned Accounts'
-            subTitle='Lorem ipsum something something else'
-            to='/'
-          />
-          <NavCard
-            icon='Profile'
-            title='Assigned Users'
-            subTitle='Lorem ipsum something something else'
-            to='/'
-          />
-        </AsideSection>
-      </Content>
+      {view === 'read'
+        ? renderReadView()
+        : renderEditView()}
     </>
   )
 }
