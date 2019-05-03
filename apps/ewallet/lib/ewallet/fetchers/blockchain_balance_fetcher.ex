@@ -19,7 +19,7 @@ defmodule EWallet.BlockchainBalanceFetcher do
 
   alias EthBlockchain.Balance
 
-  @spec all(String.t, [%EWalletDB.Token{}]) ::
+  @spec all(String.t(), [%EWalletDB.Token{}]) ::
           {:ok, %EWalletDB.BlockchainWallet{}} | {:error, atom()}
   @doc """
   Prepare the list of balances for specified tokens and turn them into a suitable format for
