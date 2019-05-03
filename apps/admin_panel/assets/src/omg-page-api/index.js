@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Button } from '../omg-uikit'
+import { Button, Icon } from '../omg-uikit'
 import { compose } from 'recompose'
 import AdminKeySection from './AdminKeySection'
 import { withRouter, Link } from 'react-router-dom'
@@ -27,14 +27,21 @@ const KeyTopBar = styled.div`
   }
 `
 const KeyButton = styled.button`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  i {
+    margin-right: 5px;
+  }
+
   padding: 5px 10px;
   border-radius: 4px;
-  font-weight: ${({ active, theme }) => (active ? 'bold' : 'normal')};
+  font-weight: bold;
   background-color: ${({ active, theme }) => (active ? theme.colors.S200 : 'white')};
   color: ${({ active, theme }) => (active ? theme.colors.B400 : theme.colors.B100)};
   margin-right: 10px;
-  border: none;
-  width: 100px;
+  transition: all 200ms ease-in-out;
+  border: 1px solid transparent;
   :hover {
     border: 1px solid ${props => props.theme.colors.S300};
   }
@@ -92,10 +99,16 @@ class ApiKeyPage extends Component {
         <KeyTopBar>
           <KeyTopButtonsContainer>
             <Link to='/keys/admin' query={stringQuery}>
-              <KeyButton active={activeTab === 'admin'}>Admin Keys</KeyButton>
+              <KeyButton active={activeTab === 'admin'}>
+                <Icon name='Option-Horizontal' />
+                <span>Admin Keys</span>
+              </KeyButton>
             </Link>
             <Link to='/keys/client' query={stringQuery}>
-              <KeyButton active={activeTab === 'client'}>Client Keys</KeyButton>
+              <KeyButton active={activeTab === 'client'}>
+                <Icon name='Option-Horizontal' />
+                <span>Client Keys</span>
+              </KeyButton>
             </Link>
             {activeTab === 'admin' ? (
               <Button size='small' onClick={this.onClickCreateAdminKey} styleType={'secondary'}>
