@@ -31,7 +31,8 @@ export default class Button extends PureComponent {
     onClick: PropTypes.func,
     fluid: PropTypes.bool,
     styleType: PropTypes.oneOf(['primary', 'secondary', 'ghost']),
-    type: PropTypes.string
+    type: PropTypes.string,
+    style: PropTypes.object
   }
   static defaultProps = {
     styleType: 'primary'
@@ -42,6 +43,7 @@ export default class Button extends PureComponent {
 
     return (
       <Button
+        style={this.props.style}
         onClick={this.props.onClick}
         size={this.props.size}
         disabled={this.props.disabled}

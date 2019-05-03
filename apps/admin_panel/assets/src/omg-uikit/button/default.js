@@ -27,5 +27,8 @@ export const DefaultButton = styled.button`
   }
 `
 export const Content = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   opacity: ${props => (props.loading ? 0 : 1)};
 `

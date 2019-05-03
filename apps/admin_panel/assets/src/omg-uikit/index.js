@@ -16,6 +16,7 @@ import Error from '../omg-uikit/error'
 import DetailRow from '../omg-uikit/detailrow'
 import Tag from '../omg-uikit/tag'
 import Tooltip from '../omg-uikit/tooltip'
+import NavCard from '../omg-uikit/navcard'
 
 export {
   Input,
@@ -36,5 +37,6 @@ export {
   Error,
   DetailRow,
   Tag,
-  Tooltip
+  Tooltip,
+  NavCard
 }
