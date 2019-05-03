@@ -58,7 +58,7 @@ defmodule EWallet.Bouncer.DispatchConfig do
     ExportScope,
     APIKeyScope,
     MintScope,
-    MembershipScope.
+    MembershipScope,
     BlockchainWalletScope
   }
 

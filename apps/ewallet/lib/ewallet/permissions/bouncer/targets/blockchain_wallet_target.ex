@@ -29,5 +29,4 @@ defmodule EWallet.Bouncer.BlockchainWalletTarget do
   def get_target_type(%BlockchainWallet{}), do: :blockchain_wallets
 
   def get_target_accounts(%BlockchainWallet{}, _dispatch_config), do: []
-
 end

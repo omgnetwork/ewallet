@@ -14,8 +14,10 @@
 
 defmodule EWallet.BlockchainBalanceFetcher do
   @moduledoc """
-  Handles the retrieval and formatting of balances from the local ledger.
+  Handles the retrieval and formatting of balances from the blockchain.
   """
+
+  alias EthBlockchain.Balance
 
   @spec all(%EWalletDB.BlockchainWallet{}, [%EWalletDB.Token{}]) ::
           {:ok, %EWalletDB.BlockchainWallet{}} | {:error, atom()}
@@ -24,26 +26,30 @@ defmodule EWallet.BlockchainBalanceFetcher do
   EWalletAPI using a blockchain wallet and a list of tokens.
   """
   def all(wallet, tokens) do
-    {:ok, query_and_add_balances(wallet, tokens)}
+    case query_and_add_balances(wallet, tokens) do
+      {:error, _} -> {:error, :blockchain_adapter_error}
+      data -> {:ok, data}
+    end
   end
 
   defp query_and_add_balances(wallet, tokens) do
-    adapter = Application.get_env(:ewallet, :blockchain_adapter)
+    filtered_tokens = filtered_tokens(tokens)
+    addresses = Enum.map(filtered_tokens, fn token -> token.blockchain_address end)
 
-    wallet.address
-    |> adapter.get_balances(filtered_token_addresses(tokens))
-    |> process_response(tokens)
+    {wallet.address, addresses}
+    |> Balance.get()
+    |> process_response(filtered_tokens)
   end
 
-  defp filtered_token_addresses(tokens) do
-    tokens
-    |> Enum.map(fn token -> token.blockchain_address end)
-    |> Enum.reject(&is_nil/1)
+  defp filtered_tokens(tokens) do
+    Enum.reject(tokens, fn t -> t.blockchain_address == nil end)
   end
 
   defp process_response({:ok, data}, tokens) do
     map_tokens(tokens, data)
   end
+
+  defp process_response(error, _tokens), do: error
 
   defp map_tokens(tokens, amounts) do
     Enum.map(tokens, fn token ->
