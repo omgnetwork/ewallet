@@ -4,14 +4,14 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-
+import numeral from 'numeral'
 import { Input, Button, Icon, Select, Checkbox } from '../omg-uikit'
 import { createExchangePair, updateExchangePair } from '../omg-exchange-pair/action'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { selectGetTokenById } from '../omg-token/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchTokenQuery } from '../omg-token/searchField'
-
+import { BigNumber } from 'bignumber.js'
 const Form = styled.form`
   padding: 50px;
   width: 400px;
@@ -98,7 +98,7 @@ const BackRateContainer = styled.div`
 const Rate = styled.div`
   padding: 5px 10px;
   background-color: ${props => props.theme.colors.S300};
-  color: ${props => props.changed ? props.theme.colors.BL300 : props.theme.colors.B300};
+  color: ${props => (props.changed ? props.theme.colors.BL300 : props.theme.colors.B300)};
   display: inline-block;
   border-radius: 2px;
 
@@ -186,9 +186,11 @@ class CreateExchangeRateModal extends Component {
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
+    const toRate = numeral(this.state.toTokenRate).value()
+    const fromRate = numeral(this.state.fromTokenRate).value()
     try {
       const baseKeys = {
-        rate: this.state.toTokenRate / this.state.fromTokenRate,
+        rate: new BigNumber(toRate).dividedBy(fromRate).toNumber(),
         syncOpposite: !this.state.onlyOneWayExchange
       }
       const result = this.state.editing
@@ -216,10 +218,12 @@ class CreateExchangeRateModal extends Component {
   }
 
   get ratesAvailable () {
-    return this.state.toTokenRate > 0 &&
-      this.state.fromTokenRate > 0 &&
+    return (
+      numeral(this.state.toTokenRate).value() > 0 &&
+      numeral(this.state.fromTokenRate).value() > 0 &&
       this.state.toTokenSearch &&
       this.state.fromTokenSearch
+    )
   }
 
   renderCalculation = () => {
@@ -231,30 +235,25 @@ class CreateExchangeRateModal extends Component {
       onlyOneWayExchange,
       oppositeExchangePair
     } = this.state
-
-    const forwardRate = _.round(toTokenRate / fromTokenRate, 3)
-    const backRate = _.round(1 / forwardRate, 3)
-
+    const forwardRate = +new BigNumber(numeral(toTokenRate).value()).dividedBy(numeral(fromTokenRate).value()).toFixed(8)
+    const backRate = new BigNumber(1).dividedBy(new BigNumber(numeral(forwardRate).value())).toFixed(8)
+    console.log(backRate)
     const oldForwardRate = _.get(this.props, 'toEdit.rate')
-    const oldBackRate = _.round(_.get(oppositeExchangePair, 'rate'), 3)
-
     const forwardRateDiff = oldForwardRate !== forwardRate
-
     const renderEditingState = () => (
       <>
         <div className='calculation-title'>Exchange Pairs</div>
         <RateContainer>
-          <Rate changed={forwardRateDiff}>
-            {`1 ${fromTokenSymbol} = ${forwardRate} ${toTokenSymbol}`}
-          </Rate>
+          <Rate changed={forwardRateDiff}>{`1 ${fromTokenSymbol} = ${forwardRate} ${toTokenSymbol}`}</Rate>
 
           <BackRateContainer disabled={!oppositeExchangePair}>
-            {!forwardRateDiff
-              ? <Rate>{`1 ${toTokenSymbol} = ${oldBackRate} ${fromTokenSymbol}`}</Rate>
-              : !onlyOneWayExchange
-                ? <Rate changed>{`1 ${toTokenSymbol} = ${backRate} ${fromTokenSymbol}`}</Rate>
-                : <Rate>{`1 ${toTokenSymbol} = ${oldBackRate} ${fromTokenSymbol}`}</Rate>
-            }
+            {!forwardRateDiff ? (
+              <Rate>{`1 ${toTokenSymbol} = ${oppositeExchangePair} ${fromTokenSymbol}`}</Rate>
+            ) : !onlyOneWayExchange ? (
+              <Rate changed>{`1 ${toTokenSymbol} = ${backRate} ${fromTokenSymbol}`}</Rate>
+            ) : (
+              <Rate>{`1 ${toTokenSymbol} = ${oppositeExchangePair} ${fromTokenSymbol}`}</Rate>
+            )}
           </BackRateContainer>
         </RateContainer>
       </>
@@ -277,9 +276,7 @@ class CreateExchangeRateModal extends Component {
       </>
     )
 
-    return this.state.editing
-      ? renderEditingState()
-      : renderCreationState()
+    return this.state.editing ? renderEditingState() : renderCreationState()
   }
 
   render () {
@@ -288,9 +285,7 @@ class CreateExchangeRateModal extends Component {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
         <Icon name='Close' onClick={this.props.onRequestClose} />
-        <h4>
-          {`${editing ? 'Edit' : 'Create'} Exchange Pair`}
-        </h4>
+        <h4>{`${editing ? 'Edit' : 'Create'} Exchange Pair`}</h4>
         <TokensFetcher
           query={createSearchTokenQuery(this.state.fromTokenSearch)}
           render={({ data }) => {
@@ -300,9 +295,7 @@ class CreateExchangeRateModal extends Component {
                 <RateInputContainer>
                   <div>
                     <InputLabel>Token</InputLabel>
-                    {editing && (
-                      <ReadOnlyInput>{this.state.fromTokenSearch}</ReadOnlyInput>
-                    )}
+                    {editing && <ReadOnlyInput>{this.state.fromTokenSearch}</ReadOnlyInput>}
                     {!editing && (
                       <Select
                         normalPlaceholder='Token'
@@ -341,9 +334,7 @@ class CreateExchangeRateModal extends Component {
                 <RateInputContainer>
                   <div>
                     <InputLabel>Token</InputLabel>
-                    {editing && (
-                      <ReadOnlyInput>{this.state.toTokenSearch}</ReadOnlyInput>
-                    )}
+                    {editing && <ReadOnlyInput>{this.state.toTokenSearch}</ReadOnlyInput>}
                     {!editing && (
                       <Select
                         normalPlaceholder='Token'
@@ -396,19 +387,12 @@ class CreateExchangeRateModal extends Component {
               </SyncContainer>
             )}
 
-            <CalculationContainer>
-              {this.renderCalculation()}
-            </CalculationContainer>
+            <CalculationContainer>{this.renderCalculation()}</CalculationContainer>
           </>
         )}
 
         <ButtonContainer>
-          <Button
-            size='small'
-            type='submit'
-            loading={this.state.submitting}
-            disabled={!this.ratesAvailable}
-          >
+          <Button size='small' type='submit' loading={this.state.submitting} disabled={!this.ratesAvailable}>
             <span>{this.state.editing ? 'Update Pair' : 'Create Pair'}</span>
           </Button>
         </ButtonContainer>
