@@ -66,8 +66,11 @@ const Error = styled.div`
 const InputGroupContainer = styled.div`
   display: flex;
   > div:first-child {
-    flex: 1 1 auto;
+    flex: 1 1 55%;
     margin-right: 40px;
+  }
+  > div:nth-child(2) {
+    flex: 1 1 45%;
   }
 `
 const OptionalExplanation = styled.div`
@@ -305,6 +308,7 @@ class CreateTransaction extends Component {
               value={this.state.fromTokenAmount}
               onChange={this.onChangeAmount('fromToken')}
               type='amount'
+              maxAmountLength={18}
               normalPlaceholder={'Token amount'}
             />
           </div>
@@ -369,6 +373,7 @@ class CreateTransaction extends Component {
                 value={this.state.toTokenAmount}
                 onChange={this.onChangeAmount('toToken')}
                 type='amount'
+                maxAmountLength={18}
                 normalPlaceholder={'Token amount'}
               />
             </div>

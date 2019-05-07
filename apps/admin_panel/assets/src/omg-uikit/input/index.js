@@ -147,7 +147,7 @@ class InputComponent extends PureComponent {
     allowNegative: PropTypes.bool,
     inputActive: PropTypes.bool,
     icon: PropTypes.string,
-    maxLength: PropTypes.number
+    maxAmountLength: PropTypes.number
   }
   static defaultProps = {
     onFocus: () => {},
@@ -200,7 +200,7 @@ class InputComponent extends PureComponent {
   onChange = e => {
     const value = e.target.value
     const length = String(this.props.type === 'amount' ? numeral(value).value() : value).length
-    if (this.props.maxLength && length >= this.props.maxLength) return
+    if (this.props.maxAmountLength && length >= this.props.maxAmountLength) return
     if (this.props.type === 'amount') {
       const formattedAmount = formatNumber(value)
       const event = { ...e, target: { ...e.target, value: formattedAmount } }

@@ -318,7 +318,7 @@ class CreateExchangeRateModal extends Component {
                       value={this.state.fromTokenRate}
                       onChange={this.onChangeRate('fromToken')}
                       type='amount'
-                      maxLength={18}
+                      maxAmountLength={18}
                       normalPlaceholder={0}
                       suffix={this.state.fromTokenSymbol}
                     />
@@ -359,7 +359,7 @@ class CreateExchangeRateModal extends Component {
                       value={this.state.toTokenRate}
                       onChange={this.onChangeRate('toToken')}
                       type='amount'
-                      maxLength={18}
+                      maxAmountLength={18}
                       step='any'
                       normalPlaceholder={0}
                       suffix={this.state.toTokenSymbol}
