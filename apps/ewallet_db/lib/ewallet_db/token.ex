@@ -202,16 +202,28 @@ defmodule EWalletDB.Token do
     Repo.all(Token)
   end
 
+  @doc """
+  Returns all tokens that have a blockchain address
+  """
+  @spec all_blockchain() :: [%Token{}]
   def all_blockchain do
     Token
     |> where([t], not is_nil(t.blockchain_address))
     |> Repo.all()
   end
 
+  @doc """
+  Returns a query of Tokens that have an address matching in the provided list
+  """
+  @spec query_all_by_blockchain_addresses(String.t()) :: [Ecto.Queryable.t()]
   def query_all_by_blockchain_addresses(addresses) do
     where(Token, [t], t.blockchain_address in ^addresses)
   end
 
+  @doc """
+  Returns a query of Tokens that have an id matching in the provided list
+  """
+  @spec query_all_by_ids([String.t()]) :: [Ecto.Queryable.t()]
   def query_all_by_ids(ids) do
     where(Token, [t], t.id in ^ids)
   end

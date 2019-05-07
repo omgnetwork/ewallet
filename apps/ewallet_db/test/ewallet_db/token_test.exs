@@ -16,7 +16,7 @@ defmodule EWalletDB.TokenTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias ActivityLogger.System
-  alias EWalletDB.Token
+  alias EWalletDB.{Token, Repo}
 
   describe "Token factory" do
     test_has_valid_factory(Token)
@@ -40,6 +40,7 @@ defmodule EWalletDB.TokenTest do
     test_insert_field_length(Token, :subunit)
     test_insert_field_length(Token, :html_entity)
     test_insert_field_length(Token, :iso_numeric)
+    test_insert_field_length(Token, :blockchain_address)
 
     test "generates an id with the schema prefix and token symbol" do
       {:ok, token} = :token |> params_for(id: nil, symbol: "OMG") |> Token.insert()
@@ -99,12 +100,13 @@ defmodule EWalletDB.TokenTest do
   end
 
   describe "update/2" do
-    test_insert_field_length(Token, :iso_code)
-    test_insert_field_length(Token, :name)
-    test_insert_field_length(Token, :description)
-    test_insert_field_length(Token, :short_symbol)
-    test_insert_field_length(Token, :html_entity)
-    test_insert_field_length(Token, :iso_numeric)
+    test_update_field_length(Token, :iso_code)
+    test_update_field_length(Token, :name)
+    test_update_field_length(Token, :description)
+    test_update_field_length(Token, :short_symbol)
+    test_update_field_length(Token, :html_entity)
+    test_update_field_length(Token, :iso_numeric)
+    test_update_field_length(Token, :blockchain_address)
 
     test "updates an existing token correctly" do
       {:ok, token} =
@@ -163,6 +165,60 @@ defmodule EWalletDB.TokenTest do
       :token |> params_for() |> Token.insert()
 
       assert length(Token.all()) == 3
+    end
+  end
+
+  describe "all_blockchain/0" do
+    test "returns all tokens that have a blockchain address" do
+      assert Enum.empty?(Token.all())
+
+      :token |> params_for(%{blockchain_address: "0x01"}) |> Token.insert()
+      :token |> params_for(%{blockchain_address: "0x02"}) |> Token.insert()
+      :token |> params_for() |> Token.insert()
+
+      assert length(Token.all_blockchain()) == 2
+    end
+  end
+
+  describe "query_all_by_blockchain_addresses/1" do
+    test "returns a query of Tokens that have an address matching in the provided list" do
+      :token |> params_for(%{blockchain_address: "0x01"}) |> Token.insert()
+      :token |> params_for(%{blockchain_address: "0x02"}) |> Token.insert()
+      :token |> params_for(%{blockchain_address: "0x03"}) |> Token.insert()
+      :token |> params_for() |> Token.insert()
+
+      token_addresses =
+        ["0x01", "0x02"]
+        |> Token.query_all_by_blockchain_addresses()
+        |> Repo.all()
+        |> Enum.map(fn t -> t.blockchain_address end)
+
+      assert length(token_addresses) == 2
+
+      assert Enum.member?(token_addresses, "0x01")
+      assert Enum.member?(token_addresses, "0x02")
+      refute Enum.member?(token_addresses, "0x03")
+    end
+  end
+
+  describe "query_all_by_ids/1" do
+    test "returns a query of Tokens that have an id matching in the provided list" do
+      {:ok, tk_1} = :token |> params_for() |> Token.insert()
+      {:ok, tk_2} = :token |> params_for() |> Token.insert()
+      {:ok, tk_3} = :token |> params_for() |> Token.insert()
+      {:ok, _tk_4} = :token |> params_for() |> Token.insert()
+
+      token_ids =
+        [tk_1.id, tk_2.id]
+        |> Token.query_all_by_ids()
+        |> Repo.all()
+        |> Enum.map(fn t -> t.id end)
+
+      assert length(token_ids) == 2
+
+      assert Enum.member?(token_ids, tk_1.id)
+      assert Enum.member?(token_ids, tk_2.id)
+      refute Enum.member?(token_ids, tk_3.id)
     end
   end
 
