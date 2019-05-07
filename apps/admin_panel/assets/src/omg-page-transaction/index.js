@@ -7,11 +7,10 @@ import PropTypes from 'prop-types'
 
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
-import { Button, Icon } from '../omg-uikit'
+import { Button, Icon, Id } from '../omg-uikit'
 import CreateTransactionModal from '../omg-create-transaction-modal'
 import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import Copy from '../omg-copy'
 
 const TransactionPageContainer = styled.div`
   position: relative;
@@ -54,7 +53,6 @@ const TransactionPageContainer = styled.div`
     }
   }
   i[name='Copy'] {
-    margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
     color: ${props => props.theme.colors.S500};
@@ -64,10 +62,8 @@ const TransactionPageContainer = styled.div`
   }
 `
 const TransactionIdContainer = styled.div`
-  white-space: nowrap;
-  span {
-    vertical-align: middle;
-  }
+  display: flex;
+  flex-direction: row;
   i[name='Transaction'] {
     color: ${props => props.theme.colors.B100};
     padding: 8px;
@@ -208,8 +204,7 @@ class TransactionPage extends Component {
     if (key === 'id') {
       return (
         <TransactionIdContainer>
-          <Icon name='Transaction' />
-          <span>{data}</span> <Copy data={data} />
+          <Icon name='Transaction' /><Id>{data}</Id>
         </TransactionIdContainer>
       )
     }

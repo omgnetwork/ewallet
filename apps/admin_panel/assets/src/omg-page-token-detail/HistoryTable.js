@@ -7,8 +7,8 @@ import styled from 'styled-components'
 
 import TokenMintedHistoryFetcher from '../omg-token/tokenMintedHistoryFetcher'
 import Table from '../omg-table'
+import { Id } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import Copy from '../omg-copy'
 
 const HistoryTableContainer = styled.div`
   width: 100%;
@@ -47,11 +47,7 @@ export default withRouter(
     }
     rowRenderer = (key, data, rows) => {
       if (key === 'id') {
-        return (
-          <span>
-            {data} <Copy data={data} />
-          </span>
-        )
+        return <Id>{data}</Id>
       }
       if (key === 'amount') {
         return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${_.get(

@@ -27,6 +27,8 @@ const DetailContainer = styled.div`
   }
 `
 export const DetailGroup = styled.div`
+  display: flex;
+  flex-direction: row;
   margin-top: 15px;
   color: ${props => props.theme.colors.B200};
   b {

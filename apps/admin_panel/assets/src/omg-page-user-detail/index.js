@@ -8,9 +8,8 @@ import { withRouter, Link } from 'react-router-dom'
 import UserProvider from '../omg-users/userProvider'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import { LoadingSkeleton, Breadcrumb } from '../omg-uikit'
+import { LoadingSkeleton, Breadcrumb, Id } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import Copy from '../omg-copy'
 
 const UserDetailContainer = styled.div`
   b {
@@ -76,7 +75,7 @@ class TokenDetailPage extends Component {
     return (
       <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
-          <b>ID:</b> <span>{user.id}</span> <Copy data={user.id} />
+          <b>ID:</b><Id>{user.id}</Id>
         </DetailGroup>
         <DetailGroup>
           <b>Email:</b> <span>{user.email || '-'}</span>

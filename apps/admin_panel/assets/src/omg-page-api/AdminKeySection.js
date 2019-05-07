@@ -85,7 +85,6 @@ const ConfirmCreateKeyContainer = styled.div`
     color: ${props => props.theme.colors.B300};
   }
   i[name='Copy'] {
-    margin-left: 5px;
     cursor: pointer;
     color: ${props => props.theme.colors.S500};
     :hover {
@@ -105,7 +104,7 @@ const KeyContainer = styled.div`
     margin-right: 5px;
   }
   i[name='Key'] {
-    margin-right: 5px;
+    margin-right: 15px;
     color: ${props => props.theme.colors.B100};
     padding: 8px;
     border-radius: 6px;

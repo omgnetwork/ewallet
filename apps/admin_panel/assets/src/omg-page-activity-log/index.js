@@ -41,7 +41,6 @@ const AccountPageContainer = styled.div`
     }
   }
   i[name='Copy'] {
-    margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
     color: ${props => props.theme.colors.S500};

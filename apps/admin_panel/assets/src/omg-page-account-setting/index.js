@@ -5,7 +5,6 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
-import moment from 'moment'
 
 import Modal from '../omg-modal'
 import { Input, Button, Icon, Select } from '../omg-uikit'
@@ -13,7 +12,6 @@ import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { getAccountById, updateAccount } from '../omg-account/action'
 import { selectGetAccountById } from '../omg-account/selector'
-import Copy from '../omg-copy'
 import ChooseCategoryStage from '../omg-create-account-modal/ChooseCategoryStage'
 
 const NameInput = styled(Input)`
@@ -77,7 +75,6 @@ const CategorySelect = styled.div`
 
 export const NameColumn = styled.div`
   i[name='Copy'] {
-    margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
     color: ${props => props.theme.colors.S500};
@@ -193,25 +190,6 @@ class AccountSettingPage extends Component {
         <Icon name='Plus' /><span>Invite Member</span>
       </Button>
     )
-  }
-  rowRenderer = (key, data, rows) => {
-    if (key === 'updated_at') {
-      return moment(data).format()
-    }
-    if (key === 'username') {
-      return data || '-'
-    }
-    if (key === 'status') {
-      return data === 'active' ? 'Active' : 'Pending'
-    }
-    if (key === 'id') {
-      return (
-        <NameColumn>
-          <span>{data}</span> <Copy data={data} />
-        </NameColumn>
-      )
-    }
-    return data
   }
   onChangeCategory = e => {
     this.setState({

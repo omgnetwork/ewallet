@@ -8,7 +8,7 @@ import moment from 'moment'
 import AccountProvider from '../omg-account/accountProvider'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import Copy from '../omg-copy'
+import { Id } from '../omg-uikit'
 
 const enhance = compose(
   withTheme,
@@ -25,7 +25,7 @@ class AccountDetailPage extends Component {
         <TopNavigation title={'Details'} divider={false} searchBar={false} />
         <Section>
           <DetailGroup>
-            <b>ID:</b> {account.id} <Copy data={account.id} />
+            <b>ID:</b><Id>{account.id}</Id>
           </DetailGroup>
           <DetailGroup>
             <b>Description:</b> {account.description || '-'}

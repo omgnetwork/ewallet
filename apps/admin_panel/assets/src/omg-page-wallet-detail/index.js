@@ -6,12 +6,11 @@ import { compose } from 'recompose'
 import moment from 'moment'
 
 import WalletProvider from '../omg-wallet/walletProvider'
-import { Button, Icon } from '../omg-uikit'
+import { Button, Icon, Id } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import CreateTransactionModal from '../omg-create-transaction-modal'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import Copy from '../omg-copy'
 import CONSTANT from '../constants'
 
 const WalletDetailContainer = styled.div`
@@ -81,7 +80,7 @@ class WalletDetaillPage extends Component {
     return (
       <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
-          <b>Address:</b> <span>{wallet.address}</span> <Copy data={wallet.address} />
+          <b>Address:</b><Id>{wallet.address}</Id>
         </DetailGroup>
         <DetailGroup>
           <b>Name:</b> <span>{wallet.name}</span>

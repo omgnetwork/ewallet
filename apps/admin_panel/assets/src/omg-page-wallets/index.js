@@ -7,10 +7,9 @@ import queryString from 'query-string'
 
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
-import { Button, Icon } from '../omg-uikit'
+import { Button, Icon, Id } from '../omg-uikit'
 import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import { selectWallets } from '../omg-wallet/selector'
-import Copy from '../omg-copy'
 import CreateTransactionModal from '../omg-create-transaction-modal'
 import CreateWalletModal from '../omg-create-wallet-modal'
 
@@ -63,7 +62,6 @@ const WalletAddressContainer = styled.div`
   }
   i[name='Copy'] {
     visibility: hidden;
-    margin-left: 5px;
     color: ${props => props.theme.colors.S500};
     :hover {
       color: ${props => props.theme.colors.B300};
@@ -221,7 +219,7 @@ class WalletPage extends Component {
     if (key === 'address') {
       return (
         <WalletAddressContainer>
-          <span>{data}</span> <Copy data={data} />
+          <Id withCopy={false}>{data}</Id>
         </WalletAddressContainer>
       )
     }
