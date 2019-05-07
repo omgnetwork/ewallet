@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import moment from 'moment'
 
-import { Switch, Icon } from '../omg-uikit'
+import { Switch, Icon, Id } from '../omg-uikit'
 import Table from '../omg-table'
 import AccessKeyFetcher from '../omg-access-key/accessKeysFetcher'
 import ConfirmationModal from '../omg-confirmation-modal'
@@ -94,6 +94,8 @@ const ConfirmCreateKeyContainer = styled.div`
   }
 `
 const KeyContainer = styled.div`
+  display: flex;
+  flex-direction: row;
   white-space: nowrap;
   span {
     vertical-align: middle;
@@ -192,7 +194,7 @@ class ApiKeyPage extends Component {
 
   onClickRow = (data, index) => e => {
     const { keyType } = this.props.match.params
-    this.props.history.push(`${keyType || 'keys/admin'}/${data.id}`)
+    this.props.history.push(`${keyType || 'keys/admin'}/${data.key}`)
   }
 
   rowAdminKeyRenderer = fetch => (key, data, rows) => {
@@ -207,7 +209,8 @@ class ApiKeyPage extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /><span>{data}</span> <Copy data={data} />
+            <Icon name='Key' />
+            <Id>{data}</Id>
           </KeyContainer>
         )
       case 'name':

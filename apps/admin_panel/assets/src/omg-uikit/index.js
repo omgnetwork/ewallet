@@ -17,6 +17,7 @@ import DetailRow from '../omg-uikit/detailrow'
 import Tag from '../omg-uikit/tag'
 import Tooltip from '../omg-uikit/tooltip'
 import NavCard from '../omg-uikit/navcard'
+import Id from '../omg-uikit/id'
 
 export {
   Input,
@@ -38,5 +39,6 @@ export {
   DetailRow,
   Tag,
   Tooltip,
-  NavCard
+  NavCard,
+  Id
 }
