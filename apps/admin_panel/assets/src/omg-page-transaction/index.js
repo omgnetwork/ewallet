@@ -15,7 +15,6 @@ import Copy from '../omg-copy'
 
 const TransactionPageContainer = styled.div`
   position: relative;
-  display: flex;
   td:nth-child(3) {
     white-space: nowrap;
     > div {
