@@ -12,7 +12,8 @@ const IdStyle = styled.div`
   .data {
     white-space: nowrap;
     margin-right: 10px;
-    overflow-x: ellipsis;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
     max-width: ${props => `${props.maxWidth}px`};
   }
 `

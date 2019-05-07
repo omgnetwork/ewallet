@@ -1,18 +1,19 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import Table from '../omg-table'
-import { Switch, Icon } from '../omg-uikit'
-import ApiKeysFetcher from '../omg-api-keys/apiKeysFetcher'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { createApiKey, updateApiKey } from '../omg-api-keys/action'
-import CreateClientKeyModal from '../omg-create-client-key-modal'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
-import Copy from '../omg-copy'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+
+import Table from '../omg-table'
+import { Switch, Icon, Id } from '../omg-uikit'
+import ApiKeysFetcher from '../omg-api-keys/apiKeysFetcher'
+import { createApiKey, updateApiKey } from '../omg-api-keys/action'
+import CreateClientKeyModal from '../omg-create-client-key-modal'
 import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
+
 const KeySection = styled.div`
   position: relative;
   p {
@@ -64,6 +65,8 @@ const KeySection = styled.div`
 `
 
 const KeyContainer = styled.div`
+  display: flex;
+  flex-direction: row;
   white-space: nowrap;
   span {
     vertical-align: middle;
@@ -144,7 +147,8 @@ class ClientKeySection extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /><span>{data}</span> <Copy data={data} />
+            <Icon name='Key' />
+            <Id>{data}</Id>
           </KeyContainer>
         )
       case 'name':
