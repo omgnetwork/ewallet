@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { compose } from 'recompose'
+import moment from 'moment'
 import styled, { withTheme } from 'styled-components'
 import { withRouter } from 'react-router-dom'
+
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import AdminProvider from '../omg-admins/adminProvider'
-import { compose } from 'recompose'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import moment from 'moment'
 import Copy from '../omg-copy'
+
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
   b {

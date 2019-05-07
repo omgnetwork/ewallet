@@ -1,10 +1,11 @@
 import { Component } from 'react'
+import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { compose } from 'recompose'
 import { connect } from 'react-redux'
+
 import { selectGetTokenById } from './selector'
 import { getTokenById } from './action'
-import { withRouter } from 'react-router-dom'
-import { compose } from 'recompose'
 
 const enhance = compose(
   withRouter,

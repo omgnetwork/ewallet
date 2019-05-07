@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import { Route, Redirect } from 'react-router-dom'
-import AppLayout from '../../omg-app-layout'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+import { Route, Redirect } from 'react-router-dom'
+
+import AppLayout from '../../omg-app-layout'
 import { bootstrap } from '../action'
 class AuthenticatedRoute extends Component {
   static propTypes = {

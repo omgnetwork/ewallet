@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { compose } from 'recompose'
+import moment from 'moment'
+
 import styled, { withTheme } from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
 import UserProvider from '../omg-users/userProvider'
-import { compose } from 'recompose'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import moment from 'moment'
 import { LoadingSkeleton, Breadcrumb } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
+
 const UserDetailContainer = styled.div`
   b {
     width: 150px;

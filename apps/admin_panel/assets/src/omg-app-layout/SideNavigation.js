@@ -1,15 +1,17 @@
 import React, { PureComponent, Fragment } from 'react'
-import styled from 'styled-components'
-import { Icon } from '../omg-uikit'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
-import { fuzzySearch } from '../utils/search'
-import { selectRecentAccounts } from '../omg-recent-account/selector'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { logout } from '../omg-session/action'
 import FlipMove from 'react-flip-move'
+import styled from 'styled-components'
+
+import { Icon } from '../omg-uikit'
+import { fuzzySearch } from '../utils/search'
+import { selectRecentAccounts } from '../omg-recent-account/selector'
+import { logout } from '../omg-session/action'
+
 const SideNavigationContainer = styled.div`
   background-color: #f0f2f5;
   height: 100%;

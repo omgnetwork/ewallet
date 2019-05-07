@@ -1,8 +1,9 @@
-import createReducer from '../reducer/createReducer'
 import uuid from 'uuid/v4'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+
+import createReducer from '../reducer/createReducer'
 
 const CopyTextContainer = styled.div`
   b {

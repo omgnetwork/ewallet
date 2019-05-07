@@ -1,17 +1,19 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import moment from 'moment'
+import queryString from 'query-string'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import CreateTransactionRequestModal from '../omg-create-transaction-request-modal'
 import ExportModal from '../omg-export-modal'
 import TransactionRequestsFetcher from '../omg-transaction-request/transactionRequestsFetcher'
-import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
-import moment from 'moment'
-import queryString from 'query-string'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
+
 const TransactionRequestsPageContainer = styled.div`
   position: relative;
   display: flex;

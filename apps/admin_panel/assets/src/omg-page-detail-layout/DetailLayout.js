@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import { Icon } from '../omg-uikit'
 import { withRouter } from 'react-router-dom'
+import styled from 'styled-components'
+
+import { Icon } from '../omg-uikit'
+
 const DetailLayoutContainer = styled.div`
   padding: 20px 0;
   display: flex;

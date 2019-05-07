@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import Modal from '../omg-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
+import Modal from '../omg-modal'
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import { createAccessKey } from '../omg-access-key/action'
 import { assignKey } from '../omg-account/action.js'

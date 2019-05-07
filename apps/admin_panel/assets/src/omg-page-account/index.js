@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import moment from 'moment'
+import queryString from 'query-string'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
 import Copy from '../omg-copy'
 import CreateAccountModal from '../omg-create-account-modal'
 import ExportModal from '../omg-export-modal'
 import AccountsFetcher from '../omg-account/accountsFetcher'
-import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
-import moment from 'moment'
-import queryString from 'query-string'
+
 const AccountPageContainer = styled.div`
   position: relative;
   display: flex;

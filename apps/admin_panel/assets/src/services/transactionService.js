@@ -1,5 +1,6 @@
-import { authenticatedRequest } from './apiService'
 import uuid from 'uuid/v4'
+import { authenticatedRequest } from './apiService'
+
 export function getAllTransactions ({ page, perPage, sort, search, searchTerms, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/transaction.all',

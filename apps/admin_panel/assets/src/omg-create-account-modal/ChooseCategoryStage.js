@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import { Icon, Input, PlainButton } from '../omg-uikit'
-import CategoriesFetcher from '../omg-account-category/categoriesFetcher'
 import { connect } from 'react-redux'
-import { createCategory } from '../omg-account-category/action'
+import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
+
+import { Icon, Input, PlainButton } from '../omg-uikit'
+import CategoriesFetcher from '../omg-account-category/categoriesFetcher'
+import { createCategory } from '../omg-account-category/action'
+
 const CategoryContainer = styled.div`
   position: relative;
   text-align: left;

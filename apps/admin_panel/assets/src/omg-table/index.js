@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react'
-import { Table, Icon, Button } from '../omg-uikit'
 import { withRouter } from 'react-router'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
+import styled from 'styled-components'
+
+import { Table, Icon, Button } from '../omg-uikit'
 import { DropdownBoxItem, DropdownBox } from '../omg-uikit/dropdown'
 import withDropdownState from '../omg-uikit/dropdown/withDropdownState'
-import styled from 'styled-components'
 
 export const ThContent = styled.div`
   padding: 4px 10px;

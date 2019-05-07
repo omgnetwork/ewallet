@@ -1,5 +1,5 @@
-import { selectWalletByUserId } from '../omg-wallet/selector'
 import { createSelector } from 'reselect'
+import { selectWalletByUserId } from '../omg-wallet/selector'
 import { createSelectAllPagesCachedQuery } from '../omg-cache/selector'
 export const selectUsers = (state, search) => {
   return _.values(state.users).filter(x => {

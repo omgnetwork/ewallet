@@ -1,14 +1,15 @@
 import React, { Component } from 'react'
-import { Input, Button } from '../../omg-uikit'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
-import AuthFormLayout from '../../omg-layout/authFormLayout'
 import { compose } from 'recompose'
+import PasswordValidator from 'password-validator'
+
+import { Input, Button } from '../../omg-uikit'
+import AuthFormLayout from '../../omg-layout/authFormLayout'
 import { updateUserPassword } from '../../services/clientService'
 import { isMobile } from '../../utils/device'
-import PasswordValidator from 'password-validator'
 
 const schema = new PasswordValidator()
 schema.is().min(8).has().uppercase().has().lowercase().has().digits().has().symbols()

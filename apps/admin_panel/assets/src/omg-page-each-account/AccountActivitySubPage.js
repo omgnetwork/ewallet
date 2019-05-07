@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import ActivityPage from '../omg-page-activity-log'
 import { withRouter } from 'react-router-dom'
+
+import ActivityPage from '../omg-page-activity-log'
+
 export default withRouter(
   class AccountActivitySubPage extends Component {
     static propTypes = {

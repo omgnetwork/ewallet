@@ -1,8 +1,10 @@
-import { appendParams, isAbsoluteURL } from '../utils/url'
 import urlJoin from 'url-join'
 import _ from 'lodash'
-import CONSTANT from '../constants'
 import uuid from 'uuid/v4'
+
+import CONSTANT from '../constants'
+import { appendParams, isAbsoluteURL } from '../utils/url'
+
 class SocketConnector {
   constructor (url, params = {}) {
     if (!url) {

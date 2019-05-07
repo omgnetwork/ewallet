@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import TokenMintedHistoryFetcher from '../omg-token/tokenMintedHistoryFetcher'
-import Table from '../omg-table'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
+import styled from 'styled-components'
+
+import TokenMintedHistoryFetcher from '../omg-token/tokenMintedHistoryFetcher'
+import Table from '../omg-table'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
-import styled from 'styled-components'
+
 const HistoryTableContainer = styled.div`
   width: 100%;
   tr:hover {

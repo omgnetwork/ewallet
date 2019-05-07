@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
+import moment from 'moment'
+import { Link, withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+
 import { Button, Icon } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import CurrentAccountProvider from '../omg-account-current/currentAccountProvider'
-import moment from 'moment'
-import { Link, withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
 
 const SectionsContainer = styled.div`
   display: flex;

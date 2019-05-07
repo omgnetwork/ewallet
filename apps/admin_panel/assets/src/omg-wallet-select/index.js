@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Avatar } from '../omg-uikit'
 import styled from 'styled-components'
+import { Avatar } from '../omg-uikit'
 
 const StyledAvatar = styled(Avatar)`
   display: inline-block;

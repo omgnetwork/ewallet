@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { withRouter } from 'react-router-dom'
+
 import MembersPage from '../omg-page-members'
 import MembersFetcher from '../omg-member/MembersFetcher'
-import { withRouter } from 'react-router-dom'
+
 export default withRouter(
   class AccountAdminSubPage extends Component {
     static propTypes = {

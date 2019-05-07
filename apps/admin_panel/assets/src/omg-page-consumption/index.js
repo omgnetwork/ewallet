@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
-import SortableTable from '../omg-table'
-import { Button, Icon } from '../omg-uikit'
-import ConsumptionFetcher from '../omg-consumption/consumptionsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import SortableTable from '../omg-table'
+import { Button, Icon } from '../omg-uikit'
+import ConsumptionFetcher from '../omg-consumption/consumptionsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
+
 const ConsumptionPageContainer = styled.div`
   position: relative;
   display: flex;

@@ -1,7 +1,9 @@
 import axios from 'axios'
+import urlJoin from 'url-join'
+
 import createHeader from '../utils/headerGenerator'
 import { ADMIN_API_URL, CLIENT_API_URL } from '../config'
-import urlJoin from 'url-join'
+
 export const request = url => ({ path, data, headers }) => {
   const joinedPath = urlJoin(url, path)
   return axios.post(joinedPath, data, { headers })

@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import { compose } from 'recompose'
+import { withRouter, Link } from 'react-router-dom'
+import queryString from 'query-string'
+
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Button, Tag } from '../omg-uikit'
-import { compose } from 'recompose'
 import AdminKeySection from './AdminKeySection'
-import { withRouter, Link } from 'react-router-dom'
 import ClientKeySection from './ClientKeySection'
-import queryString from 'query-string'
+
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
 `
