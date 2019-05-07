@@ -119,7 +119,8 @@ defmodule EWalletDB.Factory do
       address: Crypto.fake_eth_address(),
       name: sequence("Wallet name"),
       public_key: Crypto.fake_eth_address(),
-      type: "hot"
+      type: "hot",
+      originator: %System{}
     }
   end
 
