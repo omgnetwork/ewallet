@@ -157,7 +157,8 @@ class InputComponent extends PureComponent {
     onPressEscape: () => {},
     onPressEnter: () => {},
     type: 'string',
-    allowNegative: true
+    allowNegative: true,
+    maxAmountLength: 18
   }
 
   state = { active: false }
@@ -199,9 +200,11 @@ class InputComponent extends PureComponent {
   }
   onChange = e => {
     const value = e.target.value
-    const length = String(this.props.type === 'amount' ? numeral(value).value() : value).length
-    if (this.props.maxAmountLength && length >= this.props.maxAmountLength) return
     if (this.props.type === 'amount') {
+      const length = String(parseInt(numeral(value).value())).length
+      if (this.props.maxAmountLength && length >= this.props.maxAmountLength) {
+        return false
+      }
       const formattedAmount = formatNumber(value)
       const event = { ...e, target: { ...e.target, value: formattedAmount } }
       this.props.onChange(event)
