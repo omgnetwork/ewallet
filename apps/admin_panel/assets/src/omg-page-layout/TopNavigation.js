@@ -9,8 +9,9 @@ const TopNavigationContainer = styled.div`
   align-items: center;
   flex-wrap: wrap;
   width: 100%;
-  height: 80px;
+  min-height: 80px;
   position: relative;
+  padding: 10px 0;
   margin-bottom: ${props => props.divider ? '20px' : '0'};
   h2 {
     display: inline-block;
@@ -35,9 +36,6 @@ const TopNavigationContainer = styled.div`
     left: -8%;
     margin: 0 auto;
   }
-  @media screen and (max-width: 800px) {
-    height: auto;
-  }
 `
 const LeftNavigationContainer = styled.div`
   flex: 1 1 auto;
@@ -59,7 +57,7 @@ const RightNavigationContainer = styled.div`
   button:not(:first-child) {
     margin-left: 10px;
   }
-  @media screen and (max-width: 769px) {
+  @media screen and (max-width: 768px) {
     flex: 1 0 100%;
     margin-top: 10px;
   }

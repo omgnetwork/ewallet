@@ -237,7 +237,6 @@ class CreateExchangeRateModal extends Component {
     } = this.state
     const forwardRate = +new BigNumber(numeral(toTokenRate).value()).dividedBy(numeral(fromTokenRate).value()).toFixed(8)
     const backRate = new BigNumber(1).dividedBy(new BigNumber(numeral(forwardRate).value())).toFixed(8)
-    console.log(backRate)
     const oldForwardRate = _.get(this.props, 'toEdit.rate')
     const forwardRateDiff = oldForwardRate !== forwardRate
     const renderEditingState = () => (

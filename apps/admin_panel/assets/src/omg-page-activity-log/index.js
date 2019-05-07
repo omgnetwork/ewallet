@@ -12,11 +12,7 @@ import { Icon } from '../omg-uikit'
 const AccountPageContainer = styled.div`
   position: relative;
   display: flex;
-  flex-direction: column;
   padding-bottom: 50px;
-  > div {
-    flex: 1;
-  }
   td:first-child {
     width: 30%;
     max-width: 30%;
