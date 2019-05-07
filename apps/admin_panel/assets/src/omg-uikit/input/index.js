@@ -160,15 +160,7 @@ class InputComponent extends PureComponent {
     allowNegative: true
   }
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      active: false,
-      error: this.props.error,
-      errorText: this.props.errorText
-    }
-    this.oldProps = this.props
-  }
+  state = { active: false }
 
   componentDidMount = () => {
     if (this.props.autofocus) this.input.focus()
@@ -235,7 +227,7 @@ class InputComponent extends PureComponent {
             <Prefix
               active={this.state.active}
               error={
-                this.props.validator ? !this.props.validator(this.props.value) : this.state.error
+                this.props.validator ? !this.props.validator(this.props.value) : this.props.error
               }
             >
               <Icon name={icon} />
@@ -251,7 +243,7 @@ class InputComponent extends PureComponent {
             onBlur={this.onBlur}
             onChange={this.onChange}
             error={
-              this.props.validator ? !this.props.validator(this.props.value) : this.state.error
+              this.props.validator ? !this.props.validator(this.props.value) : this.props.error
             }
             type={this.props.type === 'amount' ? 'string' : this.props.type}
           />
@@ -259,9 +251,9 @@ class InputComponent extends PureComponent {
           <Suffix>{this.props.suffix}</Suffix>
         </InnerContainer>
         <Error
-          error={this.props.validator ? !this.props.validator(this.props.value) : this.state.error}
+          error={this.props.validator ? !this.props.validator(this.props.value) : this.props.error}
         >
-          {this.state.errorText}
+          {this.props.errorText}
         </Error>
         <Success success={this.props.success}>{this.props.successText}</Success>
       </Container>

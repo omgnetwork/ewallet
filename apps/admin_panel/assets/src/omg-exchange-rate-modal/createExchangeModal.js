@@ -14,7 +14,7 @@ import { createSearchTokenQuery } from '../omg-token/searchField'
 import { BigNumber } from 'bignumber.js'
 const Form = styled.form`
   padding: 50px;
-  width: 400px;
+  width: 500px;
   > i {
     position: absolute;
     right: 15px;
@@ -51,8 +51,11 @@ const ButtonContainer = styled.div`
 const RateInputContainer = styled.div`
   display: flex;
   > div:first-child {
-    flex: 1 1 auto;
+    flex: 1 1 45%;
     margin-right: 30px;
+  }
+  > div:nth-child(2){
+    flex: 1 1 55%;
   }
 `
 const SyncContainer = styled.div`
