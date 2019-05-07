@@ -238,8 +238,8 @@ class CreateExchangeRateModal extends Component {
       onlyOneWayExchange,
       oppositeExchangePair
     } = this.state
-    const forwardRate = +new BigNumber(numeral(toTokenRate).value()).dividedBy(numeral(fromTokenRate).value()).toFixed(8)
-    const backRate = new BigNumber(1).dividedBy(new BigNumber(numeral(forwardRate).value())).toFixed(8)
+    const forwardRate = +new BigNumber(numeral(toTokenRate).value()).dividedBy(numeral(fromTokenRate).value()).toFixed()
+    const backRate = new BigNumber(1).dividedBy(new BigNumber(numeral(forwardRate).value())).toFixed()
     const oldForwardRate = _.get(this.props, 'toEdit.rate')
     const forwardRateDiff = oldForwardRate !== forwardRate
     const renderEditingState = () => (
@@ -318,7 +318,6 @@ class CreateExchangeRateModal extends Component {
                       value={this.state.fromTokenRate}
                       onChange={this.onChangeRate('fromToken')}
                       type='amount'
-                      maxAmountLength={18}
                       normalPlaceholder={0}
                       suffix={this.state.fromTokenSymbol}
                     />
@@ -359,7 +358,6 @@ class CreateExchangeRateModal extends Component {
                       value={this.state.toTokenRate}
                       onChange={this.onChangeRate('toToken')}
                       type='amount'
-                      maxAmountLength={18}
                       step='any'
                       normalPlaceholder={0}
                       suffix={this.state.toTokenSymbol}
