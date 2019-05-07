@@ -199,7 +199,6 @@ class InputComponent extends PureComponent {
   }
   onChange = e => {
     const value = e.target.value
-    console.log(value)
     if (this.props.type === 'amount') {
       const length = String(parseInt(numeral(value).value())).length
       if (this.props.maxAmountLength && length >= this.props.maxAmountLength) {
