@@ -54,7 +54,7 @@ const RateInputContainer = styled.div`
     flex: 1 1 45%;
     margin-right: 30px;
   }
-  > div:nth-child(2){
+  > div:nth-child(2) {
     flex: 1 1 55%;
   }
 `
@@ -91,11 +91,6 @@ const RateContainer = styled.div`
   display: flex;
   flex-direction: row;
   padding-bottom: 10px;
-`
-
-const BackRateContainer = styled.div`
-  opacity: ${props => (props.disabled ? 0 : 1)};
-  transition: opacity 0.2s ease-in-out;
 `
 
 const Rate = styled.div`
@@ -238,25 +233,37 @@ class CreateExchangeRateModal extends Component {
       onlyOneWayExchange,
       oppositeExchangePair
     } = this.state
-    const forwardRate = +new BigNumber(numeral(toTokenRate).value()).dividedBy(numeral(fromTokenRate).value()).toFixed()
-    const backRate = new BigNumber(1).dividedBy(new BigNumber(numeral(forwardRate).value())).toFixed()
+    const forwardRate = +new BigNumber(numeral(toTokenRate).value())
+      .dividedBy(numeral(fromTokenRate).value())
+      .toFixed()
+    const backRate = new BigNumber(1)
+      .dividedBy(new BigNumber(numeral(forwardRate).value()))
+      .toFixed()
     const oldForwardRate = _.get(this.props, 'toEdit.rate')
     const forwardRateDiff = oldForwardRate !== forwardRate
     const renderEditingState = () => (
       <>
         <div className='calculation-title'>Exchange Pairs</div>
         <RateContainer>
-          <Rate changed={forwardRateDiff}>{`1 ${fromTokenSymbol} = ${forwardRate} ${toTokenSymbol}`}</Rate>
+          <Rate
+            changed={forwardRateDiff}
+          >{`1 ${fromTokenSymbol} = ${forwardRate} ${toTokenSymbol}`}</Rate>
 
-          <BackRateContainer disabled={!oppositeExchangePair}>
-            {!forwardRateDiff ? (
-              <Rate>{`1 ${toTokenSymbol} = ${oppositeExchangePair} ${fromTokenSymbol}`}</Rate>
-            ) : !onlyOneWayExchange ? (
-              <Rate changed>{`1 ${toTokenSymbol} = ${backRate} ${fromTokenSymbol}`}</Rate>
-            ) : (
-              <Rate>{`1 ${toTokenSymbol} = ${oppositeExchangePair} ${fromTokenSymbol}`}</Rate>
-            )}
-          </BackRateContainer>
+          {oppositeExchangePair && (
+            <>
+              {!forwardRateDiff ? (
+                <Rate>{`1 ${toTokenSymbol} = ${
+                  oppositeExchangePair.rate
+                } ${fromTokenSymbol}`}</Rate>
+              ) : !onlyOneWayExchange ? (
+                <Rate changed>{`1 ${toTokenSymbol} = ${backRate} ${fromTokenSymbol}`}</Rate>
+              ) : (
+                <Rate>{`1 ${toTokenSymbol} = ${
+                  oppositeExchangePair.rate
+                } ${fromTokenSymbol}`}</Rate>
+              )}
+            </>
+          )}
         </RateContainer>
       </>
     )
@@ -394,7 +401,12 @@ class CreateExchangeRateModal extends Component {
         )}
 
         <ButtonContainer>
-          <Button size='small' type='submit' loading={this.state.submitting} disabled={!this.ratesAvailable}>
+          <Button
+            size='small'
+            type='submit'
+            loading={this.state.submitting}
+            disabled={!this.ratesAvailable}
+          >
             <span>{this.state.editing ? 'Update Pair' : 'Create Pair'}</span>
           </Button>
         </ButtonContainer>
