@@ -93,6 +93,11 @@ const RateContainer = styled.div`
   padding-bottom: 10px;
 `
 
+const BackRateContainer = styled.div`
+  opacity: ${props => (props.disabled ? 0 : 1)};
+  transition: opacity 0.2s ease-in-out;
+`
+
 const Rate = styled.div`
   padding: 5px 10px;
   background-color: ${props => props.theme.colors.S300};
@@ -250,7 +255,7 @@ class CreateExchangeRateModal extends Component {
           >{`1 ${fromTokenSymbol} = ${forwardRate} ${toTokenSymbol}`}</Rate>
 
           {oppositeExchangePair && (
-            <>
+            <BackRateContainer>
               {!forwardRateDiff ? (
                 <Rate>{`1 ${toTokenSymbol} = ${
                   oppositeExchangePair.rate
@@ -262,7 +267,7 @@ class CreateExchangeRateModal extends Component {
                   oppositeExchangePair.rate
                 } ${fromTokenSymbol}`}</Rate>
               )}
-            </>
+            </BackRateContainer>
           )}
         </RateContainer>
       </>
