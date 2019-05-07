@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-import { Icon } from '../icon'
+import Icon from '../icon'
 import { formatNumber } from '../../utils/formatter'
 import numeral from 'numeral'
 
