@@ -14,12 +14,7 @@ import GlobalInviteModal from '../omg-global-invite-modal'
 
 const AdminPageContainer = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
   padding-bottom: 100px;
-  > div {
-    flex: 1;
-  }
   td:first-child {
     border: none;
     position: relative;

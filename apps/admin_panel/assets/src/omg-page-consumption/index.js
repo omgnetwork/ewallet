@@ -13,12 +13,7 @@ import { formatReceiveAmountToTotal } from '../utils/formatter'
 
 const ConsumptionPageContainer = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
   padding-bottom: 50px;
-  > div {
-    flex: 1;
-  }
   td {
     white-space: nowrap;
   }

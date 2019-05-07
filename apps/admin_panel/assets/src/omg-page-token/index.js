@@ -15,13 +15,8 @@ import { NameColumn } from '../omg-page-account'
 import ExchangePairModal from '../omg-exchange-rate-modal'
 import { createSearchTokenQuery } from '../omg-token/searchField'
 
-const TokenDetailPageContainer = styled.div`
+const TokenPageContainer = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
-  > div {
-    flex: 1;
-  }
   td:nth-child(1) {
     border: none;
     position: relative;
@@ -136,7 +131,7 @@ class TokenDetailPage extends Component {
   onClickRow = (data, index) => e => {
     this.props.history.push(`/tokens/${data.id}`)
   }
-  renderTokenDetailPage = ({ data: tokens, individualLoadingStatus, pagination, fetch }) => {
+  renderTokenPage = ({ data: tokens, individualLoadingStatus, pagination, fetch }) => {
     const data = tokens.map(token => {
       return {
         key: token.id,
@@ -148,7 +143,7 @@ class TokenDetailPage extends Component {
     })
 
     return (
-      <TokenDetailPageContainer>
+      <TokenPageContainer>
         <TopNavigation
           divider={this.props.divider}
           title={'Tokens'}
@@ -180,14 +175,14 @@ class TokenDetailPage extends Component {
           open={this.state.createExchangePairModalOpen}
           onRequestClose={this.onRequestCloseCreateExchangePair}
         />
-      </TokenDetailPageContainer>
+      </TokenPageContainer>
     )
   }
 
   render () {
     return (
       <TokensFetcher
-        render={this.renderTokenDetailPage}
+        render={this.renderTokenPage}
         {...this.state}
         {...this.props}
         query={{

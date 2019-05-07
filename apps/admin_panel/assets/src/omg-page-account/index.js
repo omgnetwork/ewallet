@@ -14,12 +14,7 @@ import AccountsFetcher from '../omg-account/accountsFetcher'
 
 const AccountPageContainer = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
   padding-bottom: 50px;
-  > div {
-    flex: 1;
-  }
   td:nth-child(1) {
     width: 30%;
     border: none;

@@ -15,10 +15,6 @@ import { formatReceiveAmountToTotal } from '../utils/formatter'
 const TransactionPageContainer = styled.div`
   position: relative;
   display: flex;
-  flex-direction: column;
-  > div {
-    flex: 1;
-  }
   td:nth-child(3) {
     white-space: nowrap;
     > div {
