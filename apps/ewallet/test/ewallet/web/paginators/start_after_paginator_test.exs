@@ -325,13 +325,15 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       attrs = %{"sort_by" => nil}
 
       # Assert nil value
-      sort_by = StartAfterPaginator.map_atom_attr(attrs, "sort_by", "id", @default_mapped_fields)
+      {res, sort_by} = StartAfterPaginator.attr_to_field(attrs, "sort_by", "id", @default_mapped_fields)
+      assert res == :ok
       assert sort_by == :id
 
       # Assert non-existing value
-      start_by =
-        StartAfterPaginator.map_atom_attr(attrs, "start_by", "id", @default_mapped_fields)
+      {res, start_by} =
+        StartAfterPaginator.attr_to_field(attrs, "start_by", "id", @default_mapped_fields)
 
+      assert res == :ok
       assert start_by == :id
     end
 
@@ -339,23 +341,38 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       attrs = %{"sort_by" => "created_at", "start_by" => nil}
 
       # Assert original value exists in the `@default_mapped_fields`
-      sort_by = StartAfterPaginator.map_atom_attr(attrs, "sort_by", "id", @default_mapped_fields)
+      {res, sort_by} = StartAfterPaginator.attr_to_field(attrs, "sort_by", "id", @default_mapped_fields)
+      assert res == :ok
       assert sort_by == :inserted_at
 
       # Assert default value exists in the `@default_mapped_fields`
-      start_by =
-        StartAfterPaginator.map_atom_attr(attrs, "start_by", "created_at", @default_mapped_fields)
+      {res, start_by} =
+        StartAfterPaginator.attr_to_field(attrs, "start_by", "created_at", @default_mapped_fields)
 
+      assert res == :ok
       assert start_by == :inserted_at
     end
 
     test "returns original value when the value is non-nil and non-exist in the mapping" do
       attrs = %{"sort_by" => "id"}
 
-      sort_by =
-        StartAfterPaginator.map_atom_attr(attrs, "sort_by", "name", @default_mapped_fields)
+      {res, sort_by} =
+        StartAfterPaginator.attr_to_field(attrs, "sort_by", "name", @default_mapped_fields)
 
+      assert res == :ok
       assert sort_by == :id
+    end
+
+    test "returns an error tuple when the value is not an existing atom" do
+      attrs = %{"sort_by" => "never_an_atom"}
+
+      {res, error, type, field} =
+        StartAfterPaginator.attr_to_field(attrs, "sort_by", "id", @default_mapped_fields)
+
+      assert res == :error
+      assert error == :not_existing_atom
+      assert type == "sort_by"
+      assert field == "never_an_atom"
     end
   end
 end
