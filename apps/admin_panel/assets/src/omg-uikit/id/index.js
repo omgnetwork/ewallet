@@ -11,7 +11,7 @@ const IdStyle = styled.div`
 
   .data {
     white-space: nowrap;
-    margin-right: 10px;
+    margin-right: ${props => props.withCopy ? '10px' : '0px'};
     overflow-x: hidden;
     text-overflow: ellipsis;
     max-width: ${props => props.maxChar ? 'none' : `${props.maxWidth}px`};
@@ -19,7 +19,7 @@ const IdStyle = styled.div`
 `
 const Id = ({ maxWidth = 200, withCopy = true, maxChar, children }) => {
   return (
-    <IdStyle maxWidth={maxWidth} maxChar={maxChar}>
+    <IdStyle maxWidth={maxWidth} maxChar={maxChar} withCopy={withCopy}>
       <div className='data'>
         {maxChar
           ? _.truncate(children, { 'length': maxChar })

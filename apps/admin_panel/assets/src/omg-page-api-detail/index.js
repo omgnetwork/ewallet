@@ -71,80 +71,87 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
   }
 
   // eslint-disable-next-line react/prop-types
-  const renderReadView = ({ keyDetail }) => (
-    <Content>
-      <DetailSection>
-        <div className='detail-section-header'>
-          <Tag
-            icon='Option-Horizontal'
-            title='Details'
+  const renderReadView = ({ keyDetail }) => {
+    const id = _.get(keyDetail, 'access_key') || _.get(keyDetail, 'key', '-')
+    return (
+      <Content>
+        <DetailSection>
+          <div className='detail-section-header'>
+            <Tag
+              icon='Option-Horizontal'
+              title='Details'
+            />
+            <Button
+              styleType='ghost'
+              size='small'
+              style={{ minWidth: 'initial' }}
+              onClick={() => setView('edit')}
+            >
+              <span>Edit</span>
+            </Button>
+          </div>
+          <DetailRow
+            label='Type'
+            value={keyType === 'admin' ? 'Admin Key' : 'Client Key'}
           />
-          <Button
-            styleType='ghost'
-            size='small'
-            style={{ minWidth: 'initial' }}
-            onClick={() => setView('edit')}
-          >
-            <span>Edit</span>
-          </Button>
-        </div>
-        <DetailRow
-          label='Type'
-          value={keyType === 'admin' ? 'Admin Key' : 'Client Key'}
-        />
-        <DetailRow
-          label='ID'
-          value={<Id maxChar={200}>{_.get(keyDetail, 'access_key', '-')}</Id>}
-        />
-        <DetailRow
-          label='Label'
-          value={<div>{_.get(keyDetail, 'name') || '-'}</div>}
-        />
-        <DetailRow
-          label='Global Role'
-          value={<div>{_.startCase(_.get(keyDetail, 'global_role', '-'))}</div>}
-        />
-        <DetailRow
-          label='Created by'
-          value={<div>TODO</div>}
-        />
-        <DetailRow
-          label='Created date'
-          icon='Time'
-          value={<div>{moment(_.get(keyDetail, 'created_at', '-')).format()}</div>}
-        />
-        <DetailRow
-          label='Status'
-          value={<div>{_.get(keyDetail, 'status', '-') === 'active' ? 'Active' : 'Inactive' }</div>}
-        />
-      </DetailSection>
+          <DetailRow
+            label='ID'
+            value={<Id maxChar={200}>{id}</Id>}
+          />
+          <DetailRow
+            label='Label'
+            value={<div>{_.get(keyDetail, 'name') || '-'}</div>}
+          />
+          <DetailRow
+            label='Global Role'
+            value={<div>{_.startCase(_.get(keyDetail, 'global_role')) || '-'}</div>}
+          />
+          <DetailRow
+            label='Created by'
+            value={
+              <Id maxChar={20} withCopy={!!_.get(keyDetail, 'creator_user_id')}>
+                {_.get(keyDetail, 'creator_user_id', '-')}
+              </Id>
+            }
+          />
+          <DetailRow
+            label='Created date'
+            icon='Time'
+            value={<div>{moment(_.get(keyDetail, 'created_at', '-')).format()}</div>}
+          />
+          <DetailRow
+            label='Status'
+            value={<div>{_.get(keyDetail, 'status', '-') === 'active' ? 'Active' : 'Inactive' }</div>}
+          />
+        </DetailSection>
 
-      <AsideSection>
-        <div className='aside-section-header'>
-          <Button
-            styleType='secondary'
-            size='small'
-          >
-            <Icon name='Plus' style={{ marginRight: '10px' }} />
-            <span>Assign This Key</span>
-          </Button>
-        </div>
-        <NavCard
-          className='nav-card'
-          icon='Merchant'
-          title='Assigned Accounts'
-          subTitle='Lorem ipsum something something else'
-          to={`${pathname}/assigned-accounts`}
-        />
-        <NavCard
-          icon='Profile'
-          title='Assigned Users'
-          subTitle='Lorem ipsum something something else'
-          to={`${pathname}/assigned-users`}
-        />
-      </AsideSection>
-    </Content>
-  )
+        <AsideSection>
+          <div className='aside-section-header'>
+            <Button
+              styleType='secondary'
+              size='small'
+            >
+              <Icon name='Plus' style={{ marginRight: '10px' }} />
+              <span>Assign This Key</span>
+            </Button>
+          </div>
+          <NavCard
+            className='nav-card'
+            icon='Merchant'
+            title='Assigned Accounts'
+            subTitle='Lorem ipsum something something else'
+            to={`${pathname}/assigned-accounts`}
+          />
+          <NavCard
+            icon='Profile'
+            title='Assigned Users'
+            subTitle='Lorem ipsum something something else'
+            to={`${pathname}/assigned-users`}
+          />
+        </AsideSection>
+      </Content>
+    )
+  }
 
   // eslint-disable-next-line react/prop-types
   const renderEditView = ({ keyDetail }) => (
@@ -221,15 +228,14 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
 
   // eslint-disable-next-line react/prop-types
   const renderView = ({ keyDetail }) => {
+    const id = _.get(keyDetail, 'access_key') || _.get(keyDetail, 'key', '-')
     return (
       <>
         <BreadContainer>
           <Breadcrumb
             items={[
               <Link key='keys' to={`/keys/${keyType}`}>Keys</Link>,
-              <Id key='access-key' withCopy={false} maxChar={20}>
-                {_.get(keyDetail, 'access_key', '-')}
-              </Id>
+              <Id key='access-key' withCopy={false} maxChar={20}>{id}</Id>
             ]}
           />
         </BreadContainer>
@@ -238,9 +244,7 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
           title={
             <TitleContainer>
               <Icon name='Key' />
-              <Id withCopy={false} maxChar={20}>
-                {_.get(keyDetail, 'access_key', '-')}
-              </Id>
+              <Id withCopy={false} maxChar={20}>{id}</Id>
             </TitleContainer>
           }
           searchBar={false}
