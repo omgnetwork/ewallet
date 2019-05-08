@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import Copy from '../../omg-copy'
 
 const IdStyle = styled.div`
-  display: flex;
+  display: inline-flex;
   flex-direction: row;
   align-items: center;
 
@@ -14,13 +14,17 @@ const IdStyle = styled.div`
     margin-right: 10px;
     overflow-x: hidden;
     text-overflow: ellipsis;
-    max-width: ${props => `${props.maxWidth}px`};
+    max-width: ${props => props.maxChar ? 'none' : `${props.maxWidth}px`};
   }
 `
-const Id = ({ maxWidth = 200, withCopy = true, children }) => {
+const Id = ({ maxWidth = 200, withCopy = true, maxChar, children }) => {
   return (
-    <IdStyle maxWidth={maxWidth}>
-      <div className='data'>{children}</div>
+    <IdStyle maxWidth={maxWidth} maxChar={maxChar}>
+      <div className='data'>
+        {maxChar
+          ? _.truncate(children, { 'length': maxChar })
+          : children}
+      </div>
       {withCopy && <Copy data={children} />}
     </IdStyle>
   )
@@ -28,6 +32,7 @@ const Id = ({ maxWidth = 200, withCopy = true, children }) => {
 
 Id.propTypes = {
   maxWidth: PropTypes.number,
+  maxChar: PropTypes.number,
   withCopy: PropTypes.bool,
   children: PropTypes.node.isRequired
 }

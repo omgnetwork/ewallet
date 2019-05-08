@@ -2,9 +2,10 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+import moment from 'moment'
 
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Breadcrumb, Icon, DetailRow, Tag, Button, NavCard, Select, Switch } from '../omg-uikit'
+import { Breadcrumb, Icon, DetailRow, Tag, Button, NavCard, Select, Switch, Id } from '../omg-uikit'
 
 const BreadContainer = styled.div`
   margin-top: 30px;
@@ -12,8 +13,12 @@ const BreadContainer = styled.div`
   font-size: 14px;
 `
 const TitleContainer = styled.div`
-  span {
-    margin-left: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  i {
+    margin-right: 10px;
+    font-size: 1.2rem;
   }
 `
 const Content = styled.div`
@@ -54,9 +59,12 @@ const AsideSection = styled.div`
   }
 `
 
-const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }) => {
-  const { keyType, keyDetail } = params
+const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname, state } }) => {
+  const { keyType, keyId } = params
   const [ view, setView ] = useState('read')
+
+  // TODO: fetch data using keyId if state empty. usehook
+  console.log('state: ', state)
 
   const handleSave = () => {
     console.log('updating...')
@@ -86,33 +94,28 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
         />
         <DetailRow
           label='ID'
-          value={
-            <>
-              <div>Admin Key</div>
-              <Icon className='copy-icon' name='Copy' />
-            </>
-          }
+          value={<Id maxChar={200}>{_.get(state, 'key', '-')}</Id>}
         />
         <DetailRow
           label='Label'
-          value={<div>None</div>}
+          value={<div>{_.get(state, 'name', '-')}</div>}
         />
         <DetailRow
           label='Global Role'
-          value={<div>None</div>}
+          value={<div>{_.capitalize(_.get(state, 'global_role'), '-')}</div>}
         />
         <DetailRow
           label='Created by'
-          value={<div>None</div>}
+          value={<div>TODO</div>}
         />
         <DetailRow
           label='Created date'
           icon='Time'
-          value={<div>None</div>}
+          value={<div>{moment(_.get(state, 'created_at', '-')).format()}</div>}
         />
         <DetailRow
           label='Status'
-          value={<div>Inactive</div>}
+          value={<div>{_.get(state, 'status', '-') === 'active' ? 'Active' : 'Inactive' }</div>}
         />
       </DetailSection>
 
@@ -221,7 +224,7 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
         <Breadcrumb
           items={[
             <Link key='keys' to={`/keys/${keyType}`}>Keys</Link>,
-            keyDetail
+            <Id key='key-detail' withCopy={false} maxChar={20}>{_.get(state, 'key', '-')}</Id>
           ]}
         />
       </BreadContainer>
@@ -230,7 +233,7 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
         title={
           <TitleContainer>
             <Icon name='Key' />
-            <span>{keyDetail}</span>
+            <Id withCopy={false} maxChar={20}>{_.get(state, 'key', '-')}</Id>
           </TitleContainer>
         }
         searchBar={false}

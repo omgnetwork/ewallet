@@ -193,7 +193,9 @@ class ApiKeyPage extends Component {
 
   onClickRow = (data, index) => e => {
     const { keyType } = this.props.match.params
-    this.props.history.push(`${keyType || 'keys/admin'}/${data.key}`)
+    this.props.history.push(
+      `${keyType || 'keys/admin'}/${data.id}`,
+      data)
   }
 
   rowAdminKeyRenderer = fetch => (key, data, rows) => {
@@ -209,7 +211,7 @@ class ApiKeyPage extends Component {
         return (
           <KeyContainer>
             <Icon name='Key' />
-            <Id>{data}</Id>
+            <Id maxChar={20}>{data}</Id>
           </KeyContainer>
         )
       case 'name':

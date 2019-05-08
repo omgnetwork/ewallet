@@ -148,7 +148,7 @@ class ClientKeySection extends Component {
         return (
           <KeyContainer>
             <Icon name='Key' />
-            <Id>{data}</Id>
+            <Id maxChar={20}>{data}</Id>
           </KeyContainer>
         )
       case 'name':
