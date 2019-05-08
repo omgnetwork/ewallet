@@ -41,15 +41,5 @@ defmodule EWallet.BlockchainBalanceFetcherTest do
 
       assert balances == []
     end
-
-    test "returns an error when there was a problem communicating with the adapter" do
-      Application.put_env(:eth_blockchain, :default_adapter, :invalid_adapter)
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x123"})
-
-      assert {:error, :blockchain_adapter_error} =
-               BlockchainBalanceFetcher.all(blockchain_wallet.address, [])
-
-      Application.put_env(:eth_blockchain, :default_adapter, :dumb)
-    end
   end
 end

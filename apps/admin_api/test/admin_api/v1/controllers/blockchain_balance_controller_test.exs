@@ -105,6 +105,37 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
       refute Enum.member?(balances, {"0x02", 123})
     end
 
+    test_with_auths "returns a list of balances and pagination data when given an existing blockchain wallet address and a list of token addresses with a per_page" do
+      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x123"})
+
+      _token_1 = insert(:token, %{blockchain_address: "0x00"})
+      _token_2 = insert(:token, %{blockchain_address: "0x01"})
+      _token_3 = insert(:token, %{blockchain_address: "0x02"})
+
+      attrs = %{
+        "per_page" => 1,
+        "address" => blockchain_wallet.address,
+        "token_addresses" => [
+          "0x01",
+          "0x00"
+        ]
+      }
+
+      response = request("/blockchain_wallet.get_balances", attrs)
+
+      assert response["success"] == true
+
+      balances =
+        Enum.map(response["data"]["data"], fn balance ->
+          {balance["token"]["blockchain_address"], balance["amount"]}
+        end)
+
+      assert length(balances) == 1
+      assert Enum.member?(balances, {"0x00", 123})
+      refute Enum.member?(balances, {"0x01", 123})
+      refute Enum.member?(balances, {"0x02", 123})
+    end
+
     test_with_auths "returns a list of balances and pagination data when given an existing blockchain wallet address and a list of token ids" do
       blockchain_wallet = insert(:blockchain_wallet, %{address: "0x123"})
 
