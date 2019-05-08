@@ -18,7 +18,12 @@ export const updateApiKey = ({ id, expired }) =>
     action: 'UPDATE',
     service: () => apikeyService.updateApiKey({ id, expired })
   })
-
+export const getApiKey = id =>
+  createActionCreator({
+    actionName: 'API_KEY',
+    action: 'REQUEST',
+    service: () => apikeyService.getApiKey(id)
+  })
 export const getApiKeys = ({ page, perPage, matchAll, matchAny, cacheKey }) =>
   createPaginationActionCreator({
     actionName: 'API_KEYS',

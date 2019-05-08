@@ -13,6 +13,13 @@ export function getAllApikey ({ perPage, sort, matchAll, matchAny }) {
   })
 }
 
+export function getApiKey (id) {
+  return authenticatedRequest({
+    path: '/api_key.get',
+    data: { id }
+  })
+}
+
 export function createApikey ({ name }) {
   return authenticatedRequest({
     path: '/api_key.create',

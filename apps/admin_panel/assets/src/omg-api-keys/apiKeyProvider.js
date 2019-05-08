@@ -2,39 +2,34 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import { selectKey } from './selector'
-import { selectWalletByKeyId } from '../omg-wallet/selector'
-import { getKeyById } from './action'
+import { selectGetApiKeyById } from './selector'
+import { getApiKey } from './action'
 
+// aka frontend ui -> "Client Keys"
 class ApiKeyProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
-    keyId: PropTypes.string,
-    key: PropTypes.object,
-    getKeyById: PropTypes.func,
+    apiKeyId: PropTypes.string,
+    apiKey: PropTypes.object,
+    getApiKey: PropTypes.func
   }
 
-  // admin keys are access keys
-  // client keys are api keys
-
   componentDidMount = () => {
-    if (!this.props.key) {
-      this.props.getKeyById(this.props.userId)
+    if (!this.props.apiKey) {
+      this.props.getApiKey(this.props.apiKeyId)
     }
   }
   render () {
     return this.props.render({
-      user: this.props.user,
-      wallet: this.props.wallet
+      keyDetail: this.props.apiKey
     })
   }
 }
 export default connect(
   (state, props) => {
     return {
-      key: selectKey(props.keyId)(state),
-      wallet: selectWalletByKeyId(props.keyId)(state)
+      apiKey: selectGetApiKeyById(state)(props.apiKeyId)
     }
   },
-  { getKeyById }
+  { getApiKey }
 )(ApiKeyProvider)

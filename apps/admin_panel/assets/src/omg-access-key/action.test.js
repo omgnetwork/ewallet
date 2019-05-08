@@ -6,7 +6,7 @@ const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 jest.mock('../services/accessKeyService')
 let store
-describe('apikeys actions', () => {
+describe('accesskeys actions', () => {
   beforeEach(() => {
     jest.resetAllMocks()
     store = mockStore()
@@ -62,7 +62,7 @@ describe('apikeys actions', () => {
     })
   })
 
-  test('[deleteApiKey] should dispatch success action if delete key successfully', () => {
+  test('[deleteAccessKey] should dispatch success action if delete key successfully', () => {
     accessKeyService.deleteAccessKeyById.mockImplementation(() => {
       return Promise.resolve({
         data: {
@@ -84,7 +84,7 @@ describe('apikeys actions', () => {
     })
   })
 
-  test('[getApiKey] should dispatch success action if get key successfully', () => {
+  test('[getAccessKey] should dispatch success action if get key successfully', () => {
     accessKeyService.getAccessKey.mockImplementation(() => {
       return Promise.resolve({
         data: {

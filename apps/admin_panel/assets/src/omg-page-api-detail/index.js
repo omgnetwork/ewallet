@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import moment from 'moment'
 
 import AccessKeyProvider from '../omg-access-key/accessKeyProvider'
+import ApiKeyProvider from '../omg-api-keys/apiKeyProvider'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Breadcrumb, Icon, DetailRow, Tag, Button, NavCard, Select, Switch, Id } from '../omg-uikit'
 
@@ -226,7 +227,9 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
           <Breadcrumb
             items={[
               <Link key='keys' to={`/keys/${keyType}`}>Keys</Link>,
-              <Id key='key-detail' withCopy={false} maxChar={20}>{_.get(keyDetail, 'access_key', '-')}</Id>
+              <Id key='access-key' withCopy={false} maxChar={20}>
+                {_.get(keyDetail, 'access_key', '-')}
+              </Id>
             ]}
           />
         </BreadContainer>
@@ -235,7 +238,9 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
           title={
             <TitleContainer>
               <Icon name='Key' />
-              <Id withCopy={false} maxChar={20}>{_.get(keyDetail, 'access_key', '-')}</Id>
+              <Id withCopy={false} maxChar={20}>
+                {_.get(keyDetail, 'access_key', '-')}
+              </Id>
             </TitleContainer>
           }
           searchBar={false}
@@ -249,12 +254,25 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
     )
   }
 
-  return (
-    <AccessKeyProvider
-      render={renderView}
-      accessKeyId={keyId}
-    />
-  )
+  if (keyType === 'admin') {
+    return (
+      <AccessKeyProvider
+        render={renderView}
+        accessKeyId={keyId}
+      />
+    )
+  }
+
+  if (keyType === 'client') {
+    return (
+      <ApiKeyProvider
+        render={renderView}
+        apiKeyId={keyId}
+      />
+    )
+  }
+
+  return null
 }
 
 ApiKeyDetailPage.propTypes = {
