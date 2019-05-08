@@ -36,7 +36,7 @@ defmodule AdminAPI.V1.BlockchainBalanceController do
     with %BlockchainWallet{} = wallet <-
            BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:view_balance, conn.assigns, wallet),
-         %Paginator{data: tokens, pagination: pagination} <- query_tokens(attrs),
+         %Paginator{data: tokens, pagination: pagination} <- paginated_tokens(attrs),
          {:ok, data} <- BlockchainBalanceLoader.balances_for_address(address, tokens) do
       render(conn, BalanceView, :balances, %Paginator{pagination: pagination, data: data})
     else
@@ -48,20 +48,24 @@ defmodule AdminAPI.V1.BlockchainBalanceController do
     handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
   end
 
-  defp query_tokens(%{"token_addresses" => addresses} = attrs) do
+  defp paginated_tokens(%{"token_addresses" => addresses} = attrs) do
     addresses
     |> Token.query_all_by_blockchain_addresses()
-    |> Orchestrator.query(TokenOverlay, attrs)
+    |> paginated_blockchain_tokens(attrs)
   end
 
-  defp query_tokens(%{"token_ids" => ids} = attrs) do
+  defp paginated_tokens(%{"token_ids" => ids} = attrs) do
     ids
     |> Token.query_all_by_ids()
-    |> Orchestrator.query(TokenOverlay, attrs)
+    |> paginated_blockchain_tokens(attrs)
   end
 
-  defp query_tokens(attrs) do
-    Orchestrator.query(Token, TokenOverlay, attrs)
+  defp paginated_tokens(attrs), do: paginated_blockchain_tokens(Token, attrs)
+
+  defp paginated_blockchain_tokens(query, attrs) do
+    query
+    |> Token.query_all_blockchain()
+    |> Orchestrator.query(TokenOverlay, attrs)
   end
 
   defp authorize(action, actor, data) do

@@ -33,16 +33,11 @@ defmodule EWallet.BlockchainBalanceFetcher do
   end
 
   defp query_and_add_balances(wallet_address, tokens) do
-    filtered_tokens = filtered_tokens(tokens)
-    token_addresses = Enum.map(filtered_tokens, fn token -> token.blockchain_address end)
+    token_addresses = Enum.map(tokens, fn token -> token.blockchain_address end)
 
     {wallet_address, token_addresses}
     |> Balance.get()
-    |> process_response(filtered_tokens)
-  end
-
-  defp filtered_tokens(tokens) do
-    Enum.reject(tokens, fn t -> t.blockchain_address == nil end)
+    |> process_response(tokens)
   end
 
   defp process_response({:ok, data}, tokens) do
