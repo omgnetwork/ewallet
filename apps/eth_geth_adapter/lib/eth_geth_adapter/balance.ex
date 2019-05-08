@@ -48,7 +48,7 @@ defmodule EthGethAdapter.Balance do
         [build_request!(contract_address, address, encoded_abi_data, block) | acc]
       end)
       |> Enum.reverse()
-      |> Client.batch_request()
+      |> request()
       |> parse_response()
       |> respond(contract_addresses)
     else
@@ -56,8 +56,9 @@ defmodule EthGethAdapter.Balance do
     end
   end
 
-  def get(address, contract_address, block),
-    do: get([contract_address], address, block)
+  def get(address, contract_address, block) do
+    get([contract_address], address, block)
+  end
 
   # Batch request builders
 
@@ -80,6 +81,10 @@ defmodule EthGethAdapter.Balance do
   defp build_request!(_contract_address, _address, _encoded_abi_data, _block) do
     raise ArgumentError, "invalid contract address"
   end
+
+  defp request([]), do: {:ok, []}
+
+  defp request(data), do: Client.batch_request(data)
 
   # Response parsers
 
