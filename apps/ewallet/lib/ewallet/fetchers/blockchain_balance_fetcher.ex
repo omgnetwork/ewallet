@@ -29,7 +29,9 @@ defmodule EWallet.BlockchainBalanceFetcher do
     case query_and_add_balances(wallet_address, tokens) do
       {:error, error} ->
         {:error, :blockchain_adapter_error, error: inspect(error)}
-      data -> {:ok, data}
+
+      data ->
+        {:ok, data}
     end
   end
 
