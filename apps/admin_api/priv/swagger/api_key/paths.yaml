@@ -144,6 +144,22 @@ api_key.create:
         $ref: 'responses.yaml#/APIKeyResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+api_key.get:
+  post:
+    tags:
+      - API Access
+    summary: Get a specific api key
+    operationId: api_key_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/APIKeyGetBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/APIKeyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 api_key.update:
   post:
     tags:

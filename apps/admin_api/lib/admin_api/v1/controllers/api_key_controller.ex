@@ -98,7 +98,26 @@ defmodule AdminAPI.V1.APIKeyController do
   end
 
   def update(conn, _attrs) do
-    handle_error(conn, :invalid_parameter, "`id` is required")
+    handle_error(conn, :missing_id)
+  end
+
+  @doc """
+  Retrieves a specific api key by its id.
+  """
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def get(conn, %{"id" => id} = attrs) do
+    with %APIKey{} = api_key <- APIKey.get(id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, api_key),
+         {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
+      render(conn, :api_key, %{api_key: api_key})
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+    end
+  end
+
+  def get(conn, _attrs) do
+    handle_error(conn, :missing_id)
   end
 
   @doc """
