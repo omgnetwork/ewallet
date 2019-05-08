@@ -42,7 +42,9 @@ defmodule EthGethAdapter.Encoding do
   # credo:disable-for-next-line Credo.Check.Consistency.SpaceAroundOperators
   @spec int_from_hex(<<_::16, _::_*8>>) :: non_neg_integer
   def int_from_hex("0x" <> encoded) do
-    {return, ""} = Integer.parse(encoded, 16)
-    return
+    case Integer.parse(encoded, 16) do
+      {result, ""} -> result
+      :error -> 0
+    end
   end
 end
