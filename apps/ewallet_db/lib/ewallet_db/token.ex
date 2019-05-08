@@ -203,29 +203,29 @@ defmodule EWalletDB.Token do
   end
 
   @doc """
-  Returns all tokens that have a blockchain address
+  Returns a query of Tokens that have a blockchain address
   """
-  @spec all_blockchain() :: [%Token{}]
-  def all_blockchain do
-    Token
-    |> where([t], not is_nil(t.blockchain_address))
-    |> Repo.all()
+  @spec query_all_blockchain(Ecto.Queryable.t()) :: [%Token{}]
+  def query_all_blockchain(query \\ Token) do
+    where(query, [t], not is_nil(t.blockchain_address))
   end
 
   @doc """
   Returns a query of Tokens that have an address matching in the provided list
   """
-  @spec query_all_by_blockchain_addresses(String.t()) :: [Ecto.Queryable.t()]
-  def query_all_by_blockchain_addresses(addresses) do
-    where(Token, [t], t.blockchain_address in ^addresses)
+  @spec query_all_by_blockchain_addresses([String.t()], Ecto.Queryable.t()) :: [
+          Ecto.Queryable.t()
+        ]
+  def query_all_by_blockchain_addresses(addresses, query \\ Token) do
+    where(query, [t], t.blockchain_address in ^addresses)
   end
 
   @doc """
   Returns a query of Tokens that have an id matching in the provided list
   """
-  @spec query_all_by_ids([String.t()]) :: [Ecto.Queryable.t()]
-  def query_all_by_ids(ids) do
-    where(Token, [t], t.id in ^ids)
+  @spec query_all_by_ids([String.t()], Ecto.Queryable.t()) :: [Ecto.Queryable.t()]
+  def query_all_by_ids(ids, query \\ Token) do
+    where(query, [t], t.id in ^ids)
   end
 
   @spec avatar_changeset(Ecto.Changeset.t() | %Token{}, map()) ::

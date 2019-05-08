@@ -168,20 +168,22 @@ defmodule EWalletDB.TokenTest do
     end
   end
 
-  describe "all_blockchain/0" do
-    test "returns all tokens that have a blockchain address" do
+  describe "query_all_blockchain/1" do
+    test "returns a query of tokens that have a blockchain address" do
       assert Enum.empty?(Token.all())
 
       :token |> params_for(%{blockchain_address: "0x01"}) |> Token.insert()
       :token |> params_for(%{blockchain_address: "0x02"}) |> Token.insert()
       :token |> params_for() |> Token.insert()
 
-      assert length(Token.all_blockchain()) == 2
+      tokens = Token.query_all_blockchain() |> Repo.all()
+
+      assert length(tokens) == 2
     end
   end
 
-  describe "query_all_by_blockchain_addresses/1" do
-    test "returns a query of Tokens that have an address matching in the provided list" do
+  describe "query_all_by_blockchain_addresses/2" do
+    test "returns a query of tokens that have an address matching in the provided list" do
       :token |> params_for(%{blockchain_address: "0x01"}) |> Token.insert()
       :token |> params_for(%{blockchain_address: "0x02"}) |> Token.insert()
       :token |> params_for(%{blockchain_address: "0x03"}) |> Token.insert()
@@ -201,8 +203,8 @@ defmodule EWalletDB.TokenTest do
     end
   end
 
-  describe "query_all_by_ids/1" do
-    test "returns a query of Tokens that have an id matching in the provided list" do
+  describe "query_all_by_ids/2" do
+    test "returns a query of tokens that have an id matching in the provided list" do
       {:ok, tk_1} = :token |> params_for() |> Token.insert()
       {:ok, tk_2} = :token |> params_for() |> Token.insert()
       {:ok, tk_3} = :token |> params_for() |> Token.insert()
