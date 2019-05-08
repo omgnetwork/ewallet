@@ -23,11 +23,14 @@ defmodule EWalletDB.AuthToken do
   import Ecto.Query, only: [from: 2]
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
+  alias EWalletConfig.Setting
+  alias EWalletDB.Expirers.AuthExpirer
   alias EWalletDB.{Account, AuthToken, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
   @key_length 32
+  @key_atk_lifetime "auth_token_lifetime"
 
   schema "auth_token" do
     external_id(prefix: "atk_")
@@ -106,7 +109,7 @@ defmodule EWalletDB.AuthToken do
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: nil,
-      expire_at: get_life_time() |> get_new_expire_at(),
+      expire_at: get_lifetime() |> AuthExpirer.get_new_expire_at(),
       token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
@@ -114,16 +117,6 @@ defmodule EWalletDB.AuthToken do
   end
 
   def generate(_, _, _), do: {:error, :invalid_parameter}
-
-  defp get_life_time do
-    Application.get_env(:ewallet, :auth_token_lifetime, 0)
-  end
-
-  defp get_new_expire_at(0), do: nil
-
-  defp get_new_expire_at(lifetime) do
-    NaiveDateTime.add(NaiveDateTime.utc_now(), lifetime * 60, :second)
-  end
 
   @doc """
   Retrieves an auth token using the specified token.
@@ -133,7 +126,7 @@ defmodule EWalletDB.AuthToken do
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
-    |> expire_or_refresh()
+    |> AuthExpirer.expire_or_refresh(get_lifetime())
     |> return_user()
   end
 
@@ -141,7 +134,7 @@ defmodule EWalletDB.AuthToken do
     user_id
     |> get_by_user(owner_app)
     |> compare_multiple(token)
-    |> expire_or_refresh()
+    |> AuthExpirer.expire_or_refresh(get_lifetime())
     |> return_user()
   end
 
@@ -186,18 +179,22 @@ defmodule EWalletDB.AuthToken do
   # `get_by_user/2` is private to prohibit direct auth token access,
   # please use `authenticate/3` instead.
   defp get_by_user(user_id, owner_app) when is_binary(user_id) and is_atom(owner_app) do
-    Repo.all(
-      from(
-        a in AuthToken,
-        join: u in User,
-        on: u.uuid == a.user_uuid,
-        where: u.id == ^user_id and a.owner_app == ^Atom.to_string(owner_app)
+    auth_tokens =
+      Repo.all(
+        from(
+          a in AuthToken,
+          join: u in User,
+          on: u.uuid == a.user_uuid,
+          where: u.id == ^user_id and a.owner_app == ^Atom.to_string(owner_app)
+        )
       )
-    )
-    |> Repo.preload(:user)
+
+    Repo.preload(auth_tokens, :user)
   end
 
   defp get_by_user(_, _), do: nil
+
+  def get_lifetime(), do: Setting.get(@key_atk_lifetime).value
 
   # `insert/1` is private to prohibit direct auth token insertion,
   # please use `generate/2` instead.
@@ -205,33 +202,6 @@ defmodule EWalletDB.AuthToken do
     %AuthToken{}
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log()
-  end
-
-  defp expire_or_refresh(%AuthToken{expire_at: nil} = token), do: token
-
-  defp expire_or_refresh(%AuthToken{expire_at: expire_at} = token) do
-    result =
-      NaiveDateTime.utc_now()
-      |> NaiveDateTime.compare(expire_at)
-      |> do_expire_or_refresh(token)
-
-    case result do
-      {:ok, updated_token} ->
-        updated_token
-
-      error ->
-        error
-    end
-  end
-
-  defp expire_or_refresh(_), do: nil
-
-  defp do_expire_or_refresh(:lt, token) do
-    refresh(token, token.user)
-  end
-
-  defp do_expire_or_refresh(_, token) do
-    expire(token, token.user)
   end
 
   # Expires the given token.
@@ -249,6 +219,7 @@ defmodule EWalletDB.AuthToken do
     })
   end
 
+  @spec expire_for_user(atom() | map()) :: :ok
   def expire_for_user(%{enabled: true}), do: :ok
 
   def expire_for_user(user) do
@@ -263,9 +234,9 @@ defmodule EWalletDB.AuthToken do
     :ok
   end
 
-  defp refresh(%AuthToken{} = token, originator) do
+  def refresh(%AuthToken{} = token, originator) do
     update(token, %{
-      expire_at: get_life_time() |> get_new_expire_at(),
+      expire_at: get_lifetime() |> AuthExpirer.get_new_expire_at(),
       originator: originator
     })
   end

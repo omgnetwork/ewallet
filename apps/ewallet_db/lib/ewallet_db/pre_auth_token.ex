@@ -23,11 +23,14 @@ defmodule EWalletDB.PreAuthToken do
   import Ecto.Query, only: [from: 2]
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
+  alias EWalletConfig.Setting
+  alias EWalletDB.Expirers.AuthExpirer
   alias EWalletDB.{Account, PreAuthToken, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
   @key_length 32
+  @key_ptk_lifetime "pre_auth_token_lifetime"
 
   schema "pre_auth_token" do
     external_id(prefix: "ptk_")
@@ -86,7 +89,7 @@ defmodule EWalletDB.PreAuthToken do
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: nil,
-      expire_at: get_life_time() |> get_new_expire_at(),
+      expire_at: get_lifetime() |> AuthExpirer.get_new_expire_at(),
       token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
@@ -94,16 +97,6 @@ defmodule EWalletDB.PreAuthToken do
   end
 
   def generate(_, _, _), do: {:error, :invalid_parameter}
-
-  defp get_life_time do
-    Application.get_env(:ewallet, :pre_auth_token_lifetime, 0)
-  end
-
-  defp get_new_expire_at(0), do: nil
-
-  defp get_new_expire_at(lifetime) do
-    NaiveDateTime.add(NaiveDateTime.utc_now(), lifetime * 60, :second)
-  end
 
   @doc """
   Retrieves an auth token using the specified token.
@@ -113,7 +106,7 @@ defmodule EWalletDB.PreAuthToken do
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
-    |> expire_or_refresh()
+    |> AuthExpirer.expire_or_refresh(get_lifetime())
     |> return_user()
   end
 
@@ -121,7 +114,7 @@ defmodule EWalletDB.PreAuthToken do
     user_id
     |> get_by_user(owner_app)
     |> compare_multiple(token)
-    |> expire_or_refresh()
+    |> AuthExpirer.expire_or_refresh(get_lifetime())
     |> return_user()
   end
 
@@ -164,18 +157,22 @@ defmodule EWalletDB.PreAuthToken do
   # `get_by_user/2` is private to prohibit direct auth token access,
   # please use `authenticate/3` instead.
   defp get_by_user(user_id, owner_app) when is_binary(user_id) and is_atom(owner_app) do
-    Repo.all(
-      from(
-        a in PreAuthToken,
-        join: u in User,
-        on: u.uuid == a.user_uuid,
-        where: u.id == ^user_id and a.owner_app == ^Atom.to_string(owner_app)
+    auth_tokens =
+      Repo.all(
+        from(
+          a in PreAuthToken,
+          join: u in User,
+          on: u.uuid == a.user_uuid,
+          where: u.id == ^user_id and a.owner_app == ^Atom.to_string(owner_app)
+        )
       )
-    )
-    |> Repo.preload(:user)
+
+    Repo.preload(auth_tokens, :user)
   end
 
   defp get_by_user(_, _), do: nil
+
+  def get_lifetime(), do: Setting.get(@key_ptk_lifetime).value
 
   # `insert/1` is private to prohibit direct auth token insertion,
   # please use `generate/2` instead.
@@ -185,6 +182,7 @@ defmodule EWalletDB.PreAuthToken do
     |> Repo.insert_record_with_activity_log()
   end
 
+<<<<<<< HEAD
   @doc """
   Delete all PreAuthTokens associated with the user.
   """
@@ -226,6 +224,8 @@ defmodule EWalletDB.PreAuthToken do
     expire(token, token.user)
   end
 
+=======
+>>>>>>> :hammer: Extract expiration logic to AuthExpirer
   # Expires the given token.
   @spec expire(binary(), atom(), any()) :: {:error, any()} | {:ok, any()}
   def expire(token, owner_app, originator) when is_binary(token) and is_atom(owner_app) do
@@ -242,9 +242,9 @@ defmodule EWalletDB.PreAuthToken do
     })
   end
 
-  defp refresh(%PreAuthToken{} = token, originator) do
+  def refresh(%PreAuthToken{} = token, originator) do
     update(token, %{
-      expire_at: get_life_time() |> get_new_expire_at(),
+      expire_at: get_lifetime() |> AuthExpirer.get_new_expire_at(),
       originator: originator
     })
   end

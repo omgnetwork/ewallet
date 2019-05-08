@@ -20,12 +20,24 @@ defmodule EWalletDB.PreAuthTokenTest do
 
   @owner_app :some_app
 
-  defp set_token_lifetime(minute) do
-    Application.put_env(:ewallet, :pre_auth_token_lifetime, minute)
+  defp generate_with_pre_auth_token_lifetime(user, minute) do
+    Application.put_env(@owner_app, :pre_auth_token_lifetime, minute)
+    result = PreAuthToken.generate(user, @owner_app, %System{})
+    Application.put_env(@owner_app, :pre_auth_token_lifetime, 0)
+
+    result
   end
 
-  defp from_now_by_seconds(seconds) do
-    NaiveDateTime.add(NaiveDateTime.utc_now(), seconds, :second)
+  defp authenticate_with_pre_auth_token_lifetime(token, minute) do
+    Application.put_env(@owner_app, :pre_auth_token_lifetime, minute)
+    result = PreAuthToken.authenticate(token, @owner_app)
+    Application.put_env(@owner_app, :pre_auth_token_lifetime, 0)
+
+    result
+  end
+
+  defp from_now_by_minutes(minutes) do
+    NaiveDateTime.add(NaiveDateTime.utc_now(), minutes * 60, :second)
   end
 
   describe "PreAuthToken.generate/3" do
@@ -44,13 +56,11 @@ defmodule EWalletDB.PreAuthTokenTest do
     test "generates an auth token with a correct expire_at when set a positive integer to auth_token_lifetime" do
       user = insert(:user)
 
-      set_token_lifetime(60)
-
-      assert {:ok, auth_token} = PreAuthToken.generate(user, @owner_app, %System{})
+      assert {:ok, auth_token} = generate_with_pre_auth_token_lifetime(user, 60)
 
       # Expect expire_at is next 60 minutes from now, with a precision down to a second.
-      assert (60 * 60)
-             |> from_now_by_seconds()
+      assert 60
+             |> from_now_by_minutes()
              |> NaiveDateTime.diff(auth_token.expire_at, :second)
              |> Kernel.floor() == 0
     end
@@ -58,7 +68,7 @@ defmodule EWalletDB.PreAuthTokenTest do
     test "generates an auth token with expire_at nil when set zero to auth_token_lifetime" do
       user = insert(:user)
 
-      set_token_lifetime(0)
+      Application.put_env(:ewallet, :pre_auth_token_lifetime, 0)
 
       assert {:ok, auth_token} = PreAuthToken.generate(user, @owner_app, %System{})
       assert auth_token.expire_at == nil
@@ -105,28 +115,22 @@ defmodule EWalletDB.PreAuthTokenTest do
     end
 
     test "returns a user if the token exists and the current date time is before expire_at" do
-      # Set the auth token lifetime to 1 hour.
-      set_token_lifetime(60)
-
+      # The user has the pre authentication token which will be expired in the next minute.
       user = insert(:user)
+      assert {:ok, pre_auth_token} = generate_with_pre_auth_token_lifetime(user, 1)
 
-      auth_token =
-        insert(:pre_auth_token, %{
-          owner_app: Atom.to_string(@owner_app),
-          expire_at: from_now_by_seconds(15),
-          user: user
-        })
-
-      auth_token = PreAuthToken.authenticate(auth_token.token, @owner_app)
-      assert auth_token.user.uuid == user.uuid
+      # The user authenticate to the system,
+      # while the :pre_auth_token_lifetime has been set to 60 minutes
+      pre_auth_token = authenticate_with_pre_auth_token_lifetime(pre_auth_token.token, 60)
+      assert pre_auth_token.user.uuid == user.uuid
 
       # Assert the token has been refreshed.
-      updated_auth_token = PreAuthToken.get_by_token(auth_token.token, @owner_app)
+      updated_pre_auth_token = PreAuthToken.get_by_token(pre_auth_token.token, @owner_app)
 
-      # Expect expire_at is next 60 minutes from now, with a precision down to a second.
-      assert (60 * 60)
-             |> from_now_by_seconds
-             |> NaiveDateTime.diff(updated_auth_token.expire_at, :second)
+      # Expect expire_at is the next 60 minutes from now, with a precision down to a second.
+      assert 60
+             |> from_now_by_minutes()
+             |> NaiveDateTime.diff(updated_pre_auth_token.expire_at, :second)
              |> Kernel.floor() == 0
     end
 
@@ -188,27 +192,22 @@ defmodule EWalletDB.PreAuthTokenTest do
     end
 
     test "returns a user if the current date time is before expire_at" do
-      # Set the auth token lifetime to 60 minutes.
-      set_token_lifetime(60)
-
+      # The user has the authentication token which will be expired in the next minute.
       user = insert(:user)
+      assert {:ok, pre_auth_token} = generate_with_pre_auth_token_lifetime(user, 1)
 
-      pre_auth_token =
-        insert(:pre_auth_token, %{
-          owner_app: Atom.to_string(@owner_app),
-          expire_at: from_now_by_seconds(60 * 60),
-          user: user
-        })
+      # The user authenticate to the system,
+      # while the :pre_auth_token_lifetime has been set to 60 minutes
+      pre_auth_token = authenticate_with_pre_auth_token_lifetime(pre_auth_token.token, 60)
 
-      pre_auth_token = PreAuthToken.authenticate(user.id, pre_auth_token.token, @owner_app)
       assert pre_auth_token.user.uuid == user.uuid
 
       # Assert the token has been refreshed.
       updated_auth_token = PreAuthToken.get_by_token(pre_auth_token.token, @owner_app)
 
       # Expect expire_at is next 60 minutes from now, with a precision down to a second.
-      assert (60 * 60)
-             |> from_now_by_seconds
+      assert 60
+             |> from_now_by_minutes()
              |> NaiveDateTime.diff(updated_auth_token.expire_at, :second)
              |> Kernel.floor() == 0
     end
