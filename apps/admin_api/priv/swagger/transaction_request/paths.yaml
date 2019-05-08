@@ -1,7 +1,7 @@
 transaction_request.all:
   post:
     tags:
-      - TransactionRequest
+      - Transaction request
     summary: Get the list of transaction requests
     operationId: transaction_request_all
     security:
@@ -18,7 +18,7 @@ transaction_request.all:
 transaction_request.create:
   post:
     tags:
-      - TransactionRequest
+      - Transaction request
     summary: Create a new transaction request.
     description: This is a server call only.
     operationId: transaction_request_create
@@ -35,7 +35,7 @@ transaction_request.create:
 transaction_request.get:
   post:
     tags:
-      - TransactionRequest
+      - Transaction request
     summary: Get a transaction request.
     description: This is a server call only.
     operationId: transaction_request_get
@@ -52,7 +52,7 @@ transaction_request.get:
 transaction_request.get_transaction_consumptions:
   post:
     tags:
-      - TransactionRequest
+      - Transaction request
     summary: Get the list of transaction consumptions for a transaction request
     operationId: transaction_request_get_consumptions
     security:
@@ -69,7 +69,7 @@ transaction_request.get_transaction_consumptions:
 transaction_request.consume:
   post:
     tags:
-      - TransactionRequest
+      - Transaction request
     summary: Consume a transaction request.
     description: This is a server call only.
     operationId: transaction_request_consume

@@ -1,7 +1,7 @@
 transaction_consumption.all:
   post:
     tags:
-      - TransactionConsumption
+      - Transaction consumption
     summary: Get the list of transaction consumptions
     operationId: transaction_consumption_all
     security:
@@ -18,7 +18,7 @@ transaction_consumption.all:
 transaction_consumption.get:
   post:
     tags:
-      - TransactionConsumption
+      - Transaction consumption
     summary: Get a consumption.
     description: This is a server call only.
     operationId: transaction_consumption_get
@@ -36,7 +36,7 @@ transaction_consumption.get:
 transaction_consumption.approve:
   post:
     tags:
-      - TransactionConsumption
+      - Transaction consumption
     summary: Approve a consumption.
     description: This is a server call only.
     operationId: transaction_consumption_approve
@@ -54,7 +54,7 @@ transaction_consumption.approve:
 transaction_consumption.reject:
   post:
     tags:
-      - TransactionConsumption
+      - Transaction consumption
     summary: Reject a consumption.
     description: This is a server call only.
     operationId: transaction_consumption_reject
@@ -72,7 +72,7 @@ transaction_consumption.reject:
 transaction_consumption.cancel:
   post:
     tags:
-      - TransactionConsumption
+      - Transaction consumption
     summary: Cancel a pending consumption.
     description: This is a server call only.
     operationId: transaction_consumption_cancel

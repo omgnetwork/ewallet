@@ -1,0 +1,35 @@
+BalanceAllForBlockchainWalletBody:
+  description: The parameters to use for listing the blockchain balances for a wallet. Note that the pagination parameters are based on token.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        allOf:
+        - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/PaginatedRequestBodySchema'
+        oneOf:
+          - properties:
+              address:
+                type: string
+            required:
+              - address
+          - properties:
+              address:
+                type: string
+              token_ids:
+                type: array
+                items:
+                  type: string
+            required:
+              - address
+          - properties:
+              address:
+                type: string
+              token_addresses:
+                type: array
+                items:
+                  type: string
+            required:
+              - address
+        example:
+          address: "0x54e0588607dcec6c0b36fca1154a57814a913591"
+          token_addresses:  ["0x48b91d5f363892592bf836777dc73b54a10b72ae", "0x0000000000000000000000000000000000000000", "0xb76fe945f8672b57cc151448e2f52b0f88891c34"]
