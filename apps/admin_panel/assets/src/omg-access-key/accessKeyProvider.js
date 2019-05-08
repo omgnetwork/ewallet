@@ -2,9 +2,10 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import { selectUser } from './selector'
+import { selectGetAccessKeyById } from './selector'
 import { getAccessKey } from './action'
 
+// aka frontend ui -> "Admin Keys"
 class AccessKeyProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
@@ -20,14 +21,14 @@ class AccessKeyProvider extends Component {
   }
   render () {
     return this.props.render({
-      accessKey: this.props.accessKey
+      keyDetail: this.props.accessKey
     })
   }
 }
 export default connect(
   (state, props) => {
     return {
-      accessKey: selectUser(props.accessKeyId)(state)
+      accessKey: selectGetAccessKeyById(state)(props.accessKeyId)
     }
   },
   { getAccessKey }

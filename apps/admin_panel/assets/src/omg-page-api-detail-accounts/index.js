@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 
-import { Breadcrumb, Icon } from '../omg-uikit'
+import { Breadcrumb, Icon, Id } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 
 const BreadContainer = styled.div`
@@ -18,7 +18,7 @@ const TitleContainer = styled.div`
 `
 
 const KeyDetailAccountsPage = ({ match: { params } }) => {
-  const { keyType, keyDetail } = params
+  const { keyType, keyId } = params
 
   return (
     <>
@@ -26,7 +26,9 @@ const KeyDetailAccountsPage = ({ match: { params } }) => {
         <Breadcrumb
           items={[
             <Link key='keys' to={`/keys/${keyType}`}>Keys</Link>,
-            <Link key='key-detail' to={`/keys/${keyType}/${keyDetail}`}>{keyDetail}</Link>,
+            <Link key='key-detail' to={`/keys/${keyType}/${keyId}`}>
+              <Id withCopy={false} maxChar={20} style={{ marginRight: '0px' }}>{keyId}</Id>
+            </Link>,
             <span key='assigned-accounts'>Assigned Accounts</span>
           ]}
         />

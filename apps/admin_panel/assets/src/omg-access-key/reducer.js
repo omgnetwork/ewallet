@@ -7,7 +7,7 @@ export const accessKeysReducer = createReducer(
       return { ...state, ...{ [data.id]: data } }
     },
     'ACCESS_KEY/REQUEST/SUCCESS': (state, { data }) => {
-      return _.merge(state, _.keyBy(data, 'id'))
+      return { ...state, ...{ [data.id]: data } }
     },
     'ACCESS_KEYS/REQUEST/SUCCESS': (state, { data }) => {
       return _.merge(state, _.keyBy(data, 'id'))

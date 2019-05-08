@@ -1,5 +1,3 @@
-export const selectAccessKeys = state => _.sortBy(_.values(state.accessKeys), 'created_at').reverse()
-
 export const selectAccessKeysLoadingStatus = state => state.loadingStatus.accessKeys
 
 export const selectGetAccessKeyById = state => id => state.accessKeys[id]

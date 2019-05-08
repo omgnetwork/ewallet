@@ -193,9 +193,7 @@ class ApiKeyPage extends Component {
 
   onClickRow = (data, index) => e => {
     const { keyType } = this.props.match.params
-    this.props.history.push(
-      `${keyType || 'keys/admin'}/${data.id}`,
-      data)
+    this.props.history.push(`${keyType || 'keys/admin'}/${data.id}`)
   }
 
   rowAdminKeyRenderer = fetch => (key, data, rows) => {

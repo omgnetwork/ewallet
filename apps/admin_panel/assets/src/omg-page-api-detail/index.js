@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import moment from 'moment'
 
+import AccessKeyProvider from '../omg-access-key/accessKeyProvider'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Breadcrumb, Icon, DetailRow, Tag, Button, NavCard, Select, Switch, Id } from '../omg-uikit'
 
@@ -59,19 +60,17 @@ const AsideSection = styled.div`
   }
 `
 
-const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname, state } }) => {
+const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }) => {
   const { keyType, keyId } = params
   const [ view, setView ] = useState('read')
-
-  // TODO: fetch data using keyId if state empty. usehook
-  console.log('state: ', state)
 
   const handleSave = () => {
     console.log('updating...')
     setView('read')
   }
 
-  const renderReadView = () => (
+  // eslint-disable-next-line react/prop-types
+  const renderReadView = ({ keyDetail }) => (
     <Content>
       <DetailSection>
         <div className='detail-section-header'>
@@ -90,19 +89,19 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname, st
         </div>
         <DetailRow
           label='Type'
-          value={<div>Admin Key</div>}
+          value={keyType === 'admin' ? 'Admin Key' : 'Client Key'}
         />
         <DetailRow
           label='ID'
-          value={<Id maxChar={200}>{_.get(state, 'key', '-')}</Id>}
+          value={<Id maxChar={200}>{_.get(keyDetail, 'access_key', '-')}</Id>}
         />
         <DetailRow
           label='Label'
-          value={<div>{_.get(state, 'name', '-')}</div>}
+          value={<div>{_.get(keyDetail, 'name') || '-'}</div>}
         />
         <DetailRow
           label='Global Role'
-          value={<div>{_.capitalize(_.get(state, 'global_role'), '-')}</div>}
+          value={<div>{_.startCase(_.get(keyDetail, 'global_role', '-'))}</div>}
         />
         <DetailRow
           label='Created by'
@@ -111,11 +110,11 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname, st
         <DetailRow
           label='Created date'
           icon='Time'
-          value={<div>{moment(_.get(state, 'created_at', '-')).format()}</div>}
+          value={<div>{moment(_.get(keyDetail, 'created_at', '-')).format()}</div>}
         />
         <DetailRow
           label='Status'
-          value={<div>{_.get(state, 'status', '-') === 'active' ? 'Active' : 'Inactive' }</div>}
+          value={<div>{_.get(keyDetail, 'status', '-') === 'active' ? 'Active' : 'Inactive' }</div>}
         />
       </DetailSection>
 
@@ -146,7 +145,8 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname, st
     </Content>
   )
 
-  const renderEditView = () => (
+  // eslint-disable-next-line react/prop-types
+  const renderEditView = ({ keyDetail }) => (
     <Content>
       <DetailSection>
         <div className='detail-section-header'>
@@ -218,32 +218,42 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname, st
     </Content>
   )
 
-  return (
-    <>
-      <BreadContainer>
-        <Breadcrumb
-          items={[
-            <Link key='keys' to={`/keys/${keyType}`}>Keys</Link>,
-            <Id key='key-detail' withCopy={false} maxChar={20}>{_.get(state, 'key', '-')}</Id>
-          ]}
+  // eslint-disable-next-line react/prop-types
+  const renderView = ({ keyDetail }) => {
+    return (
+      <>
+        <BreadContainer>
+          <Breadcrumb
+            items={[
+              <Link key='keys' to={`/keys/${keyType}`}>Keys</Link>,
+              <Id key='key-detail' withCopy={false} maxChar={20}>{_.get(keyDetail, 'access_key', '-')}</Id>
+            ]}
+          />
+        </BreadContainer>
+
+        <TopNavigation
+          title={
+            <TitleContainer>
+              <Icon name='Key' />
+              <Id withCopy={false} maxChar={20}>{_.get(keyDetail, 'access_key', '-')}</Id>
+            </TitleContainer>
+          }
+          searchBar={false}
+          divider={false}
         />
-      </BreadContainer>
 
-      <TopNavigation
-        title={
-          <TitleContainer>
-            <Icon name='Key' />
-            <Id withCopy={false} maxChar={20}>{_.get(state, 'key', '-')}</Id>
-          </TitleContainer>
-        }
-        searchBar={false}
-        divider={false}
-      />
+        {view === 'read'
+          ? renderReadView({ keyDetail })
+          : renderEditView({ keyDetail })}
+      </>
+    )
+  }
 
-      {view === 'read'
-        ? renderReadView()
-        : renderEditView()}
-    </>
+  return (
+    <AccessKeyProvider
+      render={renderView}
+      accessKeyId={keyId}
+    />
   )
 }
 
