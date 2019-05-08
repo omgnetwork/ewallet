@@ -416,7 +416,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     blockchain_adapter_error: %{
       code: "blockchain:adapter_error",
-      description: "There was a problem communicating with the blockchain adapter"
+      template: "There was a problem communicating with the blockchain adapter: %{error}"
     }
   }
 
