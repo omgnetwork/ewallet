@@ -41,6 +41,7 @@ defmodule AdminAPI.V1.BlockchainBalanceController do
       render(conn, BalanceView, :balances, %Paginator{pagination: pagination, data: data})
     else
       {:error, error} -> handle_error(conn, error)
+      {:error, error, description} -> handle_error(conn, error, description)
     end
   end
 
