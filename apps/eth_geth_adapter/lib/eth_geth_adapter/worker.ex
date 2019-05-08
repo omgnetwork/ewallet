@@ -60,33 +60,8 @@ defmodule EthGethAdapter.Worker do
   @doc """
   Handles the get_balances call from the client API get_balances/4.
   """
+  @spec handle_call({:call, String.t(), list(String.t()), String.t()}, from(), state()) :: reply({:ok, list(map())}) | reply({:error, any()})
   def handle_call({:get_balances, address, contract_addresses, block}, _from, reg) do
     {:reply, Balance.get(address, contract_addresses, block), reg}
-  end
-
-  ## Client API
-  ##
-
-  @doc """
-  Retrieve the balance of all given `contract_addresses` for the provided wallet `address`.
-  The contract address `0x0000000000000000000000000000000000000000` is handled as
-  the ethereum token and so the ethereum balance will be retrieved.
-  Any other given contract address will have their balance retrived on the corresponding
-  smart contract.
-
-  Returns a tuple of
-  ```
-  {
-    :ok,
-    %{
-      "contract_address_1" => integer_balance_1,
-      "contract_address_2" => integer_balance_2
-    }
-  }
-  ```
-  if successful or {:error, error_code} if failed.
-  """
-  def get_balances(address, contract_addresses, block \\ "latest", pid \\ __MODULE__) do
-    GenServer.call(pid, {:get_balances, address, contract_addresses, block})
   end
 end
