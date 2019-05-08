@@ -1,8 +1,8 @@
 # Two-factor Authentication
 
-Two-factor authentication is an extra security layer for the user account by using another factor to log in, additionally to the common email and password.
+Two-factor authentication provides an extra layer of security for admin users by using, as the name suggests, an additional factor in the login process (a time-based one-time usage passcode, in addition to the usual email/password pair).
 
-This guide will provide a brief explanation to understand how the two-factor authentication system works.
+This guide will provide a brief explanation to understand how the two-factor authentication system works in the eWallet.
 
 ## Table of Contents
 
@@ -17,13 +17,13 @@ This guide will provide a brief explanation to understand how the two-factor aut
 
 ### Enable 2FA
 
-To enable the two-factor authentication, the client must provide `passcode` to the api. The `passcode` is generated from the `secret_2fa_code`. The section below will explain how can we get it.
+To enable two-factor authentication, a secret code must be provided. This secret code is generated through an endpoint of the eWallet. The section below will explain how to get one.
 
 #### Create a Secret Code
 
-The secret code is a unique 16 character alphanumeric code used to create a time-based one-time-password code (the code that invalidates for every x seconds)
+The secret code is a unique 16 character alphanumeric code used to create the time-based one-time passcodes (each generated code will only be valid for x seconds).
 
-To create a secret code, calling to `/me.create_secret_code` like the following structure:
+To create a secret code, call to `/me.create_secret_code` with the appropriate parameters:
 
 ```bash
 curl http://localhost:4000/api/admin/me.create_secret_code \
@@ -35,7 +35,7 @@ curl http://localhost:4000/api/admin/me.create_secret_code \
 -v -w "\n" | jq
 ```
 
-The response will look similar to:
+The response will be similar to:
 
 ```json
 {
@@ -50,19 +50,19 @@ The response will look similar to:
 }
 ```
 
-Next, create the two-factor qr code by using given data from the previous response.
+We can now create a two-factor QR code by using the data received in this response.
 
 > Try: using a web service to quickly generate the Two-factor QR Code e.g. [this](https://stefansundin.github.io/2fa-qr/)
 
-Then scan it by the time-based one-time password (TOTP) generator app such as Authy, Google Authenticator, etc.
+Then use a TOTP (time-based one-time password) application such as Authy or Google Authenticator to scan that QR code.
 
 The 6-digits passcode should be now displayed on the application.
 
-Next, we required to create backup codes to be used for recover the account.
+Next, we highly recommend creating backup codes that can be used to recover access to your account if you lose your 2FA device.
 
 #### Create Backup Codes
 
-Backup codes are the set of codes that can also be used for two-factor authentication in case of the passcode has been lost. To create backup codes, calling to the endpoint `me.create_backup_codes` like the folowing:
+Backup codes are a set of codes that can be used for two-factor authentication in case you don't have access to the TOTP anymore. To create backup codes, call the endpoint `/me.create_backup_codes` as shown below:
 
 ```bash
 curl http://localhost:4000/api/admin/me.create_backup_codes \
@@ -74,7 +74,7 @@ curl http://localhost:4000/api/admin/me.create_backup_codes \
 -v -w "\n" | jq
 ```
 
-The response will look similar to:
+The response will look something like this:
 
 ```json
 {
@@ -98,7 +98,7 @@ The response will look similar to:
 }
 ```
 
-Finally, calling to `/me.enable_2fa` with the following request parameters:
+Finally, call `/me.enable_2fa` with the following parameters:
 
 ```bash
 curl http://localhost:4000/api/admin/me.enable_2fa \
@@ -122,15 +122,15 @@ If the `passcode` is correct, the response will be similar to:
 }
 ```
 
-If everything is done correctly, the user should be now secure the account with the two-factor authentication successfully.
+If everything was done correctly, the admin user account should now be secured with two-factor authentication.
 
-Next, we will look into how can we log in with two-factor authentication.
+Next, we will look into how can we log in with 2FA.
 
 ### Log in with 2FA
 
-After the user has enabled the two-factor authentication successfully, the user will be need to do 2-steps login to fully obtain the authentication token which we normally use to access the authenticated apis.
+After the admin user has enabled two-factor authentication successfully, the user will be need to do a 2-steps login to fully obtain the authentication token which we normally use to access the authenticated APIs.
 
-First, we need to obtain the pre-authentication token from the `/admin.login`..
+First, we need to obtain the pre-authentication token from the `/admin.login` endpoint.
 
 1. Login with email and password
 
@@ -166,7 +166,7 @@ The response would be look similar to:
 }
 ```
 
-Second, calling to the two-factor authentication endpoint `/admin.login_2fa` by using the `pre_authentication_token` which we take from the previous step to form the authorization header, also specify the passcode which was generated by the totp authenticator app in the body like below:
+Second, calling to the two-factor authentication endpoint `/admin.login_2fa` by using the `pre_authentication_token` which we take from the previous step to form the authorization header, also specify the passcode which was generated by the TOTP authenticator app in the body like below:
 
 2. Login with passcode (or backup_code)
 
@@ -182,7 +182,7 @@ curl http://localhost:4000/api/admin/admin.login_2fa \
 -v -w "\n" | jq
 ```
 
-The response will be look similar to the previous log-in response, except the `pre_authentication_token`, which will be now a real `authentication_token`:
+The response will be look similar to the previous login response, except the `pre_authentication_token`, which will be now a real `authentication_token`:
 
 ```json
 {
@@ -202,7 +202,7 @@ The response will be look similar to the previous log-in response, except the `p
 }
 ```
 
-Now, we can use the `user_id` and `authentication_token` from the response to form the valid authorization header, to be able to access the authenticated apis.
+Now, we can use the `user_id` and `authentication_token` from the response to form the valid authorization header, to be able to access the authenticated APIs.
 
 ### Disable 2FA
 
