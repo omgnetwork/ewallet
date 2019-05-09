@@ -61,15 +61,29 @@ const AsideSection = styled.div`
   }
 `
 
-// eslint-disable-next-line react/prop-types
-const EditView = ({ keyDetail, setView }) => {
-  const [ label, setLabel ] = useState(_.get(keyDetail, 'name', ''))
-  const [ globalRole, setGlobalRole ] = useState(_.get(keyDetail, 'global_role', ''))
-  const [ status, setStatus ] = useState(_.get(keyDetail, 'status') === 'active')
+const EditView = ({ keyType, keyDetail, setView }) => {
+  const derivedLabel = _.get(keyDetail, 'name', '')
+  const derivedGlobalRole = _.get(keyDetail, 'global_role', '')
+  const derivedStatus = _.get(keyDetail, 'status')
+
+  const [ label, setLabel ] = useState(derivedLabel)
+  const [ globalRole, setGlobalRole ] = useState(derivedGlobalRole)
+  const [ status, setStatus ] = useState(derivedStatus === 'active')
 
   const handleSave = () => {
-    console.log('updating...')
+    if (keyType === 'admin') {
+      console.log('updating admin key')
+    }
+    if (keyType === 'client') {
+      console.log('updating client key')
+    }
     setView('read')
+  }
+
+  const hasChanged = () => {
+    return label !== derivedLabel ||
+      globalRole !== derivedGlobalRole ||
+      status !== (derivedStatus === 'active')
   }
 
   return (
@@ -92,23 +106,25 @@ const EditView = ({ keyDetail, setView }) => {
             />
           }
         />
-        <DetailRow
-          label='Global Role'
-          value={
-            <Select
-              noBorder
-              normalPlaceholder='Global Role'
-              onSelectItem={role => setGlobalRole(role.key)}
-              value={_.startCase(globalRole)}
-              options={[
-                { key: 'super_admin', value: 'Super Admin' },
-                { key: 'admin', value: 'Admin' },
-                { key: 'viewer', value: 'Viewer' },
-                { key: 'none', value: 'None' }
-              ]}
-            />
-          }
-        />
+        {keyType === 'admin' && (
+          <DetailRow
+            label='Global Role'
+            value={
+              <Select
+                noBorder
+                normalPlaceholder='Global Role'
+                onSelectItem={role => setGlobalRole(role.key)}
+                value={_.startCase(globalRole)}
+                options={[
+                  { key: 'super_admin', value: 'Super Admin' },
+                  { key: 'admin', value: 'Admin' },
+                  { key: 'viewer', value: 'Viewer' },
+                  { key: 'none', value: 'None' }
+                ]}
+              />
+            }
+          />
+        )}
         <DetailRow
           label='Status'
           value={
@@ -135,6 +151,7 @@ const EditView = ({ keyDetail, setView }) => {
             styleType='primary'
             onClick={handleSave}
             style={{ minWidth: 'initial', marginLeft: '10px' }}
+            disabled={!hasChanged()}
           >
             <span>Save</span>
           </Button>
@@ -142,6 +159,11 @@ const EditView = ({ keyDetail, setView }) => {
       </DetailSection>
     </Content>
   )
+}
+EditView.propTypes = {
+  keyDetail: PropTypes.object,
+  keyType: PropTypes.string,
+  setView: PropTypes.func
 }
 
 const ReadView = withRouter(({ keyDetail, keyType, setView, location: { pathname } }) => {
@@ -255,7 +277,7 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
 
         {view === 'read'
           ? <ReadView keyType={keyType} keyDetail={keyDetail} setView={setView} />
-          : <EditView keyDetail={keyDetail} setView={setView} />}
+          : <EditView keyType={keyType} keyDetail={keyDetail} setView={setView} />}
       </>
     )
   }
@@ -282,8 +304,7 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
 }
 
 ApiKeyDetailPage.propTypes = {
-  match: PropTypes.object,
-  location: PropTypes.object
+  match: PropTypes.object
 }
 
 export default ApiKeyDetailPage
