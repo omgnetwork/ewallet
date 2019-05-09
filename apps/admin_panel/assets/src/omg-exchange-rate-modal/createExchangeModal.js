@@ -12,6 +12,7 @@ import { selectGetTokenById } from '../omg-token/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchTokenQuery } from '../omg-token/searchField'
 import { BigNumber } from 'bignumber.js'
+import { ensureIsNumberOnly } from '../utils/formatter'
 const Form = styled.form`
   padding: 50px;
   width: 500px;
@@ -193,7 +194,7 @@ class CreateExchangeRateModal extends Component {
     const fromRate = numeral(this.state.fromTokenRate).value()
     try {
       const baseKeys = {
-        rate: new BigNumber(toRate).dividedBy(fromRate).toNumber(),
+        rate: new BigNumber(toRate).dividedBy(fromRate),
         syncOpposite: !this.state.onlyOneWayExchange
       }
       const result = this.state.editing

@@ -13,6 +13,10 @@ function precision (a) {
   return p
 }
 
+export const ensureIsNumberOnly = (maybeNumber) => {
+  return String(maybeNumber).replace(/[^0-9.]+/g, '')
+}
+
 export const formatNumber = number => {
   const ensureStringNumber = String(number)
   if (!ensureStringNumber) return ''
@@ -20,8 +24,8 @@ export const formatNumber = number => {
   const maybeDecimal =
     new RegExp(/\./).test(ensureStringNumber) ||
     (new RegExp(/^0*$/).test(ensureStringNumber) && ensureStringNumber.length > 1)
-  const formattedInteger = new BigNumber(integer.replace(/[^0-9]+/g, '')).toFormat()
-  const formattedDecimal = decimal.replace(/[^0-9]+/g, '')
+  const formattedInteger = new BigNumber(ensureIsNumberOnly(integer)).toFormat()
+  const formattedDecimal = ensureIsNumberOnly(decimal)
   return maybeDecimal ? `${formattedInteger}.${formattedDecimal}` : formattedInteger
 }
 

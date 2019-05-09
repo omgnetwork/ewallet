@@ -238,6 +238,7 @@ class InputComponent extends PureComponent {
           )}
           <Input
             {...rest}
+            value={this.props.type === 'amount' ? formatNumber(this.props.value): this.props.value}
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
             ref={this.registerInput}

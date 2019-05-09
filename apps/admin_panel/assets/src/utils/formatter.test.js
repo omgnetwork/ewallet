@@ -1,4 +1,4 @@
-import { formatAmount, formatReceiveAmountToTotal, formatNumber } from './formatter'
+import { formatAmount, formatReceiveAmountToTotal, formatNumber, ensureIsNumberOnly } from './formatter'
 describe('formatter', () => {
   test('[formatNumber] should work with .', () => {
     expect(formatNumber('12312313.')).toEqual('12,312,313.')
@@ -56,5 +56,11 @@ describe('formatter', () => {
     expect(formatReceiveAmountToTotal(null, subunitToUnit)).toEqual(null)
     expect(formatReceiveAmountToTotal(undefined, subunitToUnit)).toEqual(null)
     expect(formatReceiveAmountToTotal(0, subunitToUnit)).toEqual('0')
+  })
+
+  test('[ensureIsNumberOnly] should return only numbers from number or string as [string]', () => {
+    expect(ensureIsNumberOnly('1,000')).isEqual('1000')
+    expect(ensureIsNumberOnly('asdasdasd1,000')).isEqual('1000')
+    expect(ensureIsNumberOnly('asdasdasd1,000.0000001')).isEqual('1000.0000001')
   })
 })
