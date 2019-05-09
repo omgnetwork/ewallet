@@ -13,12 +13,7 @@ import moment from 'moment'
 import queryString from 'query-string'
 const AccountPageContainer = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
   padding-bottom: 50px;
-  > div {
-    flex: 1;
-  }
   td:nth-child(1) {
     width: 30%;
     border: none;
@@ -98,15 +93,14 @@ class AccountPage extends Component {
   renderExportButton = () => {
     return (
       <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
-        <Icon name='Export' />
-        <span>Export</span>
+        <Icon name='Export' /><span>Export</span>
       </Button>
     )
   }
   renderCreateAccountButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
+        <Icon name='Plus' /><span>Create Account</span>
       </Button>
     )
   }
@@ -115,7 +109,7 @@ class AccountPage extends Component {
       { key: 'name', title: 'NAME', sort: true },
       { key: 'id', title: 'ID', sort: true },
       { key: 'description', title: 'DESCRIPTION', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
+      { key: 'created_at', title: 'CREATED AT', sort: true },
       { key: 'avatar', title: 'AVATAR', hide: true }
     ]
   }
@@ -129,13 +123,13 @@ class AccountPage extends Component {
     })
   }
   onClickRow = (data, index) => e => {
-    this.props.history.push(`/accounts/${data.id}/detail`)
+    this.props.history.push(`/accounts/${data.id}/details`)
   }
   rowRenderer (key, data, rows) {
     if (key === 'name') {
       return (
         <NameColumn>
-          <Avatar image={rows.avatar} name={data.slice(0, 2)} /> <span>{data}</span>
+          <Avatar image={rows.avatar} name={data.slice(0, 3)} /><span>{data}</span>
         </NameColumn>
       )
     }
@@ -155,6 +149,9 @@ class AccountPage extends Component {
     if (key === 'avatar') {
       return null
     }
+    if (key === 'description') {
+      return _.truncate(data, 100)
+    }
     return data
   }
   renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetch }) => {
@@ -162,7 +159,7 @@ class AccountPage extends Component {
       <AccountPageContainer>
         <TopNavigation divider={this.props.divider} title={'Accounts'} buttons={[this.renderCreateAccountButton()]} />
         <SortableTableContainer
-          innerRef={table => (this.table = table)}
+          ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable

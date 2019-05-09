@@ -24,13 +24,23 @@ export function getAdminById (id) {
   })
 }
 
-export function uploadAvatar ({ id, avatar }) {
+export function uploadAvatar ({ avatar }) {
   const formData = new window.FormData()
-  formData.append('id', id)
   formData.append('avatar', avatar)
   return authenticatedMultipartRequest({
     path: '/me.upload_avatar',
     data: formData
+  })
+}
+
+export function inviteAdmin ({ email, redirectUrl, globalRole }) {
+  return authenticatedRequest({
+    path: '/admin.create',
+    data: {
+      email,
+      redirect_url: redirectUrl,
+      global_role: globalRole
+    }
   })
 }
 

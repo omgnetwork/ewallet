@@ -8,20 +8,15 @@ export function createAuthenticationHeader ({ auth, accessToken }) {
     : {}
 }
 
-function createAccountIdHeader (currentAccountId) {
-  return currentAccountId ? { 'OMGAdmin-Account-ID': currentAccountId } : {}
-}
-
 export default function createHeaders ({
   auth,
   headerOption,
-  accessToken = localStorage.get(CONSTANT.AUTHENTICATION_TOKEN),
+  accessToken = (localStorage.get(CONSTANT.AUTHENTICATION_TOKEN) || {}),
   currentAccountId
 }) {
   return {
     Accept: 'application/vnd.omisego.v1+json',
     ...createAuthenticationHeader({ auth, accessToken }),
-    ...createAccountIdHeader(currentAccountId),
     ...headerOption
   }
 }

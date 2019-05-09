@@ -59,14 +59,12 @@ class MintTokenModal extends PureComponent {
     onRequestClose: PropTypes.func,
     token: PropTypes.object,
     mintToken: PropTypes.func.isRequired,
-    getWalletsByAccountId: PropTypes.func.isRequired,
-    onSuccess: PropTypes.func,
-    match: PropTypes.object
+    onSuccess: PropTypes.func
   }
   static defaultProps = {
     onSuccess: _.noop
   }
-  state = { amount: null, error: null }
+  state = { amount: '', error: '' }
   onChangeAmount = e => {
     this.setState({ amount: e.target.value })
   }
@@ -81,7 +79,7 @@ class MintTokenModal extends PureComponent {
       if (result.data) {
         this.props.onRequestClose()
         this.props.onSuccess()
-        this.setState({ submitStatus: 'SUCCESS', amount: null })
+        this.setState({ submitStatus: 'SUCCESS', amount: '' })
       } else {
         this.setState({ submitStatus: 'FAILED', error: result.error.description })
       }
@@ -91,7 +89,7 @@ class MintTokenModal extends PureComponent {
   }
   onRequestClose = e => {
     this.props.onRequestClose()
-    this.setState({ amount: null, error: null })
+    this.setState({ amount: '', error: '' })
   }
   render () {
     return (
@@ -109,6 +107,7 @@ class MintTokenModal extends PureComponent {
             value={this.state.amount}
             autofocus
             onChange={this.onChangeAmount}
+            allowNegative={false}
           />
           <ButtonsContainer>
             <Button
@@ -117,7 +116,7 @@ class MintTokenModal extends PureComponent {
               type='submit'
               loading={this.state.submitStatus === 'SUBMITTED'}
             >
-              Mint
+              <span>Mint</span>
             </Button>
           </ButtonsContainer>
           <Error error={this.state.error}>{this.state.error}</Error>

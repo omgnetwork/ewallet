@@ -174,7 +174,7 @@ class InputComonent extends PureComponent {
             {...rest}
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
-            innerRef={this.registerInput}
+            ref={this.registerInput}
             placeholder={this.props.normalPlaceholder}
             onFocus={this.onFocus}
             onBlur={this.onBlur}

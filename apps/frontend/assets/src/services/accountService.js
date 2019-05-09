@@ -1,5 +1,5 @@
 import { authenticatedRequest, authenticatedMultipartRequest } from './apiService'
-export function getAllAccounts ({ perPage, page, sort, query, search, searchTerms }) {
+export function getAllAccounts ({ perPage, page, sort, query, search, searchTerms, matchAny }) {
   return authenticatedRequest({
     path: '/account.all',
     data: {
@@ -8,7 +8,8 @@ export function getAllAccounts ({ perPage, page, sort, query, search, searchTerm
       sort_by: sort.by,
       sort_dir: sort.dir,
       search_term: search,
-      search_terms: searchTerms
+      search_terms: searchTerms,
+      match_any: matchAny
     }
   })
 }
@@ -37,13 +38,14 @@ export function uploadAccountAvatar ({ accountId, avatar }) {
   })
 }
 
-export function updateAccountInfo ({ id, name, description }) {
+export function updateAccountInfo ({ id, name, description, categoryIds }) {
   return authenticatedRequest({
     path: '/account.update',
     data: {
       id,
       name,
-      description
+      description,
+      category_ids: categoryIds
     }
   })
 }
@@ -55,6 +57,17 @@ export function assignMember ({ userId, accountId, role, redirectUrl }) {
       redirect_url: redirectUrl,
       user_id: userId,
       account_id: accountId,
+      role_name: role
+    }
+  })
+}
+
+export function assignKey ({ keyId, accountId, role }) {
+  return authenticatedRequest({
+    path: '/account.assign_key',
+    data: {
+      account_id: accountId,
+      key_id: keyId,
       role_name: role
     }
   })
@@ -84,7 +97,7 @@ export function unassignMember ({ userId, accountId }) {
 
 export function listMembers ({ accountId, matchAll, matchAny }) {
   return authenticatedRequest({
-    path: '/account.get_members',
+    path: '/account.get_admin_user_memberships',
     data: {
       id: accountId,
       match_all: matchAll,
@@ -122,6 +135,21 @@ export function getConsumptionsByAccountId ({
 export function getUsersByAccountId ({ accountId, perPage, page, sort, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/account.get_users',
+    data: {
+      id: accountId,
+      per_page: Number(perPage),
+      page: Number(page) || 1,
+      sort_by: sort.by,
+      sort_dir: sort.dir,
+      match_all: matchAll,
+      match_any: matchAny
+    }
+  })
+}
+
+export function getKeysByAccountId ({ accountId, perPage, page, sort, matchAll, matchAny }) {
+  return authenticatedRequest({
+    path: '/account.get_key_memberships',
     data: {
       id: accountId,
       per_page: Number(perPage),

@@ -12,12 +12,7 @@ import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
 const ConsumptionPageContainer = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
   padding-bottom: 50px;
-  > div {
-    flex: 1;
-  }
   td {
     white-space: nowrap;
   }
@@ -39,9 +34,6 @@ const ConsumptionPageContainer = styled.div`
     max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  td:nth-child(5) {
-    text-transform: capitalize;
   }
   tr:hover {
     td:nth-child(1) {
@@ -69,6 +61,15 @@ const SortableTableContainer = styled.div`
     border: 1px solid ${props => props.theme.colors.S400};
   }
 `
+const StyledIcon = styled.span`
+  i {
+    margin-top: -3px;
+    margin-right: 10px;
+    margin-top
+    font-size: 14px;
+    font-weight: 400;
+  }
+`
 export const NameColumn = styled.div`
   > span {
     margin-left: 10px;
@@ -93,15 +94,15 @@ class ConsumptionPage extends Component {
       { key: 'id', title: 'CONSUMPTION ID', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
       { key: 'estimated_consumption_amount', title: 'AMOUNT', sort: true },
+      { key: 'status', title: 'STATUS', sort: true },
       { key: 'created_by', title: 'CONSUMER' },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'status', title: 'STATUS', sort: true }
+      { key: 'created_at', title: 'CREATED AT', sort: true }
     ]
   }
   renderCreateAccountButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
+        <Icon name='Plus' /><span>Create Account</span>
       </Button>
     )
   }
@@ -114,25 +115,53 @@ class ConsumptionPage extends Component {
       })
     })
   }
-  rowRenderer (key, data, rows) {
+  renderCreator = consumption => {
+    return (
+      <span>
+        {consumption.account &&
+          <span>
+            <StyledIcon><Icon name='Merchant' /></StyledIcon>
+            {consumption.account.name}
+          </span>
+
+        }
+        {consumption.user && consumption.user.email &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {consumption.user.email}
+          </span>
+        }
+        {consumption.user && consumption.user.provider_user_id &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {consumption.user.provider_user_id}
+          </span>
+        }
+      </span>
+    )
+  }
+  rowRenderer = (key, data, rows) => {
     if (key === 'require_confirmation') {
       return data ? 'Yes' : 'No'
     }
     if (key === 'id') {
       return (
         <NameColumn>
-          <Icon name='Consumption' /> <span>{data}</span> <Copy data={data} />
+          <Icon name='Consumption' /><span>{data}</span> <Copy data={data} />
         </NameColumn>
       )
     }
     if (key === 'type') {
-      return _.get(rows, 'transaction_request.type')
+      return _.upperFirst(_.get(rows, 'transaction_request.type'))
+    }
+    if (key === 'status') {
+      return _.upperFirst(data)
     }
     if (key === 'estimated_consumption_amount') {
       return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
     }
     if (key === 'created_by') {
-      return rows.user_id || rows.account.name || rows.account_id
+      return this.renderCreator(rows)
     }
     if (key === 'created_at') {
       return moment(data).format()
@@ -148,7 +177,7 @@ class ConsumptionPage extends Component {
       <ConsumptionPageContainer>
         <TopNavigation divider={this.props.divider} title={'Transaction Consumptions'} buttons={[]} />
         <SortableTableContainer
-          innerRef={table => (this.table = table)}
+          ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable

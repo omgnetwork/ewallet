@@ -43,7 +43,8 @@ const Error = styled.div`
 
 class LoginForm extends Component {
   static propTypes = {
-    history: PropTypes.object
+    history: PropTypes.object,
+    login: PropTypes.func
   }
   state = {
     email: '',
@@ -124,7 +125,7 @@ class LoginForm extends Component {
           </OptionItem>
         </OptionRowContainer>
         <Button size='large' type='submit' fluid loading={this.state.submitted}>
-          Login
+          <span>Login</span>
         </Button>
         <Error error={this.state.error}>{this.state.error}</Error>
       </Form>

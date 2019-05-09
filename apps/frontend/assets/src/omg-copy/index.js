@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Icon } from '../omg-uikit'
 import { connect } from 'react-redux'
-import { copyToClipboard } from './action'
 import styled from 'styled-components'
+
+import { Icon } from '../omg-uikit'
+import { copyToClipboard } from './action'
+
 const IconButton = styled.span`
   cursor: pointer;
   vertical-align: middle;

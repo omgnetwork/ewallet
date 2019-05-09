@@ -1,6 +1,6 @@
 use Mix.Config
 
-config :frontend, Frontend.Endpoint,
+config :admin_panel, AdminPanel.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,

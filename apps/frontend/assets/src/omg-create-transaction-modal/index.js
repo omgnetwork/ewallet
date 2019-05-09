@@ -1,20 +1,21 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
+import { withRouter } from 'react-router-dom'
+
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
-import { connect } from 'react-redux'
-import { compose } from 'recompose'
-import { withRouter } from 'react-router-dom'
 import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
-import AccountUsersWalletsFetcher from '../omg-wallet/accountUsersWalletsFetcher'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
 import { selectWalletById } from '../omg-wallet/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
+
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -33,8 +34,6 @@ const Form = styled.form`
   button {
     margin: 35px 0 0;
     font-size: 14px;
-    padding-left: 40px;
-    padding-right: 40px;
   }
   h4 {
     text-align: center;
@@ -67,8 +66,11 @@ const Error = styled.div`
 const InputGroupContainer = styled.div`
   display: flex;
   > div:first-child {
-    flex: 1 1 auto;
+    flex: 1 1 55%;
     margin-right: 40px;
+  }
+  > div:nth-child(2) {
+    flex: 1 1 45%;
   }
 `
 const OptionalExplanation = styled.div`
@@ -82,6 +84,7 @@ const FromToContainer = styled.div`
     background-color: ${props => props.theme.colors.S300};
     display: inline-block;
     padding: 5px 10px;
+    border-radius: 2px;
   }
 `
 const InnerTransferContainer = styled.div`
@@ -103,12 +106,18 @@ class CreateTransaction extends Component {
     selectWalletById: PropTypes.func,
     getWalletById: PropTypes.func,
     match: PropTypes.object,
-    onCreateTransaction: PropTypes.func
+    onCreateTransaction: PropTypes.func,
+    transfer: PropTypes.func
   }
   static defaultProps = {
     onCreateTransaction: _.noop
   }
-  state = { fromAddress: this.props.fromAddress || '', toAddress: '' }
+  state = {
+    fromTokenAmount: '',
+    toTokenAmount: '',
+    fromAddress: this.props.fromAddress || '',
+    toAddress: ''
+  }
 
   onChangeInputFromAddress = e => {
     this.setState({
@@ -231,9 +240,9 @@ class CreateTransaction extends Component {
   getBalanceOfSelectedToken = type => {
     return this.state[`${type}Selected`]
       ? formatReceiveAmountToTotal(
-          _.get(this.state[`${type}Selected`], 'amount'),
-          _.get(this.state[`${type}Selected`], 'token.subunit_to_unit')
-        )
+        _.get(this.state[`${type}Selected`], 'amount'),
+        _.get(this.state[`${type}Selected`], 'token.subunit_to_unit')
+      )
       : '-'
   }
 
@@ -243,14 +252,15 @@ class CreateTransaction extends Component {
       <FromToContainer>
         <h5>From</h5>
         <InputLabel>From Address</InputLabel>
-        <AccountUsersWalletsFetcher
+        <AllWalletsFetcher
           accountId={this.props.match.params.accountId}
           owned={false}
           query={createSearchAddressQuery(this.state.fromAddress)}
-          shouldFetch={this.props.match.params.accountId || fromWallet && fromWallet.account_id}
+          shouldFetch={!!this.props.match.params.accountId || (fromWallet && !!fromWallet.account_id)}
           render={({ data }) => {
             return (
               <Select
+                disabled={!!this.props.fromAddress}
                 normalPlaceholder='acc_0x000000000000000'
                 onSelectItem={this.onSelectFromAddressSelect}
                 value={this.state.fromAddress}
@@ -298,6 +308,7 @@ class CreateTransaction extends Component {
               value={this.state.fromTokenAmount}
               onChange={this.onChangeAmount('fromToken')}
               type='amount'
+              maxAmountLength={18}
               normalPlaceholder={'Token amount'}
             />
           </div>
@@ -362,6 +373,7 @@ class CreateTransaction extends Component {
                 value={this.state.toTokenAmount}
                 onChange={this.onChangeAmount('toToken')}
                 type='amount'
+                maxAmountLength={18}
                 normalPlaceholder={'Token amount'}
               />
             </div>
@@ -406,7 +418,7 @@ class CreateTransaction extends Component {
           )}
           <ButtonContainer>
             <Button size='small' type='submit' loading={this.state.submitting}>
-              Transfer
+              <span>Transfer</span>
             </Button>
           </ButtonContainer>
           <Error error={this.state.error}>{this.state.error}</Error>

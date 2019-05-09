@@ -1,7 +1,17 @@
-import AccountNavgiationBar from './AccountNavigationBar'
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Route, withRouter, Link } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
+import styled from 'styled-components'
+
+import UserDetailPage from '../omg-page-user-detail'
+import AdminDetailPage from '../omg-page-admin-detail'
+import { selectGetAccountById } from '../omg-account/selector'
+import { Breadcrumb } from '../omg-uikit'
+import { subscribeToWebsocketByAccountId } from '../omg-account/action'
+import { visitAccount } from '../omg-recent-account/action'
+import AccountNavgiationBar from './AccountNavigationBar'
 import AccountWalletSubPage from './AccountWalletSubPage'
 import AccountUserSubPage from './AccountUserSubPage'
 import AccountTransactionSubPage from './AccountTransactionSubPage'
@@ -10,17 +20,9 @@ import AccountDetailSubPage from './AccountDetailSubPage'
 import AccountConsumptionSubPage from './AccountConsumptionSubPage'
 import AccountSettingSubPage from './AccountSettingSubPage'
 import AccountAdminSubPage from './AccountAdminSubPage'
-import WalletDetailPage from '../omg-page-wallet-detail'
-import UserDetailPage from '../omg-page-user-detail'
-import AdminDetailPage from '../omg-page-admin-detail'
+import WalletDetailPage from './WalletDetailSubPage'
 import AccountActivitySubPage from './AccountActivitySubPage'
-import { selectGetAccountById } from '../omg-account/selector'
-import { connect } from 'react-redux'
-import { compose } from 'recompose'
-import { Breadcrumb } from '../omg-uikit'
-import { subscribeToWebsocketByAccountId } from '../omg-account/action'
-import { visitAccount } from '../omg-recent-account/action'
-import styled from 'styled-components'
+import AccountKeySubPage from './AccountKeySubPage'
 
 const BreadContainer = styled.div`
   padding: 20px 0 0 0;
@@ -38,36 +40,39 @@ const enhance = compose(
 )
 function AccountLayout (props) {
   const { accountId, type, id } = props.match.params
-
   useEffect(() => {
-    props.visitAccount(accountId)
-    props.subscribeToWebsocketByAccountId(accountId)
-  }, [accountId])
+    if (!_.isEmpty(props.account)) {
+      props.visitAccount(accountId)
+      props.subscribeToWebsocketByAccountId(accountId)
+    }
+  }, [_.get(props, 'account.id')])
 
   return (
-    <div>
+    <>
       <AccountNavgiationBar />
       <BreadContainer>
         <Breadcrumb
           items={[
-            <Link to={'/accounts/'}>Accounts</Link>,
-            <Link to={`/accounts/${accountId}/detail`}>{_.get(props.account, 'name', '...')}</Link>,
-            <Link to={`/accounts/${accountId}/${type}`}>{_.upperFirst(type)}</Link>,
-            id ? <Link to={`/accounts/${accountId}/${type}/${id}`}>{id}</Link> : null
+            <Link key='account' to={'/accounts/'}>Accounts</Link>,
+            <Link key='detail' to={`/accounts/${accountId}/details`}>{_.get(props.account, 'name', '...')}</Link>,
+            <Link key='type' to={`/accounts/${accountId}/${type}`}>{_.upperFirst(type)}</Link>,
+            id ? <Link key='id' to={`/accounts/${accountId}/${type}/${id}`}>{id}</Link> : null
           ]}
         />
       </BreadContainer>
-      <Route path='/accounts/:accountId/detail' exact render={() => <AccountDetailSubPage />} />
+      <Route path='/accounts/:accountId/details' exact render={() => <AccountDetailSubPage />} />
       <Route path='/accounts/:accountId/wallets' exact render={() => <AccountWalletSubPage />} />
       <Route
         path='/accounts/:accountId/wallets/:walletAddress'
         exact
         render={() => <WalletDetailPage />}
       />
+      <Route path='/accounts/:accountId/keys' exact render={() => <AccountKeySubPage />} />
+
       <Route path='/accounts/:accountId/users' exact render={() => <AccountUserSubPage />} />
-      <Route path='/accounts/:accountId/users/:userId' exact render={() => <UserDetailPage />} />
+      <Route path='/accounts/:accountId/users/:userId' exact render={() => <UserDetailPage divider={false} />} />
       <Route path='/accounts/:accountId/admins' exact render={() => <AccountAdminSubPage />} />
-      <Route path='/accounts/:accountId/admins/:adminId' exact render={() => <AdminDetailPage />} />
+      <Route path='/accounts/:accountId/admins/:adminId' exact render={() => <AdminDetailPage divider={false} />} />
       <Route path='/accounts/:accountId/setting' exact render={() => <AccountSettingSubPage />} />
       <Route
         path='/accounts/:accountId/consumptions'
@@ -85,14 +90,15 @@ function AccountLayout (props) {
         render={() => <AccountTransactionRequestSubPage />}
       />
       <Route path='/accounts/:accountId/activity' exact render={() => <AccountActivitySubPage />} />
-    </div>
+    </>
   )
 }
 
 AccountLayout.propTypes = {
   match: PropTypes.object,
   account: PropTypes.object,
-  subscribeToWebsocketByAccountId: PropTypes.func
+  subscribeToWebsocketByAccountId: PropTypes.func,
+  visitAccount: PropTypes.func
 }
 
 export default enhance(AccountLayout)

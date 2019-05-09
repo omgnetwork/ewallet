@@ -22,7 +22,6 @@ class TokenProvider extends Component {
     render: PropTypes.func,
     tokenId: PropTypes.string,
     getTokenById: PropTypes.func.isRequired,
-    tokensLoadingStatus: PropTypes.string,
     selectTokenById: PropTypes.func
   }
   componentDidMount = () => {

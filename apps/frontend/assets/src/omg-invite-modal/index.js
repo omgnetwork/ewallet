@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { RadioButton, Input, Button, Icon } from '../omg-uikit'
-import Modal from '../omg-modal'
 import { connect } from 'react-redux'
-import { inviteMember, getListMembers } from '../omg-member/action'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+
+import { RadioButton, Input, Button, Icon } from '../omg-uikit'
+import Modal from '../omg-modal'
+import { inviteMember, getListMembers } from '../omg-member/action'
 
 const InviteModalContainer = styled.form`
   padding: 50px;
@@ -47,10 +48,7 @@ const InviteTitle = styled.span`
   font-size: 14px;
   color: ${props => props.theme.colors.B100};
 `
-const InviteButton = styled(Button)`
-  padding-left: 40px;
-  padding-right: 40px;
-`
+
 const enhance = compose(
   withRouter,
   connect(
@@ -63,9 +61,9 @@ class InviteModal extends Component {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
     inviteMember: PropTypes.func.isRequired,
-    getListMembers: PropTypes.func.isRequired,
     match: PropTypes.object,
-    location: PropTypes.object
+    location: PropTypes.object,
+    onInviteSuccess: PropTypes.func
   }
   state = {
     email: '',
@@ -100,9 +98,8 @@ class InviteModal extends Component {
           redirectUrl: window.location.href.replace(this.props.location.pathname, '/invite/')
         })
         if (result.data) {
-          this.props.getListMembers(accountId)
           this.setState({ submitStatus: 'SUCCESS' })
-          this.props.history.push(`/accounts/${this.props.match.params.accountId}/admins`)
+          if (this.props.onInviteSuccess) this.props.onInviteSuccess()
           this.onRequestClose()
         } else {
           this.setState({ submitStatus: 'FAILED' })
@@ -128,7 +125,7 @@ class InviteModal extends Component {
         isOpen={this.props.open}
         onRequestClose={this.onRequestClose}
         contentLabel='invite modal'
-        shouldCloseOnOverlayClick={false}
+        shouldCloseOnOverlayClick
       >
         <InviteModalContainer onSubmit={this.onSubmit}>
           <Icon name='Close' onClick={this.props.onRequestClose} />
@@ -159,13 +156,13 @@ class InviteModal extends Component {
               />
             </RadioButtonsContainer>
           </RoleRadioButtonContainer>
-          <InviteButton
+          <Button
             styleType='primary'
             type='submit'
             loading={this.state.submitStatus === 'SUBMITTED'}
           >
-            Invite
-          </InviteButton>
+            <span>Invite</span>
+          </Button>
         </InviteModalContainer>
       </Modal>
     )

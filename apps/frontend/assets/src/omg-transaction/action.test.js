@@ -71,8 +71,8 @@ describe('transaction actions', () => {
       { type: 'TRANSACTION/CALCULATE/INITIATED' },
       { type: 'TRANSACTION/CALCULATE/SUCCESS', data: { id: 'a' } }
     ]
-    return store.dispatch(calculate({fromTokenId: 'a', fromAmount: 50, toTokenId: 'b'})).then(() => {
-      expect(transactionService.calculate).toBeCalledWith({fromTokenId: 'a', fromAmount: 50, toTokenId: 'b', toAmount: undefined})
+    return store.dispatch(calculate({ fromTokenId: 'a', fromAmount: 50, toTokenId: 'b' })).then(() => {
+      expect(transactionService.calculate).toBeCalledWith({ fromTokenId: 'a', fromAmount: 50, toTokenId: 'b', toAmount: undefined })
       expect(store.getActions()).toEqual(expectedActions)
     })
   })

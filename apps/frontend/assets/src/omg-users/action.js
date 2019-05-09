@@ -29,4 +29,3 @@ export const getUserById = id =>
     action: 'REQUEST',
     service: () => userService.getUserById(id)
   })
-

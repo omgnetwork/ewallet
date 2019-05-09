@@ -58,14 +58,14 @@ const TransactionInfoContainer = styled.div`
     background-color: ${props => props.theme.colors.S300};
     display: inline-block;
     padding: 5px 10px;
+    border-radius: 2px;
   }
 `
 const enhance = compose(withRouter)
 class TransactionRequestPanel extends Component {
   static propTypes = {
     history: PropTypes.object,
-    location: PropTypes.object,
-    match: PropTypes.object
+    location: PropTypes.object
   }
 
   constructor (props) {
@@ -83,7 +83,7 @@ class TransactionRequestPanel extends Component {
     const address = _.get(transaction, 'address')
     const accountName = _.get(transaction, 'account.name')
     const accountId = _.get(transaction, 'account.id')
-    const userId = _.get(transaction, 'user.id')
+    const user = _.get(transaction, 'user')
     const tokenId = _.get(transaction, 'token.id')
 
     return (
@@ -99,17 +99,33 @@ class TransactionRequestPanel extends Component {
           <InformationItem>
             <b>Account : </b>
             <Link
-              to={{ pathname: `/accounts/${accountId}/detail`, search: this.props.location.search }}
+              to={{ pathname: `/accounts/${accountId}/details`, search: this.props.location.search }}
             >
               {accountName}
             </Link>
           </InformationItem>
         )}
-        {_.get(transaction, 'user') && (
+        {user && (
           <InformationItem>
             <b>User : </b>
-            <Link to={{ pathname: `/users/${userId}`, search: this.props.location.search }}>
-              {userId}
+            <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
+              {user.id}
+            </Link>
+          </InformationItem>
+        )}
+        {user && user.email && (
+          <InformationItem>
+            <b>User email: </b>
+            <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
+              {user.email}
+            </Link>
+          </InformationItem>
+        )}
+        {user && user.provider_user_id && (
+          <InformationItem>
+            <b>User provider ID: </b>
+            <Link to={{ pathname: `/users/${user.id}`, search: this.props.location.search }}>
+              {user.provider_user_id}
             </Link>
           </InformationItem>
         )}
@@ -171,7 +187,7 @@ class TransactionRequestPanel extends Component {
                       <Icon name='Checked' />
                     )}
                   </MarkContainer>
-                  {transaction.status}
+                  <span>{_.capitalize(transaction.status)}</span>
                 </span>{' '}
                 | <span>{moment(transaction.created_at).format()}</span>
               </SubDetailTitle>

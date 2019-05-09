@@ -1,26 +1,22 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import moment from 'moment'
+import queryString from 'query-string'
+
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import AdminsFetcher from '../omg-admins/adminsFetcher'
-import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
-import moment from 'moment'
-import queryString from 'query-string'
 import Copy from '../omg-copy'
 import { createSearchAdminsQuery } from '../omg-admins/searchField'
+import GlobalInviteModal from '../omg-global-invite-modal'
 
 const AdminPageContainer = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
   padding-bottom: 100px;
-  > div {
-    flex: 1;
-  }
   td:first-child {
-    width: 40%;
     border: none;
     position: relative;
     :before {
@@ -69,6 +65,7 @@ const UserIdContainer = styled.div`
     vertical-align: middle;
   }
 `
+
 class UsersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
@@ -79,41 +76,50 @@ class UsersPage extends Component {
     navigation: PropTypes.bool,
     onClickRow: PropTypes.func,
     columns: PropTypes.array,
-    divider: PropTypes.bool
+    divider: PropTypes.bool,
+    showInviteButton: PropTypes.bool
   }
   static defaultProps = {
     query: {},
     fetcher: AdminsFetcher,
+    showInviteButton: false,
     columns: [
       { key: 'id', title: 'ADMIN ID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'updated_at', title: 'LAST UPDATED', sort: true }
+      { key: 'global_role', title: 'GLOBAL ROLE', sort: true },
+      { key: 'status', title: 'STATUS', sort: true },
+      { key: 'created_at', title: 'CREATED AT', sort: true },
+      { key: 'updated_at', title: 'UPDATED AT', sort: true }
     ]
   }
   constructor (props) {
     super(props)
     this.state = {
-      createAccountModalOpen: false
+      createAccountModalOpen: false,
+      inviteModalOpen: false
     }
+  }
+  onRequestClose = () => {
+    this.setState({ inviteModalOpen: false })
   }
   onClickRow = (data, index) => e => {
     this.props.history.push(`/admins/${data.id}`)
   }
+  onClickInviteButton = () => {
+    this.setState({ inviteModalOpen: true })
+  }
   renderCreateAccountButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
+        <Icon name='Plus' /><span>Create Account</span>
       </Button>
     )
   }
   getRow = admins => {
-    return admins.map(d => {
-      return {
-        ...d,
-        avatar: _.get(d, 'avatar.thumb')
-      }
-    })
+    return admins.map(admin => ({
+      ...admin,
+      avatar: _.get(admin, 'avatar.thumb')
+    }))
   }
   rowRenderer (key, data, rows) {
     switch (key) {
@@ -124,21 +130,36 @@ class UsersPage extends Component {
       case 'id':
         return (
           <UserIdContainer>
-            <Icon name='Profile' /> <span>{data}</span> <Copy data={data} />
+            <Icon name='Profile' /><span>{data}</span> <Copy data={data} />
           </UserIdContainer>
         )
       case 'email':
         return data || '-'
+      case 'global_role':
+        return _.startCase(data) || '-'
+      case 'status':
+        return _.startCase(data)
       default:
         return data
     }
   }
+  renderInviteButton = () => {
+    return (
+      <Button size='small' onClick={this.onClickInviteButton} key={'create'}>
+        <Icon name='Plus' /><span>Invite Admin</span>
+      </Button>
+    )
+  }
 
-  renderAdminPage = ({ data: admins, individualLoadingStatus, pagination }) => {
+  renderAdminPage = ({ data: admins, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AdminPageContainer>
-        <TopNavigation divider={this.props.divider} title={'Admins'} />
-        <SortableTableContainer innerRef={table => (this.table = table)}>
+        <TopNavigation
+          divider={this.props.divider}
+          title={'Admins'}
+          buttons={[this.renderInviteButton()]}
+        />
+        <SortableTableContainer ref={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(admins)}
             columns={this.props.columns}
@@ -151,12 +172,17 @@ class UsersPage extends Component {
             pagination={false}
           />
         </SortableTableContainer>
+        <GlobalInviteModal open={this.state.inviteModalOpen}
+          onRequestClose={this.onRequestClose}
+          onInviteSuccess={fetch}
+        />
       </AdminPageContainer>
     )
   }
 
   render () {
     const Fetcher = this.props.fetcher
+
     return (
       <Fetcher
         {...this.state}

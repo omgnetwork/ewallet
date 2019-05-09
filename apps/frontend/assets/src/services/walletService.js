@@ -76,3 +76,14 @@ export function getWallet (address) {
     }
   })
 }
+
+export function createWallet ({ name, identifier, accountId }) {
+  return authenticatedRequest({
+    path: '/wallet.create',
+    data: {
+      name,
+      identifier,
+      account_id: accountId
+    }
+  })
+}

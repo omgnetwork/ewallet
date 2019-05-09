@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-import PropTypes from 'prop-types'
 import SearchGroup from './SearchGroup'
 
 const TopNavigationContainer = styled.div`
@@ -9,8 +9,9 @@ const TopNavigationContainer = styled.div`
   align-items: center;
   flex-wrap: wrap;
   width: 100%;
-  height: 80px;
+  min-height: 80px;
   position: relative;
+  padding: 10px 0;
   margin-bottom: ${props => props.divider ? '20px' : '0'};
   h2 {
     display: inline-block;
@@ -23,7 +24,7 @@ const TopNavigationContainer = styled.div`
   > {
     vertical-align: middle;
   }
-  /* psuedu border bottom hack overide parent padding */
+  /* pseudo border bottom hack overide parent padding */
   :after {
     content: '';
     position: absolute;
@@ -35,12 +36,12 @@ const TopNavigationContainer = styled.div`
     left: -8%;
     margin: 0 auto;
   }
-  @media screen and (max-width: 800px) {
-    height: auto;
-  }
 `
 const LeftNavigationContainer = styled.div`
   flex: 1 1 auto;
+  p {
+    padding-top: 5px;
+  }
 `
 const RightNavigationContainer = styled.div`
   white-space: nowrap;
@@ -56,7 +57,7 @@ const RightNavigationContainer = styled.div`
   button:not(:first-child) {
     margin-left: 10px;
   }
-  @media screen and (max-width: 769px) {
+  @media screen and (max-width: 768px) {
     flex: 1 0 100%;
     margin-top: 10px;
   }
@@ -69,7 +70,7 @@ const SecondaryActionsContainer = styled.div`
 export default class TopNavigation extends PureComponent {
   static propTypes = {
     buttons: PropTypes.array,
-    title: PropTypes.string,
+    title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     secondaryAction: PropTypes.bool,
     normalPlaceholder: PropTypes.string,
     description: PropTypes.string,
@@ -82,7 +83,7 @@ export default class TopNavigation extends PureComponent {
   renderSecondaryActions () {
     return (
       <SecondaryActionsContainer>
-        <SearchGroup normalPlaceholder={this.props.normalPlaceholder} />
+        <SearchGroup debounced={500} normalPlaceholder={this.props.normalPlaceholder} />
       </SecondaryActionsContainer>
     )
   }

@@ -12,11 +12,7 @@ import { Icon } from '../omg-uikit'
 const AccountPageContainer = styled.div`
   position: relative;
   display: flex;
-  flex-direction: column;
   padding-bottom: 50px;
-  > div {
-    flex: 1;
-  }
   td:first-child {
     width: 30%;
     max-width: 30%;
@@ -71,6 +67,7 @@ class AccountPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func
   }
+
   onClickRow = (data, index) => e => {
     // Click a link, ignore
     if (e.target.nodeName === 'A') return
@@ -88,7 +85,7 @@ class AccountPage extends Component {
       { key: 'originator', title: 'ORIGINATOR' },
       { key: 'action', title: 'ACTION' },
       { key: 'target', title: 'TARGET' },
-      { key: 'created_at', title: 'CREATED DATE' }
+      { key: 'created_at', title: 'CREATED AT' }
     ]
   }
 
@@ -232,16 +229,18 @@ class AccountPage extends Component {
   renderActivityPage = ({ data: activities, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={'Activity Logs'}
           buttons={[]}
           normalPlaceholder='originator id, action'
         />
         <SortableTableContainer
-          innerRef={table => (this.table = table)}
+          ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable
+            activeIndexKey={queryString.parse(this.props.location.search)['show-activity-tab']}
             rows={activities}
             columns={this.getColumns()}
             loadingStatus={individualLoadingStatus}

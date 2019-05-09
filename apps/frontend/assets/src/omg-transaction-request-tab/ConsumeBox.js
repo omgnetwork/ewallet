@@ -207,13 +207,13 @@ class ConsumeBox extends Component {
         const amount =
           transactionRequest.type === 'send'
             ? formatReceiveAmountToTotal(
-                rate.to_amount,
-                _.get(rate, 'exchange_pair.to_token.subunit_to_unit')
-              )
+              rate.to_amount,
+              _.get(rate, 'exchange_pair.to_token.subunit_to_unit')
+            )
             : formatReceiveAmountToTotal(
-                rate.from_amount,
-                _.get(rate, 'exchange_pair.from_token.subunit_to_unit')
-              )
+              rate.from_amount,
+              _.get(rate, 'exchange_pair.from_token.subunit_to_unit')
+            )
         this.setState({ amount })
       }
     })
@@ -363,33 +363,33 @@ class ConsumeBox extends Component {
           />
           {_.get(this.state, 'selectedToken.id') !== _.get(transactionRequest, 'token.id') &&
             this.state.rate && (
-              <WalletsFetcher
-                query={createSearchAddressQuery(this.state.exchangeAddress)}
-                accountId={this.props.match.params.accountId}
-                owned={false}
-                render={({ data }) => {
-                  return (
-                    <InputLabelContainer>
-                      <InputLabel>Exhange Wallet</InputLabel>
-                      <ExchangeSelect
-                        disablePointer={_.get(transactionRequest, 'exchange_wallet.address', null)}
-                        normalPlaceholder='acc_0x000000000000000'
-                        onSelectItem={this.onSelectExchangeWalletAddressSelect}
-                        value={this.state.exchangeAddress}
-                        onChange={this.onChangeWalletExchange}
-                        options={data.map(d => {
-                          return {
-                            key: d.address,
-                            value: <WalletSelect wallet={d} />,
-                            ...d
-                          }
-                        })}
-                      />
-                    </InputLabelContainer>
-                  )
-                }}
-              />
-            )}
+            <WalletsFetcher
+              query={createSearchAddressQuery(this.state.exchangeAddress)}
+              accountId={this.props.match.params.accountId}
+              owned={false}
+              render={({ data }) => {
+                return (
+                  <InputLabelContainer>
+                    <InputLabel>Exhange Wallet</InputLabel>
+                    <ExchangeSelect
+                      disablePointer={_.get(transactionRequest, 'exchange_wallet.address', null)}
+                      normalPlaceholder='acc_0x000000000000000'
+                      onSelectItem={this.onSelectExchangeWalletAddressSelect}
+                      value={this.state.exchangeAddress}
+                      onChange={this.onChangeWalletExchange}
+                      options={data.map(d => {
+                        return {
+                          key: d.address,
+                          value: <WalletSelect wallet={d} />,
+                          ...d
+                        }
+                      })}
+                    />
+                  </InputLabelContainer>
+                )
+              }}
+            />
+          )}
           {this.state.rate && (
             <RateCointaner>
               {formatReceiveAmountToTotal(
@@ -410,7 +410,7 @@ class ConsumeBox extends Component {
             </ExpiredContainer>
           ) : (
             <Button disabled={!valid} loading={this.state.submitStatus === 'SUBMITTING'}>
-              Consume
+              <span>Consume</span>
             </Button>
           )}
           <Error error={this.state.error}>{this.state.error}</Error>

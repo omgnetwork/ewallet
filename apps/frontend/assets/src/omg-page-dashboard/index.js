@@ -82,8 +82,7 @@ export default withRouter(
     renderExportButton = () => {
       return (
         <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
-          <Icon name='Export' />
-          <span>Export</span>
+          <Icon name='Export' /><span>Export</span>
         </Button>
       )
     }
@@ -111,11 +110,11 @@ export default withRouter(
             </span>
           </DetailGroup>
           <DetailGroup>
-            <b>Created Date:</b>{' '}
+            <b>Created At:</b>{' '}
             <span>{moment(currentAccount.created_at).format()}</span>
           </DetailGroup>
           <DetailGroup>
-            <b>Last Update:</b>{' '}
+            <b>Updated At:</b>{' '}
             <span>{moment(currentAccount.updated_at).format()}</span>
           </DetailGroup>
         </SectionContainer>
@@ -141,37 +140,37 @@ export default withRouter(
                   <NavigationItem>
                     <Link to={`/${accountId}/setting/?invite=true`}>
                       <Icon name='Arrow-Right' /> Invite Team Member
-                  </Link>
+                    </Link>
                   </NavigationItem>
                   <NavigationItem>
                     <Link to={`/${accountId}/accounts/?createAccount=true`}>
                       <Icon name='Arrow-Right' /> Create Account
-                  </Link>
+                    </Link>
                   </NavigationItem>
                   <NavigationItem>
                     <Link to={`/${accountId}/tokens/?createToken=true`}>
                       <Icon name='Arrow-Right' /> Create Token
-                  </Link>
+                    </Link>
                   </NavigationItem>
                   <NavigationItem>
                     <Link to={`/${accountId}/wallets`}>
                       <Icon name='Arrow-Right' /> Organize Wallets
-                  </Link>
+                    </Link>
                   </NavigationItem>
                   <NavigationItem>
                     <Link to={`/${accountId}/requests?createRequest=true`}>
                       <Icon name='Arrow-Right' /> Create Request
-                  </Link>
+                    </Link>
                   </NavigationItem>
                   <NavigationItem>
                     <Link to={`/${accountId}/api`}>
                       <Icon name='Arrow-Right' /> Generate API
-                  </Link>
+                    </Link>
                   </NavigationItem>
                   <NavigationItem>
                     <a href='/api/admin/docs.ui#' target='_blank'>
                       <Icon name='Arrow-Right' /> API Documentation
-                  </a>
+                    </a>
                   </NavigationItem>
                 </GetStartedContent>
               </GetStartedContainer>

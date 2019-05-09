@@ -6,9 +6,7 @@ import { getActivityLogById } from '../omg-activity-log/action'
 class ActivityProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
-    getActivityLogById: PropTypes.func,
-    activity: PropTypes.object,
-    activityId: PropTypes.string
+    activity: PropTypes.object
   }
 
   componentDidMount () {

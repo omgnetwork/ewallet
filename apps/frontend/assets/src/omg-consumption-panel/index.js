@@ -75,8 +75,7 @@ class TransactionRequestPanel extends Component {
     history: PropTypes.object,
     location: PropTypes.object,
     approveConsumptionById: PropTypes.func,
-    rejectConsumptionById: PropTypes.func,
-    match: PropTypes.object
+    rejectConsumptionById: PropTypes.func
   }
 
   constructor (props) {
@@ -184,13 +183,13 @@ class TransactionRequestPanel extends Component {
                 {consumption.status === 'pending' && (
                   <InformationItem>
                     <Button onClick={() => this.props.approveConsumptionById(consumption.id)}>
-                      Approve
+                      <span>Approve</span>
                     </Button>
                     <Button
                       onClick={() => this.props.rejectConsumptionById(consumption.id)}
                       styleType='secondary'
                     >
-                      Reject
+                      <span>Reject</span>
                     </Button>
                   </InformationItem>
                 )}

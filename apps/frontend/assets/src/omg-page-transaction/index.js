@@ -1,36 +1,26 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
-import SortableTable from '../omg-table'
-import { Button, Icon } from '../omg-uikit'
-import CreateTransactionModal from '../omg-create-transaction-modal'
-import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { withRouter } from 'react-router'
 import moment from 'moment'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import SortableTable from '../omg-table'
+import { Button, Icon } from '../omg-uikit'
+import CreateTransactionModal from '../omg-create-transaction-modal'
+import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
+
 const TransactionPageContainer = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 50px;
-  > div {
-    flex: 1;
-  }
   td:nth-child(3) {
     white-space: nowrap;
     > div {
       overflow: hidden;
       text-overflow: ellipsis;
     }
-  }
-  td:nth-child(1) {
-    width: 40%;
-  }
-  td:nth-child(6) {
-    width: 20%;
   }
   td:nth-child(1) {
     padding-right: 0;
@@ -48,7 +38,7 @@ const TransactionPageContainer = styled.div`
   }
   table {
     td {
-      vertical-align: top;
+      vertical-align: middle;
     }
   }
   tr:hover {
@@ -96,6 +86,12 @@ const Sign = styled.span`
   display: inline-block;
   vertical-align: middle;
 `
+const BoldSpan = styled.span`
+  font-weight: bold;
+`
+const FromOrToRow = styled.div`
+  white-space: nowrap;
+`
 const FromToContainer = styled.div`
   > div:first-child {
     white-space: nowrap;
@@ -115,15 +111,6 @@ export const MarkContainer = styled.div`
   line-height: 18px;
   margin-right: 5px;
 `
-const TransferButton = styled(Button)`
-  padding-left: 40px;
-  padding-right: 40px;
-`
-
-const ExportButton = styled(Button)`
-  padding-left: 30px;
-  padding-right: 30px;
-`
 
 const columns = [
   { key: 'id', title: 'TRANSACTION ID' },
@@ -135,7 +122,7 @@ const columns = [
   { key: 'status', title: 'STATUS', sort: true },
   {
     key: 'created_at',
-    title: 'TIMESTAMP',
+    title: 'CREATED AT',
     sort: true
   }
 ]
@@ -146,12 +133,10 @@ class TransactionPage extends Component {
     scrollTopContentContainer: PropTypes.func,
     history: PropTypes.object,
     divider: PropTypes.bool,
-    query: PropTypes.object,
-    transferButton: PropTypes.bool
+    query: PropTypes.object
   }
   static defaultProps = {
-    query: {},
-    transferButton: false
+    query: {}
   }
   state = {
     createTransactionModalOpen: false
@@ -176,22 +161,42 @@ class TransactionPage extends Component {
   }
   renderCreateTransactionButton = () => {
     return (
-      <TransferButton
+      <Button
+        key='create'
         size='small'
         styleType='primary'
         onClick={this.onClickCreateTransaction}
-        key={'create'}
       >
-        <Icon name='Transaction' />
-        <span>Transfer</span>
-      </TransferButton>
+        <Icon name='Transaction' /><span>Transfer</span>
+      </Button>
     )
   }
   renderExportButton () {
     return (
-      <ExportButton size='small' styleType='secondary' key={'export'} onClick={this.onClickExport}>
-        Export
-      </ExportButton>
+      <Button
+        key='export'
+        size='small'
+        styleType='secondary'
+        onClick={this.onClickExport}
+      >
+        <span>Export</span>
+      </Button>
+    )
+  }
+  renderFromOrTo (fromOrTo) {
+    return (
+      <FromOrToRow>
+        {fromOrTo.account && (
+          <BoldSpan>{fromOrTo.account.name}</BoldSpan>
+        )}
+        {fromOrTo.user && fromOrTo.user.email && (
+          <BoldSpan>{fromOrTo.user.email}</BoldSpan>
+        )}
+        {fromOrTo.user && fromOrTo.user.provider_user_id && (
+          <BoldSpan>{fromOrTo.user.provider_user_id}</BoldSpan>
+        )}
+        <span> - {fromOrTo.address}</span>
+      </FromOrToRow>
     )
   }
   rowRenderer = (key, data, rows) => {
@@ -216,15 +221,15 @@ class TransactionPage extends Component {
               <Icon name='Checked' />
             </MarkContainer>
           )}{' '}
-          <span>{data}</span>
+          <span>{_.capitalize(data)}</span>
         </StatusContainer>
       )
     }
     if (key === 'toFrom') {
       return (
         <FromToContainer>
-          <div>{rows.from.address}</div>
-          <div>{rows.to.address}</div>
+          <div>{this.renderFromOrTo(rows.from)}</div>
+          <div>{this.renderFromOrTo(rows.to)}</div>
         </FromToContainer>
       )
     }
@@ -255,15 +260,16 @@ class TransactionPage extends Component {
   }
   renderTransactionPage = ({ data: transactions, individualLoadingStatus, pagination, fetch }) => {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-transaction-tab']
+
     return (
       <TransactionPageContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={'Transactions'}
-          buttons={
-            this.props.transferButton
-              ? [this.renderCreateTransactionButton(), this.renderExportButton()]
-              : null
-          }
+          buttons={[
+            this.renderExportButton(),
+            this.renderCreateTransactionButton()
+          ]}
         />
         <SortableTable
           rows={transactions}
@@ -288,12 +294,10 @@ class TransactionPage extends Component {
   render () {
     return (
       <TransactionsFetcher
-        {...this.state}
-        {...this.props}
         render={this.renderTransactionPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: 10,
+          perPage: Math.floor(window.innerHeight / 100),
           search: queryString.parse(this.props.location.search).search,
           ...this.props.query
         }}

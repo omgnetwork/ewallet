@@ -49,13 +49,13 @@ const ConfirmButton = styled.button`
     font-size: 10px;
   }
 `
-const ConfirmButtonApprove = ConfirmButton.extend`
+const ConfirmButtonApprove = styled(ConfirmButton)`
   :hover {
     color: #16826b;
     background-color: #dcfaf4;
   }
 `
-const ConfirmButtonReject = ConfirmButton.extend`
+const ConfirmButtonReject = styled(ConfirmButton)`
   :hover {
     color: #d51404;
     background-color: #ffefed;
@@ -81,7 +81,7 @@ class ActivityList extends Component {
     this.columns = [
       { key: 'estimated_consumption_amount', title: 'AMOUNT' },
       { key: 'to', title: 'CONSUMER' },
-      { key: 'created_at', title: 'CREATED DATE' },
+      { key: 'created_at', title: 'CREATED AT' },
       { key: 'status', title: 'CONFIRMATION' }
     ]
     this.perPage = Math.floor(window.innerHeight / 60)

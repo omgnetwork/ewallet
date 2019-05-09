@@ -15,7 +15,7 @@ class AccountsProvider extends Component {
     this.props.getAccountById(this.props.accountId)
   }
 
-  componentWillReceiveProps = nextProps => {
+  UNSAFE_componentWillReceiveProps = nextProps => {
     if (nextProps.accountId !== this.props.accountId) {
       this.props.getAccountById(nextProps.accountId)
     }

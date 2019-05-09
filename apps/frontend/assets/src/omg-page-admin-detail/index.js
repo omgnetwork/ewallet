@@ -2,10 +2,10 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
 import { withRouter } from 'react-router-dom'
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import AdminProvider from '../omg-admins/adminProvider'
 import { compose } from 'recompose'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import moment from 'moment'
 import Copy from '../omg-copy'
 const UserDetailContainer = styled.div`
@@ -37,22 +37,31 @@ class TokenDetailPage extends Component {
     match: PropTypes.object
   }
   renderTopBar = admin => {
-    return <TopBar title={admin.id} breadcrumbItems={['Admin', admin.id]} buttons={[]} />
+    return (
+      <TopNavigation
+        divider={false}
+        title={admin.email}
+        secondaryAction={false}
+      />
+    )
   }
   renderDetail = admin => {
     return (
-      <Section title='DETAILS'>
+      <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
-          <b>Id:</b> <span>{admin.id}</span> <Copy data={admin.id} />
+          <b>ID:</b> <span>{admin.id}</span> <Copy data={admin.id} />
         </DetailGroup>
         <DetailGroup>
           <b>Email:</b> <span>{admin.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(admin.created_at).format()}</span>
+          <b>Global Role:</b> <span>{_.startCase(admin.global_role) || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(admin.updated_at).format()}</span>
+          <b>Created At:</b> <span>{moment(admin.created_at).format()}</span>
+        </DetailGroup>
+        <DetailGroup>
+          <b>Updated At:</b> <span>{moment(admin.updated_at).format()}</span>
         </DetailGroup>
       </Section>
     )

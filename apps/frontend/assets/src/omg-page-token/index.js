@@ -1,29 +1,26 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
+import { withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import moment from 'moment'
+import queryString from 'query-string'
 import styled from 'styled-components'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
 import CreateTokenModal from '../omg-create-token-modal'
 import ExportModal from '../omg-export-modal'
 import TokensFetcher from '../omg-token/tokensFetcher'
-import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
 import { NameColumn } from '../omg-page-account'
-import moment from 'moment'
-import queryString from 'query-string'
 import ExchangePairModal from '../omg-exchange-rate-modal'
 import { createSearchTokenQuery } from '../omg-token/searchField'
-const TokenDetailPageContainer = styled.div`
+
+const TokenPageContainer = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
-  > div {
-    flex: 1;
-  }
   td:nth-child(1) {
-    width: 40%;
     border: none;
     position: relative;
+    white-space: nowrap;
     :before {
       content: '';
       position: absolute;
@@ -43,7 +40,7 @@ const columns = [
   { key: 'token', title: 'TOKEN NAME', sort: true },
   { key: 'id', title: 'TOKEN ID', sort: true },
   { key: 'symbol', title: 'SYMBOL', sort: true },
-  { key: 'created', title: 'CREATED DATE', sort: true }
+  { key: 'created', title: 'CREATED AT', sort: true }
 ]
 class TokenDetailPage extends Component {
   static propTypes = {
@@ -84,8 +81,7 @@ class TokenDetailPage extends Component {
   renderExportButton = () => {
     return (
       <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'exports'}>
-        <Icon name='Export' />
-        <span>Export</span>
+        <Icon name='Export' /><span>Export</span>
       </Button>
     )
   }
@@ -98,18 +94,22 @@ class TokenDetailPage extends Component {
   }
   renderMintTokenButton = () => {
     return (
-      <Button size='small' onClick={this.onClickCreateToken} key={'mint'}>
-        <Icon name='Plus' /> <span>Create Token</span>
+      <Button
+        key='mint'
+        size='small'
+        onClick={this.onClickCreateToken}
+      >
+        <Icon name='Plus' /><span>Create Token</span>
       </Button>
     )
   }
   renderCreateExchangePairButton = () => {
     return (
       <Button
+        key='create pair'
         size='small'
         styleType='secondary'
         onClick={this.onClickCreateExchangePair}
-        key={'create pair'}
       >
         <span>Create Exchange Pair</span>
       </Button>
@@ -122,7 +122,7 @@ class TokenDetailPage extends Component {
     if (key === 'token') {
       return (
         <NameColumn>
-          <Avatar image={rows.avatar} name={rows.symbol} /> <span>{data}</span>
+          <Avatar image={rows.avatar} name={rows.symbol} /><span>{data}</span>
         </NameColumn>
       )
     }
@@ -131,7 +131,7 @@ class TokenDetailPage extends Component {
   onClickRow = (data, index) => e => {
     this.props.history.push(`/tokens/${data.id}`)
   }
-  renderTokenDetailPage = ({ data: tokens, individualLoadingStatus, pagination, fetch }) => {
+  renderTokenPage = ({ data: tokens, individualLoadingStatus, pagination, fetch }) => {
     const data = tokens.map(token => {
       return {
         key: token.id,
@@ -143,10 +143,14 @@ class TokenDetailPage extends Component {
     })
 
     return (
-      <TokenDetailPageContainer>
-        <TopNavigation divider={this.props.divider}
+      <TokenPageContainer>
+        <TopNavigation
+          divider={this.props.divider}
           title={'Tokens'}
-          buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]}
+          buttons={[
+            tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
+            this.renderMintTokenButton()
+          ]}
         />
         <SortableTable
           rows={data}
@@ -167,17 +171,18 @@ class TokenDetailPage extends Component {
           onFetchSuccess={fetch}
         />
         <ExchangePairModal
+          action='create'
           open={this.state.createExchangePairModalOpen}
           onRequestClose={this.onRequestCloseCreateExchangePair}
         />
-      </TokenDetailPageContainer>
+      </TokenPageContainer>
     )
   }
 
   render () {
     return (
       <TokensFetcher
-        render={this.renderTokenDetailPage}
+        render={this.renderTokenPage}
         {...this.state}
         {...this.props}
         query={{

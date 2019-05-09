@@ -27,13 +27,11 @@ const TableContainer = styled.div`
     width: 100%;
     text-align: left;
     tbody tr:hover {
-      background-color: ${props => props.theme.colors.S100};
+      cursor: ${props => props.hoverEffect ? 'pointer' : 'initial'};
+      background-color: ${props => props.hoverEffect ? props.theme.colors.S100 : 'initial'};
     }
     tbody td {
       border-bottom: 1px solid ${props => props.theme.colors.S200};
-    }
-    tr {
-      cursor: pointer;
     }
     td {
       opacity: ${props => (props.loading && props.loadingEffect ? 0.6 : 1)};
@@ -85,12 +83,15 @@ class SortableTable extends PureComponent {
     onClickLoadMore: PropTypes.func,
     pagination: PropTypes.bool,
     pageEntity: PropTypes.string,
-    loadingEffect: PropTypes.bool
+    loadingEffect: PropTypes.bool,
+    hoverEffect: PropTypes.bool,
+    activeIndexKey: PropTypes.string
   }
   static defaultProps = {
     pageEntity: 'page',
     loadingEffect: true,
-    navigation: false
+    navigation: false,
+    hoverEffect: true
   }
 
   constructor (props) {
@@ -215,17 +216,17 @@ class SortableTable extends PureComponent {
     const sortOrder = [queryString.parse(this.props.location.search)['sort-order']]
     const result = shouldFilter
       ? _.chain(this.props.rows)
-          .filter(d => {
-            return _.reduce(
-              filterQuery,
-              (prev, value, key) => {
-                return prev && (value === 'ALL' || d[key] === value)
-              },
-              true
-            )
-          })
-          .orderBy(sortBy, sortOrder)
-          .value()
+        .filter(d => {
+          return _.reduce(
+            filterQuery,
+            (prev, value, key) => {
+              return prev && (value === 'ALL' || d[key] === value)
+            },
+            true
+          )
+        })
+        .orderBy(sortBy, sortOrder)
+        .value()
       : this.props.rows
     return result
   }
@@ -252,6 +253,7 @@ class SortableTable extends PureComponent {
       <TableContainer
         loading={this.props.loadingStatus === 'PENDING'}
         loadingEffect={this.props.loadingEffect}
+        hoverEffect={this.props.hoverEffect}
       >
         <Table
           {...this.props}
@@ -346,9 +348,9 @@ const FilterHeader = withDropdownState(
               {this.props.open ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
               {this.props.open && (
                 <DropdownBox>
-                  {this.props.filterOptions.map(x => {
+                  {this.props.filterOptions.map((x, index) => {
                     return (
-                      <DropdownBoxItem onClick={e => this.props.onSelectFilter(this.props.col, x)}>
+                      <DropdownBoxItem key={index} onClick={e => this.props.onSelectFilter(this.props.col, x)}>
                         {x}
                       </DropdownBoxItem>
                     )

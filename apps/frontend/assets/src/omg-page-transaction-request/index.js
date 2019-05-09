@@ -14,12 +14,7 @@ import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
 const TransactionRequestsPageContainer = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
   padding-bottom: 50px;
-  > div {
-    flex: 1;
-  }
   td {
     white-space: nowrap;
   }
@@ -35,7 +30,6 @@ const TransactionRequestsPageContainer = styled.div`
     }
   }
   td:nth-child(1) {
-    width: 40%;
     border: none;
     position: relative;
     :before {
@@ -61,6 +55,15 @@ const TransactionRequestsPageContainer = styled.div`
 const SortableTableContainer = styled.div`
   position: relative;
 `
+const StyledIcon = styled.span`
+  i {
+    margin-top: -3px;
+    margin-right: 10px;
+    margin-top
+    font-size: 14px;
+    font-weight: 400;
+  }
+`
 export const NameColumn = styled.div`
   > span {
     margin-left: 10px;
@@ -83,7 +86,7 @@ class TransactionRequestsPage extends Component {
   }
   static defaultProps = {
     query: {},
-    createTransactionRequestButton: false
+    createTransactionRequestButton: true
   }
   constructor (props) {
     super(props)
@@ -96,10 +99,10 @@ class TransactionRequestsPage extends Component {
       { key: 'id', title: 'REQUEST ID', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
       { key: 'amount', title: 'AMOUNT', sort: true },
-      { key: 'created_by', title: 'CREATED BY' },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'require_confirmation', title: 'CONFIRMATION' },
-      { key: 'status', title: 'STATUS' }
+      { key: 'status', title: 'STATUS' },
+      { key: 'created_by', title: 'CREATED BY' },
+      { key: 'created_at', title: 'CREATED AT', sort: true }
     ]
   }
   onClickCreateRequest = e => {
@@ -111,7 +114,7 @@ class TransactionRequestsPage extends Component {
   renderCreateTransactionRequestButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateRequest} key={'create'}>
-        <Icon name='Plus' /> <span>Create Request</span>
+        <Icon name='Plus' /><span>Create Request</span>
       </Button>
     )
   }
@@ -124,7 +127,35 @@ class TransactionRequestsPage extends Component {
       })
     })
   }
-  rowRenderer (key, data, rows) {
+  renderCreator = request => {
+    return (
+      <span>
+        {request.account &&
+          <span>
+            <StyledIcon><Icon name='Merchant' /></StyledIcon>
+            {request.account.name}
+          </span>
+
+        }
+        {request.user && request.user.email &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {request.user.email}
+          </span>
+        }
+        {request.user && request.user.provider_user_id &&
+          <span>
+            <StyledIcon><Icon name='People' /></StyledIcon>
+            {request.user.provider_user_id}
+          </span>
+        }
+      </span>
+    )
+  }
+  rowRenderer = (key, data, rows) => {
+    if (key === 'status') {
+      return _.upperFirst(data)
+    }
     if (key === 'require_confirmation') {
       return data ? 'Yes' : 'No'
     }
@@ -149,7 +180,7 @@ class TransactionRequestsPage extends Component {
       return amount
     }
     if (key === 'created_by') {
-      return rows.user_id || rows.account.name || rows.account_id
+      return this.renderCreator(rows)
     }
     if (key === 'created_at') {
       return moment(data).format()
@@ -169,7 +200,8 @@ class TransactionRequestsPage extends Component {
     const activeIndexKey = queryString.parse(this.props.location.search)['show-request-tab']
     return (
       <TransactionRequestsPageContainer>
-        <TopNavigation divider={this.props.divider}
+        <TopNavigation
+          divider={this.props.divider}
           title={'Transaction Requests'}
           buttons={
             this.props.createTransactionRequestButton
@@ -178,7 +210,7 @@ class TransactionRequestsPage extends Component {
           }
         />
         <SortableTableContainer
-          innerRef={table => (this.table = table)}
+          ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable
@@ -211,7 +243,7 @@ class TransactionRequestsPage extends Component {
         {...this.props}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: Math.floor(window.innerHeight / 65),
+          perPage: 10,
           search: queryString.parse(this.props.location.search).search,
           ...this.props.query
         }}

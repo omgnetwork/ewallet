@@ -1,4 +1,8 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import moment from 'moment'
+import queryString from 'query-string'
+
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
@@ -6,21 +10,13 @@ import { Button, Icon } from '../omg-uikit'
 import ExportModal from '../omg-export-modal'
 import UsersFetcher from '../omg-users/usersFetcher'
 import { withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
-import moment from 'moment'
-import queryString from 'query-string'
 import Copy from '../omg-copy'
 import { createSearchUsersQuery } from '../omg-users/searchField'
+
 const UserPageContainer = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
   padding-bottom: 100px;
-  > div {
-    flex: 1;
-  }
   td:nth-child(1) {
-    width: 40%;
     border: none;
     position: relative;
     :before {
@@ -97,15 +93,14 @@ class UsersPage extends Component {
   renderExportButton = () => {
     return (
       <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
-        <Icon name='Export' />
-        <span>Export</span>
+        <Icon name='Export' /><span>Export</span>
       </Button>
     )
   }
   renderCreateAccountButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
+        <Icon name='Plus' /><span>Create Account</span>
       </Button>
     )
   }
@@ -114,9 +109,9 @@ class UsersPage extends Component {
       { key: 'id', title: 'USER ID', sort: true },
       { key: 'email', title: 'EMAIL', sort: true },
       { key: 'username', title: 'USERNAME', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'updated_at', title: 'LAST UPDATED', sort: true },
-      { key: 'provider_user_id', title: 'PROVIDER', sort: true }
+      { key: 'provider_user_id', title: 'PROVIDER', sort: true },
+      { key: 'created_at', title: 'CREATED AT', sort: true },
+      { key: 'updated_at', title: 'UPDATED AT', sort: true }
     ]
   }
   getRow = users => {
@@ -134,9 +129,15 @@ class UsersPage extends Component {
     if (key === 'id') {
       return (
         <UserIdContainer>
-          <Icon name='Profile' /> <span>{data}</span> <Copy data={data} />
+          <Icon name='Profile' /><span>{data}</span> <Copy data={data} />
         </UserIdContainer>
       )
+    }
+    if (key === 'username') {
+      return data || '-'
+    }
+    if (key === 'provider_user_id') {
+      return data || '-'
     }
     if (key === 'email') {
       return data || '-'
@@ -149,7 +150,7 @@ class UsersPage extends Component {
     return (
       <UserPageContainer>
         <TopNavigation divider={this.props.divider} title={'Users'} />
-        <SortableTableContainer innerRef={table => (this.table = table)}>
+        <SortableTableContainer ref={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(users)}
             columns={this.getColumns(users)}

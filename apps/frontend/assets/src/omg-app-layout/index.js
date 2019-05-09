@@ -1,14 +1,17 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import SideNavigation from './SideNavigation'
 import PropTypes from 'prop-types'
-import Alert from '../omg-alert'
 import LoadingBar from 'react-redux-loading-bar'
+import queryString from 'query-string'
+
+import SlideInRight from '../omg-uikit/animation/SlideInRight'
+import SideNavigation from './SideNavigation'
+import Alert from '../omg-alert'
 import TransactionRequestPanel from '../omg-transaction-request-tab'
 import TransactionPanel from '../omg-transaction-panel'
 import ActivityPanel from '../omg-page-activity-log/ActivityPanel'
-import queryString from 'query-string'
 import ConsumptionPanel from '../omg-consumption-panel'
+
 const Container = styled.div`
   height: 100%;
   position: relative;
@@ -25,11 +28,11 @@ const ContentContainer = styled.div`
   display: inline-block;
   width: calc(100% - 220px);
   height: 100vh;
-  overflow: auto;
+  overflow-y: scroll;
+  overflow-x: hidden;
 `
 const Content = styled.div`
   padding: 0 7% 50px 7%;
-  overflow: hidden;
 `
 class AppLayout extends Component {
   static propTypes = {
@@ -46,7 +49,7 @@ class AppLayout extends Component {
       <Container>
         <LoadingBar updateTime={1000} style={{ backgroundColor: '#1A56F0', zIndex: 99999 }} />
         <SideNav />
-        <ContentContainer innerRef={contentContainer => (this.contentContainer = contentContainer)}>
+        <ContentContainer ref={contentContainer => (this.contentContainer = contentContainer)}>
           <Content>
             {React.cloneElement(this.props.children, {
               scrollTopContentContainer: this.scrollTopContentContainer
@@ -54,10 +57,22 @@ class AppLayout extends Component {
           </Content>
         </ContentContainer>
         <Alert />
-        {searchObject['show-request-tab'] && <TransactionRequestPanel />}
-        {searchObject['show-consumption-tab'] && <ConsumptionPanel />}
-        {searchObject['show-transaction-tab'] && <TransactionPanel />}
-        {searchObject['show-activity-tab'] && <ActivityPanel />}
+
+        <SlideInRight path='transaction-panel' width={560}>
+          {searchObject['show-request-tab'] && <TransactionRequestPanel />}
+        </SlideInRight>
+
+        <SlideInRight path='transaction-panel' width={560}>
+          {searchObject['show-consumption-tab'] && <ConsumptionPanel />}
+        </SlideInRight>
+
+        <SlideInRight path='transaction-panel' width={560}>
+          {searchObject['show-transaction-tab'] && <TransactionPanel />}
+        </SlideInRight>
+
+        <SlideInRight path='activity-tab' width={560}>
+          {searchObject['show-activity-tab'] && <ActivityPanel />}
+        </SlideInRight>
       </Container>
     )
   }

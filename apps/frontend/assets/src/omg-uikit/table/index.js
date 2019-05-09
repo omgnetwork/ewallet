@@ -26,7 +26,7 @@ const EmptyStageContainer = styled.div`
   }
 `
 const Tr = styled.tr`
-  background-color: ${props => (props.active ? props.theme.colors.S200 : 'transparent')};
+  background-color: ${props => (props.active ? props.theme.colors.S100 : 'transparent')};
 `
 class Table extends Component {
   static propTypes = {
@@ -124,7 +124,7 @@ class Table extends Component {
     const dataRows = this.renderDataRows()
     return (
       <TableContainer
-        innerRef={table => (this.table = table)}
+        ref={table => (this.table = table)}
         height={this.props.loadingRowNumber * 40}
         loading={this.props.loading}
       >
@@ -142,7 +142,7 @@ class Table extends Component {
         </Fade>
         {!dataRows.length && (
           <EmptyStageContainer>
-            <img src={require('../../../statics/images/Empty state_1.0_Empty-state_1.0.png')} />
+            <img src={require('../../../statics/images/empty_state.png')} />
             <div>Sorry, no data yet.</div>
           </EmptyStageContainer>
         )}

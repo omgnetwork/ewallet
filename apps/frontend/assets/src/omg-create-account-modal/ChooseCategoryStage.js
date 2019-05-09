@@ -50,7 +50,8 @@ const SearchResult = styled.div`
   padding-right: 20px;
 `
 const SearchItem = styled.div`
-  vertical-align: middle;
+  display: flex;
+  align-items: center;
   cursor: pointer;
   i {
     opacity: ${props => (props.active ? 1 : 0)};
@@ -73,6 +74,8 @@ const SearchItem = styled.div`
   }
 `
 const BottomBar = styled.div`
+  display: flex;
+  justify-content: center;
   background-color: white;
   text-align: center;
   padding: 20px 25px;
@@ -81,6 +84,14 @@ const BottomBar = styled.div`
   a {
     vertical-align: middle;
     margin-left: 5px;
+  }
+  button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    i {
+      margin-right: 5px;
+    }
   }
 `
 const CreateNewGroupActionContainer = styled.form``
@@ -142,7 +153,7 @@ class ChooseCategoryStage extends Component {
           <SearchResult>
             <SearchItem
               active={_.isEmpty(this.props.category)}
-              onClick={e => this.props.onChooseCategory({name: 'None'})}
+              onClick={e => this.props.onChooseCategory({ name: 'None' })}
             >
               <Icon name='Checked' />
               <span>None</span>
@@ -176,7 +187,7 @@ class ChooseCategoryStage extends Component {
             </CreateNewGroupActionContainer>
           ) : (
             <PlainButton onClick={this.onClickCreateNewGroup}>
-              <Icon name='Plus' /> <span>Create New Category</span>
+              <Icon name='Plus' /><span>Create New Category</span>
             </PlainButton>
           )}
         </BottomBar>

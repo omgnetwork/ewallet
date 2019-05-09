@@ -7,10 +7,14 @@ const BreadcrumbContainer = styled.div`
   color: ${props => props.theme.colors.B100};
   i {
     padding: 0 5px;
-    font-size: inherit;
+    font-size: 8px;
   }
   a {
     color: inherit;
+    transition: 0.2s color;
+    :hover {
+      color: ${props => props.theme.colors.BL400};
+    }
   }
 `
 export default class Breadcrumb extends Component {

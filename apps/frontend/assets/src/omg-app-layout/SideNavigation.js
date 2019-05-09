@@ -36,6 +36,7 @@ const NavigationItem = styled.div`
     font-weight: 400;
   }
   :hover {
+    cursor: pointer;
     color: ${props => props.theme.colors.BL400};
   }
 `
@@ -96,19 +97,19 @@ class SideNavigation extends PureComponent {
         text: 'Tokens'
       },
       {
-        icon: 'Key',
-        to: '/keys',
-        text: 'Keys'
-      },
-      {
         icon: 'People',
         to: '/admins',
         text: 'Admins'
       },
       {
+        icon: 'Key',
+        to: '/keys',
+        text: 'Keys'
+      },
+      {
         icon: 'Setting',
         to: '/configuration',
-        text: 'Configurations'
+        text: 'Configuration'
       }
     ]
     this.overviewLinks = [
@@ -155,7 +156,7 @@ class SideNavigation extends PureComponent {
         {this.props.recentAccounts.map((account, i) => {
           return (
             <div key={account.id || i}>
-              <Link to={`/accounts/${account.id}/detail`}>
+              <Link to={`/accounts/${account.id}/details`}>
                 <RecentAccountItem active={this.props.match.params.accountId === account.id}>
                   <RecentAccount className='recent-account'>{account.name}</RecentAccount>
                 </RecentAccountItem>
@@ -175,7 +176,7 @@ class SideNavigation extends PureComponent {
           return (
             <Link to={link.to} key={link.to}>
               <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
-                <Icon name={link.icon} /> <span>{link.text}</span>
+                <Icon name={link.icon} /><span>{link.text}</span>
               </NavigationItem>
             </Link>
           )
@@ -194,7 +195,7 @@ class SideNavigation extends PureComponent {
           <NavigationItem
             active={!matchedAccountId && fuzzySearch('/accounts', `/${firstSubPath}`)}
           >
-            <Icon name='Merchant' /> <span>{'Accounts'}</span>
+            <Icon name='Merchant' /><span>{'Accounts'}</span>
           </NavigationItem>
         </Link>
         {this.renderRecentAccounts()}
@@ -202,7 +203,7 @@ class SideNavigation extends PureComponent {
           return (
             <Link to={link.to} key={link.to}>
               <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
-                <Icon name={link.icon} /> <span>{link.text}</span>
+                <Icon name={link.icon} /><span>{link.text}</span>
               </NavigationItem>
             </Link>
           )
@@ -217,11 +218,12 @@ class SideNavigation extends PureComponent {
         <MenuName> MY PROFILE </MenuName>
         <Link to={'/user_setting'}>
           <NavigationItem active={fuzzySearch('/user_setting', `/${firstSubPath}`)}>
-            <Icon name={'Profile'} /> <span>Profile Setting</span>
+            <Icon name={'Profile'} /><span>My Profile</span>
           </NavigationItem>
         </Link>
         <NavigationItem onClick={this.onLogout}>
-          <Icon name={'Arrow-Left'} /> <span>Logout</span>
+          <Icon name={'Arrow-Left'} />
+          <span>Log Out</span>
         </NavigationItem>
       </Fragment>
     )

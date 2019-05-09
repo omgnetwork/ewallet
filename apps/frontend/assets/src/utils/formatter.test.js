@@ -1,4 +1,4 @@
-import { formatAmount, formatReceiveAmountToTotal, formatNumber } from './formatter'
+import { formatAmount, formatReceiveAmountToTotal, formatNumber, ensureIsNumberOnly } from './formatter'
 describe('formatter', () => {
   test('[formatNumber] should work with .', () => {
     expect(formatNumber('12312313.')).toEqual('12,312,313.')
@@ -26,6 +26,11 @@ describe('formatter', () => {
     expect(formatNumber(0)).toEqual('0')
     expect(formatNumber(0.01)).toEqual('0.01')
   })
+  test('[formatNumber] should work with integer longer that 18', () => {
+    expect(formatNumber('112,312,312,313,141,514,231,232,321,313,123,123,123,131')).toEqual(
+      '112,312,312,313,141,514,231,232,321,313,123,123,123,131'
+    )
+  })
   test('[formatAmount] should format amount with the right precision when provide incorrect decimal', () => {
     const amount = 100000000
     const subunitToUnit = 10000000000
@@ -51,5 +56,11 @@ describe('formatter', () => {
     expect(formatReceiveAmountToTotal(null, subunitToUnit)).toEqual(null)
     expect(formatReceiveAmountToTotal(undefined, subunitToUnit)).toEqual(null)
     expect(formatReceiveAmountToTotal(0, subunitToUnit)).toEqual('0')
+  })
+
+  test('[ensureIsNumberOnly] should return only numbers from number or string as [string]', () => {
+    expect(ensureIsNumberOnly('1,000')).toEqual('1000')
+    expect(ensureIsNumberOnly('asdasdasd1,000')).toEqual('1000')
+    expect(ensureIsNumberOnly('asdasdasd1,000.0000001')).toEqual('1000.0000001')
   })
 })

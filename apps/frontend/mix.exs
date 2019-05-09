@@ -1,9 +1,9 @@
-defmodule Frontend.Mixfile do
+defmodule AdminPanel.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app: :frontend,
+      app: :admin_panel,
       version: "1.2.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -29,7 +29,7 @@ defmodule Frontend.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Frontend.Application, []},
+      mod: {AdminPanel.Application, []},
       extra_applications: [:appsignal, :logger, :runtime_tools]
     ]
   end
