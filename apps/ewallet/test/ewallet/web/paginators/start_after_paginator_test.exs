@@ -325,7 +325,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       attrs = %{"sort_by" => nil}
 
       # Assert nil value
-      {res, sort_by} = StartAfterPaginator.attr_to_field(attrs, "sort_by", "id", @default_mapped_fields)
+      {res, sort_by} =
+        StartAfterPaginator.attr_to_field(attrs, "sort_by", "id", @default_mapped_fields)
+
       assert res == :ok
       assert sort_by == :id
 
@@ -341,7 +343,9 @@ defmodule EWallet.Web.StartFromPaginatorTest do
       attrs = %{"sort_by" => "created_at", "start_by" => nil}
 
       # Assert original value exists in the `@default_mapped_fields`
-      {res, sort_by} = StartAfterPaginator.attr_to_field(attrs, "sort_by", "id", @default_mapped_fields)
+      {res, sort_by} =
+        StartAfterPaginator.attr_to_field(attrs, "sort_by", "id", @default_mapped_fields)
+
       assert res == :ok
       assert sort_by == :inserted_at
 

@@ -86,7 +86,8 @@ defmodule EWallet.Web.StartAfterPaginator do
     default_field = Atom.to_string(hd(allowed_fields))
 
     with {:ok, sort_by} <- attr_to_field(attrs, "sort_by", default_field, default_mapped_fields),
-         {:ok, start_by} <- attr_to_field(attrs, "start_by", default_field, default_mapped_fields),
+         {:ok, start_by} <-
+           attr_to_field(attrs, "start_by", default_field, default_mapped_fields),
          {:allowed, true, _} <- {:allowed, start_by in allowed_fields, start_by} do
       attrs =
         attrs
@@ -97,7 +98,12 @@ defmodule EWallet.Web.StartAfterPaginator do
     else
       {:error, :not_existing_atom, field_type, field_name} ->
         available_fields = fields_to_string(allowed_fields)
-        msg = "#{field_type}: `#{field_name}` is not allowed. The available fields are: [#{available_fields}]"
+
+        msg =
+          "#{field_type}: `#{field_name}` is not allowed. The available fields are: [#{
+            available_fields
+          }]"
+
         {:error, :invalid_parameter, msg}
 
       {:allowed, false, start_by} ->

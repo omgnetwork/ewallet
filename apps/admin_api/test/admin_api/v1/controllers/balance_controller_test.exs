@@ -133,7 +133,7 @@ defmodule AdminAPI.V1.BalanceControllerTest do
         "sort_by" => "inserted_at",
         "sort_dir" => "asc",
         "start_after" => nil,
-        "start_by" => "subunit_to_unit", # not allowed
+        "start_by" => "subunit_to_unit",
         "address" => user_wallet.address
       }
 
@@ -143,8 +143,8 @@ defmodule AdminAPI.V1.BalanceControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "start_by: `subunit_to_unit` is not allowed. "
-               <> "The available fields are: [id, inserted_at, updated_at]"
+               "start_by: `subunit_to_unit` is not allowed. " <>
+                 "The available fields are: [id, inserted_at, updated_at]"
     end
 
     test_with_auths "returns :error when querying with a non-existing field" do
@@ -156,7 +156,7 @@ defmodule AdminAPI.V1.BalanceControllerTest do
         "sort_by" => "inserted_at",
         "sort_dir" => "asc",
         "start_after" => nil,
-        "start_by" => "not_exists", # not allowed
+        "start_by" => "not_exists",
         "address" => user_wallet.address
       }
 
@@ -166,8 +166,8 @@ defmodule AdminAPI.V1.BalanceControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "start_by: `not_exists` is not allowed. "
-               <> "The available fields are: [id, inserted_at, updated_at]"
+               "start_by: `not_exists` is not allowed. " <>
+                 "The available fields are: [id, inserted_at, updated_at]"
     end
   end
 
