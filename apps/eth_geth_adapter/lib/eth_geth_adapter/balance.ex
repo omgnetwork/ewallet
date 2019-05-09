@@ -22,8 +22,7 @@ defmodule EthGethAdapter.Balance do
 
   @doc """
   Retrieve the balance of all given `contract_addresses` for the provided wallet `address`.
-  The contract address `0x0000000000000000000000000000000000000000` is handled as
-  the ethereum token and so the ethereum balance will be retrieved.
+  The `0x0000000000000000000000000000000000000000` address is used to represent Ether.
   Any other given contract address will have their balance retrived on the corresponding
   smart contract.
 
@@ -42,17 +41,18 @@ defmodule EthGethAdapter.Balance do
   def get(address, contract_address, block \\ "latest")
 
   def get(address, contract_addresses, block) when is_list(contract_addresses) do
-    with {:ok, encoded_abi_data} <- ERC20.abi_balance_of(address) do
-      contract_addresses
-      |> Enum.reduce([], fn contract_address, acc ->
-        [build_request!(contract_address, address, encoded_abi_data, block) | acc]
-      end)
-      |> Enum.reverse()
-      |> request()
-      |> parse_response()
-      |> respond(contract_addresses)
-    else
-      error -> error
+    case ERC20.abi_balance_of(address) do
+      {:ok, encoded_abi_data} ->
+        contract_addresses
+        |> Enum.reduce([], fn contract_address, acc ->
+          [build_request!(contract_address, address, encoded_abi_data, block) | acc]
+        end)
+        |> Enum.reverse()
+        |> request()
+        |> parse_response()
+        |> respond(contract_addresses)
+      error ->
+        error
     end
   end
 

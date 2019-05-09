@@ -61,7 +61,7 @@ defmodule EthGethAdapter.Worker do
   Handles the get_balances call from the client API get_balances/4.
   """
   @spec handle_call({:call, String.t(), list(String.t()), String.t()}, from(), state()) ::
-          reply({:ok, list(map())}) | reply({:error, any()})
+          reply({:ok, map()}) | reply({:error, any()})
   def handle_call({:get_balances, address, contract_addresses, block}, _from, reg) do
     {:reply, Balance.get(address, contract_addresses, block), reg}
   end
