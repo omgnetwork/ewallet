@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 import moment from 'moment'
 
 import AccessKeyProvider from '../omg-access-key/accessKeyProvider'
 import ApiKeyProvider from '../omg-api-keys/apiKeyProvider'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Breadcrumb, Icon, DetailRow, Tag, Button, NavCard, Select, Switch, Id } from '../omg-uikit'
+import { Breadcrumb, Icon, Input, DetailRow, Tag, Button, NavCard, Select, Switch, Id } from '../omg-uikit'
 
 const BreadContainer = styled.div`
   margin-top: 30px;
@@ -61,98 +61,18 @@ const AsideSection = styled.div`
   }
 `
 
-const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }) => {
-  const { keyType, keyId } = params
-  const [ view, setView ] = useState('read')
+// eslint-disable-next-line react/prop-types
+const EditView = ({ keyDetail, setView }) => {
+  const [ label, setLabel ] = useState(_.get(keyDetail, 'name', ''))
+  const [ globalRole, setGlobalRole ] = useState(_.get(keyDetail, 'global_role', ''))
+  const [ status, setStatus ] = useState(_.get(keyDetail, 'status') === 'active')
 
   const handleSave = () => {
     console.log('updating...')
     setView('read')
   }
 
-  // eslint-disable-next-line react/prop-types
-  const renderReadView = ({ keyDetail }) => {
-    const id = _.get(keyDetail, 'access_key') || _.get(keyDetail, 'key', '-')
-    return (
-      <Content>
-        <DetailSection>
-          <div className='detail-section-header'>
-            <Tag
-              icon='Option-Horizontal'
-              title='Details'
-            />
-            <Button
-              styleType='ghost'
-              size='small'
-              style={{ minWidth: 'initial' }}
-              onClick={() => setView('edit')}
-            >
-              <span>Edit</span>
-            </Button>
-          </div>
-          <DetailRow
-            label='Type'
-            value={keyType === 'admin' ? 'Admin Key' : 'Client Key'}
-          />
-          <DetailRow
-            label='ID'
-            value={<Id maxChar={200}>{id}</Id>}
-          />
-          <DetailRow
-            label='Label'
-            value={<div>{_.get(keyDetail, 'name') || '-'}</div>}
-          />
-          {keyType === 'admin' && (
-            <DetailRow
-              label='Global Role'
-              value={<div>{_.startCase(_.get(keyDetail, 'global_role')) || '-'}</div>}
-            />
-          )}
-          <DetailRow
-            label='Created by'
-            value={
-              <Id maxChar={20} withCopy={!!_.get(keyDetail, 'creator_user_id')}>
-                {_.get(keyDetail, 'creator_user_id') || '-'}
-              </Id>
-            }
-          />
-          <DetailRow
-            label='Created date'
-            icon='Time'
-            value={<div>{moment(_.get(keyDetail, 'created_at', '-')).format()}</div>}
-          />
-          <DetailRow
-            label='Status'
-            value={<div>{_.get(keyDetail, 'status', '-') === 'active' ? 'Active' : 'Inactive' }</div>}
-          />
-        </DetailSection>
-
-        <AsideSection>
-          <div className='aside-section-header'>
-            <Button
-              styleType='secondary'
-              size='small'
-            >
-              <Icon name='Plus' style={{ marginRight: '10px' }} />
-              <span>Assign This Key</span>
-            </Button>
-          </div>
-          {keyType === 'admin' && (
-            <NavCard
-              className='nav-card'
-              icon='Merchant'
-              title='Assigned Accounts'
-              subTitle='Lorem ipsum something something else'
-              to={`${pathname}/assigned-accounts`}
-            />
-          )}
-        </AsideSection>
-      </Content>
-    )
-  }
-
-  // eslint-disable-next-line react/prop-types
-  const renderEditView = ({ keyDetail }) => (
+  return (
     <Content>
       <DetailSection>
         <div className='detail-section-header'>
@@ -164,14 +84,11 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
         <DetailRow
           label='Label'
           value={
-            <Select
+            <Input
               noBorder
               normalPlaceholder='Label'
-              value='None'
-              options={[
-                { key: 'hi', value: 'HI' },
-                { key: 'yo', value: 'YO' }
-              ]}
+              onChange={e => setLabel(e.target.value)}
+              value={label}
             />
           }
         />
@@ -181,11 +98,13 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
             <Select
               noBorder
               normalPlaceholder='Global Role'
-              value='None'
+              onSelectItem={role => setGlobalRole(role.key)}
+              value={_.startCase(globalRole)}
               options={[
-                { key: 'hi', value: 'HI' },
-                { key: 'yo', value: 'YO' },
-                { key: 'so', value: 'SO' }
+                { key: 'super_admin', value: 'Super Admin' },
+                { key: 'admin', value: 'Admin' },
+                { key: 'viewer', value: 'Viewer' },
+                { key: 'none', value: 'None' }
               ]}
             />
           }
@@ -195,11 +114,11 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
           value={
             <>
               <span style={{ marginRight: '10px' }}>
-                Inactive
+                {status ? 'Active' : 'Inactive'}
               </span>
               <Switch
-                open={false}
-                onClick={console.log}
+                open={status}
+                onClick={() => setStatus(!status)}
               />
             </>
           }
@@ -223,6 +142,91 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
       </DetailSection>
     </Content>
   )
+}
+
+const ReadView = withRouter(({ keyDetail, keyType, setView, location: { pathname } }) => {
+  const id = _.get(keyDetail, 'access_key') || _.get(keyDetail, 'key', '-')
+  return (
+    <Content>
+      <DetailSection>
+        <div className='detail-section-header'>
+          <Tag
+            icon='Option-Horizontal'
+            title='Details'
+          />
+          <Button
+            styleType='ghost'
+            size='small'
+            style={{ minWidth: 'initial' }}
+            onClick={() => setView('edit')}
+          >
+            <span>Edit</span>
+          </Button>
+        </div>
+        <DetailRow
+          label='Type'
+          value={keyType === 'admin' ? 'Admin Key' : 'Client Key'}
+        />
+        <DetailRow
+          label='ID'
+          value={<Id maxChar={200}>{id}</Id>}
+        />
+        <DetailRow
+          label='Label'
+          value={<div>{_.get(keyDetail, 'name') || '-'}</div>}
+        />
+        {keyType === 'admin' && (
+          <DetailRow
+            label='Global Role'
+            value={<div>{_.startCase(_.get(keyDetail, 'global_role')) || '-'}</div>}
+          />
+        )}
+        <DetailRow
+          label='Created by'
+          value={
+            <Id maxChar={20} withCopy={!!_.get(keyDetail, 'creator_user_id')}>
+              {_.get(keyDetail, 'creator_user_id') || '-'}
+            </Id>
+          }
+        />
+        <DetailRow
+          label='Created date'
+          icon='Time'
+          value={<div>{moment(_.get(keyDetail, 'created_at', '-')).format()}</div>}
+        />
+        <DetailRow
+          label='Status'
+          value={<div>{_.get(keyDetail, 'status', '-') === 'active' ? 'Active' : 'Inactive' }</div>}
+        />
+      </DetailSection>
+
+      <AsideSection>
+        <div className='aside-section-header'>
+          <Button
+            styleType='secondary'
+            size='small'
+          >
+            <Icon name='Plus' style={{ marginRight: '10px' }} />
+            <span>Assign This Key</span>
+          </Button>
+        </div>
+        {keyType === 'admin' && (
+          <NavCard
+            className='nav-card'
+            icon='Merchant'
+            title='Assigned Accounts'
+            subTitle='Lorem ipsum something something else'
+            to={`${pathname}/assigned-accounts`}
+          />
+        )}
+      </AsideSection>
+    </Content>
+  )
+})
+
+const ApiKeyDetailPage = ({ match: { params } }) => {
+  const { keyType, keyId } = params
+  const [ view, setView ] = useState('read')
 
   // eslint-disable-next-line react/prop-types
   const renderView = ({ keyDetail }) => {
@@ -250,8 +254,8 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
         />
 
         {view === 'read'
-          ? renderReadView({ keyDetail })
-          : renderEditView({ keyDetail })}
+          ? <ReadView keyType={keyType} keyDetail={keyDetail} setView={setView} />
+          : <EditView keyDetail={keyDetail} setView={setView} />}
       </>
     )
   }
@@ -279,8 +283,7 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
 
 ApiKeyDetailPage.propTypes = {
   match: PropTypes.object,
-  location: PropTypes.object,
-  history: PropTypes.object
+  location: PropTypes.object
 }
 
 export default ApiKeyDetailPage
