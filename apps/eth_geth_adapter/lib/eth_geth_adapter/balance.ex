@@ -51,6 +51,7 @@ defmodule EthGethAdapter.Balance do
         |> request()
         |> parse_response()
         |> respond(contract_addresses)
+
       error ->
         error
     end
