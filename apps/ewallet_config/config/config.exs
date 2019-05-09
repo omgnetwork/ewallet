@@ -71,7 +71,7 @@ config :ewallet_config,
       position: 106,
       description: "The number of backup codes for the two-factor authentication."
     },
-    "issuer" => %{
+    "two_fa_issuer" => %{
       key: "issuer",
       value: "OmiseGO",
       type: "string",

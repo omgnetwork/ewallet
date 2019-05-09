@@ -158,6 +158,9 @@ defmodule EWalletDB.PreAuthToken do
     |> Repo.insert_record_with_activity_log()
   end
 
+  @doc """
+  Delete all PreAuthTokens associated with the user.
+  """
   def delete_for_user(user) do
     Repo.delete_all(
       from(

@@ -16,6 +16,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.TwoFactorAuthenticator
+  alias EWallet.TwoFactorAuthenticator.InvalidNumberOfBackupCodesError
   alias EWalletDB.{User, AuthToken}
   alias Utils.Helpers.Crypto
 
@@ -313,7 +314,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
     test "returns {:ok, secret_code_attrs} with correct issuer when update a config value" do
       user = insert(:user)
 
-      Application.put_env(:ewallet, :issuer, "Thanos")
+      Application.put_env(:ewallet, :two_fa_issuer, "Thanos")
       {attrs, updated_user} = create_secret_code(user)
 
       assert attrs == %{
@@ -322,7 +323,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
                secret_2fa_code: updated_user.secret_2fa_code
              }
 
-      Application.put_env(:ewallet, :issuer, nil)
+      Application.put_env(:ewallet, :two_fa_issuer, nil)
       {attrs, updated_user} = create_secret_code(user)
 
       assert attrs == %{
@@ -331,7 +332,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
                secret_2fa_code: updated_user.secret_2fa_code
              }
 
-      Application.put_env(:ewallet, :issuer, "OmiseGO")
+      Application.put_env(:ewallet, :two_fa_issuer, "OmiseGO")
       {attrs, updated_user} = create_secret_code(user)
 
       assert attrs == %{
@@ -363,13 +364,17 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
 
       # Use default value (10) when number_of_backup_codes < 1
       Application.put_env(:ewallet, :number_of_backup_codes, 0)
-      {attrs, _} = create_backup_codes(user)
-      assert length(attrs.backup_codes) == 10
+
+      assert_raise InvalidNumberOfBackupCodesError, fn ->
+        create_backup_codes(user)
+      end
 
       # Use default value (10) when number_of_backup_codes is nil
       Application.put_env(:ewallet, :number_of_backup_codes, nil)
-      {attrs, _} = create_backup_codes(user)
-      assert length(attrs.backup_codes) == 10
+
+      assert_raise InvalidNumberOfBackupCodesError, fn ->
+        create_backup_codes(user)
+      end
 
       Application.put_env(:ewallet, :number_of_backup_codes, 10)
       {attrs, _} = create_backup_codes(user)

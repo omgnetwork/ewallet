@@ -217,6 +217,9 @@ defmodule EWalletDB.AuthToken do
     :ok
   end
 
+  @doc """
+  Delete all AuthTokens associated with the user.
+  """
   def delete_for_user(user) do
     Repo.delete_all(
       from(

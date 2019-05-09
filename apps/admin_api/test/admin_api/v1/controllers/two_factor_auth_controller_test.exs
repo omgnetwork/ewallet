@@ -15,7 +15,7 @@
 defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.UserSerializer
-  alias EWallet.{TwoFactorAuthenticator}
+  alias EWallet.TwoFactorAuthenticator
   alias EWalletDB.{User, Repo, AuthToken, PreAuthToken}
 
   describe "/me.create_secret_code" do
@@ -103,11 +103,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
       {%{secret_2fa_code: secret_2fa_code}, _} = create_secret_code(user)
       passcode = generate_totp(secret_2fa_code)
 
-      response =
-        admin_user_request("/me.enable_2fa", %{
-          "passcode" => passcode,
-          "backup_code" => backup_code
-        })
+      response = admin_user_request("/me.enable_2fa", %{"passcode" => passcode})
 
       assert response == %{"data" => %{}, "success" => true, "version" => "1"}
 
@@ -125,7 +121,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
              }
     end
 
-    test "responds error user:invalid_parameter if the passcode is not provided" do
+    test "responds error client:invalid_parameter if the passcode is not provided" do
       response =
         admin_user_request("/me.enable_2fa", %{
           "backup_code" => "12345678"

@@ -36,6 +36,11 @@ defmodule EWallet.TwoFactorAuthenticator do
   @default_number_of_backup_codes 10
   @default_issuer "OmiseGO"
 
+  defmodule InvalidNumberOfBackupCodesError do
+    defexception message: "Invalid number of backup codes."
+    def error_message(value), do: "Invalid number of backup codes #{value}."
+  end
+
   def login(_, _, %User{enabled_2fa_at: nil}), do: {:error, :user_2fa_disabled}
 
   def login(attrs, owner_app, %User{} = user) do
@@ -148,7 +153,7 @@ defmodule EWallet.TwoFactorAuthenticator do
   end
 
   defp get_issuer do
-    Application.get_env(:ewallet, :issuer, @default_issuer)
+    Application.get_env(:ewallet, :two_fa_issuer, @default_issuer)
   end
 
   defp get_number_of_backup_codes do
@@ -157,8 +162,9 @@ defmodule EWallet.TwoFactorAuthenticator do
       when is_integer(number_of_backup_codes) and number_of_backup_codes > 1 ->
         number_of_backup_codes
 
-      _ ->
-        @default_number_of_backup_codes
+      invalid_number_of_backup_codes ->
+        raise InvalidNumberOfBackupCodesError,
+          message: InvalidNumberOfBackupCodesError.error_message(invalid_number_of_backup_codes)
     end
   end
 
