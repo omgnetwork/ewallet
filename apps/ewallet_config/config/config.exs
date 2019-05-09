@@ -66,14 +66,14 @@ config :ewallet_config,
     },
     "auth_token_lifetime" => %{
       key: "auth_token_lifetime",
-      value: 60,
+      value: 0,
       type: "unsigned_integer",
       position: 106,
       description: "The duration (in seconds) that an auth token will be valid for."
     },
     "pre_auth_token_lifetime" => %{
       key: "pre_auth_token_lifetime",
-      value: 60,
+      value: 0,
       type: "unsigned_integer",
       position: 107,
       description: "The duration (in seconds) that a pre auth token will be valid for."

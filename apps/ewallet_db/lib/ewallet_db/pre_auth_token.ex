@@ -99,7 +99,7 @@ defmodule EWalletDB.PreAuthToken do
   def generate(_, _, _), do: {:error, :invalid_parameter}
 
   @doc """
-  Retrieves an auth token using the specified token.
+  Retrieves a pre auth token using the specified token.
   Returns the associated user if authenticated, :token_expired if token exists but expired,
   or false otherwise.
   """
@@ -154,7 +154,7 @@ defmodule EWalletDB.PreAuthToken do
 
   def get_by_token(_, _), do: nil
 
-  # `get_by_user/2` is private to prohibit direct auth token access,
+  # `get_by_user/2` is private to prohibit direct pre auth token access,
   # please use `authenticate/3` instead.
   defp get_by_user(user_id, owner_app) when is_binary(user_id) and is_atom(owner_app) do
     auth_tokens =
@@ -174,7 +174,7 @@ defmodule EWalletDB.PreAuthToken do
 
   def get_lifetime(), do: Setting.get(@key_ptk_lifetime).value
 
-  # `insert/1` is private to prohibit direct auth token insertion,
+  # `insert/1` is private to prohibit direct pre auth token insertion,
   # please use `generate/2` instead.
   defp insert(attrs) do
     %PreAuthToken{}
@@ -182,7 +182,6 @@ defmodule EWalletDB.PreAuthToken do
     |> Repo.insert_record_with_activity_log()
   end
 
-<<<<<<< HEAD
   @doc """
   Delete all PreAuthTokens associated with the user.
   """
@@ -197,35 +196,6 @@ defmodule EWalletDB.PreAuthToken do
     :ok
   end
 
-  defp expire_or_refresh(%PreAuthToken{expire_at: nil} = token), do: token
-
-  defp expire_or_refresh(%PreAuthToken{expire_at: expire_at} = token) do
-    result =
-      NaiveDateTime.utc_now()
-      |> NaiveDateTime.compare(expire_at)
-      |> do_expire_or_refresh(token)
-
-    case result do
-      {:ok, updated_token} ->
-        updated_token
-
-      error ->
-        error
-    end
-  end
-
-  defp expire_or_refresh(_), do: nil
-
-  defp do_expire_or_refresh(:lt, token) do
-    refresh(token, token.user)
-  end
-
-  defp do_expire_or_refresh(_, token) do
-    expire(token, token.user)
-  end
-
-=======
->>>>>>> :hammer: Extract expiration logic to AuthExpirer
   # Expires the given token.
   @spec expire(binary(), atom(), any()) :: {:error, any()} | {:ok, any()}
   def expire(token, owner_app, originator) when is_binary(token) and is_atom(owner_app) do
@@ -249,7 +219,22 @@ defmodule EWalletDB.PreAuthToken do
     })
   end
 
+<<<<<<< HEAD
   # `update/2` is private to prohibit direct auth token updates,
+=======
+  def delete_for_user(user) do
+    Repo.delete_all(
+      from(
+        a in PreAuthToken,
+        where: a.user_uuid == ^user.uuid
+      )
+    )
+
+    :ok
+  end
+
+  # `update/2` is private to prohibit direct pre auth token updates,
+>>>>>>> :white_check_mark: Add test for AuthExpirer
   # if expiring the token, please use `expire/2` instead.
   defp update(%PreAuthToken{} = token, attrs) do
     token

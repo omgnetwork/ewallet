@@ -22,7 +22,6 @@ defmodule EWalletDB.AuthTokenTest do
   @owner_app :some_app
 
   defp generate_with_auth_token_lifetime(user, second) do
-    # Application.put_env(@owner_app, :auth_token_lifetime, minute * 60)
     Setting.update("auth_token_lifetime", %{value: second, originator: %System{}})
     result = AuthToken.generate(user, @owner_app, %System{})
     Setting.update("auth_token_lifetime", %{value: 0, originator: %System{}})
@@ -117,7 +116,7 @@ defmodule EWalletDB.AuthTokenTest do
       assert auth_user.uuid == user.uuid
     end
 
-    test "returns a user if the token exists and the current date time is before expire_at" do
+    test "returns a user if the current date time is before expire_at" do
       # The user has the authentication token which will be expired in the next minute.
       user = insert(:user)
       {:ok, auth_token} = generate_with_auth_token_lifetime(user, 1)
@@ -138,7 +137,7 @@ defmodule EWalletDB.AuthTokenTest do
              |> Kernel.floor() == 0
     end
 
-    test "returns a user if the token exists and the expire_at is nil" do
+    test "returns a user if the expire_at is nil" do
       user = insert(:user)
       attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: nil, user: user}
       token = insert(:auth_token, attrs)
@@ -147,7 +146,7 @@ defmodule EWalletDB.AuthTokenTest do
       assert auth_user.uuid == user.uuid
     end
 
-    test "returns :token_expired if the token exists and the current date time is after expire_at" do
+    test "returns :token_expired if the current date time is after expire_at" do
       attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: NaiveDateTime.utc_now()}
 
       token = insert(:auth_token, attrs)
@@ -155,7 +154,7 @@ defmodule EWalletDB.AuthTokenTest do
       assert AuthToken.authenticate(token.token, @owner_app) == :token_expired
     end
 
-    test "returns :token_expired if token exists but expired" do
+    test "returns :token_expired if the token exists but expired" do
       {:ok, token} =
         :auth_token
         |> insert(%{owner_app: Atom.to_string(@owner_app)})
@@ -222,7 +221,7 @@ defmodule EWalletDB.AuthTokenTest do
       updated_auth_token = AuthToken.get_by_token(auth_token.token, @owner_app)
 
       # Expect expire_at is next 60 minutes from now, with the precision down to a second.
-      assert 60
+      assert 3600
              |> from_now_by_seconds()
              |> NaiveDateTime.diff(updated_auth_token.expire_at, :second)
              |> Kernel.floor() == 0

@@ -51,20 +51,20 @@ defmodule EWalletDB.Expirers.AuthExpirer do
     expire(token)
   end
 
-  defp refresh(%AuthToken{} = token) do
-    AuthToken.refresh(token, token.user)
-  end
-
-  defp refresh(%PreAuthToken{} = token) do
-    PreAuthToken.refresh(token, token.user)
-  end
-
   defp expire(%AuthToken{} = token) do
     AuthToken.expire(token, token.user)
   end
 
   defp expire(%PreAuthToken{} = token) do
     PreAuthToken.expire(token, token.user)
+  end
+
+  defp refresh(%AuthToken{} = token) do
+    AuthToken.refresh(token, token.user)
+  end
+
+  defp refresh(%PreAuthToken{} = token) do
+    PreAuthToken.refresh(token, token.user)
   end
 
   defp handle_result({:ok, updated_token}) do
