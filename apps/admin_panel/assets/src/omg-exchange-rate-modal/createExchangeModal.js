@@ -190,11 +190,11 @@ class CreateExchangeRateModal extends Component {
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
-    const toRate = numeral(this.state.toTokenRate).value()
-    const fromRate = numeral(this.state.fromTokenRate).value()
+    const toRate = ensureIsNumberOnly(this.state.toTokenRate)
+    const fromRate = ensureIsNumberOnly(this.state.fromTokenRate)
     try {
       const baseKeys = {
-        rate: new BigNumber(toRate).dividedBy(fromRate),
+        rate: new BigNumber(toRate).dividedBy(fromRate).toNumber(),
         syncOpposite: !this.state.onlyOneWayExchange
       }
       const result = this.state.editing
