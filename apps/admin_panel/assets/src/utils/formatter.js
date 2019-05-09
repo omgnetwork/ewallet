@@ -20,7 +20,7 @@ export const formatNumber = number => {
   const maybeDecimal =
     new RegExp(/\./).test(ensureStringNumber) ||
     (new RegExp(/^0*$/).test(ensureStringNumber) && ensureStringNumber.length > 1)
-  const formattedInteger = numeral(integer).format()
+  const formattedInteger = new BigNumber(integer.replace(/[^0-9]+/g, '')).toFormat()
   const formattedDecimal = decimal.replace(/[^0-9]+/g, '')
   return maybeDecimal ? `${formattedInteger}.${formattedDecimal}` : formattedInteger
 }

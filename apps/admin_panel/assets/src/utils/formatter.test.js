@@ -26,6 +26,11 @@ describe('formatter', () => {
     expect(formatNumber(0)).toEqual('0')
     expect(formatNumber(0.01)).toEqual('0.01')
   })
+  test('[formatNumber] should work with integer longer that 18', () => {
+    expect(formatNumber('112,312,312,313,141,514,231,232,321,313,123,123,123,131')).toEqual(
+      '112,312,312,313,141,514,231,232,321,313,123,123,123,131'
+    )
+  })
   test('[formatAmount] should format amount with the right precision when provide incorrect decimal', () => {
     const amount = 100000000
     const subunitToUnit = 10000000000
