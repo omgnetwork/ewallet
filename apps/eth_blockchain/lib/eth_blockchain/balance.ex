@@ -19,8 +19,7 @@ defmodule EthBlockchain.Balance do
 
   @doc """
   Retrieve the balance of all given `contract_addresses` for the provided wallet `address`.
-  The contract address `0x0000000000000000000000000000000000000000` is handled as
-  the ethereum token and so the ethereum balance will be retrieved.
+  Ether is represented with `0x0000000000000000000000000000000000000000` as contract address.
   Any other given contract address will have their balance retrived on the corresponding
   smart contract.
 
