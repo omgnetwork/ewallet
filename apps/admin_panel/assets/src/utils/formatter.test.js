@@ -59,8 +59,8 @@ describe('formatter', () => {
   })
 
   test('[ensureIsNumberOnly] should return only numbers from number or string as [string]', () => {
-    expect(ensureIsNumberOnly('1,000')).isEqual('1000')
-    expect(ensureIsNumberOnly('asdasdasd1,000')).isEqual('1000')
-    expect(ensureIsNumberOnly('asdasdasd1,000.0000001')).isEqual('1000.0000001')
+    expect(ensureIsNumberOnly('1,000')).toEqual('1000')
+    expect(ensureIsNumberOnly('asdasdasd1,000')).toEqual('1000')
+    expect(ensureIsNumberOnly('asdasdasd1,000.0000001')).toEqual('1000.0000001')
   })
 })
