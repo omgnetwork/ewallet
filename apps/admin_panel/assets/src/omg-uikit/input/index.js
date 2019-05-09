@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 import Icon from '../icon'
-import { formatNumber } from '../../utils/formatter'
+import { formatNumber, ensureIsNumberOnly } from '../../utils/formatter'
 import numeral from 'numeral'
 
 const Container = styled.div`
@@ -200,7 +200,7 @@ class InputComponent extends PureComponent {
   onChange = e => {
     const value = e.target.value
     if (this.props.type === 'amount') {
-      const length = String(parseInt(numeral(value).value())).length
+      const length = ensureIsNumberOnly(value).length
       if (this.props.maxAmountLength && length >= this.props.maxAmountLength) {
         return false
       }
@@ -238,7 +238,7 @@ class InputComponent extends PureComponent {
           )}
           <Input
             {...rest}
-            value={this.props.type === 'amount' ? formatNumber(this.props.value): this.props.value}
+            value={this.props.type === 'amount' ? formatNumber(this.props.value) : this.props.value}
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
             ref={this.registerInput}
