@@ -54,7 +54,6 @@ const createRoute = ({ authenticated }) => (
       <AuthenticatedRoute authenticated={authenticated} path='/transaction/export' exact component={TransactionExportPage} />
 
       <AuthenticatedRoute authenticated={authenticated} path='/keys/:keyType/:keyId/assigned-accounts' exact component={KeyDetailAccountsPage} />
-      <AuthenticatedRoute authenticated={authenticated} path='/keys/:keyType/:keyId/assigned-users' exact component={KeyDetailUsersPage} />
       <AuthenticatedRoute authenticated={authenticated} path='/keys/:keyType/:keyId' exact component={ApiKeyDetailPage} />
       <AuthenticatedRoute authenticated={authenticated} path='/keys/:keyType' exact component={ApiKeyPage} />
       <AuthenticatedRoute authenticated={authenticated} path='/keys' exact component={ApiKeyPage} />

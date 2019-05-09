@@ -102,15 +102,17 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
             label='Label'
             value={<div>{_.get(keyDetail, 'name') || '-'}</div>}
           />
-          <DetailRow
-            label='Global Role'
-            value={<div>{_.startCase(_.get(keyDetail, 'global_role')) || '-'}</div>}
-          />
+          {keyType === 'admin' && (
+            <DetailRow
+              label='Global Role'
+              value={<div>{_.startCase(_.get(keyDetail, 'global_role')) || '-'}</div>}
+            />
+          )}
           <DetailRow
             label='Created by'
             value={
               <Id maxChar={20} withCopy={!!_.get(keyDetail, 'creator_user_id')}>
-                {_.get(keyDetail, 'creator_user_id', '-')}
+                {_.get(keyDetail, 'creator_user_id') || '-'}
               </Id>
             }
           />
@@ -135,19 +137,15 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
               <span>Assign This Key</span>
             </Button>
           </div>
-          <NavCard
-            className='nav-card'
-            icon='Merchant'
-            title='Assigned Accounts'
-            subTitle='Lorem ipsum something something else'
-            to={`${pathname}/assigned-accounts`}
-          />
-          <NavCard
-            icon='Profile'
-            title='Assigned Users'
-            subTitle='Lorem ipsum something something else'
-            to={`${pathname}/assigned-users`}
-          />
+          {keyType === 'admin' && (
+            <NavCard
+              className='nav-card'
+              icon='Merchant'
+              title='Assigned Accounts'
+              subTitle='Lorem ipsum something something else'
+              to={`${pathname}/assigned-accounts`}
+            />
+          )}
         </AsideSection>
       </Content>
     )
@@ -234,8 +232,8 @@ const ApiKeyDetailPage = ({ match: { params }, history, location: { pathname } }
         <BreadContainer>
           <Breadcrumb
             items={[
-              <Link key='keys' to={`/keys/${keyType}`}>Keys</Link>,
-              <Id key='access-key' withCopy={false} maxChar={20}>{id}</Id>
+              <Link key='keys-home' to={`/keys/${keyType}`}>Keys</Link>,
+              <Id key='keys-detail' withCopy={false} maxChar={20}>{id}</Id>
             ]}
           />
         </BreadContainer>

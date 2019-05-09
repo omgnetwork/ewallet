@@ -1,6 +1,6 @@
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
-import { getAccessKeys, createAccessKey, deleteAccessKey, getAccessKey, updateAccessKey } from './action'
+import { getAccessKeys, getAccessKeyMemberships, createAccessKey, deleteAccessKey, getAccessKey, updateAccessKey } from './action'
 import * as accessKeyService from '../services/accessKeyService'
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
@@ -102,6 +102,36 @@ describe('accesskeys actions', () => {
     ]
     return store.dispatch(getAccessKey('id')).then(() => {
       expect(accessKeyService.getAccessKey).toBeCalledWith('id')
+      expect(store.getActions()).toEqual(expectedActions)
+    })
+  })
+
+  test('[getAccessKeyMemberships] should dispatch success action if get access key memberships successfully', () => {
+    accessKeyService.getAccessKeyMemberships.mockImplementation(() => {
+      return Promise.resolve({
+        data: {
+          success: true,
+          data: { data: 'data', pagination: 'pagination' }
+        }
+      })
+    })
+    const expectedActions = [
+      { type: 'ACCESS_KEY_MEMBERSHIPS/REQUEST/INITIATED' },
+      {
+        type: 'ACCESS_KEY_MEMBERSHIPS/REQUEST/SUCCESS',
+        data: 'data',
+        pagination: 'pagination',
+        cacheKey: 'key'
+      }
+    ]
+    return store.dispatch(getAccessKeyMemberships({ perPage: 10, cacheKey: 'key' })).then(() => {
+      expect(accessKeyService.getAccessKeyMemberships).toBeCalledWith(
+        expect.objectContaining({
+          perPage: 10,
+          sortBy: 'created_at',
+          sortDir: 'desc'
+        })
+      )
       expect(store.getActions()).toEqual(expectedActions)
     })
   })

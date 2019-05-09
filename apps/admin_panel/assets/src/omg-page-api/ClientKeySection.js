@@ -39,20 +39,6 @@ const KeySection = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(2) {
-    border: none;
-    width: 20%;
-    position: relative;
-    :before {
-      content: '';
-      position: absolute;
-      right: 0;
-      bottom: -1px;
-      height: 1px;
-      width: calc(100% - 50px);
-      border-bottom: 1px solid ${props => props.theme.colors.S200};
-    }
-  }
   i[name='Copy'] {
     cursor: pointer;
     visibility: hidden;

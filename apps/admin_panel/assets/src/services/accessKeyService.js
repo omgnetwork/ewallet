@@ -45,3 +45,28 @@ export function deleteAccessKeyById (id) {
     data: { id }
   })
 }
+
+export function getAccessKeyMemberships ({
+  id,
+  startAfter,
+  startBy,
+  perPage,
+  matchAll,
+  matchAny,
+  sortBy,
+  sortDir
+}) {
+  return authenticatedRequest({
+    path: '/access_key.get_account_memberships',
+    data: {
+      id,
+      start_after: startAfter,
+      start_by: startBy,
+      per_page: perPage,
+      match_all: matchAll,
+      match_any: matchAny,
+      sort_by: sortBy,
+      sort_dir: sortDir
+    }
+  })
+}

@@ -43,7 +43,7 @@ export const getKeysAccountId = ({
   matchAny
 }) =>
   createPaginationActionCreator({
-    actionName: 'MEMBERSHIP_ACCESS_KEYS',
+    actionName: 'ACCOUNT_KEY_MEMBERSHIPS',
     action: 'REQUEST',
     service: () =>
       accountService.getKeysByAccountId({

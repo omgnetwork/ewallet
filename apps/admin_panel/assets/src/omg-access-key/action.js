@@ -27,6 +27,34 @@ export const getAccessKey = id =>
     service: () => accessKeyService.getAccessKey(id)
   })
 
+export const getAccessKeyMemberships = ({
+  id,
+  startAfter,
+  startBy,
+  perPage,
+  matchAll,
+  matchAny,
+  sortBy,
+  sortDir,
+  cacheKey
+}) =>
+  createPaginationActionCreator({
+    actionName: 'ACCESS_KEY_MEMBERSHIPS',
+    action: 'REQUEST',
+    service: () =>
+      accessKeyService.getAccessKeyMemberships({
+        id,
+        startAfter,
+        startBy,
+        perPage,
+        matchAll,
+        matchAny,
+        sortBy: 'created_at',
+        sortDir: 'desc'
+      }),
+    cacheKey
+  })
+
 export const updateAccessKey = ({ id, expired }) =>
   createActionCreator({
     actionName: 'ACCESS_KEY',
