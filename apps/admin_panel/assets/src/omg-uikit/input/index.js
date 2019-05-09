@@ -2,8 +2,9 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-import { Icon } from '..'
-import { formatNumber } from '../../utils/formatter'
+import Icon from '../icon'
+import { formatNumber, ensureIsNumberOnly } from '../../utils/formatter'
+import numeral from 'numeral'
 
 const Container = styled.div`
   position: relative;
@@ -35,7 +36,8 @@ const Input = styled.input`
   padding: 8px 0px;
   background-color: transparent;
   line-height: 1;
-  border-bottom: 1px solid ${props =>
+  border-bottom: 1px solid
+    ${props =>
     props.error
       ? props.theme.colors.R400
       : props.disabled
@@ -101,13 +103,14 @@ const Prefix = styled.div`
   align-items: center;
   padding-right: 7px;
   border-bottom: 1px solid
-    ${props => props.error
-    ? props.theme.colors.R400
-    : props.active
-      ? props.theme.colors.BL400
-      : props.theme.colors.S400};
+    ${props =>
+    props.error
+      ? props.theme.colors.R400
+      : props.active
+        ? props.theme.colors.BL400
+        : props.theme.colors.S400};
   i {
-    color: ${props => props.theme.colors.BL400}
+    color: ${props => props.theme.colors.BL400};
   }
 `
 const Suffix = styled.div`
@@ -143,7 +146,8 @@ class InputComponent extends PureComponent {
     validator: PropTypes.func,
     allowNegative: PropTypes.bool,
     inputActive: PropTypes.bool,
-    icon: PropTypes.string
+    icon: PropTypes.string,
+    maxAmountLength: PropTypes.number
   }
   static defaultProps = {
     onFocus: () => {},
@@ -155,9 +159,9 @@ class InputComponent extends PureComponent {
     type: 'string',
     allowNegative: true
   }
-  state = {
-    active: false
-  }
+
+  state = { active: false }
+
   componentDidMount = () => {
     if (this.props.autofocus) this.input.focus()
     this.props.registerRef(this.input)
@@ -194,8 +198,15 @@ class InputComponent extends PureComponent {
     return this.props.inputActive || this.props.value || this.state.active
   }
   onChange = e => {
+    const value = e.target.value
     if (this.props.type === 'amount') {
-      const event = { ...e, target: { ...e.target, value: formatNumber(e.target.value) } }
+      const length = ensureIsNumberOnly(value).length
+      if (this.props.maxAmountLength && length >= this.props.maxAmountLength) {
+        return false
+      }
+      const formattedAmount = formatNumber(value)
+
+      const event = { ...e, target: { ...e.target, value: formattedAmount } }
       this.props.onChange(event)
     } else {
       this.props.onChange(e)
@@ -203,21 +214,31 @@ class InputComponent extends PureComponent {
   }
   render () {
     // eslint-disable-next-line no-unused-vars
-    const { className, placeholder, onPressEscape, onPressEnter, autofocus, icon, ...rest } = this.props
-
+    const {
+      className,
+      placeholder,
+      onPressEscape,
+      onPressEnter,
+      autofocus,
+      icon,
+      ...rest
+    } = this.props
     return (
       <Container className={className}>
         <InnerContainer>
           {icon && (
             <Prefix
               active={this.state.active}
-              error={this.props.validator ? !this.props.validator(this.props.value) : this.props.error}
+              error={
+                this.props.validator ? !this.props.validator(this.props.value) : this.props.error
+              }
             >
               <Icon name={icon} />
             </Prefix>
           )}
           <Input
             {...rest}
+            value={this.props.type === 'amount' ? formatNumber(this.props.value) : this.props.value}
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
             ref={this.registerInput}
@@ -225,7 +246,9 @@ class InputComponent extends PureComponent {
             onFocus={this.onFocus}
             onBlur={this.onBlur}
             onChange={this.onChange}
-            error={this.props.validator ? !this.props.validator(this.props.value) : this.props.error}
+            error={
+              this.props.validator ? !this.props.validator(this.props.value) : this.props.error
+            }
             type={this.props.type === 'amount' ? 'string' : this.props.type}
           />
           <Placeholder inputActive={this.isInputActive()}>{placeholder}</Placeholder>

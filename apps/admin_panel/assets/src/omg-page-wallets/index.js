@@ -16,11 +16,7 @@ import CreateWalletModal from '../omg-create-wallet-modal'
 
 const WalletPageContainer = styled.div`
   position: relative;
-  display: flex;
   flex-direction: column;
-  > div {
-    flex: 1;
-  }
   td {
     white-space: nowrap;
   }
