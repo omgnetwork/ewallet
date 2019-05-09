@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminPanel.PageController do
-  use AdminPanel, :controller
+defmodule Frontend.PageController do
+  use Frontend, :controller
   alias Plug.Conn
 
   @not_found_message """
@@ -42,7 +42,7 @@ defmodule AdminPanel.PageController do
   end
 
   defp index_file_path(_conn) do
-    :admin_panel
+    :frontend
     |> Application.get_env(:dist_path)
     |> Path.join("index.html")
   end
