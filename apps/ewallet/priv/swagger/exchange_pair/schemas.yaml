@@ -18,6 +18,10 @@ ExchangePairSchema:
       $ref: '../token/schemas.yaml#/TokenSchema'
     rate:
       type: number
+    default_exchange_wallet_address:
+      type: string
+    allow_end_user_exchanges:
+      type: boolean
     created_at:
       type: string
       format: date-time

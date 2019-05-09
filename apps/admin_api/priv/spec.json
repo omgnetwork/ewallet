@@ -5072,6 +5072,12 @@
                                       "rate": {
                                         "type": "number"
                                       },
+                                      "default_exchange_wallet_address": {
+                                        "type": "string"
+                                      },
+                                      "allow_end_user_exchanges": {
+                                        "type": "boolean"
+                                      },
                                       "created_at": {
                                         "type": "string",
                                         "format": "date-time"
@@ -5134,6 +5140,8 @@
                                 "updated_at": "2018-01-01T10:00:00Z"
                               },
                               "rate": 0.017,
+                              "default_exchange_wallet_address": "XXX123",
+                              "allow_end_user_exchanges": true,
                               "created_at": "2018-01-01T00:00:00Z",
                               "updated_at": "2018-01-01T10:00:00Z",
                               "deleted_at": null
@@ -5436,6 +5444,12 @@
                             "rate": {
                               "type": "number"
                             },
+                            "default_exchange_wallet_address": {
+                              "type": "string"
+                            },
+                            "allow_end_user_exchanges": {
+                              "type": "boolean"
+                            },
                             "created_at": {
                               "type": "string",
                               "format": "date-time"
@@ -5490,6 +5504,8 @@
                             "updated_at": "2018-01-01T10:00:00Z"
                           },
                           "rate": 0.017,
+                          "default_exchange_wallet_address": "XXX123",
+                          "allow_end_user_exchanges": true,
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "deleted_at": null
@@ -5624,6 +5640,12 @@
                     "type": "number"
                   },
                   "sync_opposite": {
+                    "type": "boolean"
+                  },
+                  "default_exchange_wallet_address": {
+                    "type": "string"
+                  },
+                  "allow_end_user_exchanges": {
                     "type": "boolean"
                   }
                 },
@@ -5896,6 +5918,12 @@
                                       "rate": {
                                         "type": "number"
                                       },
+                                      "default_exchange_wallet_address": {
+                                        "type": "string"
+                                      },
+                                      "allow_end_user_exchanges": {
+                                        "type": "boolean"
+                                      },
                                       "created_at": {
                                         "type": "string",
                                         "format": "date-time"
@@ -5958,6 +5986,8 @@
                                 "updated_at": "2018-01-01T10:00:00Z"
                               },
                               "rate": 0.017,
+                              "default_exchange_wallet_address": "XXX123",
+                              "allow_end_user_exchanges": true,
                               "created_at": "2018-01-01T00:00:00Z",
                               "updated_at": "2018-01-01T10:00:00Z",
                               "deleted_at": null
@@ -6089,6 +6119,12 @@
                   },
                   "rate": {
                     "type": "number"
+                  },
+                  "default_exchange_wallet_address": {
+                    "type": "string"
+                  },
+                  "allow_end_user_exchanges": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -6356,6 +6392,12 @@
                                       "rate": {
                                         "type": "number"
                                       },
+                                      "default_exchange_wallet_address": {
+                                        "type": "string"
+                                      },
+                                      "allow_end_user_exchanges": {
+                                        "type": "boolean"
+                                      },
                                       "created_at": {
                                         "type": "string",
                                         "format": "date-time"
@@ -6418,6 +6460,8 @@
                                 "updated_at": "2018-01-01T10:00:00Z"
                               },
                               "rate": 0.017,
+                              "default_exchange_wallet_address": "XXX123",
+                              "allow_end_user_exchanges": true,
                               "created_at": "2018-01-01T00:00:00Z",
                               "updated_at": "2018-01-01T10:00:00Z",
                               "deleted_at": null
@@ -6812,6 +6856,12 @@
                                       "rate": {
                                         "type": "number"
                                       },
+                                      "default_exchange_wallet_address": {
+                                        "type": "string"
+                                      },
+                                      "allow_end_user_exchanges": {
+                                        "type": "boolean"
+                                      },
                                       "created_at": {
                                         "type": "string",
                                         "format": "date-time"
@@ -6874,6 +6924,8 @@
                                 "updated_at": "2018-01-01T10:00:00Z"
                               },
                               "rate": 0.017,
+                              "default_exchange_wallet_address": "XXX123",
+                              "allow_end_user_exchanges": true,
                               "created_at": "2018-01-01T00:00:00Z",
                               "updated_at": "2018-01-01T10:00:00Z",
                               "deleted_at": null
@@ -31388,6 +31440,12 @@
                                 "rate": {
                                   "type": "number"
                                 },
+                                "default_exchange_wallet_address": {
+                                  "type": "string"
+                                },
+                                "allow_end_user_exchanges": {
+                                  "type": "boolean"
+                                },
                                 "created_at": {
                                   "type": "string",
                                   "format": "date-time"
@@ -37916,6 +37974,244 @@
                 },
                 "example": {
                   "name": "my_api_key"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a single API key",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an API key",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an API key",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "key": {
+                              "type": "string"
+                            },
+                            "owner_app": {
+                              "type": "string"
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "account_id": {
+                              "type": "string"
+                            },
+                            "creator_user_id": {
+                              "type": "string"
+                            },
+                            "creator_key_id": {
+                              "type": "string"
+                            },
+                            "created_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "deleted_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "id",
+                            "key",
+                            "owner_app",
+                            "enabled",
+                            "account_id",
+                            "created_at",
+                            "updated_at",
+                            "deleted_at"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "api_key",
+                          "id": "api_01ce844d5w9e81snekr5kprvem",
+                          "name": "my_key",
+                          "key": "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
+                          "owner_app": "ewallet_api",
+                          "enabled": true,
+                          "account_id": null,
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T10:00:00Z",
+                          "deleted_at": null
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api_key.get": {
+      "post": {
+        "tags": [
+          "API Access"
+        ],
+        "summary": "Get a specific api key",
+        "operationId": "api_key_get",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to use for retrieving a specific api key",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "example": {
+                  "id": "api_01d744xm9cy3qx8hdwv4ax3k1h"
                 }
               }
             }

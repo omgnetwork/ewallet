@@ -61,6 +61,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
       to_token_id: Assoc.get(exchange_pair, [:to_token, :id]),
       to_token: TokenSerializer.serialize(exchange_pair.to_token),
       rate: exchange_pair.rate,
+      default_exchange_wallet_address: exchange_pair.default_exchange_wallet_address,
+      allow_end_user_exchanges: exchange_pair.allow_end_user_exchanges,
       created_at: DateFormatter.to_iso8601(exchange_pair.inserted_at),
       updated_at: DateFormatter.to_iso8601(exchange_pair.updated_at),
       deleted_at: DateFormatter.to_iso8601(exchange_pair.deleted_at)
