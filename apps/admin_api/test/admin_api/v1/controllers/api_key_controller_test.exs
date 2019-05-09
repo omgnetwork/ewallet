@@ -151,6 +151,50 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
   end
 
+  describe "/api_key.get" do
+    test_with_auths "returns an api key by the given ID" do
+      keys = insert_list(3, :api_key)
+
+      # Pick the 2nd inserted key
+      target = Enum.at(keys, 1)
+      response = request("/api_key.get", %{"id" => target.id})
+
+      assert response["success"]
+      assert response["data"]["object"] == "api_key"
+      assert response["data"]["name"] == target.name
+      assert response["data"]["id"] == target.id
+      assert response["data"]["key"] == target.key
+      assert response["data"]["enabled"] == target.enabled
+      assert response["data"]["creator_user_id"] == target.creator_user.id
+      assert response["data"]["creator_key_id"] == nil
+    end
+
+    test_with_auths "returns :invalid_parameter error when id is not given" do
+      response = request("/api_key.get", %{})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
+    end
+
+    test_with_auths "returns 'unauthorized' if the given ID was not found" do
+      response = request("/api_key.get", %{"id" => "api_01d744xm9cy3qx8hdwv4ax3k1h"})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "returns 'unauthorized' if the given ID format is invalid" do
+      response = request("/api_key.get", %{"id" => "not_an_id"})
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+    end
+  end
+
   describe "/api_key.update" do
     test_with_auths "disables the API key" do
       api_key = insert(:api_key)

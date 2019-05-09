@@ -5462,6 +5462,31 @@ paths:
                         updated_at: '2018-01-01T10:00:00Z'
                         deleted_at: null
         '500': *ref_2
+  /api_key.get:
+    post:
+      tags:
+        - API Access
+      summary: Get a specific api key
+      operationId: api_key_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving a specific api key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: api_01d744xm9cy3qx8hdwv4ax3k1h
+      responses:
+        '200': *ref_62
+        '500': *ref_2
   /api_key.update:
     post:
       tags:
