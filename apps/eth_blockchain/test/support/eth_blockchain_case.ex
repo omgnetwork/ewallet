@@ -41,6 +41,6 @@ defmodule EthBlockchain.EthBlockchainCase do
         ]
       )
 
-    %{pid: pid}
+    %{pid: pid, supervisor: supervisor}
   end
 end
