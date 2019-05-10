@@ -34,7 +34,7 @@ defmodule UrlDispatcher.Mixfile do
   defp deps do
     [
       {:admin_api, in_umbrella: true},
-      {:admin_panel, in_umbrella: true},
+      {:frontend, in_umbrella: true},
       {:appsignal, "~> 1.9"},
       {:deferred_config, "~> 0.1.0"},
       {:ewallet, in_umbrella: true},

@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminPanel.Application do
+defmodule Frontend.Application do
   @moduledoc false
   use Application
   require Logger
-  alias AdminPanel.Endpoint
+  alias Frontend.Endpoint
   alias Phoenix.Endpoint.Watcher
   alias Utils.Helpers.Normalize
   import Supervisor.Spec
@@ -24,9 +24,9 @@ defmodule AdminPanel.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-    DeferredConfig.populate(:admin_panel)
+    DeferredConfig.populate(:frontend)
 
-    # Always run AdminPanel.Endpoint as part of supervision tree
+    # Always run Frontend.Endpoint as part of supervision tree
     # regardless whether UrlDispatcher is enabled or not, since UrlDispatcher
     # is not guarantee to be started, so we should not try to access the
     # :url_dispatcher env here.
@@ -35,7 +35,7 @@ defmodule AdminPanel.Application do
     # Simply spawn a webpack process as part of supervision tree in case
     # webpack_watch is enabled. It probably doesn't make sense to watch
     # webpack without enabling endpoint serving, but we allow it anyway.
-    webpack_watch = Application.get_env(:admin_panel, :webpack_watch)
+    webpack_watch = Application.get_env(:frontend, :webpack_watch)
 
     children =
       children ++
@@ -60,7 +60,7 @@ defmodule AdminPanel.Application do
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: AdminPanel.Supervisor]
+    opts = [strategy: :one_for_one, name: Frontend.Supervisor]
     Supervisor.start_link(children, opts)
   end
 

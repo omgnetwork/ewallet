@@ -98,7 +98,7 @@ if [ $DEV_MODE = 1 ]; then
       - .:/app
       - ewallet-deps:/app/deps
       - ewallet-builds:/app/_build
-      - ewallet-node:/app/apps/admin_panel/assets/node_modules
+      - ewallet-node:/app/apps/frontend/assets/node_modules
     working_dir: /app
     command:
       - mix

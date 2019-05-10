@@ -1,16 +1,16 @@
 use Mix.Config
 
 # General application configuration
-config :admin_panel,
-  namespace: AdminPanel,
+config :frontend,
+  namespace: Frontend,
   ecto_repos: [],
-  dist_path: {:apply, {Utils.Helpers.PathResolver, :static_dir, [:admin_panel]}},
+  dist_path: {:apply, {Utils.Helpers.PathResolver, :static_dir, [:frontend]}},
   webpack_watch: {:system, "WEBPACK_WATCH", false}
 
 # Configures the endpoint
-config :admin_panel, AdminPanel.Endpoint,
+config :frontend, Frontend.Endpoint,
   url: [host: "localhost"],
-  render_errors: [view: AdminPanel.ErrorView, accepts: ~w(html json)]
+  render_errors: [view: Frontend.ErrorView, accepts: ~w(html json)]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
