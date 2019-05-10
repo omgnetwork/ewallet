@@ -1,6 +1,6 @@
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
-import { getApiKeys, getApiKey, createApiKey, deleteApiKey, updateApiKey } from './action'
+import { getApiKeys, getApiKey, createApiKey, deleteApiKey, updateApiKey, enableApiKey } from './action'
 import * as apikeyService from '../services/apikeyService'
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
@@ -102,8 +102,30 @@ describe('apikeys actions', () => {
         data: 'key'
       }
     ]
-    return store.dispatch(updateApiKey({ id: 'id', expired: true })).then(() => {
-      expect(apikeyService.updateApiKey).toBeCalledWith({ id: 'id', expired: true })
+    return store.dispatch(updateApiKey({ id: 'id', name: 'toto' })).then(() => {
+      expect(apikeyService.updateApiKey).toBeCalledWith({ id: 'id', name: 'toto' })
+      expect(store.getActions()).toEqual(expectedActions)
+    })
+  })
+
+  test('[enableApiKey] should dispatch success action if enable key successfully', () => {
+    apikeyService.enableApiKey.mockImplementation(() => {
+      return Promise.resolve({
+        data: {
+          success: true,
+          data: 'key'
+        }
+      })
+    })
+    const expectedActions = [
+      { type: 'API_KEY/UPDATE/INITIATED' },
+      {
+        type: 'API_KEY/UPDATE/SUCCESS',
+        data: 'key'
+      }
+    ]
+    return store.dispatch(enableApiKey({ id: 'id', enabled: true })).then(() => {
+      expect(apikeyService.enableApiKey).toBeCalledWith({ id: 'id', enabled: true })
       expect(store.getActions()).toEqual(expectedActions)
     })
   })

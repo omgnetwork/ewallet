@@ -35,9 +35,17 @@ export function deleteApiKeyById (id) {
     data: { id }
   })
 }
-export function updateApiKey ({ id, expired }) {
+
+export function updateApiKey ({ id, name }) {
   return authenticatedRequest({
     path: '/api_key.update',
-    data: { id, expired }
+    data: { id, name }
+  })
+}
+
+export function enableApiKey ({ id, enabled }) {
+  return authenticatedRequest({
+    path: '/api_key.enable_or_disable',
+    data: { id, enabled }
   })
 }

@@ -61,22 +61,24 @@ const AsideSection = styled.div`
   }
 `
 
-const EditView = ({ keyType, keyDetail, setView }) => {
+// eslint-disable-next-line react/prop-types
+const EditView = ({ keyType, keyDetail, setView, enableKey, updateKey }) => {
   const derivedLabel = _.get(keyDetail, 'name', '')
   const derivedGlobalRole = _.get(keyDetail, 'global_role', '')
   const derivedStatus = _.get(keyDetail, 'status')
 
+  console.log(keyDetail)
+
+  const [ loading, setLoading ] = useState(false)
   const [ label, setLabel ] = useState(derivedLabel)
   const [ globalRole, setGlobalRole ] = useState(derivedGlobalRole)
   const [ status, setStatus ] = useState(derivedStatus === 'active')
 
-  const handleSave = () => {
-    if (keyType === 'admin') {
-      console.log('updating admin key')
-    }
-    if (keyType === 'client') {
-      console.log('updating client key')
-    }
+  const handleSave = async () => {
+    setLoading(true)
+    await updateKey(label)
+    await enableKey(status)
+    setLoading(false)
     setView('read')
   }
 
@@ -85,6 +87,8 @@ const EditView = ({ keyType, keyDetail, setView }) => {
       globalRole !== derivedGlobalRole ||
       status !== (derivedStatus === 'active')
   }
+
+  console.log(status)
 
   return (
     <Content>
@@ -152,6 +156,7 @@ const EditView = ({ keyType, keyDetail, setView }) => {
             onClick={handleSave}
             style={{ minWidth: 'initial', marginLeft: '10px' }}
             disabled={!hasChanged()}
+            loading={loading}
           >
             <span>Save</span>
           </Button>
@@ -159,11 +164,6 @@ const EditView = ({ keyType, keyDetail, setView }) => {
       </DetailSection>
     </Content>
   )
-}
-EditView.propTypes = {
-  keyDetail: PropTypes.object,
-  keyType: PropTypes.string,
-  setView: PropTypes.func
 }
 
 const ReadView = withRouter(({ keyDetail, keyType, setView, location: { pathname } }) => {
@@ -251,7 +251,7 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
   const [ view, setView ] = useState('read')
 
   // eslint-disable-next-line react/prop-types
-  const renderView = ({ keyDetail }) => {
+  const renderView = ({ keyDetail, updateKey, enableKey }) => {
     const id = _.get(keyDetail, 'access_key') || _.get(keyDetail, 'key', '-')
     return (
       <>
@@ -276,8 +276,21 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
         />
 
         {view === 'read'
-          ? <ReadView keyType={keyType} keyDetail={keyDetail} setView={setView} />
-          : <EditView keyType={keyType} keyDetail={keyDetail} setView={setView} />}
+          ? (
+            <ReadView
+              keyType={keyType}
+              keyDetail={keyDetail}
+              setView={setView}
+            />
+          ) : (
+            <EditView
+              keyType={keyType}
+              keyDetail={keyDetail}
+              setView={setView}
+              updateKey={updateKey}
+              enableKey={enableKey}
+            />
+          )}
       </>
     )
   }

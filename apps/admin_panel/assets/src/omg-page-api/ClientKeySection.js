@@ -10,7 +10,7 @@ import styled from 'styled-components'
 import Table from '../omg-table'
 import { Switch, Icon, Id } from '../omg-uikit'
 import ApiKeysFetcher from '../omg-api-keys/apiKeysFetcher'
-import { createApiKey, updateApiKey } from '../omg-api-keys/action'
+import { createApiKey, enableApiKey } from '../omg-api-keys/action'
 import CreateClientKeyModal from '../omg-create-client-key-modal'
 import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
 
@@ -83,13 +83,13 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { createApiKey, updateApiKey }
+    { createApiKey, enableApiKey }
   )
 )
 class ClientKeySection extends Component {
   static propTypes = {
     createApiKey: PropTypes.func,
-    updateApiKey: PropTypes.func,
+    enableApiKey: PropTypes.func,
     location: PropTypes.object,
     createClientKeyModalOpen: PropTypes.bool,
     onRequestClose: PropTypes.func,
@@ -111,8 +111,9 @@ class ClientKeySection extends Component {
       this.setState({ submitStatus: 'FAILED' })
     }
   }
-  onClickSwitch = ({ id, expired, fetch }) => async e => {
-    await this.props.updateApiKey({ id, expired })
+  onClickSwitch = ({ id, enabled, fetch }) => async e => {
+    e.stopPropagation()
+    await this.props.enableApiKey({ id, enabled })
   }
   onClickRow = (data, index) => e => {
     this.props.history.push(`${'client'}/${data.id}`)
@@ -127,7 +128,7 @@ class ClientKeySection extends Component {
         return (
           <Switch
             open={!data}
-            onClick={this.onClickSwitch({ id: rows.id, expired: !rows.status, fetch })}
+            onClick={this.onClickSwitch({ id: rows.id, enabled: rows.status, fetch })}
           />
         )
       case 'key':
