@@ -40,6 +40,7 @@ defmodule EWallet.Web.V1.MembershipSerializerDeprecatedTest do
         email: user.email,
         enabled: user.enabled,
         enabled_2fa_at: nil,
+        used_backup_code_at: nil,
         metadata: %{
           "first_name" => user.metadata["first_name"],
           "last_name" => user.metadata["last_name"]
@@ -102,6 +103,7 @@ defmodule EWallet.Web.V1.MembershipSerializerDeprecatedTest do
         email: user.email,
         enabled: user.enabled,
         enabled_2fa_at: nil,
+        used_backup_code_at: nil,
         metadata: %{
           "first_name" => user.metadata["first_name"],
           "last_name" => user.metadata["last_name"]

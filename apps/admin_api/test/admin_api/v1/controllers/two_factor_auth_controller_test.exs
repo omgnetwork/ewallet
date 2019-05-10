@@ -57,9 +57,14 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
     test "responds new backup_codes if the authorization header is valid" do
       response = admin_user_request("/me.create_backup_codes")
 
+      user = User.get(@admin_id)
+
       assert response["success"] == true
       assert response["data"]["object"] == "backup_codes"
       assert length(response["data"]["backup_codes"]) > 0
+      assert user.used_backup_code_at != nil
+      assert user.used_hashed_backup_codes == []
+      assert length(user.hashed_backup_codes) == 10
     end
 
     test "responds error if the authorization header is invalid" do
@@ -122,8 +127,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
     end
 
     test "responds error client:invalid_parameter if the passcode is not provided" do
-      response =
-        admin_user_request("/me.enable_2fa", %{})
+      response = admin_user_request("/me.enable_2fa", %{})
 
       assert response == %{
                "data" => %{
@@ -327,8 +331,8 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
 
       assert response == %{
                "data" => %{
-                 "code" => "user:invalid_backup_code",
-                 "description" => "The provided `backup_code` is invalid.",
+                 "code" => "user:used_backup_code",
+                 "description" => "The provided `backup_code` has already been used.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -522,8 +526,8 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
 
       assert response == %{
                "data" => %{
-                 "code" => "user:invalid_backup_code",
-                 "description" => "The provided `backup_code` is invalid.",
+                 "code" => "user:used_backup_code",
+                 "description" => "The provided `backup_code` has already been used.",
                  "messages" => nil,
                  "object" => "error"
                },

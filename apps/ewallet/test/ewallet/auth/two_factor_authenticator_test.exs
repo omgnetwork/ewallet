@@ -60,7 +60,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       updated_user = User.get(user.id)
 
       assert TwoFactorAuthenticator.login(params, :admin_api, updated_user) ==
-               {:error, :invalid_backup_code}
+               {:error, :used_backup_code}
     end
 
     test "returns {:error, :user_2fa_disabled} if the user has not enabled two-factor authorization" do
@@ -101,7 +101,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
              )
     end
 
-    test "returns {:error, :invalid_passcode} if the user uses the same backup code more than once" do
+    test "returns {:error, :used_backup_code} if the user uses the same backup code more than once" do
       user = insert(:user)
 
       {attrs, updated_user} = create_backup_codes(user)
@@ -112,10 +112,8 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
 
       updated_user = User.get(user.id)
 
-      assert TwoFactorAuthenticator.verify(
-               %{"backup_code" => backup_code},
-               updated_user
-             ) == {:error, :invalid_backup_code}
+      assert TwoFactorAuthenticator.verify(%{"backup_code" => backup_code}, updated_user) ==
+               {:error, :used_backup_code}
 
       updated_user = User.get(user.id)
 
@@ -188,7 +186,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
              ) == {:error, :invalid_backup_code}
     end
 
-    test "returns {:error, :invalid_backup_code} if the backup_code is reused" do
+    test "returns {:error, :used_backup_code} if the backup_code is reused" do
       user = insert(:user)
       {%{backup_codes: [backup_code | _]}, updated_user} = create_backup_codes(user)
 
@@ -199,7 +197,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       updated_user = User.get(user.id)
 
       assert TwoFactorAuthenticator.verify_multiple(params, updated_user) ==
-               {:error, :invalid_backup_code}
+               {:error, :used_backup_code}
     end
 
     test "returns {:error, :invalid_passcode} when the invalid passcode is passed" do

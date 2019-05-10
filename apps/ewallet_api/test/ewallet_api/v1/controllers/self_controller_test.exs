@@ -92,7 +92,8 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                        "full_name" => user.full_name,
                        "calling_name" => user.calling_name,
                        "enabled" => user.enabled,
-                       "enabled_2fa_at" => nil
+                       "enabled_2fa_at" => nil,
+                       "used_backup_code_at" => nil
                      },
                      "user_id" => user.id,
                      "balances" => [

@@ -40,6 +40,7 @@ defmodule AdminAPI.V1.UserViewTest do
           email: user.email,
           enabled: user.enabled,
           enabled_2fa_at: nil,
+          used_backup_code_at: nil,
           avatar: %{
             original: nil,
             large: nil,
@@ -90,6 +91,7 @@ defmodule AdminAPI.V1.UserViewTest do
               email: user1.email,
               enabled: user1.enabled,
               enabled_2fa_at: nil,
+              used_backup_code_at: nil,
               avatar: %{
                 original: nil,
                 large: nil,
@@ -115,6 +117,7 @@ defmodule AdminAPI.V1.UserViewTest do
               email: user2.email,
               enabled: user2.enabled,
               enabled_2fa_at: nil,
+              used_backup_code_at: nil,
               avatar: %{
                 original: nil,
                 large: nil,

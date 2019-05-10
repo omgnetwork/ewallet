@@ -149,6 +149,7 @@ defmodule EWalletDB.Factory do
       provider_user_id: sequence("provider_id"),
       enabled: true,
       enabled_2fa_at: nil,
+      used_backup_code_at: nil,
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")

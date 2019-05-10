@@ -15,6 +15,7 @@
 defmodule EWallet.BackupCodeAuthenticatorTest do
   use EWallet.DBCase, async: true
   alias EWallet.BackupCodeAuthenticator
+  alias Utils.Helpers.Crypto
 
   describe "verify" do
     test "respond :ok when the given backup_code matches with hashed_backup_codes" do
@@ -23,20 +24,30 @@ defmodule EWallet.BackupCodeAuthenticatorTest do
       assert {:ok, backup_codes, hashed_backup_codes} =
                BackupCodeAuthenticator.create(number_of_backup_codes)
 
-      assert Enum.all?(backup_codes, &BackupCodeAuthenticator.verify(hashed_backup_codes, &1))
+      assert Enum.all?(backup_codes, &BackupCodeAuthenticator.verify(hashed_backup_codes, [], &1))
     end
 
     test "respond {:error, :invalid_backup_code} when the given backup_code doesn't match with hashed_backup_codes" do
-      assert BackupCodeAuthenticator.verify(["abcd1234"], "123456") ==
+      assert BackupCodeAuthenticator.verify(["abcd1234"], [], "123456") ==
                {:error, :invalid_backup_code}
 
-      assert BackupCodeAuthenticator.verify(["abcd1234"], "") == {:error, :invalid_backup_code}
-      assert BackupCodeAuthenticator.verify(["abcd1234"], nil) == {:error, :invalid_backup_code}
+      assert BackupCodeAuthenticator.verify(["abcd1234"], [], "") ==
+               {:error, :invalid_backup_code}
+
+      assert BackupCodeAuthenticator.verify(["abcd1234"], [], nil) ==
+               {:error, :invalid_backup_code}
+    end
+
+    test "respond {:error, :used_backup_code} when given the backup_code that has already been used" do
+      backup_code = "12345678"
+      hashed_backup_code = Crypto.hash_password(backup_code)
+
+      assert BackupCodeAuthenticator.verify([], [hashed_backup_code], backup_code) == {:error, :used_backup_code}
     end
 
     test "respond {:error, :invalid_parameter} when given invalid parameters" do
-      assert BackupCodeAuthenticator.verify(nil, "123456") == {:error, :invalid_parameter}
-      assert BackupCodeAuthenticator.verify(["123"], 123) == {:error, :invalid_parameter}
+      assert BackupCodeAuthenticator.verify(nil, [], "123456") == {:error, :invalid_parameter}
+      assert BackupCodeAuthenticator.verify(["123"], [], 123) == {:error, :invalid_parameter}
     end
   end
 
