@@ -65,18 +65,16 @@ const AsideSection = styled.div`
 const EditView = ({ keyType, keyDetail, setView, enableKey, updateKey }) => {
   const derivedLabel = _.get(keyDetail, 'name', '')
   const derivedGlobalRole = _.get(keyDetail, 'global_role', '')
-  const derivedStatus = _.get(keyDetail, 'status')
-
-  console.log(keyDetail)
+  const derivedStatus = _.get(keyDetail, 'enabled')
 
   const [ loading, setLoading ] = useState(false)
   const [ label, setLabel ] = useState(derivedLabel)
   const [ globalRole, setGlobalRole ] = useState(derivedGlobalRole)
-  const [ status, setStatus ] = useState(derivedStatus === 'active')
+  const [ status, setStatus ] = useState(derivedStatus)
 
   const handleSave = async () => {
     setLoading(true)
-    await updateKey(label)
+    await updateKey(label, globalRole)
     await enableKey(status)
     setLoading(false)
     setView('read')
@@ -85,10 +83,8 @@ const EditView = ({ keyType, keyDetail, setView, enableKey, updateKey }) => {
   const hasChanged = () => {
     return label !== derivedLabel ||
       globalRole !== derivedGlobalRole ||
-      status !== (derivedStatus === 'active')
+      status !== derivedStatus
   }
-
-  console.log(status)
 
   return (
     <Content>
@@ -218,7 +214,7 @@ const ReadView = withRouter(({ keyDetail, keyType, setView, location: { pathname
         />
         <DetailRow
           label='Status'
-          value={<div>{_.get(keyDetail, 'status', '-') === 'active' ? 'Active' : 'Inactive' }</div>}
+          value={<div>{_.get(keyDetail, 'enabled') ? 'Active' : 'Inactive' }</div>}
         />
       </DetailSection>
 
