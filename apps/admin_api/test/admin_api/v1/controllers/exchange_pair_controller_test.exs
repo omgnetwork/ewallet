@@ -201,7 +201,7 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
     end
 
     test_with_auths "accepts the rate attribute as string" do
-      request_data = insert_params(%{sync_opposite: true}) |> Map.put(:rate, "3.14159")
+      request_data = %{sync_opposite: true} |> insert_params() |> Map.put(:rate, "3.14159")
       response = request("/exchange_pair.create", request_data)
 
       assert response["success"] == true
