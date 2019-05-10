@@ -59,6 +59,10 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
     end
   end
 
+  def enable(conn, %{"passcode" => _, "backup_code" => _}) do
+    respond_error({:error, :invalid_parameter}, conn)
+  end
+
   def enable(conn, %{"passcode" => passcode}) do
     with %User{} = user <- conn.assigns[:admin_user] || {:error, :unauthorized},
          {:ok, _} <- authorize(:create, conn.assigns, user),

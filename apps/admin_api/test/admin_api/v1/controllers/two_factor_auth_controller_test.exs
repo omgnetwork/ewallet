@@ -99,7 +99,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
 
     test "responds error auth_token:not_found if continue using the old authentication token" do
       user = User.get(@admin_id)
-      {%{backup_codes: [backup_code | _]}, _} = create_backup_codes(user)
+      {_, _} = create_backup_codes(user)
       {%{secret_2fa_code: secret_2fa_code}, _} = create_secret_code(user)
       passcode = generate_totp(secret_2fa_code)
 
@@ -139,16 +139,31 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
              }
     end
 
+    test "responds error client:invalid_parameter if both passcode and backup_code are provided" do
+      response =
+        admin_user_request("/me.enable_2fa", %{
+          "backup_code" => "12345678",
+          "passcode" => "123456"
+        })
+
+      assert response == %{
+               "data" => %{
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
     test "responds error user:invalid_passcode if given passcode is invalid" do
       user = User.get(@admin_id)
       create_secret_code(user)
-      {%{backup_codes: [backup_code | _]}, _} = create_backup_codes(user)
+      create_backup_codes(user)
 
-      response =
-        admin_user_request("/me.enable_2fa", %{
-          "passcode" => "S3CR3T",
-          "backup_code" => backup_code
-        })
+      response = admin_user_request("/me.enable_2fa", %{"passcode" => "S3CR3T"})
 
       assert response == %{
                "data" => %{
@@ -164,13 +179,9 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
 
     test "responds error user:secret_code_not_found if the secret code has not been generated" do
       user = User.get(@admin_id)
-      {%{backup_codes: [backup_code | _]}, _} = create_backup_codes(user)
+      create_backup_codes(user)
 
-      response =
-        admin_user_request("/me.enable_2fa", %{
-          "passcode" => "S3CR3T",
-          "backup_code" => backup_code
-        })
+      response = admin_user_request("/me.enable_2fa", %{"passcode" => "S3CR3T"})
 
       assert response == %{
                "data" => %{
@@ -189,11 +200,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
       {%{secret_2fa_code: secret_2fa_code}, _} = create_secret_code(user)
       passcode = generate_totp(secret_2fa_code)
 
-      response =
-        admin_user_request("/me.enable_2fa", %{
-          "passcode" => passcode,
-          "backup_code" => "12345678"
-        })
+      response = admin_user_request("/me.enable_2fa", %{"passcode" => passcode})
 
       assert response == %{
                "data" => %{
