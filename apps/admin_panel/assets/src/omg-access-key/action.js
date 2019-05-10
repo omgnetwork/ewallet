@@ -55,11 +55,18 @@ export const getAccessKeyMemberships = ({
     cacheKey
   })
 
-export const updateAccessKey = ({ id, expired }) =>
+export const updateAccessKey = ({ id, name, globalRole }) =>
   createActionCreator({
     actionName: 'ACCESS_KEY',
     action: 'UPDATE',
-    service: () => accessKeyService.updateAccessKey({ id, expired })
+    service: () => accessKeyService.updateAccessKey({ id, name, globalRole })
+  })
+
+export const enableAccessKey = ({ id, enabled }) =>
+  createActionCreator({
+    actionName: 'ACCESS_KEY',
+    action: 'UPDATE',
+    service: () => accessKeyService.enableAccessKey({ id, enabled })
   })
 
 export const getAccessKeys = ({ page, perPage, matchAll, matchAny, cacheKey }) =>

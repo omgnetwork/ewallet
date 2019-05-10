@@ -12,7 +12,7 @@ import Table from '../omg-table'
 import AccessKeyFetcher from '../omg-access-key/accessKeysFetcher'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { createApiKey } from '../omg-api-keys/action'
-import { createAccessKey, updateAccessKey, downloadKey } from '../omg-access-key/action'
+import { createAccessKey, enableAccessKey, downloadKey } from '../omg-access-key/action'
 import CreateAdminKeyModal from '../omg-create-admin-key-modal'
 import Copy from '../omg-copy'
 import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
@@ -128,13 +128,13 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { createApiKey, createAccessKey, updateAccessKey, downloadKey }
+    { createApiKey, createAccessKey, enableAccessKey, downloadKey }
   )
 )
 class ApiKeyPage extends Component {
   static propTypes = {
     location: PropTypes.object,
-    updateAccessKey: PropTypes.func,
+    enableAccessKey: PropTypes.func,
     createAdminKeyModalOpen: PropTypes.bool,
     query: PropTypes.object,
     fetcher: PropTypes.func,
@@ -180,9 +180,9 @@ class ApiKeyPage extends Component {
       privateKeyModalOpen: true
     })
   }
-  onClickAccessKeySwitch = ({ id, expired, fetch }) => async e => {
+  onClickAccessKeySwitch = ({ id, enabled, fetch }) => async e => {
     e.stopPropagation()
-    await this.props.updateAccessKey({ id, expired })
+    await this.props.enableAccessKey({ id, enabled })
     fetch()
   }
   onClickDownloadKey = e => {
@@ -202,8 +202,8 @@ class ApiKeyPage extends Component {
       case 'status':
         return (
           <Switch
-            open={!data}
-            onClick={this.onClickAccessKeySwitch({ id: rows.id, expired: !rows.status, fetch })}
+            open={rows.status}
+            onClick={this.onClickAccessKeySwitch({ id: rows.id, enabled: !rows.status, fetch })}
           />
         )
       case 'key':
@@ -285,7 +285,7 @@ class ApiKeyPage extends Component {
               key: item.access_key,
               user: item.account_id,
               created_at: item.created_at,
-              status: item.expired,
+              status: item.enabled,
               name: item.name || 'Not Provided',
               global_role: item.global_role || 'none',
               account_role: role || 'none'

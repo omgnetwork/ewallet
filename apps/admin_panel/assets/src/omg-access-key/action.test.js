@@ -152,8 +152,8 @@ describe('accesskeys actions', () => {
         data: 'key'
       }
     ]
-    return store.dispatch(updateAccessKey({ id: 'id', expired: true })).then(() => {
-      expect(accessKeyService.updateAccessKey).toBeCalledWith({ id: 'id', expired: true })
+    return store.dispatch(updateAccessKey({ id: 'id', name: 'toto', globalRole: 'Admin' })).then(() => {
+      expect(accessKeyService.updateAccessKey).toBeCalledWith({ id: 'id', name: 'toto', globalRole: 'Admin' })
       expect(store.getActions()).toEqual(expectedActions)
     })
   })

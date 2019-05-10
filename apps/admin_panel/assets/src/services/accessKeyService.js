@@ -32,10 +32,25 @@ export function createAccessKey ({ name, globalRole, accountId, roleName }) {
     }
   })
 }
-export function updateAccessKey ({ id, expired }) {
+
+export function updateAccessKey ({ id, name, globalRole }) {
   return authenticatedRequest({
     path: '/access_key.update',
-    data: { id, expired }
+    data: {
+      id,
+      name,
+      global_role: globalRole
+    }
+  })
+}
+
+export function enableAccessKey ({ id, enabled }) {
+  return authenticatedRequest({
+    path: '/access_key.enable_or_disable',
+    data: {
+      id,
+      enabled
+    }
   })
 }
 

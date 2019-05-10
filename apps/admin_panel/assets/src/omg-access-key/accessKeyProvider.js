@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
 import { selectGetAccessKeyById } from './selector'
-import { getAccessKey } from './action'
+import { getAccessKey, updateAccessKey, enableAccessKey } from './action'
 
 // aka frontend ui -> "Admin Keys"
 class AccessKeyProvider extends Component {
@@ -11,7 +11,9 @@ class AccessKeyProvider extends Component {
     render: PropTypes.func,
     accessKeyId: PropTypes.string,
     accessKey: PropTypes.object,
-    getAccessKey: PropTypes.func
+    getAccessKey: PropTypes.func,
+    updateAccessKey: PropTypes.func,
+    enableAccessKey: PropTypes.func
   }
 
   componentDidMount = () => {
@@ -21,7 +23,9 @@ class AccessKeyProvider extends Component {
   }
   render () {
     return this.props.render({
-      keyDetail: this.props.accessKey
+      keyDetail: this.props.accessKey,
+      updateKey: (name, globalRole) => this.props.updateAccessKey({ id: this.props.accessKeyId, name, globalRole }),
+      enableKey: enabled => this.props.enableAccessKey({ id: this.props.accessKeyId, enabled })
     })
   }
 }
@@ -31,5 +35,5 @@ export default connect(
       accessKey: selectGetAccessKeyById(state)(props.accessKeyId)
     }
   },
-  { getAccessKey }
+  { getAccessKey, updateAccessKey, enableAccessKey }
 )(AccessKeyProvider)
