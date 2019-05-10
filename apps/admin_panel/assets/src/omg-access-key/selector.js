@@ -7,3 +7,5 @@ export const selectAccessKeysCachedQuery = state => cacheKey => {
     return selectGetAccessKeyById(state)(apiKeyId)
   })
 }
+
+export const selectAccessKeyMemberships = state => id => state.accessKeyMemberships[id]
