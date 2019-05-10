@@ -54,6 +54,7 @@ const KeyDetailAccountsPage = ({ match: { params } }) => {
   return (
     <AccessKeyMembershipsProvider
       render={renderView}
+      accessKeyId={keyId}
     />
   )
 }

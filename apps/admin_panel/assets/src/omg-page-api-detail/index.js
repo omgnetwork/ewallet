@@ -63,9 +63,9 @@ const AsideSection = styled.div`
 
 // eslint-disable-next-line react/prop-types
 const EditView = ({ keyType, keyDetail, setView, enableKey, updateKey }) => {
-  const derivedLabel = _.get(keyDetail, 'name', '')
-  const derivedGlobalRole = _.get(keyDetail, 'global_role', '')
-  const derivedStatus = _.get(keyDetail, 'enabled')
+  const derivedLabel = _.get(keyDetail, 'name') || ''
+  const derivedGlobalRole = _.get(keyDetail, 'global_role') || ''
+  const derivedStatus = _.get(keyDetail, 'enabled') || false
 
   const [ loading, setLoading ] = useState(false)
   const [ label, setLabel ] = useState(derivedLabel)

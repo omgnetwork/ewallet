@@ -16,7 +16,6 @@ export const accessKeysReducer = createReducer(
       return _.merge(state, _.keyBy(data, 'key.id'))
     },
     'ACCESS_KEY_MEMBERSHIPS/REQUEST/SUCCESS': (state, { data }) => {
-      console.log('data: ', data)
       return _.merge(state, _.keyBy(data, 'id'))
     },
     'ACCESS_KEY/UPDATE/SUCCESS': (state, { data }) => {
