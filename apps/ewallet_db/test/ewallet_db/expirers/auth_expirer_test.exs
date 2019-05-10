@@ -48,8 +48,6 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
       # To include preloaded user
       auth_token = AuthToken.get_by_token(token, @some_app)
 
-      IO.inspect(auth_token)
-
       assert auth_token == AuthExpirer.expire_or_refresh(auth_token, 30)
     end
 
