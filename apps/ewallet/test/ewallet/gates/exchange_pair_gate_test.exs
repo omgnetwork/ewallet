@@ -69,6 +69,41 @@ defmodule EWallet.ExchangePairGateTest do
       assert Enum.at(pairs, 1).rate == 1 / 2.0
     end
 
+    test "accepts the rate as string" do
+      eth = insert(:token)
+      omg = insert(:token)
+
+      {res, pairs} =
+        ExchangePairGate.insert(%{
+          "rate" => "3.14159",
+          "from_token_id" => eth.id,
+          "to_token_id" => omg.id,
+          "sync_opposite" => true,
+          "originator" => %System{}
+        })
+
+      assert res == :ok
+      assert hd(pairs).rate == 3.14159
+    end
+
+    test "returns error if the string rate cannot be parsed" do
+      eth = insert(:token)
+      omg = insert(:token)
+
+      {res, error, description} =
+        ExchangePairGate.insert(%{
+          "rate" => "not a rate",
+          "from_token_id" => eth.id,
+          "to_token_id" => omg.id,
+          "sync_opposite" => true,
+          "originator" => %System{}
+        })
+
+      assert res == :error
+      assert error == :invalid_parameter
+      assert description == "Invalid parameter provided. `rate` cannot be parsed. Got: \"not a rate\""
+    end
+
     test "rollbacks if an error occurred along the way" do
       eth = insert(:token)
       omg = insert(:token)
