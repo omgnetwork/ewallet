@@ -123,9 +123,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
 
     test "responds error client:invalid_parameter if the passcode is not provided" do
       response =
-        admin_user_request("/me.enable_2fa", %{
-          "backup_code" => "12345678"
-        })
+        admin_user_request("/me.enable_2fa", %{})
 
       assert response == %{
                "data" => %{
@@ -139,17 +137,14 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
              }
     end
 
-    test "responds error client:invalid_parameter if both passcode and backup_code are provided" do
-      response =
-        admin_user_request("/me.enable_2fa", %{
-          "backup_code" => "12345678",
-          "passcode" => "123456"
-        })
+    test "responds error client:invalid_parameter when the backup_code is provided" do
+      response = admin_user_request("/me.enable_2fa", %{"backup_code" => "12345678"})
 
       assert response == %{
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided.",
+                 "description" =>
+                   "Invalid parameter provided. `passcode` can be used to enable 2FA, but not `backup_code`.",
                  "messages" => nil,
                  "object" => "error"
                },

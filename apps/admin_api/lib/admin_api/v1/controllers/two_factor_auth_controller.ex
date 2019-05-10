@@ -59,8 +59,11 @@ defmodule AdminAPI.V1.TwoFactorAuthController do
     end
   end
 
-  def enable(conn, %{"passcode" => _, "backup_code" => _}) do
-    respond_error({:error, :invalid_parameter}, conn)
+  def enable(conn, %{"backup_code" => _}) do
+    error_description =
+      "Invalid parameter provided. `passcode` can be used to enable 2FA, but not `backup_code`."
+
+    respond_error({:error, :invalid_parameter, error_description}, conn)
   end
 
   def enable(conn, %{"passcode" => passcode}) do
