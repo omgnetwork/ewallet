@@ -14,17 +14,4 @@
 
 defmodule EthGethAdapter.WorkerTest do
   use ExUnit.Case
-  alias Ecto.Adapters.SQL.Sandbox
-  alias Keychain.Repo
-
-  setup tags do
-    :ok = Sandbox.checkout(Repo)
-
-    unless tags[:async] do
-      Sandbox.mode(Repo, {:shared, self()})
-    end
-
-    {:ok, pid} = Worker.start_link()
-    %{pid: pid}
-  end
 end
