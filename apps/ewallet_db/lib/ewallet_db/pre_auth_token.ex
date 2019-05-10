@@ -219,9 +219,6 @@ defmodule EWalletDB.PreAuthToken do
     })
   end
 
-<<<<<<< HEAD
-  # `update/2` is private to prohibit direct auth token updates,
-=======
   def delete_for_user(user) do
     Repo.delete_all(
       from(
@@ -233,8 +230,6 @@ defmodule EWalletDB.PreAuthToken do
     :ok
   end
 
-  # `update/2` is private to prohibit direct pre auth token updates,
->>>>>>> :white_check_mark: Add test for AuthExpirer
   # if expiring the token, please use `expire/2` instead.
   defp update(%PreAuthToken{} = token, attrs) do
     token
