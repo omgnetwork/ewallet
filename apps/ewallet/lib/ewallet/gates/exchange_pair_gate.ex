@@ -23,7 +23,10 @@ defmodule EWallet.ExchangePairGate do
   @doc """
   Inserts an exchange pair.
   """
-  @spec insert(map()) :: {:ok, [%ExchangePair{}]} | {:error, atom() | Ecto.Changeset.t()} | {:error, atom(), String.t()}
+  @spec insert(map()) ::
+          {:ok, [%ExchangePair{}]}
+          | {:error, atom() | Ecto.Changeset.t()}
+          | {:error, atom(), String.t()}
   def insert(%{"rate" => rate} = attrs) when is_binary(rate) do
     case cast_rate(attrs) do
       {:ok, casted} -> insert(casted)
@@ -75,7 +78,9 @@ defmodule EWallet.ExchangePairGate do
   Updates an exchange pair.
   """
   @spec update(String.t(), map()) ::
-          {:ok, [%ExchangePair{}]} | {:error, atom() | Ecto.Changeset.t()} | {:error, atom(), String.t()}
+          {:ok, [%ExchangePair{}]}
+          | {:error, atom() | Ecto.Changeset.t()}
+          | {:error, atom(), String.t()}
   def update(id, %{"rate" => rate} = attrs) when is_binary(rate) do
     case cast_rate(attrs) do
       {:ok, casted} -> update(id, casted)
@@ -140,7 +145,8 @@ defmodule EWallet.ExchangePairGate do
         {:ok, Map.put(attrs, "rate", parsed)}
 
       _ ->
-        {:error, :invalid_parameter, "Invalid parameter provided. `rate` cannot be parsed. Got: #{inspect(rate)}"}
+        {:error, :invalid_parameter,
+         "Invalid parameter provided. `rate` cannot be parsed. Got: #{inspect(rate)}"}
     end
   end
 

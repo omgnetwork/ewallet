@@ -101,7 +101,9 @@ defmodule EWallet.ExchangePairGateTest do
 
       assert res == :error
       assert error == :invalid_parameter
-      assert description == "Invalid parameter provided. `rate` cannot be parsed. Got: \"not a rate\""
+
+      assert description ==
+               "Invalid parameter provided. `rate` cannot be parsed. Got: \"not a rate\""
     end
 
     test "rollbacks if an error occurred along the way" do
