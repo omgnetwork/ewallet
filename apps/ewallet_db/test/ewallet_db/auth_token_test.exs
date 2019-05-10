@@ -248,6 +248,7 @@ defmodule EWalletDB.AuthTokenTest do
 
     test "returns :token_expired if the current date time is after expire_at" do
       user = insert(:user)
+
       attrs = %{
         user: user,
         owner_app: Atom.to_string(@owner_app),

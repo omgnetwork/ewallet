@@ -31,6 +31,7 @@ defmodule EWalletDB.Expirers.AuthExpirer do
     case lifetime do
       0 ->
         token
+
       _ ->
         expire_or_refresh(:ok, token, token.expire_at || get_new_expire_at(lifetime))
     end
