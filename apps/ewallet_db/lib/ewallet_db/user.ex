@@ -784,7 +784,8 @@ defmodule EWalletDB.User do
   end
 
   def invalidate_backup_codes(user, hashed_backup_codes, used_hashed_backup_codes) do
-    invalidate_backup_codes_changeset(user, %{
+    user
+    |> invalidate_backup_codes_changeset(%{
       hashed_backup_codes: hashed_backup_codes,
       used_hashed_backup_codes: used_hashed_backup_codes
     })

@@ -42,7 +42,8 @@ defmodule EWallet.BackupCodeAuthenticatorTest do
       backup_code = "12345678"
       hashed_backup_code = Crypto.hash_password(backup_code)
 
-      assert BackupCodeAuthenticator.verify([], [hashed_backup_code], backup_code) == {:error, :used_backup_code}
+      assert BackupCodeAuthenticator.verify([], [hashed_backup_code], backup_code) ==
+               {:error, :used_backup_code}
     end
 
     test "respond {:error, :invalid_parameter} when given invalid parameters" do
