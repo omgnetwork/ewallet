@@ -55,20 +55,41 @@ defmodule EWallet.BackupCodeAuthenticator do
 
   @number_of_bytes 4
 
-  def verify(_, nil), do: {:error, :invalid_backup_code}
+  def verify(_, _, nil), do: {:error, :invalid_backup_code}
 
-  def verify(hashed_backup_codes, backup_code)
+  def verify(hashed_backup_codes, used_hashed_backup_codes, backup_code)
       when is_list(hashed_backup_codes) and is_binary(backup_code) do
     case Enum.find_index(hashed_backup_codes, &Crypto.verify_password(backup_code, &1)) do
       nil ->
-        {:error, :invalid_backup_code}
+        handle_invalid_backup_code(used_hashed_backup_codes, backup_code)
 
       index ->
-        {:ok, List.delete_at(hashed_backup_codes, index)}
+        hashed_backup_codes
+        |> List.pop_at(index)
+        |> handle_valid_backup_code(used_hashed_backup_codes)
     end
   end
 
-  def verify(_, _), do: {:error, :invalid_parameter}
+  def verify(_, _, _), do: {:error, :invalid_parameter}
+
+  defp handle_valid_backup_code(
+         {used_hashed_backup_code, hashed_backup_codes},
+         used_hashed_backup_codes
+       ) do
+    {:ok, hashed_backup_codes, [used_hashed_backup_code | used_hashed_backup_codes]}
+  end
+
+  defp handle_invalid_backup_code([], _), do: {:error, :invalid_backup_code}
+
+  defp handle_invalid_backup_code(used_hashed_backup_codes, backup_code) do
+    case Enum.any?(used_hashed_backup_codes, &Crypto.verify_password(backup_code, &1)) do
+      true ->
+        {:error, :used_backup_code}
+
+      false ->
+        {:error, :invalid_backup_code}
+    end
+  end
 
   def create(number_of_backup_codes)
       when is_integer(number_of_backup_codes) and number_of_backup_codes > 0 do

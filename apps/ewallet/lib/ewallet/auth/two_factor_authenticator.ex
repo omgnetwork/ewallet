@@ -101,12 +101,17 @@ defmodule EWallet.TwoFactorAuthenticator do
          "user" => %User{hashed_backup_codes: hashed_backup_codes} = user
        })
        when is_binary(backup_code) do
-    case BackupCodeAuthenticator.verify(hashed_backup_codes, backup_code) do
-      {:ok, updated_backup_codes} ->
-        User.set_hashed_backup_codes(user, %{
-          "hashed_backup_codes" => updated_backup_codes,
-          "originator" => user
-        })
+    case BackupCodeAuthenticator.verify(
+           hashed_backup_codes,
+           user.used_hashed_backup_codes,
+           backup_code
+         ) do
+      {:ok, updated_hashed_backup_codes, updated_used_hashed_backup_codes} ->
+        User.invalidate_backup_codes(
+          user,
+          updated_hashed_backup_codes,
+          updated_used_hashed_backup_codes
+        )
 
         :ok
 
@@ -140,10 +145,7 @@ defmodule EWallet.TwoFactorAuthenticator do
       get_number_of_backup_codes()
       |> BackupCodeAuthenticator.create()
 
-    User.set_hashed_backup_codes(user, %{
-      "hashed_backup_codes" => hashed_backup_codes,
-      "originator" => user
-    })
+    User.invalidate_backup_codes(user, hashed_backup_codes, [])
 
     {:ok, %{backup_codes: backup_codes}}
   end
