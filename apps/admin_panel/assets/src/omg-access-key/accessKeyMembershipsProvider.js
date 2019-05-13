@@ -17,12 +17,23 @@ class AccessKeyMembershipsProvider extends Component {
 
   componentDidMount = () => {
     if (!this.props.memberships) {
-      this.props.getAccessKeyMemberships({
-        id: this.props.accessKeyId,
-        ...this.props.filter
-      })
+      this.fetch(this.props.filter)
     }
   }
+
+  UNSAFE_componentWillReceiveProps = nextProps => {
+    if (nextProps.filter !== this.props.filter) {
+      this.fetch(nextProps.filter)
+    }
+  }
+
+  fetch = filter => {
+    this.props.getAccessKeyMemberships({
+      id: this.props.accessKeyId,
+      ...filter
+    })
+  }
+
   render () {
     return this.props.render({
       memberships: this.props.memberships
@@ -33,6 +44,7 @@ export default connect(
   (state, props) => {
     return {
       memberships: selectAccessKeyMemberships(state)(props.accessKeyId),
+      // TODO: loading selector not working...
       loading: selectAccessKeyMembershipsLoadingStatus(state)
     }
   },

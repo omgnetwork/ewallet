@@ -2,9 +2,11 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
+import queryString from 'query-string'
+import moment from 'moment'
 
 import SortableTable from '../omg-table'
-import { Button, Breadcrumb, Icon, Id } from '../omg-uikit'
+import { Avatar, Button, Breadcrumb, Icon, Id } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import AccessKeyMembershipsProvider from '../omg-access-key/accessKeyMembershipsProvider'
 
@@ -18,17 +20,24 @@ const TitleContainer = styled.div`
     margin-left: 10px;
   }
 `
+const NameContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  span {
+    margin-left: 10px;
+  }
+`
 
-const KeyDetailAccountsPage = ({ match: { params } }) => {
+const KeyDetailAccountsPage = ({ match: { params }, location: { search } }) => {
   const { keyType, keyId } = params
+  const { search: _search } = queryString.parse(search)
 
   // eslint-disable-next-line react/prop-types
   const renderView = ({ memberships, loading }) => {
-    if (!Array.isArray(memberships)) {
+    if (memberships && !Array.isArray(memberships)) {
       memberships = [memberships]
     }
-    console.log('memberships: ', memberships)
-    console.log('loading: ', loading)
 
     const columns = [
       { key: 'account.name', title: 'NAME', sort: true },
@@ -39,27 +48,23 @@ const KeyDetailAccountsPage = ({ match: { params } }) => {
     ]
 
     const rowRenderer = (key, data, rows) => {
-      console.log(key)
-      console.log('data: ', data)
-      console.log('rows: ', rows)
       switch (key) {
         case 'account.name':
-          return _.get(rows, 'account.name', '-')
+          return (
+            <NameContainer key={key}>
+              <Avatar image={_.get(rows, 'account.avatar.thumb')} />
+              <span>{_.get(rows, 'account.name', '-')}</span>
+            </NameContainer>
+          )
         case 'account.id':
           return _.get(rows, 'account.id', '-')
+        case 'account.parent_id':
+          return _.get(rows, 'account.parent_id', '-')
+        case 'created_at':
+          return moment(data).format()
         default:
           return data
       }
-    }
-
-    const getRows = () => {
-      return memberships
-        ? memberships.map(i => {
-          return {
-            ...i
-          }
-        })
-        : []
     }
 
     return (
@@ -67,9 +72,9 @@ const KeyDetailAccountsPage = ({ match: { params } }) => {
         <BreadContainer>
           <Breadcrumb
             items={[
-              <Link key='keys' to={`/keys/${keyType}`}>Keys</Link>,
+              <Link key='keys-main' to={`/keys/${keyType}`}>Keys</Link>,
               <Link key='key-detail' to={`/keys/${keyType}/${keyId}`}>
-                <Id withCopy={false} maxChar={20} style={{ marginRight: '0px' }}>{_.get(memberships, 'key.access_key', keyId)}</Id>
+                <Id withCopy={false} maxChar={20} style={{ marginRight: '0px' }}>{_.get(memberships, '[0].key.access_key', keyId)}</Id>
               </Link>,
               <span key='assigned-accounts'>Assigned Accounts</span>
             ]}
@@ -96,7 +101,7 @@ const KeyDetailAccountsPage = ({ match: { params } }) => {
           divider={false}
         />
         <SortableTable
-          rows={getRows()}
+          rows={memberships}
           columns={columns}
           loadingStatus={loading}
           rowRenderer={rowRenderer}
@@ -114,12 +119,22 @@ const KeyDetailAccountsPage = ({ match: { params } }) => {
     <AccessKeyMembershipsProvider
       render={renderView}
       accessKeyId={keyId}
+      filter={{
+        matchAny: [
+          {
+            field: 'account.id',
+            comparator: 'contains',
+            value: _search || ''
+          }
+        ]
+      }}
     />
   )
 }
 
 KeyDetailAccountsPage.propTypes = {
-  match: PropTypes.object
+  match: PropTypes.object,
+  location: PropTypes.object
 }
 
 export default KeyDetailAccountsPage
