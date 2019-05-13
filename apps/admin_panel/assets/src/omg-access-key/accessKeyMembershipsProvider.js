@@ -2,7 +2,7 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import { selectAccessKeyMemberships } from './selector'
+import { selectAccessKeyMemberships, selectAccessKeyMembershipsLoadingStatus } from './selector'
 import { getAccessKeyMemberships } from './action'
 
 // aka frontend ui -> "Admin Keys Assigned Accounts"
@@ -32,7 +32,8 @@ class AccessKeyMembershipsProvider extends Component {
 export default connect(
   (state, props) => {
     return {
-      memberships: selectAccessKeyMemberships(state)(props.accessKeyId)
+      memberships: selectAccessKeyMemberships(state)(props.accessKeyId),
+      loading: selectAccessKeyMembershipsLoadingStatus(state)
     }
   },
   { getAccessKeyMemberships }
