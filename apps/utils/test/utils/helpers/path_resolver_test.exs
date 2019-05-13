@@ -39,8 +39,8 @@ defmodule Utils.Helpers.PathResolverTest do
       assert PathResolver.static_dir(:url_dispatcher) ==
                Path.expand("../../../../url_dispatcher/priv/static", __DIR__)
 
-      assert PathResolver.static_dir(:admin_panel) ==
-               Path.expand("../../../../admin_panel/priv/static", __DIR__)
+      assert PathResolver.static_dir(:frontend) ==
+               Path.expand("../../../../frontend/priv/static", __DIR__)
     end
 
     test "returns path to app dir with serve local static" do
@@ -49,8 +49,8 @@ defmodule Utils.Helpers.PathResolverTest do
       assert PathResolver.static_dir(:url_dispatcher) ==
                Application.app_dir(:url_dispatcher, "priv/static")
 
-      assert PathResolver.static_dir(:admin_panel) ==
-               Application.app_dir(:admin_panel, "priv/static")
+      assert PathResolver.static_dir(:frontend) ==
+               Application.app_dir(:frontend, "priv/static")
     end
   end
 end

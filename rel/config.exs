@@ -25,7 +25,7 @@ release :ewallet do
     :runtime_tools,
     activity_logger: :permanent,
     admin_api: :permanent,
-    admin_panel: :permanent,
+    frontend: :permanent,
     ewallet: :permanent,
     ewallet_api: :permanent,
     ewallet_config: :permanent,

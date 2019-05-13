@@ -4,7 +4,7 @@ IMAGE_NAME      ?= "omisego/ewallet:latest"
 IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:v1.2"
 IMAGE_BUILD_DIR ?= $(PWD)
 
-ASSETS          ?= cd apps/admin_panel/assets &&
+ASSETS          ?= cd apps/frontend/assets &&
 ENV_DEV         ?= env MIX_ENV=dev
 ENV_TEST        ?= env MIX_ENV=test
 ENV_PROD        ?= env MIX_ENV=prod
@@ -37,8 +37,8 @@ clean-ewallet:
 	rm -rf deps/
 
 clean-assets:
-	rm -rf apps/admin_panel/assets/node_modules
-	rm -rf apps/admin_panel/priv/static
+	rm -rf apps/frontend/assets/node_modules
+	rm -rf apps/frontend/priv/static
 
 clean-test-assets:
 	rm -rf private/
@@ -108,7 +108,7 @@ docker-prod:
 	docker run --rm -it \
 		-v $(PWD):/app \
 		-v $(IMAGE_BUILD_DIR)/deps:/app/deps \
-		-v $(IMAGE_BUILD_DIR)/apps/admin_panel/assets/node_modules:/app/apps/admin_panel/assets/node_modules \
+		-v $(IMAGE_BUILD_DIR)/apps/frontend/assets/node_modules:/app/apps/frontend/assets/node_modules \
 		-u root \
 		--entrypoint /bin/sh \
 		$(IMAGE_BUILDER) \
