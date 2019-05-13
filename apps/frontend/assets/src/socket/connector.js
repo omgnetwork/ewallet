@@ -119,6 +119,7 @@ class SocketConnector {
   }
   connect () {
     return new Promise((resolve, reject) => {
+      console.log('connecting websocket...')
       const urlWithAuths = appendParams(this.url, this.params)
       this.socket = new this.WebSocket(urlWithAuths)
       this.socket.addEventListener('open', this.onConnect(resolve))

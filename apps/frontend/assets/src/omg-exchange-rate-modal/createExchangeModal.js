@@ -327,7 +327,9 @@ class CreateExchangeRateModal extends Component {
               <RateInputContainer>
                 <div>
                   <InputLabel>Token</InputLabel>
-                  {this.state.editing && <ReadOnlyInput>{this.state.fromTokenSearch}</ReadOnlyInput>}
+                  {this.state.editing && (
+                    <ReadOnlyInput>{this.state.fromTokenSearch}</ReadOnlyInput>
+                  )}
                   {!this.state.editing && (
                     <Select
                       normalPlaceholder='Token'
@@ -483,7 +485,7 @@ class CreateExchangeRateModal extends Component {
             size='small'
             type='submit'
             loading={this.state.submitting}
-            disabled={!this.ratesAvailable}
+            disabled={!this.getRatesAvailable()}
           >
             <span>{this.state.editing ? 'Update Pair' : 'Create Pair'}</span>
           </Button>
