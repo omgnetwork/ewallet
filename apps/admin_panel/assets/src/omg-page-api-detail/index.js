@@ -255,7 +255,7 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
           <Breadcrumb
             items={[
               <Link key='keys-home' to={`/keys/${keyType}`}>Keys</Link>,
-              <Id key='keys-detail' withCopy={false} maxChar={20}>{id}</Id>
+              <Id key='keys-detail' withCopy={false} maxChar={20}>{keyId}</Id>
             ]}
           />
         </BreadContainer>

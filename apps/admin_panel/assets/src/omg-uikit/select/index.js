@@ -33,6 +33,7 @@ const OptionItem = styled.div`
 `
 export default class Select extends PureComponent {
   static propTypes = {
+    style: PropTypes.object,
     onSelectItem: PropTypes.func,
     options: PropTypes.array,
     value: PropTypes.string,
@@ -88,9 +89,9 @@ export default class Select extends PureComponent {
       : this.props.options
 
     // eslint-disable-next-line no-unused-vars
-    const { className, onSelectItem, disabled, ...rest } = this.props
+    const { className, style, onSelectItem, disabled, ...rest } = this.props
     return (
-      <SelectContainer className={className} active={this.state.active}>
+      <SelectContainer style={style} className={className} active={this.state.active}>
         <Input
           {...rest}
           disabled={disabled}

@@ -2,7 +2,6 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import { selectAccessKeyMemberships, selectAccessKeyMembershipsLoadingStatus } from './selector'
 import { getAccessKeyMemberships } from './action'
 
 // aka frontend ui -> "Admin Keys Assigned Accounts"
@@ -13,6 +12,11 @@ class AccessKeyMembershipsProvider extends Component {
     filter: PropTypes.object,
     memberships: PropTypes.object,
     getAccessKeyMemberships: PropTypes.func
+  }
+
+  state = {
+    memberships: [],
+    loading: ''
   }
 
   componentDidMount = () => {
@@ -27,26 +31,23 @@ class AccessKeyMembershipsProvider extends Component {
     }
   }
 
-  fetch = filter => {
-    this.props.getAccessKeyMemberships({
+  fetch = async filter => {
+    this.setState({ loading: 'INITIATED' })
+    const res = await this.props.getAccessKeyMemberships({
       id: this.props.accessKeyId,
       ...filter
     })
+    this.setState({ memberships: res.data, loading: '' })
   }
 
   render () {
     return this.props.render({
-      memberships: this.props.memberships
+      memberships: this.state.memberships,
+      loading: this.state.loading
     })
   }
 }
 export default connect(
-  (state, props) => {
-    return {
-      memberships: selectAccessKeyMemberships(state)(props.accessKeyId),
-      // TODO: loading selector not working...
-      loading: selectAccessKeyMembershipsLoadingStatus(state)
-    }
-  },
+  null,
   { getAccessKeyMemberships }
 )(AccessKeyMembershipsProvider)

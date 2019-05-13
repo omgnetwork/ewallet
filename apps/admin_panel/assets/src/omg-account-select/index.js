@@ -18,7 +18,7 @@ const DetailContainer = styled.div`
 `
 const Name = styled.div``
 const Identifier = styled.div`
-  color: ${props => props.theme.colors.B100};
+  color: ${props => props.theme.colors.SL100};
   font-size: 10px;
 `
 const AccountSelect = ({ account }) => {

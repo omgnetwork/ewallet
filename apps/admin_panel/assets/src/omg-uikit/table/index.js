@@ -10,8 +10,6 @@ const StyledPagination = styled(Pagination)`
 const TableContainer = styled.div`
   position: relative;
   min-height: ${props => (props.loading ? `${props.height}px` : 'auto')};
-  overflow-x: auto;
-  overflow-y: hidden;
 `
 const EmptyStageContainer = styled.div`
   text-align: center;
