@@ -85,24 +85,29 @@ defmodule EWallet.Web.StartAfterPaginator do
       ) do
     default_field = Atom.to_string(hd(allowed_fields))
 
-    sort_by = map_atom_attr(attrs, "sort_by", default_field, default_mapped_fields)
-    start_by = map_atom_attr(attrs, "start_by", default_field, default_mapped_fields)
+    with {:ok, sort_by} <- attr_to_field(attrs, "sort_by", default_field, default_mapped_fields),
+         {:ok, start_by} <-
+           attr_to_field(attrs, "start_by", default_field, default_mapped_fields),
+         {:allowed, true, _} <- {:allowed, start_by in allowed_fields, start_by} do
+      attrs =
+        attrs
+        |> Map.put("sort_by", sort_by)
+        |> Map.put("start_by", start_by)
 
-    case is_allowed_start_by(start_by, allowed_fields) do
-      true ->
-        attrs =
-          attrs
-          |> Map.put("sort_by", sort_by)
-          |> Map.put("start_by", start_by)
+      paginate(queryable, attrs, repo)
+    else
+      {:error, :not_existing_atom, field_type, field_name} ->
+        available_fields = fields_to_string(allowed_fields)
 
-        paginate(queryable, attrs, repo)
+        msg =
+          "#{field_type}: `#{field_name}` is not allowed. The available fields are: [#{
+            available_fields
+          }]"
 
-      _ ->
-        available_fields =
-          allowed_fields
-          |> Enum.map(&Atom.to_string/1)
-          |> Enum.join(", ")
+        {:error, :invalid_parameter, msg}
 
+      {:allowed, false, start_by} ->
+        available_fields = fields_to_string(allowed_fields)
         start_by = Atom.to_string(start_by)
 
         msg =
@@ -112,31 +117,21 @@ defmodule EWallet.Web.StartAfterPaginator do
     end
   end
 
-  def map_atom_attr(attrs, key, default, mapping) do
-    attrs[key]
-    |> map_default(default)
-    |> map_field(mapping)
-    |> map_atom(default)
-  end
+  def attr_to_field(attrs, key, default, mapping) do
+    field_name = attrs[key] || default
+    mapped_name = mapping[field_name] || field_name
 
-  defp map_default(original, default) do
-    case original do
-      nil -> default
-      any -> any
+    try do
+      {:ok, String.to_existing_atom(mapped_name)}
+    rescue
+      ArgumentError -> {:error, :not_existing_atom, key, field_name}
     end
   end
 
-  defp map_field(original, mapping) do
-    case mapping[original] do
-      nil -> original
-      mapped -> mapped
-    end
-  end
-
-  defp map_atom(original, default) do
-    String.to_existing_atom(original)
-  rescue
-    ArgumentError -> default
+  defp fields_to_string(fields) do
+    fields
+    |> Enum.map(&Atom.to_string/1)
+    |> Enum.join(", ")
   end
 
   @doc """
@@ -242,10 +237,6 @@ defmodule EWallet.Web.StartAfterPaginator do
       _ ->
         {records, false}
     end
-  end
-
-  def is_allowed_start_by(start_by, allowed_fields) do
-    start_by in allowed_fields
   end
 
   def build_start_after_condition(%{"start_by" => start_by, "start_after" => start_after}) do
