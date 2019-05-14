@@ -12,6 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.WorkerTest do
+defmodule EthGethAdapter.BalanceTest do
   use ExUnit.Case
+
+  alias EthGethAdapter.Balance
+
+  describe "get/3" do
+    test "raises an error if a contract address is invalid" do
+      address = "0x54e0588607dcec6c0b36fca1154a57814a913591"
+      contract_addresses = ["0x48b91d5f363892592bf836777dc73b54a10b72ae", "0x123"]
+
+      assert_raise ArgumentError, "0x123 is not a valid contract address", fn ->
+        Balance.get(address, contract_addresses)
+      end
+    end
+  end
 end

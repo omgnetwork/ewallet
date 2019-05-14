@@ -14,11 +14,10 @@
 
 defmodule EthGethAdapter.Balance do
   @moduledoc false
+  import EthGethAdapter.Encoding
 
   alias Ethereumex.HttpClient, as: Client
   alias EthGethAdapter.ERC20
-
-  import EthGethAdapter.Encoding
 
   @doc """
   Retrieve the balance of all given `contract_addresses` for the provided wallet `address`.
@@ -44,10 +43,9 @@ defmodule EthGethAdapter.Balance do
     case ERC20.abi_balance_of(address) do
       {:ok, encoded_abi_data} ->
         contract_addresses
-        |> Enum.reduce([], fn contract_address, acc ->
-          [build_request!(contract_address, address, encoded_abi_data, block) | acc]
+        |> Enum.map(fn contract_address ->
+          build_request!(contract_address, address, encoded_abi_data, block)
         end)
-        |> Enum.reverse()
         |> request()
         |> parse_response()
         |> respond(contract_addresses)
@@ -79,8 +77,8 @@ defmodule EthGethAdapter.Balance do
      ]}
   end
 
-  defp build_request!(_contract_address, _address, _encoded_abi_data, _block) do
-    raise ArgumentError, "invalid contract address"
+  defp build_request!(contract_address, _address, _encoded_abi_data, _block) do
+    raise ArgumentError, "#{contract_address} is not a valid contract address"
   end
 
   defp request([]), do: {:ok, []}

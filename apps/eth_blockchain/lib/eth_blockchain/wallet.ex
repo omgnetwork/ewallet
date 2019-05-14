@@ -23,10 +23,9 @@ defmodule EthBlockchain.Wallet do
   @typep resp(ret) :: ret | {:error, atom()}
 
   @doc """
-  Generates a new wallet address for the given blockchain adapter and return
-  a wallet ID for futher access.
+  Generates a new wallet address and returns a wallet ID for futher access.
 
-  Returns a tuple of `{:ok, {adapter, wallet_id, public_key}}`.
+  Returns a tuple of `{:ok, wallet_id, public_key}`.
   """
   @spec generate :: resp({:ok, address()})
   def generate do
