@@ -65,13 +65,16 @@ const KeyDetailAccountsPage = ({ match: { params }, location: { search } }) => {
   const { search: _search } = queryString.parse(search)
 
   const [ assignRoleModal, setAssignRoleModal ] = useState({})
+  const [ loading, setLoading ] = useState(false)
 
   const closeModals = () => {
     setAssignRoleModal({})
   }
 
-  const submitRoleChange = () => {
-    console.log('TODO: submitting...')
+  const submitRoleChange = async () => {
+    setLoading(true)
+    await console.log('TODO: submit role change')
+    setLoading(false)
     closeModals()
   }
 
@@ -84,14 +87,13 @@ const KeyDetailAccountsPage = ({ match: { params }, location: { search } }) => {
         <div className='modal-buttons'>
           <Button
             styleType='secondary'
-            loading={false}
             onClick={closeModals}
           >
             <span>Cancel</span>
           </Button>
           <Button
             styleType='primary'
-            loading={false}
+            loading={loading}
             onClick={submitRoleChange}
           >
             <span>Yes, I want to change role</span>
@@ -160,6 +162,15 @@ const KeyDetailAccountsPage = ({ match: { params }, location: { search } }) => {
       }
     }
 
+    const getRows = () => {
+      return memberships.map(membership => {
+        return {
+          id: membership.key_id,
+          ...membership
+        }
+      })
+    }
+
     return (
       <>
         <Modal
@@ -203,7 +214,7 @@ const KeyDetailAccountsPage = ({ match: { params }, location: { search } }) => {
           divider={false}
         />
         <SortableTable
-          rows={memberships}
+          rows={getRows()}
           columns={columns}
           loadingStatus={loading}
           rowRenderer={rowRenderer}

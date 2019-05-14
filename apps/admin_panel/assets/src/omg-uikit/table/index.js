@@ -102,7 +102,7 @@ class Table extends Component {
     return source.map((d, i) => {
       return (
         <Tr
-          key={d.id}
+          key={d.id || i}
           ref={row => (this.row = row)}
           onClick={this.props.onClickRow(d, i)}
           active={this.props.activeIndexKey === d.id}
