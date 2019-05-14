@@ -42,7 +42,11 @@ defmodule EthBlockchain.Balance do
   end
 
   def get({address, contract_addresses, block}, adapter, pid) do
-    adapter = adapter || Application.get_env(:eth_blockchain, :default_adapter)
+    adapter =
+      adapter ||
+        :eth_blockchain
+        |> Application.get_env(EthBlockchain.Adapter)
+        |> Keyword.get(:default_adapter)
 
     case pid do
       nil ->
