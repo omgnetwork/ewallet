@@ -373,7 +373,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     exchange_client_not_allowed: %{
       code: "exchange:not_allowed",
-      description: "Exchange consumptions cannot be made through the client API."
+      description: "This exchange pair does not allow client initiated exchanges."
     },
     exchange_account_wallet_not_found: %{
       code: "exchange:account_wallet_not_found",
