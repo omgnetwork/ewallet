@@ -43,7 +43,7 @@ const BreadcrumbContainer = styled.div`
   margin-top: 30px;
 `
 const UserDetailMenuContainer = styled.div`
-  /* margin-bottom: 30px; */
+  margin-bottom: 20px;
 `
 
 const enhance = compose(
@@ -163,7 +163,7 @@ class UserDetailPage extends Component {
           />
           <Route
             path={`/users/${this.props.match.params.userId}/transactions`}
-            render={() => <TransactionPage divider={false} />}
+            render={() => <TransactionPage topNavigation={false} />}
             exact
           />
         </Switch>

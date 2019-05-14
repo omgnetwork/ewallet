@@ -133,7 +133,8 @@ class TransactionPage extends Component {
     scrollTopContentContainer: PropTypes.func,
     history: PropTypes.object,
     divider: PropTypes.bool,
-    query: PropTypes.object
+    query: PropTypes.object,
+    topNavigation: PropTypes.bool
   }
   static defaultProps = {
     query: {}
@@ -161,24 +162,15 @@ class TransactionPage extends Component {
   }
   renderCreateTransactionButton = () => {
     return (
-      <Button
-        key='create'
-        size='small'
-        styleType='primary'
-        onClick={this.onClickCreateTransaction}
-      >
-        <Icon name='Transaction' /><span>Transfer</span>
+      <Button key='create' size='small' styleType='primary' onClick={this.onClickCreateTransaction}>
+        <Icon name='Transaction' />
+        <span>Transfer</span>
       </Button>
     )
   }
   renderExportButton () {
     return (
-      <Button
-        key='export'
-        size='small'
-        styleType='secondary'
-        onClick={this.onClickExport}
-      >
+      <Button key='export' size='small' styleType='secondary' onClick={this.onClickExport}>
         <span>Export</span>
       </Button>
     )
@@ -186,12 +178,8 @@ class TransactionPage extends Component {
   renderFromOrTo (fromOrTo) {
     return (
       <FromOrToRow>
-        {fromOrTo.account && (
-          <BoldSpan>{fromOrTo.account.name}</BoldSpan>
-        )}
-        {fromOrTo.user && fromOrTo.user.email && (
-          <BoldSpan>{fromOrTo.user.email}</BoldSpan>
-        )}
+        {fromOrTo.account && <BoldSpan>{fromOrTo.account.name}</BoldSpan>}
+        {fromOrTo.user && fromOrTo.user.email && <BoldSpan>{fromOrTo.user.email}</BoldSpan>}
         {fromOrTo.user && fromOrTo.user.provider_user_id && (
           <BoldSpan>{fromOrTo.user.provider_user_id}</BoldSpan>
         )}
@@ -263,14 +251,13 @@ class TransactionPage extends Component {
 
     return (
       <TransactionPageContainer>
-        <TopNavigation
-          divider={this.props.divider}
-          title={'Transactions'}
-          buttons={[
-            this.renderExportButton(),
-            this.renderCreateTransactionButton()
-          ]}
-        />
+        {this.props.topNavigation && (
+          <TopNavigation
+            divider={this.props.divider}
+            title={'Transactions'}
+            buttons={[this.renderExportButton(), this.renderCreateTransactionButton()]}
+          />
+        )}
         <SortableTable
           rows={transactions}
           columns={columns}
