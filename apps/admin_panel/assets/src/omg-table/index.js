@@ -13,6 +13,7 @@ export const ThContent = styled.div`
   letter-spacing: 1px;
   font-size: 10px;
   font-weight: 600;
+  text-align: ${props => props.align ? props.align : 'initial'};
   color: ${props => (props.active ? props.theme.colors.B400 : props.theme.colors.B100)};
 `
 const LoadMoreButton = styled(Button)`
@@ -195,7 +196,7 @@ class SortableTable extends PureComponent {
     }
     return (
       <th key={col.key}>
-        <ThContent>{col.title}</ThContent>
+        <ThContent align={col.align}>{col.title}</ThContent>
       </th>
     )
   }
@@ -310,7 +311,7 @@ class SortHeader extends React.Component {
   render () {
     return (
       <th key={`col-header-${this.props.col.key}`} onClick={this.onClickSort}>
-        <ThContent active={this.props.active}>
+        <ThContent align={this.props.col.align} active={this.props.active}>
           <span>{this.props.col.title}</span>{' '}
           {this.props.active ? (
             this.props.sortOrder === 'asc' ? (
@@ -341,7 +342,7 @@ const FilterHeader = withDropdownState(
     render () {
       return (
         <th key={`col-header-${this.props.col.key}`} onClick={this.props.onClickButton}>
-          <ThContent>
+          <ThContent align={this.props.col.align}>
             <div style={{ display: 'inline-block', position: 'relative' }}>
               <span>
                 {this.props.col.title} {this.props.selectedItem && `(${this.props.selectedItem}) `}

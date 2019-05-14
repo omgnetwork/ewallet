@@ -10,7 +10,7 @@ class AccessKeyMembershipsProvider extends Component {
     render: PropTypes.func,
     accessKeyId: PropTypes.string,
     filter: PropTypes.object,
-    memberships: PropTypes.object,
+    // memberships: PropTypes.object,
     getAccessKeyMemberships: PropTypes.func
   }
 
@@ -20,13 +20,13 @@ class AccessKeyMembershipsProvider extends Component {
   }
 
   componentDidMount = () => {
-    if (!this.props.memberships) {
+    if (!this.state.memberships.length) {
       this.fetch(this.props.filter)
     }
   }
 
   UNSAFE_componentWillReceiveProps = nextProps => {
-    if (nextProps.filter !== this.props.filter) {
+    if (!_.isEqual(nextProps.filter, this.props.filter)) {
       this.fetch(nextProps.filter)
     }
   }

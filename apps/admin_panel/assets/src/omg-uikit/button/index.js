@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
+import { DangerPrimary } from './danger'
 import { ButtonPrimary, ButtonDisabled } from './primary'
 import { ButtonGhost } from './ghost'
 import { ButtonSecondary } from './secondary'
@@ -15,6 +16,10 @@ const buttonMapStyle = {
   ghost: {
     normal: ButtonGhost,
     disabled: ButtonGhost
+  },
+  danger: {
+    normal: DangerPrimary,
+    disabled: ButtonDisabled
   },
   secondary: {
     normal: ButtonSecondary,
@@ -30,7 +35,7 @@ export default class Button extends PureComponent {
     loading: PropTypes.bool,
     onClick: PropTypes.func,
     fluid: PropTypes.bool,
-    styleType: PropTypes.oneOf(['primary', 'secondary', 'ghost']),
+    styleType: PropTypes.oneOf(['primary', 'secondary', 'ghost', 'danger']),
     type: PropTypes.string,
     style: PropTypes.object
   }
