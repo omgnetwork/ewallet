@@ -23,7 +23,9 @@ ExchangePairCreateBody:
             to_token_id:
               type: string
             rate:
-              type: number
+              oneOf:
+                - type: string
+                - type: number
             sync_opposite:
               type: boolean
           required:
@@ -45,7 +47,9 @@ ExchangePairUpdateBody:
             id:
               type: string
             rate:
-              type: number
+              oneOf:
+                - type: string
+                - type: number
           required:
             - id
           example:
