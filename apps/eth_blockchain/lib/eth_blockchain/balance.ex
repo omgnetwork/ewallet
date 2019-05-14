@@ -35,13 +35,15 @@ defmodule EthBlockchain.Balance do
   ```
   if successful or {:error, error_code} if failed.
   """
-  def get(params, adapter \\ Application.get_env(:eth_blockchain, :default_adapter), pid \\ nil)
+  def get(params, adapter \\ nil, pid \\ nil)
 
   def get({address, contract_addresses}, adapter, pid) do
     get({address, contract_addresses, "latest"}, adapter, pid)
   end
 
   def get({address, contract_addresses, block}, adapter, pid) do
+    adapter = adapter || Application.get_env(:eth_blockchain, :default_adapter)
+
     case pid do
       nil ->
         Adapter.call(adapter, {:get_balances, address, contract_addresses, block})
