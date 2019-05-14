@@ -170,7 +170,9 @@ class CreateTransactionRequest extends Component {
         amount: formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit')),
         tokenId: _.get(this.state, 'selectedToken.id'),
         address: this.state.address || _.get(this.props, 'primaryWallet.address'),
-        accountId: _.get(this.state, 'selectedWallet.account_id') || _.get(this.props, 'match.params.accountId'),
+        accountId:
+          _.get(this.state, 'selectedWallet.account_id') ||
+          _.get(this.props, 'match.params.accountId'),
         expirationDate: this.state.expirationDate && moment(this.state.expirationDate).toISOString()
       })
       if (result.data) {
@@ -223,8 +225,16 @@ class CreateTransactionRequest extends Component {
     return (
       <InputLabelContainer>
         <InputLabel>Request Type</InputLabel>
-        <StyledRadioButton onClick={this.onRadioChange('type')(true)} label='Send' checked={this.state.type} />
-        <StyledRadioButton onClick={this.onRadioChange('type')(false)} label='Receive' checked={!this.state.type} />
+        <StyledRadioButton
+          onClick={this.onRadioChange('type')(true)}
+          label='Send'
+          checked={this.state.type}
+        />
+        <StyledRadioButton
+          onClick={this.onRadioChange('type')(false)}
+          label='Receive'
+          checked={!this.state.type}
+        />
       </InputLabelContainer>
     )
   }
@@ -256,17 +266,22 @@ class CreateTransactionRequest extends Component {
   renderTokenAmount () {
     return (
       <InputLabelContainer>
-        <InputLabel>Amount {this.state.allowAmountOverride && <span>( Optional )</span>}</InputLabel>
-        <StyledInput normalPlaceholder='1000' value={this.state.amount} type='amount' onChange={this.onChange('amount')} />
+        <InputLabel>
+          Amount {this.state.allowAmountOverride && <span>( Optional )</span>}
+        </InputLabel>
+        <StyledInput
+          normalPlaceholder='1000'
+          value={this.state.amount}
+          type='amount'
+          onChange={this.onChange('amount')}
+        />
       </InputLabelContainer>
     )
   }
   renderWalletTarget () {
     return (
       <InputLabelContainer>
-        <InputLabel>
-          Wallet Address
-        </InputLabel>
+        <InputLabel>Wallet Address</InputLabel>
         <WalletsFetcher
           query={createSearchAddressQuery(this.state.address)}
           owned={false}
@@ -297,26 +312,42 @@ class CreateTransactionRequest extends Component {
         <RadioSectionContainer>
           <InputLabelContainer>
             <InputLabel>Require Confirmation</InputLabel>
-            <StyledRadioButton onClick={this.onRadioChange('requireConfirmation')(false)} label='No' checked={!this.state.requireConfirmation} />
-            <StyledRadioButton onClick={this.onRadioChange('requireConfirmation')(true)} label='Yes' checked={this.state.requireConfirmation} />
+            <StyledRadioButton
+              onClick={this.onRadioChange('requireConfirmation')(false)}
+              label='No'
+              checked={!this.state.requireConfirmation}
+            />
+            <StyledRadioButton
+              onClick={this.onRadioChange('requireConfirmation')(true)}
+              label='Yes'
+              checked={this.state.requireConfirmation}
+            />
           </InputLabelContainer>
           <InputLabelContainer>
             <InputLabel>Allow Amount Overide</InputLabel>
-            <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(false)} label='No' checked={!this.state.allowAmountOverride} />
-            <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(true)} label='Yes' checked={this.state.allowAmountOverride} />
+            <StyledRadioButton
+              onClick={this.onRadioChange('allowAmountOverride')(false)}
+              label='No'
+              checked={!this.state.allowAmountOverride}
+            />
+            <StyledRadioButton
+              onClick={this.onRadioChange('allowAmountOverride')(true)}
+              label='Yes'
+              checked={this.state.allowAmountOverride}
+            />
           </InputLabelContainer>
         </RadioSectionContainer>
         {this.props.match.params.accountId ? this.renderWalletTarget() : null}
         <InputLabelContainer>
-          <InputLabel>
-            Correlation ID
-          </InputLabel>
-          <StyledInput normalPlaceholder='0x00000000' value={this.state.correlationId} onChange={this.onChange('correlationId')} />
+          <InputLabel>Correlation ID</InputLabel>
+          <StyledInput
+            normalPlaceholder='0x00000000'
+            value={this.state.correlationId}
+            onChange={this.onChange('correlationId')}
+          />
         </InputLabelContainer>
         <InputLabelContainer>
-          <InputLabel>
-            Max Consumptions
-          </InputLabel>
+          <InputLabel>Max Consumptions</InputLabel>
           <StyledInput
             normalPlaceholder='0'
             type='amount'
@@ -326,22 +357,25 @@ class CreateTransactionRequest extends Component {
           />
         </InputLabelContainer>
         <InputLabelContainer>
-          <InputLabel>
-            Expiration Date
-          </InputLabel>
+          <InputLabel>Expiration Date</InputLabel>
           <DateTime
             closeOnSelect
             onChange={this.onDateTimeChange}
             isValidDate={current => current.isAfter(DateTime.moment().subtract(1, 'day'))}
             renderInput={(props, openCalendar, closeCalendar) => {
-              return <StyledInput {...props} normalPlaceholder='Expiry date' value={this.state.expirationDate && this.state.expirationDate.format()} onFocus={this.onDateTimeFocus} />
+              return (
+                <StyledInput
+                  {...props}
+                  normalPlaceholder='Expiry date'
+                  value={this.state.expirationDate && this.state.expirationDate.format()}
+                  onFocus={this.onDateTimeFocus}
+                />
+              )
             }}
           />
         </InputLabelContainer>
         <InputLabelContainer>
-          <InputLabel>
-            Consumption Lifetime (ms)
-          </InputLabel>
+          <InputLabel>Consumption Lifetime (ms)</InputLabel>
           <StyledInput
             normalPlaceholder='Lifetime of consumption in ms'
             type='amount'
@@ -351,9 +385,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
 
         <InputLabelContainer>
-          <InputLabel>
-            Consumption Interval Duration (ms)
-          </InputLabel>
+          <InputLabel>Consumption Interval Duration (ms)</InputLabel>
           <StyledInput
             type='amount'
             normalPlaceholder='Consumption interval in ms'
@@ -364,9 +396,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
 
         <InputLabelContainer>
-          <InputLabel>
-            Max Consumption Per User
-          </InputLabel>
+          <InputLabel>Max Consumption Per User</InputLabel>
           <StyledInput
             normalPlaceholder='1'
             type='amount'
@@ -376,9 +406,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
 
         <InputLabelContainer>
-          <InputLabel>
-            Max Consumption Per Interval
-          </InputLabel>
+          <InputLabel>Max Consumption Per Interval</InputLabel>
           <StyledInput
             type='amount'
             normalPlaceholder='10'
@@ -389,9 +417,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
 
         <InputLabelContainer>
-          <InputLabel>
-            Max Consumption Per Interval Per User
-          </InputLabel>
+          <InputLabel>Max Consumption Per Interval Per User</InputLabel>
           <StyledInput
             type='amount'
             normalPlaceholder='10'
@@ -402,9 +428,7 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
 
         <InputLabelContainer>
-          <InputLabel>
-            Exchange Address
-          </InputLabel>
+          <InputLabel>Exchange Address</InputLabel>
           <WalletsFetcher
             query={createSearchAddressQuery(this.state.exchangeAddress)}
             owned={false}
@@ -429,17 +453,21 @@ class CreateTransactionRequest extends Component {
         </InputLabelContainer>
 
         <InputLabelContainer>
-          <InputLabel>
-            Metadata
-          </InputLabel>
-          <StyledInput normalPlaceholder='Token name' value={this.state.metadata} onChange={this.onChange('metadata')} />
+          <InputLabel>Metadata</InputLabel>
+          <StyledInput
+            normalPlaceholder='Token name'
+            value={this.state.metadata}
+            onChange={this.onChange('metadata')}
+          />
         </InputLabelContainer>
 
         <InputLabelContainer>
-          <InputLabel>
-            Encrypted Metadata
-          </InputLabel>
-          <StyledInput normalPlaceholder='meta data' value={this.state.encryptedMetadata} onChange={this.onChange('encryptedMetadata')} />
+          <InputLabel>Encrypted Metadata</InputLabel>
+          <StyledInput
+            normalPlaceholder='meta data'
+            value={this.state.encryptedMetadata}
+            onChange={this.onChange('encryptedMetadata')}
+          />
         </InputLabelContainer>
       </CollapsableContent>
     )
@@ -448,7 +476,12 @@ class CreateTransactionRequest extends Component {
     return (
       <Collapsable>
         <CollapsableHeader onClick={this.onClickAdvanceSetting}>
-          <span>Advanced Settings (Optional)</span> {this.state.advanceSettingOpen ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
+          <span>Advanced Settings (Optional)</span>{' '}
+          {this.state.advanceSettingOpen ? (
+            <Icon name='Chevron-Up' />
+          ) : (
+            <Icon name='Chevron-Down' />
+          )}
         </CollapsableHeader>
 
         <Accordion path='advanced-settings' height={500}>
@@ -495,8 +528,16 @@ export default class CreateTransactionRequestModal extends Component {
   }
   render () {
     return (
-      <Modal isOpen={this.props.open} onRequestClose={this.props.onRequestClose} contentLabel='create account modal' overlayClassName='dummy'>
-        <EnhancedCreateTransactionRequest onRequestClose={this.props.onRequestClose} onCreateTransactionRequest={this.props.onCreateTransactionRequest} />
+      <Modal
+        isOpen={this.props.open}
+        onRequestClose={this.props.onRequestClose}
+        contentLabel='create account modal'
+        overlayClassName='dummy'
+      >
+        <EnhancedCreateTransactionRequest
+          onRequestClose={this.props.onRequestClose}
+          onCreateTransactionRequest={this.props.onCreateTransactionRequest}
+        />
       </Modal>
     )
   }

@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter, Link, Route, Switch } from 'react-router-dom'
+import queryString from 'query-string'
 import UserProvider from '../omg-users/userProvider'
 import { compose } from 'recompose'
 import TopNavigation from '../omg-page-layout/TopNavigation'
@@ -10,6 +11,9 @@ import moment from 'moment'
 import { LoadingSkeleton, Breadcrumb } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
+import { KeyButton } from '../omg-page-api'
+import TransactionPage from '../omg-page-transaction'
+
 const UserDetailContainer = styled.div`
   b {
     width: 150px;
@@ -38,25 +42,31 @@ const LoadingContainer = styled.div`
 const BreadcrumbContainer = styled.div`
   margin-top: 30px;
 `
+const UserDetailMenuContainer = styled.div`
+  /* margin-bottom: 30px; */
+`
 
 const enhance = compose(
   withTheme,
   withRouter
 )
-class TokenDetailPage extends Component {
+class UserDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     divider: PropTypes.bool,
     withBreadCrumb: PropTypes.bool
   }
   renderTopBar = user => {
+    const type = this.props.match.params.type
     return (
       <>
         {this.props.withBreadCrumb && (
           <BreadcrumbContainer>
             <Breadcrumb
               items={[
-                <Link key='users' to={'/users/'}>Users</Link>,
+                <Link key='users' to={'/users/'}>
+                  Users
+                </Link>,
                 user.email || user.provider_user_id
               ]}
             />
@@ -67,6 +77,20 @@ class TokenDetailPage extends Component {
           title={user.email || user.provider_user_id}
           secondaryAction={false}
         />
+        <UserDetailMenuContainer>
+          <Link to={`/users/${this.props.match.params.userId}`}>
+            <KeyButton active={type === 'details' || !type}>Details</KeyButton>
+          </Link>
+          <Link to={`/users/${this.props.match.params.userId}/wallets`}>
+            <KeyButton active={type === 'wallets'}>Wallets</KeyButton>
+          </Link>
+          <Link to={`/users/${this.props.match.params.userId}/transactions`}>
+            <KeyButton active={type === 'transactions'}>Transactions</KeyButton>
+          </Link>
+          <Link to={`/users/${this.props.match.params.userId}/logs`}>
+            <KeyButton active={type === 'logs'}>Logs</KeyButton>
+          </Link>
+        </UserDetailMenuContainer>
       </>
     )
   }
@@ -126,10 +150,23 @@ class TokenDetailPage extends Component {
     return (
       <ContentContainer>
         {this.renderTopBar(user)}
-        <ContentDetailContainer>
-          <DetailContainer>{this.renderDetail(user)}</DetailContainer>
-          {wallet && <DetailContainer>{this.renderWallet(wallet)}</DetailContainer>}
-        </ContentDetailContainer>
+        <Switch>
+          <Route
+            path={`/users/${this.props.match.params.userId}/`}
+            render={() => <DetailContainer>{this.renderDetail(user)}</DetailContainer>}
+            exact
+          />
+          <Route
+            path={`/users/${this.props.match.params.userId}/wallets`}
+            render={() => this.renderWallet(wallet)}
+            exact
+          />
+          <Route
+            path={`/users/${this.props.match.params.userId}/transactions`}
+            render={() => <TransactionPage divider={false} />}
+            exact
+          />
+        </Switch>
       </ContentContainer>
     )
   }
@@ -153,4 +190,4 @@ class TokenDetailPage extends Component {
   }
 }
 
-export default enhance(TokenDetailPage)
+export default enhance(UserDetailPage)
