@@ -39,11 +39,11 @@ info:
     url: 'https://omisego.network/'
 
 tags:
-  - name: AdminSession
+  - name: Admin session
     description: Resources related to admin session tokens.
   - name: Admin
     description: Resources related to admin users.
-  - name: UserSession
+  - name: User session
     description: Resources related to user session tokens.
   - name: User
     description: Resources related to users.
@@ -51,7 +51,7 @@ tags:
     description: Resources related to permissions.
   - name: Token
     description: Resources related to tokens.
-  - name: ExchangePair
+  - name: Exchange pair
     description: Resources related to exchange pairs.
   - name: Category
     description: Resources related to roles.
@@ -59,17 +59,19 @@ tags:
     description: Resources related to accounts.
   - name: Wallet
     description: Resources related to wallets.
+  - name: Blockchain wallet
+    description: Resources related to blockchain wallet.
   - name: Transaction
     description: Resources related to transactions.
-  - name: TransactionRequest
+  - name: Transaction request
     description: Resources related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
-  - name: TransactionConsumption
+  - name: Transaction consumption
     description: Resources related to consumption of transaction requests.
   - name: Configuration
     description: Resources related to the configuration of the eWallet.
   - name: ActivityLog
     description: Resources related to the activity logs.
-  - name: API Access
+  - name: API access
     description: Resources related to API access.
   - name: Export
     description: Resources related to exports.
@@ -184,13 +186,10 @@ paths:
     $ref: 'account/paths.yaml#/account.get_transaction_requests'
   /account.get_transaction_consumptions:
     $ref: 'account/paths.yaml#/account.get_transaction_consumptions'
-
   /account.get_admin_user_memberships:
     $ref: 'account/paths.yaml#/account.get_admin_user_memberships'
-
   /account.get_key_memberships:
     $ref: 'account/paths.yaml#/account.get_key_memberships'
-
   /account.get_members:
     $ref: 'account/paths.yaml#/account.get_members' # Deprecated
 
@@ -263,6 +262,10 @@ paths:
     $ref: 'wallet/paths.yaml#/wallet.get_balances'
   /wallet.enable_or_disable:
     $ref: 'wallet/paths.yaml#/wallet.enable_or_disable'
+
+  # BLOCKCHAIN WALLET
+  /blockchain_wallet.get_balances:
+    $ref: 'blockchain_wallet/paths.yaml#/blockchain_wallet.get_balances'
 
   # TRANSACTION
   /transaction.all:

@@ -34,11 +34,11 @@ info:
     name: 'Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0'
     url: 'https://omisego.network/'
 tags:
-  - name: AdminSession
+  - name: Admin session
     description: Resources related to admin session tokens.
   - name: Admin
     description: Resources related to admin users.
-  - name: UserSession
+  - name: User session
     description: Resources related to user session tokens.
   - name: User
     description: Resources related to users.
@@ -46,7 +46,7 @@ tags:
     description: Resources related to permissions.
   - name: Token
     description: Resources related to tokens.
-  - name: ExchangePair
+  - name: Exchange pair
     description: Resources related to exchange pairs.
   - name: Category
     description: Resources related to roles.
@@ -54,19 +54,21 @@ tags:
     description: Resources related to accounts.
   - name: Wallet
     description: Resources related to wallets.
+  - name: Blockchain wallet
+    description: Resources related to blockchain wallet.
   - name: Transaction
     description: Resources related to transactions.
-  - name: TransactionRequest
+  - name: Transaction request
     description: >-
       Resources related to the creation of transaction requests (either
       receiving or sending) that needs to be consumed by another user.
-  - name: TransactionConsumption
+  - name: Transaction consumption
     description: Resources related to consumption of transaction requests.
   - name: Configuration
     description: Resources related to the configuration of the eWallet.
   - name: ActivityLog
     description: Resources related to the activity logs.
-  - name: API Access
+  - name: API access
     description: Resources related to API access.
   - name: Export
     description: Resources related to exports.
@@ -90,7 +92,7 @@ paths:
   /admin.login:
     post:
       tags:
-        - AdminSession
+        - Admin session
       summary: Login an existing admin user using email and password.
       operationId: login
       security:
@@ -429,7 +431,7 @@ paths:
   /me.logout:
     post:
       tags:
-        - AdminSession
+        - Admin session
       summary: Expires a user's authentication_token.
       operationId: logout
       security:
@@ -444,7 +446,7 @@ paths:
   /auth_token.switch_account:
     post:
       tags:
-        - AdminSession
+        - Admin session
       summary: Switch the current account associated with the auth token. (deprecated)
       operationId: switch_account
       deprecated: true
@@ -480,7 +482,7 @@ paths:
   /user.login:
     post:
       tags:
-        - UserSession
+        - User session
       summary: >-
         Login an existing user. The provider can call this to get an
         authentication token for a specific user.
@@ -515,7 +517,7 @@ paths:
   /user.logout:
     post:
       tags:
-        - UserSession
+        - User session
       summary: Expires a user's authentication_token.
       operationId: user_logout
       security:
@@ -1255,7 +1257,7 @@ paths:
   /exchange_pair.all:
     post:
       tags:
-        - ExchangePair
+        - Exchange pair
       summary: Get the list of exchange pairs
       operationId: exchange_pair_all
       security:
@@ -1280,7 +1282,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_52
+                                items: &ref_53
                                   description: The object schema for an exchange pair
                                   type: object
                                   properties: &ref_18
@@ -1358,7 +1360,7 @@ paths:
   /exchange_pair.get:
     post:
       tags:
-        - ExchangePair
+        - Exchange pair
       summary: Get the a specific exchange pair by its id
       operationId: exchange_pair_get
       security:
@@ -1428,7 +1430,7 @@ paths:
   /exchange_pair.create:
     post:
       tags:
-        - ExchangePair
+        - Exchange pair
       summary: Create a new exchange pair
       operationId: exchange_pair_create
       security:
@@ -1470,7 +1472,7 @@ paths:
   /exchange_pair.update:
     post:
       tags:
-        - ExchangePair
+        - Exchange pair
       summary: Update an existing exchange pair by its id
       operationId: exchange_pair_update
       security:
@@ -1504,7 +1506,7 @@ paths:
   /exchange_pair.delete:
     post:
       tags:
-        - ExchangePair
+        - Exchange pair
       summary: Delete an exchange pair by its id
       operationId: exchange_pair_delete
       security:
@@ -2411,7 +2413,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_33
       responses:
-        '200': &ref_53
+        '200': &ref_54
           description: Returns a list of transaction requests
           content:
             application/vnd.omisego.v1+json:
@@ -2433,7 +2435,7 @@ paths:
                                     The response schema for a transaction
                                     request
                                   type: object
-                                  properties: &ref_54
+                                  properties: &ref_55
                                     object:
                                       type: string
                                     id:
@@ -2498,7 +2500,7 @@ paths:
                                       type: string
                                     updated_at:
                                       type: string
-                                  required: &ref_55
+                                  required: &ref_56
                                     - object
                                     - id
                                     - formatted_id
@@ -4037,7 +4039,7 @@ paths:
               example:
                 address: kxhk519271652215
       responses:
-        '200':
+        '200': &ref_51
           description: Returns a list of balances
           content:
             application/vnd.omisego.v1+json:
@@ -4097,6 +4099,58 @@ paths:
       responses:
         '200': *ref_49
         '500': *ref_2
+  /blockchain_wallet.get_balances:
+    post:
+      tags:
+        - Blockchain wallet
+      summary: Get the list of balances on blockchain for the specified wallet address.
+      operationId: blockchain_wallet_get_balances
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for listing the blockchain balances for a
+          wallet. Note that the pagination parameters are based on token.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_12
+              oneOf:
+                - properties:
+                    address:
+                      type: string
+                  required:
+                    - address
+                - properties:
+                    address:
+                      type: string
+                    token_ids:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - address
+                - properties:
+                    address:
+                      type: string
+                    token_addresses:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - address
+              example:
+                address: '0x54e0588607dcec6c0b36fca1154a57814a913591'
+                token_addresses:
+                  - '0x48b91d5f363892592bf836777dc73b54a10b72ae'
+                  - '0x0000000000000000000000000000000000000000'
+                  - '0xb76fe945f8672b57cc151448e2f52b0f88891c34'
+      responses:
+        '200': *ref_51
+        '500': *ref_2
   /transaction.all:
     post:
       tags:
@@ -4144,7 +4198,7 @@ paths:
                     sort_by: created_at
                     sort_dir: desc
       responses:
-        '200': &ref_65
+        '200': &ref_66
           description: Returns a single export
           content:
             application/vnd.omisego.v1+json:
@@ -4157,7 +4211,7 @@ paths:
                       data:
                         type: object
                         description: The object schema for an export
-                        properties: &ref_63
+                        properties: &ref_64
                           object:
                             type: string
                           id:
@@ -4188,7 +4242,7 @@ paths:
                           updated_at:
                             type: string
                             format: date-time
-                        required: &ref_64
+                        required: &ref_65
                           - object
                           - id
                           - filename
@@ -4238,7 +4292,7 @@ paths:
               example:
                 id: txn_01ce83x8w4db56f3fcjy4n4qpc
       responses:
-        '200': &ref_51
+        '200': &ref_52
           description: Returns a single transaction
           content:
             application/vnd.omisego.v1+json:
@@ -4368,7 +4422,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': *ref_51
+        '200': *ref_52
         '500': *ref_2
   /transaction.calculate:
     post:
@@ -4426,7 +4480,7 @@ paths:
                             type: integer
                           to_token_id:
                             type: string
-                          exchange_pair: *ref_52
+                          exchange_pair: *ref_53
                           calculated_at:
                             type: string
                             format: date-time
@@ -4475,7 +4529,7 @@ paths:
   /transaction_request.all:
     post:
       tags:
-        - TransactionRequest
+        - Transaction request
       summary: Get the list of transaction requests
       operationId: transaction_request_all
       security:
@@ -4483,12 +4537,12 @@ paths:
         - AdminAuth: []
       requestBody: *ref_16
       responses:
-        '200': *ref_53
+        '200': *ref_54
         '500': *ref_2
   /transaction_request.create:
     post:
       tags:
-        - TransactionRequest
+        - Transaction request
       summary: Create a new transaction request.
       description: This is a server call only.
       operationId: transaction_request_create
@@ -4610,7 +4664,7 @@ paths:
                 correlation_id: some correlation id
                 address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
       responses:
-        '200': &ref_56
+        '200': &ref_57
           description: Transaction request response
           content:
             application/vnd.omisego.v1+json:
@@ -4623,8 +4677,8 @@ paths:
                       data:
                         type: object
                         description: The response schema for a transaction request
-                        properties: *ref_54
-                        required: *ref_55
+                        properties: *ref_55
+                        required: *ref_56
                     example:
                       data:
                         object: transaction_request
@@ -4656,7 +4710,7 @@ paths:
   /transaction_request.get:
     post:
       tags:
-        - TransactionRequest
+        - Transaction request
       summary: Get a transaction request.
       description: This is a server call only.
       operationId: transaction_request_get
@@ -4674,12 +4728,12 @@ paths:
               example:
                 formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
       responses:
-        '200': *ref_56
+        '200': *ref_57
         '500': *ref_2
   /transaction_request.consume:
     post:
       tags:
-        - TransactionRequest
+        - Transaction request
       summary: Consume a transaction request.
       description: This is a server call only.
       operationId: transaction_request_consume
@@ -4734,7 +4788,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': &ref_57
+        '200': &ref_58
           description: Transaction request consumption response
           content:
             application/vnd.omisego.v1+json:
@@ -4870,7 +4924,7 @@ paths:
   /transaction_request.get_transaction_consumptions:
     post:
       tags:
-        - TransactionRequest
+        - Transaction request
       summary: Get the list of transaction consumptions for a transaction request
       operationId: transaction_request_get_consumptions
       security:
@@ -4899,7 +4953,7 @@ paths:
   /transaction_consumption.all:
     post:
       tags:
-        - TransactionConsumption
+        - Transaction consumption
       summary: Get the list of transaction consumptions
       operationId: transaction_consumption_all
       security:
@@ -4912,7 +4966,7 @@ paths:
   /transaction_consumption.get:
     post:
       tags:
-        - TransactionConsumption
+        - Transaction consumption
       summary: Get a consumption.
       description: This is a server call only.
       operationId: transaction_consumption_get
@@ -4933,19 +4987,19 @@ paths:
               example:
                 id: txc_01abfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_57
+        '200': *ref_58
         '500': *ref_2
   /transaction_consumption.approve:
     post:
       tags:
-        - TransactionConsumption
+        - Transaction consumption
       summary: Approve a consumption.
       description: This is a server call only.
       operationId: transaction_consumption_approve
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_58
+      requestBody: &ref_59
         description: Approve or reject a consumption using the specified ID.
         required: true
         content:
@@ -4959,26 +5013,26 @@ paths:
               example:
                 id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_57
+        '200': *ref_58
         '500': *ref_2
   /transaction_consumption.reject:
     post:
       tags:
-        - TransactionConsumption
+        - Transaction consumption
       summary: Reject a consumption.
       description: This is a server call only.
       operationId: transaction_consumption_reject
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_58
+      requestBody: *ref_59
       responses:
-        '200': *ref_57
+        '200': *ref_58
         '500': *ref_2
   /transaction_consumption.cancel:
     post:
       tags:
-        - TransactionConsumption
+        - Transaction consumption
       summary: Cancel a pending consumption.
       description: This is a server call only.
       operationId: transaction_consumption_cancel
@@ -4999,12 +5053,12 @@ paths:
               example:
                 id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_57
+        '200': *ref_58
         '500': *ref_2
   /access_key.all:
     post:
       tags:
-        - API Access
+        - API access
       summary: Get the list of access and secret keys
       operationId: access_key_all
       security:
@@ -5029,7 +5083,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_59
+                                items: &ref_60
                                   description: The object schema for an access key
                                   type: object
                                   properties:
@@ -5086,7 +5140,7 @@ paths:
   /access_key.get:
     post:
       tags:
-        - API Access
+        - API access
       summary: Get a specific access key
       operationId: access_key_get
       security:
@@ -5106,7 +5160,7 @@ paths:
               example:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
       responses:
-        '200': &ref_60
+        '200': &ref_61
           description: Returns a single access key
           content:
             application/vnd.omisego.v1+json:
@@ -5116,7 +5170,7 @@ paths:
                   - *ref_1
                   - type: object
                     properties:
-                      data: *ref_59
+                      data: *ref_60
                     example:
                       data:
                         object: key
@@ -5133,7 +5187,7 @@ paths:
   /access_key.create:
     post:
       tags:
-        - API Access
+        - API access
       summary: Create a pair of access and secret keys
       operationId: access_key_create
       security:
@@ -5158,12 +5212,12 @@ paths:
                 name: my_key
                 global_role: none
       responses:
-        '200': *ref_60
+        '200': *ref_61
         '500': *ref_2
   /access_key.update:
     post:
       tags:
-        - API Access
+        - API access
       summary: Update a pair of access and secret keys by its id
       operationId: access_key_update
       security:
@@ -5189,12 +5243,12 @@ paths:
                 name: my_key
                 global_role: none
       responses:
-        '200': *ref_60
+        '200': *ref_61
         '500': *ref_2
   /access_key.enable_or_disable:
     post:
       tags:
-        - API Access
+        - API access
       summary: Enable or disable an existing access key
       operationId: access_key_enable_or_disable
       security:
@@ -5220,12 +5274,12 @@ paths:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-        '200': *ref_60
+        '200': *ref_61
         '500': *ref_2
   /access_key.delete:
     post:
       tags:
-        - API Access
+        - API access
       summary: Delete a pair of access and secret keys by its id or access key
       operationId: access_key_delete
       security:
@@ -5260,7 +5314,7 @@ paths:
   /access_key.get_account_memberships:
     post:
       tags:
-        - API Access
+        - API access
       summary: Get the list of account memberships linked to the given access key id
       operationId: access_key_get_account_memberships
       security:
@@ -5341,7 +5395,7 @@ paths:
   /api_key.all:
     post:
       tags:
-        - API Access
+        - API access
       summary: Get the list of API keys
       operationId: api_key_all
       security:
@@ -5366,7 +5420,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_61
+                                items: &ref_62
                                   description: The object schema for an API key
                                   type: object
                                   properties:
@@ -5424,7 +5478,7 @@ paths:
   /api_key.create:
     post:
       tags:
-        - API Access
+        - API access
       summary: Create an API key
       operationId: api_key_create
       security:
@@ -5442,7 +5496,7 @@ paths:
               example:
                 name: my_api_key
       responses:
-        '200': &ref_62
+        '200': &ref_63
           description: Returns a single API key
           content:
             application/vnd.omisego.v1+json:
@@ -5452,7 +5506,7 @@ paths:
                   - *ref_1
                   - type: object
                     properties:
-                      data: *ref_61
+                      data: *ref_62
                     example:
                       data:
                         object: api_key
@@ -5494,7 +5548,7 @@ paths:
   /api_key.update:
     post:
       tags:
-        - API Access
+        - API access
       summary: Update an API key
       operationId: api_key_update
       security:
@@ -5517,12 +5571,12 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 name: my_api_key
       responses:
-        '200': *ref_62
+        '200': *ref_63
         '500': *ref_2
   /api_key.enable_or_disable:
     post:
       tags:
-        - API Access
+        - API access
       summary: Enable or disable an existing api key
       operationId: api_key_enable_or_disable
       security:
@@ -5548,12 +5602,12 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-        '200': *ref_62
+        '200': *ref_63
         '500': *ref_2
   /api_key.delete:
     post:
       tags:
-        - API Access
+        - API access
       summary: Delete an API key by its id
       operationId: api_key_delete
       security:
@@ -5606,8 +5660,8 @@ paths:
                                 items:
                                   description: The object schema for an export
                                   type: object
-                                  properties: *ref_63
-                                  required: *ref_64
+                                  properties: *ref_64
+                                  required: *ref_65
                     example:
                       data:
                         data:
@@ -5635,7 +5689,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_66
+      requestBody: &ref_67
         description: The parameters to use for retrieving a specific export by its id
         required: true
         content:
@@ -5649,7 +5703,7 @@ paths:
               example:
                 id: exp_01ca2p8jqans5aty5gj5etmjcf
       responses:
-        '200': *ref_65
+        '200': *ref_66
         '500': *ref_2
   /export.download:
     post:
@@ -5660,7 +5714,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_66
+      requestBody: *ref_67
       responses:
         '200':
           description: A CSV file
@@ -5955,7 +6009,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': &ref_67
+        '200': &ref_68
           description: Returns unauthorized error
           content:
             application/vnd.omisego.v1+json:
@@ -5992,7 +6046,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_67
+        '200': *ref_68
         '500': *ref_2
   /role.create:
     post:
@@ -6005,7 +6059,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_67
+        '200': *ref_68
         '500': *ref_2
   /role.update:
     post:
@@ -6018,7 +6072,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_67
+        '200': *ref_68
         '500': *ref_2
   /role.delete:
     post:
@@ -6031,7 +6085,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_67
+        '200': *ref_68
         '500': *ref_2
   /permission.all:
     post:

@@ -1,7 +1,7 @@
 exchange_pair.all:
   post:
     tags:
-      - ExchangePair
+      - Exchange pair
     summary: Get the list of exchange pairs
     operationId: exchange_pair_all
     security:
@@ -17,7 +17,7 @@ exchange_pair.all:
 exchange_pair.get:
   post:
     tags:
-      - ExchangePair
+      - Exchange pair
     summary: Get the a specific exchange pair by its id
     operationId: exchange_pair_get
     security:
@@ -33,7 +33,7 @@ exchange_pair.get:
 exchange_pair.create:
   post:
     tags:
-      - ExchangePair
+      - Exchange pair
     summary: Create a new exchange pair
     operationId: exchange_pair_create
     security:
@@ -49,7 +49,7 @@ exchange_pair.create:
 exchange_pair.update:
   post:
     tags:
-      - ExchangePair
+      - Exchange pair
     summary: Update an existing exchange pair by its id
     operationId: exchange_pair_update
     security:
@@ -65,7 +65,7 @@ exchange_pair.update:
 exchange_pair.delete:
   post:
     tags:
-      - ExchangePair
+      - Exchange pair
     summary: Delete an exchange pair by its id
     operationId: exchange_pair_delete
     security:
