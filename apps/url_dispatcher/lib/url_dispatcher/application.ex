@@ -54,7 +54,8 @@ defmodule UrlDispatcher.Application do
               )
 
           # This is a catch-all route and must always come last. UrlDispatcher
-          # is responsible for all non-WebSockets requests.
+          # is responsible for all non-WebSockets requests, except the Frontend
+          # which is handled inside Frontend.Application.
           dispatchers =
             dispatchers ++
               [

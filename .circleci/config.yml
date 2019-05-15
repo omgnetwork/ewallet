@@ -156,7 +156,7 @@ jobs:
             - var/
             - src/deps
             - src/_build
-            - src/apps/admin_panel/assets/node_modules
+            - src/apps/frontend/assets/node_modules
       - notify_slack_failure
 
   lint:

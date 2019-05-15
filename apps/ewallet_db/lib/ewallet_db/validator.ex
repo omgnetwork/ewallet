@@ -20,6 +20,44 @@ defmodule EWalletDB.Validator do
   alias EWalletDB.Wallet
 
   @doc """
+  Validate a dependent field.
+  """
+  def validate_dependent_field(changeset, field, error) do
+    changeset
+    |> Changeset.get_field(field)
+    |> case do
+      nil ->
+        changeset
+
+      _ ->
+        Changeset.add_error(
+          changeset,
+          field,
+          error
+        )
+    end
+  end
+
+  @doc """
+  Validate a dependent field value.
+  """
+  def validate_dependent_field_value(changeset, field, value, error) do
+    changeset
+    |> Changeset.get_field(field)
+    |> case do
+      ^value ->
+        Changeset.add_error(
+          changeset,
+          field,
+          error
+        )
+
+      _ ->
+        changeset
+    end
+  end
+
+  @doc """
   Validates email requirements.
   """
   def validate_email(changeset, key) do

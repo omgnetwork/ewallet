@@ -31,6 +31,8 @@ ExchangePairResponseSchema:
             created_at: '2018-01-01T00:00:00Z'
             updated_at: '2018-01-01T10:00:00Z'
           rate: 0.017
+          default_exchange_wallet_address: XXX123
+          allow_end_user_exchanges: true
           created_at: '2018-01-01T00:00:00Z'
           updated_at: '2018-01-01T10:00:00Z'
           deleted_at: null
@@ -75,6 +77,8 @@ ExchangePairsResponseSchema:
               created_at: '2018-01-01T00:00:00Z'
               updated_at: '2018-01-01T10:00:00Z'
             rate: 0.017
+            default_exchange_wallet_address: XXX123
+            allow_end_user_exchanges: true
             created_at: '2018-01-01T00:00:00Z'
             updated_at: '2018-01-01T10:00:00Z'
             deleted_at: null

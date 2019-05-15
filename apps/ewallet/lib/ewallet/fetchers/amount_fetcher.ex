@@ -100,6 +100,7 @@ defmodule EWallet.AmountFetcher do
           |> Map.put(:actual_rate, calculation.actual_rate)
           |> Map.put(:calculated_at, calculation.calculated_at)
           |> Map.put(:pair_uuid, Assoc.get(calculation, [:pair, :uuid]))
+          |> Map.put(:pair, Assoc.get(calculation, [:pair]))
 
         {:ok, Map.put(from, :from_amount, calculation.from_amount),
          Map.put(to, :to_amount, calculation.to_amount), exchange}
@@ -118,6 +119,7 @@ defmodule EWallet.AmountFetcher do
           |> Map.put(:actual_rate, calculation.actual_rate)
           |> Map.put(:calculated_at, calculation.calculated_at)
           |> Map.put(:pair_uuid, Assoc.get(calculation, [:pair, :uuid]))
+          |> Map.put(:pair, Assoc.get(calculation, [:pair]))
 
         {:ok, Map.put(from, :from_amount, calculation.from_amount),
          Map.put(to, :to_amount, calculation.to_amount), exchange}
