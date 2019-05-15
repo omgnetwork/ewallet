@@ -27,7 +27,7 @@ release :ewallet do
     activity_logger: :permanent,
     admin_api: :permanent,
     frontend: :permanent,
-    blockchain: :permanent,
+    eth_blockchain: :permanent,
     ewallet: :permanent,
     ewallet_api: :permanent,
     ewallet_config: :permanent,
