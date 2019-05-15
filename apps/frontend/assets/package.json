@@ -1,6 +1,6 @@
 {
   "name": "admin-panel",
-  "version": "0.1.0",
+  "version": "1.2",
   "description": "The OmiseGO Wallet admin panel for a provider to manage staff, users, roles and permissions, API access, tokens, transactions, etc.",
   "main": "index.js",
   "scripts": {
