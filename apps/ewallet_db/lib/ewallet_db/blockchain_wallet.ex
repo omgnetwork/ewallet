@@ -28,6 +28,10 @@ defmodule EWalletDB.BlockchainWallet do
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
 
+  @hot "hot"
+  @cold "cold"
+  @wallet_types [@hot, @cold]
+
   schema "blockchain_wallet" do
     # Blockchain wallets don't have an external ID. Use `address` instead.
     field(:address, :string)
@@ -56,7 +60,7 @@ defmodule EWalletDB.BlockchainWallet do
     |> unique_constraint(:public_key)
     |> validate_immutable(:address)
     |> validate_immutable(:public_key)
-    |> validate_inclusion(:type, ["hot", "cold"])
+    |> validate_inclusion(:type, @wallet_types)
     |> validate_length(:address, count: :bytes, max: 255)
     |> validate_length(:name, count: :bytes, max: 255)
     |> validate_length(:public_key, count: :bytes, max: 255)
