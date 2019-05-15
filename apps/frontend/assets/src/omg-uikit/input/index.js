@@ -4,7 +4,6 @@ import styled from 'styled-components'
 
 import Icon from '../icon'
 import { formatNumber, ensureIsNumberOnly } from '../../utils/formatter'
-import numeral from 'numeral'
 
 const Container = styled.div`
   position: relative;
