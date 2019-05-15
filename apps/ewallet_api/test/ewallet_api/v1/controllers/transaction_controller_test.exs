@@ -615,13 +615,28 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
   end
 
   describe "/me.create_transaction with exchange" do
-    test "updates the wallets and returns the transaction after exchange with same token" do
-      {:ok, account} = :account |> params_for() |> Account.insert()
-      wallet_1 = User.get_primary_wallet(get_test_user())
-      wallet_2 = Account.get_primary_wallet(account)
+    test "allows exchange if exchange pair allows it and has a default exchange address" do
+      master = Account.get_master_account()
+      master_wallet = Account.get_primary_wallet(master)
+
+      user_1 = get_test_user()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
       token_1 = insert(:token, subunit_to_unit: 100)
+      token_2 = insert(:token, subunit_to_unit: 100)
 
       mint!(token_1)
+      mint!(token_2)
+
+      pair =
+        insert(:exchange_pair,
+          from_token: token_1,
+          to_token: token_2,
+          default_exchange_wallet_address: master_wallet.address,
+          allow_end_user_exchanges: true,
+          rate: 2
+        )
 
       set_initial_balance(%{
         address: wallet_1.address,
@@ -632,29 +647,37 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       response =
         client_request("/me.create_transaction", %{
           idempotency_token: UUID.generate(),
-          to_account_id: account.id,
-          token_id: token_1.id,
-          amount: 1_000 * token_1.subunit_to_unit
+          from_address: wallet_1.address,
+          to_address: wallet_2.address,
+          from_token_id: token_1.id,
+          to_token_id: token_2.id,
+          to_amount: 2_000 * token_2.subunit_to_unit,
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
         })
 
       assert response["success"] == true
       assert response["data"]["object"] == "transaction"
 
+      assert response["data"]["exchange"]["rate"] == 2
+      assert response["data"]["exchange"]["calculated_at"] != nil
+      assert response["data"]["exchange"]["exchange_pair_id"] == pair.id
+      assert response["data"]["exchange"]["exchange_pair"]["id"] == pair.id
+
       assert response["data"]["from"]["address"] == wallet_1.address
-      assert response["data"]["from"]["amount"] == 1_000 * token_1.subunit_to_unit
+      assert response["data"]["from"]["amount"] == 100_000
+      assert response["data"]["from"]["account_id"] == nil
+      assert response["data"]["from"]["user_id"] == user_1.id
       assert response["data"]["from"]["token_id"] == token_1.id
 
       assert response["data"]["to"]["address"] == wallet_2.address
-      assert response["data"]["to"]["amount"] == 1_000 * token_1.subunit_to_unit
-      assert response["data"]["to"]["token_id"] == token_1.id
-
-      {:ok, b1} = BalanceFetcher.get(token_1.id, wallet_1)
-      assert List.first(b1.balances).amount == (200_000 - 1_000) * token_1.subunit_to_unit
-      {:ok, b2} = BalanceFetcher.get(token_1.id, wallet_2)
-      assert List.first(b2.balances).amount == 1_000 * token_1.subunit_to_unit
+      assert response["data"]["to"]["amount"] == 200_000
+      assert response["data"]["to"]["account_id"] == nil
+      assert response["data"]["to"]["user_id"] == user_2.id
+      assert response["data"]["to"]["token_id"] == token_2.id
     end
 
-    test "prevents exchange in the client API" do
+    test "prevents exchange in the client API if exchange pair prevents it" do
       wallet_1 = User.get_primary_wallet(get_test_user())
       wallet_2 = insert(:wallet)
       token_1 = insert(:token, subunit_to_unit: 100)
@@ -663,7 +686,13 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       mint!(token_1)
       mint!(token_2)
 
-      _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+      _pair =
+        insert(:exchange_pair,
+          from_token: token_1,
+          to_token: token_2,
+          allow_end_user_exchanges: false,
+          rate: 2
+        )
 
       set_initial_balance(%{
         address: wallet_1.address,
@@ -684,10 +713,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
         })
 
       assert response["success"] == false
-      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["code"] == "config:end_user_exchanges_not_allowed"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided. `token_id` or a pair of `from_token_id` and `to_token_id` is required."
+               "End user exchanges are not allowed for this exchange pair."
     end
   end
 end

@@ -45,7 +45,7 @@ CLI.print("""
   We have just seeded your eWallet system with an API key and an Admin Panel user.
   Now it's your turn to login to your Admin Panel with the following credentials:
 
-    - Login URL : `#{admin_panel_url}`
+    - Login URL : `#{frontend_url}/admin`
     - Email     : `#{admin.email}`
     - Password  : `#{admin.password || "<password obscured>"}`
 
@@ -58,7 +58,7 @@ CLI.print("""
     - Create other Admin Panel users
     - Manage access and secret keys for your application servers to connect to OmiseGO eWallet API
     - Manage API keys for your mobile apps and the Admin Panel
-    - Always come back and access your Admin Panel at #{admin_panel_url}
+    - Always come back and access your Admin Panel at #{frontend_url}/admin
     - etc.
 
   ## Manage your eWallet system via the Admin API

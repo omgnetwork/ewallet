@@ -122,6 +122,20 @@ APIKeyCreateBody:
         example:
           name: my_api_key
 
+APIKeyGetBody:
+  description: The parameters to use for retrieving a specific api key
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+        required:
+          - id
+        example:
+          id: api_01d744xm9cy3qx8hdwv4ax3k1h
+
 APIKeyUpdateBody:
   description: The parameters to use for updating an API key
   required: true

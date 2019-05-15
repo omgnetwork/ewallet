@@ -95,6 +95,8 @@ defmodule EWalletDB.Factory do
       from_token: insert(:token),
       to_token: insert(:token),
       rate: 1.0,
+      default_exchange_wallet_address: nil,
+      allow_end_user_exchanges: false,
       originator: %System{}
     }
   end

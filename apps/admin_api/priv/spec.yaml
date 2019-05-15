@@ -1298,6 +1298,10 @@ paths:
                                     to_token: *ref_17
                                     rate:
                                       type: number
+                                    default_exchange_wallet_address:
+                                      type: string
+                                    allow_end_user_exchanges:
+                                      type: boolean
                                     created_at:
                                       type: string
                                       format: date-time
@@ -1345,6 +1349,8 @@ paths:
                               created_at: '2018-01-01T00:00:00Z'
                               updated_at: '2018-01-01T10:00:00Z'
                             rate: 0.017
+                            default_exchange_wallet_address: XXX123
+                            allow_end_user_exchanges: true
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
                             deleted_at: null
@@ -1413,6 +1419,8 @@ paths:
                           created_at: '2018-01-01T00:00:00Z'
                           updated_at: '2018-01-01T10:00:00Z'
                         rate: 0.017
+                        default_exchange_wallet_address: XXX123
+                        allow_end_user_exchanges: true
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         deleted_at: null
@@ -1438,8 +1446,14 @@ paths:
                 to_token_id:
                   type: string
                 rate:
-                  type: number
+                  oneOf:
+                    - type: string
+                    - type: number
                 sync_opposite:
+                  type: boolean
+                default_exchange_wallet_address:
+                  type: string
+                allow_end_user_exchanges:
                   type: boolean
               required:
                 - from_token_id
@@ -1472,7 +1486,13 @@ paths:
                 id:
                   type: string
                 rate:
-                  type: number
+                  oneOf:
+                    - type: string
+                    - type: number
+                default_exchange_wallet_address:
+                  type: string
+                allow_end_user_exchanges:
+                  type: boolean
               required:
                 - id
               example:
@@ -5445,6 +5465,31 @@ paths:
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         deleted_at: null
+        '500': *ref_2
+  /api_key.get:
+    post:
+      tags:
+        - API Access
+      summary: Get a specific api key
+      operationId: api_key_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for retrieving a specific api key
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: api_01d744xm9cy3qx8hdwv4ax3k1h
+      responses:
+        '200': *ref_62
         '500': *ref_2
   /api_key.update:
     post:

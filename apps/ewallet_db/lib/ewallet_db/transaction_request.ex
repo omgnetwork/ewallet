@@ -20,7 +20,7 @@ defmodule EWalletDB.TransactionRequest do
   use Utils.Types.ExternalID
   use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
-  import EWalletDB.Helpers.Preloader
+  import EWalletDB.{Validator, Helpers.Preloader}
   alias Ecto.{Changeset, Query, UUID}
 
   alias EWalletDB.{
@@ -216,22 +216,6 @@ defmodule EWalletDB.TransactionRequest do
 
       _ ->
         changeset
-    end
-  end
-
-  defp validate_dependent_field(changeset, field, error) do
-    changeset
-    |> Changeset.get_field(field)
-    |> case do
-      nil ->
-        changeset
-
-      _ ->
-        Changeset.add_error(
-          changeset,
-          field,
-          error
-        )
     end
   end
 

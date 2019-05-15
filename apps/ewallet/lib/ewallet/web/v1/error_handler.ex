@@ -398,7 +398,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     missing_filter_param: %{
       code: "client:invalid_parameter",
-      description: "Invalid parameter provided. Missing one or more filter parameters."
+      description: "Invalid parameter provided. Expecting an array of filter parameters."
     },
     comparator_not_supported: %{
       code: "client:invalid_parameter",
@@ -413,6 +413,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     invalid_storage_adapter: %{
       code: "adapter:invalid_storage",
       description: "The file was stored in a different backend and cannot be retrieved."
+    },
+    end_user_exchanges_not_allowed: %{
+      code: "config:end_user_exchanges_not_allowed",
+      description: "End user exchanges are not allowed for this exchange pair."
     }
   }
 
