@@ -63,7 +63,10 @@ check-credo:
 	$(ENV_TEST) mix credo 2>&1
 
 check-dialyzer:
-	$(ENV_TEST) mix dialyzer --halt-exit-status >&1
+	$(ENV_TEST) mix dialyzer --halt-exit-status 2>&1
+
+check-assets:
+	$(ASSETS) npm run lint 2>&1
 
 .PHONY: format check-format check-credo
 
@@ -77,14 +80,15 @@ build-assets: deps-assets
 # If we call mix phx.digest without mix compile, mix release will silently fail
 # for some reason. Always make sure to run mix compile first.
 build-prod: deps-ewallet build-assets
-	$(ENV_PROD) mix compile
-	$(ENV_PROD) mix phx.digest
-	$(ENV_PROD) mix release
+	$(ENV_PROD) mix do compile, phx.digest, release
+
+build-dev: deps-ewallet build-assets
+	$(ENV_DEV) mix do compile, release dev
 
 build-test: deps-ewallet
 	$(ENV_TEST) mix compile
 
-.PHONY: build-assets build-prod build-test
+.PHONY: build-assets build-prod build-dev build-test
 
 #
 # Testing
