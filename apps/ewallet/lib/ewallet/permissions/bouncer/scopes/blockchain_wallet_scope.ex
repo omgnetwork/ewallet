@@ -14,7 +14,7 @@
 
 defmodule EWallet.Bouncer.BlockchainWalletScope do
   @moduledoc """
-  A module containing the
+  Permission scoping module for blockchain wallets.
   """
   @behaviour EWallet.Bouncer.ScopeBehaviour
   alias EWallet.Bouncer.Permission
@@ -28,7 +28,6 @@ defmodule EWallet.Bouncer.BlockchainWalletScope do
     do_scoped_query(actor, global_abilities) || do_scoped_query(actor, account_abilities)
   end
 
-  # Global + ?
   defp do_scoped_query(_actor, %{blockchain_wallets: :global}) do
     BlockchainWallet
   end
