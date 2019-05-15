@@ -5637,7 +5637,14 @@
                     "type": "string"
                   },
                   "rate": {
-                    "type": "number"
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
                   },
                   "sync_opposite": {
                     "type": "boolean"
@@ -6118,7 +6125,14 @@
                     "type": "string"
                   },
                   "rate": {
-                    "type": "number"
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
                   },
                   "default_exchange_wallet_address": {
                     "type": "string"
