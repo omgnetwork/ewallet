@@ -12,17 +12,14 @@ import { LoadingSkeleton, Breadcrumb } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
 import { KeyButton } from '../omg-page-api'
-import TransactionPage from '../omg-page-transaction'
+import TransactionPage from './UserTransactions'
+import UserActivityLogPage from './UserActivityLog'
 
 const UserDetailContainer = styled.div`
   b {
     width: 150px;
     display: inline-block;
   }
-`
-const ContentDetailContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
 `
 const DetailContainer = styled.div`
   flex: 1 1 auto;
@@ -152,18 +149,19 @@ class UserDetailPage extends Component {
         {this.renderTopBar(user)}
         <Switch>
           <Route
-            path={`/users/${this.props.match.params.userId}/`}
+            path={'/users/:userId/'}
             render={() => <DetailContainer>{this.renderDetail(user)}</DetailContainer>}
             exact
           />
+          <Route path={'/users/:userId/wallets'} render={() => this.renderWallet(wallet)} exact />
           <Route
-            path={`/users/${this.props.match.params.userId}/wallets`}
-            render={() => this.renderWallet(wallet)}
+            path={'/users/:userId/transactions'}
+            render={() => <TransactionPage topNavigation={false} />}
             exact
           />
           <Route
-            path={`/users/${this.props.match.params.userId}/transactions`}
-            render={() => <TransactionPage topNavigation={false} />}
+            path={'/users/:userId/logs'}
+            render={() => <UserActivityLogPage topNavigation={false} />}
             exact
           />
         </Switch>

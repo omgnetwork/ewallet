@@ -137,7 +137,8 @@ class TransactionPage extends Component {
     topNavigation: PropTypes.bool
   }
   static defaultProps = {
-    query: {}
+    query: {},
+    topNavigation: true
   }
   state = {
     createTransactionModalOpen: false
