@@ -11,7 +11,6 @@ class AccessKeyMembershipsProvider extends Component {
     render: PropTypes.func,
     accessKeyId: PropTypes.string,
     filter: PropTypes.object,
-    // memberships: PropTypes.object, TODO: use redux store
     getAccessKeyMemberships: PropTypes.func,
     assignKey: PropTypes.func,
     unassignKey: PropTypes.func
@@ -19,7 +18,7 @@ class AccessKeyMembershipsProvider extends Component {
 
   state = {
     memberships: [],
-    loading: ''
+    loading: 'INITIATED'
   }
 
   componentDidMount = () => {
