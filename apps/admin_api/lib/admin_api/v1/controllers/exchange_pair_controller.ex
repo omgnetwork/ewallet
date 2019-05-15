@@ -77,6 +77,9 @@ defmodule AdminAPI.V1.ExchangePairController do
 
       {:error, code} ->
         handle_error(conn, code)
+
+      {:error, code, description} ->
+        handle_error(conn, code, description)
     end
   end
 
@@ -98,6 +101,9 @@ defmodule AdminAPI.V1.ExchangePairController do
 
       {:error, code} ->
         handle_error(conn, code)
+
+      {:error, code, description} ->
+        handle_error(conn, code, description)
     end
   end
 

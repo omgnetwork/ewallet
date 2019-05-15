@@ -23,8 +23,14 @@ ExchangePairCreateBody:
             to_token_id:
               type: string
             rate:
-              type: number
+              oneOf:
+                - type: string
+                - type: number
             sync_opposite:
+              type: boolean
+            default_exchange_wallet_address:
+              type: string
+            allow_end_user_exchanges:
               type: boolean
           required:
             - from_token_id
@@ -45,7 +51,13 @@ ExchangePairUpdateBody:
             id:
               type: string
             rate:
-              type: number
+              oneOf:
+                - type: string
+                - type: number
+            default_exchange_wallet_address:
+              type: string
+            allow_end_user_exchanges:
+              type: boolean
           required:
             - id
           example:

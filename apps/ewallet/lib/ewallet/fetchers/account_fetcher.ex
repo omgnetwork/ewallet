@@ -17,7 +17,7 @@ defmodule EWallet.AccountFetcher do
   Handles retrieval of accounts from params for transactions.
   """
   alias EWallet.WalletFetcher
-  alias EWalletDB.{Account, Repo}
+  alias EWalletDB.{Account, ExchangePair, Repo, User}
 
   def fetch_exchange_account(
         %{
@@ -59,29 +59,47 @@ defmodule EWallet.AccountFetcher do
 
   def fetch_exchange_account(
         %{
-          "from_token_id" => from_token_id,
-          "to_token_id" => to_token_id,
           "exchange_wallet_address" => exchange_wallet_address
         },
         exchange
       )
       when not is_nil(exchange_wallet_address) do
-    case from_token_id == to_token_id do
-      true ->
-        {:ok, nil}
+    with {:ok, wallet} <- WalletFetcher.get(nil, exchange_wallet_address),
+         wallet <- Repo.preload(wallet, [:account]),
+         %Account{} = account <- wallet.account || :exchange_address_not_account do
+      return_from(exchange, account, wallet)
+    else
+      {:error, :wallet_not_found} ->
+        {:error, :exchange_account_wallet_not_found}
 
-      false ->
-        with {:ok, wallet} <- WalletFetcher.get(nil, exchange_wallet_address),
-             wallet <- Repo.preload(wallet, [:account]),
-             %Account{} = account <- wallet.account || :exchange_address_not_account do
-          return_from(exchange, account, wallet)
-        else
-          {:error, :wallet_not_found} ->
-            {:error, :exchange_account_wallet_not_found}
+      error ->
+        error
+    end
+  end
 
-          error ->
-            error
-        end
+  def fetch_exchange_account(
+        %{"originator" => %User{is_admin: false}},
+        %{pair: %ExchangePair{allow_end_user_exchanges: false}}
+      ) do
+    {:error, :end_user_exchanges_not_allowed}
+  end
+
+  def fetch_exchange_account(
+        _attrs,
+        %{pair: %ExchangePair{default_exchange_wallet_address: exchange_wallet_address}} =
+          exchange
+      )
+      when not is_nil(exchange_wallet_address) do
+    with {:ok, wallet} <- WalletFetcher.get(nil, exchange_wallet_address),
+         wallet <- Repo.preload(wallet, [:account]),
+         %Account{} = account <- wallet.account || {:error, :exchange_address_not_account} do
+      return_from(exchange, account, wallet)
+    else
+      {:error, :wallet_not_found} ->
+        {:error, :exchange_account_wallet_not_found}
+
+      error ->
+        error
     end
   end
 

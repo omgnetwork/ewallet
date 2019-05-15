@@ -213,6 +213,7 @@ defmodule AdminAPI.V1.Router do
     # API Key endpoints
     post("/api_key.all", APIKeyController, :all)
     post("/api_key.create", APIKeyController, :create)
+    post("/api_key.get", APIKeyController, :get)
     post("/api_key.enable_or_disable", APIKeyController, :enable_or_disable)
     post("/api_key.delete", APIKeyController, :delete)
 

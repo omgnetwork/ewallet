@@ -43,7 +43,7 @@ defmodule Mix.Tasks.Omg.Deps do
     System.cmd(
       "yarn",
       ["install", "--non-interactive", "--color=always"],
-      cd: Path.expand("../../../../admin_panel/assets/", __DIR__),
+      cd: Path.expand("../../../../frontend/assets/", __DIR__),
       into: IO.stream(:stdio, :line),
       stderr_to_stdout: true
     )

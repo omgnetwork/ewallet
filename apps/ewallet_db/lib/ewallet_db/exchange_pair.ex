@@ -40,10 +40,10 @@ defmodule EWalletDB.ExchangePair do
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
-  import EWalletDB.Validator
+  alias Ecto.Changeset
   alias Ecto.UUID
   alias Ecto.Query
-  alias EWalletDB.{Repo, Token}
+  alias EWalletDB.{Repo, Token, Wallet}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
@@ -67,6 +67,15 @@ defmodule EWalletDB.ExchangePair do
       foreign_key: :to_token_uuid
     )
 
+    belongs_to(
+      :default_exchange_wallet,
+      Wallet,
+      references: :address,
+      type: :string,
+      foreign_key: :default_exchange_wallet_address
+    )
+
+    field(:allow_end_user_exchanges, :boolean, default: false)
     field(:rate, :float)
     timestamps()
     soft_delete()
@@ -77,13 +86,22 @@ defmodule EWalletDB.ExchangePair do
     exchange_pair
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:from_token_uuid, :to_token_uuid, :rate, :deleted_at],
+      cast: [
+        :from_token_uuid,
+        :to_token_uuid,
+        :rate,
+        :default_exchange_wallet_address,
+        :allow_end_user_exchanges,
+        :deleted_at
+      ],
       required: [:from_token_uuid, :to_token_uuid, :rate]
     )
+    |> validate_end_user_exchanges_allowed()
     |> validate_different_values(:from_token_uuid, :to_token_uuid)
     |> validate_immutable(:from_token_uuid)
     |> validate_immutable(:to_token_uuid)
     |> validate_number(:rate, greater_than: 0)
+    |> assoc_constraint(:default_exchange_wallet)
     |> assoc_constraint(:from_token)
     |> assoc_constraint(:to_token)
     |> unique_constraint(
@@ -103,6 +121,21 @@ defmodule EWalletDB.ExchangePair do
 
   defp touch_changeset(exchange_pair, attrs) do
     cast_and_validate_required_for_activity_log(exchange_pair, attrs, cast: [:updated_at])
+  end
+
+  defp validate_end_user_exchanges_allowed(changeset) do
+    case Changeset.get_field(changeset, :default_exchange_wallet_address) do
+      nil ->
+        validate_dependent_field_value(
+          changeset,
+          :allow_end_user_exchanges,
+          true,
+          "can't be set to true when default_exchange_wallet_address is nil."
+        )
+
+      _ ->
+        changeset
+    end
   end
 
   @doc """
