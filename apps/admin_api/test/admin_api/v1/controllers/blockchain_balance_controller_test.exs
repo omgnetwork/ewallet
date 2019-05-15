@@ -256,17 +256,5 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
     end
-
-    test_with_auths "returns an error when there was a problem communicating with the adapter" do
-      Application.put_env(:eth_blockchain, :default_adapter, :invalid_adapter)
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x123"})
-
-      response =
-        request("/blockchain_wallet.get_balances", %{"address" => blockchain_wallet.address})
-
-      refute response["success"]
-      assert response["data"]["code"] == "blockchain:adapter_error"
-      Application.put_env(:eth_blockchain, :default_adapter, :dumb)
-    end
   end
 end
