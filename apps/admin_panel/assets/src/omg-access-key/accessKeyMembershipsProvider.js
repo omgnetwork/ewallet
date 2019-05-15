@@ -45,6 +45,7 @@ class AccessKeyMembershipsProvider extends Component {
 
   render () {
     return this.props.render({
+      refetch: this.fetch,
       memberships: this.state.memberships,
       membershipsLoading: this.state.loading,
       updateRole: ({ accountId, role }) => this.props.assignKey({ keyId: this.props.accessKeyId, accountId, role }),
