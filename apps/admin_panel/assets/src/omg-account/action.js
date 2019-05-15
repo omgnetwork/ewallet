@@ -68,6 +68,13 @@ export const deleteAccount = id => dispatch => {
   return dispatch({ type: 'ACCOUNT/DELETE', data: id })
 }
 
+export const unassignKey = ({ keyId, accountId }) =>
+  createActionCreator({
+    actionName: 'ACCOUNT',
+    action: 'UNASSIGN_KEY',
+    service: () => accountService.unassignKey({ keyId, accountId })
+  })
+
 export const assignKey = ({ keyId, role, accountId }) =>
   createActionCreator({
     actionName: 'ACCOUNT',

@@ -82,77 +82,11 @@ const KeyDetailAccountsPage = ({ match: { params }, location: { search } }) => {
 
   const [ roleModalOpen, setRoleModalOpen ] = useState(false)
   const [ deleteModalOpen, setDeleteModalOpen ] = useState(false)
-  const [ assignRoleModalContent, setAssignRoleModalContent ] = useState({})
+  const [ modalContent, setModalContent ] = useState({})
   const [ loading, setLoading ] = useState(false)
 
-  const closeModals = () => {
-    setRoleModalOpen(false)
-    setDeleteModalOpen(false)
-    setTimeout(() => {
-      setAssignRoleModalContent({})
-    }, 200)
-  }
-
-  const submitRoleChange = async () => {
-    setLoading(true)
-    await console.log('TODO: submit role change')
-    setLoading(false)
-    closeModals()
-  }
-
-  const renderDeleteRoleModal = () => {
-    return (
-      <ModalContainer>
-        <Icon name='Close' className='close-icon' onClick={closeModals} />
-        <h3>Remove this account?</h3>
-        <p>You are about to remove this account from this key.</p>
-        <p>Are you sure you want to do that?</p>
-        <div className='modal-buttons'>
-          <Button
-            styleType='ghost'
-            onClick={closeModals}
-          >
-            <span>Cancel</span>
-          </Button>
-          <Button
-            styleType='danger'
-            loading={loading}
-            onClick={submitRoleChange}
-          >
-            <span>Yes, I want to remove</span>
-          </Button>
-        </div>
-      </ModalContainer>
-    )
-  }
-
-  const renderAssignRoleModal = () => {
-    return (
-      <ModalContainer>
-        <Icon name='Close' className='close-icon' onClick={closeModals} />
-        <h3>Are you sure?</h3>
-        <p>{`You are about to change account role\nfrom "${_.startCase(assignRoleModalContent.previousRole)}" to "${_.startCase(assignRoleModalContent.role)}" ?`}</p>
-        <div className='modal-buttons'>
-          <Button
-            styleType='secondary'
-            onClick={closeModals}
-          >
-            <span>Cancel</span>
-          </Button>
-          <Button
-            styleType='primary'
-            loading={loading}
-            onClick={submitRoleChange}
-          >
-            <span>Yes, I want to change role</span>
-          </Button>
-        </div>
-      </ModalContainer>
-    )
-  }
-
   // eslint-disable-next-line react/prop-types
-  const renderView = ({ memberships, loading }) => {
+  const renderView = ({ memberships, membershipsLoading, updateRole, removeAccount }) => {
     if (memberships && !Array.isArray(memberships)) {
       memberships = [memberships]
     }
@@ -166,16 +100,97 @@ const KeyDetailAccountsPage = ({ match: { params }, location: { search } }) => {
       { key: 'delete', title: 'REMOVE', sort: false, align: 'center' }
     ]
 
-    const handleRoleSelect = (previousRole, role, row) => {
-      setAssignRoleModalContent({ previousRole, role, accountId: row })
+    const closeModals = () => {
+      setRoleModalOpen(false)
+      setDeleteModalOpen(false)
+      setTimeout(() => {
+        setModalContent({})
+      }, 200)
+    }
+
+    const submitRoleChange = async () => {
+      setLoading(true)
+      const { accountId, role } = modalContent
+      await updateRole({ accountId, role })
+      setLoading(false)
+      closeModals()
+    }
+
+    const submitRemoveAccount = async () => {
+      setLoading(true)
+      const { accountId } = modalContent
+      await removeAccount({ accountId })
+      setLoading(false)
+      closeModals()
+    }
+
+    const renderDeleteRoleModal = () => {
+      return (
+        <ModalContainer>
+          <Icon name='Close' className='close-icon' onClick={closeModals} />
+          <h3>Remove this account?</h3>
+          <p>You are about to remove this account from this key.</p>
+          <p>Are you sure you want to do that?</p>
+          <div className='modal-buttons'>
+            <Button
+              styleType='ghost'
+              onClick={closeModals}
+            >
+              <span>Cancel</span>
+            </Button>
+            <Button
+              styleType='danger'
+              loading={loading}
+              onClick={submitRemoveAccount}
+            >
+              <span>Yes, I want to remove</span>
+            </Button>
+          </div>
+        </ModalContainer>
+      )
+    }
+
+    const renderAssignRoleModal = () => {
+      return (
+        <ModalContainer>
+          <Icon name='Close' className='close-icon' onClick={closeModals} />
+          <h3>Are you sure?</h3>
+          <p>{`You are about to change account role\nfrom "${_.startCase(modalContent.previousRole)}" to "${_.startCase(modalContent.role)}" ?`}</p>
+          <div className='modal-buttons'>
+            <Button
+              styleType='secondary'
+              onClick={closeModals}
+            >
+              <span>Cancel</span>
+            </Button>
+            <Button
+              styleType='primary'
+              loading={loading}
+              onClick={submitRoleChange}
+            >
+              <span>Yes, I want to change role</span>
+            </Button>
+          </div>
+        </ModalContainer>
+      )
+    }
+
+    const handleRoleSelect = (previousRole, role, accountId) => {
+      setModalContent({ previousRole, role, accountId })
       setRoleModalOpen(true)
     }
 
+    const handleRemoveAccount = (accountId) => {
+      setModalContent({ accountId })
+      setDeleteModalOpen(true)
+    }
+
     const rowRenderer = (key, data, rows) => {
+      const accountId = _.get(rows, 'account.id')
       switch (key) {
         case 'delete':
           return (
-            <RemoveCell onClick={() => setDeleteModalOpen(true)}>
+            <RemoveCell onClick={() => handleRemoveAccount(accountId)}>
               <Icon name='Close' />
             </RemoveCell>
           )
@@ -189,7 +204,7 @@ const KeyDetailAccountsPage = ({ match: { params }, location: { search } }) => {
         case 'account.id':
           return (
             <Id maxChar={20}>
-              {_.get(rows, 'account.id', '-')}
+              {accountId || '-'}
             </Id>
           )
         case 'account.parent_id':
@@ -198,14 +213,12 @@ const KeyDetailAccountsPage = ({ match: { params }, location: { search } }) => {
           return moment(data).format()
         case 'role':
           const options = [
-            { key: 'super_admin', value: 'Super Admin' },
             { key: 'admin', value: 'Admin' },
-            { key: 'viewer', value: 'Viewer' },
-            { key: 'none', value: 'None' }
+            { key: 'viewer', value: 'Viewer' }
           ]
           return (
             <Select
-              onSelectItem={(item) => handleRoleSelect(data, item.key, _.get(rows, 'account.id'))}
+              onSelectItem={(item) => handleRoleSelect(data, item.key, accountId)}
               style={{ width: '150px' }}
               noBorder
               value={_.startCase(data)}
@@ -283,7 +296,7 @@ const KeyDetailAccountsPage = ({ match: { params }, location: { search } }) => {
           rows={getRows()}
           rowRenderer={rowRenderer}
           columns={columns}
-          loadingStatus={loading}
+          loadingStatus={membershipsLoading}
           hoverEffect={false}
           // isFirstPage={pagination.is_first_page}
           // isLastPage={pagination.is_last_page}

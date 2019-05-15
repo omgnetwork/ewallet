@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
 import { getAccessKeyMemberships } from './action'
+import { assignKey, unassignKey } from '../omg-account/action'
 
 // aka frontend ui -> "Admin Keys Assigned Accounts"
 class AccessKeyMembershipsProvider extends Component {
@@ -10,8 +11,10 @@ class AccessKeyMembershipsProvider extends Component {
     render: PropTypes.func,
     accessKeyId: PropTypes.string,
     filter: PropTypes.object,
-    // memberships: PropTypes.object,
-    getAccessKeyMemberships: PropTypes.func
+    // memberships: PropTypes.object, TODO: use redux store
+    getAccessKeyMemberships: PropTypes.func,
+    assignKey: PropTypes.func,
+    unassignKey: PropTypes.func
   }
 
   state = {
@@ -43,11 +46,13 @@ class AccessKeyMembershipsProvider extends Component {
   render () {
     return this.props.render({
       memberships: this.state.memberships,
-      loading: this.state.loading
+      membershipsLoading: this.state.loading,
+      updateRole: ({ accountId, role }) => this.props.assignKey({ keyId: this.props.accessKeyId, accountId, role }),
+      removeAccount: ({ accountId }) => this.props.unassignKey({ keyId: this.props.accessKeyId, accountId })
     })
   }
 }
 export default connect(
   null,
-  { getAccessKeyMemberships }
+  { getAccessKeyMemberships, assignKey, unassignKey }
 )(AccessKeyMembershipsProvider)
