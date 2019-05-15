@@ -233,12 +233,10 @@ const KeyDetailAccountsPageView = withRouter(({
   }
 
   const getRows = () => {
-    return memberships.map(membership => {
-      return {
-        id: membership.key_id,
-        ...membership
-      }
-    })
+    return memberships.map(membership => ({
+      id: membership.account_id,
+      ...membership
+    }))
   }
 
   return (

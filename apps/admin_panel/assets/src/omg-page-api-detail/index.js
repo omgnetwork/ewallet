@@ -35,7 +35,6 @@ const DetailSection = styled.div`
     color: ${props => props.theme.colors.B100};
     cursor: pointer;
   }
-
   .detail-section-header {
     height: 36px;
     margin-bottom: 15px;
@@ -44,7 +43,6 @@ const DetailSection = styled.div`
     justify-content: space-between;
     align-items: center;
   }
-
   .button-group {
     margin-top: 30px;
     text-align: right;
@@ -162,7 +160,7 @@ const EditView = ({ keyType, keyDetail, setView, enableKey, updateKey }) => {
   )
 }
 
-const ReadView = withRouter(({ keyDetail, keyType, setView, location: { pathname } }) => {
+const ReadView = withRouter(({ assignKey, keyDetail, keyType, setView, location: { pathname } }) => {
   const id = _.get(keyDetail, 'access_key') || _.get(keyDetail, 'key', '-')
   return (
     <Content>
@@ -218,17 +216,18 @@ const ReadView = withRouter(({ keyDetail, keyType, setView, location: { pathname
         />
       </DetailSection>
 
-      <AsideSection>
-        <div className='aside-section-header'>
-          <Button
-            styleType='secondary'
-            size='small'
-          >
-            <Icon name='Plus' style={{ marginRight: '10px' }} />
-            <span>Assign This Key</span>
-          </Button>
-        </div>
-        {keyType === 'admin' && (
+      {keyType === 'admin' && (
+        <AsideSection>
+          <div className='aside-section-header'>
+            <Button
+              styleType='secondary'
+              size='small'
+              onClick={assignKey}
+            >
+              <Icon name='Plus' style={{ marginRight: '10px' }} />
+              <span>Assign This Key</span>
+            </Button>
+          </div>
           <NavCard
             className='nav-card'
             icon='Merchant'
@@ -236,8 +235,8 @@ const ReadView = withRouter(({ keyDetail, keyType, setView, location: { pathname
             subTitle='Lorem ipsum something something else'
             to={`${pathname}/assigned-accounts`}
           />
-        )}
-      </AsideSection>
+        </AsideSection>
+      )}
     </Content>
   )
 })
@@ -245,12 +244,19 @@ const ReadView = withRouter(({ keyDetail, keyType, setView, location: { pathname
 const ApiKeyDetailPage = ({ match: { params } }) => {
   const { keyType, keyId } = params
   const [ view, setView ] = useState('read')
+  const [ assignKeyModal, setAssignKeyModal ] = useState(false)
 
   // eslint-disable-next-line react/prop-types
   const renderView = ({ keyDetail, updateKey, enableKey }) => {
     const id = _.get(keyDetail, 'access_key') || _.get(keyDetail, 'key', '-')
     return (
       <>
+        {/* <AssignKeyModal
+          accountId={}
+          keyId={}
+          role={}
+          isOpen={assignKeyModal}
+        /> */}
         <BreadContainer>
           <Breadcrumb
             items={[
@@ -274,6 +280,7 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
         {view === 'read'
           ? (
             <ReadView
+              assignKey={() => setAssignKeyModal(true)}
               keyType={keyType}
               keyDetail={keyDetail}
               setView={setView}
