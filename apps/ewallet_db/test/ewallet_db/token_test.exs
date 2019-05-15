@@ -176,9 +176,14 @@ defmodule EWalletDB.TokenTest do
       :token |> params_for(%{blockchain_address: "0x02"}) |> Token.insert()
       :token |> params_for() |> Token.insert()
 
-      tokens = Token.query_all_blockchain() |> Repo.all()
+      token_addresses =
+        Token.query_all_blockchain()
+        |> Repo.all()
+        |> Enum.map(fn t -> t.blockchain_address end)
 
-      assert length(tokens) == 2
+      assert length(token_addresses) == 2
+      assert Enum.member?(token_addresses, "0x01")
+      assert Enum.member?(token_addresses, "0x02")
     end
   end
 
