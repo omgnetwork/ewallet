@@ -23,7 +23,9 @@ class App extends Component {
     return (
       <Provider store={this.props.store}>
         <ThemeProvider theme={theme}>
-          <Routes authenticated={this.props.authenticated} />
+          <>
+            <Routes authenticated={this.props.authenticated} />
+          </>
         </ThemeProvider>
       </Provider>
     )
