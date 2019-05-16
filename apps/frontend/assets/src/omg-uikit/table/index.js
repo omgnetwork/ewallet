@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
+import styled, {keyframes} from 'styled-components'
 import { LoadingSkeleton } from '../../omg-uikit'
 import Pagination from './Pagination'
 import Fade from '../../omg-transition/Fade'
@@ -25,8 +25,21 @@ const EmptyStageContainer = styled.div`
     margin-bottom: 20px;
   }
 `
+
+const blink = keyframes`
+  from {
+    background-color: yellow;
+  }
+  to {
+    background-color: transparent;
+  }
+`
+
 const Tr = styled.tr`
-  background-color: ${props => (props.active ? props.theme.colors.S100 : 'transparent')};
+  background-color: ${props =>
+    props.active ? props.theme.colors.S100 : 'transparent'};
+  animation: ${blink};
+  animation-duration: ${props => props.new ? '2s' : '0'};
 `
 class Table extends Component {
   static propTypes = {
@@ -56,9 +69,11 @@ class Table extends Component {
   }
   constructor (props) {
     super(props)
-    this.loadingWidthBars = new Array(this.props.loadingRowNumber).fill().map((x, i) => {
-      return `${30 + Math.random() * 40}%`
-    })
+    this.loadingWidthBars = new Array(this.props.loadingRowNumber)
+      .fill()
+      .map((x, i) => {
+        return `${30 + Math.random() * 40}%`
+      })
   }
   onClickPagination = page => e => {
     if (this.props.onClickPagination) {
@@ -86,9 +101,17 @@ class Table extends Component {
   renderLoadingRows = () => {
     return this.loadingWidthBars.map((x, i) => {
       return (
-        <tr key={`row-${i}`} ref={row => (this.row = row)} style={{ pointerEvents: 'none' }}>
+        <tr
+          key={`row-${i}`}
+          ref={row => (this.row = row)}
+          style={{ pointerEvents: 'none' }}
+        >
           <td key={`col-rest-${i}`}>
-            <LoadingSkeleton height={'12px'} width={x} style={{ margin: '5px 0' }} />
+            <LoadingSkeleton
+              height={'12px'}
+              width={x}
+              style={{ margin: '5px 0' }}
+            />
           </td>
         </tr>
       )
@@ -108,12 +131,15 @@ class Table extends Component {
           ref={row => (this.row = row)}
           onClick={this.props.onClickRow(d, i)}
           active={this.props.activeIndexKey === d.id}
+          new={d.__new}
         >
           {this.props.columns
             .filter(c => !c.hide)
             .map((c, j) => (
               <td key={`col-rest-${j}`}>
-                {this.props.rowRenderer ? this.props.rowRenderer(c.key, d[c.key], d) : d[c.key]}
+                {this.props.rowRenderer
+                  ? this.props.rowRenderer(c.key, d[c.key], d)
+                  : d[c.key]}
               </td>
             ))}
         </Tr>
@@ -128,13 +154,24 @@ class Table extends Component {
         height={this.props.loadingRowNumber * 40}
         loading={this.props.loading}
       >
-        <Fade in={this.props.loading} timeout={200} key={'loading'} unmountOnExit>
+        <Fade
+          in={this.props.loading}
+          timeout={200}
+          key={'loading'}
+          unmountOnExit
+        >
           <table style={{ position: 'absolute', background: 'white' }}>
             <thead>{this.renderLoadingColumns()}</thead>
             <tbody>{this.renderLoadingRows()}</tbody>
           </table>
         </Fade>
-        <Fade in={!this.props.loading} timeout={200} key={'data'} unmountOnExit appear>
+        <Fade
+          in={!this.props.loading}
+          timeout={200}
+          key={'data'}
+          unmountOnExit
+          appear
+        >
           <table>
             <thead>{this.renderColumns()}</thead>
             {!!dataRows.length && <tbody>{this.renderDataRows()}</tbody>}
