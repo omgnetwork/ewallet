@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-import SearchGroup from './SearchGroup'
+import { SearchBar } from '../omg-uikit'
 
 const TopNavigationContainer = styled.div`
   display: flex;
@@ -44,6 +44,9 @@ const LeftNavigationContainer = styled.div`
   }
 `
 const RightNavigationContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   white-space: nowrap;
   button {
     font-size: 14px;
@@ -62,10 +65,6 @@ const RightNavigationContainer = styled.div`
     margin-top: 10px;
   }
 `
-const SearchBarContainer = styled.div`
-  vertical-align: bottom;
-  display: inline-block;
-`
 
 export default class TopNavigation extends PureComponent {
   static propTypes = {
@@ -80,13 +79,6 @@ export default class TopNavigation extends PureComponent {
     searchBar: true,
     divider: true
   }
-  renderSearchBar () {
-    return (
-      <SearchBarContainer>
-        <SearchGroup debounced={500} normalPlaceholder={this.props.normalPlaceholder} />
-      </SearchBarContainer>
-    )
-  }
   render () {
     return (
       <TopNavigationContainer divider={this.props.divider}>
@@ -95,7 +87,7 @@ export default class TopNavigation extends PureComponent {
           {this.props.description && <p>{this.props.description}</p>}
         </LeftNavigationContainer>
         <RightNavigationContainer>
-          {this.props.searchBar && this.renderSearchBar()}
+          {this.props.searchBar && <SearchBar placeholder={this.props.normalPlaceholder} />}
           {this.props.buttons}
         </RightNavigationContainer>
       </TopNavigationContainer>

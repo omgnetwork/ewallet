@@ -18,6 +18,7 @@ import Tag from '../omg-uikit/tag'
 import Tooltip from '../omg-uikit/tooltip'
 import NavCard from '../omg-uikit/navcard'
 import Id from '../omg-uikit/id'
+import SearchBar from '../omg-uikit/searchbar'
 
 export {
   Input,
@@ -40,5 +41,6 @@ export {
   Tag,
   Tooltip,
   NavCard,
-  Id
+  Id,
+  SearchBar
 }

@@ -172,9 +172,9 @@ function CreateAdminKeyModal (props) {
 
           {accountId && (
             <>
-              <InputLabel>Select Role</InputLabel>
+              <InputLabel>Assign Role</InputLabel>
               <StyledSelect
-                normalPlaceholder='Role name'
+                normalPlaceholder='Add Role'
                 value={_.startCase(roleName)}
                 onSelectItem={item => setRoleName(item.key)}
                 options={[
