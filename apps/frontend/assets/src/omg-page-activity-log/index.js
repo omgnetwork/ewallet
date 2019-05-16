@@ -9,7 +9,7 @@ import moment from 'moment'
 import queryString from 'query-string'
 import { createSearchActivityLogQuery } from './searchField'
 import { Icon } from '../omg-uikit'
-import TopBar from '../omg-app-layout/TopBar';
+
 const ActivityLogPageContainer = styled.div`
   position: relative;
   padding-bottom: 50px;
@@ -67,6 +67,10 @@ class ActivityLogPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
     topNavigation: PropTypes.bool
+  }
+
+  static defaultProps = {
+    topNavigation: true
   }
 
   onClickRow = (data, index) => e => {
