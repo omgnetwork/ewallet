@@ -14,6 +14,7 @@ import Copy from '../omg-copy'
 import { openModal } from '../omg-modal/action'
 import { connect } from 'react-redux'
 import { tableColumsKeys } from './constants'
+import { selectNewTransactions } from '../omg-transaction/selector'
 const TransactionPageContainer = styled.div`
   position: relative;
   td:nth-child(3) {
@@ -122,7 +123,8 @@ class TransactionPage extends Component {
     divider: PropTypes.bool,
     query: PropTypes.object,
     topNavigation: PropTypes.bool,
-    openModal: PropTypes.func
+    openModal: PropTypes.func,
+    newTransactions: PropTypes.array
   }
   static defaultProps = {
     query: {},
@@ -267,7 +269,7 @@ class TransactionPage extends Component {
           />
         )}
         <SortableTable
-          rows={transactions}
+          rows={[...this.props.newTransactions, ...transactions]}
           columns={tableColumsKeys}
           rowRenderer={this.rowRenderer}
           perPage={15}
@@ -298,6 +300,6 @@ class TransactionPage extends Component {
 }
 
 export default connect(
-  null,
+  state => ({ newTransactions: selectNewTransactions(state) }),
   { openModal }
 )(withRouter(TransactionPage))
