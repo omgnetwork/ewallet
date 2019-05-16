@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthBlockchain.Wallet do
+defmodule Keychain.Wallet do
   @moduledoc false
 
   alias Keychain.Key
   alias ExthCrypto.ECIES.ECDH
   alias ExthCrypto.Hash.Keccak
 
-  @typep address :: EthBlockchain.address()
+  @typep address :: Keychain.address()
   @typep resp(ret) :: ret | {:error, atom()}
 
   @doc """
   Generates a new wallet address and returns a wallet ID for futher access.
 
-  Returns a tuple of `{:ok, wallet_id, public_key}`.
+  Returns a tuple of `{:ok, {wallet_id, public_key}}`.
   """
   @spec generate :: resp({:ok, address()})
   def generate do
@@ -44,6 +44,6 @@ defmodule EthBlockchain.Wallet do
     wallet_id = "0x#{account_encoded}"
 
     {:ok, _} = Key.insert_private_key(wallet_id, private_key_encoded)
-    {:ok, wallet_id, public_key_encoded}
+    {:ok, {wallet_id, public_key_encoded}}
   end
 end

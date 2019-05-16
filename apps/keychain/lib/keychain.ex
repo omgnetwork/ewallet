@@ -16,4 +16,9 @@ defmodule Keychain do
   @moduledoc """
   Documentation for Keychain.
   """
+
+  @typedoc """
+  A tuple of `{wallet_id, public_key}` representing a wallet
+  """
+  @type address :: {String.t(), String.t()}
 end

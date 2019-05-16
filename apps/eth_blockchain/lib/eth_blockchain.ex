@@ -16,10 +16,4 @@ defmodule EthBlockchain do
   providing just `func` as an atom is suffice.
   """
   @type call :: {atom(), list()} | atom()
-
-  @typedoc """
-  A tuple of `{adapter, wallet_id, public_key}` representing a wallet
-  currently managed by an adapter.
-  """
-  @type address :: {atom(), String.t(), String.t()}
 end
