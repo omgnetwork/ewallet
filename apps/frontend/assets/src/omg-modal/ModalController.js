@@ -11,7 +11,11 @@ function ModalController (props) {
   return modals.map(({ id, modal: Modal }) => {
     const modal = props.selectModalById(id) || {}
     return (
-      <Modal key={id} onRequestClose={() => props.closeModal(id)} {...modal} />
+      <Modal
+        key={id}
+        onRequestClose={() => props.closeModal({ id })}
+        {...modal}
+      />
     )
   })
 }

@@ -148,7 +148,7 @@ class TransactionPage extends Component {
         key='create'
         size='small'
         styleType='primary'
-        onClick={() => this.props.openModal('createTransaction')}
+        onClick={() => this.props.openModal({ id: 'createTransaction' })}
       >
         <Icon name='Transaction' />
         <span>Transfer</span>
