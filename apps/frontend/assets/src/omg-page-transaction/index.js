@@ -8,11 +8,12 @@ import PropTypes from 'prop-types'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
-import CreateTransactionModal from '../omg-create-transaction-modal'
 import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
-
+import { openModal } from '../omg-modal/action'
+import { connect } from 'react-redux'
+import { tableColumsKeys } from './constants'
 const TransactionPageContainer = styled.div`
   position: relative;
   td:nth-child(3) {
@@ -105,27 +106,13 @@ export const MarkContainer = styled.div`
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background-color: ${props => (props.status === 'failed' ? '#FC7166' : '#0EBF9A')};
+  background-color: ${props =>
+    props.status === 'failed' ? '#FC7166' : '#0EBF9A'};
   display: inline-block;
   text-align: center;
   line-height: 18px;
   margin-right: 5px;
 `
-
-const columns = [
-  { key: 'id', title: 'TRANSACTION ID' },
-  { key: 'toFrom', title: 'FROM/TO' },
-  {
-    key: 'fromToToken',
-    title: 'EXCHANGE'
-  },
-  { key: 'status', title: 'STATUS', sort: true },
-  {
-    key: 'created_at',
-    title: 'CREATED AT',
-    sort: true
-  }
-]
 
 class TransactionPage extends Component {
   static propTypes = {
@@ -134,21 +121,14 @@ class TransactionPage extends Component {
     history: PropTypes.object,
     divider: PropTypes.bool,
     query: PropTypes.object,
-    topNavigation: PropTypes.bool
+    topNavigation: PropTypes.bool,
+    openModal: PropTypes.func
   }
   static defaultProps = {
     query: {},
     topNavigation: true
   }
-  state = {
-    createTransactionModalOpen: false
-  }
-  onClickCreateTransaction = () => {
-    this.setState({ createTransactionModalOpen: true })
-  }
-  onRequestCloseCreateTransaction = () => {
-    this.setState({ createTransactionModalOpen: false })
-  }
+
   onClickRow = (data, index) => e => {
     const searchObject = queryString.parse(this.props.location.search)
     this.props.history.push({
@@ -161,9 +141,15 @@ class TransactionPage extends Component {
   onClickExport = e => {
     this.props.history.push('/transaction/export')
   }
+
   renderCreateTransactionButton = () => {
     return (
-      <Button key='create' size='small' styleType='primary' onClick={this.onClickCreateTransaction}>
+      <Button
+        key='create'
+        size='small'
+        styleType='primary'
+        onClick={() => this.props.openModal('createTransaction')}
+      >
         <Icon name='Transaction' />
         <span>Transfer</span>
       </Button>
@@ -171,7 +157,12 @@ class TransactionPage extends Component {
   }
   renderExportButton () {
     return (
-      <Button key='export' size='small' styleType='secondary' onClick={this.onClickExport}>
+      <Button
+        key='export'
+        size='small'
+        styleType='secondary'
+        onClick={this.onClickExport}
+      >
         <span>Export</span>
       </Button>
     )
@@ -180,7 +171,9 @@ class TransactionPage extends Component {
     return (
       <FromOrToRow>
         {fromOrTo.account && <BoldSpan>{fromOrTo.account.name}</BoldSpan>}
-        {fromOrTo.user && fromOrTo.user.email && <BoldSpan>{fromOrTo.user.email}</BoldSpan>}
+        {fromOrTo.user && fromOrTo.user.email && (
+          <BoldSpan>{fromOrTo.user.email}</BoldSpan>
+        )}
         {fromOrTo.user && fromOrTo.user.provider_user_id && (
           <BoldSpan>{fromOrTo.user.provider_user_id}</BoldSpan>
         )}
@@ -228,14 +221,20 @@ class TransactionPage extends Component {
           <div>
             <Sign>-</Sign>
             <span>
-              {formatReceiveAmountToTotal(rows.from.amount, rows.from.token.subunit_to_unit)}{' '}
+              {formatReceiveAmountToTotal(
+                rows.from.amount,
+                rows.from.token.subunit_to_unit
+              )}{' '}
               {rows.from.token.symbol}
             </span>
           </div>
           <div>
             <Sign>+</Sign>
             <span>
-              {formatReceiveAmountToTotal(rows.to.amount, rows.to.token.subunit_to_unit)}{' '}
+              {formatReceiveAmountToTotal(
+                rows.to.amount,
+                rows.to.token.subunit_to_unit
+              )}{' '}
               {rows.to.token.symbol}
             </span>
           </div>
@@ -247,21 +246,29 @@ class TransactionPage extends Component {
     }
     return data
   }
-  renderTransactionPage = ({ data: transactions, individualLoadingStatus, pagination, fetch }) => {
-    const activeIndexKey = queryString.parse(this.props.location.search)['show-transaction-tab']
-
+  renderTransactionPage = ({
+    data: transactions,
+    individualLoadingStatus,
+    pagination,
+    fetch
+  }) => {
+    const query = queryString.parse(this.props.location.search)
+    const activeIndexKey = query['show-transaction-tab']
     return (
       <TransactionPageContainer>
         {this.props.topNavigation && (
           <TopNavigation
             divider={this.props.divider}
             title={'Transactions'}
-            buttons={[this.renderExportButton(), this.renderCreateTransactionButton()]}
+            buttons={[
+              this.renderExportButton(),
+              this.renderCreateTransactionButton()
+            ]}
           />
         )}
         <SortableTable
           rows={transactions}
-          columns={columns}
+          columns={tableColumsKeys}
           rowRenderer={this.rowRenderer}
           perPage={15}
           loadingStatus={individualLoadingStatus}
@@ -270,11 +277,6 @@ class TransactionPage extends Component {
           navigation
           onClickRow={this.onClickRow}
           activeIndexKey={activeIndexKey}
-        />
-        <CreateTransactionModal
-          onRequestClose={this.onRequestCloseCreateTransaction}
-          open={this.state.createTransactionModalOpen}
-          onCreateTransaction={fetch}
         />
       </TransactionPageContainer>
     )
@@ -295,4 +297,7 @@ class TransactionPage extends Component {
   }
 }
 
-export default withRouter(TransactionPage)
+export default connect(
+  null,
+  { openModal }
+)(withRouter(TransactionPage))

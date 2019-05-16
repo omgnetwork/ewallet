@@ -28,6 +28,7 @@ import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
 import AccountLayout from '../../omg-page-each-account/AccountLayout'
 import VerifyEmail from '../../omg-page-verify-email'
+import ModalController from '../../omg-modal/ModalController'
 // prettier-ignore
 
 const createRoute = ({ authenticated }) => (
@@ -77,6 +78,7 @@ const createRoute = ({ authenticated }) => (
       <AuthenticatedRoute authenticated={authenticated} path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <Route component={NotFoundPage} />
     </Switch>
+    <ModalController />
   </Router>
 )
 
