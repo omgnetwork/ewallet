@@ -22,16 +22,21 @@ export const accessKeysReducer = createReducer(
   }
 )
 
-export const accessKeyLoadingStatusReducer = createReducer('DEFAULT', {
-  'ACCESS_KEYS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
-  'CURRENT_ACCOUNT/SWITCH': () => 'DEFAULT'
+export const accessKeyMembershipsLoadingStatusReducer = createReducer('DEFAULT', {
+  'ACCESS_KEY_MEMBERSHIPS/REQUEST/INITIATED': () => 'INITIATED',
+  'ACCESS_KEY_MEMBERSHIPS/REQUEST/SUCCESS': () => 'SUCCESS',
+  'ACCESS_KEY_MEMBERSHIPS/REQUEST/FAILED': () => 'FAILED'
 })
 
-export const accessKeyMembershipsReducer = createReducer(
-  {},
-  {
-    'ACCESS_KEY_MEMBERSHIPS/REQUEST/SUCCESS': (state, { data }) => {
-      return _.merge(state, _.keyBy(data, 'key_id'))
+export const accessKeyMembershipsReducer = createReducer({}, {
+  'ACCESS_KEY_MEMBERSHIPS/REQUEST/SUCCESS': (state, { data }) => {
+    if (data.length) {
+      const keyId = data[0].key_id
+      return {
+        ...state,
+        [keyId]: data
+      }
     }
+    return state
   }
-)
+})
