@@ -25,20 +25,25 @@ defmodule Keychain.Signature do
 
   # The follow are the maximum value for x in the signature, as defined in Eq.(212)
   @base_recovery_id 27
+  @base_recovery_id_eip_155 35
 
   @doc """
   Returns a ECDSA signature (v,r,s) for a given hashed value.
   This implementes Eq.(207) of the Yellow Paper.
   """
-  @spec sign_transaction_hash(Keccak.keccak_hash(), String.t()) ::
+  @spec sign_transaction_hash(Keccak.keccak_hash(), String.t(), integer() | nil) ::
           {hash_v, hash_r, hash_s}
-  def sign_transaction_hash(hash, wallet_address) do
+  def sign_transaction_hash(hash, wallet_address, chain_id \\ nil) do
     private_key = Key.private_key_for_wallet(wallet_address)
 
     {:ok, <<r::size(256), s::size(256)>>, recovery_id} =
       :libsecp256k1.ecdsa_sign_compact(hash, private_key, :default, <<>>)
 
-    recovery_id = @base_recovery_id + recovery_id
+    recovery_id =
+      case chain_id do
+        nil -> @base_recovery_id + recovery_id
+        c_id -> c_id * 2 + @base_recovery_id_eip_155 + recovery_id
+      end
 
     {recovery_id, r, s}
   end

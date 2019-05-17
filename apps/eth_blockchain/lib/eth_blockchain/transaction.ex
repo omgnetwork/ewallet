@@ -89,41 +89,19 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
-  @doc """
-  Takes a given transaction and returns a version signed
-  with the private key for the given wallet address. This is defined in Eq.(216) and
-  Eq.(217) of the Yellow Paper.
-  ## Examples
-      iex> Blockchain.Transaction.Signature.sign_transaction(%Blockchain.Transaction{nonce: 5, gas_price: 6, gas_limit: 7, to: <<>>, value: 5, init: <<1>>}, <<1::256>>)
-      %Blockchain.Transaction{data: <<>>, gas_limit: 7, gas_price: 6, init: <<1>>, nonce: 5, r: 97037709922803580267279977200525583527127616719646548867384185721164615918250, s: 31446571475787755537574189222065166628755695553801403547291726929250860527755, to: "", v: 27, value: 5}
-      iex> Blockchain.Transaction.Signature.sign_transaction(%Blockchain.Transaction{nonce: 5, gas_price: 6, gas_limit: 7, to: <<>>, value: 5, init: <<1>>}, <<1::256>>, 1)
-      %Blockchain.Transaction{data: <<>>, gas_limit: 7, gas_price: 6, init: <<1>>, nonce: 5, r: 25739987953128435966549144317523422635562973654702886626580606913510283002553, s: 41423569377768420285000144846773344478964141018753766296386430811329935846420, to: "", v: 38, value: 5}
-  """
   defp sign_transaction(transaction, wallet_address) do
     {v, r, s} =
       transaction
-      |> transaction_hash()
-      |> Keychain.Signature.sign_transaction_hash(wallet_address)
+      |> transaction_hash(1)
+      |> Signature.sign_transaction_hash(wallet_address, 1)
 
     %{transaction | v: v, r: r, s: s}
   end
 
-  @doc """
-  Returns a hash of a given transaction according to the
-  formula defined in Eq.(214) and Eq.(215) of the Yellow Paper.
-  Note: As per EIP-155 (https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md),
-        we will append the chain-id and nil elements to the serialized transaction.
-  ## Examples
-      iex> Blockchain.Transaction.Signature.transaction_hash(%Blockchain.Transaction{nonce: 5, gas_price: 6, gas_limit: 7, to: <<>>, value: 5, init: <<1>>})
-      <<127, 113, 209, 76, 19, 196, 2, 206, 19, 198, 240, 99, 184, 62, 8, 95, 9, 122, 135, 142, 51, 22, 61, 97, 70, 206, 206, 39, 121, 54, 83, 27>>
-      iex> Blockchain.Transaction.Signature.transaction_hash(%Blockchain.Transaction{nonce: 5, gas_price: 6, gas_limit: 7, to: <<1>>, value: 5, data: <<1>>})
-      <<225, 195, 128, 181, 3, 211, 32, 231, 34, 10, 166, 198, 153, 71, 210, 118, 51, 117, 22, 242, 87, 212, 229, 37, 71, 226, 150, 160, 50, 203, 127, 180>>
-      iex> Blockchain.Transaction.Signature.transaction_hash(%Blockchain.Transaction{nonce: 5, gas_price: 6, gas_limit: 7, to: <<1>>, value: 5, data: <<1>>}, 1)
-      <<132, 79, 28, 4, 212, 58, 235, 38, 66, 211, 167, 102, 36, 58, 229, 88, 238, 251, 153, 23, 121, 163, 212, 64, 83, 111, 200, 206, 54, 43, 112, 53>>
-  """
   @spec transaction_hash(Blockchain.Transaction.t()) :: Keccak.keccak_hash()
-  defp transaction_hash(trx) do
+  defp transaction_hash(trx, chain_id \\ nil) do
     serialize(trx, false)
+    |> Kernel.++(if chain_id, do: [encode_unsigned(chain_id), <<>>, <<>>], else: [])
     |> ExRLP.encode()
     |> Keccak.kec()
   end
