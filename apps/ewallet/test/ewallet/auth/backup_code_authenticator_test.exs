@@ -49,17 +49,25 @@ defmodule EWallet.BackupCodeAuthenticatorTest do
 
       user = insert(:user)
 
-      assert {:ok, %{ubc_0: user_backup_code}} = UserBackupCode.insert_multiple(%{hashed_backup_codes: [hashed_backup_code], user_uuid: user.uuid})
-
+      assert {:ok, %{ubc_0: user_backup_code}} =
+               UserBackupCode.insert_multiple(%{
+                 hashed_backup_codes: [hashed_backup_code],
+                 user_uuid: user.uuid
+               })
 
       assert {:ok, updated_user_backup_code} = UserBackupCode.invalidate(user_backup_code)
 
-      assert BackupCodeAuthenticator.verify(backup_code_created_date, [updated_user_backup_code], backup_code) ==
-        {:error, :used_backup_code}
+      assert BackupCodeAuthenticator.verify(
+               backup_code_created_date,
+               [updated_user_backup_code],
+               backup_code
+             ) == {:error, :used_backup_code}
     end
 
     test "respond {:error, :invalid_parameter} when given invalid parameters" do
-      assert BackupCodeAuthenticator.verify(nil, "123456", "123456") == {:error, :invalid_parameter}
+      assert BackupCodeAuthenticator.verify(nil, "123456", "123456") ==
+               {:error, :invalid_parameter}
+
       assert BackupCodeAuthenticator.verify(nil, "123456", 123) == {:error, :invalid_parameter}
       assert BackupCodeAuthenticator.verify(nil, nil, "123456") == {:error, :invalid_parameter}
     end
