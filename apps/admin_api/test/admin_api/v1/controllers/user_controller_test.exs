@@ -253,7 +253,6 @@ defmodule AdminAPI.V1.UserControllerTest do
           "email" => nil,
           "enabled" => inserted_user.enabled,
           "enabled_2fa_at" => nil,
-          "used_backup_code_at" => nil,
           "avatar" => %{
             "large" => nil,
             "original" => nil,

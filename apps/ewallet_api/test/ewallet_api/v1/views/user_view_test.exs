@@ -46,7 +46,6 @@ defmodule EWalletAPI.V1.UserViewTest do
           email: user.email,
           enabled: user.enabled,
           enabled_2fa_at: nil,
-          used_backup_code_at: nil,
           avatar: %{
             original: nil,
             large: nil,

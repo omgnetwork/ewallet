@@ -17,7 +17,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
   import EWalletDB.Factory
   alias EWallet.TwoFactorAuthenticator
   alias EWallet.TwoFactorAuthenticator.InvalidNumberOfBackupCodesError
-  alias EWalletDB.{User, AuthToken}
+  alias EWalletDB.{User, AuthToken, UserBackupCode}
   alias Utils.Helpers.Crypto
 
   describe "login" do
@@ -117,7 +117,12 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
 
       updated_user = User.get(user.id)
 
-      assert length(updated_user.hashed_backup_codes) == 9
+      valid_hashed_backup_codes =
+        user
+        |> UserBackupCode.all_for_user()
+        |> Enum.filter(fn user_backup_code -> user_backup_code.used_at == nil end)
+
+      assert length(valid_hashed_backup_codes) == 9
     end
 
     test "returns {:error, :invalid_passcode} if the user has secret code but the given passcode is incorrect" do
@@ -343,13 +348,18 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
     test "returns {:ok, backup_codes_attrs} when given :backup_codes" do
       user = insert(:user)
 
-      {attrs, updated_user} = create_backup_codes(user)
+      {attrs, _} = create_backup_codes(user)
 
       assert length(attrs.backup_codes) == 10
 
+      hashed_backup_codes =
+        user
+        |> UserBackupCode.all_for_user()
+        |> Enum.map(fn user_backup_code -> user_backup_code.hashed_backup_code end)
+
       assert Enum.all?(
                attrs.backup_codes,
-               &verify_backup_code(&1, updated_user.hashed_backup_codes)
+               &verify_backup_code(&1, hashed_backup_codes)
              )
     end
 
@@ -406,8 +416,10 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       # Assert updated user
       updated_user = User.get(user.id)
       assert updated_user.enabled_2fa_at != nil
-      assert updated_user.hashed_backup_codes != []
       assert updated_user.secret_2fa_code != nil
+
+      # Assert backup codes
+      assert UserBackupCode.all_for_user(user) != []
     end
 
     test "returns {:error, :backup_codes_not_found} when backup_code has not been created" do
@@ -441,13 +453,16 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       user = insert(:user)
       {:ok, _} = AuthToken.generate(user, :admin_api, user)
 
-      assert :ok = TwoFactorAuthenticator.disable(user)
+      {_, _, updated_user} = create_two_factors_and_enable_2fa(user)
+
+      assert :ok = TwoFactorAuthenticator.disable(updated_user)
 
       updated_user = User.get(user.id)
 
       assert updated_user.enabled_2fa_at == nil
-      assert updated_user.hashed_backup_codes == []
       assert updated_user.secret_2fa_code == nil
+      assert updated_user.backup_codes_created_at == nil
+      assert UserBackupCode.all_for_user(user) == []
     end
   end
 

@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.UserSerializer
   alias EWallet.TwoFactorAuthenticator
-  alias EWalletDB.{User, Repo, AuthToken, PreAuthToken}
+  alias EWalletDB.{User, Repo, AuthToken, PreAuthToken, UserBackupCode}
 
   describe "/me.create_secret_code" do
     test "responds a new secret code if the authorization header is valid" do
@@ -61,10 +61,9 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
 
       assert response["success"] == true
       assert response["data"]["object"] == "backup_codes"
-      assert length(response["data"]["backup_codes"]) > 0
-      assert user.used_backup_code_at != nil
-      assert user.used_hashed_backup_codes == []
-      assert length(user.hashed_backup_codes) == 10
+      assert length(response["data"]["backup_codes"])
+      backup_codes = UserBackupCode.all_for_user(user)
+      assert length(backup_codes) == 10
     end
 
     test "responds error if the authorization header is invalid" do
