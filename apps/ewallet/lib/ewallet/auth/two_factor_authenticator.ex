@@ -141,7 +141,7 @@ defmodule EWallet.TwoFactorAuthenticator do
            BackupCodeAuthenticator.create(number_of_backup_code),
          :ok <-
            UserBackupCode.delete_for_user(user.uuid),
-         {:ok, u} <-
+         {:ok, _} <-
            User.backup_codes_created_at(user),
          {:ok, _} <-
            UserBackupCode.insert_multiple(%{

@@ -115,8 +115,6 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
       assert TwoFactorAuthenticator.verify(%{"backup_code" => backup_code}, updated_user) ==
                {:error, :invalid_backup_code}
 
-      updated_user = User.get(user.id)
-
       valid_hashed_backup_codes =
         user
         |> UserBackupCode.all_for_user()
