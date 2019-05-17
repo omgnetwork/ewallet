@@ -81,9 +81,6 @@ defmodule EWallet.BackupCodeAuthenticator do
       %{inserted_at: inserted_at, used_at: nil} when inserted_at >= backup_code_created_at ->
         {:ok, user_backup_code}
 
-      %{used_at: used_at} when not is_nil(used_at) ->
-        {:error, :used_backup_code}
-
       _ ->
         {:error, :invalid_backup_code}
     end

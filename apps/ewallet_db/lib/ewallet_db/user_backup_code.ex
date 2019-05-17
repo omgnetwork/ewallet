@@ -43,10 +43,7 @@ defmodule EWalletDB.UserBackupCode do
 
   defp changeset(%UserBackupCode{} = user_backup_code, attrs) do
     user_backup_code
-    |> cast(
-      attrs,
-      [:hashed_backup_code, :user_uuid, :used_at]
-    )
+    |> cast(attrs, [:hashed_backup_code, :user_uuid, :used_at])
     |> validate_required([:hashed_backup_code, :user_uuid])
     |> unique_constraint(:user_backup_code)
     |> assoc_constraint(:user)

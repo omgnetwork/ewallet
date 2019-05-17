@@ -42,7 +42,7 @@ defmodule EWallet.BackupCodeAuthenticatorTest do
                {:error, :invalid_backup_code}
     end
 
-    test "respond {:error, :used_backup_code} when given the backup_code that has already been used" do
+    test "respond {:error, :invalid_backup_code} when given the backup_code that has already been used" do
       backup_code = "12345678"
       hashed_backup_code = Crypto.hash_password(backup_code)
       backup_code_created_date = NaiveDateTime.utc_now()
@@ -61,7 +61,7 @@ defmodule EWallet.BackupCodeAuthenticatorTest do
                backup_code_created_date,
                [updated_user_backup_code],
                backup_code
-             ) == {:error, :used_backup_code}
+             ) == {:error, :invalid_backup_code}
     end
 
     test "respond {:error, :invalid_parameter} when given invalid parameters" do
