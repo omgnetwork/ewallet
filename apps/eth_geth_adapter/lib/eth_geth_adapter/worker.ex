@@ -34,6 +34,7 @@ defmodule EthGethAdapter.Worker do
   @spec start_link() :: GenServer.on_start()
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
+    IO.inspect("FFSSSSSSSS")
     DeferredConfig.populate(:ethereumex)
     GenServer.start_link(__MODULE__, :ok, opts)
   end
@@ -43,6 +44,7 @@ defmodule EthGethAdapter.Worker do
   """
   @spec init(:ok) :: {:ok, nil}
   def init(:ok) do
+    IO.inspect("MNMNMNMN")
     {:ok, nil}
   end
 
@@ -77,5 +79,9 @@ defmodule EthGethAdapter.Worker do
 
   def handle_call({:get_transaction_count, address}, _from, reg) do
     {:reply, Transaction.get_transaction_count(address), reg}
+  end
+
+  def handle_call({:send, transaction_data}, _from, reg) do
+    {:reply, Transaction.send(transaction_data), reg}
   end
 end
