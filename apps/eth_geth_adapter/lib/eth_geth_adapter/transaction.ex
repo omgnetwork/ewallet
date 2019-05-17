@@ -18,7 +18,6 @@ defmodule EthGethAdapter.Transaction do
   alias Ethereumex.HttpClient, as: Client
 
   def send(transaction_data) do
-    IO.inspect(transaction_data)
     Client.eth_send_raw_transaction("0x" <> transaction_data)
   end
 end

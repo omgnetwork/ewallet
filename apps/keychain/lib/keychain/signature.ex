@@ -36,8 +36,7 @@ defmodule Keychain.Signature do
   def sign_transaction_hash(hash, wallet_address, chain_id \\ nil) do
     private_key = Key.private_key_for_wallet(wallet_address)
 
-    {:ok, <<r::size(256), s::size(256)>>, recovery_id} =
-      :libsecp256k1.ecdsa_sign_compact(hash, private_key, :default, <<>>)
+    {_signature, r, s, recovery_id} = ExthCrypto.Signature.sign_digest(hash, private_key)
 
     recovery_id =
       case chain_id do
@@ -46,5 +45,5 @@ defmodule Keychain.Signature do
       end
 
     {recovery_id, r, s}
-  end
+    end
 end

@@ -58,21 +58,26 @@ defmodule EthBlockchain.Transaction do
     #   ABI.encode("transferFrom(address,address,uint)", [from_address, to_address, token_id])
 
     # contract_address = "0x123" |> String.slice(2..-1) |> Base.decode16(case: :mixed)
-
+    "0x" <> to_a = to_address
     transaction_data =
       %__MODULE__{
-        # data: abi_encoded_data,
-        gas_limit: 100_000,
-        gas_price: 16_000_000_000,
-        init: <<>>,
-        nonce: 5,
-        to: to_address,#contract_address,
+        # data: "0x",#abi_encoded_data,
+        gas_limit: 21000,
+        gas_price: 10,
+        # init: <<>>,
+        # nonce: 1,
+        to: Base.decode16!(to_a, case: :mixed),#contract_address,
         value: amount
       }
       |> sign_transaction(from_address)
       |> serialize()
-      |> ExRLP.encode()
+
+      IO.inspect(transaction_data)
+      transaction_data = transaction_data |> ExRLP.encode()
+      IO.inspect(transaction_data)
+      transaction_data = transaction_data
       |> Base.encode16(case: :lower)
+      IO.inspect(transaction_data)
 
     adapter =
       adapter ||
@@ -121,6 +126,7 @@ defmodule EthBlockchain.Transaction do
   """
   @spec serialize(t) :: ExRLP.t()
   def serialize(trx, include_vrs \\ true) do
+    IO.inspect(trx.gas_price)
     base = [
       trx.nonce |> encode_unsigned(),
       trx.gas_price |> encode_unsigned(),
@@ -195,20 +201,7 @@ defmodule EthBlockchain.Transaction do
     }
   end
 
-  @doc """
-  Similar to `:binary.encode_unsigned/1`, except we encode `0` as
-  `<<>>`, the empty string. This is because the specification says that
-  we cannot have any leading zeros, and so having <<0>> by itself is
-  leading with a zero and prohibited.
-  ## Examples
-      iex> BitHelper.encode_unsigned(0)
-      <<>>
-      iex> BitHelper.encode_unsigned(5)
-      <<5>>
-      iex> BitHelper.encode_unsigned(5_000_000)
-      <<76, 75, 64>>
-  """
   @spec encode_unsigned(number()) :: binary()
-  def encode_unsigned(0), do: <<>>
-  def encode_unsigned(n), do: :binary.encode_unsigned(n)
+  defp encode_unsigned(0), do: <<>>
+  defp encode_unsigned(n), do: :binary.encode_unsigned(n)
 end

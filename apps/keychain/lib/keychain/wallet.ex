@@ -31,15 +31,16 @@ defmodule Keychain.Wallet do
   def generate do
     {public_key, private_key} = ECDH.new_ecdh_keypair()
 
+    <<4::size(8), key::binary-size(64)>> = public_key
+    <<_::binary-size(12), wallet_address::binary-size(20)>> = Keccak.kec(key)
+
+    wallet_address = Base.encode16(wallet_address, case: :lower)
+    wallet_address = "0x#{wallet_address}"
+
     public_key_encoded = Base.encode16(public_key, case: :lower)
     private_key_encoded = Base.encode16(private_key, case: :lower)
 
     IO.inspect(private_key_encoded)
-
-    <<_::binary-size(12), wallet_address::binary-size(20)>> = Keccak.kec(public_key)
-
-    wallet_address = Base.encode16(wallet_address, case: :lower)
-    wallet_address = "0x#{wallet_address}"
 
     {:ok, _} = Key.insert_private_key(wallet_address, private_key_encoded)
     {:ok, {wallet_address, public_key_encoded}}
