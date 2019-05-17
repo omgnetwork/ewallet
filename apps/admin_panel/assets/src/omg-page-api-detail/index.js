@@ -198,14 +198,14 @@ const ReadView = withRouter(({ assignKey, keyDetail, keyType, setView, location:
             value={<div>{_.startCase(_.get(keyDetail, 'global_role')) || '-'}</div>}
           />
         )}
-        <DetailRow
+        {/* <DetailRow
           label='Created by'
           value={
             <Id maxChar={20} withCopy={!!_.get(keyDetail, 'creator_user_id')}>
               {_.get(keyDetail, 'creator_user_id') || '-'}
             </Id>
           }
-        />
+        /> */}
         <DetailRow
           label='Created date'
           icon='Time'

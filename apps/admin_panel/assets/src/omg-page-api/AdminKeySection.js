@@ -13,9 +13,10 @@ import AccessKeyFetcher from '../omg-access-key/accessKeysFetcher'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { createApiKey } from '../omg-api-keys/action'
 import { createAccessKey, enableAccessKey, downloadKey } from '../omg-access-key/action'
+import AccessKeyMembershipsProvider from '../omg-access-key/accessKeyMembershipsProvider'
+import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
 import CreateAdminKeyModal from '../omg-create-admin-key-modal'
 import Copy from '../omg-copy'
-import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
 
 const KeySection = styled.div`
   position: relative;
@@ -152,8 +153,9 @@ class ApiKeyPage extends Component {
     columnsAdminKeys: [
       { key: 'key', title: 'ACCESS KEY' },
       { key: 'name', title: 'LABEL' },
-      { key: 'global_role', title: 'GLOBAL ROLE' },
-      { key: 'created_at', title: 'CREATED AT' },
+      { key: 'assigned_accounts', title: 'ASSIGNED ACCOUNTS' },
+      { key: 'global_role', title: 'ROLE' },
+      { key: 'created_at', title: 'CREATED DATE' },
       { key: 'status', title: 'STATUS' }
     ]
   }
@@ -218,6 +220,19 @@ class ApiKeyPage extends Component {
           <KeyContainer>
             <span>{data}</span>
           </KeyContainer>
+        )
+      case 'assigned_accounts':
+        return (
+          <AccessKeyMembershipsProvider
+            accessKeyId={rows.id}
+            render={({ memberships, membershipsLoading }) => {
+              return membershipsLoading
+                ? '-'
+                : memberships.length > 0
+                  ? `${memberships.length} Accounts`
+                  : 'None'
+            }}
+          />
         )
       case 'global_role':
       case 'account_role':

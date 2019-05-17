@@ -97,7 +97,7 @@ const KeyDetailAccountsPageView = withRouter(({
     { key: 'account.name', title: 'NAME', sort: true },
     { key: 'account.id', title: 'ID', sort: false },
     { key: 'role', title: 'ACCOUNT ROLE', sort: false },
-    { key: 'account.parent_id', title: 'ASSIGNED BY', sort: false },
+    // { key: 'account.parent_id', title: 'ASSIGNED BY', sort: false },
     { key: 'created_at', title: 'ASSIGNED DATE', sort: true },
     { key: 'delete', title: 'REMOVE', sort: false, align: 'center' }
   ]
