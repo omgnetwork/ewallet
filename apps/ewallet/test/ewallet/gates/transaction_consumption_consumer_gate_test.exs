@@ -1464,25 +1464,6 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert error == :unauthorized_amount_override
     end
 
-    test "returns an error for user consumption with different tokens", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-      different_token = insert(:token)
-
-      {res, error} =
-        TransactionConsumptionConsumerGate.consume(meta.sender, %{
-          "formatted_transaction_request_id" => meta.request.id,
-          "correlation_id" => "123",
-          "amount" => 0,
-          "address" => meta.sender_wallet.address,
-          "metadata" => %{},
-          "idempotency_token" => "123",
-          "token_id" => different_token.id
-        })
-
-      assert res == :error
-      assert error == :exchange_client_not_allowed
-    end
-
     test "returns an error if the consumption tries to set an amount equal to 0", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 

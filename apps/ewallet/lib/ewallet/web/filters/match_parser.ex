@@ -40,6 +40,15 @@ defmodule EWallet.Web.MatchParser do
     end
   end
 
+  # Rejects if the user didn't provided the filters as a list.
+  defp parse_rules(inputs, _whitelist, _mappings) when not is_list(inputs) do
+    # In other usual cases where only a param is missing, the 3rd tuple element returned would be
+    # a map of parameters that the code successfully detected, so the user could figure out
+    # what is missing. In this case, where the params are totally invalid, the 3rd tuple element
+    # is therefore an empty map.
+    {:error, :missing_filter_param, %{}}
+  end
+
   # Parses a list of arbitrary `%{"field" => _, "comparator" => _, "value" => _}`
   # into a list of `{field, subfield, type, comparator, value}`.
   defp parse_rules(inputs, whitelist, mappings) do

@@ -36,7 +36,7 @@ $ mix deps.get
 Then, install the front-end dependencies:
 
 ```bash
-$ (cd apps/admin_panel/assets/ && yarn install)
+$ (cd apps/frontend/assets/ && yarn install)
 ```
 
 _The parentheses above forces the commands to be executed in a subshell, and returns to the current working directory after the execution._

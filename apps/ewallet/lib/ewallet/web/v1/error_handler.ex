@@ -373,7 +373,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     exchange_client_not_allowed: %{
       code: "exchange:not_allowed",
-      description: "Exchange consumptions cannot be made through the client API."
+      description: "This exchange pair does not allow client initiated exchanges."
     },
     exchange_account_wallet_not_found: %{
       code: "exchange:account_wallet_not_found",
@@ -398,7 +398,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     missing_filter_param: %{
       code: "client:invalid_parameter",
-      description: "Invalid parameter provided. Missing one or more filter parameters."
+      description: "Invalid parameter provided. Expecting an array of filter parameters."
     },
     comparator_not_supported: %{
       code: "client:invalid_parameter",

@@ -123,6 +123,52 @@ defmodule AdminAPI.V1.BalanceControllerTest do
       assert response["data"]["description"] ==
                "Invalid parameter provided. `address` is required."
     end
+
+    test_with_auths "returns :error when querying with a prohibited field" do
+      user_wallet = prepare_user_wallet()
+
+      [_omg, _btc, _eth] = prepare_balances(user_wallet, [100, 200, 300])
+
+      attrs = %{
+        "sort_by" => "inserted_at",
+        "sort_dir" => "asc",
+        "start_after" => nil,
+        "start_by" => "subunit_to_unit",
+        "address" => user_wallet.address
+      }
+
+      response = request("/wallet.get_balances", attrs)
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "start_by: `subunit_to_unit` is not allowed. " <>
+                 "The available fields are: [id, inserted_at, updated_at]"
+    end
+
+    test_with_auths "returns :error when querying with a non-existing field" do
+      user_wallet = prepare_user_wallet()
+
+      [_omg, _btc, _eth] = prepare_balances(user_wallet, [100, 200, 300])
+
+      attrs = %{
+        "sort_by" => "inserted_at",
+        "sort_dir" => "asc",
+        "start_after" => nil,
+        "start_by" => "not_exists",
+        "address" => user_wallet.address
+      }
+
+      response = request("/wallet.get_balances", attrs)
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "start_by: `not_exists` is not allowed. " <>
+                 "The available fields are: [id, inserted_at, updated_at]"
+    end
   end
 
   # number of created tokens == number of given amounts

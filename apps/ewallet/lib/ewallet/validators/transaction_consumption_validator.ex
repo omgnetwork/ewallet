@@ -19,7 +19,17 @@ defmodule EWallet.TransactionConsumptionValidator do
   """
   alias EWallet.{Helper, TokenFetcher, TransactionRequestPolicy, TransactionConsumptionPolicy}
   alias EWallet.Web.V1.Event
-  alias EWalletDB.{ExchangePair, Repo, Token, TransactionConsumption, TransactionRequest, Wallet}
+
+  alias EWalletDB.{
+    ExchangePair,
+    Repo,
+    Token,
+    TransactionConsumption,
+    TransactionRequest,
+    User,
+    Wallet
+  }
+
   alias ActivityLogger.System
 
   @spec validate_before_consumption(
@@ -51,7 +61,8 @@ defmodule EWallet.TransactionConsumptionValidator do
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
          {:ok, nil} <- validate_max_consumptions_per_interval(request),
          {:ok, _wallet} <- validate_max_consumptions_per_interval_per_user(request, wallet),
-         {:ok, token} <- get_and_validate_token(request, token_id) do
+         {:ok, token, pair} <- get_and_validate_token(request, token_id),
+         :ok <- validate_client_exchange(creator, pair) do
       {:ok, request, token, amount}
     else
       error when is_binary(error) ->
@@ -99,6 +110,14 @@ defmodule EWallet.TransactionConsumptionValidator do
       error ->
         error
     end
+  end
+
+  def validate_client_exchange(%User{}, %ExchangePair{allow_end_user_exchanges: false}) do
+    {:error, :exchange_client_not_allowed}
+  end
+
+  def validate_client_exchange(_creator, _pair) do
+    :ok
   end
 
   defp validate_not_expired(consumption) do
@@ -200,7 +219,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   end
 
   @spec get_and_validate_token(%TransactionRequest{}, String.t() | nil) ::
-          {:ok, %Token{}}
+          {:ok, %Token{}, %ExchangePair{}}
           | {:error, atom()}
           | {:error, atom(), String.t()}
   def get_and_validate_token(%TransactionRequest{token_uuid: nil} = _request, nil) do
@@ -209,18 +228,24 @@ defmodule EWallet.TransactionConsumptionValidator do
   end
 
   def get_and_validate_token(%TransactionRequest{token_uuid: token_uuid}, nil) do
-    TokenFetcher.fetch(%{"token_uuid" => token_uuid})
+    case TokenFetcher.fetch(%{"token_uuid" => token_uuid}) do
+      {:ok, _} = ok -> Tuple.append(ok, nil)
+      error -> error
+    end
   end
 
   def get_and_validate_token(%{token_uuid: nil} = _request, token_id) do
-    TokenFetcher.fetch(%{"token_id" => token_id})
+    case TokenFetcher.fetch(%{"token_id" => token_id}) do
+      {:ok, _} = ok -> Tuple.append(ok, nil)
+      error -> error
+    end
   end
 
   def get_and_validate_token(request, token_id) do
     with {:ok, token} <- TokenFetcher.fetch(%{"token_id" => token_id}),
          request_token <- Repo.preload(request, :token).token,
-         {:ok, _pair} <- fetch_pair(request.type, request_token.uuid, token.uuid) do
-      {:ok, token}
+         {:ok, pair} <- fetch_pair(request.type, request_token.uuid, token.uuid) do
+      {:ok, token, pair}
     else
       error -> error
     end

@@ -200,6 +200,21 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       assert opposite["opposite_exchange_pair"]["id"] == pair["id"]
     end
 
+    test_with_auths "accepts the rate attribute as string" do
+      request_data = %{sync_opposite: true} |> insert_params() |> Map.put(:rate, "3.14159")
+      response = request("/exchange_pair.create", request_data)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "list"
+
+      pair = Enum.at(response["data"]["data"], 0)
+
+      assert pair["object"] == "exchange_pair"
+      assert pair["from_token_id"] == request_data.from_token_id
+      assert pair["to_token_id"] == request_data.to_token_id
+      assert pair["rate"] == 3.14159
+    end
+
     test_with_auths "returns client:invalid_parameter error if given an exchange rate of 0" do
       request_data = insert_params(%{rate: 0})
       response = request("/exchange_pair.create", request_data)
@@ -234,6 +249,18 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
 
       assert response["data"]["description"] ==
                "Invalid parameter provided. `rate` can't be blank."
+    end
+
+    test_with_auths "returns client:invalid_parameter error if rate is not parsable" do
+      request_data = insert_params(%{rate: "1.2345rate"})
+      response = request("/exchange_pair.create", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `rate` cannot be parsed. Got: \"1.2345rate\""
     end
 
     test_with_auths "returns client:invalid_parameter error if from_token_id is not provided" do
@@ -397,6 +424,23 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
       assert opposite["opposite_exchange_pair"]["id"] == pair["id"]
     end
 
+    test_with_auths "accepts the rate attribute as string" do
+      exchange_pair = :exchange_pair |> insert() |> Repo.preload([:from_token, :to_token])
+
+      assert exchange_pair.rate != "999.99"
+
+      # Prepare the update data while keeping only id the same
+      request_data = %{
+        id: exchange_pair.id,
+        rate: "999.99"
+      }
+
+      response = request("/exchange_pair.update", request_data)
+
+      assert response["success"] == true
+      hd(response["data"]["data"])["rate"] == 999.99
+    end
+
     test_with_auths "reverts and returns error if sync_opposite: true but opposite pair is not found" do
       exchange_pair =
         :exchange_pair
@@ -461,6 +505,18 @@ defmodule AdminAPI.V1.ExchangePairControllerTest do
 
       assert response["data"]["description"] ==
                "Invalid parameter provided. `rate` must be greater than 0."
+    end
+
+    test_with_auths "returns client:invalid_parameter error if rate is not parsable" do
+      pair = :exchange_pair |> insert() |> Repo.preload([:from_token, :to_token])
+      response = request("/exchange_pair.update", %{id: pair.id, rate: "3.14159pi"})
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `rate` cannot be parsed. Got: \"3.14159pi\""
     end
 
     defp assert_update_logs(logs, originator, target) do
