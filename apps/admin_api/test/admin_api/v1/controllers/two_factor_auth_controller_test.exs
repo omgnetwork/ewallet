@@ -331,7 +331,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
       assert response == %{
                "data" => %{
                  "code" => "user:invalid_backup_code",
-                 "description" => "The provided `backup_code` has already been used.",
+                 "description" => "The provided `backup_code` is invalid.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -526,7 +526,7 @@ defmodule AdminAPI.V1.TwoFactorAuthControllerTest do
       assert response == %{
                "data" => %{
                  "code" => "user:invalid_backup_code",
-                 "description" => "The provided `backup_code` has already been used.",
+                 "description" => "The provided `backup_code` is invalid.",
                  "messages" => nil,
                  "object" => "error"
                },
