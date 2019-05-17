@@ -7,6 +7,7 @@ import moment from 'moment'
 import AccessKeyProvider from '../omg-access-key/accessKeyProvider'
 import ApiKeyProvider from '../omg-api-keys/apiKeyProvider'
 import TopNavigation from '../omg-page-layout/TopNavigation'
+import AssignAccountToKeyModal from '../omg-assign-account-key-modal'
 import { Breadcrumb, Icon, Input, DetailRow, Tag, Button, NavCard, Select, Switch, Id } from '../omg-uikit'
 
 const BreadContainer = styled.div`
@@ -244,19 +245,18 @@ const ReadView = withRouter(({ assignKey, keyDetail, keyType, setView, location:
 const ApiKeyDetailPage = ({ match: { params } }) => {
   const { keyType, keyId } = params
   const [ view, setView ] = useState('read')
-  const [ assignKeyModal, setAssignKeyModal ] = useState(false)
+  const [ assignAccountToKeyModal, setAssignAccountToKeyModal ] = useState(false)
 
   // eslint-disable-next-line react/prop-types
   const renderView = ({ keyDetail, updateKey, enableKey }) => {
     const id = _.get(keyDetail, 'access_key') || _.get(keyDetail, 'key', '-')
     return (
       <>
-        {/* <AssignKeyModal
-          accountId={}
-          keyId={}
-          role={}
-          isOpen={assignKeyModal}
-        /> */}
+        <AssignAccountToKeyModal
+          keyId={keyId}
+          open={assignAccountToKeyModal}
+          onRequestClose={() => setAssignAccountToKeyModal(false)}
+        />
         <BreadContainer>
           <Breadcrumb
             items={[
@@ -280,7 +280,7 @@ const ApiKeyDetailPage = ({ match: { params } }) => {
         {view === 'read'
           ? (
             <ReadView
-              assignKey={() => setAssignKeyModal(true)}
+              assignKey={() => setAssignAccountToKeyModal(true)}
               keyType={keyType}
               keyDetail={keyDetail}
               setView={setView}

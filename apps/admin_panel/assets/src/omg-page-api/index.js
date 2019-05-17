@@ -80,6 +80,7 @@ class ApiKeyPage extends Component {
           description={'These are the keys that can be used by developers to interact with the API.'}
           buttons={null}
           types={false}
+          searchBar={false}
         />
         <KeyTopBar>
           <KeyTopButtonsContainer>

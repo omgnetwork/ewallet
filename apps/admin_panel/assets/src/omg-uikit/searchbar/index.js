@@ -30,7 +30,7 @@ const onSearch = (value, history, search) => {
 const debouncedSearch = _.debounce(onSearch, 500)
 
 const SearchBar = withRouter(
-  ({ placeholder, history, location: { search } }) => {
+  ({ placeholder = 'Search', history, location: { search } }) => {
     const [ value, setValue ] = useState('')
 
     const clearSearch = () => {

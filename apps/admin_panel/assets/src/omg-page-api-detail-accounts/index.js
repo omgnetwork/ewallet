@@ -10,6 +10,7 @@ import Modal from '../omg-modal'
 import { Avatar, Button, Breadcrumb, Icon, Id, Select } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import AccessKeyMembershipsProvider from '../omg-access-key/accessKeyMembershipsProvider'
+import AssignAccountToKeyModal from '../omg-assign-account-key-modal'
 
 const BreadContainer = styled.div`
   margin-top: 30px;
@@ -88,6 +89,7 @@ const KeyDetailAccountsPageView = withRouter(({
 
   const [ roleModalOpen, setRoleModalOpen ] = useState(false)
   const [ deleteModalOpen, setDeleteModalOpen ] = useState(false)
+  const [ assignAccountToKeyModal, setAssignAccountToKeyModal ] = useState(false)
   const [ modalContent, setModalContent ] = useState({})
   const [ loading, setLoading ] = useState(false)
 
@@ -145,7 +147,7 @@ const KeyDetailAccountsPageView = withRouter(({
             loading={loading}
             onClick={submitRemoveAccount}
           >
-            <span>Yes, I want to remove</span>
+            <span>Yes, I want to remove it</span>
           </Button>
         </div>
       </ModalContainer>
@@ -170,7 +172,7 @@ const KeyDetailAccountsPageView = withRouter(({
             loading={loading}
             onClick={submitRoleChange}
           >
-            <span>Yes, I want to change role</span>
+            <span>Yes, I want to change it</span>
           </Button>
         </div>
       </ModalContainer>
@@ -241,6 +243,13 @@ const KeyDetailAccountsPageView = withRouter(({
 
   return (
     <>
+      <AssignAccountToKeyModal
+        keyId={keyId}
+        open={assignAccountToKeyModal}
+        onRequestClose={() => setAssignAccountToKeyModal(false)}
+        onSubmitSuccess={refetch}
+      />
+
       <Modal
         shouldReturnFocusAfterClose={false}
         isOpen={roleModalOpen}
@@ -284,6 +293,7 @@ const KeyDetailAccountsPageView = withRouter(({
             key='assign-new-account-button'
             styleType='secondary'
             size='small'
+            onClick={() => setAssignAccountToKeyModal(true)}
           >
             <Icon name='Plus' style={{ marginRight: '10px' }} />
             <span>Assign New Account</span>
