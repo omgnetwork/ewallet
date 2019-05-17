@@ -25,25 +25,23 @@ defmodule Keychain.Wallet do
   @doc """
   Generates a new wallet address and returns a wallet ID for futher access.
 
-  Returns a tuple of `{:ok, {wallet_id, public_key}}`.
+  Returns a tuple of `{:ok, {wallet_address, public_key}}`.
   """
   @spec generate :: resp({:ok, address()})
   def generate do
     {public_key, private_key} = ECDH.new_ecdh_keypair()
 
-    <<_::binary-size(45), public_key_last20::binary-size(20)>> = public_key
-
     public_key_encoded = Base.encode16(public_key, case: :lower)
     private_key_encoded = Base.encode16(private_key, case: :lower)
 
-    account_encoded =
-      public_key_last20
-      |> Keccak.kec()
-      |> Base.encode16(case: :lower)
+    IO.inspect(private_key_encoded)
 
-    wallet_id = "0x#{account_encoded}"
+    <<_::binary-size(12), wallet_address::binary-size(20)>> = Keccak.kec(public_key)
 
-    {:ok, _} = Key.insert_private_key(wallet_id, private_key_encoded)
-    {:ok, {wallet_id, public_key_encoded}}
+    wallet_address = Base.encode16(wallet_address, case: :lower)
+    wallet_address = "0x#{wallet_address}"
+
+    {:ok, _} = Key.insert_private_key(wallet_address, private_key_encoded)
+    {:ok, {wallet_address, public_key_encoded}}
   end
 end

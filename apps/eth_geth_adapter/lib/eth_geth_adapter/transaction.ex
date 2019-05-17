@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule Keychain do
-  @moduledoc """
-  Documentation for Keychain.
-  """
+defmodule EthGethAdapter.Transaction do
+  @moduledoc false
 
-  @typedoc """
-  A tuple of `{wallet_address, public_key}` representing a wallet
-  """
-  @type address :: {String.t(), String.t()}
+  alias Ethereumex.HttpClient, as: Client
+
+  def send(transaction_data) do
+    Client.eth_send_raw_transaction("0x" <> transaction_data)
+  end
 end

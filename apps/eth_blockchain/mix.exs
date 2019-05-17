@@ -30,6 +30,9 @@ defmodule EthBlockchain.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    []
+    [
+      {:exth_crypto, "~> 0.1.6"},
+      {:ex_rlp, "~> 0.5.2"}
+    ]
   end
 end
