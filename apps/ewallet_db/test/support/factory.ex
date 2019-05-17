@@ -42,6 +42,7 @@ defmodule EWalletDB.Factory do
     TransactionRequest,
     UpdateEmailRequest,
     User,
+    UserBackupCode,
     Wallet
   }
 
@@ -149,13 +150,20 @@ defmodule EWalletDB.Factory do
       provider_user_id: sequence("provider_id"),
       enabled: true,
       enabled_2fa_at: nil,
-      used_backup_code_at: nil,
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
       },
       encrypted_metadata: %{},
       originator: %System{}
+    }
+  end
+
+  def user_backup_code_factory do
+    %UserBackupCode{
+      hashed_backup_code: sequence("hashed_backup_code"),
+      used_at: nil,
+      user: insert(:user)
     }
   end
 

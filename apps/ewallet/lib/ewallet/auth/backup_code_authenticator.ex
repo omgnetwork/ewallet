@@ -14,6 +14,7 @@
 
 defmodule EWallet.BackupCodeAuthenticator do
   alias Utils.Helpers.Crypto
+  alias EWalletDB.UserBackupCode
 
   @moduledoc """
   Handle verify backup_code with hashed_backup_codes and create new backup codes.
@@ -57,36 +58,33 @@ defmodule EWallet.BackupCodeAuthenticator do
 
   def verify(_, _, nil), do: {:error, :invalid_backup_code}
 
-  def verify(hashed_backup_codes, used_hashed_backup_codes, backup_code)
+  def verify(backup_code_created_at, hashed_backup_codes, backup_code)
       when is_list(hashed_backup_codes) and is_binary(backup_code) do
-    case Enum.find_index(hashed_backup_codes, &Crypto.verify_password(backup_code, &1)) do
+    case Enum.find_index(
+           hashed_backup_codes,
+           &Crypto.verify_password(backup_code, &1.hashed_backup_code)
+         ) do
       nil ->
-        handle_invalid_backup_code(used_hashed_backup_codes, backup_code)
+        {:error, :invalid_backup_code}
 
       index ->
         hashed_backup_codes
-        |> List.pop_at(index)
-        |> handle_valid_backup_code(used_hashed_backup_codes)
+        |> Enum.at(index)
+        |> verify_result(backup_code_created_at)
     end
   end
 
   def verify(_, _, _), do: {:error, :invalid_parameter}
 
-  defp handle_valid_backup_code(
-         {used_hashed_backup_code, hashed_backup_codes},
-         used_hashed_backup_codes
-       ) do
-    {:ok, hashed_backup_codes, [used_hashed_backup_code | used_hashed_backup_codes]}
-  end
+  defp verify_result(%UserBackupCode{} = user_backup_code, backup_code_created_at) do
+    case user_backup_code do
+      %{inserted_at: inserted_at, used_at: nil} when inserted_at >= backup_code_created_at ->
+        {:ok, user_backup_code}
 
-  defp handle_invalid_backup_code([], _), do: {:error, :invalid_backup_code}
-
-  defp handle_invalid_backup_code(used_hashed_backup_codes, backup_code) do
-    case Enum.any?(used_hashed_backup_codes, &Crypto.verify_password(backup_code, &1)) do
-      true ->
+      %{used_at: used_at} when not is_nil(used_at) ->
         {:error, :used_backup_code}
 
-      false ->
+      _ ->
         {:error, :invalid_backup_code}
     end
   end

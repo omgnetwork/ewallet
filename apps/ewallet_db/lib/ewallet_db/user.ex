@@ -37,6 +37,7 @@ defmodule EWalletDB.User do
     GlobalRole,
     Role,
     User,
+    UserBackupCode,
     Wallet
   }
 
@@ -61,10 +62,8 @@ defmodule EWalletDB.User do
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
     field(:enabled, :boolean, default: true)
     field(:enabled_2fa_at, :naive_datetime)
+    field(:backup_codes_created_at, :naive_datetime)
     field(:secret_2fa_code, :string)
-    field(:hashed_backup_codes, {:array, :string}, default: [])
-    field(:used_hashed_backup_codes, {:array, :string}, default: [])
-    field(:used_backup_code_at, :naive_datetime)
 
     belongs_to(
       :invite,
@@ -105,6 +104,13 @@ defmodule EWalletDB.User do
     has_many(
       :account_links,
       AccountUser,
+      foreign_key: :user_uuid,
+      references: :uuid
+    )
+
+    has_many(
+      :user_backup_codes,
+      UserBackupCode,
       foreign_key: :user_uuid,
       references: :uuid
     )
@@ -313,28 +319,25 @@ defmodule EWalletDB.User do
     cast_and_validate_required_for_activity_log(
       user,
       %{
-        "hashed_backup_codes" => [],
-        "used_hashed_backup_codes" => [],
         "secret_2fa_code" => nil,
         "enabled_2fa_at" => nil,
+        "backup_codes_created_at" => nil,
         "originator" => user
       },
-      cast: [:enabled_2fa_at, :hashed_backup_codes, :used_hashed_backup_codes, :secret_2fa_code],
+      cast: [:enabled_2fa_at, :secret_2fa_code, :backup_codes_created_at],
       required: []
     )
   end
 
-  defp invalidate_backup_codes_changeset(user, attrs) do
+  defp created_backup_code_at_changeset(user, backup_codes_created_at) do
     cast_and_validate_required_for_activity_log(
       user,
       %{
-        "used_backup_code_at" => NaiveDateTime.utc_now(),
-        "hashed_backup_codes" => attrs.hashed_backup_codes,
-        "used_hashed_backup_codes" => attrs.used_hashed_backup_codes,
+        "backup_codes_created_at" => backup_codes_created_at,
         "originator" => user
       },
-      cast: [:hashed_backup_codes, :used_backup_code_at, :used_hashed_backup_codes],
-      required: [:hashed_backup_codes, :used_backup_code_at, :used_hashed_backup_codes]
+      cast: [:backup_codes_created_at],
+      required: []
     )
   end
 
@@ -783,12 +786,9 @@ defmodule EWalletDB.User do
     user.enabled_2fa_at != nil
   end
 
-  def invalidate_backup_codes(user, hashed_backup_codes, used_hashed_backup_codes) do
+  def backup_codes_created_at(user, datetime \\ NaiveDateTime.utc_now()) do
     user
-    |> invalidate_backup_codes_changeset(%{
-      hashed_backup_codes: hashed_backup_codes,
-      used_hashed_backup_codes: used_hashed_backup_codes
-    })
+    |> created_backup_code_at_changeset(datetime)
     |> Repo.update_record_with_activity_log()
   end
 end

@@ -15,7 +15,7 @@
 defmodule EWallet.TwoFactorAuthenticator do
   alias EWallet.PasscodeAuthenticator
   alias EWallet.BackupCodeAuthenticator
-  alias EWalletDB.{User, AuthToken, PreAuthToken}
+  alias EWalletDB.{User, AuthToken, PreAuthToken, UserBackupCode}
 
   @moduledoc """
   Handle of login, create, enable and disable 2FA logic.
@@ -87,7 +87,7 @@ defmodule EWallet.TwoFactorAuthenticator do
     {:error, :secret_code_not_found}
   end
 
-  defp do_verify(%{"backup_code" => _, "user" => %User{hashed_backup_codes: []}}) do
+  defp do_verify(%{"backup_code" => _, "user" => %User{backup_codes_created_at: nil}}) do
     {:error, :backup_codes_not_found}
   end
 
@@ -96,22 +96,17 @@ defmodule EWallet.TwoFactorAuthenticator do
     PasscodeAuthenticator.verify(passcode, secret_2fa_code)
   end
 
-  defp do_verify(%{
-         "backup_code" => backup_code,
-         "user" => %User{hashed_backup_codes: hashed_backup_codes} = user
-       })
+  defp do_verify(%{"backup_code" => backup_code, "user" => %User{} = user})
        when is_binary(backup_code) do
+    hashed_backup_codes = UserBackupCode.all_for_user(user)
+
     case BackupCodeAuthenticator.verify(
+           user.backup_codes_created_at,
            hashed_backup_codes,
-           user.used_hashed_backup_codes,
            backup_code
          ) do
-      {:ok, updated_hashed_backup_codes, updated_used_hashed_backup_codes} ->
-        User.invalidate_backup_codes(
-          user,
-          updated_hashed_backup_codes,
-          updated_used_hashed_backup_codes
-        )
+      {:ok, updated_hashed_backup_code} ->
+        UserBackupCode.invalidate(updated_hashed_backup_code)
 
         :ok
 
@@ -141,13 +136,22 @@ defmodule EWallet.TwoFactorAuthenticator do
   end
 
   def create_and_update(%User{} = user, :backup_codes) do
-    {:ok, backup_codes, hashed_backup_codes} =
-      get_number_of_backup_codes()
-      |> BackupCodeAuthenticator.create()
-
-    User.invalidate_backup_codes(user, hashed_backup_codes, [])
-
-    {:ok, %{backup_codes: backup_codes}}
+    with number_of_backup_code <- get_number_of_backup_codes(),
+         {:ok, backup_codes, hashed_backup_codes} <-
+           BackupCodeAuthenticator.create(number_of_backup_code),
+         :ok <-
+           UserBackupCode.delete_for_user(user.uuid),
+         {:ok, u} <-
+           User.backup_codes_created_at(user),
+         {:ok, _} <-
+           UserBackupCode.insert_multiple(%{
+             user_uuid: user.uuid,
+             hashed_backup_codes: hashed_backup_codes
+           }) do
+      {:ok, %{backup_codes: backup_codes}}
+    else
+      error -> error
+    end
   end
 
   def create_and_update(_, _) do
@@ -188,7 +192,7 @@ defmodule EWallet.TwoFactorAuthenticator do
 
   defp validate_enable_attrs(user) do
     cond do
-      Enum.empty?(user.hashed_backup_codes) ->
+      is_nil(user.backup_codes_created_at) ->
         {:error, :backup_codes_not_found}
 
       is_nil(user.secret_2fa_code) ->
@@ -207,7 +211,8 @@ defmodule EWallet.TwoFactorAuthenticator do
   # However, it does a small check that the user has already created some two-factor methods.
   def disable(%User{} = user) do
     with {:ok, updated_user} <- User.disable_2fa(user),
-         AuthToken.delete_for_user(updated_user) do
+         :ok <- UserBackupCode.delete_for_user(user),
+         :ok <- AuthToken.delete_for_user(updated_user) do
       :ok
     else
       error -> error
