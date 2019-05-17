@@ -18,7 +18,7 @@ defmodule EWalletDB.UserBackupCodeTest do
   alias EWalletDB.{UserBackupCode}
 
   describe "insert/1" do
-    test "returns :ok when given hashed_backup_codes, user_uuid and used_at" do
+    test "returns :ok when given hashed_backup_codes and user_uuid" do
       user = insert(:user)
       hashed_backup_codes = ["1234", "5678"]
 
@@ -108,7 +108,6 @@ defmodule EWalletDB.UserBackupCodeTest do
         })
 
       assert {:ok, updated_user_backup_code} = UserBackupCode.invalidate(attrs.ubc_0)
-
       assert updated_user_backup_code.hashed_backup_code == "1234"
       assert updated_user_backup_code.used_at != nil
     end
