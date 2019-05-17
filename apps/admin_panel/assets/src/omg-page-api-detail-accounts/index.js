@@ -201,7 +201,7 @@ const KeyDetailAccountsPageView = withRouter(({
       case 'account.name':
         return (
           <NameContainer key={key}>
-            <Avatar image={_.get(rows, 'account.avatar.thumb')} />
+            <Avatar name={_.get(rows, 'account.name')} image={_.get(rows, 'account.avatar.thumb')} />
             <span>{_.get(rows, 'account.name', '-')}</span>
           </NameContainer>
         )

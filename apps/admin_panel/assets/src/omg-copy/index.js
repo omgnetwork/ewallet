@@ -7,9 +7,6 @@ import { Icon } from '../omg-uikit'
 import { copyToClipboard } from './action'
 
 const IconButton = styled.span`
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
   color: ${props => props.theme.colors.S500};
   :hover {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
@@ -72,8 +72,9 @@ function CreateAdminKeyModal (props) {
 
   function onRequestClose () {
     setLabel('')
-    setRole('none')
     setSubmitStatus('DEFAULT')
+    setRole('none')
+    setAccountId('')
     props.onRequestClose()
   }
 
