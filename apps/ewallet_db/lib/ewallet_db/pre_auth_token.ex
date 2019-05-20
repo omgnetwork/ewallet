@@ -89,7 +89,7 @@ defmodule EWalletDB.PreAuthToken do
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: nil,
-      expire_at: get_lifetime() |> AuthExpirer.get_new_expire_at(),
+      expire_at: get_lifetime() |> AuthExpirer.postpone_expire_at(),
       token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
@@ -214,7 +214,7 @@ defmodule EWalletDB.PreAuthToken do
 
   def refresh(%PreAuthToken{} = token, originator) do
     update(token, %{
-      expire_at: get_lifetime() |> AuthExpirer.get_new_expire_at(),
+      expire_at: get_lifetime() |> AuthExpirer.postpone_expire_at(),
       originator: originator
     })
   end

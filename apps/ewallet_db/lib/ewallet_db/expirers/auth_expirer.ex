@@ -19,21 +19,25 @@ defmodule EWalletDB.Expirers.AuthExpirer do
 
   alias EWalletDB.{AuthToken, PreAuthToken}
 
-  def get_new_expire_at(0), do: nil
+  def postpone_expire_at(0), do: nil
 
-  def get_new_expire_at(lifetime) do
-    NaiveDateTime.add(NaiveDateTime.utc_now(), lifetime, :second)
+  def postpone_expire_at(configured_auth_token_lifetime) do
+    NaiveDateTime.add(NaiveDateTime.utc_now(), configured_auth_token_lifetime, :second)
   end
 
   def expire_or_refresh(nil, _), do: nil
 
-  def expire_or_refresh(token, lifetime) do
-    case lifetime do
+  def expire_or_refresh(token, configured_auth_token_lifetime) do
+    case configured_auth_token_lifetime do
       0 ->
         token
 
       _ ->
-        expire_or_refresh(:ok, token, token.expire_at || get_new_expire_at(lifetime))
+        expire_or_refresh(
+          :ok,
+          token,
+          token.expire_at || postpone_expire_at(configured_auth_token_lifetime)
+        )
     end
   end
 
