@@ -17,7 +17,9 @@ async function bootAdminPanelApp () {
   const socket = new SocketConnector(WEBSOCKET_URL)
   let store = {}
 
-  const { data: { success, data: currentUserData } } = await getCurrentUser()
+  const {
+    data: { success, data: currentUserData }
+  } = await getCurrentUser()
 
   if (success) {
     const currentUser = currentUserData
@@ -33,7 +35,12 @@ async function bootAdminPanelApp () {
       {}
     )
     store = configureStore(
-      { currentUser, recentAccounts: toInjectRecentAccount, accounts },
+      {
+        currentUser,
+        recentAccounts: toInjectRecentAccount,
+        accounts,
+        session: { authenticated: true }
+      },
       { socket }
     )
 
@@ -51,7 +58,7 @@ async function bootAdminPanelApp () {
       })
     })
   } else {
-    store = configureStore({}, { socket })
+    store = configureStore({ session: { authenticated: false } }, { socket })
   }
 
   // HANDLE WEBSOCKET MESSAGES
