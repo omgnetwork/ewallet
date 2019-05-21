@@ -145,10 +145,12 @@ class ApiKeyPage extends Component {
     search: PropTypes.string,
     downloadKey: PropTypes.func,
     match: PropTypes.object,
-    history: PropTypes.object
+    history: PropTypes.object,
+    clickRow: PropTypes.bool
   }
 
   static defaultProps = {
+    clickRow: true,
     fetcher: AccessKeyFetcher,
     columnsAdminKeys: [
       { key: 'key', title: 'ACCESS KEY' },
@@ -311,7 +313,7 @@ class ApiKeyPage extends Component {
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
-                onClickRow={this.onClickRow}
+                onClickRow={this.props.clickRow ? this.onClickRow : () => {}}
                 rowRenderer={this.rowAdminKeyRenderer(fetch)}
                 columns={this.props.columnsAdminKeys}
                 loadingStatus={individualLoadingStatus}

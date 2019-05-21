@@ -30,6 +30,7 @@ export default withRouter(function AccountKeySubPage (props) {
         ]}
       />
       <AdminKeySection
+        clickRow={false}
         createAdminKeyModalOpen={createAdminKeyModalOpen}
         onRequestClose={e => setCreateAdminKeyModalOpen(false)}
         fetcher={AccountKeyFetcher}
