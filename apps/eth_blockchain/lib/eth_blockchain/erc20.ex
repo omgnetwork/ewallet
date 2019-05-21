@@ -12,16 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.ERC20 do
+defmodule EthBlockchain.ERC20 do
   @moduledoc false
 
-  import EthGethAdapter.Encoding
+  import Utils.Helpers.Encoding
 
   def abi_balance_of(address) when byte_size(address) == 42 do
-    {:ok, contract_call_data("balanceOf(address)", [int_from_hex(address)])}
+    {:ok, contract_call_data("balanceOf(address)", [sliced(address)])}
   end
 
   def abi_balance_of(_address), do: {:error, :invalid_address}
+
+  def abi_transfer_from(from_address, to_address, amount)
+      when byte_size(from_address) == 42 and byte_size(to_address) == 42 and is_integer(amount) do
+    contract_call_data("transferFrom(address,address,uint)", [
+      sliced(from_address),
+      sliced(to_address),
+      sliced(amount)
+    ])
+  end
+
+  def abi_transfer_from(_from_address, _to_address, _amount), do: {:error, :invalid_input}
 
   defp contract_call_data(signature, args) do
     signature |> ABI.encode(args) |> to_hex()

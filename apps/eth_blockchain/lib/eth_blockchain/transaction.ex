@@ -15,9 +15,11 @@
 defmodule EthBlockchain.Transaction do
   @moduledoc false
 
+  import Utils.Helpers.Encoding
+
   alias Keychain.Signature
   alias ExthCrypto.Hash.Keccak
-  alias EthBlockchain.Adapter
+  alias EthBlockchain.{Adapter, ERC20}
 
   defstruct nonce: 0,
             # Tn
@@ -53,45 +55,58 @@ defmodule EthBlockchain.Transaction do
           data: binary()
         }
 
-  def send({from_address, to_address, amount}, adapter \\ nil, pid \\ nil) do
-    # abi_encoded_data =
-    #   ABI.encode("transferFrom(address,address,uint)", [from_address, to_address, token_id])
-
-    # contract_address = "0x123" |> String.slice(2..-1) |> Base.decode16(case: :mixed)
-    "0x" <> to_a = to_address
+  def send_eth({from_address, to_address, amount}, adapter \\ nil, pid \\ nil) do
     transaction_data =
       %__MODULE__{
-        # data: "0x",#abi_encoded_data,
-        gas_limit: 21000,
-        gas_price: 10,
-        # init: <<>>,
-        # nonce: 1,
-        to: Base.decode16!(to_a, case: :mixed),#contract_address,
+        gas_limit: 21_000,
+        gas_price: 10_000_000_000,
+        nonce: get_next_nonce(from_address),
+        to: from_hex(to_address),
         value: amount
       }
-      |> sign_transaction(from_address)
-      |> serialize()
+      |> sign_and_hash(from_address)
 
-      IO.inspect(transaction_data)
-      transaction_data = transaction_data |> ExRLP.encode()
-      IO.inspect(transaction_data)
-      transaction_data = transaction_data
-      |> Base.encode16(case: :lower)
-      IO.inspect(transaction_data)
+    Adapter.call(adapter, {:send, transaction_data}, pid)
+  end
 
-    adapter =
-      adapter ||
-        :eth_blockchain
-        |> Application.get_env(EthBlockchain.Adapter)
-        |> Keyword.get(:default_adapter)
+  def send_token({from_address, to_address, amount, contract_address}, adapter \\ nil, pid \\ nil) do
+    abi_encoded_data = ERC20.abi_transfer_from(from_address, to_address, amount)
+    contract_address = from_hex(contract_address)
 
-    case pid do
-      nil ->
-        Adapter.call(adapter, {:send, transaction_data})
+    transaction_data =
+      %__MODULE__{
+        data: abi_encoded_data,
+        gas_limit: 21_000,
+        gas_price: 10_000_000_000,
+        nonce: get_next_nonce(from_address),
+        to: contract_address,
+        value: amount
+      }
+      |> sign_and_hash(from_address)
 
-      p when is_pid(p) ->
-        Adapter.call(adapter, {:send, transaction_data}, p)
-    end
+    Adapter.call(adapter, {:send, transaction_data}, pid)
+  end
+
+  defp sign_and_hash(%__MODULE__{} = transaction_data, from_address) do
+    transaction_data
+    |> sign_transaction(from_address)
+    |> serialize()
+    |> ExRLP.encode()
+    |> to_hex()
+  end
+
+  @spec get_transaction_count(
+          {String.t()},
+          atom() | nil,
+          pid() | nil
+        ) :: {:error, atom()} | {:ok, any()}
+  def get_transaction_count({address}, adapter \\ nil, pid \\ nil) do
+    Adapter.call(adapter, {:get_transaction_count, address}, pid)
+  end
+
+  defp get_next_nonce(address) do
+    {:ok, nonce} = get_transaction_count({address})
+    int_from_hex(nonce)
   end
 
   defp sign_transaction(transaction, wallet_address) do
@@ -126,7 +141,6 @@ defmodule EthBlockchain.Transaction do
   """
   @spec serialize(t) :: ExRLP.t()
   def serialize(trx, include_vrs \\ true) do
-    IO.inspect(trx.gas_price)
     base = [
       trx.nonce |> encode_unsigned(),
       trx.gas_price |> encode_unsigned(),
@@ -200,8 +214,4 @@ defmodule EthBlockchain.Transaction do
       s: :binary.decode_unsigned(s)
     }
   end
-
-  @spec encode_unsigned(number()) :: binary()
-  defp encode_unsigned(0), do: <<>>
-  defp encode_unsigned(n), do: :binary.encode_unsigned(n)
 end

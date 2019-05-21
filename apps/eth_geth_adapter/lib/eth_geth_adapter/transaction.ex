@@ -18,6 +18,10 @@ defmodule EthGethAdapter.Transaction do
   alias Ethereumex.HttpClient, as: Client
 
   def send(transaction_data) do
-    Client.eth_send_raw_transaction("0x" <> transaction_data)
+    Client.eth_send_raw_transaction(transaction_data)
+  end
+
+  def get_transaction_count(address) do
+    Client.eth_get_transaction_count(address)
   end
 end

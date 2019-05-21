@@ -14,10 +14,9 @@
 
 defmodule EthGethAdapter.Balance do
   @moduledoc false
-  import EthGethAdapter.Encoding
+  import Utils.Helpers.Encoding
 
   alias Ethereumex.HttpClient, as: Client
-  alias EthGethAdapter.ERC20
 
   @doc """
   Retrieve the balance of all given `contract_addresses` for the provided wallet `address`.
@@ -37,26 +36,21 @@ defmodule EthGethAdapter.Balance do
   ```
   if successful or {:error, error_code} if failed.
   """
-  def get(address, contract_address, block \\ "latest")
+  def get(address, contract_address, encoded_abi_data, block \\ "latest")
 
-  def get(address, contract_addresses, block) when is_list(contract_addresses) do
-    case ERC20.abi_balance_of(address) do
-      {:ok, encoded_abi_data} ->
-        contract_addresses
-        |> Enum.map(fn contract_address ->
-          build_request!(contract_address, address, encoded_abi_data, block)
-        end)
-        |> request()
-        |> parse_response()
-        |> respond(contract_addresses)
-
-      error ->
-        error
-    end
+  def get(address, contract_addresses, encoded_abi_data, block)
+      when is_list(contract_addresses) do
+    contract_addresses
+    |> Enum.map(fn contract_address ->
+      build_request!(contract_address, address, encoded_abi_data, block)
+    end)
+    |> request()
+    |> parse_response()
+    |> respond(contract_addresses)
   end
 
-  def get(address, contract_address, block) do
-    get([contract_address], address, block)
+  def get(address, contract_address, encoded_abi_data, block) do
+    get(address, [contract_address], encoded_abi_data, block)
   end
 
   # Batch request builders

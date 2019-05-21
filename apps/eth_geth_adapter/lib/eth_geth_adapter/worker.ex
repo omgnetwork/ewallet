@@ -34,7 +34,6 @@ defmodule EthGethAdapter.Worker do
   @spec start_link() :: GenServer.on_start()
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
-    IO.inspect("FFSSSSSSSS")
     DeferredConfig.populate(:ethereumex)
     GenServer.start_link(__MODULE__, :ok, opts)
   end
@@ -44,7 +43,6 @@ defmodule EthGethAdapter.Worker do
   """
   @spec init(:ok) :: {:ok, nil}
   def init(:ok) do
-    IO.inspect("MNMNMNMN")
     {:ok, nil}
   end
 
@@ -61,15 +59,23 @@ defmodule EthGethAdapter.Worker do
   ##
 
   @doc """
-  Handles the get_balances call from the client API get_balances/4.
+  Handles the genserver calls.
   """
-  @spec handle_call({:call, String.t(), list(String.t()), String.t()}, from(), state()) ::
+  @spec handle_call(tuple(), from(), state()) ::
           reply({:ok, map()}) | reply({:error, any()})
-  def handle_call({:get_balances, address, contract_addresses, block}, _from, reg) do
-    {:reply, Balance.get(address, contract_addresses, block), reg}
+  def handle_call(
+        {:get_balances, address, contract_addresses, encoded_abi_data, block},
+        _from,
+        reg
+      ) do
+    {:reply, Balance.get(address, contract_addresses, encoded_abi_data, block), reg}
   end
 
   def handle_call({:send, transaction_data}, _from, reg) do
     {:reply, Transaction.send(transaction_data), reg}
+  end
+
+  def handle_call({:get_transaction_count, address}, _from, reg) do
+    {:reply, Transaction.get_transaction_count(address), reg}
   end
 end

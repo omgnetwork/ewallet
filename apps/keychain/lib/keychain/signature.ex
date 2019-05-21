@@ -15,6 +15,8 @@
 defmodule Keychain.Signature do
   @moduledoc false
 
+  import Utils.Helpers.Encoding
+
   alias Keychain.Key
   alias ExthCrypto.Hash.Keccak
 
@@ -23,7 +25,6 @@ defmodule Keychain.Signature do
   @type hash_r :: integer()
   @type hash_s :: integer()
 
-  # The follow are the maximum value for x in the signature, as defined in Eq.(212)
   @base_recovery_id 27
   @base_recovery_id_eip_155 35
 
@@ -34,7 +35,7 @@ defmodule Keychain.Signature do
   @spec sign_transaction_hash(Keccak.keccak_hash(), String.t(), integer() | nil) ::
           {hash_v, hash_r, hash_s}
   def sign_transaction_hash(hash, wallet_address, chain_id \\ nil) do
-    private_key = Key.private_key_for_wallet(wallet_address)
+    private_key = wallet_address |> Key.private_key_for_wallet() |> from_hex()
 
     {_signature, r, s, recovery_id} = ExthCrypto.Signature.sign_digest(hash, private_key)
 
@@ -45,5 +46,5 @@ defmodule Keychain.Signature do
       end
 
     {recovery_id, r, s}
-    end
+  end
 end

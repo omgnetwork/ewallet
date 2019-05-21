@@ -77,6 +77,14 @@ defmodule EthBlockchain.Adapter do
     GenServer.stop(pid)
   end
 
+  @spec adapter_or_default(atom() | nil) :: atom()
+  def adapter_or_default(adapter \\ nil) do
+    adapter ||
+      :eth_blockchain
+      |> Application.get_env(EthBlockchain.Adapter)
+      |> Keyword.get(:default_adapter)
+  end
+
   ## Utilities
   ##
 
@@ -161,9 +169,10 @@ defmodule EthBlockchain.Adapter do
   """
   @spec call(atom() | adapter(), call()) :: resp({:ok, any()})
   @spec call(atom() | adapter(), call(), server()) :: resp({:ok, any()})
-  def call(adapter_spec, func_spec, pid \\ __MODULE__)
+  def call(adapter_spec, func_spec, pid \\ nil) do
+    pid = pid || __MODULE__
+    adapter_spec = adapter_or_default(adapter_spec)
 
-  def call(adapter_spec, func_spec, pid) do
     case GenServer.call(pid, {:call, adapter_spec, func_spec}) do
       {:ok, resp} ->
         resp

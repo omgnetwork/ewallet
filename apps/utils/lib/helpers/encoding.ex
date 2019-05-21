@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Encoding do
+defmodule Utils.Helpers.Encoding do
   @moduledoc false
 
   @spec to_hex(binary | non_neg_integer) :: binary
@@ -35,6 +35,14 @@ defmodule EthGethAdapter.Encoding do
     Base.decode16!(encoded, case: :lower)
   end
 
+  def from_hex(encoded) when is_binary(encoded) do
+    Base.decode16!(encoded, case: :lower)
+  end
+
+  def sliced("0x" <> data) do
+    data
+  end
+
   @doc """
   Decodes to an integer, see `to_hex`
   """
@@ -47,4 +55,8 @@ defmodule EthGethAdapter.Encoding do
       :error -> 0
     end
   end
+
+  @spec encode_unsigned(number()) :: binary()
+  def encode_unsigned(0), do: <<>>
+  def encode_unsigned(n), do: :binary.encode_unsigned(n)
 end

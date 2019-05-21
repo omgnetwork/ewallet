@@ -40,8 +40,6 @@ defmodule Keychain.Wallet do
     public_key_encoded = Base.encode16(public_key, case: :lower)
     private_key_encoded = Base.encode16(private_key, case: :lower)
 
-    IO.inspect(private_key_encoded)
-
     {:ok, _} = Key.insert_private_key(wallet_address, private_key_encoded)
     {:ok, {wallet_address, public_key_encoded}}
   end
