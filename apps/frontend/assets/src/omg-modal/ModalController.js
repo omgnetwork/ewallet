@@ -5,7 +5,11 @@ import { closeModal, openModal } from './action'
 
 import CreateTransactionModal from '../omg-create-transaction-modal'
 import _ from 'lodash'
-const modals = [{ id: 'createTransaction', modal: CreateTransactionModal }]
+
+// ADD YOUR NEW MODAL HERE
+const modals = [
+  { id: 'createTransaction', modal: CreateTransactionModal }
+]
 
 function ModalController (props) {
   return modals.map(({ id, modal: Modal }) => {
