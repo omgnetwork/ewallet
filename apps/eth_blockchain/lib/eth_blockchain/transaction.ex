@@ -58,9 +58,9 @@ defmodule EthBlockchain.Transaction do
   def send_eth({from_address, to_address, amount}, adapter \\ nil, pid \\ nil) do
     transaction_data =
       %__MODULE__{
-        gas_limit: 21_000,
-        gas_price: 10_000_000_000,
-        nonce: get_next_nonce(from_address),
+        gas_limit: 21_000, # todo
+        gas_price: 16_000_000_000, # todo
+        nonce: get_next_nonce(from_address), # not working
         to: from_hex(to_address),
         value: amount
       }
@@ -69,18 +69,17 @@ defmodule EthBlockchain.Transaction do
     Adapter.call(adapter, {:send, transaction_data}, pid)
   end
 
+  # Not working
   def send_token({from_address, to_address, amount, contract_address}, adapter \\ nil, pid \\ nil) do
-    abi_encoded_data = ERC20.abi_transfer_from(from_address, to_address, amount)
-    contract_address = from_hex(contract_address)
+    {:ok, abi_encoded_data} = ERC20.abi_transfer_from(from_address, to_address, amount)
 
     transaction_data =
       %__MODULE__{
-        data: abi_encoded_data,
-        gas_limit: 21_000,
-        gas_price: 10_000_000_000,
-        nonce: get_next_nonce(from_address),
-        to: contract_address,
-        value: amount
+        gas_limit: 100_000_000, # todo
+        gas_price: 16_000_000_000, # todo
+        nonce: get_next_nonce(from_address), # not working
+        to: from_hex(contract_address),
+        data: abi_encoded_data
       }
       |> sign_and_hash(from_address)
 

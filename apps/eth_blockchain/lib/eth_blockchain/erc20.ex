@@ -18,18 +18,19 @@ defmodule EthBlockchain.ERC20 do
   import Utils.Helpers.Encoding
 
   def abi_balance_of(address) when byte_size(address) == 42 do
-    {:ok, contract_call_data("balanceOf(address)", [sliced(address)])}
+    {:ok, contract_call_data("balanceOf(address)", [from_hex(address)])}
   end
 
   def abi_balance_of(_address), do: {:error, :invalid_address}
 
   def abi_transfer_from(from_address, to_address, amount)
       when byte_size(from_address) == 42 and byte_size(to_address) == 42 and is_integer(amount) do
-    contract_call_data("transferFrom(address,address,uint)", [
-      sliced(from_address),
-      sliced(to_address),
-      sliced(amount)
-    ])
+    {:ok,
+     contract_call_data("transferFrom(address,address,uint)", [
+       from_hex(from_address),
+       from_hex(to_address),
+       amount
+     ])}
   end
 
   def abi_transfer_from(_from_address, _to_address, _amount), do: {:error, :invalid_input}
