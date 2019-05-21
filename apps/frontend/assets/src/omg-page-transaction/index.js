@@ -15,6 +15,7 @@ import { openModal } from '../omg-modal/action'
 import { connect } from 'react-redux'
 import { tableColumsKeys } from './constants'
 import { selectNewTransactions } from '../omg-transaction/selector'
+import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 const TransactionPageContainer = styled.div`
   position: relative;
   td:nth-child(3) {
@@ -123,7 +124,6 @@ class TransactionPage extends Component {
     divider: PropTypes.bool,
     query: PropTypes.object,
     topNavigation: PropTypes.bool,
-    openModal: PropTypes.func,
     newTransactions: PropTypes.array
   }
   static defaultProps = {
@@ -144,19 +144,6 @@ class TransactionPage extends Component {
     this.props.history.push('/transaction/export')
   }
 
-  renderCreateTransactionButton = () => {
-    return (
-      <Button
-        key='create'
-        size='small'
-        styleType='primary'
-        onClick={() => this.props.openModal({ id: 'createTransaction' })}
-      >
-        <Icon name='Transaction' />
-        <span>Transfer</span>
-      </Button>
-    )
-  }
   renderExportButton () {
     return (
       <Button
@@ -264,7 +251,9 @@ class TransactionPage extends Component {
             title={'Transactions'}
             buttons={[
               this.renderExportButton(),
-              this.renderCreateTransactionButton()
+              <CreateTransactionButton
+                key={'create_transaction'}
+              />
             ]}
           />
         )}

@@ -7,6 +7,7 @@ import moment from 'moment'
 
 import WalletProvider from '../omg-wallet/walletProvider'
 import { Button, Icon } from '../omg-uikit'
+import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
@@ -66,19 +67,10 @@ class WalletDetaillPage extends Component {
         divider={this.props.divider}
         title={wallet.name}
         buttons={[
-          <Button
-            size='small'
-            onClick={() =>
-              this.props.openModal({
-                id: 'createTransaction',
-                fromAddress: wallet.address
-              })
-            }
+          <CreateTransactionButton
+            fromAddress={wallet.address}
             key='transfer'
-          >
-            <Icon name='Transaction' />
-            <span>Transfer</span>
-          </Button>
+          />
         ]}
       />
     )
