@@ -9,6 +9,7 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import CreateTransactionModal from '../omg-create-transaction-modal'
+import AdvancedFilterModal from '../omg-advanced-filter-modal'
 import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
@@ -139,7 +140,14 @@ class TransactionPage extends Component {
     query: {}
   }
   state = {
-    createTransactionModalOpen: false
+    createTransactionModalOpen: false,
+    advancedFilterModalOpen: false
+  }
+  onClickAdvancedFilter = () => {
+    this.setState({ advancedFilterModalOpen: true })
+  }
+  onRequestCloseAdvancedFilter = () => {
+    this.setState({ advancedFilterModalOpen: false })
   }
   onClickCreateTransaction = () => {
     this.setState({ createTransactionModalOpen: true })
@@ -171,7 +179,7 @@ class TransactionPage extends Component {
       </Button>
     )
   }
-  renderExportButton () {
+  renderExportButton = () => {
     return (
       <Button
         key='export'
@@ -183,7 +191,19 @@ class TransactionPage extends Component {
       </Button>
     )
   }
-  renderFromOrTo (fromOrTo) {
+  renderAdvancedFilterButton = () => {
+    return (
+      <Button
+        key='filter'
+        size='small'
+        styleType='secondary'
+        onClick={this.onClickAdvancedFilter}
+      >
+        <Icon name='Filter' /><span>Filter</span>
+      </Button>
+    )
+  }
+  renderFromOrTo = (fromOrTo) => {
     return (
       <FromOrToRow>
         {fromOrTo.account && (
@@ -267,6 +287,7 @@ class TransactionPage extends Component {
           divider={this.props.divider}
           title={'Transactions'}
           buttons={[
+            this.renderAdvancedFilterButton(),
             this.renderExportButton(),
             this.renderCreateTransactionButton()
           ]}
@@ -287,6 +308,13 @@ class TransactionPage extends Component {
           onRequestClose={this.onRequestCloseCreateTransaction}
           open={this.state.createTransactionModalOpen}
           onCreateTransaction={fetch}
+        />
+        <AdvancedFilterModal
+          title='Filter Transaction'
+          page='transaction'
+          open={this.state.advancedFilterModalOpen}
+          onRequestClose={this.onRequestCloseAdvancedFilter}
+          onFilter={fetch}
         />
       </TransactionPageContainer>
     )
