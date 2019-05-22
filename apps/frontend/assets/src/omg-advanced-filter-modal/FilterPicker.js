@@ -1,11 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import { difference } from 'lodash'
 
 import PopperRenderer from '../omg-popper'
 import withDropdownState from '../omg-uikit/dropdown/withDropdownState'
 import { Icon } from '../omg-uikit'
 import { DropdownBox } from '../omg-uikit/dropdown'
+
+import { FILTER_MAP } from './FilterMap'
 
 const FilterPickerStyles = styled.div`
   margin: 20px 0;
@@ -29,36 +32,27 @@ const DropdownItem = styled.div`
     display: inline-block;
   }
   :hover {
-    color: ${props => props.theme.colors.B400};
+    background-color: ${props => props.theme.colors.S100};
   }
   i {
-    margin-right: 5px;
+    margin-right: 10px;
   }
 `
+const DropdownBoxStyles = styled(DropdownBox)`
+  transform: translateX(100%);
+  width: 170px;
+`
 
-const renderFilterOptions = (page) => {
-  switch (page) {
-    case 'transaction':
-      return (
-        <DropdownBox>
-          <DropdownItem onClick={console.log}>
-            <Icon name='Wallet' />
-            <span>Account Wallets</span>
-          </DropdownItem>
-          <DropdownItem onClick={console.log}>
-            <Icon name='Wallet' />
-            <span>Users Wallets</span>
-          </DropdownItem>
-        </DropdownBox>
-      )
-    default:
-  }
-}
-
-const FilterPicker = ({ page, open, onClickButton, ...rest }) => {
+const FilterPicker = ({
+  page,
+  open,
+  onClickButton,
+  onSelect,
+  selectedFilters
+}) => {
   return (
     <PopperRenderer
-      offset='0, -10px'
+      offset='-100%, -10px'
       modifiers={{
         flip: {
           enabled: false
@@ -71,7 +65,22 @@ const FilterPicker = ({ page, open, onClickButton, ...rest }) => {
         </FilterPickerStyles>
       )}
       open={open}
-      renderPopper={() => renderFilterOptions(page)}
+      renderPopper={() => {
+        const diff = difference(FILTER_MAP.filter(i => i.page === page), selectedFilters)
+        return (
+          <DropdownBoxStyles>
+            {diff.map(filter => (
+              <DropdownItem
+                key={filter.code}
+                onClick={() => onSelect(filter)}
+              >
+                <Icon name={filter.icon} />
+                <span>{filter.title}</span>
+              </DropdownItem>
+            ))}
+          </DropdownBoxStyles>
+        )
+      }}
     />
   )
 }
@@ -79,7 +88,9 @@ const FilterPicker = ({ page, open, onClickButton, ...rest }) => {
 FilterPicker.propTypes = {
   page: PropTypes.oneOf(['transaction']),
   open: PropTypes.bool,
-  onClickButton: PropTypes.func.isRequired
+  onClickButton: PropTypes.func.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  selectedFilters: PropTypes.arrayOf(PropTypes.object)
 }
 
 export default withDropdownState(FilterPicker)

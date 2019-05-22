@@ -15,17 +15,18 @@ export default class Icon extends Component {
   static propTypes = {
     name: PropTypes.string,
     button: PropTypes.bool,
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
+    className: PropTypes.string
   }
   render () {
-    const { name, button, onClick, ...restProps } = this.props
+    const { name, button, onClick, className, ...restProps } = this.props
     return (
       <IconComponent
-        {...restProps}
-        className={`icon-omisego_${name}`}
         button={button}
         onClick={onClick}
         name={name}
+        className={`icon-omisego_${name} ${className}`}
+        {...restProps}
       />
     )
   }

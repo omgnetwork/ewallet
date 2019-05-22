@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+import { filter } from 'lodash'
 
 import Modal from '../omg-modal'
 import { Icon } from '../omg-uikit'
@@ -38,6 +39,17 @@ const AdvancedFilterModal = ({
   title,
   page
 }) => {
+  const [ filters, setFilters ] = useState([])
+
+  const onSelectFilter = (newFilter) => {
+    setFilters([newFilter, ...filters])
+  }
+
+  const onRemoveFilter = (filterToRemove) => {
+    const newFilters = filter(filters, i => i.code !== filterToRemove.code)
+    setFilters(newFilters)
+  }
+
   return (
     <Modal
       isOpen={open}
@@ -50,7 +62,16 @@ const AdvancedFilterModal = ({
         <Icon name='Close' onClick={onRequestClose} />
         <Content>
           <Title>{title}</Title>
-          <FilterPicker page={page} />
+          <FilterPicker
+            page={page}
+            onSelect={onSelectFilter}
+            selectedFilters={filters}
+          />
+          {filters.map(filter => {
+            return filter.component({
+              onRemove: () => onRemoveFilter(filter)
+            })
+          })}
         </Content>
       </AdvancedFilterModalContainer>
     </Modal>
