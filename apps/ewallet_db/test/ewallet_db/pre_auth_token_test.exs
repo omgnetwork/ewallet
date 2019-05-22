@@ -16,60 +16,63 @@ defmodule EWalletDB.PreAuthTokenTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias ActivityLogger.System
-  alias EWalletConfig.Setting
   alias EWalletDB.{PreAuthToken, Membership, Repo}
 
   @owner_app :some_app
 
-  defp generate_with_pre_auth_token_lifetime(user, second) do
-    Setting.update("pre_auth_token_lifetime", %{value: second, originator: %System{}})
-    result = PreAuthToken.generate(user, @owner_app, %System{})
-    Setting.update("pre_auth_token_lifetime", %{value: 0, originator: %System{}})
+  setup context do
+    case context do
+      %{ptk_lifetime: second} when not is_nil(second) ->
+        Application.put_env(:ewallet, :ptk_lifetime, second)
+        on_exit(fn -> Application.put_env(:ewallet, :ptk_lifetime, 0) end)
+        {:ok, second: second}
 
-    result
-  end
-
-  defp authenticate_with_pre_auth_token_lifetime(token, second) do
-    Setting.update("pre_auth_token_lifetime", %{value: second, originator: %System{}})
-    result = PreAuthToken.authenticate(token, @owner_app)
-    Setting.update("pre_auth_token_lifetime", %{value: 0, originator: %System{}})
-
-    result
+      _ ->
+        :ok
+    end
   end
 
   defp from_now_by_seconds(seconds) do
     NaiveDateTime.add(NaiveDateTime.utc_now(), seconds, :second)
   end
 
+  defp insert_ptk(attrs) {
+    attrs = Map.merge(%{
+      user: insert(:user),
+      owner_app: Atom.to_string(@owner_app),
+      expire_at: from_now_to_seconds(60)
+    }, attrs)
+
+    insert(:pre_auth_token, attrs)
+  }
+
   describe "PreAuthToken.generate/3" do
-    test "generates an pre auth token string with length == 43" do
+    test "generates a pre_auth_token string with length == 43" do
       user = insert(:user)
       account = insert(:account)
       role = insert(:role, name: "admin")
       {:ok, _} = Membership.assign(user, account, role, %System{})
 
-      {res, pre_auth_token} = PreAuthToken.generate(user, @owner_app, %System{})
-
-      assert res == :ok
+      assert {:ok, pre_auth_token} = PreAuthToken.generate(user, @owner_app, %System{})
       assert String.length(pre_auth_token.token) == 43
     end
 
-    test "generates an auth token with a correct expire_at when set a positive integer to auth_token_lifetime" do
+    @tag ptk_lifetime: 3600
+    test "generates a pre_auth_token with a correct expire_at when set a positive integer to ptk_lifetime",
+         context do
       user = insert(:user)
 
-      assert {:ok, pre_auth_token} = generate_with_pre_auth_token_lifetime(user, 3600)
+      assert {:ok, pre_auth_token} = PreAuthToken.generate(user, @owner_app, %System{})
 
-      # Expect expire_at is next 60 minutes from now, with a precision down to a second.
-      assert 3600
+      # Expect expire_at is at next 60 minutes.
+      assert context.second
              |> from_now_by_seconds()
-             |> NaiveDateTime.diff(pre_auth_token.expire_at, :second)
-             |> Kernel.floor() == 0
+             |> NaiveDateTime.diff(pre_auth_token.expire_at, :second) == 0
     end
 
-    test "generates an auth token with expire_at nil when set zero to pre_auth_token_lifetime" do
+    @tag ptk_lifetime: 0
+    test "generates a pre_auth_token with expire_at nil when set zero to ptk_lifetime" do
       user = insert(:user)
-
-      Setting.update("pre_auth_token_lifetime", %{value: 0, originator: %System{}})
 
       assert {:ok, pre_auth_token} = PreAuthToken.generate(user, @owner_app, %System{})
       assert pre_auth_token.expire_at == nil
@@ -83,7 +86,7 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert reason == :invalid_parameter
     end
 
-    test "allows multiple auth tokens for each user" do
+    test "allows multiple pre_auth_tokens for each user" do
       user = insert(:user)
       account = insert(:account)
       role = insert(:role, name: "admin")
@@ -104,7 +107,7 @@ defmodule EWalletDB.PreAuthTokenTest do
   end
 
   describe "PreAuthToken.authenticate/2" do
-    test "returns an existing token if exists" do
+    test "returns an existing pre_auth_token if exists" do
       user = insert(:user)
       account = insert(:account)
       role = insert(:role, name: "admin")
@@ -115,36 +118,37 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert pre_auth_token.user.uuid == user.uuid
     end
 
-    test "returns a user if the token exists and the current date time is before expire_at" do
-      # The user has the pre authentication token which will be expired in the next minute.
-      user = insert(:user)
-      assert {:ok, pre_auth_token} = generate_with_pre_auth_token_lifetime(user, 60)
+    @tag ptk_lifetime: 3600
+    test "returns a user if the pre_auth_token exists and the expire_at has not been lapsed",
+         context do
+      # The user has the pre authentication token which will be expired in a minute.
+      %{token: token} = insert_ptk(%{expire_at: from_now_by_seconds(60)})
 
-      # The user authenticate to the system,
-      # while the :pre_auth_token_lifetime has been set to 60 minutes
-      pre_auth_token = authenticate_with_pre_auth_token_lifetime(pre_auth_token.token, 3600)
-      assert pre_auth_token.user.uuid == user.uuid
+      # The user authenticated while the :ptk_lifetime has been set to 60 minutes
+      pre_auth_token = PreAuthToken.authenticate(token, @owner_app)
 
-      # Assert the token has been refreshed.
-      updated_pre_auth_token = PreAuthToken.get_by_token(pre_auth_token.token, @owner_app)
-
-      # Expect expire_at is the next 60 minutes from now, with a precision down to a second.
-      assert 3600
+      # Expect expire_at is refreshed and it is set to the next hour.
+      assert context.second
              |> from_now_by_seconds()
-             |> NaiveDateTime.diff(updated_pre_auth_token.expire_at, :second)
-             |> Kernel.floor() == 0
+             |> NaiveDateTime.diff(pre_auth_token.expire_at, :second) == 0
     end
 
-    test "returns a user if the token exists and the expire_at is nil" do
-      user = insert(:user)
-      attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: nil, user: user}
-      token = insert(:pre_auth_token, attrs)
+    @tag ptk_lifetime: 0
+    test "returns pre_auth_token with expire_nil when ptk_lifetime is 0" do
+      %{token: token} = insert_ptk(%{expire_at: nil})
+      %{token: token2} = insert_ptk(%{expire_at: from_now_by_seconds(60)})
 
-      pre_auth_token = PreAuthToken.authenticate(token.token, @owner_app)
+      pre_auth_token = PreAuthToken.authenticate(token, @owner_app)
+      pre_auth_token_2 = PreAuthToken.authenticate(token2, @owner_app)
+
       assert pre_auth_token.user.uuid == user.uuid
+      assert pre_auth_token_2.user.uuid == user.uuid
+      assert pre_auth_token.expire_at == nil
+      assert pre_auth_token_2.expire_at == nil
     end
 
-    test "returns :token_expired if the token exists and the current date time is after expire_at" do
+    @tag ptk_lifetime: 3600
+    test "returns :token_expired if the pre_auth_token exists and the expire_at has been lapsed" do
       attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: NaiveDateTime.utc_now()}
 
       token = insert(:pre_auth_token, attrs)
@@ -152,7 +156,7 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert PreAuthToken.authenticate(token.token, @owner_app) == :token_expired
     end
 
-    test "returns false if token exists but for a different owner app" do
+    test "returns false if pre_auth_token exists but for a different owner app" do
       token = insert(:pre_auth_token, %{owner_app: "wrong_app"})
 
       assert PreAuthToken.authenticate(token.token, @owner_app) == false
@@ -162,13 +166,13 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert PreAuthToken.authenticate("unmatched", @owner_app) == false
     end
 
-    test "returns false if auth token is nil" do
+    test "returns false if pre_auth_token is nil" do
       assert PreAuthToken.authenticate(nil, @owner_app) == false
     end
   end
 
   describe "PreAuthToken.authenticate/3" do
-    test "returns an existing token if user_id and token match" do
+    test "returns an existing pre_auth_token if user_id and token match" do
       user = insert(:user)
       account = insert(:account)
       role = insert(:role, name: "admin")
@@ -180,7 +184,7 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert pre_auth_token.user.uuid == user.uuid
     end
 
-    test "returns an existing token if user_id and token match and user has multiple tokens" do
+    test "returns an existing pre_auth_token if user_id and token are matched and the user has multiple pre_auth_tokens" do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "admin")
@@ -192,22 +196,32 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert PreAuthToken.authenticate(user.id, token2.token, @owner_app)
     end
 
-    test "returns a user if the current date time is before expire_at" do
-      # The user has the authentication token which will be expired in the next minute.
+    @tag ptk_lifetime: 3600
+    test "returns a user if the expire_at has not been lapsed", context do
       user = insert(:user)
-      assert {:ok, pre_auth_token} = generate_with_pre_auth_token_lifetime(user, 60)
+
+      # The authentication token which will be expired in the next minute.
+      attrs = %{
+        owner_app: Atom.to_string(@owner_app),
+        expire_at: from_now_by_seconds(60),
+        user: user
+      }
+
+      pre_auth_token = insert(:pre_auth_token, attrs)
+
+      assert pre_auth_token.
 
       # The user authenticate to the system,
-      # while the :pre_auth_token_lifetime has been set to 60 minutes
-      pre_auth_token = authenticate_with_pre_auth_token_lifetime(pre_auth_token.token, 3600)
+      # while the :ptk_lifetime has been set to 60 minutes
+      pre_auth_token = PreAuthToken.authenticate(pre_auth_token.token, @owner_app)
 
       assert pre_auth_token.user.uuid == user.uuid
 
       # Assert the token has been refreshed.
       updated_auth_token = PreAuthToken.get_by_token(pre_auth_token.token, @owner_app)
 
-      # Expect expire_at is next 60 minutes from now, with a precision down to a second.
-      assert 3600
+      # Expect expire_at is next 60 minutes from now.
+      assert context.second
              |> from_now_by_seconds()
              |> NaiveDateTime.diff(updated_auth_token.expire_at, :second)
              |> Kernel.floor() == 0
@@ -222,15 +236,23 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert pre_auth_token.user.uuid == user.uuid
     end
 
-    test "returns :token_expired if the current date time is after expire_at" do
-      attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: NaiveDateTime.utc_now()}
+    @tag ptk_lifetime: 3600
+    test "returns :token_expired if the expire_at has been lapsed" do
+      user = insert(:user)
 
-      token = insert(:pre_auth_token, attrs)
+      attrs = %{
+        owner_app: Atom.to_string(@owner_app),
+        user: user,
+        expire_at: from_now_by_seconds(-60)
+      }
 
-      assert PreAuthToken.authenticate(token.token, @owner_app) == :token_expired
+      pre_auth_token = insert(:pre_auth_token, attrs)
+
+      assert PreAuthToken.authenticate(user.id, pre_auth_token.token, @owner_app) ==
+               :token_expired
     end
 
-    test "returns false if auth token belongs to a different user" do
+    test "returns false if pre_auth_token belongs to a different user" do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "admin")
@@ -241,7 +263,7 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert PreAuthToken.authenticate(another_user.id, pre_auth_token.token, @owner_app) == false
     end
 
-    test "returns false if token exists but for a different owner app" do
+    test "returns false if pre_auth_token exists but for a different owner app" do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "admin")
@@ -252,7 +274,7 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert PreAuthToken.authenticate(user.id, pre_auth_token.token, @owner_app) == false
     end
 
-    test "returns false if token does not exists" do
+    test "returns false if pre_auth_token does not exists" do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "admin")
@@ -262,7 +284,7 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert PreAuthToken.authenticate(user.id, "unmatched", @owner_app) == false
     end
 
-    test "returns false if token is nil" do
+    test "returns false if pre_auth_token is nil" do
       user = insert(:admin)
       account = insert(:account)
       role = insert(:role, name: "admin")
@@ -270,6 +292,17 @@ defmodule EWalletDB.PreAuthTokenTest do
       {:ok, _} = PreAuthToken.generate(user, @owner_app, %System{})
 
       assert PreAuthToken.authenticate(user.id, nil, @owner_app) == false
+    end
+  end
+
+  describe "PreAuthToken.get_lifetime/0" do
+    test "returns 0 by default" do
+      assert PreAuthToken.get_lifetime() == 0
+    end
+
+    @tag ptk_lifetime: 60
+    test "returns a given value", context do
+      assert PreAuthToken.get_lifetime() == context.second
     end
   end
 end

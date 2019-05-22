@@ -23,14 +23,12 @@ defmodule EWalletDB.PreAuthToken do
   import Ecto.Query, only: [from: 2]
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
-  alias EWalletConfig.Setting
   alias EWalletDB.Expirers.AuthExpirer
   alias EWalletDB.{Account, PreAuthToken, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
   @key_length 32
-  @key_ptk_lifetime "pre_auth_token_lifetime"
 
   schema "pre_auth_token" do
     external_id(prefix: "ptk_")
@@ -89,7 +87,7 @@ defmodule EWalletDB.PreAuthToken do
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: nil,
-      expire_at: get_lifetime() |> AuthExpirer.postpone_expire_at(),
+      expire_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
       token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
@@ -107,7 +105,7 @@ defmodule EWalletDB.PreAuthToken do
     token
     |> get_by_token(owner_app)
     |> AuthExpirer.expire_or_refresh(get_lifetime())
-    |> return_user()
+    |> return_token_if_valid()
   end
 
   def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
@@ -115,7 +113,7 @@ defmodule EWalletDB.PreAuthToken do
     |> get_by_user(owner_app)
     |> compare_multiple(token)
     |> AuthExpirer.expire_or_refresh(get_lifetime())
-    |> return_user()
+    |> return_token_if_valid()
   end
 
   def authenticate(_, _, _), do: Crypto.fake_verify()
@@ -126,7 +124,7 @@ defmodule EWalletDB.PreAuthToken do
     end)
   end
 
-  defp return_user(token) do
+  defp return_token_if_valid(token) do
     case token do
       nil ->
         false
@@ -172,7 +170,8 @@ defmodule EWalletDB.PreAuthToken do
 
   defp get_by_user(_, _), do: nil
 
-  def get_lifetime(), do: Setting.get(@key_ptk_lifetime).value
+  # def get_lifetime(), do: Setting.get(@key_ptk_lifetime).value
+  def get_lifetime, do: Application.get_env(:ewallet, :ptk_lifetime, 0)
 
   # `insert/1` is private to prohibit direct pre auth token insertion,
   # please use `generate/2` instead.
@@ -214,20 +213,9 @@ defmodule EWalletDB.PreAuthToken do
 
   def refresh(%PreAuthToken{} = token, originator) do
     update(token, %{
-      expire_at: get_lifetime() |> AuthExpirer.postpone_expire_at(),
+      expire_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
       originator: originator
     })
-  end
-
-  def delete_for_user(user) do
-    Repo.delete_all(
-      from(
-        a in PreAuthToken,
-        where: a.user_uuid == ^user.uuid
-      )
-    )
-
-    :ok
   end
 
   # if expiring the token, please use `expire/2` instead.

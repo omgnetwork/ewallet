@@ -16,33 +16,20 @@ defmodule EWalletDB.AuthTokenTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias ActivityLogger.System
-  alias EWalletConfig.Setting
   alias EWalletDB.{AuthToken, Membership, Repo}
 
   @owner_app :some_app
 
-  defp generate_with_auth_token_lifetime(user, second) do
-    Setting.update("auth_token_lifetime", %{value: second, originator: %System{}})
-    result = AuthToken.generate(user, @owner_app, %System{})
-    Setting.update("auth_token_lifetime", %{value: 0, originator: %System{}})
+  setup context do
+    case context do
+      %{atk_lifetime: second} when not is_nil(second) ->
+        Application.put_env(:ewallet, :atk_lifetime, second)
+        on_exit(fn -> Application.put_env(:ewallet, :atk_lifetime, 0) end)
+        {:ok, second: second}
 
-    result
-  end
-
-  defp authenticate_with_auth_token_lifetime(token, second) do
-    Setting.update("auth_token_lifetime", %{value: second, originator: %System{}})
-    result = AuthToken.authenticate(token, @owner_app)
-    Setting.update("auth_token_lifetime", %{value: 0, originator: %System{}})
-
-    result
-  end
-
-  defp authenticate_with_auth_token_lifetime(user_id, token, second) do
-    Setting.update("auth_token_lifetime", %{value: second, originator: %System{}})
-    result = AuthToken.authenticate(user_id, token, @owner_app)
-    Setting.update("auth_token_lifetime", %{value: 0, originator: %System{}})
-
-    result
+      _ ->
+        :ok
+    end
   end
 
   defp from_now_by_seconds(seconds) do
@@ -62,23 +49,22 @@ defmodule EWalletDB.AuthTokenTest do
       assert String.length(auth_token.token) == 43
     end
 
-    test "generates an auth token with a correct expire_at when set a positive integer to auth_token_lifetime" do
+    @tag atk_lifetime: 3600
+    test "generates an auth token with a correct expire_at when set a positive integer to atk_lifetime",
+         context do
       user = insert(:user)
 
       # Set the auth token lifetime to 60 minutes
-      assert {:ok, auth_token} = generate_with_auth_token_lifetime(user, 3600)
+      assert {:ok, auth_token} = AuthToken.generate(user, @owner_app, %System{})
 
       # Expect expire_at is next 60 minutes from now, with the precision down to a second.
-      assert 3600
+      assert context.second
              |> from_now_by_seconds()
-             |> NaiveDateTime.diff(auth_token.expire_at, :second)
-             |> Kernel.floor() == 0
+             |> NaiveDateTime.diff(auth_token.expire_at, :second) == 0
     end
 
-    test "generates an auth token with expire_at nil when set zero to auth_token_lifetime" do
+    test "generates an auth token with expire_at nil when set zero to atk_lifetime" do
       user = insert(:user)
-
-      Setting.update("auth_token_lifetime", %{value: 0, originator: %System{}})
 
       assert {:ok, auth_token} = AuthToken.generate(user, @owner_app, %System{})
       assert auth_token.expire_at == nil
@@ -124,25 +110,25 @@ defmodule EWalletDB.AuthTokenTest do
       assert auth_user.uuid == user.uuid
     end
 
-    test "returns a user if the current date time is before expire_at" do
+    @tag atk_lifetime: 3600
+    test "returns a user with expired auth_token if the expire_at has been lapsed", context do
       # The user has the authentication token which will be expired in the next minute.
       user = insert(:user)
-      {:ok, auth_token} = generate_with_auth_token_lifetime(user, 1)
+      {:ok, auth_token} = AuthToken.generate(user, @owner_app, %System{})
 
       # The user authenticate to the system,
-      # while the :auth_token_lifetime has been set to 60 minutes
-      auth_user = authenticate_with_auth_token_lifetime(auth_token.token, 60)
+      # while the :atk_lifetime has been set to 1 hour
+      auth_user = AuthToken.authenticate(auth_token.token, @owner_app)
 
       assert auth_user.uuid == user.uuid
 
       # Assert the token has been refreshed.
       updated_auth_token = AuthToken.get_by_token(auth_token.token, @owner_app)
 
-      # Expect expire_at is next 60 minutes from now, with the precision down to a second.
-      assert 60
+      # Expect expire_at is next 1 hour from now
+      assert context.second
              |> from_now_by_seconds()
-             |> NaiveDateTime.diff(updated_auth_token.expire_at, :second)
-             |> Kernel.floor() == 0
+             |> NaiveDateTime.diff(updated_auth_token.expire_at, :second) == 0
     end
 
     test "returns a user if the expire_at is nil" do
@@ -154,12 +140,13 @@ defmodule EWalletDB.AuthTokenTest do
       assert auth_user.uuid == user.uuid
     end
 
-    test "returns :token_expired if the current date time is after expire_at" do
+    @tag atk_lifetime: 3600
+    test "returns :token_expired if the expire_at has not been lapsed" do
       attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: NaiveDateTime.utc_now()}
 
       auth_token = insert(:auth_token, attrs)
 
-      assert authenticate_with_auth_token_lifetime(auth_token.token, 3600) == :token_expired
+      assert AuthToken.authenticate(auth_token.token, @owner_app) == :token_expired
     end
 
     test "returns :token_expired if the token exists but expired" do
@@ -214,27 +201,27 @@ defmodule EWalletDB.AuthTokenTest do
       assert AuthToken.authenticate(user.id, token2.token, @owner_app)
     end
 
-    test "returns a user if the current date time is before expire_at" do
-      # The user has the authentication token which will be expired in the next minute.
+    @tag atk_lifetime: 3600
+    test "returns a user if the expire_at has not been lapsed", context do
       user = insert(:user)
-      {:ok, auth_token} = generate_with_auth_token_lifetime(user, 60)
 
-      # The user authenticate to the system,
-      # while the :auth_token_lifetime has been set to 60 minutes
-      auth_user = authenticate_with_auth_token_lifetime(auth_token.token, 3600)
+      # The token will be expired in 1 minute.
+      attrs = %{
+        owner_app: Atom.to_string(@owner_app),
+        expire_at: from_now_by_seconds(60),
+        user: user
+      }
 
-      assert auth_user.uuid == user.uuid
+      auth_token = insert(:auth_token, attrs)
 
-      # Assert the token has been refreshed.
+      AuthToken.authenticate(user.id, auth_token.token, @owner_app)
+
       updated_auth_token = AuthToken.get_by_token(auth_token.token, @owner_app)
 
-      # Expect expire_at is next 60 minutes from now, with the precision down to a second.
-      assert 3600
+      # Expect an expire_at is refreshed (expire_at is set to the next hour).
+      assert context.second
              |> from_now_by_seconds()
-             |> NaiveDateTime.diff(updated_auth_token.expire_at, :second)
-             |> Kernel.floor() == 0
-
-      Application.put_env(:ewallet, :auth_token_lifetime, 0)
+             |> NaiveDateTime.diff(updated_auth_token.expire_at, :second) == 0
     end
 
     test "returns a user if the expire_at is nil" do
@@ -246,19 +233,20 @@ defmodule EWalletDB.AuthTokenTest do
       assert auth_user.uuid == user.uuid
     end
 
-    test "returns :token_expired if the current date time is after expire_at" do
+    @tag atk_lifetime: 3600
+    test "returns :token_expired if the expire_at has been lapsed" do
       user = insert(:user)
 
+      # Expire at a minute ago
       attrs = %{
         user: user,
         owner_app: Atom.to_string(@owner_app),
-        expire_at: NaiveDateTime.utc_now()
+        expire_at: from_now_by_seconds(-60)
       }
 
       auth_token = insert(:auth_token, attrs)
 
-      assert authenticate_with_auth_token_lifetime(user.id, auth_token.token, 3600) ==
-               :token_expired
+      assert AuthToken.authenticate(user.id, auth_token.token, @owner_app) == :token_expired
     end
 
     test "returns :token_expired if token exists but expired" do
@@ -370,6 +358,17 @@ defmodule EWalletDB.AuthTokenTest do
       AuthToken.expire_for_user(user)
       assert AuthToken.authenticate(token1_string, @owner_app) == :token_expired
       assert AuthToken.authenticate(token2_string, @owner_app) == :token_expired
+    end
+  end
+
+  describe "AuthToken.get_lifetime/0" do
+    test "returns 0 by default" do
+      assert AuthToken.get_lifetime() == 0
+    end
+
+    @tag atk_lifetime: 60
+    test "returns a given value", context do
+      assert AuthToken.get_lifetime() == context.second
     end
   end
 end

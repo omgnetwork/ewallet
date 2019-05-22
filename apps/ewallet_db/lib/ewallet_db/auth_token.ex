@@ -23,14 +23,12 @@ defmodule EWalletDB.AuthToken do
   import Ecto.Query, only: [from: 2]
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
-  alias EWalletConfig.Setting
   alias EWalletDB.Expirers.AuthExpirer
   alias EWalletDB.{Account, AuthToken, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
   @key_length 32
-  @key_atk_lifetime "auth_token_lifetime"
 
   schema "auth_token" do
     external_id(prefix: "atk_")
@@ -109,7 +107,7 @@ defmodule EWalletDB.AuthToken do
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: nil,
-      expire_at: get_lifetime() |> AuthExpirer.postpone_expire_at(),
+      expire_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
       token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
@@ -127,7 +125,7 @@ defmodule EWalletDB.AuthToken do
     token
     |> get_by_token(owner_app)
     |> AuthExpirer.expire_or_refresh(get_lifetime())
-    |> return_user()
+    |> return_token_if_valid()
   end
 
   def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
@@ -135,7 +133,7 @@ defmodule EWalletDB.AuthToken do
     |> get_by_user(owner_app)
     |> compare_multiple(token)
     |> AuthExpirer.expire_or_refresh(get_lifetime())
-    |> return_user()
+    |> return_token_if_valid()
   end
 
   def authenticate(_, _, _), do: Crypto.fake_verify()
@@ -146,7 +144,7 @@ defmodule EWalletDB.AuthToken do
     end)
   end
 
-  defp return_user(token) do
+  defp return_token_if_valid(token) do
     case token do
       nil ->
         false
@@ -194,7 +192,8 @@ defmodule EWalletDB.AuthToken do
 
   defp get_by_user(_, _), do: nil
 
-  def get_lifetime(), do: Setting.get(@key_atk_lifetime).value
+  # def get_lifetime(), do: Setting.get(@key_atk_lifetime).value
+  def get_lifetime, do: Application.get_env(:ewallet, :atk_lifetime, 0)
 
   # `insert/1` is private to prohibit direct auth token insertion,
   # please use `generate/2` instead.
@@ -236,7 +235,8 @@ defmodule EWalletDB.AuthToken do
 
   def refresh(%AuthToken{} = token, originator) do
     update(token, %{
-      expire_at: get_lifetime() |> AuthExpirer.postpone_expire_at(),
+      expired: false,
+      expire_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
       originator: originator
     })
   end
