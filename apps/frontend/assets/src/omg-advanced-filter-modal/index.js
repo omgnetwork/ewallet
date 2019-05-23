@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { filter } from 'lodash'
+import { TransitionMotion, spring } from 'react-motion'
 
 import Modal from '../omg-modal'
 import { Icon } from '../omg-uikit'
@@ -31,6 +32,10 @@ const Content = styled.div`
 `
 const Title = styled.h3`
   margin-top: 100px;
+`
+const FilterList = styled.div`
+  display: flex;
+  flex-direction: column;
 `
 
 const AdvancedFilterModal = ({
@@ -67,11 +72,45 @@ const AdvancedFilterModal = ({
             onSelect={onSelectFilter}
             selectedFilters={filters}
           />
-          {filters.map(filter => {
-            return filter.component({
+
+          <TransitionMotion
+            willEnter={() => ({ height: 0 })}
+            willLeave={() => ({ height: spring(0) })}
+            styles={
+              filters.map(filter => ({
+                key: filter.code,
+                data: filter,
+                style: { height: spring(filter.height + 10) }
+              }))
+            }
+          >
+            {interpolated => (
+              <FilterList>
+                {interpolated.map(item => {
+                  return (
+                    <div
+                      key={item.key}
+                      style={{
+                        overflow: 'hidden',
+                        // marginBottom: `${item.style.height / item.data.height * 10}px`,
+                        height: `${item.style.height}px`
+                      }}
+                    >
+                      {item.data.component({
+                        onRemove: () => onRemoveFilter(item.data)
+                      })}
+                    </div>
+                  )
+                })}
+              </FilterList>
+            )}
+          </TransitionMotion>
+
+          {/* {filters.map(filter => {
+            return filter.component && filter.component({
               onRemove: () => onRemoveFilter(filter)
             })
-          })}
+          })} */}
         </Content>
       </AdvancedFilterModalContainer>
     </Modal>

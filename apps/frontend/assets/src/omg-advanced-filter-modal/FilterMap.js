@@ -6,6 +6,7 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     code: 'transfer-from',
     page: 'transaction',
+    height: 60,
     component: filters.TransferFrom
   },
   {
@@ -13,6 +14,7 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     code: 'transfer-to',
     page: 'transaction',
+    height: 60,
     component: filters.TransferTo
   },
   {
