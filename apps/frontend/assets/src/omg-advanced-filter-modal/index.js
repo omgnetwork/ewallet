@@ -55,6 +55,7 @@ const AdvancedFilterModal = ({
     setFilters(newFilters)
   }
 
+  const springConfig = { stiffness: 200, damping: 20 }
   return (
     <Modal
       isOpen={open}
@@ -67,32 +68,32 @@ const AdvancedFilterModal = ({
         <Icon name='Close' onClick={onRequestClose} />
         <Content>
           <Title>{title}</Title>
-          <FilterPicker
-            page={page}
-            onSelect={onSelectFilter}
-            selectedFilters={filters}
-          />
-
           <TransitionMotion
             willEnter={() => ({ height: 0 })}
-            willLeave={() => ({ height: spring(0) })}
+            willLeave={() => ({ height: spring(0, springConfig) })}
             styles={
               filters.map(filter => ({
                 key: filter.code,
                 data: filter,
-                style: { height: spring(filter.height + 10) }
+                style: { height: spring(filter.height + 10, springConfig) }
               }))
             }
           >
             {interpolated => (
               <FilterList>
-                {interpolated.map(item => {
+                <FilterPicker
+                  style={{ zIndex: interpolated.length + 1 }}
+                  page={page}
+                  onSelect={onSelectFilter}
+                  selectedFilters={filters}
+                />
+                {interpolated.map((item, index) => {
                   return (
                     <div
                       key={item.key}
                       style={{
-                        overflow: 'hidden',
-                        // marginBottom: `${item.style.height / item.data.height * 10}px`,
+                        zIndex: interpolated.length - index,
+                        overflow: `${item.style.height < item.data.height ? 'hidden' : 'initial'}`,
                         height: `${item.style.height}px`
                       }}
                     >
@@ -105,12 +106,6 @@ const AdvancedFilterModal = ({
               </FilterList>
             )}
           </TransitionMotion>
-
-          {/* {filters.map(filter => {
-            return filter.component && filter.component({
-              onRemove: () => onRemoveFilter(filter)
-            })
-          })} */}
         </Content>
       </AdvancedFilterModalContainer>
     </Modal>

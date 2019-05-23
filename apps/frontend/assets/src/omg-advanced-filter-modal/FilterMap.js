@@ -6,7 +6,7 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     code: 'transfer-from',
     page: 'transaction',
-    height: 60,
+    height: 110,
     component: filters.TransferFrom
   },
   {
@@ -14,14 +14,16 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     code: 'transfer-to',
     page: 'transaction',
-    height: 60,
+    height: 110,
     component: filters.TransferTo
   },
   {
     title: 'Specify Target',
     icon: 'Option-Horizontal',
     code: 'specify-target',
-    page: 'transaction'
+    page: 'transaction',
+    height: 110,
+    component: filters.SpecifyTarget
   },
   {
     title: 'Date & Time',
@@ -39,12 +41,16 @@ export const FILTER_MAP = [
     title: 'Wallet Type',
     icon: 'Option-Horizontal',
     code: 'wallet-type',
-    page: 'transaction'
+    page: 'transaction',
+    height: 110,
+    component: filters.WalletType
   },
   {
     title: 'Request',
     icon: 'Option-Horizontal',
     code: 'request',
-    page: 'transaction'
+    page: 'transaction',
+    height: 110,
+    component: filters.Request
   }
 ]

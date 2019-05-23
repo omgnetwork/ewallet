@@ -6,15 +6,13 @@ import { Icon } from '../../omg-uikit'
 
 const FilterBoxStyle = styled.div`
   border: 1px solid ${props => props.theme.colors.S300};
-  margin-bottom: 10px;
+  transform: translateY(1px);
   border-radius: 4px;
   padding: 20px;
   position: relative;
   cursor: pointer;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
+  display: flex;
+  flex-direction: column;
 
   &:hover {
     i[name="Close"] {

@@ -5,14 +5,14 @@ import { Input } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
 
-const TransferTo = ({ onRemove }) => {
+const Request = ({ onRemove }) => {
   return (
     <FilterBox
-      key='transfer-to'
+      key='request'
       closeClick={onRemove}
     >
       <TagRow
-        title='To'
+        title='Request'
         tooltip='Test tooltip text'
       />
 
@@ -25,8 +25,8 @@ const TransferTo = ({ onRemove }) => {
   )
 }
 
-TransferTo.propTypes = {
+Request.propTypes = {
   onRemove: PropTypes.func.isRequired
 }
 
-export default TransferTo
+export default Request

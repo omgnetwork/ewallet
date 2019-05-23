@@ -48,44 +48,48 @@ const FilterPicker = ({
   open,
   onClickButton,
   onSelect,
-  selectedFilters
+  selectedFilters,
+  style
 }) => {
   return (
-    <PopperRenderer
-      offset='-100%, -10px'
-      modifiers={{
-        flip: {
-          enabled: false
-        }
-      }}
-      renderReference={() => (
-        <FilterPickerStyles onClick={onClickButton}>
-          <Icon name='Plus' />
-          <span>Add filter</span>
-        </FilterPickerStyles>
-      )}
-      open={open}
-      renderPopper={() => {
-        const diff = difference(FILTER_MAP.filter(i => i.page === page), selectedFilters)
-        return (
-          <DropdownBoxStyles>
-            {diff.map(filter => (
-              <DropdownItem
-                key={filter.code}
-                onClick={() => onSelect(filter)}
-              >
-                <Icon name={filter.icon} />
-                <span>{filter.title}</span>
-              </DropdownItem>
-            ))}
-          </DropdownBoxStyles>
-        )
-      }}
-    />
+    <div style={style}>
+      <PopperRenderer
+        offset='-100%, -10px'
+        modifiers={{
+          flip: {
+            enabled: false
+          }
+        }}
+        renderReference={() => (
+          <FilterPickerStyles onClick={onClickButton}>
+            <Icon name='Plus' />
+            <span>Add filter</span>
+          </FilterPickerStyles>
+        )}
+        open={open}
+        renderPopper={() => {
+          const diff = difference(FILTER_MAP.filter(i => i.page === page), selectedFilters)
+          return (
+            <DropdownBoxStyles>
+              {diff.map(filter => (
+                <DropdownItem
+                  key={filter.code}
+                  onClick={() => onSelect(filter)}
+                >
+                  <Icon name={filter.icon} />
+                  <span>{filter.title}</span>
+                </DropdownItem>
+              ))}
+            </DropdownBoxStyles>
+          )
+        }}
+      />
+    </div>
   )
 }
 
 FilterPicker.propTypes = {
+  style: PropTypes.object,
   page: PropTypes.oneOf(['transaction']),
   open: PropTypes.bool,
   onClickButton: PropTypes.func.isRequired,
