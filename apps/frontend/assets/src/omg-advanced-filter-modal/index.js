@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { filter } from 'lodash'
 import { TransitionMotion, spring } from 'react-motion'
+import { withRouter } from 'react-router-dom'
+import { compose } from 'recompose'
 
 import Modal from '../omg-modal'
-import { Icon } from '../omg-uikit'
+import { Icon, Button } from '../omg-uikit'
 
 import FilterPicker from './FilterPicker'
+import { FILTER_MAP } from './FilterMap'
 
 const AdvancedFilterModalContainer = styled.div`
   width: 100vw;
@@ -32,27 +34,68 @@ const Content = styled.div`
 `
 const Title = styled.h3`
   margin-top: 100px;
+  margin-left: 20px;
 `
 const FilterList = styled.div`
   display: flex;
   flex-direction: column;
+`
+const StyledButton = styled(Button)`
+  margin-top: 20px;
+  margin-left: 20px;
+`
+const FilterPickerWrapper = styled.div`
+  margin-left: 20px;
 `
 
 const AdvancedFilterModal = ({
   open,
   onRequestClose,
   title,
-  page
+  page,
+  onFilter,
+  location
 }) => {
   const [ filters, setFilters ] = useState([])
+  const [ values, setValues ] = useState({})
+  const [ initialValues, setInitialValues ] = useState({})
+
+  useEffect(() => {
+    const defaultFilters = FILTER_MAP.filter(i => {
+      return i.page === page && i.default
+    })
+    setFilters(defaultFilters)
+
+    // TODO: setInitialValues
+    setInitialValues({})
+  }, [])
 
   const onSelectFilter = (newFilter) => {
     setFilters([newFilter, ...filters])
   }
 
   const onRemoveFilter = (filterToRemove) => {
-    const newFilters = filter(filters, i => i.code !== filterToRemove.code)
+    const newFilters = _.filter(filters, i => i.code !== filterToRemove.code)
     setFilters(newFilters)
+    setValues(_.omit(values, [filterToRemove.code]))
+  }
+
+  const onUpdate = (updated) => {
+    setValues({
+      ...values,
+      ...updated
+    })
+  }
+
+  const clearKey = (key) => {
+    setValues(_.omit(values, [key]))
+  }
+
+  const applyFilter = () => {
+    // TODO: transform values into matchAll query
+    console.log(values)
+    // pass transformed into onFilter callback
+    onFilter()
   }
 
   const springConfig = { stiffness: 200, damping: 20 }
@@ -81,12 +124,16 @@ const AdvancedFilterModal = ({
           >
             {interpolated => (
               <FilterList>
-                <FilterPicker
+                <FilterPickerWrapper
                   style={{ zIndex: interpolated.length + 1 }}
-                  page={page}
-                  onSelect={onSelectFilter}
-                  selectedFilters={filters}
-                />
+                >
+                  <FilterPicker
+                    page={page}
+                    onSelect={onSelectFilter}
+                    selectedFilters={filters}
+                  />
+                </FilterPickerWrapper>
+
                 {interpolated.map((item, index) => {
                   return (
                     <div
@@ -97,15 +144,29 @@ const AdvancedFilterModal = ({
                         height: `${item.style.height}px`
                       }}
                     >
-                      {item.data.component({
-                        onRemove: () => onRemoveFilter(item.data)
-                      })}
+                      {React.createElement(
+                        item.data.component,
+                        {
+                          onUpdate,
+                          clearKey,
+                          onRemove: () => onRemoveFilter(item.data),
+                          values
+                        },
+                        null
+                      )}
                     </div>
                   )
                 })}
               </FilterList>
             )}
           </TransitionMotion>
+
+          <StyledButton
+            onClick={applyFilter}
+            disabled={_.isEqual(initialValues, values)}
+          >
+            <span>Apply Filter</span>
+          </StyledButton>
         </Content>
       </AdvancedFilterModalContainer>
     </Modal>
@@ -117,12 +178,16 @@ AdvancedFilterModal.propTypes = {
   onRequestClose: PropTypes.func.isRequired,
   onFilter: PropTypes.func.isRequired,
   page: PropTypes.oneOf(['transaction']),
-  title: PropTypes.string.isRequired
+  title: PropTypes.string.isRequired,
+  location: PropTypes.object
 }
 
-const enhance = connect(
-  null,
-  {}
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    {}
+  )
 )
 
 export default enhance(AdvancedFilterModal)

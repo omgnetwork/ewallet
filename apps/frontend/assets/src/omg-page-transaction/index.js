@@ -292,6 +292,9 @@ class TransactionPage extends Component {
             this.renderCreateTransactionButton()
           ]}
         />
+
+        {/* TODO: turn filters into deletable tags below topnav */}
+
         <SortableTable
           rows={transactions}
           columns={columns}
@@ -327,6 +330,15 @@ class TransactionPage extends Component {
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 100),
           search: queryString.parse(this.props.location.search).search,
+
+          // TODO: get matchAll from state that updates from onFilter click
+          matchAll: [
+            {
+              field: 'status',
+              comparator: 'contains',
+              value: 'confirmed'
+            }
+          ],
           ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

@@ -7,7 +7,8 @@ export const FILTER_MAP = [
     code: 'transfer-from',
     page: 'transaction',
     height: 110,
-    component: filters.TransferFrom
+    component: filters.TransferFrom,
+    default: false
   },
   {
     title: 'Transfer To',
@@ -15,7 +16,8 @@ export const FILTER_MAP = [
     code: 'transfer-to',
     page: 'transaction',
     height: 110,
-    component: filters.TransferTo
+    component: filters.TransferTo,
+    default: false
   },
   {
     title: 'Specify Target',
@@ -23,19 +25,26 @@ export const FILTER_MAP = [
     code: 'specify-target',
     page: 'transaction',
     height: 110,
-    component: filters.SpecifyTarget
+    component: filters.SpecifyTarget,
+    default: false
   },
   {
     title: 'Date & Time',
     icon: 'Option-Horizontal',
     code: 'date-time',
-    page: 'transaction'
+    page: 'transaction',
+    height: 205,
+    component: filters.DateTime,
+    default: true
   },
   {
     title: 'Status',
     icon: 'Option-Horizontal',
     code: 'status',
-    page: 'transaction'
+    page: 'transaction',
+    height: 165,
+    component: filters.Status,
+    default: true
   },
   {
     title: 'Wallet Type',
@@ -43,7 +52,8 @@ export const FILTER_MAP = [
     code: 'wallet-type',
     page: 'transaction',
     height: 110,
-    component: filters.WalletType
+    component: filters.WalletType,
+    default: false
   },
   {
     title: 'Request',
@@ -51,6 +61,7 @@ export const FILTER_MAP = [
     code: 'request',
     page: 'transaction',
     height: 110,
-    component: filters.Request
+    component: filters.Request,
+    default: false
   }
 ]

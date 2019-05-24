@@ -5,7 +5,16 @@ import { Input } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
 
-const TransferFrom = ({ onRemove }) => {
+const TransferFrom = ({ onRemove, onUpdate, clearKey, values }) => {
+  const onChange = (e) => {
+    if (e.target.value) {
+      onUpdate({
+        'transfer-from': e.target.value
+      })
+    } else {
+      clearKey('transfer-from')
+    }
+  }
   return (
     <FilterBox
       key='transfer-from'
@@ -15,18 +24,20 @@ const TransferFrom = ({ onRemove }) => {
         title='From'
         tooltip='Test tooltip text'
       />
-
       <Input
         normalPlaceholder='Enter any ID or address'
-        // onChange={this.onReEnteredNewPasswordInputChange}
-        // value={this.state.reEnteredNewPassword}
+        onChange={onChange}
+        value={values['transfer-from'] || ''}
       />
     </FilterBox>
   )
 }
 
 TransferFrom.propTypes = {
-  onRemove: PropTypes.func.isRequired
+  onRemove: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired,
+  clearKey: PropTypes.func.isRequired,
+  values: PropTypes.object
 }
 
 export default TransferFrom
