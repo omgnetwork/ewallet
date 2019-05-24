@@ -15,6 +15,8 @@ import Switch from '../omg-uikit/switch'
 import Error from '../omg-uikit/error'
 import Tag from '../omg-uikit/tag'
 import Tooltip from '../omg-uikit/tooltip'
+import DatePicker from '../omg-uikit/datepicker'
+import TimePicker from '../omg-uikit/timepicker'
 
 export {
   Input,
@@ -34,5 +36,7 @@ export {
   Switch,
   Error,
   Tag,
-  Tooltip
+  Tooltip,
+  DatePicker,
+  TimePicker
 }
