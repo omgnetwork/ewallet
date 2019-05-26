@@ -35,9 +35,9 @@ export function getUserTransactions ({
   matchAny
 }) {
   return authenticatedRequest({
-    path: '/transaction.all',
+    path: '/user.get_transactions',
     data: {
-      id: userId,
+      user_id: userId,
       page,
       per_page: perPage,
       sort_by: sort.by,
