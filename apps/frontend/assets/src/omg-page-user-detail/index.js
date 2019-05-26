@@ -14,7 +14,7 @@ import { KeyButton } from '../omg-page-api'
 import TransactionPage from './UserTransactions'
 import UserActivityLogPage from './UserActivityLog'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
-
+import SearchBar from '../omg-page-layout/SearchGroup'
 const UserDetailContainer = styled.div`
   b {
     width: 150px;
@@ -89,6 +89,7 @@ class UserDetailPage extends Component {
             <KeyButton active={type === 'logs'}>Logs</KeyButton>
           </Link>
         </UserDetailMenuContainer>
+        <SearchBar />
       </>
     )
   }
