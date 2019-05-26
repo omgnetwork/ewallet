@@ -3,7 +3,8 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { withProps, compose } from 'recompose'
 import CONSTANT from '../constants'
-export const createCacheKey = (props, entity) => JSON.stringify({ ...props.query, entity })
+export const createCacheKey = (props, entity) =>
+  JSON.stringify({ ...props.query, entity })
 export const createFetcher = (entity, reducer, selectors) => {
   const enhance = compose(
     withProps(props => ({ cacheKey: createCacheKey(props, entity), entity })),
@@ -32,7 +33,6 @@ export const createFetcher = (entity, reducer, selectors) => {
         shouldFetch: PropTypes.bool,
         registerFetch: PropTypes.func,
         dispatcher: PropTypes.func
-
       }
       static defaultProps = {
         onFetchComplete: _.noop,
@@ -87,11 +87,17 @@ export const createFetcher = (entity, reducer, selectors) => {
               })
               this.props.onFetchComplete()
             } else {
-              this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, data: [] })
+              this.setState({
+                loadingStatus: CONSTANT.LOADING_STATUS.FAILED,
+                data: []
+              })
             }
           })
           .catch(() => {
-            this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, data: [] })
+            this.setState({
+              loadingStatus: CONSTANT.LOADING_STATUS.FAILED,
+              data: []
+            })
           })
       }
 
@@ -118,9 +124,9 @@ export const createFetcher = (entity, reducer, selectors) => {
           case CONSTANT.LOADING_STATUS.INITIATED:
             return this.state.pagination
           case CONSTANT.LOADING_STATUS.FAILED:
-            return []
+            return {}
           default:
-            return []
+            return {}
         }
       }
 

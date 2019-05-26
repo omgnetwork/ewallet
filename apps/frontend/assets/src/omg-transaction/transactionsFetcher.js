@@ -6,16 +6,16 @@ import {
 } from './selector'
 import { selectCachedQueryPagination } from '../omg-cache/selector'
 
-const createTransactionFetcher = (action, key) =>
+const createTransactionFetcher = (key, action) =>
   createFetcher(key, action, (state, props) => ({
     loadingStatus: selectTransactionsLoadingStatus(state),
     data: selectTransactionsCachedQuery(state)(props.cacheKey),
     pagination: selectCachedQueryPagination(state)(props.cacheKey)
   }))
 
-export default createTransactionFetcher(getTransactions, 'transactions')
+export default createTransactionFetcher('transactions', getTransactions)
 
 export const UserTransactionFetcher = createTransactionFetcher(
-  getUserTransactions,
-  'user_transactions'
+  'user_transactions',
+  getUserTransactions
 )
