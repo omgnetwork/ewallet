@@ -40,9 +40,16 @@ const BreadcrumbContainer = styled.div`
   margin-top: 30px;
 `
 const UserDetailMenuContainer = styled.div`
-  margin-bottom: 20px;
+  white-space: nowrap;
 `
-
+const MenuContainer = styled.div`
+  display: flex;
+  margin-bottom: 20px;
+  align-items: center;
+  > div {
+    flex: 1;
+  }
+`
 const enhance = compose(
   withTheme,
   withRouter
@@ -75,21 +82,27 @@ class UserDetailPage extends Component {
           secondaryAction={false}
           buttons={[<CreateTransactionButton key={'create_transaction'} />]}
         />
-        <UserDetailMenuContainer>
-          <Link to={`/users/${this.props.match.params.userId}`}>
-            <KeyButton active={type === 'details' || !type}>Details</KeyButton>
-          </Link>
-          <Link to={`/users/${this.props.match.params.userId}/wallets`}>
-            <KeyButton active={type === 'wallets'}>Wallets</KeyButton>
-          </Link>
-          <Link to={`/users/${this.props.match.params.userId}/transactions`}>
-            <KeyButton active={type === 'transactions'}>Transactions</KeyButton>
-          </Link>
-          <Link to={`/users/${this.props.match.params.userId}/logs`}>
-            <KeyButton active={type === 'logs'}>Logs</KeyButton>
-          </Link>
-        </UserDetailMenuContainer>
-        <SearchBar />
+        <MenuContainer>
+          <UserDetailMenuContainer>
+            <Link to={`/users/${this.props.match.params.userId}`}>
+              <KeyButton active={type === 'details' || !type}>
+                Details
+              </KeyButton>
+            </Link>
+            <Link to={`/users/${this.props.match.params.userId}/wallets`}>
+              <KeyButton active={type === 'wallets'}>Wallets</KeyButton>
+            </Link>
+            <Link to={`/users/${this.props.match.params.userId}/transactions`}>
+              <KeyButton active={type === 'transactions'}>
+                Transactions
+              </KeyButton>
+            </Link>
+            <Link to={`/users/${this.props.match.params.userId}/logs`}>
+              <KeyButton active={type === 'logs'}>Logs</KeyButton>
+            </Link>
+          </UserDetailMenuContainer>
+          <SearchBar />
+        </MenuContainer>
       </>
     )
   }
