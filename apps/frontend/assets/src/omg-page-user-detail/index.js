@@ -13,6 +13,7 @@ import Copy from '../omg-copy'
 import { KeyButton } from '../omg-page-api'
 import TransactionPage from './UserTransactions'
 import UserActivityLogPage from './UserActivityLog'
+import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 
 const UserDetailContainer = styled.div`
   b {
@@ -72,6 +73,7 @@ class UserDetailPage extends Component {
           divider={false}
           title={user.email || user.provider_user_id}
           secondaryAction={false}
+          buttons={[<CreateTransactionButton key={'create_transaction'} />]}
         />
         <UserDetailMenuContainer>
           <Link to={`/users/${this.props.match.params.userId}`}>
@@ -117,15 +119,19 @@ class UserDetailPage extends Component {
         {wallet ? (
           <div>
             <DetailGroup>
-              <b>Wallet Address:</b> <Link to={`/wallets/${wallet.address}`}>{wallet.address}</Link>{' '}
-              ( <span>{wallet.name}</span> )
+              <b>Wallet Address:</b>{' '}
+              <Link to={`/wallets/${wallet.address}`}>{wallet.address}</Link> ({' '}
+              <span>{wallet.name}</span> )
             </DetailGroup>
             {wallet.balances.map(balance => {
               return (
                 <DetailGroup key={balance.token.id}>
                   <b>{balance.token.name}</b>
                   <span>
-                    {formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}
+                    {formatReceiveAmountToTotal(
+                      balance.amount,
+                      balance.token.subunit_to_unit
+                    )}
                   </span>{' '}
                   <span>{balance.token.symbol}</span>
                 </DetailGroup>
@@ -149,10 +155,16 @@ class UserDetailPage extends Component {
         <Switch>
           <Route
             path={'/users/:userId/'}
-            render={() => <DetailContainer>{this.renderDetail(user)}</DetailContainer>}
+            render={() => (
+              <DetailContainer>{this.renderDetail(user)}</DetailContainer>
+            )}
             exact
           />
-          <Route path={'/users/:userId/wallets'} render={() => this.renderWallet(wallet)} exact />
+          <Route
+            path={'/users/:userId/wallets'}
+            render={() => this.renderWallet(wallet)}
+            exact
+          />
           <Route
             path={'/users/:userId/transactions'}
             render={() => <TransactionPage topNavigation={false} />}
