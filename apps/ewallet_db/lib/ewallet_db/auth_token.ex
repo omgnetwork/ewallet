@@ -192,8 +192,7 @@ defmodule EWalletDB.AuthToken do
 
   defp get_by_user(_, _), do: nil
 
-  # def get_lifetime(), do: Setting.get(@key_atk_lifetime).value
-  def get_lifetime, do: Application.get_env(:ewallet, :atk_lifetime, 0)
+  def get_lifetime, do: Application.get_env(:ewallet_db, :atk_lifetime, 0)
 
   # `insert/1` is private to prohibit direct auth token insertion,
   # please use `generate/2` instead.

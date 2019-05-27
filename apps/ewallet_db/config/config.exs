@@ -13,7 +13,9 @@ config :ewallet_db,
     :aws_secret_access_key,
     :gcs_bucket,
     :gcs_credentials,
-    :master_account
+    :master_account,
+    :ptk_lifetime,
+    :atk_lifetime
   ]
 
 config :ewallet_db, EWalletDB.Repo,

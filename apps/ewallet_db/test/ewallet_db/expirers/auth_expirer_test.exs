@@ -23,13 +23,13 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
   setup context do
     case context do
       %{atk_lifetime: lifetime} when not is_nil(lifetime) ->
-        Application.put_env(:ewallet, :atk_lifetime, lifetime)
-        on_exit(fn -> Application.put_env(:ewallet, :atk_lifetime, 0) end)
+        Application.put_env(:ewallet_db, :atk_lifetime, lifetime)
+        on_exit(fn -> Application.put_env(:ewallet_db, :atk_lifetime, 0) end)
         {:ok, lifetime: lifetime}
 
       %{ptk_lifetime: lifetime} when not is_nil(lifetime) ->
-        Application.put_env(:ewallet, :ptk_lifetime, lifetime)
-        on_exit(fn -> Application.put_env(:ewallet, :ptk_lifetime, 0) end)
+        Application.put_env(:ewallet_db, :ptk_lifetime, lifetime)
+        on_exit(fn -> Application.put_env(:ewallet_db, :ptk_lifetime, 0) end)
         {:ok, lifetime: lifetime}
 
       _ ->

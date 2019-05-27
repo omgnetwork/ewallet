@@ -23,8 +23,8 @@ defmodule EWalletDB.AuthTokenTest do
   setup context do
     case context do
       %{atk_lifetime: second} when not is_nil(second) ->
-        Application.put_env(:ewallet, :atk_lifetime, second)
-        on_exit(fn -> Application.put_env(:ewallet, :atk_lifetime, 0) end)
+        Application.put_env(:ewallet_db, :atk_lifetime, second)
+        on_exit(fn -> Application.put_env(:ewallet_db, :atk_lifetime, 0) end)
         {:ok, second: second}
 
       _ ->
