@@ -1,4 +1,4 @@
-import { selectWalletByUserId } from '../omg-wallet/selector'
+import { selectWalletsByUserId } from '../omg-wallet/selector'
 import { createSelector } from 'reselect'
 import { createSelectAllPagesCachedQuery } from '../omg-cache/selector'
 export const selectUsers = (state, search) => {
@@ -21,7 +21,7 @@ export const selectUsersCachedQueryPagination = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'pagination', {})
 }
 export const selectUserWithWallet = userId =>
-  createSelector(selectUser(userId), selectWalletByUserId(userId), (user, wallet) => {
+  createSelector(selectUser(userId), selectWalletsByUserId(userId), (user, wallet) => {
     return {
       ...user,
       wallet

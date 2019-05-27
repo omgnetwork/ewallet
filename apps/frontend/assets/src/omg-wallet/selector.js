@@ -32,7 +32,7 @@ export const selectWalletsCachedQueryPagination = state => cacheKey => {
 export const selectWalletsLoadingStatus = state => state.loadingStatus.wallets
 
 export const selectWalletById = state => id => state.wallets[id]
-export const selectWalletByUserId = userId => state => {
+export const selectWalletsByUserId = userId => state => {
   return _.values(state.wallets).find(wallet => {
     return wallet.user_id === userId
   })
