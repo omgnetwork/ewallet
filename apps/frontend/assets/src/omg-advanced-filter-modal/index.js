@@ -66,7 +66,7 @@ const AdvancedFilterModal = ({
     })
     setFilters(defaultFilters)
 
-    // TODO: setInitialValues
+    // TODO: setInitialValues if passed in...
     setInitialValues({})
   }, [])
 
@@ -91,11 +91,26 @@ const AdvancedFilterModal = ({
     setValues(_.omit(values, [key]))
   }
 
-  const applyFilter = () => {
-    // TODO: transform values into matchAll query
+  const filterAdapter = (values) => {
+    let adapted = []
     console.log(values)
-    // pass transformed into onFilter callback
-    onFilter()
+    _.forOwn(values, (value, key) => {
+      // switch case key to handle different cases
+      // or place in config?
+      adapted.push({
+        field: key,
+        comparator: 'contains',
+        value
+      })
+    })
+
+    return adapted
+  }
+
+  const applyFilter = () => {
+    onFilter(filterAdapter(values))
+    setInitialValues(values)
+    onRequestClose()
   }
 
   const springConfig = { stiffness: 200, damping: 20 }
@@ -150,7 +165,8 @@ const AdvancedFilterModal = ({
                           onUpdate,
                           clearKey,
                           onRemove: () => onRemoveFilter(item.data),
-                          values
+                          values,
+                          config: item.data
                         },
                         null
                       )}

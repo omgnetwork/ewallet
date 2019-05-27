@@ -134,10 +134,10 @@ class TransactionPage extends Component {
     scrollTopContentContainer: PropTypes.func,
     history: PropTypes.object,
     divider: PropTypes.bool,
-    query: PropTypes.object
+    query: PropTypes.array
   }
   static defaultProps = {
-    query: {}
+    query: []
   }
   state = {
     createTransactionModalOpen: false,
@@ -166,6 +166,9 @@ class TransactionPage extends Component {
   }
   onClickExport = e => {
     this.props.history.push('/transaction/export')
+  }
+  onFilter = (query, fetch) => {
+    this.setState({ query }, fetch)
   }
   renderCreateTransactionButton = () => {
     return (
@@ -317,7 +320,7 @@ class TransactionPage extends Component {
           page='transaction'
           open={this.state.advancedFilterModalOpen}
           onRequestClose={this.onRequestCloseAdvancedFilter}
-          onFilter={fetch}
+          onFilter={(query) => this.onFilter(query, fetch)}
         />
       </TransactionPageContainer>
     )
@@ -330,15 +333,7 @@ class TransactionPage extends Component {
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 100),
           search: queryString.parse(this.props.location.search).search,
-
-          // TODO: get matchAll from state that updates from onFilter click
-          matchAll: [
-            {
-              field: 'status',
-              comparator: 'contains',
-              value: 'confirmed'
-            }
-          ],
+          matchAll: this.state.query,
           ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

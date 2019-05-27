@@ -5,10 +5,22 @@ import { Input } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
 
-const TransferTo = ({ onRemove }) => {
+const TransferTo = ({
+  onRemove,
+  onUpdate,
+  clearKey,
+  values,
+  config
+}) => {
+  const onChange = (e) => {
+    e.target.value
+      ? onUpdate({ [config.code]: e.target.value })
+      : clearKey(config.code)
+  }
+
   return (
     <FilterBox
-      key='transfer-to'
+      key={config.code}
       closeClick={onRemove}
     >
       <TagRow
@@ -18,15 +30,19 @@ const TransferTo = ({ onRemove }) => {
 
       <Input
         normalPlaceholder='Enter any ID or address'
-        // onChange={this.onReEnteredNewPasswordInputChange}
-        // value={this.state.reEnteredNewPassword}
+        onChange={onChange}
+        value={values[config.code] || ''}
       />
     </FilterBox>
   )
 }
 
 TransferTo.propTypes = {
-  onRemove: PropTypes.func.isRequired
+  onRemove: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired,
+  clearKey: PropTypes.func.isRequired,
+  values: PropTypes.object,
+  config: PropTypes.object
 }
 
 export default TransferTo

@@ -4,7 +4,7 @@ export const FILTER_MAP = [
   {
     title: 'Transfer From',
     icon: 'Option-Horizontal',
-    code: 'transfer-from',
+    code: 'from_account.id',
     page: 'transaction',
     height: 110,
     component: filters.TransferFrom,
@@ -13,7 +13,7 @@ export const FILTER_MAP = [
   {
     title: 'Transfer To',
     icon: 'Option-Horizontal',
-    code: 'transfer-to',
+    code: 'to_address',
     page: 'transaction',
     height: 110,
     component: filters.TransferTo,

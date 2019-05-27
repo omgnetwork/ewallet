@@ -5,19 +5,28 @@ import { Input } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
 
-const TransferFrom = ({ onRemove, onUpdate, clearKey, values }) => {
+const TransferFrom = ({
+  onRemove,
+  onUpdate,
+  clearKey,
+  values,
+  config
+}) => {
   const onChange = (e) => {
-    if (e.target.value) {
-      onUpdate({
-        'transfer-from': e.target.value
+    e.target.value
+      ? onUpdate({
+        [config.code]: e.target.value
+        // [config.code]: {
+        //   value: e.target.value,
+        //   config
+        // }
       })
-    } else {
-      clearKey('transfer-from')
-    }
+      : clearKey(config.code)
   }
+
   return (
     <FilterBox
-      key='transfer-from'
+      key={config.code}
       closeClick={onRemove}
     >
       <TagRow
@@ -27,7 +36,7 @@ const TransferFrom = ({ onRemove, onUpdate, clearKey, values }) => {
       <Input
         normalPlaceholder='Enter any ID or address'
         onChange={onChange}
-        value={values['transfer-from'] || ''}
+        value={values[config.code] || ''}
       />
     </FilterBox>
   )
@@ -37,7 +46,8 @@ TransferFrom.propTypes = {
   onRemove: PropTypes.func.isRequired,
   onUpdate: PropTypes.func.isRequired,
   clearKey: PropTypes.func.isRequired,
-  values: PropTypes.object
+  values: PropTypes.object,
+  config: PropTypes.object
 }
 
 export default TransferFrom
