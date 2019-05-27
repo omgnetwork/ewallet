@@ -176,24 +176,14 @@ class WalletPage extends Component {
       </span>
     )
   }
-  getRow = wallets => {
-    return selectWallets(
-      {
-        wallets: wallets.map(wallet => {
-          return {
-            owner: this.getOwner(wallet),
-            id: wallet.address,
-            ...wallet
-          }
-        })
-      },
-      queryString.parse(this.props.location.search).search
-    )
-  }
   onClickRow = (data, index) => e => {
     this.props.history.push(`/wallets/${data.address}`)
   }
-  rowRenderer (key, data, rows) {
+  
+  rowRenderer = (key, data, rows) => {
+    if (key === 'owner') {
+      return this.getOwner(rows)
+    }
     if (key === 'name') {
       return (
         <WalletAddressContainer>
@@ -246,7 +236,7 @@ class WalletPage extends Component {
         />
         <SortableTableContainer ref={table => (this.table = table)}>
           <SortableTable
-            rows={this.getRow(wallets)}
+            rows={wallets}
             columns={this.getColumns(wallets)}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}

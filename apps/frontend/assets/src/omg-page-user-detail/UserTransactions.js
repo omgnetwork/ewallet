@@ -4,7 +4,7 @@ import React from 'react'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
-function AccountTransactionSubPage (props) {
+function UserTransactions (props) {
   const { page, search } = queryString.parse(props.location.search)
   return (
     <UserTransactionFetcher
@@ -32,9 +32,9 @@ function AccountTransactionSubPage (props) {
   )
 }
 
-AccountTransactionSubPage.propTypes = {
+UserTransactions.propTypes = {
   match: PropTypes.object,
   location: PropTypes.object
 }
 
-export default withRouter(AccountTransactionSubPage)
+export default withRouter(UserTransactions)

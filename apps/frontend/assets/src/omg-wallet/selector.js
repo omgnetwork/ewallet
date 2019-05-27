@@ -38,4 +38,6 @@ export const selectWalletByUserId = userId => state => {
   })
 }
 
+export const selectNewWallets = state => selectWallets(state).filter(tx => tx.__new)
+
 export const selectWalletsAllPagesCachedQuery = createSelectAllPagesCachedQuery(selectWalletById)

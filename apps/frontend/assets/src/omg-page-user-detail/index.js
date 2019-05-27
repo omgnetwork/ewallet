@@ -171,7 +171,6 @@ class UserDetailPage extends Component {
     )
   }
   renderUserDetailContainer = (user, wallet) => {
-    console.log()
     return (
       <ContentContainer>
         {this.renderTopBar(user)}
@@ -198,7 +197,7 @@ class UserDetailPage extends Component {
               '/users/:userId/transactions',
               '/accounts/:accountId/users/:userId/transactions'
             ]}
-            render={() => <UserTransactions topNavigation={false} />}
+            component={UserTransactions}
             exact
           />
           <Route
