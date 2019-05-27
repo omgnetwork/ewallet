@@ -116,7 +116,7 @@ class ClientKeySection extends Component {
     await this.props.enableApiKey({ id, enabled })
   }
   onClickRow = (data, index) => e => {
-    this.props.history.push(`${'client'}/${data.id}`)
+    this.props.history.push(`client/${data.id}`)
   }
   onSubmitSuccess = fetch => () => {
     fetch()

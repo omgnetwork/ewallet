@@ -184,10 +184,9 @@ class ApiKeyPage extends Component {
       privateKeyModalOpen: true
     })
   }
-  onClickAccessKeySwitch = ({ id, enabled, fetch }) => async e => {
+  onClickAccessKeySwitch = ({ id, enabled, fetch }) => e => {
     e.stopPropagation()
-    await this.props.enableAccessKey({ id, enabled })
-    fetch()
+    this.props.enableAccessKey({ id, enabled })
   }
   onClickDownloadKey = e => {
     this.props.downloadKey({

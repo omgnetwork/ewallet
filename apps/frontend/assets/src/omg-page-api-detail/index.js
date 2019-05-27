@@ -233,7 +233,7 @@ const ReadView = withRouter(({ assignKey, keyDetail, keyType, setView, location:
             className='nav-card'
             icon='Merchant'
             title='Assigned Accounts'
-            subTitle='Lorem ipsum something something else'
+            subTitle='List of accounts assigned to this key.'
             to={`${pathname}/assigned-accounts`}
           />
         </AsideSection>
