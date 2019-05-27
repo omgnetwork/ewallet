@@ -1,13 +1,14 @@
-import TransactionsTable from '../omg-page-transaction/TransactionTable'
-import { UserTransactionFetcher } from '../omg-transaction/transactionsFetcher'
+import { UserWalletsFetcher } from '../omg-wallet/walletsFetcher'
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
+import WalletTable from '../omg-page-wallets/WalletTable'
 function UserWallets (props) {
   const { page, search } = queryString.parse(props.location.search)
+  
   return (
-    <UserTransactionFetcher
+    <UserWalletsFetcher
       userId={props.match.params.userId}
       query={{
         page,
@@ -15,16 +16,17 @@ function UserWallets (props) {
         search
       }}
       render={({
-        data: transactions,
+        data: wallets,
         individualLoadingStatus,
         pagination,
         fetch
       }) => {
+        console.log(wallets)
         return (
-          <TransactionsTable
+          <WalletTable
             loadingStatus={individualLoadingStatus}
             pagination={pagination}
-            transactions={transactions}
+            wallets={wallets}
           />
         )
       }}

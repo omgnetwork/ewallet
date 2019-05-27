@@ -15,6 +15,7 @@ import UserTransactions from './UserTransactions'
 import UserActivityLog from './UserActivityLog'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import SearchBar from '../omg-page-layout/SearchGroup'
+import UserWallet from './UserWallets'
 const UserDetailContainer = styled.div`
   b {
     width: 150px;
@@ -189,7 +190,7 @@ class UserDetailPage extends Component {
               '/users/:userId/wallets',
               '/accounts/:accountId/users/:userId/wallets'
             ]}
-            render={() => this.renderWallet(wallet)}
+            render={UserWallet}
             exact
           />
           <Route

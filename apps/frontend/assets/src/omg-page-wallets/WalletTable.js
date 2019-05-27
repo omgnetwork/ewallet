@@ -2,8 +2,8 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { selectNewWallets } from '../omg-wallet/selector'
 import SortableTable from '../omg-table'
-import { tableColumsKeys } from './constants'
-import rowRenderer from './transactionTableRowRenderer'
+import { walletColumsKeys } from './constants'
+import rowRenderer from './walletTableRowRenderer'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
@@ -54,7 +54,7 @@ function WalletsTable (props) {
     <TableContainer>
       <SortableTable
         rows={[...props.newWallets, ...props.wallets]}
-        columns={tableColumsKeys}
+        columns={walletColumsKeys}
         rowRenderer={rowRenderer}
         perPage={15}
         loadingStatus={props.loadingStatus}
