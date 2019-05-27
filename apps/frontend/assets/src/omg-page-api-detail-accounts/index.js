@@ -83,9 +83,9 @@ const KeyDetailAccountsPageView = withRouter(({
 }) => {
   const { keyType, keyId } = params
 
-  if (memberships && !Array.isArray(memberships)) {
-    memberships = [memberships]
-  }
+  const _memberships = memberships && !Array.isArray(memberships)
+    ? [memberships]
+    : memberships
 
   const [ roleModalOpen, setRoleModalOpen ] = useState(false)
   const [ deleteModalOpen, setDeleteModalOpen ] = useState(false)
@@ -235,8 +235,8 @@ const KeyDetailAccountsPageView = withRouter(({
   }
 
   const getRows = () => {
-    return memberships && memberships.length
-      ? memberships.map(membership => ({
+    return _memberships && _memberships.length
+      ? _memberships.map(membership => ({
         id: membership.account_id,
         ...membership
       }))

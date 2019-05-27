@@ -47,6 +47,7 @@ const FormContainer = styled.form`
 const StyledSelect = styled(Select)`
   margin-bottom: 35px;
   text-align: left;
+  padding-top: 10px;
 `
 const InputLabel = styled.div`
   text-align: left;
@@ -96,7 +97,6 @@ function AssignAccountToKey (props) {
                   normalPlaceholder='Add Account ID'
                   value={accountId}
                   noBorder={!!accountId}
-                  style={{ paddingTop: '10px' }}
                   valueRenderer={value => {
                     const account = _.find(accounts, account => account.id === value)
                     return <AccountSelectRow withCopy account={account} />
