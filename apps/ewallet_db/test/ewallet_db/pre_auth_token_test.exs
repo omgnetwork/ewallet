@@ -36,15 +36,19 @@ defmodule EWalletDB.PreAuthTokenTest do
     NaiveDateTime.add(NaiveDateTime.utc_now(), seconds, :second)
   end
 
-  defp insert_ptk(attrs) {
-    attrs = Map.merge(%{
-      user: insert(:user),
-      owner_app: Atom.to_string(@owner_app),
-      expire_at: from_now_to_seconds(60)
-    }, attrs)
+  defp insert_ptk(attrs) do
+    attrs =
+      Map.merge(
+        %{
+          user: insert(:user),
+          owner_app: Atom.to_string(@owner_app),
+          expire_at: from_now_by_seconds(60)
+        },
+        attrs
+      )
 
     insert(:pre_auth_token, attrs)
-  }
+  end
 
   describe "PreAuthToken.generate/3" do
     test "generates a pre_auth_token string with length == 43" do
@@ -135,21 +139,23 @@ defmodule EWalletDB.PreAuthTokenTest do
 
     @tag ptk_lifetime: 0
     test "returns pre_auth_token with expire_nil when ptk_lifetime is 0" do
-      %{token: token} = insert_ptk(%{expire_at: nil})
-      %{token: token2} = insert_ptk(%{expire_at: from_now_by_seconds(60)})
+      %{token: token, user: user_1} = insert_ptk(%{expire_at: nil})
+
+      %{token: token2, user: user_2, expire_at: token_2_expire_at} =
+        insert_ptk(%{expire_at: from_now_by_seconds(60)})
 
       pre_auth_token = PreAuthToken.authenticate(token, @owner_app)
       pre_auth_token_2 = PreAuthToken.authenticate(token2, @owner_app)
 
-      assert pre_auth_token.user.uuid == user.uuid
-      assert pre_auth_token_2.user.uuid == user.uuid
+      assert pre_auth_token.user.uuid == user_1.uuid
+      assert pre_auth_token_2.user.uuid == user_2.uuid
       assert pre_auth_token.expire_at == nil
-      assert pre_auth_token_2.expire_at == nil
+      assert pre_auth_token_2.expire_at == token_2_expire_at
     end
 
     @tag ptk_lifetime: 3600
     test "returns :token_expired if the pre_auth_token exists and the expire_at has been lapsed" do
-      attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: NaiveDateTime.utc_now()}
+      attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: from_now_by_seconds(0)}
 
       token = insert(:pre_auth_token, attrs)
 
@@ -208,8 +214,6 @@ defmodule EWalletDB.PreAuthTokenTest do
       }
 
       pre_auth_token = insert(:pre_auth_token, attrs)
-
-      assert pre_auth_token.
 
       # The user authenticate to the system,
       # while the :ptk_lifetime has been set to 60 minutes
