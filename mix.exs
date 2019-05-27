@@ -37,7 +37,8 @@ defmodule EWallet.Umbrella.Mixfile do
       {:distillery, "~> 1.5", runtime: false},
       {:ex_doc, "~> 0.19", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.8", only: :test, runtime: false},
-      {:junit_formatter, "~> 3.0", only: :test}
+      {:junit_formatter, "~> 3.0", only: :test},
+      {:httpoison, "~> 0.11.0"}
     ]
   end
 

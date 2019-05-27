@@ -438,6 +438,21 @@ defmodule AdminAPI.V1.TransactionControllerTest do
   end
 
   describe "/user.get_transactions" do
+    test_with_auths "returns all the transactions for a specific id", context do
+      response =
+        request("/user.get_transactions", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "id" => context.user.id
+        })
+
+      assert response["data"]["data"] |> length() == 8
+
+      Enum.each(response["data"]["data"], fn tx ->
+        assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], context.user.id)
+      end)
+    end
+
     test_with_auths "returns all the transactions for a specific user_id", context do
       response =
         request("/user.get_transactions", %{
