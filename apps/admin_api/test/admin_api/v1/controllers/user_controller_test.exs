@@ -252,6 +252,7 @@ defmodule AdminAPI.V1.UserControllerTest do
           "updated_at" => DateFormatter.to_iso8601(inserted_user.updated_at),
           "email" => nil,
           "enabled" => inserted_user.enabled,
+          "enabled_2fa_at" => nil,
           "avatar" => %{
             "large" => nil,
             "original" => nil,

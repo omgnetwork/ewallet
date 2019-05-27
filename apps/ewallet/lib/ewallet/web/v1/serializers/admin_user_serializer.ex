@@ -48,6 +48,7 @@ defmodule EWallet.Web.V1.AdminUserSerializer do
       encrypted_metadata: user.encrypted_metadata || %{},
       avatar: Avatar.urls({user.avatar, user}),
       enabled: user.enabled,
+      enabled_2fa_at: user.enabled_2fa_at,
       status: User.get_status(user),
       created_at: DateFormatter.to_iso8601(user.inserted_at),
       updated_at: DateFormatter.to_iso8601(user.updated_at)

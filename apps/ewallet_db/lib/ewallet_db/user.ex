@@ -30,12 +30,14 @@ defmodule EWalletDB.User do
     Account,
     AccountUser,
     AuthToken,
+    PreAuthToken,
     Invite,
     Membership,
     Repo,
     GlobalRole,
     Role,
     User,
+    UserBackupCode,
     Wallet
   }
 
@@ -59,6 +61,9 @@ defmodule EWalletDB.User do
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
     field(:enabled, :boolean, default: true)
+    field(:enabled_2fa_at, :naive_datetime)
+    field(:backup_codes_created_at, :naive_datetime)
+    field(:secret_2fa_code, :string)
 
     belongs_to(
       :invite,
@@ -83,6 +88,13 @@ defmodule EWalletDB.User do
     )
 
     has_many(
+      :pre_auth_tokens,
+      PreAuthToken,
+      foreign_key: :user_uuid,
+      references: :uuid
+    )
+
+    has_many(
       :memberships,
       Membership,
       foreign_key: :user_uuid,
@@ -92,6 +104,13 @@ defmodule EWalletDB.User do
     has_many(
       :account_links,
       AccountUser,
+      foreign_key: :user_uuid,
+      references: :uuid
+    )
+
+    has_many(
+      :user_backup_codes,
+      UserBackupCode,
       foreign_key: :user_uuid,
       references: :uuid
     )
@@ -134,6 +153,7 @@ defmodule EWalletDB.User do
         :calling_name,
         :provider_user_id,
         :email,
+        :enabled_2fa_at,
         :password,
         :password_confirmation,
         :metadata,
@@ -272,6 +292,53 @@ defmodule EWalletDB.User do
     |> validate_length(:email, count: :bytes, max: 255)
     |> validate_email(:email)
     |> unique_constraint(:email)
+  end
+
+  defp secret_code_changeset(user, attrs) do
+    cast_and_validate_required_for_activity_log(
+      user,
+      attrs,
+      cast: [:secret_2fa_code],
+      required: []
+    )
+  end
+
+  defp enable_2fa_changeset(user) do
+    cast_and_validate_required_for_activity_log(
+      user,
+      %{
+        "enabled_2fa_at" => NaiveDateTime.utc_now(),
+        "originator" => user
+      },
+      cast: [:enabled_2fa_at],
+      required: []
+    )
+  end
+
+  defp disable_2fa_changeset(user) do
+    cast_and_validate_required_for_activity_log(
+      user,
+      %{
+        "secret_2fa_code" => nil,
+        "enabled_2fa_at" => nil,
+        "backup_codes_created_at" => nil,
+        "originator" => user
+      },
+      cast: [:enabled_2fa_at, :secret_2fa_code, :backup_codes_created_at],
+      required: []
+    )
+  end
+
+  defp created_backup_code_at_changeset(user, backup_codes_created_at) do
+    cast_and_validate_required_for_activity_log(
+      user,
+      %{
+        "backup_codes_created_at" => backup_codes_created_at,
+        "originator" => user
+      },
+      cast: [:backup_codes_created_at],
+      required: []
+    )
   end
 
   defp set_global_role(changeset, _attrs) do
@@ -693,6 +760,35 @@ defmodule EWalletDB.User do
   def enable_or_disable(user, attrs) do
     user
     |> enable_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def set_secret_code(user, attrs) do
+    user
+    |> secret_code_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def enable_2fa(user) do
+    user
+    |> enable_2fa_changeset()
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def disable_2fa(user) do
+    user
+    |> disable_2fa_changeset()
+    |> Repo.update_record_with_activity_log()
+  end
+
+  # Convenent function to check if the user has been enabled 2FA.
+  def enabled_2fa?(user) do
+    user.enabled_2fa_at != nil
+  end
+
+  def backup_codes_created_at(user, datetime \\ NaiveDateTime.utc_now()) do
+    user
+    |> created_backup_code_at_changeset(datetime)
     |> Repo.update_record_with_activity_log()
   end
 end

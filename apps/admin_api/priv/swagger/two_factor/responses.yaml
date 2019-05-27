@@ -1,0 +1,12 @@
+CreateBackupCodesResponse:
+  description: Create two-factor authentication backup codes.
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/BackupCodesResponseSchema'
+CreateSecretCodeResponse:
+  description: 'Create two-factor authentication secret code'
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/SecretCodeResponseSchema'

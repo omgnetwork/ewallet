@@ -29,3 +29,35 @@ AuthenticationTokenSchema:
     - account
     - master_admin
     - role
+
+PreAuthenticationTokenSchema:
+  description: The object schema for a pre authentication token
+  type: object
+  properties:
+    object:
+      type: string
+    pre_authentication_token:
+      type: string
+    user_id:
+      type: string
+    user:
+      type: object
+      $ref: '../../../../ewallet/priv/swagger/user/schemas.yaml#/UserSchema'
+    account_id:
+      type: string
+    master_admin:
+      type: boolean
+    account:
+      type: object
+      $ref: '../../../../ewallet/priv/swagger/account/schemas.yaml#/AccountSchema'
+    role:
+      type: string
+  required:
+    - object
+    - pre_authentication_token
+    - user_id
+    - user
+    - account_id
+    - account
+    - master_admin
+    - role

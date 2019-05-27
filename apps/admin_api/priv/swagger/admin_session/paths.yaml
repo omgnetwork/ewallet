@@ -14,6 +14,22 @@ admin.login:
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
+admin.login_2fa:
+  post:
+    tags:
+      - AdminSession
+    summary: Login with two-factor authentication using a totp passcode or a backup_code.
+    operationId: login_2fa
+    security:
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/Login2FABody'
+    responses:
+      '200':
+        $ref: '../authentication_token/responses.yaml#/AuthenticationTokenResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 me.logout:
   post:
     tags:
