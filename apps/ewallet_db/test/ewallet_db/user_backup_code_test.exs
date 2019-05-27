@@ -107,7 +107,9 @@ defmodule EWalletDB.UserBackupCodeTest do
           user_uuid: user.uuid
         })
 
-      assert {:ok, updated_user_backup_code} = UserBackupCode.invalidate(attrs.ubc_0)
+      assert {:ok, updated_user_backup_code} =
+               UserBackupCode.invalidate(attrs.insert_user_backup_code_0)
+
       assert updated_user_backup_code.hashed_backup_code == "1234"
       assert updated_user_backup_code.used_at != nil
     end

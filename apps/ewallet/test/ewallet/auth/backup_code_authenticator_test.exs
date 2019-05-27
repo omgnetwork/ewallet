@@ -49,7 +49,7 @@ defmodule EWallet.BackupCodeAuthenticatorTest do
 
       user = insert(:user)
 
-      assert {:ok, %{ubc_0: user_backup_code}} =
+      assert {:ok, %{insert_user_backup_code_0: user_backup_code}} =
                UserBackupCode.insert_multiple(%{
                  hashed_backup_codes: [hashed_backup_code],
                  user_uuid: user.uuid

@@ -66,7 +66,7 @@ defmodule EWalletDB.UserBackupCode do
     changesets
     |> Enum.with_index()
     |> Enum.reduce(Multi.new(), fn {changeset, index}, acc ->
-      Multi.insert(acc, :"ubc_#{index}", changeset)
+      Multi.insert(acc, :"insert_user_backup_code_#{index}", changeset)
     end)
     |> Repo.transaction()
   end
