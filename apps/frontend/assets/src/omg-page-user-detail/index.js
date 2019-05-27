@@ -11,8 +11,8 @@ import { LoadingSkeleton, Breadcrumb } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
 import { KeyButton } from '../omg-page-api'
-import TransactionPage from './UserTransactions'
-import UserActivityLogPage from './UserActivityLog'
+import UserTransactions from './UserTransactions'
+import UserActivityLog from './UserActivityLog'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import SearchBar from '../omg-page-layout/SearchGroup'
 const UserDetailContainer = styled.div`
@@ -62,6 +62,10 @@ class UserDetailPage extends Component {
   }
   renderTopBar = user => {
     const type = this.props.match.params.type
+    const { accountId, userId } = this.props.match.params
+    const basePath = accountId
+      ? `/accounts/${accountId}/users/${userId}`
+      : `/users/${userId}`
     return (
       <>
         {this.props.withBreadCrumb && (
@@ -84,20 +88,22 @@ class UserDetailPage extends Component {
         />
         <MenuContainer>
           <UserDetailMenuContainer>
-            <Link to={`/users/${this.props.match.params.userId}`}>
+            <Link to={basePath}>
               <KeyButton active={type === 'details' || !type}>
                 Details
               </KeyButton>
             </Link>
-            <Link to={`/users/${this.props.match.params.userId}/wallets`}>
+            <Link to={`${basePath}/wallets`}>
               <KeyButton active={type === 'wallets'}>Wallets</KeyButton>
             </Link>
-            <Link to={`/users/${this.props.match.params.userId}/transactions`}>
+            <Link
+              to={`${basePath}/transactions`}
+            >
               <KeyButton active={type === 'transactions'}>
                 Transactions
               </KeyButton>
             </Link>
-            <Link to={`/users/${this.props.match.params.userId}/logs`}>
+            <Link to={`${basePath}/logs`}>
               <KeyButton active={type === 'logs'}>Logs</KeyButton>
             </Link>
           </UserDetailMenuContainer>
@@ -108,23 +114,25 @@ class UserDetailPage extends Component {
   }
   renderDetail = user => {
     return (
-      <Section title={{ text: 'Details', icon: 'Portfolio' }}>
-        <DetailGroup>
-          <b>ID:</b> <span>{user.id}</span> <Copy data={user.id} />
-        </DetailGroup>
-        <DetailGroup>
-          <b>Email:</b> <span>{user.email || '-'}</span>
-        </DetailGroup>
-        <DetailGroup>
-          <b>Provider ID:</b> <span>{user.provider_user_id || '-'}</span>
-        </DetailGroup>
-        <DetailGroup>
-          <b>Created At:</b> <span>{moment(user.created_at).format()}</span>
-        </DetailGroup>
-        <DetailGroup>
-          <b>Updated At:</b> <span>{moment(user.updated_at).format()}</span>
-        </DetailGroup>
-      </Section>
+      <DetailContainer>
+        <Section title={{ text: 'Details', icon: 'Portfolio' }}>
+          <DetailGroup>
+            <b>ID:</b> <span>{user.id}</span> <Copy data={user.id} />
+          </DetailGroup>
+          <DetailGroup>
+            <b>Email:</b> <span>{user.email || '-'}</span>
+          </DetailGroup>
+          <DetailGroup>
+            <b>Provider ID:</b> <span>{user.provider_user_id || '-'}</span>
+          </DetailGroup>
+          <DetailGroup>
+            <b>Created At:</b> <span>{moment(user.created_at).format()}</span>
+          </DetailGroup>
+          <DetailGroup>
+            <b>Updated At:</b> <span>{moment(user.updated_at).format()}</span>
+          </DetailGroup>
+        </Section>
+      </DetailContainer>
     )
   }
   renderWallet = wallet => {
@@ -163,30 +171,42 @@ class UserDetailPage extends Component {
     )
   }
   renderUserDetailContainer = (user, wallet) => {
+    console.log()
     return (
       <ContentContainer>
         {this.renderTopBar(user)}
         <Switch>
           <Route
-            path={'/users/:userId/'}
-            render={() => (
-              <DetailContainer>{this.renderDetail(user)}</DetailContainer>
-            )}
+            path={[
+              '/users/:userId/',
+              '/accounts/:accountId/users/:userId/details',
+              '/accounts/:accountId/users/:userId'
+            ]}
+            render={() => this.renderDetail(user)}
             exact
           />
           <Route
-            path={'/users/:userId/wallets'}
+            path={[
+              '/users/:userId/wallets',
+              '/accounts/:accountId/users/:userId/wallets'
+            ]}
             render={() => this.renderWallet(wallet)}
             exact
           />
           <Route
-            path={'/users/:userId/transactions'}
-            render={() => <TransactionPage topNavigation={false} />}
+            path={[
+              '/users/:userId/transactions',
+              '/accounts/:accountId/users/:userId/transactions'
+            ]}
+            render={() => <UserTransactions topNavigation={false} />}
             exact
           />
           <Route
-            path={'/users/:userId/logs'}
-            render={() => <UserActivityLogPage topNavigation={false} />}
+            path={[
+              '/users/:userId/logs',
+              '/accounts/:accountId/users/:userId/logs'
+            ]}
+            render={() => <UserActivityLog topNavigation={false} />}
             exact
           />
         </Switch>
