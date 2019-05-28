@@ -20,6 +20,8 @@ export const apiKeysReducer = createReducer(
 )
 
 export const apiKeysLoadingStatusReducer = createReducer('DEFAULT', {
+  'API_KEYS/REQUEST/INITIATED': (state, action) => 'INITIATED',
   'API_KEYS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
+  'API_KEYS/REQUEST/FAILED': (state, action) => 'FAILED',
   'CURRENT_ACCOUNT/SWITCH': () => 'DEFAULT'
 })

@@ -9,4 +9,4 @@ export const selectAccessKeysCachedQuery = state => cacheKey => {
 }
 
 export const selectAccessKeyMemberships = state => id => state.accessKeyMemberships[id]
-export const selectAccessKeyMembershipsLoadingStatus = state => state.loadingStatus.accessKeyMemberships
+export const selectAccessKeyMembershipsLoadingStatus = state => state.loadingStatus.accessKeyMemberships || 'DEFAULT'

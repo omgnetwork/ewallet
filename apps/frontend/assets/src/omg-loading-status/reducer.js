@@ -1,6 +1,6 @@
 export const loadingStatusReducer = (state = {}, action) => {
   const { type } = action
-  const matches = /(.*)\/(REQUEST)\/(INITIATED|SUCCESS|FAILED)/.exec(type)
+  const matches = /(.*)\/(REQUEST)\/(DEFAULT|INITIATED|SUCCESS|FAILED)/.exec(type)
   if (!matches) return state
   return {
     ...state,

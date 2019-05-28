@@ -72,6 +72,7 @@ export const unassignKey = ({ keyId, accountId }) =>
   createActionCreator({
     actionName: 'ACCOUNT',
     action: 'UNASSIGN_KEY',
+    params: { keyId, accountId },
     service: () => accountService.unassignKey({ keyId, accountId })
   })
 
@@ -79,6 +80,7 @@ export const assignKey = ({ keyId, role, accountId }) =>
   createActionCreator({
     actionName: 'ACCOUNT',
     action: 'ASSIGN_KEY',
+    params: { keyId, role, accountId },
     service: () => accountService.assignKey({ keyId, role, accountId })
   })
 

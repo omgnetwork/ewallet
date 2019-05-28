@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import CONSTANT from '../constants'
-export const createActionCreator = ({ actionName, action, service }) => async (
+export const createActionCreator = ({ actionName, action, service, params }) => async (
   dispatch,
   getState = _.noop,
   injected = {}
@@ -13,7 +13,8 @@ export const createActionCreator = ({ actionName, action, service }) => async (
     if (result.data.success) {
       return dispatch({
         type: `${actionName}/${action}/${CONSTANT.LOADING_STATUS.SUCCESS}`,
-        data: result.data.data
+        data: result.data.data,
+        params
       })
     } else {
       return dispatch({

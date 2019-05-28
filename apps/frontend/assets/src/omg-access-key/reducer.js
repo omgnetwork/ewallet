@@ -38,5 +38,35 @@ export const accessKeyMembershipsReducer = createReducer({}, {
       }
     }
     return state
+  },
+  'ACCOUNT/UNASSIGN_KEY/SUCCESS': (state, { params: { keyId, accountId } }) => {
+    const _state = Object.assign({}, state)
+    const membership = _state[keyId]
+    return {
+      ...state,
+      [keyId]: membership.filter(i => i.account_id !== accountId)
+    }
+  },
+  'ACCOUNT/ASSIGN_KEY/SUCCESS': (state, { params: { keyId, role, accountId } }) => {
+    const _state = Object.assign({}, state)
+    const membership = _state[keyId]
+
+    const membershipAccount = {
+      ...membership.find(i => i.account_id === accountId),
+      role
+    }
+
+    const index = _.findIndex(membership, i => {
+      return i.account_id === accountId
+    })
+
+    const newMembership = [
+      ...membership
+    ]
+    newMembership.splice(index, 1, membershipAccount)
+    return {
+      ...state,
+      [keyId]: newMembership
+    }
   }
 })

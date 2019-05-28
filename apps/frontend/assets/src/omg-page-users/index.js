@@ -143,6 +143,7 @@ class UsersPage extends Component {
   }
 
   renderUserPage = ({ data: users, individualLoadingStatus, pagination }) => {
+    console.log('loading: ', individualLoadingStatus)
     return (
       <UserPageContainer>
         <TopNavigation divider={this.props.divider} title={'Users'} />
