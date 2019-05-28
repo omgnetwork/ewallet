@@ -23,7 +23,8 @@ defmodule EWalletAPI.V1.EndUserAuthenticator do
 
   def authenticate(conn, email, password) when is_binary(email) do
     with %User{} = user <- User.get_by_email(email) || :user_email_not_found,
-         true <- User.enabled?(user) || :user_disabled do
+         true <- User.enabled?(user) || :user_disabled,
+         true <- !User.admin?(user) || :user_is_admin do
       authenticate(conn, user, password)
     else
       _ ->
@@ -32,7 +33,7 @@ defmodule EWalletAPI.V1.EndUserAuthenticator do
     end
   end
 
-  def authenticate(conn, %{password_hash: password_hash} = user, password)
+  def authenticate(conn, %{password_hash: password_hash, is_admin: false} = user, password)
       when is_binary(password) and is_binary(password_hash) do
     case Crypto.verify_password(password, password_hash) do
       true ->
