@@ -539,6 +539,19 @@ defmodule AdminAPI.V1.TransactionControllerTest do
                context.transaction_2.id
              ]
     end
+
+    test_with_auths "returns an error when invalid params are provided" do
+      response =
+        request("/user.get_transactions", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "per_page" => 3,
+          "page" => 1
+        })
+
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided."
+    end
   end
 
   describe "/transaction.get" do

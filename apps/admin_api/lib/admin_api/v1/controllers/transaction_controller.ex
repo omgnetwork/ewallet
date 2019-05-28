@@ -135,8 +135,6 @@ defmodule AdminAPI.V1.TransactionController do
     end
   end
 
-  def all_for_user(conn, _), do: handle_error(conn, :invalid_parameter)
-
   @doc """
   Retrieves a specific transaction by its id.
   """
