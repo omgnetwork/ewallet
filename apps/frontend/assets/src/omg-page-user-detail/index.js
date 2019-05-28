@@ -97,9 +97,7 @@ class UserDetailPage extends Component {
             <Link to={`${basePath}/wallets`}>
               <KeyButton active={type === 'wallets'}>Wallets</KeyButton>
             </Link>
-            <Link
-              to={`${basePath}/transactions`}
-            >
+            <Link to={`${basePath}/transactions`}>
               <KeyButton active={type === 'transactions'}>
                 Transactions
               </KeyButton>
@@ -116,23 +114,21 @@ class UserDetailPage extends Component {
   renderDetail = user => {
     return (
       <DetailContainer>
-        <Section title={{ text: 'Details', icon: 'Portfolio' }}>
-          <DetailGroup>
-            <b>ID:</b> <span>{user.id}</span> <Copy data={user.id} />
-          </DetailGroup>
-          <DetailGroup>
-            <b>Email:</b> <span>{user.email || '-'}</span>
-          </DetailGroup>
-          <DetailGroup>
-            <b>Provider ID:</b> <span>{user.provider_user_id || '-'}</span>
-          </DetailGroup>
-          <DetailGroup>
-            <b>Created At:</b> <span>{moment(user.created_at).format()}</span>
-          </DetailGroup>
-          <DetailGroup>
-            <b>Updated At:</b> <span>{moment(user.updated_at).format()}</span>
-          </DetailGroup>
-        </Section>
+        <DetailGroup>
+          <b>ID:</b> <span>{user.id}</span> <Copy data={user.id} />
+        </DetailGroup>
+        <DetailGroup>
+          <b>Email:</b> <span>{user.email || '-'}</span>
+        </DetailGroup>
+        <DetailGroup>
+          <b>Provider ID:</b> <span>{user.provider_user_id || '-'}</span>
+        </DetailGroup>
+        <DetailGroup>
+          <b>Created At:</b> <span>{moment(user.created_at).format()}</span>
+        </DetailGroup>
+        <DetailGroup>
+          <b>Updated At:</b> <span>{moment(user.updated_at).format()}</span>
+        </DetailGroup>
       </DetailContainer>
     )
   }
