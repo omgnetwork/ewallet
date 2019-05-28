@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-import { Icon } from '..'
+import Icon from '../icon'
 
 const StyledIcon = styled(Icon)`
   font-size: 15px;

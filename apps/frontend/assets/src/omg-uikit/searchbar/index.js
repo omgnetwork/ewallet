@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 
-import { Input } from '..'
+import Input from '../input'
 import Suffix from './suffix'
 
 const StyledInput = styled(Input)`
