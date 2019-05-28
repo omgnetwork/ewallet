@@ -271,3 +271,63 @@ me.get_accounts:
         $ref: '../account/responses.yaml#/AccountsResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.create_backup_codes:
+  post:
+    tags:
+      - Admin
+    summary: Create a list of backup_codes for two-factor authentication.
+    operationId: me_create_backup_codes
+    security:
+      - AdminAuth: []
+    responses:
+      '200':
+        $ref: '../two_factor/responses.yaml#/CreateBackupCodesResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.create_secret_code:
+  post:
+    tags:
+      - Admin
+    summary: Create a secret code for two-factor authentication.
+    operationId: me_create_secret_code
+    security:
+      - AdminAuth: []
+    responses:
+      '200':
+        $ref: '../two_factor/responses.yaml#/CreateSecretCodeResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.enable_2fa:
+  post:
+    tags:
+      - Admin
+    summary: Enable a two-factor authentication.
+    operationId: me_enable_2fa
+    security:
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AdminEnable2FABody'
+    responses:
+      '200':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+me.disable_2fa:
+  post:
+    tags:
+      - Admin
+    summary: Disable a two-factor authentication.
+    operationId: me_disable_2fa
+    security:
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/AdminDisable2FABody'
+    responses:
+      '200':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/EmptyResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

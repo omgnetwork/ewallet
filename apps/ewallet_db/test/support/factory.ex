@@ -26,6 +26,7 @@ defmodule EWalletDB.Factory do
     AccountUser,
     APIKey,
     AuthToken,
+    PreAuthToken,
     Category,
     Export,
     ExchangePair,
@@ -41,6 +42,7 @@ defmodule EWalletDB.Factory do
     TransactionRequest,
     UpdateEmailRequest,
     User,
+    UserBackupCode,
     Wallet
   }
 
@@ -147,12 +149,21 @@ defmodule EWalletDB.Factory do
       calling_name: sequence("John"),
       provider_user_id: sequence("provider_id"),
       enabled: true,
+      enabled_2fa_at: nil,
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
       },
       encrypted_metadata: %{},
       originator: %System{}
+    }
+  end
+
+  def user_backup_code_factory do
+    %UserBackupCode{
+      hashed_backup_code: sequence("hashed_backup_code"),
+      used_at: nil,
+      user: insert(:user)
     }
   end
 
@@ -277,6 +288,17 @@ defmodule EWalletDB.Factory do
   def auth_token_factory do
     %AuthToken{
       token: sequence("auth_token"),
+      owner_app: "some_app_name",
+      user: insert(:user),
+      account: insert(:account),
+      expired: false,
+      originator: %System{}
+    }
+  end
+
+  def pre_auth_token_factory do
+    %PreAuthToken{
+      token: sequence("pre_auth_token"),
       owner_app: "some_app_name",
       user: insert(:user),
       account: insert(:account),

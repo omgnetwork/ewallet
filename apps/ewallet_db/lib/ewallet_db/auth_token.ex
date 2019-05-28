@@ -101,15 +101,14 @@ defmodule EWalletDB.AuthToken do
   then returns the auth token string.
   """
   def generate(%User{} = user, owner_app, originator) when is_atom(owner_app) do
-    attrs = %{
+    %{
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: nil,
       token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
-
-    insert(attrs)
+    |> insert()
   end
 
   def generate(_, _, _), do: {:error, :invalid_parameter}
@@ -213,6 +212,20 @@ defmodule EWalletDB.AuthToken do
         where: a.user_uuid == ^user.uuid
       ),
       set: [expired: true]
+    )
+
+    :ok
+  end
+
+  @doc """
+  Delete all AuthTokens associated with the user.
+  """
+  def delete_for_user(user) do
+    Repo.delete_all(
+      from(
+        a in AuthToken,
+        where: a.user_uuid == ^user.uuid
+      )
     )
 
     :ok

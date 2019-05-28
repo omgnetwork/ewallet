@@ -3,4 +3,6 @@ AuthenticationTokenResponse:
   content:
     application/vnd.omisego.v1+json:
       schema:
-        $ref: 'response_schemas.yaml#/AuthenticationTokenResponseSchema'
+        oneOf:
+          - $ref: 'response_schemas.yaml#/AuthenticationTokenResponseSchema'
+          - $ref: 'response_schemas.yaml#/PreAuthenticationTokenResponseSchema'
