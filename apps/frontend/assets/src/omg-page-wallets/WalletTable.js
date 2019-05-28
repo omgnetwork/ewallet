@@ -39,21 +39,14 @@ const TableContainer = styled.div`
 `
 
 function WalletsTable (props) {
-  const searchObject = queryString.parse(props.location.search)
-
   const onClickRow = (data, index) => e => {
-    props.history.push({
-      search: queryString.stringify({
-        ...searchObject,
-        'show-transaction-tab': data.id
-      })
-    })
+    props.history.push(`/wallets/${data.address}`)
   }
-  const activeIndexKey = searchObject['show-transaction-tab']
+  const wallets = [...props.newWallets, ...props.wallets]
   return (
     <TableContainer>
       <SortableTable
-        rows={[...props.newWallets, ...props.wallets]}
+        rows={wallets.map(d => ({ ...d, id: d.address }))}
         columns={walletColumsKeys}
         rowRenderer={rowRenderer}
         perPage={15}
@@ -62,7 +55,6 @@ function WalletsTable (props) {
         isLastPage={props.pagination.is_last_page}
         navigation
         onClickRow={onClickRow}
-        activeIndexKey={activeIndexKey}
       />
     </TableContainer>
   )

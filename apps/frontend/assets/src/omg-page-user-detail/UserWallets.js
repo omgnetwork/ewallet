@@ -21,7 +21,6 @@ function UserWallets (props) {
         pagination,
         fetch
       }) => {
-        console.log(wallets)
         return (
           <WalletTable
             loadingStatus={individualLoadingStatus}
