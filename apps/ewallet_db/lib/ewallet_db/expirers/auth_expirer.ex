@@ -24,6 +24,7 @@ defmodule EWalletDB.Expirers.AuthExpirer do
 
   If a specified amount of time is zero, then return nil.
   """
+  @spec get_advanced_datetime(integer) :: NaiveDateTime.t() | nil
   def get_advanced_datetime(0), do: nil
 
   def get_advanced_datetime(second) do
@@ -34,6 +35,8 @@ defmodule EWalletDB.Expirers.AuthExpirer do
   Expire a given AuthToken or PreAuthToken if the datetime from `expire_at` field has been lapse.
   Otherwise, extend the `expire_at` by a given time in second.
   """
+  @spec expire_or_refresh(AuthToken.t() | PreAuthToken.t(), integer) ::
+          AuthToken.t() | PreAuthToken.t()
   def expire_or_refresh(nil, _), do: nil
 
   def expire_or_refresh(token, configured_auth_token_lifetime) do

@@ -192,6 +192,7 @@ defmodule EWalletDB.AuthToken do
 
   defp get_by_user(_, _), do: nil
 
+  @spec get_lifetime() :: integer
   def get_lifetime, do: Application.get_env(:ewallet_db, :atk_lifetime, 0)
 
   # `insert/1` is private to prohibit direct auth token insertion,
@@ -203,6 +204,7 @@ defmodule EWalletDB.AuthToken do
   end
 
   # Expires the given token.
+  @spec expire(EWalletDB.AuthToken.t(), any(), any()) :: {:error, any()} | {:ok, any()}
   def expire(token, owner_app, originator) when is_binary(token) and is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
@@ -232,6 +234,7 @@ defmodule EWalletDB.AuthToken do
     :ok
   end
 
+  @spec refresh(EWalletDB.AuthToken.t(), any) :: {:error, any} | {:ok, any}
   def refresh(%AuthToken{} = token, originator) do
     update(token, %{
       expired: false,
@@ -243,6 +246,7 @@ defmodule EWalletDB.AuthToken do
   @doc """
   Delete all AuthTokens associated with the user.
   """
+  @spec delete_for_user(User.t()) :: :ok
   def delete_for_user(user) do
     Repo.delete_all(
       from(

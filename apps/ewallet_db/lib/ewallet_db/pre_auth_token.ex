@@ -82,6 +82,7 @@ defmodule EWalletDB.PreAuthToken do
   Generate a pre auth token for the specified user to be used for verify two-factor auth,
   then returns the pre auth token string.
   """
+  @spec generate(User.t(), any(), any()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def generate(%User{} = user, owner_app, originator) when is_atom(owner_app) do
     %{
       owner_app: Atom.to_string(owner_app),
@@ -101,6 +102,7 @@ defmodule EWalletDB.PreAuthToken do
   Returns the associated user if authenticated, :token_expired if token exists but expired,
   or false otherwise.
   """
+  @spec authenticate(String.t(), any) :: false | nil | :token_expired | [%{optional(atom) => any}] | %{optional(atom) => any}
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
@@ -108,6 +110,8 @@ defmodule EWalletDB.PreAuthToken do
     |> return_token_if_valid()
   end
 
+  @spec authenticate(String.t(), String.t(), any) ::
+          false | nil | :token_expired | [%{optional(atom) => any}] | %{optional(atom) => any}
   def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
     user_id
     |> get_by_user(owner_app)
@@ -171,6 +175,7 @@ defmodule EWalletDB.PreAuthToken do
   defp get_by_user(_, _), do: nil
 
   # def get_lifetime(), do: Setting.get(@key_ptk_lifetime).value
+  @spec get_lifetime :: integer
   def get_lifetime, do: Application.get_env(:ewallet_db, :ptk_lifetime, 0)
 
   # `insert/1` is private to prohibit direct pre auth token insertion,
@@ -184,6 +189,7 @@ defmodule EWalletDB.PreAuthToken do
   @doc """
   Delete all PreAuthTokens associated with the user.
   """
+  @spec delete_for_user(User.t()) :: :ok
   def delete_for_user(user) do
     Repo.delete_all(
       from(
@@ -211,6 +217,7 @@ defmodule EWalletDB.PreAuthToken do
     })
   end
 
+  @spec refresh(EWalletDB.PreAuthToken.t(), any) :: {:error, any} | {:ok, any}
   def refresh(%PreAuthToken{} = token, originator) do
     update(token, %{
       expire_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
