@@ -325,8 +325,33 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     test "returns the request's token if nil is passed" do
       request = insert(:transaction_request)
 
-      {:ok, token} = TransactionConsumptionValidator.get_and_validate_token(request, nil)
+      {:ok, token, pair} = TransactionConsumptionValidator.get_and_validate_token(request, nil)
       assert token.uuid == request.token_uuid
+      assert pair == nil
+    end
+
+    test "returns the token and the exchange pair if given a token with pair" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2)
+      request = insert(:transaction_request, type: "send", token_uuid: token_1.uuid)
+
+      {:ok, token, ep} =
+        TransactionConsumptionValidator.get_and_validate_token(request, token_2.id)
+
+      assert token.uuid == token_2.uuid
+      assert ep.uuid == pair.uuid
+    end
+
+    test "returns the specified token if valid" do
+      request = :transaction_request |> insert() |> Repo.preload([:token])
+      token = request.token
+
+      {:ok, token, pair} =
+        TransactionConsumptionValidator.get_and_validate_token(request, token.id)
+
+      assert token.uuid == request.token_uuid
+      assert pair == nil
     end
 
     test "returns a token_not_found error if given not existing token" do
@@ -355,15 +380,6 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       {:error, code} = TransactionConsumptionValidator.get_and_validate_token(request, token_2.id)
 
       assert code == :exchange_pair_not_found
-    end
-
-    test "returns the specified token if valid" do
-      request = :transaction_request |> insert() |> Repo.preload([:token])
-      token = request.token
-
-      {:ok, token} = TransactionConsumptionValidator.get_and_validate_token(request, token.id)
-
-      assert token.uuid == request.token_uuid
     end
   end
 
@@ -483,6 +499,43 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       assert status == :ok
       assert res == nil
+    end
+  end
+
+  describe "validate_client_exchange/2" do
+    test "returns `:ok` for a user's consumption when exchange pair is valid" do
+      user = insert(:user)
+      pair = insert(:exchange_pair, %{allow_end_user_exchanges: true})
+
+      res = TransactionConsumptionValidator.validate_client_exchange(user, pair)
+
+      assert res == :ok
+    end
+
+    test "returns `:ok` for an account consumption" do
+      account = insert(:account)
+      pair = insert(:exchange_pair)
+
+      res = TransactionConsumptionValidator.validate_client_exchange(account, pair)
+
+      assert res == :ok
+    end
+
+    test "returns `:ok` for a consumption without exchange" do
+      user = insert(:user)
+
+      res = TransactionConsumptionValidator.validate_client_exchange(user, nil)
+
+      assert res == :ok
+    end
+
+    test "returns `:exchange_client_not_allowed` for a user consumption when exchange pair is invalid" do
+      user = insert(:user)
+      pair = insert(:exchange_pair, %{allow_end_user_exchanges: false})
+
+      res = TransactionConsumptionValidator.validate_client_exchange(user, pair)
+
+      assert res == {:error, :exchange_client_not_allowed}
     end
   end
 

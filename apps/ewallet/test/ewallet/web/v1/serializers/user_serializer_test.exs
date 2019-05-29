@@ -33,6 +33,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
         provider_user_id: user.provider_user_id,
         email: user.email,
         enabled: user.enabled,
+        enabled_2fa_at: nil,
         avatar: %{
           original: nil,
           large: nil,
@@ -92,6 +93,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
               thumb: nil
             },
             enabled: user1.enabled,
+            enabled_2fa_at: nil,
             metadata: %{
               "first_name" => user1.metadata["first_name"],
               "last_name" => user1.metadata["last_name"]
@@ -116,6 +118,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
               thumb: nil
             },
             enabled: user2.enabled,
+            enabled_2fa_at: nil,
             metadata: %{
               "first_name" => user2.metadata["first_name"],
               "last_name" => user2.metadata["last_name"]
@@ -166,6 +169,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
             },
             encrypted_metadata: %{},
             enabled: user1.enabled,
+            enabled_2fa_at: nil,
             created_at: DateFormatter.to_iso8601(user1.inserted_at),
             updated_at: DateFormatter.to_iso8601(user1.updated_at)
           },
@@ -190,6 +194,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
             },
             encrypted_metadata: %{},
             enabled: user2.enabled,
+            enabled_2fa_at: nil,
             created_at: DateFormatter.to_iso8601(user2.inserted_at),
             updated_at: DateFormatter.to_iso8601(user2.updated_at)
           }

@@ -16,7 +16,8 @@ defmodule AdminAPI.V1.AdminUserAuth do
   @moduledoc """
   This module takes care of authenticating an admin user for websocket connections.
   """
-  alias EWalletDB.{AuthToken, User}
+  alias EWalletDB.{PreAuthToken, User}
+  alias EWallet.{UserAuthenticator}
 
   def authenticate(auth) do
     auth
@@ -48,7 +49,7 @@ defmodule AdminAPI.V1.AdminUserAuth do
     user_id = auth[:auth_user_id]
     auth_token = auth[:auth_auth_token]
 
-    case AuthToken.authenticate(user_id, auth_token, :admin_api) do
+    case UserAuthenticator.authenticate(user_id, auth_token, :admin_api) do
       %User{} = admin_user ->
         auth
         |> Map.put(:authenticated, true)
@@ -58,6 +59,12 @@ defmodule AdminAPI.V1.AdminUserAuth do
         auth
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, :auth_token_not_found)
+
+      %PreAuthToken{} = pre_auth_token ->
+        auth
+        |> Map.put(:authenticated, false)
+        |> Map.put(:auth_error, :auth_token_not_found)
+        |> Map.put(:admin_user, pre_auth_token.user)
 
       :token_expired ->
         auth

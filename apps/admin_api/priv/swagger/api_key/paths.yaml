@@ -147,7 +147,7 @@ api_key.create:
 api_key.get:
   post:
     tags:
-      - API Access
+      - API access
     summary: Get a specific api key
     operationId: api_key_get
     security:

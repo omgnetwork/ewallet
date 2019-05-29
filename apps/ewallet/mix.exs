@@ -56,6 +56,7 @@ defmodule EWallet.Mixfile do
       {:local_ledger_db, in_umbrella: true},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_html, "~> 2.11.0"},
+      {:pot, "~>0.9.6"},
       {:quantum, "~> 2.3.4"},
       {:sentry, "~> 7.0"},
       {:timex, "~> 3.0"}

@@ -175,8 +175,7 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
       )
       when not is_nil(token_id) do
     with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]),
-         {:ok, request} <- TransactionRequestFetcher.get(formatted_transaction_request_id),
-         true <- request.token.id == token_id || :exchange_client_not_allowed,
+         {:ok, _request} <- TransactionRequestFetcher.get(formatted_transaction_request_id),
          attrs <- Map.put(attrs, "creator", user) do
       consume(wallet, attrs)
     else

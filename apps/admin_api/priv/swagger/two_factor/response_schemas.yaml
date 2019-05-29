@@ -1,0 +1,40 @@
+BackupCodesResponseSchema:
+  description: The response schema for a list of backup codes
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: 'schemas.yaml#/BackupCodesSchema'
+    example:
+      data:
+        object: backup_codes
+        backup_codes: [
+          "750a42a9",
+          "2f0e81e3",
+          "e0d16647",
+          "d7aa447e",
+          "946e144f",
+          "3b20862a",
+          "a6a5591d",
+          "2e4865c0",
+          "c8c9cd3f",
+          "67cb697e"
+        ]
+
+SecretCodeResponseSchema:
+  description: The response schema for a secret code
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: 'schemas.yaml#/SecretCodeSchema'
+    example:
+      data:
+        object: secret_code
+        secret_2fa_code: "K4KXTZ3NOL5FHH3L"
+        label: "user@example.com"
+        issuer: "OmiseGO"

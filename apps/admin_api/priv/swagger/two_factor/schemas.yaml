@@ -1,0 +1,32 @@
+BackupCodesSchema:
+  description: The object schema for a list of backup codes
+  type: object
+  properties:
+    object:
+      type: string
+    backup_codes:
+      type: array
+      items:
+        type: string
+  required:
+    - object
+    - backup_codes
+
+SecretCodeSchema:
+  description: The object schema for a secret code
+  type: object
+  properties:
+    object:
+      type: string
+    secret_2fa_code:
+      type: string
+    issuer:
+      type: string
+    label:
+      type: string
+  required:
+    - object
+    - secret_2fa_code
+    - issuer
+    - label
+

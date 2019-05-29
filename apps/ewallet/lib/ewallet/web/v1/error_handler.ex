@@ -106,6 +106,26 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials."
     },
+    invalid_passcode: %{
+      code: "user:invalid_passcode",
+      description: "The provided `passcode` is invalid."
+    },
+    invalid_backup_code: %{
+      code: "user:invalid_backup_code",
+      description: "The provided `backup_code` is invalid."
+    },
+    user_2fa_disabled: %{
+      code: "user:2fa_disabled",
+      description: "This user has not enabled two-factor authentication."
+    },
+    secret_code_not_found: %{
+      code: "user:secret_code_not_found",
+      description: "The secret code could not be found."
+    },
+    backup_codes_not_found: %{
+      code: "user:backup_codes_not_found",
+      description: "The backup codes could not be found."
+    },
     invalid_auth_scheme: %{
       code: "client:invalid_auth_scheme",
       description: "The provided authentication scheme is not supported."
@@ -373,7 +393,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     exchange_client_not_allowed: %{
       code: "exchange:not_allowed",
-      description: "Exchange consumptions cannot be made through the client API."
+      description: "This exchange pair does not allow client initiated exchanges."
     },
     exchange_account_wallet_not_found: %{
       code: "exchange:account_wallet_not_found",

@@ -45,6 +45,7 @@ defmodule AdminAPI.V1.InviteControllerTest do
         "email" => invite.user.email,
         "avatar" => %{"original" => nil, "large" => nil, "small" => nil, "thumb" => nil},
         "enabled" => invite.user.enabled,
+        "enabled_2fa_at" => nil,
         "metadata" => %{
           "first_name" => invite.user.metadata["first_name"],
           "last_name" => invite.user.metadata["last_name"]

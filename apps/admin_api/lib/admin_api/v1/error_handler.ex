@@ -27,6 +27,10 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials."
     },
+    account_id_not_found: %{
+      code: "account:id_not_found",
+      description: "There is no account corresponding to the provided id."
+    },
     user_account_not_found: %{
       code: "user:account_not_found",
       description: "There is no account assigned to the provided user."
@@ -42,10 +46,6 @@ defmodule AdminAPI.V1.ErrorHandler do
     auth_token_not_found: %{
       code: "auth_token:not_found",
       description: "There is no auth token corresponding to the provided token."
-    },
-    account_id_not_found: %{
-      code: "account:id_not_found",
-      description: "There is no account corresponding to the provided id."
     },
     transaction_id_not_found: %{
       code: "transaction:id_not_found",
