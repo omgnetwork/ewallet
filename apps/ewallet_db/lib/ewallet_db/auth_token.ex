@@ -125,7 +125,7 @@ defmodule EWalletDB.AuthToken do
     token
     |> get_by_token(owner_app)
     |> AuthExpirer.expire_or_refresh(get_lifetime())
-    |> return_token_if_valid()
+    |> return_user()
   end
 
   def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
@@ -133,7 +133,7 @@ defmodule EWalletDB.AuthToken do
     |> get_by_user(owner_app)
     |> compare_multiple(token)
     |> AuthExpirer.expire_or_refresh(get_lifetime())
-    |> return_token_if_valid()
+    |> return_user()
   end
 
   def authenticate(_, _, _), do: Crypto.fake_verify()
@@ -144,13 +144,13 @@ defmodule EWalletDB.AuthToken do
     end)
   end
 
-  defp return_token_if_valid(token) do
+  defp return_user(token) do
     case token do
       nil ->
         false
 
-      {:error, _} ->
-        false
+      {:error, err} ->
+        {:error, err}
 
       %{expired: true} ->
         :token_expired
