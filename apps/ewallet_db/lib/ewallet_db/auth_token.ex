@@ -102,6 +102,7 @@ defmodule EWalletDB.AuthToken do
   Generate an auth token for the specified user,
   then returns the auth token string.
   """
+  @spec generate(User.t(), atom(), any()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def generate(%User{} = user, owner_app, originator) when is_atom(owner_app) do
     %{
       owner_app: Atom.to_string(owner_app),
@@ -121,6 +122,8 @@ defmodule EWalletDB.AuthToken do
   Returns the associated user if authenticated, :token_expired if token exists but expired,
   or false otherwise.
   """
+  @spec authenticate(String.t(), atom()) ::
+          User.t() | false | {:error, Changeset.t()} | :token_expired
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
@@ -128,6 +131,8 @@ defmodule EWalletDB.AuthToken do
     |> return_user()
   end
 
+  @spec authenticate(String.t(), String.t(), atom()) ::
+          User.t() | false | {:error, Changeset.t()} | :token_expired
   def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
     user_id
     |> get_by_user(owner_app)
@@ -149,8 +154,8 @@ defmodule EWalletDB.AuthToken do
       nil ->
         false
 
-      {:error, err} ->
-        {:error, err}
+      {:error, changeset} ->
+        {:error, changeset}
 
       %{expired: true} ->
         :token_expired
@@ -204,14 +209,13 @@ defmodule EWalletDB.AuthToken do
   end
 
   # Expires the given token.
-  @spec expire(EWalletDB.AuthToken.t(), any(), any()) :: {:error, any()} | {:ok, any()}
+  @spec expire(String.t(), atom(), any()) :: {:ok, %__MODULE__{}} | {:error, Changeset.t()}
   def expire(token, owner_app, originator) when is_binary(token) and is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
     |> expire(originator)
   end
 
-  @spec expire(EWalletDB.AuthToken.t(), any()) :: {:error, any()} | {:ok, any()}
   def expire(%AuthToken{} = token, originator) do
     update(token, %{
       expired: true,
@@ -219,7 +223,7 @@ defmodule EWalletDB.AuthToken do
     })
   end
 
-  @spec expire_for_user(atom() | map()) :: :ok
+  @spec expire_for_user(atom() | User.t()) :: :ok
   def expire_for_user(%{enabled: true}), do: :ok
 
   def expire_for_user(user) do
@@ -234,7 +238,7 @@ defmodule EWalletDB.AuthToken do
     :ok
   end
 
-  @spec refresh(EWalletDB.AuthToken.t(), any) :: {:error, any} | {:ok, any}
+  @spec refresh(%__MODULE__{}, any()) :: {:ok, %__MODULE__{}} | {:error, Changeset.t()}
   def refresh(%AuthToken{} = token, originator) do
     update(token, %{
       expired: false,
