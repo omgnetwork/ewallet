@@ -60,6 +60,11 @@ defmodule AdminAPI.V1.AdminUserAuth do
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, :auth_token_not_found)
 
+      {:error, changeset} ->
+        auth
+        |> Map.put(:authenticated, false)
+        |> Map.put(:auth_error, changeset)
+
       %PreAuthToken{} = pre_auth_token ->
         auth
         |> Map.put(:authenticated, false)
