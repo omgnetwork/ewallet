@@ -1,5 +1,4 @@
 import createReducer from '../reducer/createReducer'
-import _ from 'lodash'
 export const sessionReducer = createReducer(
   {},
   {
