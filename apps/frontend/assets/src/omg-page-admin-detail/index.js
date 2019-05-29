@@ -62,7 +62,7 @@ class TokenDetailPage extends Component {
         </Button>,
         <Button
           key='save'
-          onClick={this.onClickSave(admin)}
+          onClick={this.onClickSave}
           disabled={!this.state.editAdminGlobalRole}
           loading={this.state.saving}
         >
@@ -88,10 +88,10 @@ class TokenDetailPage extends Component {
   onSelectGlobalRole = data => {
     this.setState({ editAdminGlobalRole: data.key })
   }
-  onClickSave = admin => async () => {
+  onClickSave = async () => {
     this.setState({ saving: true })
     const result = await this.props.updateAdmin({
-      id: admin.id,
+      id: this.props.match.params.adminId,
       globalRole: this.state.editAdminGlobalRole
     })
     if (result.data) {

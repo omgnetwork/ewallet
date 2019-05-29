@@ -25,6 +25,19 @@ export function createUser ({ username, providerUserId }) {
   })
 }
 
+export function updateUser ({ id, username, providerUserId, fullName, callingName }) {
+  return authenticatedRequest({
+    path: '/user.update',
+    data: {
+      id,
+      username,
+      provider_user_id: providerUserId,
+      full_name: fullName,
+      calling_name: callingName
+    }
+  })
+}
+
 export function getUserById (id) {
   return authenticatedRequest({
     path: '/user.get',

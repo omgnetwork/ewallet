@@ -73,6 +73,15 @@ export const alertsReducer = createReducer([], {
   'CURRENT_USER/UPDATE/SUCCESS': (state, { user }) => {
     return [...state, createAlertState('Updated user settings successfully.', 'success')]
   },
+  'USER/UPDATE/SUCCESS': (state, { data }) => {
+    return [
+      ...state,
+      createAlertState(
+        <div>Updated user <b>{data.email || data.dataname || data.id}</b> successfully.</div>,
+        'success'
+      )
+    ]
+  },
   'CURRENT_USER_EMAIL/UPDATE/SUCCESS': state => {
     return [
       ...state,

@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import styled, { withTheme } from 'styled-components'
+import styled from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
 import UserProvider from '../omg-users/userProvider'
 import { compose } from 'recompose'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import moment from 'moment'
-import { LoadingSkeleton, Breadcrumb } from '../omg-uikit'
+import { LoadingSkeleton, Breadcrumb, Button, Input } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
+import { connect } from 'react-redux'
+import { updateUser } from '../omg-users/action'
 const UserDetailContainer = styled.div`
   b {
     width: 150px;
@@ -38,17 +40,72 @@ const LoadingContainer = styled.div`
 const BreadcrumbContainer = styled.div`
   margin-top: 30px;
 `
+const StyledInput = styled(Input)`
+  display: inline-block;
+  vertical-align: middle;
+  width: auto;
+`
 
 const enhance = compose(
-  withTheme,
-  withRouter
+  withRouter,
+  connect(
+    null,
+    { updateUser }
+  )
 )
-class TokenDetailPage extends Component {
+class UserDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     divider: PropTypes.bool,
-    withBreadCrumb: PropTypes.bool
+    withBreadCrumb: PropTypes.bool,
+    updateUser: PropTypes.func.isRequired
   }
+  state = {
+    editing: false,
+    saving: false
+  }
+
+  onClickSave = async () => {
+    this.setState({ saving: true })
+    const result = await this.props.updateUser({
+      id: this.props.match.params.userId,
+      username: this.state.editUsername
+    })
+    if (result.data) {
+      this.setState({ editing: false, saving: false })
+    } else {
+      this.setState({ saving: false })
+    }
+  }
+
+  renderButtons (admin) {
+    return this.state.editing
+      ? [
+        <Button
+          key='cancel'
+          styleType='secondary'
+          onClick={e =>
+            this.setState({ editing: false, editUsername: undefined })
+          }
+        >
+            Cancel
+        </Button>,
+        <Button
+          key='save'
+          onClick={this.onClickSave}
+          disabled={!this.state.editUsername}
+          loading={this.state.saving}
+        >
+            Save
+        </Button>
+      ]
+      : [
+        <Button key='edit' onClick={e => this.setState({ editing: true })}>
+            Edit
+        </Button>
+      ]
+  }
+
   renderTopBar = user => {
     return (
       <>
@@ -56,16 +113,19 @@ class TokenDetailPage extends Component {
           <BreadcrumbContainer>
             <Breadcrumb
               items={[
-                <Link key='users' to={'/users/'}>Users</Link>,
-                user.email || user.provider_user_id
+                <Link key='users' to={'/users/'}>
+                  Users
+                </Link>,
+                user.email || user.username || user.provider_user_id
               ]}
             />
           </BreadcrumbContainer>
         )}
         <TopNavigation
           divider={false}
-          title={user.email || user.provider_user_id}
+          title={user.email || user.username || user.provider_user_id}
           secondaryAction={false}
+          buttons={this.renderButtons()}
         />
       </>
     )
@@ -77,10 +137,22 @@ class TokenDetailPage extends Component {
           <b>ID:</b> <span>{user.id}</span> <Copy data={user.id} />
         </DetailGroup>
         <DetailGroup>
+          <b style={{ verticalAlign: this.state.editing ? 'middle' : 'baseline' }}>Username:</b>{' '}
+          {this.state.editing ? (
+            <StyledInput
+              normalPlaceholder='username...'
+              value={this.state.editUsername || user.username || ''}
+              onChange={e => this.setState({ editUsername: e.target.value })}
+            />
+          ) : (
+            <span>{user.username || '-'}</span>
+          )}
+        </DetailGroup>
+        <DetailGroup>
           <b>Email:</b> <span>{user.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Provider ID:</b> <span>{user.provider_user_id || '-'}</span>
+          <b>Provider ID:</b>{' '}<span>{user.provider_user_id || '-'}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Created At:</b> <span>{moment(user.created_at).format()}</span>
@@ -153,4 +225,4 @@ class TokenDetailPage extends Component {
   }
 }
 
-export default enhance(TokenDetailPage)
+export default enhance(UserDetailPage)
