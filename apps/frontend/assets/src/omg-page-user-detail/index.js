@@ -116,14 +116,14 @@ class UserDetailPage extends Component {
                 <Link key='users' to={'/users/'}>
                   Users
                 </Link>,
-                user.email || user.username || user.provider_user_id
+                user.email || user.username || user.id
               ]}
             />
           </BreadcrumbContainer>
         )}
         <TopNavigation
           divider={false}
-          title={user.email || user.username || user.provider_user_id}
+          title={user.email || user.username || user.id}
           secondaryAction={false}
           buttons={this.renderButtons()}
         />
