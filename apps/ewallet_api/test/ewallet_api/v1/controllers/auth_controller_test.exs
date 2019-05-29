@@ -64,6 +64,26 @@ defmodule EWalletAPI.V1.AuthControllerTest do
                "Your user account has not been confirmed yet. Please check your emails."
     end
 
+    test "returns an error when trying to login an admin user" do
+      email = "test_admin_login@example.com"
+      password = "some_password"
+      password_hash = Crypto.hash_password(password)
+
+      _admin = insert(:admin, email: email, password_hash: password_hash)
+      request_data = %{email: email, password: password}
+
+      response = client_request("/user.login", request_data)
+
+      assert response["version"] == @expected_version
+      assert response["success"] == false
+
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:invalid_login_credentials"
+
+      assert response["data"]["description"] ==
+               "There is no user corresponding to the provided login credentials."
+    end
+
     test "returns user:invalid_login_credentials when given an unknown email", context do
       request_data = %{context.request_data | email: "unknown@example.com"}
       response = client_request("/user.login", request_data)
