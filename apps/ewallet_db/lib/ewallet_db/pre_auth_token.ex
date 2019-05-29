@@ -102,8 +102,8 @@ defmodule EWalletDB.PreAuthToken do
   Returns the associated user if authenticated, :token_expired if token exists but expired,
   or false otherwise.
   """
-  @spec authenticate(String.t(), any) ::
-          false | nil | :token_expired | [%{optional(atom) => any}] | %{optional(atom) => any}
+  @spec authenticate(String.t(), atom()) ::
+          %__MODULE__{} | false | :token_expired | {:error, Changeset.t()}
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
@@ -111,8 +111,8 @@ defmodule EWalletDB.PreAuthToken do
     |> return_token_if_valid()
   end
 
-  @spec authenticate(String.t(), String.t(), any) ::
-          false | nil | :token_expired | [%{optional(atom) => any}] | %{optional(atom) => any}
+  @spec authenticate(String.t(), String.t(), atom()) ::
+          %__MODULE__{} | false | :token_expired | {:error, Changeset.t()}
   def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
     user_id
     |> get_by_user(owner_app)
@@ -134,8 +134,8 @@ defmodule EWalletDB.PreAuthToken do
       nil ->
         false
 
-      {:error, _} ->
-        false
+      {:error, changeset} ->
+        {:error, changeset}
 
       %{expired: true} ->
         :token_expired
@@ -203,14 +203,13 @@ defmodule EWalletDB.PreAuthToken do
   end
 
   # Expires the given token.
-  @spec expire(binary(), atom(), any()) :: {:error, any()} | {:ok, any()}
+  @spec expire(String.t(), atom(), any()) :: {:ok, %__MODULE__{}} | {:error, Changeset.t()}
   def expire(token, owner_app, originator) when is_binary(token) and is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
     |> expire(originator)
   end
 
-  @spec expire(EWalletDB.PreAuthToken.t(), any()) :: {:error, any()} | {:ok, any()}
   def expire(%PreAuthToken{} = token, originator) do
     update(token, %{
       expired: true,
@@ -218,7 +217,7 @@ defmodule EWalletDB.PreAuthToken do
     })
   end
 
-  @spec refresh(EWalletDB.PreAuthToken.t(), any) :: {:error, any} | {:ok, any}
+  @spec refresh(%__MODULE__{}, any()) :: {:ok, %__MODULE__{}} | {:error, Changeset.t()}
   def refresh(%PreAuthToken{} = token, originator) do
     update(token, %{
       expire_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
