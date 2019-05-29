@@ -8,6 +8,9 @@ export const adminsReducer = createReducer(
     },
     'ADMIN/REQUEST/SUCCESS': (state, { data }) => {
       return { ...state, ...{ [data.id]: data } }
+    },
+    'UPDATE_ADMIN/REQUEST/SUCCESS': (state, { data }) => {
+      return { ...state, ...{ [data.id]: data } }
     }
   }
 )

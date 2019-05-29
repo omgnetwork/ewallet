@@ -61,6 +61,9 @@ export const alertsReducer = createReducer([], {
   'INVITE/REQUEST/SUCCESS': state => {
     return [...state, createAlertState('Invited member successfully.', 'success')]
   },
+  'UPDATE_ADMIN/REQUEST/SUCCESS': state => {
+    return [...state, createAlertState('Update admin successfully.', 'success')]
+  },
   'CATEGORY/CREATE/SUCCESS': (state, { category }) => {
     return [...state, createAlertState('Created category successfully.', 'success')]
   },
@@ -71,7 +74,10 @@ export const alertsReducer = createReducer([], {
     return [...state, createAlertState('Updated user settings successfully.', 'success')]
   },
   'CURRENT_USER_EMAIL/UPDATE/SUCCESS': state => {
-    return [...state, createAlertState('Please check your email to verify the new email address.', 'success')]
+    return [
+      ...state,
+      createAlertState('Please check your email to verify the new email address.', 'success')
+    ]
   },
   'PASSWORD/UPDATE/SUCCESS': (state, { user }) => {
     return [...state, createAlertState('Updated password successfully.', 'success')]
