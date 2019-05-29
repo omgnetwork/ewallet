@@ -55,26 +55,26 @@ defmodule AdminAPI.V1.AdminUserAuth do
         |> Map.put(:authenticated, true)
         |> Map.put(:admin_user, admin_user)
 
-      false ->
+      %PreAuthToken{} = pre_auth_token ->
+        auth
+        |> Map.put(:authenticated, false)
+        # |> Map.put(:auth_error, :auth_token_not_found)
+        |> Map.put(:admin_user, pre_auth_token.user)
+
+      {:error, :token_not_found} ->
         auth
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, :auth_token_not_found)
+
+      {:error, :token_expired} ->
+        auth
+        |> Map.put(:authenticated, false)
+        |> Map.put(:auth_error, :auth_token_expired)
 
       {:error, changeset} ->
         auth
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, changeset)
-
-      %PreAuthToken{} = pre_auth_token ->
-        auth
-        |> Map.put(:authenticated, false)
-        |> Map.put(:auth_error, :auth_token_not_found)
-        |> Map.put(:admin_user, pre_auth_token.user)
-
-      :token_expired ->
-        auth
-        |> Map.put(:authenticated, false)
-        |> Map.put(:auth_error, :auth_token_expired)
     end
   end
 end

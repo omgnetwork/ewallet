@@ -159,21 +159,21 @@ defmodule EWalletDB.PreAuthTokenTest do
 
       token = insert(:pre_auth_token, attrs)
 
-      assert PreAuthToken.authenticate(token.token, @owner_app) == :token_expired
+      assert PreAuthToken.authenticate(token.token, @owner_app) == {:error, :token_expired}
     end
 
     test "returns false if pre_auth_token exists but for a different owner app" do
       token = insert(:pre_auth_token, %{owner_app: "wrong_app"})
 
-      assert PreAuthToken.authenticate(token.token, @owner_app) == false
+      assert PreAuthToken.authenticate(token.token, @owner_app) == {:error, :token_not_found}
     end
 
     test "returns false if token does not exists" do
-      assert PreAuthToken.authenticate("unmatched", @owner_app) == false
+      assert PreAuthToken.authenticate("unmatched", @owner_app) == {:error, :token_not_found}
     end
 
     test "returns false if pre_auth_token is nil" do
-      assert PreAuthToken.authenticate(nil, @owner_app) == false
+      assert PreAuthToken.authenticate(nil, @owner_app) == {:error, :token_not_found}
     end
   end
 
@@ -253,7 +253,7 @@ defmodule EWalletDB.PreAuthTokenTest do
       pre_auth_token = insert(:pre_auth_token, attrs)
 
       assert PreAuthToken.authenticate(user.id, pre_auth_token.token, @owner_app) ==
-               :token_expired
+               {:error, :token_expired}
     end
 
     test "returns false if pre_auth_token belongs to a different user" do
@@ -264,7 +264,9 @@ defmodule EWalletDB.PreAuthTokenTest do
       {:ok, pre_auth_token} = PreAuthToken.generate(user, @owner_app, %System{})
 
       another_user = insert(:admin)
-      assert PreAuthToken.authenticate(another_user.id, pre_auth_token.token, @owner_app) == false
+
+      assert PreAuthToken.authenticate(another_user.id, pre_auth_token.token, @owner_app) ==
+               {:error, :token_not_found}
     end
 
     test "returns false if pre_auth_token exists but for a different owner app" do
@@ -275,7 +277,8 @@ defmodule EWalletDB.PreAuthTokenTest do
 
       {:ok, pre_auth_token} = PreAuthToken.generate(user, :different_app, %System{})
 
-      assert PreAuthToken.authenticate(user.id, pre_auth_token.token, @owner_app) == false
+      assert PreAuthToken.authenticate(user.id, pre_auth_token.token, @owner_app) ==
+               {:error, :token_not_found}
     end
 
     test "returns false if pre_auth_token does not exists" do
@@ -285,7 +288,8 @@ defmodule EWalletDB.PreAuthTokenTest do
       {:ok, _} = Membership.assign(user, account, role, %System{})
       {:ok, _} = PreAuthToken.generate(user, @owner_app, %System{})
 
-      assert PreAuthToken.authenticate(user.id, "unmatched", @owner_app) == false
+      assert PreAuthToken.authenticate(user.id, "unmatched", @owner_app) ==
+               {:error, :token_not_found}
     end
 
     test "returns false if pre_auth_token is nil" do
@@ -295,7 +299,7 @@ defmodule EWalletDB.PreAuthTokenTest do
       {:ok, _} = Membership.assign(user, account, role, %System{})
       {:ok, _} = PreAuthToken.generate(user, @owner_app, %System{})
 
-      assert PreAuthToken.authenticate(user.id, nil, @owner_app) == false
+      assert PreAuthToken.authenticate(user.id, nil, @owner_app) == {:error, :token_not_found}
     end
   end
 

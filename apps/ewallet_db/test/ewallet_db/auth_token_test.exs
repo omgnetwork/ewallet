@@ -146,7 +146,7 @@ defmodule EWalletDB.AuthTokenTest do
 
       auth_token = insert(:auth_token, attrs)
 
-      assert AuthToken.authenticate(auth_token.token, @owner_app) == :token_expired
+      assert AuthToken.authenticate(auth_token.token, @owner_app) == {:error, :token_expired}
     end
 
     test "returns :token_expired if the token exists but expired" do
@@ -155,7 +155,7 @@ defmodule EWalletDB.AuthTokenTest do
         |> insert(%{owner_app: Atom.to_string(@owner_app)})
         |> AuthToken.expire(%System{})
 
-      assert AuthToken.authenticate(token.token, @owner_app) == :token_expired
+      assert AuthToken.authenticate(token.token, @owner_app) == {:error, :token_expired}
     end
 
     test "returns false if token exists but for a different owner app" do
@@ -164,15 +164,15 @@ defmodule EWalletDB.AuthTokenTest do
         |> insert(%{owner_app: "wrong_app"})
         |> AuthToken.expire(%System{})
 
-      assert AuthToken.authenticate(token.token, @owner_app) == false
+      assert AuthToken.authenticate(token.token, @owner_app) == {:error, :token_not_found}
     end
 
     test "returns false if token does not exists" do
-      assert AuthToken.authenticate("unmatched", @owner_app) == false
+      assert AuthToken.authenticate("unmatched", @owner_app) == {:error, :token_not_found}
     end
 
     test "returns false if auth token is nil" do
-      assert AuthToken.authenticate(nil, @owner_app) == false
+      assert AuthToken.authenticate(nil, @owner_app) == {:error, :token_not_found}
     end
   end
 
@@ -246,14 +246,16 @@ defmodule EWalletDB.AuthTokenTest do
 
       auth_token = insert(:auth_token, attrs)
 
-      assert AuthToken.authenticate(user.id, auth_token.token, @owner_app) == :token_expired
+      assert AuthToken.authenticate(user.id, auth_token.token, @owner_app) ==
+               {:error, :token_expired}
     end
 
     test "returns :token_expired if token exists but expired" do
       token = insert(:auth_token, %{owner_app: Atom.to_string(@owner_app)})
       AuthToken.expire(token, %System{})
 
-      assert AuthToken.authenticate(token.user.id, token.token, @owner_app) == :token_expired
+      assert AuthToken.authenticate(token.user.id, token.token, @owner_app) ==
+               {:error, :token_expired}
     end
 
     test "returns false if auth token belongs to a different user" do
@@ -264,7 +266,9 @@ defmodule EWalletDB.AuthTokenTest do
       {:ok, auth_token} = AuthToken.generate(user, @owner_app, %System{})
 
       another_user = insert(:admin)
-      assert AuthToken.authenticate(another_user.id, auth_token.token, @owner_app) == false
+
+      assert AuthToken.authenticate(another_user.id, auth_token.token, @owner_app) ==
+               {:error, :token_not_found}
     end
 
     test "returns false if token exists but for a different owner app" do
@@ -275,7 +279,8 @@ defmodule EWalletDB.AuthTokenTest do
 
       {:ok, auth_token} = AuthToken.generate(user, :different_app, %System{})
 
-      assert AuthToken.authenticate(user.id, auth_token.token, @owner_app) == false
+      assert AuthToken.authenticate(user.id, auth_token.token, @owner_app) ==
+               {:error, :token_not_found}
     end
 
     test "returns false if token does not exists" do
@@ -285,7 +290,8 @@ defmodule EWalletDB.AuthTokenTest do
       {:ok, _} = Membership.assign(user, account, role, %System{})
       {:ok, _} = AuthToken.generate(user, @owner_app, %System{})
 
-      assert AuthToken.authenticate(user.id, "unmatched", @owner_app) == false
+      assert AuthToken.authenticate(user.id, "unmatched", @owner_app) ==
+               {:error, :token_not_found}
     end
 
     test "returns false if auth token is nil" do
@@ -295,7 +301,7 @@ defmodule EWalletDB.AuthTokenTest do
       {:ok, _} = Membership.assign(user, account, role, %System{})
       {:ok, _} = AuthToken.generate(user, @owner_app, %System{})
 
-      assert AuthToken.authenticate(user.id, nil, @owner_app) == false
+      assert AuthToken.authenticate(user.id, nil, @owner_app) == {:error, :token_not_found}
     end
   end
 
@@ -307,7 +313,7 @@ defmodule EWalletDB.AuthTokenTest do
       # Ensure token is usable.
       assert AuthToken.authenticate(token_string, @owner_app)
       AuthToken.expire(token, %System{})
-      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+      assert AuthToken.authenticate(token_string, @owner_app) == {:error, :token_expired}
     end
 
     test "expires AuthToken successfully given the token string" do
@@ -317,7 +323,7 @@ defmodule EWalletDB.AuthTokenTest do
       # Ensure token is usable.
       assert AuthToken.authenticate(token_string, @owner_app)
       AuthToken.expire(token_string, @owner_app, %System{})
-      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+      assert AuthToken.authenticate(token_string, @owner_app) == {:error, :token_expired}
     end
   end
 
@@ -356,8 +362,8 @@ defmodule EWalletDB.AuthTokenTest do
       assert AuthToken.authenticate(token1_string, @owner_app)
       assert AuthToken.authenticate(token2_string, @owner_app)
       AuthToken.expire_for_user(user)
-      assert AuthToken.authenticate(token1_string, @owner_app) == :token_expired
-      assert AuthToken.authenticate(token2_string, @owner_app) == :token_expired
+      assert AuthToken.authenticate(token1_string, @owner_app) == {:error, :token_expired}
+      assert AuthToken.authenticate(token2_string, @owner_app) == {:error, :token_expired}
     end
   end
 

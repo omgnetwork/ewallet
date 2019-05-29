@@ -103,7 +103,10 @@ defmodule EWalletDB.PreAuthToken do
   or false otherwise.
   """
   @spec authenticate(String.t(), atom()) ::
-          %__MODULE__{} | false | :token_expired | {:error, Changeset.t()}
+          %__MODULE__{}
+          | {:error, :token_not_found}
+          | {:error, :token_expired}
+          | {:error, Changeset.t()}
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
@@ -112,8 +115,11 @@ defmodule EWalletDB.PreAuthToken do
   end
 
   @spec authenticate(String.t(), String.t(), atom()) ::
-          %__MODULE__{} | false | :token_expired | {:error, Changeset.t()}
-  def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
+          %__MODULE__{}
+          | {:error, :token_not_found}
+          | {:error, :token_expired}
+          | {:error, Changeset.t()}
+  def authenticate(user_id, token, owner_app) when is_atom(owner_app) do
     user_id
     |> get_by_user(owner_app)
     |> compare_multiple(token)
@@ -122,6 +128,8 @@ defmodule EWalletDB.PreAuthToken do
   end
 
   def authenticate(_, _, _), do: Crypto.fake_verify()
+
+  defp compare_multiple(_, nil), do: nil
 
   defp compare_multiple(token_records, token) when is_list(token_records) do
     Enum.find(token_records, fn record ->
@@ -132,13 +140,13 @@ defmodule EWalletDB.PreAuthToken do
   defp return_token_if_valid(token) do
     case token do
       nil ->
-        false
+        {:error, :token_not_found}
 
       {:error, changeset} ->
         {:error, changeset}
 
       %{expired: true} ->
-        :token_expired
+        {:error, :token_expired}
 
       token ->
         Repo.preload(token, :user)

@@ -19,9 +19,9 @@ defmodule EWallet.UserAuthenticator do
 
   alias EWalletDB.{User, AuthToken, PreAuthToken}
 
-  def authenticate(nil, _, _), do: false
+  def authenticate(nil, _, _), do: {:error, :token_not_found}
 
-  def authenticate(_, nil, _), do: false
+  def authenticate(_, nil, _), do: {:error, :token_not_found}
 
   def authenticate(%User{} = user, auth_token, owner_app) do
     cond do

@@ -123,7 +123,10 @@ defmodule EWalletDB.AuthToken do
   or false otherwise.
   """
   @spec authenticate(String.t(), atom()) ::
-          User.t() | false | {:error, Changeset.t()} | :token_expired
+          User.t()
+          | {:error, :token_not_found}
+          | {:error, :token_expired}
+          | {:error, Changeset.t()}
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
@@ -132,8 +135,11 @@ defmodule EWalletDB.AuthToken do
   end
 
   @spec authenticate(String.t(), String.t(), atom()) ::
-          User.t() | false | {:error, Changeset.t()} | :token_expired
-  def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
+          User.t()
+          | {:error, :token_not_found}
+          | {:error, :token_expired}
+          | {:error, Changeset.t()}
+  def authenticate(user_id, token, owner_app) when is_atom(owner_app) do
     user_id
     |> get_by_user(owner_app)
     |> compare_multiple(token)
@@ -142,6 +148,8 @@ defmodule EWalletDB.AuthToken do
   end
 
   def authenticate(_, _, _), do: Crypto.fake_verify()
+
+  defp compare_multiple(_, nil), do: nil
 
   defp compare_multiple(token_records, token) when is_list(token_records) do
     Enum.find(token_records, fn record ->
@@ -152,13 +160,13 @@ defmodule EWalletDB.AuthToken do
   defp return_user(token) do
     case token do
       nil ->
-        false
+        {:error, :token_not_found}
 
       {:error, changeset} ->
         {:error, changeset}
 
       %{expired: true} ->
-        :token_expired
+        {:error, :token_expired}
 
       token ->
         token
