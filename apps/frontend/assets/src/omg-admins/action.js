@@ -37,7 +37,7 @@ export const inviteAdmin = ({ email, redirectUrl, globalRole }) =>
 
 export const updateAdmin = ({ id, fullName, callingName, enabled, globalRole }) =>
   createActionCreator({
-    actionName: 'UPDATE_ADMIN',
-    action: 'REQUEST',
+    actionName: 'ADMIN',
+    action: 'UPDATE',
     service: () => adminService.updateAdmin({ id, fullName, callingName, enabled, globalRole })
   })

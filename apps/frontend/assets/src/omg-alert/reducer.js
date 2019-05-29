@@ -61,7 +61,7 @@ export const alertsReducer = createReducer([], {
   'INVITE/REQUEST/SUCCESS': state => {
     return [...state, createAlertState('Invited member successfully.', 'success')]
   },
-  'UPDATE_ADMIN/REQUEST/SUCCESS': state => {
+  'ADMIN/UPDATE/SUCCESS': state => {
     return [...state, createAlertState('Update admin successfully.', 'success')]
   },
   'CATEGORY/CREATE/SUCCESS': (state, { category }) => {
@@ -167,5 +167,6 @@ export const alertsReducer = createReducer([], {
   'API_KEY/CREATE/FAILED': errorStateHandler,
   'ACCESS_KEY/CREATE/FAILED': errorStateHandler,
   'CONFIGURATIONS/REQUEST/FAILED': errorStateHandler,
-  'INVITE/REQUEST/FAILED': errorStateHandler
+  'INVITE/REQUEST/FAILED': errorStateHandler,
+  'USER/UPDATE/FAILED': errorStateHandler
 })
