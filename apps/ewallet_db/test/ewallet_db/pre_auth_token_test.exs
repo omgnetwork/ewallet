@@ -139,17 +139,17 @@ defmodule EWalletDB.PreAuthTokenTest do
 
     @tag ptk_lifetime: 0
     test "returns pre_auth_token with expire_nil when ptk_lifetime is 0" do
-      %{token: token, user: user_1} = insert_ptk(%{expire_at: nil})
+      %{token: token_1, user: user_1} = insert_ptk(%{expire_at: nil})
 
-      %{token: token2, user: user_2, expire_at: token_2_expire_at} =
+      %{token: token_2, user: user_2, expire_at: token_2_expire_at} =
         insert_ptk(%{expire_at: from_now_by_seconds(60)})
 
-      pre_auth_token = PreAuthToken.authenticate(token, @owner_app)
-      pre_auth_token_2 = PreAuthToken.authenticate(token2, @owner_app)
+      pre_auth_token_1 = PreAuthToken.authenticate(token_1, @owner_app)
+      pre_auth_token_2 = PreAuthToken.authenticate(token_2, @owner_app)
 
-      assert pre_auth_token.user.uuid == user_1.uuid
+      assert pre_auth_token_1.user.uuid == user_1.uuid
       assert pre_auth_token_2.user.uuid == user_2.uuid
-      assert pre_auth_token.expire_at == nil
+      assert pre_auth_token_1.expire_at == nil
       assert pre_auth_token_2.expire_at == token_2_expire_at
     end
 
