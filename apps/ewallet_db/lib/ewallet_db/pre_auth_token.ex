@@ -102,7 +102,8 @@ defmodule EWalletDB.PreAuthToken do
   Returns the associated user if authenticated, :token_expired if token exists but expired,
   or false otherwise.
   """
-  @spec authenticate(String.t(), any) :: false | nil | :token_expired | [%{optional(atom) => any}] | %{optional(atom) => any}
+  @spec authenticate(String.t(), any) ::
+          false | nil | :token_expired | [%{optional(atom) => any}] | %{optional(atom) => any}
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
