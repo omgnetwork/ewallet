@@ -48,6 +48,5 @@ export const mintedTokenHistoryReducer = createReducer(
 export const tokensLoadingStatusReducer = createReducer('DEFAULT', {
   'TOKENS/REQUEST/INITIATED': (state, action) => 'INITIATED',
   'TOKENS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
-  'TOKENS/REQUEST/FAILED': (state, action) => 'FAILED',
-  'CURRENT_ACCOUNT/SWITCH': () => 'DEFAULT'
+  'TOKENS/REQUEST/FAILED': (state, action) => 'FAILED'
 })

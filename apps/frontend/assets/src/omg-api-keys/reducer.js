@@ -17,6 +17,5 @@ export const apiKeysReducer = createReducer(
 )
 
 export const apiKeysLoadingStatusReducer = createReducer('DEFAULT', {
-  'API_KEYS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
-  'CURRENT_ACCOUNT/SWITCH': () => 'DEFAULT'
+  'API_KEYS/REQUEST/SUCCESS': (state, action) => 'SUCCESS'
 })

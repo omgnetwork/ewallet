@@ -22,6 +22,5 @@ export const usersReducer = createReducer(
 export const usersLoadingStatusReducer = createReducer('DEFAULT', {
   'USERS/REQUEST/INITIATED': (state, action) => 'INITIATED',
   'USERS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
-  'USERS/REQUEST/FAILED': (state, action) => 'FAILED',
-  'CURRENT_ACCOUNT/SWITCH': () => 'DEFAULT'
+  'USERS/REQUEST/FAILED': (state, action) => 'FAILED'
 })

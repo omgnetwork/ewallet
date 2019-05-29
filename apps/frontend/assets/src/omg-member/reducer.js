@@ -12,6 +12,5 @@ export const inviteListReducer = createReducer(
 export const inviteListLoadingStatusReducer = createReducer('DEFAULT', {
   'INVITE_LIST/REQUEST/SUCCESS': (state, { data }) => {
     return 'SUCCESS'
-  },
-  'CURRENT_ACCOUNT/SWITCH': () => 'DEFAULT'
+  }
 })
