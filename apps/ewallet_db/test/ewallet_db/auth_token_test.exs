@@ -111,7 +111,7 @@ defmodule EWalletDB.AuthTokenTest do
     end
 
     @tag atk_lifetime: 3600
-    test "returns a user with expired auth_token if the expire_at has been lapsed", context do
+    test "returns a user with unexpired auth_token if the expire_at has been lapsed", context do
       # The user has the authentication token which will be expired in the next minute.
       user = insert(:user)
       {:ok, auth_token} = AuthToken.generate(user, @owner_app, %System{})
@@ -141,7 +141,7 @@ defmodule EWalletDB.AuthTokenTest do
     end
 
     @tag atk_lifetime: 3600
-    test "returns :token_expired if the expire_at has not been lapsed" do
+    test "returns :token_expired if the expire_at has been lapsed" do
       attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: NaiveDateTime.utc_now()}
 
       auth_token = insert(:auth_token, attrs)
