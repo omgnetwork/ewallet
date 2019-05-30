@@ -96,6 +96,8 @@ class TokenDetailPage extends Component {
     })
     if (result.data) {
       this.setState({ editing: false, saving: false })
+    } else {
+      this.setState({ saving: false })
     }
   }
   renderDetail = admin => {
