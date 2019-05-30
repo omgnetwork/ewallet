@@ -41,16 +41,15 @@ defmodule EWalletDB.Expirers.AuthExpirer do
 
   def expire_or_refresh(token, configured_auth_token_lifetime) do
     cond do
-      configured_auth_token_lifetime != 0 or not is_nil(token.expired_at)->
+      configured_auth_token_lifetime != 0 or not is_nil(token.expired_at) ->
         expire_or_refresh(
           :ok,
           token,
           token.expired_at || get_advanced_datetime(configured_auth_token_lifetime)
         )
 
-    true ->
+      true ->
         token
-
     end
   end
 

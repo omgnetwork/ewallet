@@ -86,7 +86,8 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
       user = insert(:user)
       expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), 3600)
 
-      auth_token = insert(:auth_token, %{expired_at: expired_at, user: user, owner_app: "some_app"})
+      auth_token =
+        insert(:auth_token, %{expired_at: expired_at, user: user, owner_app: "some_app"})
 
       refreshed_auth_token =
         auth_token.token
