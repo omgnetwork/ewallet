@@ -61,6 +61,9 @@ export const alertsReducer = createReducer([], {
   'INVITE/REQUEST/SUCCESS': state => {
     return [...state, createAlertState('Invited member successfully.', 'success')]
   },
+  'ADMIN/UPDATE/SUCCESS': state => {
+    return [...state, createAlertState('Update admin successfully.', 'success')]
+  },
   'CATEGORY/CREATE/SUCCESS': (state, { category }) => {
     return [...state, createAlertState('Created category successfully.', 'success')]
   },
@@ -70,8 +73,20 @@ export const alertsReducer = createReducer([], {
   'CURRENT_USER/UPDATE/SUCCESS': (state, { user }) => {
     return [...state, createAlertState('Updated user settings successfully.', 'success')]
   },
+  'USER/UPDATE/SUCCESS': (state, { data }) => {
+    return [
+      ...state,
+      createAlertState(
+        <div>Updated user <b>{data.email || data.dataname || data.id}</b> successfully.</div>,
+        'success'
+      )
+    ]
+  },
   'CURRENT_USER_EMAIL/UPDATE/SUCCESS': state => {
-    return [...state, createAlertState('Please check your email to verify the new email address.', 'success')]
+    return [
+      ...state,
+      createAlertState('Please check your email to verify the new email address.', 'success')
+    ]
   },
   'PASSWORD/UPDATE/SUCCESS': (state, { user }) => {
     return [...state, createAlertState('Updated password successfully.', 'success')]
@@ -152,5 +167,7 @@ export const alertsReducer = createReducer([], {
   'API_KEY/CREATE/FAILED': errorStateHandler,
   'ACCESS_KEY/CREATE/FAILED': errorStateHandler,
   'CONFIGURATIONS/REQUEST/FAILED': errorStateHandler,
-  'INVITE/REQUEST/FAILED': errorStateHandler
+  'INVITE/REQUEST/FAILED': errorStateHandler,
+  'USER/UPDATE/FAILED': errorStateHandler,
+  'ADMIN/UPDATE/FAILED': errorStateHandler
 })

@@ -20,6 +20,5 @@ export const accessKeysReducer = createReducer(
 )
 
 export const accessKeyLoadingStatusReducer = createReducer('DEFAULT', {
-  'ACCESS_KEYS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
-  'CURRENT_ACCOUNT/SWITCH': () => 'DEFAULT'
+  'ACCESS_KEYS/REQUEST/SUCCESS': (state, action) => 'SUCCESS'
 })
