@@ -22,9 +22,9 @@ defmodule EWalletDB.PreAuthTokenTest do
 
   setup context do
     case context do
-      %{ptk_lifetime: second} when not is_nil(second) ->
-        Application.put_env(:ewallet_db, :ptk_lifetime, second)
-        on_exit(fn -> Application.put_env(:ewallet_db, :ptk_lifetime, 0) end)
+      %{pre_auth_token_lifetime: second} when not is_nil(second) ->
+        Application.put_env(:ewallet_db, :pre_auth_token_lifetime, second)
+        on_exit(fn -> Application.put_env(:ewallet_db, :pre_auth_token_lifetime, 0) end)
         {:ok, second: second}
 
       _ ->
@@ -42,7 +42,7 @@ defmodule EWalletDB.PreAuthTokenTest do
         %{
           user: insert(:user),
           owner_app: Atom.to_string(@owner_app),
-          expire_at: from_now_by_seconds(60)
+          expired_at: from_now_by_seconds(60)
         },
         attrs
       )
@@ -61,25 +61,25 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert String.length(pre_auth_token.token) == 43
     end
 
-    @tag ptk_lifetime: 3600
-    test "generates a pre_auth_token with a correct expire_at when set a positive integer to ptk_lifetime",
+    @tag pre_auth_token_lifetime: 3600
+    test "generates a pre_auth_token with a correct expired_at when set a positive integer to pre_auth_token_lifetime",
          context do
       user = insert(:user)
 
       assert {:ok, pre_auth_token} = PreAuthToken.generate(user, @owner_app, %System{})
 
-      # Expect expire_at is at next 60 minutes.
+      # Expect expired_at is at next 60 minutes.
       assert context.second
              |> from_now_by_seconds()
-             |> NaiveDateTime.diff(pre_auth_token.expire_at, :second) == 0
+             |> NaiveDateTime.diff(pre_auth_token.expired_at, :second) == 0
     end
 
-    @tag ptk_lifetime: 0
-    test "generates a pre_auth_token with expire_at nil when set zero to ptk_lifetime" do
+    @tag pre_auth_token_lifetime: 0
+    test "generates a pre_auth_token with expired_at nil when set zero to pre_auth_token_lifetime" do
       user = insert(:user)
 
       assert {:ok, pre_auth_token} = PreAuthToken.generate(user, @owner_app, %System{})
-      assert pre_auth_token.expire_at == nil
+      assert pre_auth_token.expired_at == nil
     end
 
     test "returns error if user is invalid" do
@@ -122,40 +122,47 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert pre_auth_token.user.uuid == user.uuid
     end
 
-    @tag ptk_lifetime: 3600
-    test "returns a user if the pre_auth_token exists and the expire_at has not been lapsed",
+    @tag pre_auth_token_lifetime: 3600
+    test "returns a user if the pre_auth_token exists and the expired_at has not been lapsed",
          context do
       # The user has the pre authentication token which will be expired in a minute.
-      %{token: token} = insert_ptk(%{expire_at: from_now_by_seconds(60)})
+      %{token: token} = insert_ptk(%{expired_at: from_now_by_seconds(60)})
 
-      # The user authenticated while the :ptk_lifetime has been set to 60 minutes
+      # The user authenticated while the :pre_auth_token_lifetime has been set to 60 minutes
       pre_auth_token = PreAuthToken.authenticate(token, @owner_app)
 
-      # Expect expire_at is refreshed and it is set to the next hour.
+      # Expect expired_at is refreshed and it is set to the next hour.
       assert context.second
              |> from_now_by_seconds()
-             |> NaiveDateTime.diff(pre_auth_token.expire_at, :second) == 0
+             |> NaiveDateTime.diff(pre_auth_token.expired_at, :second) == 0
     end
 
-    @tag ptk_lifetime: 0
-    test "returns pre_auth_token with expire_nil when ptk_lifetime is 0" do
-      %{token: token_1, user: user_1} = insert_ptk(%{expire_at: nil})
+    @tag pre_auth_token_lifetime: 0
+    test "returns pre_auth_token with expired_at: nil when pre_auth_token_lifetime is 0" do
+      %{token: token_1, user: user_1} = insert_ptk(%{expired_at: nil})
 
-      %{token: token_2, user: user_2, expire_at: token_2_expire_at} =
-        insert_ptk(%{expire_at: from_now_by_seconds(60)})
+      %{token: token_2, user: user_2, expired_at: _} =
+        insert_ptk(%{expired_at: from_now_by_seconds(60)})
 
       pre_auth_token_1 = PreAuthToken.authenticate(token_1, @owner_app)
       pre_auth_token_2 = PreAuthToken.authenticate(token_2, @owner_app)
 
       assert pre_auth_token_1.user.uuid == user_1.uuid
       assert pre_auth_token_2.user.uuid == user_2.uuid
-      assert pre_auth_token_1.expire_at == nil
-      assert pre_auth_token_2.expire_at == token_2_expire_at
+      assert pre_auth_token_1.expired_at == nil
+      assert pre_auth_token_2.expired_at == nil
     end
 
-    @tag ptk_lifetime: 3600
-    test "returns :token_expired if the pre_auth_token exists and the expire_at has been lapsed" do
-      attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: from_now_by_seconds(0)}
+    @tag pre_auth_token_lifetime: 0
+    test "returns {:error, :token_expired} when expired_at has lapsed and the pre_auth_token_lifetime is 0" do
+      %{token: token, user: _} = insert_ptk(%{expired_at: from_now_by_seconds(-60)})
+
+      assert PreAuthToken.authenticate(token, @owner_app) == {:error, :token_expired}
+    end
+
+    @tag pre_auth_token_lifetime: 3600
+    test "returns :token_expired if the pre_auth_token exists and the expired_at has been lapsed" do
+      attrs = %{owner_app: Atom.to_string(@owner_app), expired_at: from_now_by_seconds(0)}
 
       token = insert(:pre_auth_token, attrs)
 
@@ -202,21 +209,21 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert PreAuthToken.authenticate(user.id, token2.token, @owner_app)
     end
 
-    @tag ptk_lifetime: 3600
-    test "returns a user if the expire_at has not been lapsed", context do
+    @tag pre_auth_token_lifetime: 3600
+    test "returns a user if the expired_at has not been lapsed", context do
       user = insert(:user)
 
       # The authentication token which will be expired in the next minute.
       attrs = %{
         owner_app: Atom.to_string(@owner_app),
-        expire_at: from_now_by_seconds(60),
+        expired_at: from_now_by_seconds(60),
         user: user
       }
 
       pre_auth_token = insert(:pre_auth_token, attrs)
 
       # The user authenticate to the system,
-      # while the :ptk_lifetime has been set to 60 minutes
+      # while the :pre_auth_token_lifetime has been set to 60 minutes
       pre_auth_token = PreAuthToken.authenticate(pre_auth_token.token, @owner_app)
 
       assert pre_auth_token.user.uuid == user.uuid
@@ -224,30 +231,30 @@ defmodule EWalletDB.PreAuthTokenTest do
       # Assert the token has been refreshed.
       updated_auth_token = PreAuthToken.get_by_token(pre_auth_token.token, @owner_app)
 
-      # Expect expire_at is next 60 minutes from now.
+      # Expect expired_at is next 60 minutes from now.
       assert context.second
              |> from_now_by_seconds()
-             |> NaiveDateTime.diff(updated_auth_token.expire_at, :second)
+             |> NaiveDateTime.diff(updated_auth_token.expired_at, :second)
              |> Kernel.floor() == 0
     end
 
-    test "returns a user if the expire_at is nil" do
+    test "returns a user if the expired_at is nil" do
       user = insert(:user)
-      attrs = %{owner_app: Atom.to_string(@owner_app), expire_at: nil, user: user}
+      attrs = %{owner_app: Atom.to_string(@owner_app), expired_at: nil, user: user}
       token = insert(:pre_auth_token, attrs)
 
       pre_auth_token = PreAuthToken.authenticate(user.id, token.token, @owner_app)
       assert pre_auth_token.user.uuid == user.uuid
     end
 
-    @tag ptk_lifetime: 3600
-    test "returns :token_expired if the expire_at has been lapsed" do
+    @tag pre_auth_token_lifetime: 3600
+    test "returns :token_expired if the expired_at has been lapsed" do
       user = insert(:user)
 
       attrs = %{
         owner_app: Atom.to_string(@owner_app),
         user: user,
-        expire_at: from_now_by_seconds(-60)
+        expired_at: from_now_by_seconds(-60)
       }
 
       pre_auth_token = insert(:pre_auth_token, attrs)
@@ -308,7 +315,7 @@ defmodule EWalletDB.PreAuthTokenTest do
       assert PreAuthToken.get_lifetime() == 0
     end
 
-    @tag ptk_lifetime: 60
+    @tag pre_auth_token_lifetime: 60
     test "returns a given value", context do
       assert PreAuthToken.get_lifetime() == context.second
     end

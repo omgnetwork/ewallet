@@ -64,15 +64,15 @@ config :ewallet_config,
       position: 105,
       description: "The duration (in minutes) that a forget password request will be valid for."
     },
-    "atk_lifetime" => %{
-      key: "atk_lifetime",
+    "auth_token_lifetime" => %{
+      key: "auth_token_lifetime",
       value: 0,
       type: "unsigned_integer",
       position: 106,
       description: "The duration (in seconds) that an auth token will be valid for."
     },
-    "ptk_lifetime" => %{
-      key: "ptk_lifetime",
+    "pre_auth_token_lifetime" => %{
+      key: "pre_auth_token_lifetime",
       value: 0,
       type: "unsigned_integer",
       position: 107,

@@ -53,7 +53,7 @@ defmodule EWalletDB.AuthToken do
     )
 
     field(:expired, :boolean)
-    field(:expire_at, :naive_datetime_usec)
+    field(:expired_at, :naive_datetime_usec)
     timestamps()
     activity_logging()
   end
@@ -62,7 +62,7 @@ defmodule EWalletDB.AuthToken do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:token, :owner_app, :user_uuid, :account_uuid, :expired, :expire_at],
+      cast: [:token, :owner_app, :user_uuid, :account_uuid, :expired, :expired_at],
       required: [:token, :owner_app, :user_uuid]
     )
     |> unique_constraint(:token)
@@ -73,7 +73,7 @@ defmodule EWalletDB.AuthToken do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:expired, :expire_at],
+      cast: [:expired, :expired_at],
       required: [:expired]
     )
   end
@@ -108,7 +108,7 @@ defmodule EWalletDB.AuthToken do
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: nil,
-      expire_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
+      expired_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
       token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
@@ -206,7 +206,7 @@ defmodule EWalletDB.AuthToken do
   defp get_by_user(_, _), do: nil
 
   @spec get_lifetime() :: integer
-  def get_lifetime, do: Application.get_env(:ewallet_db, :atk_lifetime, 0)
+  def get_lifetime, do: Application.get_env(:ewallet_db, :auth_token_lifetime, 0)
 
   # `insert/1` is private to prohibit direct auth token insertion,
   # please use `generate/2` instead.
@@ -250,7 +250,7 @@ defmodule EWalletDB.AuthToken do
   def refresh(%AuthToken{} = token, originator) do
     update(token, %{
       expired: false,
-      expire_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
+      expired_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
       originator: originator
     })
   end

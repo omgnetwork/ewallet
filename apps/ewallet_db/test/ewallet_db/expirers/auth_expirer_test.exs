@@ -22,14 +22,14 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
 
   setup context do
     case context do
-      %{atk_lifetime: lifetime} when not is_nil(lifetime) ->
-        Application.put_env(:ewallet_db, :atk_lifetime, lifetime)
-        on_exit(fn -> Application.put_env(:ewallet_db, :atk_lifetime, 0) end)
+      %{auth_token_lifetime: lifetime} when not is_nil(lifetime) ->
+        Application.put_env(:ewallet_db, :auth_token_lifetime, lifetime)
+        on_exit(fn -> Application.put_env(:ewallet_db, :auth_token_lifetime, 0) end)
         {:ok, lifetime: lifetime}
 
-      %{ptk_lifetime: lifetime} when not is_nil(lifetime) ->
-        Application.put_env(:ewallet_db, :ptk_lifetime, lifetime)
-        on_exit(fn -> Application.put_env(:ewallet_db, :ptk_lifetime, 0) end)
+      %{pre_auth_token_lifetime: lifetime} when not is_nil(lifetime) ->
+        Application.put_env(:ewallet_db, :pre_auth_token_lifetime, lifetime)
+        on_exit(fn -> Application.put_env(:ewallet_db, :pre_auth_token_lifetime, 0) end)
         {:ok, lifetime: lifetime}
 
       _ ->
@@ -45,10 +45,10 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
     test "returns an advanced NaiveDateTime when given a lifetime" do
       lifetime = 60
 
-      expire_at = AuthExpirer.get_advanced_datetime(lifetime)
-      expected_expire_at = NaiveDateTime.add(NaiveDateTime.utc_now(), lifetime, :second)
+      expired_at = AuthExpirer.get_advanced_datetime(lifetime)
+      expected_expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), lifetime, :second)
 
-      assert NaiveDateTime.diff(expire_at, expected_expire_at, :second) == 0
+      assert NaiveDateTime.diff(expired_at, expected_expired_at, :second) == 0
     end
   end
 
@@ -57,21 +57,21 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
       assert AuthExpirer.expire_or_refresh(nil, 30) == nil
     end
 
-    test "returns a given token if a given atk_lifetime is zero" do
+    test "returns a given token if a given auth_token_lifetime is zero" do
       auth_token = insert(:auth_token)
       assert AuthExpirer.expire_or_refresh(auth_token, 0) == auth_token
     end
 
-    @tag atk_lifetime: 30
-    test "returns an auth_token with a renewed `expire_at` if given positive integer and nil to `atk_lifetime` and `expire_at` respectively",
+    @tag auth_token_lifetime: 30
+    test "returns an auth_token with a renewed `expired_at` if given positive integer and nil to `auth_token_lifetime` and `expired_at` respectively",
          context do
       auth_token = insert(:auth_token)
-      %{expire_at: expire_at} = AuthExpirer.expire_or_refresh(auth_token, context.lifetime)
-      expected_expire_at = NaiveDateTime.add(NaiveDateTime.utc_now(), context.lifetime)
-      assert NaiveDateTime.diff(expire_at, expected_expire_at) == 0
+      %{expired_at: expired_at} = AuthExpirer.expire_or_refresh(auth_token, context.lifetime)
+      expected_expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), context.lifetime)
+      assert NaiveDateTime.diff(expired_at, expected_expired_at) == 0
     end
 
-    test "returns a pre_auth_token with a renewed expire_at if given positive integer and nil to `ptk_lifetime` and `expire_at` respectively" do
+    test "returns a pre_auth_token with a renewed expired_at if given positive integer and nil to `pre_auth_token_lifetime` and `expired_at` respectively" do
       %{token: token} = insert(:pre_auth_token)
 
       # To include preloaded user
@@ -80,61 +80,61 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
       assert auth_token == AuthExpirer.expire_or_refresh(auth_token, 30)
     end
 
-    @tag atk_lifetime: 7200
-    test "returns an auth_token with a renewed `expire_at` if given positive `atk_lifetime` and `expire_at` has not been lapsed",
+    @tag auth_token_lifetime: 7200
+    test "returns an auth_token with a renewed `expired_at` if given positive `auth_token_lifetime` and `expired_at` has not been lapsed",
          context do
       user = insert(:user)
-      expire_at = NaiveDateTime.add(NaiveDateTime.utc_now(), 3600)
+      expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), 3600)
 
-      auth_token = insert(:auth_token, %{expire_at: expire_at, user: user, owner_app: "some_app"})
+      auth_token = insert(:auth_token, %{expired_at: expired_at, user: user, owner_app: "some_app"})
 
       refreshed_auth_token =
         auth_token.token
         |> AuthToken.get_by_token(@owner_app)
         |> AuthExpirer.expire_or_refresh(context.lifetime)
 
-      expected_expire_at = AuthExpirer.get_advanced_datetime(context.lifetime)
-      assert NaiveDateTime.diff(refreshed_auth_token.expire_at, expected_expire_at) == 0
+      expected_expired_at = AuthExpirer.get_advanced_datetime(context.lifetime)
+      assert NaiveDateTime.diff(refreshed_auth_token.expired_at, expected_expired_at) == 0
     end
 
-    @tag ptk_lifetime: 7200
-    test "returns a pre_auth_token with a renewed `expire_at` if given positive `ptk_lifetime` and `expire_at` has not been lapsed",
+    @tag pre_auth_token_lifetime: 7200
+    test "returns a pre_auth_token with a renewed `expired_at` if given positive `pre_auth_token_lifetime` and `expired_at` has not been lapsed",
          context do
       user = insert(:user)
-      expire_at = NaiveDateTime.add(NaiveDateTime.utc_now(), 3600)
+      expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), 3600)
 
       pre_auth_token =
-        insert(:pre_auth_token, %{expire_at: expire_at, user: user, owner_app: "some_app"})
+        insert(:pre_auth_token, %{expired_at: expired_at, user: user, owner_app: "some_app"})
 
       refreshed_pre_auth_token =
         pre_auth_token.token
         |> PreAuthToken.get_by_token(@owner_app)
         |> AuthExpirer.expire_or_refresh(context.lifetime)
 
-      expected_expire_at = AuthExpirer.get_advanced_datetime(context.lifetime)
-      assert NaiveDateTime.diff(refreshed_pre_auth_token.expire_at, expected_expire_at) == 0
+      expected_expired_at = AuthExpirer.get_advanced_datetime(context.lifetime)
+      assert NaiveDateTime.diff(refreshed_pre_auth_token.expired_at, expected_expired_at) == 0
     end
 
-    test "returns an expired auth_token if a given auth_token's expire_at has been lapsed " do
-      # Set expire_at to 1 hr ago.
-      expire_at = NaiveDateTime.add(NaiveDateTime.utc_now(), -3600)
+    test "returns an expired auth_token if a given auth_token's expired_at has been lapsed " do
+      # Set expired_at to 1 hr ago.
+      expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), -3600)
 
       auth_token =
         :auth_token
-        |> insert(%{expire_at: expire_at})
+        |> insert(%{expired_at: expired_at})
         |> AuthExpirer.expire_or_refresh(30)
 
       assert auth_token.expired == true
     end
 
-    @tag atk_lifetime: 7200
-    test "returns an expired pre_auth_token if a given pre_auth_token's expire_at has been lapsed" do
-      # Set expire_at to 1 hr ago.
-      expire_at = NaiveDateTime.add(NaiveDateTime.utc_now(), -3600)
+    @tag auth_token_lifetime: 7200
+    test "returns an expired pre_auth_token if a given pre_auth_token's expired_at has been lapsed" do
+      # Set expired_at to 1 hr ago.
+      expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), -3600)
 
       pre_auth_token =
         :pre_auth_token
-        |> insert(%{expire_at: expire_at})
+        |> insert(%{expired_at: expired_at})
         |> AuthExpirer.expire_or_refresh(30)
 
       assert pre_auth_token.expired == true

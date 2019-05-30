@@ -14,8 +14,8 @@ config :ewallet_db,
     :gcs_bucket,
     :gcs_credentials,
     :master_account,
-    :ptk_lifetime,
-    :atk_lifetime
+    :pre_auth_token_lifetime,
+    :auth_token_lifetime
   ]
 
 config :ewallet_db, EWalletDB.Repo,

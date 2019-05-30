@@ -3,7 +3,7 @@ defmodule EWalletDB.Repo.Migrations.AddExpireAtToPreAuthTokens do
 
   def change do
     alter table(:pre_auth_token) do
-      add :expire_at, :naive_datetime_usec, null: true
+      add :expired_at, :naive_datetime_usec, null: true
     end
   end
 end

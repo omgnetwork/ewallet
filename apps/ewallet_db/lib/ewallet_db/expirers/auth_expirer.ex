@@ -32,30 +32,31 @@ defmodule EWalletDB.Expirers.AuthExpirer do
   end
 
   @doc """
-  Expire a given AuthToken or PreAuthToken if the datetime from `expire_at` field has been lapse.
-  Otherwise, extend the `expire_at` by a given time in second.
+  Expire a given AuthToken or PreAuthToken if the datetime from `expired_at` field has been lapse.
+  Otherwise, extend the `expired_at` by a given time in second.
   """
   @spec expire_or_refresh(AuthToken.t() | PreAuthToken.t(), integer) ::
           AuthToken.t() | PreAuthToken.t()
   def expire_or_refresh(nil, _), do: nil
 
   def expire_or_refresh(token, configured_auth_token_lifetime) do
-    case configured_auth_token_lifetime do
-      0 ->
-        token
-
-      _ ->
+    cond do
+      configured_auth_token_lifetime != 0 or not is_nil(token.expired_at)->
         expire_or_refresh(
           :ok,
           token,
-          token.expire_at || get_advanced_datetime(configured_auth_token_lifetime)
+          token.expired_at || get_advanced_datetime(configured_auth_token_lifetime)
         )
+
+    true ->
+        token
+
     end
   end
 
-  defp expire_or_refresh(:ok, token, expire_at) do
+  defp expire_or_refresh(:ok, token, expired_at) do
     NaiveDateTime.utc_now()
-    |> NaiveDateTime.compare(expire_at)
+    |> NaiveDateTime.compare(expired_at)
     |> do_expire_or_refresh(token)
     |> handle_result()
   end
