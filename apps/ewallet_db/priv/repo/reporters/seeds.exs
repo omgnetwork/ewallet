@@ -17,7 +17,8 @@ defmodule EWalletDB.Repo.Reporters.SeedsReporter do
 
   def run(writer, args) do
     base_url = Config.get("base_url", "https://example.com")
-    frontend_url = base_url <> "/admin"
+    admin_panel_url = base_url <> "/admin"
+
     admin_api_url = base_url <> "/api/admin"
     admin_api_swagger_ui_url = base_url <> "/api/admin/docs"
 
@@ -35,7 +36,7 @@ defmodule EWalletDB.Repo.Reporters.SeedsReporter do
 
     To start using the Admin Panel, login with the following credentials:
 
-      - Login URL : `#{frontend_url}/admin`
+      - Login URL : `#{admin_panel_url}`
       - Email     : `#{admin_email}`
       - Password  : `#{admin_password}`
 
