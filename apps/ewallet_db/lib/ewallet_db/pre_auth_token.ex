@@ -218,7 +218,7 @@ defmodule EWalletDB.PreAuthToken do
   end
 
   def expire(%PreAuthToken{} = token, originator) do
-    update(token, %{
+    update(:expire, token, %{
       expired: true,
       originator: originator
     })
@@ -226,16 +226,19 @@ defmodule EWalletDB.PreAuthToken do
 
   @spec refresh(%__MODULE__{}, any()) :: {:ok, %__MODULE__{}} | {:error, Changeset.t()}
   def refresh(%PreAuthToken{} = token, originator) do
-    update(token, %{
+    update(:refresh, token, %{
       expired_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
       originator: originator
     })
   end
 
-  # if expiring the token, please use `expire/2` instead.
-  defp update(%PreAuthToken{} = token, attrs) do
+  defp update(operation, %PreAuthToken{} = token, attrs) do
     token
     |> expire_changeset(attrs)
-    |> Repo.update_record_with_activity_log()
+    |> do_update(operation)
   end
+
+  defp do_update(changeset, :refresh), do: Repo.update(changeset)
+  defp do_update(changeset, :expire), do: Repo.update_record_with_activity_log(changeset)
+  defp do_update(changeset, _), do: Repo.update_record_with_activity_log(changeset)
 end

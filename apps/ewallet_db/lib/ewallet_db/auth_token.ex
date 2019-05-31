@@ -225,7 +225,7 @@ defmodule EWalletDB.AuthToken do
   end
 
   def expire(%AuthToken{} = token, originator) do
-    update(token, %{
+    update(:expire, token, %{
       expired: true,
       originator: originator
     })
@@ -248,7 +248,7 @@ defmodule EWalletDB.AuthToken do
 
   @spec refresh(%__MODULE__{}, any()) :: {:ok, %__MODULE__{}} | {:error, Changeset.t()}
   def refresh(%AuthToken{} = token, originator) do
-    update(token, %{
+    update(:refresh, token, %{
       expired: false,
       expired_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
       originator: originator
@@ -270,11 +270,13 @@ defmodule EWalletDB.AuthToken do
     :ok
   end
 
-  # `update/2` is private to prohibit direct auth token updates,
-  # if expiring the token, please use `expire/2` instead.
-  defp update(%AuthToken{} = token, attrs) do
+  defp update(operation, %AuthToken{} = token, attrs) do
     token
     |> expire_changeset(attrs)
-    |> Repo.update_record_with_activity_log()
+    |> do_update(operation)
   end
+
+  defp do_update(changeset, :refresh), do: Repo.update(changeset)
+  defp do_update(changeset, :expire), do: Repo.update_record_with_activity_log(changeset)
+  defp do_update(changeset, _), do: Repo.update_record_with_activity_log(changeset)
 end

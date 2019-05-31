@@ -15,6 +15,7 @@
 defmodule EWalletDB.Expirers.AuthExpirerTest do
   use EWalletDB.SchemaCase
   import EWalletDB.Factory
+  import ActivityLogger.ActivityLoggerTestHelper
   alias EWalletDB.Expirers.AuthExpirer
   alias EWalletDB.{AuthToken, PreAuthToken}
 
@@ -35,6 +36,10 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
       _ ->
         :ok
     end
+  end
+
+  defp from_now_by_seconds(seconds) do
+    NaiveDateTime.add(NaiveDateTime.utc_now(), seconds, :second)
   end
 
   describe "get_advanced_datetime/1" do
@@ -84,7 +89,8 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
     test "returns an auth_token with a renewed `expired_at` if given positive `auth_token_lifetime` and `expired_at` has not been lapsed",
          context do
       user = insert(:user)
-      expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), 3600)
+      expired_at = from_now_by_seconds(3600)
+      before_expire_or_refresh = from_now_by_seconds(0)
 
       auth_token =
         insert(:auth_token, %{expired_at: expired_at, user: user, owner_app: "some_app"})
@@ -96,13 +102,17 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
 
       expected_expired_at = AuthExpirer.get_advanced_datetime(context.lifetime)
       assert NaiveDateTime.diff(refreshed_auth_token.expired_at, expected_expired_at) == 0
+
+      # Assert there's no activity logs are recorded.
+      assert get_all_activity_logs_since(before_expire_or_refresh) == []
     end
 
     @tag pre_auth_token_lifetime: 7200
     test "returns a pre_auth_token with a renewed `expired_at` if given positive `pre_auth_token_lifetime` and `expired_at` has not been lapsed",
          context do
       user = insert(:user)
-      expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), 3600)
+      expired_at = from_now_by_seconds(3600)
+      before_expire_or_refresh = from_now_by_seconds(0)
 
       pre_auth_token =
         insert(:pre_auth_token, %{expired_at: expired_at, user: user, owner_app: "some_app"})
@@ -114,11 +124,15 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
 
       expected_expired_at = AuthExpirer.get_advanced_datetime(context.lifetime)
       assert NaiveDateTime.diff(refreshed_pre_auth_token.expired_at, expected_expired_at) == 0
+
+      # Assert there's no activity logs are recorded.
+      assert get_all_activity_logs_since(before_expire_or_refresh) == []
     end
 
     test "returns an expired auth_token if a given auth_token's expired_at has been lapsed " do
       # Set expired_at to 1 hr ago.
-      expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), -3600)
+      expired_at = from_now_by_seconds(-3600)
+      before_expire_or_refresh = from_now_by_seconds(0)
 
       auth_token =
         :auth_token
@@ -126,12 +140,19 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
         |> AuthExpirer.expire_or_refresh(30)
 
       assert auth_token.expired == true
+
+      # Assert there's 1 activity log.
+      assert [log] = get_all_activity_logs_since(before_expire_or_refresh)
+
+      # Assert `expired` is changed to true
+      assert log.target_changes == %{"expired" => true}
     end
 
     @tag auth_token_lifetime: 7200
     test "returns an expired pre_auth_token if a given pre_auth_token's expired_at has been lapsed" do
       # Set expired_at to 1 hr ago.
-      expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), -3600)
+      expired_at = from_now_by_seconds(-3600)
+      before_expire_or_refresh = from_now_by_seconds(0)
 
       pre_auth_token =
         :pre_auth_token
@@ -139,6 +160,12 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
         |> AuthExpirer.expire_or_refresh(30)
 
       assert pre_auth_token.expired == true
+
+      # Assert there's 1 activity log.
+      assert [log] = get_all_activity_logs_since(before_expire_or_refresh)
+
+      # Assert `expired` is changed to true
+      assert log.target_changes == %{"expired" => true}
     end
   end
 end
