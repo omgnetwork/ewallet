@@ -106,7 +106,7 @@ defmodule EWalletDB.PreAuthToken do
           %__MODULE__{}
           | {:error, :token_not_found}
           | {:error, :token_expired}
-          | {:error, Changeset.t()}
+          | {:error, Ecto.Changeset.t()}
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
@@ -118,7 +118,7 @@ defmodule EWalletDB.PreAuthToken do
           %__MODULE__{}
           | {:error, :token_not_found}
           | {:error, :token_expired}
-          | {:error, Changeset.t()}
+          | {:error, Ecto.Changeset.t()}
   def authenticate(user_id, token, owner_app) when is_atom(owner_app) do
     user_id
     |> get_by_user(owner_app)
@@ -224,7 +224,7 @@ defmodule EWalletDB.PreAuthToken do
     })
   end
 
-  @spec refresh(%__MODULE__{}, any()) :: {:ok, %__MODULE__{}} | {:error, Changeset.t()}
+  @spec refresh(%__MODULE__{}, any()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def refresh(%PreAuthToken{} = token, originator) do
     update(:refresh, token, %{
       expired_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),

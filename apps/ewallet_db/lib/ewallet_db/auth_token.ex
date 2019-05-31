@@ -102,7 +102,7 @@ defmodule EWalletDB.AuthToken do
   Generate an auth token for the specified user,
   then returns the auth token string.
   """
-  @spec generate(User.t(), atom(), any()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
+  @spec generate(%User{}, atom(), any()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def generate(%User{} = user, owner_app, originator) when is_atom(owner_app) do
     %{
       owner_app: Atom.to_string(owner_app),
@@ -123,10 +123,10 @@ defmodule EWalletDB.AuthToken do
   or false otherwise.
   """
   @spec authenticate(String.t(), atom()) ::
-          User.t()
+          %User{}
           | {:error, :token_not_found}
           | {:error, :token_expired}
-          | {:error, Changeset.t()}
+          | {:error, Ecto.Changeset.t()}
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
@@ -135,10 +135,10 @@ defmodule EWalletDB.AuthToken do
   end
 
   @spec authenticate(String.t(), String.t(), atom()) ::
-          User.t()
+          %User{}
           | {:error, :token_not_found}
           | {:error, :token_expired}
-          | {:error, Changeset.t()}
+          | {:error, Ecto.Changeset.t()}
   def authenticate(user_id, token, owner_app) when is_atom(owner_app) do
     user_id
     |> get_by_user(owner_app)
@@ -217,7 +217,7 @@ defmodule EWalletDB.AuthToken do
   end
 
   # Expires the given token.
-  @spec expire(String.t(), atom(), any()) :: {:ok, %__MODULE__{}} | {:error, Changeset.t()}
+  @spec expire(String.t(), atom(), any()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def expire(token, owner_app, originator) when is_binary(token) and is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
@@ -231,7 +231,7 @@ defmodule EWalletDB.AuthToken do
     })
   end
 
-  @spec expire_for_user(atom() | User.t()) :: :ok
+  @spec expire_for_user(atom() | %User{}) :: :ok
   def expire_for_user(%{enabled: true}), do: :ok
 
   def expire_for_user(user) do
@@ -246,7 +246,7 @@ defmodule EWalletDB.AuthToken do
     :ok
   end
 
-  @spec refresh(%__MODULE__{}, any()) :: {:ok, %__MODULE__{}} | {:error, Changeset.t()}
+  @spec refresh(%__MODULE__{}, any()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def refresh(%AuthToken{} = token, originator) do
     update(:refresh, token, %{
       expired: false,
@@ -258,7 +258,7 @@ defmodule EWalletDB.AuthToken do
   @doc """
   Delete all AuthTokens associated with the user.
   """
-  @spec delete_for_user(User.t()) :: :ok
+  @spec delete_for_user(%User{}) :: :ok
   def delete_for_user(user) do
     Repo.delete_all(
       from(
