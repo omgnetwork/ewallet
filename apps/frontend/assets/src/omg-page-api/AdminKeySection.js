@@ -34,6 +34,7 @@ const KeySection = styled.div`
     margin-bottom: 20px;
   }
   tr:hover {
+    cursor: ${props => props.clickRow ? 'pointer !important' : 'default !important'};
     td:nth-child(1) {
       i {
         visibility: visible;
@@ -308,7 +309,7 @@ class ApiKeyPage extends Component {
             }
           })
           return (
-            <KeySection>
+            <KeySection clickRow={this.props.clickRow}>
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
