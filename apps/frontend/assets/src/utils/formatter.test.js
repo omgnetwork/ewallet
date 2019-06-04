@@ -26,6 +26,12 @@ describe('formatter', () => {
     expect(formatNumber(0)).toEqual('0')
     expect(formatNumber(0.01)).toEqual('0.01')
   })
+  test('[formatNumber] should return empty string if send in falsy', () => {
+    expect(formatNumber(false)).toEqual('')
+    expect(formatNumber(null)).toEqual('')
+    expect(formatNumber(undefined)).toEqual('')
+    expect(formatNumber('')).toEqual('')
+  })
   test('[formatNumber] should work with integer longer that 18', () => {
     expect(formatNumber('112,312,312,313,141,514,231,232,321,313,123,123,123,131')).toEqual(
       '112,312,312,313,141,514,231,232,321,313,123,123,123,131'

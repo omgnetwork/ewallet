@@ -172,7 +172,7 @@ class SocketConnector {
           console.log(
             `attempt to join channel : ${channel} when socket is not initialized, added to queue.`
           )
-        } else if (this.getConnectionStatus() === 'CONNECTED') {
+        } else {
           this.send(payload)
         }
       } catch (error) {
@@ -193,7 +193,11 @@ class SocketConnector {
     return payload
   }
   send = payload => {
-    this.socket.send(JSON.stringify(payload))
+    if (this.getConnectionStatus() === 'CONNECTED') {
+      this.socket.send(JSON.stringify(payload))
+    } else {
+      console.log('attempt to send payload', payload, 'while socket is not connected.')
+    }
   }
   createJoinChannelPayload (channel) {
     return this.createPayload({

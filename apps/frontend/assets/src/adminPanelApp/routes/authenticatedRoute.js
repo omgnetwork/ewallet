@@ -5,6 +5,7 @@ import { Route, Redirect } from 'react-router-dom'
 
 import AppLayout from '../../omg-app-layout'
 import { bootstrap } from '../action'
+import { selectSession } from '../../omg-session/selector'
 class AuthenticatedRoute extends Component {
   static propTypes = {
     component: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
@@ -20,7 +21,7 @@ class AuthenticatedRoute extends Component {
       <Redirect
         to={{
           pathname: '/login',
-          state: { from: props.location === '/' ? '/dashboard' : props.location }
+          state: { from: props.location === '/' ? '/accounts' : props.location }
         }}
       />
     )
@@ -45,6 +46,6 @@ class AuthenticatedRoute extends Component {
   }
 }
 export default connect(
-  null,
+  state => ({ authenticated: selectSession(state).authenticated }),
   { bootstrap }
 )(AuthenticatedRoute)

@@ -76,9 +76,12 @@ class LoginForm extends Component {
         })
         if (result.data) {
           this.setState({ error: null })
-          this.props.history.push('/')
+          this.props.history.push(_.get(this.props, 'location.state.from', '/'))
         } else {
-          this.setState({ error: result.error.description || result.error.message, submitted: false })
+          this.setState({
+            error: result.error.description || result.error.message,
+            submitted: false
+          })
         }
       } catch (error) {
         this.setState({ error: 'Something went wrong :(', submitted: false })
@@ -136,7 +139,10 @@ class LoginForm extends Component {
 }
 
 const enhance = compose(
-  connect(null, { login }),
+  connect(
+    null,
+    { login }
+  ),
   withRouter
 )
 
