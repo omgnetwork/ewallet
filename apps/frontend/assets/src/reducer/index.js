@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 import { loadingBarReducer } from 'react-redux-loading-bar'
 
-import sessionReducer from '../omg-session/reducer'
+import { sessionReducer } from '../omg-session/reducer'
 import { accountsReducer } from '../omg-account/reducer'
 import { currentUserReducer } from '../omg-user-current/reducer'
 import { inviteListReducer } from '../omg-member/reducer'
