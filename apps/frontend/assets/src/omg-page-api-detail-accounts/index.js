@@ -79,7 +79,9 @@ const KeyDetailAccountsPageView = withRouter(({
   updateRole,
   removeAccount,
   refetch,
-  match: { params }
+  match: { params },
+  location: { search },
+  history
 }) => {
   const { keyType, keyId } = params
 
@@ -246,7 +248,19 @@ const KeyDetailAccountsPageView = withRouter(({
         keyId={keyId}
         open={assignAccountToKeyModal}
         onRequestClose={() => setAssignAccountToKeyModal(false)}
-        onSubmitSuccess={refetch}
+        onSubmitSuccess={() => {
+          const _search = queryString.parse(search)
+          const filter = {
+            matchAny: [
+              {
+                field: 'account.id',
+                comparator: 'contains',
+                value: _search.search || ''
+              }
+            ]
+          }
+          refetch(filter)
+        }}
       />
 
       <Modal
