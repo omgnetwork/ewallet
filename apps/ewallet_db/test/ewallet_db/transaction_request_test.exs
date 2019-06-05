@@ -216,6 +216,18 @@ defmodule EWalletDB.TransactionRequestTest do
     end
   end
 
+  describe "cancelled?/1" do
+    test "returns true if cancelled" do
+      request = insert(:transaction_request)
+      assert TransactionRequest.cancelled?(request) == false
+    end
+
+    test "returns false if cancelled" do
+      request = insert(:transaction_request, status: "cancelled")
+      assert TransactionRequest.cancelled?(request) == true
+    end
+  end
+
   describe "expiration_from_lifetime/1" do
     test "returns nil if not require_confirmation" do
       request = insert(:transaction_request, require_confirmation: false)
@@ -347,6 +359,19 @@ defmodule EWalletDB.TransactionRequestTest do
       assert updated_request.expiration_reason == "max_consumptions_reached"
       assert TransactionRequest.valid?(updated_request) == false
       assert TransactionRequest.expired?(updated_request) == true
+    end
+  end
+
+  describe "cancel" do
+    test "cancels the request" do
+      t = insert(:transaction_request)
+      assert TransactionRequest.cancelled?(t) == false
+
+      TransactionRequest.cancel(t, %System{})
+
+      t = TransactionRequest.get(t.id)
+      assert TransactionRequest.cancelled?(t) == true
+      assert t.cancelled_at != nil
     end
   end
 end
