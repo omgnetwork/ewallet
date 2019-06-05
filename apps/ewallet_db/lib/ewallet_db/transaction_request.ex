@@ -35,7 +35,8 @@ defmodule EWalletDB.TransactionRequest do
 
   @valid "valid"
   @expired "expired"
-  @statuses [@valid, @expired]
+  @cancelled "cancelled"
+  @statuses [@valid, @expired, @cancelled]
 
   @send "send"
   @receive "receive"
@@ -66,6 +67,7 @@ defmodule EWalletDB.TransactionRequest do
     field(:consumption_lifetime, :integer)
     field(:expiration_date, :naive_datetime_usec)
     field(:expired_at, :naive_datetime_usec)
+    field(:cancelled_at, :naive_datetime_usec)
     field(:expiration_reason, :string)
     field(:allow_amount_override, :boolean, default: true)
     field(:metadata, :map, default: %{})
@@ -192,6 +194,16 @@ defmodule EWalletDB.TransactionRequest do
       attrs,
       cast: [:status, :expired_at, :expiration_reason],
       required: [:status, :expired_at, :expiration_reason]
+    )
+    |> validate_inclusion(:status, @statuses)
+  end
+
+  defp cancel_changeset(%TransactionRequest{} = transaction_request, attrs) do
+    transaction_request
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:status, :cancelled_at],
+      required: [:status, :cancelled_at]
     )
     |> validate_inclusion(:status, @statuses)
   end
@@ -348,6 +360,11 @@ defmodule EWalletDB.TransactionRequest do
     request.status == @expired
   end
 
+  @spec cancelled?(%TransactionRequest{}) :: true | false
+  def cancelled?(request) do
+    request.status == @cancelled
+  end
+
   @spec expiration_from_lifetime(%TransactionRequest{}) :: NaiveDateTime.t() | nil
   def expiration_from_lifetime(request) do
     lifetime? =
@@ -411,6 +428,19 @@ defmodule EWalletDB.TransactionRequest do
       true -> expire(request, originator, "max_consumptions_reached")
       false -> touch(request, originator)
     end
+  end
+
+  @spec cancel(%TransactionRequest{}, map()) ::
+          {:ok, %TransactionRequest{}}
+          | {:error, map()}
+  def cancel(request, originator) do
+    request
+    |> cancel_changeset(%{
+      status: @cancelled,
+      cancelled_at: NaiveDateTime.utc_now(),
+      originator: originator
+    })
+    |> Repo.update_record_with_activity_log()
   end
 
   @spec load_consumptions_count(%TransactionRequest{}, map()) :: Integer.t()

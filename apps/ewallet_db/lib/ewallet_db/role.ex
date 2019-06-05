@@ -106,14 +106,16 @@ defmodule EWalletDB.Role do
         get: :accounts,
         listen: :accounts,
         create: :accounts,
-        confirm: :accounts
+        confirm: :accounts,
+        cancel: :accounts
       },
       end_user_transaction_requests: %{
         all: :accounts,
         get: :accounts,
         listen: :accounts,
         create: :accounts,
-        confirm: :accounts
+        confirm: :accounts,
+        cancel: :accounts
       },
       account_transaction_consumptions: %{
         all: :accounts,
