@@ -69,6 +69,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
         expiration_date: nil,
         expiration_reason: nil,
         expired_at: nil,
+        cancelled_at: nil,
         max_consumptions: nil,
         consumption_interval_duration: 1000,
         max_consumptions_per_interval: 1,
