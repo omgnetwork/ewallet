@@ -95,6 +95,31 @@ defmodule AdminAPI.V1.TransactionRequestController do
     |> respond(conn)
   end
 
+  @spec cancel(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def cancel(conn, %{"formatted_id" => formatted_id}) do
+    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:cancel, conn.assigns, request),
+         {:ok, cancelled_request} <- TransactionRequest.cancel(request, Originator.extract(conn.assigns)) do
+      IO.inspect("sucesss")
+      IO.inspect(authorize(:cancel, conn.assigns, request))
+      respond({:ok, cancelled_request}, conn)
+    else
+      {:error, :transaction_request_not_found} ->
+        respond({:error, :unauthorized}, conn)
+
+      error ->
+        respond(error, conn)
+    end
+  end
+
+  def cancel(conn, _),
+    do:
+      handle_error(
+        conn,
+        :invalid_parameter,
+        "Invalid parameter provided. `formatted_id` is required."
+      )
+
   # Respond with a list of transaction requests
   defp respond_multiple(%Paginator{} = paged_transaction_requests, conn) do
     render(conn, :transaction_requests, %{transaction_requests: paged_transaction_requests})
@@ -134,6 +159,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   end
 
   defp authorize(action, actor, request) do
+    IO.inspect(actor, label: "actor")
     TransactionRequestPolicy.authorize(action, actor, request)
   end
 end
