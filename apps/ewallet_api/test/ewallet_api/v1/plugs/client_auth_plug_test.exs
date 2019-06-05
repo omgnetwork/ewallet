@@ -89,7 +89,7 @@ defmodule EWalletAPI.V1.ClientAuthPlugTest do
       # the typical unauthenticated flow. Expiring a token should be treated
       # as a successful authenticated call but with all auth info invalidated.
       refute conn.halted
-      assert AuthToken.authenticate(@auth_token, :ewallet_api) == :token_expired
+      assert AuthToken.authenticate(@auth_token, :ewallet_api) == {:error, :token_expired}
       refute conn.assigns[:authenticated]
       refute conn.assigns[:end_user]
     end

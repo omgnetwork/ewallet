@@ -64,7 +64,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
       assert auth[:end_user] == nil
     end
 
-    test "halts with :auth_token_not_found if auth_token is missing", meta do
+    test "halts with {:error, :auth_token_not_found} if auth_token is missing", meta do
       auth = auth_header(meta.api_key.key, "")
 
       assert auth.authenticated == false
@@ -72,7 +72,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
       assert auth[:end_user] == nil
     end
 
-    test "halts with :auth_token_not_found if auth_token is incorrect", meta do
+    test "halts with {:error, :auth_token_not_found} if auth_token is incorrect", meta do
       auth = auth_header(meta.api_key.key, "abc")
 
       assert auth.authenticated == false

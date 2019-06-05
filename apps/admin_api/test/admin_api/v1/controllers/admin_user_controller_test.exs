@@ -540,7 +540,7 @@ defmodule AdminAPI.V1.AdminUserControllerTest do
 
       assert response["success"] == true
       assert response["data"]["enabled"] == false
-      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+      assert AuthToken.authenticate(token_string, @owner_app) == {:error, :token_expired}
     end
 
     test_with_auths "disable an admin that doesn't exist raises an 'unauthorized' error" do
