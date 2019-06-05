@@ -14,6 +14,7 @@
 
 defmodule AdminAPI.V1.TransactionRequestControllerTest do
   use AdminAPI.ConnCase, async: true
+  import ActivityLogger.ActivityLoggerTestHelper
   alias Utils.Helpers.DateFormatter
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, UserSerializer, WalletSerializer}
   alias EWalletDB.{Account, AccountUser, Repo, TransactionRequest, User, Wallet}
@@ -670,6 +671,88 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
                  "object" => "error"
                }
              }
+    end
+  end
+
+  describe "/transaction_request.cancel" do
+    test_with_auths "receives a transaction_request if the owner cancel with valid transaction_request's id" do
+      transaction_request = insert(:transaction_request)
+
+      before_execution = NaiveDateTime.utc_now()
+
+      response =
+        request("/transaction_request.cancel", %{
+          formatted_id: transaction_request.id
+        })
+
+      # Assert the transaction request is valid
+      assert response["success"] == true
+      assert response["data"]["id"] == transaction_request.id
+      assert response["data"]["cancelled_at"] != nil
+      assert response["data"]["status"] == "cancelled"
+
+      # Assert there's 1 activity log has been inserted.
+      assert [log] = get_all_activity_logs_since(before_execution)
+
+      # Assert changes
+      assert log.target_changes == %{"status" => "cancelled", "cancelled_at" => response["data"]["cancelled_at"]}
+    end
+
+    test_with_auths "receives an error if the owner cancel with invalid transaction_request's id" do
+      before_execution = NaiveDateTime.utc_now()
+
+      response =
+        request("/transaction_request.cancel", %{
+          formatted_id: "invalid_id"
+        })
+
+      assert response == %{
+        "data" => %{
+          "code" => "unauthorized",
+          "description" => "You are not allowed to perform the requested operation.",
+          "messages" => nil,
+          "object" => "error"
+        },
+        "success" => false,
+        "version" => "1"
+      }
+
+      # Assert there's no activity log.
+      assert get_all_activity_logs_since(before_execution) == []
+    end
+
+    test_with_auths "receives an error if the transaction request does not belong to the user" do
+      # Create a transaction request belongs to another user.
+      user_owner_tx_request = insert(:admin, %{email: "admin@omise.co"})
+      transaction_request = insert(:transaction_request, user_uuid: user_owner_tx_request.uuid)
+
+      # Demote the current user's global role from "super admin" to "admin"
+      # Because the "super admin" can do everything.
+      set_admin_user_role("admin")
+      set_key_role("admin")
+
+      before_execution = NaiveDateTime.utc_now()
+
+      # The current user request to cancel the transaction request
+      response =
+        request("/transaction_request.cancel", %{
+          formatted_id: transaction_request.id
+        })
+
+      # Assert the request should failed
+      assert response == %{
+        "data" => %{
+          "code" => "unauthorized",
+          "description" => "You are not allowed to perform the requested operation.",
+          "messages" => nil,
+          "object" => "error"
+        },
+        "success" => false,
+        "version" => "1"
+      }
+
+      # Assert there's no activity log.
+      assert get_all_activity_logs_since(before_execution) == []
     end
   end
 end
