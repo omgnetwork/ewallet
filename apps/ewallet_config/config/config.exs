@@ -69,14 +69,16 @@ config :ewallet_config,
       value: 0,
       type: "unsigned_integer",
       position: 106,
-      description: "The duration (in seconds) that an auth token will be valid for. Set to 0 to never expire an auth token."
+      description:
+        "The duration (in seconds) that an auth token will be valid for. Set to 0 to never expire an auth token."
     },
     "pre_auth_token_lifetime" => %{
       key: "pre_auth_token_lifetime",
       value: 0,
       type: "unsigned_integer",
       position: 107,
-      description: "The duration (in seconds) that a pre auth token will be valid for. Set to 0 to never expire a pre auth token."
+      description:
+        "The duration (in seconds) that a pre auth token will be valid for. Set to 0 to never expire a pre auth token."
     },
     "number_of_backup_codes" => %{
       key: "number_of_backup_codes",
