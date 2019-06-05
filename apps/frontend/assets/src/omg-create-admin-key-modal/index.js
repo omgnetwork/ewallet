@@ -74,7 +74,6 @@ function CreateAdminKeyModal (props) {
     setLabel('')
     setSubmitStatus('DEFAULT')
     setRole('none')
-    setAccountId('')
     props.onRequestClose()
   }
 
@@ -125,33 +124,37 @@ function CreateAdminKeyModal (props) {
             value={label}
           />
 
-          <InputLabel>Assign Account</InputLabel>
-          <AccountsFetcher
-            render={({ data: accounts }) => {
-              return (
-                <StyledSelect
-                  disabled={!!props.accountId}
-                  normalPlaceholder='Add Account ID'
-                  value={accountId}
-                  noBorder={!!accountId}
-                  style={{ paddingTop: '10px' }}
-                  valueRenderer={value => {
-                    const account = _.find(accounts, account => account.id === value)
-                    return <AccountSelectRow withCopy account={account} />
-                  }}
-                  onSelectItem={onSelectAccount}
-                  options={accounts
-                    .filter(account => account.id !== accountId)
-                    .map(account => {
-                      return {
-                        key: account.id,
-                        value: <AccountSelectRow key={account.id} account={account} />
-                      }
-                    })}
-                />
-              )
-            }}
-          />
+          {!props.hideAccount && (
+            <>
+              <InputLabel>Assign Account</InputLabel>
+              <AccountsFetcher
+                render={({ data: accounts }) => {
+                  return (
+                    <StyledSelect
+                      disabled={!!props.accountId}
+                      normalPlaceholder='Add Account ID'
+                      value={accountId}
+                      noBorder={!!accountId}
+                      style={{ paddingTop: '10px' }}
+                      valueRenderer={value => {
+                        const account = _.find(accounts, account => account.id === value)
+                        return <AccountSelectRow withCopy account={account} />
+                      }}
+                      onSelectItem={onSelectAccount}
+                      options={accounts
+                        .filter(account => account.id !== accountId)
+                        .map(account => {
+                          return {
+                            key: account.id,
+                            value: <AccountSelectRow key={account.id} account={account} />
+                          }
+                        })}
+                    />
+                  )
+                }}
+              />
+            </>
+          )}
 
           {!accountId && (
             <>
@@ -213,7 +216,8 @@ CreateAdminKeyModal.propTypes = {
   createAccessKey: PropTypes.func,
   onRequestClose: PropTypes.func,
   onSubmitSuccess: PropTypes.func,
-  accountId: PropTypes.string
+  accountId: PropTypes.string,
+  hideAccount: PropTypes.bool
 }
 
 export default enhance(CreateAdminKeyModal)

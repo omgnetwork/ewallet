@@ -125,6 +125,7 @@ class ApiKeyPage extends Component {
         </KeyTopBar>
         {activeTab === 'admin' ? (
           <AdminKeySection
+            subPage={false}
             createAdminKeyModalOpen={this.state.createAdminKeyModalOpen}
             onRequestClose={this.onRequestClose}
             search={queryString.parse(this.props.location.search).search}

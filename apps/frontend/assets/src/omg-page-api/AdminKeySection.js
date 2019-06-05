@@ -147,12 +147,14 @@ class ApiKeyPage extends Component {
     downloadKey: PropTypes.func,
     match: PropTypes.object,
     history: PropTypes.object,
-    clickRow: PropTypes.bool
+    clickRow: PropTypes.bool,
+    subPage: PropTypes.bool
   }
 
   static defaultProps = {
     clickRow: true,
     fetcher: AccessKeyFetcher,
+    subPage: false,
     columnsAdminKeys: [
       { key: 'key', title: 'ACCESS KEY' },
       { key: 'name', title: 'LABEL' },
@@ -329,6 +331,7 @@ class ApiKeyPage extends Component {
                 onSubmitSuccess={this.onSubmitSuccess(fetch)}
                 closeTimeoutMS={0}
                 loading={this.state.submitStatus === 'SUBMITTING'}
+                hideAccount={!this.props.subPage}
               />
               {this.renderConfirmPrivateKeyModal()}
             </KeySection>
