@@ -19,27 +19,17 @@ defmodule EthBlockchain.Transaction do
 
   alias Keychain.Signature
   alias ExthCrypto.Hash.Keccak
-  alias EthBlockchain.{Adapter, ERC20}
+  alias EthBlockchain.{Adapter, ABI}
 
   defstruct nonce: 0,
-            # Tn
-            # Tp
             gas_price: 0,
-            # Tg
             gas_limit: 0,
-            # Tt
             to: <<>>,
-            # Tv
             value: 0,
-            # Tw
             v: nil,
-            # Tr
             r: nil,
-            # Ts
             s: nil,
-            # Ti
             init: <<>>,
-            # Td
             data: <<>>
 
   @type t :: %__MODULE__{
@@ -61,35 +51,36 @@ defmodule EthBlockchain.Transaction do
         # todo
         gas_limit: 21_000,
         # todo
-        gas_price: 16_000_000_000,
-        # not working
+        gas_price: 20_000_000_000,
         nonce: get_next_nonce(from_address),
         to: from_hex(to_address),
         value: amount
       }
       |> sign_and_hash(from_address)
 
-    Adapter.call(adapter, {:send, transaction_data}, pid)
+    Adapter.call(adapter, {:send_raw, transaction_data}, pid)
   end
 
-  # Not working
   def send_token({from_address, to_address, amount, contract_address}, adapter \\ nil, pid \\ nil) do
-    {:ok, abi_encoded_data} = ERC20.abi_transfer_from(from_address, to_address, amount)
+    case ABI.transfer(to_address, amount) do
+      {:ok, encoded_abi_data} ->
+        transaction_data =
+          %__MODULE__{
+            # todo
+            gas_limit: 50_000_000,
+            # todo
+            gas_price: 20_000_000_000,
+            nonce: get_next_nonce(from_address),
+            to: from_hex(contract_address),
+            data: encoded_abi_data
+          }
+          |> sign_and_hash(from_address)
 
-    transaction_data =
-      %__MODULE__{
-        # todo
-        gas_limit: 100_000_000,
-        # todo
-        gas_price: 16_000_000_000,
-        # not working
-        nonce: get_next_nonce(from_address),
-        to: from_hex(contract_address),
-        data: abi_encoded_data
-      }
-      |> sign_and_hash(from_address)
+        Adapter.call(adapter, {:send_raw, transaction_data}, pid)
 
-    Adapter.call(adapter, {:send, transaction_data}, pid)
+      error ->
+        error
+    end
   end
 
   defp sign_and_hash(%__MODULE__{} = transaction_data, from_address) do

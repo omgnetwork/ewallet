@@ -71,8 +71,8 @@ defmodule EthGethAdapter.Worker do
     {:reply, Balance.get(address, contract_addresses, encoded_abi_data, block), reg}
   end
 
-  def handle_call({:send, transaction_data}, _from, reg) do
-    {:reply, Transaction.send(transaction_data), reg}
+  def handle_call({:send_raw, transaction_data}, _from, reg) do
+    {:reply, Transaction.send_raw(transaction_data), reg}
   end
 
   def handle_call({:get_transaction_count, address}, _from, reg) do
