@@ -17123,6 +17123,7 @@
                               "encrypted_metadata": {},
                               "expiration_date": "2018-01-01T00:00:00Z",
                               "expired_at": "2018-01-01T00:00:00Z",
+                              "cancelled_at": "2018-01-01T00:00:00Z",
                               "created_at": "2018-01-01T00:00:00Z",
                               "updated_at": "2018-01-01T00:00:00Z"
                             }
@@ -34453,6 +34454,7 @@
                               "encrypted_metadata": {},
                               "expiration_date": "2018-01-01T00:00:00Z",
                               "expired_at": "2018-01-01T00:00:00Z",
+                              "cancelled_at": "2018-01-01T00:00:00Z",
                               "created_at": "2018-01-01T00:00:00Z",
                               "updated_at": "2018-01-01T00:00:00Z"
                             }
@@ -34873,6 +34875,331 @@
                           "encrypted_metadata": {},
                           "expiration_date": "2018-01-01T00:00:00Z",
                           "expired_at": "2018-01-01T00:00:00Z",
+                          "cancelled_at": "2018-01-01T00:00:00Z",
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T00:00:00Z"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transaction_request.cancel": {
+      "post": {
+        "tags": [
+          "TransactionRequest"
+        ],
+        "summary": "Cancel a transaction request.",
+        "operationId": "transaction_request_cancel",
+        "security": [
+          {
+            "ProviderAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Cancel a transaction request using the specified ID.",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "formatted_id": {
+                    "type": "string"
+                  }
+                },
+                "example": {
+                  "formatted_id": "data|txr_01cbfgc8cmmyzy1cfzpqwme3ey"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction request response",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a transaction request",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The response schema for a transaction request",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "socket_topic": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "send",
+                                "receive"
+                              ]
+                            },
+                            "amount": {
+                              "type": "string"
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "valid",
+                                "expired"
+                              ]
+                            },
+                            "correlation_id": {
+                              "type": "string"
+                            },
+                            "token_id": {
+                              "type": "string"
+                            },
+                            "token": {
+                              "type": "object"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "user_id": {
+                              "type": "string"
+                            },
+                            "account_id": {
+                              "type": "string"
+                            },
+                            "require_confirmation": {
+                              "type": "boolean"
+                            },
+                            "max_consumptions": {
+                              "type": "integer"
+                            },
+                            "max_consumptions_per_user": {
+                              "type": "integer"
+                            },
+                            "max_consumptions_per_interval": {
+                              "type": "integer"
+                            },
+                            "max_consumptions_per_interval_per_user": {
+                              "type": "integer"
+                            },
+                            "consumption_interval_duration": {
+                              "type": "integer"
+                            },
+                            "consumption_lifetime": {
+                              "type": "integer"
+                            },
+                            "expiration_reason": {
+                              "type": "string",
+                              "enum": [
+                                "max_consumptions_reached",
+                                "expired_transaction_request",
+                                null
+                              ]
+                            },
+                            "allow_amount_override": {
+                              "type": "boolean"
+                            },
+                            "metadata": {
+                              "type": "object"
+                            },
+                            "encrypted_metadata": {
+                              "type": "object"
+                            },
+                            "expiration_date": {
+                              "type": "string"
+                            },
+                            "expired_at": {
+                              "type": "string"
+                            },
+                            "created_at": {
+                              "type": "string"
+                            },
+                            "updated_at": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "id",
+                            "formatted_id",
+                            "socket_topic",
+                            "type",
+                            "amount",
+                            "status",
+                            "correlation_id",
+                            "token_id",
+                            "token",
+                            "address",
+                            "user_id",
+                            "account_id",
+                            "require_confirmation",
+                            "max_consumptions",
+                            "max_consumptions_per_user",
+                            "max_consumptions_per_interval",
+                            "max_consumptions_per_interval_per_user",
+                            "consumption_interval_duration",
+                            "consumption_lifetime",
+                            "expiration_reason",
+                            "allow_amount_override",
+                            "metadata",
+                            "encrypted_metadata",
+                            "expiration_date",
+                            "expired_at",
+                            "created_at",
+                            "updated_at"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "transaction_request",
+                          "id": "txr_01cbfg8mafdnbthgb9e68nd9y9",
+                          "formatted_id": "data|txr_01cbfg8mafdnbthgb9e68nd9y9",
+                          "socket_topic": "transaction_request:txr_01cbfg8mafdnbthgb9e68nd9y9",
+                          "type": "send",
+                          "amount": 100,
+                          "status": "valid",
+                          "correlation_id": "some correlation id",
+                          "token_id": "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
+                          "token": null,
+                          "address": "3a560be5-15d1-4463-9ec2-02bc8ded7120",
+                          "user_id": "usr_01cbfg922kzmhvw04xvqn17qbd",
+                          "account_id": "acc_01cbfg9b5hn05rszm3na8jac7f",
+                          "require_confirmation": true,
+                          "max_consumptions": 3,
+                          "max_consumptions_per_user": null,
+                          "consumption_lifetime": 1000,
+                          "expiration_reason": null,
+                          "allow_amount_override": false,
+                          "metadata": {},
+                          "encrypted_metadata": {},
+                          "expiration_date": "2018-01-01T00:00:00Z",
+                          "expired_at": "2018-01-01T00:00:00Z",
+                          "cancelled_at": "2018-01-01T00:00:00Z",
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T00:00:00Z"
                         }
@@ -35197,6 +35524,7 @@
                           "encrypted_metadata": {},
                           "expiration_date": "2018-01-01T00:00:00Z",
                           "expired_at": "2018-01-01T00:00:00Z",
+                          "cancelled_at": "2018-01-01T00:00:00Z",
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T00:00:00Z"
                         }

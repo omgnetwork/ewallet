@@ -104,6 +104,18 @@ GetTransactionRequestBody:
         example:
           formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
 
+CancelTransactionRequestBody:
+  description: Cancel a transaction request using the specified ID.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          formatted_id:
+            type: string
+        example:
+          formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
+
 ConsumeTransactionRequestBody:
   description: Consume a transaction request using the specified values.
   required: true
