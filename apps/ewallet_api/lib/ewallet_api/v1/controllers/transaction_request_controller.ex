@@ -23,6 +23,9 @@ defmodule EWalletAPI.V1.TransactionRequestController do
     Web.Originator
   }
 
+  alias EWalletDB.TransactionRequest
+  alias Ecto.Changeset
+
   @spec create_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create_for_user(conn, attrs) do
     attrs = Map.put(attrs, "originator", Originator.extract(conn.assigns))
@@ -31,6 +34,30 @@ defmodule EWalletAPI.V1.TransactionRequestController do
     |> TransactionRequestGate.create(attrs)
     |> respond(conn)
   end
+
+  @spec cancel_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def cancel_for_user(conn, %{"formatted_id" => formatted_id}) do
+    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:cancel, conn.assigns, request),
+         {:ok, cancelled_request} <-
+           TransactionRequest.cancel(request, Originator.extract(conn.assigns)) do
+      respond({:ok, cancelled_request}, conn)
+    else
+      {:error, :transaction_request_not_found} ->
+        respond({:error, :unauthorized}, conn)
+
+      error ->
+        respond(error, conn)
+    end
+  end
+
+  def cancel_for_user(conn, _),
+    do:
+      handle_error(
+        conn,
+        :invalid_parameter,
+        "Invalid parameter provided. `formatted_id` is required."
+      )
 
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"formatted_id" => formatted_id}) do
@@ -56,8 +83,12 @@ defmodule EWalletAPI.V1.TransactionRequestController do
 
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
 
-  defp respond({:error, changeset}, conn) do
+  defp respond({:error, %Changeset{} = changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
+  end
+
+  defp respond({:error, error}, conn) do
+    handle_error(conn, error)
   end
 
   defp respond({:ok, request}, conn) do
@@ -66,7 +97,11 @@ defmodule EWalletAPI.V1.TransactionRequestController do
     })
   end
 
-  @spec authorize(:all | :create | :get | :update, map(), %EWalletDB.TransactionRequest{}) ::
+  @spec authorize(
+          :all | :create | :get | :update | :cancel,
+          map(),
+          %EWalletDB.TransactionRequest{}
+        ) ::
           :ok | {:error, any()} | no_return()
   defp authorize(action, params, request) do
     TransactionRequestPolicy.authorize(action, params, request)

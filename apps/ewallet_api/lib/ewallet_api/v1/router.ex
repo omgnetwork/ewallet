@@ -42,6 +42,7 @@ defmodule EWalletAPI.V1.Router do
     post("/me.get_transactions", TransactionController, :get_transactions)
 
     post("/me.create_transaction_request", TransactionRequestController, :create_for_user)
+    post("/me.cancel_transaction_request", TransactionRequestController, :cancel_for_user)
     post("/me.get_transaction_request", TransactionRequestController, :get)
     post("/me.create_transaction", TransactionController, :create)
 
