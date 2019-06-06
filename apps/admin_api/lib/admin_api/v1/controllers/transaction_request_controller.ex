@@ -99,7 +99,8 @@ defmodule AdminAPI.V1.TransactionRequestController do
   def cancel(conn, %{"formatted_id" => formatted_id}) do
     with {:ok, request} <- TransactionRequestFetcher.get(formatted_id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:cancel, conn.assigns, request),
-         {:ok, cancelled_request} <- TransactionRequest.cancel(request, Originator.extract(conn.assigns)) do
+         {:ok, cancelled_request} <-
+           TransactionRequest.cancel(request, Originator.extract(conn.assigns)) do
       respond({:ok, cancelled_request}, conn)
     else
       {:error, :transaction_request_not_found} ->

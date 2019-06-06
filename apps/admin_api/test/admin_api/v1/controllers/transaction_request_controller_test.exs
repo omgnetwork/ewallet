@@ -699,7 +699,10 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
       assert [log] = get_all_activity_logs_since(before_execution)
 
       # Assert changes
-      assert log.target_changes == %{"status" => "cancelled", "cancelled_at" => response["data"]["cancelled_at"]}
+      assert log.target_changes == %{
+               "status" => "cancelled",
+               "cancelled_at" => response["data"]["cancelled_at"]
+             }
     end
 
     test_with_auths "receives an error if the owner cancel with invalid transaction_request's id" do
@@ -711,15 +714,15 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
         })
 
       assert response == %{
-        "data" => %{
-          "code" => "unauthorized",
-          "description" => "You are not allowed to perform the requested operation.",
-          "messages" => nil,
-          "object" => "error"
-        },
-        "success" => false,
-        "version" => "1"
-      }
+               "data" => %{
+                 "code" => "unauthorized",
+                 "description" => "You are not allowed to perform the requested operation.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
 
       # Assert there's no activity log.
       assert get_all_activity_logs_since(before_execution) == []
@@ -745,15 +748,15 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
 
       # Assert the request should failed
       assert response == %{
-        "data" => %{
-          "code" => "unauthorized",
-          "description" => "You are not allowed to perform the requested operation.",
-          "messages" => nil,
-          "object" => "error"
-        },
-        "success" => false,
-        "version" => "1"
-      }
+               "data" => %{
+                 "code" => "unauthorized",
+                 "description" => "You are not allowed to perform the requested operation.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
 
       # Assert there's no activity log.
       assert get_all_activity_logs_since(before_execution) == []
