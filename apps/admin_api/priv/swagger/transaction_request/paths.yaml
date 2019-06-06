@@ -49,6 +49,22 @@ transaction_request.get:
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
+transaction_request.cancel:
+  post:
+    tags:
+      - TransactionRequest
+    summary: Cancel a transaction request.
+    operationId: transaction_request_cancel
+    security:
+      - ProviderAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/CancelTransactionRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/TransactionRequestResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 transaction_request.get_transaction_consumptions:
   post:
     tags:
