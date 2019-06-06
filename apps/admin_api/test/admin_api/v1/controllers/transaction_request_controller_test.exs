@@ -730,8 +730,8 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
 
     test_with_auths "receives an error if the transaction request does not belong to the user" do
       # Create a transaction request belongs to another user.
-      user_owner_tx_request = insert(:admin, %{email: "admin@omise.co"})
-      transaction_request = insert(:transaction_request, user_uuid: user_owner_tx_request.uuid)
+      user_tx_request_owner = insert(:admin, %{email: "admin@example.com"})
+      transaction_request = insert(:transaction_request, user_uuid: user_tx_request_owner.uuid)
 
       # Demote the current user's global role from "super admin" to "admin"
       # Because the "super admin" can do everything.
