@@ -20,9 +20,7 @@ class AccessKeyMembershipsProvider extends Component {
   }
 
   componentDidMount = () => {
-    if (!this.props.memberships || !this.props.memberships.length) {
-      this.fetch(this.props.filter)
-    }
+    this.fetch(this.props.filter)
   }
 
   UNSAFE_componentWillReceiveProps = nextProps => {
