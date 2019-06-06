@@ -348,4 +348,105 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
       assert response["data"]["code"] == "unauthorized"
     end
   end
+
+  describe "/me.cancel_transaction_request" do
+    test "receives a transaction_request if the owner cancel with valid transaction_request's id" do
+      user = get_test_user()
+      transaction_request = insert(:transaction_request, user_uuid: user.uuid)
+
+      before_execution = NaiveDateTime.utc_now()
+
+      response =
+        client_request("/me.cancel_transaction_request", %{
+          formatted_id: transaction_request.id
+        })
+
+      # Assert the transaction request is valid
+      assert response["success"] == true
+      assert response["data"]["id"] == transaction_request.id
+      assert response["data"]["cancelled_at"] != nil
+      assert response["data"]["status"] == "cancelled"
+
+      # Assert there's 1 activity log has been inserted.
+      assert [log] = get_all_activity_logs_since(before_execution)
+
+      # Assert changes
+      assert log.target_changes == %{
+               "status" => "cancelled",
+               "cancelled_at" => response["data"]["cancelled_at"]
+             }
+    end
+
+    test "receives an error if the owner cancel with invalid transaction_request's id" do
+      before_execution = NaiveDateTime.utc_now()
+
+      response =
+        client_request("/me.cancel_transaction_request", %{
+          formatted_id: "invalid_id"
+        })
+
+      assert response == %{
+               "data" => %{
+                 "code" => "unauthorized",
+                 "description" => "You are not allowed to perform the requested operation.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+
+      # Assert there's no activity log.
+      assert get_all_activity_logs_since(before_execution) == []
+    end
+
+    test "receives an error if the id is not given" do
+      before_execution = NaiveDateTime.utc_now()
+
+      response = client_request("/me.cancel_transaction_request", %{})
+
+      assert response == %{
+               "data" => %{
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided. `formatted_id` is required.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+
+      # Assert there's no activity log.
+      assert get_all_activity_logs_since(before_execution) == []
+    end
+
+    test "receives an error if the transaction request does not belong to the user" do
+      # Create a transaction request belongs to another user.
+      user_tx_request_owner = insert(:user, %{email: "user@example.com"})
+      transaction_request = insert(:transaction_request, user_uuid: user_tx_request_owner.uuid)
+
+      before_execution = NaiveDateTime.utc_now()
+
+      # The current user request to cancel the transaction request
+      response =
+        client_request("/me.cancel_transaction_request", %{
+          formatted_id: transaction_request.id
+        })
+
+      # Assert the request should failed
+      assert response == %{
+               "data" => %{
+                 "code" => "unauthorized",
+                 "description" => "You are not allowed to perform the requested operation.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+
+      # Assert there's no activity log.
+      assert get_all_activity_logs_since(before_execution) == []
+    end
+  end
 end
