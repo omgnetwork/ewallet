@@ -58,9 +58,12 @@ defmodule EthBlockchain.Transaction do
   def send_eth({from_address, to_address, amount}, adapter \\ nil, pid \\ nil) do
     transaction_data =
       %__MODULE__{
-        gas_limit: 21_000, # todo
-        gas_price: 16_000_000_000, # todo
-        nonce: get_next_nonce(from_address), # not working
+        # todo
+        gas_limit: 21_000,
+        # todo
+        gas_price: 16_000_000_000,
+        # not working
+        nonce: get_next_nonce(from_address),
         to: from_hex(to_address),
         value: amount
       }
@@ -75,9 +78,12 @@ defmodule EthBlockchain.Transaction do
 
     transaction_data =
       %__MODULE__{
-        gas_limit: 100_000_000, # todo
-        gas_price: 16_000_000_000, # todo
-        nonce: get_next_nonce(from_address), # not working
+        # todo
+        gas_limit: 100_000_000,
+        # todo
+        gas_price: 16_000_000_000,
+        # not working
+        nonce: get_next_nonce(from_address),
         to: from_hex(contract_address),
         data: abi_encoded_data
       }
@@ -119,7 +125,8 @@ defmodule EthBlockchain.Transaction do
 
   @spec transaction_hash(Blockchain.Transaction.t()) :: Keccak.keccak_hash()
   defp transaction_hash(trx, chain_id \\ nil) do
-    serialize(trx, false)
+    trx
+    |> serialize(false)
     |> Kernel.++(if chain_id, do: [encode_unsigned(chain_id), <<>>, <<>>], else: [])
     |> ExRLP.encode()
     |> Keccak.kec()

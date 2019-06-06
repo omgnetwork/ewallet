@@ -19,6 +19,7 @@ defmodule Keychain.Signature do
 
   alias Keychain.Key
   alias ExthCrypto.Hash.Keccak
+  alias ExthCrypto.Signature
 
   @type recovery_id :: <<_::8>>
   @type hash_v :: integer()
@@ -37,7 +38,7 @@ defmodule Keychain.Signature do
   def sign_transaction_hash(hash, wallet_address, chain_id \\ nil) do
     private_key = wallet_address |> Key.private_key_for_wallet() |> from_hex()
 
-    {_signature, r, s, recovery_id} = ExthCrypto.Signature.sign_digest(hash, private_key)
+    {_signature, r, s, recovery_id} = Signature.sign_digest(hash, private_key)
 
     recovery_id =
       case chain_id do
