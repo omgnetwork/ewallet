@@ -19,7 +19,7 @@ defmodule EthBlockchain.DumbAdapter do
   def init(:ok), do: {:ok, nil}
   def stop(pid), do: GenServer.stop(pid)
 
-  def handle_call({:get_balances, _address, contract_addresses, _block}, _from, reg) do
+  def handle_call({:get_balances, _address, contract_addresses, _abi, _block}, _from, reg) do
     balances = Map.new(contract_addresses, fn ca -> {ca, 123} end)
     {:reply, {:ok, balances}, reg}
   end

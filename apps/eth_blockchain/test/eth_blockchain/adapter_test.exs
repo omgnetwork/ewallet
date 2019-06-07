@@ -21,40 +21,40 @@ defmodule EthBlockchain.AdapterTest do
       dumb_resp1 =
         Adapter.call(
           :dumb,
-          {:get_balances, "0x123", ["0x01", "0x02", "0x03"], "latest"},
+          {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil, "latest"},
           state[:pid]
         )
 
       dumb_resp2 =
         Adapter.call(
           {:dumb, "balance"},
-          {:get_balances, "0x123", ["0x01", "0x02", "0x03"], "latest"},
+          {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil, "latest"},
           state[:pid]
         )
 
-      assert {:ok, %{"0x01" => 123, "0x02" => 123, "0x03" => 123}} == dumb_resp1
-      assert {:ok, %{"0x01" => 123, "0x02" => 123, "0x03" => 123}} == dumb_resp2
+      assert {:ok, %{state[:addr_1] => 123, state[:addr_2] => 123, state[:addr_3] => 123}} == dumb_resp1
+      assert {:ok, %{state[:addr_1] => 123, state[:addr_2] => 123, state[:addr_3] => 123}} == dumb_resp2
     end
 
     test "shutdowns the worker once finished handling tasks", state do
       {:ok, _} =
         Adapter.call(
           :dumb,
-          {:get_balances, "0x123", ["0x01", "0x02", "0x03"], "latest"},
+          {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil, "latest"},
           state[:pid]
         )
 
       {:ok, _} =
         Adapter.call(
           {:dumb, "balance"},
-          {:get_balances, "0x123", ["0x01", "0x02", "0x03"], "latest"},
+          {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil, "latest"},
           state[:pid]
         )
 
       {:ok, _} =
         Adapter.call(
           :dumb,
-          {:get_balances, "0x123", ["0x01", "0x02", "0x03"], "latest"},
+          {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil, "latest"},
           state[:pid]
         )
 
@@ -66,7 +66,7 @@ defmodule EthBlockchain.AdapterTest do
       assert {:error, :no_handler} ==
                Adapter.call(
                  :foobar,
-                 {:get_balances, "0x123", ["0x01", "0x02", "0x03"], "latest"},
+                 {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil, "latest"},
                  state[:pid]
                )
     end

@@ -26,7 +26,7 @@ defmodule Keychain.WalletTest do
       assert Repo.aggregate(Key, :count, :wallet_id) == 4
 
       assert is_binary(wallet_id)
-      assert byte_size(wallet_id) == 66
+      assert byte_size(wallet_id) == 42
 
       assert is_binary(public_key)
       assert byte_size(public_key) == 130

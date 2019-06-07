@@ -19,12 +19,12 @@ defmodule EthBlockchain.BalanceTest do
 
   describe "get/1" do
     test "get wallet balances with the given adapter spec", state do
-      resp = Balance.get({"0x123", ["0x01", "0x02", "0x03"]}, :dumb, state[:pid])
-      assert resp == {:ok, %{"0x01" => 123, "0x02" => 123, "0x03" => 123}}
+      resp = Balance.get({state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]]}, :dumb, state[:pid])
+      assert resp == {:ok, %{state[:addr_1] => 123, state[:addr_2] => 123, state[:addr_3] => 123}}
     end
 
     test "returns an error if no such adapter is registered", state do
-      assert {:error, :no_handler} == Balance.get({"0x123", ["0x01", "0x02"]}, :blah, state[:pid])
+      assert {:error, :no_handler} == Balance.get({state[:addr_0], [state[:addr_1], state[:addr_2]]}, :blah, state[:pid])
     end
   end
 end

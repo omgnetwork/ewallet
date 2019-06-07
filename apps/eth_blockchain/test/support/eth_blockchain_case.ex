@@ -41,6 +41,13 @@ defmodule EthBlockchain.EthBlockchainCase do
         ]
       )
 
-    %{pid: pid, supervisor: supervisor}
+    %{
+      pid: pid,
+      supervisor: supervisor,
+      addr_0: "0x0000000000000000000000000000000000000000",
+      addr_1: "0x0000000000000000000000000000000000000001",
+      addr_2: "0x0000000000000000000000000000000000000002",
+      addr_3: "0x0000000000000000000000000000000000000003"
+    }
   end
 end
