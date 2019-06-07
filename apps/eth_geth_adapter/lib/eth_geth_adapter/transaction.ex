@@ -18,10 +18,18 @@ defmodule EthGethAdapter.Transaction do
   alias Ethereumex.HttpClient, as: Client
 
   def send_raw(transaction_data) do
-    Client.eth_send_raw_transaction(transaction_data)
+    transaction_data
+    |> Client.eth_send_raw_transaction()
+    |> parse_response()
   end
 
   def get_transaction_count(address) do
     Client.eth_get_transaction_count(address)
+  end
+
+  defp parse_response({:ok, _data} = response), do: response
+
+  defp parse_response({:error, %{"message" => message}}) do
+    {:error, message}
   end
 end

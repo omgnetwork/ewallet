@@ -33,25 +33,32 @@ defmodule EthBlockchain.Transaction do
             data: <<>>
 
   @type t :: %__MODULE__{
-          nonce: EVM.val(),
-          gas_price: EVM.val(),
-          gas_limit: EVM.val(),
-          to: EVM.address() | <<_::0>>,
-          value: EVM.val(),
+          nonce: integer(),
+          gas_price: integer(),
+          gas_limit: integer(),
+          to: String.t(),
+          value: integer(),
           v: Signature.hash_v(),
           r: Signature.hash_r(),
           s: Signature.hash_s(),
-          init: EVM.MachineCode.t(),
+          init: binary(),
           data: binary()
         }
 
-  def send_eth({from_address, to_address, amount}, adapter \\ nil, pid \\ nil) do
+  @spec send_eth(tuple(), atom() | nil, pid() | nil) :: {atom(), String.t()}
+  def send_eth(params, adapter \\ nil, pid \\ nil)
+
+  def send_eth({from_address, to_address, amount}, adapter, pid) do
+    gas_price = Application.get_env(:eth_blockchain, :default_gas_price)
+    send_eth({from_address, to_address, amount, gas_price}, adapter, pid)
+  end
+
+  def send_eth({from_address, to_address, amount, gas_price}, adapter, pid)
+      when byte_size(from_address) == 42 and byte_size(to_address) == 42 and is_integer(amount) do
     transaction_data =
       %__MODULE__{
-        # todo
-        gas_limit: 21_000,
-        # todo
-        gas_price: 20_000_000_000,
+        gas_limit: Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit),
+        gas_price: gas_price,
         nonce: get_next_nonce(from_address),
         to: from_hex(to_address),
         value: amount
@@ -61,15 +68,28 @@ defmodule EthBlockchain.Transaction do
     Adapter.call(adapter, {:send_raw, transaction_data}, pid)
   end
 
-  def send_token({from_address, to_address, amount, contract_address}, adapter \\ nil, pid \\ nil) do
+  def send_eth({_from, _to, _amount, _gas_price}, _adapter, _pid) do
+    {:error, "Invalid parameters"}
+  end
+
+  @spec send_token(tuple(), atom() | nil, pid() | nil) :: {atom(), String.t()} | {atom(), atom()}
+  def send_token(params, adapter \\ nil, pid \\ nil)
+
+  def send_token({from_address, to_address, amount, contract_address}, adapter, pid) do
+    gas_price = Application.get_env(:eth_blockchain, :default_gas_price)
+    send_token({from_address, to_address, amount, contract_address, gas_price}, adapter, pid)
+  end
+
+  def send_token({from_address, to_address, amount, contract_address, gas_price}, adapter, pid)
+      when byte_size(from_address) == 42 and byte_size(to_address) == 42 and
+             byte_size(contract_address) == 42 and is_integer(amount) do
     case ABI.transfer(to_address, amount) do
       {:ok, encoded_abi_data} ->
         transaction_data =
           %__MODULE__{
-            # todo
-            gas_limit: 50_000_000,
-            # todo
-            gas_price: 20_000_000_000,
+            gas_limit:
+              Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit),
+            gas_price: gas_price,
             nonce: get_next_nonce(from_address),
             to: from_hex(contract_address),
             data: encoded_abi_data
@@ -83,6 +103,10 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
+  def send_token({_from, _to, _amount, _contract, _gas_price}, _adapter, _pid) do
+    {:error, "Invalid parameters"}
+  end
+
   defp sign_and_hash(%__MODULE__{} = transaction_data, from_address) do
     transaction_data
     |> sign_transaction(from_address)
@@ -91,11 +115,7 @@ defmodule EthBlockchain.Transaction do
     |> to_hex()
   end
 
-  @spec get_transaction_count(
-          {String.t()},
-          atom() | nil,
-          pid() | nil
-        ) :: {:error, atom()} | {:ok, any()}
+  @spec get_transaction_count({String.t()}, atom() | nil, pid() | nil) :: {atom(), any()}
   def get_transaction_count({address}, adapter \\ nil, pid \\ nil) do
     Adapter.call(adapter, {:get_transaction_count, address}, pid)
   end
@@ -106,38 +126,26 @@ defmodule EthBlockchain.Transaction do
   end
 
   defp sign_transaction(transaction, wallet_address) do
+    chain_id = Application.get_env(:eth_blockchain, :chain_id)
+
     {v, r, s} =
       transaction
-      |> transaction_hash(1)
-      |> Signature.sign_transaction_hash(wallet_address, 1)
+      |> transaction_hash(chain_id)
+      |> Signature.sign_transaction_hash(wallet_address, chain_id)
 
     %{transaction | v: v, r: r, s: s}
   end
 
-  @spec transaction_hash(Blockchain.Transaction.t()) :: Keccak.keccak_hash()
-  defp transaction_hash(trx, chain_id \\ nil) do
+  @spec transaction_hash(Blockchain.Transaction.t(), integer()) :: Keccak.keccak_hash()
+  defp transaction_hash(trx, chain_id) do
     trx
     |> serialize(false)
-    |> Kernel.++(if chain_id, do: [encode_unsigned(chain_id), <<>>, <<>>], else: [])
+    |> Kernel.++([encode_unsigned(chain_id), <<>>, <<>>])
     |> ExRLP.encode()
     |> Keccak.kec()
   end
 
-  @doc """
-  Encodes a transaction such that it can be RLP-encoded.
-  This is defined at L_T Eq.(14) in the Yellow Paper.
-  ## Examples
-      iex> Blockchain.Transaction.serialize(%Blockchain.Transaction{nonce: 5, gas_price: 6, gas_limit: 7, to: <<1::160>>, value: 8, v: 27, r: 9, s: 10, data: "hi"})
-      [<<5>>, <<6>>, <<7>>, <<1::160>>, <<8>>, "hi", <<27>>, <<9>>, <<10>>]
-      iex> Blockchain.Transaction.serialize(%Blockchain.Transaction{nonce: 5, gas_price: 6, gas_limit: 7, to: <<>>, value: 8, v: 27, r: 9, s: 10, init: <<1, 2, 3>>})
-      [<<5>>, <<6>>, <<7>>, <<>>, <<8>>, <<1, 2, 3>>, <<27>>, <<9>>, <<10>>]
-      iex> Blockchain.Transaction.serialize(%Blockchain.Transaction{nonce: 5, gas_price: 6, gas_limit: 7, to: <<>>, value: 8, v: 27, r: 9, s: 10, init: <<1, 2, 3>>}, false)
-      [<<5>>, <<6>>, <<7>>, <<>>, <<8>>, <<1, 2, 3>>]
-      iex> Blockchain.Transaction.serialize(%Blockchain.Transaction{ data: "", gas_limit: 21000, gas_price: 20000000000, init: "", nonce: 9, r: 0, s: 0, to: "55555555555555555555", v: 1, value: 1000000000000000000 })
-      ["\t", <<4, 168, 23, 200, 0>>, "R\b", "55555555555555555555", <<13, 224, 182, 179, 167, 100, 0, 0>>, "", <<1>>, "", ""]
-  """
-  @spec serialize(t) :: ExRLP.t()
-  def serialize(trx, include_vrs \\ true) do
+  defp serialize(trx, include_vrs \\ true) do
     base = [
       trx.nonce |> encode_unsigned(),
       trx.gas_price |> encode_unsigned(),
@@ -157,58 +165,5 @@ defmodule EthBlockchain.Transaction do
     else
       base
     end
-  end
-
-  @doc """
-  Decodes a transaction that was previously encoded
-  using `Transaction.serialize/1`. Note, this is the
-  inverse of L_T Eq.(14) defined in the Yellow Paper.
-  ## Examples
-      iex> Blockchain.Transaction.deserialize([<<5>>, <<6>>, <<7>>, <<1::160>>, <<8>>, "hi", <<27>>, <<9>>, <<10>>])
-      %Blockchain.Transaction{nonce: 5, gas_price: 6, gas_limit: 7, to: <<1::160>>, value: 8, v: 27, r: 9, s: 10, data: "hi"}
-      iex> Blockchain.Transaction.deserialize([<<5>>, <<6>>, <<7>>, <<>>, <<8>>, <<1, 2, 3>>, <<27>>, <<9>>, <<10>>])
-      %Blockchain.Transaction{nonce: 5, gas_price: 6, gas_limit: 7, to: <<>>, value: 8, v: 27, r: 9, s: 10, init: <<1, 2, 3>>}
-      iex> Blockchain.Transaction.deserialize(["\t", <<4, 168, 23, 200, 0>>, "R\b", "55555555555555555555", <<13, 224, 182, 179, 167, 100, 0, 0>>, "", <<1>>, "", ""])
-      %Blockchain.Transaction{
-        data: "",
-        gas_limit: 21000,
-        gas_price: 20000000000,
-        init: "",
-        nonce: 9,
-        r: 0,
-        s: 0,
-        to: "55555555555555555555",
-        v: 1,
-        value: 1000000000000000000
-      }
-  """
-  @spec deserialize(ExRLP.t()) :: t
-  def deserialize(rlp) do
-    [
-      nonce,
-      gas_price,
-      gas_limit,
-      to,
-      value,
-      init_or_data,
-      v,
-      r,
-      s
-    ] = rlp
-
-    {init, data} = if to == <<>>, do: {init_or_data, <<>>}, else: {<<>>, init_or_data}
-
-    %__MODULE__{
-      nonce: :binary.decode_unsigned(nonce),
-      gas_price: :binary.decode_unsigned(gas_price),
-      gas_limit: :binary.decode_unsigned(gas_limit),
-      to: to,
-      value: :binary.decode_unsigned(value),
-      init: init,
-      data: data,
-      v: :binary.decode_unsigned(v),
-      r: :binary.decode_unsigned(r),
-      s: :binary.decode_unsigned(s)
-    }
   end
 end
