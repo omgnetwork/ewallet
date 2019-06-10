@@ -56,7 +56,7 @@ defmodule EWallet.TransactionConsumptionValidator do
          true <- wallet.enabled || {:error, :wallet_is_disabled},
          :ok <- validate_only_one_exchange_address_in_pair(request, wallet_exchange),
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request, %System{}),
-         true <- TransactionRequest.valid?(request) || request.expiration_reason,
+         true <- validate_transaction_request(request),
          {:ok, amount} <- validate_amount(request, amount),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
          {:ok, nil} <- validate_max_consumptions_per_interval(request),
@@ -118,6 +118,12 @@ defmodule EWallet.TransactionConsumptionValidator do
 
   def validate_client_exchange(_creator, _pair) do
     :ok
+  end
+
+  defp validate_transaction_request(request) do
+    TransactionRequest.valid?(request) ||
+      request.expiration_reason ||
+      TransactionRequest.get_cancelled_error(request)
   end
 
   defp validate_not_expired(consumption) do

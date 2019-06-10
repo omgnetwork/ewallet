@@ -365,6 +365,14 @@ defmodule EWalletDB.TransactionRequest do
     request.status == @cancelled
   end
 
+  @spec get_cancelled_error(%TransactionRequest{}) :: :cancelled_transaction_request | nil
+  def get_cancelled_error(request) do
+    case cancelled?(request) do
+      true -> :cancelled_transaction_request
+      false -> nil
+    end
+  end
+
   @spec expiration_from_lifetime(%TransactionRequest{}) :: NaiveDateTime.t() | nil
   def expiration_from_lifetime(request) do
     lifetime? =
