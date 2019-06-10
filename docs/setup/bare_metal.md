@@ -11,7 +11,6 @@ Before we begin, be sure to have the following applications installed and runnin
 - [Elixir](http://elixir-lang.github.io/install.html): Elixir is used as the primary language for the server components of the eWallet.
 - [Git](https://git-scm.com/): Git is used for downloading and synchronizing codebase with the remote code repository.
 - [NodeJS](https://nodejs.org/) Node.js is used for building front-end code for the Admin Panel.
-- [Yarn](https://yarnpkg.com/en/docs/install) Yarn is used for managing and install front-end dependencies for the Admin Panel.
 
 If you are on MacOS, you may [install the above dependencies via Homebrew](/docs/setup/macos/brew_install_dependencies.md).
 
@@ -36,7 +35,7 @@ $ mix deps.get
 Then, install the front-end dependencies:
 
 ```bash
-$ (cd apps/frontend/assets/ && yarn install)
+$ (cd apps/frontend/assets/ && npm install)
 ```
 
 _The parentheses above forces the commands to be executed in a subshell, and returns to the current working directory after the execution._
