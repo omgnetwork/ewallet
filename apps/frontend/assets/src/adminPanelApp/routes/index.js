@@ -1,6 +1,5 @@
 import React from 'react'
 import { BrowserRouter as Router, Redirect, Switch, Route } from 'react-router-dom'
-import PropTypes from 'prop-types'
 
 import AuthenticatedRoute from './authenticatedRoute'
 import LoginRoute from './loginRoute'

@@ -438,6 +438,21 @@ defmodule AdminAPI.V1.TransactionControllerTest do
   end
 
   describe "/user.get_transactions" do
+    test_with_auths "returns all the transactions for a specific id", context do
+      response =
+        request("/user.get_transactions", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "id" => context.user.id
+        })
+
+      assert response["data"]["data"] |> length() == 8
+
+      Enum.each(response["data"]["data"], fn tx ->
+        assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], context.user.id)
+      end)
+    end
+
     test_with_auths "returns all the transactions for a specific user_id", context do
       response =
         request("/user.get_transactions", %{
@@ -523,6 +538,19 @@ defmodule AdminAPI.V1.TransactionControllerTest do
                context.transaction_1.id,
                context.transaction_2.id
              ]
+    end
+
+    test_with_auths "returns an error when invalid params are provided" do
+      response =
+        request("/user.get_transactions", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "per_page" => 3,
+          "page" => 1
+        })
+
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
   end
 

@@ -154,9 +154,11 @@ class CreateTransactionRequest extends Component {
     advanceSettingOpen: false,
     expirationDate: '',
     searchTokenValue: '',
-    maxConsumptionPerUser: '',
     amount: '',
     consumptionIntervalDuration: '',
+    maxConsumption: '',
+    consumptionLifetime: '',
+    maxConsumptionPerUser: '',
     maxConsumptionPerInterval: '',
     maxConsumptionPerIntervalPerUser: ''
   }
@@ -351,7 +353,6 @@ class CreateTransactionRequest extends Component {
           <StyledInput
             normalPlaceholder='0'
             type='amount'
-            step={1}
             value={this.state.maxConsumption}
             onChange={this.onChange('maxConsumption')}
           />

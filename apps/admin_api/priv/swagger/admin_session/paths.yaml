@@ -1,7 +1,7 @@
 admin.login:
   post:
     tags:
-      - AdminSession
+      - Admin session
     summary: Login an existing admin user using email and password.
     operationId: login
     security:
@@ -14,10 +14,26 @@ admin.login:
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
+admin.login_2fa:
+  post:
+    tags:
+      - Admin session
+    summary: Login with two-factor authentication using a totp passcode or a backup_code.
+    operationId: login_2fa
+    security:
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/Login2FABody'
+    responses:
+      '200':
+        $ref: '../authentication_token/responses.yaml#/AuthenticationTokenResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
 me.logout:
   post:
     tags:
-      - AdminSession
+      - Admin session
     summary: Expires a user's authentication_token.
     operationId: logout
     security:
@@ -31,7 +47,7 @@ me.logout:
 auth_token.switch_account:
   post:
     tags:
-      - AdminSession
+      - Admin session
     summary: Switch the current account associated with the auth token. (deprecated)
     operationId: switch_account
     deprecated: true

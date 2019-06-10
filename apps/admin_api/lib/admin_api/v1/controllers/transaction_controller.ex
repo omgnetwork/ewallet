@@ -26,7 +26,8 @@ defmodule AdminAPI.V1.TransactionController do
     TransactionGate,
     ExportGate,
     AdapterHelper,
-    EndUserPolicy
+    EndUserPolicy,
+    UserFetcher
   }
 
   alias EWallet.Web.{
@@ -121,8 +122,8 @@ defmodule AdminAPI.V1.TransactionController do
   time in the 'search_terms' param.
   """
   @spec all_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def all_for_user(conn, %{"user_id" => user_id} = attrs) do
-    with %User{} = user <- User.get(user_id) || {:error, :unauthorized},
+  def all_for_user(conn, attrs) do
+    with {:ok, user} <- UserFetcher.fetch(attrs),
          {:ok, _} <- authorize(:get, conn.assigns, user),
          {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
          true <- !is_nil(query) || {:error, :unauthorized} do
@@ -133,22 +134,6 @@ defmodule AdminAPI.V1.TransactionController do
       error -> respond_single(error, conn)
     end
   end
-
-  def all_for_user(conn, %{"provider_user_id" => provider_user_id} = attrs) do
-    with %User{} = user <-
-           User.get_by_provider_user_id(provider_user_id) || {:error, :unauthorized},
-         {:ok, _} <- authorize(:get, conn.assigns, user),
-         {:ok, %{query: query}} <- authorize(:all, conn.assigns, nil),
-         true <- !is_nil(query) || {:error, :unauthorized} do
-      user
-      |> Transaction.all_for_user(query)
-      |> query_records_and_respond(attrs, conn)
-    else
-      error -> respond_single(error, conn)
-    end
-  end
-
-  def all_for_user(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Retrieves a specific transaction by its id.

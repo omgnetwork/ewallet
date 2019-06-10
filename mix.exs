@@ -83,6 +83,7 @@ defmodule EWallet.Umbrella.Mixfile do
         "docs/guides/guides.md",
         "docs/guides/transaction_request_flow.md",
         "docs/guides/usage.md",
+        "docs/guides/two_factor_authentication.md",
         # Setup
         "docs/setup/advanced/api_specs.md",
         "docs/setup/advanced/clustering.md",

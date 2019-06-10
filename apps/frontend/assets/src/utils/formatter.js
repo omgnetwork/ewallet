@@ -19,7 +19,7 @@ export const ensureIsNumberOnly = (maybeNumber) => {
 
 export const formatNumber = number => {
   const ensureStringNumber = String(number)
-  if (!ensureStringNumber) return ''
+  if (!ensureStringNumber || number === '' || _.isNil(number) || number === false) return ''
   const [integer, decimal = ''] = ensureStringNumber.split('.')
   const maybeDecimal =
     new RegExp(/\./).test(ensureStringNumber) ||

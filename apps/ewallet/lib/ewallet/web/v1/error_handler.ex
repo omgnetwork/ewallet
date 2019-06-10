@@ -106,6 +106,26 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials."
     },
+    invalid_passcode: %{
+      code: "user:invalid_passcode",
+      description: "The provided `passcode` is invalid."
+    },
+    invalid_backup_code: %{
+      code: "user:invalid_backup_code",
+      description: "The provided `backup_code` is invalid."
+    },
+    user_2fa_disabled: %{
+      code: "user:2fa_disabled",
+      description: "This user has not enabled two-factor authentication."
+    },
+    secret_code_not_found: %{
+      code: "user:secret_code_not_found",
+      description: "The secret code could not be found."
+    },
+    backup_codes_not_found: %{
+      code: "user:backup_codes_not_found",
+      description: "The backup codes could not be found."
+    },
     invalid_auth_scheme: %{
       code: "client:invalid_auth_scheme",
       description: "The provided authentication scheme is not supported."
@@ -413,6 +433,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     invalid_storage_adapter: %{
       code: "adapter:invalid_storage",
       description: "The file was stored in a different backend and cannot be retrieved."
+    },
+    blockchain_adapter_error: %{
+      code: "blockchain:adapter_error",
+      template: "There was a problem communicating with the blockchain adapter: %{error}"
     },
     end_user_exchanges_not_allowed: %{
       code: "config:end_user_exchanges_not_allowed",

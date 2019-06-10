@@ -122,6 +122,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
           max_per_page: nil,
           min_password_length: nil,
           forget_password_request_lifetime: nil,
+          number_of_backup_codes: nil,
           balance_caching_reset_frequency: nil,
           config_pid: context[:config_pid]
         })
@@ -141,6 +142,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       assert data["min_password_length"] == error
       assert data["forget_password_request_lifetime"] == error
       assert data["balance_caching_reset_frequency"] == error
+      assert data["number_of_backup_codes"] == error
     end
 
     test_with_auths "returns errors when updating unsigned_integer settings with -1", context do
@@ -148,6 +150,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
         request("/configuration.update", %{
           max_per_page: -1,
           min_password_length: -1,
+          number_of_backup_codes: -1,
           forget_password_request_lifetime: -1,
           balance_caching_reset_frequency: -1,
           config_pid: context[:config_pid]
@@ -168,6 +171,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
       assert data["min_password_length"] == error
       assert data["forget_password_request_lifetime"] == error
       assert data["balance_caching_reset_frequency"] == error
+      assert data["number_of_backup_codes"] == error
     end
 
     test_with_auths "updates the master_account ID setting", context do

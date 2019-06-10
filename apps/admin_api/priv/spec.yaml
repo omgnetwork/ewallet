@@ -34,11 +34,11 @@ info:
     name: 'Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0'
     url: 'https://omisego.network/'
 tags:
-  - name: AdminSession
+  - name: Admin session
     description: Resources related to admin session tokens.
   - name: Admin
     description: Resources related to admin users.
-  - name: UserSession
+  - name: User session
     description: Resources related to user session tokens.
   - name: User
     description: Resources related to users.
@@ -46,7 +46,7 @@ tags:
     description: Resources related to permissions.
   - name: Token
     description: Resources related to tokens.
-  - name: ExchangePair
+  - name: Exchange pair
     description: Resources related to exchange pairs.
   - name: Category
     description: Resources related to roles.
@@ -54,19 +54,21 @@ tags:
     description: Resources related to accounts.
   - name: Wallet
     description: Resources related to wallets.
+  - name: Blockchain wallet
+    description: Resources related to blockchain wallet.
   - name: Transaction
     description: Resources related to transactions.
-  - name: TransactionRequest
+  - name: Transaction request
     description: >-
       Resources related to the creation of transaction requests (either
       receiving or sending) that needs to be consumed by another user.
-  - name: TransactionConsumption
+  - name: Transaction consumption
     description: Resources related to consumption of transaction requests.
   - name: Configuration
     description: Resources related to the configuration of the eWallet.
   - name: ActivityLog
     description: Resources related to the activity logs.
-  - name: API Access
+  - name: API access
     description: Resources related to API access.
   - name: Export
     description: Resources related to exports.
@@ -90,7 +92,7 @@ paths:
   /admin.login:
     post:
       tags:
-        - AdminSession
+        - Admin session
       summary: Login an existing admin user using email and password.
       operationId: login
       security:
@@ -120,270 +122,349 @@ paths:
           content:
             application/vnd.omisego.v1+json:
               schema:
-                description: The response schema for an authentication token
-                allOf:
-                  - &ref_1
-                    description: The response schema for a successful operation
-                    type: object
-                    properties:
-                      version:
-                        type: string
-                      success:
-                        type: boolean
-                      data:
+                oneOf:
+                  - description: The response schema for an authentication token
+                    allOf:
+                      - &ref_1
+                        description: The response schema for a successful operation
                         type: object
-                    required:
-                      - version
-                      - success
-                      - data
-                    example:
-                      version: '1'
-                      success: true
-                      data: {}
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        description: The object schema for an authentication token
                         properties:
-                          object:
+                          version:
                             type: string
-                          authentication_token:
-                            type: string
-                          user_id:
-                            type: string
-                          user:
-                            type: object
-                            description: The object schema for a user
-                            properties: &ref_26
-                              object:
-                                type: string
-                              id:
-                                type: string
-                              username:
-                                type: string
-                              full_name:
-                                type: string
-                              calling_name:
-                                type: string
-                              provider_user_id:
-                                type: string
-                              email:
-                                type: string
-                                format: email
-                              enabled:
-                                type: boolean
-                              metadata:
-                                type: object
-                              encrypted_metadata:
-                                type: object
-                              avatar:
-                                type: object
-                              created_at:
-                                type: string
-                                format: date-time
-                              updated_at:
-                                type: string
-                                format: date-time
-                            required: &ref_27
-                              - object
-                              - id
-                              - created_at
-                              - updated_at
-                          account_id:
-                            type: string
-                          master_admin:
+                          success:
                             type: boolean
-                          account:
+                          data:
                             type: object
-                            description: The object schema for an account
-                            properties: &ref_14
+                        required:
+                          - version
+                          - success
+                          - data
+                        example:
+                          version: '1'
+                          success: true
+                          data: {}
+                      - type: object
+                        properties:
+                          data:
+                            type: object
+                            description: The object schema for an authentication token
+                            properties:
                               object:
                                 type: string
-                              id:
+                              authentication_token:
                                 type: string
-                              parent_id:
+                              user_id:
                                 type: string
-                              name:
-                                type: string
-                              description:
-                                type: string
-                              master:
-                                type: boolean
-                              avatar:
+                              user:
                                 type: object
-                              category_ids:
-                                type: array
-                                items:
-                                  type: string
-                              categories:
-                                type: object
-                                allOf:
-                                  - &ref_0
-                                    description: The object schema for an unpaginated list
+                                description: The object schema for a user
+                                properties: &ref_2
+                                  object:
+                                    type: string
+                                  id:
+                                    type: string
+                                  username:
+                                    type: string
+                                  full_name:
+                                    type: string
+                                  calling_name:
+                                    type: string
+                                  provider_user_id:
+                                    type: string
+                                  email:
+                                    type: string
+                                    format: email
+                                  enabled:
+                                    type: boolean
+                                  metadata:
                                     type: object
-                                    properties:
-                                      object:
-                                        type: string
-                                      data:
-                                        type: array
-                                        items:
-                                          type: object
-                                    required:
-                                      - object
-                                      - data
-                                    example:
-                                      object: list
-                                      data: []
-                                  - type: object
-                                    properties:
-                                      data:
-                                        type: array
-                                        items: &ref_21
-                                          description: The object schema for a category
-                                          type: object
-                                          properties: &ref_22
-                                            object:
-                                              type: string
-                                            id:
-                                              type: string
-                                            name:
-                                              type: string
-                                            description:
-                                              type: string
-                                            account_ids:
-                                              type: array
-                                              items:
-                                                type: string
-                                            accounts:
+                                  encrypted_metadata:
+                                    type: object
+                                  avatar:
+                                    type: object
+                                  created_at:
+                                    type: string
+                                    format: date-time
+                                  updated_at:
+                                    type: string
+                                    format: date-time
+                                required: &ref_3
+                                  - object
+                                  - id
+                                  - created_at
+                                  - updated_at
+                              account_id:
+                                type: string
+                              master_admin:
+                                type: boolean
+                              account:
+                                type: object
+                                description: The object schema for an account
+                                properties: &ref_4
+                                  object:
+                                    type: string
+                                  id:
+                                    type: string
+                                  parent_id:
+                                    type: string
+                                  name:
+                                    type: string
+                                  description:
+                                    type: string
+                                  master:
+                                    type: boolean
+                                  avatar:
+                                    type: object
+                                  category_ids:
+                                    type: array
+                                    items:
+                                      type: string
+                                  categories:
+                                    type: object
+                                    allOf:
+                                      - &ref_0
+                                        description: >-
+                                          The object schema for an unpaginated
+                                          list
+                                        type: object
+                                        properties:
+                                          object:
+                                            type: string
+                                          data:
+                                            type: array
+                                            items:
                                               type: object
-                                              allOf:
-                                                - *ref_0
-                                                - type: object
-                                                  properties:
-                                                    data:
-                                                      type: array
-                                                      items:
-                                                        description: The object schema for an account
-                                                        type: object
-                                                        properties:
-                                                          object:
-                                                            type: string
-                                                          id:
-                                                            type: string
-                                                          parent_id:
-                                                            type: string
-                                                          name:
-                                                            type: string
-                                                          description:
-                                                            type: string
-                                                          master:
-                                                            type: boolean
-                                                          avatar:
+                                        required:
+                                          - object
+                                          - data
+                                        example:
+                                          object: list
+                                          data: []
+                                      - type: object
+                                        properties:
+                                          data:
+                                            type: array
+                                            items: &ref_23
+                                              description: The object schema for a category
+                                              type: object
+                                              properties: &ref_24
+                                                object:
+                                                  type: string
+                                                id:
+                                                  type: string
+                                                name:
+                                                  type: string
+                                                description:
+                                                  type: string
+                                                account_ids:
+                                                  type: array
+                                                  items:
+                                                    type: string
+                                                accounts:
+                                                  type: object
+                                                  allOf:
+                                                    - *ref_0
+                                                    - type: object
+                                                      properties:
+                                                        data:
+                                                          type: array
+                                                          items:
+                                                            description: The object schema for an account
                                                             type: object
-                                                          metadata:
-                                                            type: object
-                                                          encrypted_metadata:
-                                                            type: object
-                                                          created_at:
-                                                            type: string
-                                                            format: date-time
-                                                          updated_at:
-                                                            type: string
-                                                            format: date-time
-                                                        required:
-                                                          - object
-                                                          - id
-                                                          - parent_id
-                                                          - name
-                                                          - master
-                                                          - avatar
-                                                          - created_at
-                                                          - updated_at
-                                            created_at:
-                                              type: string
-                                              format: date-time
-                                            updated_at:
-                                              type: string
-                                              format: date-time
-                                          required: &ref_23
-                                            - object
-                                            - id
-                                            - name
-                                            - description
-                                            - account_ids
-                                            - accounts
-                                            - created_at
-                                            - updated_at
-                              metadata:
-                                type: object
-                              encrypted_metadata:
-                                type: object
-                              created_at:
+                                                            properties:
+                                                              object:
+                                                                type: string
+                                                              id:
+                                                                type: string
+                                                              parent_id:
+                                                                type: string
+                                                              name:
+                                                                type: string
+                                                              description:
+                                                                type: string
+                                                              master:
+                                                                type: boolean
+                                                              avatar:
+                                                                type: object
+                                                              metadata:
+                                                                type: object
+                                                              encrypted_metadata:
+                                                                type: object
+                                                              created_at:
+                                                                type: string
+                                                                format: date-time
+                                                              updated_at:
+                                                                type: string
+                                                                format: date-time
+                                                            required:
+                                                              - object
+                                                              - id
+                                                              - parent_id
+                                                              - name
+                                                              - master
+                                                              - avatar
+                                                              - created_at
+                                                              - updated_at
+                                                created_at:
+                                                  type: string
+                                                  format: date-time
+                                                updated_at:
+                                                  type: string
+                                                  format: date-time
+                                              required: &ref_25
+                                                - object
+                                                - id
+                                                - name
+                                                - description
+                                                - account_ids
+                                                - accounts
+                                                - created_at
+                                                - updated_at
+                                  metadata:
+                                    type: object
+                                  encrypted_metadata:
+                                    type: object
+                                  created_at:
+                                    type: string
+                                    format: date-time
+                                  updated_at:
+                                    type: string
+                                    format: date-time
+                                required: &ref_5
+                                  - object
+                                  - id
+                                  - parent_id
+                                  - name
+                                  - master
+                                  - avatar
+                                  - category_ids
+                                  - categories
+                                  - created_at
+                                  - updated_at
+                              role:
                                 type: string
-                                format: date-time
-                              updated_at:
-                                type: string
-                                format: date-time
-                            required: &ref_15
+                            required:
                               - object
-                              - id
-                              - parent_id
-                              - name
-                              - master
-                              - avatar
-                              - category_ids
-                              - categories
-                              - created_at
-                              - updated_at
-                          role:
-                            type: string
-                        required:
-                          - object
-                          - authentication_token
-                          - user_id
-                          - user
-                          - account_id
-                          - account
-                          - master_admin
-                          - role
-                    example:
-                      data:
-                        object: authentication_token
-                        authentication_token: azJRj09l7jvR8KhTqUs3
-                        user_id: usr_01cc02x0v98qcctvycfx4vsk8x
-                        user:
-                          object: user
-                          id: usr_01cc02x0v98qcctvycfx4vsk8x
-                          provider_user_id: wijf-fbancomw-dqwjudb
-                          username: johndoe
-                          full_name: John Doe
-                          calling_name: John
-                          email: johndoe@omise.co
-                          metadata:
-                            first_name: John
-                            last_name: Doe
-                          encrypted_metadata:
-                            something: secret
-                          created_at: '2018-01-01T00:00:00Z'
-                          updated_at: '2018-01-01T10:00:00Z'
-                        account_id: acc_01ca2p8jqans5aty5gj5etmjcf
-                        account:
-                          object: account
-                          id: acc_01ca2p8jqans5aty5gj5etmjcf
-                          parent_id: acc_01ca26pkge49aabzd6k6mshn0y
-                          name: Account Name
-                          description: The account description
-                          master: true
-                          metadata: {}
-                          encrypted_metadata: {}
-                          avatar:
-                            original: file_url
-                          created_at: '2018-01-01T00:00:00Z'
-                          updated_at: '2018-01-01T10:00:00Z'
-                        master_admin: true
-                        role: admin
-        '500': &ref_2
+                              - authentication_token
+                              - user_id
+                              - user
+                              - account_id
+                              - account
+                              - master_admin
+                              - role
+                          example:
+                            data:
+                              object: authentication_token
+                              authentication_token: azJRj09l7jvR8KhTqUs3
+                              user_id: usr_01cc02x0v98qcctvycfx4vsk8x
+                              user:
+                                object: user
+                                id: usr_01cc02x0v98qcctvycfx4vsk8x
+                                provider_user_id: wijf-fbancomw-dqwjudb
+                                username: johndoe
+                                full_name: John Doe
+                                calling_name: John
+                                email: johndoe@omise.co
+                                metadata:
+                                  first_name: John
+                                  last_name: Doe
+                                encrypted_metadata:
+                                  something: secret
+                                created_at: '2018-01-01T00:00:00Z'
+                                updated_at: '2018-01-01T10:00:00Z'
+                              account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                              account:
+                                object: account
+                                id: acc_01ca2p8jqans5aty5gj5etmjcf
+                                parent_id: acc_01ca26pkge49aabzd6k6mshn0y
+                                name: Account Name
+                                description: The account description
+                                master: true
+                                metadata: {}
+                                encrypted_metadata: {}
+                                avatar:
+                                  original: file_url
+                                created_at: '2018-01-01T00:00:00Z'
+                                updated_at: '2018-01-01T10:00:00Z'
+                              master_admin: true
+                              role: admin
+                  - description: The response schema for an authentication token
+                    allOf:
+                      - *ref_1
+                      - type: object
+                        properties:
+                          data:
+                            type: object
+                            description: The object schema for a pre authentication token
+                            properties:
+                              object:
+                                type: string
+                              pre_authentication_token:
+                                type: string
+                              user_id:
+                                type: string
+                              user:
+                                type: object
+                                description: The object schema for a user
+                                properties: *ref_2
+                                required: *ref_3
+                              account_id:
+                                type: string
+                              master_admin:
+                                type: boolean
+                              account:
+                                type: object
+                                description: The object schema for an account
+                                properties: *ref_4
+                                required: *ref_5
+                              role:
+                                type: string
+                            required:
+                              - object
+                              - pre_authentication_token
+                              - user_id
+                              - user
+                              - account_id
+                              - account
+                              - master_admin
+                              - role
+                          example:
+                            data:
+                              object: pre_authentication_token
+                              pre_authentication_token: azJRj09l7jvR8KhTqUs3
+                              user_id: usr_01cc02x0v98qcctvycfx4vsk8x
+                              user:
+                                object: user
+                                id: usr_01cc02x0v98qcctvycfx4vsk8x
+                                provider_user_id: wijf-fbancomw-dqwjudb
+                                username: johndoe
+                                full_name: John Doe
+                                calling_name: John
+                                email: johndoe@omise.co
+                                metadata:
+                                  first_name: John
+                                  last_name: Doe
+                                encrypted_metadata:
+                                  something: secret
+                                created_at: '2018-01-01T00:00:00Z'
+                                updated_at: '2018-01-01T10:00:00Z'
+                              account_id: acc_01ca2p8jqans5aty5gj5etmjcf
+                              account:
+                                object: account
+                                id: acc_01ca2p8jqans5aty5gj5etmjcf
+                                parent_id: acc_01ca26pkge49aabzd6k6mshn0y
+                                name: Account Name
+                                description: The account description
+                                master: true
+                                metadata: {}
+                                encrypted_metadata: {}
+                                avatar:
+                                  original: file_url
+                                created_at: '2018-01-01T00:00:00Z'
+                                updated_at: '2018-01-01T10:00:00Z'
+                              master_admin: true
+                              role: admin
+        '500': &ref_7
           description: Returns an internal server error
           content:
             application/vnd.omisego.v1+json:
@@ -396,7 +477,7 @@ paths:
                       data:
                         description: The object schema for an error
                         type: object
-                        properties: &ref_3
+                        properties: &ref_8
                           object:
                             type: string
                           code:
@@ -405,12 +486,12 @@ paths:
                             type: string
                           messages:
                             type: object
-                        required: &ref_4
+                        required: &ref_9
                           - object
                           - code
                           - description
                           - messages
-                        example: &ref_5
+                        example: &ref_10
                           object: error
                           code: 'server:internal_server_error'
                           description: Something went wrong on the server
@@ -426,25 +507,63 @@ paths:
                         description: Something went wrong on the server
                         messages:
                           error_key: error_reason
+  /admin.login_2fa:
+    post:
+      tags:
+        - Admin session
+      summary: >-
+        Login with two-factor authentication using a totp passcode or a
+        backup_code.
+      operationId: login_2fa
+      security:
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for two-factor logging in a user using
+          backup_code
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              oneOf:
+                - properties:
+                    backup_code:
+                      type: string
+                  required:
+                    - backup_code
+                  example:
+                    backup_code: a1b2c3d4
+                - properties:
+                    passcode:
+                      type: string
+                  required:
+                    - passcode
+                  example:
+                    passcode: '123456'
+              example:
+                passcode: '123456'
+      responses:
+        '200': *ref_6
+        '500': *ref_7
   /me.logout:
     post:
       tags:
-        - AdminSession
+        - Admin session
       summary: Expires a user's authentication_token.
       operationId: logout
       security:
         - AdminAuth: []
       responses:
-        '200': &ref_7
+        '200': &ref_11
           description: Returns an empty response
           content:
             application/vnd.omisego.v1+json:
               schema: *ref_1
-        '500': *ref_2
+        '500': *ref_7
   /auth_token.switch_account:
     post:
       tags:
-        - AdminSession
+        - Admin session
       summary: Switch the current account associated with the auth token. (deprecated)
       operationId: switch_account
       deprecated: true
@@ -464,9 +583,9 @@ paths:
                       data:
                         type: object
                         description: The object schema for an error
-                        properties: *ref_3
-                        required: *ref_4
-                        example: *ref_5
+                        properties: *ref_8
+                        required: *ref_9
+                        example: *ref_10
                     example:
                       success: false
                       data:
@@ -476,11 +595,11 @@ paths:
                           You are not allowed to perform the requested
                           operation.
                         messages: {}
-        '500': *ref_2
+        '500': *ref_7
   /user.login:
     post:
       tags:
-        - UserSession
+        - User session
       summary: >-
         Login an existing user. The provider can call this to get an
         authentication token for a specific user.
@@ -511,11 +630,11 @@ paths:
                 id: usr_01ce83q2zw7zk1dqr79t22zr1v
       responses:
         '200': *ref_6
-        '500': *ref_2
+        '500': *ref_7
   /user.logout:
     post:
       tags:
-        - UserSession
+        - User session
       summary: Expires a user's authentication_token.
       operationId: user_logout
       security:
@@ -535,8 +654,8 @@ paths:
               example:
                 auth_token: atk_01ce83q2zw7zk1dqr79t22zr1v
       responses:
-        '200': *ref_7
-        '500': *ref_2
+        '200': *ref_11
+        '500': *ref_7
   /token.all:
     post:
       tags:
@@ -546,14 +665,14 @@ paths:
       security:
         - AdminAuth: []
         - ProviderAuth: []
-      requestBody: &ref_16
+      requestBody: &ref_18
         description: The default parameters to use when querying a paginated resource
         required: true
         content:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - &ref_12
+                - &ref_16
                   properties:
                     start_after: {}
                     start_by:
@@ -563,7 +682,7 @@ paths:
                       minimum: 1
                     search_term:
                       type: string
-                    match_all: &ref_8
+                    match_all: &ref_12
                       type: array
                       items:
                         type: object
@@ -578,7 +697,7 @@ paths:
                           - field
                           - comparator
                           - value
-                    match_any: *ref_8
+                    match_any: *ref_12
                     sort_by:
                       type: string
                     sort_dir:
@@ -602,7 +721,7 @@ paths:
               schema:
                 description: The response schema for a list of tokens
                 allOf:
-                  - &ref_13
+                  - &ref_17
                     description: The response schema for a successful operation
                     allOf:
                       - *ref_1
@@ -669,10 +788,10 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_17
+                                items: &ref_19
                                   description: The object schema for a token
                                   type: object
-                                  properties: &ref_9
+                                  properties: &ref_13
                                     object:
                                       type: string
                                     id:
@@ -697,7 +816,7 @@ paths:
                                       type: object
                                     enabled:
                                       type: boolean
-                                  required: &ref_10
+                                  required: &ref_14
                                     - object
                                     - id
                                     - symbol
@@ -723,7 +842,7 @@ paths:
                             enabled: true
                             metadata: {}
                             encrypted_metadata: {}
-        '500': *ref_2
+        '500': *ref_7
   /token.get:
     post:
       tags:
@@ -747,7 +866,7 @@ paths:
               example:
                 id: tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3
       responses:
-        '200': &ref_11
+        '200': &ref_15
           description: Returns a single tokens
           content:
             application/vnd.omisego.v1+json:
@@ -760,8 +879,8 @@ paths:
                       data:
                         type: object
                         description: The object schema for a token
-                        properties: *ref_9
-                        required: *ref_10
+                        properties: *ref_13
+                        required: *ref_14
                     example:
                       data:
                         object: token
@@ -776,7 +895,7 @@ paths:
                           original: file_url
                         metadata: {}
                         encrypted_metadata: {}
-        '500': *ref_2
+        '500': *ref_7
   /token.create:
     post:
       tags:
@@ -836,8 +955,8 @@ paths:
                 description: desc
                 subunit_to_unit: 100
       responses:
-        '200': *ref_11
-        '500': *ref_2
+        '200': *ref_15
+        '500': *ref_7
   /token.update:
     post:
       tags:
@@ -883,8 +1002,8 @@ paths:
                 name: Bitcoin v2
                 description: an awesome updated description
       responses:
-        '200': *ref_11
-        '500': *ref_2
+        '200': *ref_15
+        '500': *ref_7
   /token.upload_avatar:
     post:
       tags:
@@ -915,8 +1034,8 @@ paths:
                 id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
                 avatar: /path/to/file
       responses:
-        '200': *ref_11
-        '500': *ref_2
+        '200': *ref_15
+        '500': *ref_7
   /token.enable_or_disable:
     post:
       tags:
@@ -946,8 +1065,8 @@ paths:
                 id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
                 enabled: false
       responses:
-        '200': *ref_11
-        '500': *ref_2
+        '200': *ref_15
+        '500': *ref_7
   /token.stats:
     post:
       tags:
@@ -986,8 +1105,8 @@ paths:
                   token:
                     type: object
                     description: The object schema for a token
-                    properties: *ref_9
-                    required: *ref_10
+                    properties: *ref_13
+                    required: *ref_14
                   total_supply:
                     type: integer
                 required:
@@ -1011,7 +1130,7 @@ paths:
                       enabled: true
                       metadata: {}
                       encrypted_metadata: {}
-        '500': *ref_2
+        '500': *ref_7
   /token.get_mints:
     post:
       tags:
@@ -1028,7 +1147,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               properties:
                 id:
                   type: string
@@ -1045,7 +1164,7 @@ paths:
               schema:
                 description: The response schema for a list of mints
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -1074,15 +1193,15 @@ paths:
                                     token:
                                       type: object
                                       description: The object schema for a token
-                                      properties: *ref_9
-                                      required: *ref_10
+                                      properties: *ref_13
+                                      required: *ref_14
                                     account_id:
                                       type: string
                                     account:
                                       type: object
                                       description: The object schema for an account
-                                      properties: *ref_14
-                                      required: *ref_15
+                                      properties: *ref_4
+                                      required: *ref_5
                                     transaction_id:
                                       type: string
                                     transaction:
@@ -1105,8 +1224,8 @@ paths:
                                             token:
                                               type: object
                                               description: The object schema for a token
-                                              properties: *ref_9
-                                              required: *ref_10
+                                              properties: *ref_13
+                                              required: *ref_14
                                         to:
                                           type: object
                                           properties:
@@ -1119,8 +1238,8 @@ paths:
                                             token:
                                               type: object
                                               description: The object schema for a token
-                                              properties: *ref_9
-                                              required: *ref_10
+                                              properties: *ref_13
+                                              required: *ref_14
                                         exchange:
                                           type: object
                                           properties:
@@ -1191,7 +1310,7 @@ paths:
                             transaction: {}
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T00:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /token.mint:
     post:
       tags:
@@ -1234,8 +1353,8 @@ paths:
                       data:
                         type: object
                         description: The object schema for a token
-                        properties: *ref_9
-                        required: *ref_10
+                        properties: *ref_13
+                        required: *ref_14
                     example:
                       data:
                         object: mint
@@ -1251,26 +1370,26 @@ paths:
                         transaction: {}
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T00:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /exchange_pair.all:
     post:
       tags:
-        - ExchangePair
+        - Exchange pair
       summary: Get the list of exchange pairs
       operationId: exchange_pair_all
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
-        '200': &ref_20
+        '200': &ref_22
           description: Returns a list of exchange pairs
           content:
             application/vnd.omisego.v1+json:
               schema:
                 description: The response schema for a list of exchange pairs
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -1280,10 +1399,10 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_52
+                                items: &ref_53
                                   description: The object schema for an exchange pair
                                   type: object
-                                  properties: &ref_18
+                                  properties: &ref_20
                                     object:
                                       type: string
                                     id:
@@ -1292,10 +1411,10 @@ paths:
                                       type: string
                                     from_token_id:
                                       type: string
-                                    from_token: *ref_17
+                                    from_token: *ref_19
                                     to_token_id:
                                       type: string
-                                    to_token: *ref_17
+                                    to_token: *ref_19
                                     rate:
                                       type: number
                                     default_exchange_wallet_address:
@@ -1312,7 +1431,7 @@ paths:
                                       type: string
                                       format: date-time
                                       nullable: true
-                                  required: &ref_19
+                                  required: &ref_21
                                     - object
                                     - id
                                     - name
@@ -1354,11 +1473,11 @@ paths:
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
                             deleted_at: null
-        '500': *ref_2
+        '500': *ref_7
   /exchange_pair.get:
     post:
       tags:
-        - ExchangePair
+        - Exchange pair
       summary: Get the a specific exchange pair by its id
       operationId: exchange_pair_get
       security:
@@ -1393,8 +1512,8 @@ paths:
                       data:
                         type: object
                         description: The object schema for an exchange pair
-                        properties: *ref_18
-                        required: *ref_19
+                        properties: *ref_20
+                        required: *ref_21
                     example:
                       data:
                         object: exchange_pair
@@ -1424,11 +1543,11 @@ paths:
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         deleted_at: null
-        '500': *ref_2
+        '500': *ref_7
   /exchange_pair.create:
     post:
       tags:
-        - ExchangePair
+        - Exchange pair
       summary: Create a new exchange pair
       operationId: exchange_pair_create
       security:
@@ -1465,12 +1584,12 @@ paths:
                 rate: 0.017
                 sync_opposite: false
       responses:
-        '200': *ref_20
-        '500': *ref_2
+        '200': *ref_22
+        '500': *ref_7
   /exchange_pair.update:
     post:
       tags:
-        - ExchangePair
+        - Exchange pair
       summary: Update an existing exchange pair by its id
       operationId: exchange_pair_update
       security:
@@ -1499,12 +1618,12 @@ paths:
                 id: exg_01cgvppyrz2pprj6s0zmc26p2p
                 rate: 0.099
       responses:
-        '200': *ref_20
-        '500': *ref_2
+        '200': *ref_22
+        '500': *ref_7
   /exchange_pair.delete:
     post:
       tags:
-        - ExchangePair
+        - Exchange pair
       summary: Delete an exchange pair by its id
       operationId: exchange_pair_delete
       security:
@@ -1524,8 +1643,8 @@ paths:
               example:
                 id: exg_01cgvppyrz2pprj6s0zmc26p2p
       responses:
-        '200': *ref_20
-        '500': *ref_2
+        '200': *ref_22
+        '500': *ref_7
   /category.all:
     post:
       tags:
@@ -1535,7 +1654,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200':
           description: Returns a list of categories
@@ -1544,7 +1663,7 @@ paths:
               schema:
                 description: The response schema for a list of roles
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -1554,7 +1673,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: *ref_21
+                                items: *ref_23
                     example:
                       data:
                         object: list
@@ -1567,7 +1686,7 @@ paths:
                             accounts: []
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /category.get:
     post:
       tags:
@@ -1591,7 +1710,7 @@ paths:
               example:
                 id: cat_01ce30qdajwb7gdecq0ebn3twq
       responses:
-        '200': &ref_24
+        '200': &ref_26
           description: Returns a single category
           content:
             application/vnd.omisego.v1+json:
@@ -1604,8 +1723,8 @@ paths:
                       data:
                         type: object
                         description: The object schema for a category
-                        properties: *ref_22
-                        required: *ref_23
+                        properties: *ref_24
+                        required: *ref_25
                     example:
                       data:
                         object: category
@@ -1616,7 +1735,7 @@ paths:
                         accounts: []
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /category.create:
     post:
       tags:
@@ -1651,8 +1770,8 @@ paths:
                 account_ids:
                   - acc_01ca26pkge49aabzd6k6mshn0y
       responses:
-        '200': *ref_24
-        '500': *ref_2
+        '200': *ref_26
+        '500': *ref_7
   /category.update:
     post:
       tags:
@@ -1690,8 +1809,8 @@ paths:
                 account_ids:
                   - acc_01ca26pkge49aabzd6k6mshn0y
       responses:
-        '200': *ref_24
-        '500': *ref_2
+        '200': *ref_26
+        '500': *ref_7
   /category.delete:
     post:
       tags:
@@ -1715,8 +1834,8 @@ paths:
               example:
                 id: cat_01ce30qdajwb7gdecq0ebn3twq
       responses:
-        '200': *ref_24
-        '500': *ref_2
+        '200': *ref_26
+        '500': *ref_7
   /account.all:
     post:
       tags:
@@ -1726,7 +1845,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200': &ref_28
           description: Returns a list of accounts
@@ -1735,7 +1854,7 @@ paths:
               schema:
                 description: The response schema for a list of accounts
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -1748,8 +1867,8 @@ paths:
                                 items: &ref_30
                                   description: The object schema for an account
                                   type: object
-                                  properties: *ref_14
-                                  required: *ref_15
+                                  properties: *ref_4
+                                  required: *ref_5
                     example:
                       data:
                         data:
@@ -1767,7 +1886,7 @@ paths:
                               original: file_url
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /account.get:
     post:
       tags:
@@ -1791,7 +1910,7 @@ paths:
               example:
                 id: acc_01ca2p8jqans5aty5gj5etmjcf
       responses:
-        '200': &ref_25
+        '200': &ref_27
           description: Returns a single account
           content:
             application/vnd.omisego.v1+json:
@@ -1804,8 +1923,8 @@ paths:
                       data:
                         type: object
                         description: The object schema for an account
-                        properties: *ref_14
-                        required: *ref_15
+                        properties: *ref_4
+                        required: *ref_5
                     example:
                       data:
                         object: account
@@ -1822,7 +1941,7 @@ paths:
                           original: file_url
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /account.create:
     post:
       tags:
@@ -1862,8 +1981,8 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': *ref_25
-        '500': *ref_2
+        '200': *ref_27
+        '500': *ref_7
   /account.update:
     post:
       tags:
@@ -1908,8 +2027,8 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': *ref_25
-        '500': *ref_2
+        '200': *ref_27
+        '500': *ref_7
   /account.upload_avatar:
     post:
       tags:
@@ -1940,8 +2059,8 @@ paths:
                 id: acc_01ca2p8jqans5aty5gj5etmjcf
                 avatar: /path/to/file
       responses:
-        '200': *ref_25
-        '500': *ref_2
+        '200': *ref_27
+        '500': *ref_7
   /account.assign_user:
     post:
       tags:
@@ -2000,8 +2119,8 @@ paths:
                 role_name: admin
                 redirect_url: 'https://domain/redirect_path?email={email}&token={token}'
       responses:
-        '200': *ref_7
-        '500': *ref_2
+        '200': *ref_11
+        '500': *ref_7
   /account.unassign_user:
     post:
       tags:
@@ -2029,8 +2148,8 @@ paths:
                 account_id: acc_01ca2p8jqans5aty5gj5etmjcf
                 user_id: usr_01ce83q2zw7zk1dqr79t22zr1v
       responses:
-        '200': *ref_7
-        '500': *ref_2
+        '200': *ref_11
+        '500': *ref_7
   /account.assign_key:
     post:
       tags:
@@ -2061,8 +2180,8 @@ paths:
               account_id: acc_01ca2p8jqans5aty5gj5etmjcf
               role_name: admin
       responses:
-        '200': *ref_7
-        '500': *ref_2
+        '200': *ref_11
+        '500': *ref_7
   /account.unassign_key:
     post:
       tags:
@@ -2090,8 +2209,8 @@ paths:
                 account_id: acc_01ca2p8jqans5aty5gj5etmjcf
                 key_id: key_01ce83q2zw7zk1dqr79t22zr1v
       responses:
-        '200': *ref_7
-        '500': *ref_2
+        '200': *ref_11
+        '500': *ref_7
   /account.get_users:
     post:
       tags:
@@ -2108,7 +2227,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               properties:
                 id:
                   type: string
@@ -2128,7 +2247,7 @@ paths:
               schema:
                 description: The response schema for a list of users
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -2141,8 +2260,8 @@ paths:
                                 items: &ref_29
                                   description: The object schema for a user
                                   type: object
-                                  properties: *ref_26
-                                  required: *ref_27
+                                  properties: *ref_2
+                                  required: *ref_3
                     example:
                       data:
                         object: list
@@ -2162,7 +2281,7 @@ paths:
                               something: secret
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /account.get_descendants:
     post:
       tags:
@@ -2172,10 +2291,10 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200': *ref_28
-        '500': *ref_2
+        '500': *ref_7
   /account.get_wallets:
     post:
       tags:
@@ -2192,7 +2311,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               properties:
                 id:
                   type: string
@@ -2215,7 +2334,7 @@ paths:
               schema:
                 description: The response schema for a list of wallets
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -2262,8 +2381,8 @@ paths:
                                           token:
                                             type: object
                                             description: The object schema for a token
-                                            properties: *ref_9
-                                            required: *ref_10
+                                            properties: *ref_13
+                                            required: *ref_14
                                           amount:
                                             type: number
                                         required:
@@ -2308,7 +2427,7 @@ paths:
                                   symbol: BTC
                                   name: Bitcoin
                                   subunit_to_unit: 100000000000000000
-        '500': *ref_2
+        '500': *ref_7
   /account.get_wallets_and_user_wallets:
     post:
       tags:
@@ -2321,7 +2440,7 @@ paths:
       requestBody: *ref_31
       responses:
         '200': *ref_32
-        '500': *ref_2
+        '500': *ref_7
   /account.get_transactions:
     post:
       tags:
@@ -2340,7 +2459,7 @@ paths:
               schema:
                 description: The response schema for a list of transactions
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -2399,7 +2518,7 @@ paths:
                             status: confirmed
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /account.get_transaction_requests:
     post:
       tags:
@@ -2411,14 +2530,14 @@ paths:
         - AdminAuth: []
       requestBody: *ref_33
       responses:
-        '200': &ref_53
+        '200': &ref_54
           description: Returns a list of transaction requests
           content:
             application/vnd.omisego.v1+json:
               schema:
                 description: The response schema for a list of transaction requests
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -2433,7 +2552,7 @@ paths:
                                     The response schema for a transaction
                                     request
                                   type: object
-                                  properties: &ref_54
+                                  properties: &ref_55
                                     object:
                                       type: string
                                     id:
@@ -2498,7 +2617,7 @@ paths:
                                       type: string
                                     updated_at:
                                       type: string
-                                  required: &ref_55
+                                  required: &ref_56
                                     - object
                                     - id
                                     - formatted_id
@@ -2556,7 +2675,7 @@ paths:
                             expired_at: '2018-01-01T00:00:00Z'
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T00:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /account.get_transaction_consumptions:
     post:
       tags:
@@ -2575,7 +2694,7 @@ paths:
               schema:
                 description: The response schema for a list of transaction consumptions
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -2716,7 +2835,7 @@ paths:
                             confirmed_at: '2018-01-01T00:00:00Z'
                             failed_at: null
                             expired_at: null
-        '500': *ref_2
+        '500': *ref_7
   /account.get_admin_user_memberships:
     post:
       tags:
@@ -2733,7 +2852,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               properties:
                 id:
                   type: string
@@ -2749,7 +2868,7 @@ paths:
               schema:
                 description: The response schema for a list of memberships
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -2841,7 +2960,7 @@ paths:
                             role: admin
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /account.get_key_memberships:
     post:
       tags:
@@ -2860,7 +2979,7 @@ paths:
               schema:
                 description: The response schema for a list of memberships
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -2908,7 +3027,7 @@ paths:
                             role: admin
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /account.get_members:
     post:
       tags:
@@ -2930,7 +3049,7 @@ paths:
               schema:
                 description: The response schema for a list of members
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -2978,8 +3097,8 @@ paths:
                                     account:
                                       type: object
                                       description: The object schema for an account
-                                      properties: *ref_14
-                                      required: *ref_15
+                                      properties: *ref_4
+                                      required: *ref_5
                                   required:
                                     - object
                                     - id
@@ -3006,7 +3125,7 @@ paths:
                             updated_at: '2018-01-01T10:00:00Z'
                             role: admin
                             account: {}
-        '500': *ref_2
+        '500': *ref_7
   /admin.reset_password:
     post:
       tags:
@@ -3035,8 +3154,8 @@ paths:
                 redirect_url: >-
                   https://example.com/admin/update_password?email={email}&token={token}
       responses:
-        '200': *ref_7
-        '500': *ref_2
+        '200': *ref_11
+        '500': *ref_7
   /admin.update_password:
     post:
       tags:
@@ -3074,8 +3193,8 @@ paths:
                 password: 'nZi9Enc5$l#'
                 password_confirmation: 'nZi9Enc5$l#'
       responses:
-        '200': *ref_7
-        '500': *ref_2
+        '200': *ref_11
+        '500': *ref_7
   /admin.verify_email_update:
     post:
       tags:
@@ -3112,8 +3231,8 @@ paths:
                       data:
                         type: object
                         description: The object schema for a user
-                        properties: *ref_26
-                        required: *ref_27
+                        properties: *ref_2
+                        required: *ref_3
                     example:
                       data:
                         object: user
@@ -3133,7 +3252,7 @@ paths:
                           original: file_url
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /admin.all:
     post:
       tags:
@@ -3143,7 +3262,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200':
           description: Returns a list of admin panel users
@@ -3152,7 +3271,7 @@ paths:
               schema:
                 description: The response schema for a list of admin users
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -3183,7 +3302,7 @@ paths:
                               original: file_url
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /admin.get:
     post:
       tags:
@@ -3208,7 +3327,7 @@ paths:
                 id: usr_01ce83q2zw7zk1dqr79t22zr1v
       responses:
         '200': *ref_38
-        '500': *ref_2
+        '500': *ref_7
   /admin.create:
     post:
       tags:
@@ -3253,8 +3372,8 @@ paths:
                 calling_name: John
                 global_role: admin
       responses:
-        '200': *ref_7
-        '500': *ref_2
+        '200': *ref_11
+        '500': *ref_7
   /admin.update:
     post:
       tags:
@@ -3299,7 +3418,7 @@ paths:
                 global_role: admin
       responses:
         '200': *ref_38
-        '500': *ref_2
+        '500': *ref_7
   /admin.enable_or_disable:
     post:
       tags:
@@ -3330,7 +3449,7 @@ paths:
                 enabled: false
       responses:
         '200': *ref_38
-        '500': *ref_2
+        '500': *ref_7
   /admin.get_account_memberships:
     post:
       tags:
@@ -3347,7 +3466,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               properties:
                 id:
                   type: string
@@ -3363,7 +3482,7 @@ paths:
               schema:
                 description: The response schema for a list of memberships
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -3419,7 +3538,7 @@ paths:
                             role: admin
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /invite.accept:
     post:
       tags:
@@ -3455,7 +3574,7 @@ paths:
         - ClientAuth: []
       responses:
         '200': *ref_38
-        '500': *ref_2
+        '500': *ref_7
   /me.get:
     post:
       tags:
@@ -3466,7 +3585,7 @@ paths:
         - AdminAuth: []
       responses:
         '200': *ref_38
-        '500': *ref_2
+        '500': *ref_7
   /me.update:
     post:
       tags:
@@ -3478,7 +3597,7 @@ paths:
       requestBody: *ref_39
       responses:
         '200': *ref_38
-        '500': *ref_2
+        '500': *ref_7
   /me.update_email:
     post:
       tags:
@@ -3503,7 +3622,7 @@ paths:
                 redirect_url: 'https://example.com'
       responses:
         '200': *ref_38
-        '500': *ref_2
+        '500': *ref_7
   /me.update_password:
     post:
       tags:
@@ -3534,7 +3653,7 @@ paths:
                 password_confirmation: new_password
       responses:
         '200': *ref_38
-        '500': *ref_2
+        '500': *ref_7
   /me.upload_avatar:
     post:
       tags:
@@ -3565,7 +3684,7 @@ paths:
                 avatar: /path/to/file
       responses:
         '200': *ref_38
-        '500': *ref_2
+        '500': *ref_7
   /me.get_account:
     post:
       tags:
@@ -3575,8 +3694,8 @@ paths:
       security:
         - AdminAuth: []
       responses:
-        '200': *ref_25
-        '500': *ref_2
+        '200': *ref_27
+        '500': *ref_7
   /me.get_accounts:
     post:
       tags:
@@ -3587,10 +3706,158 @@ paths:
       operationId: me_get_accounts
       security:
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200': *ref_28
-        '500': *ref_2
+        '500': *ref_7
+  /me.create_backup_codes:
+    post:
+      tags:
+        - Admin
+      summary: Create a list of backup_codes for two-factor authentication.
+      operationId: me_create_backup_codes
+      security:
+        - AdminAuth: []
+      responses:
+        '200':
+          description: Create two-factor authentication backup codes.
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of backup codes
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a list of backup codes
+                        properties:
+                          object:
+                            type: string
+                          backup_codes:
+                            type: array
+                            items:
+                              type: string
+                        required:
+                          - object
+                          - backup_codes
+                    example:
+                      data:
+                        object: backup_codes
+                        backup_codes:
+                          - 750a42a9
+                          - 2f0e81e3
+                          - e0d16647
+                          - d7aa447e
+                          - 946e144f
+                          - 3b20862a
+                          - a6a5591d
+                          - 2e4865c0
+                          - c8c9cd3f
+                          - 67cb697e
+        '500': *ref_7
+  /me.create_secret_code:
+    post:
+      tags:
+        - Admin
+      summary: Create a secret code for two-factor authentication.
+      operationId: me_create_secret_code
+      security:
+        - AdminAuth: []
+      responses:
+        '200':
+          description: Create two-factor authentication secret code
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a secret code
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a secret code
+                        properties:
+                          object:
+                            type: string
+                          secret_2fa_code:
+                            type: string
+                          issuer:
+                            type: string
+                          label:
+                            type: string
+                        required:
+                          - object
+                          - secret_2fa_code
+                          - issuer
+                          - label
+                    example:
+                      data:
+                        object: secret_code
+                        secret_2fa_code: K4KXTZ3NOL5FHH3L
+                        label: user@example.com
+                        issuer: OmiseGO
+        '500': *ref_7
+  /me.enable_2fa:
+    post:
+      tags:
+        - Admin
+      summary: Enable a two-factor authentication.
+      operationId: me_enable_2fa
+      security:
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for enable the two-factor authentication
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                passcode:
+                  type: string
+              required:
+                - passcode
+              example:
+                passcode: '123456'
+      responses:
+        '200': *ref_11
+        '500': *ref_7
+  /me.disable_2fa:
+    post:
+      tags:
+        - Admin
+      summary: Disable a two-factor authentication.
+      operationId: me_disable_2fa
+      security:
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for disable the two-factor authentication
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              oneOf:
+                - properties:
+                    backup_code:
+                      type: string
+                  required:
+                    - backup_code
+                  example:
+                    backup_code: a1b2c3d4
+                - properties:
+                    passcode:
+                      type: string
+                  required:
+                    - passcode
+                  example:
+                    passcode: '123456'
+              example:
+                passcode: '123456'
+      responses:
+        '200': *ref_11
+        '500': *ref_7
   /user.all:
     post:
       tags:
@@ -3600,10 +3867,10 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200': *ref_40
-        '500': *ref_2
+        '500': *ref_7
   /user.create:
     post:
       tags:
@@ -3660,8 +3927,8 @@ paths:
                       data:
                         type: object
                         description: The object schema for a user
-                        properties: *ref_26
-                        required: *ref_27
+                        properties: *ref_2
+                        required: *ref_3
                     example:
                       data:
                         object: user
@@ -3679,7 +3946,7 @@ paths:
                           something: secret
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /user.update:
     post:
       tags:
@@ -3692,7 +3959,7 @@ paths:
       requestBody: *ref_41
       responses:
         '200': *ref_42
-        '500': *ref_2
+        '500': *ref_7
   /user.get:
     post:
       tags:
@@ -3705,7 +3972,7 @@ paths:
       requestBody: *ref_43
       responses:
         '200': *ref_42
-        '500': *ref_2
+        '500': *ref_7
   /user.get_wallets:
     post:
       tags:
@@ -3723,7 +3990,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               oneOf:
                 - properties:
                     id:
@@ -3744,7 +4011,7 @@ paths:
                 start_by: address
       responses:
         '200': *ref_32
-        '500': *ref_2
+        '500': *ref_7
   /user.get_transactions:
     post:
       tags:
@@ -3759,7 +4026,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               oneOf:
                 - properties:
                     id:
@@ -3778,7 +4045,7 @@ paths:
         - AdminAuth: []
       responses:
         '200': *ref_44
-        '500': *ref_2
+        '500': *ref_7
   /user.get_transaction_consumptions:
     post:
       tags:
@@ -3791,7 +4058,7 @@ paths:
       requestBody: *ref_45
       responses:
         '200': *ref_46
-        '500': *ref_2
+        '500': *ref_7
   /user.enable_or_disable:
     post:
       tags:
@@ -3831,7 +4098,7 @@ paths:
                 enabled: false
       responses:
         '200': *ref_42
-        '500': *ref_2
+        '500': *ref_7
   /wallet.all:
     post:
       tags:
@@ -3848,7 +4115,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               properties:
                 start_by:
                   type: string
@@ -3856,7 +4123,7 @@ paths:
                 start_by: address
       responses:
         '200': *ref_32
-        '500': *ref_2
+        '500': *ref_7
   /wallet.create:
     post:
       tags:
@@ -3957,7 +4224,7 @@ paths:
                               symbol: BTC
                               name: Bitcoin
                               subunit_to_unit: 100000000000000000
-        '500': *ref_2
+        '500': *ref_7
   /wallet.get:
     post:
       tags:
@@ -3982,7 +4249,7 @@ paths:
                 address: kxhk519271652215
       responses:
         '200': *ref_49
-        '500': *ref_2
+        '500': *ref_7
   /wallet.get_transaction_consumptions:
     post:
       tags:
@@ -3999,7 +4266,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               properties:
                 address:
                   type: string
@@ -4009,7 +4276,7 @@ paths:
                 address: kxhk519271652215
       responses:
         '200': *ref_46
-        '500': *ref_2
+        '500': *ref_7
   /wallet.get_balances:
     post:
       tags:
@@ -4028,7 +4295,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               properties:
                 address:
                   type: string
@@ -4037,14 +4304,14 @@ paths:
               example:
                 address: kxhk519271652215
       responses:
-        '200':
+        '200': &ref_51
           description: Returns a list of balances
           content:
             application/vnd.omisego.v1+json:
               schema:
                 description: The response schema for a list of balances
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -4067,7 +4334,7 @@ paths:
                             symbol: BTC
                             name: Bitcoin
                             subunit_to_unit: 100000000000000000
-        '500': *ref_2
+        '500': *ref_7
   /wallet.enable_or_disable:
     post:
       tags:
@@ -4096,7 +4363,59 @@ paths:
                 enabled: false
       responses:
         '200': *ref_49
-        '500': *ref_2
+        '500': *ref_7
+  /blockchain_wallet.get_balances:
+    post:
+      tags:
+        - Blockchain wallet
+      summary: Get the list of balances on blockchain for the specified wallet address.
+      operationId: blockchain_wallet_get_balances
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for listing the blockchain balances for a
+          wallet. Note that the pagination parameters are based on token.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_16
+              oneOf:
+                - properties:
+                    address:
+                      type: string
+                  required:
+                    - address
+                - properties:
+                    address:
+                      type: string
+                    token_ids:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - address
+                - properties:
+                    address:
+                      type: string
+                    token_addresses:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - address
+              example:
+                address: '0x54e0588607dcec6c0b36fca1154a57814a913591'
+                token_addresses:
+                  - '0x48b91d5f363892592bf836777dc73b54a10b72ae'
+                  - '0x0000000000000000000000000000000000000000'
+                  - '0xb76fe945f8672b57cc151448e2f52b0f88891c34'
+      responses:
+        '200': *ref_51
+        '500': *ref_7
   /transaction.all:
     post:
       tags:
@@ -4106,10 +4425,10 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200': *ref_44
-        '500': *ref_2
+        '500': *ref_7
   /transaction.export:
     post:
       tags:
@@ -4129,8 +4448,8 @@ paths:
                 - properties:
                     search_term:
                       type: string
-                    match_all: *ref_8
-                    match_any: *ref_8
+                    match_all: *ref_12
+                    match_any: *ref_12
                     sort_by:
                       type: string
                     sort_dir:
@@ -4144,7 +4463,7 @@ paths:
                     sort_by: created_at
                     sort_dir: desc
       responses:
-        '200': &ref_65
+        '200': &ref_66
           description: Returns a single export
           content:
             application/vnd.omisego.v1+json:
@@ -4157,7 +4476,7 @@ paths:
                       data:
                         type: object
                         description: The object schema for an export
-                        properties: &ref_63
+                        properties: &ref_64
                           object:
                             type: string
                           id:
@@ -4188,7 +4507,7 @@ paths:
                           updated_at:
                             type: string
                             format: date-time
-                        required: &ref_64
+                        required: &ref_65
                           - object
                           - id
                           - filename
@@ -4214,7 +4533,7 @@ paths:
                         pid: 'PID#124'
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /transaction.get:
     post:
       tags:
@@ -4238,7 +4557,7 @@ paths:
               example:
                 id: txn_01ce83x8w4db56f3fcjy4n4qpc
       responses:
-        '200': &ref_51
+        '200': &ref_52
           description: Returns a single transaction
           content:
             application/vnd.omisego.v1+json:
@@ -4296,7 +4615,7 @@ paths:
                         status: confirmed
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /transaction.create:
     post:
       tags:
@@ -4368,8 +4687,8 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': *ref_51
-        '500': *ref_2
+        '200': *ref_52
+        '500': *ref_7
   /transaction.calculate:
     post:
       tags:
@@ -4426,7 +4745,7 @@ paths:
                             type: integer
                           to_token_id:
                             type: string
-                          exchange_pair: *ref_52
+                          exchange_pair: *ref_53
                           calculated_at:
                             type: string
                             format: date-time
@@ -4471,24 +4790,24 @@ paths:
                           created_at: '2018-01-10T00:00:00Z'
                           updated_at: '2018-01-10T10:00:00Z'
                         calculated_at: '2018-02-02T00:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /transaction_request.all:
     post:
       tags:
-        - TransactionRequest
+        - Transaction request
       summary: Get the list of transaction requests
       operationId: transaction_request_all
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
-        '200': *ref_53
-        '500': *ref_2
+        '200': *ref_54
+        '500': *ref_7
   /transaction_request.create:
     post:
       tags:
-        - TransactionRequest
+        - Transaction request
       summary: Create a new transaction request.
       description: This is a server call only.
       operationId: transaction_request_create
@@ -4610,7 +4929,7 @@ paths:
                 correlation_id: some correlation id
                 address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
       responses:
-        '200': &ref_56
+        '200': &ref_57
           description: Transaction request response
           content:
             application/vnd.omisego.v1+json:
@@ -4623,8 +4942,8 @@ paths:
                       data:
                         type: object
                         description: The response schema for a transaction request
-                        properties: *ref_54
-                        required: *ref_55
+                        properties: *ref_55
+                        required: *ref_56
                     example:
                       data:
                         object: transaction_request
@@ -4652,11 +4971,11 @@ paths:
                         expired_at: '2018-01-01T00:00:00Z'
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T00:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /transaction_request.get:
     post:
       tags:
-        - TransactionRequest
+        - Transaction request
       summary: Get a transaction request.
       description: This is a server call only.
       operationId: transaction_request_get
@@ -4674,12 +4993,12 @@ paths:
               example:
                 formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
       responses:
-        '200': *ref_56
-        '500': *ref_2
+        '200': *ref_57
+        '500': *ref_7
   /transaction_request.consume:
     post:
       tags:
-        - TransactionRequest
+        - Transaction request
       summary: Consume a transaction request.
       description: This is a server call only.
       operationId: transaction_request_consume
@@ -4734,7 +5053,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': &ref_57
+        '200': &ref_58
           description: Transaction request consumption response
           content:
             application/vnd.omisego.v1+json:
@@ -4866,11 +5185,11 @@ paths:
                         confirmed_at: '2018-01-01T00:00:00Z'
                         failed_at: null
                         expired_at: null
-        '500': *ref_2
+        '500': *ref_7
   /transaction_request.get_transaction_consumptions:
     post:
       tags:
-        - TransactionRequest
+        - Transaction request
       summary: Get the list of transaction consumptions for a transaction request
       operationId: transaction_request_get_consumptions
       security:
@@ -4885,7 +5204,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               properties:
                 formatted_transaction_request_id:
                   type: string
@@ -4895,24 +5214,24 @@ paths:
                 formatted_transaction_request_id: txr_01cbfg8mafdnbthgb9e68nd9y9
       responses:
         '200': *ref_46
-        '500': *ref_2
+        '500': *ref_7
   /transaction_consumption.all:
     post:
       tags:
-        - TransactionConsumption
+        - Transaction consumption
       summary: Get the list of transaction consumptions
       operationId: transaction_consumption_all
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200': *ref_46
-        '500': *ref_2
+        '500': *ref_7
   /transaction_consumption.get:
     post:
       tags:
-        - TransactionConsumption
+        - Transaction consumption
       summary: Get a consumption.
       description: This is a server call only.
       operationId: transaction_consumption_get
@@ -4933,19 +5252,19 @@ paths:
               example:
                 id: txc_01abfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_57
-        '500': *ref_2
+        '200': *ref_58
+        '500': *ref_7
   /transaction_consumption.approve:
     post:
       tags:
-        - TransactionConsumption
+        - Transaction consumption
       summary: Approve a consumption.
       description: This is a server call only.
       operationId: transaction_consumption_approve
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_58
+      requestBody: &ref_59
         description: Approve or reject a consumption using the specified ID.
         required: true
         content:
@@ -4959,26 +5278,26 @@ paths:
               example:
                 id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_57
-        '500': *ref_2
+        '200': *ref_58
+        '500': *ref_7
   /transaction_consumption.reject:
     post:
       tags:
-        - TransactionConsumption
+        - Transaction consumption
       summary: Reject a consumption.
       description: This is a server call only.
       operationId: transaction_consumption_reject
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_58
+      requestBody: *ref_59
       responses:
-        '200': *ref_57
-        '500': *ref_2
+        '200': *ref_58
+        '500': *ref_7
   /transaction_consumption.cancel:
     post:
       tags:
-        - TransactionConsumption
+        - Transaction consumption
       summary: Cancel a pending consumption.
       description: This is a server call only.
       operationId: transaction_consumption_cancel
@@ -4999,18 +5318,18 @@ paths:
               example:
                 id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_57
-        '500': *ref_2
+        '200': *ref_58
+        '500': *ref_7
   /access_key.all:
     post:
       tags:
-        - API Access
+        - API access
       summary: Get the list of access and secret keys
       operationId: access_key_all
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200':
           description: Returns a list of access keys
@@ -5019,7 +5338,7 @@ paths:
               schema:
                 description: The response schema for a list of access keys
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -5029,7 +5348,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_59
+                                items: &ref_60
                                   description: The object schema for an access key
                                   type: object
                                   properties:
@@ -5082,11 +5401,11 @@ paths:
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
                             deleted_at: null
-        '500': *ref_2
+        '500': *ref_7
   /access_key.get:
     post:
       tags:
-        - API Access
+        - API access
       summary: Get a specific access key
       operationId: access_key_get
       security:
@@ -5106,7 +5425,7 @@ paths:
               example:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
       responses:
-        '200': &ref_60
+        '200': &ref_61
           description: Returns a single access key
           content:
             application/vnd.omisego.v1+json:
@@ -5116,7 +5435,7 @@ paths:
                   - *ref_1
                   - type: object
                     properties:
-                      data: *ref_59
+                      data: *ref_60
                     example:
                       data:
                         object: key
@@ -5129,11 +5448,11 @@ paths:
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         deleted_at: null
-        '500': *ref_2
+        '500': *ref_7
   /access_key.create:
     post:
       tags:
-        - API Access
+        - API access
       summary: Create a pair of access and secret keys
       operationId: access_key_create
       security:
@@ -5158,12 +5477,12 @@ paths:
                 name: my_key
                 global_role: none
       responses:
-        '200': *ref_60
-        '500': *ref_2
+        '200': *ref_61
+        '500': *ref_7
   /access_key.update:
     post:
       tags:
-        - API Access
+        - API access
       summary: Update a pair of access and secret keys by its id
       operationId: access_key_update
       security:
@@ -5189,12 +5508,12 @@ paths:
                 name: my_key
                 global_role: none
       responses:
-        '200': *ref_60
-        '500': *ref_2
+        '200': *ref_61
+        '500': *ref_7
   /access_key.enable_or_disable:
     post:
       tags:
-        - API Access
+        - API access
       summary: Enable or disable an existing access key
       operationId: access_key_enable_or_disable
       security:
@@ -5220,12 +5539,12 @@ paths:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-        '200': *ref_60
-        '500': *ref_2
+        '200': *ref_61
+        '500': *ref_7
   /access_key.delete:
     post:
       tags:
-        - API Access
+        - API access
       summary: Delete a pair of access and secret keys by its id or access key
       operationId: access_key_delete
       security:
@@ -5255,12 +5574,12 @@ paths:
               example:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
       responses:
-        '200': *ref_7
-        '500': *ref_2
+        '200': *ref_11
+        '500': *ref_7
   /access_key.get_account_memberships:
     post:
       tags:
-        - API Access
+        - API access
       summary: Get the list of account memberships linked to the given access key id
       operationId: access_key_get_account_memberships
       security:
@@ -5273,7 +5592,7 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               allOf:
-                - *ref_12
+                - *ref_16
               properties:
                 id:
                   type: string
@@ -5289,7 +5608,7 @@ paths:
               schema:
                 description: The response schema for a list of memberships
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -5337,17 +5656,17 @@ paths:
                             role: admin
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /api_key.all:
     post:
       tags:
-        - API Access
+        - API access
       summary: Get the list of API keys
       operationId: api_key_all
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200':
           description: Returns a list of API keys
@@ -5356,7 +5675,7 @@ paths:
               schema:
                 description: The response schema for a list of API keys
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -5366,7 +5685,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_61
+                                items: &ref_62
                                   description: The object schema for an API key
                                   type: object
                                   properties:
@@ -5420,11 +5739,11 @@ paths:
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
                             deleted_at: null
-        '500': *ref_2
+        '500': *ref_7
   /api_key.create:
     post:
       tags:
-        - API Access
+        - API access
       summary: Create an API key
       operationId: api_key_create
       security:
@@ -5442,7 +5761,7 @@ paths:
               example:
                 name: my_api_key
       responses:
-        '200': &ref_62
+        '200': &ref_63
           description: Returns a single API key
           content:
             application/vnd.omisego.v1+json:
@@ -5452,7 +5771,7 @@ paths:
                   - *ref_1
                   - type: object
                     properties:
-                      data: *ref_61
+                      data: *ref_62
                     example:
                       data:
                         object: api_key
@@ -5465,11 +5784,11 @@ paths:
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         deleted_at: null
-        '500': *ref_2
+        '500': *ref_7
   /api_key.get:
     post:
       tags:
-        - API Access
+        - API access
       summary: Get a specific api key
       operationId: api_key_get
       security:
@@ -5489,12 +5808,12 @@ paths:
               example:
                 id: api_01d744xm9cy3qx8hdwv4ax3k1h
       responses:
-        '200': *ref_62
-        '500': *ref_2
+        '200': *ref_63
+        '500': *ref_7
   /api_key.update:
     post:
       tags:
-        - API Access
+        - API access
       summary: Update an API key
       operationId: api_key_update
       security:
@@ -5517,12 +5836,12 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 name: my_api_key
       responses:
-        '200': *ref_62
-        '500': *ref_2
+        '200': *ref_63
+        '500': *ref_7
   /api_key.enable_or_disable:
     post:
       tags:
-        - API Access
+        - API access
       summary: Enable or disable an existing api key
       operationId: api_key_enable_or_disable
       security:
@@ -5548,12 +5867,12 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-        '200': *ref_62
-        '500': *ref_2
+        '200': *ref_63
+        '500': *ref_7
   /api_key.delete:
     post:
       tags:
-        - API Access
+        - API access
       summary: Delete an API key by its id
       operationId: api_key_delete
       security:
@@ -5573,8 +5892,8 @@ paths:
               example:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
       responses:
-        '200': *ref_7
-        '500': *ref_2
+        '200': *ref_11
+        '500': *ref_7
   /export.all:
     post:
       tags:
@@ -5584,7 +5903,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200':
           description: Returns a list of exports
@@ -5593,7 +5912,7 @@ paths:
               schema:
                 description: The response schema for a list of exports
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -5606,8 +5925,8 @@ paths:
                                 items:
                                   description: The object schema for an export
                                   type: object
-                                  properties: *ref_63
-                                  required: *ref_64
+                                  properties: *ref_64
+                                  required: *ref_65
                     example:
                       data:
                         data:
@@ -5625,7 +5944,7 @@ paths:
                             pid: 'PID#124'
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T10:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /export.get:
     post:
       tags:
@@ -5635,7 +5954,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_66
+      requestBody: &ref_67
         description: The parameters to use for retrieving a specific export by its id
         required: true
         content:
@@ -5649,8 +5968,8 @@ paths:
               example:
                 id: exp_01ca2p8jqans5aty5gj5etmjcf
       responses:
-        '200': *ref_65
-        '500': *ref_2
+        '200': *ref_66
+        '500': *ref_7
   /export.download:
     post:
       tags:
@@ -5660,7 +5979,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_66
+      requestBody: *ref_67
       responses:
         '200':
           description: A CSV file
@@ -5669,7 +5988,7 @@ paths:
               schema:
                 type: string
                 format: binary
-        '500': *ref_2
+        '500': *ref_7
   /configuration.get:
     post:
       tags:
@@ -5679,7 +5998,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200':
           description: Returns a list of settings
@@ -5688,7 +6007,7 @@ paths:
               schema:
                 description: The response schema for a list of configuration settings
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -5766,7 +6085,7 @@ paths:
                             position: 0
                             created_at: '2018-01-01T00:00:00Z'
                             updated_at: '2018-01-01T00:00:00Z'
-        '500': *ref_2
+        '500': *ref_7
   /configuration.update:
     post:
       tags:
@@ -5833,7 +6152,7 @@ paths:
                             messages:
                               value:
                                 - invalid_type_for_value
-        '500': *ref_2
+        '500': *ref_7
   /activity_log.all:
     post:
       tags:
@@ -5843,7 +6162,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_16
+      requestBody: *ref_18
       responses:
         '200':
           description: Returns a list of activity log
@@ -5852,7 +6171,7 @@ paths:
               schema:
                 description: The response schema for a list of activity log
                 allOf:
-                  - *ref_13
+                  - *ref_17
                   - type: object
                     properties:
                       data:
@@ -5943,7 +6262,7 @@ paths:
                             target_changes:
                               some: change
                             target_encrypted_changes: {}
-        '500': *ref_2
+        '500': *ref_7
   /role.all:
     post:
       tags:
@@ -5955,7 +6274,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': &ref_67
+        '200': &ref_68
           description: Returns unauthorized error
           content:
             application/vnd.omisego.v1+json:
@@ -5968,9 +6287,9 @@ paths:
                       data:
                         type: object
                         description: The object schema for an error
-                        properties: *ref_3
-                        required: *ref_4
-                        example: *ref_5
+                        properties: *ref_8
+                        required: *ref_9
+                        example: *ref_10
                     example:
                       success: false
                       data:
@@ -5980,7 +6299,7 @@ paths:
                           You are not allowed to perform the requested
                           operation.
                         messages: {}
-        '500': *ref_2
+        '500': *ref_7
   /role.get:
     post:
       tags:
@@ -5992,8 +6311,8 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_67
-        '500': *ref_2
+        '200': *ref_68
+        '500': *ref_7
   /role.create:
     post:
       tags:
@@ -6005,8 +6324,8 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_67
-        '500': *ref_2
+        '200': *ref_68
+        '500': *ref_7
   /role.update:
     post:
       tags:
@@ -6018,8 +6337,8 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_67
-        '500': *ref_2
+        '200': *ref_68
+        '500': *ref_7
   /role.delete:
     post:
       tags:
@@ -6031,8 +6350,8 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_67
-        '500': *ref_2
+        '200': *ref_68
+        '500': *ref_7
   /permission.all:
     post:
       tags:
@@ -6091,4 +6410,4 @@ paths:
                             account_wallets:
                               get: global
                               all: global
-        '500': *ref_2
+        '500': *ref_7

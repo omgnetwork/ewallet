@@ -1,7 +1,7 @@
 user.login:
   post:
     tags:
-      - UserSession
+      - User session
     summary: Login an existing user. The provider can call this to get an authentication token for a specific user.
     operationId: user_login
     security:
@@ -17,7 +17,7 @@ user.login:
 user.logout:
   post:
     tags:
-      - UserSession
+      - User session
     summary: Expires a user's authentication_token.
     operationId: user_logout
     security:

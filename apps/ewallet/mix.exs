@@ -43,6 +43,8 @@ defmodule EWallet.Mixfile do
       {:appsignal, "~> 1.9"},
       {:bamboo, "~> 0.8"},
       {:bamboo_smtp, "~> 1.4.0"},
+      {:eth_blockchain, in_umbrella: true},
+      {:eth_geth_adapter, in_umbrella: true},
       {:bypass, "~> 1.0.0", only: [:test]},
       {:csv, "~> 2.0.0"},
       {:decimal, "~> 1.0"},
@@ -54,6 +56,7 @@ defmodule EWallet.Mixfile do
       {:local_ledger_db, in_umbrella: true},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_html, "~> 2.11.0"},
+      {:pot, "~>0.9.6"},
       {:quantum, "~> 2.3.4"},
       {:sentry, "~> 7.0"},
       {:timex, "~> 3.0"}

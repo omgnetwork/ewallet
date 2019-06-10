@@ -91,7 +91,8 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                        "username" => user.username,
                        "full_name" => user.full_name,
                        "calling_name" => user.calling_name,
-                       "enabled" => user.enabled
+                       "enabled" => user.enabled,
+                       "enabled_2fa_at" => nil
                      },
                      "user_id" => user.id,
                      "balances" => [
@@ -107,6 +108,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
+                           "blockchain_address" => btc.blockchain_address,
                            "avatar" => %{
                              "large" => nil,
                              "original" => nil,
@@ -129,6 +131,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
+                           "blockchain_address" => omg.blockchain_address,
                            "avatar" => %{
                              "large" => nil,
                              "original" => nil,

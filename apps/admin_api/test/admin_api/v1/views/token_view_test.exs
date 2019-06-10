@@ -33,6 +33,7 @@ defmodule AdminAPI.V1.TokenViewTest do
           metadata: %{},
           encrypted_metadata: %{},
           enabled: true,
+          blockchain_address: token.blockchain_address,
           avatar: %{
             large: nil,
             original: nil,
@@ -76,6 +77,7 @@ defmodule AdminAPI.V1.TokenViewTest do
               metadata: %{},
               encrypted_metadata: %{},
               enabled: true,
+              blockchain_address: token1.blockchain_address,
               avatar: %{
                 large: nil,
                 original: nil,
@@ -94,6 +96,7 @@ defmodule AdminAPI.V1.TokenViewTest do
               metadata: %{},
               encrypted_metadata: %{},
               enabled: true,
+              blockchain_address: token2.blockchain_address,
               avatar: %{
                 large: nil,
                 original: nil,

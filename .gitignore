@@ -16,7 +16,9 @@ erl_crash.dump
 # Dev
 .DS_Store
 .elixir_ls
+*.iml
 Thumbs.db
+*.log
 
 # Load Tester results
 /results/
