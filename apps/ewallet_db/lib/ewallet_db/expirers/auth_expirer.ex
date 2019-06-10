@@ -27,9 +27,11 @@ defmodule EWalletDB.Expirers.AuthExpirer do
   @spec get_advanced_datetime(integer) :: NaiveDateTime.t() | nil
   def get_advanced_datetime(0), do: nil
 
-  def get_advanced_datetime(second) do
+  def get_advanced_datetime(second) when is_integer(second) and not is_nil(second) do
     NaiveDateTime.add(NaiveDateTime.utc_now(), second, :second)
   end
+
+  def get_advanced_datetime(_), do: nil
 
   @doc """
   Expire a given AuthToken or PreAuthToken if the datetime from `expired_at` field has been lapse.
