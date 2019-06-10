@@ -6,7 +6,6 @@ import { compose } from 'recompose'
 import moment from 'moment'
 
 import WalletProvider from '../omg-wallet/walletProvider'
-import { Button, Icon } from '../omg-uikit'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'

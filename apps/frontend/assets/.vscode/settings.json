@@ -11,5 +11,6 @@
     "javascriptreact",
     "typescript"
   ],
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "prettier.eslintIntegration": true
 }

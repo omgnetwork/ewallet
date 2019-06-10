@@ -7,13 +7,11 @@ import {
   selectUsersCachedQueryPagination
 } from './selector'
 
-
 export default createFetcher('users', getUsers, (state, props) => ({
   loadingStatus: selectUsersLoadingStatus(state),
   data: selectUsersCachedQuery(state)(props.cacheKey),
   pagination: selectUsersCachedQueryPagination(state)(props.cacheKey)
 }))
-
 
 export const getUsersByAccountId = createFetcher(
   'users_account',

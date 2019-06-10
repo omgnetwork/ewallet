@@ -1,4 +1,4 @@
-const createTransactionQuery = (value = '') => {
+export const createTransactionQuery = (value = '') => {
   return {
     matchAny: [
       {

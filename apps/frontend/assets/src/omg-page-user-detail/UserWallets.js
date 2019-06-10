@@ -6,7 +6,7 @@ import queryString from 'query-string'
 import WalletTable from '../omg-page-wallets/WalletTable'
 function UserWallets (props) {
   const { page, search } = queryString.parse(props.location.search)
-  
+
   return (
     <UserWalletsFetcher
       userId={props.match.params.userId}

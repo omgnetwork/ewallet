@@ -4,7 +4,6 @@ import { selectGetModalById } from './selector'
 import { closeModal, openModal } from './action'
 
 import CreateTransactionModal from '../omg-create-transaction-modal'
-import _ from 'lodash'
 
 // ADD YOUR NEW MODAL HERE
 const modals = [

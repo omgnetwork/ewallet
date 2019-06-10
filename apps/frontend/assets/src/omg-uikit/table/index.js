@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import styled, {keyframes} from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { LoadingSkeleton } from '../../omg-uikit'
 import Pagination from './Pagination'
 import Fade from '../../omg-transition/Fade'
@@ -39,7 +39,7 @@ const Tr = styled.tr`
   background-color: ${props =>
     props.active ? props.theme.colors.S100 : 'transparent'};
   animation: ${blink};
-  animation-duration: ${props => props.new ? '2s' : '0'};
+  animation-duration: ${props => (props.new ? '2s' : '0')};
 `
 class Table extends Component {
   static propTypes = {
