@@ -70,6 +70,7 @@ function AccountLayout (props) {
       <Route path='/accounts/:accountId/keys' exact render={() => <AccountKeySubPage />} />
 
       <Route path='/accounts/:accountId/users' exact render={() => <AccountUserSubPage />} />
+      <Route path='/accounts/:accountId/users/:userId/:type' exact render={() => <UserDetailPage divider={false} />} />
       <Route path='/accounts/:accountId/users/:userId' exact render={() => <UserDetailPage divider={false} />} />
       <Route path='/accounts/:accountId/admins' exact render={() => <AccountAdminSubPage />} />
       <Route path='/accounts/:accountId/admins/:adminId' exact render={() => <AdminDetailPage divider={false} />} />

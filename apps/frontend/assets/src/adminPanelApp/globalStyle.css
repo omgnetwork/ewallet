@@ -1,5 +1,5 @@
 *:focus {
-    outline: none;
+  outline: none;
 }
 * {
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
@@ -142,6 +142,7 @@ a {
 b {
   font-weight: 600;
 }
+
 
 
 /* DATE PICKER */

@@ -1,5 +1,8 @@
 import * as transactionService from '../services/transactionService'
-import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
+import {
+  createActionCreator,
+  createPaginationActionCreator
+} from '../utils/createActionCreator'
 export const transfer = ({
   fromAddress,
   toAddress,
@@ -27,7 +30,42 @@ export const transfer = ({
         exchangeAddress
       })
   })
-export const getTransactions = ({ page, search, searchTerms, perPage, cacheKey, matchAll, matchAny }) =>
+
+export const getUserTransactions = ({
+  userId,
+  page,
+  search,
+  searchTerms,
+  perPage,
+  cacheKey,
+  matchAll,
+  matchAny
+}) =>
+  createPaginationActionCreator({
+    actionName: 'TRANSACTIONS',
+    action: 'REQUEST',
+    service: () =>
+      transactionService.getUserTransactions({
+        userId,
+        perPage,
+        page,
+        sort: { by: 'created_at', dir: 'desc' },
+        search,
+        searchTerms,
+        matchAll,
+        matchAny
+      }),
+    cacheKey
+  })
+export const getTransactions = ({
+  page,
+  search,
+  searchTerms,
+  perPage,
+  cacheKey,
+  matchAll,
+  matchAny
+}) =>
   createPaginationActionCreator({
     actionName: 'TRANSACTIONS',
     action: 'REQUEST',
@@ -62,5 +100,11 @@ export const calculate = ({ fromTokenId, toTokenId, fromAmount, toAmount }) =>
   createActionCreator({
     actionName: 'TRANSACTION',
     action: 'CALCULATE',
-    service: () => transactionService.calculate({ fromTokenId, toTokenId, fromAmount, toAmount })
+    service: () =>
+      transactionService.calculate({
+        fromTokenId,
+        toTokenId,
+        fromAmount,
+        toAmount
+      })
   })
