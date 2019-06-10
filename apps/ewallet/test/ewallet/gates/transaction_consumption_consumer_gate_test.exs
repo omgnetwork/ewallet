@@ -1603,12 +1603,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       {res, error} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => meta.request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
           "address" => meta.sender_wallet.address,
-          "metadata" => nil,
           "idempotency_token" => "123",
-          "token_id" => nil,
           "originator" => %System{},
           "creator" => creator()
         })
