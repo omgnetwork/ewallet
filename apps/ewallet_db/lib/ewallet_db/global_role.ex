@@ -94,6 +94,7 @@ defmodule EWalletDB.GlobalRole do
         create: :global,
         update: :global
       },
+      blockchain_wallets: %{},
       account_transactions: %{
         all: :global,
         get: :global,

@@ -26,6 +26,7 @@ defmodule EWalletDB.Factory do
     AccountUser,
     APIKey,
     AuthToken,
+    BlockchainWallet,
     PreAuthToken,
     Category,
     Export,
@@ -117,6 +118,16 @@ defmodule EWalletDB.Factory do
     }
   end
 
+  def blockchain_wallet_factory do
+    %BlockchainWallet{
+      address: Crypto.fake_eth_address(),
+      name: sequence("Wallet name"),
+      public_key: Crypto.fake_eth_address(),
+      type: "hot",
+      originator: %System{}
+    }
+  end
+
   def token_factory do
     symbol = sequence("jon")
 
@@ -136,6 +147,7 @@ defmodule EWalletDB.Factory do
       locked: false,
       account: insert(:account),
       enabled: true,
+      blockchain_address: nil,
       originator: %System{}
     }
   end

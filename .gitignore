@@ -18,6 +18,7 @@ erl_crash.dump
 .elixir_ls
 *.iml
 Thumbs.db
+*.log
 
 # Load Tester results
 /results/

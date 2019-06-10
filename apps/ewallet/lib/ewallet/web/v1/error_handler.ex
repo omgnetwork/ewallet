@@ -434,6 +434,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "adapter:invalid_storage",
       description: "The file was stored in a different backend and cannot be retrieved."
     },
+    blockchain_adapter_error: %{
+      code: "blockchain:adapter_error",
+      template: "There was a problem communicating with the blockchain adapter: %{error}"
+    },
     end_user_exchanges_not_allowed: %{
       code: "config:end_user_exchanges_not_allowed",
       description: "End user exchanges are not allowed for this exchange pair."

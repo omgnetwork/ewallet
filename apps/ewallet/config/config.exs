@@ -6,6 +6,7 @@ config :ewallet,
   ecto_repos: [],
   version: "1.2.0-dev",
   cors_origin: {:system, "CORS_ORIGIN", nil},
+  blockchain_adapter: EthGethAdapter.Adapter,
   settings: [
     :base_url,
     :sender_email,

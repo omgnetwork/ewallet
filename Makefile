@@ -63,7 +63,10 @@ check-credo:
 	$(ENV_TEST) mix credo 2>&1
 
 check-dialyzer:
-	$(ENV_TEST) mix dialyzer --halt-exit-status >&1
+	$(ENV_TEST) mix dialyzer --halt-exit-status 2>&1
+
+check-assets:
+	$(ASSETS) npm run lint 2>&1
 
 check-assets:
 	$(ASSETS) npm run lint 2>&1
@@ -88,7 +91,7 @@ build-dev: deps-ewallet build-assets
 build-test: deps-ewallet
 	$(ENV_TEST) mix compile
 
-.PHONY: build-assets build-prod build-test
+.PHONY: build-assets build-prod build-dev build-test
 
 #
 # Testing

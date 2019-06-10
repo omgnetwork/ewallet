@@ -108,6 +108,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
+                           "blockchain_address" => btc.blockchain_address,
                            "avatar" => %{
                              "large" => nil,
                              "original" => nil,
@@ -130,6 +131,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
                            "enabled" => true,
+                           "blockchain_address" => omg.blockchain_address,
                            "avatar" => %{
                              "large" => nil,
                              "original" => nil,

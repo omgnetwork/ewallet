@@ -82,4 +82,9 @@ defmodule Utils.Helpers.Crypto do
 
   @spec secure_compare(String.t(), String.t()) :: boolean
   def secure_compare(left, right), do: Crypto.secure_compare(left, right)
+
+  def fake_eth_address do
+    data = 20 |> :crypto.strong_rand_bytes() |> Base.encode16(case: :lower)
+    "0x" <> data
+  end
 end

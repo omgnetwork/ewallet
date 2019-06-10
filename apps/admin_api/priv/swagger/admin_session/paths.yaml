@@ -1,7 +1,7 @@
 admin.login:
   post:
     tags:
-      - AdminSession
+      - Admin session
     summary: Login an existing admin user using email and password.
     operationId: login
     security:
@@ -17,7 +17,7 @@ admin.login:
 admin.login_2fa:
   post:
     tags:
-      - AdminSession
+      - Admin session
     summary: Login with two-factor authentication using a totp passcode or a backup_code.
     operationId: login_2fa
     security:
@@ -33,7 +33,7 @@ admin.login_2fa:
 me.logout:
   post:
     tags:
-      - AdminSession
+      - Admin session
     summary: Expires a user's authentication_token.
     operationId: logout
     security:
@@ -47,7 +47,7 @@ me.logout:
 auth_token.switch_account:
   post:
     tags:
-      - AdminSession
+      - Admin session
     summary: Switch the current account associated with the auth token. (deprecated)
     operationId: switch_account
     deprecated: true
