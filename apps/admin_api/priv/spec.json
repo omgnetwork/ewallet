@@ -34569,6 +34569,9 @@
         "security": [
           {
             "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
           }
         ],
         "requestBody": {
@@ -34987,6 +34990,9 @@
         "security": [
           {
             "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
           }
         ],
         "requestBody": {
@@ -35312,6 +35318,9 @@
         "security": [
           {
             "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
           }
         ],
         "requestBody": {
@@ -35637,6 +35646,9 @@
         "security": [
           {
             "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
           }
         ],
         "requestBody": {

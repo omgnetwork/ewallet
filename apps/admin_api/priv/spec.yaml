@@ -4760,6 +4760,7 @@ paths:
       operationId: transaction_request_create
       security:
         - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         description: >-
           Create a transaction request using the specified values. That request
@@ -4928,6 +4929,7 @@ paths:
       operationId: transaction_request_cancel
       security:
         - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         description: Cancel a transaction request using the specified ID.
         required: true
@@ -4951,6 +4953,7 @@ paths:
       operationId: transaction_request_get
       security:
         - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         description: Get a transaction request using the specified ID.
         required: true
@@ -4974,6 +4977,7 @@ paths:
       operationId: transaction_request_consume
       security:
         - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         description: Consume a transaction request using the specified values.
         required: true

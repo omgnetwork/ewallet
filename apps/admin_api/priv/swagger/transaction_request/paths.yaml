@@ -24,6 +24,7 @@ transaction_request.create:
     operationId: transaction_request_create
     security:
       - ProviderAuth: []
+      - AdminAuth: []
     requestBody:
       $ref: 'request_bodies.yaml#/CreateTransactionRequestBody'
     responses:
@@ -41,6 +42,7 @@ transaction_request.get:
     operationId: transaction_request_get
     security:
       - ProviderAuth: []
+      - AdminAuth: []
     requestBody:
       $ref: 'request_bodies.yaml#/GetTransactionRequestBody'
     responses:
@@ -57,6 +59,7 @@ transaction_request.cancel:
     operationId: transaction_request_cancel
     security:
       - ProviderAuth: []
+      - AdminAuth: []
     requestBody:
       $ref: 'request_bodies.yaml#/CancelTransactionRequestBody'
     responses:
@@ -91,6 +94,7 @@ transaction_request.consume:
     operationId: transaction_request_consume
     security:
       - ProviderAuth: []
+      - AdminAuth: []
     requestBody:
       $ref: 'request_bodies.yaml#/ConsumeTransactionRequestBody'
     responses:
