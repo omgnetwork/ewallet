@@ -49,7 +49,7 @@ defmodule Frontend.Application do
             [
               worker(
                 Watcher,
-                [:npm, ["run build"], [cd: Path.expand("../../assets/", __DIR__)]],
+                [:npm, ["run", "build"], [cd: Path.expand("../../assets/", __DIR__)]],
                 restart: :transient
               )
             ]
