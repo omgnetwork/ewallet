@@ -64,7 +64,6 @@ WalletsTable.propTypes = {
   wallets: PropTypes.array,
   loadingStatus: PropTypes.string,
   pagination: PropTypes.object,
-  location: PropTypes.object,
   history: PropTypes.object
 }
 

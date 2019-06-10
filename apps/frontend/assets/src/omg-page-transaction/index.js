@@ -21,8 +21,7 @@ class TransactionPage extends Component {
     history: PropTypes.object,
     divider: PropTypes.bool,
     query: PropTypes.object,
-    topNavigation: PropTypes.bool,
-    newTransactions: PropTypes.array
+    topNavigation: PropTypes.bool
   }
   static defaultProps = {
     query: {},
