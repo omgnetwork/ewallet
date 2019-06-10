@@ -19,11 +19,17 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
 
   describe "balances_for_address/2" do
     test "returns a list of balances of given tokens when given wallet address and non-empty tokens" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      token_1 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
-      token_2 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
-      _token_3 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
+      token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      _token_3 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
 
       assert {:ok, balances} =
                BlockchainBalanceLoader.balances_for_address(blockchain_wallet.address, [
@@ -38,7 +44,8 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
     end
 
     test "returns an empty list when given wallet and empty tokens" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
       assert {:ok, balances} =
                BlockchainBalanceLoader.balances_for_address(blockchain_wallet.address, [])

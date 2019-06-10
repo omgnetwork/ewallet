@@ -17,11 +17,17 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
 
   describe "/blockchain_wallet.get_balances" do
     test_with_auths "returns a list of balances and pagination data when given an existing blockchain wallet address" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
-      _token_2 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
-      _token_3 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
+      _token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      _token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      _token_3 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
 
       attrs = %{
         "sort_by" => "inserted_at",
@@ -47,11 +53,26 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
     end
 
     test_with_auths "returns a list of balances and pagination data when given a start_after" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert(:token, %{id: "tkn_1", blockchain_address: "0x0000000000000000000000000000000000000000"})
-      token_2 = insert(:token, %{id: "tkn_2", blockchain_address: "0x0000000000000000000000000000000000000001"})
-      _token_3 = insert(:token, %{id: "tkn_3", blockchain_address: "0x0000000000000000000000000000000000000002"})
+      _token_1 =
+        insert(:token, %{
+          id: "tkn_1",
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        })
+
+      token_2 =
+        insert(:token, %{
+          id: "tkn_2",
+          blockchain_address: "0x0000000000000000000000000000000000000001"
+        })
+
+      _token_3 =
+        insert(:token, %{
+          id: "tkn_3",
+          blockchain_address: "0x0000000000000000000000000000000000000002"
+        })
 
       attrs = %{
         "sort_by" => "inserted_at",
@@ -76,11 +97,17 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
     end
 
     test_with_auths "returns a list of balances and pagination data when given an existing blockchain wallet address and a list of token addresses" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
-      _token_2 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
-      _token_3 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
+      _token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      _token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      _token_3 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
 
       attrs = %{
         "address" => blockchain_wallet.address,
@@ -106,11 +133,17 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
     end
 
     test_with_auths "returns a list of balances and pagination data when given an existing blockchain wallet address and a list of token addresses with a per_page" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
-      _token_2 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
-      _token_3 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
+      _token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      _token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      _token_3 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
 
       attrs = %{
         "per_page" => 1,
@@ -137,11 +170,26 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
     end
 
     test_with_auths "returns a list of balances and pagination data when given an existing blockchain wallet address and a list of token ids" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert(:token, %{id: "tkn_1", blockchain_address: "0x0000000000000000000000000000000000000000"})
-      _token_2 = insert(:token, %{id: "tkn_2", blockchain_address: "0x0000000000000000000000000000000000000001"})
-      _token_3 = insert(:token, %{id: "tkn_3", blockchain_address: "0x0000000000000000000000000000000000000002"})
+      _token_1 =
+        insert(:token, %{
+          id: "tkn_1",
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        })
+
+      _token_2 =
+        insert(:token, %{
+          id: "tkn_2",
+          blockchain_address: "0x0000000000000000000000000000000000000001"
+        })
+
+      _token_3 =
+        insert(:token, %{
+          id: "tkn_3",
+          blockchain_address: "0x0000000000000000000000000000000000000002"
+        })
 
       attrs = %{
         "address" => blockchain_wallet.address,
@@ -167,11 +215,16 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
     end
 
     test_with_auths "filters out non-blockchain tokens when not specifying ids" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+      _token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
       _token_2 = insert(:token, %{blockchain_address: nil})
-      _token_3 = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
+
+      _token_3 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
 
       attrs = %{
         "address" => blockchain_wallet.address
@@ -192,11 +245,26 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
     end
 
     test_with_auths "filters out inexistent tokens when specifying ids" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert(:token, %{id: "tkn_1", blockchain_address: "0x0000000000000000000000000000000000000000"})
-      _token_2 = insert(:token, %{id: "tkn_2", blockchain_address: "0x0000000000000000000000000000000000000001"})
-      _token_3 = insert(:token, %{id: "tkn_3", blockchain_address: "0x0000000000000000000000000000000000000002"})
+      _token_1 =
+        insert(:token, %{
+          id: "tkn_1",
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        })
+
+      _token_2 =
+        insert(:token, %{
+          id: "tkn_2",
+          blockchain_address: "0x0000000000000000000000000000000000000001"
+        })
+
+      _token_3 =
+        insert(:token, %{
+          id: "tkn_3",
+          blockchain_address: "0x0000000000000000000000000000000000000002"
+        })
 
       attrs = %{
         "address" => blockchain_wallet.address,
@@ -218,11 +286,22 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
     end
 
     test_with_auths "filters out non-blockchain tokens when specifying ids" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert(:token, %{id: "tkn_1", blockchain_address: "0x0000000000000000000000000000000000000000"})
+      _token_1 =
+        insert(:token, %{
+          id: "tkn_1",
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        })
+
       _token_2 = insert(:token, %{id: "tkn_2", blockchain_address: nil})
-      _token_3 = insert(:token, %{id: "tkn_3", blockchain_address: "0x0000000000000000000000000000000000000002"})
+
+      _token_3 =
+        insert(:token, %{
+          id: "tkn_3",
+          blockchain_address: "0x0000000000000000000000000000000000000002"
+        })
 
       attrs = %{
         "address" => blockchain_wallet.address,
@@ -244,7 +323,10 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
     end
 
     test_with_auths "returns an error when given a non-existing address" do
-      response = request("/blockchain_wallet.get_balances", %{"address" => "0x00000000000000000000000000000000000000000"})
+      response =
+        request("/blockchain_wallet.get_balances", %{
+          "address" => "0x00000000000000000000000000000000000000000"
+        })
 
       refute response["success"]
       assert response["data"]["code"] == "unauthorized"
