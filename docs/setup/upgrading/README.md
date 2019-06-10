@@ -59,7 +59,7 @@ This upgrade instructions assume that you installed the eWallet Server using our
 3. Fetch any new and updated dependencies:
 
     ```shell
-    mix deps.get && (cd apps/frontend/assets/ && yarn install)
+    mix deps.get && (cd apps/frontend/assets/ && npm install)
     ```
 
 4. Migrate the databases and test the new codebase:
