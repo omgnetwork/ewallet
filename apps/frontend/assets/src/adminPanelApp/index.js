@@ -6,10 +6,12 @@ import { ThemeProvider } from 'styled-components'
 import Modal from 'react-modal'
 import theme from './theme'
 import PropTypes from 'prop-types'
+
 import 'reset-css'
 import './fonts.css'
 import './globalStyle.css'
 import './icons.css'
+
 Modal.setAppElement('#app')
 class App extends Component {
   static propTypes = {
