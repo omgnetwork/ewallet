@@ -17,6 +17,8 @@ defmodule EthBlockchain.EthBlockchainCase do
   use ExUnit.CaseTemplate
   alias EthBlockchain.{Adapter, DumbAdapter}
   alias Ecto.UUID
+  alias Ecto.Adapters.SQL.Sandbox
+  alias Keychain.Repo
 
   using do
     quote do
@@ -24,7 +26,7 @@ defmodule EthBlockchain.EthBlockchainCase do
     end
   end
 
-  setup do
+  setup tags do
     supervisor = String.to_atom("#{UUID.generate()}")
 
     {:ok, _} =
@@ -40,6 +42,12 @@ defmodule EthBlockchain.EthBlockchainCase do
           {:dumb, DumbAdapter}
         ]
       )
+
+    :ok = Sandbox.checkout(Repo)
+
+    unless tags[:async] do
+      Sandbox.mode(Repo, {:shared, self()})
+    end
 
     %{
       pid: pid,

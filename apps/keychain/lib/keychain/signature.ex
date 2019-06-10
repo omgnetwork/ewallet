@@ -34,11 +34,19 @@ defmodule Keychain.Signature do
   This implementes Eq.(207) of the Yellow Paper.
   """
   @spec sign_transaction_hash(Keccak.keccak_hash(), String.t(), integer() | nil) ::
-          {hash_v, hash_r, hash_s}
+          {hash_v, hash_r, hash_s} | {:error, :invalid_address}
   def sign_transaction_hash(hash, wallet_address, chain_id \\ nil) do
-    private_key = wallet_address |> Key.private_key_for_wallet() |> from_hex()
+    wallet_address
+    |> Key.private_key_for_wallet()
+    |> sign(hash, chain_id)
+  end
 
-    {_signature, r, s, recovery_id} = Signature.sign_digest(hash, private_key)
+  defp sign(nil, _hash, _chain_id), do: {:error, :invalid_address}
+
+  defp sign(private_key, hash, chain_id) do
+    decoded_p_key = from_hex(private_key)
+
+    {_signature, r, s, recovery_id} = Signature.sign_digest(hash, decoded_p_key)
 
     recovery_id =
       case chain_id do

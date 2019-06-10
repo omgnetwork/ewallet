@@ -15,6 +15,7 @@
 defmodule EthBlockchain.DumbAdapter do
   @moduledoc false
 
+  @spec start_link :: :ignore | {:error, any} | {:ok, pid}
   def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
   def init(:ok), do: {:ok, nil}
   def stop(pid), do: GenServer.stop(pid)
@@ -22,5 +23,14 @@ defmodule EthBlockchain.DumbAdapter do
   def handle_call({:get_balances, _address, contract_addresses, _abi, _block}, _from, reg) do
     balances = Map.new(contract_addresses, fn ca -> {ca, 123} end)
     {:reply, {:ok, balances}, reg}
+  end
+
+  def handle_call({:get_transaction_count, _address}, _from, reg) do
+    {:reply, {:ok, "0x1"}, reg}
+  end
+
+  def handle_call({:send_raw, _data}, _from, reg) do
+    tx_hash = "0xdeaf34bc128581fa11687705015d3cb10f3bb45c00d34c3e2172d9ef57ee984c"
+    {:reply, {:ok, tx_hash}, reg}
   end
 end

@@ -55,17 +55,15 @@ defmodule EthBlockchain.Transaction do
 
   def send_eth({from_address, to_address, amount, gas_price}, adapter, pid)
       when byte_size(from_address) == 42 and byte_size(to_address) == 42 and is_integer(amount) do
-    transaction_data =
-      %__MODULE__{
-        gas_limit: Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit),
-        gas_price: gas_price,
-        nonce: get_next_nonce(from_address),
-        to: from_hex(to_address),
-        value: amount
-      }
-      |> sign_and_hash(from_address)
-
-    Adapter.call(adapter, {:send_raw, transaction_data}, pid)
+    %__MODULE__{
+      gas_limit: Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit),
+      gas_price: gas_price,
+      nonce: get_next_nonce(from_address),
+      to: from_hex(to_address),
+      value: amount
+    }
+    |> sign_and_hash(from_address)
+    |> send_raw(adapter, pid)
   end
 
   def send_eth({_from, _to, _amount, _gas_price}, _adapter, _pid) do
@@ -85,18 +83,16 @@ defmodule EthBlockchain.Transaction do
              byte_size(contract_address) == 42 and is_integer(amount) do
     case ABI.transfer(to_address, amount) do
       {:ok, encoded_abi_data} ->
-        transaction_data =
-          %__MODULE__{
-            gas_limit:
-              Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit),
-            gas_price: gas_price,
-            nonce: get_next_nonce(from_address),
-            to: from_hex(contract_address),
-            data: encoded_abi_data
-          }
-          |> sign_and_hash(from_address)
-
-        Adapter.call(adapter, {:send_raw, transaction_data}, pid)
+        %__MODULE__{
+          gas_limit:
+            Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit),
+          gas_price: gas_price,
+          nonce: get_next_nonce(from_address),
+          to: from_hex(contract_address),
+          data: encoded_abi_data
+        }
+        |> sign_and_hash(from_address)
+        |> send_raw(adapter, pid)
 
       error ->
         error
@@ -108,11 +104,22 @@ defmodule EthBlockchain.Transaction do
   end
 
   defp sign_and_hash(%__MODULE__{} = transaction_data, from_address) do
-    transaction_data
-    |> sign_transaction(from_address)
-    |> serialize()
-    |> ExRLP.encode()
-    |> to_hex()
+    case sign_transaction(transaction_data, from_address) do
+      {:error, _e} = error ->
+        error
+
+      %__MODULE__{} = signed_trx ->
+        signed_trx
+        |> serialize()
+        |> ExRLP.encode()
+        |> to_hex()
+    end
+  end
+
+  defp send_raw({:error, _e} = error, _adapter, _pid), do: error
+
+  defp send_raw(transaction_data, adapter, pid) do
+    Adapter.call(adapter, {:send_raw, transaction_data}, pid)
   end
 
   @spec get_transaction_count({String.t()}, atom() | nil, pid() | nil) :: {atom(), any()}
@@ -128,12 +135,15 @@ defmodule EthBlockchain.Transaction do
   defp sign_transaction(transaction, wallet_address) do
     chain_id = Application.get_env(:eth_blockchain, :chain_id)
 
-    {v, r, s} =
+    result =
       transaction
       |> transaction_hash(chain_id)
       |> Signature.sign_transaction_hash(wallet_address, chain_id)
 
-    %{transaction | v: v, r: r, s: s}
+    case result do
+      {:error, _e} = error -> error
+      {v, r, s} -> %{transaction | v: v, r: r, s: s}
+    end
   end
 
   @spec transaction_hash(Blockchain.Transaction.t(), integer()) :: Keccak.keccak_hash()
