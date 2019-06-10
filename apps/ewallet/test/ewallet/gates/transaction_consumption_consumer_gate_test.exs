@@ -1597,6 +1597,26 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert error == :user_wallet_mismatch
     end
 
+    test "returns 'cancelled' when the transaction request was cancelled", meta do
+      {:ok, _} = TransactionRequest.cancel(meta.request, %System{})
+
+      {res, error} =
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
+          "formatted_transaction_request_id" => meta.request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => meta.sender_wallet.address,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil,
+          "originator" => %System{},
+          "creator" => creator()
+        })
+
+      assert res == :error
+      assert error == :cancelled_transaction_request
+    end
+
     test "returns 'invalid parameter' when not all attributes are provided", meta do
       {res, error} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{

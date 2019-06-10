@@ -129,7 +129,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at != nil
     end
 
-    test "confirms the accoun tconsumption if approved as admin user with rights", meta do
+    test "confirms the account consumption if approved as admin user with rights", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, account} = :account |> params_for() |> Account.insert()
       wallet = Account.get_primary_wallet(account)

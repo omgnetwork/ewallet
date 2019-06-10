@@ -374,4 +374,18 @@ defmodule EWalletDB.TransactionRequestTest do
       assert t.cancelled_at != nil
     end
   end
+
+  describe "get_cancelled_error" do
+    test "receives :cancelled_transaction_request if the transaction request status is cancelled" do
+      assert :transaction_request
+             |> insert(status: "cancelled")
+             |> TransactionRequest.get_cancelled_error() == :cancelled_transaction_request
+    end
+
+    test "receives nil if the transaction request status is not cancelled" do
+      assert :transaction_request
+             |> insert()
+             |> TransactionRequest.get_cancelled_error() == nil
+    end
+  end
 end

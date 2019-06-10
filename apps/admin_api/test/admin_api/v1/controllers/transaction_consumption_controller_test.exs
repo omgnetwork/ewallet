@@ -1749,6 +1749,35 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert response["data"]["code"] == "wallet:disabled"
     end
 
+    test_with_auths "fails to consume when transaction request is cancelled", context do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit,
+          status: "cancelled"
+        )
+
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: context.account.id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "transaction_request:cancelled"
+      assert response["data"]["description"] == "The specified transaction request has cancelled."
+    end
+
     test_with_auths "returns with preload if `embed` attribute is given", context do
       transaction_request =
         insert(

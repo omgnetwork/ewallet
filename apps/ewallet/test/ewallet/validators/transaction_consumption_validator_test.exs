@@ -75,6 +75,18 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       assert error == :unauthorized_amount_override
     end
 
+    test "returns :cancelled_transaction_request if the transaction request has cancelled" do
+      {:ok, request} = :transaction_request |> insert() |> TransactionRequest.cancel(%System{})
+      wallet = request.wallet
+
+      {:error, error} =
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{
+          "creator" => creator()
+        })
+
+      assert error == :cancelled_transaction_request
+    end
+
     test "returns the request, token and amount" do
       request = insert(:transaction_request)
       wallet = request.wallet
