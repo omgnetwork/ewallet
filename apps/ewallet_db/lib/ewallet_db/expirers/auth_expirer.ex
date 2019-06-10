@@ -41,6 +41,8 @@ defmodule EWalletDB.Expirers.AuthExpirer do
           AuthToken.t() | PreAuthToken.t()
   def expire_or_refresh(nil, _), do: nil
 
+  def expire_or_refresh(_, nil), do: nil
+
   def expire_or_refresh(token, configured_auth_token_lifetime) do
     if has_expired_at(token) or has_positive_lifetime(configured_auth_token_lifetime) do
       expire_or_refresh(
