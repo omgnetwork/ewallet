@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Button } from '../omg-uikit'
+import { Button, TabButton } from '../omg-uikit'
 import { compose } from 'recompose'
 import AdminKeySection from './AdminKeySection'
 import { withRouter, Link } from 'react-router-dom'
@@ -24,19 +24,6 @@ const KeyTopBar = styled.div`
   }
   button:last-child {
     margin-left: auto;
-  }
-`
-export const KeyButton = styled.button`
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-weight: ${({ active, theme }) => (active ? 'bold' : 'normal')};
-  background-color: ${({ active, theme }) => (active ? theme.colors.S200 : 'white')};
-  color: ${({ active, theme }) => (active ? theme.colors.B400 : theme.colors.B100)};
-  margin-right: 10px;
-  border: 1px solid transparent;
-  min-width: 100px;
-  :hover {
-    border: 1px solid ${props => props.theme.colors.S300};
   }
 `
 const KeyTopButtonsContainer = styled.div`
@@ -92,10 +79,10 @@ class ApiKeyPage extends Component {
         <KeyTopBar>
           <KeyTopButtonsContainer>
             <Link to='/keys/admin' query={stringQuery}>
-              <KeyButton active={activeTab === 'admin'}>Admin Keys</KeyButton>
+              <TabButton active={activeTab === 'admin'}>Admin Keys</TabButton>
             </Link>
             <Link to='/keys/client' query={stringQuery}>
-              <KeyButton active={activeTab === 'client'}>Client Keys</KeyButton>
+              <TabButton active={activeTab === 'client'}>Client Keys</TabButton>
             </Link>
             {activeTab === 'admin' ? (
               <Button size='small' onClick={this.onClickCreateAdminKey} styleType={'secondary'}>

@@ -7,10 +7,9 @@ import { compose } from 'recompose'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import moment from 'moment'
-import { LoadingSkeleton, Breadcrumb } from '../omg-uikit'
+import { LoadingSkeleton, Breadcrumb, TabButton } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
-import { KeyButton } from '../omg-page-api'
 import UserTransactions from './UserTransactions'
 import UserActivityLog from './UserActivityLog'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
@@ -90,20 +89,20 @@ class UserDetailPage extends Component {
         <MenuContainer>
           <UserDetailMenuContainer>
             <Link to={basePath}>
-              <KeyButton active={type === 'details' || !type}>
+              <TabButton active={type === 'details' || !type}>
                 Details
-              </KeyButton>
+              </TabButton>
             </Link>
             <Link to={`${basePath}/wallets`}>
-              <KeyButton active={type === 'wallets'}>Wallets</KeyButton>
+              <TabButton active={type === 'wallets'}>Wallets</TabButton>
             </Link>
             <Link to={`${basePath}/transactions`}>
-              <KeyButton active={type === 'transactions'}>
+              <TabButton active={type === 'transactions'}>
                 Transactions
-              </KeyButton>
+              </TabButton>
             </Link>
             <Link to={`${basePath}/logs`}>
-              <KeyButton active={type === 'logs'}>Logs</KeyButton>
+              <TabButton active={type === 'logs'}>Logs</TabButton>
             </Link>
           </UserDetailMenuContainer>
           <SearchBar />
