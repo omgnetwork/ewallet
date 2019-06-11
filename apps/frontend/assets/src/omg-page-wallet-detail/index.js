@@ -137,7 +137,6 @@ class WalletDetaillPage extends Component {
                 </TabButton>
               </Link>
             </div>
-            <SearchBar />
           </MenuContainer>
 
           <Switch>
