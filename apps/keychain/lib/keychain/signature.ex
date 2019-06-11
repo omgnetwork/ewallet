@@ -54,6 +54,6 @@ defmodule Keychain.Signature do
         c_id -> c_id * 2 + @base_recovery_id_eip_155 + recovery_id
       end
 
-    {recovery_id, r, s}
+    {:ok, {recovery_id, r, s}}
   end
 end

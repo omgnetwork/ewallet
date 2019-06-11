@@ -45,7 +45,7 @@ defmodule EthBlockchain.Transaction do
           data: binary()
         }
 
-  @spec send_eth(tuple(), atom() | nil, pid() | nil) :: {atom(), String.t()}
+  @spec send_eth(tuple(), atom() | nil, pid() | nil) :: {atom(), String.t()} | {atom(), atom()}
   def send_eth(params, adapter \\ nil, pid \\ nil)
 
   def send_eth({from_address, to_address, amount}, adapter, pid) do
@@ -54,7 +54,8 @@ defmodule EthBlockchain.Transaction do
   end
 
   def send_eth({from_address, to_address, amount, gas_price}, adapter, pid)
-      when byte_size(from_address) == 42 and byte_size(to_address) == 42 and is_integer(amount) do
+      when byte_size(from_address) == 42 and byte_size(to_address) == 42 and is_integer(amount) and
+             is_integer(gas_price) do
     %__MODULE__{
       gas_limit: Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit),
       gas_price: gas_price,
@@ -67,7 +68,7 @@ defmodule EthBlockchain.Transaction do
   end
 
   def send_eth({_from, _to, _amount, _gas_price}, _adapter, _pid) do
-    {:error, "Invalid parameters"}
+    {:error, :invalid_parameter}
   end
 
   @spec send_token(tuple(), atom() | nil, pid() | nil) :: {atom(), String.t()} | {atom(), atom()}
@@ -80,7 +81,7 @@ defmodule EthBlockchain.Transaction do
 
   def send_token({from_address, to_address, amount, contract_address, gas_price}, adapter, pid)
       when byte_size(from_address) == 42 and byte_size(to_address) == 42 and
-             byte_size(contract_address) == 42 and is_integer(amount) do
+             byte_size(contract_address) == 42 and is_integer(amount) and is_integer(gas_price) do
     case ABI.transfer(to_address, amount) do
       {:ok, encoded_abi_data} ->
         %__MODULE__{
@@ -94,25 +95,23 @@ defmodule EthBlockchain.Transaction do
         |> sign_and_hash(from_address)
         |> send_raw(adapter, pid)
 
-      error ->
-        error
+      error -> error
     end
   end
 
   def send_token({_from, _to, _amount, _contract, _gas_price}, _adapter, _pid) do
-    {:error, "Invalid parameters"}
+    {:error, :invalid_parameter}
   end
 
   defp sign_and_hash(%__MODULE__{} = transaction_data, from_address) do
     case sign_transaction(transaction_data, from_address) do
-      {:error, _e} = error ->
-        error
-
-      %__MODULE__{} = signed_trx ->
+      {:ok, signed_trx} ->
         signed_trx
         |> serialize()
         |> ExRLP.encode()
         |> to_hex()
+
+      error -> error
     end
   end
 
@@ -122,8 +121,7 @@ defmodule EthBlockchain.Transaction do
     Adapter.call(adapter, {:send_raw, transaction_data}, pid)
   end
 
-  @spec get_transaction_count({String.t()}, atom() | nil, pid() | nil) :: {atom(), any()}
-  def get_transaction_count({address}, adapter \\ nil, pid \\ nil) do
+  defp get_transaction_count({address}, adapter \\ nil, pid \\ nil) do
     Adapter.call(adapter, {:get_transaction_count, address}, pid)
   end
 
@@ -141,8 +139,8 @@ defmodule EthBlockchain.Transaction do
       |> Signature.sign_transaction_hash(wallet_address, chain_id)
 
     case result do
-      {:error, _e} = error -> error
-      {v, r, s} -> %{transaction | v: v, r: r, s: s}
+      {:ok, {v, r, s}} -> {:ok, %{transaction | v: v, r: r, s: s}}
+      error -> error
     end
   end
 
