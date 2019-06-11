@@ -29,20 +29,24 @@ defmodule EWallet.Web.OrchestratorTest do
     def sort_fields, do: [:id, :name]
     def search_fields, do: [:id, :name]
 
-    def self_filter_fields, do: [
-      :id,
-      :name,
-      :description,
-      :inserted_at
-    ]
+    def self_filter_fields do
+      [
+        :id,
+        :name,
+        :description,
+        :inserted_at
+      ]
+    end
 
-    def filter_fields, do: [
-      id: nil,
-      name: nil,
-      description: nil,
-      inserted_at: nil,
-      mock_assoc: [:id, :name]
-    ]
+    def filter_fields do
+      [
+        id: nil,
+        name: nil,
+        description: nil,
+        inserted_at: nil,
+        mock_assoc: [:id, :name]
+      ]
+    end
   end
 
   describe "query/3" do
