@@ -1,7 +1,7 @@
-import ActivityLogPage from '../omg-page-activity-log'
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import ActivityLogPage from '../omg-page-activity-log'
 function UserActivityLogPage (props) {
   return (
     <ActivityLogPage

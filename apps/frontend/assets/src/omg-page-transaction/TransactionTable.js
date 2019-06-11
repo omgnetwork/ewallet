@@ -1,13 +1,14 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { selectNewTransactions } from '../omg-transaction/selector'
-import SortableTable from '../omg-table'
-import { tableColumsKeys } from './constants'
-import rowRenderer from './transactionTableRowRenderer'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
+
+import { selectNewTransactions } from '../omg-transaction/selector'
+import SortableTable from '../omg-table'
+import { tableColumsKeys } from './constants'
+import rowRenderer from './transactionTableRowRenderer'
 
 const TableContainer = styled.div`
   td:nth-child(3) {
