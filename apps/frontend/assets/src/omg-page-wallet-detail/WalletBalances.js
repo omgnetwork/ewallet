@@ -3,7 +3,7 @@ import { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import PropTypes from 'prop-types'
 
-function WalletBalances ({ wallet }) {
+function WalletBalances ({ wallet = {} }) {
   return wallet.balances ? (
     <>
       {wallet.balances.map(balance => {

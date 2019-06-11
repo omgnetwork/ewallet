@@ -13,8 +13,7 @@ import { TabButton } from '../omg-uikit'
 import WalletBalance from './WalletBalances'
 import Copy from '../omg-copy'
 import CONSTANT from '../constants'
-import { connect } from 'react-redux'
-import { openModal } from '../omg-modal/action'
+import WalletTransactions from './WalletTransaction'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
   button i {
@@ -57,18 +56,11 @@ const MenuContainer = styled.div`
   }
 `
 
-const enhance = compose(
-  withRouter,
-  connect(
-    null,
-    { openModal }
-  )
-)
+const enhance = compose(withRouter)
 class WalletDetaillPage extends Component {
   static propTypes = {
     match: PropTypes.object,
-    divider: PropTypes.bool,
-    openModal: PropTypes.func
+    divider: PropTypes.bool
   }
   renderTopBar = wallet => {
     return (
@@ -162,6 +154,11 @@ class WalletDetaillPage extends Component {
                 render={() => this.renderDetail(wallet)}
                 exact
               />
+              <Route
+                path={['/wallets/:walletAddress/transactions']}
+                component={WalletTransactions}
+                exact
+              />
             </Switch>
           </ContentDetailContainer>
         </ContentContainer>
@@ -193,8 +190,6 @@ class WalletDetaillPage extends Component {
       <WalletProvider
         render={this.renderWalletDetailPage}
         walletAddress={this.props.match.params.walletAddress}
-        {...this.state}
-        {...this.props}
       />
     )
   }
