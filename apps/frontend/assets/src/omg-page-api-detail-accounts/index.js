@@ -5,6 +5,7 @@ import { Link, withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import moment from 'moment'
 
+import { fuzzySearch } from '../utils/search'
 import SortableTable from '../omg-table'
 import Modal from '../omg-modal'
 import { Avatar, Button, Breadcrumb, Icon, Id, Select } from '../omg-uikit'
@@ -89,11 +90,14 @@ const KeyDetailAccountsPageView = withRouter(({
     ? [memberships]
     : memberships
 
-  const [ roleModalOpen, setRoleModalOpen ] = useState(false)
-  const [ deleteModalOpen, setDeleteModalOpen ] = useState(false)
-  const [ assignAccountToKeyModal, setAssignAccountToKeyModal ] = useState(false)
-  const [ modalContent, setModalContent ] = useState({})
-  const [ loading, setLoading ] = useState(false)
+  const { search: _search } = queryString.parse(search)
+  const fuzzied = _memberships && _memberships.filter(membership => fuzzySearch(_search, membership.account_id))
+
+  const [roleModalOpen, setRoleModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [assignAccountToKeyModal, setAssignAccountToKeyModal] = useState(false)
+  const [modalContent, setModalContent] = useState({})
+  const [loading, setLoading] = useState(false)
 
   const columns = [
     { key: 'account.name', title: 'NAME', sort: true },
@@ -234,8 +238,8 @@ const KeyDetailAccountsPageView = withRouter(({
   }
 
   const getRows = () => {
-    return _memberships && _memberships.length
-      ? _memberships.map(membership => ({
+    return fuzzied && fuzzied.length
+      ? fuzzied.map(membership => ({
         id: membership.account_id,
         ...membership
       }))
@@ -249,13 +253,12 @@ const KeyDetailAccountsPageView = withRouter(({
         open={assignAccountToKeyModal}
         onRequestClose={() => setAssignAccountToKeyModal(false)}
         onSubmitSuccess={() => {
-          const _search = queryString.parse(search)
           const filter = {
             matchAny: [
               {
                 field: 'account.id',
                 comparator: 'contains',
-                value: _search.search || ''
+                value: _search || ''
               }
             ]
           }

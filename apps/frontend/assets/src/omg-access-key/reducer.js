@@ -37,7 +37,7 @@ export const accessKeyMembershipsReducer = createReducer({}, {
         [keyId]: data
       }
     }
-    return {}
+    return state
   },
   'ACCOUNT/UNASSIGN_KEY/SUCCESS': (state, { params: { keyId, accountId } }) => {
     const _state = Object.assign({}, state)

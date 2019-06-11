@@ -230,11 +230,10 @@ class ApiKeyPage extends Component {
           <AccessKeyMembershipsProvider
             accessKeyId={rows.id}
             render={({ memberships, membershipsLoading }) => {
-              return membershipsLoading === 'INITIATED'
-                ? '-'
-                : memberships && memberships.length > 0
-                  ? `${memberships.length} Accounts`
-                  : 'None'
+              if (membershipsLoading === 'INITIATED') return '-'
+              if (memberships && memberships.length === 1) return '1 Account'
+              if (memberships && memberships.length >= 1) return `${memberships.length} Accounts`
+              return 'None'
             }}
           />
         )

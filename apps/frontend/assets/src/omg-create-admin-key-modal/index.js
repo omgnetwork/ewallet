@@ -68,7 +68,7 @@ function CreateAdminKeyModal (props) {
   const [submitStatus, setSubmitStatus] = useState('DEFAULT')
   const [role, setRole] = useState('none')
   const [roleName, setRoleName] = useState('viewer')
-  const [accountId, setAccountId] = useState(props.accountId || '')
+  const [accountId, setAccountId] = useState(props.accountId)
 
   function onRequestClose () {
     setLabel('')
