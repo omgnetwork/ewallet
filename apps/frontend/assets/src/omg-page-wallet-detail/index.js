@@ -14,6 +14,8 @@ import WalletBalance from './WalletBalances'
 import Copy from '../omg-copy'
 import CONSTANT from '../constants'
 import WalletTransactions from './WalletTransaction'
+import SearchBar from '../omg-page-layout/SearchGroup'
+
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
   button i {
@@ -124,19 +126,22 @@ class WalletDetaillPage extends Component {
         <ContentContainer>
           {this.renderTopBar(wallet)}
           <MenuContainer>
-            <Link to={basePath}>
-              <TabButton active={type === 'details' || !type}>
-                Details
-              </TabButton>
-            </Link>
-            <Link to={`${basePath}/balances`}>
-              <TabButton active={type === 'balances'}>Balances</TabButton>
-            </Link>
-            <Link to={`${basePath}/transactions`}>
-              <TabButton active={type === 'transactions'}>
-                Transactions
-              </TabButton>
-            </Link>
+            <div>
+              <Link to={basePath}>
+                <TabButton active={type === 'details' || !type}>
+                  Details
+                </TabButton>
+              </Link>
+              <Link to={`${basePath}/balances`}>
+                <TabButton active={type === 'balances'}>Balances</TabButton>
+              </Link>
+              <Link to={`${basePath}/transactions`}>
+                <TabButton active={type === 'transactions'}>
+                  Transactions
+                </TabButton>
+              </Link>
+            </div>
+            <SearchBar />
           </MenuContainer>
           <ContentDetailContainer>
             <Switch>
