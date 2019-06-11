@@ -23,7 +23,7 @@ import { loadingStatusReducer } from '../omg-loading-status/reducer'
 import { exportsReducer } from '../omg-export/reducer'
 import { adminsReducer } from '../omg-admins/reducer'
 import { recentAccountsReducer } from '../omg-recent-account/reducer'
-
+import { modalReducer } from '../omg-modal/reducer'
 export default combineReducers({
   admins: adminsReducer,
   loadingBar: loadingBarReducer,
@@ -49,5 +49,6 @@ export default combineReducers({
   activities: activitiesReducer,
   exports: exportsReducer,
   loadingStatus: loadingStatusReducer,
-  recentAccounts: recentAccountsReducer
+  recentAccounts: recentAccountsReducer,
+  modals: modalReducer
 })

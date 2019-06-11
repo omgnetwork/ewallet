@@ -5,10 +5,12 @@
   "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
   "prettier.singleQuote": true,
   "prettier.trailingComma": "none",
+  "prettier.printWidth": 80,
   "eslint.validate": [
     "javascript",
     "javascriptreact",
     "typescript"
   ],
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "prettier.eslintIntegration": true
 }

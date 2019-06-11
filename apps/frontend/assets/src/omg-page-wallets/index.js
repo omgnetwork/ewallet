@@ -2,17 +2,16 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
-import moment from 'moment'
 import queryString from 'query-string'
 
+import walletRowRenderer from './walletTableRowRenderer'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
-import { Button, Icon, Id } from '../omg-uikit'
+import { Button, Icon } from '../omg-uikit'
 import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
-import { selectWallets } from '../omg-wallet/selector'
-import CreateTransactionModal from '../omg-create-transaction-modal'
 import CreateWalletModal from '../omg-create-wallet-modal'
-
+import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
+import { walletColumsKeys } from './constants'
 const WalletPageContainer = styled.div`
   position: relative;
   flex-direction: column;
@@ -35,8 +34,8 @@ const WalletPageContainer = styled.div`
   td:nth-child(1),
   td:nth-child(2),
   td:nth-child(3),
-  td:nth-child(4), 
-  td:nth-child(5), {
+  td:nth-child(4),
+  td:nth-child(5) {
     width: 20%;
   }
   tbody td:first-child {
@@ -44,37 +43,8 @@ const WalletPageContainer = styled.div`
   }
 `
 
-const WalletAddressContainer = styled.div`
-  white-space: nowrap;
-  span {
-    vertical-align: middle;
-  }
-  i[name='Wallet'] {
-    color: ${props => props.theme.colors.B100};
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid ${props => props.theme.colors.S400};
-    margin-right: 10px;
-  }
-  i[name='Copy'] {
-    visibility: hidden;
-    color: ${props => props.theme.colors.S500};
-    :hover {
-      color: ${props => props.theme.colors.B300};
-    }
-  }
-`
 const SortableTableContainer = styled.div`
   position: relative;
-`
-const StyledIcon = styled.span`
-  i {
-    margin-top: -3px;
-    margin-right: 10px;
-    margin-top
-    font-size: 14px;
-    font-weight: 400;
-  }
 `
 class WalletPage extends Component {
   static propTypes = {
@@ -101,7 +71,6 @@ class WalletPage extends Component {
   }
 
   state = {
-    transferModalOpen: false,
     createWalletModalOpen: false
   }
 
@@ -117,13 +86,6 @@ class WalletPage extends Component {
       createWalletModalOpen: false
     })
   }
-  renderTransferButton = () => {
-    return (
-      <Button size='small' onClick={this.onClickTransfer} key={'transfer'}>
-        <Icon name='Transaction' /><span>Transfer</span>
-      </Button>
-    )
-  }
   renderCreateWalletButton = () => {
     return (
       <Button
@@ -132,98 +94,23 @@ class WalletPage extends Component {
         size='small'
         onClick={this.onClickCreateWallet}
       >
-        <Icon name='Plus' /><span>Create Wallet</span>
+        <Icon name='Plus' />
+        <span>Create Wallet</span>
       </Button>
-    )
-  }
-  getColumns = wallets => {
-    return [
-      { key: 'name', title: 'NAME', sort: true },
-      { key: 'identifier', title: 'TYPE', sort: true },
-      { key: 'address', title: 'ADDRESS', sort: true },
-      { key: 'owner', title: 'OWNER', sort: true },
-      { key: 'created_at', title: 'CREATED AT', sort: true }
-    ]
-  }
-  getOwner = wallet => {
-    return (
-      <span>
-        {wallet.account &&
-          <span>
-            <StyledIcon><Icon name='Merchant' /></StyledIcon>
-            {wallet.account.name}
-          </span>
-
-        }
-        {wallet.user && wallet.user.email &&
-          <span>
-            <StyledIcon><Icon name='People' /></StyledIcon>
-            {wallet.user.email}
-          </span>
-        }
-        {wallet.user && wallet.user.provider_user_id &&
-          <span>
-            <StyledIcon><Icon name='People' /></StyledIcon>
-            {wallet.user.provider_user_id}
-          </span>
-        }
-        {wallet.address === 'gnis000000000000' &&
-          <span>
-            <StyledIcon><Icon name='Token' /></StyledIcon>
-            Genesis
-          </span>
-        }
-      </span>
-    )
-  }
-  getRow = wallets => {
-    return selectWallets(
-      {
-        wallets: wallets.map(wallet => {
-          return {
-            owner: this.getOwner(wallet),
-            id: wallet.address,
-            ...wallet
-          }
-        })
-      },
-      queryString.parse(this.props.location.search).search
     )
   }
   onClickRow = (data, index) => e => {
     this.props.history.push(`/wallets/${data.address}`)
   }
-  rowRenderer (key, data, rows) {
-    if (key === 'name') {
-      return (
-        <WalletAddressContainer>
-          <Icon name='Wallet' />
-          <span>{data}</span>
-        </WalletAddressContainer>
-      )
-    }
-    if (key === 'created_at') {
-      return moment(data).format()
-    }
-    if (key === 'identifier') {
-      return (
-        <WalletAddressContainer>
-          <span>{data.split('_')[0]}</span>
-        </WalletAddressContainer>
-      )
-    }
-    if (key === 'address') {
-      return (
-        <WalletAddressContainer>
-          <Id withCopy={false}>{data}</Id>
-        </WalletAddressContainer>
-      )
-    }
-    return data
-  }
 
-  renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination, fetch }) => {
-    const isAccountWalletsPage = queryString.parse(this.props.location.search).walletType !== 'user'
+  renderWalletPage = ({
+    data: wallets,
+    individualLoadingStatus,
+    pagination,
+    fetch
+  }) => {
+    const isAccountWalletsPage =
+      queryString.parse(this.props.location.search).walletType !== 'user'
     const { accountId } = this.props.match.params
 
     return (
@@ -232,26 +119,24 @@ class WalletPage extends Component {
           divider={this.props.divider}
           title={this.props.title}
           buttons={[
-            this.props.transferButton && this.renderTransferButton(),
+            this.props.transferButton && (
+              <CreateTransactionButton key='transfer' />
+            ),
             isAccountWalletsPage && accountId && this.renderCreateWalletButton()
           ]}
         />
-        <SortableTableContainer ref={table => (this.table = table)}>
+        <SortableTableContainer>
           <SortableTable
-            rows={this.getRow(wallets)}
-            columns={this.getColumns(wallets)}
+            rows={wallets.map(wallet => ({ id: wallet.address, ...wallet }))}
+            columns={walletColumsKeys}
             loadingStatus={individualLoadingStatus}
-            rowRenderer={this.rowRenderer}
+            rowRenderer={walletRowRenderer}
             onClickRow={this.props.onClickRow || this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation
           />
         </SortableTableContainer>
-        <CreateTransactionModal
-          open={this.state.transferModalOpen}
-          onRequestClose={this.onRequestCloseTransferModal}
-        />
         <CreateWalletModal
           isOpen={this.state.createWalletModalOpen}
           onRequestClose={this.onRequestCloseTransferModal}

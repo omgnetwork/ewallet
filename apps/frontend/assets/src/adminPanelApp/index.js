@@ -4,6 +4,7 @@ import { hot } from 'react-hot-loader/root'
 import { ThemeProvider } from 'styled-components'
 import Modal from 'react-modal'
 import PropTypes from 'prop-types'
+
 import 'reset-css'
 
 import theme from './theme'

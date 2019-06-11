@@ -160,5 +160,6 @@ export const alertsReducer = createReducer([], {
   'API_KEY/CREATE/FAILED': errorStateHandler,
   'ACCESS_KEY/CREATE/FAILED': errorStateHandler,
   'CONFIGURATIONS/REQUEST/FAILED': errorStateHandler,
-  'INVITE/REQUEST/FAILED': errorStateHandler
+  'INVITE/REQUEST/FAILED': errorStateHandler,
+  'TRANSACTIONS/REQUEST/FAILED': errorStateHandler
 })

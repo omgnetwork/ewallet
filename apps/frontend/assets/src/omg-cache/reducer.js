@@ -39,6 +39,12 @@ export const cacheReducer = createReducer(
         [action.cacheKey]: { ids: action.data.map(d => d.address), pagination: action.pagination }
       }
     },
+    'USER_WALLETS/REQUEST/SUCCESS': (state, action) => {
+      return {
+        ...state,
+        [action.cacheKey]: { ids: action.data.map(d => d.address), pagination: action.pagination }
+      }
+    },
     'TRANSACTIONS/REQUEST/SUCCESS': (state, action) => {
       return {
         ...state,

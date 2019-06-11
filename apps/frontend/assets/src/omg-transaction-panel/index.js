@@ -9,7 +9,7 @@ import moment from 'moment'
 import TransactionProvider from '../omg-transaction/transactionProvider'
 import { Icon } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import { MarkContainer } from '../omg-page-transaction'
+import { MarkContainer } from '../omg-page-transaction/transactionTableRowRenderer'
 
 const PanelContainer = styled.div`
   height: 100vh;
