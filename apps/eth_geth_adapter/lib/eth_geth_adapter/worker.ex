@@ -15,7 +15,7 @@
 defmodule EthGethAdapter.Worker do
   @moduledoc false
 
-  alias EthGethAdapter.{Balance, Transaction}
+  alias EthGethAdapter.{Balance, Transaction, Token}
 
   @type server :: GenServer.server()
   @typep from :: GenServer.from()
