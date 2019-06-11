@@ -124,10 +124,13 @@ defmodule EWallet.TransactionConsumptionValidator do
     |> case do
       true ->
         :ok
+
       nil ->
         {:error, :unknown_error}
+
       expiration_reason when is_binary(expiration_reason) ->
         {:error, String.to_existing_atom(expiration_reason)}
+
       :cancelled_transaction_request ->
         {:error, :cancelled_transaction_request}
     end

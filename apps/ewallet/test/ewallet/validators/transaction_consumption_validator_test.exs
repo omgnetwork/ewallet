@@ -310,7 +310,10 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       consumption =
         :transaction_consumption
-        |> insert(status: TransactionConsumption.cancelled(), transaction_request_uuid: request.uuid)
+        |> insert(
+          status: TransactionConsumption.cancelled(),
+          transaction_request_uuid: request.uuid
+        )
         |> Repo.preload([:transaction_request])
 
       {status, res} =

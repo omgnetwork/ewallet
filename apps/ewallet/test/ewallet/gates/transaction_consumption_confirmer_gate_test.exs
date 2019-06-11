@@ -509,7 +509,10 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       consumptions = TransactionConsumption |> EWalletDB.Repo.all()
       assert length(consumptions) == max
-      assert Enum.count(consumptions, fn c -> c.status == TransactionConsumption.confirmed() end) == 1
+
+      assert Enum.count(consumptions, fn c -> c.status == TransactionConsumption.confirmed() end) ==
+               1
+
       assert Enum.count(consumptions, fn c -> c.status == "pending" end) == max - 1
     end
   end

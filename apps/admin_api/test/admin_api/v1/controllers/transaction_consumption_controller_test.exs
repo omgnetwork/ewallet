@@ -68,9 +68,23 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       user = get_test_user()
       account = Account.get_master_account()
 
-      tc_1 = insert(:transaction_consumption, user_uuid: user.uuid, status: TransactionConsumption.pending())
-      tc_2 = insert(:transaction_consumption, account_uuid: account.uuid, status: TransactionConsumption.pending())
-      tc_3 = insert(:transaction_consumption, account_uuid: account.uuid, status: TransactionConsumption.confirmed())
+      tc_1 =
+        insert(:transaction_consumption,
+          user_uuid: user.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_2 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_3 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.confirmed()
+        )
 
       %{
         user: user,
@@ -197,9 +211,23 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       user = get_test_user()
       account = Account.get_master_account()
 
-      tc_1 = insert(:transaction_consumption, user_uuid: user.uuid, status: TransactionConsumption.pending())
-      tc_2 = insert(:transaction_consumption, account_uuid: account.uuid, status: TransactionConsumption.pending())
-      tc_3 = insert(:transaction_consumption, account_uuid: account.uuid, status: TransactionConsumption.confirmed())
+      tc_1 =
+        insert(:transaction_consumption,
+          user_uuid: user.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_2 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_3 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.confirmed()
+        )
 
       %{
         user: user,
@@ -326,9 +354,23 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       user = get_test_user()
       account = Account.get_master_account()
 
-      tc_1 = insert(:transaction_consumption, account_uuid: account.uuid, status: TransactionConsumption.pending())
-      tc_2 = insert(:transaction_consumption, user_uuid: user.uuid, status: TransactionConsumption.pending())
-      tc_3 = insert(:transaction_consumption, user_uuid: user.uuid, status: TransactionConsumption.confirmed())
+      tc_1 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_2 =
+        insert(:transaction_consumption,
+          user_uuid: user.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_3 =
+        insert(:transaction_consumption,
+          user_uuid: user.uuid,
+          status: TransactionConsumption.confirmed()
+        )
 
       %{
         user: user,
@@ -494,7 +536,11 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       account = insert(:account)
       transaction_request = insert(:transaction_request)
 
-      tc_1 = insert(:transaction_consumption, account_uuid: account.uuid, status: TransactionConsumption.pending())
+      tc_1 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.pending()
+        )
 
       tc_2 =
         insert(
@@ -630,7 +676,11 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       wallet = insert(:wallet)
       {:ok, _} = AccountUser.link(account.uuid, wallet.user_uuid, %System{})
 
-      tc_1 = insert(:transaction_consumption, account_uuid: account.uuid, status: TransactionConsumption.pending())
+      tc_1 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.pending()
+        )
 
       tc_2 =
         insert(
@@ -794,7 +844,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
   describe "/transaction_consumption.cancel" do
     test_with_auths "cancels a consumption when in pending state" do
-      transaction_consumption = insert(:transaction_consumption, status: TransactionConsumption.pending())
+      transaction_consumption =
+        insert(:transaction_consumption, status: TransactionConsumption.pending())
 
       response =
         request("/transaction_consumption.cancel", %{
@@ -808,7 +859,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test_with_auths "returns a 'transaction_consumption:uncancellable' error when the consumption is not pending" do
-      transaction_consumption = insert(:transaction_consumption, status: TransactionConsumption.confirmed())
+      transaction_consumption =
+        insert(:transaction_consumption, status: TransactionConsumption.confirmed())
 
       response =
         request("/transaction_consumption.cancel", %{
@@ -916,7 +968,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test "generates an activity log with an admin request" do
-      transaction_consumption = insert(:transaction_consumption, status: TransactionConsumption.pending())
+      transaction_consumption =
+        insert(:transaction_consumption, status: TransactionConsumption.pending())
 
       timestamp = DateTime.utc_now()
 
@@ -935,7 +988,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test "generates an activity log with a provider request" do
-      transaction_consumption = insert(:transaction_consumption, status: TransactionConsumption.pending())
+      transaction_consumption =
+        insert(:transaction_consumption, status: TransactionConsumption.pending())
 
       timestamp = DateTime.utc_now()
 
@@ -1775,7 +1829,9 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       refute response["success"]
       assert response["data"]["code"] == "transaction_request:cancelled"
-      assert response["data"]["description"] == "The specified transaction request has been cancelled."
+
+      assert response["data"]["description"] ==
+               "The specified transaction request has been cancelled."
     end
 
     test_with_auths "returns with preload if `embed` attribute is given", context do

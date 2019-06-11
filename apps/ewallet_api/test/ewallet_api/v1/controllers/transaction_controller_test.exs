@@ -608,7 +608,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
         action: "update",
         originator: :system,
         target: transaction,
-        changes: %{"local_ledger_uuid" => transaction.local_ledger_uuid, "status" => Transaction.confirmed()},
+        changes: %{
+          "local_ledger_uuid" => transaction.local_ledger_uuid,
+          "status" => Transaction.confirmed()
+        },
         encrypted_changes: %{}
       )
     end

@@ -861,7 +861,10 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
     test "returns a 'transaction_consumption:uncancellable' error when the consumption is not pending" do
       transaction_consumption =
-        insert(:transaction_consumption, %{user_uuid: get_test_user().uuid, status: TransactionConsumption.confirmed()})
+        insert(:transaction_consumption, %{
+          user_uuid: get_test_user().uuid,
+          status: TransactionConsumption.confirmed()
+        })
 
       response =
         client_request("/me.cancel_transaction_consumption", %{
