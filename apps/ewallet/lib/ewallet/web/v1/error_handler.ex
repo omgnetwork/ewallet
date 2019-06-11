@@ -33,6 +33,12 @@ defmodule EWallet.Web.V1.ErrorHandler do
       template:
         "Invalid parameter provided. The queried field is not allowed. Given: '%{field_name}'."
     },
+    query_field_missing_subfield: %{
+      code: "client:invalid_parameter",
+      template:
+        "Invalid parameter provided. The queried field must refer to the object's field,"
+        <> " not the object. Given: '%{field_name}'."
+    },
     missing_id: %{
       code: "client:invalid_parameter",
       description: "Invalid parameter provided. `id` is required."

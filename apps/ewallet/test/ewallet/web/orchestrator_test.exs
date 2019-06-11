@@ -28,8 +28,21 @@ defmodule EWallet.Web.OrchestratorTest do
     def default_preload_assocs, do: [:wallets]
     def sort_fields, do: [:id, :name]
     def search_fields, do: [:id, :name]
-    def self_filter_fields, do: [:id, :name, :description, :inserted_at]
-    def filter_fields, do: [:id, :name, :description, :inserted_at]
+
+    def self_filter_fields, do: [
+      :id,
+      :name,
+      :description,
+      :inserted_at
+    ]
+
+    def filter_fields, do: [
+      id: nil,
+      name: nil,
+      description: nil,
+      inserted_at: nil,
+      mock_assoc: [:id, :name]
+    ]
   end
 
   describe "query/3" do
@@ -66,6 +79,24 @@ defmodule EWallet.Web.OrchestratorTest do
       assert res == :error
       assert error == :query_field_not_allowed
       assert params == [field_name: "status"]
+    end
+
+    test "returns :query_field_missing_subfield error if the field is an association" do
+      attrs = %{
+        "match_all" => [
+          %{
+            "field" => "mock_assoc",
+            "comparator" => "eq",
+            "value" => "some_value"
+          }
+        ]
+      }
+
+      {res, error, params} = Orchestrator.query(Account, MockOverlay, attrs)
+
+      assert res == :error
+      assert error == :query_field_missing_subfield
+      assert params == [field_name: "mock_assoc"]
     end
 
     test "returns records with the given `start_after`, `start_by` and `sort_by` is `desc`" do

@@ -80,6 +80,9 @@ defmodule EWallet.Web.MatchParser do
       nil ->
         {:error, :not_allowed, field}
 
+      :missing_subfield ->
+        {:error, :missing_subfield, field}
+
       field_definition ->
         {field_definition, comparator, value}
     end
@@ -141,7 +144,10 @@ defmodule EWallet.Web.MatchParser do
   # Returns `{field, nil}` if the type is not given
   defp get_field_definition(field, field), do: {field, nil}
 
-  # Returns `{field, type}` if the type is given
+  # Returns `:missing_subfield` if the field is an association
+  defp get_field_definition(field, {field, type}) when is_list(type), do: :missing_subfield
+
+  # Returns `{field, type}` if the type is given.
   defp get_field_definition(field, {field, type}), do: {field, type}
 
   # Returns nil if the field does not match
