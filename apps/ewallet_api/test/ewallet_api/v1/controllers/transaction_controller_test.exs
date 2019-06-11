@@ -30,21 +30,21 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       insert(:transaction, %{
         from_wallet: wallet_1,
         to_wallet: wallet_2,
-        status: "confirmed"
+        status: Transaction.confirmed()
       })
 
     transaction_2 =
       insert(:transaction, %{
         from_wallet: wallet_2,
         to_wallet: wallet_1,
-        status: "confirmed"
+        status: Transaction.confirmed()
       })
 
     transaction_3 =
       insert(:transaction, %{
         from_wallet: wallet_1,
         to_wallet: wallet_3,
-        status: "confirmed"
+        status: Transaction.confirmed()
       })
 
     transaction_4 =
@@ -54,14 +54,14 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
         status: "pending"
       })
 
-    transaction_5 = insert(:transaction, %{status: "confirmed"})
+    transaction_5 = insert(:transaction, %{status: Transaction.confirmed()})
     transaction_6 = insert(:transaction, %{status: "pending"})
 
     transaction_7 =
       insert(:transaction, %{
         from_wallet: wallet_4,
         to_wallet: wallet_2,
-        status: "confirmed"
+        status: Transaction.confirmed()
       })
 
     transaction_8 =
@@ -608,7 +608,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
         action: "update",
         originator: :system,
         target: transaction,
-        changes: %{"local_ledger_uuid" => transaction.local_ledger_uuid, "status" => "confirmed"},
+        changes: %{"local_ledger_uuid" => transaction.local_ledger_uuid, "status" => Transaction.confirmed()},
         encrypted_changes: %{}
       )
     end

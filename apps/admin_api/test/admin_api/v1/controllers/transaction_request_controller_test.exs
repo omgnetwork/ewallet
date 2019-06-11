@@ -693,14 +693,14 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
       assert response["success"] == true
       assert response["data"]["id"] == transaction_request.id
       assert response["data"]["cancelled_at"] != nil
-      assert response["data"]["status"] == "cancelled"
+      assert response["data"]["status"] == TransactionRequest.cancelled()
 
       # Assert there's 1 activity log has been inserted.
       assert [log] = get_all_activity_logs_since(before_execution)
 
       # Assert changes
       assert log.target_changes == %{
-               "status" => "cancelled",
+               "status" => TransactionRequest.cancelled(),
                "cancelled_at" => response["data"]["cancelled_at"]
              }
     end

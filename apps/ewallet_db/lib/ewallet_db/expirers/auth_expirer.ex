@@ -27,7 +27,7 @@ defmodule EWalletDB.Expirers.AuthExpirer do
   @spec get_advanced_datetime(integer) :: NaiveDateTime.t() | nil
   def get_advanced_datetime(0), do: nil
 
-  def get_advanced_datetime(second) when is_integer(second) and not is_nil(second) do
+  def get_advanced_datetime(second) when is_integer(second)do
     NaiveDateTime.add(NaiveDateTime.utc_now(), second, :second)
   end
 

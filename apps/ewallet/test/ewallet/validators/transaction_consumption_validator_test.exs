@@ -62,6 +62,18 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       assert error == :expired_transaction_request
     end
 
+    test "returns {:error, :unknown_error} if the transaction request has invalid status" do
+      request = :transaction_request |> insert(%{status: "invalid"})
+      wallet = request.wallet
+
+      {:error, error} =
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{
+          "creator" => creator()
+        })
+
+      assert error == :unknown_error
+    end
+
     test "returns unauthorized_amount_override amount when attempting to override illegally" do
       request = insert(:transaction_request, allow_amount_override: false)
       wallet = request.wallet
@@ -221,7 +233,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
           user_uuid: user_2.uuid,
           wallet_address: wallet_2.address,
           transaction_request_uuid: request.uuid,
-          status: "confirmed"
+          status: TransactionConsumption.confirmed()
         )
 
       consumption =
@@ -298,7 +310,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       consumption =
         :transaction_consumption
-        |> insert(status: "cancelled", transaction_request_uuid: request.uuid)
+        |> insert(status: TransactionConsumption.cancelled(), transaction_request_uuid: request.uuid)
         |> Repo.preload([:transaction_request])
 
       {status, res} =
@@ -480,7 +492,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       _ =
         insert(:transaction_consumption,
-          status: "confirmed",
+          status: TransactionConsumption.confirmed(),
           transaction_request_uuid: request.uuid
         )
 
@@ -500,7 +512,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       _ =
         insert(:transaction_consumption,
-          status: "confirmed",
+          status: TransactionConsumption.confirmed(),
           transaction_request_uuid: request.uuid
         )
 
@@ -598,7 +610,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       _ =
         insert(:transaction_consumption,
-          status: "confirmed",
+          status: TransactionConsumption.confirmed(),
           user_uuid: user.uuid,
           wallet_address: wallet.address,
           transaction_request_uuid: request.uuid
@@ -626,7 +638,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       _ =
         insert(:transaction_consumption,
-          status: "confirmed",
+          status: TransactionConsumption.confirmed(),
           user_uuid: user.uuid,
           wallet_address: wallet.address,
           transaction_request_uuid: request.uuid

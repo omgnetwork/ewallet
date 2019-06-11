@@ -125,7 +125,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
@@ -177,7 +177,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
@@ -279,7 +279,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
@@ -509,7 +509,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       consumptions = TransactionConsumption |> EWalletDB.Repo.all()
       assert length(consumptions) == max
-      assert Enum.count(consumptions, fn c -> c.status == "confirmed" end) == 1
+      assert Enum.count(consumptions, fn c -> c.status == TransactionConsumption.confirmed() end) == 1
       assert Enum.count(consumptions, fn c -> c.status == "pending" end) == max - 1
     end
   end
@@ -558,7 +558,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
@@ -610,7 +610,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 

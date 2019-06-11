@@ -97,7 +97,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   @spec cancel(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def cancel(conn, %{"formatted_id" => formatted_id}) do
-    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id) || {:error, :unauthorized},
+    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id),
          {:ok, _} <- authorize(:cancel, conn.assigns, request),
          {:ok, cancelled_request} <-
            TransactionRequest.cancel(request, Originator.extract(conn.assigns)) do
@@ -111,13 +111,13 @@ defmodule AdminAPI.V1.TransactionRequestController do
     end
   end
 
-  def cancel(conn, _),
-    do:
-      handle_error(
-        conn,
-        :invalid_parameter,
-        "Invalid parameter provided. `formatted_id` is required."
-      )
+  def cancel(conn, _) do
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `formatted_id` is required."
+    )
+  end
 
   # Respond with a list of transaction requests
   defp respond_multiple(%Paginator{} = paged_transaction_requests, conn) do

@@ -104,7 +104,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
                  "idempotency_token" => "JXcTFKJK",
                  "object" => "transaction_consumption",
-                 "status" => "confirmed",
+                 "status" => TransactionConsumption.confirmed(),
                  "token_id" => meta.token.id,
                  "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
@@ -191,7 +191,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
                  "idempotency_token" => "JXcTFKJK",
                  "object" => "transaction_consumption",
-                 "status" => "confirmed",
+                 "status" => TransactionConsumption.confirmed(),
                  "token_id" => meta.token.id,
                  "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
@@ -275,7 +275,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
                  "idempotency_token" => "123",
                  "object" => "transaction_consumption",
-                 "status" => "confirmed",
+                 "status" => TransactionConsumption.confirmed(),
                  "token_id" => meta.token.id,
                  "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
@@ -364,7 +364,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
                  "idempotency_token" => "123",
                  "object" => "transaction_consumption",
-                 "status" => "confirmed",
+                 "status" => TransactionConsumption.confirmed(),
                  "token_id" => meta.token.id,
                  "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
@@ -595,7 +595,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
-      assert response["data"]["status"] == "confirmed"
+      assert response["data"]["status"] == TransactionConsumption.confirmed()
       assert response["data"]["approved_at"] != nil
       assert response["data"]["confirmed_at"] != nil
 
@@ -802,7 +802,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         target: transaction,
         changes: %{
           "local_ledger_uuid" => transaction.local_ledger_uuid,
-          "status" => "confirmed"
+          "status" => TransactionConsumption.confirmed()
         },
         encrypted_changes: %{}
       )
@@ -815,7 +815,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         target: transaction_consumption,
         changes: %{
           "confirmed_at" => DateFormatter.to_iso8601(transaction_consumption.confirmed_at),
-          "status" => "confirmed",
+          "status" => TransactionConsumption.confirmed(),
           "transaction_uuid" => transaction.uuid
         },
         encrypted_changes: %{}
@@ -856,12 +856,12 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert response["success"]
       assert response["data"]["id"] == transaction_consumption.id
       assert response["data"]["cancelled_at"] != nil
-      assert response["data"]["status"] == "cancelled"
+      assert response["data"]["status"] == TransactionConsumption.cancelled()
     end
 
     test "returns a 'transaction_consumption:uncancellable' error when the consumption is not pending" do
       transaction_consumption =
-        insert(:transaction_consumption, %{user_uuid: get_test_user().uuid, status: "confirmed"})
+        insert(:transaction_consumption, %{user_uuid: get_test_user().uuid, status: TransactionConsumption.confirmed()})
 
       response =
         client_request("/me.cancel_transaction_consumption", %{
@@ -934,7 +934,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"]
       assert response["data"]["id"] == inserted_consumption.id
-      assert response["data"]["status"] == "cancelled"
+      assert response["data"]["status"] == TransactionConsumption.cancelled()
       assert response["data"]["cancelled_at"] != nil
 
       assert_receive %Phoenix.Socket.Broadcast{

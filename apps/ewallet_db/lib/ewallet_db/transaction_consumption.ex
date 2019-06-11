@@ -44,6 +44,13 @@ defmodule EWalletDB.TransactionConsumption do
   @rejected "rejected"
   @cancelled "cancelled"
   @statuses [@pending, @approved, @rejected, @confirmed, @cancelled, @failed, @expired]
+  def pending, do: @pending
+  def confirmed, do: @confirmed
+  def failed, do: @failed
+  def expired, do: @expired
+  def approved, do: @approved
+  def rejected, do: @rejected
+  def cancelled, do: @cancelled
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]

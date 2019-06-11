@@ -56,7 +56,7 @@ defmodule EWallet.TransactionConsumptionValidator do
          true <- wallet.enabled || {:error, :wallet_is_disabled},
          :ok <- validate_only_one_exchange_address_in_pair(request, wallet_exchange),
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request, %System{}),
-         true <- validate_transaction_request(request),
+         :ok <- validate_transaction_request(request),
          {:ok, amount} <- validate_amount(request, amount),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
          {:ok, nil} <- validate_max_consumptions_per_interval(request),
@@ -65,9 +65,6 @@ defmodule EWallet.TransactionConsumptionValidator do
          :ok <- validate_client_exchange(creator, pair) do
       {:ok, request, token, amount}
     else
-      error when is_binary(error) ->
-        {:error, String.to_existing_atom(error)}
-
       error when is_atom(error) ->
         {:error, error}
 
@@ -121,9 +118,19 @@ defmodule EWallet.TransactionConsumptionValidator do
   end
 
   defp validate_transaction_request(request) do
-    TransactionRequest.valid?(request) ||
-      request.expiration_reason ||
-      TransactionRequest.get_cancelled_error(request)
+    TransactionRequest.valid?(request)
+    |> Kernel.||(request.expiration_reason)
+    |> Kernel.||(TransactionRequest.get_cancelled_error(request))
+    |> case do
+      true ->
+        :ok
+      nil ->
+        {:error, :unknown_error}
+      expiration_reason when is_binary(expiration_reason) ->
+        {:error, String.to_existing_atom(expiration_reason)}
+      :cancelled_transaction_request ->
+        {:error, :cancelled_transaction_request}
+    end
   end
 
   defp validate_not_expired(consumption) do

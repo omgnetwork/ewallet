@@ -38,6 +38,10 @@ defmodule EWalletDB.TransactionRequest do
   @cancelled "cancelled"
   @statuses [@valid, @expired, @cancelled]
 
+  def valid, do: @valid
+  def expired, do: @expired
+  def cancelled, do: @cancelled
+
   @send "send"
   @receive "receive"
   @types [@send, @receive]

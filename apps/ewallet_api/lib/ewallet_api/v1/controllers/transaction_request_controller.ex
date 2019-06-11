@@ -37,7 +37,7 @@ defmodule EWalletAPI.V1.TransactionRequestController do
 
   @spec cancel_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def cancel_for_user(conn, %{"formatted_id" => formatted_id}) do
-    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id) || {:error, :unauthorized},
+    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id),
          {:ok, _} <- authorize(:cancel, conn.assigns, request),
          {:ok, cancelled_request} <-
            TransactionRequest.cancel(request, Originator.extract(conn.assigns)) do

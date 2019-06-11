@@ -16,7 +16,7 @@ defmodule EWalletDB.TransactionRequestTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias ActivityLogger.System
-  alias EWalletDB.TransactionRequest
+  alias EWalletDB.{TransactionRequest, TransactionConsumption}
 
   describe "TransactionRequest factory" do
     test_has_valid_factory(TransactionRequest)
@@ -223,7 +223,7 @@ defmodule EWalletDB.TransactionRequestTest do
     end
 
     test "returns false if cancelled" do
-      request = insert(:transaction_request, status: "cancelled")
+      request = insert(:transaction_request, status: TransactionRequest.cancelled())
       assert TransactionRequest.cancelled?(request) == true
     end
   end
@@ -342,14 +342,14 @@ defmodule EWalletDB.TransactionRequestTest do
         insert(
           :transaction_consumption,
           transaction_request_uuid: request.uuid,
-          status: "confirmed"
+          status: TransactionConsumption.confirmed()
         )
 
       _consumption =
         insert(
           :transaction_consumption,
           transaction_request_uuid: request.uuid,
-          status: "confirmed"
+          status: TransactionConsumption.confirmed()
         )
 
       {res, updated_request} = TransactionRequest.expire_if_max_consumption(request, %System{})
@@ -378,7 +378,7 @@ defmodule EWalletDB.TransactionRequestTest do
   describe "get_cancelled_error" do
     test "receives :cancelled_transaction_request if the transaction request status is cancelled" do
       assert :transaction_request
-             |> insert(status: "cancelled")
+             |> insert(status: TransactionRequest.cancelled())
              |> TransactionRequest.get_cancelled_error() == :cancelled_transaction_request
     end
 
