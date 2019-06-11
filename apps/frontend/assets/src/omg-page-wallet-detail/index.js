@@ -22,10 +22,6 @@ const WalletDetailContainer = styled.div`
     margin-right: 10px;
   }
 `
-const ContentDetailContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-`
 const DetailContainer = styled.div`
   flex: 1 1 auto;
   :first-child {
@@ -143,29 +139,28 @@ class WalletDetaillPage extends Component {
             </div>
             <SearchBar />
           </MenuContainer>
-          <ContentDetailContainer>
-            <Switch>
-              <Route
-                path={['/wallets/:walletAddress/balances']}
-                render={() => (
-                  <DetailContainer>
-                    <WalletBalance wallet={wallet} />{' '}
-                  </DetailContainer>
-                )}
-                exact
-              />
-              <Route
-                path={['/wallets/:walletAddress']}
-                render={() => this.renderDetail(wallet)}
-                exact
-              />
-              <Route
-                path={['/wallets/:walletAddress/transactions']}
-                component={WalletTransactions}
-                exact
-              />
-            </Switch>
-          </ContentDetailContainer>
+
+          <Switch>
+            <Route
+              path={['/wallets/:walletAddress/balances']}
+              render={() => (
+                <DetailContainer>
+                  <WalletBalance wallet={wallet} />{' '}
+                </DetailContainer>
+              )}
+              exact
+            />
+            <Route
+              path={['/wallets/:walletAddress']}
+              render={() => this.renderDetail(wallet)}
+              exact
+            />
+            <Route
+              path={['/wallets/:walletAddress/transactions']}
+              component={WalletTransactions}
+              exact
+            />
+          </Switch>
         </ContentContainer>
       </div>
     )
