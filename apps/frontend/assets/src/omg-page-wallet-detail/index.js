@@ -1,15 +1,16 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter, Link, Route, Switch } from 'react-router-dom'
 import { compose } from 'recompose'
 import moment from 'moment'
 
 import WalletProvider from '../omg-wallet/walletProvider'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
+import { DetailGroup } from '../omg-page-detail-layout/DetailSection'
+import { TabButton } from '../omg-uikit'
+import WalletBalance from './WalletBalances'
 import Copy from '../omg-copy'
 import CONSTANT from '../constants'
 import { connect } from 'react-redux'
@@ -46,6 +47,16 @@ const ErrorPageContainer = styled.div`
     margin-bottom: 30px;
   }
 `
+
+const MenuContainer = styled.div`
+  display: flex;
+  margin-bottom: 20px;
+  align-items: center;
+  > div {
+    flex: 1;
+  }
+`
+
 const enhance = compose(
   withRouter,
   connect(
@@ -76,7 +87,7 @@ class WalletDetaillPage extends Component {
   }
   renderDetail = wallet => {
     return (
-      <Section title={{ text: 'Details', icon: 'Portfolio' }}>
+      <DetailContainer>
         <DetailGroup>
           <b>Address:</b> <span>{wallet.address}</span>{' '}
           <Copy data={wallet.address} />
@@ -109,37 +120,49 @@ class WalletDetaillPage extends Component {
         <DetailGroup>
           <b>Updated At:</b> <span>{moment(wallet.updated_at).format()}</span>
         </DetailGroup>
-      </Section>
-    )
-  }
-  renderBalances = wallet => {
-    return (
-      <Section title={{ text: 'Balances', icon: 'Token' }}>
-        {wallet.balances.map(balance => {
-          return (
-            <DetailGroup key={balance.token.id}>
-              <b>{balance.token.name}</b>{' '}
-              <span>
-                {formatReceiveAmountToTotal(
-                  balance.amount,
-                  balance.token.subunit_to_unit
-                )}{' '}
-                {balance.token.symbol}
-              </span>
-            </DetailGroup>
-          )
-        })}
-      </Section>
+      </DetailContainer>
     )
   }
   renderWalletDetailContainer = wallet => {
+    const type = this.props.match.params.type
+    const { walletAddress } = this.props.match.params
+    const basePath = `/wallets/${walletAddress}`
     return (
       <div>
         <ContentContainer>
           {this.renderTopBar(wallet)}
+          <MenuContainer>
+            <Link to={basePath}>
+              <TabButton active={type === 'details' || !type}>
+                Details
+              </TabButton>
+            </Link>
+            <Link to={`${basePath}/balances`}>
+              <TabButton active={type === 'balances'}>Balances</TabButton>
+            </Link>
+            <Link to={`${basePath}/transactions`}>
+              <TabButton active={type === 'transactions'}>
+                Transactions
+              </TabButton>
+            </Link>
+          </MenuContainer>
           <ContentDetailContainer>
-            <DetailContainer>{this.renderDetail(wallet)}</DetailContainer>
-            <DetailContainer>{this.renderBalances(wallet)}</DetailContainer>
+            <Switch>
+              <Route
+                path={['/wallets/:walletAddress/balances']}
+                render={() => (
+                  <DetailContainer>
+                    <WalletBalance wallet={wallet} />{' '}
+                  </DetailContainer>
+                )}
+                exact
+              />
+              <Route
+                path={['/wallets/:walletAddress']}
+                render={() => this.renderDetail(wallet)}
+                exact
+              />
+            </Switch>
           </ContentDetailContainer>
         </ContentContainer>
       </div>

@@ -1,5 +1,10 @@
 import React from 'react'
-import { BrowserRouter as Router, Redirect, Switch, Route } from 'react-router-dom'
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Switch,
+  Route
+} from 'react-router-dom'
 
 import AuthenticatedRoute from './authenticatedRoute'
 import LoginRoute from './loginRoute'
@@ -72,9 +77,8 @@ const createRoute = () => (
       <AuthenticatedRoute path='/admins' exact component={AdminsPage} />
       <AuthenticatedRoute path='/admins/:adminId' exact component={AdminDetailPage} />
       <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
-
+      <AuthenticatedRoute path='/wallets/:walletAddress/:type' exact component={WalletDetailPage} />
       {/* 404 PAGE */}
-      <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <Route component={NotFoundPage} />
     </Switch>
     <ModalController />
