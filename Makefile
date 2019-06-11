@@ -22,7 +22,7 @@ deps-ewallet:
 	mix deps.get
 
 deps-assets:
-	$(ASSETS) yarn install
+	$(ASSETS) npm install
 
 .PHONY: deps deps-ewallet deps-assets
 
@@ -78,7 +78,7 @@ check-assets:
 #
 
 build-assets: deps-assets
-	$(ASSETS) yarn build
+	$(ASSETS) npm run build
 
 # If we call mix phx.digest without mix compile, mix release will silently fail
 # for some reason. Always make sure to run mix compile first.
@@ -103,7 +103,7 @@ test-ewallet: clean-test-assets build-test
 	$(ENV_TEST) mix do ecto.create, ecto.migrate, test
 
 test-assets: build-assets
-	$(ASSETS) yarn test
+	$(ASSETS) npm run test
 
 .PHONY: test test-ewallet test-assets
 

@@ -8,7 +8,7 @@ import queryString from 'query-string'
 import { compose } from 'recompose'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
-import { MarkContainer } from '../omg-page-transaction'
+import { MarkContainer } from '../omg-page-transaction/transactionTableRowRenderer'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;

@@ -14,13 +14,6 @@ export const ThContent = styled.div`
   font-weight: 600;
   color: ${props => (props.active ? props.theme.colors.B400 : props.theme.colors.B100)};
 `
-const LoadMoreButton = styled(Button)`
-  padding-top: 5px;
-  padding-bottom: 5px;
-  i {
-    margin-right: 5px;
-  }
-`
 const TableContainer = styled.div`
   width: 100%;
   table {
@@ -80,7 +73,6 @@ class SortableTable extends PureComponent {
     isLastPage: PropTypes.bool,
     isFirstPage: PropTypes.bool,
     navigation: PropTypes.bool,
-    onClickLoadMore: PropTypes.func,
     pagination: PropTypes.bool,
     pageEntity: PropTypes.string,
     loadingEffect: PropTypes.bool,
@@ -229,19 +221,6 @@ class SortableTable extends PureComponent {
         .value()
       : this.props.rows
     return result
-  }
-  renderLoadMore = () => {
-    return (
-      <LoadMoreButton
-        styleType='secondary'
-        onClick={this.props.onClickLoadMore}
-        disabled={this.props.isLastPage}
-        size='small'
-      >
-        <Icon name='Chevron-Down' />
-        <span>Load More...</span>
-      </LoadMoreButton>
-    )
   }
   render () {
     const shouldShowNavigation =

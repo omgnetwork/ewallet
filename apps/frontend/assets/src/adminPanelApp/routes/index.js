@@ -27,6 +27,7 @@ import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
 import AccountLayout from '../../omg-page-each-account/AccountLayout'
 import VerifyEmail from '../../omg-page-verify-email'
+import ModalController from '../../omg-modal/ModalController'
 // prettier-ignore
 
 const createRoute = () => (
@@ -61,7 +62,8 @@ const createRoute = () => (
       <AuthenticatedRoute path='/accounts/:accountId/:type' component={AccountLayout} />
 
       {/* OVERVIEW */}
-      <AuthenticatedRoute path='/users/:userId' exact component={() => <UserDetailPage withBreadCrumb />} />
+      <AuthenticatedRoute path='/users/:userId/:type' exact component={() => <UserDetailPage withBreadCrumb />} />
+      <AuthenticatedRoute path='/users/:userId' excact component={() => <UserDetailPage withBreadCrumb />} />
 
       <AuthenticatedRoute path='/consumptions' exact component={ReqestConsumptionPage} />
       <AuthenticatedRoute path='/requests' exact component={TransactionRequestPage} />
@@ -75,6 +77,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <Route component={NotFoundPage} />
     </Switch>
+    <ModalController />
   </Router>
 )
 
