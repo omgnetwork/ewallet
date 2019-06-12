@@ -1,4 +1,5 @@
-export const selectAccessKeysLoadingStatus = state => state.loadingStatus.accessKeys
+export const selectAccessKeysLoadingStatus = state =>
+  state.loadingStatus.accessKeys
 
 export const selectGetAccessKeyById = state => id => state.accessKeys[id]
 
@@ -8,5 +9,7 @@ export const selectAccessKeysCachedQuery = state => cacheKey => {
   })
 }
 
-export const selectAccessKeyMemberships = state => id => state.accessKeyMemberships[id]
-export const selectAccessKeyMembershipsLoadingStatus = state => state.loadingStatus.accessKeyMemberships || 'DEFAULT'
+export const selectAccessKeyMemberships = state => id =>
+  state.accessKeyMemberships[id]
+export const selectAccessKeyMembershipsLoadingStatus = state =>
+  state.loadingStatus.accessKeyMemberships || 'DEFAULT'

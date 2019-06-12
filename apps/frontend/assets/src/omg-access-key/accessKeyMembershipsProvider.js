@@ -4,8 +4,12 @@ import { connect } from 'react-redux'
 
 import { getAccessKeyMemberships } from './action'
 import { assignKey, unassignKey } from '../omg-account/action'
-import { selectAccessKeyMembershipsLoadingStatus, selectAccessKeyMemberships } from './selector'
+import {
+  selectAccessKeyMembershipsLoadingStatus,
+  selectAccessKeyMemberships
+} from './selector'
 
+import CONSTANT from '../constants'
 // aka frontend ui -> "Admin Keys Assigned Accounts"
 class AccessKeyMembershipsProvider extends Component {
   static propTypes = {
@@ -19,6 +23,9 @@ class AccessKeyMembershipsProvider extends Component {
     membershipsLoadingStatus: PropTypes.string
   }
 
+  state = {
+    loadingSatus: CONSTANT.LOADING_STATUS.DEFAULT
+  }
   componentDidMount = () => {
     this.fetch(this.props.filter)
   }
@@ -30,26 +37,40 @@ class AccessKeyMembershipsProvider extends Component {
   }
 
   fetch = async filter => {
-    return this.props.getAccessKeyMemberships({
-      id: this.props.accessKeyId,
-      ...filter
-    })
+    this.setState({ loadingSatus: CONSTANT.LOADING_STATUS.INITIATED })
+    return this.props
+      .getAccessKeyMemberships({
+        id: this.props.accessKeyId,
+        ...filter
+      })
+      .then(({ data }) => {
+        if (data) {
+          this.setState({ loadingSatus: CONSTANT.LOADING_STATUS.SUCCESS })
+        } else {
+          this.setState({ loadingSatus: CONSTANT.LOADING_STATUS.FAILED })
+        }
+      })
   }
 
   render () {
     return this.props.render({
       refetch: this.fetch,
       memberships: this.props.memberships,
-      membershipsLoading: this.props.membershipsLoadingStatus,
-      updateRole: ({ accountId, role }) => this.props.assignKey({ keyId: this.props.accessKeyId, accountId, role }),
-      removeAccount: ({ accountId }) => this.props.unassignKey({ keyId: this.props.accessKeyId, accountId })
+      membershipsLoading: this.state.loadingSatus,
+      updateRole: ({ accountId, role }) =>
+        this.props.assignKey({
+          keyId: this.props.accessKeyId,
+          accountId,
+          role
+        }),
+      removeAccount: ({ accountId }) =>
+        this.props.unassignKey({ keyId: this.props.accessKeyId, accountId })
     })
   }
 }
 export default connect(
   (state, props) => {
     return {
-      membershipsLoadingStatus: selectAccessKeyMembershipsLoadingStatus(state),
       memberships: selectAccessKeyMemberships(state)(props.accessKeyId)
     }
   },
