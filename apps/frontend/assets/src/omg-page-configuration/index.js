@@ -609,7 +609,7 @@ class ConfigurationPage extends Component {
           onChange={this.onChangeInput('preAuthTokenLifetime')}
           inputValidator={value => Number(value) >= 0}
           inputErrorMessage='invalid number'
-          suffix='Mins'
+          suffix='Secs'
         />
         <ConfigRow
           name={'Auth Token Lifetime'}
@@ -619,7 +619,7 @@ class ConfigurationPage extends Component {
           onChange={this.onChangeInput('authTokenLifetime')}
           inputValidator={value => Number(value) >= 0}
           inputErrorMessage='invalid number'
-          suffix='Mins'
+          suffix='Secs'
         />
       </Fragment>
     )
