@@ -118,7 +118,8 @@ defmodule EWallet.TransactionConsumptionValidator do
   end
 
   defp validate_transaction_request(request, operation) do
-    TransactionRequest.valid?(request)
+    request
+    |> TransactionRequest.valid?()
     |> Kernel.||(request.expiration_reason)
     |> Kernel.||(TransactionRequest.get_cancelled_error(request))
     |> do_validate_transaction_request(operation)
