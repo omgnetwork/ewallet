@@ -369,7 +369,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       {:ok, transaction_request} = TransactionRequest.expire(transaction_request, %System{})
       assert transaction_request.expired_at != nil
 
-      res =
+      {status, res} =
         TransactionConsumptionConfirmerGate.confirm(
           consumption.id,
           true,
@@ -379,7 +379,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert res == {:error, :expired_transaction_request}
+      assert status == :ok
+      assert %TransactionConsumption{} = res
     end
 
     test "rejects the consumption if not confirmed as admin user with rights", meta do
@@ -698,7 +699,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       {:ok, transaction_request} = TransactionRequest.expire(transaction_request, %System{})
       assert transaction_request.expired_at != nil
 
-      res =
+      {status, res} =
         TransactionConsumptionConfirmerGate.confirm(
           consumption.id,
           true,
@@ -708,7 +709,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert res == {:error, :expired_transaction_request}
+      assert status == :ok
+      assert %TransactionConsumption{} = res
     end
   end
 end
