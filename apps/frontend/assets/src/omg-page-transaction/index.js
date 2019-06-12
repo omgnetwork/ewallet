@@ -167,9 +167,6 @@ class TransactionPage extends Component {
   onClickExport = e => {
     this.props.history.push('/transaction/export')
   }
-  onFilter = (query, fetch) => {
-    this.setState({ query }, fetch)
-  }
   renderCreateTransactionButton = () => {
     return (
       <Button
@@ -324,6 +321,10 @@ class TransactionPage extends Component {
         />
       </TransactionPageContainer>
     )
+  }
+  onFilter = (query, fetch) => {
+    this.setState({ query })
+    // this.setState({ query }, fetch)
   }
   render () {
     return (

@@ -14,19 +14,13 @@ const TransferFrom = ({
 }) => {
   const onChange = (e) => {
     e.target.value
-      ? onUpdate({
-        [config.code]: e.target.value
-        // [config.code]: {
-        //   value: e.target.value,
-        //   config
-        // }
-      })
-      : clearKey(config.code)
+      ? onUpdate({ [config.key]: e.target.value })
+      : clearKey(config.key)
   }
 
   return (
     <FilterBox
-      key={config.code}
+      key={config.key}
       closeClick={onRemove}
     >
       <TagRow
@@ -36,7 +30,7 @@ const TransferFrom = ({
       <Input
         normalPlaceholder='Enter any ID or address'
         onChange={onChange}
-        value={values[config.code] || ''}
+        value={values[config.key] || ''}
       />
     </FilterBox>
   )

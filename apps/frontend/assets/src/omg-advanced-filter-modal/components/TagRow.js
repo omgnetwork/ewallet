@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-import { Tag, Icon } from '../../omg-uikit'
+import { Tag } from '../../omg-uikit'
 
 const TagRowStyle = styled.div`
   display: flex;
@@ -22,7 +22,7 @@ const TagRow = ({ title, tooltip }) => {
   return (
     <TagRowStyle>
       <StyledTag title={title} />
-      <Icon name='Info' />
+      {/* <Icon name='Info' /> */}
     </TagRowStyle>
   )
 }

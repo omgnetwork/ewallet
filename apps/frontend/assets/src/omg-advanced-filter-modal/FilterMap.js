@@ -3,26 +3,34 @@ import filters from './filters'
 export const FILTER_MAP = [
   {
     title: 'Transfer From',
+    key: 'transfer-from',
     icon: 'Option-Horizontal',
-    code: 'from_account.id',
     page: 'transaction',
     height: 110,
     component: filters.TransferFrom,
-    default: false
+    default: false,
+    filter: {
+      field: 'from_account.id',
+      comparator: 'contains'
+    }
   },
   {
     title: 'Transfer To',
+    key: 'transfer-to',
     icon: 'Option-Horizontal',
-    code: 'to_address',
     page: 'transaction',
     height: 110,
     component: filters.TransferTo,
-    default: false
+    default: false,
+    filter: {
+      field: 'to_address',
+      comparator: 'contains'
+    }
   },
   {
     title: 'Specify Target',
+    key: 'specify-target',
     icon: 'Option-Horizontal',
-    code: 'specify-target',
     page: 'transaction',
     height: 110,
     component: filters.SpecifyTarget,
@@ -30,8 +38,8 @@ export const FILTER_MAP = [
   },
   {
     title: 'Date & Time',
+    key: 'date-time',
     icon: 'Option-Horizontal',
-    code: 'date-time',
     page: 'transaction',
     height: 205,
     component: filters.DateTime,
@@ -39,8 +47,8 @@ export const FILTER_MAP = [
   },
   {
     title: 'Status',
+    key: 'status',
     icon: 'Option-Horizontal',
-    code: 'status',
     page: 'transaction',
     height: 165,
     component: filters.Status,
@@ -48,8 +56,8 @@ export const FILTER_MAP = [
   },
   {
     title: 'Wallet Type',
+    key: 'wallet-type',
     icon: 'Option-Horizontal',
-    code: 'wallet-type',
     page: 'transaction',
     height: 110,
     component: filters.WalletType,
@@ -57,8 +65,8 @@ export const FILTER_MAP = [
   },
   {
     title: 'Request',
+    key: 'request',
     icon: 'Option-Horizontal',
-    code: 'request',
     page: 'transaction',
     height: 110,
     component: filters.Request,

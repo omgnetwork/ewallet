@@ -41,8 +41,7 @@ const FilterList = styled.div`
   flex-direction: column;
 `
 const StyledButton = styled(Button)`
-  margin-top: 20px;
-  margin-left: 20px;
+  margin: 20px;
 `
 const FilterPickerWrapper = styled.div`
   margin-left: 20px;
@@ -75,9 +74,9 @@ const AdvancedFilterModal = ({
   }
 
   const onRemoveFilter = (filterToRemove) => {
-    const newFilters = _.filter(filters, i => i.code !== filterToRemove.code)
+    const newFilters = _.filter(filters, i => i.key !== filterToRemove.key)
     setFilters(newFilters)
-    setValues(_.omit(values, [filterToRemove.code]))
+    setValues(_.omit(values, [filterToRemove.key]))
   }
 
   const onUpdate = (updated) => {
@@ -92,19 +91,21 @@ const AdvancedFilterModal = ({
   }
 
   const filterAdapter = (values) => {
-    let adapted = []
     console.log(values)
-    _.forOwn(values, (value, key) => {
-      // switch case key to handle different cases
-      // or place in config?
-      adapted.push({
-        field: key,
-        comparator: 'contains',
-        value
-      })
-    })
+    return []
 
-    return adapted
+    // let adapted = []
+    // console.log(values)
+    // _.forOwn(values, (value, key) => {
+    //   // switch case key to handle different cases
+    //   // or place in config?
+    //   adapted.push({
+    //     field: key,
+    //     comparator: 'contains',
+    //     value
+    //   })
+    // })
+    // return adapted
   }
 
   const applyFilter = () => {
@@ -131,7 +132,7 @@ const AdvancedFilterModal = ({
             willLeave={() => ({ height: spring(0, springConfig) })}
             styles={
               filters.map(filter => ({
-                key: filter.code,
+                key: filter.key,
                 data: filter,
                 style: { height: spring(filter.height + 10, springConfig) }
               }))

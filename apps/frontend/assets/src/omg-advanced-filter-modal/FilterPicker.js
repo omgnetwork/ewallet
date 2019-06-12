@@ -71,7 +71,7 @@ const FilterPicker = ({
           <DropdownBoxStyles>
             {diff.map(filter => (
               <DropdownItem
-                key={filter.code}
+                key={filter.key}
                 onClick={() => onSelect(filter)}
               >
                 <Icon name={filter.icon} />
