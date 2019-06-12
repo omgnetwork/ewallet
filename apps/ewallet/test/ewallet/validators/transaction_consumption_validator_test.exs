@@ -108,7 +108,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
           "creator" => creator()
         })
 
-      assert request.status == "valid"
+      assert request.status == TransactionRequest.valid()
       assert token.uuid == request.token_uuid
       assert amount == nil
     end
@@ -190,7 +190,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       request =
         insert(
           :transaction_request,
-          status: "expired",
+          status: TransactionConsumption.expired(),
           expiration_reason: "max_consumptions_reached",
           account_uuid: nil,
           user_uuid: user.uuid,
