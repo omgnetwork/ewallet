@@ -22,3 +22,6 @@ Thumbs.db
 
 # Load Tester results
 /results/
+
+# geth datadir
+/local_geth_testnet/datadir
