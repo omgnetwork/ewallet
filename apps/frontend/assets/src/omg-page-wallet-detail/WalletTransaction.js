@@ -14,12 +14,12 @@ function WalletTransactions ({ match, location }) {
         perPage: 10,
         matchAny: [
           {
-            field: 'from_wallet',
+            field: 'from_wallet.address',
             comparator: 'contains',
             value: address
           },
           {
-            field: 'to_wallet',
+            field: 'to_wallet.address',
             comparator: 'contains',
             value: address
           }
