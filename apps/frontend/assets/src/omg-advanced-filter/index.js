@@ -93,12 +93,6 @@ const AdvancedFilter = ({
     setFilters([newFilter, ...filters])
   }
 
-  const onRemoveFilter = (filterToRemove) => {
-    const newFilters = _.filter(filters, i => i.key !== filterToRemove.key)
-    setFilters(newFilters)
-    setValues(_.omit(values, [filterToRemove.key]))
-  }
-
   const onUpdate = (updated) => {
     setValues({
       ...values,
@@ -138,9 +132,26 @@ const AdvancedFilter = ({
     return { matchAll: _matchAll, matchAny: _matchAny }
   }
 
+  const onRemoveFilter = (filterToRemove) => {
+    const newFilters = _.filter(filters, i => i.key !== filterToRemove.key)
+    setFilters(newFilters)
+    setValues(_.omit(values, [filterToRemove.key]))
+  }
+
   const applyFilter = () => {
     onFilter(filterAdapter(values))
     setInitialValues(values)
+    onRequestClose()
+  }
+
+  const removeAndApply = (tag) => {
+    const newFilters = _.filter(filters, i => i.key !== tag)
+    const newValues = _.omit(values, [tag])
+    setFilters(newFilters)
+    setValues(newValues)
+
+    onFilter(filterAdapter(newValues))
+    setInitialValues(newValues)
     onRequestClose()
   }
 
@@ -155,16 +166,14 @@ const AdvancedFilter = ({
                 {`${i} - ${values[i]}`}
                 <Icon
                   name='Close'
-                  onClick={() => {
-                    onRemoveFilter({ key: i })
-                    applyFilter()
-                  }}
+                  onClick={() => removeAndApply(i)}
                 />
               </div>
             )
           })}
         </Tags>
       )}
+
       <Modal
         isOpen={open}
         onRequestClose={onRequestClose}
