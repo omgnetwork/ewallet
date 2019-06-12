@@ -141,7 +141,9 @@ class TransactionPage extends Component {
   }
   state = {
     createTransactionModalOpen: false,
-    advancedFilterModalOpen: false
+    advancedFilterModalOpen: false,
+    matchAll: [],
+    matchAny: []
   }
   onClickAdvancedFilter = () => {
     this.setState({ advancedFilterModalOpen: true })
@@ -322,9 +324,8 @@ class TransactionPage extends Component {
       </TransactionPageContainer>
     )
   }
-  onFilter = (query, fetch) => {
-    this.setState({ query })
-    // this.setState({ query }, fetch)
+  onFilter = ({ matchAll, matchAny }) => {
+    this.setState({ matchAll, matchAny })
   }
   render () {
     return (
@@ -334,7 +335,8 @@ class TransactionPage extends Component {
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 100),
           search: queryString.parse(this.props.location.search).search,
-          matchAll: this.state.query,
+          matchAll: this.state.matchAll,
+          matchAny: this.state.matchAny,
           ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

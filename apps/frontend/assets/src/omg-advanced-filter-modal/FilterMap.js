@@ -9,10 +9,12 @@ export const FILTER_MAP = [
     height: 110,
     component: filters.TransferFrom,
     default: false,
-    filter: {
-      field: 'from_account.id',
-      comparator: 'contains'
-    }
+    matchAll: [
+      {
+        field: 'from_account.id',
+        comparator: 'contains'
+      }
+    ]
   },
   {
     title: 'Transfer To',
@@ -22,10 +24,12 @@ export const FILTER_MAP = [
     height: 110,
     component: filters.TransferTo,
     default: false,
-    filter: {
-      field: 'to_address',
-      comparator: 'contains'
-    }
+    matchAll: [
+      {
+        field: 'to_account.id',
+        comparator: 'contains'
+      }
+    ]
   },
   {
     title: 'Specify Target',
@@ -34,7 +38,17 @@ export const FILTER_MAP = [
     page: 'transaction',
     height: 110,
     component: filters.SpecifyTarget,
-    default: false
+    default: false,
+    matchAny: [
+      {
+        field: 'to_account.id',
+        comparator: 'contains'
+      },
+      {
+        field: 'from_account.id',
+        comparator: 'contains'
+      }
+    ]
   },
   {
     title: 'Date & Time',

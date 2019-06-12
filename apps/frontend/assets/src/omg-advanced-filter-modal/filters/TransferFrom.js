@@ -23,10 +23,7 @@ const TransferFrom = ({
       key={config.key}
       closeClick={onRemove}
     >
-      <TagRow
-        title='From'
-        tooltip='Test tooltip text'
-      />
+      <TagRow title={config.title} />
       <Input
         normalPlaceholder='Enter any ID or address'
         onChange={onChange}

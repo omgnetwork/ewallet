@@ -91,21 +91,31 @@ const AdvancedFilterModal = ({
   }
 
   const filterAdapter = (values) => {
-    console.log(values)
-    return []
+    let _matchAll = []
+    let _matchAny = []
+    _.forOwn(values, (value, key) => {
+      const { matchAll, matchAny } = _.find(FILTER_MAP, ['key', key])
 
-    // let adapted = []
-    // console.log(values)
-    // _.forOwn(values, (value, key) => {
-    //   // switch case key to handle different cases
-    //   // or place in config?
-    //   adapted.push({
-    //     field: key,
-    //     comparator: 'contains',
-    //     value
-    //   })
-    // })
-    // return adapted
+      if (matchAll) {
+        matchAll.forEach(filter => {
+          _matchAll.push({
+            ...filter,
+            value
+          })
+        })
+      }
+
+      if (matchAny) {
+        matchAny.forEach(filter => {
+          _matchAny.push({
+            ...filter,
+            value
+          })
+        })
+      }
+    })
+
+    return { matchAll: _matchAll, matchAny: _matchAny }
   }
 
   const applyFilter = () => {

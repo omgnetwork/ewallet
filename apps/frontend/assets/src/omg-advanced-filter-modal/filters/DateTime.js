@@ -15,17 +15,19 @@ const DateRowStyle = styled.div`
     }
   }
 `
-const DateTime = ({ onRemove }) => {
+const DateTime = ({
+  onRemove,
+  onUpdate,
+  clearKey,
+  values,
+  config
+}) => {
   return (
     <FilterBox
-      key='status'
+      key={config.key}
       closeClick={onRemove}
     >
-      <TagRow
-        title='Date & Time'
-        tooltip='Test tooltip text'
-      />
-
+      <TagRow title={config.title} />
       <DateRowStyle>
         <DatePicker placeholder='Start' />
         <TimePicker hidePlaceholder />

@@ -5,28 +5,40 @@ import { Input } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
 
-const SpecifyTarget = ({ onRemove }) => {
+const SpecifyTarget = ({
+  onRemove,
+  onUpdate,
+  clearKey,
+  values,
+  config
+}) => {
+  const onChange = (e) => {
+    e.target.value
+      ? onUpdate({ [config.key]: e.target.value })
+      : clearKey(config.key)
+  }
+
   return (
     <FilterBox
-      key='specify-target'
+      key={config.key}
       closeClick={onRemove}
     >
-      <TagRow
-        title='Specify Target'
-        tooltip='Test tooltip text'
-      />
-
+      <TagRow title={config.title} />
       <Input
         normalPlaceholder='Enter any ID or address'
-        // onChange={this.onReEnteredNewPasswordInputChange}
-        // value={this.state.reEnteredNewPassword}
+        onChange={onChange}
+        value={values[config.key] || ''}
       />
     </FilterBox>
   )
 }
 
 SpecifyTarget.propTypes = {
-  onRemove: PropTypes.func.isRequired
+  onRemove: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired,
+  clearKey: PropTypes.func.isRequired,
+  values: PropTypes.object,
+  config: PropTypes.object
 }
 
 export default SpecifyTarget
