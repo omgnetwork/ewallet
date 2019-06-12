@@ -9,7 +9,7 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import CreateTransactionModal from '../omg-create-transaction-modal'
-import AdvancedFilterModal from '../omg-advanced-filter-modal'
+import AdvancedFilter from '../omg-advanced-filter'
 import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
@@ -295,7 +295,13 @@ class TransactionPage extends Component {
           ]}
         />
 
-        {/* TODO: turn filters into deletable tags below topnav */}
+        <AdvancedFilter
+          title='Filter Transaction'
+          page='transaction'
+          open={this.state.advancedFilterModalOpen}
+          onRequestClose={this.onRequestCloseAdvancedFilter}
+          onFilter={(query) => this.onFilter(query, fetch)}
+        />
 
         <SortableTable
           rows={transactions}
@@ -313,13 +319,6 @@ class TransactionPage extends Component {
           onRequestClose={this.onRequestCloseCreateTransaction}
           open={this.state.createTransactionModalOpen}
           onCreateTransaction={fetch}
-        />
-        <AdvancedFilterModal
-          title='Filter Transaction'
-          page='transaction'
-          open={this.state.advancedFilterModalOpen}
-          onRequestClose={this.onRequestCloseAdvancedFilter}
-          onFilter={(query) => this.onFilter(query, fetch)}
         />
       </TransactionPageContainer>
     )
