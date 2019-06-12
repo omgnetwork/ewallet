@@ -5,7 +5,6 @@ import { connect } from 'react-redux'
 import { getAccessKeyMemberships } from './action'
 import { assignKey, unassignKey } from '../omg-account/action'
 import {
-  selectAccessKeyMembershipsLoadingStatus,
   selectAccessKeyMemberships
 } from './selector'
 
