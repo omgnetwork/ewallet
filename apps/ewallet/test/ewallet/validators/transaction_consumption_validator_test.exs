@@ -211,6 +211,35 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       assert res == :max_consumptions_reached
     end
 
+    test "returns a successful consumption even the transaction request has been cancelled" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      request =
+        insert(
+          :transaction_request,
+          status: TransactionConsumption.cancelled(),
+          expiration_reason: nil,
+          account_uuid: nil,
+          user_uuid: user.uuid,
+          wallet: wallet
+        )
+
+      consumption =
+        :transaction_consumption
+        |> insert(transaction_request_uuid: request.uuid)
+        |> Repo.preload([:transaction_request])
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_before_confirmation(consumption, %{
+          end_user: user
+        })
+
+      assert status == :ok
+      assert %TransactionConsumption{} = res
+      assert res.status == "pending"
+    end
+
     test "returns max_consumptions_per_user_reached if the max has been reached" do
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
@@ -289,7 +318,10 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       consumption =
         :transaction_consumption
-        |> insert(status: "expired", transaction_request_uuid: request.uuid)
+        |> insert(
+          status: TransactionConsumption.expired(),
+          transaction_request_uuid: request.uuid
+        )
         |> Repo.preload([:transaction_request])
 
       {status, res} =
