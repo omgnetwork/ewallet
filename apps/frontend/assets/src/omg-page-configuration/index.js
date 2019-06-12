@@ -13,8 +13,14 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Button, Icon, Input, LoadingSkeleton } from '../omg-uikit'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
 import ConfigRow from './ConfigRow'
-import { selectConfigurationsByKey, selectConfigurationLoadingStatus } from '../omg-configuration/selector'
-import { getConfiguration, updateConfiguration } from '../omg-configuration/action'
+import {
+  selectConfigurationsByKey,
+  selectConfigurationLoadingStatus
+} from '../omg-configuration/selector'
+import {
+  getConfiguration,
+  updateConfiguration
+} from '../omg-configuration/action'
 import CONSTANT from '../constants'
 import { isEmail } from '../utils/validator'
 
@@ -68,7 +74,8 @@ const PrefixContainer = styled.div`
   a {
     display: block;
     margin-top: 20px;
-    color: ${props => (props.active ? props.theme.colors.BL400 : props.theme.colors.S500)};
+    color: ${props =>
+    props.active ? props.theme.colors.BL400 : props.theme.colors.S500};
   }
 `
 
@@ -101,39 +108,46 @@ class ConfigurationPage extends Component {
   }
 
   static getDerivedStateFromProps (props, state) {
-    if (!state.fetched && props.configurationLoadingStatus === CONSTANT.LOADING_STATUS.SUCCESS) {
+    const config = props.configurations
+    if (
+      !state.fetched &&
+      props.configurationLoadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
+    ) {
       const derivedState = {
-        baseUrl: props.configurations.base_url.value,
-        redirectUrlPrefixes: props.configurations.redirect_url_prefixes.value,
-        enableStandalone: props.configurations.enable_standalone.value,
-        maxPerPage: props.configurations.max_per_page.value,
-        minPasswordLength: props.configurations.min_password_length.value,
-        senderEmail: props.configurations.sender_email.value,
-        emailAdapter: props.configurations.email_adapter.value,
-        smtpHost: props.configurations.smtp_host.value,
-        smtpPort: props.configurations.smtp_port.value,
-        smtpUsername: props.configurations.smtp_username.value,
-        smtpPassword: props.configurations.smtp_password.value,
-        fileStorageAdapter: props.configurations.file_storage_adapter.value,
-        gcsBucket: props.configurations.gcs_bucket.value,
-        gcsCredentials: props.configurations.gcs_credentials.value,
-        awsBucket: props.configurations.aws_bucket.value,
-        awsRegion: props.configurations.aws_region.value,
-        awsAccessKeyId: props.configurations.aws_access_key_id.value,
-        awsSecretAccessKey: props.configurations.aws_secret_access_key.value,
-        balanceCachingStrategy: props.configurations.balance_caching_strategy.value,
-        balanceCachingResetFrequency: props.configurations.balance_caching_reset_frequency.value,
-        forgetPasswordRequestLifetime: props.configurations.forget_password_request_lifetime.value,
-        fetched: true,
-        masterAccount: props.configurations.master_account.value
+        baseUrl: config.base_url.value,
+        redirectUrlPrefixes: config.redirect_url_prefixes.value,
+        enableStandalone: config.enable_standalone.value,
+        maxPerPage: config.max_per_page.value,
+        minPasswordLength: config.min_password_length.value,
+        senderEmail: config.sender_email.value,
+        emailAdapter: config.email_adapter.value,
+        smtpHost: config.smtp_host.value,
+        smtpPort: config.smtp_port.value,
+        smtpUsername: config.smtp_username.value,
+        smtpPassword: config.smtp_password.value,
+        fileStorageAdapter: config.file_storage_adapter.value,
+        gcsBucket: config.gcs_bucket.value,
+        gcsCredentials: config.gcs_credentials.value,
+        awsBucket: config.aws_bucket.value,
+        awsRegion: config.aws_region.value,
+        awsAccessKeyId: config.aws_access_key_id.value,
+        awsSecretAccessKey: config.aws_secret_access_key.value,
+        balanceCachingStrategy: config.balance_caching_strategy.value,
+        balanceCachingResetFrequency:
+          config.balance_caching_reset_frequency.value,
+        forgetPasswordRequestLifetime:
+          config.forget_password_request_lifetime.value,
+        masterAccount: config.master_account.value,
+        preAuthTokenLifetime: config.pre_auth_token_lifetime.value,
+        authTokenLifetime: config.auth_token_lifetime.value,
+        fetched: true
       }
       return {
         originalState: derivedState,
         ...derivedState
       }
-    } else {
-      return null
     }
+    return null
   }
 
   state = {
@@ -163,7 +177,7 @@ class ConfigurationPage extends Component {
       awsSecretAccessKey: this.props.configurations.aws_secret_access_key.value
     })
   }
-  get isSendButtonDisabled () {
+  isSendButtonDisabled () {
     return (
       Object.keys(this.props.configurations)
         .filter(configKey => this.state[_.camelCase(configKey)] !== undefined)
@@ -238,7 +252,9 @@ class ConfigurationPage extends Component {
     })
   }
   onChangeRadio = e => {
-    this.setState(oldState => ({ enableStandalone: !oldState.enableStandalone }))
+    this.setState(oldState => ({
+      enableStandalone: !oldState.enableStandalone
+    }))
   }
 
   onClickSaveConfiguration = async e => {
@@ -259,29 +275,55 @@ class ConfigurationPage extends Component {
           {
             submitStatus: CONSTANT.LOADING_STATUS.SUCCESS,
             baseUrl: _.get(result.data.data, 'base_url.value'),
-            redirectUrlPrefixes: _.get(result.data.data, 'redirect_url_prefixes.value'),
-            enableStandalone: _.get(result.data.data, 'enable_standalone.value'),
+            redirectUrlPrefixes: _.get(
+              result.data.data,
+              'redirect_url_prefixes.value'
+            ),
+            enableStandalone: _.get(
+              result.data.data,
+              'enable_standalone.value'
+            ),
             maxPerPage: _.get(result.data.data, 'max_per_page.value'),
-            minPasswordLength: _.get(result.data.data, 'min_password_length.value'),
+            minPasswordLength: _.get(
+              result.data.data,
+              'min_password_length.value'
+            ),
             senderEmail: _.get(result.data.data, 'sender_email.value'),
             emailAdapter: _.get(result.data.data, 'email_adapter.value'),
             smtpHost: _.get(result.data.data, 'smtp_host.value'),
             smtpPort: _.get(result.data.data, 'smtp_port.value'),
             smtpUsername: _.get(result.data.data, 'smtp_username.value'),
             smtpPassword: _.get(result.data.data, 'smtp_password.value'),
-            fileStorageAdapter: _.get(result.data.data, 'file_storage_adapter.value'),
+            fileStorageAdapter: _.get(
+              result.data.data,
+              'file_storage_adapter.value'
+            ),
             gcsBucket: _.get(result.data.data, 'gcs_bucket.value'),
             gcsCredentials: _.get(result.data.data, 'gcs_credentials.value'),
             awsBucket: _.get(result.data.data, 'aws_bucket.value'),
             awsRegion: _.get(result.data.data, 'aws_region.value'),
             awsAccessKeyId: _.get(result.data.data, 'aws_access_key_id.value'),
-            awsSecretAccessKey: _.get(result.data.data, 'aws_secret_access_key.value'),
-            balanceCachingStrategy: _.get(result.data.data, 'balance_caching_strategy.value'),
+            awsSecretAccessKey: _.get(
+              result.data.data,
+              'aws_secret_access_key.value'
+            ),
+            balanceCachingStrategy: _.get(
+              result.data.data,
+              'balance_caching_strategy.value'
+            ),
             balanceCachingResetFrequency: _.get(
               result.data.data,
               'balance_caching_reset_frequency.value'
             ),
-            masterAccount: _.get(result.data.data, 'master_account.value')
+            masterAccount: _.get(result.data.data, 'master_account.value'),
+            authTokenLifetime: _.get(
+              result.data.data,
+              'auth_token_lifetime.value'
+            ),
+            preAuthTokenLifetime: _.get(
+              result.data.data,
+              'pre_auth_token_lifetime.value'
+            )
           },
           _.isNil
         )
@@ -313,7 +355,7 @@ class ConfigurationPage extends Component {
         onClick={this.handleCancelClick}
         key='cancel'
         styleType='secondary'
-        disabled={this.isSendButtonDisabled}
+        disabled={this.isSendButtonDisabled()}
       >
         <span>Cancel</span>
       </Button>
@@ -327,7 +369,7 @@ class ConfigurationPage extends Component {
         onClick={this.onClickSaveConfiguration}
         key='save'
         loading={this.state.submitStatus === CONSTANT.LOADING_STATUS.PENDING}
-        disabled={this.isSendButtonDisabled}
+        disabled={this.isSendButtonDisabled()}
       >
         <span>Save</span>
       </Button>
@@ -363,7 +405,9 @@ class ConfigurationPage extends Component {
                 name={'GCS Credential JSON'}
                 description={configurations.gcs_credentials.description}
                 value={this.state.gcsCredentials}
-                placeholder={'ie. {"type": "service_account", "project_id": "your-project-id" ...'}
+                placeholder={
+                  'ie. {"type": "service_account", "project_id": "your-project-id" ...'
+                }
                 border={this.state.emailAdapter !== 'gcs'}
                 onChange={this.onChangeInput('gcsCredentials')}
                 inputErrorMessage='Invalid json credential'
@@ -431,17 +475,21 @@ class ConfigurationPage extends Component {
           value={this.state.balanceCachingStrategy}
           onSelectItem={this.onSelectBalanceCache}
           type='select'
-          options={configurations.balance_caching_strategy.options.map(option => ({
-            key: option,
-            value: option
-          }))}
+          options={configurations.balance_caching_strategy.options.map(
+            option => ({
+              key: option,
+              value: option
+            })
+          )}
         />
         {this.state.balanceCachingStrategy === 'since_last_cached' && (
           <SubSettingContainer>
             <div>
               <ConfigRow
                 name={'Balance Caching Reset Frequency'}
-                description={configurations.balance_caching_reset_frequency.description}
+                description={
+                  configurations.balance_caching_reset_frequency.description
+                }
                 value={this.state.balanceCachingResetFrequency}
                 placeholder={'ie. 10'}
                 onChange={this.onChangeInput('balanceCachingResetFrequency')}
@@ -474,8 +522,7 @@ class ConfigurationPage extends Component {
                 }))}
               />
             )
-          }
-          }
+          }}
         />
         <ConfigRow
           name={'Base URL'}
@@ -485,34 +532,36 @@ class ConfigurationPage extends Component {
           inputValidator={value => value.length > 0}
           inputErrorMessage={'This field shouldn\'t be empty'}
         />
-        <div>
-          <ConfigRow
-            name={'Redirect URL Prefixes'}
-            description={configurations.redirect_url_prefixes.description}
-            valueRenderer={() => {
-              return (
-                <InputsPrefixContainer>
-                  {this.state.redirectUrlPrefixes.map((prefix, index) => (
-                    <InputPrefixContainer
-                      key={index}
-                      hide={this.state.redirectUrlPrefixes.length === 1}
-                    >
-                      <Input
-                        value={this.state.redirectUrlPrefixes[index]}
-                        onChange={this.onChangeInputredirectUrlPrefixes(index)}
-                        normalPlaceholder={`ie. https://website${index}.com`}
-                      />
-                      <Icon name='Close' onClick={this.onClickRemovePrefix(index)} />
-                    </InputPrefixContainer>
-                  ))}
-                  <PrefixContainer active={!this.isAddPrefixButtonDisabled()}>
-                    <a onClick={this.onClickAddPrefix}>+ Add Prefix</a>
-                  </PrefixContainer>
-                </InputsPrefixContainer>
-              )
-            }}
-          />
-        </div>
+
+        <ConfigRow
+          name={'Redirect URL Prefixes'}
+          description={configurations.redirect_url_prefixes.description}
+          valueRenderer={() => {
+            return (
+              <InputsPrefixContainer>
+                {this.state.redirectUrlPrefixes.map((prefix, index) => (
+                  <InputPrefixContainer
+                    key={index}
+                    hide={this.state.redirectUrlPrefixes.length === 1}
+                  >
+                    <Input
+                      value={this.state.redirectUrlPrefixes[index]}
+                      onChange={this.onChangeInputredirectUrlPrefixes(index)}
+                      normalPlaceholder={`ie. https://website${index}.com`}
+                    />
+                    <Icon
+                      name='Close'
+                      onClick={this.onClickRemovePrefix(index)}
+                    />
+                  </InputPrefixContainer>
+                ))}
+                <PrefixContainer active={!this.isAddPrefixButtonDisabled()}>
+                  <a onClick={this.onClickAddPrefix}>+ Add Prefix</a>
+                </PrefixContainer>
+              </InputsPrefixContainer>
+            )
+          }}
+        />
         <ConfigRow
           name={'Enable Standalone'}
           description={configurations.enable_standalone.description}
@@ -542,11 +591,33 @@ class ConfigurationPage extends Component {
         />
         <ConfigRow
           name={'Forget Password Request Lifetime'}
-          description={configurations.forget_password_request_lifetime.description}
+          description={
+            configurations.forget_password_request_lifetime.description
+          }
           value={String(this.state.forgetPasswordRequestLifetime)}
           inputType='number'
           onChange={this.onChangeInput('forgetPasswordRequestLifetime')}
           inputValidator={value => Number(value) >= 1}
+          inputErrorMessage='invalid number'
+          suffix='Mins'
+        />
+        <ConfigRow
+          name={'Pre Auth Token Lifetime'}
+          description={configurations.pre_auth_token_lifetime.description}
+          value={String(this.state.preAuthTokenLifetime)}
+          inputType='number'
+          onChange={this.onChangeInput('preAuthTokenLifetime')}
+          inputValidator={value => Number(value) >= 0}
+          inputErrorMessage='invalid number'
+          suffix='Mins'
+        />
+        <ConfigRow
+          name={'Auth Token Lifetime'}
+          description={configurations.auth_token_lifetime.description}
+          value={String(this.state.authTokenLifetime)}
+          inputType='number'
+          onChange={this.onChangeInput('authTokenLifetime')}
+          inputValidator={value => Number(value) >= 0}
           inputErrorMessage='invalid number'
           suffix='Mins'
         />
@@ -621,10 +692,7 @@ class ConfigurationPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Configuration'}
-          buttons={[
-            this.renderCancelButton(),
-            this.renderSaveButton()
-          ]}
+          buttons={[this.renderCancelButton(), this.renderSaveButton()]}
           secondaryAction={false}
           types={false}
         />
@@ -656,10 +724,13 @@ class ConfigurationPage extends Component {
     return (
       <>
         <Prompt
-          when={!this.isSendButtonDisabled}
+          when={!this.isSendButtonDisabled()}
           message='You have unsaved changes. Are you sure you want to leave?'
         />
-        <ConfigurationsFetcher render={this.renderConfigurationPage} {...this.state} />
+        <ConfigurationsFetcher
+          render={this.renderConfigurationPage}
+          {...this.state}
+        />
       </>
     )
   }
