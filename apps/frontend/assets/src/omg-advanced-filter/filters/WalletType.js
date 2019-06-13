@@ -5,25 +5,26 @@ import { Select } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
 
-const WalletType = ({ onRemove }) => {
+const WalletType = ({
+  onRemove,
+  onUpdate,
+  clearKey,
+  values,
+  config
+}) => {
   return (
     <FilterBox
-      key='wallet-type'
+      key={config.key}
       closeClick={onRemove}
     >
-      <TagRow
-        title='Wallet Type'
-        tooltip='Test tooltip text'
-      />
-
+      <TagRow title={config.title} />
       <Select
         normalPlaceholder='Select'
-        // onSelectItem={this.onSelectExchangeAddressSelect}
-        // value={this.state.exchangeAddress}
-        // onChange={this.onChangeInputExchangeAddress}
+        onSelectItem={e => onUpdate({ [config.key]: e.key })}
+        value={_.capitalize(values[config.key]) || ''}
         options={[
-          { key: 'hot', value: 'Hot' },
-          { key: 'local', value: 'Local' }
+          { key: 'internal', value: 'Internal' },
+          { key: 'external', value: 'External' }
         ]}
       />
     </FilterBox>
@@ -31,7 +32,11 @@ const WalletType = ({ onRemove }) => {
 }
 
 WalletType.propTypes = {
-  onRemove: PropTypes.func.isRequired
+  onRemove: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired,
+  clearKey: PropTypes.func.isRequired,
+  values: PropTypes.object,
+  config: PropTypes.object
 }
 
 export default WalletType

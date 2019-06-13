@@ -171,9 +171,10 @@ const AdvancedFilter = ({
       {showTags && (
         <Tags>
           {Object.keys(values).map(i => {
+            const value = `${values[i]}`.replace(/,/g, ', ')
             return (
               <div className='tag' key={i}>
-                {`${i} - ${values[i]}`}
+                {`${i} - ${value}`}
                 <Icon
                   name='Close'
                   onClick={() => removeAndApply(i)}
