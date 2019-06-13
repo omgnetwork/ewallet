@@ -728,7 +728,7 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
       assert get_all_activity_logs_since(before_execution) == []
     end
 
-    test_with_auths "receives an error if the transaction request does not belong to the user" do
+    test_with_auths "receives a transaction request if the transaction request is cancelled by another admin" do
       # Create a transaction request belongs to another user.
       user_tx_request_owner = insert(:admin, %{email: "admin@example.com"})
       transaction_request = insert(:transaction_request, user_uuid: user_tx_request_owner.uuid)
@@ -740,26 +740,26 @@ defmodule AdminAPI.V1.TransactionRequestControllerTest do
 
       before_execution = NaiveDateTime.utc_now()
 
-      # The current user request to cancel the transaction request
+      # The current admin request to cancel the transaction request
       response =
         request("/transaction_request.cancel", %{
           formatted_id: transaction_request.id
         })
 
-      # Assert the request should failed
-      assert response == %{
-               "data" => %{
-                 "code" => "unauthorized",
-                 "description" => "You are not allowed to perform the requested operation.",
-                 "messages" => nil,
-                 "object" => "error"
-               },
-               "success" => false,
-               "version" => "1"
-             }
+      # Assert the transaction request is valid
+      assert response["success"] == true
+      assert response["data"]["id"] == transaction_request.id
+      assert response["data"]["cancelled_at"] != nil
+      assert response["data"]["status"] == TransactionRequest.cancelled()
 
-      # Assert there's no activity log.
-      assert get_all_activity_logs_since(before_execution) == []
+      # Assert there's 1 activity log has been inserted.
+      assert [log] = get_all_activity_logs_since(before_execution)
+
+      # Assert changes on status
+      assert log.target_changes == %{
+               "status" => TransactionRequest.cancelled(),
+               "cancelled_at" => response["data"]["cancelled_at"]
+             }
     end
   end
 end
