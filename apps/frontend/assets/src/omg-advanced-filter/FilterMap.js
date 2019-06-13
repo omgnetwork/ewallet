@@ -66,7 +66,13 @@ export const FILTER_MAP = [
     page: 'transaction',
     height: 165,
     component: filters.Status,
-    default: true
+    default: true,
+    matchAny: [
+      {
+        field: 'status',
+        comparator: 'contains'
+      }
+    ]
   },
   {
     title: 'Wallet Type',

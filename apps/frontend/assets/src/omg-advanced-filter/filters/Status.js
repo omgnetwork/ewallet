@@ -18,49 +18,50 @@ const CheckboxGroup = styled.div`
   }
 `
 
-const Status = ({ onRemove, onUpdate, values, clearKey }) => {
+const Status = ({
+  onRemove,
+  onUpdate,
+  clearKey,
+  values,
+  config
+}) => {
   const toggle = (type) => {
-    if (_.get(values, `status.${type}`)) {
-      const newStatus = _.omit(values['status'], [type])
-      if (!_.isEmpty(newStatus)) {
-        onUpdate({ 'status': newStatus })
+    if (_.get(values, config.key, []).includes(type)) {
+      const newStatus = values[config.key].filter(i => i !== type)
+      if (!newStatus.length) {
+        clearKey(config.key)
       } else {
-        clearKey('status')
+        onUpdate({ [config.key]: newStatus })
       }
     } else {
-      // add type true
-      const newStatus = {
-        ...values['status'],
-        [type]: true
-      }
-      onUpdate({ 'status': { ...newStatus } })
+      const newStatus = values[config.key]
+        ? [...values[config.key], type]
+        : [type]
+      onUpdate({ [config.key]: newStatus })
     }
   }
 
   return (
     <FilterBox
-      key='status'
+      key={config.key}
       closeClick={onRemove}
     >
-      <TagRow
-        title='Status'
-        tooltip='Test tooltip text'
-      />
+      <TagRow title={config.title} />
       <CheckboxGroup>
         <Checkbox
-          label='Success'
-          onClick={() => toggle('success')}
-          checked={_.get(values, 'status.success', false)}
+          label='Confirmed'
+          onClick={() => toggle('confirmed')}
+          checked={values[config.key] && values[config.key].includes('confirmed')}
         />
         <Checkbox
           label='Pending'
           onClick={() => toggle('pending')}
-          checked={_.get(values, 'status.pending', false)}
+          checked={values[config.key] && values[config.key].includes('pending')}
         />
         <Checkbox
           label='Failed'
           onClick={() => toggle('failed')}
-          checked={_.get(values, 'status.failed', false)}
+          checked={values[config.key] && values[config.key].includes('failed')}
         />
       </CheckboxGroup>
     </FilterBox>
@@ -71,7 +72,8 @@ Status.propTypes = {
   onRemove: PropTypes.func.isRequired,
   onUpdate: PropTypes.func.isRequired,
   values: PropTypes.object,
-  clearKey: PropTypes.func.isRequired
+  clearKey: PropTypes.func.isRequired,
+  config: PropTypes.object
 }
 
 export default Status

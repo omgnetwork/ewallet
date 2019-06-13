@@ -107,6 +107,7 @@ const AdvancedFilter = ({
   const filterAdapter = (values) => {
     let _matchAll = []
     let _matchAny = []
+
     _.forOwn(values, (value, key) => {
       const { matchAll, matchAny } = _.find(FILTER_MAP, ['key', key])
 
@@ -120,12 +121,17 @@ const AdvancedFilter = ({
       }
 
       if (matchAny) {
-        matchAny.forEach(filter => {
-          _matchAny.push({
-            ...filter,
-            value
+        if (Array.isArray(value)) {
+          value.forEach(i => {
+            matchAny.forEach(filter => {
+              _matchAny.push({ ...filter, value: i })
+            })
           })
-        })
+        } else {
+          matchAny.forEach(filter => {
+            _matchAny.push({ ...filter, value })
+          })
+        }
       }
     })
 
