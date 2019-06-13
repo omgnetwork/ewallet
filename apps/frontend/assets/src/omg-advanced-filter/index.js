@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { TransitionMotion, spring } from 'react-motion'
 import { withRouter } from 'react-router-dom'
+import queryString from 'query-string'
 
 import Modal from '../omg-modal'
 import { Icon, Button } from '../omg-uikit'
@@ -49,7 +50,7 @@ const FilterPickerWrapper = styled.div`
 const Tags = styled.div`
   display: flex;
   flex-direction: row;
-  margin-bottom: 5px;
+  flex-wrap: wrap;
 
   .tag {
     border-radius: 4px;
@@ -58,6 +59,7 @@ const Tags = styled.div`
     align-items: center;
     padding: 3px 7px;
     margin-right: 10px;
+    margin-bottom: 10px;
     background-color: ${props => props.theme.colors.S200};
     color: ${props => props.theme.colors.S500};
     i {
@@ -75,6 +77,7 @@ const AdvancedFilter = ({
   page,
   onFilter,
   location,
+  history,
   showTags = true
 }) => {
   const [ filters, setFilters ] = useState([])
@@ -153,6 +156,12 @@ const AdvancedFilter = ({
     return { matchAll: _matchAll, matchAny: _matchAny }
   }
 
+  const resetPage = () => {
+    const search = queryString.parse(location.search)
+    delete search['page']
+    history.push({ search: queryString.stringify(search) })
+  }
+
   const onRemoveFilter = (filterToRemove) => {
     const newFilters = _.filter(filters, i => i.key !== filterToRemove.key)
     const newValues = _.omit(values, [filterToRemove.key])
@@ -164,6 +173,7 @@ const AdvancedFilter = ({
   }
 
   const applyFilter = () => {
+    resetPage()
     onFilter(filterAdapter(values))
     setInitialValues(values)
     onRequestClose()
@@ -174,6 +184,7 @@ const AdvancedFilter = ({
     const newValues = _.omit(values, [tag])
     setFilters(newFilters)
     setValues(newValues)
+    resetPage()
 
     onFilter(filterAdapter(newValues))
     setInitialValues(newValues)
@@ -288,6 +299,7 @@ AdvancedFilter.propTypes = {
   page: PropTypes.oneOf(['transaction']),
   title: PropTypes.string.isRequired,
   location: PropTypes.object,
+  history: PropTypes.object,
   showTags: PropTypes.bool
 }
 
