@@ -32,20 +32,8 @@ defmodule EthBlockchain.Transaction do
             init: <<>>,
             data: <<>>
 
-  @type t :: %__MODULE__{
-          nonce: integer(),
-          gas_price: integer(),
-          gas_limit: integer(),
-          to: String.t(),
-          value: integer(),
-          v: Signature.hash_v(),
-          r: Signature.hash_r(),
-          s: Signature.hash_s(),
-          init: binary(),
-          data: binary()
-        }
-
-  @spec send_eth(tuple(), atom() | nil, pid() | nil) :: {atom(), String.t()} | {atom(), atom()}
+  @spec send_eth(tuple(), atom() | nil, pid() | nil) ::
+          {atom(), String.t()} | {atom(), atom()} | {atom(), atom(), String.t()}
   def send_eth(params, adapter \\ nil, pid \\ nil)
 
   def send_eth({from_address, to_address, amount}, adapter, pid) do
@@ -56,22 +44,29 @@ defmodule EthBlockchain.Transaction do
   def send_eth({from_address, to_address, amount, gas_price}, adapter, pid)
       when byte_size(from_address) == 42 and byte_size(to_address) == 42 and is_integer(amount) and
              is_integer(gas_price) do
-    %__MODULE__{
-      gas_limit: Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit),
-      gas_price: gas_price,
-      nonce: get_next_nonce(from_address),
-      to: from_hex(to_address),
-      value: amount
-    }
-    |> sign_and_hash(from_address)
-    |> send_raw(adapter, pid)
+    case get_transaction_count({from_address}, adapter, pid) do
+      {:ok, nonce} ->
+        %__MODULE__{
+          gas_limit: Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit),
+          gas_price: gas_price,
+          nonce: int_from_hex(nonce),
+          to: from_hex(to_address),
+          value: amount
+        }
+        |> sign_and_hash(from_address)
+        |> send_raw(adapter, pid)
+
+      error ->
+        error
+    end
   end
 
   def send_eth({_from, _to, _amount, _gas_price}, _adapter, _pid) do
     {:error, :invalid_parameter}
   end
 
-  @spec send_token(tuple(), atom() | nil, pid() | nil) :: {atom(), String.t()} | {atom(), atom()}
+  @spec send_token(tuple(), atom() | nil, pid() | nil) ::
+          {atom(), String.t()} | {atom(), atom()} | {atom(), atom(), String.t()}
   def send_token(params, adapter \\ nil, pid \\ nil)
 
   def send_token({from_address, to_address, amount, contract_address}, adapter, pid) do
@@ -82,19 +77,18 @@ defmodule EthBlockchain.Transaction do
   def send_token({from_address, to_address, amount, contract_address, gas_price}, adapter, pid)
       when byte_size(from_address) == 42 and byte_size(to_address) == 42 and
              byte_size(contract_address) == 42 and is_integer(amount) and is_integer(gas_price) do
-    case ABI.transfer(to_address, amount) do
-      {:ok, encoded_abi_data} ->
-        %__MODULE__{
-          gas_limit:
-            Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit),
-          gas_price: gas_price,
-          nonce: get_next_nonce(from_address),
-          to: from_hex(contract_address),
-          data: encoded_abi_data
-        }
-        |> sign_and_hash(from_address)
-        |> send_raw(adapter, pid)
-
+    with {:ok, encoded_abi_data} <- ABI.transfer(to_address, amount),
+         {:ok, nonce} <- get_transaction_count({from_address}, adapter, pid) do
+      %__MODULE__{
+        gas_limit: Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit),
+        gas_price: gas_price,
+        nonce: int_from_hex(nonce),
+        to: from_hex(contract_address),
+        data: encoded_abi_data
+      }
+      |> sign_and_hash(from_address)
+      |> send_raw(adapter, pid)
+    else
       error -> error
     end
   end
@@ -106,28 +100,27 @@ defmodule EthBlockchain.Transaction do
   defp sign_and_hash(%__MODULE__{} = transaction_data, from_address) do
     case sign_transaction(transaction_data, from_address) do
       {:ok, signed_trx} ->
-        signed_trx
-        |> serialize()
-        |> ExRLP.encode()
-        |> to_hex()
+        hashed =
+          signed_trx
+          |> serialize()
+          |> ExRLP.encode()
+          |> to_hex()
 
-      error -> error
+        {:ok, hashed}
+
+      error ->
+        error
     end
   end
 
-  defp send_raw({:error, _e} = error, _adapter, _pid), do: error
-
-  defp send_raw(transaction_data, adapter, pid) do
+  defp send_raw({:ok, transaction_data}, adapter, pid) do
     Adapter.call(adapter, {:send_raw, transaction_data}, pid)
   end
 
-  defp get_transaction_count({address}, adapter \\ nil, pid \\ nil) do
-    Adapter.call(adapter, {:get_transaction_count, address}, pid)
-  end
+  defp send_raw(error, _adapter, _pid), do: error
 
-  defp get_next_nonce(address) do
-    {:ok, nonce} = get_transaction_count({address})
-    int_from_hex(nonce)
+  defp get_transaction_count({address}, adapter, pid) do
+    Adapter.call(adapter, {:get_transaction_count, address}, pid)
   end
 
   defp sign_transaction(transaction, wallet_address) do
