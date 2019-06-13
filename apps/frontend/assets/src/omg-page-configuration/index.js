@@ -474,8 +474,7 @@ class ConfigurationPage extends Component {
                 }))}
               />
             )
-          }
-          }
+          }}
         />
         <ConfigRow
           name={'Base URL'}

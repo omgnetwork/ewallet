@@ -186,7 +186,13 @@ const AdvancedFilter = ({
       {showTags && (
         <Tags>
           {Object.keys(values).map(i => {
-            const value = `${values[i]}`.replace(/,/g, ', ')
+            let value
+            if (typeof values[i] === 'object' && !values[i].length) {
+              value = JSON.stringify(values[i])
+            } else {
+              value = `${values[i]}`.replace(/,/g, ', ')
+            }
+
             return (
               <div className='tag' key={i}>
                 {`${i} - ${value}`}

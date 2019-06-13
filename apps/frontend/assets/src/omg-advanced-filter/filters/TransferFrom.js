@@ -1,7 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { Input } from '../../omg-uikit'
+import AccountsFetcher from '../../omg-account/accountsFetcher'
+import { createSearchMasterAccountQuery } from '../../omg-account/searchField'
+import AccountSelect from '../../omg-account-select'
+import { Select } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
 
@@ -24,10 +27,24 @@ const TransferFrom = ({
       closeClick={onRemove}
     >
       <TagRow title={config.title} />
-      <Input
-        normalPlaceholder='Enter any ID or address'
-        onChange={onChange}
-        value={values[config.key] || ''}
+      <AccountsFetcher
+        query={createSearchMasterAccountQuery(values[config.key])}
+        render={({ data }) => {
+          return (
+            <Select
+              value={values[config.key] || ''}
+              onChange={onChange}
+              onSelectItem={e => onUpdate({ [config.key]: e.id })}
+              normalPlaceholder='Enter any ID or address'
+              type='select'
+              options={data.map(account => ({
+                key: account.id,
+                value: <AccountSelect account={account} />,
+                ...account
+              }))}
+            />
+          )
+        }}
       />
     </FilterBox>
   )
