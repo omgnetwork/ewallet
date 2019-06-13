@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import { Input, Button } from '../omg-uikit'
 import { Link, withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
+
+import { Input, Button } from '../omg-uikit'
 import { login } from '../omg-session/action'
+
 const Form = styled.form`
   text-align: left;
   input {
@@ -74,9 +76,12 @@ class LoginForm extends Component {
         })
         if (result.data) {
           this.setState({ error: null })
-          this.props.history.push('/')
+          this.props.history.push(_.get(this.props, 'location.state.from', '/'))
         } else {
-          this.setState({ error: result.error.description || result.error.message, submitted: false })
+          this.setState({
+            error: result.error.description || result.error.message,
+            submitted: false
+          })
         }
       } catch (error) {
         this.setState({ error: 'Something went wrong :(', submitted: false })
@@ -134,7 +139,10 @@ class LoginForm extends Component {
 }
 
 const enhance = compose(
-  connect(null, { login }),
+  connect(
+    null,
+    { login }
+  ),
   withRouter
 )
 

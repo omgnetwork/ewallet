@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
 import styled from 'styled-components'
 import moment from 'moment'
 import { Link, withRouter } from 'react-router-dom'
+
+import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
+
 const InformationItem = styled.div`
   color: ${props => props.theme.colors.B200};
   :not(:last-child) {

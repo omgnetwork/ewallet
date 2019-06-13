@@ -10,7 +10,7 @@ import { connect } from 'react-redux'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import TokenProvider from '../omg-token/TokenProvider'
 import ExchangePairsProvider from '../omg-exchange-pair/exchangePairProvider'
-import { Button, Breadcrumb } from '../omg-uikit'
+import { Button, Breadcrumb, Id } from '../omg-uikit'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import MintTokenModal from '../omg-mint-token-modal'
@@ -19,7 +19,6 @@ import HistoryTable from './HistoryTable'
 import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
 import { getMintedTokenHistory } from '../omg-token/action'
 import { createCacheKey } from '../utils/createFetcher'
-import Copy from '../omg-copy'
 
 const TokenDetailContainer = styled.div`
   padding-bottom: 20px;
@@ -171,7 +170,7 @@ class TokenDetailPage extends Component {
     return (
       <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
-          <b>ID:</b> <span>{token.id}</span> <Copy data={token.id} />
+          <b>ID:</b><Id>{token.id}</Id>
         </DetailGroup>
         <DetailGroup>
           <b>Name:</b> <span>{token.name}</span>
@@ -187,12 +186,12 @@ class TokenDetailPage extends Component {
         </DetailGroup>
         <DetailGroup>
           <b>Total Supply:</b>{' '}
-          <span>
+          <span style={{ marginRight: '10px' }}>
             {token.total_supply === undefined
               ? '...'
               : formatReceiveAmountToTotal(token.total_supply, token.subunit_to_unit)}{' '}
             {token.symbol}
-          </span>{' '}
+          </span>
           <Link to={`${this.props.location.pathname}/history`}>view history</Link>
         </DetailGroup>
         <DetailGroup>

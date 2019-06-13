@@ -25,6 +25,18 @@ defmodule Utils.Helpers.Crypto do
     |> Base.url_encode64(padding: false)
   end
 
+  def generate_base32_key(key_bytes) when is_integer(key_bytes) do
+    key_bytes
+    |> generate_key()
+    |> Base.encode32()
+  end
+
+  def generate_base16_key(key_bytes) when is_integer(key_bytes) do
+    key_bytes
+    |> generate_key()
+    |> Base.encode16()
+  end
+
   @spec generate_key(non_neg_integer()) :: binary()
   def generate_key(key_bytes) when is_integer(key_bytes) do
     :crypto.strong_rand_bytes(key_bytes)

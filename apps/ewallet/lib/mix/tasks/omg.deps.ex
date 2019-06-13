@@ -41,7 +41,7 @@ defmodule Mix.Tasks.Omg.Deps do
 
   def deps_frontend do
     System.cmd(
-      "yarn",
+      "npm",
       ["install", "--non-interactive", "--color=always"],
       cd: Path.expand("../../../../frontend/assets/", __DIR__),
       into: IO.stream(:stdio, :line),

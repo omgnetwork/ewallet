@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
-import { selectAlerts } from './selector'
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
 import styled from 'styled-components'
+import { connect } from 'react-redux'
+
+import { selectAlerts } from './selector'
 import { clearAlert } from '../omg-alert/action'
 import { Icon } from '../omg-uikit'
+
 const AlertContainer = styled.div`
   position: fixed;
   top: 15px;

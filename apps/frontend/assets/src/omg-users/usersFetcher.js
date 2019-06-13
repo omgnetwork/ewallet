@@ -6,6 +6,7 @@ import {
   selectUsersCachedQuery,
   selectUsersCachedQueryPagination
 } from './selector'
+
 export default createFetcher('users', getUsers, (state, props) => ({
   loadingStatus: selectUsersLoadingStatus(state),
   data: selectUsersCachedQuery(state)(props.cacheKey),

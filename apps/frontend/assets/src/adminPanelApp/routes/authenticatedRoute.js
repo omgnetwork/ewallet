@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
-import { Route, Redirect } from 'react-router-dom'
-import AppLayout from '../../omg-app-layout'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+import { Route, Redirect } from 'react-router-dom'
+
+import AppLayout from '../../omg-app-layout'
 import { bootstrap } from '../action'
+import { selectSession } from '../../omg-session/selector'
 class AuthenticatedRoute extends Component {
   static propTypes = {
     component: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
@@ -19,15 +21,15 @@ class AuthenticatedRoute extends Component {
       <Redirect
         to={{
           pathname: '/login',
-          state: { from: props.location === '/' ? '/dashboard' : props.location }
+          state: { from: props.location === '/' ? '/accounts' : props.location }
         }}
       />
     )
   }
-  renderApp = Component => {
+  renderApp = (props, Component) => {
     return (
       <AppLayout {...this.props}>
-        <Component />
+        <Component {...props} />
       </AppLayout>
     )
   }
@@ -35,7 +37,7 @@ class AuthenticatedRoute extends Component {
     if (!this.props.authenticated) {
       return this.renderRedirectRoute(props)
     }
-    return this.renderApp(Component)
+    return this.renderApp(props, Component)
   }
 
   render () {
@@ -44,6 +46,6 @@ class AuthenticatedRoute extends Component {
   }
 }
 export default connect(
-  null,
+  state => ({ authenticated: selectSession(state).authenticated }),
   { bootstrap }
 )(AuthenticatedRoute)

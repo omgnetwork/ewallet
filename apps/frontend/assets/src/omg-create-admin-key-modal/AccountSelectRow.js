@@ -1,33 +1,41 @@
 import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { Avatar } from '../omg-uikit'
-const AccountSelectRowContainr = styled.div`
+
+import { Avatar, Id } from '../omg-uikit'
+
+const AccountSelectRowContainer = styled.div`
   display: flex;
+  justify-content: row;
   align-items: center;
+  max-width: 400px;
+  .data {
+    color: ${props => props.theme.colors.B100};
+  }
   > div:first-child {
     margin-right: 10px;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 `
-const AccountSelectRowName = styled.div`
-  margin-bottom: 5px;
-`
-const AccountSelectRowId = styled.div`
-  color: ${props => props.theme.colors.B100};
-  font-size: 12px;
-`
 
-AccountSelectRow.propTypes = {
-  account: PropTypes.object
-}
-export default function AccountSelectRow ({ account }) {
+const AccountSelectRow = ({ account, style, withCopy = false }) => {
+  if (!account) return null
   return (
-    <AccountSelectRowContainr>
-      <Avatar image={account.avatar.thumb} name={account.name} size={35} />
+    <AccountSelectRowContainer style={style}>
+      <Avatar name={account.name} image={account.avatar.thumb} />
       <div>
-        <AccountSelectRowName>{account.name}</AccountSelectRowName>
-        <AccountSelectRowId>{account.id}</AccountSelectRowId>
+        <p>{account.name}</p>
+        <Id withCopy={withCopy} maxChar={200}>{account.id}</Id>
       </div>
-    </AccountSelectRowContainr>
+    </AccountSelectRowContainer>
   )
 }
+
+AccountSelectRow.propTypes = {
+  account: PropTypes.object,
+  style: PropTypes.object,
+  withCopy: PropTypes.bool
+}
+
+export default AccountSelectRow

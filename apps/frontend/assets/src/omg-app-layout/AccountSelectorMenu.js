@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import AccountItem from './AccountItem'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
+
+import AccountItem from './AccountItem'
 import { Input, Icon } from '../omg-uikit'
 import { fuzzySearch } from '../utils/search'
+
 const Container = styled.div`
   background-color: ${props => props.theme.colors.B400};
   padding: 40px 35px;

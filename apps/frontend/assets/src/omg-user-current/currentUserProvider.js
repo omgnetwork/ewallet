@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+import { withRouter } from 'react-router-dom'
+import { compose } from 'recompose'
+
 import { selectCurrentUser, selectCurrentUserLoadingStatus } from './selector'
 import { getCurrentUser } from './action'
 import { getWalletsByAccountId } from '../omg-wallet/action'
-import { withRouter } from 'react-router-dom'
-import { compose } from 'recompose'
 import { removeAccessDataFromLocalStorage } from '../services/sessionService'
+
 class UserProvider extends Component {
   static propTypes = {
     render: PropTypes.func,

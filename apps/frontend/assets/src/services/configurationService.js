@@ -1,5 +1,5 @@
-import { authenticatedRequest } from './apiService'
 import _ from 'lodash'
+import { authenticatedRequest } from './apiService'
 export function getConfiguration () {
   return authenticatedRequest({
     path: '/configuration.all'

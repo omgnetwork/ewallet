@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
-import { Input, Button } from '../omg-uikit'
 import styled from 'styled-components'
 import { Link, withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { updatePasswordWithResetToken } from '../omg-session/action'
 import { compose } from 'recompose'
+
+import { Input, Button } from '../omg-uikit'
+import { updatePasswordWithResetToken } from '../omg-session/action'
+
 const Form = styled.form`
   text-align: left;
   input {

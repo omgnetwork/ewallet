@@ -252,6 +252,7 @@ defmodule AdminAPI.V1.UserControllerTest do
           "updated_at" => DateFormatter.to_iso8601(inserted_user.updated_at),
           "email" => nil,
           "enabled" => inserted_user.enabled,
+          "enabled_2fa_at" => nil,
           "avatar" => %{
             "large" => nil,
             "original" => nil,
@@ -737,7 +738,7 @@ defmodule AdminAPI.V1.UserControllerTest do
 
       assert response["success"] == true
       assert response["data"]["enabled"] == false
-      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+      assert AuthToken.authenticate(token_string, @owner_app) == {:error, :token_expired}
     end
 
     test_with_auths "disable a user succeed and disable his tokens given his provider user id" do
@@ -758,7 +759,7 @@ defmodule AdminAPI.V1.UserControllerTest do
 
       assert response["success"] == true
       assert response["data"]["enabled"] == false
-      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+      assert AuthToken.authenticate(token_string, @owner_app) == {:error, :token_expired}
     end
 
     test_with_auths "disable a user that doesn't exist raises an 'unauthorized' error" do

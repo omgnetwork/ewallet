@@ -1,20 +1,22 @@
 import React, { Component } from 'react'
 import { Provider } from 'react-redux'
 import { hot } from 'react-hot-loader/root'
-import Routes from './routes'
 import { ThemeProvider } from 'styled-components'
 import Modal from 'react-modal'
-import theme from './theme'
 import PropTypes from 'prop-types'
+
 import 'reset-css'
+
+import theme from './theme'
+import Routes from './routes'
 import './fonts.css'
 import './globalStyle.css'
 import './icons.css'
+
 Modal.setAppElement('#app')
 class App extends Component {
   static propTypes = {
-    store: PropTypes.object.isRequired,
-    authenticated: PropTypes.bool
+    store: PropTypes.object.isRequired
   }
   componentDidCatch () {
     return 'Something very bad happened, please contact admin.'
@@ -23,7 +25,7 @@ class App extends Component {
     return (
       <Provider store={this.props.store}>
         <ThemeProvider theme={theme}>
-          <Routes authenticated={this.props.authenticated} />
+          <Routes />
         </ThemeProvider>
       </Provider>
     )

@@ -39,6 +39,7 @@ defmodule AdminAPI.V1.UserViewTest do
           provider_user_id: user.provider_user_id,
           email: user.email,
           enabled: user.enabled,
+          enabled_2fa_at: nil,
           avatar: %{
             original: nil,
             large: nil,
@@ -88,6 +89,7 @@ defmodule AdminAPI.V1.UserViewTest do
               provider_user_id: user1.provider_user_id,
               email: user1.email,
               enabled: user1.enabled,
+              enabled_2fa_at: nil,
               avatar: %{
                 original: nil,
                 large: nil,
@@ -112,6 +114,7 @@ defmodule AdminAPI.V1.UserViewTest do
               provider_user_id: user2.provider_user_id,
               email: user2.email,
               enabled: user2.enabled,
+              enabled_2fa_at: nil,
               avatar: %{
                 original: nil,
                 large: nil,

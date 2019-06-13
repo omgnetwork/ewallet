@@ -4,16 +4,16 @@ import styled from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
 import { compose } from 'recompose'
 import moment from 'moment'
+import { connect } from 'react-redux'
 
+import Copy from '../omg-copy'
 import WalletProvider from '../omg-wallet/walletProvider'
-import { Button, Icon } from '../omg-uikit'
+import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import CreateTransactionModal from '../omg-create-transaction-modal'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import Copy from '../omg-copy'
 import CONSTANT from '../constants'
-
+import { openModal } from '../omg-modal/action'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
   button i {
@@ -47,32 +47,29 @@ const ErrorPageContainer = styled.div`
   }
 `
 const enhance = compose(
-  withRouter
+  withRouter,
+  connect(
+    null,
+    { openModal }
+  )
 )
 class WalletDetaillPage extends Component {
   static propTypes = {
     match: PropTypes.object,
-    divider: PropTypes.bool
-  }
-  state = {
-    createTransactionModalOpen: false
-  }
-  onRequestClose = () => {
-    this.setState({ createTransactionModalOpen: false })
-  }
-  onClickCreateTransaction = e => {
-    this.setState({ createTransactionModalOpen: true })
+    divider: PropTypes.bool,
+    openModal: PropTypes.func
   }
   renderTopBar = wallet => {
     return (
       <TopNavigation
-        secondaryAction={false}
+        searchBar={false}
         divider={this.props.divider}
         title={wallet.name}
         buttons={[
-          <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
-            <Icon name='Transaction' /><span>Transfer</span>
-          </Button>
+          <CreateTransactionButton
+            fromAddress={wallet.address}
+            key='transfer'
+          />
         ]}
       />
     )
@@ -81,7 +78,8 @@ class WalletDetaillPage extends Component {
     return (
       <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
-          <b>Address:</b> <span>{wallet.address}</span> <Copy data={wallet.address} />
+          <b>Address:</b> <span>{wallet.address}</span>{' '}
+          <Copy data={wallet.address} />
         </DetailGroup>
         <DetailGroup>
           <b>Name:</b> <span>{wallet.name}</span>
@@ -100,7 +98,9 @@ class WalletDetaillPage extends Component {
         {wallet.user && (
           <DetailGroup>
             <b>User:</b>{' '}
-            <Link to={`/users/${wallet.user.id}`}>{_.get(wallet, 'user.id', '-')}</Link>
+            <Link to={`/users/${wallet.user.id}`}>
+              {_.get(wallet, 'user.id', '-')}
+            </Link>
           </DetailGroup>
         )}
         <DetailGroup>
@@ -120,7 +120,10 @@ class WalletDetaillPage extends Component {
             <DetailGroup key={balance.token.id}>
               <b>{balance.token.name}</b>{' '}
               <span>
-                {formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}{' '}
+                {formatReceiveAmountToTotal(
+                  balance.amount,
+                  balance.token.subunit_to_unit
+                )}{' '}
                 {balance.token.symbol}
               </span>
             </DetailGroup>
@@ -139,11 +142,6 @@ class WalletDetaillPage extends Component {
             <DetailContainer>{this.renderBalances(wallet)}</DetailContainer>
           </ContentDetailContainer>
         </ContentContainer>
-        <CreateTransactionModal
-          fromAddress={wallet.address}
-          onRequestClose={this.onRequestClose}
-          open={this.state.createTransactionModalOpen}
-        />
       </div>
     )
   }
@@ -162,7 +160,8 @@ class WalletDetaillPage extends Component {
       <WalletDetailContainer>
         {wallet
           ? this.renderWalletDetailContainer(wallet)
-          : loadingStatus === CONSTANT.LOADING_STATUS.FAILED && this.renderErrorPage(result.error)}
+          : loadingStatus === CONSTANT.LOADING_STATUS.FAILED &&
+            this.renderErrorPage(result.error)}
       </WalletDetailContainer>
     )
   }

@@ -27,13 +27,19 @@ export const cacheReducer = createReducer(
         [action.cacheKey]: { ids: action.data.map(d => d.id), pagination: action.pagination }
       }
     },
-    'MEMBERSHIP_ACCESS_KEYS/REQUEST/SUCCESS': (state, action) => {
+    'ACCOUNT_KEY_MEMBERSHIPS/REQUEST/SUCCESS': (state, action) => {
       return {
         ...state,
         [action.cacheKey]: { ids: action.data.map(d => d.key.id), pagination: action.pagination }
       }
     },
     'WALLETS/REQUEST/SUCCESS': (state, action) => {
+      return {
+        ...state,
+        [action.cacheKey]: { ids: action.data.map(d => d.address), pagination: action.pagination }
+      }
+    },
+    'USER_WALLETS/REQUEST/SUCCESS': (state, action) => {
       return {
         ...state,
         [action.cacheKey]: { ids: action.data.map(d => d.address), pagination: action.pagination }

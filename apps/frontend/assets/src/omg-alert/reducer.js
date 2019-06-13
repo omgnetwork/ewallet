@@ -1,8 +1,9 @@
-import createReducer from '../reducer/createReducer'
 import uuid from 'uuid/v4'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+
+import createReducer from '../reducer/createReducer'
 
 const CopyTextContainer = styled.div`
   b {
@@ -64,22 +65,25 @@ export const alertsReducer = createReducer([], {
   'INVITE/REQUEST/SUCCESS': state => {
     return [...state, createAlertState('Invited member successfully.', 'success')]
   },
-  'CATEGORY/CREATE/SUCCESS': (state, { category }) => {
+  'CATEGORY/CREATE/SUCCESS': state => {
     return [...state, createAlertState('Created category successfully.', 'success')]
   },
   'ACCOUNT/ASSIGN_KEY/SUCCESS': state => {
     return [...state, createAlertState('Assign key to account successfully.', 'success')]
   },
-  'CURRENT_USER/UPDATE/SUCCESS': (state, { user }) => {
+  'ACCOUNT/UNASSIGN_KEY/SUCCESS': state => {
+    return [...state, createAlertState('Unassigned key from account successfully.', 'success')]
+  },
+  'CURRENT_USER/UPDATE/SUCCESS': state => {
     return [...state, createAlertState('Updated user settings successfully.', 'success')]
   },
   'CURRENT_USER_EMAIL/UPDATE/SUCCESS': state => {
     return [...state, createAlertState('Please check your email to verify the new email address.', 'success')]
   },
-  'PASSWORD/UPDATE/SUCCESS': (state, { user }) => {
+  'PASSWORD/UPDATE/SUCCESS': state => {
     return [...state, createAlertState('Updated password successfully.', 'success')]
   },
-  'TRANSACTION/CREATE/SUCCESS': (state, { transaction }) => {
+  'TRANSACTION/CREATE/SUCCESS': state => {
     return [...state, createAlertState('Transferred successfully.', 'success')]
   },
   'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
@@ -150,10 +154,12 @@ export const alertsReducer = createReducer([], {
   'CONSUMPTION/REJECT/FAILED': errorStateHandler,
   'ACCOUNT/CREATE/FAILED': errorStateHandler,
   'ACCOUNT/ASSIGN_KEY/FAILED': errorStateHandler,
+  'ACCOUNT/UNASSIGN_KEY/FAILED': errorStateHandler,
   'CATEGORY/CREATE/FAILED': errorStateHandler,
   'API_KEY/UPDATE/FAILED': errorStateHandler,
   'API_KEY/CREATE/FAILED': errorStateHandler,
   'ACCESS_KEY/CREATE/FAILED': errorStateHandler,
   'CONFIGURATIONS/REQUEST/FAILED': errorStateHandler,
-  'INVITE/REQUEST/FAILED': errorStateHandler
+  'INVITE/REQUEST/FAILED': errorStateHandler,
+  'TRANSACTIONS/REQUEST/FAILED': errorStateHandler
 })

@@ -13,10 +13,14 @@ import Breadcrumb from '../omg-uikit/breadcrumb'
 import Select from '../omg-uikit/select'
 import Switch from '../omg-uikit/switch'
 import Error from '../omg-uikit/error'
+import DetailRow from '../omg-uikit/detailrow'
 import Tag from '../omg-uikit/tag'
 import Tooltip from '../omg-uikit/tooltip'
 import DatePicker from '../omg-uikit/datepicker'
 import TimePicker from '../omg-uikit/timepicker'
+import NavCard from '../omg-uikit/navcard'
+import Id from '../omg-uikit/id'
+import SearchBar from '../omg-uikit/searchbar'
 
 export {
   Input,
@@ -35,8 +39,12 @@ export {
   Select,
   Switch,
   Error,
+  DetailRow,
   Tag,
   Tooltip,
   DatePicker,
-  TimePicker
+  TimePicker,
+  NavCard,
+  Id,
+  SearchBar
 }

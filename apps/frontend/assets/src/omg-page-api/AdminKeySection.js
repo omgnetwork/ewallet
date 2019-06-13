@@ -5,17 +5,18 @@ import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import moment from 'moment'
+import queryString from 'query-string'
 
-import { Switch, Icon } from '../omg-uikit'
+import { Switch, Icon, Id } from '../omg-uikit'
 import Table from '../omg-table'
 import AccessKeyFetcher from '../omg-access-key/accessKeysFetcher'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { createApiKey } from '../omg-api-keys/action'
-import { createAccessKey, updateAccessKey, downloadKey } from '../omg-access-key/action'
-import CreateAdminKeyModal from '../omg-create-admin-key-modal'
-import queryString from 'query-string'
-import Copy from '../omg-copy'
+import { createAccessKey, enableAccessKey, downloadKey } from '../omg-access-key/action'
+import AccessKeyMembershipsProvider from '../omg-access-key/accessKeyMembershipsProvider'
 import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
+import CreateAdminKeyModal from '../omg-create-admin-key-modal'
+import Copy from '../omg-copy'
 
 const KeySection = styled.div`
   position: relative;
@@ -33,6 +34,7 @@ const KeySection = styled.div`
     margin-bottom: 20px;
   }
   tr:hover {
+    cursor: ${props => props.clickRow ? 'pointer !important' : 'default !important'};
     td:nth-child(1) {
       i {
         visibility: visible;
@@ -85,7 +87,6 @@ const ConfirmCreateKeyContainer = styled.div`
     color: ${props => props.theme.colors.B300};
   }
   i[name='Copy'] {
-    margin-left: 5px;
     cursor: pointer;
     color: ${props => props.theme.colors.S500};
     :hover {
@@ -94,6 +95,8 @@ const ConfirmCreateKeyContainer = styled.div`
   }
 `
 const KeyContainer = styled.div`
+  display: flex;
+  flex-direction: row;
   white-space: nowrap;
   span {
     vertical-align: middle;
@@ -103,7 +106,7 @@ const KeyContainer = styled.div`
     margin-right: 5px;
   }
   i[name='Key'] {
-    margin-right: 5px;
+    margin-right: 15px;
     color: ${props => props.theme.colors.B100};
     padding: 8px;
     border-radius: 6px;
@@ -127,13 +130,13 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { createApiKey, createAccessKey, updateAccessKey, downloadKey }
+    { createApiKey, createAccessKey, enableAccessKey, downloadKey }
   )
 )
 class ApiKeyPage extends Component {
   static propTypes = {
     location: PropTypes.object,
-    updateAccessKey: PropTypes.func,
+    enableAccessKey: PropTypes.func,
     createAdminKeyModalOpen: PropTypes.bool,
     query: PropTypes.object,
     fetcher: PropTypes.func,
@@ -142,16 +145,22 @@ class ApiKeyPage extends Component {
     columnsAdminKeys: PropTypes.array,
     search: PropTypes.string,
     downloadKey: PropTypes.func,
-    match: PropTypes.object
+    match: PropTypes.object,
+    history: PropTypes.object,
+    clickRow: PropTypes.bool,
+    subPage: PropTypes.bool
   }
 
   static defaultProps = {
+    clickRow: true,
     fetcher: AccessKeyFetcher,
+    subPage: false,
     columnsAdminKeys: [
       { key: 'key', title: 'ACCESS KEY' },
       { key: 'name', title: 'LABEL' },
-      { key: 'global_role', title: 'GLOBAL ROLE' },
-      { key: 'created_at', title: 'CREATED AT' },
+      { key: 'assigned_accounts', title: 'ASSIGNED ACCOUNTS' },
+      { key: 'global_role', title: 'ROLE' },
+      { key: 'created_at', title: 'CREATED DATE' },
       { key: 'status', title: 'STATUS' }
     ]
   }
@@ -178,9 +187,9 @@ class ApiKeyPage extends Component {
       privateKeyModalOpen: true
     })
   }
-  onClickAccessKeySwitch = ({ id, expired, fetch }) => async e => {
-    await this.props.updateAccessKey({ id, expired })
-    fetch()
+  onClickAccessKeySwitch = ({ id, enabled, fetch }) => e => {
+    e.stopPropagation()
+    this.props.enableAccessKey({ id, enabled })
   }
   onClickDownloadKey = e => {
     this.props.downloadKey({
@@ -189,19 +198,25 @@ class ApiKeyPage extends Component {
     })
   }
 
+  onClickRow = (data, index) => e => {
+    const { keyType } = this.props.match.params
+    this.props.history.push(`${keyType || 'keys/admin'}/${data.id}`)
+  }
+
   rowAdminKeyRenderer = fetch => (key, data, rows) => {
     switch (key) {
       case 'status':
         return (
           <Switch
-            open={!data}
-            onClick={this.onClickAccessKeySwitch({ id: rows.id, expired: !rows.status, fetch })}
+            open={rows.status}
+            onClick={this.onClickAccessKeySwitch({ id: rows.id, enabled: !rows.status, fetch })}
           />
         )
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /><span>{data}</span> <Copy data={data} />
+            <Icon name='Key' />
+            <Id maxChar={20}>{data}</Id>
           </KeyContainer>
         )
       case 'name':
@@ -209,6 +224,18 @@ class ApiKeyPage extends Component {
           <KeyContainer>
             <span>{data}</span>
           </KeyContainer>
+        )
+      case 'assigned_accounts':
+        return (
+          <AccessKeyMembershipsProvider
+            accessKeyId={rows.id}
+            render={({ memberships, membershipsLoading }) => {
+              if (membershipsLoading === 'INITIATED') return '-'
+              if (memberships && memberships.length === 1) return '1 Account'
+              if (memberships && memberships.length >= 1) return `${memberships.length} Accounts`
+              return 'None'
+            }}
+          />
         )
       case 'global_role':
       case 'account_role':
@@ -276,18 +303,18 @@ class ApiKeyPage extends Component {
               key: item.access_key,
               user: item.account_id,
               created_at: item.created_at,
-              status: item.expired,
+              status: item.enabled,
               name: item.name || 'Not Provided',
               global_role: item.global_role || 'none',
               account_role: role || 'none'
             }
           })
           return (
-            <KeySection>
+            <KeySection clickRow={this.props.clickRow}>
               <Table
-                hoverEffect={false}
                 loadingRowNumber={6}
                 rows={apiKeysRows}
+                onClickRow={this.props.clickRow ? this.onClickRow : () => {}}
                 rowRenderer={this.rowAdminKeyRenderer(fetch)}
                 columns={this.props.columnsAdminKeys}
                 loadingStatus={individualLoadingStatus}
@@ -303,6 +330,7 @@ class ApiKeyPage extends Component {
                 onSubmitSuccess={this.onSubmitSuccess(fetch)}
                 closeTimeoutMS={0}
                 loading={this.state.submitStatus === 'SUBMITTING'}
+                hideAccount={!this.props.subPage}
               />
               {this.renderConfirmPrivateKeyModal()}
             </KeySection>

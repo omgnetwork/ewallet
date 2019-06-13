@@ -47,8 +47,6 @@ describe('current user actions', () => {
   })
 
   test('[updateCurrentUserAvatar] should dispatch success action if update current user avatar successfully', () => {
-    console.log('adminService: ', adminService)
-
     adminService.uploadAvatar.mockImplementation(() => {
       return Promise.resolve({ data: { success: true, data: { id: 'a' } } })
     })
