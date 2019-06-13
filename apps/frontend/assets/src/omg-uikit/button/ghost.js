@@ -3,7 +3,7 @@ import { DefaultButton } from './default'
 
 export const ButtonGhost = styled(DefaultButton)`
   background-color: transparent;
-  color: ${props => (props.loading ? props.theme.colors.B300 : props.theme.colors.B300)};
+  color: ${props => (props.loading ? props.theme.colors.B100 : props.theme.colors.B100)};
   border-color : ${props => (props.loading ? props.theme.colors.S200 : props.theme.colors.S400)};
   :hover {
     border-color: ${props => (props.loading ? props.theme.colors.S300 : props.theme.colors.S300)};

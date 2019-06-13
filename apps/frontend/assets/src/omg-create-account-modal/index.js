@@ -1,14 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import Modal from '../omg-modal'
 import styled from 'styled-components'
+import { compose } from 'recompose'
+import { connect } from 'react-redux'
+
+import Modal from '../omg-modal'
 import CreateAccountStage from './CreateAccountStage'
 import ChooseCategoryStage from './ChooseCategoryStage'
 import CreateSuccessStage from './CreateSuccessStage'
 import { createAccount } from '../omg-account/action'
 import { getCategories } from '../omg-account-category/action'
-import { compose } from 'recompose'
-import { connect } from 'react-redux'
 
 const CreateAccountContainer = styled.div`
   position: relative;

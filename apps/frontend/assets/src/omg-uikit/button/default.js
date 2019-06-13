@@ -11,7 +11,7 @@ export const DefaultButton = styled.button`
   border: 1px solid transparent;
   padding: ${props => mapSize[props.size || 'medium']};
   width: ${props => props.fluid ? '100%' : 'auto'};
-  min-width: 100px;
+  min-width: 60px;
   position: relative;
   pointer-events: ${props => props.loading ? 'none' : 'auto'};
   cursor: pointer;
@@ -27,5 +27,9 @@ export const DefaultButton = styled.button`
   }
 `
 export const Content = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   opacity: ${props => (props.loading ? 0 : 1)};
 `

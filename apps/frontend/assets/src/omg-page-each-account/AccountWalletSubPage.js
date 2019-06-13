@@ -1,9 +1,11 @@
-import WalletsPage from '../omg-page-wallets'
 import React from 'react'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
+
+import WalletsPage from '../omg-page-wallets'
 import walletFetcher from '../omg-wallet/accountUsersWalletsFetcher'
+
 function AccountWalletSubPage (props) {
   const { walletType } = queryString.parse(props.location.search)
   function getQuery () {

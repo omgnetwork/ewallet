@@ -1,4 +1,5 @@
 import createReducer from '../reducer/createReducer'
+
 export const sessionReducer = createReducer(
   {},
   {

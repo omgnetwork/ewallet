@@ -621,11 +621,11 @@ class ConfigurationPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Configuration'}
+          searchBar={false}
           buttons={[
             this.renderCancelButton(),
             this.renderSaveButton()
           ]}
-          secondaryAction={false}
           types={false}
         />
         {!_.isEmpty(this.props.configurations) ? (

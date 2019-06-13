@@ -1,13 +1,14 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import { withRouter } from 'react-router-dom'
+import { compose } from 'recompose'
 import styled from 'styled-components'
+
 import Modal from '../omg-modal'
 import { Button, Input, Icon } from '../omg-uikit'
 import { mintToken } from '../omg-token/action'
 import { getWalletsByAccountId } from '../omg-wallet/action'
-import { connect } from 'react-redux'
-import { withRouter } from 'react-router-dom'
-import { compose } from 'recompose'
 import { formatAmount } from '../utils/formatter'
 
 const MintTokenModalContainer = styled.form`

@@ -1,12 +1,12 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
 import { selectNewWallets } from '../omg-wallet/selector'
 import SortableTable from '../omg-table'
 import { walletColumsKeys } from './constants'
 import rowRenderer from './walletTableRowRenderer'
-import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import { withRouter } from 'react-router-dom'
 
 const TableContainer = styled.div`
   td {

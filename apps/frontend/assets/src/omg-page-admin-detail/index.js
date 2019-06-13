@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { compose } from 'recompose'
+import moment from 'moment'
 import styled, { withTheme } from 'styled-components'
 import { withRouter } from 'react-router-dom'
+
+import { Id } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import AdminProvider from '../omg-admins/adminProvider'
-import { compose } from 'recompose'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import moment from 'moment'
-import Copy from '../omg-copy'
+
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
   b {
@@ -41,7 +43,7 @@ class TokenDetailPage extends Component {
       <TopNavigation
         divider={false}
         title={admin.email}
-        secondaryAction={false}
+        searchBar={false}
       />
     )
   }
@@ -49,7 +51,7 @@ class TokenDetailPage extends Component {
     return (
       <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
-          <b>ID:</b> <span>{admin.id}</span> <Copy data={admin.id} />
+          <b>ID:</b><Id>{admin.id}</Id>
         </DetailGroup>
         <DetailGroup>
           <b>Email:</b> <span>{admin.email || '-'}</span>

@@ -1,6 +1,5 @@
-export const selectAccessKeys = state => _.sortBy(_.values(state.accessKeys), 'created_at').reverse()
-
-export const selectAccessKeysLoadingStatus = state => state.loadingStatus.accessKeys
+export const selectAccessKeysLoadingStatus = state =>
+  state.loadingStatus.accessKeys
 
 export const selectGetAccessKeyById = state => id => state.accessKeys[id]
 
@@ -9,3 +8,8 @@ export const selectAccessKeysCachedQuery = state => cacheKey => {
     return selectGetAccessKeyById(state)(apiKeyId)
   })
 }
+
+export const selectAccessKeyMemberships = state => id =>
+  state.accessKeyMemberships[id]
+export const selectAccessKeyMembershipsLoadingStatus = state =>
+  state.loadingStatus.accessKeyMemberships || 'DEFAULT'

@@ -4,15 +4,15 @@ import styled from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
 import { compose } from 'recompose'
 import moment from 'moment'
+import { connect } from 'react-redux'
 
+import Copy from '../omg-copy'
 import WalletProvider from '../omg-wallet/walletProvider'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import Copy from '../omg-copy'
 import CONSTANT from '../constants'
-import { connect } from 'react-redux'
 import { openModal } from '../omg-modal/action'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
@@ -62,7 +62,7 @@ class WalletDetaillPage extends Component {
   renderTopBar = wallet => {
     return (
       <TopNavigation
-        secondaryAction={false}
+        searchBar={false}
         divider={this.props.divider}
         title={wallet.name}
         buttons={[

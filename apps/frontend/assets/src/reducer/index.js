@@ -1,10 +1,12 @@
 import { combineReducers } from 'redux'
+import { loadingBarReducer } from 'react-redux-loading-bar'
+
 import { sessionReducer } from '../omg-session/reducer'
 import { accountsReducer } from '../omg-account/reducer'
 import { currentUserReducer } from '../omg-user-current/reducer'
 import { inviteListReducer } from '../omg-member/reducer'
 import { apiKeysReducer } from '../omg-api-keys/reducer'
-import { accessKeysReducer } from '../omg-access-key/reducer'
+import { accessKeysReducer, accessKeyMembershipsReducer } from '../omg-access-key/reducer'
 import { alertsReducer } from '../omg-alert/reducer'
 import { tokensReducer, mintedTokenHistoryReducer } from '../omg-token/reducer'
 import { usersReducer } from '../omg-users/reducer'
@@ -13,7 +15,6 @@ import { transactionsReducer } from '../omg-transaction/reducer'
 import { transactionRequestsReducer } from '../omg-transaction-request/reducer'
 import { walletsReducer } from '../omg-wallet/reducer'
 import { categoriesReducer } from '../omg-account-category/reducer'
-import { loadingBarReducer } from 'react-redux-loading-bar'
 import { cacheReducer } from '../omg-cache/reducer'
 import { exchangePairsReducer } from '../omg-exchange-pair/reducer'
 import { configurationReducer } from '../omg-configuration/reducer'
@@ -29,6 +30,7 @@ export default combineReducers({
   session: sessionReducer,
   accounts: accountsReducer,
   accessKeys: accessKeysReducer,
+  accessKeyMemberships: accessKeyMembershipsReducer,
   consumptions: consumptionsReducer,
   currentUser: currentUserReducer,
   inviteList: inviteListReducer,

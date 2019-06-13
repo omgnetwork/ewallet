@@ -1,5 +1,5 @@
-import createReducer from '../reducer/createReducer'
 import _ from 'lodash'
+import createReducer from '../reducer/createReducer'
 
 export function handleAccountReceived (state, { data }) {
   return { ...state, ...{ [data.id]: data } }

@@ -13,6 +13,8 @@ import TransactionPage from '../../omg-page-transaction'
 import WalletPage from '../../omg-page-wallets'
 import UserSettingPage from '../../omg-page-user-setting'
 import ApiKeyPage from '../../omg-page-api'
+import ApiKeyDetailPage from '../../omg-page-api-detail'
+import KeyDetailAccountsPage from '../../omg-page-api-detail-accounts'
 import UserPage from '../../omg-page-users'
 import TokenDetailPage from '../../omg-page-token-detail'
 import WalletDetailPage from '../../omg-page-wallet-detail'
@@ -50,6 +52,8 @@ const createRoute = () => (
       <AuthenticatedRoute path='/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute path='/transaction/export' exact component={TransactionExportPage} />
 
+      <AuthenticatedRoute path='/keys/:keyType/:keyId/assigned-accounts' exact component={KeyDetailAccountsPage} />
+      <AuthenticatedRoute path='/keys/:keyType/:keyId' exact component={ApiKeyDetailPage} />
       <AuthenticatedRoute path='/keys/:keyType' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/keys' exact component={ApiKeyPage} />
 

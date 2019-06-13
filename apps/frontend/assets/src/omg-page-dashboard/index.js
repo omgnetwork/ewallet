@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
+import moment from 'moment'
+import { Link, withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+
 import { Button, Icon } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import CurrentAccountProvider from '../omg-account-current/currentAccountProvider'
-import moment from 'moment'
-import { Link, withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
 
 const SectionsContainer = styled.div`
   display: flex;
@@ -124,7 +125,7 @@ export default withRouter(
       const accountId = this.props.match.params.accountId
       return (
         <div>
-          <TopNavigation divider={this.props.divider} title='Dashboard' types={false} secondaryAction={false} />
+          <TopNavigation divider={this.props.divider} title='Dashboard' types={false} searchBar={false} />
           <SectionsContainer>
             <CurrentAccountProvider render={this.renderCurrentAccountSection} />
             <SectionContainer>

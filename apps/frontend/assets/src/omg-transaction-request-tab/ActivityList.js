@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
-import styled from 'styled-components'
-import ConsumptionFetcherByTransactionIdFetcher from '../omg-consumption/consumptionByTransactionIdFetcher'
-import SortableTable from '../omg-table'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
-import { Icon } from '../omg-uikit'
+import styled from 'styled-components'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
+
+import ConsumptionFetcherByTransactionIdFetcher from '../omg-consumption/consumptionByTransactionIdFetcher'
+import SortableTable from '../omg-table'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
+import { Icon } from '../omg-uikit'
 import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
+
 const ContentContainer = styled.div`
   height: calc(100vh - 160px);
   overflow: auto;

@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { compose } from 'recompose'
+import moment from 'moment'
+
 import styled, { withTheme } from 'styled-components'
 import { withRouter, Link, Route, Switch } from 'react-router-dom'
 import UserProvider from '../omg-users/userProvider'
-import { compose } from 'recompose'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import moment from 'moment'
-import { LoadingSkeleton, Breadcrumb } from '../omg-uikit'
+import { LoadingSkeleton, Breadcrumb, Id } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import Copy from '../omg-copy'
 import { KeyButton } from '../omg-page-api'
 import UserTransactions from './UserTransactions'
 import UserActivityLog from './UserActivityLog'
@@ -115,7 +115,7 @@ class UserDetailPage extends Component {
     return (
       <DetailContainer>
         <DetailGroup>
-          <b>ID:</b> <span>{user.id}</span> <Copy data={user.id} />
+          <b>ID:</b><Id>{user.id}</Id>
         </DetailGroup>
         <DetailGroup>
           <b>Email:</b> <span>{user.email || '-'}</span>

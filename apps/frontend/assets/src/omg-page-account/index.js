@@ -1,16 +1,17 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
-import SortableTable from '../omg-table'
-import { Button, Icon, Avatar } from '../omg-uikit'
-import Copy from '../omg-copy'
-import CreateAccountModal from '../omg-create-account-modal'
-import ExportModal from '../omg-export-modal'
-import AccountsFetcher from '../omg-account/accountsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import SortableTable from '../omg-table'
+import { Button, Icon, Avatar, Id } from '../omg-uikit'
+import CreateAccountModal from '../omg-create-account-modal'
+import ExportModal from '../omg-export-modal'
+import AccountsFetcher from '../omg-account/accountsFetcher'
+
 const AccountPageContainer = styled.div`
   position: relative;
   padding-bottom: 50px;
@@ -43,7 +44,6 @@ const AccountPageContainer = styled.div`
     }
   }
   i[name='Copy'] {
-    margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
     color: ${props => props.theme.colors.S500};
@@ -134,11 +134,7 @@ class AccountPage extends Component {
       )
     }
     if (key === 'id') {
-      return (
-        <span>
-          <span>{data}</span> <Copy data={data} />
-        </span>
-      )
+      return <Id>{data}</Id>
     }
     if (key === 'created_at') {
       return moment(data).format()

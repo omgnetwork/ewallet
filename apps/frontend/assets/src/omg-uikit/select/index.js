@@ -13,7 +13,8 @@ const SelectContainer = styled.div`
 `
 const OptionsContainer = styled.div`
   position: absolute;
-  top: 44px;
+  bottom: -5px;
+  transform: translateY(100%);
   z-index: 2;
   border: 1px solid #ebeff7;
   border-radius: 2px;
@@ -31,11 +32,27 @@ const OptionItem = styled.div`
     background-color: ${props => props.theme.colors.S100};
   }
 `
+const ValueRendererContainer = styled.div`
+  cursor: ${props => props.disabled ? 'initial' : 'pointer'};
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+`
+const ValueRendererSuffix = styled.div`
+  padding: 0 8px 8px 0;
+  font-size: 12px;
+  color: ${props => props.theme.colors.B100};
+`
+
 export default class Select extends PureComponent {
   static propTypes = {
+    style: PropTypes.object,
     onSelectItem: PropTypes.func,
     options: PropTypes.array,
     value: PropTypes.string,
+    valueRenderer: PropTypes.func,
     onChange: PropTypes.func,
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
@@ -43,7 +60,8 @@ export default class Select extends PureComponent {
     className: PropTypes.string,
     filterByKey: PropTypes.bool,
     optionRenderer: PropTypes.func,
-    disabled: PropTypes.bool
+    disabled: PropTypes.bool,
+    noBorder: PropTypes.bool
   }
   static defaultProps = {
     onSelectItem: _.noop,
@@ -85,27 +103,56 @@ export default class Select extends PureComponent {
         return fuzzySearch(this.props.value, option.key)
       })
       : this.props.options
-
-    // eslint-disable-next-line no-unused-vars
-    const { className, onSelectItem, disabled, ...rest } = this.props
+    const {
+      className,
+      style,
+      onSelectItem,
+      disabled,
+      value,
+      valueRenderer,
+      ...rest
+    } = this.props
     return (
-      <SelectContainer className={className} active={this.state.active}>
-        <Input
-          {...rest}
-          disabled={disabled}
-          onFocus={this.onFocus}
-          onBlur={this.onBlur}
-          onChange={this.props.onChange}
-          value={this.props.value}
-          registerRef={this.registerRef}
-          suffix={
-            disabled
-              ? null
-              : this.state.active
-                ? <Icon name='Chevron-Up' />
-                : <Icon name='Chevron-Down' onMouseDown={this.onClickChevronDown} />
-          }
-        />
+      <SelectContainer
+        style={style}
+        className={className}
+        active={this.state.active}
+      >
+        {value && valueRenderer && (
+          <ValueRendererContainer
+            disabled={disabled}
+            onClick={disabled ? null : this.onFocus}
+            onBlur={this.onBlur}
+            tabIndex='-1'
+          >
+            {valueRenderer(value)}
+            <ValueRendererSuffix>
+              {disabled
+                ? null
+                : this.state.active
+                  ? <Icon name='Chevron-Up' />
+                  : <Icon name='Chevron-Down' onMouseDown={this.onClickChevronDown} />}
+            </ValueRendererSuffix>
+          </ValueRendererContainer>
+        )}
+        {(!value || !valueRenderer) && (
+          <Input
+            {...rest}
+            disabled={disabled}
+            onFocus={this.onFocus}
+            onBlur={this.onBlur}
+            onChange={this.props.onChange}
+            value={value}
+            registerRef={this.registerRef}
+            suffix={
+              disabled
+                ? null
+                : this.state.active
+                  ? <Icon name='Chevron-Up' />
+                  : <Icon name='Chevron-Down' onMouseDown={this.onClickChevronDown} />
+            }
+          />
+        )}
         {this.state.active && filteredOption.length > 0 && (
           <OptionsContainer optionBoxHeight={this.props.optionBoxHeight}>
             {filteredOption.map(option => {

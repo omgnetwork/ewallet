@@ -1,7 +1,7 @@
-import TransactionRequestPage from '../omg-page-transaction-request'
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import TransactionRequestPage from '../omg-page-transaction-request'
 
 function AccountTransactionRequestSubPage (props) {
   return (

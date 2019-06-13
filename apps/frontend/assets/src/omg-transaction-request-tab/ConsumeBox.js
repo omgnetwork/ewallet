@@ -1,21 +1,23 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
+import queryString from 'query-string'
+import { connect } from 'react-redux'
+
 import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import QR from './QrCode'
 import { formatAmount, formatReceiveAmountToTotal } from '../utils/formatter'
 import { Select, Button, Input } from '../omg-uikit'
-import { withRouter } from 'react-router-dom'
-import { connect } from 'react-redux'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
 import { calculate } from '../omg-transaction/action'
-import queryString from 'query-string'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
 import WalletSelect from '../omg-wallet-select'
 import TokenSelect from '../omg-token-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
 import { createSearchTokenQuery } from '../omg-token/searchField'
+
 const ConsumeActionContainer = styled.form`
   display: flex;
   margin: 20px 0;
