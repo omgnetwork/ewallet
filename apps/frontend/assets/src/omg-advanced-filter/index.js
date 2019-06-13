@@ -134,8 +134,12 @@ const AdvancedFilter = ({
 
   const onRemoveFilter = (filterToRemove) => {
     const newFilters = _.filter(filters, i => i.key !== filterToRemove.key)
+    const newValues = _.omit(values, [filterToRemove.key])
     setFilters(newFilters)
-    setValues(_.omit(values, [filterToRemove.key]))
+    setValues(newValues)
+
+    onFilter(filterAdapter(newValues))
+    setInitialValues(newValues)
   }
 
   const applyFilter = () => {
