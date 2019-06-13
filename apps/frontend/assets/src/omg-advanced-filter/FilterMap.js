@@ -57,7 +57,19 @@ export const FILTER_MAP = [
     page: 'transaction',
     height: 205,
     component: filters.DateTime,
-    default: true
+    default: true,
+    matchAll: [
+      {
+        field: 'inserted_at',
+        comparator: 'gte',
+        value: '{{ startDate }}'
+      },
+      {
+        field: 'inserted_at',
+        comparator: 'lte',
+        value: '{{ endDate }}'
+      }
+    ]
   },
   {
     title: 'Status',
@@ -78,7 +90,7 @@ export const FILTER_MAP = [
     title: 'Wallet Type',
     key: 'wallet-type',
     icon: 'Option-Horizontal',
-    page: 'transaction',
+    // page: 'transaction', // wait for blockchain integration to enable
     height: 110,
     component: filters.WalletType,
     default: false,
@@ -93,7 +105,7 @@ export const FILTER_MAP = [
     title: 'Request',
     key: 'request',
     icon: 'Option-Horizontal',
-    page: 'transaction',
+    // page: 'transaction', // should be in transaction-request
     height: 110,
     component: filters.Request,
     default: false

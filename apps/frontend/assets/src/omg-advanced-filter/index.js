@@ -10,6 +10,8 @@ import { Icon, Button } from '../omg-uikit'
 import FilterPicker from './FilterPicker'
 import { FILTER_MAP } from './FilterMap'
 
+_.templateSettings.interpolate = /{{([\s\S]+?)}}/g
+
 const AdvancedFilterContainer = styled.div`
   width: 100vw;
   height: 100vh;
@@ -113,10 +115,23 @@ const AdvancedFilter = ({
 
       if (matchAll) {
         matchAll.forEach(filter => {
-          _matchAll.push({
-            ...filter,
-            value
-          })
+          if (filter.hasOwnProperty('value')) {
+            try {
+              const cleaned = JSON.parse(JSON.stringify(value))
+              const compiledValue = _.template(filter.value)(cleaned)
+              _matchAll.push({
+                ...filter,
+                value: compiledValue
+              })
+            } catch (e) {
+              // dont include the filter if the template key doesnt exist...
+            }
+          } else {
+            _matchAll.push({
+              ...filter,
+              value
+            })
+          }
         })
       }
 
