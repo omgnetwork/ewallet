@@ -304,5 +304,56 @@ export const FILTER_MAP = [
         comparator: 'contains'
       }
     ]
+  },
+  {
+    title: 'Create Date',
+    key: 'transaction-requests-create-date',
+    icon: 'Option-Horizontal',
+    page: 'transaction-requests',
+    height: 205,
+    component: filters.DateTime,
+    default: false,
+    matchAll: [
+      {
+        field: 'inserted_at',
+        comparator: 'gte',
+        value: '{{ startDate }}'
+      },
+      {
+        field: 'inserted_at',
+        comparator: 'lte',
+        value: '{{ endDate }}'
+      }
+    ]
+  },
+  {
+    title: 'Specify Accounts',
+    key: 'transaction-requests-specify-accounts',
+    icon: 'Option-Horizontal',
+    page: 'transaction-requests',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    matchAll: [
+      {
+        field: 'account.id',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Specify Requested Wallet',
+    key: 'transaction-requests-specify-requested-wallet',
+    icon: 'Option-Horizontal',
+    page: 'transaction-requests',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    matchAll: [
+      {
+        field: 'wallet.address',
+        comparator: 'contains'
+      }
+    ]
   }
 ]

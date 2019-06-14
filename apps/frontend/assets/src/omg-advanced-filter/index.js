@@ -127,12 +127,19 @@ const AdvancedFilter = ({
               //
             }
           } else {
-            value.forEach(i => {
+            if (Array.isArray(value)) {
+              value.forEach(i => {
+                _matchAll.push({
+                  ...filter,
+                  value: i
+                })
+              })
+            } else {
               _matchAll.push({
                 ...filter,
-                value: i
+                value
               })
-            })
+            }
           }
         })
       }
