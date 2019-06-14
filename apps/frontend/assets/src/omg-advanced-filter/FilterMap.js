@@ -1,13 +1,14 @@
 import filters from './filters'
 
 export const FILTER_MAP = [
+  // TRANSACTIONS PAGE --------------
   {
     title: 'Transfer From',
     key: 'transfer-from',
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 110,
-    component: filters.TransferFrom,
+    component: filters.SelectAccount,
     default: false,
     matchAll: [
       {
@@ -22,7 +23,7 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 110,
-    component: filters.TransferTo,
+    component: filters.SelectAccount,
     default: false,
     matchAll: [
       {
@@ -37,7 +38,7 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 110,
-    component: filters.SpecifyTarget,
+    component: filters.InputFilter,
     default: false,
     matchAny: [
       {
@@ -76,9 +77,23 @@ export const FILTER_MAP = [
     key: 'status',
     icon: 'Option-Horizontal',
     page: 'transaction',
-    height: 165,
-    component: filters.Status,
+    height: 166,
+    component: filters.Checkbox,
     default: true,
+    options: [
+      {
+        label: 'Confirmed',
+        value: 'confirmed'
+      },
+      {
+        label: 'Pending',
+        value: 'pending'
+      },
+      {
+        label: 'Failed',
+        value: 'failed'
+      }
+    ],
     matchAny: [
       {
         field: 'status',
@@ -92,8 +107,18 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     // page: 'transaction', // wait for blockchain integration to enable
     height: 110,
-    component: filters.WalletType,
+    component: filters.SelectFilter,
     default: false,
+    options: [
+      {
+        key: 'internal',
+        value: 'Internal'
+      },
+      {
+        key: 'external',
+        value: 'External'
+      }
+    ],
     matchAll: [
       {
         field: 'type',
@@ -107,20 +132,48 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     // page: 'transaction', // should be in transaction-request
     height: 110,
-    component: filters.Request,
+    component: filters.InputFilter,
     default: false
   },
+  // WALLETS PAGE --------------
   {
     title: 'Wallet Types',
     key: 'wallet-types',
     icon: 'Option-Horizontal',
     page: 'wallets',
-    height: 165,
-    component: filters.WalletCheckbox,
+    height: 287,
     default: true,
+    component: filters.Checkbox,
+    options: [
+      {
+        label: 'Local Wallet',
+        value: 'local'
+      },
+      {
+        label: 'Cold Wallet',
+        value: 'cold'
+      },
+      {
+        label: 'Hot Wallet',
+        value: 'hot'
+      },
+      'divider',
+      {
+        label: 'Primary Wallet',
+        value: 'primary'
+      },
+      {
+        label: 'Secondary Wallet',
+        value: 'secondary'
+      },
+      {
+        label: 'Burn Wallet',
+        value: 'burn'
+      }
+    ],
     matchAny: [
       {
-        field: 'status',
+        field: 'identifier',
         comparator: 'contains'
       }
     ]

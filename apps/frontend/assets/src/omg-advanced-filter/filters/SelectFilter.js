@@ -1,39 +1,34 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { Input } from '../../omg-uikit'
+import { Select } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
 
-const SpecifyTarget = ({
+const SelectFilter = ({
   onRemove,
   onUpdate,
   clearKey,
   values,
   config
 }) => {
-  const onChange = (e) => {
-    e.target.value
-      ? onUpdate({ [config.key]: e.target.value })
-      : clearKey(config.key)
-  }
-
   return (
     <FilterBox
       key={config.key}
       closeClick={onRemove}
     >
       <TagRow title={config.title} />
-      <Input
-        normalPlaceholder='Enter any ID or address'
-        onChange={onChange}
-        value={values[config.key] || ''}
+      <Select
+        normalPlaceholder='Select'
+        onSelectItem={e => onUpdate({ [config.key]: e.key })}
+        value={_.capitalize(values[config.key]) || ''}
+        options={config.options}
       />
     </FilterBox>
   )
 }
 
-SpecifyTarget.propTypes = {
+SelectFilter.propTypes = {
   onRemove: PropTypes.func.isRequired,
   onUpdate: PropTypes.func.isRequired,
   clearKey: PropTypes.func.isRequired,
@@ -41,4 +36,4 @@ SpecifyTarget.propTypes = {
   config: PropTypes.object
 }
 
-export default SpecifyTarget
+export default SelectFilter

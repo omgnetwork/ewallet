@@ -1,19 +1,13 @@
-import TransferFrom from './TransferFrom'
-import TransferTo from './TransferTo'
-import SpecifyTarget from './SpecifyTarget'
-import Request from './Request'
-import WalletType from './WalletType'
-import Status from './Status'
+import SelectAccount from './SelectAccount'
+import InputFilter from './InputFilter'
+import SelectFilter from './SelectFilter'
 import DateTime from './DateTime'
-import WalletCheckbox from './WalletCheckbox'
+import Checkbox from './Checkbox'
 
 export default {
-  TransferFrom,
-  TransferTo,
-  SpecifyTarget,
-  Request,
-  WalletType,
-  Status,
+  SelectAccount,
+  InputFilter,
+  SelectFilter,
   DateTime,
-  WalletCheckbox
+  Checkbox
 }

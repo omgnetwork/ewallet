@@ -51,7 +51,6 @@ const Tags = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-
   .tag {
     border-radius: 4px;
     display: flex;
@@ -89,8 +88,6 @@ const AdvancedFilter = ({
       return i.page === page && i.default
     })
     setFilters(defaultFilters)
-
-    // TODO: setInitialValues if passed in...
     setInitialValues({})
   }, [])
 
@@ -127,7 +124,7 @@ const AdvancedFilter = ({
                 value: compiledValue
               })
             } catch (e) {
-              // dont include the filter if the template key doesnt exist...
+              //
             }
           } else {
             _matchAll.push({
@@ -232,11 +229,13 @@ const AdvancedFilter = ({
               willEnter={() => ({ height: 0 })}
               willLeave={() => ({ height: spring(0, springConfig) })}
               styles={
-                filters.map(filter => ({
-                  key: filter.key,
-                  data: filter,
-                  style: { height: spring(filter.height + 10, springConfig) }
-                }))
+                filters.map(filter => {
+                  return {
+                    key: filter.key,
+                    data: filter,
+                    style: { height: spring(filter.height + 10, springConfig) }
+                  }
+                })
               }
             >
               {interpolated => (

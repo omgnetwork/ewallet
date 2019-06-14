@@ -8,7 +8,7 @@ import { Select } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
 
-const TransferTo = ({
+const SelectAccount = ({
   onRemove,
   onUpdate,
   clearKey,
@@ -50,7 +50,7 @@ const TransferTo = ({
   )
 }
 
-TransferTo.propTypes = {
+SelectAccount.propTypes = {
   onRemove: PropTypes.func.isRequired,
   onUpdate: PropTypes.func.isRequired,
   clearKey: PropTypes.func.isRequired,
@@ -58,4 +58,4 @@ TransferTo.propTypes = {
   config: PropTypes.object
 }
 
-export default TransferTo
+export default SelectAccount

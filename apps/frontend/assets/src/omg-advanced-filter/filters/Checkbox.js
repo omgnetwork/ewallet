@@ -17,8 +17,13 @@ const CheckboxGroup = styled.div`
     }
   }
 `
+const Divider = styled.div`
+  width: 100%;
+  background-color: ${props => props.theme.colors.S100};
+  height: 2px;
+`
 
-const Status = ({
+const _Checkbox = ({
   onRemove,
   onUpdate,
   clearKey,
@@ -48,27 +53,25 @@ const Status = ({
     >
       <TagRow title={config.title} />
       <CheckboxGroup>
-        <Checkbox
-          label='Confirmed'
-          onClick={() => toggle('confirmed')}
-          checked={values[config.key] && values[config.key].includes('confirmed')}
-        />
-        <Checkbox
-          label='Pending'
-          onClick={() => toggle('pending')}
-          checked={values[config.key] && values[config.key].includes('pending')}
-        />
-        <Checkbox
-          label='Failed'
-          onClick={() => toggle('failed')}
-          checked={values[config.key] && values[config.key].includes('failed')}
-        />
+        {config.options.map((option, index) => {
+          if (option === 'divider') {
+            return <Divider />
+          }
+          return (
+            <Checkbox
+              key={index}
+              label={option.label}
+              onClick={() => toggle(option.value)}
+              checked={values[config.key] && values[config.key].includes(option.value)}
+            />
+          )
+        })}
       </CheckboxGroup>
     </FilterBox>
   )
 }
 
-Status.propTypes = {
+_Checkbox.propTypes = {
   onRemove: PropTypes.func.isRequired,
   onUpdate: PropTypes.func.isRequired,
   values: PropTypes.object,
@@ -76,4 +79,4 @@ Status.propTypes = {
   config: PropTypes.object
 }
 
-export default Status
+export default _Checkbox
