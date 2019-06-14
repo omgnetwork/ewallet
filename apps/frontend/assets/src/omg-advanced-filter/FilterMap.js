@@ -4,7 +4,7 @@ export const FILTER_MAP = [
   // TRANSACTIONS PAGE --------------
   {
     title: 'Transfer From',
-    key: 'transfer-from',
+    key: 'transaction-transfer-from',
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 110,
@@ -19,7 +19,7 @@ export const FILTER_MAP = [
   },
   {
     title: 'Transfer To',
-    key: 'transfer-to',
+    key: 'transaction-transfer-to',
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 110,
@@ -34,7 +34,7 @@ export const FILTER_MAP = [
   },
   {
     title: 'Specify Target',
-    key: 'specify-target',
+    key: 'transaction-specify-target',
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 110,
@@ -53,7 +53,7 @@ export const FILTER_MAP = [
   },
   {
     title: 'Date & Time',
-    key: 'date-time',
+    key: 'transaction-date-time',
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 205,
@@ -74,7 +74,7 @@ export const FILTER_MAP = [
   },
   {
     title: 'Status',
-    key: 'status',
+    key: 'transaction-status',
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 166,
@@ -103,9 +103,9 @@ export const FILTER_MAP = [
   },
   {
     title: 'Wallet Type',
-    key: 'wallet-type',
+    key: 'transaction-wallet-type',
     icon: 'Option-Horizontal',
-    // page: 'transaction', // wait for blockchain integration to enable
+    // page: 'transaction',
     height: 110,
     component: filters.SelectFilter,
     default: false,
@@ -128,9 +128,9 @@ export const FILTER_MAP = [
   },
   {
     title: 'Request',
-    key: 'request',
+    key: 'transaction-request',
     icon: 'Option-Horizontal',
-    // page: 'transaction', // should be in transaction-request
+    // page: 'transaction',
     height: 110,
     component: filters.InputFilter,
     default: false
@@ -138,7 +138,7 @@ export const FILTER_MAP = [
   // WALLETS PAGE --------------
   {
     title: 'Wallet Types',
-    key: 'wallet-types',
+    key: 'wallets-wallet-types',
     icon: 'Option-Horizontal',
     page: 'wallets',
     height: 287,
@@ -180,7 +180,7 @@ export const FILTER_MAP = [
   },
   {
     title: 'Create Date',
-    key: 'create-date',
+    key: 'wallets-create-date',
     icon: 'Option-Horizontal',
     page: 'wallets',
     height: 205,
@@ -201,7 +201,7 @@ export const FILTER_MAP = [
   },
   {
     title: 'Specify Accounts',
-    key: 'specify-accounts',
+    key: 'wallets-specify-accounts',
     icon: 'Option-Horizontal',
     page: 'wallets',
     height: 110,
@@ -216,7 +216,7 @@ export const FILTER_MAP = [
   },
   {
     title: 'Specify Users',
-    key: 'specify-users',
+    key: 'wallets-specify-users',
     icon: 'Option-Horizontal',
     page: 'wallets',
     height: 110,
@@ -225,6 +225,82 @@ export const FILTER_MAP = [
     matchAll: [
       {
         field: 'user.id',
+        comparator: 'contains'
+      }
+    ]
+  },
+  // TRANSACTION REQUESTS PAGE --------------
+  {
+    title: 'Request Type',
+    key: 'transaction-requests-request-type',
+    icon: 'Option-Horizontal',
+    page: 'transaction-requests',
+    height: 136,
+    component: filters.RadioCheckbox,
+    default: true,
+    options: [
+      {
+        label: 'Send',
+        value: 'send'
+      },
+      {
+        label: 'Received',
+        value: 'receive'
+      }
+    ],
+    matchAll: [
+      {
+        field: 'type',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Confirmation Type',
+    key: 'transaction-requests-confirmation-type',
+    icon: 'Option-Horizontal',
+    page: 'transaction-requests',
+    height: 136,
+    component: filters.RadioCheckbox,
+    default: true,
+    options: [
+      {
+        label: 'Yes',
+        value: true
+      },
+      {
+        label: 'No',
+        value: false
+      }
+    ],
+    matchAll: [
+      {
+        field: 'require_confirmation',
+        comparator: 'eq'
+      }
+    ]
+  },
+  {
+    title: 'Status',
+    key: 'transaction-requests-status',
+    icon: 'Option-Horizontal',
+    page: 'transaction-requests',
+    height: 136,
+    component: filters.RadioCheckbox,
+    default: true,
+    options: [
+      {
+        label: 'Valid',
+        value: 'valid'
+      },
+      {
+        label: 'Expired',
+        value: 'expired'
+      }
+    ],
+    matchAll: [
+      {
+        field: 'status',
         comparator: 'contains'
       }
     ]

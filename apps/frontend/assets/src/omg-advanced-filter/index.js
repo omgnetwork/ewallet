@@ -127,9 +127,11 @@ const AdvancedFilter = ({
               //
             }
           } else {
-            _matchAll.push({
-              ...filter,
-              value
+            value.forEach(i => {
+              _matchAll.push({
+                ...filter,
+                value: i
+              })
             })
           }
         })
@@ -201,9 +203,10 @@ const AdvancedFilter = ({
               value = `${values[i]}`.replace(/,/g, ', ')
             }
 
+            const configFilter = _.find(FILTER_MAP, ['key', i])
             return (
               <div className='tag' key={i}>
-                {`${i} - ${value}`}
+                {`${configFilter.title} - ${value}`}
                 <Icon
                   name='Close'
                   onClick={() => removeAndApply(i)}
@@ -295,7 +298,7 @@ AdvancedFilter.propTypes = {
   open: PropTypes.bool.isRequired,
   onRequestClose: PropTypes.func.isRequired,
   onFilter: PropTypes.func.isRequired,
-  page: PropTypes.oneOf(['transaction', 'wallets']),
+  page: PropTypes.string,
   title: PropTypes.string.isRequired,
   location: PropTypes.object,
   history: PropTypes.object,

@@ -86,7 +86,7 @@ const FilterPicker = ({
 }
 
 FilterPicker.propTypes = {
-  page: PropTypes.oneOf(['transaction', 'wallets']),
+  page: PropTypes.string,
   open: PropTypes.bool,
   onClickButton: PropTypes.func.isRequired,
   onSelect: PropTypes.func.isRequired,

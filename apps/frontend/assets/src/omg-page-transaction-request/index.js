@@ -12,6 +12,7 @@ import CreateTransactionRequestModal from '../omg-create-transaction-request-mod
 import ExportModal from '../omg-export-modal'
 import TransactionRequestsFetcher from '../omg-transaction-request/transactionRequestsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
+import AdvancedFilter from '../omg-advanced-filter'
 
 const TransactionRequestsPageContainer = styled.div`
   position: relative;
@@ -96,7 +97,10 @@ class TransactionRequestsPage extends Component {
     this.state = {
       createTransactionRequestModalOpen:
         queryString.parse(this.props.location.search).createRequest || false,
-      exportModalOpen: false
+      exportModalOpen: false,
+      advancedFilterModalOpen: false,
+      matchAll: [],
+      matchAny: []
     }
     this.columns = [
       { key: 'id', title: 'REQUEST ID', sort: true },
@@ -113,6 +117,18 @@ class TransactionRequestsPage extends Component {
   }
   onRequestClose = () => {
     this.setState({ createTransactionRequestModalOpen: false })
+  }
+  renderAdvancedFilterButton = () => {
+    return (
+      <Button
+        key='filter'
+        size='small'
+        styleType='secondary'
+        onClick={() => this.setState({ advancedFilterModalOpen: true })}
+      >
+        <Icon name='Filter' /><span>Filter</span>
+      </Button>
+    )
   }
   renderCreateTransactionRequestButton = () => {
     return (
@@ -205,11 +221,19 @@ class TransactionRequestsPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Transaction Requests'}
-          buttons={
+          buttons={[
+            this.renderAdvancedFilterButton(),
             this.props.createTransactionRequestButton
-              ? [this.renderCreateTransactionRequestButton()]
+              ? this.renderCreateTransactionRequestButton()
               : null
-          }
+          ]}
+        />
+        <AdvancedFilter
+          title='Filter Transaction Request'
+          page='transaction-requests'
+          open={this.state.advancedFilterModalOpen}
+          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
+          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
         />
         <SortableTableContainer
           ref={table => (this.table = table)}
@@ -247,6 +271,8 @@ class TransactionRequestsPage extends Component {
           page: queryString.parse(this.props.location.search).page,
           perPage: 10,
           search: queryString.parse(this.props.location.search).search,
+          matchAll: this.state.matchAll,
+          matchAny: this.state.matchAny,
           ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
