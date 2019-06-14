@@ -55,7 +55,7 @@ const _Checkbox = ({
       <CheckboxGroup>
         {config.options.map((option, index) => {
           if (option === 'divider') {
-            return <Divider />
+            return <Divider key={index} />
           }
           return (
             <Checkbox

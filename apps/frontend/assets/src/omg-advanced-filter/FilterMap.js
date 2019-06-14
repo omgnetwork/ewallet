@@ -177,5 +177,56 @@ export const FILTER_MAP = [
         comparator: 'contains'
       }
     ]
+  },
+  {
+    title: 'Create Date',
+    key: 'create-date',
+    icon: 'Option-Horizontal',
+    page: 'wallets',
+    height: 205,
+    component: filters.DateTime,
+    default: false,
+    matchAll: [
+      {
+        field: 'inserted_at',
+        comparator: 'gte',
+        value: '{{ startDate }}'
+      },
+      {
+        field: 'inserted_at',
+        comparator: 'lte',
+        value: '{{ endDate }}'
+      }
+    ]
+  },
+  {
+    title: 'Specify Accounts',
+    key: 'specify-accounts',
+    icon: 'Option-Horizontal',
+    page: 'wallets',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    matchAll: [
+      {
+        field: 'account.id',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Specify Users',
+    key: 'specify-users',
+    icon: 'Option-Horizontal',
+    page: 'wallets',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    matchAll: [
+      {
+        field: 'user.id',
+        comparator: 'contains'
+      }
+    ]
   }
 ]
