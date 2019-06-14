@@ -2097,6 +2097,205 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
+    test_with_auths "successful approve when the transaction request was expired after consumption", context do
+      mint!(context.token)
+
+      # Create a require_confirmation transaction request that will be consumed soon
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          wallet: context.account_wallet,
+          amount: nil,
+          require_confirmation: true
+        )
+
+      request_topic = "transaction_request:#{transaction_request.id}"
+
+      # Start listening to the channels for the transaction request created above
+      Endpoint.subscribe(request_topic)
+
+      # Making the consumption, since we made the request require_confirmation, it will
+      # create a pending consumption that will need to be confirmed
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * context.token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          provider_user_id: context.bob.provider_user_id
+        })
+
+      consumption_id = response["data"]["id"]
+      assert response["success"]
+      assert response["data"]["status"] == TransactionConsumption.pending()
+      assert response["data"]["transaction_id"] == nil
+
+      # Retrieve what just got inserted
+      inserted_consumption = TransactionConsumption.get(response["data"]["id"])
+
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_request",
+        topic: "transaction_request:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # Expire the transaction request
+      assert {:ok, expired_transaction_request} = TransactionRequest.expire(transaction_request, %System{})
+
+      assert expired_transaction_request.id == transaction_request.id
+      assert expired_transaction_request.status == TransactionRequest.expired()
+      assert expired_transaction_request.expiration_reason == "expired_transaction_request"
+
+      # We need to know once the consumption has been approved, so let's
+      # listen to the channel for it
+      Endpoint.subscribe("transaction_consumption:#{consumption_id}")
+
+      # Confirm the consumption
+      response =
+        request("/transaction_consumption.approve", %{
+          id: consumption_id
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["status"] == TransactionConsumption.confirmed()
+      assert response["data"]["approved_at"] != nil
+      assert response["data"]["confirmed_at"] != nil
+
+      # Check that a transaction was inserted
+      inserted_transaction = Repo.get_by(Transaction, id: response["data"]["transaction_id"])
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
+      assert inserted_transaction.to_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == context.token.uuid
+      assert inserted_transaction.to == context.bob_wallet.address
+      assert inserted_transaction.from == context.account_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
+
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_finalized",
+        topic: "transaction_consumption:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # Unsubscribe from all channels
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
+    end
+
+    test_with_auths "successful approve when the transaction request's max_consumptions was reached after consumption", context do
+      mint!(context.token)
+
+      # Create a require_confirmation transaction request that will be consumed soon
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          wallet: context.account_wallet,
+          amount: nil,
+          require_confirmation: true
+        )
+
+      request_topic = "transaction_request:#{transaction_request.id}"
+
+      # Start listening to the channels for the transaction request created above
+      Endpoint.subscribe(request_topic)
+
+      # Making the consumption, since we made the request require_confirmation, it will
+      # create a pending consumption that will need to be confirmed
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * context.token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          provider_user_id: context.bob.provider_user_id
+        })
+
+      consumption_id = response["data"]["id"]
+      assert response["success"]
+      assert response["data"]["status"] == TransactionConsumption.pending()
+      assert response["data"]["transaction_id"] == nil
+
+      # Retrieve what just got inserted
+      inserted_consumption = TransactionConsumption.get(response["data"]["id"])
+
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_request",
+        topic: "transaction_request:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # Expire the transaction request
+      assert {:ok, expired_transaction_request} = TransactionRequest.expire(transaction_request, %System{}, "max_consumptions_reached")
+
+      assert expired_transaction_request.id == transaction_request.id
+      assert expired_transaction_request.status == TransactionRequest.expired()
+      assert expired_transaction_request.expiration_reason == "max_consumptions_reached"
+
+      # We need to know once the consumption has been approved, so let's
+      # listen to the channel for it
+      Endpoint.subscribe("transaction_consumption:#{consumption_id}")
+
+      # Confirm the consumption
+      response =
+        request("/transaction_consumption.approve", %{
+          id: consumption_id
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["status"] == TransactionConsumption.confirmed()
+      assert response["data"]["approved_at"] != nil
+      assert response["data"]["confirmed_at"] != nil
+
+      # Check that a transaction was inserted
+      inserted_transaction = Repo.get_by(Transaction, id: response["data"]["transaction_id"])
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
+      assert inserted_transaction.to_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == context.token.uuid
+      assert inserted_transaction.to == context.bob_wallet.address
+      assert inserted_transaction.from == context.account_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
+
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_finalized",
+        topic: "transaction_consumption:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # Unsubscribe from all channels
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
+    end
+
+
     test_with_auths "sends socket confirmation when require_confirmation and approved between users",
                     context do
       # bob = test_user
