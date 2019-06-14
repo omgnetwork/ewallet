@@ -296,7 +296,7 @@ AdvancedFilter.propTypes = {
   open: PropTypes.bool.isRequired,
   onRequestClose: PropTypes.func.isRequired,
   onFilter: PropTypes.func.isRequired,
-  page: PropTypes.oneOf(['transaction']),
+  page: PropTypes.oneOf(['transaction', 'wallets']),
   title: PropTypes.string.isRequired,
   location: PropTypes.object,
   history: PropTypes.object,

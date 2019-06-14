@@ -36,14 +36,6 @@ class TransactionPage extends Component {
     matchAny: []
   }
 
-  onClickAdvancedFilter = () => {
-    this.setState({ advancedFilterModalOpen: true })
-  }
-
-  onRequestCloseAdvancedFilter = () => {
-    this.setState({ advancedFilterModalOpen: false })
-  }
-
   onClickExport = e => {
     this.props.history.push('/transaction/export')
   }
@@ -67,15 +59,11 @@ class TransactionPage extends Component {
         key='filter'
         size='small'
         styleType='secondary'
-        onClick={this.onClickAdvancedFilter}
+        onClick={() => this.setState({ advancedFilterModalOpen: true })}
       >
         <Icon name='Filter' /><span>Filter</span>
       </Button>
     )
-  }
-
-  onFilter = ({ matchAll, matchAny }) => {
-    this.setState({ matchAll, matchAny })
   }
 
   renderTransactionPage = ({
@@ -99,11 +87,11 @@ class TransactionPage extends Component {
         )}
 
         <AdvancedFilter
-          title='Filter Transaction'
+          title='Filter Transactions'
           page='transaction'
           open={this.state.advancedFilterModalOpen}
-          onRequestClose={this.onRequestCloseAdvancedFilter}
-          onFilter={(query) => this.onFilter(query, fetch)}
+          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
+          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
         />
 
         <TransactionTable

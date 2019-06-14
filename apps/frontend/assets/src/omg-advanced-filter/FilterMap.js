@@ -109,5 +109,20 @@ export const FILTER_MAP = [
     height: 110,
     component: filters.Request,
     default: false
+  },
+  {
+    title: 'Wallet Types',
+    key: 'wallet-types',
+    icon: 'Option-Horizontal',
+    page: 'wallets',
+    height: 165,
+    component: filters.WalletCheckbox,
+    default: true,
+    matchAny: [
+      {
+        field: 'status',
+        comparator: 'contains'
+      }
+    ]
   }
 ]

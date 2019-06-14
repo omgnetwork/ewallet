@@ -12,6 +12,8 @@ import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import CreateWalletModal from '../omg-create-wallet-modal'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import { walletColumsKeys } from './constants'
+import AdvancedFilter from '../omg-advanced-filter'
+
 const WalletPageContainer = styled.div`
   position: relative;
   flex-direction: column;
@@ -71,7 +73,23 @@ class WalletPage extends Component {
   }
 
   state = {
-    createWalletModalOpen: false
+    createWalletModalOpen: false,
+    advancedFilterModalOpen: false,
+    matchAll: [],
+    matchAny: []
+  }
+
+  renderAdvancedFilterButton = () => {
+    return (
+      <Button
+        key='filter'
+        size='small'
+        styleType='secondary'
+        onClick={() => this.setState({ advancedFilterModalOpen: true })}
+      >
+        <Icon name='Filter' /><span>Filter</span>
+      </Button>
+    )
   }
 
   onClickTransfer = () => {
@@ -119,12 +137,22 @@ class WalletPage extends Component {
           divider={this.props.divider}
           title={this.props.title}
           buttons={[
+            this.renderAdvancedFilterButton(),
             this.props.transferButton && (
               <CreateTransactionButton key='transfer' />
             ),
             isAccountWalletsPage && accountId && this.renderCreateWalletButton()
           ]}
         />
+
+        <AdvancedFilter
+          title='Filter Wallets'
+          page='wallets'
+          open={this.state.advancedFilterModalOpen}
+          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
+          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
+        />
+
         <SortableTableContainer>
           <SortableTable
             rows={wallets.map(wallet => ({ id: wallet.address, ...wallet }))}
@@ -158,6 +186,8 @@ class WalletPage extends Component {
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 75),
           search: queryString.parse(this.props.location.search).search,
+          matchAll: this.state.matchAll,
+          matchAny: this.state.matchAny,
           ...this.props.walletQuery
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

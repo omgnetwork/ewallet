@@ -5,6 +5,7 @@ import Request from './Request'
 import WalletType from './WalletType'
 import Status from './Status'
 import DateTime from './DateTime'
+import WalletCheckbox from './WalletCheckbox'
 
 export default {
   TransferFrom,
@@ -13,5 +14,6 @@ export default {
   Request,
   WalletType,
   Status,
-  DateTime
+  DateTime,
+  WalletCheckbox
 }
