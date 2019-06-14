@@ -191,7 +191,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
         insert(
           :transaction_request,
           status: TransactionConsumption.expired(),
-          expiration_reason: "max_consumptions_reached",
+          expiration_reason: TransactionRequest.max_consumptions_reached(),
           account_uuid: nil,
           user_uuid: user.uuid,
           wallet: wallet
@@ -218,8 +218,8 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       request =
         insert(
           :transaction_request,
-          status: TransactionConsumption.cancelled(),
-          expiration_reason: nil,
+          status: TransactionRequest.expired(),
+          expiration_reason: TransactionRequest.cancelled_transaction_request(),
           account_uuid: nil,
           user_uuid: user.uuid,
           wallet: wallet

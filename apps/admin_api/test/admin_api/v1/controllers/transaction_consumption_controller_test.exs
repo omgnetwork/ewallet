@@ -21,6 +21,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     Repo,
     Token,
     Transaction,
+    TransactionRequest,
     TransactionConsumption,
     User,
     Wallet
@@ -1812,7 +1813,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           user_uuid: context.alice.uuid,
           wallet: context.alice_wallet,
           amount: 100_000 * context.token.subunit_to_unit,
-          status: TransactionConsumption.cancelled()
+          status: TransactionRequest.expired(),
+          expiration_reason: TransactionRequest.cancelled_transaction_request()
         )
 
       response =
@@ -1829,7 +1831,6 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       refute response["success"]
       assert response["data"]["code"] == "transaction_request:cancelled"
-
       assert response["data"]["description"] ==
                "The specified transaction request has been cancelled."
     end

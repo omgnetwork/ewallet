@@ -1256,7 +1256,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
       request = TransactionRequest.get(request.id)
       assert request.status == "expired"
-      assert request.expiration_reason == "max_consumptions_reached"
+      assert request.expiration_reason == TransactionRequest.max_consumptions_reached()
     end
 
     # require_confirmation + max consumptions?

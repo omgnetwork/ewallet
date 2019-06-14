@@ -68,7 +68,6 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "expiration_date" => nil,
                  "expiration_reason" => nil,
                  "expired_at" => nil,
-                 "cancelled_at" => nil,
                  "max_consumptions" => 3,
                  "max_consumptions_per_user" => 1,
                  "max_consumptions_per_interval" => nil,
@@ -115,7 +114,6 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "expiration_date" => nil,
                  "expiration_reason" => nil,
                  "expired_at" => nil,
-                 "cancelled_at" => nil,
                  "max_consumptions" => nil,
                  "max_consumptions_per_user" => nil,
                  "max_consumptions_per_interval" => nil,
@@ -173,7 +171,6 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "expiration_date" => nil,
                  "expiration_reason" => nil,
                  "expired_at" => nil,
-                 "cancelled_at" => nil,
                  "max_consumptions" => nil,
                  "max_consumptions_per_user" => nil,
                  "max_consumptions_per_interval" => nil,
@@ -364,16 +361,16 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
       # Assert the transaction request is valid
       assert response["success"] == true
       assert response["data"]["id"] == transaction_request.id
-      assert response["data"]["cancelled_at"] != nil
-      assert response["data"]["status"] == TransactionRequest.cancelled()
+      assert response["data"]["status"] == TransactionRequest.expired()
 
       # Assert there's 1 activity log has been inserted.
       assert [log] = get_all_activity_logs_since(before_execution)
 
       # Assert changes
       assert log.target_changes == %{
-               "status" => TransactionRequest.cancelled(),
-               "cancelled_at" => response["data"]["cancelled_at"]
+               "status" => TransactionRequest.expired(),
+               "expiration_reason" => TransactionRequest.cancelled_transaction_request(),
+               "expired_at" => log.target_changes["expired_at"]
              }
     end
 

@@ -93,7 +93,7 @@ defmodule EWalletDB.TransactionRequestTest do
 
       assert TransactionRequest.expired?(t) == true
       assert t.expired_at != nil
-      assert t.expiration_reason == "expired_transaction_request"
+      assert t.expiration_reason == TransactionRequest.expired_transaction_request()
     end
   end
 
@@ -219,12 +219,12 @@ defmodule EWalletDB.TransactionRequestTest do
   describe "cancelled?/1" do
     test "returns true if cancelled" do
       request = insert(:transaction_request)
-      assert TransactionRequest.cancelled?(request) == false
+      assert TransactionRequest.expired?(request) == false
     end
 
     test "returns false if cancelled" do
-      request = insert(:transaction_request, status: TransactionRequest.cancelled())
-      assert TransactionRequest.cancelled?(request) == true
+      request = insert(:transaction_request, status: TransactionRequest.expired())
+      assert TransactionRequest.expired?(request) == true
     end
   end
 
@@ -356,7 +356,7 @@ defmodule EWalletDB.TransactionRequestTest do
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert updated_request.expired_at != nil
-      assert updated_request.expiration_reason == "max_consumptions_reached"
+      assert updated_request.expiration_reason == TransactionRequest.max_consumptions_reached()
       assert TransactionRequest.valid?(updated_request) == false
       assert TransactionRequest.expired?(updated_request) == true
     end
@@ -365,27 +365,12 @@ defmodule EWalletDB.TransactionRequestTest do
   describe "cancel" do
     test "cancels the request" do
       t = insert(:transaction_request)
-      assert TransactionRequest.cancelled?(t) == false
+      assert TransactionRequest.expired?(t) == false
 
       TransactionRequest.cancel(t, %System{})
 
       t = TransactionRequest.get(t.id)
-      assert TransactionRequest.cancelled?(t) == true
-      assert t.cancelled_at != nil
-    end
-  end
-
-  describe "get_cancelled_error" do
-    test "receives :cancelled_transaction_request if the transaction request status is cancelled" do
-      assert :transaction_request
-             |> insert(status: TransactionRequest.cancelled())
-             |> TransactionRequest.get_cancelled_error() == :cancelled_transaction_request
-    end
-
-    test "receives nil if the transaction request status is not cancelled" do
-      assert :transaction_request
-             |> insert()
-             |> TransactionRequest.get_cancelled_error() == nil
+      assert TransactionRequest.expired?(t) == true
     end
   end
 end
