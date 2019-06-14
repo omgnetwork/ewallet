@@ -212,7 +212,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       assert res.status == "pending"
     end
 
-    test "returns an expired error when the expiration reason is `max_consumptions_reached`" do
+    test "returns error when the expiration reason is `max_consumptions_reached`" do
       {:ok, user} = :user |> params_for() |> User.insert()
       wallet = User.get_primary_wallet(user)
 

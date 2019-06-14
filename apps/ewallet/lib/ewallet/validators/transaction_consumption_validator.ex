@@ -146,11 +146,11 @@ defmodule EWallet.TransactionConsumptionValidator do
       true ->
         :ok
 
-      :cancelled_transaction_request ->
-        :ok
+      :max_consumptions_reached ->
+        {:error, :max_consumptions_reached}
 
       expiration_reason when not is_nil(expiration_reason) and is_atom(expiration_reason) ->
-        {:error, expiration_reason}
+        :ok
 
       _ ->
         {:error, :unknown_error}
