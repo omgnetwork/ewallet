@@ -35,12 +35,18 @@ defmodule EWalletDB.TransactionRequest do
 
   @valid "valid"
   @expired "expired"
-  @cancelled "cancelled"
-  @statuses [@valid, @expired, @cancelled]
+  @statuses [@valid, @expired]
 
   def valid, do: @valid
   def expired, do: @expired
-  def cancelled, do: @cancelled
+
+  @max_consumptions_reached "max_consumptions_reached"
+  @cancelled_transaction_request "cancelled_transaction_request"
+  @expired_transaction_request "expired_transaction_request"
+
+  def max_consumptions_reached, do: @max_consumptions_reached
+  def cancelled_transaction_request, do: @cancelled_transaction_request
+  def expired_transaction_request, do: @expired_transaction_request
 
   @send "send"
   @receive "receive"
@@ -71,7 +77,6 @@ defmodule EWalletDB.TransactionRequest do
     field(:consumption_lifetime, :integer)
     field(:expiration_date, :naive_datetime_usec)
     field(:expired_at, :naive_datetime_usec)
-    field(:cancelled_at, :naive_datetime_usec)
     field(:expiration_reason, :string)
     field(:allow_amount_override, :boolean, default: true)
     field(:metadata, :map, default: %{})
@@ -202,16 +207,6 @@ defmodule EWalletDB.TransactionRequest do
     |> validate_inclusion(:status, @statuses)
   end
 
-  defp cancel_changeset(%TransactionRequest{} = transaction_request, attrs) do
-    transaction_request
-    |> cast_and_validate_required_for_activity_log(
-      attrs,
-      cast: [:status, :cancelled_at],
-      required: [:status, :cancelled_at]
-    )
-    |> validate_inclusion(:status, @statuses)
-  end
-
   defp touch_changeset(%TransactionRequest{} = transaction_request, attrs) do
     transaction_request
     |> cast_and_validate_required_for_activity_log(
@@ -301,7 +296,7 @@ defmodule EWalletDB.TransactionRequest do
       set: [
         status: @expired,
         expired_at: NaiveDateTime.utc_now(),
-        expiration_reason: "expired_transaction_request"
+        expiration_reason: @expired_transaction_request
       ]
     )
   end
@@ -364,19 +359,6 @@ defmodule EWalletDB.TransactionRequest do
     request.status == @expired
   end
 
-  @spec cancelled?(%TransactionRequest{}) :: true | false
-  def cancelled?(request) do
-    request.status == @cancelled
-  end
-
-  @spec get_cancelled_error(%TransactionRequest{}) :: :cancelled_transaction_request | nil
-  def get_cancelled_error(request) do
-    case cancelled?(request) do
-      true -> :cancelled_transaction_request
-      false -> nil
-    end
-  end
-
   @spec expiration_from_lifetime(%TransactionRequest{}) :: NaiveDateTime.t() | nil
   def expiration_from_lifetime(request) do
     lifetime? =
@@ -398,7 +380,7 @@ defmodule EWalletDB.TransactionRequest do
   """
   @spec expire(%TransactionRequest{}, map(), String.t()) ::
           {:ok, %TransactionRequest{}} | {:error, map()}
-  def expire(request, originator, reason \\ "expired_transaction_request") do
+  def expire(request, originator, reason \\ @expired_transaction_request) do
     request
     |> expire_changeset(%{
       status: @expired,
@@ -437,7 +419,7 @@ defmodule EWalletDB.TransactionRequest do
     request = Map.delete(request, :originator)
 
     case max_consumptions_reached?(request, consumptions) do
-      true -> expire(request, originator, "max_consumptions_reached")
+      true -> expire(request, originator, @max_consumptions_reached)
       false -> touch(request, originator)
     end
   end
@@ -446,13 +428,7 @@ defmodule EWalletDB.TransactionRequest do
           {:ok, %TransactionRequest{}}
           | {:error, map()}
   def cancel(request, originator) do
-    request
-    |> cancel_changeset(%{
-      status: @cancelled,
-      cancelled_at: NaiveDateTime.utc_now(),
-      originator: originator
-    })
-    |> Repo.update_record_with_activity_log()
+    expire(request, originator, @cancelled_transaction_request)
   end
 
   @spec load_consumptions_count(%TransactionRequest{}, map()) :: Integer.t()

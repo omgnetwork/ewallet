@@ -73,7 +73,6 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       metadata: transaction_request.metadata || %{},
       encrypted_metadata: transaction_request.encrypted_metadata || %{},
       expiration_date: DateFormatter.to_iso8601(transaction_request.expiration_date),
-      cancelled_at: DateFormatter.to_iso8601(transaction_request.cancelled_at),
       expired_at: DateFormatter.to_iso8601(transaction_request.expired_at),
       created_at: DateFormatter.to_iso8601(transaction_request.inserted_at),
       updated_at: DateFormatter.to_iso8601(transaction_request.updated_at)
