@@ -1831,6 +1831,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       refute response["success"]
       assert response["data"]["code"] == "transaction_request:cancelled"
+
       assert response["data"]["description"] ==
                "The specified transaction request has been cancelled."
     end
