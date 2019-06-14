@@ -118,6 +118,13 @@ defmodule EWallet.TransactionConsumptionValidator do
   end
 
   defp validate_transaction_request(request, operation) do
+<<<<<<< HEAD
+=======
+    expiration_reason =
+      request.expiration_reason &&
+        String.to_existing_atom(request.expiration_reason)
+
+>>>>>>> f0844ca37... :hammer: Refactor handling `expiration_reason`
     request
     |> TransactionRequest.valid?()
     |> Kernel.||(TransactionRequest.get_expiration_reason(request))
