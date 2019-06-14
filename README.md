@@ -93,7 +93,7 @@ All documentations can found in the [docs](docs/) directory. It is recommended t
 
 ### API documentation
 
-OmiseGO eWallet Server is meant to be run by the provider, and thus API documentation is available in the OmiseGO eWallet Server itself rather than as an online documentation. You may be the API documentation at the following location in OmiseGO eWallet Server setup.
+OmiseGO eWallet Server is meant to be run by the provider, and thus API documentation is available in the OmiseGO eWallet Server itself rather than as online documentation. You may review the API documentation at the following locations in the OmiseGO eWallet Server setup.
 
 -   `/api/admin/docs.ui` for Admin API, used by server apps to manage tokens, accounts, transactions, global settings, etc.
 -   `/api/client/docs.ui` for Client API, used by client apps to create transaction on behalf of user, user's settings, etc.
@@ -111,7 +111,7 @@ These are SDKs for integrating with the OmiseGO eWallet Server. For example, to 
 -   [iOS SDK](https://github.com/omisego/ios-sdk) ([Sample App](https://github.com/omisego/sample-ios))
 -   [Android SDK](https://github.com/omisego/android-sdk) ([Sample App](https://github.com/omisego/sample-android))
 
-It is also possible to run OmiseGO eWallet Server in a standalone mode without needing to integrate into existing system. These apps demonstrate the capabilities of the OmiseGO eWallet Server as a physical Point-of-Sale server and client.
+It is also possible to run OmiseGO eWallet Server in a standalone mode without needing to integrate into an existing system. These apps demonstrate the capabilities of the OmiseGO eWallet Server as a physical Point-of-Sale server and client.
 
 -   [iOS PoS for Merchant](https://github.com/omisego/pos-merchant-ios)
 -   [iOS PoS for Customer](https://github.com/omisego/pos-client-ios)
@@ -120,14 +120,14 @@ It is also possible to run OmiseGO eWallet Server in a standalone mode without n
 
 ### Community Efforts
 
-We are thankful to our community for creating and maintaining these wonderful work that we otherwise could not have done ourselves. If you have ported any part of the OmiseGO eWallet Server to another platform, we will be happy to list them here. [Submit us a pull request](https://github.com/omisego/ewallet/pulls).
+We are thankful to our community for creating and maintaining these wonderful works that we otherwise could not have done ourselves. If you have ported any part of the OmiseGO eWallet Server to another platform, we will be happy to list them here. [Submit us a pull request](https://github.com/omisego/ewallet/pulls).
 
 -   [Alainy/OmiseGo-Go-SDK](https://github.com/Alainy/OmiseGo-Go-SDK) (Golang)
 -   [block-base/ewallet-js](https://github.com/block-base/ewallet-js) (JavaScript)
 
 ## Contributing
 
-Contributing to the OmiseGO eWallet Server can be contributions to the code base, bug reports, feature suggestions or any sorts of feedbacks. Please learn more from our [contributing guide](.github/CONTRIBUTING.md).
+Contributing to the OmiseGO eWallet Server can be contributions to the code base, bug reports, feature suggestions or any sort of feedback. Please learn more from our [contributing guide](.github/CONTRIBUTING.md).
 
 ## Support
 
