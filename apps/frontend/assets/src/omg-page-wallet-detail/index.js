@@ -14,7 +14,6 @@ import WalletBalance from './WalletBalances'
 import Copy from '../omg-copy'
 import CONSTANT from '../constants'
 import WalletTransactions from './WalletTransaction'
-import SearchBar from '../omg-page-layout/SearchGroup'
 
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
@@ -115,8 +114,10 @@ class WalletDetaillPage extends Component {
   }
   renderWalletDetailContainer = wallet => {
     const type = this.props.match.params.type
-    const { walletAddress } = this.props.match.params
-    const basePath = `/wallets/${walletAddress}`
+    const { walletAddress, accountId } = this.props.match.params
+    const basePath = accountId
+      ? `/accounts/${accountId}/wallets/${walletAddress}`
+      : `/wallets/${walletAddress}`
     return (
       <div>
         <ContentContainer>
@@ -141,7 +142,10 @@ class WalletDetaillPage extends Component {
 
           <Switch>
             <Route
-              path={['/wallets/:walletAddress/balances']}
+              path={[
+                '/wallets/:walletAddress/balances',
+                '/accounts/:accountId/wallets/:walletAddress/balances'
+              ]}
               render={() => (
                 <DetailContainer>
                   <WalletBalance wallet={wallet} />{' '}
@@ -150,12 +154,18 @@ class WalletDetaillPage extends Component {
               exact
             />
             <Route
-              path={['/wallets/:walletAddress']}
+              path={[
+                '/wallets/:walletAddress',
+                '/accounts/:accountId/wallets/:walletAddress'
+              ]}
               render={() => this.renderDetail(wallet)}
               exact
             />
             <Route
-              path={['/wallets/:walletAddress/transactions']}
+              path={[
+                '/wallets/:walletAddress/transactions',
+                '/accounts/:accountId/wallets/:walletAddress/transactions'
+              ]}
               component={WalletTransactions}
               exact
             />

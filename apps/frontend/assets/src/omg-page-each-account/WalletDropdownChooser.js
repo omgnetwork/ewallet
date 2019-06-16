@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { compose } from 'recompose'
 import queryString from 'query-string'
-
+import { Link } from 'react-router-dom'
 import PopperRenderer from '../omg-popper'
 import withDropdownState from '../omg-uikit/dropdown/withDropdownState'
 import { Icon } from '../omg-uikit'
@@ -35,11 +35,12 @@ const NavLinkContainer = styled.div`
       font-size: 12px;
     }
   }
+  a {
+    display: inline;
+  }
 `
 
-const enhance = compose(
-  withDropdownState
-)
+const enhance = compose(withDropdownState)
 class WalletDropdown extends Component {
   static propTypes = {
     open: PropTypes.bool,
@@ -48,21 +49,14 @@ class WalletDropdown extends Component {
     match: PropTypes.object,
     location: PropTypes.object
   }
-  state = {}
+  state = { walletType: 'account' }
 
-  onClickFilterWallet = type => e => {
-    this.setState({ type })
+  onClickFilterWallet = walletType => () => {
+    this.setState({ walletType })
     this.props.history.push(
-      `/accounts/${this.props.match.params.accountId}/wallets/?walletType=${type}`
-    )
-  }
-
-  onClickCurrentWallet = e => {
-    const { walletType } = queryString.parse(this.props.location.search)
-    this.props.history.push(
-      `/accounts/${this.props.match.params.accountId}/wallets/?walletType=${this.state.type ||
-        walletType ||
-        'all'}`
+      `/accounts/${
+        this.props.match.params.accountId
+      }/wallets/?walletType=${walletType}`
     )
   }
 
@@ -86,9 +80,8 @@ class WalletDropdown extends Component {
       account: 'Account Wallets',
       user: 'User Wallets'
     }
-    const { walletType } = queryString.parse(this.props.location.search)
     const activePage = this.props.location.pathname.includes('wallets')
-
+    const { accountId } = this.props.match.params
     return (
       <PopperRenderer
         offset='0px, -25px'
@@ -98,15 +91,18 @@ class WalletDropdown extends Component {
           }
         }}
         renderReference={() => (
-          <NavLinkContainer
-            className={activePage ? 'navlink-active' : ''}
-            onClick={this.props.onClickButton}
-          >
+          <NavLinkContainer className={activePage ? 'navlink-active' : ''}>
             <div className='account-link-text'>
-              {nameMap[walletType] || nameMap.account}
-              {this.props.open
-                ? <Icon name='Chevron-Up' />
-                : <Icon name='Chevron-Down' />}
+              <Link
+                to={`/accounts/${accountId}/wallets/?walletType=${this.state.walletType}`}
+              >
+                {nameMap[this.state.walletType] || nameMap.account}
+              </Link>
+              {this.props.open ? (
+                <Icon name='Chevron-Up' onClick={this.props.onClickButton} />
+              ) : (
+                <Icon name='Chevron-Down' onClick={this.props.onClickButton} />
+              )}
             </div>
           </NavLinkContainer>
         )}
