@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { compose } from 'recompose'
-import queryString from 'query-string'
 import { Link } from 'react-router-dom'
+
 import PopperRenderer from '../omg-popper'
 import withDropdownState from '../omg-uikit/dropdown/withDropdownState'
 import { Icon } from '../omg-uikit'
@@ -94,7 +94,9 @@ class WalletDropdown extends Component {
           <NavLinkContainer className={activePage ? 'navlink-active' : ''}>
             <div className='account-link-text'>
               <Link
-                to={`/accounts/${accountId}/wallets/?walletType=${this.state.walletType}`}
+                to={`/accounts/${accountId}/wallets/?walletType=${
+                  this.state.walletType
+                }`}
               >
                 {nameMap[this.state.walletType] || nameMap.account}
               </Link>
