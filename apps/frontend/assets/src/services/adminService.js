@@ -44,7 +44,12 @@ export function inviteAdmin ({ email, redirectUrl, globalRole }) {
   })
 }
 
-export function createAdmin ({ resetToken, password, passwordConfirmation, email }) {
+export function createAdmin ({
+  resetToken,
+  password,
+  passwordConfirmation,
+  email
+}) {
   return unAuthenticatedRequest({
     path: '/invite.accept',
     data: {
@@ -53,5 +58,30 @@ export function createAdmin ({ resetToken, password, passwordConfirmation, email
       password,
       password_confirmation: passwordConfirmation
     }
+  })
+}
+
+export function enable2Fa (passcode) {
+  return authenticatedRequest({
+    path: '/me.enable_2fa',
+    passcode
+  })
+}
+
+export function disable2Fa (passcode) {
+  return authenticatedRequest({
+    path: '/me.enable_2fa',
+    passcode
+  })
+}
+
+export function createBackupCodes () {
+  return authenticatedRequest({
+    path: '/me.create_backup_codes'
+  })
+}
+export function createSecretCode () {
+  return authenticatedRequest({
+    path: '/me.create_secret_code'
   })
 }
