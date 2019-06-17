@@ -188,7 +188,7 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
-  @spec transaction_hash(Blockchain.Transaction.t(), integer()) :: Keccak.keccak_hash()
+  @spec transaction_hash(EthBlockchain.Transaction.t(), integer()) :: Keccak.keccak_hash()
   def transaction_hash(trx, chain_id) do
     trx
     |> serialize(false)
