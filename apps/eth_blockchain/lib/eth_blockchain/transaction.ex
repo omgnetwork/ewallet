@@ -50,14 +50,14 @@ defmodule EthBlockchain.Transaction do
   Ether is represented with `0x0000000000000000000000000000000000000000` as contract address and will be used as the default currency if no contract address specified.
   The gas price can be optionally specied as the last element of the tuple, will default to the configued `:default_gas_price` if ommited.
   Possible combinaisons of tuple elements:
-  /3 (from_addr, to_addr, amount)
+  /3 {from_addr, to_addr, amount}
     -> will transfer `amount` ether from `from_addr` to `to_addr` with the default gas price
-  /4 (from_addr, to_addr, amount, gas_price)
+  /4 {from_addr, to_addr, amount, gas_price}
     -> will transfer `amount` ether from `from_addr` to `to_addr` with the specified gas price
-  /4 (from_addr, to_addr, amount, contract_addr)
+  /4 {from_addr, to_addr, amount, contract_addr}
     -> will transfer `amount` token using the ERC20 contract residing at `contract_addr`
     from `from_addr` to `to_addr` with the default gas price
-  /5 (from_addr, to_addr, amount, contract_addr, gas_price)
+  /5 {from_addr, to_addr, amount, contract_addr, gas_price}
     ->
       if contract_addr is `0x0000000000000000000000000000000000000000`:
         will transfer `amount` ether from `from_addr` to `to_addr` with the specified gas price
@@ -188,7 +188,10 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
-  @spec transaction_hash(EthBlockchain.Transaction.t(), integer()) :: Keccak.keccak_hash()
+  @doc """
+  Serialize, encode and returns a hash of a given transaction
+  """
+  @spec transaction_hash(__MODULE__.t(), integer()) :: Keccak.keccak_hash()
   def transaction_hash(trx, chain_id) do
     trx
     |> serialize(false)
@@ -197,6 +200,10 @@ defmodule EthBlockchain.Transaction do
     |> Keccak.kec()
   end
 
+  @doc """
+  Encodes a transaction such that it can be RLP-encoded.
+  """
+  @spec serialize(__MODULE__.t(), bool()) :: ExRLP.t()
   def serialize(trx, include_vrs \\ true) do
     base = [
       trx.nonce |> encode_unsigned(),
@@ -222,6 +229,7 @@ defmodule EthBlockchain.Transaction do
   @doc """
   Decodes a transaction that was previously encoded using `Transaction.serialize/1`.
   """
+  @spec deserialize(ExRLP.t()) :: __MODULE__.t()
   def deserialize(rlp) do
     [
       nonce,

@@ -40,6 +40,14 @@ defmodule Keychain.Signature do
     |> do_sign(hash, chain_id)
   end
 
+  @doc """
+  Attempts to recover the public key of a transaction hash given its r s v and chain_id values
+  Returns {:ok, public_key}
+  or
+  {:error, reason} if failed
+  """
+  @spec recover_public_key(Keccak.keccak_hash(), hash_r(), hash_s(), hash_v(), integer()) ::
+          {:ok, ExthCrypto.Key.public_key()} | {:error, String.t()}
   def recover_public_key(hash, r, s, v, chain_id \\ nil) do
     signature = encode_unsigned(r) <> encode_unsigned(s)
 
