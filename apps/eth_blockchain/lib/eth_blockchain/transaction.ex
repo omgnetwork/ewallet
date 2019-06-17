@@ -19,7 +19,7 @@ defmodule EthBlockchain.Transaction do
 
   alias Keychain.Signature
   alias ExthCrypto.Hash.Keccak
-  alias EthBlockchain.{Adapter, ABI}
+  alias EthBlockchain.{Adapter, ABIEncoder}
 
   defstruct nonce: 0,
             gas_price: 0,
@@ -31,6 +31,19 @@ defmodule EthBlockchain.Transaction do
             s: nil,
             init: <<>>,
             data: <<>>
+
+  @type t :: %__MODULE__{
+    nonce: integer(),
+    gas_price: integer(),
+    gas_limit: integer(),
+    to: String.t() | <<_::0>>,
+    value: integer(),
+    v: Signature.hash_v(),
+    r: Signature.hash_r(),
+    s: Signature.hash_s(),
+    init: binary(),
+    data: binary()
+  }
 
   @spec send_eth(tuple(), atom() | nil, pid() | nil) ::
           {atom(), String.t()} | {atom(), atom()} | {atom(), atom(), String.t()}
@@ -77,7 +90,7 @@ defmodule EthBlockchain.Transaction do
   def send_token({from_address, to_address, amount, contract_address, gas_price}, adapter, pid)
       when byte_size(from_address) == 42 and byte_size(to_address) == 42 and
              byte_size(contract_address) == 42 and is_integer(amount) and is_integer(gas_price) do
-    with {:ok, encoded_abi_data} <- ABI.transfer(to_address, amount),
+    with {:ok, encoded_abi_data} <- ABIEncoder.transfer(to_address, amount),
          {:ok, nonce} <- get_transaction_count({from_address}, adapter, pid) do
       %__MODULE__{
         gas_limit: Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit),
