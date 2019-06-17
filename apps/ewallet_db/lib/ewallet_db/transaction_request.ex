@@ -429,6 +429,14 @@ defmodule EWalletDB.TransactionRequest do
     end
   end
 
+  @spec get_expiration_reason(%TransactionRequest{}) :: atom() | nil
+  def get_expiration_reason(request) do
+    case request.expiration_reason do
+      nil -> nil
+      reason -> String.to_existing_atom(reason)
+    end
+  end
+
   @spec cancel(%TransactionRequest{}, map()) ::
           {:ok, %TransactionRequest{}}
           | {:error, map()}

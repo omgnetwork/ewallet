@@ -155,7 +155,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       assert %{authorized: false} = res
     end
 
-    test "expires request if past expiration date" do
+    test "confirms regardless the transaction request past expiration date" do
       now = NaiveDateTime.utc_now()
       {:ok, user} = :user |> params_for() |> User.insert()
       wallet = User.get_primary_wallet(user)
@@ -179,11 +179,40 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
           end_user: user
         })
 
-      assert status == :error
-      assert res == :expired_transaction_request
+      assert status == :ok
+      assert %TransactionConsumption{} = res
     end
 
-    test "returns expiration reason if expired request" do
+    test "returns transaction consumption when the expiration reason is `expired_transaction_request`" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      wallet = User.get_primary_wallet(user)
+
+      request =
+        insert(
+          :transaction_request,
+          status: TransactionConsumption.expired(),
+          expiration_reason: "expired_transaction_request",
+          account_uuid: nil,
+          user_uuid: user.uuid,
+          wallet: wallet
+        )
+
+      consumption =
+        :transaction_consumption
+        |> insert(transaction_request_uuid: request.uuid)
+        |> Repo.preload([:transaction_request])
+
+      {status, res} =
+        TransactionConsumptionValidator.validate_before_confirmation(consumption, %{
+          end_user: user
+        })
+
+      assert status == :ok
+      assert %TransactionConsumption{} = res
+      assert res.status == "pending"
+    end
+
+    test "returns error when the expiration reason is `max_consumptions_reached`" do
       {:ok, user} = :user |> params_for() |> User.insert()
       wallet = User.get_primary_wallet(user)
 

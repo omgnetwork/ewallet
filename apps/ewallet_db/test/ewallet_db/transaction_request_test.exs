@@ -362,6 +362,23 @@ defmodule EWalletDB.TransactionRequestTest do
     end
   end
 
+  describe "get_expiration_reason/1" do
+    test "returns atom when expiration reason is not nil" do
+      request =
+        insert(:transaction_request, %{
+          expiration_reason: TransactionRequest.expired_transaction_request()
+        })
+
+      assert TransactionRequest.get_expiration_reason(request) == :expired_transaction_request
+    end
+
+    test "return nil when expiration reason is nil" do
+      request = insert(:transaction_request)
+
+      assert TransactionRequest.get_expiration_reason(request) == nil
+    end
+  end
+
   describe "cancel" do
     test "cancels the request" do
       t = insert(:transaction_request)

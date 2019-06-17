@@ -118,6 +118,8 @@ defmodule EWallet.TransactionConsumptionValidator do
   end
 
   defp validate_transaction_request(request, operation) do
+    expiration_reason = TransactionRequest.get_expiration_reason(request)
+
     request
     |> TransactionRequest.valid?()
     |> Kernel.||(TransactionRequest.get_expiration_reason(request))
@@ -142,11 +144,11 @@ defmodule EWallet.TransactionConsumptionValidator do
       true ->
         :ok
 
-      :cancelled_transaction_request ->
-        :ok
+      :max_consumptions_reached ->
+        {:error, :max_consumptions_reached}
 
       expiration_reason when not is_nil(expiration_reason) and is_atom(expiration_reason) ->
-        {:error, expiration_reason}
+        :ok
 
       _ ->
         {:error, :unknown_error}
