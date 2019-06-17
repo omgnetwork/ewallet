@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthBlockchain.ABI do
+defmodule EthBlockchain.ABIEncoder do
   @moduledoc false
 
   import Utils.Helpers.Encoding

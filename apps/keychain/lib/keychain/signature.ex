@@ -40,6 +40,23 @@ defmodule Keychain.Signature do
     |> do_sign(hash, chain_id)
   end
 
+  def recover_public_key(hash, r, s, v, chain_id \\ nil) do
+    signature = encode_unsigned(r) <> encode_unsigned(s)
+
+    recovery_id =
+      if not is_nil(chain_id) and uses_chain_id?(v) do
+        v - chain_id * 2 - @base_recovery_id_eip_155
+      else
+        v - @base_recovery_id
+      end
+
+    Signature.recover(hash, signature, recovery_id)
+  end
+
+  defp uses_chain_id?(v) do
+    v >= @base_recovery_id_eip_155
+  end
+
   defp do_sign(nil, _hash, _chain_id), do: {:error, :invalid_address}
 
   defp do_sign(private_key, hash, chain_id) do

@@ -15,142 +15,139 @@
 defmodule EthBlockchain.TransactionTest do
   use EthBlockchain.EthBlockchainCase, async: true
 
-  alias EthBlockchain.Transaction
-  alias Keychain.Wallet
+  alias EthBlockchain.{Transaction, ABIEncoder}
+  alias Keychain.{Signature, Wallet}
+  alias Utils.Helpers.Encoding
 
   setup state do
-    {:ok, {address, _key}} = Wallet.generate()
-    Map.put(state, :valid_sender, address)
+    {:ok, {address, public_key}} = Wallet.generate()
+
+    state
+    |> Map.put(:valid_sender, address)
+    |> Map.put(:public_key, public_key)
   end
 
-  describe "send_eth/3" do
-    test "generates an eth transaction with the given adapter spec", state do
-      {resp, _data} =
-        Transaction.send_eth(
+  defp decode_response(response) do
+    response
+    |> Encoding.from_hex()
+    |> ExRLP.decode()
+    |> Transaction.deserialize()
+  end
+
+  defp recover_public_key(trx) do
+    chain_id = Application.get_env(:eth_blockchain, :chain_id)
+
+    {:ok, pub_key} =
+      trx
+      |> Transaction.transaction_hash(chain_id)
+      |> Signature.recover_public_key(trx.r, trx.s, trx.v, chain_id)
+
+    pub_key
+  end
+
+  describe "send/3" do
+    test "generates an eth transaction when not specifying contract or gas price", state do
+      {resp, encoded_trx} =
+        Transaction.send(
           {state[:valid_sender], state[:addr_1], 100},
           :dumb,
           state[:pid]
         )
 
       assert resp == :ok
+
+      trx = decode_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.data == ""
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+
+      assert trx.gas_limit ==
+               Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit)
+
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == 100
+      assert Encoding.to_hex(trx.to) == state[:addr_1]
     end
 
-    test "returns an `invalid_parameter` error when the from address is invalid", state do
-      assert {:error, :invalid_parameter} ==
-               Transaction.send_eth(
-                 {"0x01", state[:addr_1], 100},
-                 :dumb,
-                 state[:pid]
-               )
-    end
-
-    test "returns an `invalid_parameter` error when the to address is invalid", state do
-      assert {:error, :invalid_parameter} ==
-               Transaction.send_eth(
-                 {state[:addr_0], "0x01", 100},
-                 :dumb,
-                 state[:pid]
-               )
-    end
-
-    test "returns an `invalid_parameter` error when the amount is invalid", state do
-      assert {:error, :invalid_parameter} ==
-               Transaction.send_eth(
-                 {state[:addr_0], state[:addr_1], 1.23},
-                 :dumb,
-                 state[:pid]
-               )
-    end
-
-    test "returns an `invalid_address` error when wallet is does not exist", state do
-      assert {:error, :invalid_address} ==
-               Transaction.send_eth(
-                 {state[:addr_0], state[:addr_1], 100},
-                 :dumb,
-                 state[:pid]
-               )
-    end
-
-    test "returns an error if no such adapter is registered", state do
-      assert {:error, :no_handler} ==
-               Transaction.send_eth(
-                 {state[:valid_sender], state[:addr_1], 100},
-                 :blah,
-                 state[:pid]
-               )
-    end
-  end
-
-  describe "send_token/3" do
-    test "generates an eth transaction with the given adapter spec", state do
-      {resp, _data} =
-        Transaction.send_token(
-          {state[:valid_sender], state[:addr_1], 100, state[:addr_2], 100},
+    test "generates an eth transaction when not specifying contract", state do
+      {resp, encoded_trx} =
+        Transaction.send(
+          {state[:valid_sender], state[:addr_1], 100, 50_000},
           :dumb,
           state[:pid]
         )
 
       assert resp == :ok
+
+      trx = decode_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.data == ""
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+
+      assert trx.gas_limit ==
+               Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit)
+
+      assert trx.gas_price == 50_000
+      assert trx.value == 100
+      assert Encoding.to_hex(trx.to) == state[:addr_1]
     end
 
-    test "returns an `invalid_parameter` error when the from address is invalid", state do
-      assert {:error, :invalid_parameter} ==
-               Transaction.send_token(
-                 {"0x01", state[:addr_1], 100, state[:addr_2], 100},
-                 :dumb,
-                 state[:pid]
-               )
+    test "generates a token transaction when specifying contract", state do
+      {resp, encoded_trx} =
+        Transaction.send(
+          {state[:valid_sender], state[:addr_1], 100, state[:addr_2]},
+          :dumb,
+          state[:pid]
+        )
+
+      assert resp == :ok
+
+      trx = decode_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
+      {:ok, data} = ABIEncoder.transfer(state[:addr_1], 100)
+
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+
+      assert trx.gas_limit ==
+               Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit)
+
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == 0
+      assert Encoding.to_hex(trx.to) == state[:addr_2]
+      assert trx.data == data
     end
 
-    test "returns an `invalid_parameter` error when the to address is invalid", state do
-      assert {:error, :invalid_parameter} ==
-               Transaction.send_token(
-                 {state[:addr_0], "0x01", 100, state[:addr_2], 100},
-                 :dumb,
-                 state[:pid]
-               )
-    end
+    test "generates a token transaction when specifying contract and gas price", state do
+      {resp, encoded_trx} =
+        Transaction.send(
+          {state[:valid_sender], state[:addr_1], 100, state[:addr_2], 50_000},
+          :dumb,
+          state[:pid]
+        )
 
-    test "returns an `invalid_parameter` error when the amount is invalid", state do
-      assert {:error, :invalid_parameter} ==
-               Transaction.send_token(
-                 {state[:addr_0], state[:addr_1], 1.23, state[:addr_2], 100},
-                 :dumb,
-                 state[:pid]
-               )
-    end
+      assert resp == :ok
 
-    test "returns an `invalid_parameter` error when the contract address is invalid", state do
-      assert {:error, :invalid_parameter} ==
-               Transaction.send_token(
-                 {state[:addr_0], state[:addr_1], 100, "0x01", 100},
-                 :dumb,
-                 state[:pid]
-               )
-    end
+      trx = decode_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
+      {:ok, data} = ABIEncoder.transfer(state[:addr_1], 100)
 
-    test "returns an `invalid_parameter` error when the gas price is invalid", state do
-      assert {:error, :invalid_parameter} ==
-               Transaction.send_token(
-                 {state[:addr_0], state[:addr_1], 100, state[:addr_2], 1.23},
-                 :dumb,
-                 state[:pid]
-               )
-    end
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 
-    test "returns an `invalid_address` error when wallet is does not exist", state do
-      assert {:error, :invalid_address} ==
-               Transaction.send_token(
-                 {state[:addr_0], state[:addr_1], 100, state[:addr_2], 100},
-                 :dumb,
-                 state[:pid]
-               )
+      assert trx.gas_limit ==
+               Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit)
+
+      assert trx.gas_price == 50_000
+      assert trx.value == 0
+      assert Encoding.to_hex(trx.to) == state[:addr_2]
+      assert trx.data == data
     end
 
     test "returns an error if no such adapter is registered", state do
       assert {:error, :no_handler} ==
-               Transaction.send_token(
-                 {state[:valid_sender], state[:addr_1], 100, state[:addr_2], 100},
+               Transaction.send(
+                 {state[:valid_sender], state[:addr_1], 100},
                  :blah,
                  state[:pid]
                )
