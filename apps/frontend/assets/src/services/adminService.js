@@ -64,14 +64,18 @@ export function createAdmin ({
 export function enable2Fa (passcode) {
   return authenticatedRequest({
     path: '/me.enable_2fa',
-    passcode
+    data: {
+      passcode
+    }
   })
 }
 
 export function disable2Fa (passcode) {
   return authenticatedRequest({
     path: '/me.disable_2fa',
-    passcode
+    data: {
+      passcode
+    }
   })
 }
 

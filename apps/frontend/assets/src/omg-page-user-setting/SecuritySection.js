@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 
@@ -15,7 +15,10 @@ const SecurityContainer = styled.div`
 `
 function SecuritySeciton () {
   const dispatch = useDispatch()
-  const onClickEnable2Fa = () => openModal({ id: 'create2faModal' })(dispatch)
+  const onClickEnable2Fa = useCallback(
+    () => openModal({ id: 'create2faModal' })(dispatch),
+    []
+  )
   return (
     <SecurityContainer>
       <h3>Security</h3>
