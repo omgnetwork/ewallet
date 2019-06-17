@@ -61,12 +61,12 @@ export const FILTER_MAP = [
     default: true,
     matchAll: [
       {
-        field: 'inserted_at',
+        field: 'created_at',
         comparator: 'gte',
         value: '{{ startDate }}'
       },
       {
-        field: 'inserted_at',
+        field: 'created_at',
         comparator: 'lte',
         value: '{{ endDate }}'
       }
@@ -188,12 +188,12 @@ export const FILTER_MAP = [
     default: false,
     matchAll: [
       {
-        field: 'inserted_at',
+        field: 'created_at',
         comparator: 'gte',
         value: '{{ startDate }}'
       },
       {
-        field: 'inserted_at',
+        field: 'created_at',
         comparator: 'lte',
         value: '{{ endDate }}'
       }
@@ -315,12 +315,12 @@ export const FILTER_MAP = [
     default: false,
     matchAll: [
       {
-        field: 'inserted_at',
+        field: 'created_at',
         comparator: 'gte',
         value: '{{ startDate }}'
       },
       {
-        field: 'inserted_at',
+        field: 'created_at',
         comparator: 'lte',
         value: '{{ endDate }}'
       }
@@ -367,12 +367,12 @@ export const FILTER_MAP = [
     default: true,
     matchAll: [
       {
-        field: 'inserted_at',
+        field: 'created_at',
         comparator: 'gte',
         value: '{{ startDate }}'
       },
       {
-        field: 'inserted_at',
+        field: 'created_at',
         comparator: 'lte',
         value: '{{ endDate }}'
       }
@@ -440,11 +440,7 @@ export const FILTER_MAP = [
     height: 110,
     component: filters.InputFilter,
     default: false,
-    matchAny: [
-      {
-        field: 'transaction_request.id',
-        comparator: 'contains'
-      },
+    matchAll: [
       {
         field: 'transaction_request.id',
         comparator: 'contains'
@@ -459,11 +455,7 @@ export const FILTER_MAP = [
     height: 110,
     component: filters.InputFilter,
     default: false,
-    matchAny: [
-      {
-        field: 'account.id',
-        comparator: 'contains'
-      },
+    matchAll: [
       {
         field: 'account.id',
         comparator: 'contains'
@@ -471,7 +463,6 @@ export const FILTER_MAP = [
     ]
   },
   {
-    // TODO: NOT SURE ABOUT QUERY FIELD HERE...
     title: 'Specify Consumer',
     key: 'transaction-consumptions-specify-consumer',
     icon: 'Option-Horizontal',
@@ -479,13 +470,9 @@ export const FILTER_MAP = [
     height: 110,
     component: filters.InputFilter,
     default: false,
-    matchAny: [
+    matchAll: [
       {
-        field: 'account.id',
-        comparator: 'contains'
-      },
-      {
-        field: 'account.id',
+        field: 'user.id',
         comparator: 'contains'
       }
     ]
@@ -498,13 +485,161 @@ export const FILTER_MAP = [
     height: 110,
     component: filters.InputFilter,
     default: false,
-    matchAny: [
+    matchAll: [
       {
         field: 'wallet.address',
         comparator: 'contains'
+      }
+    ]
+  },
+  // USERS PAGE --------------
+  {
+    title: 'Join Date',
+    key: 'users-join-date',
+    icon: 'Option-Horizontal',
+    page: 'users',
+    height: 205,
+    component: filters.DateTime,
+    default: true,
+    matchAll: [
+      {
+        field: 'created_at',
+        comparator: 'gte',
+        value: '{{ startDate }}'
       },
       {
-        field: 'wallet.address',
+        field: 'created_at',
+        comparator: 'lte',
+        value: '{{ endDate }}'
+      }
+    ]
+  },
+  {
+    title: 'Specify Accounts / Provider',
+    key: 'users-specify-accounts',
+    icon: 'Option-Horizontal',
+    page: 'users',
+    height: 110,
+    component: filters.InputFilter,
+    default: true,
+    matchAll: [
+      {
+        field: 'accounts.id',
+        comparator: 'contains'
+      }
+    ]
+  },
+  // ACTIVITY LOG PAGE --------------
+  {
+    title: 'Date & Time',
+    key: 'activitylogs-date',
+    icon: 'Option-Horizontal',
+    page: 'activitylogs',
+    height: 205,
+    component: filters.DateTime,
+    default: true,
+    matchAll: [
+      {
+        field: 'created_at',
+        comparator: 'gte',
+        value: '{{ startDate }}'
+      },
+      {
+        field: 'created_at',
+        comparator: 'lte',
+        value: '{{ endDate }}'
+      }
+    ]
+  },
+  {
+    title: 'Section',
+    key: 'activitylogs-section',
+    icon: 'Option-Horizontal',
+    page: 'activitylogs',
+    height: 285,
+    component: filters.Checkbox,
+    default: true,
+    options: [
+      {
+        label: 'Account',
+        value: 'account'
+      },
+      {
+        label: 'Token',
+        value: 'token'
+      },
+      {
+        label: 'Wallet',
+        value: 'wallet'
+      },
+      {
+        label: 'Request',
+        value: 'request'
+      },
+      {
+        label: 'Consumption',
+        value: 'consumption'
+      },
+      {
+        label: 'Users',
+        value: 'users'
+      },
+      {
+        label: 'Keys',
+        value: 'keys'
+      }
+    ],
+    matchAny: [
+      {
+        field: 'section',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Actions',
+    key: 'activitylogs-action',
+    icon: 'Option-Horizontal',
+    page: 'activitylogs',
+    height: 196,
+    component: filters.Checkbox,
+    default: false,
+    options: [
+      {
+        label: 'Insert',
+        value: 'insert'
+      },
+      {
+        label: 'Update',
+        value: 'update'
+      },
+      {
+        label: 'Edit',
+        value: 'edit'
+      },
+      {
+        label: 'Delete',
+        value: 'delete'
+      }
+    ],
+    matchAny: [
+      {
+        field: 'action',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Specify Target',
+    key: 'activitylogs-specify-target',
+    icon: 'Option-Horizontal',
+    page: 'activitylogs',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    matchAll: [
+      {
+        field: 'target',
         comparator: 'contains'
       }
     ]

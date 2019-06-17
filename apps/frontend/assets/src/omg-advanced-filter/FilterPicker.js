@@ -15,6 +15,7 @@ const FilterPickerStyles = styled.div`
   color: ${props => props.theme.colors.BL400};
   display: inline-flex;
   align-items: center;
+  height: 20px;
   cursor: pointer;
   i {
     margin-right: 5px;
@@ -50,6 +51,7 @@ const FilterPicker = ({
   onSelect,
   selectedFilters
 }) => {
+  const diff = difference(FILTER_MAP.filter(i => i.page === page), selectedFilters)
   return (
     <PopperRenderer
       offset='-100%, -10px'
@@ -60,13 +62,12 @@ const FilterPicker = ({
       }}
       renderReference={() => (
         <FilterPickerStyles onClick={onClickButton}>
-          <Icon name='Plus' />
-          <span>Add filter</span>
+          {diff.length ? <Icon name='Plus' /> : null}
+          <span>{diff.length ? 'Add filter' : ''}</span>
         </FilterPickerStyles>
       )}
-      open={open}
+      open={diff.length ? open : false}
       renderPopper={() => {
-        const diff = difference(FILTER_MAP.filter(i => i.page === page), selectedFilters)
         return (
           <DropdownBoxStyles>
             {diff.map(filter => (

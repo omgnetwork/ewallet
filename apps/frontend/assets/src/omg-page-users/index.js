@@ -11,6 +11,7 @@ import { Button, Icon, Id } from '../omg-uikit'
 import ExportModal from '../omg-export-modal'
 import UsersFetcher from '../omg-users/usersFetcher'
 import { createSearchUsersQuery } from '../omg-users/searchField'
+import AdvancedFilter from '../omg-advanced-filter'
 
 const UserPageContainer = styled.div`
   position: relative;
@@ -80,7 +81,10 @@ class UsersPage extends Component {
     super(props)
     this.state = {
       createAccountModalOpen: false,
-      exportModalOpen: false
+      exportModalOpen: false,
+      advancedFilterModalOpen: false,
+      matchAll: [],
+      matchAny: []
     }
   }
   onClickRow = (data, index) => e => {
@@ -97,6 +101,18 @@ class UsersPage extends Component {
     return (
       <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
         <Icon name='Plus' /><span>Create Account</span>
+      </Button>
+    )
+  }
+  renderAdvancedFilterButton = () => {
+    return (
+      <Button
+        key='filter'
+        size='small'
+        styleType='secondary'
+        onClick={() => this.setState({ advancedFilterModalOpen: true })}
+      >
+        <Icon name='Filter' /><span>Filter</span>
       </Button>
     )
   }
@@ -146,7 +162,18 @@ class UsersPage extends Component {
     console.log('loading: ', individualLoadingStatus)
     return (
       <UserPageContainer>
-        <TopNavigation divider={this.props.divider} title={'Users'} />
+        <TopNavigation
+          divider={this.props.divider}
+          title={'Users'}
+          buttons={[this.renderAdvancedFilterButton()]}
+        />
+        <AdvancedFilter
+          title='Filter Users'
+          page='users'
+          open={this.state.advancedFilterModalOpen}
+          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
+          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
+        />
         <SortableTableContainer ref={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(users)}
@@ -175,6 +202,8 @@ class UsersPage extends Component {
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
+          matchAll: this.state.matchAll,
+          matchAny: this.state.matchAny,
           ...createSearchUsersQuery(queryString.parse(this.props.location.search).search),
           ...this.props.query
         }}

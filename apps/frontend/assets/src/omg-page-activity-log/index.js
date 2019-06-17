@@ -9,7 +9,8 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import ActivityLogFetcher from '../omg-activity-log/ActivityLogFetcher'
 import { createSearchActivityLogQuery } from './searchField'
-import { Icon } from '../omg-uikit'
+import { Icon, Button } from '../omg-uikit'
+import AdvancedFilter from '../omg-advanced-filter'
 
 const ActivityLogPageContainer = styled.div`
   position: relative;
@@ -71,6 +72,25 @@ class ActivityLogPage extends Component {
 
   static defaultProps = {
     topNavigation: true
+  }
+
+  state = {
+    advancedFilterModalOpen: false,
+    matchAll: [],
+    matchAny: []
+  }
+
+  renderAdvancedFilterButton = () => {
+    return (
+      <Button
+        key='filter'
+        size='small'
+        styleType='secondary'
+        onClick={() => this.setState({ advancedFilterModalOpen: true })}
+      >
+        <Icon name='Filter' /><span>Filter</span>
+      </Button>
+    )
   }
 
   onClickRow = (data, index) => e => {
@@ -238,10 +258,17 @@ class ActivityLogPage extends Component {
           <TopNavigation
             divider={this.props.divider}
             title={'Activity Logs'}
-            buttons={[]}
+            buttons={[this.renderAdvancedFilterButton()]}
             normalPlaceholder='originator id, action'
           />
         )}
+        <AdvancedFilter
+          title='Filter Activity Log'
+          page='activitylogs'
+          open={this.state.advancedFilterModalOpen}
+          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
+          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
+        />
         <SortableTableContainer
           ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
@@ -272,6 +299,8 @@ class ActivityLogPage extends Component {
         {...this.state}
         {...this.props}
         query={{
+          matchAll: this.state.matchAll,
+          matchAny: this.state.matchAny,
           page: Number(queryString.parse(this.props.location.search).page),
           ...createSearchActivityLogQuery(search),
           ...query
