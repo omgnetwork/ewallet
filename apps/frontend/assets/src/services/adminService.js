@@ -70,7 +70,7 @@ export function enable2Fa (passcode) {
 
 export function disable2Fa (passcode) {
   return authenticatedRequest({
-    path: '/me.enable_2fa',
+    path: '/me.disable_2fa',
     passcode
   })
 }
