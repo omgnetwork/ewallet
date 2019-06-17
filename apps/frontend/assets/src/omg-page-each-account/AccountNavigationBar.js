@@ -18,7 +18,6 @@ const LinksContainer = styled.div`
   }
   .wallet-dropdown,
   a {
-    display: block;
     cursor: pointer;
     padding: 0 10px;
     color: ${props => props.theme.colors.B100};

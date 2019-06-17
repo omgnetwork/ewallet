@@ -1,5 +1,10 @@
 import React from 'react'
-import { BrowserRouter as Router, Redirect, Switch, Route } from 'react-router-dom'
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Switch,
+  Route
+} from 'react-router-dom'
 
 import AuthenticatedRoute from './authenticatedRoute'
 import LoginRoute from './loginRoute'
@@ -13,8 +18,6 @@ import TransactionPage from '../../omg-page-transaction'
 import WalletPage from '../../omg-page-wallets'
 import UserSettingPage from '../../omg-page-user-setting'
 import ApiKeyPage from '../../omg-page-api'
-import ApiKeyDetailPage from '../../omg-page-api-detail'
-import KeyDetailAccountsPage from '../../omg-page-api-detail-accounts'
 import UserPage from '../../omg-page-users'
 import TokenDetailPage from '../../omg-page-token-detail'
 import WalletDetailPage from '../../omg-page-wallet-detail'
@@ -52,8 +55,6 @@ const createRoute = () => (
       <AuthenticatedRoute path='/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute path='/transaction/export' exact component={TransactionExportPage} />
 
-      <AuthenticatedRoute path='/keys/:keyType/:keyId/assigned-accounts' exact component={KeyDetailAccountsPage} />
-      <AuthenticatedRoute path='/keys/:keyType/:keyId' exact component={ApiKeyDetailPage} />
       <AuthenticatedRoute path='/keys/:keyType' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/keys' exact component={ApiKeyPage} />
 
@@ -76,9 +77,8 @@ const createRoute = () => (
       <AuthenticatedRoute path='/admins' exact component={AdminsPage} />
       <AuthenticatedRoute path='/admins/:adminId' exact component={AdminDetailPage} />
       <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
-
+      <AuthenticatedRoute path='/wallets/:walletAddress/:type' exact component={WalletDetailPage} />
       {/* 404 PAGE */}
-      <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <Route component={NotFoundPage} />
     </Switch>
     <ModalController />
