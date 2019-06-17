@@ -239,6 +239,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "transaction_request:expired",
       description: "The specified transaction request has expired."
     },
+    cancelled_transaction_request: %{
+      code: "transaction_request:cancelled",
+      description: "The specified transaction request has been cancelled."
+    },
     max_consumptions_reached: %{
       code: "transaction_request:max_consumptions_reached",
       description:

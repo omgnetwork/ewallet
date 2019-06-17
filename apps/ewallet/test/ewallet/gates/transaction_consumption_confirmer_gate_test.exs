@@ -125,11 +125,11 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
-    test "confirms the accoun tconsumption if approved as admin user with rights", meta do
+    test "confirms the account consumption if approved as admin user with rights", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, account} = :account |> params_for() |> Account.insert()
       wallet = Account.get_primary_wallet(account)
@@ -177,7 +177,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
@@ -279,7 +279,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
@@ -509,7 +509,10 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       consumptions = TransactionConsumption |> EWalletDB.Repo.all()
       assert length(consumptions) == max
-      assert Enum.count(consumptions, fn c -> c.status == "confirmed" end) == 1
+
+      assert Enum.count(consumptions, fn c -> c.status == TransactionConsumption.confirmed() end) ==
+               1
+
       assert Enum.count(consumptions, fn c -> c.status == "pending" end) == max - 1
     end
   end
@@ -558,7 +561,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
@@ -610,7 +613,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 

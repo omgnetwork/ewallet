@@ -37,6 +37,17 @@ defmodule EWalletDB.TransactionRequest do
   @expired "expired"
   @statuses [@valid, @expired]
 
+  def valid, do: @valid
+  def expired, do: @expired
+
+  @max_consumptions_reached "max_consumptions_reached"
+  @cancelled_transaction_request "cancelled_transaction_request"
+  @expired_transaction_request "expired_transaction_request"
+
+  def max_consumptions_reached, do: @max_consumptions_reached
+  def cancelled_transaction_request, do: @cancelled_transaction_request
+  def expired_transaction_request, do: @expired_transaction_request
+
   @send "send"
   @receive "receive"
   @types [@send, @receive]
@@ -186,6 +197,11 @@ defmodule EWalletDB.TransactionRequest do
     )
   end
 
+  def get_expiration_reason(%TransactionRequest{} = transaction_request) do
+    transaction_request.expiration_reason &&
+      String.to_existing_atom(transaction_request.expiration_reason)
+  end
+
   defp expire_changeset(%TransactionRequest{} = transaction_request, attrs) do
     transaction_request
     |> cast_and_validate_required_for_activity_log(
@@ -285,7 +301,7 @@ defmodule EWalletDB.TransactionRequest do
       set: [
         status: @expired,
         expired_at: NaiveDateTime.utc_now(),
-        expiration_reason: "expired_transaction_request"
+        expiration_reason: TransactionRequest.expired_transaction_request()
       ]
     )
   end
@@ -369,7 +385,7 @@ defmodule EWalletDB.TransactionRequest do
   """
   @spec expire(%TransactionRequest{}, map(), String.t()) ::
           {:ok, %TransactionRequest{}} | {:error, map()}
-  def expire(request, originator, reason \\ "expired_transaction_request") do
+  def expire(request, originator, reason \\ @expired_transaction_request) do
     request
     |> expire_changeset(%{
       status: @expired,
@@ -408,9 +424,16 @@ defmodule EWalletDB.TransactionRequest do
     request = Map.delete(request, :originator)
 
     case max_consumptions_reached?(request, consumptions) do
-      true -> expire(request, originator, "max_consumptions_reached")
+      true -> expire(request, originator, @max_consumptions_reached)
       false -> touch(request, originator)
     end
+  end
+
+  @spec cancel(%TransactionRequest{}, map()) ::
+          {:ok, %TransactionRequest{}}
+          | {:error, map()}
+  def cancel(request, originator) do
+    expire(request, originator, @cancelled_transaction_request)
   end
 
   @spec load_consumptions_count(%TransactionRequest{}, map()) :: Integer.t()
