@@ -1,6 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
+import { useDispatch } from 'react-redux'
+
 import { Button } from '../omg-uikit'
+import { openModal } from '../omg-modal/action'
+
 const SecurityContainer = styled.div`
   h3 {
     margin: 20px 0;
@@ -10,6 +14,8 @@ const SecurityContainer = styled.div`
   }
 `
 function SecuritySeciton () {
+  const dispatch = useDispatch()
+  const onClickEnable2Fa = () => openModal({ id: 'create2faModal' })(dispatch)
   return (
     <SecurityContainer>
       <h3>Security</h3>
@@ -22,7 +28,9 @@ function SecuritySeciton () {
         }}
       >
         Two Factor Authentication
-        <Button className='enable-two-fa'>Enable</Button>
+        <Button className='enable-two-fa' onClick={onClickEnable2Fa}>
+          Enable
+        </Button>
       </div>
     </SecurityContainer>
   )
