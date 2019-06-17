@@ -24,4 +24,4 @@ Thumbs.db
 /results/
 
 # geth datadir
-/local_geth_testnet/datadir
+/tools/local_geth_testnet/datadir

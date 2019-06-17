@@ -39,7 +39,7 @@ It will return the private key, keep it for later:
 
 ### Import the generated account to geth
 
-Open a new terminal window at the root of the `local_geth_testnet` folder
+Open a new terminal window at the root of the `local_geth_testnet` folder (located in `tools/`)
 
 We first need to init the blockchain:
 
