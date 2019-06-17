@@ -329,7 +329,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert {:error, %{authorized: false}} = res
     end
 
-    test "fails to confirm the consumption if expired", meta do
+    test "confirms the consumption regardless the request has been expired", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
@@ -663,7 +663,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert {:error, %{authorized: false}} = res
     end
 
-    test "fails to confirm the consumption if expired", meta do
+    test "confirms the consumption regardless the request has been expired", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       transaction_request =

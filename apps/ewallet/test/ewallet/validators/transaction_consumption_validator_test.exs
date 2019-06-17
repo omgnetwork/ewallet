@@ -155,7 +155,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       assert %{authorized: false} = res
     end
 
-    test "expires request if past expiration date" do
+    test "confirms regardless the transaction request past expiration date" do
       now = NaiveDateTime.utc_now()
       {:ok, user} = :user |> params_for() |> User.insert()
       wallet = User.get_primary_wallet(user)
