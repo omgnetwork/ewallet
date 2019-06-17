@@ -141,7 +141,7 @@ export const FILTER_MAP = [
     key: 'wallets-wallet-types',
     icon: 'Option-Horizontal',
     page: 'wallets',
-    height: 287,
+    height: 267,
     default: true,
     component: filters.Checkbox,
     options: [
@@ -640,6 +640,79 @@ export const FILTER_MAP = [
     matchAll: [
       {
         field: 'target',
+        comparator: 'contains'
+      }
+    ]
+  },
+  // TOKEN PAGE --------------
+  {
+    title: 'Wallet Types',
+    key: 'tokens-wallet-types',
+    icon: 'Option-Horizontal',
+    page: 'tokens',
+    height: 267,
+    default: true,
+    component: filters.Checkbox,
+    options: [
+      {
+        label: 'Local Wallet',
+        value: 'local'
+      },
+      {
+        label: 'Cold Wallet',
+        value: 'cold'
+      },
+      {
+        label: 'Hot Wallet',
+        value: 'hot'
+      },
+      'divider',
+      {
+        label: 'Primary Wallet',
+        value: 'primary'
+      },
+      {
+        label: 'Secondary Wallet',
+        value: 'secondary'
+      },
+      {
+        label: 'Burn Wallet',
+        value: 'burn'
+      }
+    ],
+    matchAny: [
+      {
+        field: 'account.wallets.identifier',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Specify Accounts',
+    key: 'tokens-specify-accounts',
+    icon: 'Option-Horizontal',
+    page: 'tokens',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    matchAll: [
+      {
+        field: 'account',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Specify Wallets',
+    key: 'tokens-specify-wallets',
+    icon: 'Option-Horizontal',
+    page: 'tokens',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    matchAll: [
+      {
+        field: 'account.wallets',
         comparator: 'contains'
       }
     ]
