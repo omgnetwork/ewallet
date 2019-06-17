@@ -355,5 +355,158 @@ export const FILTER_MAP = [
         comparator: 'contains'
       }
     ]
+  },
+  // TRANSACTION CONSUMPTIONS PAGE --------------
+  {
+    title: 'Consumed Date',
+    key: 'transaction-consumptions-consumed-date',
+    icon: 'Option-Horizontal',
+    page: 'transaction-consumptions',
+    height: 205,
+    component: filters.DateTime,
+    default: true,
+    matchAll: [
+      {
+        field: 'inserted_at',
+        comparator: 'gte',
+        value: '{{ startDate }}'
+      },
+      {
+        field: 'inserted_at',
+        comparator: 'lte',
+        value: '{{ endDate }}'
+      }
+    ]
+  },
+  {
+    title: 'Consumption Type',
+    key: 'transaction-consumptions-consumption-type',
+    icon: 'Option-Horizontal',
+    page: 'transaction-consumptions',
+    height: 136,
+    component: filters.RadioCheckbox,
+    default: true,
+    options: [
+      {
+        label: 'Send',
+        value: 'send'
+      },
+      {
+        label: 'Received',
+        value: 'receive'
+      }
+    ],
+    matchAll: [
+      {
+        field: 'transaction_request.type',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Status',
+    key: 'transaction-consumptions-status',
+    icon: 'Option-Horizontal',
+    page: 'transaction-consumptions',
+    height: 166,
+    default: true,
+    component: filters.Checkbox,
+    options: [
+      {
+        label: 'Confirmed',
+        value: 'confirmed'
+      },
+      {
+        label: 'Pending',
+        value: 'pending'
+      },
+      {
+        label: 'Failed',
+        value: 'failed'
+      }
+    ],
+    matchAny: [
+      {
+        field: 'status',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Specify Transaction Request',
+    key: 'transaction-consumptions-specify-transaction-request',
+    icon: 'Option-Horizontal',
+    page: 'transaction-consumptions',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    matchAny: [
+      {
+        field: 'transaction_request.id',
+        comparator: 'contains'
+      },
+      {
+        field: 'transaction_request.id',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Specify Accounts',
+    key: 'transaction-consumptions-specify-accounts',
+    icon: 'Option-Horizontal',
+    page: 'transaction-consumptions',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    matchAny: [
+      {
+        field: 'account.id',
+        comparator: 'contains'
+      },
+      {
+        field: 'account.id',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    // TODO: NOT SURE ABOUT QUERY FIELD HERE...
+    title: 'Specify Consumer',
+    key: 'transaction-consumptions-specify-consumer',
+    icon: 'Option-Horizontal',
+    page: 'transaction-consumptions',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    matchAny: [
+      {
+        field: 'account.id',
+        comparator: 'contains'
+      },
+      {
+        field: 'account.id',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Specify Requested Wallet',
+    key: 'transaction-consumptions-specify-requested-wallet',
+    icon: 'Option-Horizontal',
+    page: 'transaction-consumptions',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    matchAny: [
+      {
+        field: 'wallet.address',
+        comparator: 'contains'
+      },
+      {
+        field: 'wallet.address',
+        comparator: 'contains'
+      }
+    ]
   }
 ]

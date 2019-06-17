@@ -40,7 +40,7 @@ const DropdownItem = styled.div`
 `
 const DropdownBoxStyles = styled(DropdownBox)`
   transform: translateX(100%);
-  width: 200px;
+  width: 220px;
 `
 
 const FilterPicker = ({
