@@ -18,8 +18,7 @@ class AccessKeyMembershipsProvider extends Component {
     getAccessKeyMemberships: PropTypes.func,
     assignKey: PropTypes.func,
     unassignKey: PropTypes.func,
-    memberships: PropTypes.array,
-    membershipsLoadingStatus: PropTypes.string
+    memberships: PropTypes.array
   }
 
   state = {
