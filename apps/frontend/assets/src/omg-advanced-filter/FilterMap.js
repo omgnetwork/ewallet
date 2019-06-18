@@ -38,7 +38,7 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 110,
-    component: filters.InputFilter,
+    component: filters.SelectAccount,
     default: false,
     matchAny: [
       {

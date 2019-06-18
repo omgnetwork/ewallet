@@ -19,6 +19,8 @@ const SelectStyled = styled(Select)`
   }
   .react-select__value-container {
     padding: 0;
+    max-height: 38px;
+    overflow: scroll;
   }
   .react-select__placeholder {
     color: ${props => props.theme.colors.S400};
