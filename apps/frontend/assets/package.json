@@ -88,6 +88,7 @@
     "react-redux-loading-bar": "^4.2.0",
     "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0",
+    "react-select": "^3.0.4",
     "react-transition-group": "^4.0.0",
     "recompose": "^0.30.0",
     "redux": "^4.0.1",

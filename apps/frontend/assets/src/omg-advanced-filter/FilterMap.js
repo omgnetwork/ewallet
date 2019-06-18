@@ -704,15 +704,31 @@ export const FILTER_MAP = [
   },
   {
     title: 'Specify Wallets',
+    placeholder: 'Select Wallet Addresses',
     key: 'tokens-specify-wallets',
     icon: 'Option-Horizontal',
     page: 'tokens',
     height: 110,
-    component: filters.InputFilter,
-    default: false,
+    component: filters.MultiSelectFilter,
+    default: true,
     matchAll: [
       {
         field: 'account.wallets',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Transfer To',
+    key: 'tokens-test',
+    icon: 'Option-Horizontal',
+    page: 'tokens',
+    height: 110,
+    component: filters.SelectAccount,
+    default: true,
+    matchAll: [
+      {
+        field: 'to_account.id',
         comparator: 'contains'
       }
     ]

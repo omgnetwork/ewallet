@@ -21,6 +21,7 @@ import TimePicker from '../omg-uikit/timepicker'
 import NavCard from '../omg-uikit/navcard'
 import Id from '../omg-uikit/id'
 import SearchBar from '../omg-uikit/searchbar'
+import MultiSelect from '../omg-uikit/multiselect'
 
 export {
   Input,
@@ -46,5 +47,6 @@ export {
   TimePicker,
   NavCard,
   Id,
-  SearchBar
+  SearchBar,
+  MultiSelect
 }
