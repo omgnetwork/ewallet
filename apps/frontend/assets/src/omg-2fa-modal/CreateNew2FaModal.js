@@ -5,7 +5,11 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 import Modal from '../omg-modal'
-import { createSecretCodes, enable2Fa } from '../omg-2fa/action'
+import {
+  createSecretCodes,
+  enable2Fa,
+  createBackupCodes
+} from '../omg-2fa/action'
 import { to2FaFormat } from '../omg-2fa/serializer'
 import { QrCode, Input, Button } from '../omg-uikit'
 
@@ -24,9 +28,15 @@ const Create2FaModalContainer = styled.div`
 function CreateTwoFaModal ({ open, onRequestClose }) {
   const dispatch = useDispatch()
   const [secretCode, setSecretCode] = useState(null)
+  const [backupCodes, setBackupCodes] = useState(null)
   const [passcode, setPasscode] = useState('')
   const onEnable2Fa = () => {
-    enable2Fa(passcode)(dispatch)
+    if (secretCode) {
+      createBackupCodes()(dispatch).then(({ data }) => {
+        if (data) setBackupCodes(data)
+      })
+      enable2Fa(passcode)(dispatch)
+    }
   }
   const afterClose = () => {
     setPasscode('')
@@ -38,6 +48,27 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
     })
   }
 
+  const renderCreateMode = () => {
+    return (
+      <>
+        <h4>please scan the QR</h4>
+        <div>
+          Secret code: {_.get(secretCode, 'secret_2fa_code', 'loading code..')}
+        </div>
+        <QrCode data={secretCode && to2FaFormat(secretCode)} size={200} />
+        <Input
+          value={passcode}
+          onChange={e => setPasscode(e.target.value)}
+          normalPlaceholder='passcode...'
+        />
+        <Button onClick={onEnable2Fa}>Enable 2Factor Authnetication</Button>)
+      </>
+    )
+  }
+
+  const renderShowBackup = () => {
+    return JSON.stringify(backupCodes)
+  }
   return (
     <Modal
       isOpen={open}
@@ -46,15 +77,7 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
       onAfterOpen={onAfterOpen}
     >
       <Create2FaModalContainer>
-        <h4>please scan the QR</h4>
-        <div>Secret code: {_.get(secretCode, 'secret_2fa_code', 'loading code..')}</div>
-        <QrCode data={secretCode && to2FaFormat(secretCode)} size={200} />
-        <Input
-          value={passcode}
-          onChange={e => setPasscode(e.target.value)}
-          normalPlaceholder='passcode...'
-        />
-        <Button onClick={onEnable2Fa}>Enable 2Factor Authnetication</Button>
+        {backupCodes ? renderShowBackup() : renderCreateMode()}
       </Create2FaModalContainer>
     </Modal>
   )
