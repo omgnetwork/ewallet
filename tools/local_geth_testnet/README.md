@@ -41,11 +41,7 @@ It will return the private key, keep it for later:
 
 Open a new terminal window at the root of the `local_geth_testnet` folder (located in `tools/`)
 
-We first need to init the blockchain:
-
-> `./init.sh`
-
-Then we can open the `geth` console:
+Run the following command that will initialize the blockchain and start the `geth` console:
 
 > `./console.sh`
 
