@@ -1,18 +1,19 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import Table from '../omg-table'
-import { Switch, Icon } from '../omg-uikit'
-import ApiKeysFetcher from '../omg-api-keys/apiKeysFetcher'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { createApiKey, updateApiKey } from '../omg-api-keys/action'
-import CreateClientKeyModal from '../omg-create-client-key-modal'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
-import Copy from '../omg-copy'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+
+import Table from '../omg-table'
+import { Switch, Icon, Id } from '../omg-uikit'
+import ApiKeysFetcher from '../omg-api-keys/apiKeysFetcher'
+import { createApiKey, enableApiKey } from '../omg-api-keys/action'
+import CreateClientKeyModal from '../omg-create-client-key-modal'
 import { createSearchAdminKeyQuery } from '../omg-access-key/searchField'
+
 const KeySection = styled.div`
   position: relative;
   p {
@@ -38,20 +39,6 @@ const KeySection = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(2) {
-    border: none;
-    width: 20%;
-    position: relative;
-    :before {
-      content: '';
-      position: absolute;
-      right: 0;
-      bottom: -1px;
-      height: 1px;
-      width: calc(100% - 50px);
-      border-bottom: 1px solid ${props => props.theme.colors.S200};
-    }
-  }
   i[name='Copy'] {
     cursor: pointer;
     visibility: hidden;
@@ -64,6 +51,8 @@ const KeySection = styled.div`
 `
 
 const KeyContainer = styled.div`
+  display: flex;
+  flex-direction: row;
   white-space: nowrap;
   span {
     vertical-align: middle;
@@ -73,7 +62,7 @@ const KeyContainer = styled.div`
     margin-right: 5px;
   }
   i[name='Key'] {
-    margin-right: 5px;
+    margin-right: 15px;
     color: ${props => props.theme.colors.B100};
     padding: 8px;
     border-radius: 6px;
@@ -94,17 +83,18 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { createApiKey, updateApiKey }
+    { createApiKey, enableApiKey }
   )
 )
 class ClientKeySection extends Component {
   static propTypes = {
     createApiKey: PropTypes.func,
-    updateApiKey: PropTypes.func,
+    enableApiKey: PropTypes.func,
     location: PropTypes.object,
     createClientKeyModalOpen: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    search: PropTypes.string
+    search: PropTypes.string,
+    history: PropTypes.object
   }
   state = {
     submitStatus: 'DEFAULT'
@@ -121,8 +111,12 @@ class ClientKeySection extends Component {
       this.setState({ submitStatus: 'FAILED' })
     }
   }
-  onClickSwitch = ({ id, expired, fetch }) => async e => {
-    await this.props.updateApiKey({ id, expired })
+  onClickSwitch = ({ id, enabled, fetch }) => async e => {
+    e.stopPropagation()
+    await this.props.enableApiKey({ id, enabled })
+  }
+  onClickRow = (data, index) => e => {
+    this.props.history.push(`client/${data.id}`)
   }
   onSubmitSuccess = fetch => () => {
     fetch()
@@ -134,13 +128,14 @@ class ClientKeySection extends Component {
         return (
           <Switch
             open={!data}
-            onClick={this.onClickSwitch({ id: rows.id, expired: !rows.status, fetch })}
+            onClick={this.onClickSwitch({ id: rows.id, enabled: rows.status, fetch })}
           />
         )
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /><span>{data}</span> <Copy data={data} />
+            <Icon name='Key' />
+            <Id maxChar={20}>{data}</Id>
           </KeyContainer>
         )
       case 'name':
@@ -181,7 +176,7 @@ class ClientKeySection extends Component {
           return (
             <KeySection>
               <Table
-                hoverEffect={false}
+                onClickRow={this.onClickRow}
                 loadingRowNumber={6}
                 rows={apiKeysRows}
                 rowRenderer={this.rowApiKeyRenderer(fetch)}

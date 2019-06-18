@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
-import SortableTable from '../omg-table'
-import ActivityLogFetcher from '../omg-activity-log/ActivityLogFetcher'
 import { withRouter, Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import SortableTable from '../omg-table'
+import ActivityLogFetcher from '../omg-activity-log/ActivityLogFetcher'
 import { createSearchActivityLogQuery } from './searchField'
 import { Icon } from '../omg-uikit'
-const AccountPageContainer = styled.div`
+
+const ActivityLogPageContainer = styled.div`
   position: relative;
   padding-bottom: 50px;
   td:first-child {
@@ -34,7 +36,6 @@ const AccountPageContainer = styled.div`
     }
   }
   i[name='Copy'] {
-    margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
     color: ${props => props.theme.colors.S500};
@@ -58,13 +59,18 @@ export const NameColumn = styled.div`
 const OriginatorDetailContianer = styled.div`
   color: ${props => props.theme.colors.B100};
 `
-class AccountPage extends Component {
+class ActivityLogPage extends Component {
   static propTypes = {
     divider: PropTypes.bool,
     history: PropTypes.object,
     query: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
     location: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    topNavigation: PropTypes.bool
+  }
+
+  static defaultProps = {
+    topNavigation: true
   }
 
   onClickRow = (data, index) => e => {
@@ -227,13 +233,15 @@ class AccountPage extends Component {
 
   renderActivityPage = ({ data: activities, individualLoadingStatus, pagination, fetch }) => {
     return (
-      <AccountPageContainer>
-        <TopNavigation
-          divider={this.props.divider}
-          title={'Activity Logs'}
-          buttons={[]}
-          normalPlaceholder='originator id, action'
-        />
+      <ActivityLogPageContainer>
+        {this.props.topNavigation && (
+          <TopNavigation
+            divider={this.props.divider}
+            title={'Activity Logs'}
+            buttons={[]}
+            normalPlaceholder='originator id, action'
+          />
+        )}
         <SortableTableContainer
           ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
@@ -250,7 +258,7 @@ class AccountPage extends Component {
             onClickRow={this.onClickRow}
           />
         </SortableTableContainer>
-      </AccountPageContainer>
+      </ActivityLogPageContainer>
     )
   }
 
@@ -274,4 +282,4 @@ class AccountPage extends Component {
   }
 }
 
-export default withRouter(AccountPage)
+export default withRouter(ActivityLogPage)

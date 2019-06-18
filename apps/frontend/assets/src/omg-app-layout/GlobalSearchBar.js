@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react'
-import { Icon } from '../omg-uikit'
 import styled from 'styled-components'
+
+import { Icon } from '../omg-uikit'
 
 const GlobalSearchBarContainer = styled.div`
   position: relative;

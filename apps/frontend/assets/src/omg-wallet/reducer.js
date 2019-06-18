@@ -1,5 +1,5 @@
-import createReducer from '../reducer/createReducer'
 import _ from 'lodash'
+import createReducer from '../reducer/createReducer'
 export const walletsReducer = createReducer(
   {},
   {
@@ -23,6 +23,5 @@ export const walletsReducer = createReducer(
 export const walletsLoadingStatusReducer = createReducer('DEFAULT', {
   'WALLETS/REQUEST/INITIATED': (state, action) => 'INITIATED',
   'WALLETS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
-  'WALLETS/REQUEST/FAILED': (state, action) => 'FAILED',
-  'CURRENT_ACCOUNT/SWITCH': () => 'DEFAULT'
+  'WALLETS/REQUEST/FAILED': (state, action) => 'FAILED'
 })

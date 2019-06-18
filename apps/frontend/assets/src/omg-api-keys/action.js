@@ -12,13 +12,24 @@ export const deleteApiKey = id =>
     action: 'DELETE',
     service: () => apikeyService.deleteApiKeyById(id)
   })
-export const updateApiKey = ({ id, expired }) =>
+export const updateApiKey = ({ id, name }) =>
   createActionCreator({
     actionName: 'API_KEY',
     action: 'UPDATE',
-    service: () => apikeyService.updateApiKey({ id, expired })
+    service: () => apikeyService.updateApiKey({ id, name })
   })
-
+export const enableApiKey = ({ id, enabled }) =>
+  createActionCreator({
+    actionName: 'API_KEY',
+    action: 'UPDATE',
+    service: () => apikeyService.enableApiKey({ id, enabled })
+  })
+export const getApiKey = id =>
+  createActionCreator({
+    actionName: 'API_KEY',
+    action: 'REQUEST',
+    service: () => apikeyService.getApiKey(id)
+  })
 export const getApiKeys = ({ page, perPage, matchAll, matchAny, cacheKey }) =>
   createPaginationActionCreator({
     actionName: 'API_KEYS',

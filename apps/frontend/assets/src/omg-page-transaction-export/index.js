@@ -339,7 +339,7 @@ class TransactionExportPage extends Component {
                       <span>Export Transactions</span>
                     </TitleContainer>
                   }
-                  secondaryAction={false}
+                  searchBar={false}
                 />
 
                 <ContentContainer>

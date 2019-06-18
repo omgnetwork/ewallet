@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { withRouter } from 'react-router-dom'
+
 import ConsumptionPage from '../omg-page-consumption'
 import { consumptionsAccountFetcher } from '../omg-consumption/consumptionsFetcher'
-import { withRouter } from 'react-router-dom'
+
 export default withRouter(
   class AccountConsumptionSubPage extends Component {
     static propTypes = {

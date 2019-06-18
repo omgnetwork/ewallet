@@ -82,6 +82,8 @@ paths:
   # TRANSACTION REQUESTS
   /me.create_transaction_request:
     $ref: 'transaction_request/paths.yaml#/me.create_transaction_request'
+  /me.cancel_transaction_request:
+    $ref: 'transaction_request/paths.yaml#/me.cancel_transaction_request'
   /me.get_transaction_request:
     $ref: 'transaction_request/paths.yaml#/me.get_transaction_request'
   /me.consume_transaction_request:

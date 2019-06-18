@@ -8,7 +8,6 @@ import { copyToClipboard } from './action'
 
 const IconButton = styled.span`
   cursor: pointer;
-  vertical-align: middle;
   color: ${props => props.theme.colors.S500};
   :hover {
     color: ${props => props.theme.colors.B300};

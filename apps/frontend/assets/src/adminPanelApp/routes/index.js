@@ -13,6 +13,8 @@ import TransactionPage from '../../omg-page-transaction'
 import WalletPage from '../../omg-page-wallets'
 import UserSettingPage from '../../omg-page-user-setting'
 import ApiKeyPage from '../../omg-page-api'
+import ApiKeyDetailPage from '../../omg-page-api-detail'
+import KeyDetailAccountsPage from '../../omg-page-api-detail-accounts'
 import UserPage from '../../omg-page-users'
 import TokenDetailPage from '../../omg-page-token-detail'
 import WalletDetailPage from '../../omg-page-wallet-detail'
@@ -27,6 +29,7 @@ import AdminDetailPage from '../../omg-page-admin-detail'
 import NotFoundPage from '../../omg-page-404'
 import AccountLayout from '../../omg-page-each-account/AccountLayout'
 import VerifyEmail from '../../omg-page-verify-email'
+import ModalController from '../../omg-modal/ModalController'
 // prettier-ignore
 
 const createRoute = () => (
@@ -49,6 +52,8 @@ const createRoute = () => (
       <AuthenticatedRoute path='/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute path='/transaction/export' exact component={TransactionExportPage} />
 
+      <AuthenticatedRoute path='/keys/:keyType/:keyId/assigned-accounts' exact component={KeyDetailAccountsPage} />
+      <AuthenticatedRoute path='/keys/:keyType/:keyId' exact component={ApiKeyDetailPage} />
       <AuthenticatedRoute path='/keys/:keyType' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/keys' exact component={ApiKeyPage} />
 
@@ -61,7 +66,8 @@ const createRoute = () => (
       <AuthenticatedRoute path='/accounts/:accountId/:type' component={AccountLayout} />
 
       {/* OVERVIEW */}
-      <AuthenticatedRoute path='/users/:userId' exact component={() => <UserDetailPage withBreadCrumb />} />
+      <AuthenticatedRoute path='/users/:userId/:type' exact component={() => <UserDetailPage withBreadCrumb />} />
+      <AuthenticatedRoute path='/users/:userId' excact component={() => <UserDetailPage withBreadCrumb />} />
 
       <AuthenticatedRoute path='/consumptions' exact component={ReqestConsumptionPage} />
       <AuthenticatedRoute path='/requests' exact component={TransactionRequestPage} />
@@ -75,6 +81,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <Route component={NotFoundPage} />
     </Switch>
+    <ModalController />
   </Router>
 )
 

@@ -11,6 +11,7 @@ import { getAccountById, deleteAccount } from './omg-account/action'
 import { configureStore } from './store'
 moment.defaultFormat = 'ddd, DD/MM/YYYY HH:mm:ss'
 
+// ===================================== ADMIN APP =====================================
 async function bootAdminPanelApp () {
   // INIT SOCKET
   const socket = new SocketConnector(WEBSOCKET_URL)
@@ -80,6 +81,8 @@ async function bootAdminPanelApp () {
   return true
 }
 
+// ===================================== CLIENT APP =====================================
+
 async function bootClientApp () {
   const App = await import('./clientApp')
   const LoadedApp = App.default
@@ -94,6 +97,8 @@ async function bootClientApp () {
   console.log('Started client app.')
   return true
 }
+
+// ===================================== BOOT APP =====================================
 
 async function bootApp () {
   const [, app] = window.location.pathname.split('/')

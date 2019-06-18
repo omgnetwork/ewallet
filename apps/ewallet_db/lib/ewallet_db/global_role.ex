@@ -111,13 +111,15 @@ defmodule EWalletDB.GlobalRole do
         all: :global,
         get: :global,
         listen: :global,
-        create: :global
+        create: :global,
+        cancel: :global
       },
       end_user_transaction_requests: %{
         all: :global,
         get: :global,
         listen: :global,
-        create: :global
+        create: :global,
+        cancel: :global
       },
       account_transaction_consumptions: %{
         all: :global,
@@ -190,13 +192,15 @@ defmodule EWalletDB.GlobalRole do
         all: :global,
         listen: :global,
         get: :global,
-        create: :none
+        create: :none,
+        cancel: :none
       },
       end_user_transaction_requests: %{
         all: :global,
         listen: :global,
         get: :global,
-        create: :none
+        create: :none,
+        cancel: :none
       },
       account_transaction_consumptions: %{
         all: :global,
@@ -247,7 +251,8 @@ defmodule EWalletDB.GlobalRole do
         get: :global,
         listen: :self,
         create: :self,
-        confirm: :self
+        confirm: :self,
+        cancel: :self
       },
       account_transaction_requests: %{
         get: :global

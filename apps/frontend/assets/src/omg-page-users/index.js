@@ -2,15 +2,14 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
 
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import styled from 'styled-components'
 import SortableTable from '../omg-table'
-import { Button, Icon } from '../omg-uikit'
+import { Button, Icon, Id } from '../omg-uikit'
 import ExportModal from '../omg-export-modal'
 import UsersFetcher from '../omg-users/usersFetcher'
-import { withRouter } from 'react-router-dom'
-import Copy from '../omg-copy'
 import { createSearchUsersQuery } from '../omg-users/searchField'
 
 const UserPageContainer = styled.div`
@@ -37,7 +36,6 @@ const UserPageContainer = styled.div`
     }
   }
   i[name='Copy'] {
-    margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
     color: ${props => props.theme.colors.S500};
@@ -53,12 +51,10 @@ const SortableTableContainer = styled.div`
   }
 `
 const UserIdContainer = styled.div`
-  white-space: nowrap;
-  span {
-    vertical-align: middle;
-  }
+  display: flex;
+  flex-direction: row;
   i[name='Profile'] {
-    margin-right: 5px;
+    margin-right: 15px;
     color: ${props => props.theme.colors.B100};
     padding: 8px;
     border-radius: 6px;
@@ -129,7 +125,7 @@ class UsersPage extends Component {
     if (key === 'id') {
       return (
         <UserIdContainer>
-          <Icon name='Profile' /><span>{data}</span> <Copy data={data} />
+          <Icon name='Profile' /><Id>{data}</Id>
         </UserIdContainer>
       )
     }

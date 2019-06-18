@@ -2,7 +2,7 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { selectUser } from './selector'
-import { selectWalletByUserId } from '../omg-wallet/selector'
+import { selectWalletsByUserId } from '../omg-wallet/selector'
 import { getUserById } from './action'
 import { getWalletsByUserId } from '../omg-wallet/action'
 class UserProvider extends Component {
@@ -32,7 +32,7 @@ export default connect(
   (state, props) => {
     return {
       user: selectUser(props.userId)(state),
-      wallet: selectWalletByUserId(props.userId)(state)
+      wallet: selectWalletsByUserId(props.userId)(state)
     }
   },
   { getUserById, getWalletsByUserId }

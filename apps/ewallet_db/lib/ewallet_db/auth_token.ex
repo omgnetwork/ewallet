@@ -23,6 +23,7 @@ defmodule EWalletDB.AuthToken do
   import Ecto.Query, only: [from: 2]
   alias Ecto.UUID
   alias Utils.Helpers.Crypto
+  alias EWalletDB.Expirers.AuthExpirer
   alias EWalletDB.{Account, AuthToken, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -52,6 +53,7 @@ defmodule EWalletDB.AuthToken do
     )
 
     field(:expired, :boolean)
+    field(:expired_at, :naive_datetime_usec)
     timestamps()
     activity_logging()
   end
@@ -60,7 +62,7 @@ defmodule EWalletDB.AuthToken do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:token, :owner_app, :user_uuid, :account_uuid, :expired],
+      cast: [:token, :owner_app, :user_uuid, :account_uuid, :expired, :expired_at],
       required: [:token, :owner_app, :user_uuid]
     )
     |> unique_constraint(:token)
@@ -71,7 +73,7 @@ defmodule EWalletDB.AuthToken do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:expired],
+      cast: [:expired, :expired_at],
       required: [:expired]
     )
   end
@@ -100,11 +102,13 @@ defmodule EWalletDB.AuthToken do
   Generate an auth token for the specified user,
   then returns the auth token string.
   """
+  @spec generate(%User{}, atom(), any()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def generate(%User{} = user, owner_app, originator) when is_atom(owner_app) do
     %{
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: nil,
+      expired_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
       token: Crypto.generate_base64_key(@key_length),
       originator: originator
     }
@@ -118,20 +122,34 @@ defmodule EWalletDB.AuthToken do
   Returns the associated user if authenticated, :token_expired if token exists but expired,
   or false otherwise.
   """
+  @spec authenticate(String.t(), atom()) ::
+          %User{}
+          | {:error, :token_not_found}
+          | {:error, :token_expired}
+          | {:error, Ecto.Changeset.t()}
   def authenticate(token, owner_app) when is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
+    |> AuthExpirer.expire_or_refresh(get_lifetime())
     |> return_user()
   end
 
-  def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
+  @spec authenticate(String.t(), String.t(), atom()) ::
+          %User{}
+          | {:error, :token_not_found}
+          | {:error, :token_expired}
+          | {:error, Ecto.Changeset.t()}
+  def authenticate(user_id, token, owner_app) when is_atom(owner_app) do
     user_id
     |> get_by_user(owner_app)
     |> compare_multiple(token)
+    |> AuthExpirer.expire_or_refresh(get_lifetime())
     |> return_user()
   end
 
   def authenticate(_, _, _), do: Crypto.fake_verify()
+
+  defp compare_multiple(_, nil), do: nil
 
   defp compare_multiple(token_records, token) when is_list(token_records) do
     Enum.find(token_records, fn record ->
@@ -142,10 +160,13 @@ defmodule EWalletDB.AuthToken do
   defp return_user(token) do
     case token do
       nil ->
-        false
+        {:error, :token_not_found}
+
+      {:error, changeset} ->
+        {:error, changeset}
 
       %{expired: true} ->
-        :token_expired
+        {:error, :token_expired}
 
       token ->
         token
@@ -169,17 +190,23 @@ defmodule EWalletDB.AuthToken do
   # `get_by_user/2` is private to prohibit direct auth token access,
   # please use `authenticate/3` instead.
   defp get_by_user(user_id, owner_app) when is_binary(user_id) and is_atom(owner_app) do
-    Repo.all(
-      from(
-        a in AuthToken,
-        join: u in User,
-        on: u.uuid == a.user_uuid,
-        where: u.id == ^user_id and a.owner_app == ^Atom.to_string(owner_app)
+    auth_tokens =
+      Repo.all(
+        from(
+          a in AuthToken,
+          join: u in User,
+          on: u.uuid == a.user_uuid,
+          where: u.id == ^user_id and a.owner_app == ^Atom.to_string(owner_app)
+        )
       )
-    )
+
+    Repo.preload(auth_tokens, :user)
   end
 
   defp get_by_user(_, _), do: nil
+
+  @spec get_lifetime() :: integer
+  def get_lifetime, do: Application.get_env(:ewallet_db, :auth_token_lifetime, 0)
 
   # `insert/1` is private to prohibit direct auth token insertion,
   # please use `generate/2` instead.
@@ -190,6 +217,7 @@ defmodule EWalletDB.AuthToken do
   end
 
   # Expires the given token.
+  @spec expire(String.t(), atom(), any()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def expire(token, owner_app, originator) when is_binary(token) and is_atom(owner_app) do
     token
     |> get_by_token(owner_app)
@@ -197,12 +225,13 @@ defmodule EWalletDB.AuthToken do
   end
 
   def expire(%AuthToken{} = token, originator) do
-    update(token, %{
+    update(:expire, token, %{
       expired: true,
       originator: originator
     })
   end
 
+  @spec expire_for_user(atom() | %User{}) :: :ok
   def expire_for_user(%{enabled: true}), do: :ok
 
   def expire_for_user(user) do
@@ -217,9 +246,19 @@ defmodule EWalletDB.AuthToken do
     :ok
   end
 
+  @spec refresh(%__MODULE__{}, any()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def refresh(%AuthToken{} = token, originator) do
+    update(:refresh, token, %{
+      expired: false,
+      expired_at: get_lifetime() |> AuthExpirer.get_advanced_datetime(),
+      originator: originator
+    })
+  end
+
   @doc """
   Delete all AuthTokens associated with the user.
   """
+  @spec delete_for_user(%User{}) :: :ok
   def delete_for_user(user) do
     Repo.delete_all(
       from(
@@ -231,11 +270,13 @@ defmodule EWalletDB.AuthToken do
     :ok
   end
 
-  # `update/2` is private to prohibit direct auth token updates,
-  # if expiring the token, please use `expire/2` instead.
-  defp update(%AuthToken{} = token, attrs) do
+  defp update(operation, %AuthToken{} = token, attrs) do
     token
     |> expire_changeset(attrs)
-    |> Repo.update_record_with_activity_log()
+    |> do_update(operation)
   end
+
+  defp do_update(changeset, :refresh), do: Repo.update(changeset)
+  defp do_update(changeset, :expire), do: Repo.update_record_with_activity_log(changeset)
+  defp do_update(changeset, _), do: Repo.update_record_with_activity_log(changeset)
 end

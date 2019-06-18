@@ -32,6 +32,7 @@ TransactionRequestResponseSchema:
         encrypted_metadata: {}
         expiration_date: '2018-01-01T00:00:00Z'
         expired_at: '2018-01-01T00:00:00Z'
+        cancelled_at: '2018-01-01T00:00:00Z'
         created_at: '2018-01-01T00:00:00Z'
         updated_at: '2018-01-01T00:00:00Z'
 
@@ -77,5 +78,6 @@ TransactionRequestsResponseSchema:
             encrypted_metadata: {}
             expiration_date: '2018-01-01T00:00:00Z'
             expired_at: '2018-01-01T00:00:00Z'
+            cancelled_at: '2018-01-01T00:00:00Z'
             created_at: '2018-01-01T00:00:00Z'
             updated_at: '2018-01-01T00:00:00Z'

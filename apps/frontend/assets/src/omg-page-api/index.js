@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Button } from '../omg-uikit'
 import { compose } from 'recompose'
-import AdminKeySection from './AdminKeySection'
 import { withRouter, Link } from 'react-router-dom'
-import ClientKeySection from './ClientKeySection'
 import queryString from 'query-string'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import { Button, Tag } from '../omg-uikit'
+import AdminKeySection from './AdminKeySection'
+import ClientKeySection from './ClientKeySection'
+
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
 `
@@ -26,21 +28,24 @@ const KeyTopBar = styled.div`
     margin-left: auto;
   }
 `
-const KeyButton = styled.button`
+export const KeyButton = styled.button`
   padding: 5px 10px;
   border-radius: 4px;
   font-weight: ${({ active, theme }) => (active ? 'bold' : 'normal')};
   background-color: ${({ active, theme }) => (active ? theme.colors.S200 : 'white')};
   color: ${({ active, theme }) => (active ? theme.colors.B400 : theme.colors.B100)};
   margin-right: 10px;
-  border: none;
-  width: 100px;
+  border: 1px solid transparent;
+  min-width: 100px;
   :hover {
     border: 1px solid ${props => props.theme.colors.S300};
   }
 `
 const KeyTopButtonsContainer = styled.div`
   margin: 25px 0;
+  a {
+    margin-right: 10px;
+  }
 `
 const enhance = compose(withRouter)
 class ApiKeyPage extends Component {
@@ -88,14 +93,25 @@ class ApiKeyPage extends Component {
           description={'These are the keys that can be used by developers to interact with the API.'}
           buttons={null}
           types={false}
+          searchBar={false}
         />
         <KeyTopBar>
           <KeyTopButtonsContainer>
             <Link to='/keys/admin' query={stringQuery}>
-              <KeyButton active={activeTab === 'admin'}>Admin Keys</KeyButton>
+              <Tag
+                title='Admin Keys'
+                icon='Option-Horizontal'
+                active={activeTab === 'admin'}
+                hoverStyle
+              />
             </Link>
             <Link to='/keys/client' query={stringQuery}>
-              <KeyButton active={activeTab === 'client'}>Client Keys</KeyButton>
+              <Tag
+                title='Client Keys'
+                icon='Option-Horizontal'
+                active={activeTab === 'client'}
+                hoverStyle
+              />
             </Link>
             {activeTab === 'admin' ? (
               <Button size='small' onClick={this.onClickCreateAdminKey} styleType={'secondary'}>
@@ -122,6 +138,7 @@ class ApiKeyPage extends Component {
         </KeyTopBar>
         {activeTab === 'admin' ? (
           <AdminKeySection
+            subPage={false}
             createAdminKeyModalOpen={this.state.createAdminKeyModalOpen}
             onRequestClose={this.onRequestClose}
             search={queryString.parse(this.props.location.search).search}

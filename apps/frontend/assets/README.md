@@ -17,7 +17,7 @@ BACKEND_API_URL=https://omisego.network/admin/api
 BACKEND_WEBSOCKET_URL=https://omisego.network/admin/socket
 ```
 
-2. Install dependencies with `npm install` if you don't have yarn please install it first https://yarnpkg.com/lang/en/docs/install/
+2. Install dependencies with `npm install`
 3. Start the development server `npm run dev` and go to `http://localhost:9000` and test it out.
 
 _That's all, now you are ready to customize the admin panel as your own need._

@@ -26,6 +26,10 @@ defmodule EWallet.TransactionRequestPolicy do
     Bouncer.bounce(attrs, %Permission{action: :create, target: target})
   end
 
+  def authorize(:cancel, attrs, target) do
+    Bouncer.bounce(attrs, %Permission{action: :cancel, target: target})
+  end
+
   def authorize(action, attrs, target) do
     PolicyHelper.authorize(action, attrs, :transaction_requests, TransactionRequest, target)
   end

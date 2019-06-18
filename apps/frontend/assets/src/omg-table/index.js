@@ -1,25 +1,20 @@
 import React, { PureComponent } from 'react'
-import { Table, Icon, Button } from '../omg-uikit'
 import { withRouter } from 'react-router'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
+import styled from 'styled-components'
+
+import { Table, Icon, Button } from '../omg-uikit'
 import { DropdownBoxItem, DropdownBox } from '../omg-uikit/dropdown'
 import withDropdownState from '../omg-uikit/dropdown/withDropdownState'
-import styled from 'styled-components'
 
 export const ThContent = styled.div`
   padding: 4px 10px;
   letter-spacing: 1px;
   font-size: 10px;
   font-weight: 600;
+  text-align: ${props => props.align ? props.align : 'initial'};
   color: ${props => (props.active ? props.theme.colors.B400 : props.theme.colors.B100)};
-`
-const LoadMoreButton = styled(Button)`
-  padding-top: 5px;
-  padding-bottom: 5px;
-  i {
-    margin-right: 5px;
-  }
 `
 const TableContainer = styled.div`
   width: 100%;
@@ -80,7 +75,6 @@ class SortableTable extends PureComponent {
     isLastPage: PropTypes.bool,
     isFirstPage: PropTypes.bool,
     navigation: PropTypes.bool,
-    onClickLoadMore: PropTypes.func,
     pagination: PropTypes.bool,
     pageEntity: PropTypes.string,
     loadingEffect: PropTypes.bool,
@@ -194,7 +188,7 @@ class SortableTable extends PureComponent {
     }
     return (
       <th key={col.key}>
-        <ThContent>{col.title}</ThContent>
+        <ThContent align={col.align}>{col.title}</ThContent>
       </th>
     )
   }
@@ -229,19 +223,6 @@ class SortableTable extends PureComponent {
         .value()
       : this.props.rows
     return result
-  }
-  renderLoadMore = () => {
-    return (
-      <LoadMoreButton
-        styleType='secondary'
-        onClick={this.props.onClickLoadMore}
-        disabled={this.props.isLastPage}
-        size='small'
-      >
-        <Icon name='Chevron-Down' />
-        <span>Load More...</span>
-      </LoadMoreButton>
-    )
   }
   render () {
     const shouldShowNavigation =
@@ -309,7 +290,7 @@ class SortHeader extends React.Component {
   render () {
     return (
       <th key={`col-header-${this.props.col.key}`} onClick={this.onClickSort}>
-        <ThContent active={this.props.active}>
+        <ThContent align={this.props.col.align} active={this.props.active}>
           <span>{this.props.col.title}</span>{' '}
           {this.props.active ? (
             this.props.sortOrder === 'asc' ? (
@@ -340,7 +321,7 @@ const FilterHeader = withDropdownState(
     render () {
       return (
         <th key={`col-header-${this.props.col.key}`} onClick={this.props.onClickButton}>
-          <ThContent>
+          <ThContent align={this.props.col.align}>
             <div style={{ display: 'inline-block', position: 'relative' }}>
               <span>
                 {this.props.col.title} {this.props.selectedItem && `(${this.props.selectedItem}) `}

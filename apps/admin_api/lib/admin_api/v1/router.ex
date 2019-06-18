@@ -70,6 +70,7 @@ defmodule AdminAPI.V1.Router do
     post("/transaction_request.create", TransactionRequestController, :create)
     post("/transaction_request.get", TransactionRequestController, :get)
     post("/transaction_request.consume", TransactionConsumptionController, :consume)
+    post("/transaction_request.cancel", TransactionRequestController, :cancel)
 
     post(
       "/transaction_request.get_transaction_consumptions",

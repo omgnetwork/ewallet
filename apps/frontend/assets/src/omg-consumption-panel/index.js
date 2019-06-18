@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import ConsumptionProvider from '../omg-consumption/consumptionProvider'
-import { Icon, Button } from '../omg-uikit'
 import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
-import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
 import { compose } from 'recompose'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
+
+import ConsumptionProvider from '../omg-consumption/consumptionProvider'
+import { Icon, Button } from '../omg-uikit'
+import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 import TransactionRequestDetail from '../omg-transaction-request-tab/TransactionRequestDetail'
+
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;

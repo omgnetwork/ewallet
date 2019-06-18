@@ -24,6 +24,7 @@ transaction_request.create:
     operationId: transaction_request_create
     security:
       - ProviderAuth: []
+      - AdminAuth: []
     requestBody:
       $ref: 'request_bodies.yaml#/CreateTransactionRequestBody'
     responses:
@@ -41,8 +42,26 @@ transaction_request.get:
     operationId: transaction_request_get
     security:
       - ProviderAuth: []
+      - AdminAuth: []
     requestBody:
       $ref: 'request_bodies.yaml#/GetTransactionRequestBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/TransactionRequestResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+transaction_request.cancel:
+  post:
+    tags:
+      - TransactionRequest
+    summary: Cancel a transaction request.
+    operationId: transaction_request_cancel
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/CancelTransactionRequestBody'
     responses:
       '200':
         $ref: 'responses.yaml#/TransactionRequestResponse'
@@ -75,6 +94,7 @@ transaction_request.consume:
     operationId: transaction_request_consume
     security:
       - ProviderAuth: []
+      - AdminAuth: []
     requestBody:
       $ref: 'request_bodies.yaml#/ConsumeTransactionRequestBody'
     responses:

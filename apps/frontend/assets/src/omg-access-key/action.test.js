@@ -1,12 +1,12 @@
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
-import { getAccessKeys, createAccessKey, deleteAccessKey, updateAccessKey } from './action'
+import { getAccessKeys, getAccessKeyMemberships, createAccessKey, deleteAccessKey, getAccessKey, updateAccessKey } from './action'
 import * as accessKeyService from '../services/accessKeyService'
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 jest.mock('../services/accessKeyService')
 let store
-describe('apikeys actions', () => {
+describe('accesskeys actions', () => {
   beforeEach(() => {
     jest.resetAllMocks()
     store = mockStore()
@@ -40,7 +40,7 @@ describe('apikeys actions', () => {
       expect(store.getActions()).toEqual(expectedActions)
     })
   })
-  test('[createAccessKey] should dispatch success action if get account successfully', () => {
+  test('[createAccessKey] should dispatch success action if create key successfully', () => {
     accessKeyService.createAccessKey.mockImplementation(() => {
       return Promise.resolve({
         data: {
@@ -62,7 +62,7 @@ describe('apikeys actions', () => {
     })
   })
 
-  test('[deleteApiKey] should dispatch success action if get account successfully', () => {
+  test('[deleteAccessKey] should dispatch success action if delete key successfully', () => {
     accessKeyService.deleteAccessKeyById.mockImplementation(() => {
       return Promise.resolve({
         data: {
@@ -84,7 +84,59 @@ describe('apikeys actions', () => {
     })
   })
 
-  test('[updateAccessKey] should dispatch success action if get account successfully', () => {
+  test('[getAccessKey] should dispatch success action if get key successfully', () => {
+    accessKeyService.getAccessKey.mockImplementation(() => {
+      return Promise.resolve({
+        data: {
+          success: true,
+          data: 'key'
+        }
+      })
+    })
+    const expectedActions = [
+      { type: 'ACCESS_KEY/REQUEST/INITIATED' },
+      {
+        type: 'ACCESS_KEY/REQUEST/SUCCESS',
+        data: 'key'
+      }
+    ]
+    return store.dispatch(getAccessKey('id')).then(() => {
+      expect(accessKeyService.getAccessKey).toBeCalledWith('id')
+      expect(store.getActions()).toEqual(expectedActions)
+    })
+  })
+
+  test('[getAccessKeyMemberships] should dispatch success action if get access key memberships successfully', () => {
+    accessKeyService.getAccessKeyMemberships.mockImplementation(() => {
+      return Promise.resolve({
+        data: {
+          success: true,
+          data: { data: 'data', pagination: 'pagination' }
+        }
+      })
+    })
+    const expectedActions = [
+      { type: 'ACCESS_KEY_MEMBERSHIPS/REQUEST/INITIATED' },
+      {
+        type: 'ACCESS_KEY_MEMBERSHIPS/REQUEST/SUCCESS',
+        data: 'data',
+        pagination: 'pagination',
+        cacheKey: 'key'
+      }
+    ]
+    return store.dispatch(getAccessKeyMemberships({ perPage: 10, cacheKey: 'key' })).then(() => {
+      expect(accessKeyService.getAccessKeyMemberships).toBeCalledWith(
+        expect.objectContaining({
+          perPage: 10,
+          sortBy: 'created_at',
+          sortDir: 'desc'
+        })
+      )
+      expect(store.getActions()).toEqual(expectedActions)
+    })
+  })
+
+  test('[updateAccessKey] should dispatch success action if update key successfully', () => {
     accessKeyService.updateAccessKey.mockImplementation(() => {
       return Promise.resolve({
         data: {
@@ -100,8 +152,8 @@ describe('apikeys actions', () => {
         data: 'key'
       }
     ]
-    return store.dispatch(updateAccessKey({ id: 'id', expired: true })).then(() => {
-      expect(accessKeyService.updateAccessKey).toBeCalledWith({ id: 'id', expired: true })
+    return store.dispatch(updateAccessKey({ id: 'id', name: 'toto', globalRole: 'Admin' })).then(() => {
+      expect(accessKeyService.updateAccessKey).toBeCalledWith({ id: 'id', name: 'toto', globalRole: 'Admin' })
       expect(store.getActions()).toEqual(expectedActions)
     })
   })

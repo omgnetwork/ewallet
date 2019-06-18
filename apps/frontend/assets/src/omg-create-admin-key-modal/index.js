@@ -1,14 +1,16 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import Modal from '../omg-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
+import Modal from '../omg-modal'
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import { createAccessKey } from '../omg-access-key/action'
 import { assignKey } from '../omg-account/action.js'
+import AccountsFetcher from '../omg-account/accountsFetcher'
+import AccountSelectRow from './AccountSelectRow'
 
 const CreateAdminKeyModalContainer = styled.div`
   padding: 50px;
@@ -33,16 +35,21 @@ const CreateAdminKeyModalContainer = styled.div`
     margin-top: 35px;
   }
 `
-
 const CreateAdminKeyFormContainer = styled.form`
   position: absolute;
   top: 50%;
-
   transform: translateY(-50%);
   left: 0;
   right: 0;
   margin: 0 auto;
   width: 400px;
+  h3 {
+    text-align: left;
+    margin-bottom: 35px;
+  }
+  button {
+    display: block;
+  }
 `
 const StyledInput = styled(Input)`
   margin-bottom: 35px;
@@ -55,44 +62,36 @@ const InputLabel = styled.div`
   text-align: left;
   margin-bottom: 5px;
 `
-const enhance = compose(
-  withRouter,
-  connect(
-    null,
-    { createAccessKey, assignKey }
-  )
-)
-
-CreateAdminKeyModal.propTypes = {
-  open: PropTypes.bool,
-  createAccessKey: PropTypes.func,
-  onRequestClose: PropTypes.func,
-  onSubmitSuccess: PropTypes.func,
-  accountId: PropTypes.string
-}
 
 function CreateAdminKeyModal (props) {
   const [label, setLabel] = useState('')
   const [submitStatus, setSubmitStatus] = useState('DEFAULT')
   const [role, setRole] = useState('none')
   const [roleName, setRoleName] = useState('viewer')
+  const [accountId, setAccountId] = useState(props.accountId)
 
   function onRequestClose () {
     setLabel('')
-    setRole('none')
     setSubmitStatus('DEFAULT')
+    setRole('none')
     props.onRequestClose()
   }
+
   function onSelectRole (role) {
     setRole(role)
   }
+
+  function onSelectAccount (item) {
+    setAccountId(item.key)
+  }
+
   async function onSubmit (e) {
     e.preventDefault()
     setSubmitStatus('SUBMITTED')
     const { data } = await props.createAccessKey({
       name: label,
       globalRole: role,
-      accountId: props.accountId,
+      accountId,
       roleName
     })
     if (data) {
@@ -115,17 +114,51 @@ function CreateAdminKeyModal (props) {
       <CreateAdminKeyModalContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />
         <CreateAdminKeyFormContainer>
-          <h4>Generate Admin Key</h4>
+          <h3>Generate Admin Key</h3>
+
           <InputLabel>Label</InputLabel>
           <StyledInput
             autoFocus
-            normalPlaceholder='Label ( optional )'
+            normalPlaceholder='Enter Label'
             onChange={e => setLabel(e.target.value)}
             value={label}
           />
-          {!props.accountId && (
+
+          {!props.hideAccount && (
             <>
-              <InputLabel>Global Role</InputLabel>
+              <InputLabel>Assign Account</InputLabel>
+              <AccountsFetcher
+                render={({ data: accounts }) => {
+                  return (
+                    <StyledSelect
+                      disabled={!!props.accountId}
+                      normalPlaceholder='Add Account ID'
+                      value={accountId}
+                      noBorder={!!accountId}
+                      style={{ paddingTop: '10px' }}
+                      valueRenderer={value => {
+                        const account = _.find(accounts, account => account.id === value)
+                        return <AccountSelectRow withCopy account={account} />
+                      }}
+                      onSelectItem={onSelectAccount}
+                      options={accounts
+                        .filter(account => account.id !== accountId)
+                        .map(account => {
+                          return {
+                            key: account.id,
+                            value: <AccountSelectRow key={account.id} account={account} />
+                          }
+                        })}
+                    />
+                  )
+                }}
+              />
+            </>
+          )}
+
+          {!accountId && (
+            <>
+              <InputLabel>Assign Role</InputLabel>
               <StyledSelect
                 normalPlaceholder='Role ( optional )'
                 value={_.startCase(role)}
@@ -140,11 +173,12 @@ function CreateAdminKeyModal (props) {
               />
             </>
           )}
-          {props.accountId && (
+
+          {accountId && (
             <>
-              <InputLabel>Select Role</InputLabel>
+              <InputLabel>Assign Role</InputLabel>
               <StyledSelect
-                normalPlaceholder='Role name'
+                normalPlaceholder='Add Role'
                 value={_.startCase(roleName)}
                 onSelectItem={item => setRoleName(item.key)}
                 options={[
@@ -155,6 +189,7 @@ function CreateAdminKeyModal (props) {
               />
             </>
           )}
+
           <Button
             styleType='primary'
             type='submit'
@@ -166,6 +201,23 @@ function CreateAdminKeyModal (props) {
       </CreateAdminKeyModalContainer>
     </Modal>
   )
+}
+
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { createAccessKey, assignKey }
+  )
+)
+
+CreateAdminKeyModal.propTypes = {
+  open: PropTypes.bool,
+  createAccessKey: PropTypes.func,
+  onRequestClose: PropTypes.func,
+  onSubmitSuccess: PropTypes.func,
+  accountId: PropTypes.string,
+  hideAccount: PropTypes.bool
 }
 
 export default enhance(CreateAdminKeyModal)
