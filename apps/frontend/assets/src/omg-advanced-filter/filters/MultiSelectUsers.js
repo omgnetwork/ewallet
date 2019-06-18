@@ -1,11 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+import UsersFetcher from '../../omg-users/usersFetcher'
 import { MultiSelect } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
 
-const MultiSelectFilter = ({
+const MultiSelectUsers = ({
   onRemove,
   onUpdate,
   clearKey,
@@ -25,17 +26,28 @@ const MultiSelectFilter = ({
       closeClick={onRemove}
     >
       <TagRow title={config.title} />
-      <MultiSelect
-        placeholder={config.placeholder}
-        onChange={onChange}
-        value={values[config.key]}
-        options={config.options}
+      <UsersFetcher
+        render={({ data }) => {
+          return (
+            <MultiSelect
+              placeholder={config.placeholder}
+              onChange={onChange}
+              value={values[config.key]}
+              options={data.map(user => {
+                return {
+                  label: user.username || user.id,
+                  value: user.id
+                }
+              })}
+            />
+          )
+        }}
       />
     </FilterBox>
   )
 }
 
-MultiSelectFilter.propTypes = {
+MultiSelectUsers.propTypes = {
   onRemove: PropTypes.func.isRequired,
   onUpdate: PropTypes.func.isRequired,
   clearKey: PropTypes.func.isRequired,
@@ -43,4 +55,4 @@ MultiSelectFilter.propTypes = {
   config: PropTypes.object
 }
 
-export default MultiSelectFilter
+export default MultiSelectUsers

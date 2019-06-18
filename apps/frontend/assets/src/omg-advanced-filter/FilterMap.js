@@ -205,9 +205,9 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'wallets',
     height: 110,
-    component: filters.InputFilter,
+    component: filters.MultiSelectAccounts,
     default: false,
-    matchAll: [
+    matchAny: [
       {
         field: 'account.id',
         comparator: 'contains'
@@ -220,9 +220,9 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'wallets',
     height: 110,
-    component: filters.InputFilter,
+    component: filters.MultiSelectUsers,
     default: false,
-    matchAll: [
+    matchAny: [
       {
         field: 'user.id',
         comparator: 'contains'
@@ -332,9 +332,9 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction-requests',
     height: 110,
-    component: filters.InputFilter,
+    component: filters.MultiSelectAccounts,
     default: false,
-    matchAll: [
+    matchAny: [
       {
         field: 'account.id',
         comparator: 'contains'
@@ -347,9 +347,9 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction-requests',
     height: 110,
-    component: filters.InputFilter,
+    component: filters.MultiSelectWallets,
     default: false,
-    matchAll: [
+    matchAny: [
       {
         field: 'wallet.address',
         comparator: 'contains'
@@ -453,9 +453,9 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction-consumptions',
     height: 110,
-    component: filters.InputFilter,
+    component: filters.MultiSelectAccounts,
     default: false,
-    matchAll: [
+    matchAny: [
       {
         field: 'account.id',
         comparator: 'contains'
@@ -468,9 +468,9 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction-consumptions',
     height: 110,
-    component: filters.InputFilter,
+    component: filters.MultiSelectUsers,
     default: false,
-    matchAll: [
+    matchAny: [
       {
         field: 'user.id',
         comparator: 'contains'
@@ -483,7 +483,7 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction-consumptions',
     height: 110,
-    component: filters.InputFilter,
+    component: filters.MultiSelectWallets,
     default: false,
     matchAll: [
       {
@@ -515,14 +515,14 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Accounts / Provider',
+    title: 'Specify Accounts',
     key: 'users-specify-accounts',
     icon: 'Option-Horizontal',
     page: 'users',
     height: 110,
-    component: filters.InputFilter,
+    component: filters.MultiSelectAccounts,
     default: true,
-    matchAll: [
+    matchAny: [
       {
         field: 'accounts.id',
         comparator: 'contains'
@@ -693,11 +693,11 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'tokens',
     height: 110,
-    component: filters.InputFilter,
+    component: filters.MultiSelectAccounts,
     default: false,
-    matchAll: [
+    matchAny: [
       {
-        field: 'account',
+        field: 'account.id',
         comparator: 'contains'
       }
     ]
@@ -709,26 +709,11 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'tokens',
     height: 110,
-    component: filters.MultiSelectFilter,
+    component: filters.MultiSelectWallets,
     default: true,
-    matchAll: [
+    matchAny: [
       {
-        field: 'account.wallets',
-        comparator: 'contains'
-      }
-    ]
-  },
-  {
-    title: 'Transfer To',
-    key: 'tokens-test',
-    icon: 'Option-Horizontal',
-    page: 'tokens',
-    height: 110,
-    component: filters.SelectAccount,
-    default: true,
-    matchAll: [
-      {
-        field: 'to_account.id',
+        field: 'account.wallets.address',
         comparator: 'contains'
       }
     ]

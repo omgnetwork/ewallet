@@ -25,6 +25,9 @@ const SelectStyled = styled(Select)`
     font-size: 12px;
   }
   .react-select__indicator {
+    &:hover {
+      cursor: pointer;
+    }
     svg {
       height: 15px;
       width: 15px;
@@ -33,6 +36,17 @@ const SelectStyled = styled(Select)`
     i {
       color: ${props => props.theme.colors.S500};
       font-size: 12px;
+    }
+  }
+  .react-select__multi-value {
+    background-color: ${props => props.theme.colors.S100};
+  }
+  .react-select__multi-value__remove {
+    transition: all 200ms ease-in-out;
+    &:hover {
+      cursor: pointer;
+      color: white;
+      background-color: ${props => props.theme.colors.BL400};
     }
   }
   .react-select__indicator-separator {
@@ -71,7 +85,7 @@ const DropdownIndicator = (props) => {
 
 const MultiSelect = ({
   options,
-  value,
+  values,
   placeholder,
   onChange
 }) => {
@@ -81,7 +95,7 @@ const MultiSelect = ({
       closeMenuOnSelect={false}
       isSearchable
       options={options}
-      value={value}
+      value={values}
       placeholder={placeholder}
       onChange={onChange}
       classNamePrefix='react-select'
@@ -96,7 +110,7 @@ DropdownIndicator.propTypes = {
 
 MultiSelect.propTypes = {
   options: PropTypes.arrayOf(PropTypes.object),
-  value: PropTypes.object,
+  values: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   placeholder: PropTypes.string,
   onChange: PropTypes.func
 }
