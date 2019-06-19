@@ -233,6 +233,7 @@ const AdvancedFilter = ({
         ${startDate && endDate ? ',' : ''}
         ${endDate ? `end - ${endDate}` : ''}`
     }
+    return value
   }
 
   const springConfig = { stiffness: 200, damping: 20 }

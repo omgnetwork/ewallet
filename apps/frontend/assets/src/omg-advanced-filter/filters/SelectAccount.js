@@ -35,7 +35,7 @@ const SelectAccount = ({
               value={values[config.key] || ''}
               onChange={onChange}
               onSelectItem={e => onUpdate({ [config.key]: e.id })}
-              normalPlaceholder='Enter any ID or address'
+              normalPlaceholder='Select account'
               type='select'
               options={data.map(account => ({
                 key: account.id,

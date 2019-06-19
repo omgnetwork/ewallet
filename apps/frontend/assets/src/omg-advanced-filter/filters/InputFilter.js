@@ -25,7 +25,7 @@ const InputFilter = ({
     >
       <TagRow title={config.title} />
       <Input
-        normalPlaceholder='Enter any ID or address'
+        normalPlaceholder='Enter ID'
         onChange={onChange}
         value={values[config.key] || ''}
       />

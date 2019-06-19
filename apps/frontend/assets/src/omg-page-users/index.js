@@ -196,15 +196,17 @@ class UsersPage extends Component {
     const Fetcher = this.props.fetcher
     return (
       <Fetcher
+        render={this.renderUserPage}
         {...this.state}
         {...this.props}
-        render={this.renderUserPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
           matchAll: this.state.matchAll,
-          matchAny: this.state.matchAny,
-          ...createSearchUsersQuery(queryString.parse(this.props.location.search).search),
+          matchAny: [
+            ...createSearchUsersQuery(queryString.parse(this.props.location.search).search).matchAny,
+            ...this.state.matchAny
+          ],
           ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
