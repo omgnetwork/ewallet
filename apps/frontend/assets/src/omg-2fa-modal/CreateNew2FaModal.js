@@ -106,7 +106,7 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
             </div>
           )
         })}
-        <div><Button>Ok, I saved the backup codes</Button></div>
+        <div><Button onClick={onRequestClose}>Ok, I saved the backup codes</Button></div>
       </div>
     )
   }
