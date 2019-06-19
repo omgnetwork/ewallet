@@ -23,6 +23,14 @@ const Create2FaModalContainer = styled.div`
   h4 {
     margin-bottom: 10px;
   }
+  .backup-container {
+    text-align: center;
+  }
+  .backup-item {
+    padding: 5px;
+    display: inline-block;
+    width: 110px;
+  }
 `
 
 function CreateTwoFaModal ({ open, onRequestClose }) {
@@ -30,12 +38,21 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
   const [secretCode, setSecretCode] = useState(null)
   const [backupCodes, setBackupCodes] = useState(null)
   const [passcode, setPasscode] = useState('')
-  const onEnable2Fa = () => {
+  const [submitStatus, setSubmitStatus] = useState('DEFAULT')
+
+  const onEnable2Fa = async () => {
     if (secretCode) {
-      createBackupCodes()(dispatch).then(({ data }) => {
-        if (data) setBackupCodes(data)
-      })
-      enable2Fa(passcode)(dispatch)
+      const { data } = await enable2Fa(passcode)(dispatch)
+      if (data) {
+        createBackupCodes()(dispatch).then(({ data }) => {
+          if (data) {
+            setBackupCodes(data)
+            setSubmitStatus('SUCCESS')
+          }
+        })
+      } else {
+        setSubmitStatus('FAILED')
+      }
     }
   }
   const afterClose = () => {
@@ -48,9 +65,15 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
     })
   }
 
+  const onSubmit = e => {
+    e.preventDefault()
+    setSubmitStatus('LOADING')
+    onEnable2Fa()
+  }
+
   const renderCreateMode = () => {
     return (
-      <>
+      <form onSubmit={onSubmit}>
         <h4>please scan the QR</h4>
         <div>
           Secret code: {_.get(secretCode, 'secret_2fa_code', 'loading code..')}
@@ -61,13 +84,26 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
           onChange={e => setPasscode(e.target.value)}
           normalPlaceholder='passcode...'
         />
-        <Button onClick={onEnable2Fa}>Enable 2Factor Authnetication</Button>)
-      </>
+        <Button loading={submitStatus === 'LOADING'}>
+          Enable 2Factor Authnetication
+        </Button>
+      </form>
     )
   }
 
   const renderShowBackup = () => {
-    return JSON.stringify(backupCodes)
+    return (
+      <div className='backup-container'>
+        <h4>Please keep your backup code</h4>
+        {backupCodes.backup_codes.map(backupCode => {
+          return (
+            <div key={backupCode} className='backup-item'>
+              {backupCode}
+            </div>
+          )
+        })}
+      </div>
+    )
   }
   return (
     <Modal
