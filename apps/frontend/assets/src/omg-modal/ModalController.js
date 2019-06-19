@@ -4,11 +4,15 @@ import { selectGetModalById } from './selector'
 import { closeModal, openModal } from './action'
 
 import CreateTransactionModal from '../omg-create-transaction-modal'
-import Create2FaModal from '../omg-2fa-modal/CreateNew2FaModal'
+import Enable2FaModal from '../omg-2fa-modal/Enable2FaModal'
+import Enter2FaModal from '../omg-2fa-modal/Enter2FaModal'
+import Disable2FaModal from '../omg-2fa-modal/Disable2FaModal'
 // ADD YOUR NEW MODAL HERE
 const modals = [
   { id: 'createTransaction', modal: CreateTransactionModal },
-  { id: 'create2faModal', modal: Create2FaModal }
+  { id: 'enable2faModal', modal: Enable2FaModal },
+  { id: 'enter2FaModal', modal: Enter2FaModal },
+  { id: 'disable2FaModal', modal: Disable2FaModal }
 ]
 
 function ModalController (props) {

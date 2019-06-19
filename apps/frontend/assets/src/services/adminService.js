@@ -61,6 +61,13 @@ export function createAdmin ({
   })
 }
 
+export function login2Fa (passcode) {
+  return authenticatedRequest({
+    path: '/admin.login_2fa',
+    data: { passcode }
+  })
+}
+
 export function enable2Fa (passcode) {
   return authenticatedRequest({
     path: '/me.enable_2fa',

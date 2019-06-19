@@ -52,11 +52,11 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
 
   const onEnable2Fa = async () => {
     if (secretCode) {
-      const { data } = await enable2Fa(passcode)(dispatch)
-      if (data) {
-        createBackupCodes()(dispatch).then(({ data }) => {
-          if (data) {
-            setBackupCodes(data)
+      const { data: secretResult } = await enable2Fa(passcode)(dispatch)
+      if (secretResult) {
+        createBackupCodes()(dispatch).then(({ data: backupResult }) => {
+          if (backupResult) {
+            setBackupCodes(backupResult)
             setSubmitStatus('SUCCESS')
           }
         })

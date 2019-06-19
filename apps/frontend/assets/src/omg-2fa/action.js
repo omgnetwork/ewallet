@@ -1,5 +1,18 @@
 import { createActionCreator } from '../utils/createActionCreator'
 import * as adminService from '../services/adminService'
+import * as sessionService from '../services/sessionService'
+export const login2Fa = passcode =>
+  createActionCreator({
+    actionName: '2FA',
+    action: 'LOGIN',
+    service: async () => {
+      const result = await adminService.login2Fa(passcode)
+      if (result.data.success) {
+        sessionService.setAccessToken(result.data.data)
+      }
+      return result
+    }
+  })
 
 export const enable2Fa = passcode =>
   createActionCreator({

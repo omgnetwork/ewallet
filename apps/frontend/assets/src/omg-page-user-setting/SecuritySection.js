@@ -16,7 +16,7 @@ const SecurityContainer = styled.div`
 function SecuritySeciton () {
   const dispatch = useDispatch()
   const onClickEnable2Fa = useCallback(
-    () => openModal({ id: 'create2faModal' })(dispatch),
+    () => openModal({ id: 'enable2faModal' })(dispatch),
     []
   )
   return (
