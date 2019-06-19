@@ -57,7 +57,7 @@ defmodule EWallet.TransactionRequestSchedulerTest do
 
       assert TransactionRequest.expired?(t) == true
       assert t.expired_at != nil
-      assert t.expiration_reason == "expired_transaction_request"
+      assert t.expiration_reason == TransactionRequest.expired_transaction_request()
     end
   end
 end

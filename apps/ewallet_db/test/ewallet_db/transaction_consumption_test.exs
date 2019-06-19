@@ -111,7 +111,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
         insert(
           :transaction_consumption,
           transaction_request_uuid: request.uuid,
-          status: "confirmed",
+          status: TransactionConsumption.confirmed(),
           originator: nil
         )
 
@@ -135,7 +135,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
         insert(
           :transaction_consumption,
           transaction_request_uuid: request.uuid,
-          status: "confirmed",
+          status: TransactionConsumption.confirmed(),
           originator: nil
         )
 
@@ -210,7 +210,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
       consumption = insert(:transaction_consumption, status: "pending")
       assert consumption.status == "pending"
       consumption = TransactionConsumption.cancel(consumption, %System{})
-      assert consumption.status == "cancelled"
+      assert consumption.status == TransactionConsumption.cancelled()
       assert consumption.cancelled_at != nil
     end
   end
@@ -221,7 +221,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
       transaction = insert(:transaction)
       assert consumption.status == "pending"
       consumption = TransactionConsumption.confirm(consumption, transaction)
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
     end
   end
 
@@ -249,7 +249,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
 
   describe "cancelled?/1" do
     test "returns true if cancelled" do
-      consumption = insert(:transaction_consumption, status: "cancelled")
+      consumption = insert(:transaction_consumption, status: TransactionConsumption.cancelled())
       assert TransactionConsumption.cancelled?(consumption) == true
     end
 

@@ -125,11 +125,11 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
-    test "confirms the accoun tconsumption if approved as admin user with rights", meta do
+    test "confirms the account consumption if approved as admin user with rights", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, account} = :account |> params_for() |> Account.insert()
       wallet = Account.get_primary_wallet(account)
@@ -177,7 +177,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
@@ -279,7 +279,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
@@ -329,7 +329,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert {:error, %{authorized: false}} = res
     end
 
-    test "fails to confirm the consumption if expired", meta do
+    test "confirms the consumption regardless the request has been expired", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid, %System{})
 
@@ -369,7 +369,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       {:ok, transaction_request} = TransactionRequest.expire(transaction_request, %System{})
       assert transaction_request.expired_at != nil
 
-      res =
+      {status, res} =
         TransactionConsumptionConfirmerGate.confirm(
           consumption.id,
           true,
@@ -379,7 +379,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert res == {:error, :expired_transaction_request}
+      assert status == :ok
+      assert %TransactionConsumption{} = res
     end
 
     test "rejects the consumption if not confirmed as admin user with rights", meta do
@@ -509,7 +510,10 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       consumptions = TransactionConsumption |> EWalletDB.Repo.all()
       assert length(consumptions) == max
-      assert Enum.count(consumptions, fn c -> c.status == "confirmed" end) == 1
+
+      assert Enum.count(consumptions, fn c -> c.status == TransactionConsumption.confirmed() end) ==
+               1
+
       assert Enum.count(consumptions, fn c -> c.status == "pending" end) == max - 1
     end
   end
@@ -558,7 +562,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
@@ -610,7 +614,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert consumption.status == "confirmed"
+      assert consumption.status == TransactionConsumption.confirmed()
       assert consumption.approved_at != nil
     end
 
@@ -659,7 +663,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert {:error, %{authorized: false}} = res
     end
 
-    test "fails to confirm the consumption if expired", meta do
+    test "confirms the consumption regardless the request has been expired", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       transaction_request =
@@ -695,7 +699,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       {:ok, transaction_request} = TransactionRequest.expire(transaction_request, %System{})
       assert transaction_request.expired_at != nil
 
-      res =
+      {status, res} =
         TransactionConsumptionConfirmerGate.confirm(
           consumption.id,
           true,
@@ -705,7 +709,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           %System{}
         )
 
-      assert res == {:error, :expired_transaction_request}
+      assert status == :ok
+      assert %TransactionConsumption{} = res
     end
   end
 end

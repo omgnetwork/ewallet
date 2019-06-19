@@ -1256,7 +1256,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
       request = TransactionRequest.get(request.id)
       assert request.status == "expired"
-      assert request.expiration_reason == "max_consumptions_reached"
+      assert request.expiration_reason == TransactionRequest.max_consumptions_reached()
     end
 
     # require_confirmation + max consumptions?
@@ -1595,6 +1595,22 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
       assert res == :error
       assert error == :user_wallet_mismatch
+    end
+
+    test "returns 'cancelled' when the transaction request was cancelled", meta do
+      {:ok, _} = TransactionRequest.cancel(meta.request, %System{})
+
+      {res, error} =
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
+          "formatted_transaction_request_id" => meta.request.id,
+          "address" => meta.sender_wallet.address,
+          "idempotency_token" => "123",
+          "originator" => %System{},
+          "creator" => creator()
+        })
+
+      assert res == :error
+      assert error == :cancelled_transaction_request
     end
 
     test "returns 'invalid parameter' when not all attributes are provided", meta do
