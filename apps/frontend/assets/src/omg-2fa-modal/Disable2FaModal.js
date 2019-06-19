@@ -8,9 +8,9 @@ import { disable2Fa } from '../omg-2fa/action'
 import { Input, Button, Icon } from '../omg-uikit'
 
 const Disable2FaModalContainer = styled.div`
-  padding: 40px;
+  padding: 50px;
   text-align: center;
-  width: 400px;
+  width: 450px;
   position: relative;
   i {
     position: absolute;
@@ -18,8 +18,13 @@ const Disable2FaModalContainer = styled.div`
     right: 15px;
     cursor: pointer;
   }
+
+  input {
+    text-align: center;
+  }
+
   button {
-    margin-top: 20px;
+    margin-top: 30px;
   }
   h4 {
     margin-bottom: 10px;
@@ -41,7 +46,7 @@ function DisableTwoFaModal ({ open, onRequestClose }) {
   const dispatch = useDispatch()
   const [passcode, setPasscode] = useState('')
   const [submitStatus, setSubmitStatus] = useState('DEFAULT')
-
+  const [errorText, setErrorText] = useState()
   const afterClose = () => {
     setPasscode('')
     setSubmitStatus('DEFAULT')
@@ -50,23 +55,29 @@ function DisableTwoFaModal ({ open, onRequestClose }) {
   const onSubmit = async e => {
     e.preventDefault()
     setSubmitStatus('LOADING')
-    const { data } = await disable2Fa(passcode)(dispatch)
-    if (data) {
+    const result = await disable2Fa(passcode)(dispatch)
+    if (result.data) {
       setSubmitStatus('SUCCESS')
+      onRequestClose()
+    } else {
+      setErrorText(result.error.description)
+      setSubmitStatus('FAILED')
     }
   }
 
   const renderDisableSection = () => {
     return (
       <form onSubmit={onSubmit}>
-        <h4>Disable 2Fa</h4>
+        <h4>Disable Your Two Factor Authentication</h4>
         <Input
           value={passcode}
           onChange={e => setPasscode(e.target.value)}
           normalPlaceholder='passcode...'
+          error={submitStatus === 'FAILED'}
+          errorText={errorText}
         />
         <Button loading={submitStatus === 'LOADING'}>
-          Disable 2Factor Authentication
+          Disable Two Factor Authentication
         </Button>
       </form>
     )

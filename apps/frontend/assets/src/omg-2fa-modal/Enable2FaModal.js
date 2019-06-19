@@ -51,18 +51,15 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
   const [submitStatus, setSubmitStatus] = useState('DEFAULT')
 
   const onEnable2Fa = async () => {
-    if (secretCode) {
+    const { data: backupCodeResult } = await createBackupCodes()(dispatch)
+    if (backupCodeResult) {
       const { data: secretResult } = await enable2Fa(passcode)(dispatch)
       if (secretResult) {
-        createBackupCodes()(dispatch).then(({ data: backupResult }) => {
-          if (backupResult) {
-            setBackupCodes(backupResult)
-            setSubmitStatus('SUCCESS')
-          }
-        })
-      } else {
-        setSubmitStatus('FAILED')
+        setBackupCodes(backupCodeResult)
+        setSubmitStatus('SUCCESS')
       }
+    } else {
+      setSubmitStatus('FAILED')
     }
   }
   const afterClose = () => {

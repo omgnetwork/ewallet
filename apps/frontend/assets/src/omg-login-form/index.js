@@ -76,7 +76,7 @@ class LoginForm extends Component {
           password: this.state.password
         })
         if (loginResult.data) {
-          this.setState({ error: null })
+          this.setState({ error: null, submitted: false })
           if (loginResult.data.pre_authentication_token) {
             this.props.openModal({ id: 'enter2FaModal' })
           } else {

@@ -23,9 +23,10 @@ const Enter2FaModalContainer = styled.div`
   input {
     text-align: center;
     font-size: 18px;
+    
   }
   button {
-    margin-top: 20px;
+    margin-top: 30px;
   }
   h4 {
     margin-bottom: 10px;
@@ -47,7 +48,7 @@ function Enter2FaModal ({ open, onRequestClose, history, location }) {
   const dispatch = useDispatch()
   const [passcode, setPasscode] = useState('')
   const [submitStatus, setSubmitStatus] = useState('DEFAULT')
-
+  const [errorText, setErrorText] = useState()
   const afterClose = () => {
     setPasscode('')
     setSubmitStatus('DEFAULT')
@@ -56,11 +57,14 @@ function Enter2FaModal ({ open, onRequestClose, history, location }) {
   const onSubmit = async e => {
     e.preventDefault()
     setSubmitStatus('LOADING')
-    const { data } = await login2Fa(passcode)(dispatch)
-    if (data) {
+    const result = await login2Fa(passcode)(dispatch)
+    if (result.data) {
       setSubmitStatus('SUCCESS')
       history.push(_.get(location, 'state.from', '/'))
       onRequestClose()
+    } else {
+      setErrorText(result.error.description)
+      setSubmitStatus('FAILED')
     }
   }
 
@@ -72,6 +76,9 @@ function Enter2FaModal ({ open, onRequestClose, history, location }) {
           value={passcode}
           onChange={e => setPasscode(e.target.value)}
           normalPlaceholder='passcode...'
+          error={submitStatus === 'FAILED'}
+          errorText={errorText}
+          autoFocus
         />
         <Button loading={submitStatus === 'LOADING'}>Submit</Button>
       </form>
