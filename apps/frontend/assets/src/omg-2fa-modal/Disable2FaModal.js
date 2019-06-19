@@ -21,6 +21,7 @@ const Disable2FaModalContainer = styled.div`
 
   input {
     text-align: center;
+    font-size: 18px;
   }
 
   button {

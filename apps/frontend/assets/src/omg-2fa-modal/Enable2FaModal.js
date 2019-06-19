@@ -30,6 +30,10 @@ const Create2FaModalContainer = styled.div`
   h4 {
     margin-bottom: 10px;
   }
+  input {
+    text-align: center;
+    font-size: 18px;
+  }
   .backup-container {
     text-align: center;
     p {
@@ -94,7 +98,7 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
           normalPlaceholder='passcode...'
         />
         <Button loading={submitStatus === 'LOADING'}>
-          Enable 2Factor Authnetication
+          Enable Two Factor Authentication
         </Button>
       </form>
     )
