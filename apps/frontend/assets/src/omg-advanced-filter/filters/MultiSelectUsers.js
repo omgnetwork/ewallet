@@ -14,9 +14,8 @@ const MultiSelectUsers = ({
   config
 }) => {
   const onChange = (selection) => {
-    const _selection = selection && selection.map(i => i.value)
-    _selection && _selection.length
-      ? onUpdate({ [config.key]: _selection })
+    selection
+      ? onUpdate({ [config.key]: selection })
       : clearKey(config.key)
   }
 
@@ -32,7 +31,7 @@ const MultiSelectUsers = ({
             <MultiSelect
               placeholder={config.placeholder}
               onChange={onChange}
-              value={values[config.key]}
+              values={values[config.key]}
               options={data.map(user => {
                 return {
                   label: user.username || user.id,

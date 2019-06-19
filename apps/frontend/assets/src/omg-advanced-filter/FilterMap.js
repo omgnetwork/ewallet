@@ -141,23 +141,23 @@ export const FILTER_MAP = [
     key: 'wallets-wallet-types',
     icon: 'Option-Horizontal',
     page: 'wallets',
-    height: 267,
+    height: 166,
     default: true,
     component: filters.Checkbox,
     options: [
-      {
-        label: 'Local Wallet',
-        value: 'local'
-      },
-      {
-        label: 'Cold Wallet',
-        value: 'cold'
-      },
-      {
-        label: 'Hot Wallet',
-        value: 'hot'
-      },
-      'divider',
+      // {
+      //   label: 'Local Wallet',
+      //   value: 'local'
+      // },
+      // {
+      //   label: 'Cold Wallet',
+      //   value: 'cold'
+      // },
+      // {
+      //   label: 'Hot Wallet',
+      //   value: 'hot'
+      // },
+      // 'divider',
       {
         label: 'Primary Wallet',
         value: 'primary'
@@ -650,23 +650,23 @@ export const FILTER_MAP = [
     key: 'tokens-wallet-types',
     icon: 'Option-Horizontal',
     page: 'tokens',
-    height: 267,
+    height: 166,
     default: true,
     component: filters.Checkbox,
     options: [
-      {
-        label: 'Local Wallet',
-        value: 'local'
-      },
-      {
-        label: 'Cold Wallet',
-        value: 'cold'
-      },
-      {
-        label: 'Hot Wallet',
-        value: 'hot'
-      },
-      'divider',
+      // {
+      //   label: 'Local Wallet',
+      //   value: 'local'
+      // },
+      // {
+      //   label: 'Cold Wallet',
+      //   value: 'cold'
+      // },
+      // {
+      //   label: 'Hot Wallet',
+      //   value: 'hot'
+      // },
+      // 'divider',
       {
         label: 'Primary Wallet',
         value: 'primary'

@@ -148,7 +148,11 @@ const AdvancedFilter = ({
         if (Array.isArray(value)) {
           value.forEach(i => {
             matchAny.forEach(filter => {
-              _matchAny.push({ ...filter, value: i })
+              if (i.hasOwnProperty('value')) {
+                _matchAny.push({ ...filter, value: i.value })
+              } else {
+                _matchAny.push({ ...filter, value: i })
+              }
             })
           })
         } else {
@@ -197,12 +201,20 @@ const AdvancedFilter = ({
     onRequestClose()
   }
 
+  const onClose = () => {
+    if (!_.isEqual(initialValues, values)) {
+      setValues(initialValues)
+    }
+    onRequestClose()
+  }
+
   const springConfig = { stiffness: 200, damping: 20 }
   return (
     <>
       {showTags && (
         <Tags>
           {Object.keys(values).map(i => {
+            // console.log(values[i])
             let value
             if (typeof values[i] === 'object' && !values[i].length) {
               value = JSON.stringify(values[i])
@@ -213,7 +225,7 @@ const AdvancedFilter = ({
             const configFilter = _.find(FILTER_MAP, ['key', i])
             return (
               <div className='tag' key={i}>
-                {`${configFilter.title} - ${value}`}
+                {`${configFilter.title}: ${value}`}
                 <Icon
                   name='Close'
                   onClick={() => removeAndApply(i)}
@@ -226,13 +238,13 @@ const AdvancedFilter = ({
 
       <Modal
         isOpen={open}
-        onRequestClose={onRequestClose}
+        onRequestClose={onClose}
         contentLabel='advanced-filter-modal'
         shouldCloseOnOverlayClick={false}
         overlayClassName='dummy'
       >
         <AdvancedFilterContainer>
-          <Icon name='Close' onClick={onRequestClose} />
+          <Icon name='Close' onClick={onClose} />
           <Content>
             <Title>{title}</Title>
             <TransitionMotion
