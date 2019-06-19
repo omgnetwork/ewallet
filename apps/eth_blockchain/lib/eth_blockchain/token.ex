@@ -19,19 +19,18 @@ defmodule EthBlockchain.Token do
   alias EthBlockchain.{Adapter, ABIEncoder}
   alias ABI.{TypeDecoder, FunctionSelector}
 
-  @allowed_fields ["name", "symbol", "decimals"]
+  @allowed_fields ["name", "symbol", "decimals", "totalSupply"]
 
   @doc """
   Attempt to query the value of the field for the given contract address.
   Possible fields are: "name", "symbol", "decimals"
-  Returns the value of the field if found.
+  Returns {:ok, value} if found.
   If the given field is not allowed, returns {:error, :invalid_field}
-  If the given field cannot be found in the contract, returns: {:error, :`field`_not_found}
-  where `field` is the requested field.
+  If the given field cannot be found in the contract, returns: {:error, :field_not_found}
   """
-  def get(params, adapter \\ nil, pid \\ nil)
+  def get_field(params, adapter \\ nil, pid \\ nil)
 
-  def get({field, contract_address}, adapter, pid) when field in @allowed_fields do
+  def get_field({field, contract_address}, adapter, pid) when field in @allowed_fields do
     case ABIEncoder.get_field(field) do
       {:ok, encoded_abi_data} ->
         adapter
@@ -46,20 +45,26 @@ defmodule EthBlockchain.Token do
     end
   end
 
-  def get(_, _, _), do: {:error, :invalid_field}
+  def get_field(_, _, _), do: {:error, :invalid_field}
 
-  defp parse_response({:ok, "0x" <> ""}, field) do
-    {:error, String.to_atom("#{field}_not_found")}
+
+  defp parse_response({:ok, "0x" <> ""}, _field) do
+    {:error, :field_not_found}
   end
 
   defp parse_response({:ok, "0x" <> data}, "decimals") do
     [decimals] = decode_abi(data, [{:uint, 256}])
-    decimals
+    {:ok, decimals}
+  end
+
+  defp parse_response({:ok, "0x" <> data}, "totalSupply") do
+    [supply] = decode_abi(data, [{:uint, 256}])
+    {:ok, supply}
   end
 
   defp parse_response({:ok, "0x" <> data}, _field) do
     [{str}] = decode_abi(data, [{:tuple, [:string]}])
-    str
+    {:ok, str}
   end
 
   defp parse_response(error, _field), do: error
