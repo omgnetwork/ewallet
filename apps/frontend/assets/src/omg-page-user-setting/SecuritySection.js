@@ -17,7 +17,7 @@ function SecuritySeciton () {
   const currentUser = useSelector(selectCurrentUser)
   const dispatch = useDispatch()
   const onClickEnable2Fa = useCallback(
-    () => openModal({ id: 'enable2faModal' })(dispatch),
+    () => openModal({ id: 'enable2FaModal' })(dispatch),
     []
   )
   const onClickDisable2Fa = useCallback(

@@ -10,7 +10,7 @@ import Disable2FaModal from '../omg-2fa-modal/Disable2FaModal'
 // ADD YOUR NEW MODAL HERE
 const modals = [
   { id: 'createTransaction', modal: CreateTransactionModal },
-  { id: 'enable2faModal', modal: Enable2FaModal },
+  { id: 'enable2FaModal', modal: Enable2FaModal },
   { id: 'enter2FaModal', modal: Enter2FaModal },
   { id: 'disable2FaModal', modal: Disable2FaModal }
 ]
