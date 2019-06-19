@@ -14,9 +14,9 @@ import { to2FaFormat } from '../omg-2fa/serializer'
 import { QrCode, Input, Button } from '../omg-uikit'
 
 const Create2FaModalContainer = styled.div`
-  padding: 20px;
+  padding: 40px;
   text-align: center;
-  width: 350px;
+  width: 400px;
   button {
     margin-top: 20px;
   }
@@ -61,6 +61,8 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
   const afterClose = () => {
     setPasscode('')
     setSecretCode(null)
+    setBackupCodes('')
+    setSubmitStatus('DEFAULT')
   }
   const onAfterOpen = () => {
     createSecretCodes()(dispatch).then(({ data }) => {
@@ -98,7 +100,10 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
     return (
       <div className='backup-container'>
         <h4>Please keep your backup code</h4>
-        <p>You can print or download one-time use backup codes for times when your phones are unavailable.</p>
+        <p>
+          You can print or download one-time use backup codes for times when
+          your phones are unavailable.
+        </p>
         {backupCodes.backup_codes.map(backupCode => {
           return (
             <div key={backupCode} className='backup-item'>
@@ -106,7 +111,9 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
             </div>
           )
         })}
-        <div><Button onClick={onRequestClose}>Ok, I saved the backup codes</Button></div>
+        <div>
+          <Button onClick={onRequestClose}>Ok, I saved the backup codes</Button>
+        </div>
       </div>
     )
   }
