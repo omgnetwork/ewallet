@@ -11,12 +11,19 @@ import {
   createBackupCodes
 } from '../omg-2fa/action'
 import { to2FaFormat } from '../omg-2fa/serializer'
-import { QrCode, Input, Button } from '../omg-uikit'
+import { QrCode, Input, Button, Icon } from '../omg-uikit'
 
 const Create2FaModalContainer = styled.div`
   padding: 40px;
   text-align: center;
   width: 400px;
+  position: relative;
+  i {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+  }
   button {
     margin-top: 20px;
   }
@@ -125,6 +132,7 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
       onAfterOpen={onAfterOpen}
     >
       <Create2FaModalContainer>
+        <Icon name='Close' onClick={onRequestClose} />
         {backupCodes ? renderShowBackup() : renderCreateMode()}
       </Create2FaModalContainer>
     </Modal>
