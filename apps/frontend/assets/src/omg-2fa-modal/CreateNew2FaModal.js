@@ -25,6 +25,9 @@ const Create2FaModalContainer = styled.div`
   }
   .backup-container {
     text-align: center;
+    p {
+      margin: 20px 0;
+    }
   }
   .backup-item {
     padding: 5px;
@@ -95,6 +98,7 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
     return (
       <div className='backup-container'>
         <h4>Please keep your backup code</h4>
+        <p>You can print or download one-time use backup codes for times when your phones are unavailable.</p>
         {backupCodes.backup_codes.map(backupCode => {
           return (
             <div key={backupCode} className='backup-item'>
@@ -102,6 +106,7 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
             </div>
           )
         })}
+        <div><Button>Ok, I saved the backup codes</Button></div>
       </div>
     )
   }
