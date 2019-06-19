@@ -122,7 +122,8 @@ defmodule EthBlockchain.Transaction do
         |> sign_and_hash(from)
         |> send_raw(adapter, pid)
 
-      error -> error
+      error ->
+        error
     end
   end
 

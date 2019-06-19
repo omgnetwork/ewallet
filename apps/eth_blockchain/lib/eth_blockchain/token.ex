@@ -15,19 +15,27 @@
 defmodule EthBlockchain.Token do
   @moduledoc false
   import Utils.Helpers.Encoding
-  alias EthBlockchain.Adapter
 
-  @allowed_fields ["name", "symbol", "decimals", "version"]
+  alias EthBlockchain.{Adapter, ABIEncoder}
+  alias ABI.{TypeDecoder, FunctionSelector}
+
+  @allowed_fields ["name", "symbol", "decimals"]
 
   @doc """
-
+  Attempt to query the value of the field for the given contract address.
+  Possible fields are: "name", "symbol", "decimals"
+  Returns the value of the field if found.
+  If the given field is not allowed, returns {:error, :invalid_field}
+  If the given field cannot be found in the contract, returns: {:error, :`field`_not_found}
+  where `field` is the requested field.
   """
-  def get({field, contract_address}, adapter \\ nil, pid \\ nil) do
-    # check if field is allowed
-    case EthBlockchain.ABI.get_field(field) do
+  def get(params, adapter \\ nil, pid \\ nil)
+
+  def get({field, contract_address}, adapter, pid) when field in @allowed_fields do
+    case ABIEncoder.get_field(field) do
       {:ok, encoded_abi_data} ->
-        Adapter.call(
-          adapter,
+        adapter
+        |> Adapter.call(
           {:get_field, contract_address, to_hex(encoded_abi_data)},
           pid
         )
@@ -38,39 +46,30 @@ defmodule EthBlockchain.Token do
     end
   end
 
-  def parse_response({:ok, "0x" <> ""}, _), do: {:error, :name_not_found}
+  def get(_, _, _), do: {:error, :invalid_field}
 
-  def parse_response({:ok, "0x" <> data}, "decimals") do
-    [decimals] =
-      data
-      |> Base.decode16!(case: :lower)
-      |> ABI.TypeDecoder.decode(
-          %ABI.FunctionSelector{
-            function: nil,
-            types: [
-              {:uint, 256}
-            ]
-          }
-        )
+  defp parse_response({:ok, "0x" <> ""}, field) do
+    {:error, String.to_atom("#{field}_not_found")}
+  end
 
+  defp parse_response({:ok, "0x" <> data}, "decimals") do
+    [decimals] = decode_abi(data, [{:uint, 256}])
     decimals
   end
 
-  def parse_response({:ok, "0x" <> data}, _) do
-    [{str}] =
-      data
-      |> Base.decode16!(case: :lower)
-      |> ABI.TypeDecoder.decode(
-          %ABI.FunctionSelector{
-            function: nil,
-            types: [
-              {:tuple, [:string]}
-            ]
-          }
-        )
-
+  defp parse_response({:ok, "0x" <> data}, _field) do
+    [{str}] = decode_abi(data, [{:tuple, [:string]}])
     str
   end
 
-  def parse_response(error), do: error
+  defp parse_response(error, _field), do: error
+
+  defp decode_abi(data, types) do
+    data
+    |> Base.decode16!(case: :lower)
+    |> TypeDecoder.decode(%FunctionSelector{
+      function: nil,
+      types: types
+    })
+  end
 end
