@@ -36,7 +36,7 @@ defmodule EWallet.TokenGate do
     with {:ok, name} <- Token.get_field({"name", contract_address}),
          {:ok, symbol} <- Token.get_field({"symbol", contract_address}),
          {:ok, decimals} <- Token.get_field({"decimals", contract_address}) do
-        {:ok, %{name: name, symbol: symbol, decimals: decimals}}
+      {:ok, %{name: name, symbol: symbol, decimals: decimals}}
     else
       {:error, :field_not_found} -> {:ok, %{}}
       error -> error
@@ -45,9 +45,10 @@ defmodule EWallet.TokenGate do
 
   def verify_mandatory(contract_address) do
     with {:ok, total_supply} <- Token.get_field({"totalSupply", contract_address}),
-         {:ok, %{^contract_address => balance}} <- Balance.get({contract_address, contract_address}),
+         {:ok, %{^contract_address => balance}} <-
+           Balance.get({contract_address, contract_address}),
          true <- !is_nil(balance) || {:error, :not_erc20} do
-        {:ok, %{total_supply: total_supply}}
+      {:ok, %{total_supply: total_supply}}
     else
       {:error, :not_erc20} = error -> error
       {:error, :field_not_found} -> {:error, :not_erc20}

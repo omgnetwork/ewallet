@@ -47,7 +47,6 @@ defmodule EthBlockchain.Token do
 
   def get_field(_, _, _), do: {:error, :invalid_field}
 
-
   defp parse_response({:ok, "0x" <> ""}, _field) do
     {:error, :field_not_found}
   end
