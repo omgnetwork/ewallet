@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
 
 import Modal from '../omg-modal'
 import { disable2Fa } from '../omg-2fa/action'
@@ -43,7 +44,7 @@ const Disable2FaModalContainer = styled.div`
   }
 `
 
-function DisableTwoFaModal ({ open, onRequestClose }) {
+function DisableTwoFaModal ({ open, onRequestClose, history }) {
   const dispatch = useDispatch()
   const [passcode, setPasscode] = useState('')
   const [submitStatus, setSubmitStatus] = useState('DEFAULT')
@@ -60,6 +61,7 @@ function DisableTwoFaModal ({ open, onRequestClose }) {
     if (result.data) {
       setSubmitStatus('SUCCESS')
       onRequestClose()
+      history.push('/login')
     } else {
       setErrorText(result.error.description)
       setSubmitStatus('FAILED')
@@ -78,7 +80,8 @@ function DisableTwoFaModal ({ open, onRequestClose }) {
           errorText={errorText}
         />
         <Button loading={submitStatus === 'LOADING'}>
-          Disable Two Factor Authentication
+          Disable Two Factor Authentication<br />
+          ( This Will Log You Out )
         </Button>
       </form>
     )
@@ -100,6 +103,7 @@ function DisableTwoFaModal ({ open, onRequestClose }) {
 
 DisableTwoFaModal.propTypes = {
   open: PropTypes.bool,
-  onRequestClose: PropTypes.func
+  onRequestClose: PropTypes.func,
+  history: PropTypes.object
 }
-export default DisableTwoFaModal
+export default withRouter(DisableTwoFaModal)

@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
 
 import Modal from '../omg-modal'
 import {
@@ -47,7 +48,7 @@ const Create2FaModalContainer = styled.div`
   }
 `
 
-function CreateTwoFaModal ({ open, onRequestClose }) {
+function CreateTwoFaModal ({ open, onRequestClose, history }) {
   const dispatch = useDispatch()
   const [secretCode, setSecretCode] = useState(null)
   const [backupCodes, setBackupCodes] = useState(null)
@@ -82,6 +83,11 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
     e.preventDefault()
     setSubmitStatus('LOADING')
     onEnable2Fa()
+  }
+
+  const onOkBackupCode = () => {
+    onRequestClose()
+    history.push('/login')
   }
 
   const renderCreateMode = () => {
@@ -120,7 +126,10 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
           )
         })}
         <div>
-          <Button onClick={onRequestClose}>Ok, I saved the backup codes</Button>
+          <Button onClick={onOkBackupCode}>
+            {'Ok, I\'ve saved the backup codes'}
+            <br /> ( This will log you out )
+          </Button>
         </div>
       </div>
     )
@@ -142,6 +151,7 @@ function CreateTwoFaModal ({ open, onRequestClose }) {
 
 CreateTwoFaModal.propTypes = {
   open: PropTypes.bool,
-  onRequestClose: PropTypes.func
+  onRequestClose: PropTypes.func,
+  history: PropTypes.object
 }
-export default CreateTwoFaModal
+export default withRouter(CreateTwoFaModal)
