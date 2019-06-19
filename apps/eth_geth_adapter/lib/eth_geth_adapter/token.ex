@@ -14,17 +14,24 @@
 
 defmodule EthGethAdapter.Token do
   @moduledoc false
-  import Utils.Helpers.Encoding
 
   alias Ethereumex.HttpClient, as: Client
 
   @doc """
 
   """
-  def get(contract_address, encoded_abi_data) do
-    Client.eth_call(%{
+  def get_field(contract_address, encoded_abi_data) do
+    %{
       data: encoded_abi_data,
       to: contract_address
-    })
+    }
+    |> Client.eth_call()
+    |> parse_response()
+  end
+
+  defp parse_response({:ok, _data} = response), do: response
+
+  defp parse_response({:error, %{"message" => message}}) do
+    {:error, :adapter_error, message}
   end
 end

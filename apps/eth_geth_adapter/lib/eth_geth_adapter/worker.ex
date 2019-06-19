@@ -80,6 +80,6 @@ defmodule EthGethAdapter.Worker do
   end
 
   def handle_call({:get_field, contract_address, encoded_abi_data}, _from, reg) do
-    {:reply, Token.get(contract_address, encoded_abi_data), reg}
+    {:reply, Token.get_field(contract_address, encoded_abi_data), reg}
   end
 end
