@@ -208,20 +208,40 @@ const AdvancedFilter = ({
     onRequestClose()
   }
 
+  const breadcrumbFactory = (value) => {
+    if (Array.isArray(value)) {
+      let values = value
+      if (typeof value[0] === 'object') {
+        values = value.map(i => i.label)
+      }
+      return `${values}`.replace(/,/g, ', ')
+    }
+    if (typeof value === 'object') {
+      let startDate
+      let endDate
+
+      const start = _.get(value, 'startDate')
+      const end = _.get(value, 'endDate')
+      if (start) {
+        startDate = start.format('DD/MM/YYYY H:mm')
+      }
+      if (end) {
+        endDate = end.format('DD/MM/YYYY H:mm')
+      }
+
+      return `${startDate ? `start - ${startDate}` : ''}
+        ${startDate && endDate ? ',' : ''}
+        ${endDate ? `end - ${endDate}` : ''}`
+    }
+  }
+
   const springConfig = { stiffness: 200, damping: 20 }
   return (
     <>
       {showTags && (
         <Tags>
           {Object.keys(values).map(i => {
-            // console.log(values[i])
-            let value
-            if (typeof values[i] === 'object' && !values[i].length) {
-              value = JSON.stringify(values[i])
-            } else {
-              value = `${values[i]}`.replace(/,/g, ', ')
-            }
-
+            const value = breadcrumbFactory(values[i])
             const configFilter = _.find(FILTER_MAP, ['key', i])
             return (
               <div className='tag' key={i}>
