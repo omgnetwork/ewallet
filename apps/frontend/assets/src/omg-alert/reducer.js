@@ -96,6 +96,9 @@ export const alertsReducer = createReducer([], {
       createAlertState('Invited member successfully.', 'success')
     ]
   },
+  'ADMIN/UPDATE/SUCCESS': state => {
+    return [...state, createAlertState('Update admin successfully.', 'success')]
+  },
   'CATEGORY/CREATE/SUCCESS': state => {
     return [
       ...state,
@@ -118,6 +121,15 @@ export const alertsReducer = createReducer([], {
     return [
       ...state,
       createAlertState('Updated user settings successfully.', 'success')
+    ]
+  },
+  'USER/UPDATE/SUCCESS': (state, { data }) => {
+    return [
+      ...state,
+      createAlertState(
+        <div>Updated user <b>{data.email || data.dataname || data.id}</b> successfully.</div>,
+        'success'
+      )
     ]
   },
   'CURRENT_USER_EMAIL/UPDATE/SUCCESS': state => {
@@ -241,5 +253,7 @@ export const alertsReducer = createReducer([], {
   'INVITE/REQUEST/FAILED': errorStateHandler,
   'TRANSACTIONS/REQUEST/FAILED': errorStateHandler,
   'ACCOUNT/UPDATE/FAILED': errorStateHandler,
-  '2FA/ENABLE/FAILED': errorStateHandler
+  '2FA/ENABLE/FAILED': errorStateHandler,
+  'USER/UPDATE/FAILED': errorStateHandler,
+  'ADMIN/UPDATE/FAILED': errorStateHandler
 })

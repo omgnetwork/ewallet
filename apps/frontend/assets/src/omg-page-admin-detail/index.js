@@ -4,12 +4,13 @@ import { compose } from 'recompose'
 import moment from 'moment'
 import styled, { withTheme } from 'styled-components'
 import { withRouter } from 'react-router-dom'
+import { connect } from 'react-redux'
 
-import { Id } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import AdminProvider from '../omg-admins/adminProvider'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-
+import { Button, Select, Id } from '../omg-uikit'
+import { updateAdmin } from '../omg-admins/action'
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
   b {
@@ -30,34 +31,110 @@ const ContentContainer = styled.div`
   display: inline-block;
   width: 100%;
 `
+const StyledSelect = styled(Select)`
+  display: inline-block;
+  vertical-align: middle;
+`
 const enhance = compose(
   withTheme,
-  withRouter
+  withRouter,
+  connect(
+    null,
+    { updateAdmin }
+  )
 )
 class TokenDetailPage extends Component {
   static propTypes = {
-    match: PropTypes.object
+    match: PropTypes.object,
+    updateAdmin: PropTypes.func.isRequired
+  }
+  state = { editing: false, saving: false }
+
+  renderButtons (admin) {
+    return this.state.editing
+      ? [
+        <Button
+          key='cancel'
+          styleType='secondary'
+          onClick={e =>
+            this.setState({ editing: false, editAdminGlobalRole: null })
+          }
+        >
+            Cancel
+        </Button>,
+        <Button
+          key='save'
+          onClick={this.onClickSave}
+          disabled={!this.state.editAdminGlobalRole}
+          loading={this.state.saving}
+        >
+            Save
+        </Button>
+      ]
+      : [
+        <Button key='edit' onClick={e => this.setState({ editing: true })}>
+            Edit
+        </Button>
+      ]
   }
   renderTopBar = admin => {
     return (
       <TopNavigation
         divider={false}
         title={admin.email}
-        searchBar={false}
+        secondaryAction={false}
+        buttons={this.renderButtons(admin)}
       />
     )
+  }
+  onSelectGlobalRole = data => {
+    this.setState({ editAdminGlobalRole: data.key })
+  }
+  onClickSave = async () => {
+    this.setState({ saving: true })
+    const result = await this.props.updateAdmin({
+      id: this.props.match.params.adminId,
+      globalRole: this.state.editAdminGlobalRole
+    })
+    if (result.data) {
+      this.setState({ editing: false, saving: false })
+    } else {
+      this.setState({ saving: false })
+    }
   }
   renderDetail = admin => {
     return (
       <Section title={{ text: 'Details', icon: 'Portfolio' }}>
         <DetailGroup>
-          <b>ID:</b><Id>{admin.id}</Id>
+          <b>ID:</b>
+          <Id>{admin.id}</Id>
         </DetailGroup>
         <DetailGroup>
           <b>Email:</b> <span>{admin.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Global Role:</b> <span>{_.startCase(admin.global_role) || '-'}</span>
+          <b
+            style={{
+              verticalAlign: this.state.editing ? 'middle' : 'baseline'
+            }}
+          >
+            Global Role:
+          </b>{' '}
+          {this.state.editing ? (
+            <StyledSelect
+              normalPlaceholder='Global role'
+              onSelectItem={this.onSelectGlobalRole}
+              value={_.startCase(
+                this.state.editAdminGlobalRole || admin.global_role
+              )}
+              options={['super_admin', 'admin', 'viewer'].map(role => ({
+                key: role,
+                value: _.startCase(role)
+              }))}
+            />
+          ) : (
+            <span>{_.startCase(admin.global_role) || '-'}</span>
+          )}
         </DetailGroup>
         <DetailGroup>
           <b>Created At:</b> <span>{moment(admin.created_at).format()}</span>
