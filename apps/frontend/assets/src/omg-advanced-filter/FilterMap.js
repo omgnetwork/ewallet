@@ -485,7 +485,7 @@ export const FILTER_MAP = [
     height: 110,
     component: filters.MultiSelectWallets,
     default: false,
-    matchAll: [
+    matchAny: [
       {
         field: 'wallet.address',
         comparator: 'contains'

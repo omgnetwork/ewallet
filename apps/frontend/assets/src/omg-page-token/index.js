@@ -14,7 +14,6 @@ import TokensFetcher from '../omg-token/tokensFetcher'
 import { NameColumn } from '../omg-page-account'
 import ExchangePairModal from '../omg-exchange-rate-modal'
 import { createSearchTokenQuery } from '../omg-token/searchField'
-import AdvancedFilter from '../omg-advanced-filter'
 
 const TokenPageContainer = styled.div`
   position: relative;
@@ -52,10 +51,7 @@ class TokenDetailPage extends Component {
   state = {
     createTokenModalOpen: queryString.parse(this.props.location.search).createToken || false,
     exportModalOpen: false,
-    createExchangePairModalOpen: false,
-    advancedFilterModalOpen: false,
-    matchAll: [],
-    matchAny: []
+    createExchangePairModalOpen: false
   }
 
   onClickCreateToken = () => {
@@ -78,18 +74,6 @@ class TokenDetailPage extends Component {
   }
   onClickLoadMore = e => {
     this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
-  }
-  renderAdvancedFilterButton = () => {
-    return (
-      <Button
-        key='filter'
-        size='small'
-        styleType='secondary'
-        onClick={() => this.setState({ advancedFilterModalOpen: true })}
-      >
-        <Icon name='Filter' /><span>Filter</span>
-      </Button>
-    )
   }
   renderExportButton = () => {
     return (
@@ -161,17 +145,9 @@ class TokenDetailPage extends Component {
           divider={this.props.divider}
           title={'Tokens'}
           buttons={[
-            this.renderAdvancedFilterButton(),
             tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
             this.renderMintTokenButton()
           ]}
-        />
-        <AdvancedFilter
-          title='Filter Tokens'
-          page='tokens'
-          open={this.state.advancedFilterModalOpen}
-          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
-          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
         />
         <SortableTable
           rows={data}
@@ -209,11 +185,7 @@ class TokenDetailPage extends Component {
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 10,
-          matchAll: this.state.matchAll,
-          matchAny: [
-            ...createSearchTokenQuery(queryString.parse(this.props.location.search).search).matchAny,
-            ...this.state.matchAny
-          ]
+          ...createSearchTokenQuery(queryString.parse(this.props.location.search).search)
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
