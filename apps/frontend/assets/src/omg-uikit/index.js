@@ -18,6 +18,8 @@ import Tooltip from './tooltip'
 import TabButton from './tabButton'
 import Id from './id'
 import SearchBar from './searchbar'
+import NavCard from './navcard'
+import DetailRow from './detailrow'
 
 export {
   Input,
@@ -40,5 +42,7 @@ export {
   Tooltip,
   TabButton,
   Id,
-  SearchBar
+  SearchBar,
+  NavCard,
+  DetailRow
 }

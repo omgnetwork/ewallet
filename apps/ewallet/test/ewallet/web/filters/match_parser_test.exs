@@ -156,6 +156,28 @@ defmodule EWallet.Web.MatchParserTest do
                MatchParser.build_query(Transaction, attrs, whitelist, true, MatchAllQuery)
     end
 
+    test "returns error if the given field is an association entity" do
+      whitelist = [from_token: [:id]]
+
+      txn_1 = insert(:transaction)
+      {:ok, txn_1} = Preloader.preload_one(txn_1, :from_token)
+
+      attrs = [
+        %{
+          "field" => "from_token",
+          "comparator" => "eq",
+          "value" => txn_1.from_token.id
+        }
+      ]
+
+      {res, code, params} =
+        MatchParser.build_query(Transaction, attrs, whitelist, true, MatchAllQuery)
+
+      assert res == :error
+      assert code == :missing_subfield
+      assert params == "from_token"
+    end
+
     test "returns error if filtering is not allowed on the field" do
       whitelist = [from_token: [:email]]
 
