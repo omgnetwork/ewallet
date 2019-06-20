@@ -103,6 +103,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
       :correlation_id,
       :idempotency_token,
       :status,
+      :inserted_at,
       :approved_at,
       :rejected_at,
       :confirmed_at,
@@ -111,7 +112,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
       :estimated_at,
       :error_code,
       :error_description,
-      :expiration_date
+      :expiration_date,
+      :wallet_address
     ]
 
   def filter_fields,
@@ -124,6 +126,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
       :correlation_id,
       :idempotency_token,
       :status,
+      :inserted_at,
       :approved_at,
       :rejected_at,
       :confirmed_at,
@@ -133,6 +136,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
       :error_code,
       :error_description,
       :expiration_date,
+      :wallet_address,
       transaction: TransactionOverlay.self_filter_fields(),
       exchange_pair: ExchangePairOverlay.self_filter_fields(),
       user: UserOverlay.self_filter_fields(),
