@@ -1,6 +1,6 @@
 import React from 'react'
-import { BrowserRouter as Router, Redirect, Switch, Route } from 'react-router-dom'
-
+import { Router, Redirect, Switch, Route } from 'react-router-dom'
+import history from './history'
 import AuthenticatedRoute from './authenticatedRoute'
 import LoginRoute from './loginRoute'
 import LoginForm from '../../omg-login-form'
@@ -31,7 +31,7 @@ import ModalController from '../../omg-modal/ModalController'
 // prettier-ignore
 
 const createRoute = () => (
-  <Router basename='/admin'>
+  <Router basename='/admin' history={history}>
     <Switch>
       <Redirect from='/' to={'/accounts'} exact />
       <Redirect from='/accounts/:accountId' to='/accounts/:accountId/details' exact />
