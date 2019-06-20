@@ -1,17 +1,18 @@
 import React, { Component } from 'react'
-import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
-import SortableTable from '../omg-table'
-import { Button, Icon } from '../omg-uikit'
-import CreateTransactionRequestModal from '../omg-create-transaction-request-modal'
-import ExportModal from '../omg-export-modal'
-import TransactionRequestsFetcher from '../omg-transaction-request/transactionRequestsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+
+import TopNavigation from '../omg-page-layout/TopNavigation'
+import SortableTable from '../omg-table'
+import { Button, Icon, Id } from '../omg-uikit'
+import CreateTransactionRequestModal from '../omg-create-transaction-request-modal'
+import ExportModal from '../omg-export-modal'
+import TransactionRequestsFetcher from '../omg-transaction-request/transactionRequestsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import Copy from '../omg-copy'
+
 const TransactionRequestsPageContainer = styled.div`
   position: relative;
   padding-bottom: 50px;
@@ -43,7 +44,6 @@ const TransactionRequestsPageContainer = styled.div`
     }
   }
   i[name='Copy'] {
-    margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
     color: ${props => props.theme.colors.S500};
@@ -65,10 +65,13 @@ const StyledIcon = styled.span`
   }
 `
 export const NameColumn = styled.div`
+  display: flex;
+  flex-direction: row;
   > span {
     margin-left: 10px;
   }
   i[name='Request'] {
+    margin-right: 15px;
     color: ${props => props.theme.colors.B100};
     padding: 8px;
     border-radius: 6px;
@@ -162,8 +165,7 @@ class TransactionRequestsPage extends Component {
     if (key === 'id') {
       return (
         <NameColumn>
-          <Icon name='Request' />
-          <span>{data}</span> <Copy data={data} />
+          <Icon name='Request' /><Id>{data}</Id>
         </NameColumn>
       )
     }

@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import { connect } from 'react-redux'
+
 import { Input, Button, Icon } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { createToken } from '../omg-token/action'
-import { connect } from 'react-redux'
 import { formatAmount } from '../utils/formatter'
+
 const Form = styled.form`
   padding: 50px;
   width: 250px;

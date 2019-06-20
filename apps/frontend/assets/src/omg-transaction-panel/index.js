@@ -1,14 +1,16 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import TransactionProvider from '../omg-transaction/transactionProvider'
-import { Icon } from '../omg-uikit'
 import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { compose } from 'recompose'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
+
+import TransactionProvider from '../omg-transaction/transactionProvider'
+import { Icon } from '../omg-uikit'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 import { MarkContainer } from '../omg-page-transaction/transactionTableRowRenderer'
+
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;

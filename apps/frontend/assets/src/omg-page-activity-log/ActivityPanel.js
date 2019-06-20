@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import ActivityLogProvider from '../omg-activity-log/ActivityLogProvider'
-import { Icon } from '../omg-uikit'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import { compose } from 'recompose'
 import moment from 'moment'
+
+import ActivityLogProvider from '../omg-activity-log/ActivityLogProvider'
+import { Icon } from '../omg-uikit'
 import Link from '../omg-links'
+
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;

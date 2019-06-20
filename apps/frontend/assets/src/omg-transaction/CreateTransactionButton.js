@@ -1,8 +1,8 @@
 import React from 'react'
-import { Button, Icon } from '../omg-uikit'
 import { connect } from 'react-redux'
-import { openModal } from '../omg-modal/action'
 import PropTypes from 'prop-types'
+import { Button, Icon } from '../omg-uikit'
+import { openModal } from '../omg-modal/action'
 function CreateTransactionButton (props) {
   return (
     <Button

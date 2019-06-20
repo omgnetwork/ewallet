@@ -1,6 +1,6 @@
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
-import { getApiKeys, createApiKey, deleteApiKey, updateApiKey } from './action'
+import { getApiKeys, getApiKey, createApiKey, deleteApiKey, updateApiKey, enableApiKey } from './action'
 import * as apikeyService from '../services/apikeyService'
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
@@ -11,7 +11,7 @@ describe('apikeys actions', () => {
     jest.resetAllMocks()
     store = mockStore()
   })
-  test('[getApiKeys] should dispatch success action if get account successfully', () => {
+  test('[getApiKeys] should dispatch success action if get key successfully', () => {
     apikeyService.getAllApikey.mockImplementation(() => {
       return Promise.resolve({
         data: {
@@ -40,7 +40,7 @@ describe('apikeys actions', () => {
       expect(store.getActions()).toEqual(expectedActions)
     })
   })
-  test('[createApiKey] should dispatch success action if get account successfully', () => {
+  test('[createApiKey] should dispatch success action if create key successfully', () => {
     apikeyService.createApikey.mockImplementation(() => {
       return Promise.resolve({
         data: {
@@ -64,7 +64,7 @@ describe('apikeys actions', () => {
     })
   })
 
-  test('[deleteApiKey] should dispatch success action if get account successfully', () => {
+  test('[deleteApiKey] should dispatch success action if delete key successfully', () => {
     apikeyService.deleteApiKeyById.mockImplementation(() => {
       return Promise.resolve({
         data: {
@@ -86,7 +86,7 @@ describe('apikeys actions', () => {
     })
   })
 
-  test('[deleteApiKey] should dispatch success action if get account successfully', () => {
+  test('[updateApiKey] should dispatch success action if update key successfully', () => {
     apikeyService.updateApiKey.mockImplementation(() => {
       return Promise.resolve({
         data: {
@@ -102,8 +102,52 @@ describe('apikeys actions', () => {
         data: 'key'
       }
     ]
-    return store.dispatch(updateApiKey({ id: 'id', expired: true })).then(() => {
-      expect(apikeyService.updateApiKey).toBeCalledWith({ id: 'id', expired: true })
+    return store.dispatch(updateApiKey({ id: 'id', name: 'toto' })).then(() => {
+      expect(apikeyService.updateApiKey).toBeCalledWith({ id: 'id', name: 'toto' })
+      expect(store.getActions()).toEqual(expectedActions)
+    })
+  })
+
+  test('[enableApiKey] should dispatch success action if enable key successfully', () => {
+    apikeyService.enableApiKey.mockImplementation(() => {
+      return Promise.resolve({
+        data: {
+          success: true,
+          data: 'key'
+        }
+      })
+    })
+    const expectedActions = [
+      { type: 'API_KEY/UPDATE/INITIATED' },
+      {
+        type: 'API_KEY/UPDATE/SUCCESS',
+        data: 'key'
+      }
+    ]
+    return store.dispatch(enableApiKey({ id: 'id', enabled: true })).then(() => {
+      expect(apikeyService.enableApiKey).toBeCalledWith({ id: 'id', enabled: true })
+      expect(store.getActions()).toEqual(expectedActions)
+    })
+  })
+
+  test('[getApiKey] should dispatch success action if get key successfully', () => {
+    apikeyService.getApiKey.mockImplementation(() => {
+      return Promise.resolve({
+        data: {
+          success: true,
+          data: 'key'
+        }
+      })
+    })
+    const expectedActions = [
+      { type: 'API_KEY/REQUEST/INITIATED' },
+      {
+        type: 'API_KEY/REQUEST/SUCCESS',
+        data: 'key'
+      }
+    ]
+    return store.dispatch(getApiKey('id')).then(() => {
+      expect(apikeyService.getApiKey).toBeCalledWith('id')
       expect(store.getActions()).toEqual(expectedActions)
     })
   })

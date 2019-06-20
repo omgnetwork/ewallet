@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import { compose } from 'recompose'
+import { withRouter } from 'react-router-dom'
+import { connect } from 'react-redux'
+
 import withDropdownState from '../omg-uikit/dropdown/withDropdownState'
 import { DropdownBox } from '../omg-uikit/dropdown'
 import { Icon } from '../omg-uikit'
-import styled from 'styled-components'
-import { compose } from 'recompose'
 import CurrentUserProvider from '../omg-user-current/currentUserProvider'
-import { withRouter } from 'react-router-dom'
-import { connect } from 'react-redux'
 import { logout } from '../omg-session/action'
 import PopperRenderer from '../omg-popper'
+
 const AvatarDropdownContainer = styled.div`
   position: relative;
   cursor: pointer;

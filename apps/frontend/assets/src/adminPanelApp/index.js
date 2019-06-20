@@ -1,14 +1,15 @@
 import React, { Component } from 'react'
 import { Provider } from 'react-redux'
 import { hot } from 'react-hot-loader/root'
-import Routes from './routes'
 import { ThemeProvider } from 'styled-components'
 import Modal from 'react-modal'
-import theme from './theme'
 import PropTypes from 'prop-types'
 import Alert from '../omg-alert'
 
 import 'reset-css'
+
+import theme from './theme'
+import Routes from './routes'
 import './fonts.css'
 import './globalStyle.css'
 import './icons.css'

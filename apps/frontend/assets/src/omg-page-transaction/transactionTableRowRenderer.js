@@ -1,9 +1,9 @@
-import { formatReceiveAmountToTotal } from '../utils/formatter'
-import { Icon } from '../omg-uikit'
 import moment from 'moment'
-import Copy from '../omg-copy'
 import styled from 'styled-components'
 import React from 'react'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
+import { Icon } from '../omg-uikit'
+import Copy from '../omg-copy'
 const TransactionIdContainer = styled.div`
   white-space: nowrap;
   span {

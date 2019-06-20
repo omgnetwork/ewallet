@@ -8,6 +8,13 @@ export const createUser = ({ username, providerUserId }) =>
     service: () => userService.createUser({ username, providerUserId })
   })
 
+export const updateUser = ({ id, username, providerUserId, callingName, fullName }) =>
+  createActionCreator({
+    actionName: 'USER',
+    action: 'UPDATE',
+    service: () => userService.updateUser({ id, username, providerUserId, callingName, fullName })
+  })
+
 export const getUsers = ({ page, perPage, cacheKey, matchAll, matchAny }) =>
   createPaginationActionCreator({
     actionName: 'USERS',

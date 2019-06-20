@@ -42,6 +42,15 @@ const CreateClientKeyFormContainer = styled.form`
   right: 0;
   margin: 0 auto;
   width: 400px;
+
+  h3 {
+    text-align: left;
+    margin-bottom: 35px;
+  }
+
+  button {
+    display: block;
+  }
 `
 const StyledInput = styled(Input)`
   margin-bottom: 30px;
@@ -95,7 +104,7 @@ function CreateClientKeyModal (props) {
       <CreateClientKeyModalContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />
         <CreateClientKeyFormContainer>
-          <h4>Generate Client Key</h4>
+          <h3>Generate Client Key</h3>
           <InputLabel>Label</InputLabel>
           <StyledInput
             autoFocus

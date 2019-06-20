@@ -21,6 +21,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     Repo,
     Token,
     Transaction,
+    TransactionRequest,
     TransactionConsumption,
     User,
     Wallet
@@ -68,9 +69,23 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       user = get_test_user()
       account = Account.get_master_account()
 
-      tc_1 = insert(:transaction_consumption, user_uuid: user.uuid, status: "pending")
-      tc_2 = insert(:transaction_consumption, account_uuid: account.uuid, status: "pending")
-      tc_3 = insert(:transaction_consumption, account_uuid: account.uuid, status: "confirmed")
+      tc_1 =
+        insert(:transaction_consumption,
+          user_uuid: user.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_2 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_3 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.confirmed()
+        )
 
       %{
         user: user,
@@ -110,7 +125,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
-            "status" => "pending"
+            "status" => TransactionConsumption.pending()
           }
         })
 
@@ -130,7 +145,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         request("/transaction_consumption.all", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
-          "search_term" => "pending"
+          "search_term" => TransactionConsumption.pending()
         })
 
       assert response["success"]
@@ -197,9 +212,23 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       user = get_test_user()
       account = Account.get_master_account()
 
-      tc_1 = insert(:transaction_consumption, user_uuid: user.uuid, status: "pending")
-      tc_2 = insert(:transaction_consumption, account_uuid: account.uuid, status: "pending")
-      tc_3 = insert(:transaction_consumption, account_uuid: account.uuid, status: "confirmed")
+      tc_1 =
+        insert(:transaction_consumption,
+          user_uuid: user.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_2 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_3 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.confirmed()
+        )
 
       %{
         user: user,
@@ -281,7 +310,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
-            "status" => "pending"
+            "status" => TransactionConsumption.pending()
           }
         })
 
@@ -326,9 +355,23 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       user = get_test_user()
       account = Account.get_master_account()
 
-      tc_1 = insert(:transaction_consumption, account_uuid: account.uuid, status: "pending")
-      tc_2 = insert(:transaction_consumption, user_uuid: user.uuid, status: "pending")
-      tc_3 = insert(:transaction_consumption, user_uuid: user.uuid, status: "confirmed")
+      tc_1 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_2 =
+        insert(:transaction_consumption,
+          user_uuid: user.uuid,
+          status: TransactionConsumption.pending()
+        )
+
+      tc_3 =
+        insert(:transaction_consumption,
+          user_uuid: user.uuid,
+          status: TransactionConsumption.confirmed()
+        )
 
       %{
         user: user,
@@ -450,7 +493,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
-            "status" => "pending"
+            "status" => TransactionConsumption.pending()
           }
         })
 
@@ -494,20 +537,24 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       account = insert(:account)
       transaction_request = insert(:transaction_request)
 
-      tc_1 = insert(:transaction_consumption, account_uuid: account.uuid, status: "pending")
+      tc_1 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.pending()
+        )
 
       tc_2 =
         insert(
           :transaction_consumption,
           transaction_request_uuid: transaction_request.uuid,
-          status: "pending"
+          status: TransactionConsumption.pending()
         )
 
       tc_3 =
         insert(
           :transaction_consumption,
           transaction_request_uuid: transaction_request.uuid,
-          status: "confirmed"
+          status: TransactionConsumption.confirmed()
         )
 
       %{
@@ -585,7 +632,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
-            "status" => "pending"
+            "status" => TransactionConsumption.pending()
           }
         })
 
@@ -630,20 +677,24 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       wallet = insert(:wallet)
       {:ok, _} = AccountUser.link(account.uuid, wallet.user_uuid, %System{})
 
-      tc_1 = insert(:transaction_consumption, account_uuid: account.uuid, status: "pending")
+      tc_1 =
+        insert(:transaction_consumption,
+          account_uuid: account.uuid,
+          status: TransactionConsumption.pending()
+        )
 
       tc_2 =
         insert(
           :transaction_consumption,
           wallet_address: wallet.address,
-          status: "pending"
+          status: TransactionConsumption.pending()
         )
 
       tc_3 =
         insert(
           :transaction_consumption,
           wallet_address: wallet.address,
-          status: "confirmed"
+          status: TransactionConsumption.confirmed()
         )
 
       %{
@@ -719,7 +770,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
-            "status" => "pending"
+            "status" => TransactionConsumption.pending()
           }
         })
 
@@ -794,7 +845,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
   describe "/transaction_consumption.cancel" do
     test_with_auths "cancels a consumption when in pending state" do
-      transaction_consumption = insert(:transaction_consumption, status: "pending")
+      transaction_consumption =
+        insert(:transaction_consumption, status: TransactionConsumption.pending())
 
       response =
         request("/transaction_consumption.cancel", %{
@@ -804,11 +856,12 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert response["success"]
       assert response["data"]["id"] == transaction_consumption.id
       assert response["data"]["cancelled_at"] != nil
-      assert response["data"]["status"] == "cancelled"
+      assert response["data"]["status"] == TransactionConsumption.cancelled()
     end
 
     test_with_auths "returns a 'transaction_consumption:uncancellable' error when the consumption is not pending" do
-      transaction_consumption = insert(:transaction_consumption, status: "confirmed")
+      transaction_consumption =
+        insert(:transaction_consumption, status: TransactionConsumption.confirmed())
 
       response =
         request("/transaction_consumption.cancel", %{
@@ -853,7 +906,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       consumption_id = response["data"]["id"]
       assert response["success"]
-      assert response["data"]["status"] == "pending"
+      assert response["data"]["status"] == TransactionConsumption.pending()
 
       # Retrieve what just got inserted
       inserted_consumption = TransactionConsumption.get(response["data"]["id"])
@@ -881,7 +934,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"]
       assert response["data"]["id"] == inserted_consumption.id
-      assert response["data"]["status"] == "cancelled"
+      assert response["data"]["status"] == TransactionConsumption.cancelled()
       assert response["data"]["cancelled_at"] != nil
 
       assert_receive %Phoenix.Socket.Broadcast{
@@ -916,7 +969,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test "generates an activity log with an admin request" do
-      transaction_consumption = insert(:transaction_consumption, status: "pending")
+      transaction_consumption =
+        insert(:transaction_consumption, status: TransactionConsumption.pending())
 
       timestamp = DateTime.utc_now()
 
@@ -935,7 +989,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test "generates an activity log with a provider request" do
-      transaction_consumption = insert(:transaction_consumption, status: "pending")
+      transaction_consumption =
+        insert(:transaction_consumption, status: TransactionConsumption.pending())
 
       timestamp = DateTime.utc_now()
 
@@ -1008,7 +1063,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
                  "idempotency_token" => "123",
                  "object" => "transaction_consumption",
-                 "status" => "confirmed",
+                 "status" => TransactionConsumption.confirmed(),
                  "token_id" => context.token.id,
                  "token" => context.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
@@ -1138,7 +1193,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
                  "idempotency_token" => "123",
                  "object" => "transaction_consumption",
-                 "status" => "confirmed",
+                 "status" => TransactionConsumption.confirmed(),
                  "token_id" => context.token.id,
                  "token" => context.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
@@ -1749,6 +1804,38 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert response["data"]["code"] == "wallet:disabled"
     end
 
+    test_with_auths "fails to consume when transaction request is cancelled", context do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: context.token.uuid,
+          user_uuid: context.alice.uuid,
+          wallet: context.alice_wallet,
+          amount: 100_000 * context.token.subunit_to_unit,
+          status: TransactionRequest.expired(),
+          expiration_reason: TransactionRequest.cancelled_transaction_request()
+        )
+
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: context.account.id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "transaction_request:cancelled"
+
+      assert response["data"]["description"] ==
+               "The specified transaction request has been cancelled."
+    end
+
     test_with_auths "returns with preload if `embed` attribute is given", context do
       transaction_request =
         insert(
@@ -1953,7 +2040,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       consumption_id = response["data"]["id"]
       assert response["success"]
-      assert response["data"]["status"] == "pending"
+      assert response["data"]["status"] == TransactionConsumption.pending()
       assert response["data"]["transaction_id"] == nil
 
       # Retrieve what just got inserted
@@ -1982,7 +2069,304 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"]
       assert response["data"]["id"] == inserted_consumption.id
-      assert response["data"]["status"] == "confirmed"
+      assert response["data"]["status"] == TransactionConsumption.confirmed()
+      assert response["data"]["approved_at"] != nil
+      assert response["data"]["confirmed_at"] != nil
+
+      # Check that a transaction was inserted
+      inserted_transaction = Repo.get_by(Transaction, id: response["data"]["transaction_id"])
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
+      assert inserted_transaction.to_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == context.token.uuid
+      assert inserted_transaction.to == context.bob_wallet.address
+      assert inserted_transaction.from == context.account_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
+
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_finalized",
+        topic: "transaction_consumption:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # Unsubscribe from all channels
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
+    end
+
+    test_with_auths "successful approve when the transaction request was expired after consumption",
+                    context do
+      mint!(context.token)
+
+      # Create a require_confirmation transaction request that will be consumed soon
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          wallet: context.account_wallet,
+          amount: nil,
+          require_confirmation: true
+        )
+
+      request_topic = "transaction_request:#{transaction_request.id}"
+
+      # Start listening to the channels for the transaction request created above
+      Endpoint.subscribe(request_topic)
+
+      # Making the consumption, since we made the request require_confirmation, it will
+      # create a pending consumption that will need to be confirmed
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * context.token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          provider_user_id: context.bob.provider_user_id
+        })
+
+      consumption_id = response["data"]["id"]
+      assert response["success"]
+      assert response["data"]["status"] == TransactionConsumption.pending()
+      assert response["data"]["transaction_id"] == nil
+
+      # Retrieve what just got inserted
+      inserted_consumption = TransactionConsumption.get(response["data"]["id"])
+
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_request",
+        topic: "transaction_request:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # Expire the transaction request
+      assert {:ok, expired_transaction_request} =
+               TransactionRequest.expire(transaction_request, %System{})
+
+      assert expired_transaction_request.id == transaction_request.id
+      assert expired_transaction_request.status == TransactionRequest.expired()
+      assert expired_transaction_request.expiration_reason == "expired_transaction_request"
+
+      # We need to know once the consumption has been approved, so let's
+      # listen to the channel for it
+      Endpoint.subscribe("transaction_consumption:#{consumption_id}")
+
+      # Confirm the consumption
+      response =
+        request("/transaction_consumption.approve", %{
+          id: consumption_id
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["status"] == TransactionConsumption.confirmed()
+      assert response["data"]["approved_at"] != nil
+      assert response["data"]["confirmed_at"] != nil
+
+      # Check that a transaction was inserted
+      inserted_transaction = Repo.get_by(Transaction, id: response["data"]["transaction_id"])
+      assert inserted_transaction.from_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == context.token.uuid
+      assert inserted_transaction.to_amount == 100_000 * context.token.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == context.token.uuid
+      assert inserted_transaction.to == context.bob_wallet.address
+      assert inserted_transaction.from == context.account_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
+
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_finalized",
+        topic: "transaction_consumption:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # Unsubscribe from all channels
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
+    end
+
+    test_with_auths "failed to approve when the transaction request's max_consumptions was reached",
+                    context do
+      mint!(context.token)
+
+      # Create a require_confirmation transaction request that will be consumed soon
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          wallet: context.account_wallet,
+          amount: nil,
+          require_confirmation: true
+        )
+
+      request_topic = "transaction_request:#{transaction_request.id}"
+
+      # Start listening to the channels for the transaction request created above
+      Endpoint.subscribe(request_topic)
+
+      # Making the consumption, since we made the request require_confirmation, it will
+      # create a pending consumption that will need to be confirmed
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * context.token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          provider_user_id: context.bob.provider_user_id
+        })
+
+      consumption_id = response["data"]["id"]
+      assert response["success"]
+      assert response["data"]["status"] == TransactionConsumption.pending()
+      assert response["data"]["transaction_id"] == nil
+
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_request",
+        topic: "transaction_request:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # Expire the transaction request
+      assert {:ok, expired_transaction_request} =
+               TransactionRequest.expire(
+                 transaction_request,
+                 %System{},
+                 "max_consumptions_reached"
+               )
+
+      assert expired_transaction_request.id == transaction_request.id
+      assert expired_transaction_request.status == TransactionRequest.expired()
+      assert expired_transaction_request.expiration_reason == "max_consumptions_reached"
+
+      # We need to know once the consumption has been approved, so let's
+      # listen to the channel for it
+      Endpoint.subscribe("transaction_consumption:#{consumption_id}")
+
+      # Confirm the consumption
+      response =
+        request("/transaction_consumption.approve", %{
+          id: consumption_id
+        })
+
+      assert response == %{
+               "data" => %{
+                 "code" => "transaction_request:max_consumptions_reached",
+                 "description" =>
+                   "The specified transaction request has reached the allowed amount of consumptions.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+
+      # Unsubscribe from all channels
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
+    end
+
+    test_with_auths "successful approve when the transaction request was cancelled after consumption",
+                    context do
+      mint!(context.token)
+
+      # Create a require_confirmation transaction request that will be consumed soon
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: context.token.uuid,
+          account_uuid: context.account.uuid,
+          wallet: context.account_wallet,
+          amount: nil,
+          require_confirmation: true
+        )
+
+      request_topic = "transaction_request:#{transaction_request.id}"
+
+      # Start listening to the channels for the transaction request created above
+      Endpoint.subscribe(request_topic)
+
+      # Making the consumption, since we made the request require_confirmation, it will
+      # create a pending consumption that will need to be confirmed
+      response =
+        request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * context.token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          provider_user_id: context.bob.provider_user_id
+        })
+
+      consumption_id = response["data"]["id"]
+      assert response["success"]
+      assert response["data"]["status"] == TransactionConsumption.pending()
+      assert response["data"]["transaction_id"] == nil
+
+      # Retrieve what just got inserted
+      inserted_consumption = TransactionConsumption.get(response["data"]["id"])
+
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_request",
+        topic: "transaction_request:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
+      }
+
+      # Expire the transaction request
+      assert {:ok, expired_transaction_request} =
+               TransactionRequest.expire(
+                 transaction_request,
+                 %System{},
+                 TransactionRequest.cancelled_transaction_request()
+               )
+
+      assert expired_transaction_request.id == transaction_request.id
+      assert expired_transaction_request.status == TransactionRequest.expired()
+
+      assert expired_transaction_request.expiration_reason ==
+               TransactionRequest.cancelled_transaction_request()
+
+      # We need to know once the consumption has been approved, so let's
+      # listen to the channel for it
+      Endpoint.subscribe("transaction_consumption:#{consumption_id}")
+
+      # Confirm the consumption
+      response =
+        request("/transaction_consumption.approve", %{
+          id: consumption_id
+        })
+
+      assert response["success"]
+      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["status"] == TransactionConsumption.confirmed()
       assert response["data"]["approved_at"] != nil
       assert response["data"]["confirmed_at"] != nil
 
@@ -2052,7 +2436,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"]
       consumption_id = response["data"]["id"]
-      assert response["data"]["status"] == "pending"
+      assert response["data"]["status"] == TransactionConsumption.pending()
       assert response["data"]["transaction_id"] == nil
 
       # Retrieve what just got inserted
@@ -2081,7 +2465,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"]
       assert response["data"]["id"] == inserted_consumption.id
-      assert response["data"]["status"] == "confirmed"
+      assert response["data"]["status"] == TransactionConsumption.confirmed()
       assert response["data"]["approved_at"] != nil
       assert response["data"]["confirmed_at"] != nil
 
@@ -2152,7 +2536,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"]
       consumption_id = response["data"]["id"]
-      assert response["data"]["status"] == "pending"
+      assert response["data"]["status"] == TransactionConsumption.pending()
 
       # The consumption is still valid...
       :timer.sleep(1000)
@@ -2252,7 +2636,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"]
       consumption_id = response["data"]["id"]
-      assert response["data"]["status"] == "pending"
+      assert response["data"]["status"] == TransactionConsumption.pending()
       assert response["data"]["transaction_id"] == nil
 
       # We check that we receive the confirmation request above in the
@@ -2346,7 +2730,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"]
       consumption_id = response["data"]["id"]
-      assert response["data"]["status"] == "pending"
+      assert response["data"]["status"] == TransactionConsumption.pending()
       assert response["data"]["transaction_id"] == nil
 
       # Retrieve what just got inserted
@@ -2375,7 +2759,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"]
       assert response["data"]["id"] == inserted_consumption.id
-      assert response["data"]["status"] == "rejected"
+      assert response["data"]["status"] == TransactionConsumption.rejected()
       assert response["data"]["rejected_at"] != nil
       assert response["data"]["approved_at"] == nil
       assert response["data"]["confirmed_at"] == nil
@@ -2409,7 +2793,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"]
       consumption_id = response["data"]["id"]
-      assert response["data"]["status"] == "pending"
+      assert response["data"]["status"] == TransactionConsumption.pending()
       assert response["data"]["transaction_id"] == nil
 
       # Retrieve what just got inserted
@@ -2438,7 +2822,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
       assert response["success"]
       assert response["data"]["id"] == inserted_consumption.id
-      assert response["data"]["status"] == "confirmed"
+      assert response["data"]["status"] == TransactionConsumption.confirmed()
       assert response["data"]["confirmed_at"] != nil
       assert response["data"]["approved_at"] != nil
       assert response["data"]["rejected_at"] == nil
@@ -2505,7 +2889,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         target: transaction_consumption,
         changes: %{
           "approved_at" => DateFormatter.to_iso8601(transaction_consumption.approved_at),
-          "status" => "approved"
+          "status" => TransactionConsumption.approved()
         },
         encrypted_changes: %{}
       )
@@ -2567,7 +2951,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         target: transaction,
         changes: %{
           "local_ledger_uuid" => transaction.local_ledger_uuid,
-          "status" => "confirmed"
+          "status" => TransactionConsumption.confirmed()
         },
         encrypted_changes: %{}
       )
@@ -2580,7 +2964,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         target: transaction_consumption,
         changes: %{
           "confirmed_at" => DateFormatter.to_iso8601(transaction_consumption.confirmed_at),
-          "status" => "confirmed",
+          "status" => TransactionConsumption.confirmed(),
           "transaction_uuid" => transaction.uuid
         },
         encrypted_changes: %{}

@@ -1,6 +1,6 @@
+import _ from 'lodash'
 import { createSelectAllPagesCachedQuery } from '../omg-cache/selector'
 import { selectGetAccountById } from '../omg-account/selector'
-import _ from 'lodash'
 export const selectWallets = (state, search) => {
   return _.values(state.wallets).filter(wallet => {
     const reg = new RegExp(search)

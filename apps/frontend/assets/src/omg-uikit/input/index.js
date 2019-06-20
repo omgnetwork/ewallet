@@ -35,13 +35,15 @@ const Input = styled.input`
   padding: 8px 0px;
   background-color: transparent;
   line-height: 1;
-  border-bottom: 1px solid
-    ${props =>
-    props.error
-      ? props.theme.colors.R400
-      : props.disabled
-        ? 'transparent'
-        : props.theme.colors.S400};
+  border-bottom: 1px solid ${props => {
+    if (props.error) {
+      return props.theme.colors.R400
+    }
+    if (props.disabled || props.noBorder) {
+      return 'transparent'
+    }
+    return props.theme.colors.S400
+  }};
   :disabled {
     background-color: transparent;
     color: ${props => props.theme.colors.B300};
@@ -51,8 +53,15 @@ const Input = styled.input`
     font-size: 12px;
   }
   :focus {
-    border-bottom: 1px solid
-      ${props => (props.error ? props.theme.colors.R400 : props.theme.colors.BL400)};
+    border-bottom: 1px solid ${props => {
+    if (props.error) {
+      return props.theme.colors.R400
+    }
+    if (props.disabled || props.noBorder) {
+      return 'transparent'
+    }
+    return props.theme.colors.BL400
+  }};
   }
 
   ::-webkit-inner-spin-button,
@@ -146,6 +155,7 @@ class InputComponent extends PureComponent {
     allowNegative: PropTypes.bool,
     inputActive: PropTypes.bool,
     icon: PropTypes.string,
+    noBorder: PropTypes.bool,
     maxAmountLength: PropTypes.number
   }
   static defaultProps = {

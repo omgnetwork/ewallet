@@ -5,6 +5,8 @@ import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import numeral from 'numeral'
+import { BigNumber } from 'bignumber.js'
+
 import { Input, Button, Icon, Select, Checkbox } from '../omg-uikit'
 import { createExchangePair, updateExchangePair } from '../omg-exchange-pair/action'
 import TokensFetcher from '../omg-token/tokensFetcher'
@@ -14,8 +16,8 @@ import { createSearchTokenQuery } from '../omg-token/searchField'
 import AllWalletFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
-import { BigNumber } from 'bignumber.js'
 import { ensureIsNumberOnly } from '../utils/formatter'
+
 const Form = styled.form`
   padding: 50px;
   width: 500px;

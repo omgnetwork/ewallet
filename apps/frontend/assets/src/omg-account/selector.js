@@ -1,5 +1,5 @@
-import { createSelectAllPagesCachedQuery } from '../omg-cache/selector'
 import _ from 'lodash'
+import { createSelectAllPagesCachedQuery } from '../omg-cache/selector'
 export const selectAccounts = state => {
   return _.values(state.accounts) || []
 }

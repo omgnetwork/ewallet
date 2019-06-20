@@ -1,8 +1,8 @@
-import { UserWalletsFetcher } from '../omg-wallet/walletsFetcher'
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
+import { UserWalletsFetcher } from '../omg-wallet/walletsFetcher'
 import WalletTable from '../omg-page-wallets/WalletTable'
 function UserWallets (props) {
   const { page, search } = queryString.parse(props.location.search)

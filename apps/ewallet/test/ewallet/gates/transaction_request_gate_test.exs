@@ -710,7 +710,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert updated_request.expired_at != nil
-      assert updated_request.expiration_reason == "max_consumptions_reached"
+      assert updated_request.expiration_reason == TransactionRequest.max_consumptions_reached()
       assert TransactionRequest.valid?(updated_request) == false
       assert TransactionRequest.expired?(updated_request) == true
     end

@@ -1,5 +1,5 @@
-import createHeaders from './headerGenerator'
 import btoa from 'btoa'
+import createHeaders from './headerGenerator'
 describe('headerGenerator', () => {
   const currentAccountId = 'account_id'
   const accessToken = { userId: 'test1', authentication_token: 'test2' }

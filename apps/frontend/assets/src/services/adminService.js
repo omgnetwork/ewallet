@@ -44,6 +44,19 @@ export function inviteAdmin ({ email, redirectUrl, globalRole }) {
   })
 }
 
+export function updateAdmin ({ id, fullName, callingName, enabled, globalRole }) {
+  return authenticatedRequest({
+    path: '/admin.update',
+    data: {
+      id,
+      full_name: fullName,
+      calling_name: callingName,
+      enabled,
+      global_role: globalRole
+    }
+  })
+}
+
 export function createAdmin ({ resetToken, password, passwordConfirmation, email }) {
   return unAuthenticatedRequest({
     path: '/invite.accept',

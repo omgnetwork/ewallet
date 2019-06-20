@@ -1,17 +1,19 @@
 import React, { PureComponent } from 'react'
-import { Table, Icon, Button } from '../omg-uikit'
 import { withRouter } from 'react-router'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
+import styled from 'styled-components'
+
+import { Table, Icon, Button } from '../omg-uikit'
 import { DropdownBoxItem, DropdownBox } from '../omg-uikit/dropdown'
 import withDropdownState from '../omg-uikit/dropdown/withDropdownState'
-import styled from 'styled-components'
 
 export const ThContent = styled.div`
   padding: 4px 10px;
   letter-spacing: 1px;
   font-size: 10px;
   font-weight: 600;
+  text-align: ${props => props.align ? props.align : 'initial'};
   color: ${props => (props.active ? props.theme.colors.B400 : props.theme.colors.B100)};
 `
 const TableContainer = styled.div`
@@ -186,7 +188,7 @@ class SortableTable extends PureComponent {
     }
     return (
       <th key={col.key}>
-        <ThContent>{col.title}</ThContent>
+        <ThContent align={col.align}>{col.title}</ThContent>
       </th>
     )
   }
@@ -288,7 +290,7 @@ class SortHeader extends React.Component {
   render () {
     return (
       <th key={`col-header-${this.props.col.key}`} onClick={this.onClickSort}>
-        <ThContent active={this.props.active}>
+        <ThContent align={this.props.col.align} active={this.props.active}>
           <span>{this.props.col.title}</span>{' '}
           {this.props.active ? (
             this.props.sortOrder === 'asc' ? (
@@ -319,7 +321,7 @@ const FilterHeader = withDropdownState(
     render () {
       return (
         <th key={`col-header-${this.props.col.key}`} onClick={this.props.onClickButton}>
-          <ThContent>
+          <ThContent align={this.props.col.align}>
             <div style={{ display: 'inline-block', position: 'relative' }}>
               <span>
                 {this.props.col.title} {this.props.selectedItem && `(${this.props.selectedItem}) `}
