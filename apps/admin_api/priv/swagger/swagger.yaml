@@ -291,6 +291,8 @@ paths:
     $ref: 'transaction_request/paths.yaml#/transaction_request.all'
   /transaction_request.create:
     $ref: 'transaction_request/paths.yaml#/transaction_request.create'
+  /transaction_request.cancel:
+    $ref: 'transaction_request/paths.yaml#/transaction_request.cancel'
   /transaction_request.get:
     $ref: 'transaction_request/paths.yaml#/transaction_request.get'
   /transaction_request.consume:

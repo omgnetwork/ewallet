@@ -16,7 +16,7 @@ defmodule EWalletDB.TransactionRequestTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias ActivityLogger.System
-  alias EWalletDB.TransactionRequest
+  alias EWalletDB.{TransactionRequest, TransactionConsumption}
 
   describe "TransactionRequest factory" do
     test_has_valid_factory(TransactionRequest)
@@ -93,7 +93,7 @@ defmodule EWalletDB.TransactionRequestTest do
 
       assert TransactionRequest.expired?(t) == true
       assert t.expired_at != nil
-      assert t.expiration_reason == "expired_transaction_request"
+      assert t.expiration_reason == TransactionRequest.expired_transaction_request()
     end
   end
 
@@ -216,6 +216,18 @@ defmodule EWalletDB.TransactionRequestTest do
     end
   end
 
+  describe "cancelled?/1" do
+    test "returns true if cancelled" do
+      request = insert(:transaction_request)
+      assert TransactionRequest.expired?(request) == false
+    end
+
+    test "returns false if cancelled" do
+      request = insert(:transaction_request, status: TransactionRequest.expired())
+      assert TransactionRequest.expired?(request) == true
+    end
+  end
+
   describe "expiration_from_lifetime/1" do
     test "returns nil if not require_confirmation" do
       request = insert(:transaction_request, require_confirmation: false)
@@ -330,23 +342,52 @@ defmodule EWalletDB.TransactionRequestTest do
         insert(
           :transaction_consumption,
           transaction_request_uuid: request.uuid,
-          status: "confirmed"
+          status: TransactionConsumption.confirmed()
         )
 
       _consumption =
         insert(
           :transaction_consumption,
           transaction_request_uuid: request.uuid,
-          status: "confirmed"
+          status: TransactionConsumption.confirmed()
         )
 
       {res, updated_request} = TransactionRequest.expire_if_max_consumption(request, %System{})
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert updated_request.expired_at != nil
-      assert updated_request.expiration_reason == "max_consumptions_reached"
+      assert updated_request.expiration_reason == TransactionRequest.max_consumptions_reached()
       assert TransactionRequest.valid?(updated_request) == false
       assert TransactionRequest.expired?(updated_request) == true
+    end
+  end
+
+  describe "get_expiration_reason/1" do
+    test "returns atom when expiration reason is not nil" do
+      request =
+        insert(:transaction_request, %{
+          expiration_reason: TransactionRequest.expired_transaction_request()
+        })
+
+      assert TransactionRequest.get_expiration_reason(request) == :expired_transaction_request
+    end
+
+    test "return nil when expiration reason is nil" do
+      request = insert(:transaction_request)
+
+      assert TransactionRequest.get_expiration_reason(request) == nil
+    end
+  end
+
+  describe "cancel" do
+    test "cancels the request" do
+      t = insert(:transaction_request)
+      assert TransactionRequest.expired?(t) == false
+
+      TransactionRequest.cancel(t, %System{})
+
+      t = TransactionRequest.get(t.id)
+      assert TransactionRequest.expired?(t) == true
     end
   end
 end
