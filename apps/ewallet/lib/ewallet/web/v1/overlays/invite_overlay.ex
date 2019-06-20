@@ -58,7 +58,7 @@ defmodule EWallet.Web.V1.InviteOverlay do
       verified_at: nil,
       inserted_at: nil,
       updated_at: nil,
-      user: UserOverlay.default_preload_assocs()
+      user: UserOverlay.self_filter_fields()
     ]
 
   def pagination_fields,

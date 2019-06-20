@@ -77,12 +77,12 @@ defmodule EWallet.Web.V1.UserOverlay do
       inserted_at: nil,
       created_at: nil,
       global_role: nil,
-      invite: InviteOverlay.default_preload_assocs(),
-      wallets: WalletOverlay.default_preload_assocs(),
-      auth_tokens: AuthTokenOverlay.default_preload_assocs(),
-      memberships: MembershipOverlay.default_preload_assocs(),
-      roles: RoleOverlay.default_preload_assocs(),
-      accounts: AccountOverlay.default_preload_assocs()
+      invite: InviteOverlay.self_filter_fields(),
+      wallets: WalletOverlay.self_filter_fields(),
+      auth_tokens: AuthTokenOverlay.self_filter_fields(),
+      memberships: MembershipOverlay.self_filter_fields(),
+      roles: RoleOverlay.self_filter_fields(),
+      accounts: AccountOverlay.self_filter_fields()
     ]
 
   def pagination_fields,
