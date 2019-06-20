@@ -6,6 +6,7 @@ import { ThemeProvider } from 'styled-components'
 import Modal from 'react-modal'
 import theme from './theme'
 import PropTypes from 'prop-types'
+import Alert from '../omg-alert'
 
 import 'reset-css'
 import './fonts.css'
@@ -24,7 +25,10 @@ class App extends Component {
     return (
       <Provider store={this.props.store}>
         <ThemeProvider theme={theme}>
-          <Routes />
+          <>
+            <Alert />
+            <Routes />
+          </>
         </ThemeProvider>
       </Provider>
     )

@@ -56,7 +56,6 @@ class AppLayout extends Component {
             })}
           </Content>
         </ContentContainer>
-        <Alert />
 
         <SlideInRight path='transaction-panel' width={560}>
           {searchObject['show-request-tab'] && <TransactionRequestPanel />}
