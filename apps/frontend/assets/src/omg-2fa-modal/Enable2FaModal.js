@@ -99,7 +99,7 @@ function CreateTwoFaModal ({ open, onRequestClose, history }) {
   const renderCreateMode = () => {
     return (
       <form onSubmit={onSubmit}>
-        <h4>please scan the QR</h4>
+        <h4>Please scan the QR</h4>
         <div>
           Secret code: {_.get(secretCode, 'secret_2fa_code', 'loading code..')}
         </div>
@@ -107,7 +107,7 @@ function CreateTwoFaModal ({ open, onRequestClose, history }) {
         <Input
           value={passcode}
           onChange={e => setPasscode(e.target.value)}
-          normalPlaceholder='passcode...'
+          normalPlaceholder='2fa token...'
         />
         <Button loading={submitStatus === 'LOADING'}>
           Enable Two Factor Authentication
@@ -119,10 +119,9 @@ function CreateTwoFaModal ({ open, onRequestClose, history }) {
   const renderShowBackup = () => {
     return (
       <div className='backup-container'>
-        <h4>Please keep your backup code</h4>
+        <h4>Please keep your backup codes</h4>
         <p>
-          You can print or download one-time use backup codes for times when
-          your phones are unavailable.
+          Please print or download these one-time use backup codes for times when your device is unavailable.
         </p>
         {backupCodes.backup_codes.map(backupCode => {
           return (

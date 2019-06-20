@@ -75,7 +75,7 @@ function Enter2FaModal ({ open, onRequestClose, history, location }) {
         <Input
           value={passcode}
           onChange={e => setPasscode(e.target.value)}
-          normalPlaceholder='passcode...'
+          normalPlaceholder='2fa token...'
           error={submitStatus === 'FAILED'}
           errorText={errorText}
           autoFocus

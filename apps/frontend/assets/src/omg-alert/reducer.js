@@ -105,7 +105,7 @@ export const alertsReducer = createReducer([], {
   'ACCOUNT/ASSIGN_KEY/SUCCESS': state => {
     return [
       ...state,
-      createAlertState('Assign key to account successfully.', 'success')
+      createAlertState('Assigned key to account successfully.', 'success')
     ]
   },
   'ACCOUNT/UNASSIGN_KEY/SUCCESS': state => {

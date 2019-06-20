@@ -71,11 +71,11 @@ function DisableTwoFaModal ({ open, onRequestClose, history }) {
   const renderDisableSection = () => {
     return (
       <form onSubmit={onSubmit}>
-        <h4>Disable Your Two Factor Authentication</h4>
+        <h4>Disable Two Factor Authentication</h4>
         <Input
           value={passcode}
           onChange={e => setPasscode(e.target.value)}
-          normalPlaceholder='passcode...'
+          normalPlaceholder='2fa token...'
           error={submitStatus === 'FAILED'}
           errorText={errorText}
         />
