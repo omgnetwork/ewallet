@@ -61,7 +61,6 @@ const createRoute = () => (
       <AuthenticatedRoute path='/keys/:keyType/:keyId' exact component={ApiKeyDetailPage} />
       <AuthenticatedRoute path='/keys/:keyType' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/keys' exact component={ApiKeyPage} />
-      
       <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
 
       <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />
