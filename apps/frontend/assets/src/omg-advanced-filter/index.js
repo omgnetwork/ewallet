@@ -11,6 +11,9 @@ import { Icon, Button } from '../omg-uikit'
 import FilterPicker from './FilterPicker'
 import { FILTER_MAP } from './FilterMap'
 
+import filterAdapter from './util/filterAdapter'
+import breadcrumbFactory from './util/breadcrumbFactory'
+
 _.templateSettings.interpolate = /{{([\s\S]+?)}}/g
 
 const AdvancedFilterContainer = styled.div`
@@ -106,66 +109,6 @@ const AdvancedFilter = ({
     setValues(_.omit(values, [key]))
   }
 
-  const filterAdapter = (values) => {
-    let _matchAll = []
-    let _matchAny = []
-
-    _.forOwn(values, (value, key) => {
-      const { matchAll, matchAny } = _.find(FILTER_MAP, ['key', key])
-
-      if (matchAll) {
-        matchAll.forEach(filter => {
-          if (filter.hasOwnProperty('value')) {
-            try {
-              const cleaned = JSON.parse(JSON.stringify(value))
-              const compiledValue = _.template(filter.value)(cleaned)
-              _matchAll.push({
-                ...filter,
-                value: compiledValue
-              })
-            } catch (e) {
-              //
-            }
-          } else {
-            if (Array.isArray(value)) {
-              value.forEach(i => {
-                _matchAll.push({
-                  ...filter,
-                  value: i
-                })
-              })
-            } else {
-              _matchAll.push({
-                ...filter,
-                value
-              })
-            }
-          }
-        })
-      }
-
-      if (matchAny) {
-        if (Array.isArray(value)) {
-          value.forEach(i => {
-            matchAny.forEach(filter => {
-              if (i.hasOwnProperty('value')) {
-                _matchAny.push({ ...filter, value: i.value })
-              } else {
-                _matchAny.push({ ...filter, value: i })
-              }
-            })
-          })
-        } else {
-          matchAny.forEach(filter => {
-            _matchAny.push({ ...filter, value })
-          })
-        }
-      }
-    })
-
-    return { matchAll: _matchAll, matchAny: _matchAny }
-  }
-
   const resetPage = () => {
     const search = queryString.parse(location.search)
     delete search['page']
@@ -206,34 +149,6 @@ const AdvancedFilter = ({
       setValues(initialValues)
     }
     onRequestClose()
-  }
-
-  const breadcrumbFactory = (value) => {
-    if (Array.isArray(value)) {
-      let values = value
-      if (typeof value[0] === 'object') {
-        values = value.map(i => i.label)
-      }
-      return `${values}`.replace(/,/g, ', ')
-    }
-    if (typeof value === 'object') {
-      let startDate
-      let endDate
-
-      const start = _.get(value, 'startDate')
-      const end = _.get(value, 'endDate')
-      if (start) {
-        startDate = start.format('DD/MM/YYYY H:mm')
-      }
-      if (end) {
-        endDate = end.format('DD/MM/YYYY H:mm')
-      }
-
-      return `${startDate ? `start - ${startDate}` : ''}
-        ${startDate && endDate ? ',' : ''}
-        ${endDate ? `end - ${endDate}` : ''}`
-    }
-    return value
   }
 
   const springConfig = { stiffness: 200, damping: 20 }
