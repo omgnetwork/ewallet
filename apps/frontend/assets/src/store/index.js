@@ -19,4 +19,4 @@ export function configureStore (
   return _store
 }
 
-export const store = _store
+export const getStore = () => _store
