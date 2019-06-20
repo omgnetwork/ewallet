@@ -1,15 +1,17 @@
 import * as sessionService from '../services/sessionService'
 import { createActionCreator } from '../utils/createActionCreator'
-export const login = ({ email, password, rememberMe }) => createActionCreator({ actionName: 'SESSION',
-  action: 'LOGIN',
-  service: async () => {
-    const sessionResult = await sessionService.login({ email, password })
-    if (sessionResult.data.success) {
-      sessionService.setAccessToken(sessionResult.data.data)
+export const login = ({ email, password }) =>
+  createActionCreator({
+    actionName: 'SESSION',
+    action: 'LOGIN',
+    service: async () => {
+      const sessionResult = await sessionService.login({ email, password })
+      if (sessionResult.data.success) {
+        sessionService.setAccessToken(sessionResult.data.data)
+      }
+      return sessionResult
     }
-    return sessionResult
-  }
-})
+  })
 
 export const logout = () =>
   createActionCreator({
@@ -47,7 +49,11 @@ export const updatePasswordWithResetToken = ({
       })
   })
 
-export const updatePassword = ({ password, passwordConfirmation, oldPassword }) =>
+export const updatePassword = ({
+  password,
+  passwordConfirmation,
+  oldPassword
+}) =>
   createActionCreator({
     actionName: 'PASSWORD',
     action: 'UPDATE',
@@ -59,10 +65,7 @@ export const updatePassword = ({ password, passwordConfirmation, oldPassword }) 
       })
   })
 
-export const verifyEmail = ({
-  email,
-  token
-}) =>
+export const verifyEmail = ({ email, token }) =>
   createActionCreator({
     actionName: 'VERIFY_EMAIL',
     action: 'UPDATE',

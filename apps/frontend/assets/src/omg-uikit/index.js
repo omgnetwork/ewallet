@@ -19,6 +19,7 @@ import Tooltip from '../omg-uikit/tooltip'
 import NavCard from '../omg-uikit/navcard'
 import Id from '../omg-uikit/id'
 import SearchBar from '../omg-uikit/searchbar'
+import QrCode from './qrCode'
 
 export {
   Input,
@@ -42,5 +43,6 @@ export {
   Tooltip,
   NavCard,
   Id,
-  SearchBar
+  SearchBar,
+  QrCode
 }

@@ -13,4 +13,4 @@ export function configureStore (initialState = {}, injectedThunk = {}) {
   return _store
 }
 
-export const store = _store
+export const getStore = () => _store
