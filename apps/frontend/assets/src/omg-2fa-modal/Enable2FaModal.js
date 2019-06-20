@@ -92,6 +92,10 @@ function CreateTwoFaModal ({ open, onRequestClose, history }) {
     history.push('/login')
   }
 
+  const onRequestCloseCheckBackup = () => {
+    if (!backupCodes) onRequestClose()
+  }
+
   const renderCreateMode = () => {
     return (
       <form onSubmit={onSubmit}>
@@ -139,12 +143,12 @@ function CreateTwoFaModal ({ open, onRequestClose, history }) {
   return (
     <Modal
       isOpen={open}
-      onRequestClose={onRequestClose}
+      onRequestClose={onRequestCloseCheckBackup}
       onAfterClose={afterClose}
       onAfterOpen={onAfterOpen}
     >
       <Create2FaModalContainer>
-        <Icon name='Close' onClick={onRequestClose} />
+        {!backupCodes && <Icon name='Close' onClick={onRequestClose} />}
         {backupCodes ? renderShowBackup() : renderCreateMode()}
       </Create2FaModalContainer>
     </Modal>
