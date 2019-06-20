@@ -62,6 +62,8 @@ function CreateTwoFaModal ({ open, onRequestClose, history }) {
       if (secretResult) {
         setBackupCodes(backupCodeResult)
         setSubmitStatus('SUCCESS')
+      } else {
+        setSubmitStatus('FAILED')
       }
     } else {
       setSubmitStatus('FAILED')
