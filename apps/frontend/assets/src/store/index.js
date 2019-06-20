@@ -4,11 +4,17 @@ import thunk from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension'
 let _store
 
-export function configureStore (initialState = {}, injectedThunk = {}) {
+export function configureStore (
+  initialState = {},
+  injectedThunk = {},
+  middlewares = []
+) {
   _store = createStore(
     reducer,
     initialState,
-    composeWithDevTools(applyMiddleware(thunk.withExtraArgument(injectedThunk)))
+    composeWithDevTools(
+      applyMiddleware(thunk.withExtraArgument(injectedThunk), ...middlewares)
+    )
   )
   return _store
 }
