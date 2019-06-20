@@ -4,10 +4,9 @@ import { hot } from 'react-hot-loader/root'
 import { ThemeProvider } from 'styled-components'
 import Modal from 'react-modal'
 import PropTypes from 'prop-types'
-import Alert from '../omg-alert'
-
 import 'reset-css'
 
+import Alert from '../omg-alert'
 import theme from './theme'
 import Routes from './routes'
 import './fonts.css'
