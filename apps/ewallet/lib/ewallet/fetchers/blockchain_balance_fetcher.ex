@@ -38,7 +38,7 @@ defmodule EWallet.BlockchainBalanceFetcher do
   defp query_and_add_balances(wallet_address, tokens) do
     token_addresses = Enum.map(tokens, fn token -> token.blockchain_address end)
 
-    {wallet_address, token_addresses}
+    %{address: wallet_address, contract_addresses: token_addresses}
     |> Balance.get()
     |> process_response(tokens)
   end

@@ -36,13 +36,23 @@ defmodule EthBlockchain.Balance do
   ```
   if successful or {:error, error_code} if failed.
   """
-  def get(params, adapter \\ nil, pid \\ nil)
+  def get(attrs, adapter \\ nil, pid \\ nil)
 
-  def get({address, contract_addresses}, adapter, pid) do
-    get({address, contract_addresses, "latest"}, adapter, pid)
+  def get(%{block: _} = attrs, adapter, pid) do
+    do_get(attrs, adapter, pid)
   end
 
-  def get({address, contract_addresses, block}, adapter, pid) do
+  def get(attrs, adapter, pid) do
+    attrs
+    |> Map.put(:block, "latest")
+    |> do_get(adapter, pid)
+  end
+
+  defp do_get(
+         %{address: address, contract_addresses: contract_addresses, block: block},
+         adapter,
+         pid
+       ) do
     case ABIEncoder.balance_of(address) do
       {:ok, encoded_abi_data} ->
         Adapter.call(
@@ -55,4 +65,6 @@ defmodule EthBlockchain.Balance do
         error
     end
   end
+
+  defp do_get(_, _, _), do: {:error, :invalid_parameters}
 end

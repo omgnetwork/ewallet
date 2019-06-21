@@ -49,7 +49,7 @@ defmodule EthBlockchain.TransactionTest do
     test "generates an eth transaction when not specifying contract or gas price", state do
       {resp, encoded_trx} =
         Transaction.send(
-          {state[:valid_sender], state[:addr_1], 100},
+          %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
           :dumb,
           state[:pid]
         )
@@ -73,7 +73,7 @@ defmodule EthBlockchain.TransactionTest do
     test "generates an eth transaction when not specifying contract", state do
       {resp, encoded_trx} =
         Transaction.send(
-          {state[:valid_sender], state[:addr_1], 100, 50_000},
+          %{from: state[:valid_sender], to: state[:addr_1], amount: 100, gas_price: 50_000},
           :dumb,
           state[:pid]
         )
@@ -97,7 +97,12 @@ defmodule EthBlockchain.TransactionTest do
     test "generates a token transaction when specifying contract", state do
       {resp, encoded_trx} =
         Transaction.send(
-          {state[:valid_sender], state[:addr_1], 100, state[:addr_2]},
+          %{
+            from: state[:valid_sender],
+            to: state[:addr_1],
+            amount: 100,
+            contract_address: state[:addr_2]
+          },
           :dumb,
           state[:pid]
         )
@@ -122,7 +127,13 @@ defmodule EthBlockchain.TransactionTest do
     test "generates a token transaction when specifying contract and gas price", state do
       {resp, encoded_trx} =
         Transaction.send(
-          {state[:valid_sender], state[:addr_1], 100, state[:addr_2], 50_000},
+          %{
+            from: state[:valid_sender],
+            to: state[:addr_1],
+            amount: 100,
+            contract_address: state[:addr_2],
+            gas_price: 50_000
+          },
           :dumb,
           state[:pid]
         )
@@ -147,7 +158,7 @@ defmodule EthBlockchain.TransactionTest do
     test "returns an error if no such adapter is registered", state do
       assert {:error, :no_handler} ==
                Transaction.send(
-                 {state[:valid_sender], state[:addr_1], 100},
+                 %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
                  :blah,
                  state[:pid]
                )

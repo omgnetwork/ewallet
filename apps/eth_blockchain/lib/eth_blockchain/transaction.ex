@@ -46,18 +46,18 @@ defmodule EthBlockchain.Transaction do
         }
 
   @doc """
-  Initiate a token transfer between from `from_address` to `to_address` of the given amount.
+  Initiate a token transfer between from `from` to `to` of the given amount.
   Ether is represented with `0x0000000000000000000000000000000000000000` as contract address and will be used as the default currency if no contract address specified.
-  The gas price can be optionally specied as the last element of the tuple, will default to the configued `:default_gas_price` if ommited.
-  Possible combinaisons of tuple elements:
-  /3 {from_addr, to_addr, amount}
-    -> will transfer `amount` ether from `from_addr` to `to_addr` with the default gas price
-  /4 {from_addr, to_addr, amount, gas_price}
-    -> will transfer `amount` ether from `from_addr` to `to_addr` with the specified gas price
-  /4 {from_addr, to_addr, amount, contract_addr}
+  The gas price can be optionally specied, will default to the configued `:default_gas_price` if ommited.
+  Possible map attrs:
+  /3 %{:from, :to, :amount}
+    -> will transfer `amount` ether from `from` to `to` with the default gas price
+  /4 %{:from, :to, :amount, :gas_price}
+    -> will transfer `amount` ether from `from` to `to` with the specified gas price
+  /4 %{:from, :to, :amount, :contract_addr}
     -> will transfer `amount` token using the ERC20 contract residing at `contract_addr`
-    from `from_addr` to `to_addr` with the default gas price
-  /5 {from_addr, to_addr, amount, contract_addr, gas_price}
+    from `from_addr` to `to` with the default gas price
+  /5 %{:from, :to, :amount, :contract_address, :gas_price}
     ->
       if contract_addr is `0x0000000000000000000000000000000000000000`:
         will transfer `amount` ether from `from_addr` to `to_addr` with the specified gas price
@@ -70,50 +70,56 @@ defmodule EthBlockchain.Transaction do
   or
   `{:error, error_code}` or `{:error, error_code, message}` if failed
   """
-  @spec send(tuple(), atom() | nil, pid() | nil) ::
+  @spec send(map(), atom() | nil, pid() | nil) ::
           {atom(), String.t()} | {atom(), atom()} | {atom(), atom(), String.t()}
-  def send(params, adapter \\ nil, pid \\ nil)
+  def send(attrs, adapter \\ nil, pid \\ nil)
 
-  # send default (eth) without gas price
-  def send({from_address, to_address, amount}, adapter, pid) do
-    gas_price = Application.get_env(:eth_blockchain, :default_gas_price)
-
-    send(
-      {from_address, to_address, amount, EthBlockchain.eth_address(), gas_price},
-      adapter,
-      pid
-    )
-  end
-
-  # send default (eth) with gas price
-  def send({from_address, to_address, amount, gas_price}, adapter, pid)
-      when is_integer(gas_price) do
-    send(
-      {from_address, to_address, amount, EthBlockchain.eth_address(), gas_price},
-      adapter,
-      pid
-    )
-  end
-
-  # send eth with gas price
   def send(
-        {from_address, to_address, amount, "0x0000000000000000000000000000000000000000",
-         gas_price},
+        %{contract_address: "0x0000000000000000000000000000000000000000"} = attrs,
         adapter,
         pid
       ) do
-    gas_limit = Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit)
+    send_eth(attrs, adapter, pid)
+  end
 
-    case get_transaction_count({from_address}, adapter, pid) do
+  def send(
+        %{contract_address: _} = attrs,
+        adapter,
+        pid
+      ) do
+    send_token(attrs, adapter, pid)
+  end
+
+  def send(
+        attrs,
+        adapter,
+        pid
+      ) do
+    send_eth(attrs, adapter, pid)
+  end
+
+  defp send_eth(
+         %{
+           from: from,
+           to: to,
+           amount: amount
+         } = attrs,
+         adapter,
+         pid
+       ) do
+    gas_limit = Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit)
+    gas_price = get_gas_price_or_default(attrs)
+
+    case get_transaction_count(%{address: from}, adapter, pid) do
       {:ok, nonce} ->
         %__MODULE__{
           gas_limit: gas_limit,
           gas_price: gas_price,
           nonce: int_from_hex(nonce),
-          to: from_hex(to_address),
+          to: from_hex(to),
           value: amount
         }
-        |> sign_and_hash(from_address)
+        |> sign_and_hash(from)
         |> send_raw(adapter, pid)
 
       error ->
@@ -121,18 +127,22 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
-  # send to contract address without gas price
-  def send({from_address, to_address, amount, contract_address}, adapter, pid)
-      when is_binary(contract_address) do
-    gas_price = Application.get_env(:eth_blockchain, :default_gas_price)
-    send({from_address, to_address, amount, contract_address, gas_price}, adapter, pid)
-  end
+  defp send_eth(_, _, _), do: {:error, :invalid_parameters}
 
-  # send to contract address with gas price
-  def send({from_address, to_address, amount, contract_address, gas_price}, adapter, pid) do
-    with {:ok, encoded_abi_data} <- ABIEncoder.transfer(to_address, amount),
-         {:ok, nonce} <- get_transaction_count({from_address}, adapter, pid) do
+  defp send_token(
+         %{
+           from: from,
+           to: to,
+           amount: amount,
+           contract_address: contract_address
+         } = attrs,
+         adapter,
+         pid
+       ) do
+    with {:ok, encoded_abi_data} <- ABIEncoder.transfer(to, amount),
+         {:ok, nonce} <- get_transaction_count(%{address: from}, adapter, pid) do
       gas_limit = Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit)
+      gas_price = get_gas_price_or_default(attrs)
 
       %__MODULE__{
         gas_limit: gas_limit,
@@ -141,15 +151,23 @@ defmodule EthBlockchain.Transaction do
         to: from_hex(contract_address),
         data: encoded_abi_data
       }
-      |> sign_and_hash(from_address)
+      |> sign_and_hash(from)
       |> send_raw(adapter, pid)
     else
       error -> error
     end
   end
 
-  defp sign_and_hash(%__MODULE__{} = transaction_data, from_address) do
-    case sign_transaction(transaction_data, from_address) do
+  defp send_token(_, _, _), do: {:error, :invalid_parameters}
+
+  defp get_gas_price_or_default(%{gas_price: gas_price}), do: gas_price
+
+  defp get_gas_price_or_default(_attrs) do
+    Application.get_env(:eth_blockchain, :default_gas_price)
+  end
+
+  defp sign_and_hash(%__MODULE__{} = transaction_data, from) do
+    case sign_transaction(transaction_data, from) do
       {:ok, signed_trx} ->
         hashed =
           signed_trx
@@ -170,7 +188,7 @@ defmodule EthBlockchain.Transaction do
 
   defp send_raw(error, _adapter, _pid), do: error
 
-  defp get_transaction_count({address}, adapter, pid) do
+  defp get_transaction_count(%{address: address}, adapter, pid) do
     Adapter.call({:get_transaction_count, address}, adapter, pid)
   end
 
@@ -205,13 +223,19 @@ defmodule EthBlockchain.Transaction do
   """
   @spec serialize(__MODULE__.t(), bool()) :: ExRLP.t()
   def serialize(trx, include_vrs \\ true) do
+    init_or_data =
+      case trx.to do
+        <<>> -> trx.init
+        _ -> trx.data
+      end
+
     base = [
       trx.nonce |> encode_unsigned(),
       trx.gas_price |> encode_unsigned(),
       trx.gas_limit |> encode_unsigned(),
       trx.to,
       trx.value |> encode_unsigned(),
-      if(trx.to == <<>>, do: trx.init, else: trx.data)
+      init_or_data
     ]
 
     if include_vrs do
@@ -243,7 +267,11 @@ defmodule EthBlockchain.Transaction do
       s
     ] = rlp
 
-    {init, data} = if to == <<>>, do: {init_or_data, <<>>}, else: {<<>>, init_or_data}
+    {init, data} =
+      case to do
+        <<>> -> {init_or_data, <<>>}
+        _ -> {<<>>, init_or_data}
+      end
 
     %__MODULE__{
       nonce: :binary.decode_unsigned(nonce),
