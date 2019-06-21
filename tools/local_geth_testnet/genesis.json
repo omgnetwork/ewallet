@@ -8,7 +8,7 @@
   "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
   "gasLimit": "0xffffffff",
   "config": {
-    "chainId": 1,
+    "chainId": 90325,
     "homesteadBlock": 0,
     "eip155Block": 0,
     "eip158Block": 0,
