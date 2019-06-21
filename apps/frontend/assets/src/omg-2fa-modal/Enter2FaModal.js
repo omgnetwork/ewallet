@@ -47,7 +47,6 @@ function Enter2FaModal ({ open, onRequestClose, history, location }) {
   const dispatch = useDispatch()
   const [passcode, setPasscode] = useState('')
   const [submitStatus, setSubmitStatus] = useState('DEFAULT')
-  const [errorText, setErrorText] = useState()
   const afterClose = () => {
     setPasscode('')
     setSubmitStatus('DEFAULT')
@@ -61,7 +60,6 @@ function Enter2FaModal ({ open, onRequestClose, history, location }) {
       history.push(_.get(location, 'state.from', '/'))
       onRequestClose()
     } else {
-      setErrorText(result.error.description)
       setSubmitStatus('FAILED')
     }
   }
@@ -96,8 +94,6 @@ function Enter2FaModal ({ open, onRequestClose, history, location }) {
           value={passcode}
           onChange={onChange}
           normalPlaceholder='2fa token...'
-          error={submitStatus === 'FAILED'}
-          errorText={errorText}
           autoFocus
         />
         <Button loading={submitStatus === 'LOADING'}>Submit</Button>

@@ -254,6 +254,7 @@ export const alertsReducer = createReducer([], {
   'TRANSACTIONS/REQUEST/FAILED': errorStateHandler,
   'ACCOUNT/UPDATE/FAILED': errorStateHandler,
   '2FA/ENABLE/FAILED': errorStateHandler,
+  '2FA/LOGIN/FAILED': errorStateHandler,
   'USER/UPDATE/FAILED': errorStateHandler,
   'ADMIN/UPDATE/FAILED': errorStateHandler
 })
