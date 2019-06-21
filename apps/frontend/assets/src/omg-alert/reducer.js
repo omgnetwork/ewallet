@@ -252,6 +252,7 @@ export const alertsReducer = createReducer([], {
   'CONFIGURATIONS/REQUEST/FAILED': errorStateHandler,
   'INVITE/REQUEST/FAILED': errorStateHandler,
   'TRANSACTIONS/REQUEST/FAILED': errorStateHandler,
+  'TOKEN_EXPIRE': errorStateHandler,
   'ACCOUNT/UPDATE/FAILED': errorStateHandler,
   '2FA/ENABLE/FAILED': errorStateHandler,
   'USER/UPDATE/FAILED': errorStateHandler,
