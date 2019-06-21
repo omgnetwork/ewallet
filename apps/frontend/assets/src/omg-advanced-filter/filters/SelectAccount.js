@@ -2,7 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import AccountsFetcher from '../../omg-account/accountsFetcher'
-import { createSearchMasterAccountQuery } from '../../omg-account/searchField'
 import AccountSelect from '../../omg-account-select'
 import { Select } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
@@ -28,7 +27,6 @@ const SelectAccount = ({
     >
       <TagRow title={config.title} />
       <AccountsFetcher
-        query={createSearchMasterAccountQuery(values[config.key])}
         render={({ data }) => {
           return (
             <Select

@@ -179,8 +179,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Create Date',
-    key: 'wallets-create-date',
+    title: 'Creation Date',
+    key: 'wallets-creation-date',
     icon: 'Option-Horizontal',
     page: 'wallets',
     height: 205,
@@ -244,7 +244,7 @@ export const FILTER_MAP = [
         value: 'send'
       },
       {
-        label: 'Received',
+        label: 'Receive',
         value: 'receive'
       }
     ],
@@ -256,8 +256,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Confirmation Type',
-    key: 'transaction-requests-confirmation-type',
+    title: 'Requires Confirmation',
+    key: 'transaction-requests-require-confirmation',
     icon: 'Option-Horizontal',
     page: 'transaction-requests',
     height: 136,
@@ -306,8 +306,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Create Date',
-    key: 'transaction-requests-create-date',
+    title: 'Creation Date',
+    key: 'transaction-requests-creation-date',
     icon: 'Option-Horizontal',
     page: 'transaction-requests',
     height: 205,
@@ -342,8 +342,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Requested Wallet',
-    key: 'transaction-requests-specify-requested-wallet',
+    title: 'Specify Request Wallet',
+    key: 'transaction-requests-specify-request-wallet',
     icon: 'Option-Horizontal',
     page: 'transaction-requests',
     height: 110,
@@ -392,7 +392,7 @@ export const FILTER_MAP = [
         value: 'send'
       },
       {
-        label: 'Received',
+        label: 'Receive',
         value: 'receive'
       }
     ],
@@ -478,8 +478,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Requested Wallet',
-    key: 'transaction-consumptions-specify-requested-wallet',
+    title: 'Specify Request Wallet',
+    key: 'transaction-consumptions-specify-request-wallet',
     icon: 'Option-Horizontal',
     page: 'transaction-consumptions',
     height: 110,

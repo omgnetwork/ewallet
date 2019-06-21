@@ -74,7 +74,7 @@ const DateTime = ({
       <TagRow title={config.title} />
       <DateRowStyle>
         <DatePicker
-          placeholder='Start'
+          placeholder='From'
           onChange={date => onDateChange('startDate', date)}
           value={startDate ? moment(startDate) : ''}
         />
@@ -87,7 +87,7 @@ const DateTime = ({
 
       <DateRowStyle>
         <DatePicker
-          placeholder='End'
+          placeholder='To'
           onChange={date => onDateChange('endDate', date)}
           value={endDate ? moment(endDate) : ''}
         />
