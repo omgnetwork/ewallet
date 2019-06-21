@@ -81,9 +81,11 @@ export function createAdmin ({
 }
 
 export function login2Fa (passcode) {
+  const payload =
+    passcode.length === 6 ? { passcode } : { backup_code: passcode }
   return authenticatedRequest({
     path: '/admin.login_2fa',
-    data: { passcode }
+    data: payload
   })
 }
 

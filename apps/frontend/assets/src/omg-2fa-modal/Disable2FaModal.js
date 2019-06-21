@@ -78,6 +78,7 @@ function DisableTwoFaModal ({ open, onRequestClose, history }) {
           normalPlaceholder='2fa token...'
           error={submitStatus === 'FAILED'}
           errorText={errorText}
+          autoFocus
         />
         <Button loading={submitStatus === 'LOADING'}>
           Disable Two Factor Authentication<br />

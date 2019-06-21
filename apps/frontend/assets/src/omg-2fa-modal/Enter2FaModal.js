@@ -23,7 +23,6 @@ const Enter2FaModalContainer = styled.div`
   input {
     text-align: center;
     font-size: 18px;
-    
   }
   button {
     margin-top: 30px;
@@ -54,10 +53,9 @@ function Enter2FaModal ({ open, onRequestClose, history, location }) {
     setSubmitStatus('DEFAULT')
   }
 
-  const onSubmit = async e => {
-    e.preventDefault()
+  const handleSubmit = async _passcode => {
     setSubmitStatus('LOADING')
-    const result = await login2Fa(passcode)(dispatch)
+    const result = await login2Fa(_passcode)(dispatch)
     if (result.data) {
       setSubmitStatus('SUCCESS')
       history.push(_.get(location, 'state.from', '/'))
@@ -67,6 +65,28 @@ function Enter2FaModal ({ open, onRequestClose, history, location }) {
       setSubmitStatus('FAILED')
     }
   }
+  const onSubmit = async e => {
+    e.preventDefault()
+    handleSubmit(passcode)
+  }
+
+  const onChange = e => {
+    const value = e.target.value
+    const isDigit = s => /^\d+$/.test(s)
+    if (
+      (isDigit(value) && value.length <= 6) ||
+      (!isDigit(value) && value.length <= 9)
+    ) {
+      setPasscode(value)
+    }
+    if (
+      (value.length === 6 && isDigit(value)) ||
+      (!isDigit(value) && value.length === 9)
+    ) {
+      setPasscode(value)
+      return handleSubmit(value)
+    }
+  }
 
   const renderDisableSection = () => {
     return (
@@ -74,7 +94,7 @@ function Enter2FaModal ({ open, onRequestClose, history, location }) {
         <h4>Your Two Factor Authentication Code</h4>
         <Input
           value={passcode}
-          onChange={e => setPasscode(e.target.value)}
+          onChange={onChange}
           normalPlaceholder='2fa token...'
           error={submitStatus === 'FAILED'}
           errorText={errorText}

@@ -108,6 +108,7 @@ function CreateTwoFaModal ({ open, onRequestClose, history }) {
           value={passcode}
           onChange={e => setPasscode(e.target.value)}
           normalPlaceholder='2fa token...'
+          maxLength={6}
         />
         <Button loading={submitStatus === 'LOADING'}>
           Enable Two Factor Authentication
