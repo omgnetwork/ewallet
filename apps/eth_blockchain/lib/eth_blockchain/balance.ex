@@ -65,4 +65,6 @@ defmodule EthBlockchain.Balance do
         error
     end
   end
+
+  defp do_get(_, _, _), do: {:error, :invalid_parameters}
 end
