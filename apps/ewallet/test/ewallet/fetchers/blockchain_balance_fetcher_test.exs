@@ -31,8 +31,7 @@ defmodule EWallet.BlockchainBalanceFetcherTest do
       _token_3 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
 
-      assert {:ok, balances} =
-               BlockchainBalanceFetcher.all(blockchain_wallet.address, [token_1, token_2])
+      assert {:ok, balances} = BlockchainBalanceFetcher.all(blockchain_wallet, [token_1, token_2])
 
       assert [balance_token_1, balance_token_2] = balances
 
@@ -44,7 +43,7 @@ defmodule EWallet.BlockchainBalanceFetcherTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      assert {:ok, balances} = BlockchainBalanceFetcher.all(blockchain_wallet.address, [])
+      assert {:ok, balances} = BlockchainBalanceFetcher.all(blockchain_wallet, [])
 
       assert balances == []
     end

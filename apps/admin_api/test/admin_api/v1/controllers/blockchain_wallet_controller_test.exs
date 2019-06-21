@@ -12,8 +12,98 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
+defmodule AdminAPI.V1.BlockchainWalletControllerTest do
   use AdminAPI.ConnCase, async: true
+
+  alias Utils.Helpers.DateFormatter
+  alias EWalletDB.BlockchainWallet
+
+  describe "/blockchain_wallet.get" do
+    test_with_auths "returns a wallet when given an existing blockchain wallet address" do
+      {:ok, blockchain_wallet} =
+        :blockchain_wallet
+        |> params_for(address: "0x0000000000000000000000000000000000000123")
+        |> BlockchainWallet.insert()
+
+      _token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      _token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      response =
+        request("/blockchain_wallet.get", %{
+          "address" => blockchain_wallet.address
+        })
+
+      assert response["success"] == true
+
+      # Assert balances
+      balances =
+        Enum.map(response["data"]["balances"], fn balance ->
+          {balance["token"]["blockchain_address"], balance["amount"]}
+        end)
+
+      assert length(balances) == 2
+      assert Enum.member?(balances, {"0x0000000000000000000000000000000000000000", 123})
+      assert Enum.member?(balances, {"0x0000000000000000000000000000000000000001", 123})
+
+      # Assert data without balances
+      assert Map.delete(response["data"], "balances") == %{
+               "address" => "0x0000000000000000000000000000000000000123",
+               "name" => blockchain_wallet.name,
+               "object" => "blockchain_wallet",
+               "created_at" => DateFormatter.to_iso8601(blockchain_wallet.inserted_at),
+               "updated_at" => DateFormatter.to_iso8601(blockchain_wallet.updated_at)
+             }
+    end
+
+    test_with_auths "returns error when given non-existing wallet address" do
+      {:ok, _} =
+        :blockchain_wallet
+        |> params_for(address: "0x0000000000000000000000000000000000000123")
+        |> BlockchainWallet.insert()
+
+      _token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      _token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      response =
+        request("/blockchain_wallet.get", %{
+          "address" => "0x0"
+        })
+
+      assert response == %{
+               "data" => %{
+                 "code" => "unauthorized",
+                 "description" => "You are not allowed to perform the requested operation.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test_with_auths "returns error when not given address" do
+      assert request("/blockchain_wallet.get", %{}) == %{
+        "data" => %{
+          "code" => "client:invalid_parameter",
+          "description" => "Invalid parameter provided.",
+          "messages" => nil,
+          "object" => "error"
+        },
+        "success" => false,
+        "version" => "1"
+      }
+    end
+  end
+
+  describe "/blockchain_wallet.all" do
+
+  end
 
   describe "/blockchain_wallet.get_balances" do
     test_with_auths "returns a list of balances and pagination data when given an existing blockchain wallet address" do

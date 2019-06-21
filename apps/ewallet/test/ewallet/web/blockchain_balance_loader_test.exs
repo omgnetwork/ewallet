@@ -32,7 +32,7 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
 
       assert {:ok, balances} =
-               BlockchainBalanceLoader.balances_for_address(blockchain_wallet.address, [
+               BlockchainBalanceLoader.balances_for_address(blockchain_wallet, [
                  token_1,
                  token_2
                ])
@@ -47,8 +47,7 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      assert {:ok, balances} =
-               BlockchainBalanceLoader.balances_for_address(blockchain_wallet.address, [])
+      assert {:ok, balances} = BlockchainBalanceLoader.balances_for_address(blockchain_wallet, [])
 
       assert balances == []
     end
