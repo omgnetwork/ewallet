@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule AdminAPI.V1.BlockchainBalanceController do
+defmodule AdminAPI.V1.BlockchainWalletController do
   @moduledoc """
   The controller to serve paginated balances for specified blockchain wallet.
   """
@@ -30,6 +30,24 @@ defmodule AdminAPI.V1.BlockchainBalanceController do
   }
 
   @doc """
+  Retrieves a wallet with balances by given blockchain wallet address.
+  """
+  def get(conn, %{"address" => address} = attrs) do
+    with %BlockchainWallet{} = wallet <-
+           BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:view_balance, conn.assigns, wallet),
+         %Paginator{data: tokens, pagination: _} <- paginated_tokens(attrs),
+         {:ok, wallet} <- BlockchainBalanceLoader.balances_with_wallet(wallet, tokens) do
+      render_single(conn, wallet, attrs)
+    else
+      {:error, error} -> handle_error(conn, error)
+      {:error, error, description} -> handle_error(conn, error, description)
+    end
+  end
+
+  def get(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  @doc """
   Retrieves a paginated list of balances by given blockchain wallet address.
   """
   def all_for_wallet(conn, %{"address" => address} = attrs) do
@@ -37,7 +55,7 @@ defmodule AdminAPI.V1.BlockchainBalanceController do
            BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:view_balance, conn.assigns, wallet),
          %Paginator{data: tokens, pagination: pagination} <- paginated_tokens(attrs),
-         {:ok, data} <- BlockchainBalanceLoader.balances_for_address(address, tokens) do
+         {:ok, data} <- BlockchainBalanceLoader.balances_for_address(wallet, tokens) do
       render(conn, BalanceView, :balances, %Paginator{pagination: pagination, data: data})
     else
       {:error, error} -> handle_error(conn, error)
@@ -47,6 +65,11 @@ defmodule AdminAPI.V1.BlockchainBalanceController do
 
   def all_for_wallet(conn, _) do
     handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
+  end
+
+  defp render_single(conn, wallet, attrs) do
+    {:ok, wallet} = Orchestrator.one(wallet, BlockchainWalletOverlay, attrs)
+    render(conn, :wallet, %{wallet: wallet})
   end
 
   defp paginated_tokens(%{"token_addresses" => addresses} = attrs) do

@@ -25,8 +25,8 @@ defmodule EWallet.BlockchainBalanceFetcher do
   Prepare the list of balances for specified tokens and turn them into a suitable format for
   EWalletAPI using a blockchain wallet address and a list of tokens.
   """
-  def all(wallet_address, tokens) do
-    case query_and_add_balances(wallet_address, tokens) do
+  def all(wallet, tokens) do
+    case query_and_add_balances(wallet.address, tokens) do
       {:error, error} ->
         {:error, :blockchain_adapter_error, error: inspect(error)}
 

@@ -12,27 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.Web.BlockchainBalanceLoader do
-  @moduledoc """
-  Module responsible for adding balances to wallets.
-  """
-  alias EWallet.BlockchainBalanceFetcher
+defmodule AdminAPI.V1.BlockchainWalletView do
+  use AdminAPI, :view
+  alias EWallet.Web.V1.{ResponseSerializer, BlockchainWalletSerializer}
 
-  def balances_for_address(wallet, tokens) do
-    BlockchainBalanceFetcher.all(wallet, tokens)
+  def render("wallet.json", %{wallet: wallet}) do
+    wallet
+    |> BlockchainWalletSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
   end
 
-  def balances_with_wallet(wallet, tokens) do
-    case BlockchainBalanceFetcher.all(wallet, tokens) do
-      {:ok, data} ->
-        {:ok, add_balances_to_wallet(data, wallet)}
-
-      err ->
-        err
-    end
-  end
-
-  defp add_balances_to_wallet(balances, wallet) do
-    Map.put(wallet, :balances, balances)
+  def render("wallets.json", %{wallets: wallets}) do
+    wallets
+    |> BlockchainWalletSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
   end
 end
