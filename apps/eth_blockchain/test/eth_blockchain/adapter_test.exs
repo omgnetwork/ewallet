@@ -20,17 +20,17 @@ defmodule EthBlockchain.AdapterTest do
     test "delegates call to the adapter", state do
       dumb_resp1 =
         Adapter.call(
-          :dumb,
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
+          :dumb,
           state[:pid]
         )
 
       dumb_resp2 =
         Adapter.call(
-          {:dumb, "balance"},
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
+          {:dumb, "balance"},
           state[:pid]
         )
 
@@ -44,25 +44,25 @@ defmodule EthBlockchain.AdapterTest do
     test "shutdowns the worker once finished handling tasks", state do
       {:ok, _} =
         Adapter.call(
-          :dumb,
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
+          :dumb,
           state[:pid]
         )
 
       {:ok, _} =
         Adapter.call(
+          {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
+           "latest"},
           {:dumb, "balance"},
-          {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
-           "latest"},
           state[:pid]
         )
 
       {:ok, _} =
         Adapter.call(
-          :dumb,
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
+          :dumb,
           state[:pid]
         )
 
@@ -73,9 +73,9 @@ defmodule EthBlockchain.AdapterTest do
     test "returns an error if no such adapter is registered", state do
       assert {:error, :no_handler} ==
                Adapter.call(
-                 :foobar,
                  {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]],
                   nil, "latest"},
+                 :foobar,
                  state[:pid]
                )
     end

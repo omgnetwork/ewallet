@@ -46,8 +46,8 @@ defmodule EthBlockchain.Balance do
     case ABIEncoder.balance_of(address) do
       {:ok, encoded_abi_data} ->
         Adapter.call(
-          adapter,
           {:get_balances, address, contract_addresses, to_hex(encoded_abi_data), block},
+          adapter,
           pid
         )
 

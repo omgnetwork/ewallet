@@ -79,7 +79,7 @@ defmodule EthBlockchain.Transaction do
     gas_price = Application.get_env(:eth_blockchain, :default_gas_price)
 
     send(
-      {from_address, to_address, amount, "0x0000000000000000000000000000000000000000", gas_price},
+      {from_address, to_address, amount, EthBlockchain.eth_address(), gas_price},
       adapter,
       pid
     )
@@ -89,7 +89,7 @@ defmodule EthBlockchain.Transaction do
   def send({from_address, to_address, amount, gas_price}, adapter, pid)
       when is_integer(gas_price) do
     send(
-      {from_address, to_address, amount, "0x0000000000000000000000000000000000000000", gas_price},
+      {from_address, to_address, amount, EthBlockchain.eth_address(), gas_price},
       adapter,
       pid
     )
@@ -165,13 +165,13 @@ defmodule EthBlockchain.Transaction do
   end
 
   defp send_raw({:ok, transaction_data}, adapter, pid) do
-    Adapter.call(adapter, {:send_raw, transaction_data}, pid)
+    Adapter.call({:send_raw, transaction_data}, adapter, pid)
   end
 
   defp send_raw(error, _adapter, _pid), do: error
 
   defp get_transaction_count({address}, adapter, pid) do
-    Adapter.call(adapter, {:get_transaction_count, address}, pid)
+    Adapter.call({:get_transaction_count, address}, adapter, pid)
   end
 
   defp sign_transaction(transaction, wallet_address) do

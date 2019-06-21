@@ -20,8 +20,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+      _token_1 = insert(:token, %{blockchain_address: EthBlockchain.eth_address()})
 
       _token_2 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
@@ -48,7 +47,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
         end)
 
       assert length(balances) == 2
-      assert Enum.member?(balances, {"0x0000000000000000000000000000000000000000", 123})
+      assert Enum.member?(balances, {EthBlockchain.eth_address(), 123})
       assert Enum.member?(balances, {"0x0000000000000000000000000000000000000001", 123})
     end
 
@@ -59,7 +58,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
-          blockchain_address: "0x0000000000000000000000000000000000000000"
+          blockchain_address: EthBlockchain.eth_address()
         })
 
       token_2 =
@@ -100,8 +99,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+      _token_1 = insert(:token, %{blockchain_address: EthBlockchain.eth_address()})
 
       _token_2 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
@@ -112,7 +110,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
       attrs = %{
         "address" => blockchain_wallet.address,
         "token_addresses" => [
-          "0x0000000000000000000000000000000000000000",
+          EthBlockchain.eth_address(),
           "0x0000000000000000000000000000000000000001"
         ]
       }
@@ -127,7 +125,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
         end)
 
       assert length(balances) == 2
-      assert Enum.member?(balances, {"0x0000000000000000000000000000000000000000", 123})
+      assert Enum.member?(balances, {EthBlockchain.eth_address(), 123})
       assert Enum.member?(balances, {"0x0000000000000000000000000000000000000001", 123})
       refute Enum.member?(balances, {"0x0000000000000000000000000000000000000002", 123})
     end
@@ -136,8 +134,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+      _token_1 = insert(:token, %{blockchain_address: EthBlockchain.eth_address()})
 
       _token_2 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
@@ -150,7 +147,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
         "address" => blockchain_wallet.address,
         "token_addresses" => [
           "0x0000000000000000000000000000000000000001",
-          "0x0000000000000000000000000000000000000000"
+          EthBlockchain.eth_address()
         ]
       }
 
@@ -164,7 +161,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
         end)
 
       assert length(balances) == 1
-      assert Enum.member?(balances, {"0x0000000000000000000000000000000000000000", 123})
+      assert Enum.member?(balances, {EthBlockchain.eth_address(), 123})
       refute Enum.member?(balances, {"0x0000000000000000000000000000000000000001", 123})
       refute Enum.member?(balances, {"0x0000000000000000000000000000000000000002", 123})
     end
@@ -176,7 +173,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
-          blockchain_address: "0x0000000000000000000000000000000000000000"
+          blockchain_address: EthBlockchain.eth_address()
         })
 
       _token_2 =
@@ -209,7 +206,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
         end)
 
       assert length(balances) == 2
-      assert Enum.member?(balances, {"0x0000000000000000000000000000000000000000", "tkn_1", 123})
+      assert Enum.member?(balances, {EthBlockchain.eth_address(), "tkn_1", 123})
       assert Enum.member?(balances, {"0x0000000000000000000000000000000000000001", "tkn_2", 123})
       refute Enum.member?(balances, {"0x0000000000000000000000000000000000000002", "tkn_3", 123})
     end
@@ -218,8 +215,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+      _token_1 = insert(:token, %{blockchain_address: EthBlockchain.eth_address()})
 
       _token_2 = insert(:token, %{blockchain_address: nil})
 
@@ -240,7 +236,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
         end)
 
       assert length(balances) == 2
-      assert Enum.member?(balances, {"0x0000000000000000000000000000000000000000", 123})
+      assert Enum.member?(balances, {EthBlockchain.eth_address(), 123})
       assert Enum.member?(balances, {"0x0000000000000000000000000000000000000002", 123})
     end
 
@@ -251,7 +247,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
-          blockchain_address: "0x0000000000000000000000000000000000000000"
+          blockchain_address: EthBlockchain.eth_address()
         })
 
       _token_2 =
@@ -281,7 +277,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
         end)
 
       assert length(balances) == 2
-      assert Enum.member?(balances, {"0x0000000000000000000000000000000000000000", 123})
+      assert Enum.member?(balances, {EthBlockchain.eth_address(), 123})
       assert Enum.member?(balances, {"0x0000000000000000000000000000000000000001", 123})
     end
 
@@ -292,7 +288,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
-          blockchain_address: "0x0000000000000000000000000000000000000000"
+          blockchain_address: EthBlockchain.eth_address()
         })
 
       _token_2 = insert(:token, %{id: "tkn_2", blockchain_address: nil})
@@ -318,14 +314,14 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
         end)
 
       assert length(balances) == 2
-      assert Enum.member?(balances, {"0x0000000000000000000000000000000000000000", 123})
+      assert Enum.member?(balances, {EthBlockchain.eth_address(), 123})
       assert Enum.member?(balances, {"0x0000000000000000000000000000000000000002", 123})
     end
 
     test_with_auths "returns an error when given a non-existing address" do
       response =
         request("/blockchain_wallet.get_balances", %{
-          "address" => "0x00000000000000000000000000000000000000000"
+          "address" => EthBlockchain.eth_address()
         })
 
       refute response["success"]
