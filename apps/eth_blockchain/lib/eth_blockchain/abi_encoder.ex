@@ -17,13 +17,13 @@ defmodule EthBlockchain.ABIEncoder do
 
   import Utils.Helpers.Encoding
 
-  def balance_of(address) when byte_size(address) == 42 do
+  def balance_of("0x" <> _ = address) do
     {:ok, ABI.encode("balanceOf(address)", [from_hex(address)])}
   end
 
   def balance_of(_address), do: {:error, :invalid_address}
 
-  def transfer(to_address, amount) when byte_size(to_address) == 42 and is_integer(amount) do
+  def transfer("0x" <> _ = to_address, amount) when is_integer(amount) do
     {:ok,
      ABI.encode("transfer(address,uint)", [
        from_hex(to_address),
