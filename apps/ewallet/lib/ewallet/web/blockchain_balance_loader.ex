@@ -16,23 +16,47 @@ defmodule EWallet.Web.BlockchainBalanceLoader do
   @moduledoc """
   Module responsible for adding balances to wallets.
   """
+  import Ecto.Query
+  alias EWalletDB.Repo
   alias EWallet.BlockchainBalanceFetcher
+  alias EWalletDB.{BlockchainWallet, Token}
 
-  def balances_for_address(wallet, tokens) do
-    BlockchainBalanceFetcher.all(wallet, tokens)
+  @spec balances(%BlockchainWallet{}, [%Token{}]) :: {:ok, Map.t()}
+  def balances(address, tokens) do
+    BlockchainBalanceFetcher.all(address, tokens)
   end
 
-  def balances_with_wallet(wallet, tokens) do
-    case BlockchainBalanceFetcher.all(wallet, tokens) do
-      {:ok, data} ->
-        {:ok, add_balances_to_wallet(data, wallet)}
+  @spec wallet_balances([%BlockchainWallet{}], [%Token{}]) :: {:ok, [Map.t()]}
+  def wallet_balances(wallets, tokens) when is_list(wallets) do
+    addresses = Enum.map(wallets, fn wallet -> wallet.address end)
+
+    case BlockchainBalanceFetcher.all(addresses, tokens) do
+      {:ok, wallets_balances} ->
+        {:ok, do_wallet_balances(wallets, wallets_balances)}
 
       err ->
         err
     end
   end
 
-  defp add_balances_to_wallet(balances, wallet) do
-    Map.put(wallet, :balances, balances)
+  @spec wallet_balances(%BlockchainWallet{}, [%Token{}]) :: {:ok, Map.t()}
+  def wallet_balances(wallet, tokens) do
+    case wallet_balances([wallet], tokens) do
+      {:ok, [wallet_balances]} ->
+        {:ok, wallet_balances}
+
+      err ->
+        err
+    end
+  end
+
+  defp do_wallet_balances(wallets, wallets_balances) when is_list(wallets) do
+    wallets
+    |> Enum.zip(wallets_balances)
+    |> Enum.map(&do_wallet_balances/1)
+  end
+
+  defp do_wallet_balances({wallet, wallet_balances}) do
+    Map.put(wallet, :balances, wallet_balances)
   end
 end

@@ -16,7 +16,6 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializer do
   @moduledoc """
   Serializes address data into V1 JSON response format.
   """
-  alias Ecto.Association.NotLoaded
   alias EWallet.Web.Paginator
 
   alias EWallet.Web.V1.{
