@@ -14,24 +14,30 @@
 
 defmodule EWalletAPI.V1.BlockchainWalletViewTest do
   use EWalletAPI.ViewCase, :v1
-  alias EWalletAPI.V1.WalletView
-  alias EthBlockchain.BalanceFetcher
+  alias EWalletAPI.V1.BlockchainWalletView
+  alias EWallet.BlockchainBalanceFetcher
   alias EWallet.Web.Paginator
-  alias EWallet.Web.V1.WalletSerializer
+  alias EWallet.Web.V1.BlockchainWalletSerializer
   alias Ecto.Adapters.SQL.Sandbox
   alias LocalLedgerDB.Repo, as: LocalLedgerDBRepo
 
   describe "render/2" do
-    # TODO: Change to BlockchainWallet
+    # TODO: Need to be updated
     test "renders wallets.json with the given wallets" do
-      wallet_1 = insert(:wallet)
-      wallet_2 = insert(:wallet)
+      blockchain_wallet_1 = insert(:blockchain_wallet)
+      blockchain_wallet_2 = insert(:blockchain_wallet)
 
-      {:ok, wallet_1} = BalanceFetcher.all(%{"wallet" => wallet_1})
-      {:ok, wallet_2} = BalanceFetcher.all(%{"wallet" => wallet_2})
+      token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      {:ok, blockchain_wallets_with_balances} =
+        BlockchainBalanceFetcher.all([blockchain_wallet_1, blockchain_wallet_2], [token_1, token_2])
 
       paginator = %Paginator{
-        data: [wallet_1, wallet_2],
+        data: blockchain_wallets_with_balances,
         pagination: %{
           per_page: 10,
           current_page: 1,
@@ -40,13 +46,15 @@ defmodule EWalletAPI.V1.BlockchainWalletViewTest do
         }
       }
 
+      IO.inspect(paginator)
+
       expected = %{
         version: @expected_version,
         success: true,
-        data: WalletSerializer.serialize(paginator)
+        data: BlockchainWalletSerializer.serialize(paginator)
       }
 
-      assert WalletView.render("wallets.json", %{wallets: paginator}) == expected
+      assert BlockchainWalletView.render("wallets.json", %{wallets: paginator}) == expected
     end
   end
 end

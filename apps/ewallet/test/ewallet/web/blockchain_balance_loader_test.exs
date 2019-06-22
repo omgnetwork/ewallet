@@ -17,7 +17,7 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
   import EWalletDB.Factory
   alias EWallet.Web.BlockchainBalanceLoader
 
-  describe "balances_for_address/2" do
+  describe "balances/2" do
     test "returns a list of balances of given tokens when given wallet address and non-empty tokens" do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
@@ -32,7 +32,7 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
 
       assert {:ok, balances} =
-               BlockchainBalanceLoader.balances_for_address(blockchain_wallet, [
+               BlockchainBalanceLoader.balances(blockchain_wallet.address, [
                  token_1,
                  token_2
                ])
@@ -47,9 +47,64 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      assert {:ok, balances} = BlockchainBalanceLoader.balances_for_address(blockchain_wallet, [])
+      assert {:ok, balances} = BlockchainBalanceLoader.balances(blockchain_wallet.address, [])
 
       assert balances == []
+    end
+  end
+
+  describe "wallet_balances/2" do
+    test "returns a wallet with balances when given a wallet and tokens" do
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+
+      token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      assert {:ok, blockchain_wallet_with_balances} =
+               BlockchainBalanceLoader.wallet_balances(blockchain_wallet, [token_1, token_2])
+
+      assert blockchain_wallet_with_balances.address == blockchain_wallet.address
+      assert [balance_token_1, balance_token_2] = blockchain_wallet_with_balances.balances
+      assert balance_token_1 == %{token: token_1, amount: 123}
+      assert balance_token_2 == %{token: token_2, amount: 123}
+    end
+
+    test "returns multiple wallets wil balances when given multiple wallets and tokens" do
+      blockchain_wallet_1 =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+
+      blockchain_wallet_2 =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000456"})
+
+      token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      wallets = [blockchain_wallet_1, blockchain_wallet_2]
+      tokens = [token_1, token_2]
+
+      assert {:ok, wallets_with_balances} =
+               BlockchainBalanceLoader.wallet_balances(wallets, tokens)
+
+      assert [wallet_with_balances_1, wallet_with_balances_2] = wallets_with_balances
+      assert wallet_with_balances_1.address == blockchain_wallet_1.address
+      assert wallet_with_balances_2.address == blockchain_wallet_2.address
+
+      assert wallet_with_balances_1.balances == [
+               %{token: token_1, amount: 123},
+               %{token: token_2, amount: 123}
+             ]
+
+      assert wallet_with_balances_2.balances == [
+               %{token: token_1, amount: 123},
+               %{token: token_2, amount: 123}
+             ]
     end
   end
 end

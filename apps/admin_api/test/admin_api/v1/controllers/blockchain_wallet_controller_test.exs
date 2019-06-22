@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
 
   alias Utils.Helpers.DateFormatter
   alias EWalletDB.BlockchainWallet
+  alias EWallet.Web.V1.TokenSerializer
 
   describe "/blockchain_wallet.get" do
     test_with_auths "returns a wallet when given an existing blockchain wallet address" do
@@ -89,20 +90,71 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
 
     test_with_auths "returns error when not given address" do
       assert request("/blockchain_wallet.get", %{}) == %{
-        "data" => %{
-          "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided.",
-          "messages" => nil,
-          "object" => "error"
-        },
-        "success" => false,
-        "version" => "1"
-      }
+               "data" => %{
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
     end
   end
 
   describe "/blockchain_wallet.all" do
+    test_with_auths "returns all wallets when given pagination params" do
+      # Inserts 2 wallets and 2 tokens
 
+      {:ok, blockchain_wallet_1} =
+        :blockchain_wallet
+        |> params_for(address: "0x0000000000000000000000000000000000000123")
+        |> BlockchainWallet.insert()
+
+      {:ok, blockchain_wallet_2} =
+        :blockchain_wallet
+        |> params_for(address: "0x0000000000000000000000000000000000000456")
+        |> BlockchainWallet.insert()
+
+      token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      attrs = %{
+        "sort_by" => "inserted_at",
+        "sort_dir" => "asc",
+        "start_after" => nil,
+        "start_by" => "address"
+      }
+
+      response = request("/blockchain_wallet.all", attrs)
+
+      assert response["success"] == true
+      assert %{"data" => data, "pagination" => pagination} = response["data"]
+      assert length(data) == 2
+
+      assert [wallet_balances_1, wallet_balances_2] = data
+      assert wallet_balances_1["address"] == blockchain_wallet_1.address
+      assert wallet_balances_2["address"] == blockchain_wallet_2.address
+
+      expected_balances = [
+        %{
+          "object" => "balance",
+          "amount" => 123,
+          "token" => token_1 |> TokenSerializer.serialize() |> stringify_keys()
+        },
+        %{
+          "object" => "balance",
+          "amount" => 123,
+          "token" => token_2 |> TokenSerializer.serialize() |> stringify_keys()
+        }
+      ]
+
+      assert wallet_balances_1["balances"] == expected_balances
+      assert wallet_balances_2["balances"] == expected_balances
+    end
   end
 
   describe "/blockchain_wallet.get_balances" do
