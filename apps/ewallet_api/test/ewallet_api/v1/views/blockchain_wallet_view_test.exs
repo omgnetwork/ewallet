@@ -14,18 +14,18 @@
 
 defmodule EWalletAPI.V1.BlockchainWalletViewTest do
   use EWalletAPI.ViewCase, :v1
-  alias EWalletAPI.V1.BlockchainWalletView
-  alias EWallet.BlockchainBalanceFetcher
+  alias AdminAPI.V1.BlockchainWalletView
+  alias EWallet.Web.BlockchainBalanceLoader
   alias EWallet.Web.Paginator
   alias EWallet.Web.V1.BlockchainWalletSerializer
-  alias Ecto.Adapters.SQL.Sandbox
-  alias LocalLedgerDB.Repo, as: LocalLedgerDBRepo
 
   describe "render/2" do
-    # TODO: Need to be updated
     test "renders wallets.json with the given wallets" do
-      blockchain_wallet_1 = insert(:blockchain_wallet)
-      blockchain_wallet_2 = insert(:blockchain_wallet)
+      blockchain_wallet_1 =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+
+      blockchain_wallet_2 =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000456"})
 
       token_1 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
@@ -33,8 +33,10 @@ defmodule EWalletAPI.V1.BlockchainWalletViewTest do
       token_2 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
 
+      blockchain_wallets = [blockchain_wallet_1, blockchain_wallet_2]
+
       {:ok, blockchain_wallets_with_balances} =
-        BlockchainBalanceFetcher.all([blockchain_wallet_1, blockchain_wallet_2], [token_1, token_2])
+        BlockchainBalanceLoader.wallet_balances(blockchain_wallets, [token_1, token_2])
 
       paginator = %Paginator{
         data: blockchain_wallets_with_balances,
@@ -45,8 +47,6 @@ defmodule EWalletAPI.V1.BlockchainWalletViewTest do
           is_last_page: false
         }
       }
-
-      IO.inspect(paginator)
 
       expected = %{
         version: @expected_version,
