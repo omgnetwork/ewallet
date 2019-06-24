@@ -114,6 +114,10 @@ defmodule AdminAPI.V1.ErrorHandler do
     file_not_found: %{
       code: "file:not_found",
       description: "The file could not be found on the server."
+    },
+    token_not_erc20: %{
+      code: "token:not_erc20",
+      description: "The provided contract address does not implement the required erc20 functions."
     }
   }
 

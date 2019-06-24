@@ -144,3 +144,33 @@ MintsResponseSchema:
             transaction: {}
             created_at: '2018-01-01T00:00:00Z'
             updated_at: '2018-01-01T00:00:00Z'
+
+TokenERC20CapabilitiesResponseSchema:
+  description: The response schema for the erc20 attrs of a contract address
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      object:
+        type: string
+      symbol:
+        type: string
+      name:
+        type: string
+      total_supply:
+        type: integer
+      decimals:
+        type: integer
+    required:
+      - object
+      - symbol
+      - name
+      - total_supply
+      - decimals
+    example:
+      data:
+        object: erc20_attrs
+        symbol: OMG
+        name: OMGToken
+        total_supply: 100000
+        decimals: 18

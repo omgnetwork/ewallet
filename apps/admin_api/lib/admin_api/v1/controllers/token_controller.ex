@@ -19,7 +19,7 @@ defmodule AdminAPI.V1.TokenController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias Ecto.Changeset
-  alias EWallet.{Helper, MintGate, TokenPolicy, MintPolicy, AdapterHelper}
+  alias EWallet.{Helper, MintGate, TokenGate, TokenPolicy, MintPolicy, AdapterHelper}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
   alias EWalletDB.{Account, Mint, Token}
 
@@ -159,7 +159,24 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   def update(conn, _) do
-    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
+    handle_error(conn, :missing_id)
+  end
+
+  def verify_erc20_capabilities(conn, %{"contract_address" => contract_address}) do
+    with {:ok, _} <- authorize(:verify_erc20_capabilities, conn.assigns, %Token{}),
+         {:ok, erc20_attrs} <- TokenGate.verify_erc20_capabilities(contract_address) do
+      render(conn, :erc20_attrs, %{erc20_attrs: erc20_attrs})
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+
+      error ->
+        handle_error(conn, error)
+    end
+  end
+
+  def verify_erc20_capabilities(conn, _) do
+    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `contract_address` is required.")
   end
 
   @doc """
@@ -179,7 +196,7 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   def enable_or_disable(conn, _),
-    do: handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
+    do: handle_error(conn, :missing_id)
 
   @doc """
   Uploads an image as avatar for a specific token.

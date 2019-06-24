@@ -181,3 +181,17 @@ TokenUploadBody:
         example:
           id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
           avatar: /path/to/file
+
+TokenERC20Capabilities:
+  description: The parameters to verify the erc20 capabilities of a contract address.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          contract_address:
+            type: string
+        required:
+          - contract_address
+        example:
+          contract_address: "0x9080682a37961d3c814464e7ada1c7e1b4638a28"

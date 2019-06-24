@@ -23,21 +23,18 @@ defmodule EthBlockchain.Token do
 
   @doc """
   Attempt to query the value of the field for the given contract address.
-  Possible fields are: "name", "symbol", "decimals"
+  Possible fields are: "name", "symbol", "decimals", "totalSupply"
   Returns {:ok, value} if found.
   If the given field is not allowed, returns {:error, :invalid_field}
   If the given field cannot be found in the contract, returns: {:error, :field_not_found}
   """
-  def get_field(params, adapter \\ nil, pid \\ nil)
+  def get_field(attrs, adapter \\ nil, pid \\ nil)
 
-  def get_field({field, contract_address}, adapter, pid) when field in @allowed_fields do
+  def get_field(%{field: field, contract_address: contract_address}, adapter, pid) when field in @allowed_fields do
     case ABIEncoder.get_field(field) do
       {:ok, encoded_abi_data} ->
-        adapter
-        |> Adapter.call(
-          {:get_field, contract_address, to_hex(encoded_abi_data)},
-          pid
-        )
+        {:get_field, contract_address, to_hex(encoded_abi_data)}
+        |> Adapter.call(adapter, pid)
         |> parse_response(field)
 
       error ->

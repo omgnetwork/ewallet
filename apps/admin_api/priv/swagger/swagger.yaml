@@ -130,6 +130,8 @@ paths:
     $ref: 'token/paths.yaml#/token.get_mints'
   /token.mint:
     $ref: 'token/paths.yaml#/token.mint'
+  /token.verify_erc20_capabilities:
+    $ref: 'token/paths.yaml#/token.verify_erc20_capabilities'
 
   # EXCHANGE PAIR
   /exchange_pair.all:
