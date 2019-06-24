@@ -396,7 +396,7 @@ defmodule EWallet.TwoFactorAuthenticatorTest do
 
     defp verify_backup_code(backup_code, hashed_backup_codes) do
       Enum.any?(hashed_backup_codes, fn hashed_backup_code ->
-        Crypto.verify_password(backup_code, hashed_backup_code)
+        Crypto.verify_secret(Base.encode64(backup_code, padding: false), hashed_backup_code)
       end)
     end
   end

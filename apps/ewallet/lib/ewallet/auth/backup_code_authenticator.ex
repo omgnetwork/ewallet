@@ -31,9 +31,9 @@ defmodule EWallet.BackupCodeAuthenticator do
       "25f5da3f"
     ],
     [
-      "$2b$12$a9m6U7NG2C.5R1LluPBDBO9dscWhZEO7XyNDaMaNG3bff5vwiHxRK",
-      "$2b$12$58HR6Tc/hbH77JH6/RS3wusR4.NI/eP26mAuC2K6/.f.zLPomo4uK",
-      "$2b$12$xwrHaJb9YvYDFVusSxohvexH36IW6p/mlICobmR7muzAxnrmBiP.6"
+      "c45fe340110ebf6d6e1d88dd4695a1cb97089e291f8a6adf68ca4a9e8a0d620b5bad7937cc752fc1ce95cbc55ab7b053",
+      "fd203d599a82e1a0b6e91361c1cfdc4fca0623983eb25da38f0c45dc403051b8c1ffa54321c5de8f59477a687e524a35",
+      "06d33264eec2ca3c6a6c07b5f3a0fd87d854a53f739e60ac2da654023d900370506e9218d5f2abad5e19e4e9593009d8"
     ]
   }
 
@@ -41,9 +41,9 @@ defmodule EWallet.BackupCodeAuthenticator do
 
   # Verify backup code with associated hashed_backup_codes.
   iex> EWallet.BackupCodeAuthenticator.verify([
-    "$2b$12$a9m6U7NG2C.5R1LluPBDBO9dscWhZEO7XyNDaMaNG3bff5vwiHxRK",
-    "$2b$12$58HR6Tc/hbH77JH6/RS3wusR4.NI/eP26mAuC2K6/.f.zLPomo4uK",
-    "$2b$12$xwrHaJb9YvYDFVusSxohvexH36IW6p/mlICobmR7muzAxnrmBiP.6"
+    "c45fe340110ebf6d6e1d88dd4695a1cb97089e291f8a6adf68ca4a9e8a0d620b5bad7937cc752fc1ce95cbc55ab7b053",
+    "fd203d599a82e1a0b6e91361c1cfdc4fca0623983eb25da38f0c45dc403051b8c1ffa54321c5de8f59477a687e524a35",
+    "06d33264eec2ca3c6a6c07b5f3a0fd87d854a53f739e60ac2da654023d900370506e9218d5f2abad5e19e4e9593009d8"
   ], "7c501e31")
 
   # Success
@@ -60,10 +60,7 @@ defmodule EWallet.BackupCodeAuthenticator do
 
   def verify(backup_code_created_at, hashed_backup_codes, backup_code)
       when is_list(hashed_backup_codes) and is_binary(backup_code) do
-    case Enum.find_index(
-           hashed_backup_codes,
-           &Crypto.verify_password(backup_code, &1.hashed_backup_code)
-         ) do
+    case Enum.find_index(hashed_backup_codes, &do_verify(backup_code, &1.hashed_backup_code)) do
       nil ->
         {:error, :invalid_backup_code}
 
@@ -75,6 +72,12 @@ defmodule EWallet.BackupCodeAuthenticator do
   end
 
   def verify(_, _, _), do: {:error, :invalid_parameter}
+
+  defp do_verify(backup_code, hashed_backup_code) do
+    backup_code
+    |> Base.encode64(padding: false)
+    |> Crypto.verify_secret(hashed_backup_code)
+  end
 
   defp verify_result(%UserBackupCode{} = user_backup_code, backup_code_created_at) do
     case user_backup_code do
@@ -94,7 +97,7 @@ defmodule EWallet.BackupCodeAuthenticator do
 
     hashed_backup_codes =
       backup_codes
-      |> Enum.map(&Task.async(fn -> Crypto.hash_password(&1) end))
+      |> Enum.map(&Task.async(fn -> Crypto.hash_secret(&1) end))
       |> Enum.map(&Task.await(&1))
 
     {:ok, backup_codes, hashed_backup_codes}
