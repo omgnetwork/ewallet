@@ -127,8 +127,6 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
-  defp send_eth(_, _, _), do: {:error, :invalid_parameters}
-
   defp send_token(
          %{
            from: from,
@@ -157,8 +155,6 @@ defmodule EthBlockchain.Transaction do
       error -> error
     end
   end
-
-  defp send_token(_, _, _), do: {:error, :invalid_parameters}
 
   defp get_gas_price_or_default(%{gas_price: gas_price}), do: gas_price
 
