@@ -1,4 +1,4 @@
-# Copyright 2019 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,34 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthBlockchain.WalletTest do
-  use ExUnit.Case
+defmodule Keychain.DBCase do
+  @moduledoc """
+  A test case template for tests that need to connect to the keychain database.
+  """
+  use ExUnit.CaseTemplate
   alias Ecto.Adapters.SQL.Sandbox
-  alias EthBlockchain.Wallet
-  alias Keychain.{Repo, Key}
+  alias Keychain.Repo
+
+  using do
+    quote do
+      import Keychain.DBCase
+    end
+  end
 
   setup tags do
     :ok = Sandbox.checkout(Repo)
 
     unless tags[:async] do
       Sandbox.mode(Repo, {:shared, self()})
-    end
-  end
-
-  describe "generate/1" do
-    test "generates a ECDH keypair and wallet id" do
-      assert Repo.aggregate(Key, :count, :wallet_id) == 0
-      {:ok, wallet_id, public_key} = Wallet.generate()
-      {:ok, _, _} = Wallet.generate()
-      {:ok, _, _} = Wallet.generate()
-      {:ok, _, _} = Wallet.generate()
-      assert Repo.aggregate(Key, :count, :wallet_id) == 4
-
-      assert is_binary(wallet_id)
-      assert byte_size(wallet_id) == 66
-
-      assert is_binary(public_key)
-      assert byte_size(public_key) == 130
     end
   end
 end

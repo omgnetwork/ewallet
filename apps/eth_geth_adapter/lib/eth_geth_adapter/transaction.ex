@@ -12,4 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ExUnit.start()
+defmodule EthGethAdapter.Transaction do
+  @moduledoc false
+
+  alias Ethereumex.HttpClient, as: Client
+
+  def send_raw(transaction_data) do
+    transaction_data
+    |> Client.eth_send_raw_transaction()
+    |> parse_response()
+  end
+
+  def get_transaction_count(address) do
+    Client.eth_get_transaction_count(address)
+  end
+
+  defp parse_response({:ok, _data} = response), do: response
+
+  defp parse_response({:error, %{"message" => message}}) do
+    {:error, :adapter_error, message}
+  end
+end

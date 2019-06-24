@@ -159,11 +159,22 @@ defmodule EthBlockchain.Adapter do
   Returns `{:ok, response}` if the request was successful or
   `{:error, error_code}` in case of failure.
   """
-  @spec call(atom() | adapter(), call()) :: resp({:ok, any()})
-  @spec call(atom() | adapter(), call(), server()) :: resp({:ok, any()})
-  def call(adapter_spec, func_spec, pid \\ __MODULE__)
+  @spec call(call(), atom() | adapter() | nil) :: resp({:ok, any()})
+  @spec call(call(), atom() | adapter() | nil, server()) :: resp({:ok, any()})
+  def call(func_spec, adapter_spec \\ nil, pid \\ nil)
 
-  def call(adapter_spec, func_spec, pid) do
+  def call(func_spec, nil, pid) do
+    adapter =
+      :eth_blockchain
+      |> Application.get_env(EthBlockchain.Adapter)
+      |> Keyword.get(:default_adapter)
+
+    call(func_spec, adapter, pid)
+  end
+
+  def call(func_spec, adapter_spec, pid) do
+    pid = pid || __MODULE__
+
     case GenServer.call(pid, {:call, adapter_spec, func_spec}) do
       {:ok, resp} ->
         resp

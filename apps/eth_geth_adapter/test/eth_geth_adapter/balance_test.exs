@@ -23,7 +23,7 @@ defmodule EthGethAdapter.BalanceTest do
       contract_addresses = ["0x48b91d5f363892592bf836777dc73b54a10b72ae", "0x123"]
 
       assert_raise ArgumentError, "0x123 is not a valid contract address", fn ->
-        Balance.get(address, contract_addresses)
+        Balance.get(address, contract_addresses, nil)
       end
     end
   end

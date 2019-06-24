@@ -14,8 +14,9 @@
 
 defmodule EthBlockchain.Balance do
   @moduledoc false
+  import Utils.Helpers.Encoding
 
-  alias EthBlockchain.Adapter
+  alias EthBlockchain.{Adapter, ABIEncoder}
 
   @doc """
   Retrieve the balance of all given `contract_addresses` for the provided wallet `address`.
@@ -35,25 +36,33 @@ defmodule EthBlockchain.Balance do
   ```
   if successful or {:error, error_code} if failed.
   """
-  def get(params, adapter \\ nil, pid \\ nil)
+  def get(attrs, adapter \\ nil, pid \\ nil)
 
-  def get({address, contract_addresses}, adapter, pid) do
-    get({address, contract_addresses, "latest"}, adapter, pid)
+  def get(%{block: _} = attrs, adapter, pid) do
+    do_get(attrs, adapter, pid)
   end
 
-  def get({address, contract_addresses, block}, adapter, pid) do
-    adapter =
-      adapter ||
-        :eth_blockchain
-        |> Application.get_env(EthBlockchain.Adapter)
-        |> Keyword.get(:default_adapter)
+  def get(attrs, adapter, pid) do
+    attrs
+    |> Map.put(:block, "latest")
+    |> do_get(adapter, pid)
+  end
 
-    case pid do
-      nil ->
-        Adapter.call(adapter, {:get_balances, address, contract_addresses, block})
+  defp do_get(
+         %{address: address, contract_addresses: contract_addresses, block: block},
+         adapter,
+         pid
+       ) do
+    case ABIEncoder.balance_of(address) do
+      {:ok, encoded_abi_data} ->
+        Adapter.call(
+          {:get_balances, address, contract_addresses, to_hex(encoded_abi_data), block},
+          adapter,
+          pid
+        )
 
-      p when is_pid(p) ->
-        Adapter.call(adapter, {:get_balances, address, contract_addresses, block}, p)
+      error ->
+        error
     end
   end
 end

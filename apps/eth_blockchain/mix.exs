@@ -32,6 +32,8 @@ defmodule EthBlockchain.MixProject do
   defp deps do
     [
       {:exth_crypto, "~> 0.1.6"},
+      {:ex_rlp, "~> 0.5.2"},
+      {:utils, in_umbrella: true},
       {:keychain, in_umbrella: true}
     ]
   end

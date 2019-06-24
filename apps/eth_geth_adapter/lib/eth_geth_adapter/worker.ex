@@ -15,7 +15,7 @@
 defmodule EthGethAdapter.Worker do
   @moduledoc false
 
-  alias EthGethAdapter.Balance
+  alias EthGethAdapter.{Balance, Transaction}
 
   @type server :: GenServer.server()
   @typep from :: GenServer.from()
@@ -59,11 +59,23 @@ defmodule EthGethAdapter.Worker do
   ##
 
   @doc """
-  Handles the get_balances call from the client API get_balances/4.
+  Handles the genserver calls.
   """
-  @spec handle_call({:call, String.t(), list(String.t()), String.t()}, from(), state()) ::
+  @spec handle_call(tuple(), from(), state()) ::
           reply({:ok, map()}) | reply({:error, any()})
-  def handle_call({:get_balances, address, contract_addresses, block}, _from, reg) do
-    {:reply, Balance.get(address, contract_addresses, block), reg}
+  def handle_call(
+        {:get_balances, address, contract_addresses, encoded_abi_data, block},
+        _from,
+        reg
+      ) do
+    {:reply, Balance.get(address, contract_addresses, encoded_abi_data, block), reg}
+  end
+
+  def handle_call({:send_raw, transaction_data}, _from, reg) do
+    {:reply, Transaction.send_raw(transaction_data), reg}
+  end
+
+  def handle_call({:get_transaction_count, address}, _from, reg) do
+    {:reply, Transaction.get_transaction_count(address), reg}
   end
 end

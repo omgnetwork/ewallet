@@ -15,12 +15,24 @@
 defmodule EthBlockchain.DumbAdapter do
   @moduledoc false
 
+  @spec start_link :: :ignore | {:error, any} | {:ok, pid}
   def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
   def init(:ok), do: {:ok, nil}
   def stop(pid), do: GenServer.stop(pid)
 
-  def handle_call({:get_balances, _address, contract_addresses, _block}, _from, reg) do
+  def handle_call({:get_balances, _address, contract_addresses, _abi, _block}, _from, reg) do
     balances = Map.new(contract_addresses, fn ca -> {ca, 123} end)
     {:reply, {:ok, balances}, reg}
+  end
+
+  def handle_call({:get_transaction_count, _address}, _from, reg) do
+    {:reply, {:ok, "0x1"}, reg}
+  end
+
+  def handle_call({:send_raw, data}, _from, reg) do
+    # Here we just pass the encoded data in the response for testing purpose.
+    # When doing a real transaction, this will not be the case,
+    # the transaction hash will be returned instead.
+    {:reply, {:ok, data}, reg}
   end
 end

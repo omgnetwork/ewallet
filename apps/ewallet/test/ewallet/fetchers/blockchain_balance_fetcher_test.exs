@@ -19,11 +19,17 @@ defmodule EWallet.BlockchainBalanceFetcherTest do
 
   describe "all/2" do
     test "returns a list of balances of given tokens when given wallet address and non-empty tokens" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      token_1 = insert(:token, %{blockchain_address: "0x00"})
-      token_2 = insert(:token, %{blockchain_address: "0x01"})
-      _token_3 = insert(:token, %{blockchain_address: "0x02"})
+      token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      _token_3 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
 
       assert {:ok, balances} =
                BlockchainBalanceFetcher.all(blockchain_wallet.address, [token_1, token_2])
@@ -35,7 +41,8 @@ defmodule EWallet.BlockchainBalanceFetcherTest do
     end
 
     test "returns an empty list when given wallet and empty tokens" do
-      blockchain_wallet = insert(:blockchain_wallet, %{address: "0x123"})
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
       assert {:ok, balances} = BlockchainBalanceFetcher.all(blockchain_wallet.address, [])
 

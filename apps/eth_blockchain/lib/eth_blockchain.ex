@@ -1,4 +1,6 @@
 defmodule EthBlockchain do
+  @eth_address "0x0000000000000000000000000000000000000000"
+
   @moduledoc """
   Documentation for EthBlockchain.
   """
@@ -17,9 +19,5 @@ defmodule EthBlockchain do
   """
   @type call :: {atom(), list()} | atom()
 
-  @typedoc """
-  A tuple of `{adapter, wallet_id, public_key}` representing a wallet
-  currently managed by an adapter.
-  """
-  @type address :: {atom(), String.t(), String.t()}
+  def eth_address, do: @eth_address
 end
