@@ -87,11 +87,18 @@ const AdvancedFilter = ({
   const [ initialValues, setInitialValues ] = useState({})
 
   useEffect(() => {
-    const defaultFilters = FILTER_MAP.filter(i => {
-      return i.page === page && i.default
-    })
-    setFilters(defaultFilters)
-    setInitialValues({})
+    const search = queryString.parse(location.search)
+    if (search && !_.isEmpty(search)) {
+      const values = JSON.parse(search['advanced-filter'])
+      const filters = FILTER_MAP.filter(i => Object.keys(values).includes(i.key))
+
+      setFilters(filters)
+      callOnFilter(values)
+      onUpdate(values)
+    } else {
+      const defaultFilters = FILTER_MAP.filter(i => i.page === page && i.default)
+      setFilters(defaultFilters)
+    }
   }, [])
 
   const onSelectFilter = (newFilter) => {
@@ -115,20 +122,30 @@ const AdvancedFilter = ({
     history.push({ search: queryString.stringify(search) })
   }
 
+  const callOnFilter = (values) => {
+    onFilter(filterAdapter(values))
+    setInitialValues(values)
+
+    if (values && !_.isEmpty(values)) {
+      history.push(`?advanced-filter=${JSON.stringify(values)}`)
+    } else {
+      const search = queryString.parse(location.search)
+      delete search['advanced-filter']
+      history.push({ search: queryString.stringify(search) })
+    }
+  }
+
   const onRemoveFilter = (filterToRemove) => {
     const newFilters = _.filter(filters, i => i.key !== filterToRemove.key)
     const newValues = _.omit(values, [filterToRemove.key])
     setFilters(newFilters)
     setValues(newValues)
-
-    onFilter(filterAdapter(newValues))
-    setInitialValues(newValues)
+    callOnFilter(newValues)
   }
 
-  const applyFilter = () => {
+  const applyFilter = (values) => {
     resetPage()
-    onFilter(filterAdapter(values))
-    setInitialValues(values)
+    callOnFilter(values)
     onRequestClose()
   }
 
@@ -137,11 +154,7 @@ const AdvancedFilter = ({
     const newValues = _.omit(values, [tag])
     setFilters(newFilters)
     setValues(newValues)
-    resetPage()
-
-    onFilter(filterAdapter(newValues))
-    setInitialValues(newValues)
-    onRequestClose()
+    applyFilter(newValues)
   }
 
   const onClose = () => {
@@ -237,7 +250,7 @@ const AdvancedFilter = ({
             </TransitionMotion>
 
             <StyledButton
-              onClick={applyFilter}
+              onClick={() => applyFilter(values)}
               disabled={_.isEqual(initialValues, values)}
             >
               <span>Apply Filter</span>

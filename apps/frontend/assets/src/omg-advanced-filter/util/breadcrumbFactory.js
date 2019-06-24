@@ -14,10 +14,14 @@ const breadcrumbFactory = (value) => {
     const start = _.get(value, 'startDate')
     const end = _.get(value, 'endDate')
     if (start) {
-      startDate = start.format('DD/MM/YYYY H:mm')
+      startDate = typeof start === 'string'
+        ? start
+        : start.format('DD/MM/YYYY H:mm')
     }
     if (end) {
-      endDate = end.format('DD/MM/YYYY H:mm')
+      endDate = typeof end === 'string'
+        ? end
+        : end.format('DD/MM/YYYY H:mm')
     }
 
     return `${startDate ? `start - ${startDate}` : ''}
