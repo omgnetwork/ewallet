@@ -48,7 +48,6 @@ function DisableTwoFaModal ({ open, onRequestClose, history }) {
   const dispatch = useDispatch()
   const [passcode, setPasscode] = useState('')
   const [submitStatus, setSubmitStatus] = useState('DEFAULT')
-  const [errorText, setErrorText] = useState()
   const afterClose = () => {
     setPasscode('')
     setSubmitStatus('DEFAULT')
@@ -63,7 +62,6 @@ function DisableTwoFaModal ({ open, onRequestClose, history }) {
       onRequestClose()
       history.push('/login')
     } else {
-      setErrorText(result.error.description)
       setSubmitStatus('FAILED')
     }
   }
@@ -76,8 +74,8 @@ function DisableTwoFaModal ({ open, onRequestClose, history }) {
           value={passcode}
           onChange={e => setPasscode(e.target.value)}
           normalPlaceholder='2fa token...'
-          error={submitStatus === 'FAILED'}
-          errorText={errorText}
+          autoFocus
+          maxLength={6}
         />
         <Button loading={submitStatus === 'LOADING'}>
           Disable Two Factor Authentication<br />
