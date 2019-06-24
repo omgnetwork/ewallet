@@ -8,11 +8,11 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 110,
-    component: filters.SelectAccount,
+    component: filters.SelectWallet,
     default: false,
     matchAll: [
       {
-        field: 'from_account.id',
+        field: 'from_wallet.address',
         comparator: 'contains'
       }
     ]
@@ -23,11 +23,11 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 110,
-    component: filters.SelectAccount,
+    component: filters.SelectWallet,
     default: false,
     matchAll: [
       {
-        field: 'to_account.id',
+        field: 'from_wallet.address',
         comparator: 'contains'
       }
     ]
@@ -38,15 +38,15 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 110,
-    component: filters.SelectAccount,
+    component: filters.SelectWallet,
     default: false,
     matchAny: [
       {
-        field: 'to_account.id',
+        field: 'to_wallet.address',
         comparator: 'contains'
       },
       {
-        field: 'from_account.id',
+        field: 'from_wallet.address',
         comparator: 'contains'
       }
     ]
