@@ -321,7 +321,7 @@ defmodule AdminAPI.V1.BlockchainBalanceControllerTest do
     test_with_auths "returns an error when given a non-existing address" do
       response =
         request("/blockchain_wallet.get_balances", %{
-          "address" => EthBlockchain.eth_address()
+          "address" => "0x9999999999999999999999999999999999999999"
         })
 
       refute response["success"]
