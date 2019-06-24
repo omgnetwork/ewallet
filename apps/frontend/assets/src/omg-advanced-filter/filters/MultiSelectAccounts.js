@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import AccountsFetcher from '../../omg-account/accountsFetcher'
+import AccountSelect from '../../omg-account-select'
 import { MultiSelect } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
@@ -14,8 +15,16 @@ const MultiSelectAccounts = ({
   config
 }) => {
   const onChange = (selection) => {
-    selection
-      ? onUpdate({ [config.key]: selection })
+    const _selection = selection && selection.map(i => {
+      return {
+        key: i.value,
+        value: i.value,
+        label: i.value
+      }
+    })
+
+    _selection && _selection.length
+      ? onUpdate({ [config.key]: _selection })
       : clearKey(config.key)
   }
 
@@ -34,8 +43,8 @@ const MultiSelectAccounts = ({
               values={values[config.key]}
               options={data.map(account => {
                 return {
-                  label: account.name || account.id,
-                  value: account.id
+                  value: account.id,
+                  label: <AccountSelect account={account} />
                 }
               })}
             />
