@@ -147,20 +147,16 @@ class UserDetailPage extends Component {
         <MenuContainer>
           <UserDetailMenuContainer>
             <Link to={basePath}>
-              <Tag active={type === 'details' || !type}>
-                Details
-              </Tag>
+              <Tag active={type === 'details' || !type} title='Details' />
             </Link>
             <Link to={`${basePath}/wallets`}>
-              <Tag active={type === 'wallets'}>Wallets</Tag>
+              <Tag active={type === 'wallets'} title='Wallets' />
             </Link>
             <Link to={`${basePath}/transactions`}>
-              <Tag active={type === 'transactions'}>
-                Transactions
-              </Tag>
+              <Tag active={type === 'transactions'} title='Transactions' />
             </Link>
             <Link to={`${basePath}/logs`}>
-              <Tag active={type === 'logs'}>Logs</Tag>
+              <Tag active={type === 'logs'} title='Logs' />
             </Link>
           </UserDetailMenuContainer>
           <SearchBar />

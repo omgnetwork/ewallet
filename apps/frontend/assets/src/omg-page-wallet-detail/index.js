@@ -9,7 +9,7 @@ import WalletProvider from '../omg-wallet/walletProvider'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import { TabButton } from '../omg-uikit'
+import { Tag } from '../omg-uikit'
 import WalletBalance from './WalletBalances'
 import Copy from '../omg-copy'
 import CONSTANT from '../constants'
@@ -125,17 +125,13 @@ class WalletDetaillPage extends Component {
           <MenuContainer>
             <div>
               <Link to={basePath}>
-                <TabButton active={type === 'details' || !type}>
-                  Details
-                </TabButton>
+                <Tag active={type === 'details' || !type} title='Details' />
               </Link>
               <Link to={`${basePath}/balances`}>
-                <TabButton active={type === 'balances'}>Balances</TabButton>
+                <Tag active={type === 'balances'} title='Balances' />
               </Link>
               <Link to={`${basePath}/transactions`}>
-                <TabButton active={type === 'transactions'}>
-                  Transactions
-                </TabButton>
+                <Tag active={type === 'transactions'} title='Transactions' />
               </Link>
             </div>
           </MenuContainer>
