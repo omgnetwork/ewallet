@@ -9,8 +9,12 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Input, Button } from '../omg-uikit'
 import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
 import { currentUserProviderHoc } from '../omg-user-current/currentUserProvider'
-import { updateCurrentUserEmail, updateCurrentUserAvatar } from '../omg-user-current/action'
+import {
+  updateCurrentUserEmail,
+  updateCurrentUserAvatar
+} from '../omg-user-current/action'
 import { updatePassword } from '../omg-session/action'
+import SecuritySection from './SecuritySection'
 
 const UserSettingContainer = styled.div`
   padding-bottom: 50px;
@@ -151,7 +155,9 @@ class UserSettingPage extends Component {
 
       // update avatar
       if (this.state.image) {
-        const updateAvatarResult = await this.props.updateCurrentUserAvatar({ avatar: this.state.image })
+        const updateAvatarResult = await this.props.updateCurrentUserAvatar({
+          avatar: this.state.image
+        })
         if (!updateAvatarResult.data) {
           throw new Error('failed avatar update')
         }
@@ -213,6 +219,93 @@ class UserSettingPage extends Component {
       }
     })
   }
+  renderAvatar () {
+    return (
+      <AvatarContainer>
+        <Avatar
+          onChangeImage={this.onChangeImage}
+          size='180px'
+          placeholder={this.state.avatarPlaceholder}
+        />
+      </AvatarContainer>
+    )
+  }
+  renderForm () {
+    return (
+      <form onSubmit={this.onClickUpdateAccount} noValidate>
+        {this.renderAvatar()}
+        <InputsContainer>
+          <StyledEmailInput
+            placeholder={'Email'}
+            value={this.state.email}
+            onChange={this.onChangeEmail}
+          />
+          <StyledRoleInput
+            placeholder={'Global Role'}
+            value={_.startCase(this.state.globalRole)}
+          />
+
+          <ChangePasswordContainer>
+            <div>Password</div>
+            {this.state.changingPassword ? (
+              <ChangePasswordFormCointainer>
+                <StyledInput
+                  normalPlaceholder={'Old Password'}
+                  value={this.state.oldPassword}
+                  onChange={this.onChangeOldPassword}
+                  type='password'
+                />
+                <StyledInput
+                  normalPlaceholder={'New Password'}
+                  value={this.state.newPassword}
+                  onChange={this.onChangeNewPassword}
+                  type='password'
+                />
+                <StyledInput
+                  normalPlaceholder={'New Password Confirmation'}
+                  value={this.state.newPasswordConfirmation}
+                  onChange={this.onChangeNewPasswordConfirmation}
+                  type='password'
+                  error={
+                    this.state.newPassword !==
+                    this.state.newPasswordConfirmation
+                  }
+                  errorText='Passwords do not match'
+                />
+              </ChangePasswordFormCointainer>
+            ) : (
+              <a onClick={this.onClickChangePassword}>Change password</a>
+            )}
+          </ChangePasswordContainer>
+          <Button
+            size='small'
+            type='submit'
+            key='save'
+            disabled={
+              !this.state.image &&
+              (this.state.newEmailSubmitted ||
+                this.state.email === this.props.currentUser.email) &&
+              (this.state.newPassword !== this.state.newPasswordConfirmation ||
+                !this.state.newPassword ||
+                !this.state.newPasswordConfirmation)
+            }
+            loading={this.state.submitStatus === 'SUBMITTING'}
+          >
+            <span>Save</span>
+          </Button>
+          <Button
+            styleType='secondary'
+            size='small'
+            key='cancel'
+            className='cancel-button'
+            onClick={this.onCancel}
+          >
+            <span>Cancel</span>
+          </Button>
+        </InputsContainer>
+      </form>
+    )
+  }
   render () {
     return (
       <UserSettingContainer>
@@ -222,81 +315,10 @@ class UserSettingPage extends Component {
           searchBar={false}
         />
         {this.props.loadingStatus === 'SUCCESS' && (
-          <form onSubmit={this.onClickUpdateAccount} noValidate>
-            <AvatarContainer>
-              <Avatar
-                onChangeImage={this.onChangeImage}
-                size='180px'
-                placeholder={this.state.avatarPlaceholder}
-              />
-            </AvatarContainer>
-            <InputsContainer>
-              <StyledEmailInput
-                placeholder={'Email'}
-                value={this.state.email}
-                prefill
-                onChange={this.onChangeEmail}
-              />
-              <StyledRoleInput
-                placeholder={'Global Role'}
-                value={_.startCase(this.state.globalRole)}
-                prefill
-              />
-              <ChangePasswordContainer>
-                <div>Password</div>
-                {this.state.changingPassword ? (
-                  <ChangePasswordFormCointainer>
-                    <StyledInput
-                      normalPlaceholder={'Old Password'}
-                      value={this.state.oldPassword}
-                      onChange={this.onChangeOldPassword}
-                      type='password'
-                    />
-                    <StyledInput
-                      normalPlaceholder={'New Password'}
-                      value={this.state.newPassword}
-                      onChange={this.onChangeNewPassword}
-                      type='password'
-                    />
-                    <StyledInput
-                      normalPlaceholder={'New Password Confirmation'}
-                      value={this.state.newPasswordConfirmation}
-                      onChange={this.onChangeNewPasswordConfirmation}
-                      type='password'
-                      error={this.state.newPassword !== this.state.newPasswordConfirmation}
-                      errorText='Passwords do not match'
-                    />
-                  </ChangePasswordFormCointainer>
-                ) : (
-                  <a onClick={this.onClickChangePassword}>Change password</a>
-                )}
-              </ChangePasswordContainer>
-              <Button
-                size='small'
-                type='submit'
-                key='save'
-                disabled={
-                  !this.state.image &&
-                  (this.state.newEmailSubmitted || this.state.email === this.props.currentUser.email) &&
-                  (this.state.newPassword !== this.state.newPasswordConfirmation ||
-                    !this.state.newPassword ||
-                    !this.state.newPasswordConfirmation)
-                }
-                loading={this.state.submitStatus === 'SUBMITTING'}
-              >
-                <span>Save</span>
-              </Button>
-              <Button
-                styleType='secondary'
-                size='small'
-                key='cancel'
-                className='cancel-button'
-                onClick={this.onCancel}
-              >
-                <span>Cancel</span>
-              </Button>
-            </InputsContainer>
-          </form>
+          <>
+            {this.renderForm()}
+            <SecuritySection />
+          </>
         )}
       </UserSettingContainer>
     )

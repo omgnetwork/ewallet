@@ -7,9 +7,8 @@ import { connect } from 'react-redux'
 
 import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
-import QR from './QrCode'
 import { formatAmount, formatReceiveAmountToTotal } from '../utils/formatter'
-import { Select, Button, Input } from '../omg-uikit'
+import { Select, Button, Input, QrCode } from '../omg-uikit'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
 import { calculate } from '../omg-transaction/action'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
@@ -288,7 +287,7 @@ class ConsumeBox extends Component {
     return (
       <ConsumeActionContainer onSubmit={this.onSubmitConsume(this.props.transactionRequest)}>
         <QrContainer>
-          <QR data={this.props.transactionRequest.id} />
+          <QrCode data={this.props.transactionRequest.id} />
           <QrTypeContainer>
             <b>Type : </b>
             <div>{this.props.transactionRequest.type}</div>

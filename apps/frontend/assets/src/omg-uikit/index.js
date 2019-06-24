@@ -20,6 +20,7 @@ import Id from './id'
 import SearchBar from './searchbar'
 import NavCard from './navcard'
 import DetailRow from './detailrow'
+import QrCode from './qrCode'
 
 export {
   Input,
@@ -44,5 +45,6 @@ export {
   Id,
   SearchBar,
   NavCard,
-  DetailRow
+  DetailRow,
+  QrCode
 }

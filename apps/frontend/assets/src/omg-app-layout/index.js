@@ -6,7 +6,6 @@ import queryString from 'query-string'
 
 import SlideInRight from '../omg-uikit/animation/SlideInRight'
 import SideNavigation from './SideNavigation'
-import Alert from '../omg-alert'
 import TransactionRequestPanel from '../omg-transaction-request-tab'
 import TransactionPanel from '../omg-transaction-panel'
 import ActivityPanel from '../omg-page-activity-log/ActivityPanel'
@@ -56,7 +55,6 @@ class AppLayout extends Component {
             })}
           </Content>
         </ContentContainer>
-        <Alert />
 
         <SlideInRight path='transaction-panel' width={560}>
           {searchObject['show-request-tab'] && <TransactionRequestPanel />}
