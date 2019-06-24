@@ -82,7 +82,7 @@ defmodule EWallet.Web.V1.TokenOverlay do
       enabled: nil,
       inserted_at: nil,
       created_at: nil,
-      account: AccountOverlay.default_preload_assocs()
+      account: AccountOverlay.self_filter_fields()
     ]
 
   def pagination_fields,

@@ -28,7 +28,9 @@ export function updateConfiguration ({
   balanceCachingStrategy,
   balanceCachingResetFrequency,
   forgetPasswordRequestLifetime,
-  masterAccount
+  masterAccount,
+  authTokenLifetime,
+  preAuthTokenLifetime
 }) {
   const omittedObject = _.omitBy(
     {
@@ -57,7 +59,9 @@ export function updateConfiguration ({
       balance_caching_strategy: balanceCachingStrategy,
       balance_caching_reset_frequency: Number(balanceCachingResetFrequency),
       forget_password_request_lifetime: Number(forgetPasswordRequestLifetime),
-      master_account: masterAccount
+      master_account: masterAccount,
+      auth_token_lifetime: Number(authTokenLifetime),
+      pre_auth_token_lifetime: Number(preAuthTokenLifetime)
     },
     value => _.isNil(value) || _.isNaN(value) || value === 0
   )

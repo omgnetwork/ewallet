@@ -1,9 +1,11 @@
 import QRCode from 'qrcode'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+
 export default class QR extends Component {
   static propTypes = {
-    data: PropTypes.string
+    data: PropTypes.string,
+    size: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   }
   state = {}
   componentDidMount = async () => {
@@ -19,6 +21,11 @@ export default class QR extends Component {
     }
   }
   render () {
-    return <img src={this.state.dataUrl} />
+    return (
+      <img
+        src={this.state.dataUrl}
+        style={{ width: this.props.size, height: this.props.size }}
+      />
+    )
   }
 }
