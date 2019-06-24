@@ -356,6 +356,21 @@ export const FILTER_MAP = [
       }
     ]
   },
+  {
+    title: 'Select Token',
+    key: 'transaction-requests-specify-token',
+    icon: 'Option-Horizontal',
+    page: 'transaction-requests',
+    height: 110,
+    component: filters.SelectToken,
+    default: false,
+    matchAll: [
+      {
+        field: 'token.symbol',
+        comparator: 'contains'
+      }
+    ]
+  },
   // TRANSACTION CONSUMPTIONS PAGE --------------
   {
     title: 'Consumed Date',

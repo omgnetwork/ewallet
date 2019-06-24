@@ -1,5 +1,6 @@
-import SelectAccount from './SelectAccount'
 import InputFilter from './InputFilter'
+import SelectAccount from './SelectAccount'
+import SelectToken from './SelectToken'
 import SelectFilter from './SelectFilter'
 import DateTime from './DateTime'
 import Checkbox from './Checkbox'
@@ -11,6 +12,7 @@ import MultiSelectWallets from './MultiSelectWallets'
 
 export default {
   SelectAccount,
+  SelectToken,
   InputFilter,
   SelectFilter,
   DateTime,
