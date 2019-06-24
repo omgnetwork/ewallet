@@ -29,11 +29,6 @@ defmodule EWallet.BackupCodeAuthenticator do
       "7c501e31",
       "ecd704eb",
       "25f5da3f"
-    ],
-    [
-      "c45fe340110ebf6d6e1d88dd4695a1cb97089e291f8a6adf68ca4a9e8a0d620b5bad7937cc752fc1ce95cbc55ab7b053",
-      "fd203d599a82e1a0b6e91361c1cfdc4fca0623983eb25da38f0c45dc403051b8c1ffa54321c5de8f59477a687e524a35",
-      "06d33264eec2ca3c6a6c07b5f3a0fd87d854a53f739e60ac2da654023d900370506e9218d5f2abad5e19e4e9593009d8"
     ]
   }
 
@@ -95,12 +90,7 @@ defmodule EWallet.BackupCodeAuthenticator do
       1..number_of_backup_codes
       |> Enum.map(fn _ -> do_create() end)
 
-    hashed_backup_codes =
-      backup_codes
-      |> Enum.map(&Task.async(fn -> Crypto.hash_secret(&1) end))
-      |> Enum.map(&Task.await(&1))
-
-    {:ok, backup_codes, hashed_backup_codes}
+    {:ok, backup_codes}
   end
 
   def create(_), do: {:error, :invalid_parameter}
