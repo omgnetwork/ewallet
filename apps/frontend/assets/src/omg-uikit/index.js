@@ -1,24 +1,25 @@
-import Input from '../omg-uikit/input'
-import Button, { PlainButton } from '../omg-uikit/button'
-import Checkbox from '../omg-uikit/checkbox'
-import Icon from '../omg-uikit/icon'
-import Table from '../omg-uikit/table'
-import Dropdown from '../omg-uikit/dropdown'
-import AddButton from '../omg-uikit/addButton'
-import RadioButton from '../omg-uikit/radioButton'
-import LoadingSkeleton from '../omg-uikit/loading'
-import Avatar from '../omg-uikit/avatar'
-import RatioBar from '../omg-uikit/ratioBar'
-import Breadcrumb from '../omg-uikit/breadcrumb'
-import Select from '../omg-uikit/select'
-import Switch from '../omg-uikit/switch'
-import Error from '../omg-uikit/error'
-import DetailRow from '../omg-uikit/detailrow'
-import Tag from '../omg-uikit/tag'
-import Tooltip from '../omg-uikit/tooltip'
-import NavCard from '../omg-uikit/navcard'
-import Id from '../omg-uikit/id'
-import SearchBar from '../omg-uikit/searchbar'
+import Input from './input'
+import Button, { PlainButton } from './button'
+import Checkbox from './checkbox'
+import Icon from './icon'
+import Table from './table'
+import Dropdown from './dropdown'
+import AddButton from './addButton'
+import RadioButton from './radioButton'
+import LoadingSkeleton from './loading'
+import Avatar from './avatar'
+import RatioBar from './ratioBar'
+import Breadcrumb from './breadcrumb'
+import Select from './select'
+import Switch from './switch'
+import Error from './error'
+import Tag from './tag'
+import Tooltip from './tooltip'
+import TabButton from './tabButton'
+import Id from './id'
+import SearchBar from './searchbar'
+import NavCard from './navcard'
+import DetailRow from './detailrow'
 import QrCode from './qrCode'
 
 export {
@@ -38,11 +39,12 @@ export {
   Select,
   Switch,
   Error,
-  DetailRow,
   Tag,
   Tooltip,
-  NavCard,
+  TabButton,
   Id,
   SearchBar,
+  NavCard,
+  DetailRow,
   QrCode
 }

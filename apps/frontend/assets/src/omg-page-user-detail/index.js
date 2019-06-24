@@ -6,11 +6,10 @@ import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { withRouter, Link, Route, Switch } from 'react-router-dom'
 
-import { KeyButton } from '../omg-page-api'
 import UserProvider from '../omg-users/userProvider'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import { LoadingSkeleton, Breadcrumb, Id, Button, Input } from '../omg-uikit'
+import { LoadingSkeleton, Breadcrumb, Id, Button, Input, Tag } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import UserTransactions from './UserTransactions'
 import UserActivityLog from './UserActivityLog'
@@ -148,20 +147,16 @@ class UserDetailPage extends Component {
         <MenuContainer>
           <UserDetailMenuContainer>
             <Link to={basePath}>
-              <KeyButton active={type === 'details' || !type}>
-                Details
-              </KeyButton>
+              <Tag active={type === 'details' || !type} title='Details' />
             </Link>
             <Link to={`${basePath}/wallets`}>
-              <KeyButton active={type === 'wallets'}>Wallets</KeyButton>
+              <Tag active={type === 'wallets'} title='Wallets' />
             </Link>
             <Link to={`${basePath}/transactions`}>
-              <KeyButton active={type === 'transactions'}>
-                Transactions
-              </KeyButton>
+              <Tag active={type === 'transactions'} title='Transactions' />
             </Link>
             <Link to={`${basePath}/logs`}>
-              <KeyButton active={type === 'logs'}>Logs</KeyButton>
+              <Tag active={type === 'logs'} title='Logs' />
             </Link>
           </UserDetailMenuContainer>
           <SearchBar />

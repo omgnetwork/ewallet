@@ -33,7 +33,9 @@ const enhance = compose(
   withRouter,
   connect(
     (state, props) => {
-      return { account: selectGetAccountById(state)(props.match.params.accountId) }
+      return {
+        account: selectGetAccountById(state)(props.match.params.accountId)
+      }
     },
     { subscribeToWebsocketByAccountId, visitAccount }
   )
@@ -53,28 +55,77 @@ function AccountLayout (props) {
       <BreadContainer>
         <Breadcrumb
           items={[
-            <Link key='account' to={'/accounts/'}>Accounts</Link>,
-            <Link key='detail' to={`/accounts/${accountId}/details`}>{_.get(props.account, 'name', '...')}</Link>,
-            <Link key='type' to={`/accounts/${accountId}/${type}`}>{_.upperFirst(type)}</Link>,
-            id ? <Link key='id' to={`/accounts/${accountId}/${type}/${id}`}>{id}</Link> : null
+            <Link key='account' to={'/accounts/'}>
+              Accounts
+            </Link>,
+            <Link key='detail' to={`/accounts/${accountId}/details`}>
+              {_.get(props.account, 'name', '...')}
+            </Link>,
+            <Link key='type' to={`/accounts/${accountId}/${type}`}>
+              {_.upperFirst(type)}
+            </Link>,
+            id ? (
+              <Link key='id' to={`/accounts/${accountId}/${type}/${id}`}>
+                {id}
+              </Link>
+            ) : null
           ]}
         />
       </BreadContainer>
-      <Route path='/accounts/:accountId/details' exact render={() => <AccountDetailSubPage />} />
-      <Route path='/accounts/:accountId/wallets' exact render={() => <AccountWalletSubPage />} />
       <Route
-        path='/accounts/:accountId/wallets/:walletAddress'
+        path='/accounts/:accountId/details'
+        exact
+        render={() => <AccountDetailSubPage />}
+      />
+      <Route
+        path='/accounts/:accountId/wallets'
+        exact
+        render={() => <AccountWalletSubPage />}
+      />
+      <Route
+        path={[
+          '/accounts/:accountId/wallets/:walletAddress',
+          '/accounts/:accountId/wallets/:walletAddress/:type'
+        ]}
         exact
         render={() => <WalletDetailPage />}
       />
-      <Route path='/accounts/:accountId/keys' exact render={() => <AccountKeySubPage />} />
+      <Route
+        path='/accounts/:accountId/keys'
+        exact
+        render={() => <AccountKeySubPage />}
+      />
 
-      <Route path='/accounts/:accountId/users' exact render={() => <AccountUserSubPage />} />
-      <Route path='/accounts/:accountId/users/:userId/:type' exact render={() => <UserDetailPage divider={false} />} />
-      <Route path='/accounts/:accountId/users/:userId' exact render={() => <UserDetailPage divider={false} />} />
-      <Route path='/accounts/:accountId/admins' exact render={() => <AccountAdminSubPage />} />
-      <Route path='/accounts/:accountId/admins/:adminId' exact render={() => <AdminDetailPage divider={false} />} />
-      <Route path='/accounts/:accountId/setting' exact render={() => <AccountSettingSubPage />} />
+      <Route
+        path='/accounts/:accountId/users'
+        exact
+        render={() => <AccountUserSubPage />}
+      />
+      <Route
+        path='/accounts/:accountId/users/:userId/:type'
+        exact
+        render={() => <UserDetailPage divider={false} />}
+      />
+      <Route
+        path='/accounts/:accountId/users/:userId'
+        exact
+        render={() => <UserDetailPage divider={false} />}
+      />
+      <Route
+        path='/accounts/:accountId/admins'
+        exact
+        render={() => <AccountAdminSubPage />}
+      />
+      <Route
+        path='/accounts/:accountId/admins/:adminId'
+        exact
+        render={() => <AdminDetailPage divider={false} />}
+      />
+      <Route
+        path='/accounts/:accountId/setting'
+        exact
+        render={() => <AccountSettingSubPage />}
+      />
       <Route
         path='/accounts/:accountId/consumptions'
         exact
@@ -90,7 +141,11 @@ function AccountLayout (props) {
         exact
         render={() => <AccountTransactionRequestSubPage />}
       />
-      <Route path='/accounts/:accountId/activity' exact render={() => <AccountActivitySubPage />} />
+      <Route
+        path='/accounts/:accountId/activity'
+        exact
+        render={() => <AccountActivitySubPage />}
+      />
     </>
   )
 }
