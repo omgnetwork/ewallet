@@ -30,7 +30,8 @@ defmodule EthBlockchain.Token do
   """
   def get_field(attrs, adapter \\ nil, pid \\ nil)
 
-  def get_field(%{field: field, contract_address: contract_address}, adapter, pid) when field in @allowed_fields do
+  def get_field(%{field: field, contract_address: contract_address}, adapter, pid)
+      when field in @allowed_fields do
     case ABIEncoder.get_field(field) do
       {:ok, encoded_abi_data} ->
         {:get_field, contract_address, to_hex(encoded_abi_data)}

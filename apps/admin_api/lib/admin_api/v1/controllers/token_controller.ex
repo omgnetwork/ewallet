@@ -176,7 +176,11 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   def verify_erc20_capabilities(conn, _) do
-    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `contract_address` is required.")
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `contract_address` is required."
+    )
   end
 
   @doc """

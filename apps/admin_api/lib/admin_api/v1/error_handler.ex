@@ -117,7 +117,8 @@ defmodule AdminAPI.V1.ErrorHandler do
     },
     token_not_erc20: %{
       code: "token:not_erc20",
-      description: "The provided contract address does not implement the required erc20 functions."
+      description:
+        "The provided contract address does not implement the required erc20 functions."
     }
   }
 

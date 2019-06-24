@@ -34,7 +34,8 @@ defmodule EWallet.TokenGate do
   Will return {:error, :token_not_erc20} if the contract does not implement the required functions
   Will return {:error, :error_code} or {:error, :error_code, message} if an error occured.
   """
-  @spec verify_erc20_capabilities(String.t()) :: {:ok, map()} | {:error, atom()} | {:error, atom(), String.t()}
+  @spec verify_erc20_capabilities(String.t()) ::
+          {:ok, map()} | {:error, atom()} | {:error, atom(), String.t()}
   def verify_erc20_capabilities(contract_address) do
     with {:ok, mandatory_info} <- verify_mandatory(contract_address),
          {:ok, optional_info} <- verify_optional(contract_address) do
@@ -47,7 +48,8 @@ defmodule EWallet.TokenGate do
   defp verify_optional(contract_address) do
     with {:ok, name} <- Token.get_field(%{field: "name", contract_address: contract_address}),
          {:ok, symbol} <- Token.get_field(%{field: "symbol", contract_address: contract_address}),
-         {:ok, decimals} <- Token.get_field(%{field: "decimals", contract_address: contract_address}) do
+         {:ok, decimals} <-
+           Token.get_field(%{field: "decimals", contract_address: contract_address}) do
       {:ok, %{name: name, symbol: symbol, decimals: decimals}}
     else
       {:error, :field_not_found} -> {:ok, %{}}
@@ -56,7 +58,8 @@ defmodule EWallet.TokenGate do
   end
 
   defp verify_mandatory(contract_address) do
-    with {:ok, total_supply} <- Token.get_field(%{field: "totalSupply", contract_address: contract_address}),
+    with {:ok, total_supply} <-
+           Token.get_field(%{field: "totalSupply", contract_address: contract_address}),
          {:ok, %{^contract_address => balance}} <-
            Balance.get(%{address: contract_address, contract_addresses: [contract_address]}),
          true <- !is_nil(balance) || {:error, :token_not_erc20} do
