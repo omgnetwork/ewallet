@@ -30,7 +30,8 @@ const SelectToken = ({
         render={({ data }) => {
           return (
             <Select
-              value={values[config.key] || ''}
+              filterByKey
+              value={values[config.key]}
               onChange={onChange}
               onSelectItem={e => onUpdate({ [config.key]: e.symbol })}
               normalPlaceholder='Select token'

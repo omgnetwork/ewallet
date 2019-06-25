@@ -43,7 +43,7 @@ const MultiSelectAccounts = ({
               values={values[config.key]}
               options={data.map(account => {
                 return {
-                  value: account.id,
+                  value: account.name,
                   label: <AccountSelect account={account} />
                 }
               })}

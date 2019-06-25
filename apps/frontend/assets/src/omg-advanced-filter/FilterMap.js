@@ -209,7 +209,7 @@ export const FILTER_MAP = [
     default: false,
     matchAny: [
       {
-        field: 'account.id',
+        field: 'account.name',
         comparator: 'contains'
       }
     ]
@@ -336,7 +336,7 @@ export const FILTER_MAP = [
     default: false,
     matchAny: [
       {
-        field: 'account.id',
+        field: 'account.name',
         comparator: 'contains'
       }
     ]
@@ -539,7 +539,7 @@ export const FILTER_MAP = [
     default: true,
     matchAny: [
       {
-        field: 'accounts.id',
+        field: 'accounts.name',
         comparator: 'contains'
       }
     ]
@@ -708,7 +708,7 @@ export const FILTER_MAP = [
     default: true,
     matchAny: [
       {
-        field: 'account.id',
+        field: 'account.name',
         comparator: 'contains'
       }
     ]

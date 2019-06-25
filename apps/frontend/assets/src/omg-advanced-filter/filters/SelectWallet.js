@@ -30,6 +30,7 @@ const SelectWallet = ({
         render={({ data }) => {
           return (
             <Select
+              filterByKey
               value={values[config.key] || ''}
               onChange={onChange}
               onSelectItem={e => onUpdate({ [config.key]: e.key })}
