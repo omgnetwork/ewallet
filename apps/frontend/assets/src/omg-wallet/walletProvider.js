@@ -1,9 +1,12 @@
 import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+import { withRouter } from 'react-router-dom'
+
 import { selectWalletById } from './selector'
 import { getWalletById } from './action'
 import CONSTANT from '../constants'
+
 class WalletProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
@@ -24,9 +27,14 @@ class WalletProvider extends Component {
   }
   fetch = async walletAddress => {
     if (this.props.walletAddress || walletAddress) {
-      const result = await this.props.getWalletById(walletAddress || this.props.walletAddress)
+      const result = await this.props.getWalletById(
+        walletAddress || this.props.walletAddress
+      )
       if (result.data) {
-        this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS, result })
+        this.setState({
+          loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
+          result
+        })
       } else {
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, result })
       }
@@ -47,4 +55,4 @@ export default connect(
     }
   },
   { getWalletById }
-)(WalletProvider)
+)(withRouter(WalletProvider))

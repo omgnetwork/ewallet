@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 
 import { Input, Button } from '../omg-uikit'
 import { login } from '../omg-session/action'
+import { openModal } from '../omg-modal/action'
 
 const Form = styled.form`
   text-align: left;
@@ -46,7 +47,8 @@ const Error = styled.div`
 class LoginForm extends Component {
   static propTypes = {
     history: PropTypes.object,
-    login: PropTypes.func
+    login: PropTypes.func,
+    openModal: PropTypes.func
   }
   state = {
     email: '',
@@ -69,17 +71,22 @@ class LoginForm extends Component {
     this.setState({ emailError, passwordError, submitted })
     if (submitted) {
       try {
-        const result = await this.props.login({
+        const loginResult = await this.props.login({
           email: this.state.email,
-          password: this.state.password,
-          rememberMe: this.state.rememberMe
+          password: this.state.password
         })
-        if (result.data) {
-          this.setState({ error: null })
-          this.props.history.push(_.get(this.props, 'location.state.from', '/'))
+        if (loginResult.data) {
+          this.setState({ error: null, submitted: false })
+          if (loginResult.data.pre_authentication_token) {
+            this.props.openModal({ id: 'enter2FaModal' })
+          } else {
+            this.props.history.push(
+              _.get(this.props, 'location.state.from', '/')
+            )
+          }
         } else {
           this.setState({
-            error: result.error.description || result.error.message,
+            error: loginResult.error.description || loginResult.error.message,
             submitted: false
           })
         }
@@ -90,7 +97,10 @@ class LoginForm extends Component {
   }
   onEmailInputChange = e => {
     const value = e.target.value
-    this.setState({ email: value, emailError: this.state.submitted && this.validateEmail(value) })
+    this.setState({
+      email: value,
+      emailError: this.state.submitted && this.validateEmail(value)
+    })
   }
   onPasswordInputChange = e => {
     const value = e.target.value
@@ -98,9 +108,6 @@ class LoginForm extends Component {
       password: value,
       passwordError: this.state.submitted && this.validatePassword(value)
     })
-  }
-  onClickCheckbox = () => {
-    this.setState(({ rememberMe }) => ({ rememberMe: !rememberMe }))
   }
   render () {
     return (
@@ -141,7 +148,7 @@ class LoginForm extends Component {
 const enhance = compose(
   connect(
     null,
-    { login }
+    { login, openModal }
   ),
   withRouter
 )

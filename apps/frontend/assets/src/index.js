@@ -6,9 +6,13 @@ import { getCurrentUser } from './services/currentUserService'
 import SocketConnector from './socket/connector'
 import { WEBSOCKET_URL } from './config'
 import { handleWebsocketMessage } from './socket/handleMessage'
-import { getRecentAccountFromLocalStorage, setRecentAccount } from './services/sessionService'
+import {
+  getRecentAccountFromLocalStorage,
+  setRecentAccount
+} from './services/sessionService'
 import { getAccountById, deleteAccount } from './omg-account/action'
 import { configureStore } from './store'
+import tokenExpireMiddleware from './adminPanelApp/middlewares/tokenExpireMiddleware'
 moment.defaultFormat = 'ddd, DD/MM/YYYY HH:mm:ss'
 
 // ===================================== ADMIN APP =====================================
@@ -41,7 +45,8 @@ async function bootAdminPanelApp () {
         accounts,
         session: { authenticated: true }
       },
-      { socket }
+      { socket },
+      [tokenExpireMiddleware]
     )
 
     // PREFETCH ACCOUNT IN RECENT TAB SIDE BAR
@@ -50,15 +55,17 @@ async function bootAdminPanelApp () {
       store.dispatch(getAccountAction).then(({ type }) => {
         if (type === 'ACCOUNT/REQUEST/FAILED') {
           store.dispatch(deleteAccount(accountId))
-          const removedBadRecentAccounts = getRecentAccountFromLocalStorage(currentUser.id).filter(
-            id => accountId !== id
-          )
+          const removedBadRecentAccounts = getRecentAccountFromLocalStorage(
+            currentUser.id
+          ).filter(id => accountId !== id)
           setRecentAccount(currentUser.id, removedBadRecentAccounts)
         }
       })
     })
   } else {
-    store = configureStore({ session: { authenticated: false } }, { socket })
+    store = configureStore({ session: { authenticated: false } }, { socket }, [
+      tokenExpireMiddleware
+    ])
   }
 
   // HANDLE WEBSOCKET MESSAGES
@@ -67,7 +74,10 @@ async function bootAdminPanelApp () {
   const App = await import('./adminPanelApp')
   const LoadedApp = App.default
   if (!LoadedApp) return false
-  render(<LoadedApp store={store} authenticated={success} />, document.getElementById('app'))
+  render(
+    <LoadedApp store={store} authenticated={success} />,
+    document.getElementById('app')
+  )
   // HOT RELOADING FOR DEVELOPMENT MODE
   if (module.hot) {
     module.hot.accept('./adminPanelApp', () => {

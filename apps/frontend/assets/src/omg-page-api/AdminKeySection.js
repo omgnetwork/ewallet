@@ -198,7 +198,7 @@ class ApiKeyPage extends Component {
     })
   }
 
-  onClickRow = (data, index) => e => {
+  onClickRow = (data) => () => {
     const { keyType } = this.props.match.params
     this.props.history.push(`${keyType || 'keys/admin'}/${data.id}`)
   }

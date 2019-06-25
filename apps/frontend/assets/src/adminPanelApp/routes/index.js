@@ -1,6 +1,6 @@
 import React from 'react'
-import { BrowserRouter as Router, Redirect, Switch, Route } from 'react-router-dom'
-
+import { Router, Redirect, Switch, Route } from 'react-router-dom'
+import history from './history'
 import AuthenticatedRoute from './authenticatedRoute'
 import LoginRoute from './loginRoute'
 import LoginForm from '../../omg-login-form'
@@ -33,7 +33,7 @@ import ModalController from '../../omg-modal/ModalController'
 // prettier-ignore
 
 const createRoute = () => (
-  <Router basename='/admin'>
+  <Router basename='/admin' history={history}>
     <Switch>
       <Redirect from='/' to={'/accounts'} exact />
       <Redirect from='/accounts/:accountId' to='/accounts/:accountId/details' exact />
@@ -56,7 +56,6 @@ const createRoute = () => (
       <AuthenticatedRoute path='/keys/:keyType/:keyId' exact component={ApiKeyDetailPage} />
       <AuthenticatedRoute path='/keys/:keyType' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/keys' exact component={ApiKeyPage} />
-
       <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
 
       <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />
@@ -76,9 +75,8 @@ const createRoute = () => (
       <AuthenticatedRoute path='/admins' exact component={AdminsPage} />
       <AuthenticatedRoute path='/admins/:adminId' exact component={AdminDetailPage} />
       <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
-
+      <AuthenticatedRoute path='/wallets/:walletAddress/:type' exact component={WalletDetailPage} />
       {/* 404 PAGE */}
-      <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <Route component={NotFoundPage} />
     </Switch>
     <ModalController />
