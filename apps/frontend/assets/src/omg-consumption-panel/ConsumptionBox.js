@@ -8,11 +8,7 @@ import { compose } from 'recompose'
 import { connect } from 'react-redux'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import { Button } from '../omg-uikit'
-import {
-  approveConsumptionById,
-  rejectConsumptionById,
-  cancelConsumptionById
-} from '../omg-consumption/action'
+import * as consumptionAction from '../omg-consumption/action'
 
 const InformationItem = styled.div`
   color: ${props => props.theme.colors.B200};
@@ -41,11 +37,21 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { approveConsumptionById, rejectConsumptionById, cancelConsumptionById }
+    {
+      approveConsumptionById: consumptionAction.approveConsumptionById,
+      rejectConsumptionById: consumptionAction.rejectConsumptionById,
+      cancelConsumptionById: consumptionAction.cancelConsumptionById
+    }
   )
 )
 
-function ConsumptionBox ({ consumption, location }) {
+function ConsumptionBox ({
+  consumption,
+  location,
+  cancelConsumptionById,
+  rejectConsumptionById,
+  approveConsumptionById
+}) {
   const searchObject = queryString.parse(location.search)
   const tq = _.get(consumption, 'transaction_request', {})
   return (
@@ -158,7 +164,10 @@ function ConsumptionBox ({ consumption, location }) {
 
 ConsumptionBox.propTypes = {
   consumption: PropTypes.object,
-  location: PropTypes.object
+  location: PropTypes.object,
+  cancelConsumptionById: PropTypes.func,
+  rejectConsumptionById: PropTypes.func,
+  approveConsumptionById: PropTypes.func
 }
 
 export default enhance(ConsumptionBox)
