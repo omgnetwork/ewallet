@@ -26,7 +26,12 @@ export function rejectConsumptionById (id) {
     data: { id }
   })
 }
-
+export function cancelConsumptionById (id) {
+  return authenticatedRequest({
+    path: '/transaction_consumption.canel',
+    data: { id }
+  })
+}
 export function getConsumptionById (id) {
   return authenticatedRequest({
     path: '/transaction_consumption.get',
