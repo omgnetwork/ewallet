@@ -9,7 +9,10 @@ import moment from 'moment'
 
 import ConsumptionProvider from '../omg-consumption/consumptionProvider'
 import { Icon, Button } from '../omg-uikit'
-import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
+import {
+  approveConsumptionById,
+  rejectConsumptionById
+} from '../omg-consumption/action'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import TransactionRequestDetail from '../omg-transaction-request-tab/TransactionRequestDetail'
 
@@ -97,6 +100,7 @@ class TransactionRequestPanel extends Component {
       <ConsumptionProvider
         consumptionId={searchObject['show-consumption-tab']}
         render={({ consumption }) => {
+          console.log(consumption)
           const tq = consumption.transaction_request || {}
           return (
             <PanelContainer>
@@ -128,7 +132,9 @@ class TransactionRequestPanel extends Component {
                   <b>Requester Address:</b>{' '}
                   <Link
                     to={{
-                      pathname: `/accounts/${tq.account_id}/wallets/${tq.address}`,
+                      pathname: `/accounts/${tq.account_id}/wallets/${
+                        tq.address
+                      }`,
                       search: this.props.location.search
                     }}
                   >
@@ -139,7 +145,9 @@ class TransactionRequestPanel extends Component {
                   <b>Consumer Address:</b>{' '}
                   <Link
                     to={{
-                      pathname: `/accounts/${tq.account_id}/wallets/${consumption.address}`,
+                      pathname: `/accounts/${tq.account_id}/wallets/${
+                        consumption.address
+                      }`,
                       search: this.props.location.search
                     }}
                   >
@@ -169,30 +177,49 @@ class TransactionRequestPanel extends Component {
                 )}
                 {consumption.approved_at && (
                   <InformationItem>
-                    <b>Approved Date:</b> <span>{moment(consumption.approved_at).format()}</span>
+                    <b>Approved Date:</b>{' '}
+                    <span>{moment(consumption.approved_at).format()}</span>
                   </InformationItem>
                 )}
                 {consumption.rejected_at && (
                   <InformationItem>
-                    <b>Rejected At:</b> <span>{moment(consumption.rejected_at).format()}</span>
+                    <b>Rejected At:</b>{' '}
+                    <span>{moment(consumption.rejected_at).format()}</span>
                   </InformationItem>
                 )}
                 {consumption.expired_at && (
                   <InformationItem>
-                    <b>Expired Date:</b> <span>{moment(consumption.expired_at).format()}</span>
+                    <b>Expired Date:</b>{' '}
+                    <span>{moment(consumption.expired_at).format()}</span>
                   </InformationItem>
                 )}
                 {consumption.status === 'pending' && (
                   <InformationItem>
-                    <Button onClick={() => this.props.approveConsumptionById(consumption.id)}>
+                    <Button
+                      onClick={() =>
+                        this.props.approveConsumptionById(consumption.id)
+                      }
+                    >
                       <span>Approve</span>
                     </Button>
                     <Button
-                      onClick={() => this.props.rejectConsumptionById(consumption.id)}
+                      onClick={() =>
+                        this.props.rejectConsumptionById(consumption.id)
+                      }
                       styleType='secondary'
                     >
                       <span>Reject</span>
                     </Button>
+                    {consumption.user_id && (
+                      <Button
+                        onClick={() =>
+                          this.props.rejectConsumptionById(consumption.id)
+                        }
+                        styleType='secondary'
+                      >
+                        <span>Cancel</span>
+                      </Button>
+                    )}
                   </InformationItem>
                 )}
               </ActionContainer>
