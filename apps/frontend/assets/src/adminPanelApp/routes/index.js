@@ -30,6 +30,7 @@ import NotFoundPage from '../../omg-page-404'
 import AccountLayout from '../../omg-page-each-account/AccountLayout'
 import VerifyEmail from '../../omg-page-verify-email'
 import ModalController from '../../omg-modal/ModalController'
+import Alert from '../../omg-alert'
 // prettier-ignore
 
 const createRoute = () => (
@@ -79,6 +80,7 @@ const createRoute = () => (
       {/* 404 PAGE */}
       <Route component={NotFoundPage} />
     </Switch>
+    <Alert />
     <ModalController />
   </Router>
 )
