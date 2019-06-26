@@ -529,21 +529,21 @@ export const FILTER_MAP = [
       }
     ]
   },
-  {
-    title: 'Specify Accounts',
-    key: 'users-specify-accounts',
-    icon: 'Option-Horizontal',
-    page: 'users',
-    height: 110,
-    component: filters.MultiSelectAccounts,
-    default: true,
-    matchAny: [
-      {
-        field: 'accounts.name',
-        comparator: 'contains'
-      }
-    ]
-  },
+  // {
+  //   title: 'Specify Accounts',
+  //   key: 'users-specify-accounts',
+  //   icon: 'Option-Horizontal',
+  //   page: 'users',
+  //   height: 110,
+  //   component: filters.MultiSelectAccounts,
+  //   default: true,
+  //   matchAny: [
+  //     {
+  //       field: 'memberships.account.name',
+  //       comparator: 'contains'
+  //     }
+  //   ]
+  // },
   // ACTIVITY LOG PAGE --------------
   {
     title: 'Date & Time',
