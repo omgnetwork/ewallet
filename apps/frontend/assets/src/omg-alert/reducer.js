@@ -127,7 +127,10 @@ export const alertsReducer = createReducer([], {
     return [
       ...state,
       createAlertState(
-        <div>Updated user <b>{data.email || data.dataname || data.id}</b> successfully.</div>,
+        <div>
+          Updated user <b>{data.email || data.dataname || data.id}</b>{' '}
+          successfully.
+        </div>,
         'success'
       )
     ]
@@ -267,5 +270,6 @@ export const alertsReducer = createReducer([], {
   '2FA/LOGIN/FAILED': errorStateHandler,
   'TOKEN_EXPIRE': errorStateHandler,
   'USER/UPDATE/FAILED': errorStateHandler,
-  'ADMIN/UPDATE/FAILED': errorStateHandler
+  'ADMIN/UPDATE/FAILED': errorStateHandler,
+  'TRANSACTION_REQUEST/CANCEL/FAILED': errorStateHandler
 })
