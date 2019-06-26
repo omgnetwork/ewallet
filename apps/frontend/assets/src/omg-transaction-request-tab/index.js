@@ -32,6 +32,9 @@ const PanelContainer = styled.div`
     cursor: pointer;
     padding: 20px;
   }
+  h4 {
+    display: inline;
+  }
 `
 const SubDetailTitle = styled.div`
   margin-top: 10px;
@@ -116,6 +119,7 @@ class TransactionRequestPanel extends Component {
               <h4>
                 Request to {tq.type} {amount} {_.get(tq, 'token.symbol')}
               </h4>
+              <span>cancel this transaction request</span>
               <SubDetailTitle>
                 <span>{tq.type}</span> | <span>{tq.user_id || _.get(tq, 'account.name')}</span>
               </SubDetailTitle>
