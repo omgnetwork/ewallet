@@ -20,6 +20,9 @@ export const transactionRequestsReducer = createReducer(
     'TRANSACTION_REQUEST/APPROVE/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }
     },
+    'TRANSACTION_REQUEST/CANCEL/SUCCESS': (state, action) => {
+      return { ...state, ...{ [action.data.id]: action.data } }
+    },
     'CONSUMPTION/CONSUME/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }
     }

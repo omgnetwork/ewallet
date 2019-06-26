@@ -230,6 +230,15 @@ export const alertsReducer = createReducer([], {
       )
     ]
   },
+  'TRANSACTION_REQUEST/CANCEL/SUCCESS': state => {
+    return [
+      ...state,
+      createAlertState(
+        'Transaction request was successfully canceled.',
+        'success'
+      )
+    ]
+  },
   'TRANSACTIONS/EXPORT/SUCCESS': (state, { error }) => {
     return [
       ...state,
