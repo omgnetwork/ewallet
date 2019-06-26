@@ -81,11 +81,11 @@ defmodule EWallet.BlockchainBalanceFetcherTest do
       token_2 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
 
-      wallet_addresses = [blockchain_wallet_1.address, "0x0"]
+      wallet_addresses = [blockchain_wallet_1.address, nil]
       tokens = [token_1, token_2]
 
-      assert {:error, :blockchain_adapter_error, [error: ":invalid_address"]} =
-               BlockchainBalanceFetcher.all(wallet_addresses, tokens)
+      assert BlockchainBalanceFetcher.all(wallet_addresses, tokens) ==
+               {:error, :blockchain_adapter_error, [error: inspect(:invalid_address)]}
     end
 
     test "returns an empty list when given wallet and empty tokens" do
