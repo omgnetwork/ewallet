@@ -73,7 +73,7 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
       assert balance_token_2 == %{token: token_2, amount: 123}
     end
 
-    test "returns multiple wallets wil balances when given multiple wallets and tokens" do
+    test "returns multiple wallets with balances when given multiple wallets and tokens" do
       blockchain_wallet_1 =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 

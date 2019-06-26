@@ -40,8 +40,9 @@ defmodule AdminAPI.V1.BlockchainWalletController do
            BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:view_balance, conn.assigns, wallet),
          %Paginator{data: tokens} <- paginated_tokens(attrs),
-         {:ok, wallet} <- BlockchainBalanceLoader.wallet_balances(wallet, tokens) do
-      render_single(conn, wallet, attrs)
+         {:ok, wallet} <- BlockchainBalanceLoader.wallet_balances(wallet, tokens),
+         {:ok, wallet} <- Orchestrator.one(wallet, BlockchainWalletOverlay, attrs) do
+      respond_single(conn, wallet)
     else
       {:error, error} -> handle_error(conn, error)
       {:error, error, description} -> handle_error(conn, error, description)
@@ -103,8 +104,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
     handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
   end
 
-  defp render_single(conn, wallet, attrs) do
-    {:ok, wallet} = Orchestrator.one(wallet, BlockchainWalletOverlay, attrs)
+  defp respond_single(conn, wallet) do
     render(conn, :wallet, %{wallet: wallet})
   end
 

@@ -21,7 +21,7 @@ defmodule EWallet.Web.BlockchainBalanceLoader do
   alias EWallet.BlockchainBalanceFetcher
   alias EWalletDB.{BlockchainWallet, Token}
 
-  @spec balances(%BlockchainWallet{}, [%Token{}]) :: {:ok, Map.t()}
+  @spec balances(String.t(), [%Token{}]) :: {:ok, Map.t()}
   def balances(address, tokens) do
     BlockchainBalanceFetcher.all(address, tokens)
   end
@@ -32,7 +32,7 @@ defmodule EWallet.Web.BlockchainBalanceLoader do
 
     case BlockchainBalanceFetcher.all(addresses, tokens) do
       {:ok, wallets_balances} ->
-        {:ok, do_wallet_balances(wallets, wallets_balances)}
+        {:ok, populate_wallet_balances(wallets, wallets_balances)}
 
       err ->
         err
@@ -50,13 +50,13 @@ defmodule EWallet.Web.BlockchainBalanceLoader do
     end
   end
 
-  defp do_wallet_balances(wallets, wallets_balances) when is_list(wallets) do
+  defp populate_wallet_balances(wallets, wallets_balances) when is_list(wallets) do
     wallets
     |> Enum.zip(wallets_balances)
-    |> Enum.map(&do_wallet_balances/1)
+    |> Enum.map(&populate_wallet_balances/1)
   end
 
-  defp do_wallet_balances({wallet, wallet_balances}) do
+  defp populate_wallet_balances({wallet, wallet_balances}) do
     Map.put(wallet, :balances, wallet_balances)
   end
 end

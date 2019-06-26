@@ -58,6 +58,7 @@ defmodule EWallet.Web.V1.BlockchainWalletOverlay do
   def pagination_fields,
     do: [
       :address,
+      :name,
       :inserted_at,
       :updated_at
     ]

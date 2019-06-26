@@ -23,6 +23,7 @@ defmodule EthBlockchain.ABIEncoder do
 
   def balance_of(_address), do: {:error, :invalid_address}
 
+  @spec transfer(any, any) :: {:error, :invalid_input} | {:ok, binary}
   def transfer("0x" <> _ = to_address, amount) when is_integer(amount) do
     {:ok,
      ABI.encode("transfer(address,uint)", [
