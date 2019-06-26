@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
+import { createSearchAddressQuery } from '../../omg-wallet/searchField'
 import AllWalletsFetcher from '../../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../../omg-wallet-select'
 import { Select } from '../../omg-uikit'
@@ -14,7 +15,10 @@ const SelectWallet = ({
   values,
   config
 }) => {
+  const [ searchValue, setSearchValue ] = useState(null)
+
   const onChange = (e) => {
+    setSearchValue(e.target.value)
     e.target.value
       ? onUpdate({ [config.key]: e.target.value })
       : clearKey(config.key)
@@ -27,10 +31,10 @@ const SelectWallet = ({
     >
       <TagRow title={config.title} />
       <AllWalletsFetcher
+        query={createSearchAddressQuery(searchValue)}
         render={({ data }) => {
           return (
             <Select
-              filterByKey
               value={values[config.key] || ''}
               onChange={onChange}
               onSelectItem={e => onUpdate({ [config.key]: e.key })}
