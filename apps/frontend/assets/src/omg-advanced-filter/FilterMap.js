@@ -101,40 +101,6 @@ export const FILTER_MAP = [
       }
     ]
   },
-  {
-    title: 'Wallet Type',
-    key: 'transaction-wallet-type',
-    icon: 'Option-Horizontal',
-    // page: 'transaction',
-    height: 110,
-    component: filters.SelectFilter,
-    default: false,
-    options: [
-      {
-        key: 'internal',
-        value: 'Internal'
-      },
-      {
-        key: 'external',
-        value: 'External'
-      }
-    ],
-    matchAll: [
-      {
-        field: 'type',
-        comparator: 'contains'
-      }
-    ]
-  },
-  {
-    title: 'Request',
-    key: 'transaction-request',
-    icon: 'Option-Horizontal',
-    // page: 'transaction',
-    height: 110,
-    component: filters.InputFilter,
-    default: false
-  },
   // WALLETS PAGE --------------
   {
     title: 'Wallet Types',
@@ -145,19 +111,6 @@ export const FILTER_MAP = [
     default: true,
     component: filters.Checkbox,
     options: [
-      // {
-      //   label: 'Local Wallet',
-      //   value: 'local'
-      // },
-      // {
-      //   label: 'Cold Wallet',
-      //   value: 'cold'
-      // },
-      // {
-      //   label: 'Hot Wallet',
-      //   value: 'hot'
-      // },
-      // 'divider',
       {
         label: 'Primary Wallet',
         value: 'primary'
@@ -327,23 +280,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Accounts',
-    key: 'transaction-requests-specify-accounts',
-    icon: 'Option-Horizontal',
-    page: 'transaction-requests',
-    height: 110,
-    component: filters.MultiSelectAccounts,
-    default: false,
-    matchAny: [
-      {
-        field: 'account.name',
-        comparator: 'contains'
-      }
-    ]
-  },
-  {
-    title: 'Specify Request Wallet',
-    key: 'transaction-requests-specify-request-wallet',
+    title: 'Specify Wallet',
+    key: 'transaction-requests-specify-wallet',
     icon: 'Option-Horizontal',
     page: 'transaction-requests',
     height: 110,
@@ -462,21 +400,6 @@ export const FILTER_MAP = [
       }
     ]
   },
-  // {
-  //   title: 'Specify Accounts',
-  //   key: 'transaction-consumptions-specify-accounts',
-  //   icon: 'Option-Horizontal',
-  //   page: 'transaction-consumptions',
-  //   height: 110,
-  //   component: filters.MultiSelectAccounts,
-  //   default: false,
-  //   matchAny: [
-  //     {
-  //       field: 'transaction_request.account.id',
-  //       comparator: 'contains'
-  //     }
-  //   ]
-  // },
   {
     title: 'Specify Consumer',
     key: 'transaction-consumptions-specify-consumer',
@@ -529,21 +452,6 @@ export const FILTER_MAP = [
       }
     ]
   },
-  // {
-  //   title: 'Specify Accounts',
-  //   key: 'users-specify-accounts',
-  //   icon: 'Option-Horizontal',
-  //   page: 'users',
-  //   height: 110,
-  //   component: filters.MultiSelectAccounts,
-  //   default: true,
-  //   matchAny: [
-  //     {
-  //       field: 'memberships.account.name',
-  //       comparator: 'contains'
-  //     }
-  //   ]
-  // },
   // ACTIVITY LOG PAGE --------------
   {
     title: 'Date & Time',
@@ -656,48 +564,6 @@ export const FILTER_MAP = [
     ]
   },
   // TOKEN PAGE --------------
-  // {
-  //   title: 'Wallet Types',
-  //   key: 'tokens-wallet-types',
-  //   icon: 'Option-Horizontal',
-  //   page: 'tokens',
-  //   height: 166,
-  //   default: true,
-  //   component: filters.Checkbox,
-  //   options: [
-  //     // {
-  //     //   label: 'Local Wallet',
-  //     //   value: 'local'
-  //     // },
-  //     // {
-  //     //   label: 'Cold Wallet',
-  //     //   value: 'cold'
-  //     // },
-  //     // {
-  //     //   label: 'Hot Wallet',
-  //     //   value: 'hot'
-  //     // },
-  //     // 'divider',
-  //     {
-  //       label: 'Primary Wallet',
-  //       value: 'primary'
-  //     },
-  //     {
-  //       label: 'Secondary Wallet',
-  //       value: 'secondary'
-  //     },
-  //     {
-  //       label: 'Burn Wallet',
-  //       value: 'burn'
-  //     }
-  //   ],
-  //   matchAny: [
-  //     {
-  //       field: 'account.wallets.identifier',
-  //       comparator: 'contains'
-  //     }
-  //   ]
-  // },
   {
     title: 'Specify Accounts',
     key: 'tokens-specify-accounts',
@@ -713,20 +579,4 @@ export const FILTER_MAP = [
       }
     ]
   }
-  // {
-  //   title: 'Specify Wallets',
-  //   placeholder: 'Select Wallet Addresses',
-  //   key: 'tokens-specify-wallets',
-  //   icon: 'Option-Horizontal',
-  //   page: 'tokens',
-  //   height: 110,
-  //   component: filters.MultiSelectWallets,
-  //   default: true,
-  //   matchAny: [
-  //     {
-  //       field: 'account.wallets.address',
-  //       comparator: 'contains'
-  //     }
-  //   ]
-  // }
 ]
