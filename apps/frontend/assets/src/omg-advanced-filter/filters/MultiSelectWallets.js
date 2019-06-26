@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
-import WalletsFetcher from '../../omg-wallet/allWalletsFetcher'
+import { createSearchAddressQuery } from '../../omg-wallet/searchField'
+import AllWalletsFetcher from '../../omg-wallet/allWalletsFetcher'
+import WalletSelect from '../../omg-wallet-select'
 import { MultiSelect } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
@@ -13,9 +15,23 @@ const MultiSelectWallets = ({
   values,
   config
 }) => {
+  const [ search, setSearch ] = useState('')
+
+  const onInputChange = e => {
+    setSearch(e)
+  }
+
   const onChange = (selection) => {
-    selection
-      ? onUpdate({ [config.key]: selection })
+    const _selection = selection && selection.map(i => {
+      return {
+        key: i.value,
+        value: i.value,
+        label: i.value
+      }
+    })
+
+    _selection && _selection.length
+      ? onUpdate({ [config.key]: _selection })
       : clearKey(config.key)
   }
 
@@ -25,17 +41,20 @@ const MultiSelectWallets = ({
       closeClick={onRemove}
     >
       <TagRow title={config.title} />
-      <WalletsFetcher
+      <AllWalletsFetcher
+        query={createSearchAddressQuery(search)}
         render={({ data }) => {
+          console.log('data: ', data)
           return (
             <MultiSelect
-              placeholder={config.placeholder}
+              placeholder='Select wallet'
               onChange={onChange}
+              onInputChange={onInputChange}
               values={values[config.key]}
               options={data.map(wallet => {
                 return {
-                  label: wallet.address,
-                  value: wallet.address
+                  value: wallet.address,
+                  label: <WalletSelect wallet={wallet} />
                 }
               })}
             />

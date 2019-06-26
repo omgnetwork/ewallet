@@ -1,9 +1,9 @@
 export function createSearchAddressQuery (value = '') {
-  if (!value) return
-  const matchValue = value.trim()
-
-  if (matchValue === '') {
-    return { matchAny: [] }
+  const matchValue = value && value.trim()
+  if (!matchValue) {
+    return {
+      matchAny: []
+    }
   }
 
   return {

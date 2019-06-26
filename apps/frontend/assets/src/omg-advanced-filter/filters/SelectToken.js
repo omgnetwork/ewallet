@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import TokensFetcher from '../../omg-token/tokensFetcher'
+import { createSearchTokenQuery } from '../../omg-token/searchField'
 import TokenSelect from '../../omg-token-select'
 import { Select } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
@@ -14,7 +15,10 @@ const SelectToken = ({
   values,
   config
 }) => {
+  const [ searchValue, setSearchValue ] = useState(null)
+
   const onChange = (e) => {
+    setSearchValue(e.target.value)
     e.target.value
       ? onUpdate({ [config.key]: e.target.value })
       : clearKey(config.key)
@@ -27,10 +31,10 @@ const SelectToken = ({
     >
       <TagRow title={config.title} />
       <TokensFetcher
+        query={createSearchTokenQuery(searchValue)}
         render={({ data }) => {
           return (
             <Select
-              filterByKey
               value={values[config.key]}
               onChange={onChange}
               onSelectItem={e => onUpdate({ [config.key]: e.symbol })}
