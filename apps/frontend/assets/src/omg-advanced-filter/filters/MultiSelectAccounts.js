@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
+import { createSearchMasterAccountQuery } from '../../omg-account/searchField'
 import AccountsFetcher from '../../omg-account/accountsFetcher'
 import AccountSelect from '../../omg-account-select'
 import { MultiSelect } from '../../omg-uikit'
@@ -14,6 +15,12 @@ const MultiSelectAccounts = ({
   values,
   config
 }) => {
+  const [ search, setSearch ] = useState('')
+
+  const onInputChange = e => {
+    setSearch(e)
+  }
+
   const onChange = (selection) => {
     const _selection = selection && selection.map(i => {
       return {
@@ -35,11 +42,13 @@ const MultiSelectAccounts = ({
     >
       <TagRow title={config.title} />
       <AccountsFetcher
+        query={createSearchMasterAccountQuery(search)}
         render={({ data }) => {
           return (
             <MultiSelect
               placeholder={config.placeholder}
               onChange={onChange}
+              onInputChange={onInputChange}
               values={values[config.key]}
               options={data.map(account => {
                 return {

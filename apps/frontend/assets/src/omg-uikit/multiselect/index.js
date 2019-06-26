@@ -89,13 +89,14 @@ const MultiSelect = ({
   options,
   values,
   placeholder,
-  onChange
+  onChange,
+  onInputChange
 }) => {
   return (
     <SelectStyled
       isMulti
+      onInputChange={onInputChange}
       closeMenuOnSelect={false}
-      isSearchable
       options={options}
       value={values}
       placeholder={placeholder}
@@ -114,7 +115,8 @@ MultiSelect.propTypes = {
   options: PropTypes.arrayOf(PropTypes.object),
   values: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   placeholder: PropTypes.string,
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  onInputChange: PropTypes.func
 }
 
 export default MultiSelect
