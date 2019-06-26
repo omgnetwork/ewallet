@@ -205,6 +205,21 @@ export const alertsReducer = createReducer([], {
         )
       ]
     }
+    if (data.status === 'cancelled') {
+      return [
+        ...state,
+        createAlertState(
+          <div>
+            Cancelled consumption{' '}
+            <Link to={{ search: `?show-consumption-tab=${data.id}` }}>
+              {data.id}
+            </Link>{' '}
+            successfully.
+          </div>,
+          'success'
+        )
+      ]
+    }
     return state
   },
   'SOCKET_MESSAGE/CONSUMPTION/RECEIVE/SUCCESS': (state, { data }) => {
