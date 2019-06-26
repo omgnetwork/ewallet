@@ -177,7 +177,7 @@ export const FILTER_MAP = [
     default: false,
     matchAny: [
       {
-        field: 'user.id',
+        field: 'user.username',
         comparator: 'contains'
       }
     ]
@@ -410,7 +410,7 @@ export const FILTER_MAP = [
     default: false,
     matchAny: [
       {
-        field: 'user.id',
+        field: 'user.username',
         comparator: 'contains'
       }
     ]

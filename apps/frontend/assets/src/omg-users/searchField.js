@@ -1,5 +1,7 @@
 export function createSearchUsersQuery (value = '') {
+  if (!value) return
   const matchValue = value.trim()
+
   if (matchValue) {
     return {
       matchAny: [
@@ -21,6 +23,7 @@ export function createSearchUsersQuery (value = '') {
       ]
     }
   }
+
   return {
     matchAny: []
   }

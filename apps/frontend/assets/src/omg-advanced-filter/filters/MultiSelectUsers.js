@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
+import { createSearchUsersQuery } from '../../omg-users/searchField'
 import UsersFetcher from '../../omg-users/usersFetcher'
+import UserSelect from '../../omg-user-select'
 import { MultiSelect } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'
 import TagRow from '../components/TagRow'
@@ -13,9 +15,23 @@ const MultiSelectUsers = ({
   values,
   config
 }) => {
+  const [ search, setSearch ] = useState('')
+
+  const onInputChange = e => {
+    setSearch(e)
+  }
+
   const onChange = (selection) => {
-    selection
-      ? onUpdate({ [config.key]: selection })
+    const _selection = selection && selection.map(i => {
+      return {
+        key: i.value,
+        value: i.value,
+        label: i.value
+      }
+    })
+
+    _selection && _selection.length
+      ? onUpdate({ [config.key]: _selection })
       : clearKey(config.key)
   }
 
@@ -26,16 +42,18 @@ const MultiSelectUsers = ({
     >
       <TagRow title={config.title} />
       <UsersFetcher
+        query={createSearchUsersQuery(search)}
         render={({ data }) => {
           return (
             <MultiSelect
               placeholder={config.placeholder}
               onChange={onChange}
+              onInputChange={onInputChange}
               values={values[config.key]}
               options={data.map(user => {
                 return {
-                  label: user.username || user.id,
-                  value: user.id
+                  value: user.username,
+                  label: <UserSelect user={user} />
                 }
               })}
             />
