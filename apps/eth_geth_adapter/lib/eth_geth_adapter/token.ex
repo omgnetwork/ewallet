@@ -15,6 +15,8 @@
 defmodule EthGethAdapter.Token do
   @moduledoc false
 
+  import EthGethAdapter.ErrorHandler
+
   alias Ethereumex.HttpClient, as: Client
 
   @doc """
@@ -31,7 +33,5 @@ defmodule EthGethAdapter.Token do
 
   defp parse_response({:ok, _data} = response), do: response
 
-  defp parse_response({:error, %{"message" => message}}) do
-    {:error, :adapter_error, message}
-  end
+  defp parse_response({:error, error}), do: handle_error(error)
 end

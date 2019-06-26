@@ -15,6 +15,7 @@
 defmodule EthGethAdapter.Balance do
   @moduledoc false
   import Utils.Helpers.Encoding
+  import EthGethAdapter.ErrorHandler
 
   alias Ethereumex.HttpClient, as: Client
 
@@ -90,7 +91,7 @@ defmodule EthGethAdapter.Balance do
 
   defp parse_response({:ok, data}), do: {:ok, parse_hex_balance(data)}
 
-  defp parse_response({:error, data}), do: {:error, data}
+  defp parse_response({:error, error}), do: handle_error(error)
 
   # function `balanceOf(address)` not found in contract
   defp parse_hex_balance("0x"), do: nil

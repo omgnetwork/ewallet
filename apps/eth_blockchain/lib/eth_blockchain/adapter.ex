@@ -133,7 +133,7 @@ defmodule EthBlockchain.Adapter do
   ##
 
   @doc """
-  Handles the call call from the client API call/4.
+  Handles the call from the client API call/4.
   """
   @spec handle_call({:call, adapter(), call()}, from(), state()) :: reply({:ok, any()})
   def handle_call({:call, adapter_spec, func_spec}, _from, state) do

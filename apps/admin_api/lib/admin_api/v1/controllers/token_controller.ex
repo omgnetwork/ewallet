@@ -162,13 +162,16 @@ defmodule AdminAPI.V1.TokenController do
     handle_error(conn, :missing_id)
   end
 
-  def verify_erc20_capabilities(conn, %{"contract_address" => contract_address}) do
+  def verify_erc20_capabilities(conn, %{"contract_address" => "0x" <> address = contract_address}) do
     with {:ok, _} <- authorize(:verify_erc20_capabilities, conn.assigns, %Token{}),
          {:ok, erc20_attrs} <- TokenGate.verify_erc20_capabilities(contract_address) do
       render(conn, :erc20_attrs, %{erc20_attrs: erc20_attrs})
     else
       {:error, code} ->
         handle_error(conn, code)
+
+      {:error, code, attrs} ->
+        handle_error(conn, code, attrs)
 
       error ->
         handle_error(conn, error)

@@ -15,6 +15,7 @@
 defmodule EthBlockchain.Token do
   @moduledoc false
   import Utils.Helpers.Encoding
+  import EthBlockchain.ErrorHandler
 
   alias EthBlockchain.{Adapter, ABIEncoder}
   alias ABI.{TypeDecoder, FunctionSelector}
@@ -36,7 +37,7 @@ defmodule EthBlockchain.Token do
       {:ok, encoded_abi_data} ->
         {:get_field, contract_address, to_hex(encoded_abi_data)}
         |> Adapter.call(adapter, pid)
-        |> parse_response(field)
+        |> parse_response(field, adapter, pid)
 
       error ->
         error
@@ -45,26 +46,29 @@ defmodule EthBlockchain.Token do
 
   def get_field(_, _, _), do: {:error, :invalid_field}
 
-  defp parse_response({:ok, "0x" <> ""}, _field) do
+  defp parse_response({:ok, "0x" <> ""}, _field, adapter, pid) do
     {:error, :field_not_found}
   end
 
-  defp parse_response({:ok, "0x" <> data}, "decimals") do
+  defp parse_response({:ok, "0x" <> data}, "decimals", _adapter, _pid) do
     [decimals] = decode_abi(data, [{:uint, 256}])
     {:ok, decimals}
   end
 
-  defp parse_response({:ok, "0x" <> data}, "totalSupply") do
+  defp parse_response({:ok, "0x" <> data}, "totalSupply", _adapter, _pid) do
     [supply] = decode_abi(data, [{:uint, 256}])
     {:ok, supply}
   end
 
-  defp parse_response({:ok, "0x" <> data}, _field) do
+  defp parse_response({:ok, "0x" <> data}, _field, _adapter, _pid) do
     [{str}] = decode_abi(data, [{:tuple, [:string]}])
     {:ok, str}
   end
 
-  defp parse_response(error, _field), do: error
+  defp parse_response({:error, code}, _field, adapter, pid), do: handle_error(code)
+
+  defp parse_response({:error, code, description}, _field, adapter, pid),
+    do: handle_error(code, description)
 
   defp decode_abi(data, types) do
     data

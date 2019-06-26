@@ -13,9 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.TokenGate do
-  @moduledoc """
-
-  """
+  @moduledoc false
 
   alias EthBlockchain.{Balance, Token}
 

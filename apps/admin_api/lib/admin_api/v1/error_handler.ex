@@ -20,6 +20,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   import Plug.Conn, only: [halt: 1]
   alias Ecto.Changeset
   alias EWallet.Web.V1.ErrorHandler, as: EWalletErrorHandler
+  alias EthBlockchain.ErrorHandler, as: EthBlockchainErrorHandler
   alias EWallet.Web.V1.ResponseSerializer
 
   @errors %{
@@ -127,7 +128,11 @@ defmodule AdminAPI.V1.ErrorHandler do
   """
   @spec errors() :: %{required(atom()) => %{code: String.t(), description: String.t()}}
   def errors do
-    Map.merge(EWalletErrorHandler.errors(), @errors, fn _k, _shared, current ->
+    EthBlockchainErrorHandler.errors()
+    |> Map.merge(EWalletErrorHandler.errors(), fn _k, _shared, current ->
+      current
+    end)
+    |> Map.merge(@errors, fn _k, _shared, current ->
       current
     end)
   end

@@ -39,4 +39,12 @@ defmodule EthBlockchain.DumbAdapter do
     # the transaction hash will be returned instead.
     {:reply, {:ok, data}, reg}
   end
+
+  def handle_call({:get_field, _contract_address, _encoded_abi_data}, _from, reg) do
+    {:reply, {:ok, "something"}, reg}
+  end
+
+  def handle_call({:get_errors}, _from, reg) do
+    {:reply, %{}, reg}
+  end
 end
