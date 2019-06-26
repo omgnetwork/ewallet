@@ -30,6 +30,7 @@ function PropertiesTab ({ transactionRequest, cancelTransactionRequest }) {
       <Button
         styleType='danger'
         onClick={() => cancelTransactionRequest(transactionRequest.id)}
+        disabled={!!transactionRequest.expiration_reason}
       >
         Cancel This Request
       </Button>
