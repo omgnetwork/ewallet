@@ -49,7 +49,7 @@ export const consumptionsReducer = createReducer(
 )
 
 export const consumptionsLoadingStatusReducer = createReducer('DEFAULT', {
-  'CONSUMPTION/REQUEST/INITIATED': (state, action) => 'INITIATED',
-  'CONSUMPTION/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
-  'CONSUMPTION/REQUEST/FAILED': (state, action) => 'FAILED'
+  'CONSUMPTION/REQUEST/INITIATED': () => 'INITIATED',
+  'CONSUMPTION/REQUEST/SUCCESS': () => 'SUCCESS',
+  'CONSUMPTION/REQUEST/FAILED': () => 'FAILED'
 })
