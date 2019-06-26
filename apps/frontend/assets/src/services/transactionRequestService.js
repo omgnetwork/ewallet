@@ -115,6 +115,6 @@ export function getTransactionRequestById (id) {
 export function cancelTransactionRequestById (id) {
   return authenticatedRequest({
     path: '/transaction_request.cancel',
-    data: { id }
+    data: { formatted_id: id }
   })
 }
