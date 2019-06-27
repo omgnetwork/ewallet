@@ -169,8 +169,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         |> params_for(address: "0x0000000000000000000000000000000000000456")
         |> BlockchainWallet.insert()
 
-      token =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+      token = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
 
       attrs = %{
         "sort_by" => "inserted_at",
