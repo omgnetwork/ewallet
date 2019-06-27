@@ -67,6 +67,19 @@ defmodule EWalletDB.BlockchainWalletTest do
       assert res == :ok
     end
 
+    test "prevents creation of a blockchain wallet with both a user and account" do
+      params = %{user: insert(:user), account: insert(:account)}
+      {result, changeset} = :blockchain_wallet |> params_for(params) |> BlockchainWallet.insert()
+
+      assert result == :error
+
+      assert changeset.errors ==
+               [
+                 {%{account_uuid: nil, user_uuid: nil},
+                  {"only one must be present", [validation: :only_one_required]}}
+               ]
+    end
+
     test "fails to insert when type is invalid" do
       {res, _wallet} =
         :blockchain_wallet
