@@ -16,8 +16,6 @@ defmodule EWallet.Web.BlockchainBalanceLoader do
   @moduledoc """
   Module responsible for adding balances to wallets.
   """
-  import Ecto.Query
-  alias EWalletDB.Repo
   alias EWallet.BlockchainBalanceFetcher
   alias EWalletDB.{BlockchainWallet, Token}
 
