@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWalletAPI.V1.BlockchainWalletViewTest do
-  use EWalletAPI.ViewCase, :v1
+defmodule AdminAPI.V1.BlockchainWalletViewTest do
+  use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.BlockchainWalletView
   alias EWallet.Web.BlockchainBalanceLoader
   alias EWallet.Web.Paginator
@@ -54,7 +54,7 @@ defmodule EWalletAPI.V1.BlockchainWalletViewTest do
         data: BlockchainWalletSerializer.serialize(paginator)
       }
 
-      assert BlockchainWalletView.render("wallets.json", %{wallets: paginator}) == expected
+      assert BlockchainWalletView.render("blockchain_wallets.json", %{blockchain_wallets: paginator}) == expected
     end
   end
 end

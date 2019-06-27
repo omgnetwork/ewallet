@@ -103,12 +103,12 @@ defmodule AdminAPI.V1.BlockchainWalletController do
     end
   end
 
-  defp respond_single(conn, wallet) do
-    render(conn, :wallet, %{wallet: wallet})
+  defp respond_single(conn, blockchain_wallet) do
+    render(conn, :blockchain_wallet, %{blockchain_wallet: blockchain_wallet})
   end
 
   defp respond_multiple(conn, %Paginator{} = paged_wallets) do
-    render(conn, :wallets, %{wallets: paged_wallets})
+    render(conn, :blockchain_wallets, %{blockchain_wallets: paged_wallets})
   end
 
   defp paginated_tokens(%{"token_addresses" => addresses} = attrs) do

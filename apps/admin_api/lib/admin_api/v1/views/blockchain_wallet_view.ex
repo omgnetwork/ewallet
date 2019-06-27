@@ -16,14 +16,14 @@ defmodule AdminAPI.V1.BlockchainWalletView do
   use AdminAPI, :view
   alias EWallet.Web.V1.{ResponseSerializer, BlockchainWalletSerializer}
 
-  def render("wallet.json", %{wallet: wallet}) do
-    wallet
+  def render("blockchain_wallet.json", %{blockchain_wallet: blockchain_wallet}) do
+    blockchain_wallet
     |> BlockchainWalletSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 
-  def render("wallets.json", %{wallets: wallets}) do
-    wallets
+  def render("blockchain_wallets.json", %{blockchain_wallets: blockchain_wallets}) do
+    blockchain_wallets
     |> BlockchainWalletSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
