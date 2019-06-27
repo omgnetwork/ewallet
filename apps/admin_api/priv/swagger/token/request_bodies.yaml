@@ -195,3 +195,21 @@ TokenERC20Capabilities:
           - contract_address
         example:
           contract_address: "0x9080682a37961d3c814464e7ada1c7e1b4638a28"
+
+TokenSetContractAddress:
+  description: The parameters to set a contract address to a token.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          contract_address:
+            type: string
+        required:
+          - id
+          - contract_address
+        example:
+          id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
+          contract_address: "0x9080682a37961d3c814464e7ada1c7e1b4638a28"

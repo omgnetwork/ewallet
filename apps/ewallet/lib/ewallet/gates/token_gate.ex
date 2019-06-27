@@ -18,6 +18,47 @@ defmodule EWallet.TokenGate do
   alias EthBlockchain.{Balance, Token}
 
   @doc """
+  Validate that the `decimals` and `symbol` of the token are the same as
+  the ones defined in the erc20 contract. If the contract does not implement
+  these fields, we rely on the token's field values.
+  Returns {:ok, status} where `status` is the blockchain status of the token.
+  The status is "confirmed" if the hot wallet balance is positive, or "pending" otherwise.
+  """
+  def validate_erc20_readiness(contract_address, token) do
+    with {:ok, erc20_attrs} <- get_erc20_capabilities(contract_address),
+         :ok <- validate_decimals(erc20_attrs, token),
+         :ok <- validate_symbol(erc20_attrs, token) do
+      {:ok, get_blockchain_status(erc20_attrs)}
+    else
+      :error -> {:error, :token_not_matching_contract_info}
+      error -> error
+    end
+  end
+
+  defp validate_decimals(%{decimals: value}, token) do
+    case value == :math.log10(token.subunit_to_unit) do
+      true -> :ok
+      false -> :error
+    end
+  end
+
+  defp validate_decimals(_, _), do: :ok
+
+  defp validate_symbol(%{symbol: value}, %{symbol: value}), do: :ok
+
+  defp validate_symbol(%{symbol: _value}, %{symbol: _diff_value}), do: :error
+
+  defp validate_symbol(_, _), do: :ok
+
+  def get_blockchain_status(%{hot_wallet_balance: balance}) when balance > 0 do
+    EWalletDB.Token.blockchain_status_confirmed()
+  end
+
+  def get_blockchain_status(%{hot_wallet_balance: _balance}) do
+    EWalletDB.Token.blockchain_status_pending()
+  end
+
+  @doc """
   Check the if the given contract implements the required read only ERC20 functions.
   This will check 2 required functions:
   - totalSupply()
@@ -32,18 +73,18 @@ defmodule EWallet.TokenGate do
   Will return {:error, :token_not_erc20} if the contract does not implement the required functions
   Will return {:error, :error_code} or {:error, :error_code, message} if an error occured.
   """
-  @spec verify_erc20_capabilities(String.t()) ::
+  @spec get_erc20_capabilities(String.t()) ::
           {:ok, map()} | {:error, atom()} | {:error, atom(), String.t()}
-  def verify_erc20_capabilities(contract_address) do
-    with {:ok, mandatory_info} <- verify_mandatory(contract_address),
-         {:ok, optional_info} <- verify_optional(contract_address) do
+  def get_erc20_capabilities(contract_address) do
+    with {:ok, mandatory_info} <- get_mandatory(contract_address),
+         {:ok, optional_info} <- get_optional(contract_address) do
       {:ok, Map.merge(mandatory_info, optional_info)}
     else
       error -> error
     end
   end
 
-  defp verify_optional(contract_address) do
+  defp get_optional(contract_address) do
     with {:ok, name} <- Token.get_field(%{field: "name", contract_address: contract_address}),
          {:ok, symbol} <- Token.get_field(%{field: "symbol", contract_address: contract_address}),
          {:ok, decimals} <-
@@ -55,13 +96,14 @@ defmodule EWallet.TokenGate do
     end
   end
 
-  defp verify_mandatory(contract_address) do
+  # TODO: get balance of current hot wallet
+  defp get_mandatory(contract_address) do
     with {:ok, total_supply} <-
            Token.get_field(%{field: "totalSupply", contract_address: contract_address}),
          {:ok, %{^contract_address => balance}} <-
            Balance.get(%{address: contract_address, contract_addresses: [contract_address]}),
          true <- !is_nil(balance) || {:error, :token_not_erc20} do
-      {:ok, %{total_supply: total_supply}}
+      {:ok, %{total_supply: total_supply, hot_wallet_balance: balance}}
     else
       {:error, :token_not_erc20} = error -> error
       {:error, :field_not_found} -> {:error, :token_not_erc20}

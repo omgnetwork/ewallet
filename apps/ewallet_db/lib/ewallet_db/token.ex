@@ -29,6 +29,12 @@ defmodule EWalletDB.Token do
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
+  @blockchain_status_pending "pending"
+  @blockchain_status_confirmed "confirmed"
+  @blockchain_status [@blockchain_status_pending, @blockchain_status_confirmed]
+
+  def blockchain_status_pending, do: @blockchain_status_pending
+  def blockchain_status_confirmed, do: @blockchain_status_confirmed
 
   schema "token" do
     # tok_eur_01cbebcdjprhpbzp1pt7h0nzvt
@@ -64,6 +70,7 @@ defmodule EWalletDB.Token do
 
     field(:enabled, :boolean)
     field(:blockchain_address, :string)
+    field(:blockchain_status, :string)
 
     belongs_to(
       :account,
@@ -171,6 +178,16 @@ defmodule EWalletDB.Token do
   defp enable_changeset(%Token{} = token, attrs) do
     token
     |> cast_and_validate_required_for_activity_log(attrs, cast: [:enabled], required: [:enabled])
+  end
+
+  defp blockchain_changeset(%Token{} = token, attrs) do
+    token
+    |> cast_and_validate_required_for_activity_log(attrs,
+      cast: [:blockchain_address, :blockchain_status],
+      required: [:blockchain_address, :blockchain_status]
+    )
+    |> unique_constraint(:blockchain_address)
+    |> validate_inclusion(:blockchain_status, @blockchain_status)
   end
 
   defp set_id(changeset, opts) do
@@ -316,6 +333,12 @@ defmodule EWalletDB.Token do
   def enable_or_disable(token, attrs) do
     token
     |> enable_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def set_contract_address(token, attrs) do
+    token
+    |> blockchain_changeset(attrs)
     |> Repo.update_record_with_activity_log()
   end
 end

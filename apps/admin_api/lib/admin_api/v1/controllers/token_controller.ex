@@ -162,9 +162,9 @@ defmodule AdminAPI.V1.TokenController do
     handle_error(conn, :missing_id)
   end
 
-  def verify_erc20_capabilities(conn, %{"contract_address" => "0x" <> address = contract_address}) do
-    with {:ok, _} <- authorize(:verify_erc20_capabilities, conn.assigns, %Token{}),
-         {:ok, erc20_attrs} <- TokenGate.verify_erc20_capabilities(contract_address) do
+  def get_erc20_capabilities(conn, %{"contract_address" => "0x" <> _ = contract_address}) do
+    with {:ok, _} <- authorize(:get_erc20_capabilities, conn.assigns, %Token{}),
+         {:ok, erc20_attrs} <- TokenGate.get_erc20_capabilities(contract_address) do
       render(conn, :erc20_attrs, %{erc20_attrs: erc20_attrs})
     else
       {:error, code} ->
@@ -178,11 +178,38 @@ defmodule AdminAPI.V1.TokenController do
     end
   end
 
-  def verify_erc20_capabilities(conn, _) do
+  def get_erc20_capabilities(conn, _) do
     handle_error(
       conn,
       :invalid_parameter,
-      "Invalid parameter provided. `contract_address` is required."
+      "Invalid parameter provided. `contract_address` is required and must be in a valid format."
+    )
+  end
+
+  def set_contract_address(
+        conn,
+        %{"id" => id, "contract_address" => "0x" <> address = contract_address} = attrs
+      ) do
+    with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:set_contract_address, conn.assigns, token),
+         true <- is_nil(token.blockchain_address) || {:error, :token_already_blockchain_enabled},
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, blockchain_status} <- TokenGate.validate_erc20_readiness(contract_address, token),
+         attrs <- Map.put(attrs, "blockchain_status", blockchain_status),
+         attrs <- Map.put(attrs, "blockchain_address", contract_address),
+         {:ok, updated} <- Token.set_contract_address(token, attrs) do
+      respond_single(updated, conn)
+    else
+      error ->
+        respond_single(error, conn)
+    end
+  end
+
+  def set_contract_address(conn, _) do
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `id` and `contract_address` are required and must be in a valid format."
     )
   end
 

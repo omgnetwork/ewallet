@@ -1371,12 +1371,12 @@ paths:
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T00:00:00Z'
         '500': *ref_7
-  /token.verify_erc20_capabilities:
+  /token.get_erc20_capabilities:
     post:
       tags:
         - Token
-      summary: Verify the erc20 capabilities of a contract address
-      operationId: token_verify_erc20_capabilities
+      summary: Get the erc20 capabilities of a contract address
+      operationId: token_get_erc20_capabilities
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -1427,6 +1427,35 @@ paths:
                         name: OMGToken
                         total_supply: 100000
                         decimals: 18
+        '500': *ref_7
+  /token.set_contract_address:
+    post:
+      tags:
+        - Token
+      summary: Attempts to set a contract address to the specified tokeen
+      operationId: token_set_contract_address
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to set a contract address to a token.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                contract_address:
+                  type: string
+              required:
+                - id
+                - contract_address
+              example:
+                id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+                contract_address: '0x9080682a37961d3c814464e7ada1c7e1b4638a28'
+      responses:
+        '200': *ref_15
         '500': *ref_7
   /exchange_pair.all:
     post:

@@ -35,10 +35,10 @@ defmodule EthBlockchain.ErrorHandler do
   @doc """
   Returns a map of all the error atoms along with their code and description.
   """
-  @spec errors() :: %{
+  @spec errors(atom() | nil, pid() | nil) :: %{
           required(atom()) => %{code: String.t(), description: String.t()}
         }
-  def errors() do
+  def errors(adapter \\ nil, pid \\ nil) do
     {:get_errors}
     |> Adapter.call(adapter, pid)
     |> Map.merge(@errors, fn _k, _shared, current ->

@@ -120,6 +120,15 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "token:not_erc20",
       description:
         "The provided contract address does not implement the required erc20 functions."
+    },
+    token_not_matching_contract_info: %{
+      code: "token:not_matching_contract_info",
+      description:
+        "The decimal count or the symbol obtained from the contract at the specified address don't match the token."
+    },
+    token_already_blockchain_enabled: %{
+      code: "token:already_blockchain_enabled",
+      description: "This token already has a blockchain address."
     }
   }
 
