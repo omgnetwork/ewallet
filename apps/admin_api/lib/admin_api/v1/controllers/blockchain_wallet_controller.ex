@@ -21,7 +21,6 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   alias EWallet.BlockchainWalletPolicy
   alias EWalletDB.{BlockchainWallet, Token}
   alias AdminAPI.V1.BalanceView
-  alias AdminAPI.V1.BlockchainWalletView
 
   alias EWallet.Web.{
     Orchestrator,
@@ -30,24 +29,6 @@ defmodule AdminAPI.V1.BlockchainWalletController do
     V1.BlockchainWalletOverlay,
     V1.TokenOverlay
   }
-
-  @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  @doc """
-  Retrieves a wallet with balances by given blockchain wallet address.
-  """
-  def get(conn, %{"address" => address} = attrs) do
-    with %BlockchainWallet{} = wallet <-
-           BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
-         {:ok, _} <- authorize(:view_balance, conn.assigns, wallet),
-         %Paginator{data: tokens} <- paginated_tokens(attrs),
-         {:ok, wallet} <- BlockchainBalanceLoader.wallet_balances(wallet, tokens),
-         {:ok, wallet} <- Orchestrator.one(wallet, BlockchainWalletOverlay, attrs) do
-      respond_single(conn, wallet)
-    else
-      {:error, error} -> handle_error(conn, error)
-      {:error, error, description} -> handle_error(conn, error, description)
-    end
-  end
 
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   @doc """
@@ -70,15 +51,21 @@ defmodule AdminAPI.V1.BlockchainWalletController do
     |> add_balances_if_allowed(conn)
   end
 
-  defp add_balances_if_allowed(%Paginator{data: wallets, pagination: _} = paginator_wallets, conn) do
-    with {:ok, %{query: query}} <- authorize(:view_balance, conn.assigns, nil),
-         true <- !is_nil(query),
-         %Paginator{data: tokens} <- paginated_tokens(%{}),
-         {:ok, wallets_with_balances} <-
-           BlockchainBalanceLoader.wallet_balances(wallets, tokens) do
-      %{paginator_wallets | data: wallets_with_balances}
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  @doc """
+  Retrieves a wallet with balances by given blockchain wallet address.
+  """
+  def get(conn, %{"address" => address} = attrs) do
+    with %BlockchainWallet{} = wallet <-
+           BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:get, conn.assigns, wallet),
+         %Paginator{data: tokens} <- paginated_tokens(attrs),
+         {:ok, wallet} <- BlockchainBalanceLoader.wallet_balances(wallet, tokens),
+         {:ok, wallet} <- Orchestrator.one(wallet, BlockchainWalletOverlay, attrs) do
+      respond_single(conn, wallet)
     else
-      _ -> paginator_wallets
+      {:error, error} -> handle_error(conn, error)
+      {:error, error, description} -> handle_error(conn, error, description)
     end
   end
 
@@ -102,6 +89,18 @@ defmodule AdminAPI.V1.BlockchainWalletController do
 
   def all_for_wallet(conn, _) do
     handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
+  end
+
+  defp add_balances_if_allowed(%Paginator{data: wallets, pagination: _} = paginator_wallets, conn) do
+    with {:ok, %{query: query}} <- authorize(:view_balance, conn.assigns, nil),
+         true <- !is_nil(query),
+         %Paginator{data: tokens} <- paginated_tokens(%{}),
+         {:ok, wallets_with_balances} <-
+           BlockchainBalanceLoader.wallet_balances(wallets, tokens) do
+      %{paginator_wallets | data: wallets_with_balances}
+    else
+      _ -> paginator_wallets
+    end
   end
 
   defp respond_single(conn, wallet) do

@@ -155,6 +155,49 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       assert wallet_balances_1["balances"] == expected_balances
       assert wallet_balances_2["balances"] == expected_balances
     end
+
+    test_with_auths "returns a list of wallets and pagination data when given a start_after" do
+      # Inserts 2 wallets and 2 tokens
+
+      {:ok, _} =
+        :blockchain_wallet
+        |> params_for(address: "0x0000000000000000000000000000000000000123")
+        |> BlockchainWallet.insert()
+
+      {:ok, blockchain_wallet_2} =
+        :blockchain_wallet
+        |> params_for(address: "0x0000000000000000000000000000000000000456")
+        |> BlockchainWallet.insert()
+
+      token =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      attrs = %{
+        "sort_by" => "inserted_at",
+        "sort_dir" => "asc",
+        "start_after" => "0x0000000000000000000000000000000000000123",
+        "start_by" => "address"
+      }
+
+      response = request("/blockchain_wallet.all", attrs)
+
+      assert response["success"] == true
+      assert %{"data" => data, "pagination" => pagination} = response["data"]
+      assert length(data) == 1
+
+      assert [wallet_balances] = data
+      assert wallet_balances["address"] == blockchain_wallet_2.address
+
+      expected_balances = [
+        %{
+          "object" => "balance",
+          "amount" => 123,
+          "token" => token |> TokenSerializer.serialize() |> stringify_keys()
+        }
+      ]
+
+      assert wallet_balances["balances"] == expected_balances
+    end
   end
 
   describe "/blockchain_wallet.get_balances" do
