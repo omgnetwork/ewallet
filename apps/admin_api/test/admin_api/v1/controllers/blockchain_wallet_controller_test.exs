@@ -211,40 +211,40 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       response = request("/blockchain_wallet.all", attrs)
 
       assert response == %{
-        "data" => %{
-          "data" => [
-            %{
-              "address" => "0x0000000000000000000000000000000000000456",
-              "name" => blockchain_wallet_2.name,
-              "object" => "blockchain_wallet",
-              "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
-              "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at),
-              "account" => nil,
-              "account_id" => nil,
-              "user_id" => blockchain_wallet_2.user.id,
-              "user" =>
-                blockchain_wallet_2.user |> UserSerializer.serialize() |> stringify_keys(),
-              "balances" => [
-                %{
-                  "object" => "balance",
-                  "amount" => 123,
-                  "token" => token |> TokenSerializer.serialize() |> stringify_keys()
-                }
-              ]
-            }
-          ],
-          "pagination" => %{
-            "count" => 1,
-            "is_last_page" => true,
-            "per_page" => 10,
-            "start_after" => "0x0000000000000000000000000000000000000123",
-            "start_by" => "address"
-          },
-          "object" => "list"
-        },
-        "success" => true,
-        "version" => "1"
-      }
+               "data" => %{
+                 "data" => [
+                   %{
+                     "address" => "0x0000000000000000000000000000000000000456",
+                     "name" => blockchain_wallet_2.name,
+                     "object" => "blockchain_wallet",
+                     "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
+                     "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at),
+                     "account" => nil,
+                     "account_id" => nil,
+                     "user_id" => blockchain_wallet_2.user.id,
+                     "user" =>
+                       blockchain_wallet_2.user |> UserSerializer.serialize() |> stringify_keys(),
+                     "balances" => [
+                       %{
+                         "object" => "balance",
+                         "amount" => 123,
+                         "token" => token |> TokenSerializer.serialize() |> stringify_keys()
+                       }
+                     ]
+                   }
+                 ],
+                 "pagination" => %{
+                   "count" => 1,
+                   "is_last_page" => true,
+                   "per_page" => 10,
+                   "start_after" => "0x0000000000000000000000000000000000000123",
+                   "start_by" => "address"
+                 },
+                 "object" => "list"
+               },
+               "success" => true,
+               "version" => "1"
+             }
     end
   end
 
