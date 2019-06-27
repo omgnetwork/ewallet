@@ -59,6 +59,7 @@ class WalletPage extends Component {
     fetcher: PropTypes.func,
     title: PropTypes.string,
     divider: PropTypes.bool,
+    showFilter: PropTypes.bool,
     match: PropTypes.shape({
       params: PropTypes.shape({
         accountId: PropTypes.string
@@ -68,6 +69,7 @@ class WalletPage extends Component {
   static defaultProps = {
     walletQuery: {},
     transferButton: false,
+    showFilter: true,
     fetcher: WalletsFetcher,
     title: 'Wallets'
   }
@@ -137,7 +139,7 @@ class WalletPage extends Component {
           divider={this.props.divider}
           title={this.props.title}
           buttons={[
-            this.renderAdvancedFilterButton(),
+            this.props.showFilter && this.renderAdvancedFilterButton(),
             this.props.transferButton && (
               <CreateTransactionButton key='transfer' />
             ),
@@ -145,13 +147,15 @@ class WalletPage extends Component {
           ]}
         />
 
-        <AdvancedFilter
-          title='Filter Wallets'
-          page='wallets'
-          open={this.state.advancedFilterModalOpen}
-          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
-          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
-        />
+        {this.props.showFilter && (
+          <AdvancedFilter
+            title='Filter Wallets'
+            page='wallets'
+            open={this.state.advancedFilterModalOpen}
+            onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
+            onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
+          />
+        )}
 
         <SortableTableContainer>
           <SortableTable
@@ -186,9 +190,11 @@ class WalletPage extends Component {
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 75),
           search: queryString.parse(this.props.location.search).search,
-          matchAll: this.state.matchAll,
           matchAny: this.state.matchAny,
-          ...this.props.walletQuery
+          matchAll: [
+            ...this.state.matchAll,
+            ...(!_.isEmpty(this.props.walletQuery) ? this.props.walletQuery.matchAll : [])
+          ]
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
