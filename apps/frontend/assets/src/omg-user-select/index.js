@@ -22,17 +22,19 @@ const Identifier = styled.div`
   font-size: 10px;
 `
 const UserSelect = ({ user }) => {
-  const name = _.get(user, 'username')
-  const identifier = _.get(user, 'id')
+  const username = _.get(user, 'username') || ''
+  const provideruserid = _.get(user, 'provider_user_id') || ''
+  const email = _.get(user, 'email') || ''
+  const identifier = _.get(user, 'id') || ''
   const thumbnail = _.get(user, 'avatar.thumb')
 
   return (
     <UserSelectContainer>
-      <StyledAvatar image={thumbnail} name={name} />
+      <StyledAvatar image={thumbnail} name={username} />
       <DetailContainer>
-        <Name>{name}</Name>
+        <Name>{username || provideruserid || email }</Name>
         <Identifier>
-          {identifier}
+          {`${identifier} ${(username || provideruserid) ? email : ''}`}
         </Identifier>
       </DetailContainer>
     </UserSelectContainer>
