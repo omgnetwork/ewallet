@@ -19,6 +19,19 @@ defmodule EWallet.BlockchainWalletPolicy do
   alias EWallet.{PolicyHelper, Bouncer, Bouncer.Permission}
   alias EWalletDB.BlockchainWallet
 
+  def authorize(:create, actor, %{"account_uuid" => account_uuid})
+      when not is_nil(account_uuid) do
+    Bouncer.bounce(actor, %Permission{
+      action: :create,
+      target: %BlockchainWallet{account_uuid: account_uuid}
+    })
+  end
+
+  def authorize(:create, actor, %{"user_uuid" => user_uuid}) when not is_nil(user_uuid) do
+    Bouncer.bounce(actor, %Permission{action: :create, target: %BlockchainWallet{user_uuid: user_uuid}})
+  end
+
+
   def authorize(:create, actor, _attrs) do
     Bouncer.bounce(actor, %Permission{action: :create, target: %BlockchainWallet{}})
   end
