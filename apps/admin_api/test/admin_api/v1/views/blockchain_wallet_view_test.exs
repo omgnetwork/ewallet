@@ -54,7 +54,9 @@ defmodule AdminAPI.V1.BlockchainWalletViewTest do
         data: BlockchainWalletSerializer.serialize(paginator)
       }
 
-      assert BlockchainWalletView.render("blockchain_wallets.json", %{blockchain_wallets: paginator}) == expected
+      assert BlockchainWalletView.render("blockchain_wallets.json", %{
+               blockchain_wallets: paginator
+             }) == expected
     end
   end
 end
