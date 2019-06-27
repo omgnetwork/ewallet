@@ -89,12 +89,14 @@ const AdvancedFilter = ({
   useEffect(() => {
     const search = queryString.parse(location.search)
     if (search && !_.isEmpty(search)) {
-      const values = JSON.parse(search['advanced-filter'])
-      const filters = FILTER_MAP.filter(i => Object.keys(values).includes(i.key))
-
-      setFilters(filters)
-      callOnFilter(values)
-      onUpdate(values)
+      const advancedFilter = _.get(search, 'advanced-filter')
+      if (advancedFilter) {
+        const values = JSON.parse(advancedFilter)
+        const filters = FILTER_MAP.filter(i => Object.keys(values).includes(i.key))
+        setFilters(filters)
+        callOnFilter(values)
+        onUpdate(values)
+      }
     } else {
       const defaultFilters = FILTER_MAP.filter(i => i.page === page && i.default)
       setFilters(defaultFilters)
