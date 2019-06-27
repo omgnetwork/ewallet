@@ -160,7 +160,7 @@ export const FILTER_MAP = [
     height: 110,
     component: filters.SelectAccount,
     default: false,
-    matchAny: [
+    matchAll: [
       {
         field: 'account.name',
         comparator: 'contains'
@@ -168,14 +168,14 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Users',
-    key: 'wallets-specify-users',
+    title: 'Specify User',
+    key: 'wallets-specify-user',
     icon: 'Option-Horizontal',
     page: 'wallets',
     height: 110,
-    component: filters.MultiSelectUsers,
+    component: filters.SelectUser,
     default: false,
-    matchAny: [
+    matchAll: [
       {
         field: 'user.username',
         comparator: 'contains'
@@ -285,9 +285,9 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction-requests',
     height: 110,
-    component: filters.MultiSelectWallets,
+    component: filters.SelectWallet,
     default: false,
-    matchAny: [
+    matchAll: [
       {
         field: 'wallet.address',
         comparator: 'contains'
@@ -406,9 +406,9 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction-consumptions',
     height: 110,
-    component: filters.MultiSelectUsers,
+    component: filters.SelectUser,
     default: false,
-    matchAny: [
+    matchAll: [
       {
         field: 'user.username',
         comparator: 'contains'
@@ -421,9 +421,9 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'transaction-consumptions',
     height: 110,
-    component: filters.MultiSelectWallets,
+    component: filters.SelectWallet,
     default: false,
-    matchAny: [
+    matchAll: [
       {
         field: 'wallet.address',
         comparator: 'contains'

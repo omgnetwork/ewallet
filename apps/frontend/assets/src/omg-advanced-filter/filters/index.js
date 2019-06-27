@@ -3,6 +3,7 @@ import SelectAccount from './SelectAccount'
 import SelectWallet from './SelectWallet'
 import SelectToken from './SelectToken'
 import SelectFilter from './SelectFilter'
+import SelectUser from './SelectUser'
 import DateTime from './DateTime'
 import Checkbox from './Checkbox'
 import RadioCheckbox from './RadioCheckbox'
@@ -16,6 +17,7 @@ export default {
   SelectToken,
   InputFilter,
   SelectFilter,
+  SelectUser,
   DateTime,
   Checkbox,
   RadioCheckbox,
