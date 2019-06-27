@@ -44,7 +44,6 @@ const MultiSelectWallets = ({
       <AllWalletsFetcher
         query={createSearchAddressQuery(search)}
         render={({ data }) => {
-          console.log('data: ', data)
           return (
             <MultiSelect
               placeholder='Select wallet'

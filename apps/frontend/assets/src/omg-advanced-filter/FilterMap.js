@@ -153,12 +153,12 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Accounts',
-    key: 'wallets-specify-accounts',
+    title: 'Specify Account',
+    key: 'wallets-specify-account',
     icon: 'Option-Horizontal',
     page: 'wallets',
     height: 110,
-    component: filters.MultiSelectAccounts,
+    component: filters.SelectAccount,
     default: false,
     matchAny: [
       {
@@ -559,22 +559,6 @@ export const FILTER_MAP = [
     matchAll: [
       {
         field: 'target_identifier',
-        comparator: 'contains'
-      }
-    ]
-  },
-  // TOKEN PAGE --------------
-  {
-    title: 'Specify Accounts',
-    key: 'tokens-specify-accounts',
-    icon: 'Option-Horizontal',
-    page: 'tokens',
-    height: 110,
-    component: filters.MultiSelectAccounts,
-    default: true,
-    matchAny: [
-      {
-        field: 'account.name',
         comparator: 'contains'
       }
     ]

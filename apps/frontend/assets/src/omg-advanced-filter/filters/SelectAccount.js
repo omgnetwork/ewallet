@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
+import { createSearchMasterAccountQuery } from '../../omg-account/searchField'
 import AccountsFetcher from '../../omg-account/accountsFetcher'
 import AccountSelect from '../../omg-account-select'
 import { Select } from '../../omg-uikit'
@@ -14,7 +15,10 @@ const SelectAccount = ({
   values,
   config
 }) => {
+  const [ searchValue, setSearchValue ] = useState(null)
+
   const onChange = (e) => {
+    setSearchValue(e.target.value)
     e.target.value
       ? onUpdate({ [config.key]: e.target.value })
       : clearKey(config.key)
@@ -27,16 +31,17 @@ const SelectAccount = ({
     >
       <TagRow title={config.title} />
       <AccountsFetcher
+        query={createSearchMasterAccountQuery(searchValue)}
         render={({ data }) => {
           return (
             <Select
-              value={values[config.key] || ''}
+              value={values[config.key]}
               onChange={onChange}
-              onSelectItem={e => onUpdate({ [config.key]: e.id })}
+              onSelectItem={e => onUpdate({ [config.key]: e.name })}
               normalPlaceholder='Select account'
               type='select'
               options={data.map(account => ({
-                key: account.id,
+                key: account.name,
                 value: <AccountSelect account={account} />,
                 ...account
               }))}
