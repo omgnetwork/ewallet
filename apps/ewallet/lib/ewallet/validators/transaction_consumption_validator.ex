@@ -118,8 +118,6 @@ defmodule EWallet.TransactionConsumptionValidator do
   end
 
   defp validate_transaction_request(request, operation) do
-    expiration_reason = TransactionRequest.get_expiration_reason(request)
-
     request
     |> TransactionRequest.valid?()
     |> Kernel.||(TransactionRequest.get_expiration_reason(request))

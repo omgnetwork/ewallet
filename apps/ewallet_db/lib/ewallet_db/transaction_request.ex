@@ -197,11 +197,6 @@ defmodule EWalletDB.TransactionRequest do
     )
   end
 
-  def get_expiration_reason(%TransactionRequest{} = transaction_request) do
-    transaction_request.expiration_reason &&
-      String.to_existing_atom(transaction_request.expiration_reason)
-  end
-
   defp expire_changeset(%TransactionRequest{} = transaction_request, attrs) do
     transaction_request
     |> cast_and_validate_required_for_activity_log(
