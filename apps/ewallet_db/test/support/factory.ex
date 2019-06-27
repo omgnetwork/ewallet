@@ -124,6 +124,8 @@ defmodule EWalletDB.Factory do
       name: sequence("Wallet name"),
       public_key: Crypto.fake_eth_address(),
       type: "hot",
+      user: insert(:user),
+      account: nil,
       originator: %System{}
     }
   end

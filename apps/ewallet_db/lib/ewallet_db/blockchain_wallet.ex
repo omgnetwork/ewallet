@@ -67,6 +67,8 @@ defmodule EWalletDB.BlockchainWallet do
         :uuid,
         :address,
         :public_key,
+        :account_uuid,
+        :user_uuid,
         :name,
         :type
       ],
@@ -75,6 +77,7 @@ defmodule EWalletDB.BlockchainWallet do
     |> unique_constraint(:address)
     |> unique_constraint(:name)
     |> unique_constraint(:public_key)
+    |> validate_required_exclusive(%{account_uuid: nil, user_uuid: nil})
     |> validate_immutable(:address)
     |> validate_immutable(:public_key)
     |> validate_inclusion(:type, @wallet_types)

@@ -55,7 +55,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   @doc """
   Retrieves a wallet with balances by given blockchain wallet address.
   """
-  def get(conn, %{"address" => address} = attrs) do
+  def get(conn, %{"address" => address} = attrs) when not is_nil(address) do
     with %BlockchainWallet{} = wallet <-
            BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, wallet),

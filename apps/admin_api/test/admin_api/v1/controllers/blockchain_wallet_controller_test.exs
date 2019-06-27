@@ -16,20 +16,17 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
   use AdminAPI.ConnCase, async: true
 
   alias Utils.Helpers.DateFormatter
-  alias EWalletDB.BlockchainWallet
-  alias EWallet.Web.V1.TokenSerializer
+  alias EWallet.Web.V1.{UserSerializer, TokenSerializer}
 
   describe "/blockchain_wallet.get" do
     test_with_auths "returns a wallet when given an existing blockchain wallet address" do
-      {:ok, blockchain_wallet} =
-        :blockchain_wallet
-        |> params_for(address: "0x0000000000000000000000000000000000000123")
-        |> BlockchainWallet.insert()
+      blockchain_wallet =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 =
+      token_1 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
 
-      _token_2 =
+      token_2 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
 
       response =
@@ -37,33 +34,38 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
           "address" => blockchain_wallet.address
         })
 
-      assert response["success"] == true
-
-      # Assert balances
-      balances =
-        Enum.map(response["data"]["balances"], fn balance ->
-          {balance["token"]["blockchain_address"], balance["amount"]}
-        end)
-
-      assert length(balances) == 2
-      assert Enum.member?(balances, {"0x0000000000000000000000000000000000000000", 123})
-      assert Enum.member?(balances, {"0x0000000000000000000000000000000000000001", 123})
-
-      # Assert data without balances
-      assert Map.delete(response["data"], "balances") == %{
-               "address" => "0x0000000000000000000000000000000000000123",
-               "name" => blockchain_wallet.name,
-               "object" => "blockchain_wallet",
-               "created_at" => DateFormatter.to_iso8601(blockchain_wallet.inserted_at),
-               "updated_at" => DateFormatter.to_iso8601(blockchain_wallet.updated_at)
+      assert response == %{
+               "version" => "1",
+               "success" => true,
+               "data" => %{
+                 "address" => "0x0000000000000000000000000000000000000123",
+                 "name" => blockchain_wallet.name,
+                 "object" => "blockchain_wallet",
+                 "created_at" => DateFormatter.to_iso8601(blockchain_wallet.inserted_at),
+                 "updated_at" => DateFormatter.to_iso8601(blockchain_wallet.updated_at),
+                 "account" => nil,
+                 "account_id" => nil,
+                 "user_id" => blockchain_wallet.user.id,
+                 "user" =>
+                   blockchain_wallet.user |> UserSerializer.serialize() |> stringify_keys(),
+                 "balances" => [
+                   %{
+                     "object" => "balance",
+                     "amount" => 123,
+                     "token" => token_1 |> TokenSerializer.serialize() |> stringify_keys()
+                   },
+                   %{
+                     "object" => "balance",
+                     "amount" => 123,
+                     "token" => token_2 |> TokenSerializer.serialize() |> stringify_keys()
+                   }
+                 ]
+               }
              }
     end
 
     test_with_auths "returns error when given non-existing wallet address" do
-      {:ok, _} =
-        :blockchain_wallet
-        |> params_for(address: "0x0000000000000000000000000000000000000123")
-        |> BlockchainWallet.insert()
+      insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
       _token_1 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
@@ -71,10 +73,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       _token_2 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
 
-      response =
-        request("/blockchain_wallet.get", %{
-          "address" => "0x0"
-        })
+      response = request("/blockchain_wallet.get", %{"address" => "0x0"})
 
       assert response == %{
                "data" => %{
@@ -105,16 +104,11 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
   describe "/blockchain_wallet.all" do
     test_with_auths "returns all wallets when given pagination params" do
       # Inserts 2 wallets and 2 tokens
+      blockchain_wallet_1 =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      {:ok, blockchain_wallet_1} =
-        :blockchain_wallet
-        |> params_for(address: "0x0000000000000000000000000000000000000123")
-        |> BlockchainWallet.insert()
-
-      {:ok, blockchain_wallet_2} =
-        :blockchain_wallet
-        |> params_for(address: "0x0000000000000000000000000000000000000456")
-        |> BlockchainWallet.insert()
+      blockchain_wallet_2 =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000456"})
 
       token_1 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
@@ -131,43 +125,79 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
 
       response = request("/blockchain_wallet.all", attrs)
 
-      assert response["success"] == true
-      assert %{"data" => data, "pagination" => pagination} = response["data"]
-      assert length(data) == 2
-
-      assert [wallet_balances_1, wallet_balances_2] = data
-      assert wallet_balances_1["address"] == blockchain_wallet_1.address
-      assert wallet_balances_2["address"] == blockchain_wallet_2.address
-
-      expected_balances = [
-        %{
-          "object" => "balance",
-          "amount" => 123,
-          "token" => token_1 |> TokenSerializer.serialize() |> stringify_keys()
-        },
-        %{
-          "object" => "balance",
-          "amount" => 123,
-          "token" => token_2 |> TokenSerializer.serialize() |> stringify_keys()
-        }
-      ]
-
-      assert wallet_balances_1["balances"] == expected_balances
-      assert wallet_balances_2["balances"] == expected_balances
+      assert response == %{
+               "data" => %{
+                 "data" => [
+                   %{
+                     "address" => "0x0000000000000000000000000000000000000123",
+                     "name" => blockchain_wallet_1.name,
+                     "object" => "blockchain_wallet",
+                     "created_at" => DateFormatter.to_iso8601(blockchain_wallet_1.inserted_at),
+                     "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_1.updated_at),
+                     "account" => nil,
+                     "account_id" => nil,
+                     "user_id" => blockchain_wallet_1.user.id,
+                     "user" =>
+                       blockchain_wallet_1.user |> UserSerializer.serialize() |> stringify_keys(),
+                     "balances" => [
+                       %{
+                         "object" => "balance",
+                         "amount" => 123,
+                         "token" => token_1 |> TokenSerializer.serialize() |> stringify_keys()
+                       },
+                       %{
+                         "object" => "balance",
+                         "amount" => 123,
+                         "token" => token_2 |> TokenSerializer.serialize() |> stringify_keys()
+                       }
+                     ]
+                   },
+                   %{
+                     "address" => "0x0000000000000000000000000000000000000456",
+                     "name" => blockchain_wallet_2.name,
+                     "object" => "blockchain_wallet",
+                     "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
+                     "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at),
+                     "account" => nil,
+                     "account_id" => nil,
+                     "user_id" => blockchain_wallet_2.user.id,
+                     "user" =>
+                       blockchain_wallet_2.user |> UserSerializer.serialize() |> stringify_keys(),
+                     "balances" => [
+                       %{
+                         "object" => "balance",
+                         "amount" => 123,
+                         "token" => token_1 |> TokenSerializer.serialize() |> stringify_keys()
+                       },
+                       %{
+                         "object" => "balance",
+                         "amount" => 123,
+                         "token" => token_2 |> TokenSerializer.serialize() |> stringify_keys()
+                       }
+                     ]
+                   }
+                 ],
+                 "pagination" => %{
+                   "count" => 2,
+                   "is_last_page" => true,
+                   "per_page" => 10,
+                   "start_after" => nil,
+                   "start_by" => "address"
+                 },
+                 "object" => "list"
+               },
+               "success" => true,
+               "version" => "1"
+             }
     end
 
     test_with_auths "returns a list of wallets and pagination data when given a start_after" do
       # Inserts 2 wallets and 2 tokens
+      _blockchain_wallet_1 =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      {:ok, _} =
-        :blockchain_wallet
-        |> params_for(address: "0x0000000000000000000000000000000000000123")
-        |> BlockchainWallet.insert()
-
-      {:ok, blockchain_wallet_2} =
-        :blockchain_wallet
-        |> params_for(address: "0x0000000000000000000000000000000000000456")
-        |> BlockchainWallet.insert()
+      blockchain_wallet_2 =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000456"})
 
       token = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
 
@@ -180,22 +210,41 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
 
       response = request("/blockchain_wallet.all", attrs)
 
-      assert response["success"] == true
-      assert %{"data" => data, "pagination" => pagination} = response["data"]
-      assert length(data) == 1
-
-      assert [wallet_balances] = data
-      assert wallet_balances["address"] == blockchain_wallet_2.address
-
-      expected_balances = [
-        %{
-          "object" => "balance",
-          "amount" => 123,
-          "token" => token |> TokenSerializer.serialize() |> stringify_keys()
-        }
-      ]
-
-      assert wallet_balances["balances"] == expected_balances
+      assert response == %{
+        "data" => %{
+          "data" => [
+            %{
+              "address" => "0x0000000000000000000000000000000000000456",
+              "name" => blockchain_wallet_2.name,
+              "object" => "blockchain_wallet",
+              "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
+              "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at),
+              "account" => nil,
+              "account_id" => nil,
+              "user_id" => blockchain_wallet_2.user.id,
+              "user" =>
+                blockchain_wallet_2.user |> UserSerializer.serialize() |> stringify_keys(),
+              "balances" => [
+                %{
+                  "object" => "balance",
+                  "amount" => 123,
+                  "token" => token |> TokenSerializer.serialize() |> stringify_keys()
+                }
+              ]
+            }
+          ],
+          "pagination" => %{
+            "count" => 1,
+            "is_last_page" => true,
+            "per_page" => 10,
+            "start_after" => "0x0000000000000000000000000000000000000123",
+            "start_by" => "address"
+          },
+          "object" => "list"
+        },
+        "success" => true,
+        "version" => "1"
+      }
     end
   end
 
