@@ -1,0 +1,33 @@
+BlockchainWalletResponse:
+  description: The response schema for a blockchain wallet
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: 'response_schemas.yaml#/BlockchainWalletResponseSchema'
+    example:
+      data:
+        object: blockchain_wallet
+        address: 0x54e0588607dcec6c0b36fca1154a57814a913591
+        name: blockchain_wallet_01
+        user_id: usr_01cbfg6v9thrc3sd9m1v4gazjv
+        user: {}
+        account_id: null
+        account: null
+        balances:
+          - amount: 0
+            token:
+              object: token
+              id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+              symbol: BTC
+              name: Bitcoin
+              subunit_to_unit: 100000000000000000
+
+BlockchainWalletsResponse:
+  description: Returns a list of blockchain wallets
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/BlockchainWalletsResponseSchema'

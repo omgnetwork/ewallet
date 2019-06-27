@@ -2,7 +2,7 @@ blockchain_wallet.get_balances:
   post:
     tags:
       - Blockchain wallet
-    summary: Get the list of balances on blockchain for the specified wallet address.
+    summary: Get the list of balances on blockchain for the specified blockchain wallet address.
     operationId: blockchain_wallet_get_balances
     security:
       - ProviderAuth: []
@@ -12,5 +12,39 @@ blockchain_wallet.get_balances:
     responses:
       '200':
         $ref: '../balance/responses.yaml#/BalancesResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+blockchain_wallet.get:
+  post:
+    tags:
+      - Blockchain wallet
+    summary: Get a blockchain wallet on blockchain for the specified blockchain wallet address.
+    operationId: blockchain_wallet_get
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/BlockchainWalletGetBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/BlockchainWalletResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+blockchain_wallet.all:
+  post:
+    tags:
+      - Blockchain wallet
+    summary: Get a list of blockchain wallets on blockchain.
+    operationId: blockchain_wallet_all
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/BlockchainWalletAllBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/BlockchainWalletsResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
