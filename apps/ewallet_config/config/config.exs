@@ -20,6 +20,13 @@ config :ewallet_config,
       description:
         "The master account of this eWallet, which will be used as the default account when needed."
     },
+    "primary_hot_wallet" => %{
+      key: "primary_hot_wallet",
+      value: "",
+      type: "string",
+      position: 001,
+      description: "The primary hot wallet for this eWallet."
+    },
     "base_url" => %{
       key: "base_url",
       value: "",

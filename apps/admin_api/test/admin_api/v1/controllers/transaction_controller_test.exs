@@ -14,7 +14,7 @@
 
 defmodule AdminAPI.V1.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.TransactionGate
+  alias EWallet.LocalTransactionGate
   alias EWalletDB.{Account, Repo, Token, Transaction, User}
   alias ActivityLogger.System
   alias Utils.Helpers.DateFormatter
@@ -34,7 +34,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       set_initial_balance(%{address: wallet_1.address, token: token, amount: 10}, false)
 
     {:ok, transaction_1} =
-      TransactionGate.create(%{
+      LocalTransactionGate.create(%{
         "from_address" => wallet_1.address,
         "to_address" => wallet_2.address,
         "amount" => 1,
@@ -49,7 +49,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       set_initial_balance(%{address: wallet_2.address, token: token, amount: 10}, false)
 
     {:ok, transaction_2} =
-      TransactionGate.create(%{
+      LocalTransactionGate.create(%{
         "from_address" => wallet_2.address,
         "to_address" => wallet_1.address,
         "amount" => 1,
@@ -61,7 +61,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
     assert transaction_2.status == "confirmed"
 
     {:ok, transaction_3} =
-      TransactionGate.create(%{
+      LocalTransactionGate.create(%{
         "from_address" => wallet_1.address,
         "to_address" => wallet_3.address,
         "amount" => 1,
@@ -88,7 +88,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       set_initial_balance(%{address: wallet_4.address, token: token, amount: 10}, false)
 
     {:ok, transaction_7} =
-      TransactionGate.create(%{
+      LocalTransactionGate.create(%{
         "from_address" => wallet_4.address,
         "to_address" => wallet_2.address,
         "amount" => 1,

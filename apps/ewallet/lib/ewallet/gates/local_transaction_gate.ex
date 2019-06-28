@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.TransactionGate do
+defmodule EWallet.LocalTransactionGate do
   @moduledoc """
   Handles the logic for a transaction of value from an account to a user. Delegates the
-  actual transaction to EWallet.TransactionGate once the wallets have been loaded.
+  actual transaction to EWallet.LocalTransactionGate once the wallets have been loaded.
   """
   alias EWallet.{
+    TransactionPolicy,
     AccountFetcher,
     AmountFetcher,
     TokenFetcher,
@@ -126,4 +127,8 @@ defmodule EWallet.TransactionGate do
   end
 
   defp link(_), do: nil
+
+  defp authorize(action, actor, data) do
+    TransactionPolicy.authorize(action, actor, data)
+  end
 end

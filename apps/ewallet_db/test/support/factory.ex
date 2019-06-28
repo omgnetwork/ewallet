@@ -339,6 +339,7 @@ defmodule EWalletDB.Factory do
       to_user_uuid: to_wallet.user_uuid,
       to_account_uuid: to_wallet.account_uuid,
       exchange_account: nil,
+      type: "internal",
       originator: %System{}
     }
   end

@@ -32,6 +32,15 @@ defmodule EthBlockchain.Adapter do
   use GenServer
   require Logger
 
+  alias EthBlockchain.{
+    Helper,
+    Transaction,
+    TransactionListener,
+    BlockchainTransactionRegistry
+  }
+
+  def helper, do: Helper
+
   @doc """
   Starts EthBlockchain.Adapter.
   """
@@ -75,6 +84,14 @@ defmodule EthBlockchain.Adapter do
   def stop(pid \\ __MODULE__) do
     :ok = Logger.info("Stopping EthBlockchain Adapter supervisor")
     GenServer.stop(pid)
+  end
+
+  @spec adapter_or_default(atom() | nil) :: atom()
+  def adapter_or_default(adapter \\ nil) do
+    adapter ||
+      :eth_blockchain
+      |> Application.get_env(EthBlockchain.Adapter)
+      |> Keyword.get(:default_adapter)
   end
 
   ## Utilities
@@ -163,6 +180,10 @@ defmodule EthBlockchain.Adapter do
   @spec call(call(), atom() | adapter() | nil, server()) :: resp({:ok, any()})
   def call(func_spec, adapter_spec \\ nil, pid \\ nil)
 
+  def call({:send, attrs}, adapter, pid) do
+    Transaction.send(attrs, adapter, pid)
+  end
+
   def call(func_spec, nil, pid) do
     adapter =
       :eth_blockchain
@@ -182,5 +203,32 @@ defmodule EthBlockchain.Adapter do
       error ->
         error
     end
+  end
+
+  def subscribe(
+        :transaction,
+        tx_hash,
+        subscriber_pid,
+        node_adapter \\ nil,
+        blockchain_adapter_pid \\ nil
+      ) do
+    :ok =
+      BlockchainTransactionRegistry.start_listener(TransactionListener, %{
+        id: tx_hash,
+        # TODO pull from config
+        interval: 500,
+        blockchain_adapter_pid: blockchain_adapter_pid,
+        node_adapter: node_adapter
+      })
+
+    BlockchainTransactionRegistry.subscribe(tx_hash, subscriber_pid)
+  end
+
+  def unsubscribe(:transaction, tx_hash, subscriber_pid) do
+    BlockchainTransactionRegistry.unsubscribe(tx_hash, subscriber_pid)
+  end
+
+  def lookup_listener(id) do
+    BlockchainTransactionRegistry.lookup(id)
   end
 end

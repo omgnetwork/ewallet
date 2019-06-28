@@ -14,10 +14,15 @@
 
 defmodule EthBlockchain.DumbAdapter do
   @moduledoc false
+  use GenServer
 
   @spec start_link :: :ignore | {:error, any} | {:ok, pid}
   def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
-  def init(:ok), do: {:ok, nil}
+
+  def init(:ok) do
+    {:ok, %{}}
+  end
+
   def stop(pid), do: GenServer.stop(pid)
 
   def handle_call({:get_balances, nil, _contract_addresses, _abi, _block}, _from, reg) do
@@ -31,6 +36,30 @@ defmodule EthBlockchain.DumbAdapter do
 
   def handle_call({:get_transaction_count, _address}, _from, reg) do
     {:reply, {:ok, "0x1"}, reg}
+  end
+
+  def handle_call({:get_block_number}, _from, reg) do
+    {:reply, 10, reg}
+  end
+
+  def handle_call({:get_transaction_receipt, tx_hash}, _from, reg) do
+    receipt = %{
+      block_hash: "0xaa21ae024ddf50fd7753bf75ea7646bfc505cb96f36ad6af00159f20be93eda1",
+      block_number: 2,
+      contract_address: nil,
+      cumulative_gas_used: 21000,
+      from: "0x47b7dabe049b5daec98048851494c8548066dc77",
+      gas_used: 21000,
+      logs: [],
+      logs_bloom:
+        "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      status: 1,
+      to: "0xa3dc43cb32b86b8add0e704d8db4ba6f1680a634",
+      transaction_hash: tx_hash,
+      transaction_index: 0
+    }
+
+    {:reply, {:ok, :success, receipt}, reg}
   end
 
   def handle_call({:send_raw, data}, _from, reg) do

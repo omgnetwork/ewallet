@@ -67,6 +67,22 @@ defmodule EWalletDB.BlockchainWallet do
     |> validate_length(:public_key, count: :bytes, max: 255)
   end
 
+  def get_primary_hot_wallet() do
+    :ewallet_db
+    |> Application.get_env(:primary_hot_wallet)
+    |> get("hot")
+  end
+
+  @doc """
+  Retrieves a blockchain wallet using its address.
+  """
+  @spec get(String.t(), String.t()) :: %BlockchainWallet{} | nil | no_return()
+  def get(nil, _), do: nil
+
+  def get(address, type) do
+    get_by(%{address: address, type: type})
+  end
+
   @doc """
   Retrieves a blockchain wallet using one or more fields.
   """

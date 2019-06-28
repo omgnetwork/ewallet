@@ -5,6 +5,7 @@ config :ewallet_db,
   env: Mix.env(),
   settings: [
     :base_url,
+    :primary_hot_wallet,
     :min_password_length,
     :file_storage_adapter,
     :aws_bucket,
