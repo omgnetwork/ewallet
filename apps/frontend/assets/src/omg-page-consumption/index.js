@@ -88,6 +88,7 @@ export const NameColumn = styled.div`
 class ConsumptionPage extends Component {
   static propTypes = {
     divider: PropTypes.bool,
+    showFilter: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
@@ -96,6 +97,7 @@ class ConsumptionPage extends Component {
   }
   static defaultProps = {
     query: {},
+    showFilter: true,
     fetcher: ConsumptionFetcher
   }
   constructor (props) {
@@ -205,7 +207,7 @@ class ConsumptionPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Transaction Consumptions'}
-          buttons={[this.renderAdvancedFilterButton()]}
+          buttons={[this.props.showFilter && this.renderAdvancedFilterButton()]}
         />
         <AdvancedFilter
           title='Filter Transaction Consumption'

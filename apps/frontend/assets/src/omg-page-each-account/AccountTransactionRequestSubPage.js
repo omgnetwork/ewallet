@@ -6,6 +6,7 @@ import TransactionRequestPage from '../omg-page-transaction-request'
 function AccountTransactionRequestSubPage (props) {
   return (
     <TransactionRequestPage
+      showFilter={false}
       createTransactionRequestButton
       divider={false}
       query={{

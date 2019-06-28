@@ -63,6 +63,7 @@ const OriginatorDetailContianer = styled.div`
 class ActivityLogPage extends Component {
   static propTypes = {
     divider: PropTypes.bool,
+    showFilter: PropTypes.bool,
     history: PropTypes.object,
     query: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
     location: PropTypes.object,
@@ -71,7 +72,8 @@ class ActivityLogPage extends Component {
   }
 
   static defaultProps = {
-    topNavigation: true
+    topNavigation: true,
+    showFilter: true
   }
 
   state = {
@@ -258,7 +260,7 @@ class ActivityLogPage extends Component {
           <TopNavigation
             divider={this.props.divider}
             title={'Activity Logs'}
-            buttons={[this.renderAdvancedFilterButton()]}
+            buttons={[this.props.showFilter && this.renderAdvancedFilterButton()]}
             normalPlaceholder='originator id, action'
           />
         )}

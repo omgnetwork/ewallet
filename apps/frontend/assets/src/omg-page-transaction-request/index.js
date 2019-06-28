@@ -84,12 +84,14 @@ class TransactionRequestsPage extends Component {
     divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
+    showFilter: PropTypes.bool,
     scrollTopContentContainer: PropTypes.func,
     query: PropTypes.object,
     createTransactionRequestButton: PropTypes.bool
   }
   static defaultProps = {
     query: {},
+    showFilter: true,
     createTransactionRequestButton: true
   }
   constructor (props) {
@@ -222,7 +224,7 @@ class TransactionRequestsPage extends Component {
           divider={this.props.divider}
           title={'Transaction Requests'}
           buttons={[
-            this.renderAdvancedFilterButton(),
+            this.props.showFilter && this.renderAdvancedFilterButton(),
             this.props.createTransactionRequestButton
               ? this.renderCreateTransactionRequestButton()
               : null

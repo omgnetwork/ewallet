@@ -67,6 +67,7 @@ class UsersPage extends Component {
     location: PropTypes.object,
     history: PropTypes.object,
     divider: PropTypes.bool,
+    showFilter: PropTypes.bool,
     scrollTopContentContainer: PropTypes.func,
     query: PropTypes.object,
     fetcher: PropTypes.func,
@@ -75,6 +76,7 @@ class UsersPage extends Component {
 
   static defaultProps = {
     query: {},
+    showFilter: true,
     fetcher: UsersFetcher
   }
   constructor (props) {
@@ -164,7 +166,7 @@ class UsersPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Users'}
-          buttons={[this.renderAdvancedFilterButton()]}
+          buttons={[this.props.showFilter && this.renderAdvancedFilterButton()]}
         />
         <AdvancedFilter
           title='Filter Users'

@@ -147,15 +147,13 @@ class WalletPage extends Component {
           ]}
         />
 
-        {this.props.showFilter && (
-          <AdvancedFilter
-            title='Filter Wallets'
-            page='wallets'
-            open={this.state.advancedFilterModalOpen}
-            onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
-            onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
-          />
-        )}
+        <AdvancedFilter
+          title='Filter Wallets'
+          page='wallets'
+          open={this.state.advancedFilterModalOpen}
+          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
+          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
+        />
 
         <SortableTableContainer>
           <SortableTable

@@ -23,12 +23,14 @@ class TransactionPage extends Component {
     scrollTopContentContainer: PropTypes.func,
     history: PropTypes.object,
     divider: PropTypes.bool,
-    query: PropTypes.array,
+    showFilter: PropTypes.bool,
+    query: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     topNavigation: PropTypes.bool
   }
   static defaultProps = {
     query: [],
-    topNavigation: true
+    topNavigation: true,
+    showFilter: true
   }
   state = {
     advancedFilterModalOpen: false,
@@ -79,7 +81,7 @@ class TransactionPage extends Component {
             divider={this.props.divider}
             title={'Transactions'}
             buttons={[
-              this.renderAdvancedFilterButton(),
+              this.props.showFilter && this.renderAdvancedFilterButton(),
               this.renderExportButton(),
               <CreateTransactionButton key={'create_transaction'} />
             ]}
