@@ -23,10 +23,12 @@ defmodule EWalletDB.UserBackupCode do
   alias Ecto.UUID
   alias Ecto.Multi
   alias EWalletDB.{User, UserBackupCode, Repo}
+  alias Utils.Helpers.Crypto
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "user_backup_code" do
+    field(:backup_code, :string, virtual: true)
     field(:hashed_backup_code, :string)
     field(:used_at, :naive_datetime_usec)
 
@@ -43,19 +45,19 @@ defmodule EWalletDB.UserBackupCode do
 
   defp changeset(%UserBackupCode{} = user_backup_code, attrs) do
     user_backup_code
-    |> cast(attrs, [:hashed_backup_code, :user_uuid, :used_at])
-    |> validate_required([:hashed_backup_code, :user_uuid])
+    |> cast(attrs, [:backup_code, :user_uuid, :used_at])
+    |> validate_required([:backup_code, :user_uuid])
     |> unique_constraint(:user_backup_code)
     |> assoc_constraint(:user)
+    |> put_change(:hashed_backup_code, Crypto.hash_secret(attrs[:backup_code]))
   end
 
   @doc """
-  Insert multiple user_backup_code within a single transaction by breaks the hashed_backup_codes into multiple record.
+  Insert multiple user_backup_code within a single transaction by breaks the backup_codes into multiple record.
   """
   def insert_multiple(%{user_uuid: nil}), do: {:error, :invalid_parameter}
 
-  def insert_multiple(%{hashed_backup_codes: hashed_backup_codes} = attrs)
-      when is_list(hashed_backup_codes) do
+  def insert_multiple(%{backup_codes: backup_codes} = attrs) when is_list(backup_codes) do
     attrs
     |> build_multiple_attrs()
     |> map_changeset()
@@ -72,9 +74,9 @@ defmodule EWalletDB.UserBackupCode do
   end
 
   defp build_multiple_attrs(attrs) do
-    Enum.map(attrs.hashed_backup_codes, fn hashed_backup_code ->
+    Enum.map(attrs.backup_codes, fn backup_code ->
       %{
-        hashed_backup_code: hashed_backup_code,
+        backup_code: backup_code,
         user_uuid: attrs.user_uuid,
         used_at: nil
       }
