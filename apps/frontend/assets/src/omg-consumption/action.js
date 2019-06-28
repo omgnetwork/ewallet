@@ -1,6 +1,9 @@
 import * as consumptionService from '../services/consumptionService'
 import { selectGetConsumptionById } from '../omg-consumption/selector'
-import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
+import {
+  createActionCreator,
+  createPaginationActionCreator
+} from '../utils/createActionCreator'
 
 export const getConsumptions = ({
   page,
@@ -32,6 +35,12 @@ export const getConsumptionById = id =>
     actionName: 'CONSUMPTION',
     action: 'REQUEST',
     service: () => consumptionService.getConsumptionById(id)
+  })
+export const cancelConsumptionById = id =>
+  createActionCreator({
+    actionName: 'CONSUMPTION',
+    action: 'CANCEL',
+    service: () => consumptionService.cancelConsumptionById(id)
   })
 
 export const approveConsumptionById = id => async (dispatch, getState) => {
@@ -66,7 +75,10 @@ export const rejectConsumptionById = id => async dispatch => {
         data: result.data.data
       })
     } else {
-      return dispatch({ type: 'CONSUMPTION/REJECT/FAILED', error: result.data.data })
+      return dispatch({
+        type: 'CONSUMPTION/REJECT/FAILED',
+        error: result.data.data
+      })
     }
   } catch (error) {
     console.log(error)
