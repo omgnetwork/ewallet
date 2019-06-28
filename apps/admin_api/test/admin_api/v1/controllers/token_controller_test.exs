@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
   alias EWallet.Web.V1.TokenSerializer
   alias EWalletDB.{Mint, Repo, Token, Wallet, Transaction}
   alias ActivityLogger.System
+  alias EthBlockchain.DumbAdapter
 
   describe "/token.all" do
     test_with_auths "returns a list of tokens and pagination data" do
@@ -899,6 +900,61 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation."
+    end
+  end
+
+  describe "/token.get_erc20_capabilities" do
+    test_with_auths "get erc20 attributes of a contract address" do
+
+      response =
+        request("/token.get_erc20_capabilities", %{
+          contract_address: DumbAdapter.valid_erc20_contract_address()
+        })
+      assert response["success"]
+      assert response["data"]["object"] == "erc20_attrs"
+      assert response["data"]["name"] == "OMGToken"
+      assert response["data"]["symbol"] == "OMG"
+      assert response["data"]["decimals"] == 18
+      assert response["data"]["total_supply"] == 100000000000000000000
+    end
+
+    test_with_auths "fails to get attributes for an invalid address" do
+      response =
+        request("/token.get_erc20_capabilities", %{
+          contract_address: DumbAdapter.invalid_erc20_contract_address()
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "token:not_erc20"
+
+      assert response["data"]["description"] ==
+               "The provided contract address does not implement the required erc20 functions."
+    end
+
+    test_with_auths "Raises invalid_parameter error if contract_address is missing" do
+      response = request("/token.get_erc20_capabilities", %{})
+
+      refute response["success"]
+
+      assert response["data"] == %{
+               "object" => "error",
+               "code" => "client:invalid_parameter",
+               "description" => "Invalid parameter provided. `contract_address` is required and must be in a valid format.",
+               "messages" => nil
+             }
+    end
+
+    test_with_auths "Raises invalid_parameter error if contract_address is in invalid format" do
+      response = request("/token.get_erc20_capabilities", %{contract_address: "123"})
+
+      refute response["success"]
+
+      assert response["data"] == %{
+               "object" => "error",
+               "code" => "client:invalid_parameter",
+               "description" => "Invalid parameter provided. `contract_address` is required and must be in a valid format.",
+               "messages" => nil
+             }
     end
   end
 end

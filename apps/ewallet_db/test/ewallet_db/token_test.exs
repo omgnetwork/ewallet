@@ -258,4 +258,38 @@ defmodule EWalletDB.TokenTest do
       assert token.enabled == false
     end
   end
+
+  describe "set_contract_address/2" do
+    test "set the blockchain address of a token" do
+      {:ok, token} = :token |> params_for() |> Token.insert()
+      assert token.blockchain_address == nil
+      assert token.blockchain_status == nil
+
+      {:ok, token} =
+        Token.set_contract_address(token, %{
+          blockchain_address: EthBlockchain.eth_address(),
+          blockchain_status: Token.blockchain_status_pending(),
+          originator: %System{}
+        })
+
+      assert token.blockchain_address == EthBlockchain.eth_address()
+      assert token.blockchain_status == Token.blockchain_status_pending()
+    end
+
+    test "fails to set an invalid blockchain status" do
+      {:ok, token} = :token |> params_for() |> Token.insert()
+      assert token.blockchain_address == nil
+      assert token.blockchain_status == nil
+
+      {status, changeset} =
+        Token.set_contract_address(token, %{
+          blockchain_address: EthBlockchain.eth_address(),
+          blockchain_status: "invalid status",
+          originator: %System{}
+        })
+
+      assert status == :error
+      refute changeset.valid?
+    end
+  end
 end

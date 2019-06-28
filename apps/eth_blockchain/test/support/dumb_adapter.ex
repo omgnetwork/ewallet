@@ -15,6 +15,12 @@
 defmodule EthBlockchain.DumbAdapter do
   @moduledoc false
 
+  @valid_erc20_contract "0x9080682a37961d3c814464e7ada1c7e1b4638a28"
+  @invalid_erc20_contract "0x9080682a37961d3c814464e7ada1c7e1b4638a27"
+
+  def valid_erc20_contract_address, do: @valid_erc20_contract
+  def invalid_erc20_contract_address, do: @invalid_erc20_contract
+
   @spec start_link :: :ignore | {:error, any} | {:ok, pid}
   def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
   def init(:ok), do: {:ok, nil}
@@ -40,21 +46,46 @@ defmodule EthBlockchain.DumbAdapter do
     {:reply, {:ok, data}, reg}
   end
 
-  #name
-  def handle_call({:get_field, _contract_address, "0x06fdde03"}, _from, reg) do
-    {:reply, {:ok, "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000084f4d47546f6b656e000000000000000000000000000000000000000000000000"}, reg}
+  # name
+  def handle_call({:get_field, @valid_erc20_contract, "0x06fdde03"}, _from, reg) do
+    {:reply,
+     {:ok,
+      "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000084f4d47546f6b656e000000000000000000000000000000000000000000000000"},
+     reg}
   end
-  #decimals
-  def handle_call({:get_field, _contract_address, "0x313ce567"}, _from, reg) do
+
+  def handle_call({:get_field, _contract, "0x06fdde03"}, _from, reg) do
+    {:reply, {:ok, "0x"}, reg}
+  end
+
+  # decimals
+  def handle_call({:get_field, @valid_erc20_contract, "0x313ce567"}, _from, reg) do
     {:reply, {:ok, "0x0000000000000000000000000000000000000000000000000000000000000012"}, reg}
   end
-  #total supply
-  def handle_call({:get_field, _contract_address, "0x18160ddd"}, _from, reg) do
+
+  def handle_call({:get_field, _contract, "0x313ce567"}, _from, reg) do
+    {:reply, {:ok, "0x"}, reg}
+  end
+
+  # total supply
+  def handle_call({:get_field, @valid_erc20_contract, "0x18160ddd"}, _from, reg) do
     {:reply, {:ok, "0x0000000000000000000000000000000000000000000000056bc75e2d63100000"}, reg}
   end
-  #symbol
-  def handle_call({:get_field, _contract_address, "0x95d89b41"}, _from, reg) do
-    {:reply, {:ok, "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034f4d470000000000000000000000000000000000000000000000000000000000"}, reg}
+
+  def handle_call({:get_field, _contract, "0x18160ddd"}, _from, reg) do
+    {:reply, {:ok, "0x"}, reg}
+  end
+
+  # symbol
+  def handle_call({:get_field, @valid_erc20_contract, "0x95d89b41"}, _from, reg) do
+    {:reply,
+     {:ok,
+      "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034f4d470000000000000000000000000000000000000000000000000000000000"},
+     reg}
+  end
+
+  def handle_call({:get_field, _contract, "0x95d89b41"}, _from, reg) do
+    {:reply, {:ok, "0x"}, reg}
   end
 
   def handle_call({:get_errors}, _from, reg) do
