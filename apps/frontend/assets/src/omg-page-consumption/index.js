@@ -185,9 +185,10 @@ class ConsumptionPage extends Component {
     pagination,
     fetch
   }) => {
-    const activeIndexKey = queryString.parse(this.props.location.search)[
-      'show-consumption-tab'
-    ]
+    const {
+      location: { search }
+    } = this.props
+    const activeIndexKey = queryString.parse(search)['show-consumption-tab']
     return (
       <ConsumptionPageContainer>
         <TopNavigation
