@@ -154,6 +154,14 @@ defmodule EWallet.Web.MatchParser do
   defp get_field_definition(_, _), do: nil
 
   defp join_assocs(queryable, rules) do
+    # Offset the existing joins already present on the query
+    # If it's not a query, then it should be safe enough to assume the offet is zero
+    assoc_offset =
+      case queryable do
+        %Ecto.Query{} = queryable -> length(queryable.joins)
+        _ -> 0
+      end
+
     {queryable, joined_assocs} =
       Enum.reduce(rules, {queryable, []}, fn rule, {queryable, joined_assocs} ->
         {field_definition, _comparator, _value} = rule
@@ -173,7 +181,7 @@ defmodule EWallet.Web.MatchParser do
     joined_assocs =
       joined_assocs
       |> Enum.reverse()
-      |> Enum.with_index()
+      |> Enum.with_index(assoc_offset)
 
     {queryable, joined_assocs}
   end
