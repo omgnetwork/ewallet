@@ -4448,78 +4448,62 @@ paths:
                 address: '0x54e0588607dcec6c0b36fca1154a57814a913591'
       responses:
         '200':
-          description: The response schema for a blockchain wallet
-          allOf:
-            - *ref_1
-            - type: object
-              properties:
-                data:
-                  type: object
-                  description: The response schema for a blockchain wallet
-                  allOf:
-                    - *ref_1
-                    - type: object
-                      properties:
-                        data:
-                          type: object
-                          description: The object schema for a blockchain wallet
-                          properties: &ref_52
-                            object:
-                              type: string
-                            address:
-                              type: string
-                            name:
-                              type: string
-                            balances:
-                              type: array
-                              items:
-                                description: The object schema for a balance
-                                type: object
-                                properties:
-                                  object:
-                                    type: string
-                                  token:
-                                    type: object
-                                    description: The object schema for a token
-                                    properties: *ref_13
-                                    required: *ref_14
-                                  amount:
-                                    type: number
-                                required:
-                                  - object
-                                  - token
-                                  - amount
-                          required: &ref_53
-                            - object
-                            - address
-                            - name
-                            - balances
-                      example:
-                        data:
-                          object: blockchain_wallet
-                          address: 4.845583031631242e+47
-                          name: blockchain_wallet_01
+          description: Returns a blockchain wallet
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a blockchain wallet
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a blockchain wallet
+                        properties: &ref_52
+                          object:
+                            type: string
+                          address:
+                            type: string
+                          name:
+                            type: string
                           balances:
-                            - amount: 0
-                              token:
-                                object: token
-                                id: tok_BTC_01cbffybmtbbb449r05zgfct2h
-                                symbol: BTC
-                                name: Bitcoin
-                                subunit_to_unit: 100000000000000000
-              example:
-                data:
-                  object: blockchain_wallet
-                  address: 4.845583031631242e+47
-                  name: blockchain_wallet_01
-                  balances:
-                    - amount: 0
-                      token:
-                        object: token
-                        id: tok_BTC_01cbffybmtbbb449r05zgfct2h
-                        symbol: BTC
-                        name: Bitcoin
-                        subunit_to_unit: 100000000000000000
+                            type: array
+                            items:
+                              description: The object schema for a balance
+                              type: object
+                              properties:
+                                object:
+                                  type: string
+                                token:
+                                  type: object
+                                  description: The object schema for a token
+                                  properties: *ref_13
+                                  required: *ref_14
+                                amount:
+                                  type: number
+                              required:
+                                - object
+                                - token
+                                - amount
+                        required: &ref_53
+                          - object
+                          - address
+                          - name
+                          - balances
+                    example:
+                      data:
+                        object: blockchain_wallet
+                        address: 4.845583031631242e+47
+                        name: blockchain_wallet_01
+                        balances:
+                          - amount: 0
+                            token:
+                              object: token
+                              id: tok_BTC_01cbffybmtbbb449r05zgfct2h
+                              symbol: BTC
+                              name: Bitcoin
+                              subunit_to_unit: 100000000000000000
         '500': *ref_7
   /blockchain_wallet.all:
     post:

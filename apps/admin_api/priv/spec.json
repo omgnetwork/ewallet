@@ -32392,206 +32392,158 @@
         },
         "responses": {
           "200": {
-            "description": "The response schema for a blockchain wallet",
-            "allOf": [
-              {
-                "description": "The response schema for a successful operation",
-                "type": "object",
-                "properties": {
-                  "version": {
-                    "type": "string"
-                  },
-                  "success": {
-                    "type": "boolean"
-                  },
-                  "data": {
-                    "type": "object"
-                  }
-                },
-                "required": [
-                  "version",
-                  "success",
-                  "data"
-                ],
-                "example": {
-                  "version": "1",
-                  "success": true,
-                  "data": {}
-                }
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "data": {
-                    "type": "object",
-                    "description": "The response schema for a blockchain wallet",
-                    "allOf": [
-                      {
-                        "description": "The response schema for a successful operation",
-                        "type": "object",
-                        "properties": {
-                          "version": {
-                            "type": "string"
-                          },
-                          "success": {
-                            "type": "boolean"
-                          },
-                          "data": {
-                            "type": "object"
-                          }
+            "description": "Returns a blockchain wallet",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a blockchain wallet",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
                         },
-                        "required": [
-                          "version",
-                          "success",
-                          "data"
-                        ],
-                        "example": {
-                          "version": "1",
-                          "success": true,
-                          "data": {}
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
                         }
                       },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "data": {
-                            "type": "object",
-                            "description": "The object schema for a blockchain wallet",
-                            "properties": {
-                              "object": {
-                                "type": "string"
-                              },
-                              "address": {
-                                "type": "string"
-                              },
-                              "name": {
-                                "type": "string"
-                              },
-                              "balances": {
-                                "type": "array",
-                                "items": {
-                                  "description": "The object schema for a balance",
-                                  "type": "object",
-                                  "properties": {
-                                    "object": {
-                                      "type": "string"
-                                    },
-                                    "token": {
-                                      "type": "object",
-                                      "description": "The object schema for a token",
-                                      "properties": {
-                                        "object": {
-                                          "type": "string"
-                                        },
-                                        "id": {
-                                          "type": "string"
-                                        },
-                                        "symbol": {
-                                          "type": "string"
-                                        },
-                                        "name": {
-                                          "type": "string"
-                                        },
-                                        "subunit_to_unit": {
-                                          "type": "integer"
-                                        },
-                                        "avatar": {
-                                          "type": "object"
-                                        },
-                                        "created_at": {
-                                          "type": "string",
-                                          "format": "date-time"
-                                        },
-                                        "updated_at": {
-                                          "type": "string",
-                                          "format": "date-time"
-                                        },
-                                        "metadata": {
-                                          "type": "object"
-                                        },
-                                        "encrypted_metadata": {
-                                          "type": "object"
-                                        },
-                                        "enabled": {
-                                          "type": "boolean"
-                                        }
-                                      },
-                                      "required": [
-                                        "object",
-                                        "id",
-                                        "symbol",
-                                        "name",
-                                        "subunit_to_unit",
-                                        "avatar",
-                                        "created_at",
-                                        "updated_at",
-                                        "enabled"
-                                      ]
-                                    },
-                                    "amount": {
-                                      "type": "number"
-                                    }
-                                  },
-                                  "required": [
-                                    "object",
-                                    "token",
-                                    "amount"
-                                  ]
-                                }
-                              }
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for a blockchain wallet",
+                          "properties": {
+                            "object": {
+                              "type": "string"
                             },
-                            "required": [
-                              "object",
-                              "address",
-                              "name",
-                              "balances"
-                            ]
-                          }
-                        },
-                        "example": {
-                          "data": {
-                            "object": "blockchain_wallet",
-                            "address": 4.845583031631242e+47,
-                            "name": "blockchain_wallet_01",
-                            "balances": [
-                              {
-                                "amount": 0,
-                                "token": {
-                                  "object": "token",
-                                  "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                  "symbol": "BTC",
-                                  "name": "Bitcoin",
-                                  "subunit_to_unit": 100000000000000000
-                                }
+                            "address": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "balances": {
+                              "type": "array",
+                              "items": {
+                                "description": "The object schema for a balance",
+                                "type": "object",
+                                "properties": {
+                                  "object": {
+                                    "type": "string"
+                                  },
+                                  "token": {
+                                    "type": "object",
+                                    "description": "The object schema for a token",
+                                    "properties": {
+                                      "object": {
+                                        "type": "string"
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "symbol": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "subunit_to_unit": {
+                                        "type": "integer"
+                                      },
+                                      "avatar": {
+                                        "type": "object"
+                                      },
+                                      "created_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      },
+                                      "updated_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      },
+                                      "metadata": {
+                                        "type": "object"
+                                      },
+                                      "encrypted_metadata": {
+                                        "type": "object"
+                                      },
+                                      "enabled": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "object",
+                                      "id",
+                                      "symbol",
+                                      "name",
+                                      "subunit_to_unit",
+                                      "avatar",
+                                      "created_at",
+                                      "updated_at",
+                                      "enabled"
+                                    ]
+                                  },
+                                  "amount": {
+                                    "type": "number"
+                                  }
+                                },
+                                "required": [
+                                  "object",
+                                  "token",
+                                  "amount"
+                                ]
                               }
-                            ]
-                          }
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "address",
+                            "name",
+                            "balances"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "blockchain_wallet",
+                          "address": 4.845583031631242e+47,
+                          "name": "blockchain_wallet_01",
+                          "balances": [
+                            {
+                              "amount": 0,
+                              "token": {
+                                "object": "token",
+                                "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
+                                "symbol": "BTC",
+                                "name": "Bitcoin",
+                                "subunit_to_unit": 100000000000000000
+                              }
+                            }
+                          ]
                         }
                       }
-                    ]
-                  }
-                },
-                "example": {
-                  "data": {
-                    "object": "blockchain_wallet",
-                    "address": 4.845583031631242e+47,
-                    "name": "blockchain_wallet_01",
-                    "balances": [
-                      {
-                        "amount": 0,
-                        "token": {
-                          "object": "token",
-                          "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                          "symbol": "BTC",
-                          "name": "Bitcoin",
-                          "subunit_to_unit": 100000000000000000
-                        }
-                      }
-                    ]
-                  }
+                    }
+                  ]
                 }
               }
-            ]
+            }
           },
           "500": {
             "description": "Returns an internal server error",
