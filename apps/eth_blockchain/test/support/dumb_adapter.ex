@@ -40,8 +40,21 @@ defmodule EthBlockchain.DumbAdapter do
     {:reply, {:ok, data}, reg}
   end
 
-  def handle_call({:get_field, _contract_address, _encoded_abi_data}, _from, reg) do
-    {:reply, {:ok, "something"}, reg}
+  #name
+  def handle_call({:get_field, _contract_address, "0x06fdde03"}, _from, reg) do
+    {:reply, {:ok, "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000084f4d47546f6b656e000000000000000000000000000000000000000000000000"}, reg}
+  end
+  #decimals
+  def handle_call({:get_field, _contract_address, "0x313ce567"}, _from, reg) do
+    {:reply, {:ok, "0x0000000000000000000000000000000000000000000000000000000000000012"}, reg}
+  end
+  #total supply
+  def handle_call({:get_field, _contract_address, "0x18160ddd"}, _from, reg) do
+    {:reply, {:ok, "0x0000000000000000000000000000000000000000000000056bc75e2d63100000"}, reg}
+  end
+  #symbol
+  def handle_call({:get_field, _contract_address, "0x95d89b41"}, _from, reg) do
+    {:reply, {:ok, "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034f4d470000000000000000000000000000000000000000000000000000000000"}, reg}
   end
 
   def handle_call({:get_errors}, _from, reg) do
