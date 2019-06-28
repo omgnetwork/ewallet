@@ -29,7 +29,6 @@ defmodule EWalletDB.BlockchainWalletTest do
     test_insert_field_length(BlockchainWallet, :name)
     test_insert_field_length(BlockchainWallet, :public_key)
 
-    test_insert_prevent_all_blank(BlockchainWallet, [:account, :user])
     test_insert_prevent_duplicate(BlockchainWallet, :address, "0x123")
     test_insert_prevent_duplicate(BlockchainWallet, :name, "A name")
     test_insert_prevent_duplicate(BlockchainWallet, :public_key, "0x321")
@@ -37,53 +36,22 @@ defmodule EWalletDB.BlockchainWalletTest do
     test "insert successfuly when type is valid" do
       {res_1, _wallet} =
         :blockchain_wallet
-        |> params_for(%{type: "hot", user: insert(:user)})
+        |> params_for(%{type: "hot"})
         |> BlockchainWallet.insert()
 
       {res_2, _wallet} =
         :blockchain_wallet
-        |> params_for(%{type: "cold", user: insert(:user)})
+        |> params_for(%{type: "cold"})
         |> BlockchainWallet.insert()
 
       assert res_1 == :ok
       assert res_2 == :ok
     end
 
-    test "allows insert if provided a user without account_uuid" do
-      {res, _wallet} =
-        :blockchain_wallet
-        |> params_for(%{user: insert(:user), account_uuid: nil})
-        |> BlockchainWallet.insert()
-
-      assert res == :ok
-    end
-
-    test "allows insert if provided an account without user" do
-      {res, _wallet} =
-        :blockchain_wallet
-        |> params_for(%{account: insert(:account), user: nil})
-        |> BlockchainWallet.insert()
-
-      assert res == :ok
-    end
-
-    test "prevents creation of a blockchain wallet with both a user and account" do
-      params = %{user: insert(:user), account: insert(:account)}
-      {result, changeset} = :blockchain_wallet |> params_for(params) |> BlockchainWallet.insert()
-
-      assert result == :error
-
-      assert changeset.errors ==
-               [
-                 {%{account_uuid: nil, user_uuid: nil},
-                  {"only one must be present", [validation: :only_one_required]}}
-               ]
-    end
-
     test "fails to insert when type is invalid" do
       {res, _wallet} =
         :blockchain_wallet
-        |> params_for(%{type: "invalid_type", user: insert(:user)})
+        |> params_for(%{type: "invalid_type"})
         |> BlockchainWallet.insert()
 
       assert res == :error

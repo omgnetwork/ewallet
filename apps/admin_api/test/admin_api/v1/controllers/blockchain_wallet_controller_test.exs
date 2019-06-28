@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
   use AdminAPI.ConnCase, async: true
 
   alias Utils.Helpers.DateFormatter
-  alias EWallet.Web.V1.{UserSerializer, TokenSerializer}
+  alias EWallet.Web.V1.TokenSerializer
 
   describe "/blockchain_wallet.get" do
     test_with_auths "returns a wallet when given an existing blockchain wallet address" do
@@ -43,11 +43,6 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                  "object" => "blockchain_wallet",
                  "created_at" => DateFormatter.to_iso8601(blockchain_wallet.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(blockchain_wallet.updated_at),
-                 "account" => nil,
-                 "account_id" => nil,
-                 "user_id" => blockchain_wallet.user.id,
-                 "user" =>
-                   blockchain_wallet.user |> UserSerializer.serialize() |> stringify_keys(),
                  "balances" => [
                    %{
                      "object" => "balance",
@@ -134,11 +129,6 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                      "object" => "blockchain_wallet",
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_1.inserted_at),
                      "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_1.updated_at),
-                     "account" => nil,
-                     "account_id" => nil,
-                     "user_id" => blockchain_wallet_1.user.id,
-                     "user" =>
-                       blockchain_wallet_1.user |> UserSerializer.serialize() |> stringify_keys(),
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -158,11 +148,6 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                      "object" => "blockchain_wallet",
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
                      "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at),
-                     "account" => nil,
-                     "account_id" => nil,
-                     "user_id" => blockchain_wallet_2.user.id,
-                     "user" =>
-                       blockchain_wallet_2.user |> UserSerializer.serialize() |> stringify_keys(),
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -219,11 +204,6 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                      "object" => "blockchain_wallet",
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
                      "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at),
-                     "account" => nil,
-                     "account_id" => nil,
-                     "user_id" => blockchain_wallet_2.user.id,
-                     "user" =>
-                       blockchain_wallet_2.user |> UserSerializer.serialize() |> stringify_keys(),
                      "balances" => [
                        %{
                          "object" => "balance",

@@ -20,16 +20,10 @@ defmodule EWallet.Web.V1.BlockchainWalletOverlay do
   @behaviour EWallet.Web.V1.Overlay
 
   def preload_assocs,
-    do: [
-      :user,
-      :account
-    ]
+    do: []
 
   def default_preload_assocs,
-    do: [
-      :user,
-      :account
-    ]
+    do: []
 
   def search_fields,
     do: [

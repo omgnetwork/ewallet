@@ -28,7 +28,7 @@ defmodule EWallet.Bouncer.BlockchainWalletScope do
     do_scoped_query(actor, global_abilities) || do_scoped_query(actor, account_abilities)
   end
 
-  defp do_scoped_query(_actor, %{account_blockchain_wallets: :global}) do
+  defp do_scoped_query(_actor, %{blockchain_wallets: :global}) do
     BlockchainWallet
   end
 

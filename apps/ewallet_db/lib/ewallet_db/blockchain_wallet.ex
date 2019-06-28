@@ -23,7 +23,7 @@ defmodule EWalletDB.BlockchainWallet do
   import EWalletDB.Helpers.Preloader
 
   alias Ecto.UUID
-  alias EWalletDB.{Repo, BlockchainWallet, User, Account}
+  alias EWalletDB.{Repo, BlockchainWallet}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
@@ -39,22 +39,6 @@ defmodule EWalletDB.BlockchainWallet do
     field(:public_key, :string)
     field(:type, :string)
 
-    belongs_to(
-      :user,
-      User,
-      foreign_key: :user_uuid,
-      references: :uuid,
-      type: UUID
-    )
-
-    belongs_to(
-      :account,
-      Account,
-      foreign_key: :account_uuid,
-      references: :uuid,
-      type: UUID
-    )
-
     activity_logging()
     timestamps()
   end
@@ -67,8 +51,6 @@ defmodule EWalletDB.BlockchainWallet do
         :uuid,
         :address,
         :public_key,
-        :account_uuid,
-        :user_uuid,
         :name,
         :type
       ],
@@ -77,7 +59,6 @@ defmodule EWalletDB.BlockchainWallet do
     |> unique_constraint(:address)
     |> unique_constraint(:name)
     |> unique_constraint(:public_key)
-    |> validate_required_exclusive(%{account_uuid: nil, user_uuid: nil})
     |> validate_immutable(:address)
     |> validate_immutable(:public_key)
     |> validate_inclusion(:type, @wallet_types)

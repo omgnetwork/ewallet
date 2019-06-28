@@ -21,9 +21,7 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializer do
   alias EWallet.Web.V1.{
     BalanceSerializer,
     ListSerializer,
-    PaginatorSerializer,
-    AccountSerializer,
-    UserSerializer
+    PaginatorSerializer
   }
 
   alias EWalletDB.BlockchainWallet
@@ -47,10 +45,6 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializer do
       address: wallet.address,
       name: wallet.name,
       balances: serialize_balances(wallet),
-      user_id: Assoc.get(wallet, [:user, :id]),
-      user: UserSerializer.serialize(wallet.user),
-      account_id: Assoc.get(wallet, [:account, :id]),
-      account: AccountSerializer.serialize(wallet.account),
       created_at: DateFormatter.to_iso8601(wallet.inserted_at),
       updated_at: DateFormatter.to_iso8601(wallet.updated_at)
     }

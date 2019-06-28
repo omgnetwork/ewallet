@@ -28,7 +28,7 @@ defmodule EWallet.Bouncer.BlockchainWalletScopeTest do
 
       permission = %Permission{
         actor: actor,
-        global_abilities: %{account_blockchain_wallets: :global},
+        global_abilities: %{blockchain_wallets: :global},
         account_abilities: %{}
       }
 
@@ -45,7 +45,7 @@ defmodule EWallet.Bouncer.BlockchainWalletScopeTest do
 
       permission = %Permission{
         actor: actor,
-        global_abilities: %{account_blockchain_wallets: :accounts},
+        global_abilities: %{blockchain_wallets: :accounts},
         account_abilities: %{}
       }
 
@@ -57,7 +57,7 @@ defmodule EWallet.Bouncer.BlockchainWalletScopeTest do
 
       permission = %Permission{
         actor: actor,
-        global_abilities: %{account_blockchain_wallets: :self},
+        global_abilities: %{blockchain_wallets: :self},
         account_abilities: %{}
       }
 
@@ -69,7 +69,7 @@ defmodule EWallet.Bouncer.BlockchainWalletScopeTest do
 
       permission = %Permission{
         actor: actor,
-        global_abilities: %{account_blockchain_wallets: :none},
+        global_abilities: %{blockchain_wallets: :none},
         account_abilities: %{}
       }
 
@@ -87,7 +87,7 @@ defmodule EWallet.Bouncer.BlockchainWalletScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities: %{account_blockchain_wallets: :global}
+        account_abilities: %{blockchain_wallets: :global}
       }
 
       query = BlockchainWalletScope.scoped_query(permission)
@@ -104,7 +104,7 @@ defmodule EWallet.Bouncer.BlockchainWalletScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities: %{account_blockchain_wallets: :accounts}
+        account_abilities: %{blockchain_wallets: :accounts}
       }
 
       assert BlockchainWalletScope.scoped_query(permission) == nil
@@ -116,7 +116,7 @@ defmodule EWallet.Bouncer.BlockchainWalletScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities: %{account_blockchain_wallets: :self}
+        account_abilities: %{blockchain_wallets: :self}
       }
 
       assert BlockchainWalletScope.scoped_query(permission) == nil
@@ -128,7 +128,7 @@ defmodule EWallet.Bouncer.BlockchainWalletScopeTest do
       permission = %Permission{
         actor: actor,
         global_abilities: %{},
-        account_abilities: %{account_blockchain_wallets: :none}
+        account_abilities: %{blockchain_wallets: :none}
       }
 
       assert BlockchainWalletScope.scoped_query(permission) == nil

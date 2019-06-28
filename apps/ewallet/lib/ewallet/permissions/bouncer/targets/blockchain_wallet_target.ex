@@ -22,11 +22,11 @@ defmodule EWallet.Bouncer.BlockchainWalletTarget do
   @spec get_owner_uuids(BlockchainWallet.t()) :: []
   def get_owner_uuids(_), do: []
 
-  @spec get_target_types() :: [:account_blockchain_wallets]
-  def get_target_types, do: [:account_blockchain_wallets]
+  @spec get_target_types() :: [:blockchain_wallets]
+  def get_target_types, do: [:blockchain_wallets]
 
-  @spec get_target_type(%BlockchainWallet{}) :: :account_blockchain_wallets
-  def get_target_type(%BlockchainWallet{}), do: :account_blockchain_wallets
+  @spec get_target_type(%BlockchainWallet{}) :: :blockchain_wallets
+  def get_target_type(%BlockchainWallet{}), do: :blockchain_wallets
 
   def get_target_accounts(%BlockchainWallet{}, _dispatch_config), do: []
 end
