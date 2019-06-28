@@ -13,10 +13,14 @@
 # limitations under the License.
 
 defmodule EWallet.TransactionRegistry do
+  @moduledoc """
+
+  """
   use GenServer
 
-  def start_link(_opts) do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+  def start_link(opts) do
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, :ok, name: name)
   end
 
   @impl true
@@ -24,32 +28,39 @@ defmodule EWallet.TransactionRegistry do
     {:ok, %{}}
   end
 
-  @impl true
+  def handle_call({:get_registry}, _from, registry) do
+    {:reply, registry, registry}
+  end
+
   def handle_call({:lookup, uuid}, _from, registry) do
     {:reply, Map.fetch(registry, uuid), registry}
   end
 
   @impl true
-  def handle_call({:listen, listener, transaction}, _from, registry) do
+  def handle_call({:track, tracker, transaction}, _from, registry) do
     if Map.has_key?(registry, transaction.uuid) do
       {:reply, :ok, registry}
     else
       {:ok, pid} =
-        DynamicSupervisor.start_child(EWallet.DynamicListenerSupervisor, {listener, transaction})
+        DynamicSupervisor.start_child(EWallet.DynamicListenerSupervisor, {tracker, transaction})
 
       {:reply, :ok,
        Map.put(registry, transaction.uuid, %{
-         listener: listener,
+         tracker: tracker,
          pid: pid
        })}
     end
+  end
+
+  def get_registry(pid \\ __MODULE__) do
+    GenServer.call(pid, {:get_registry})
   end
 
   def lookup(uuid, pid \\ __MODULE__) do
     GenServer.call(pid, {:lookup, uuid})
   end
 
-  def start_listener(listener, transaction, pid \\ __MODULE__) do
-    GenServer.call(pid, {:listen, listener, transaction})
+  def start_tracker(tracker, transaction, pid \\ __MODULE__) do
+    GenServer.call(pid, {:track, tracker, transaction})
   end
 end

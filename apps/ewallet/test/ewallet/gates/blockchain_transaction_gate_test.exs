@@ -19,23 +19,26 @@ defmodule EWallet.BlockchainTransactionGateTest do
   alias EWalletDB.BlockchainWallet
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
+  alias Ecto.UUID
 
   describe "create/2" do
     test "submits a transaction to the blockchain subapp (hot wallet to blockchain address)",
          meta do
-      # TODO switch to using the seeded Ethereum
-      token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+      # TODO: switch to using the seeded Ethereum address
+      admin = insert(:admin, global_role: "super_admin")
+      primary_blockchain_token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
       hot_wallet = BlockchainWallet.get_primary_hot_wallet()
 
       attrs = %{
+        "idempotency_token" => UUID.generate(),
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
-        "token_id" => token.id,
+        "token_id" => primary_blockchain_token.id,
         "amount" => 1,
         "originator" => %System{}
       }
 
-      {:ok, transaction} = BlockchainTransactionGate.create(attrs, [true, true])
+      {:ok, transaction} = BlockchainTransactionGate.create(admin, attrs, [true, true])
 
       assert transaction.status == "submitted"
       assert transaction.type == "external"
@@ -43,24 +46,87 @@ defmodule EWallet.BlockchainTransactionGateTest do
       assert transaction.confirmations_count == nil
 
       {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
-      assert %{listener: EWallet.TransactionListener, pid: pid} = res
+      assert %{tracker: EWallet.TransactionTracker, pid: pid} = res
 
       {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
       assert %{listener: _, pid: blockchain_listener_pid} = res
 
-      ref = Process.monitor(pid)
+      :sys.get_state(pid)
+      :sys.get_state(blockchain_listener_pid)
+    end
 
-      receive do
-        {:DOWN, ^ref, _, _, _} ->
-          IO.puts("Process ewallet listener #{inspect(pid)} is down")
-      end
+    test "returns an error when trying to exchange" do
+      admin = insert(:admin, global_role: "super_admin")
+      primary_blockchain_token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+      token = insert(:token)
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet()
 
-      ref = Process.monitor(blockchain_listener_pid)
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => hot_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "from_token_id" => primary_blockchain_token.id,
+        "to_token_id" => token.id,
+        "amount" => 1,
+        "originator" => %System{}
+      }
 
-      receive do
-        {:DOWN, ^ref, _, _, _} ->
-          IO.puts("Process blockchain listener #{inspect(pid)} is down")
-      end
+      {:error, :blockchain_exchange_not_allowed} =
+        BlockchainTransactionGate.create(admin, attrs, [true, true])
+    end
+
+    test "returns an error when amounts are not valid" do
+      admin = insert(:admin, global_role: "super_admin")
+      primary_blockchain_token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet()
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => hot_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "token_id" => primary_blockchain_token.id,
+        "from_amount" => 1,
+        "to_amount" => 2,
+        "originator" => %System{}
+      }
+
+      {:error, :amounts_missing_or_invalid} =
+        BlockchainTransactionGate.create(admin, attrs, [true, true])
+    end
+
+    test "returns an error when the hot wallet doesn't have enough funds" do
+      admin = insert(:admin, global_role: "super_admin")
+      primary_blockchain_token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet()
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => hot_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "token_id" => primary_blockchain_token.id,
+        "amount" => 125,
+        "originator" => %System{}
+      }
+
+      {:error, :insufficient_funds} = BlockchainTransactionGate.create(admin, attrs, [true, true])
+    end
+
+    test "returns an error if the token is not a blockchain token" do
+      admin = insert(:admin, global_role: "super_admin")
+      token = insert(:token)
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet()
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => hot_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "token_id" => token.id,
+        "amount" => 1,
+        "originator" => %System{}
+      }
+
+      {:error, :token_not_blockchain_enabled} =
+        BlockchainTransactionGate.create(admin, attrs, [true, true])
     end
   end
 end

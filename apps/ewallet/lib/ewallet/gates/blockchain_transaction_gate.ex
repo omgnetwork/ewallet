@@ -14,52 +14,49 @@
 
 defmodule EWallet.BlockchainTransactionGate do
   @moduledoc """
-  Handles the logic for a transaction of value from an account to a user. Delegates the
-  actual transaction to EWallet.LocalTransactionGate once the wallets have been loaded.
+  Handles the logic for blockchain transactions. Validates the inputs, inserts the
+  initial transaction before calling a Transaction Tracker that will take care
+  of updating the fields based on events coming from the blockchain side.
+
+  This is using a different approach than the LocalTransactionGate
+  for simplicity (modifying the existing inputs instead of creating new
+  data structures).
   """
   alias EWallet.{
-    AccountFetcher,
-    AmountFetcher,
+    BlockchainTransactionPolicy,
     TokenFetcher,
-    TransactionFormatter,
-    TransactionSourceFetcher,
-    BlockchainTransactionGate,
     BlockchainTransactionState,
     TransactionRegistry,
-    TransactionListener
+    TransactionTracker
   }
 
-  alias EWalletDB.{AccountUser, BlockchainWallet, Transaction}
+  alias EWalletDB.{BlockchainWallet, Transaction}
   alias ActivityLogger.System
-  alias LocalLedger.Transaction, as: LedgerTransaction
 
-  # internal to external
-  # hot to cold (needs to be referenced?)
-  #   if exchange? -> 1 ABC -> 1 DEF, from A to B, turns it internally if possible, and send DEF on the bc
-  #
-  # hot to external -> reject
-
-  # We're trying to send a transaction from the hot wallet to
+  # Here, we send a transaction from the hot wallet to
   # an external blockchain address. This should only be used to manage
   # the funds repartition between hot and cold wallets.
-  def create(%{"from_address" => from} = attrs, [true, true]) do
+  def create(actor, %{"from_address" => from} = attrs, [true, true]) do
     primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet()
 
-    # TODO: Check permissions
     # TODO: Check hot wallet balance on blockchain
-    with true <-
+    with {:ok, _} <- BlockchainTransactionPolicy.authorize(:create, actor, attrs),
+         true <-
            primary_hot_wallet.address == from ||
              :from_blockchain_address_is_not_primary_hot_wallet,
          %{} = attrs <- set_payload(attrs),
          %{} = attrs <- set_blockchain_addresses(attrs),
          %{} = attrs <- set_token(attrs),
          %{} = attrs <- check_amount(attrs),
+         true <-
+           enough_funds?(from, attrs["from_token"], attrs["from_amount"]) ||
+             {:error, :insufficient_funds},
          %{} = attrs <- set_blockchain(attrs),
          {:ok, transaction} <- get_or_insert(attrs),
          {:ok, tx_hash} <- submit(transaction),
          {:ok, transaction} <-
            BlockchainTransactionState.transition_to(:submitted, transaction, tx_hash, %System{}),
-         :ok = TransactionRegistry.start_listener(TransactionListener, transaction) do
+         :ok = TransactionRegistry.start_tracker(TransactionTracker, transaction) do
       {:ok, transaction}
     else
       error when is_atom(error) ->
@@ -70,21 +67,22 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
-  # Error: can't handle a transaction from hot wallet to something other than a blockchain address
-  def create(attrs, [true, false]) do
+  # Error: we can't handle a transaction from hot wallet to something
+  # other than a blockchain address
+  def create(_actor, _attrs, [true, false]) do
     {:error, :invalid_to_address_for_blockchain_transaction}
   end
 
   # Here we're handling a regular transaction getting funds out of an
   # internal wallet to a blockchain address
-  def create(attrs, [false, true]) do
-    # TODO
+  def create(_actor, _attrs, [false, true]) do
+    # TODO: Next PR
     {:error, :not_implemented}
   end
 
   def get_or_insert(
         %{
-          "idempotency_token" => idempotency_token
+          "idempotency_token" => _idempotency_token
         } = attrs
       ) do
     Transaction.get_or_insert(attrs)
@@ -105,25 +103,44 @@ defmodule EWallet.BlockchainTransactionGate do
   defp set_blockchain_addresses(attrs) do
     attrs
     |> Map.put("to_blockchain_address", attrs["to_address"])
-    # TODO: remove this
-    |> Map.put("idempotency_token", Ecto.UUID.generate())
     |> Map.put("from_blockchain_address", attrs["from_address"])
     |> Map.delete("to_address")
     |> Map.delete("from_address")
   end
 
   defp set_token(attrs) do
-    # TODO: add check for token status
+    # TODO: add check for blockchain token status
     with {:ok, %{from_token: from_token}, %{to_token: to_token}} <-
            TokenFetcher.fetch(attrs, %{}, %{}),
-         true <- from_token.uuid == to_token.uuid || {:error, :blockchain_exchange_not_allowed},
-         true <- !is_nil(from_token.blockchain_address) || {:error, :token_not_blockchain_enabled} do
+         true <-
+           is_binary(from_token.blockchain_address) || {:error, :token_not_blockchain_enabled},
+         true <- from_token.uuid == to_token.uuid || {:error, :blockchain_exchange_not_allowed} do
       attrs
       |> Map.put("from_token_uuid", from_token.uuid)
+      |> Map.put("from_token", from_token)
       |> Map.put("to_token_uuid", from_token.uuid)
+      |> Map.put("to_token", from_token)
     else
       error -> error
     end
+  end
+
+  defp enough_funds?(address, token, amount) do
+    blockchain_adapter = Application.get_env(:ewallet, :blockchain_adapter)
+    node_adapter = Application.get_env(:ewallet, :node_adapter)
+
+    # TODO: handle errors
+    {:ok, balances} =
+      blockchain_adapter.call(
+        {:get_balances,
+         %{
+           address: address,
+           contract_addresses: [token.blockchain_address]
+         }},
+        node_adapter
+      )
+
+    (balances[token.blockchain_address] || 0) > amount
   end
 
   defp set_blockchain(attrs) do
@@ -147,10 +164,11 @@ defmodule EWallet.BlockchainTransactionGate do
     |> Map.put("to_amount", amount)
   end
 
-  defp check_amount(_), do: {:error, :amounts_missing}
+  defp check_amount(_), do: {:error, :amounts_missing_or_invalid}
 
   defp submit(transaction) do
-    adapter = Application.get_env(:ewallet, :blockchain_adapter)
+    blockchain_adapter = Application.get_env(:ewallet, :blockchain_adapter)
+    node_adapter = Application.get_env(:ewallet, :node_adapter)
 
     attrs = %{
       from: transaction.from_blockchain_address,
@@ -159,7 +177,6 @@ defmodule EWallet.BlockchainTransactionGate do
       contract_address: transaction.from_token.blockchain_address
     }
 
-    # TODO: add adapters
-    adapter.call({:send, attrs})
+    blockchain_adapter.call({:send, attrs}, node_adapter)
   end
 end

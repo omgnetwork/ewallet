@@ -344,6 +344,24 @@ defmodule EWalletDB.Factory do
     }
   end
 
+  def blockchain_transaction_factory do
+    token = insert(:token)
+
+    %Transaction{
+      idempotency_token: UUID.generate(),
+      payload: %{example: "Payload"},
+      metadata: %{some: "metadata"},
+      from_amount: 100,
+      from_token: token,
+      to_token: token,
+      from_blockchain_address: insert(:blockchain_wallet).address,
+      to_blockchain_address: insert(:blockchain_wallet).address,
+      to_amount: 100,
+      type: "external",
+      originator: %System{}
+    }
+  end
+
   def forget_password_request_factory do
     %ForgetPasswordRequest{
       token: sequence("123"),

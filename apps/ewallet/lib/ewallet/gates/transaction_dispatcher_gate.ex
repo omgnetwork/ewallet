@@ -18,26 +18,17 @@ defmodule EWallet.TransactionDispatcherGate do
   actual transaction to EWallet.LocalTransactionGate once the wallets have been loaded.
   """
   alias EWallet.{
-    AccountFetcher,
-    AmountFetcher,
-    TokenFetcher,
-    TransactionFormatter,
-    TransactionSourceFetcher,
     LocalTransactionGate,
     BlockchainTransactionGate
   }
 
-  alias EWalletDB.{AccountUser, Transaction}
-  alias ActivityLogger.System
-  alias LocalLedger.Transaction, as: LedgerTransaction
-
   def create(actor, %{"from_address" => from, "to_address" => to} = attrs) do
     case BlockchainTransactionGate.blockchain_addresses?([from, to]) do
       [false, false] ->
-        LocalTransactionGate.create(attrs)
+        LocalTransactionGate.create(actor, attrs)
 
       blockchain_addresses ->
-        BlockchainTransactionGate.create(attrs, blockchain_addresses)
+        BlockchainTransactionGate.create(actor, attrs, blockchain_addresses)
     end
   end
 end

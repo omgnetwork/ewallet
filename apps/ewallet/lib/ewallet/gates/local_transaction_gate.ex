@@ -30,6 +30,14 @@ defmodule EWallet.LocalTransactionGate do
   alias ActivityLogger.System
   alias LocalLedger.Transaction, as: LedgerTransaction
 
+  def create(actor, attrs) do
+    with {:ok, _} <- TransactionPolicy.authorize(:create, actor, attrs) do
+      create(attrs)
+    else
+      error -> error
+    end
+  end
+
   def create(attrs) do
     with {:ok, from} <- TransactionSourceFetcher.fetch_from(attrs),
          {:ok, to} <- TransactionSourceFetcher.fetch_to(attrs),
@@ -127,8 +135,4 @@ defmodule EWallet.LocalTransactionGate do
   end
 
   defp link(_), do: nil
-
-  defp authorize(action, actor, data) do
-    TransactionPolicy.authorize(action, actor, data)
-  end
 end

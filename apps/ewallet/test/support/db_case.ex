@@ -23,6 +23,7 @@ defmodule EWallet.DBCase do
   alias EWallet.{MintGate, LocalTransactionGate}
   alias EWalletDB.{Account, BlockchainWallet, Repo, Role}
   alias EWalletConfig.ConfigTestHelper
+  alias Keychain.Wallet
 
   using do
     quote do
@@ -48,7 +49,7 @@ defmodule EWallet.DBCase do
     :ok = Role.insert_default_roles(%ActivityLogger.System{})
     {:ok, account} = :account |> params_for() |> Account.insert()
 
-    {:ok, {address, public_key}} = Keychain.Wallet.generate()
+    {:ok, {address, public_key}} = Wallet.generate()
 
     {:ok, blockchain_wallet} =
       BlockchainWallet.insert(%{
@@ -71,26 +72,14 @@ defmodule EWallet.DBCase do
         "base_url" => "http://localhost:4000",
         "email_adapter" => "test",
         "master_account" => account.id,
-        "primary_hot_wallet" => blockchain_wallet.address
+        "primary_hot_wallet" => blockchain_wallet.address,
+        "blockchain_confirmations_threshold" => 4
       }
     )
 
-    # supervisor = String.to_atom("#{UUID.generate()}")
-
-    # {:ok, _} =
-    #   DynamicSupervisor.start_link(
-    #     name: supervisor,
-    #     strategy: :one_for_one
-    #   )
+    :ok = Application.put_env(:ewallet, :node_adapter, {:dumb, DumbAdapter})
     adapter = Application.get_env(:ewallet, :blockchain_adapter)
-
-    {:ok, adapter_pid} =
-      adapter.start_link(
-        # supervisor: supervisor,
-        adapters: [
-          {:dumb, DumbAdapter}
-        ]
-      )
+    {:ok, adapter_pid} = adapter.start_link([])
 
     %{
       adapter: adapter,

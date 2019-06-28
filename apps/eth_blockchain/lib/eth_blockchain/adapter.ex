@@ -33,6 +33,7 @@ defmodule EthBlockchain.Adapter do
   require Logger
 
   alias EthBlockchain.{
+    Balance,
     Helper,
     Transaction,
     TransactionListener,
@@ -182,6 +183,10 @@ defmodule EthBlockchain.Adapter do
 
   def call({:send, attrs}, adapter, pid) do
     Transaction.send(attrs, adapter, pid)
+  end
+
+  def call({:get_balances, attrs}, adapter, pid) do
+    Balance.get(attrs, adapter, pid)
   end
 
   def call(func_spec, nil, pid) do

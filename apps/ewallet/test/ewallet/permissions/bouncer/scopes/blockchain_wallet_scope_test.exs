@@ -35,7 +35,8 @@ defmodule EWallet.Bouncer.BlockchainWalletScopeTest do
       query = BlockchainWalletScope.scoped_query(permission)
       blockchain_wallet_uuids = query |> Repo.all() |> UUID.get_uuids()
 
-      assert length(blockchain_wallet_uuids) == 2
+      # A hot wallet is generated in DBCase
+      assert length(blockchain_wallet_uuids) == 3
       assert Enum.member?(blockchain_wallet_uuids, blockchain_wallet_1.uuid)
       assert Enum.member?(blockchain_wallet_uuids, blockchain_wallet_2.uuid)
     end
@@ -93,7 +94,8 @@ defmodule EWallet.Bouncer.BlockchainWalletScopeTest do
       query = BlockchainWalletScope.scoped_query(permission)
       blockchain_wallet_uuids = query |> Repo.all() |> UUID.get_uuids()
 
-      assert length(blockchain_wallet_uuids) == 2
+      # A hot wallet is generated in DBCase
+      assert length(blockchain_wallet_uuids) == 3
       assert Enum.member?(blockchain_wallet_uuids, blockchain_wallet_1.uuid)
       assert Enum.member?(blockchain_wallet_uuids, blockchain_wallet_2.uuid)
     end
