@@ -8,14 +8,6 @@ BlockchainWalletSchema:
       type: string
     name:
       type: string
-    user_id:
-      type: string
-    user:
-      $ref: '../user/schemas.yaml#/UserSchema'
-    account_id:
-      type: string
-    account:
-      $ref: '../account/schemas.yaml#/AccountSchema'
     balances:
       type: array
       items:
@@ -24,10 +16,6 @@ BlockchainWalletSchema:
     - object
     - address
     - name
-    - user_id
-    - user
-    - account_id
-    - account
     - balances
 
 BalanceSchema:
