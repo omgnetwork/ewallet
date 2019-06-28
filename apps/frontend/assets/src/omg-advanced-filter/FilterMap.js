@@ -33,8 +33,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Target',
-    key: 'transaction-specify-target',
+    title: 'Target',
+    key: 'transaction-target',
     icon: 'Option-Horizontal',
     page: 'transaction',
     height: 110,
@@ -153,8 +153,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Account',
-    key: 'wallets-specify-account',
+    title: 'Account',
+    key: 'wallets-account',
     icon: 'Option-Horizontal',
     page: 'wallets',
     height: 110,
@@ -168,8 +168,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify User',
-    key: 'wallets-specify-user',
+    title: 'User',
+    key: 'wallets-user',
     icon: 'Option-Horizontal',
     page: 'wallets',
     height: 110,
@@ -284,8 +284,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Wallet',
-    key: 'transaction-requests-specify-wallet',
+    title: 'Wallet',
+    key: 'transaction-requests-wallet',
     icon: 'Option-Horizontal',
     page: 'transaction-requests',
     height: 110,
@@ -300,7 +300,7 @@ export const FILTER_MAP = [
   },
   {
     title: 'Select Token',
-    key: 'transaction-requests-specify-token',
+    key: 'transaction-requests-token',
     icon: 'Option-Horizontal',
     page: 'transaction-requests',
     height: 110,
@@ -390,8 +390,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Transaction Request',
-    key: 'transaction-consumptions-specify-transaction-request',
+    title: 'Transaction Request',
+    key: 'transaction-consumptions-transaction-request',
     icon: 'Option-Horizontal',
     page: 'transaction-consumptions',
     height: 110,
@@ -405,27 +405,23 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Consumer',
-    key: 'transaction-consumptions-specify-consumer',
+    title: 'Consumer',
+    key: 'transaction-consumptions-consumer',
     icon: 'Option-Horizontal',
     page: 'transaction-consumptions',
     height: 110,
-    component: filters.SelectUser,
+    component: filters.SelectWallet,
     default: false,
-    matchAny: [
+    matchAll: [
       {
-        field: 'user.username',
-        comparator: 'contains'
-      },
-      {
-        field: 'user.email',
+        field: 'wallet.address',
         comparator: 'contains'
       }
     ]
   },
   {
-    title: 'Specify Request Wallet',
-    key: 'transaction-consumptions-specify-request-wallet',
+    title: 'Request Wallet',
+    key: 'transaction-consumptions-request-wallet',
     icon: 'Option-Horizontal',
     page: 'transaction-consumptions',
     height: 110,
@@ -557,8 +553,8 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Specify Target',
-    key: 'activitylogs-specify-target',
+    title: 'Target',
+    key: 'activitylogs-target',
     icon: 'Option-Horizontal',
     page: 'activitylogs',
     height: 110,
