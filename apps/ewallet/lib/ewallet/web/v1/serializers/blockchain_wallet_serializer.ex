@@ -25,7 +25,7 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializer do
   }
 
   alias EWalletDB.BlockchainWallet
-  alias Utils.Helpers.{Assoc, DateFormatter}
+  alias Utils.Helpers.DateFormatter
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
