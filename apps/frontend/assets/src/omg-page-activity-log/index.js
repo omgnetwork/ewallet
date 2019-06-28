@@ -299,10 +299,12 @@ class ActivityLogPage extends Component {
         {...this.state}
         {...this.props}
         query={{
-          matchAll: this.state.matchAll,
-          matchAny: this.state.matchAny,
           page: Number(queryString.parse(this.props.location.search).page),
-          ...createSearchActivityLogQuery(search),
+          matchAll: this.state.matchAll,
+          matchAny: [
+            ...createSearchActivityLogQuery(search).matchAny,
+            ...this.state.matchAny
+          ],
           ...query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

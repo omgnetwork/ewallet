@@ -175,9 +175,13 @@ export const FILTER_MAP = [
     height: 110,
     component: filters.SelectUser,
     default: false,
-    matchAll: [
+    matchAny: [
       {
         field: 'user.username',
+        comparator: 'contains'
+      },
+      {
+        field: 'user.email',
         comparator: 'contains'
       }
     ]
@@ -408,9 +412,13 @@ export const FILTER_MAP = [
     height: 110,
     component: filters.SelectUser,
     default: false,
-    matchAll: [
+    matchAny: [
       {
         field: 'user.username',
+        comparator: 'contains'
+      },
+      {
+        field: 'user.email',
         comparator: 'contains'
       }
     ]

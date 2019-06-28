@@ -37,12 +37,12 @@ const SelectUser = ({
             <Select
               value={values[config.key]}
               onChange={onChange}
-              onSelectItem={e => onUpdate({ [config.key]: e.username })}
+              onSelectItem={e => onUpdate({ [config.key]: e.username || e.email })}
               normalPlaceholder='Select user'
               type='select'
               options={data.map(user => {
                 return {
-                  key: user.username,
+                  key: user.username || user.email,
                   value: <UserSelect user={user} />,
                   ...user
                 }

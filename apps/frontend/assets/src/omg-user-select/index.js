@@ -30,11 +30,12 @@ const UserSelect = ({ user }) => {
 
   return (
     <UserSelectContainer>
-      <StyledAvatar image={thumbnail} name={username} />
+      <StyledAvatar image={thumbnail} name={username || provideruserid || email} />
       <DetailContainer>
         <Name>{username || provideruserid || email }</Name>
         <Identifier>
-          {`${identifier} ${(username || provideruserid) ? email : ''}`}
+          {identifier}
+          {`${(username || provideruserid) && email ? ` - ${email}` : ''}`}
         </Identifier>
       </DetailContainer>
     </UserSelectContainer>
