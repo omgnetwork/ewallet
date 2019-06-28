@@ -905,17 +905,17 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
   describe "/token.get_erc20_capabilities" do
     test_with_auths "get erc20 attributes of a contract address" do
-
       response =
         request("/token.get_erc20_capabilities", %{
           contract_address: DumbAdapter.valid_erc20_contract_address()
         })
+
       assert response["success"]
       assert response["data"]["object"] == "erc20_attrs"
       assert response["data"]["name"] == "OMGToken"
       assert response["data"]["symbol"] == "OMG"
       assert response["data"]["decimals"] == 18
-      assert response["data"]["total_supply"] == 100000000000000000000
+      assert response["data"]["total_supply"] == 100_000_000_000_000_000_000
     end
 
     test_with_auths "fails to get attributes for an invalid address" do
@@ -939,7 +939,8 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert response["data"] == %{
                "object" => "error",
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided. `contract_address` is required and must be in a valid format.",
+               "description" =>
+                 "Invalid parameter provided. `contract_address` is required and must be in a valid format.",
                "messages" => nil
              }
     end
@@ -952,9 +953,174 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert response["data"] == %{
                "object" => "error",
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided. `contract_address` is required and must be in a valid format.",
+               "description" =>
+                 "Invalid parameter provided. `contract_address` is required and must be in a valid format.",
                "messages" => nil
              }
+    end
+  end
+
+  describe "/token.set_contract_address" do
+    test_with_auths "sets the blockchain address to a valid existing token" do
+      token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1_000_000_000_000_000_000})
+
+      response =
+        request("/token.set_contract_address", %{
+          id: token.id,
+          contract_address: DumbAdapter.valid_erc20_contract_address()
+        })
+
+      assert response["success"]
+      assert response["data"]["object"] == "token"
+      assert response["data"]["blockchain_address"] == DumbAdapter.valid_erc20_contract_address()
+      assert response["data"]["blockchain_status"] == Token.blockchain_status_confirmed()
+    end
+
+    test_with_auths "fails to update an existing token if contract_address is missing" do
+      token = insert(:token)
+
+      response =
+        request("/token.set_contract_address", %{
+          id: token.id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `id` and `contract_address` are required and must be in a valid format."
+    end
+
+    test_with_auths "fails to update an existing token if contract_address is invalid" do
+      token = insert(:token)
+
+      response =
+        request("/token.set_contract_address", %{
+          id: token.id,
+          contract_address: "123"
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `id` and `contract_address` are required and must be in a valid format."
+    end
+
+    test_with_auths "fails to update an existing token if id is missing" do
+      response =
+        request("/token.set_contract_address", %{
+          contract_address: DumbAdapter.valid_erc20_contract_address()
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `id` and `contract_address` are required and must be in a valid format."
+    end
+
+    test_with_auths "fails to update an existing token if decimals don't match" do
+      token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1})
+
+      response =
+        request("/token.set_contract_address", %{
+          id: token.id,
+          contract_address: DumbAdapter.valid_erc20_contract_address()
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "token:not_matching_contract_info"
+
+      assert response["data"]["description"] ==
+               "The decimal count or the symbol obtained from the contract at the specified address don't match the token."
+    end
+
+    test_with_auths "fails to update an existing token if symbol don't match" do
+      token = insert(:token, %{symbol: "BTC", subunit_to_unit: 1_000_000_000_000_000_000})
+
+      response =
+        request("/token.set_contract_address", %{
+          id: token.id,
+          contract_address: DumbAdapter.valid_erc20_contract_address()
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "token:not_matching_contract_info"
+
+      assert response["data"]["description"] ==
+               "The decimal count or the symbol obtained from the contract at the specified address don't match the token."
+    end
+
+    test_with_auths "Raises 'unauthorized' error if the token can't be found" do
+      response =
+        request("/token.set_contract_address", %{
+          id: "fake",
+          contract_address: DumbAdapter.valid_erc20_contract_address()
+        })
+
+      refute response["success"]
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    defp assert_set_contract_address_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{
+          "blockchain_address" => target.blockchain_address,
+          "blockchain_status" => target.blockchain_status
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
+      token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1_000_000_000_000_000_000})
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/token.set_contract_address", %{
+          id: token.id,
+          contract_address: DumbAdapter.valid_erc20_contract_address()
+        })
+
+      assert response["success"] == true
+
+      token = Token.get(token.id)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_set_contract_address_logs(get_test_admin(), token)
+    end
+
+    test "generates an activity log for a provider request" do
+      token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1_000_000_000_000_000_000})
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/token.set_contract_address", %{
+          id: token.id,
+          contract_address: DumbAdapter.valid_erc20_contract_address()
+        })
+
+      assert response["success"] == true
+
+      token = Token.get(token.id)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_set_contract_address_logs(get_test_key(), token)
     end
   end
 end
