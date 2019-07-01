@@ -46,22 +46,22 @@ defmodule EWallet.Web.V1.TokenOverlay do
 
   def self_filter_fields,
     do: [
-      :id,
-      :symbol,
-      :iso_code,
-      :name,
-      :description,
-      :short_symbol,
-      :subunit,
-      :subunit_to_unit,
-      :symbol_first,
-      :html_entity,
-      :iso_numeric,
-      :smallest_denomination,
-      :locked,
-      :enabled,
-      :inserted_at,
-      :created_at
+      id: nil,
+      symbol: nil,
+      iso_code: nil,
+      name: nil,
+      description: nil,
+      short_symbol: nil,
+      subunit: nil,
+      subunit_to_unit: nil,
+      symbol_first: nil,
+      html_entity: nil,
+      iso_numeric: nil,
+      smallest_denomination: nil,
+      locked: nil,
+      enabled: nil,
+      inserted_at: :datetime,
+      created_at: :datetime
     ]
 
   def filter_fields,
@@ -80,8 +80,8 @@ defmodule EWallet.Web.V1.TokenOverlay do
       smallest_denomination: nil,
       locked: nil,
       enabled: nil,
-      inserted_at: nil,
-      created_at: nil,
+      inserted_at: :datetime,
+      created_at: :datetime,
       account: AccountOverlay.default_preload_assocs()
     ]
 

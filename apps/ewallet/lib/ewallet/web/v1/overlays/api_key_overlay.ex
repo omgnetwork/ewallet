@@ -54,13 +54,13 @@ defmodule EWallet.Web.V1.APIKeyOverlay do
 
   def self_filter_fields,
     do: [
-      :id,
-      :key,
-      :name,
-      :expired,
-      :inserted_at,
-      :updated_at,
-      :deleted_at
+      id: nil,
+      key: nil,
+      name: nil,
+      expired: nil,
+      inserted_at: :datetime,
+      updated_at: :datetime,
+      deleted_at: :datetime
     ]
 
   def filter_fields,
@@ -69,9 +69,9 @@ defmodule EWallet.Web.V1.APIKeyOverlay do
       key: nil,
       name: nil,
       expired: nil,
-      inserted_at: nil,
-      updated_at: nil,
-      deleted_at: nil,
+      inserted_at: :datetime,
+      updated_at: :datetime,
+      deleted_at: :datetime,
       creator_user: UserOverlay.self_filter_fields(),
       creator_key: KeyOverlay.self_filter_fields()
     ]

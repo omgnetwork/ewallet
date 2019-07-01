@@ -68,16 +68,16 @@ defmodule EWallet.Web.V1.TransactionOverlay do
 
   def self_filter_fields,
     do: [
-      :id,
-      :idempotency_token,
-      :local_ledger_uuid,
-      :error_code,
-      :error_description,
-      :status,
-      :type,
-      :calculated_at,
-      :inserted_at,
-      :updated_at
+      id: nil,
+      idempotency_token: nil,
+      local_ledger_uuid: nil,
+      error_code: nil,
+      error_description: nil,
+      status: nil,
+      type: nil,
+      calculated_at: :datetime,
+      inserted_at: :datetime,
+      updated_at: :datetime
     ]
 
   def filter_fields,
@@ -89,9 +89,9 @@ defmodule EWallet.Web.V1.TransactionOverlay do
       error_description: nil,
       status: nil,
       type: nil,
-      calculated_at: nil,
-      inserted_at: nil,
-      updated_at: nil,
+      calculated_at: :datetime,
+      inserted_at: :datetime,
+      updated_at: :datetime,
       # From
       from_amount: nil,
       from_token: TokenOverlay.self_filter_fields(),

@@ -57,15 +57,15 @@ defmodule EWallet.Web.V1.UserOverlay do
 
   def self_filter_fields,
     do: [
-      :id,
-      :username,
-      :email,
-      :full_name,
-      :calling_name,
-      :provider_user_id,
-      :global_role,
-      :inserted_at,
-      :created_at
+      id: nil,
+      username: nil,
+      email: nil,
+      full_name: nil,
+      calling_name: nil,
+      provider_user_id: nil,
+      global_role: nil,
+      inserted_at: :datetime,
+      created_at: :datetime
     ]
 
   def filter_fields,
@@ -74,8 +74,8 @@ defmodule EWallet.Web.V1.UserOverlay do
       username: nil,
       email: nil,
       provider_user_id: nil,
-      inserted_at: nil,
-      created_at: nil,
+      inserted_at: :datetime,
+      created_at: :datetime,
       global_role: nil,
       invite: InviteOverlay.default_preload_assocs(),
       wallets: WalletOverlay.default_preload_assocs(),

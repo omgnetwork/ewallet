@@ -43,14 +43,14 @@ defmodule EWallet.Web.V1.ConfigurationOverlay do
 
   def self_filter_fields,
     do: [
-      :id,
-      :key,
-      :type,
-      :description,
-      :parent,
-      :parent_value,
-      :secret,
-      :position
+      id: nil,
+      key: nil,
+      type: nil,
+      description: nil,
+      parent: nil,
+      parent_value: nil,
+      secret: nil,
+      position: nil
     ]
 
   def filter_fields,
